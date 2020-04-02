@@ -32,7 +32,7 @@ func (a *CoordinatorApproval) ComputeApprovalHash() (common.Hash, error) {
 
 	var message = map[string]interface{}{
 		"txOrigin":             a.TxOrigin.Hex(),
-		"transactionHash":      a.TransactionHash.Hex(),
+		"transactionHash":      a.TransactionHash.Bytes(),
 		"transactionSignature": a.TransactionSignature,
 	}
 
