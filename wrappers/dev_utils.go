@@ -172,8 +172,8 @@ func (_DevUtils *DevUtilsTransactorRaw) Transact(opts *bind.TransactOpts, method
 	return _DevUtils.Contract.contract.Transact(opts, method, params...)
 }
 
-// Struct0 is an auto generated low-level Go binding around an user-defined struct.
-type Struct0 struct {
+// Order is an auto generated low-level Go binding around an user-defined struct.
+type Order struct {
 	MakerAddress          common.Address
 	TakerAddress          common.Address
 	FeeRecipientAddress   common.Address
@@ -190,8 +190,8 @@ type Struct0 struct {
 	TakerFeeAssetData     []byte
 }
 
-// Struct1 is an auto generated low-level Go binding around an user-defined struct.
-type Struct1 struct {
+// OrderInfo is an auto generated low-level Go binding around an user-defined struct.
+type OrderInfo struct {
 	OrderStatus                 uint8
 	OrderHash                   [32]byte
 	OrderTakerAssetFilledAmount *big.Int
@@ -947,16 +947,16 @@ func (_DevUtils *DevUtilsCallerSession) DecodeTransactionExecutionError(encoded 
 
 // DecodeZeroExTransactionData is a free data retrieval call binding the contract method 0x6f83188e.
 //
-// Solidity: function decodeZeroExTransactionData(bytes transactionData) constant returns(string functionName, []Struct0 orders, uint256[] takerAssetFillAmounts, bytes[] signatures)
+// Solidity: function decodeZeroExTransactionData(bytes transactionData) constant returns(string functionName, []Order orders, uint256[] takerAssetFillAmounts, bytes[] signatures)
 func (_DevUtils *DevUtilsCaller) DecodeZeroExTransactionData(opts *bind.CallOpts, transactionData []byte) (struct {
 	FunctionName          string
-	Orders                []Struct0
+	Orders                []Order
 	TakerAssetFillAmounts []*big.Int
 	Signatures            [][]byte
 }, error) {
 	ret := new(struct {
 		FunctionName          string
-		Orders                []Struct0
+		Orders                []Order
 		TakerAssetFillAmounts []*big.Int
 		Signatures            [][]byte
 	})
@@ -967,10 +967,10 @@ func (_DevUtils *DevUtilsCaller) DecodeZeroExTransactionData(opts *bind.CallOpts
 
 // DecodeZeroExTransactionData is a free data retrieval call binding the contract method 0x6f83188e.
 //
-// Solidity: function decodeZeroExTransactionData(bytes transactionData) constant returns(string functionName, []Struct0 orders, uint256[] takerAssetFillAmounts, bytes[] signatures)
+// Solidity: function decodeZeroExTransactionData(bytes transactionData) constant returns(string functionName, []Order orders, uint256[] takerAssetFillAmounts, bytes[] signatures)
 func (_DevUtils *DevUtilsSession) DecodeZeroExTransactionData(transactionData []byte) (struct {
 	FunctionName          string
-	Orders                []Struct0
+	Orders                []Order
 	TakerAssetFillAmounts []*big.Int
 	Signatures            [][]byte
 }, error) {
@@ -979,10 +979,10 @@ func (_DevUtils *DevUtilsSession) DecodeZeroExTransactionData(transactionData []
 
 // DecodeZeroExTransactionData is a free data retrieval call binding the contract method 0x6f83188e.
 //
-// Solidity: function decodeZeroExTransactionData(bytes transactionData) constant returns(string functionName, []Struct0 orders, uint256[] takerAssetFillAmounts, bytes[] signatures)
+// Solidity: function decodeZeroExTransactionData(bytes transactionData) constant returns(string functionName, []Order orders, uint256[] takerAssetFillAmounts, bytes[] signatures)
 func (_DevUtils *DevUtilsCallerSession) DecodeZeroExTransactionData(transactionData []byte) (struct {
 	FunctionName          string
-	Orders                []Struct0
+	Orders                []Order
 	TakerAssetFillAmounts []*big.Int
 	Signatures            [][]byte
 }, error) {
@@ -1297,14 +1297,14 @@ func (_DevUtils *DevUtilsCallerSession) GetEthBalances(addresses []common.Addres
 
 // GetOrderRelevantState is a free data retrieval call binding the contract method 0xe77286eb.
 //
-// Solidity: function getOrderRelevantState(Struct0 order, bytes signature) constant returns(Struct1 orderInfo, uint256 fillableTakerAssetAmount, bool isValidSignature)
-func (_DevUtils *DevUtilsCaller) GetOrderRelevantState(opts *bind.CallOpts, order Struct0, signature []byte) (struct {
-	OrderInfo                Struct1
+// Solidity: function getOrderRelevantState(Order order, bytes signature) constant returns(OrderInfo orderInfo, uint256 fillableTakerAssetAmount, bool isValidSignature)
+func (_DevUtils *DevUtilsCaller) GetOrderRelevantState(opts *bind.CallOpts, order Order, signature []byte) (struct {
+	OrderInfo                OrderInfo
 	FillableTakerAssetAmount *big.Int
 	IsValidSignature         bool
 }, error) {
 	ret := new(struct {
-		OrderInfo                Struct1
+		OrderInfo                OrderInfo
 		FillableTakerAssetAmount *big.Int
 		IsValidSignature         bool
 	})
@@ -1315,9 +1315,9 @@ func (_DevUtils *DevUtilsCaller) GetOrderRelevantState(opts *bind.CallOpts, orde
 
 // GetOrderRelevantState is a free data retrieval call binding the contract method 0xe77286eb.
 //
-// Solidity: function getOrderRelevantState(Struct0 order, bytes signature) constant returns(Struct1 orderInfo, uint256 fillableTakerAssetAmount, bool isValidSignature)
-func (_DevUtils *DevUtilsSession) GetOrderRelevantState(order Struct0, signature []byte) (struct {
-	OrderInfo                Struct1
+// Solidity: function getOrderRelevantState(Order order, bytes signature) constant returns(OrderInfo orderInfo, uint256 fillableTakerAssetAmount, bool isValidSignature)
+func (_DevUtils *DevUtilsSession) GetOrderRelevantState(order Order, signature []byte) (struct {
+	OrderInfo                OrderInfo
 	FillableTakerAssetAmount *big.Int
 	IsValidSignature         bool
 }, error) {
@@ -1326,9 +1326,9 @@ func (_DevUtils *DevUtilsSession) GetOrderRelevantState(order Struct0, signature
 
 // GetOrderRelevantState is a free data retrieval call binding the contract method 0xe77286eb.
 //
-// Solidity: function getOrderRelevantState(Struct0 order, bytes signature) constant returns(Struct1 orderInfo, uint256 fillableTakerAssetAmount, bool isValidSignature)
-func (_DevUtils *DevUtilsCallerSession) GetOrderRelevantState(order Struct0, signature []byte) (struct {
-	OrderInfo                Struct1
+// Solidity: function getOrderRelevantState(Order order, bytes signature) constant returns(OrderInfo orderInfo, uint256 fillableTakerAssetAmount, bool isValidSignature)
+func (_DevUtils *DevUtilsCallerSession) GetOrderRelevantState(order Order, signature []byte) (struct {
+	OrderInfo                OrderInfo
 	FillableTakerAssetAmount *big.Int
 	IsValidSignature         bool
 }, error) {
@@ -1337,14 +1337,14 @@ func (_DevUtils *DevUtilsCallerSession) GetOrderRelevantState(order Struct0, sig
 
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
-// Solidity: function getOrderRelevantStates([]Struct0 orders, bytes[] signatures) constant returns([]Struct1 ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (_DevUtils *DevUtilsCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Struct0, signatures [][]byte) (struct {
-	OrdersInfo                []Struct1
+// Solidity: function getOrderRelevantStates([]Order orders, bytes[] signatures) constant returns([]OrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+func (_DevUtils *DevUtilsCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Order, signatures [][]byte) (struct {
+	OrdersInfo                []OrderInfo
 	FillableTakerAssetAmounts []*big.Int
 	IsValidSignature          []bool
 }, error) {
 	ret := new(struct {
-		OrdersInfo                []Struct1
+		OrdersInfo                []OrderInfo
 		FillableTakerAssetAmounts []*big.Int
 		IsValidSignature          []bool
 	})
@@ -1355,9 +1355,9 @@ func (_DevUtils *DevUtilsCaller) GetOrderRelevantStates(opts *bind.CallOpts, ord
 
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
-// Solidity: function getOrderRelevantStates([]Struct0 orders, bytes[] signatures) constant returns([]Struct1 ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (_DevUtils *DevUtilsSession) GetOrderRelevantStates(orders []Struct0, signatures [][]byte) (struct {
-	OrdersInfo                []Struct1
+// Solidity: function getOrderRelevantStates([]Order orders, bytes[] signatures) constant returns([]OrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+func (_DevUtils *DevUtilsSession) GetOrderRelevantStates(orders []Order, signatures [][]byte) (struct {
+	OrdersInfo                []OrderInfo
 	FillableTakerAssetAmounts []*big.Int
 	IsValidSignature          []bool
 }, error) {
@@ -1366,9 +1366,9 @@ func (_DevUtils *DevUtilsSession) GetOrderRelevantStates(orders []Struct0, signa
 
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
-// Solidity: function getOrderRelevantStates([]Struct0 orders, bytes[] signatures) constant returns([]Struct1 ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (_DevUtils *DevUtilsCallerSession) GetOrderRelevantStates(orders []Struct0, signatures [][]byte) (struct {
-	OrdersInfo                []Struct1
+// Solidity: function getOrderRelevantStates([]Order orders, bytes[] signatures) constant returns([]OrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+func (_DevUtils *DevUtilsCallerSession) GetOrderRelevantStates(orders []Order, signatures [][]byte) (struct {
+	OrdersInfo                []OrderInfo
 	FillableTakerAssetAmounts []*big.Int
 	IsValidSignature          []bool
 }, error) {
@@ -1403,43 +1403,43 @@ func (_DevUtils *DevUtilsCallerSession) GetTransferableAssetAmount(ownerAddress 
 
 // GetSimulatedOrderTransferResults is a paid mutator transaction binding the contract method 0xd3637905.
 //
-// Solidity: function getSimulatedOrderTransferResults(Struct0 order, address takerAddress, uint256 takerAssetFillAmount) returns(uint8 orderTransferResults)
-func (_DevUtils *DevUtilsTransactor) GetSimulatedOrderTransferResults(opts *bind.TransactOpts, order Struct0, takerAddress common.Address, takerAssetFillAmount *big.Int) (*types.Transaction, error) {
+// Solidity: function getSimulatedOrderTransferResults(Order order, address takerAddress, uint256 takerAssetFillAmount) returns(uint8 orderTransferResults)
+func (_DevUtils *DevUtilsTransactor) GetSimulatedOrderTransferResults(opts *bind.TransactOpts, order Order, takerAddress common.Address, takerAssetFillAmount *big.Int) (*types.Transaction, error) {
 	return _DevUtils.contract.Transact(opts, "getSimulatedOrderTransferResults", order, takerAddress, takerAssetFillAmount)
 }
 
 // GetSimulatedOrderTransferResults is a paid mutator transaction binding the contract method 0xd3637905.
 //
-// Solidity: function getSimulatedOrderTransferResults(Struct0 order, address takerAddress, uint256 takerAssetFillAmount) returns(uint8 orderTransferResults)
-func (_DevUtils *DevUtilsSession) GetSimulatedOrderTransferResults(order Struct0, takerAddress common.Address, takerAssetFillAmount *big.Int) (*types.Transaction, error) {
+// Solidity: function getSimulatedOrderTransferResults(Order order, address takerAddress, uint256 takerAssetFillAmount) returns(uint8 orderTransferResults)
+func (_DevUtils *DevUtilsSession) GetSimulatedOrderTransferResults(order Order, takerAddress common.Address, takerAssetFillAmount *big.Int) (*types.Transaction, error) {
 	return _DevUtils.Contract.GetSimulatedOrderTransferResults(&_DevUtils.TransactOpts, order, takerAddress, takerAssetFillAmount)
 }
 
 // GetSimulatedOrderTransferResults is a paid mutator transaction binding the contract method 0xd3637905.
 //
-// Solidity: function getSimulatedOrderTransferResults(Struct0 order, address takerAddress, uint256 takerAssetFillAmount) returns(uint8 orderTransferResults)
-func (_DevUtils *DevUtilsTransactorSession) GetSimulatedOrderTransferResults(order Struct0, takerAddress common.Address, takerAssetFillAmount *big.Int) (*types.Transaction, error) {
+// Solidity: function getSimulatedOrderTransferResults(Order order, address takerAddress, uint256 takerAssetFillAmount) returns(uint8 orderTransferResults)
+func (_DevUtils *DevUtilsTransactorSession) GetSimulatedOrderTransferResults(order Order, takerAddress common.Address, takerAssetFillAmount *big.Int) (*types.Transaction, error) {
 	return _DevUtils.Contract.GetSimulatedOrderTransferResults(&_DevUtils.TransactOpts, order, takerAddress, takerAssetFillAmount)
 }
 
 // GetSimulatedOrdersTransferResults is a paid mutator transaction binding the contract method 0xa5cd62ba.
 //
-// Solidity: function getSimulatedOrdersTransferResults([]Struct0 orders, address[] takerAddresses, uint256[] takerAssetFillAmounts) returns(uint8[] orderTransferResults)
-func (_DevUtils *DevUtilsTransactor) GetSimulatedOrdersTransferResults(opts *bind.TransactOpts, orders []Struct0, takerAddresses []common.Address, takerAssetFillAmounts []*big.Int) (*types.Transaction, error) {
+// Solidity: function getSimulatedOrdersTransferResults([]Order orders, address[] takerAddresses, uint256[] takerAssetFillAmounts) returns(uint8[] orderTransferResults)
+func (_DevUtils *DevUtilsTransactor) GetSimulatedOrdersTransferResults(opts *bind.TransactOpts, orders []Order, takerAddresses []common.Address, takerAssetFillAmounts []*big.Int) (*types.Transaction, error) {
 	return _DevUtils.contract.Transact(opts, "getSimulatedOrdersTransferResults", orders, takerAddresses, takerAssetFillAmounts)
 }
 
 // GetSimulatedOrdersTransferResults is a paid mutator transaction binding the contract method 0xa5cd62ba.
 //
-// Solidity: function getSimulatedOrdersTransferResults([]Struct0 orders, address[] takerAddresses, uint256[] takerAssetFillAmounts) returns(uint8[] orderTransferResults)
-func (_DevUtils *DevUtilsSession) GetSimulatedOrdersTransferResults(orders []Struct0, takerAddresses []common.Address, takerAssetFillAmounts []*big.Int) (*types.Transaction, error) {
+// Solidity: function getSimulatedOrdersTransferResults([]Order orders, address[] takerAddresses, uint256[] takerAssetFillAmounts) returns(uint8[] orderTransferResults)
+func (_DevUtils *DevUtilsSession) GetSimulatedOrdersTransferResults(orders []Order, takerAddresses []common.Address, takerAssetFillAmounts []*big.Int) (*types.Transaction, error) {
 	return _DevUtils.Contract.GetSimulatedOrdersTransferResults(&_DevUtils.TransactOpts, orders, takerAddresses, takerAssetFillAmounts)
 }
 
 // GetSimulatedOrdersTransferResults is a paid mutator transaction binding the contract method 0xa5cd62ba.
 //
-// Solidity: function getSimulatedOrdersTransferResults([]Struct0 orders, address[] takerAddresses, uint256[] takerAssetFillAmounts) returns(uint8[] orderTransferResults)
-func (_DevUtils *DevUtilsTransactorSession) GetSimulatedOrdersTransferResults(orders []Struct0, takerAddresses []common.Address, takerAssetFillAmounts []*big.Int) (*types.Transaction, error) {
+// Solidity: function getSimulatedOrdersTransferResults([]Order orders, address[] takerAddresses, uint256[] takerAssetFillAmounts) returns(uint8[] orderTransferResults)
+func (_DevUtils *DevUtilsTransactorSession) GetSimulatedOrdersTransferResults(orders []Order, takerAddresses []common.Address, takerAssetFillAmounts []*big.Int) (*types.Transaction, error) {
 	return _DevUtils.Contract.GetSimulatedOrdersTransferResults(&_DevUtils.TransactOpts, orders, takerAddresses, takerAssetFillAmounts)
 }
 

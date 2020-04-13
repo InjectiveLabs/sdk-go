@@ -11,8 +11,8 @@ import (
 	"github.com/InjectiveLabs/zeroex-go/wrappers"
 )
 
-func OrdersToTrimmed(orders []*SignedOrder) []wrappers.TrimmedOrder {
-	trimmedOrders := make([]wrappers.TrimmedOrder, len(orders))
+func OrdersToTrimmed(orders []*SignedOrder) []wrappers.Order {
+	trimmedOrders := make([]wrappers.Order, len(orders))
 	for idx, o := range orders {
 		trimmedOrders[idx] = o.Trim()
 	}
@@ -91,7 +91,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 	switch ExchangeFunctionName(method.Name) {
 	case FillOrder:
 		inputs := struct {
-			Order                wrappers.TrimmedOrder
+			Order                wrappers.Order
 			TakerAssetFillAmount *big.Int
 			Signature            []byte
 		}{}
@@ -112,7 +112,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		txData.Signatures[0] = inputs.Signature
 	case BatchFillOrders:
 		inputs := struct {
-			Orders                []wrappers.TrimmedOrder
+			Orders                []wrappers.Order
 			TakerAssetFillAmounts []*big.Int
 			Signatures            [][]byte
 		}{}

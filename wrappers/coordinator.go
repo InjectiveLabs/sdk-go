@@ -27,33 +27,6 @@ var (
 	_ = event.NewSubscription
 )
 
-// LibOrderOrder is an auto generated low-level Go binding around an user-defined struct.
-type LibOrderOrder struct {
-	MakerAddress          common.Address
-	TakerAddress          common.Address
-	FeeRecipientAddress   common.Address
-	SenderAddress         common.Address
-	MakerAssetAmount      *big.Int
-	TakerAssetAmount      *big.Int
-	MakerFee              *big.Int
-	TakerFee              *big.Int
-	ExpirationTimeSeconds *big.Int
-	Salt                  *big.Int
-	MakerAssetData        []byte
-	TakerAssetData        []byte
-	MakerFeeAssetData     []byte
-	TakerFeeAssetData     []byte
-}
-
-// LibZeroExTransactionZeroExTransaction is an auto generated low-level Go binding around an user-defined struct.
-type LibZeroExTransactionZeroExTransaction struct {
-	Salt                  *big.Int
-	ExpirationTimeSeconds *big.Int
-	GasPrice              *big.Int
-	SignerAddress         common.Address
-	Data                  []byte
-}
-
 // MixinCoordinatorApprovalCoordinatorApproval is an auto generated low-level Go binding around an user-defined struct.
 type MixinCoordinatorApprovalCoordinatorApproval struct {
 	TxOrigin             common.Address
@@ -338,8 +311,8 @@ func (_Coordinator *CoordinatorCallerSession) EIP712EXCHANGEDOMAINHASH() ([32]by
 
 // AssertValidCoordinatorApprovals is a free data retrieval call binding the contract method 0x52813679.
 //
-// Solidity: function assertValidCoordinatorApprovals(LibZeroExTransactionZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) constant returns()
-func (_Coordinator *CoordinatorCaller) AssertValidCoordinatorApprovals(opts *bind.CallOpts, transaction LibZeroExTransactionZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) error {
+// Solidity: function assertValidCoordinatorApprovals(ZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) constant returns()
+func (_Coordinator *CoordinatorCaller) AssertValidCoordinatorApprovals(opts *bind.CallOpts, transaction ZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) error {
 	var ()
 	out := &[]interface{}{}
 	err := _Coordinator.contract.Call(opts, out, "assertValidCoordinatorApprovals", transaction, txOrigin, transactionSignature, approvalSignatures)
@@ -348,24 +321,24 @@ func (_Coordinator *CoordinatorCaller) AssertValidCoordinatorApprovals(opts *bin
 
 // AssertValidCoordinatorApprovals is a free data retrieval call binding the contract method 0x52813679.
 //
-// Solidity: function assertValidCoordinatorApprovals(LibZeroExTransactionZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) constant returns()
-func (_Coordinator *CoordinatorSession) AssertValidCoordinatorApprovals(transaction LibZeroExTransactionZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) error {
+// Solidity: function assertValidCoordinatorApprovals(ZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) constant returns()
+func (_Coordinator *CoordinatorSession) AssertValidCoordinatorApprovals(transaction ZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) error {
 	return _Coordinator.Contract.AssertValidCoordinatorApprovals(&_Coordinator.CallOpts, transaction, txOrigin, transactionSignature, approvalSignatures)
 }
 
 // AssertValidCoordinatorApprovals is a free data retrieval call binding the contract method 0x52813679.
 //
-// Solidity: function assertValidCoordinatorApprovals(LibZeroExTransactionZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) constant returns()
-func (_Coordinator *CoordinatorCallerSession) AssertValidCoordinatorApprovals(transaction LibZeroExTransactionZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) error {
+// Solidity: function assertValidCoordinatorApprovals(ZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) constant returns()
+func (_Coordinator *CoordinatorCallerSession) AssertValidCoordinatorApprovals(transaction ZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) error {
 	return _Coordinator.Contract.AssertValidCoordinatorApprovals(&_Coordinator.CallOpts, transaction, txOrigin, transactionSignature, approvalSignatures)
 }
 
 // DecodeOrdersFromFillData is a free data retrieval call binding the contract method 0xee55b968.
 //
-// Solidity: function decodeOrdersFromFillData(bytes data) constant returns([]LibOrderOrder orders)
-func (_Coordinator *CoordinatorCaller) DecodeOrdersFromFillData(opts *bind.CallOpts, data []byte) ([]LibOrderOrder, error) {
+// Solidity: function decodeOrdersFromFillData(bytes data) constant returns([]Order orders)
+func (_Coordinator *CoordinatorCaller) DecodeOrdersFromFillData(opts *bind.CallOpts, data []byte) ([]Order, error) {
 	var (
-		ret0 = new([]LibOrderOrder)
+		ret0 = new([]Order)
 	)
 	out := ret0
 	err := _Coordinator.contract.Call(opts, out, "decodeOrdersFromFillData", data)
@@ -374,15 +347,15 @@ func (_Coordinator *CoordinatorCaller) DecodeOrdersFromFillData(opts *bind.CallO
 
 // DecodeOrdersFromFillData is a free data retrieval call binding the contract method 0xee55b968.
 //
-// Solidity: function decodeOrdersFromFillData(bytes data) constant returns([]LibOrderOrder orders)
-func (_Coordinator *CoordinatorSession) DecodeOrdersFromFillData(data []byte) ([]LibOrderOrder, error) {
+// Solidity: function decodeOrdersFromFillData(bytes data) constant returns([]Order orders)
+func (_Coordinator *CoordinatorSession) DecodeOrdersFromFillData(data []byte) ([]Order, error) {
 	return _Coordinator.Contract.DecodeOrdersFromFillData(&_Coordinator.CallOpts, data)
 }
 
 // DecodeOrdersFromFillData is a free data retrieval call binding the contract method 0xee55b968.
 //
-// Solidity: function decodeOrdersFromFillData(bytes data) constant returns([]LibOrderOrder orders)
-func (_Coordinator *CoordinatorCallerSession) DecodeOrdersFromFillData(data []byte) ([]LibOrderOrder, error) {
+// Solidity: function decodeOrdersFromFillData(bytes data) constant returns([]Order orders)
+func (_Coordinator *CoordinatorCallerSession) DecodeOrdersFromFillData(data []byte) ([]Order, error) {
 	return _Coordinator.Contract.DecodeOrdersFromFillData(&_Coordinator.CallOpts, data)
 }
 
@@ -440,22 +413,22 @@ func (_Coordinator *CoordinatorCallerSession) GetSignerAddress(hash [32]byte, si
 
 // ExecuteTransaction is a paid mutator transaction binding the contract method 0xda4fe074.
 //
-// Solidity: function executeTransaction(LibZeroExTransactionZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) returns()
-func (_Coordinator *CoordinatorTransactor) ExecuteTransaction(opts *bind.TransactOpts, transaction LibZeroExTransactionZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) (*types.Transaction, error) {
+// Solidity: function executeTransaction(ZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) returns()
+func (_Coordinator *CoordinatorTransactor) ExecuteTransaction(opts *bind.TransactOpts, transaction ZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) (*types.Transaction, error) {
 	return _Coordinator.contract.Transact(opts, "executeTransaction", transaction, txOrigin, transactionSignature, approvalSignatures)
 }
 
 // ExecuteTransaction is a paid mutator transaction binding the contract method 0xda4fe074.
 //
-// Solidity: function executeTransaction(LibZeroExTransactionZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) returns()
-func (_Coordinator *CoordinatorSession) ExecuteTransaction(transaction LibZeroExTransactionZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) (*types.Transaction, error) {
+// Solidity: function executeTransaction(ZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) returns()
+func (_Coordinator *CoordinatorSession) ExecuteTransaction(transaction ZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) (*types.Transaction, error) {
 	return _Coordinator.Contract.ExecuteTransaction(&_Coordinator.TransactOpts, transaction, txOrigin, transactionSignature, approvalSignatures)
 }
 
 // ExecuteTransaction is a paid mutator transaction binding the contract method 0xda4fe074.
 //
-// Solidity: function executeTransaction(LibZeroExTransactionZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) returns()
-func (_Coordinator *CoordinatorTransactorSession) ExecuteTransaction(transaction LibZeroExTransactionZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) (*types.Transaction, error) {
+// Solidity: function executeTransaction(ZeroExTransaction transaction, address txOrigin, bytes transactionSignature, bytes[] approvalSignatures) returns()
+func (_Coordinator *CoordinatorTransactorSession) ExecuteTransaction(transaction ZeroExTransaction, txOrigin common.Address, transactionSignature []byte, approvalSignatures [][]byte) (*types.Transaction, error) {
 	return _Coordinator.Contract.ExecuteTransaction(&_Coordinator.TransactOpts, transaction, txOrigin, transactionSignature, approvalSignatures)
 }
 

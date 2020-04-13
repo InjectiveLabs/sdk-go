@@ -140,8 +140,8 @@ func SignOrder(signer Signer, order *Order) (*SignedOrder, error) {
 
 // Trim converts the order to a TrimmedOrder, which is the format expected by
 // our smart contracts. It removes the ChainID and ExchangeAddress fields.
-func (s *SignedOrder) Trim() wrappers.TrimmedOrder {
-	return wrappers.TrimmedOrder{
+func (s *SignedOrder) Trim() wrappers.Order {
+	return wrappers.Order{
 		MakerAddress:          s.MakerAddress,
 		TakerAddress:          s.TakerAddress,
 		FeeRecipientAddress:   s.FeeRecipientAddress,
@@ -159,7 +159,7 @@ func (s *SignedOrder) Trim() wrappers.TrimmedOrder {
 	}
 }
 
-func FromTrimmedOrder(order wrappers.TrimmedOrder) *Order {
+func FromTrimmedOrder(order wrappers.Order) *Order {
 	return &Order{
 		MakerAddress:          order.MakerAddress,
 		MakerAssetData:        order.MakerAssetData,
