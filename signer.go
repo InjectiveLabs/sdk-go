@@ -17,6 +17,7 @@ import (
 // Signer defines the methods needed to act as a elliptic curve signer
 type Signer interface {
 	EthSign(message []byte, signerAddress common.Address) (*ECSignature, error)
+	EcRecover(message []byte, sig []byte) (common.Address, error)
 }
 
 // SignatureType represents the type of 0x signature encountered
@@ -90,6 +91,10 @@ func (e *EthRPCSigner) EthSign(message []byte, signerAddress common.Address) (*E
 	return ecSignature, nil
 }
 
+func (e *EthRPCSigner) EcRecover(message []byte, sig []byte) (common.Address, error) {
+	return ecRecover(message, sig)
+}
+
 // LocalSigner is a signer that produces an `eth_sign`-compatible signature locally using
 // a private key
 type LocalSigner struct {
@@ -120,6 +125,34 @@ func (l *LocalSigner) EthSign(message []byte, signerAddress common.Address) (*EC
 	}
 
 	return ecSignature, nil
+}
+
+func (l *LocalSigner) EcRecover(message []byte, sig []byte) (common.Address, error) {
+	return ecRecover(message, sig)
+}
+
+func ecRecover(message []byte, sig []byte) (address common.Address, err error) {
+	if len(sig) < 65 {
+		err = errors.New("signature is too short")
+		return
+	}
+
+	digestHash, _ := textAndHash(message)
+
+	ecSignature := make([]byte, 65)
+	copy(ecSignature[:32], sig[1:33])    // R
+	copy(ecSignature[32:64], sig[33:65]) // S
+	ecSignature[64] = sig[0] - 27        // V (0 or 1)
+
+	var pubKey *ecdsa.PublicKey
+
+	if pubKey, err = crypto.SigToPub(digestHash, ecSignature); err != nil {
+		err = errors.Wrap(err, "failed get pub key from ecSignature")
+		return
+	}
+
+	address = crypto.PubkeyToAddress(*pubKey)
+	return address, nil
 }
 
 // Sign signs the message with the corresponding private key to the supplied signerAddress and returns
@@ -193,6 +226,10 @@ func (l *LocalKeystoreSigner) EthSign(message []byte, signerAddress common.Addre
 	}
 
 	return ecSignature, nil
+}
+
+func (l *LocalKeystoreSigner) EcRecover(message []byte, sig []byte) (common.Address, error) {
+	return ecRecover(message, sig)
 }
 
 // Sign signs the message with the corresponding private key to the supplied signerAddress and returns
