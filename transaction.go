@@ -73,6 +73,7 @@ type ZeroExTransactionData struct {
 	FunctionName          ExchangeFunctionName
 	Orders                []*Order
 	TakerAssetFillAmounts []*big.Int
+	MakerAssetFillAmount  *big.Int
 	Signatures            [][]byte
 }
 

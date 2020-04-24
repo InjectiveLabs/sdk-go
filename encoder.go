@@ -102,7 +102,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		}
 
 		txData = &ZeroExTransactionData{
-			FunctionName:          FillOrder,
+			FunctionName:          ExchangeFunctionName(method.Name),
 			Orders:                make([]*Order, 1),
 			TakerAssetFillAmounts: make([]*big.Int, 1),
 			Signatures:            make([][]byte, 1),
@@ -123,7 +123,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		}
 
 		txData = &ZeroExTransactionData{
-			FunctionName:          FillOrder,
+			FunctionName:          ExchangeFunctionName(method.Name),
 			Orders:                make([]*Order, len(inputs.Orders)),
 			TakerAssetFillAmounts: make([]*big.Int, len(inputs.TakerAssetFillAmounts)),
 			Signatures:            make([][]byte, len(inputs.Signatures)),
@@ -137,6 +137,37 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		for idx, signature := range inputs.Signatures {
 			txData.Signatures[idx] = signature
 		}
+
+	case MarketBuyOrdersNoThrow:
+	case MarketSellOrdersNoThrow:
+	case MarketBuyOrdersFillOrKill:
+	case MarketSellOrdersFillOrKill:
+		inputs := struct {
+			Orders               []wrappers.Order
+			MakerAssetFillAmount *big.Int
+			Signatures           [][]byte
+		}{}
+
+		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
+			err = errors.Wrap(err, "failed to unpack method inputs")
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: ExchangeFunctionName(method.Name),
+			Orders:       make([]*Order, len(inputs.Orders)),
+			Signatures:   make([][]byte, len(inputs.Signatures)),
+		}
+		for idx, order := range inputs.Orders {
+			txData.Orders[idx] = FromTrimmedOrder(order)
+		}
+
+		txData.MakerAssetFillAmount = inputs.MakerAssetFillAmount
+
+		for idx, signature := range inputs.Signatures {
+			txData.Signatures[idx] = signature
+		}
+
 	default:
 		panic("not supported: " + method.Name)
 	}
