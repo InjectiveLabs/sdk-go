@@ -138,10 +138,10 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			txData.Signatures[idx] = signature
 		}
 
-	case MarketBuyOrdersNoThrow:
-	case MarketSellOrdersNoThrow:
-	case MarketBuyOrdersFillOrKill:
-	case MarketSellOrdersFillOrKill:
+	case MarketBuyOrdersNoThrow,
+		MarketSellOrdersNoThrow,
+		MarketBuyOrdersFillOrKill,
+		MarketSellOrdersFillOrKill:
 		inputs := struct {
 			Orders               []wrappers.Order
 			MakerAssetFillAmount *big.Int
