@@ -168,6 +168,40 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			txData.Signatures[idx] = signature
 		}
 
+	case CancelOrder:
+		inputs := struct {
+			Order wrappers.Order
+		}{}
+
+		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
+			err = errors.Wrap(err, "failed to unpack method inputs")
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: ExchangeFunctionName(method.Name),
+			Orders:       make([]*Order, 1),
+		}
+		txData.Orders[0] = FromTrimmedOrder(inputs.Order)
+
+	case BatchCancelOrders:
+		inputs := struct {
+			Orders []wrappers.Order
+		}{}
+
+		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
+			err = errors.Wrap(err, "failed to unpack method inputs")
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: ExchangeFunctionName(method.Name),
+			Orders:       make([]*Order, len(inputs.Orders)),
+		}
+		for idx, order := range inputs.Orders {
+			txData.Orders[idx] = FromTrimmedOrder(order)
+		}
+
 	default:
 		panic("not supported: " + method.Name)
 	}
