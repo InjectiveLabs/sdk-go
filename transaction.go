@@ -2,6 +2,7 @@ package zeroex
 
 import (
 	"math/big"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
@@ -97,6 +98,39 @@ func (tx *Transaction) DecodeTransactionData() (*ZeroExTransactionData, error) {
 	tx.decodedData = txData
 
 	return tx.decodedData, nil
+}
+
+func (data *ZeroExTransactionData) ValidateAssetFillAmounts() error {
+	if data.isMarketFn() {
+		if len(data.TakerAssetFillAmounts) > 0 {
+			err := errors.Errorf("tx is %s but TakerAssetFillAmounts provided", data.FunctionName)
+			return err
+		} else if data.MakerAssetFillAmount == nil {
+			err := errors.Errorf("tx is %s but MakerAssetFillAmount not provided", data.FunctionName)
+			return err
+		}
+	}
+
+	// otherwise fill or something
+
+	if len(data.TakerAssetFillAmounts) != len(data.Orders) {
+		err := errors.New("incorrect TakerAssetFillAmounts length: must match Orders length")
+		return err
+	}
+
+	return nil
+}
+
+func (data *ZeroExTransactionData) isMarketFn() bool {
+	return strings.HasPrefix(string(data.FunctionName), "market")
+}
+
+func (data *ZeroExTransactionData) isBuy() bool {
+	return strings.Contains(string(data.FunctionName), "Buy")
+}
+
+func (data *ZeroExTransactionData) isSell() bool {
+	return strings.Contains(string(data.FunctionName), "Sell")
 }
 
 // SignTransaction signs the 0x transaction with the supplied Signer
