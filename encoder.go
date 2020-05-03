@@ -139,9 +139,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		}
 
 	case MarketBuyOrdersNoThrow,
-		MarketSellOrdersNoThrow,
-		MarketBuyOrdersFillOrKill,
-		MarketSellOrdersFillOrKill:
+		MarketBuyOrdersFillOrKill:
 		inputs := struct {
 			Orders               []wrappers.Order
 			MakerAssetFillAmount *big.Int
@@ -163,6 +161,32 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		}
 
 		txData.MakerAssetFillAmount = inputs.MakerAssetFillAmount
+
+		for idx, signature := range inputs.Signatures {
+			txData.Signatures[idx] = signature
+		}
+	case MarketSellOrdersNoThrow,
+		MarketSellOrdersFillOrKill:
+		inputs := struct {
+			Orders               []wrappers.Order
+			TakerAssetFillAmount *big.Int
+			Signatures           [][]byte
+		}{}
+		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
+			err = errors.Wrap(err, "failed to unpack method inputs")
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: ExchangeFunctionName(method.Name),
+			Orders:       make([]*Order, len(inputs.Orders)),
+			Signatures:   make([][]byte, len(inputs.Signatures)),
+		}
+		for idx, order := range inputs.Orders {
+			txData.Orders[idx] = FromTrimmedOrder(order)
+		}
+
+		txData.TakerAssetFillAmount = inputs.TakerAssetFillAmount
 
 		for idx, signature := range inputs.Signatures {
 			txData.Signatures[idx] = signature

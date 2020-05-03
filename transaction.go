@@ -75,6 +75,7 @@ type ZeroExTransactionData struct {
 	Orders                []*Order
 	TakerAssetFillAmounts []*big.Int
 	MakerAssetFillAmount  *big.Int
+	TakerAssetFillAmount  *big.Int
 	Signatures            [][]byte
 }
 
@@ -101,12 +102,20 @@ func (tx *Transaction) DecodeTransactionData() (*ZeroExTransactionData, error) {
 }
 
 func (data *ZeroExTransactionData) ValidateAssetFillAmounts() error {
-	if data.isMarketFn() {
+	if data.isMarketBuyFn() {
 		if len(data.TakerAssetFillAmounts) > 0 {
 			err := errors.Errorf("tx is %s but TakerAssetFillAmounts provided", data.FunctionName)
 			return err
 		} else if data.MakerAssetFillAmount == nil {
 			err := errors.Errorf("tx is %s but MakerAssetFillAmount not provided", data.FunctionName)
+			return err
+		}
+	} else if data.isMarketSellFn() {
+		if len(data.TakerAssetFillAmounts) > 0 {
+			err := errors.Errorf("tx is %s but TakerAssetFillAmounts provided", data.FunctionName)
+			return err
+		} else if data.TakerAssetFillAmount == nil {
+			err := errors.Errorf("tx is %s but TakerAssetFillAmount not provided", data.FunctionName)
 			return err
 		}
 	}
@@ -121,8 +130,12 @@ func (data *ZeroExTransactionData) ValidateAssetFillAmounts() error {
 	return nil
 }
 
-func (data *ZeroExTransactionData) isMarketFn() bool {
-	return strings.HasPrefix(string(data.FunctionName), "market")
+func (data *ZeroExTransactionData) isMarketBuyFn() bool {
+	return strings.HasPrefix(string(data.FunctionName), "marketBuy")
+}
+
+func (data *ZeroExTransactionData) isMarketSellFn() bool {
+	return strings.HasPrefix(string(data.FunctionName), "marketSell")
 }
 
 func (data *ZeroExTransactionData) isBuy() bool {
