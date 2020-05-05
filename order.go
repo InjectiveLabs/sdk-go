@@ -369,24 +369,23 @@ func (s *SignedOrder) UnmarshalJSON(data []byte) error {
 }
 
 
-// SafeSignedOrder is a special signed order structure
-// for including in Msgs, because it consists of primitive types.
-// Avoid using raw *big.Int in Msgs.
-type SafeSignedOrder struct {
+// StringSignedOrder is a special signed order structure
+// for including in Msgs, because it consists of just string types besides ChainID.
+type StringSignedOrder struct {
 	// ChainID is a network identifier of the order.
 	ChainID int64 `json:"chainID,omitempty"`
 	// Exchange v3 contract address.
-	ExchangeAddress common.Address `json:"exchangeAddress,omitempty"`
+	ExchangeAddress string `json:"exchangeAddress,omitempty"`
 	// Address that created the order.
-	MakerAddress common.Address `json:"makerAddress,omitempty"`
+	MakerAddress string `json:"makerAddress,omitempty"`
 	// Address that is allowed to fill the order. If set to "0x0", any address is
 	// allowed to fill the order.
-	TakerAddress common.Address `json:"takerAddress,omitempty"`
+	TakerAddress string `json:"takerAddress,omitempty"`
 	// Address that will receive fees when order is filled.
-	FeeRecipientAddress common.Address `json:"feeRecipientAddress,omitempty"`
+	FeeRecipientAddress string `json:"feeRecipientAddress,omitempty"`
 	// Address that is allowed to call Exchange contract methods that affect this
 	// order. If set to "0x0", any address is allowed to call these methods.
-	SenderAddress common.Address `json:"senderAddress,omitempty"`
+	SenderAddress string `json:"senderAddress,omitempty"`
 	// Amount of makerAsset being offered by maker. Must be greater than 0.
 	MakerAssetAmount string `json:"makerAssetAmount,omitempty"`
 	// Amount of takerAsset being bid on by maker. Must be greater than 0.
@@ -403,112 +402,17 @@ type SafeSignedOrder struct {
 	Salt string `json:"salt,omitempty"`
 	// ABIv2 encoded data that can be decoded by a specified proxy contract when
 	// transferring makerAsset.
-	MakerAssetData []byte `json:"makerAssetData,omitempty"`
+	MakerAssetData string `json:"makerAssetData,omitempty"`
 	// ABIv2 encoded data that can be decoded by a specified proxy contract when
 	// transferring takerAsset.
-	TakerAssetData []byte `json:"takerAssetData,omitempty"`
+	TakerAssetData string `json:"takerAssetData,omitempty"`
 	// ABIv2 encoded data that can be decoded by a specified proxy contract when
 	// transferring makerFee.
-	MakerFeeAssetData []byte `json:"makerFeeAssetData,omitempty"`
+	MakerFeeAssetData string `json:"makerFeeAssetData,omitempty"`
 	// ABIv2 encoded data that can be decoded by a specified proxy contract when
 	// transferring takerFee.
-	TakerFeeAssetData []byte `json:"takerFeeAssetData,omitempty"`
+	TakerFeeAssetData string `json:"takerFeeAssetData,omitempty"`
 	// Order signature.
-	Signature []byte `json:"signature,omitempty"`
+	Signature string `json:"signature,omitempty"`
 }
 
-
-
-// NewSafeSignedOrder constructs a new SafeSignedOrder from given zeroex.SignedOrder.
-func NewSafeSignedOrder(o *SignedOrder) *SafeSignedOrder {
-	return zo2so(o)
-}
-
-// ToSignedOrder returns an appropriate zeroex.SignedOrder defined by SafeSignedOrder.
-func (m *SafeSignedOrder) ToSignedOrder() *SignedOrder {
-	o, err := so2zo(m)
-	if err != nil {
-		panic(err)
-	}
-	return o
-}
-
-// zo2so internal function converts model from *zeroex.SignedOrder to *SafeSignedOrder.
-func zo2so(o *SignedOrder) *SafeSignedOrder {
-	if o == nil {
-		return nil
-	}
-	return &SafeSignedOrder{
-		ChainID:               o.ChainID.Int64(),
-		ExchangeAddress:       o.ExchangeAddress,
-		MakerAddress:          o.MakerAddress,
-		TakerAddress:          o.TakerAddress,
-		FeeRecipientAddress:   o.FeeRecipientAddress,
-		SenderAddress:         o.SenderAddress,
-		MakerAssetAmount:      o.MakerAssetAmount.String(),
-		TakerAssetAmount:      o.TakerAssetAmount.String(),
-		MakerFee:              o.MakerFee.String(),
-		TakerFee:              o.TakerFee.String(),
-		ExpirationTimeSeconds: o.ExpirationTimeSeconds.String(),
-		Salt:                  o.Salt.String(),
-		MakerAssetData:        o.MakerAssetData,
-		TakerAssetData:        o.TakerAssetData,
-		MakerFeeAssetData:     o.MakerFeeAssetData,
-		TakerFeeAssetData:     o.TakerFeeAssetData,
-		Signature:             o.Signature,
-	}
-}
-
-// so2zo internal function converts model from *SafeSignedOrder to *zeroex.SignedOrder.
-func so2zo(o *SafeSignedOrder) (*SignedOrder, error) {
-	if o == nil {
-		return nil, nil
-	}
-	order := Order{
-		ChainID:             big.NewInt(o.ChainID),
-		ExchangeAddress:     o.ExchangeAddress,
-		MakerAddress:        o.MakerAddress,
-		TakerAddress:        o.TakerAddress,
-		MakerAssetData:      o.MakerAssetData,
-		TakerAssetData:      o.TakerAssetData,
-		MakerFeeAssetData:   o.MakerFeeAssetData,
-		TakerFeeAssetData:   o.TakerFeeAssetData,
-		SenderAddress:       o.SenderAddress,
-		FeeRecipientAddress: o.FeeRecipientAddress,
-	}
-	if v, ok := math.ParseBig256(string(o.MakerAssetAmount)); !ok {
-		return nil, errors.New("makerAssetAmmount parse failed")
-	} else {
-		order.MakerAssetAmount = v
-	}
-	if v, ok := math.ParseBig256(string(o.MakerFee)); !ok {
-		return nil, errors.New("makerFee parse failed")
-	} else {
-		order.MakerFee = v
-	}
-	if v, ok := math.ParseBig256(string(o.TakerAssetAmount)); !ok {
-		return nil, errors.New("takerAssetAmmount parse failed")
-	} else {
-		order.TakerAssetAmount = v
-	}
-	if v, ok := math.ParseBig256(string(o.TakerFee)); !ok {
-		return nil, errors.New("takerFee parse failed")
-	} else {
-		order.TakerFee = v
-	}
-	if v, ok := math.ParseBig256(string(o.ExpirationTimeSeconds)); !ok {
-		return nil, errors.New("expirationTimeSeconds parse failed")
-	} else {
-		order.ExpirationTimeSeconds = v
-	}
-	if v, ok := math.ParseBig256(string(o.Salt)); !ok {
-		return nil, errors.New("salt parse failed")
-	} else {
-		order.Salt = v
-	}
-	signedOrder := &SignedOrder{
-		Order:     order,
-		Signature: o.Signature,
-	}
-	return signedOrder, nil
-}
