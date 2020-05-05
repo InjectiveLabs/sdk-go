@@ -178,6 +178,67 @@ func FromTrimmedOrder(order wrappers.Order) *Order {
 	}
 }
 
+// TrimmedOrderJSON is an unmodified JSON representation of a Trimmed Order
+type TrimmedOrderJSON struct {
+	MakerAddress          string `json:"makerAddress"`
+	MakerAssetData        string `json:"makerAssetData"`
+	MakerFeeAssetData     string `json:"makerFeeAssetData"`
+	MakerAssetAmount      string `json:"makerAssetAmount"`
+	MakerFee              string `json:"makerFee"`
+	TakerAddress          string `json:"takerAddress"`
+	TakerAssetData        string `json:"takerAssetData"`
+	TakerFeeAssetData     string `json:"takerFeeAssetData"`
+	TakerAssetAmount      string `json:"takerAssetAmount"`
+	TakerFee              string `json:"takerFee"`
+	SenderAddress         string `json:"senderAddress"`
+	FeeRecipientAddress   string `json:"feeRecipientAddress"`
+	ExpirationTimeSeconds string `json:"expirationTimeSeconds"`
+	Salt                  string `json:"salt"`
+}
+
+// MarshalJSON implements a custom JSON marshaller for the Order type into Trimmed Order
+func (o *Order) MarshalIntoTrimmedOrderJSON() ([]byte, error) {
+	makerAssetData := "0x"
+	if len(o.MakerAssetData) != 0 {
+		makerAssetData = fmt.Sprintf("0x%s", common.Bytes2Hex(o.MakerAssetData))
+	}
+	// Note(albrow): Because of how our smart contracts work, most fields of an
+	// order cannot be null. However, makerAssetFeeData and takerAssetFeeData are
+	// the exception. For these fields, "0x" is used to indicate a null value.
+	makerFeeAssetData := "0x"
+	if len(o.MakerFeeAssetData) != 0 {
+		makerFeeAssetData = fmt.Sprintf("0x%s", common.Bytes2Hex(o.MakerFeeAssetData))
+	}
+	takerAssetData := "0x"
+	if len(o.TakerAssetData) != 0 {
+		takerAssetData = fmt.Sprintf("0x%s", common.Bytes2Hex(o.TakerAssetData))
+	}
+	takerFeeAssetData := "0x"
+	if len(o.TakerFeeAssetData) != 0 {
+		takerFeeAssetData = fmt.Sprintf("0x%s", common.Bytes2Hex(o.TakerFeeAssetData))
+	}
+
+	trimmedOrderBytes, err := json.Marshal(TrimmedOrderJSON{
+		MakerAddress:          strings.ToLower(o.MakerAddress.Hex()),
+		MakerAssetData:        makerAssetData,
+		MakerFeeAssetData:     makerFeeAssetData,
+		MakerAssetAmount:      o.MakerAssetAmount.String(),
+		MakerFee:              o.MakerFee.String(),
+		TakerAddress:          strings.ToLower(o.TakerAddress.Hex()),
+		TakerAssetData:        takerAssetData,
+		TakerFeeAssetData:     takerFeeAssetData,
+		TakerAssetAmount:      o.TakerAssetAmount.String(),
+		TakerFee:              o.TakerFee.String(),
+		SenderAddress:         strings.ToLower(o.SenderAddress.Hex()),
+		FeeRecipientAddress:   strings.ToLower(o.FeeRecipientAddress.Hex()),
+		ExpirationTimeSeconds: o.ExpirationTimeSeconds.String(),
+		Salt:                  o.Salt.String(),
+	})
+	return trimmedOrderBytes, err
+}
+
+
+
 // SignedOrderJSON is an unmodified JSON representation of a SignedOrder
 type SignedOrderJSON struct {
 	ChainID               int64  `json:"chainId"`
