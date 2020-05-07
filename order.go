@@ -416,3 +416,45 @@ type StringSignedOrder struct {
 	Signature string `json:"signature,omitempty"`
 }
 
+// StringUnsignedBareOrder is a special unsigned signed order structure
+// for including in Msgs, because it consists of just string types for a bare 0x order without ChainId or ExchangeAddress.
+type StringUnsignedBareOrder struct {
+	// Address that created the order.
+	MakerAddress string `json:"makerAddress,omitempty"`
+	// ABIv2 encoded data that can be decoded by a specified proxy contract when
+	// transferring makerAsset.
+	MakerAssetData string `json:"makerAssetData,omitempty"`
+	// ABIv2 encoded data that can be decoded by a specified proxy contract when
+	// transferring makerFee.
+	MakerFeeAssetData string `json:"makerFeeAssetData,omitempty"`
+	// Amount of makerAsset being offered by maker. Must be greater than 0.
+	MakerAssetAmount string `json:"makerAssetAmount,omitempty"`
+	// Amount of Fee Asset paid to feeRecipientAddress by maker when order is filled. If set to
+	// 0, no transfer of Fee Asset from maker to feeRecipientAddress will be attempted.
+	MakerFee string `json:"makerFee,omitempty"`
+	// Address that is allowed to fill the order. If set to "0x0", any address is
+	// allowed to fill the order.
+	TakerAddress string `json:"takerAddress,omitempty"`
+	// ABIv2 encoded data that can be decoded by a specified proxy contract when
+	// transferring takerAsset.
+	TakerAssetData string `json:"takerAssetData,omitempty"`
+	// ABIv2 encoded data that can be decoded by a specified proxy contract when
+	// transferring takerFee.
+	TakerFeeAssetData string `json:"takerFeeAssetData,omitempty"`
+	// Amount of takerAsset being bid on by maker. Must be greater than 0.
+	TakerAssetAmount string `json:"takerAssetAmount,omitempty"`
+	// Amount of Fee Asset paid to feeRecipientAddress by taker when order is filled. If set to
+	// 0, no transfer of Fee Asset from taker to feeRecipientAddress will be attempted.
+	TakerFee string `json:"takerFee,omitempty"`
+	// Address that is allowed to call Exchange contract methods that affect this
+	// order. If set to "0x0", any address is allowed to call these methods.
+	SenderAddress string `json:"senderAddress,omitempty"`
+	// Address that will receive fees when order is filled.
+	FeeRecipientAddress string `json:"feeRecipientAddress,omitempty"`
+	// Timestamp in seconds at which order expires.
+	ExpirationTimeSeconds string `json:"expirationTimeSeconds,omitempty"`
+	// Arbitrary number to facilitate uniqueness of the order's hash.
+	Salt string `json:"salt,omitempty"`
+	// Order signature.
+	Signature string `json:"signature,omitempty"`
+}
