@@ -110,6 +110,7 @@ func (data *ZeroExTransactionData) ValidateAssetFillAmounts() error {
 			err := errors.Errorf("tx is %s but MakerAssetFillAmount not provided", data.FunctionName)
 			return err
 		}
+		return nil
 	} else if data.isMarketSellFn() {
 		if len(data.TakerAssetFillAmounts) > 0 {
 			err := errors.Errorf("tx is %s but TakerAssetFillAmounts provided", data.FunctionName)
@@ -118,15 +119,13 @@ func (data *ZeroExTransactionData) ValidateAssetFillAmounts() error {
 			err := errors.Errorf("tx is %s but TakerAssetFillAmount not provided", data.FunctionName)
 			return err
 		}
-	}
-
-	// otherwise fill or something
-
-	if len(data.TakerAssetFillAmounts) != len(data.Orders) {
+		return nil
+	} else if len(data.TakerAssetFillAmounts) != len(data.Orders) {
+		// TODO: add more validation cases
+		// otherwise fill or something
 		err := errors.New("incorrect TakerAssetFillAmounts length: must match Orders length")
 		return err
 	}
-
 	return nil
 }
 
