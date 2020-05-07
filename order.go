@@ -455,6 +455,4 @@ type StringUnsignedBareOrder struct {
 	ExpirationTimeSeconds string `json:"expirationTimeSeconds,omitempty"`
 	// Arbitrary number to facilitate uniqueness of the order's hash.
 	Salt string `json:"salt,omitempty"`
-	// Order signature.
-	Signature string `json:"signature,omitempty"`
 }
