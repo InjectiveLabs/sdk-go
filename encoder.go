@@ -225,6 +225,40 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		for idx, order := range inputs.Orders {
 			txData.Orders[idx] = FromTrimmedOrder(order)
 		}
+	case BatchMatchOrdersWithMaximalFill:
+		inputs := struct {
+			LeftOrders      []wrappers.Order
+			RightOrders     []wrappers.Order
+			LeftSignatures  [][]byte
+			RightSignatures [][]byte
+		}{}
+		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
+			err = errors.Wrap(err, "failed to unpack method inputs")
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName:    ExchangeFunctionName(method.Name),
+			LeftOrders:      make([]*Order, len(inputs.LeftOrders)),
+			RightOrders:     make([]*Order, len(inputs.RightOrders)),
+			LeftSignatures:  make([][]byte, len(inputs.LeftSignatures)),
+			RightSignatures: make([][]byte, len(inputs.RightSignatures)),
+		}
+		for idx, order := range inputs.LeftOrders {
+			txData.LeftOrders[idx] = FromTrimmedOrder(order)
+		}
+
+		for idx, order := range inputs.RightOrders {
+			txData.RightOrders[idx] = FromTrimmedOrder(order)
+		}
+
+		for idx, signature := range inputs.LeftSignatures {
+			txData.LeftSignatures[idx] = signature
+		}
+
+		for idx, signature := range inputs.RightSignatures {
+			txData.RightSignatures[idx] = signature
+		}
 
 	default:
 		panic("not supported: " + method.Name)

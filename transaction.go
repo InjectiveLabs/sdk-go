@@ -73,10 +73,14 @@ func (tx *Transaction) ComputeTransactionHash() (common.Hash, error) {
 type ZeroExTransactionData struct {
 	FunctionName          ExchangeFunctionName
 	Orders                []*Order
+	LeftOrders            []*Order
+	RightOrders           []*Order
 	TakerAssetFillAmounts []*big.Int
 	MakerAssetFillAmount  *big.Int
 	TakerAssetFillAmount  *big.Int
 	Signatures            [][]byte
+	LeftSignatures        [][]byte
+	RightSignatures       [][]byte
 }
 
 func (tx *Transaction) DecodeTransactionData() (*ZeroExTransactionData, error) {
@@ -90,10 +94,23 @@ func (tx *Transaction) DecodeTransactionData() (*ZeroExTransactionData, error) {
 		return nil, err
 	}
 
-	for _, order := range txData.Orders {
-		// these two fields make the order a complete version
-		order.ChainID = tx.Domain.ChainID
-		order.ExchangeAddress = tx.Domain.VerifyingContract
+	if txData.Orders != nil {
+		for _, order := range txData.Orders {
+			// these two fields make the order a complete version
+			order.ChainID = tx.Domain.ChainID
+			order.ExchangeAddress = tx.Domain.VerifyingContract
+		}
+	} else if txData.RightOrders != nil {
+		for _, order := range txData.RightOrders {
+			// these two fields make the order a complete version
+			order.ChainID = tx.Domain.ChainID
+			order.ExchangeAddress = tx.Domain.VerifyingContract
+		}
+		for _, order := range txData.LeftOrders {
+			// these two fields make the order a complete version
+			order.ChainID = tx.Domain.ChainID
+			order.ExchangeAddress = tx.Domain.VerifyingContract
+		}
 	}
 
 	tx.decodedData = txData
