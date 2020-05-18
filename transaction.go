@@ -137,6 +137,11 @@ func (data *ZeroExTransactionData) ValidateAssetFillAmounts() error {
 			return err
 		}
 		return nil
+	}else if data.isMatchOrdersFn(){
+		if ((len(data.RightOrders) != len(data.LeftOrders)) || (len(data.RightOrders) != len(data.RightSignatures)) || (len(data.LeftSignatures) != len(data.RightSignatures))){
+			err := errors.Errorf("tx is %s but length of RightOrders/LeftOrders/RightSignatures/LeftSignatures do not match", data.FunctionName)
+			return err
+		}
 	} else if len(data.TakerAssetFillAmounts) != len(data.Orders) {
 		// TODO: add more validation cases
 		// otherwise fill or something
@@ -152,6 +157,10 @@ func (data *ZeroExTransactionData) isMarketBuyFn() bool {
 
 func (data *ZeroExTransactionData) isMarketSellFn() bool {
 	return strings.HasPrefix(string(data.FunctionName), "marketSell")
+}
+
+func (data *ZeroExTransactionData) isMatchOrdersFn() bool {
+	return strings.Contains(string(data.FunctionName), "atchOrders")
 }
 
 func (data *ZeroExTransactionData) isBuy() bool {
