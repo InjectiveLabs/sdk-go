@@ -268,6 +268,11 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 }
 
 var exchangeABI, _ = abi.JSON(strings.NewReader(wrappers.ExchangeABI))
+var futuresABI, _ = abi.JSON(strings.NewReader(wrappers.InjectiveFuturesABI))
+
+func IFuturesABIPack(fnName FuturesFunctionName, args ...interface{}) (data []byte, err error) {
+	return futuresABI.Pack(string(fnName), args...)
+}
 
 func IExchangeABIPack(fnName ExchangeFunctionName, args ...interface{}) (data []byte, err error) {
 	return exchangeABI.Pack(string(fnName), args...)
@@ -278,10 +283,19 @@ func IExchangeABIUnpack(fnName ExchangeFunctionName, data []byte, out interface{
 }
 
 type ExchangeFunctionName string
+type FuturesFunctionName string
 
 func (e ExchangeFunctionName) HasPart(part string) bool {
 	return strings.Contains(string(e), part)
 }
+
+func (e FuturesFunctionName) HasPart(part string) bool {
+	return strings.Contains(string(e), part)
+}
+
+const (
+	MultiMatchOrders FuturesFunctionName = "multiMatchOrders"
+)
 
 const (
 	BatchCancelOrders                 ExchangeFunctionName = "batchCancelOrders"
