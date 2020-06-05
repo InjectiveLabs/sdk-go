@@ -268,7 +268,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 }
 
 var exchangeABI, _ = abi.JSON(strings.NewReader(wrappers.ExchangeABI))
-var futuresABI, _ = abi.JSON(strings.NewReader(wrappers.InjectiveFuturesABI))
+var futuresABI, _ = abi.JSON(strings.NewReader(wrappers.FuturesABI))
 
 func IFuturesABIPack(fnName FuturesFunctionName, args ...interface{}) (data []byte, err error) {
 	return futuresABI.Pack(string(fnName), args...)
