@@ -566,6 +566,72 @@ func (_Futures *FuturesCallerSession) GetBatchBalancesAndAssetProxyAllowances(ow
 	return _Futures.Contract.GetBatchBalancesAndAssetProxyAllowances(&_Futures.CallOpts, ownerAddress, tokenAddresses)
 }
 
+// GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
+//
+// Solidity: function getOrderRelevantStates([]LibOrderOrder orders, bytes[] signatures) constant returns([]LibOrderOrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+func (_Futures *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []LibOrderOrder, signatures [][]byte) (struct {
+	OrdersInfo                []LibOrderOrderInfo
+	FillableTakerAssetAmounts []*big.Int
+	IsValidSignature          []bool
+}, error) {
+	ret := new(struct {
+		OrdersInfo                []LibOrderOrderInfo
+		FillableTakerAssetAmounts []*big.Int
+		IsValidSignature          []bool
+	})
+	out := ret
+	err := _Futures.contract.Call(opts, out, "getOrderRelevantStates", orders, signatures)
+	return *ret, err
+}
+
+// GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
+//
+// Solidity: function getOrderRelevantStates([]LibOrderOrder orders, bytes[] signatures) constant returns([]LibOrderOrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+func (_Futures *FuturesSession) GetOrderRelevantStates(orders []LibOrderOrder, signatures [][]byte) (struct {
+	OrdersInfo                []LibOrderOrderInfo
+	FillableTakerAssetAmounts []*big.Int
+	IsValidSignature          []bool
+}, error) {
+	return _Futures.Contract.GetOrderRelevantStates(&_Futures.CallOpts, orders, signatures)
+}
+
+// GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
+//
+// Solidity: function getOrderRelevantStates([]LibOrderOrder orders, bytes[] signatures) constant returns([]LibOrderOrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+func (_Futures *FuturesCallerSession) GetOrderRelevantStates(orders []LibOrderOrder, signatures [][]byte) (struct {
+	OrdersInfo                []LibOrderOrderInfo
+	FillableTakerAssetAmounts []*big.Int
+	IsValidSignature          []bool
+}, error) {
+	return _Futures.Contract.GetOrderRelevantStates(&_Futures.CallOpts, orders, signatures)
+}
+
+// GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
+//
+// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) constant returns(uint256[] positionIDs)
+func (_Futures *FuturesCaller) GetPositionIDsForTrader(opts *bind.CallOpts, trader common.Address, marketID [32]byte) ([]*big.Int, error) {
+	var (
+		ret0 = new([]*big.Int)
+	)
+	out := ret0
+	err := _Futures.contract.Call(opts, out, "getPositionIDsForTrader", trader, marketID)
+	return *ret0, err
+}
+
+// GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
+//
+// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) constant returns(uint256[] positionIDs)
+func (_Futures *FuturesSession) GetPositionIDsForTrader(trader common.Address, marketID [32]byte) ([]*big.Int, error) {
+	return _Futures.Contract.GetPositionIDsForTrader(&_Futures.CallOpts, trader, marketID)
+}
+
+// GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
+//
+// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) constant returns(uint256[] positionIDs)
+func (_Futures *FuturesCallerSession) GetPositionIDsForTrader(trader common.Address, marketID [32]byte) ([]*big.Int, error) {
+	return _Futures.Contract.GetPositionIDsForTrader(&_Futures.CallOpts, trader, marketID)
+}
+
 // GetPositionsForTrader is a free data retrieval call binding the contract method 0x0088e8cc.
 //
 // Solidity: function getPositionsForTrader(address trader, bytes32 marketID) view returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256)[])
@@ -577,6 +643,7 @@ func (_Futures *FuturesCaller) GetPositionsForTrader(opts *bind.CallOpts, trader
 	err := _Futures.contract.Call(opts, out, "getPositionsForTrader", trader, marketID)
 	return *ret0, err
 }
+
 
 // GetPositionsForTrader is a free data retrieval call binding the contract method 0x0088e8cc.
 //
@@ -1214,27 +1281,6 @@ func (_Futures *FuturesSession) FundPooledDeposits(amount *big.Int, marketID [32
 // Solidity: function fundPooledDeposits(uint256 amount, bytes32 marketID) returns()
 func (_Futures *FuturesTransactorSession) FundPooledDeposits(amount *big.Int, marketID [32]byte) (*types.Transaction, error) {
 	return _Futures.Contract.FundPooledDeposits(&_Futures.TransactOpts, amount, marketID)
-}
-
-// GetOrderRelevantStates is a paid mutator transaction binding the contract method 0xe25cabf7.
-//
-// Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (_Futures *FuturesTransactor) GetOrderRelevantStates(opts *bind.TransactOpts, orders []Order, signatures [][]byte) (*types.Transaction, error) {
-	return _Futures.contract.Transact(opts, "getOrderRelevantStates", orders, signatures)
-}
-
-// GetOrderRelevantStates is a paid mutator transaction binding the contract method 0xe25cabf7.
-//
-// Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (_Futures *FuturesSession) GetOrderRelevantStates(orders []Order, signatures [][]byte) (*types.Transaction, error) {
-	return _Futures.Contract.GetOrderRelevantStates(&_Futures.TransactOpts, orders, signatures)
-}
-
-// GetOrderRelevantStates is a paid mutator transaction binding the contract method 0xe25cabf7.
-//
-// Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (_Futures *FuturesTransactorSession) GetOrderRelevantStates(orders []Order, signatures [][]byte) (*types.Transaction, error) {
-	return _Futures.Contract.GetOrderRelevantStates(&_Futures.TransactOpts, orders, signatures)
 }
 
 // MarketOrders is a paid mutator transaction binding the contract method 0xd440e9b6.
