@@ -605,6 +605,33 @@ func (_Futures *FuturesCallerSession) GetOrderRelevantStates(orders []Order, sig
 	return _Futures.Contract.GetOrderRelevantStates(&_Futures.CallOpts, orders, signatures)
 }
 
+// GetTransferableAssetAmount is a free data retrieval call binding the contract method 0x478482d8.
+//
+// Solidity: function getTransferableAssetAmount(address ownerAddress) constant returns(uint256 transferableAssetAmount)
+func (_Futures *FuturesCaller) GetTransferableAssetAmount(opts *bind.CallOpts, ownerAddress common.Address) (*big.Int, error) {
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := _Futures.contract.Call(opts, out, "getTransferableAssetAmount", ownerAddress)
+	return *ret0, err
+}
+
+// GetTransferableAssetAmount is a free data retrieval call binding the contract method 0x478482d8.
+//
+// Solidity: function getTransferableAssetAmount(address ownerAddress) constant returns(uint256 transferableAssetAmount)
+func (_Futures *FuturesSession) GetTransferableAssetAmount(ownerAddress common.Address) (*big.Int, error) {
+	return _Futures.Contract.GetTransferableAssetAmount(&_Futures.CallOpts, ownerAddress)
+}
+
+// GetTransferableAssetAmount is a free data retrieval call binding the contract method 0x478482d8.
+//
+// Solidity: function getTransferableAssetAmount(address ownerAddress) constant returns(uint256 transferableAssetAmount)
+func (_Futures *FuturesCallerSession) GetTransferableAssetAmount(ownerAddress common.Address) (*big.Int, error) {
+	return _Futures.Contract.GetTransferableAssetAmount(&_Futures.CallOpts, ownerAddress)
+}
+
+
 // GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
 //
 // Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) constant returns(uint256[] positionIDs)
