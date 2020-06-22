@@ -26,6 +26,31 @@ var (
 	_ = event.NewSubscription
 )
 
+// LibOrderOrder is an auto generated low-level Go binding around an user-defined struct.
+type LibOrderOrder struct {
+	MakerAddress          common.Address
+	TakerAddress          common.Address
+	FeeRecipientAddress   common.Address
+	SenderAddress         common.Address
+	MakerAssetAmount      *big.Int
+	TakerAssetAmount      *big.Int
+	MakerFee              *big.Int
+	TakerFee              *big.Int
+	ExpirationTimeSeconds *big.Int
+	Salt                  *big.Int
+	MakerAssetData        []byte
+	TakerAssetData        []byte
+	MakerFeeAssetData     []byte
+	TakerFeeAssetData     []byte
+}
+
+// LibOrderOrderInfo is an auto generated low-level Go binding around an user-defined struct.
+type LibOrderOrderInfo struct {
+	OrderStatus                 uint8
+	OrderHash                   [32]byte
+	OrderTakerAssetFilledAmount *big.Int
+}
+
 // TypesPosition is an auto generated low-level Go binding around an user-defined struct.
 type TypesPosition struct {
 	AccountID              [32]byte
