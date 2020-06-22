@@ -26,31 +26,6 @@ var (
 	_ = event.NewSubscription
 )
 
-// LibOrderOrder is an auto generated low-level Go binding around an user-defined struct.
-type LibOrderOrder struct {
-	MakerAddress          common.Address
-	TakerAddress          common.Address
-	FeeRecipientAddress   common.Address
-	SenderAddress         common.Address
-	MakerAssetAmount      *big.Int
-	TakerAssetAmount      *big.Int
-	MakerFee              *big.Int
-	TakerFee              *big.Int
-	ExpirationTimeSeconds *big.Int
-	Salt                  *big.Int
-	MakerAssetData        []byte
-	TakerAssetData        []byte
-	MakerFeeAssetData     []byte
-	TakerFeeAssetData     []byte
-}
-
-// LibOrderOrderInfo is an auto generated low-level Go binding around an user-defined struct.
-type LibOrderOrderInfo struct {
-	OrderStatus                 uint8
-	OrderHash                   [32]byte
-	OrderTakerAssetFilledAmount *big.Int
-}
-
 // TypesPosition is an auto generated low-level Go binding around an user-defined struct.
 type TypesPosition struct {
 	AccountID              [32]byte
@@ -594,13 +569,13 @@ func (f *FuturesCallerSession) GetBatchBalancesAndAssetProxyAllowances(ownerAddr
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
 // Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) view returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []LibOrderOrder, signatures [][]byte) (struct {
-	OrdersInfo                []LibOrderOrderInfo
+func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Order, signatures [][]byte) (struct {
+	OrdersInfo                []OrderInfo
 	FillableTakerAssetAmounts []*big.Int
 	IsValidSignature          []bool
 }, error) {
 	ret := new(struct {
-		OrdersInfo                []LibOrderOrderInfo
+		OrdersInfo                []OrderInfo
 		FillableTakerAssetAmounts []*big.Int
 		IsValidSignature          []bool
 	})
@@ -612,8 +587,8 @@ func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Lib
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
 // Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) view returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (f *FuturesSession) GetOrderRelevantStates(orders []LibOrderOrder, signatures [][]byte) (struct {
-	OrdersInfo                []LibOrderOrderInfo
+func (f *FuturesSession) GetOrderRelevantStates(orders []Order, signatures [][]byte) (struct {
+	OrdersInfo                []OrderInfo
 	FillableTakerAssetAmounts []*big.Int
 	IsValidSignature          []bool
 }, error) {
@@ -623,8 +598,8 @@ func (f *FuturesSession) GetOrderRelevantStates(orders []LibOrderOrder, signatur
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
 // Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) view returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
-func (f *FuturesCallerSession) GetOrderRelevantStates(orders []LibOrderOrder, signatures [][]byte) (struct {
-	OrdersInfo                []LibOrderOrderInfo
+func (f *FuturesCallerSession) GetOrderRelevantStates(orders []Order, signatures [][]byte) (struct {
+	OrdersInfo                []OrderInfo
 	FillableTakerAssetAmounts []*big.Int
 	IsValidSignature          []bool
 }, error) {
@@ -738,7 +713,7 @@ func (f *FuturesCallerSession) IsOwner() (bool, error) {
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
 //
 // Solidity: function isValidOrderSignature((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, bytes signature) view returns(bool isValid)
-func (f *FuturesCaller) IsValidOrderSignature(opts *bind.CallOpts, order LibOrderOrder, signature []byte) (bool, error) {
+func (f *FuturesCaller) IsValidOrderSignature(opts *bind.CallOpts, order Order, signature []byte) (bool, error) {
 	var (
 		ret0 = new(bool)
 	)
@@ -750,14 +725,14 @@ func (f *FuturesCaller) IsValidOrderSignature(opts *bind.CallOpts, order LibOrde
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
 //
 // Solidity: function isValidOrderSignature((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, bytes signature) view returns(bool isValid)
-func (f *FuturesSession) IsValidOrderSignature(order LibOrderOrder, signature []byte) (bool, error) {
+func (f *FuturesSession) IsValidOrderSignature(order Order, signature []byte) (bool, error) {
 	return f.Contract.IsValidOrderSignature(&f.CallOpts, order, signature)
 }
 
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
 //
 // Solidity: function isValidOrderSignature((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, bytes signature) view returns(bool isValid)
-func (f *FuturesCallerSession) IsValidOrderSignature(order LibOrderOrder, signature []byte) (bool, error) {
+func (f *FuturesCallerSession) IsValidOrderSignature(order Order, signature []byte) (bool, error) {
 	return f.Contract.IsValidOrderSignature(&f.CallOpts, order, signature)
 }
 
@@ -1152,63 +1127,63 @@ func (f *FuturesCallerSession) UnrestrictedDeposits(arg0 [32]byte) (*big.Int, er
 // CancelOrder is a paid mutator transaction binding the contract method 0x2da62987.
 //
 // Solidity: function cancelOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order) returns()
-func (f *FuturesTransactor) CancelOrder(opts *bind.TransactOpts, order LibOrderOrder) (*types.Transaction, error) {
+func (f *FuturesTransactor) CancelOrder(opts *bind.TransactOpts, order Order) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "cancelOrder", order)
 }
 
 // CancelOrder is a paid mutator transaction binding the contract method 0x2da62987.
 //
 // Solidity: function cancelOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order) returns()
-func (f *FuturesSession) CancelOrder(order LibOrderOrder) (*types.Transaction, error) {
+func (f *FuturesSession) CancelOrder(order Order) (*types.Transaction, error) {
 	return f.Contract.CancelOrder(&f.TransactOpts, order)
 }
 
 // CancelOrder is a paid mutator transaction binding the contract method 0x2da62987.
 //
 // Solidity: function cancelOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order) returns()
-func (f *FuturesTransactorSession) CancelOrder(order LibOrderOrder) (*types.Transaction, error) {
+func (f *FuturesTransactorSession) CancelOrder(order Order) (*types.Transaction, error) {
 	return f.Contract.CancelOrder(&f.TransactOpts, order)
 }
 
 // ClosePosition is a paid mutator transaction binding the contract method 0xb012d424.
 //
 // Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns(bytes32)
-func (f *FuturesTransactor) ClosePosition(opts *bind.TransactOpts, positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactor) ClosePosition(opts *bind.TransactOpts, positionID *big.Int, order Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "closePosition", positionID, order, quantity, signature)
 }
 
 // ClosePosition is a paid mutator transaction binding the contract method 0xb012d424.
 //
 // Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns(bytes32)
-func (f *FuturesSession) ClosePosition(positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesSession) ClosePosition(positionID *big.Int, order Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.ClosePosition(&f.TransactOpts, positionID, order, quantity, signature)
 }
 
 // ClosePosition is a paid mutator transaction binding the contract method 0xb012d424.
 //
 // Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns(bytes32)
-func (f *FuturesTransactorSession) ClosePosition(positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactorSession) ClosePosition(positionID *big.Int, order Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.ClosePosition(&f.TransactOpts, positionID, order, quantity, signature)
 }
 
 // ClosePositionWithOrders is a paid mutator transaction binding the contract method 0xeeb3da17.
 //
 // Solidity: function closePositionWithOrders(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes signature) returns()
-func (f *FuturesTransactor) ClosePositionWithOrders(opts *bind.TransactOpts, positionID *big.Int, orders []LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactor) ClosePositionWithOrders(opts *bind.TransactOpts, positionID *big.Int, orders []Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "closePositionWithOrders", positionID, orders, quantity, signature)
 }
 
 // ClosePositionWithOrders is a paid mutator transaction binding the contract method 0xeeb3da17.
 //
 // Solidity: function closePositionWithOrders(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes signature) returns()
-func (f *FuturesSession) ClosePositionWithOrders(positionID *big.Int, orders []LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesSession) ClosePositionWithOrders(positionID *big.Int, orders []Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.ClosePositionWithOrders(&f.TransactOpts, positionID, orders, quantity, signature)
 }
 
 // ClosePositionWithOrders is a paid mutator transaction binding the contract method 0xeeb3da17.
 //
 // Solidity: function closePositionWithOrders(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes signature) returns()
-func (f *FuturesTransactorSession) ClosePositionWithOrders(positionID *big.Int, orders []LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactorSession) ClosePositionWithOrders(positionID *big.Int, orders []Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.ClosePositionWithOrders(&f.TransactOpts, positionID, orders, quantity, signature)
 }
 
@@ -1341,21 +1316,21 @@ func (f *FuturesTransactorSession) DepositNewAccount(accountID [32]byte, amount 
 // FillOrder is a paid mutator transaction binding the contract method 0x833b2ea5.
 //
 // Solidity: function fillOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
-func (f *FuturesTransactor) FillOrder(opts *bind.TransactOpts, order LibOrderOrder, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactor) FillOrder(opts *bind.TransactOpts, order Order, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "fillOrder", order, quantity, margin, signature)
 }
 
 // FillOrder is a paid mutator transaction binding the contract method 0x833b2ea5.
 //
 // Solidity: function fillOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
-func (f *FuturesSession) FillOrder(order LibOrderOrder, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesSession) FillOrder(order Order, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.FillOrder(&f.TransactOpts, order, quantity, margin, signature)
 }
 
 // FillOrder is a paid mutator transaction binding the contract method 0x833b2ea5.
 //
 // Solidity: function fillOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
-func (f *FuturesTransactorSession) FillOrder(order LibOrderOrder, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactorSession) FillOrder(order Order, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.FillOrder(&f.TransactOpts, order, quantity, margin, signature)
 }
 
@@ -1383,63 +1358,63 @@ func (f *FuturesTransactorSession) FundPooledDeposits(amount *big.Int, marketID 
 // MarketOrders is a paid mutator transaction binding the contract method 0xd440e9b6.
 //
 // Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
-func (f *FuturesTransactor) MarketOrders(opts *bind.TransactOpts, orders []LibOrderOrder, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
+func (f *FuturesTransactor) MarketOrders(opts *bind.TransactOpts, orders []Order, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "marketOrders", orders, quantity, margin, signatures)
 }
 
 // MarketOrders is a paid mutator transaction binding the contract method 0xd440e9b6.
 //
 // Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
-func (f *FuturesSession) MarketOrders(orders []LibOrderOrder, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
+func (f *FuturesSession) MarketOrders(orders []Order, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
 	return f.Contract.MarketOrders(&f.TransactOpts, orders, quantity, margin, signatures)
 }
 
 // MarketOrders is a paid mutator transaction binding the contract method 0xd440e9b6.
 //
 // Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
-func (f *FuturesTransactorSession) MarketOrders(orders []LibOrderOrder, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
+func (f *FuturesTransactorSession) MarketOrders(orders []Order, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
 	return f.Contract.MarketOrders(&f.TransactOpts, orders, quantity, margin, signatures)
 }
 
 // MatchOrders is a paid mutator transaction binding the contract method 0x88ec79fb.
 //
 // Solidity: function matchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) leftOrder, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes leftSignature, bytes rightSignature) returns()
-func (f *FuturesTransactor) MatchOrders(opts *bind.TransactOpts, leftOrder LibOrderOrder, rightOrder LibOrderOrder, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactor) MatchOrders(opts *bind.TransactOpts, leftOrder Order, rightOrder Order, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "matchOrders", leftOrder, rightOrder, leftSignature, rightSignature)
 }
 
 // MatchOrders is a paid mutator transaction binding the contract method 0x88ec79fb.
 //
 // Solidity: function matchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) leftOrder, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes leftSignature, bytes rightSignature) returns()
-func (f *FuturesSession) MatchOrders(leftOrder LibOrderOrder, rightOrder LibOrderOrder, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
+func (f *FuturesSession) MatchOrders(leftOrder Order, rightOrder Order, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.Contract.MatchOrders(&f.TransactOpts, leftOrder, rightOrder, leftSignature, rightSignature)
 }
 
 // MatchOrders is a paid mutator transaction binding the contract method 0x88ec79fb.
 //
 // Solidity: function matchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) leftOrder, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes leftSignature, bytes rightSignature) returns()
-func (f *FuturesTransactorSession) MatchOrders(leftOrder LibOrderOrder, rightOrder LibOrderOrder, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactorSession) MatchOrders(leftOrder Order, rightOrder Order, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.Contract.MatchOrders(&f.TransactOpts, leftOrder, rightOrder, leftSignature, rightSignature)
 }
 
 // MultiMatchOrders is a paid mutator transaction binding the contract method 0x86d7729c.
 //
 // Solidity: function multiMatchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] leftOrders, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
-func (f *FuturesTransactor) MultiMatchOrders(opts *bind.TransactOpts, leftOrders []LibOrderOrder, rightOrder LibOrderOrder, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactor) MultiMatchOrders(opts *bind.TransactOpts, leftOrders []Order, rightOrder Order, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "multiMatchOrders", leftOrders, rightOrder, leftSignatures, rightSignature)
 }
 
 // MultiMatchOrders is a paid mutator transaction binding the contract method 0x86d7729c.
 //
 // Solidity: function multiMatchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] leftOrders, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
-func (f *FuturesSession) MultiMatchOrders(leftOrders []LibOrderOrder, rightOrder LibOrderOrder, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
+func (f *FuturesSession) MultiMatchOrders(leftOrders []Order, rightOrder Order, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.Contract.MultiMatchOrders(&f.TransactOpts, leftOrders, rightOrder, leftSignatures, rightSignature)
 }
 
 // MultiMatchOrders is a paid mutator transaction binding the contract method 0x86d7729c.
 //
 // Solidity: function multiMatchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] leftOrders, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
-func (f *FuturesTransactorSession) MultiMatchOrders(leftOrders []LibOrderOrder, rightOrder LibOrderOrder, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactorSession) MultiMatchOrders(leftOrders []Order, rightOrder Order, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.Contract.MultiMatchOrders(&f.TransactOpts, leftOrders, rightOrder, leftSignatures, rightSignature)
 }
 
@@ -1488,21 +1463,21 @@ func (f *FuturesTransactorSession) TransferOwnership(newOwner common.Address) (*
 // VerifyClose is a paid mutator transaction binding the contract method 0xe8e73d08.
 //
 // Solidity: function verifyClose(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256) newPosition, bytes32 hash)
-func (f *FuturesTransactor) VerifyClose(opts *bind.TransactOpts, positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactor) VerifyClose(opts *bind.TransactOpts, positionID *big.Int, order Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "verifyClose", positionID, order, quantity, signature)
 }
 
 // VerifyClose is a paid mutator transaction binding the contract method 0xe8e73d08.
 //
 // Solidity: function verifyClose(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256) newPosition, bytes32 hash)
-func (f *FuturesSession) VerifyClose(positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesSession) VerifyClose(positionID *big.Int, order Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.VerifyClose(&f.TransactOpts, positionID, order, quantity, signature)
 }
 
 // VerifyClose is a paid mutator transaction binding the contract method 0xe8e73d08.
 //
 // Solidity: function verifyClose(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256) newPosition, bytes32 hash)
-func (f *FuturesTransactorSession) VerifyClose(positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
+func (f *FuturesTransactorSession) VerifyClose(positionID *big.Int, order Order, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.VerifyClose(&f.TransactOpts, positionID, order, quantity, signature)
 }
 
