@@ -20,7 +20,6 @@ var (
 	_ = big.NewInt
 	_ = strings.NewReader
 	_ = ethereum.NotFound
-	_ = abi.U256
 	_ = bind.Bind
 	_ = common.Big1
 	_ = types.BloomLookup
@@ -187,7 +186,7 @@ func (f *FuturesTransactorRaw) Transact(opts *bind.TransactOpts, method string, 
 
 // EIP1271MAGICVALUE is a free data retrieval call binding the contract method 0xdd885e2d.
 //
-// Solidity: function EIP1271_MAGIC_VALUE() constant returns(bytes4)
+// Solidity: function EIP1271_MAGIC_VALUE() view returns(bytes4)
 func (f *FuturesCaller) EIP1271MAGICVALUE(opts *bind.CallOpts) ([4]byte, error) {
 	var (
 		ret0 = new([4]byte)
@@ -199,21 +198,21 @@ func (f *FuturesCaller) EIP1271MAGICVALUE(opts *bind.CallOpts) ([4]byte, error) 
 
 // EIP1271MAGICVALUE is a free data retrieval call binding the contract method 0xdd885e2d.
 //
-// Solidity: function EIP1271_MAGIC_VALUE() constant returns(bytes4)
+// Solidity: function EIP1271_MAGIC_VALUE() view returns(bytes4)
 func (f *FuturesSession) EIP1271MAGICVALUE() ([4]byte, error) {
 	return f.Contract.EIP1271MAGICVALUE(&f.CallOpts)
 }
 
 // EIP1271MAGICVALUE is a free data retrieval call binding the contract method 0xdd885e2d.
 //
-// Solidity: function EIP1271_MAGIC_VALUE() constant returns(bytes4)
+// Solidity: function EIP1271_MAGIC_VALUE() view returns(bytes4)
 func (f *FuturesCallerSession) EIP1271MAGICVALUE() ([4]byte, error) {
 	return f.Contract.EIP1271MAGICVALUE(&f.CallOpts)
 }
 
 // EIP712EXCHANGEDOMAINHASH is a free data retrieval call binding the contract method 0xc26cfecd.
 //
-// Solidity: function EIP712_EXCHANGE_DOMAIN_HASH() constant returns(bytes32)
+// Solidity: function EIP712_EXCHANGE_DOMAIN_HASH() view returns(bytes32)
 func (f *FuturesCaller) EIP712EXCHANGEDOMAINHASH(opts *bind.CallOpts) ([32]byte, error) {
 	var (
 		ret0 = new([32]byte)
@@ -225,21 +224,21 @@ func (f *FuturesCaller) EIP712EXCHANGEDOMAINHASH(opts *bind.CallOpts) ([32]byte,
 
 // EIP712EXCHANGEDOMAINHASH is a free data retrieval call binding the contract method 0xc26cfecd.
 //
-// Solidity: function EIP712_EXCHANGE_DOMAIN_HASH() constant returns(bytes32)
+// Solidity: function EIP712_EXCHANGE_DOMAIN_HASH() view returns(bytes32)
 func (f *FuturesSession) EIP712EXCHANGEDOMAINHASH() ([32]byte, error) {
 	return f.Contract.EIP712EXCHANGEDOMAINHASH(&f.CallOpts)
 }
 
 // EIP712EXCHANGEDOMAINHASH is a free data retrieval call binding the contract method 0xc26cfecd.
 //
-// Solidity: function EIP712_EXCHANGE_DOMAIN_HASH() constant returns(bytes32)
+// Solidity: function EIP712_EXCHANGE_DOMAIN_HASH() view returns(bytes32)
 func (f *FuturesCallerSession) EIP712EXCHANGEDOMAINHASH() ([32]byte, error) {
 	return f.Contract.EIP712EXCHANGEDOMAINHASH(&f.CallOpts)
 }
 
 // AccountIdToAddress is a free data retrieval call binding the contract method 0x899706c0.
 //
-// Solidity: function accountIdToAddress(bytes32 ) constant returns(address)
+// Solidity: function accountIdToAddress(bytes32 ) view returns(address)
 func (f *FuturesCaller) AccountIdToAddress(opts *bind.CallOpts, arg0 [32]byte) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -251,21 +250,21 @@ func (f *FuturesCaller) AccountIdToAddress(opts *bind.CallOpts, arg0 [32]byte) (
 
 // AccountIdToAddress is a free data retrieval call binding the contract method 0x899706c0.
 //
-// Solidity: function accountIdToAddress(bytes32 ) constant returns(address)
+// Solidity: function accountIdToAddress(bytes32 ) view returns(address)
 func (f *FuturesSession) AccountIdToAddress(arg0 [32]byte) (common.Address, error) {
 	return f.Contract.AccountIdToAddress(&f.CallOpts, arg0)
 }
 
 // AccountIdToAddress is a free data retrieval call binding the contract method 0x899706c0.
 //
-// Solidity: function accountIdToAddress(bytes32 ) constant returns(address)
+// Solidity: function accountIdToAddress(bytes32 ) view returns(address)
 func (f *FuturesCallerSession) AccountIdToAddress(arg0 [32]byte) (common.Address, error) {
 	return f.Contract.AccountIdToAddress(&f.CallOpts, arg0)
 }
 
 // AccountNonce is a free data retrieval call binding the contract method 0x106cffe2.
 //
-// Solidity: function accountNonce(address ) constant returns(uint256)
+// Solidity: function accountNonce(address ) view returns(uint256)
 func (f *FuturesCaller) AccountNonce(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -277,21 +276,21 @@ func (f *FuturesCaller) AccountNonce(opts *bind.CallOpts, arg0 common.Address) (
 
 // AccountNonce is a free data retrieval call binding the contract method 0x106cffe2.
 //
-// Solidity: function accountNonce(address ) constant returns(uint256)
+// Solidity: function accountNonce(address ) view returns(uint256)
 func (f *FuturesSession) AccountNonce(arg0 common.Address) (*big.Int, error) {
 	return f.Contract.AccountNonce(&f.CallOpts, arg0)
 }
 
 // AccountNonce is a free data retrieval call binding the contract method 0x106cffe2.
 //
-// Solidity: function accountNonce(address ) constant returns(uint256)
+// Solidity: function accountNonce(address ) view returns(uint256)
 func (f *FuturesCallerSession) AccountNonce(arg0 common.Address) (*big.Int, error) {
 	return f.Contract.AccountNonce(&f.CallOpts, arg0)
 }
 
 // Accounts is a free data retrieval call binding the contract method 0xbc529c43.
 //
-// Solidity: function accounts(bytes32 ) constant returns(int256 NAV, int256 NPV, bytes32 accountID)
+// Solidity: function accounts(bytes32 ) view returns(int256 NAV, int256 NPV, bytes32 accountID)
 func (f *FuturesCaller) Accounts(opts *bind.CallOpts, arg0 [32]byte) (struct {
 	NAV       *big.Int
 	NPV       *big.Int
@@ -309,7 +308,7 @@ func (f *FuturesCaller) Accounts(opts *bind.CallOpts, arg0 [32]byte) (struct {
 
 // Accounts is a free data retrieval call binding the contract method 0xbc529c43.
 //
-// Solidity: function accounts(bytes32 ) constant returns(int256 NAV, int256 NPV, bytes32 accountID)
+// Solidity: function accounts(bytes32 ) view returns(int256 NAV, int256 NPV, bytes32 accountID)
 func (f *FuturesSession) Accounts(arg0 [32]byte) (struct {
 	NAV       *big.Int
 	NPV       *big.Int
@@ -320,7 +319,7 @@ func (f *FuturesSession) Accounts(arg0 [32]byte) (struct {
 
 // Accounts is a free data retrieval call binding the contract method 0xbc529c43.
 //
-// Solidity: function accounts(bytes32 ) constant returns(int256 NAV, int256 NPV, bytes32 accountID)
+// Solidity: function accounts(bytes32 ) view returns(int256 NAV, int256 NPV, bytes32 accountID)
 func (f *FuturesCallerSession) Accounts(arg0 [32]byte) (struct {
 	NAV       *big.Int
 	NPV       *big.Int
@@ -331,7 +330,7 @@ func (f *FuturesCallerSession) Accounts(arg0 [32]byte) (struct {
 
 // AddressToAccountIDs is a free data retrieval call binding the contract method 0xfbd6d494.
 //
-// Solidity: function addressToAccountIDs(address , uint256 ) constant returns(bytes32)
+// Solidity: function addressToAccountIDs(address , uint256 ) view returns(bytes32)
 func (f *FuturesCaller) AddressToAccountIDs(opts *bind.CallOpts, arg0 common.Address, arg1 *big.Int) ([32]byte, error) {
 	var (
 		ret0 = new([32]byte)
@@ -343,21 +342,21 @@ func (f *FuturesCaller) AddressToAccountIDs(opts *bind.CallOpts, arg0 common.Add
 
 // AddressToAccountIDs is a free data retrieval call binding the contract method 0xfbd6d494.
 //
-// Solidity: function addressToAccountIDs(address , uint256 ) constant returns(bytes32)
+// Solidity: function addressToAccountIDs(address , uint256 ) view returns(bytes32)
 func (f *FuturesSession) AddressToAccountIDs(arg0 common.Address, arg1 *big.Int) ([32]byte, error) {
 	return f.Contract.AddressToAccountIDs(&f.CallOpts, arg0, arg1)
 }
 
 // AddressToAccountIDs is a free data retrieval call binding the contract method 0xfbd6d494.
 //
-// Solidity: function addressToAccountIDs(address , uint256 ) constant returns(bytes32)
+// Solidity: function addressToAccountIDs(address , uint256 ) view returns(bytes32)
 func (f *FuturesCallerSession) AddressToAccountIDs(arg0 common.Address, arg1 *big.Int) ([32]byte, error) {
 	return f.Contract.AddressToAccountIDs(&f.CallOpts, arg0, arg1)
 }
 
 // AllowedValidators is a free data retrieval call binding the contract method 0x7b8e3514.
 //
-// Solidity: function allowedValidators(address , address ) constant returns(bool)
+// Solidity: function allowedValidators(address , address ) view returns(bool)
 func (f *FuturesCaller) AllowedValidators(opts *bind.CallOpts, arg0 common.Address, arg1 common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -369,21 +368,21 @@ func (f *FuturesCaller) AllowedValidators(opts *bind.CallOpts, arg0 common.Addre
 
 // AllowedValidators is a free data retrieval call binding the contract method 0x7b8e3514.
 //
-// Solidity: function allowedValidators(address , address ) constant returns(bool)
+// Solidity: function allowedValidators(address , address ) view returns(bool)
 func (f *FuturesSession) AllowedValidators(arg0 common.Address, arg1 common.Address) (bool, error) {
 	return f.Contract.AllowedValidators(&f.CallOpts, arg0, arg1)
 }
 
 // AllowedValidators is a free data retrieval call binding the contract method 0x7b8e3514.
 //
-// Solidity: function allowedValidators(address , address ) constant returns(bool)
+// Solidity: function allowedValidators(address , address ) view returns(bool)
 func (f *FuturesCallerSession) AllowedValidators(arg0 common.Address, arg1 common.Address) (bool, error) {
 	return f.Contract.AllowedValidators(&f.CallOpts, arg0, arg1)
 }
 
 // CalcCumulativeFunding is a free data retrieval call binding the contract method 0xc5d135da.
 //
-// Solidity: function calcCumulativeFunding(bytes32 marketID, int256 cumulativeFundingEntry) constant returns(int256)
+// Solidity: function calcCumulativeFunding(bytes32 marketID, int256 cumulativeFundingEntry) view returns(int256)
 func (f *FuturesCaller) CalcCumulativeFunding(opts *bind.CallOpts, marketID [32]byte, cumulativeFundingEntry *big.Int) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -395,21 +394,21 @@ func (f *FuturesCaller) CalcCumulativeFunding(opts *bind.CallOpts, marketID [32]
 
 // CalcCumulativeFunding is a free data retrieval call binding the contract method 0xc5d135da.
 //
-// Solidity: function calcCumulativeFunding(bytes32 marketID, int256 cumulativeFundingEntry) constant returns(int256)
+// Solidity: function calcCumulativeFunding(bytes32 marketID, int256 cumulativeFundingEntry) view returns(int256)
 func (f *FuturesSession) CalcCumulativeFunding(marketID [32]byte, cumulativeFundingEntry *big.Int) (*big.Int, error) {
 	return f.Contract.CalcCumulativeFunding(&f.CallOpts, marketID, cumulativeFundingEntry)
 }
 
 // CalcCumulativeFunding is a free data retrieval call binding the contract method 0xc5d135da.
 //
-// Solidity: function calcCumulativeFunding(bytes32 marketID, int256 cumulativeFundingEntry) constant returns(int256)
+// Solidity: function calcCumulativeFunding(bytes32 marketID, int256 cumulativeFundingEntry) view returns(int256)
 func (f *FuturesCallerSession) CalcCumulativeFunding(marketID [32]byte, cumulativeFundingEntry *big.Int) (*big.Int, error) {
 	return f.Contract.CalcCumulativeFunding(&f.CallOpts, marketID, cumulativeFundingEntry)
 }
 
 // CalcLiquidationFee is a free data retrieval call binding the contract method 0xbbcac0d3.
 //
-// Solidity: function calcLiquidationFee(bytes32 _marketID, uint256 _quantity) constant returns(uint256)
+// Solidity: function calcLiquidationFee(bytes32 _marketID, uint256 _quantity) view returns(uint256)
 func (f *FuturesCaller) CalcLiquidationFee(opts *bind.CallOpts, _marketID [32]byte, _quantity *big.Int) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -421,21 +420,21 @@ func (f *FuturesCaller) CalcLiquidationFee(opts *bind.CallOpts, _marketID [32]by
 
 // CalcLiquidationFee is a free data retrieval call binding the contract method 0xbbcac0d3.
 //
-// Solidity: function calcLiquidationFee(bytes32 _marketID, uint256 _quantity) constant returns(uint256)
+// Solidity: function calcLiquidationFee(bytes32 _marketID, uint256 _quantity) view returns(uint256)
 func (f *FuturesSession) CalcLiquidationFee(_marketID [32]byte, _quantity *big.Int) (*big.Int, error) {
 	return f.Contract.CalcLiquidationFee(&f.CallOpts, _marketID, _quantity)
 }
 
 // CalcLiquidationFee is a free data retrieval call binding the contract method 0xbbcac0d3.
 //
-// Solidity: function calcLiquidationFee(bytes32 _marketID, uint256 _quantity) constant returns(uint256)
+// Solidity: function calcLiquidationFee(bytes32 _marketID, uint256 _quantity) view returns(uint256)
 func (f *FuturesCallerSession) CalcLiquidationFee(_marketID [32]byte, _quantity *big.Int) (*big.Int, error) {
 	return f.Contract.CalcLiquidationFee(&f.CallOpts, _marketID, _quantity)
 }
 
 // CalcMinMargin is a free data retrieval call binding the contract method 0x35c43c4e.
 //
-// Solidity: function calcMinMargin(bytes32 marketID, uint256 quantity, uint256 price) constant returns(uint256)
+// Solidity: function calcMinMargin(bytes32 marketID, uint256 quantity, uint256 price) view returns(uint256)
 func (f *FuturesCaller) CalcMinMargin(opts *bind.CallOpts, marketID [32]byte, quantity *big.Int, price *big.Int) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -447,21 +446,21 @@ func (f *FuturesCaller) CalcMinMargin(opts *bind.CallOpts, marketID [32]byte, qu
 
 // CalcMinMargin is a free data retrieval call binding the contract method 0x35c43c4e.
 //
-// Solidity: function calcMinMargin(bytes32 marketID, uint256 quantity, uint256 price) constant returns(uint256)
+// Solidity: function calcMinMargin(bytes32 marketID, uint256 quantity, uint256 price) view returns(uint256)
 func (f *FuturesSession) CalcMinMargin(marketID [32]byte, quantity *big.Int, price *big.Int) (*big.Int, error) {
 	return f.Contract.CalcMinMargin(&f.CallOpts, marketID, quantity, price)
 }
 
 // CalcMinMargin is a free data retrieval call binding the contract method 0x35c43c4e.
 //
-// Solidity: function calcMinMargin(bytes32 marketID, uint256 quantity, uint256 price) constant returns(uint256)
+// Solidity: function calcMinMargin(bytes32 marketID, uint256 quantity, uint256 price) view returns(uint256)
 func (f *FuturesCallerSession) CalcMinMargin(marketID [32]byte, quantity *big.Int, price *big.Int) (*big.Int, error) {
 	return f.Contract.CalcMinMargin(&f.CallOpts, marketID, quantity, price)
 }
 
 // Cancelled is a free data retrieval call binding the contract method 0x2ac12622.
 //
-// Solidity: function cancelled(bytes32 ) constant returns(bool)
+// Solidity: function cancelled(bytes32 ) view returns(bool)
 func (f *FuturesCaller) Cancelled(opts *bind.CallOpts, arg0 [32]byte) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -473,21 +472,21 @@ func (f *FuturesCaller) Cancelled(opts *bind.CallOpts, arg0 [32]byte) (bool, err
 
 // Cancelled is a free data retrieval call binding the contract method 0x2ac12622.
 //
-// Solidity: function cancelled(bytes32 ) constant returns(bool)
+// Solidity: function cancelled(bytes32 ) view returns(bool)
 func (f *FuturesSession) Cancelled(arg0 [32]byte) (bool, error) {
 	return f.Contract.Cancelled(&f.CallOpts, arg0)
 }
 
 // Cancelled is a free data retrieval call binding the contract method 0x2ac12622.
 //
-// Solidity: function cancelled(bytes32 ) constant returns(bool)
+// Solidity: function cancelled(bytes32 ) view returns(bool)
 func (f *FuturesCallerSession) Cancelled(arg0 [32]byte) (bool, error) {
 	return f.Contract.Cancelled(&f.CallOpts, arg0)
 }
 
 // Filled is a free data retrieval call binding the contract method 0x288cdc91.
 //
-// Solidity: function filled(bytes32 ) constant returns(uint256)
+// Solidity: function filled(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) Filled(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -499,21 +498,21 @@ func (f *FuturesCaller) Filled(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, er
 
 // Filled is a free data retrieval call binding the contract method 0x288cdc91.
 //
-// Solidity: function filled(bytes32 ) constant returns(uint256)
+// Solidity: function filled(bytes32 ) view returns(uint256)
 func (f *FuturesSession) Filled(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.Filled(&f.CallOpts, arg0)
 }
 
 // Filled is a free data retrieval call binding the contract method 0x288cdc91.
 //
-// Solidity: function filled(bytes32 ) constant returns(uint256)
+// Solidity: function filled(bytes32 ) view returns(uint256)
 func (f *FuturesCallerSession) Filled(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.Filled(&f.CallOpts, arg0)
 }
 
 // FreeDeposits is a free data retrieval call binding the contract method 0x9a78538f.
 //
-// Solidity: function freeDeposits(address ) constant returns(uint256)
+// Solidity: function freeDeposits(address ) view returns(uint256)
 func (f *FuturesCaller) FreeDeposits(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -525,21 +524,21 @@ func (f *FuturesCaller) FreeDeposits(opts *bind.CallOpts, arg0 common.Address) (
 
 // FreeDeposits is a free data retrieval call binding the contract method 0x9a78538f.
 //
-// Solidity: function freeDeposits(address ) constant returns(uint256)
+// Solidity: function freeDeposits(address ) view returns(uint256)
 func (f *FuturesSession) FreeDeposits(arg0 common.Address) (*big.Int, error) {
 	return f.Contract.FreeDeposits(&f.CallOpts, arg0)
 }
 
 // FreeDeposits is a free data retrieval call binding the contract method 0x9a78538f.
 //
-// Solidity: function freeDeposits(address ) constant returns(uint256)
+// Solidity: function freeDeposits(address ) view returns(uint256)
 func (f *FuturesCallerSession) FreeDeposits(arg0 common.Address) (*big.Int, error) {
 	return f.Contract.FreeDeposits(&f.CallOpts, arg0)
 }
 
 // GetBatchBalancesAndAssetProxyAllowances is a free data retrieval call binding the contract method 0x5bf34fc7.
 //
-// Solidity: function getBatchBalancesAndAssetProxyAllowances(address ownerAddress, address[] tokenAddresses) constant returns(uint256[], uint256[])
+// Solidity: function getBatchBalancesAndAssetProxyAllowances(address ownerAddress, address[] tokenAddresses) view returns(uint256[], uint256[])
 func (f *FuturesCaller) GetBatchBalancesAndAssetProxyAllowances(opts *bind.CallOpts, ownerAddress common.Address, tokenAddresses []common.Address) ([]*big.Int, []*big.Int, error) {
 	var (
 		ret0 = new([]*big.Int)
@@ -555,21 +554,21 @@ func (f *FuturesCaller) GetBatchBalancesAndAssetProxyAllowances(opts *bind.CallO
 
 // GetBatchBalancesAndAssetProxyAllowances is a free data retrieval call binding the contract method 0x5bf34fc7.
 //
-// Solidity: function getBatchBalancesAndAssetProxyAllowances(address ownerAddress, address[] tokenAddresses) constant returns(uint256[], uint256[])
+// Solidity: function getBatchBalancesAndAssetProxyAllowances(address ownerAddress, address[] tokenAddresses) view returns(uint256[], uint256[])
 func (f *FuturesSession) GetBatchBalancesAndAssetProxyAllowances(ownerAddress common.Address, tokenAddresses []common.Address) ([]*big.Int, []*big.Int, error) {
 	return f.Contract.GetBatchBalancesAndAssetProxyAllowances(&f.CallOpts, ownerAddress, tokenAddresses)
 }
 
 // GetBatchBalancesAndAssetProxyAllowances is a free data retrieval call binding the contract method 0x5bf34fc7.
 //
-// Solidity: function getBatchBalancesAndAssetProxyAllowances(address ownerAddress, address[] tokenAddresses) constant returns(uint256[], uint256[])
+// Solidity: function getBatchBalancesAndAssetProxyAllowances(address ownerAddress, address[] tokenAddresses) view returns(uint256[], uint256[])
 func (f *FuturesCallerSession) GetBatchBalancesAndAssetProxyAllowances(ownerAddress common.Address, tokenAddresses []common.Address) ([]*big.Int, []*big.Int, error) {
 	return f.Contract.GetBatchBalancesAndAssetProxyAllowances(&f.CallOpts, ownerAddress, tokenAddresses)
 }
 
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
-// Solidity: function getOrderRelevantStates([]LibOrderOrder orders, bytes[] signatures) constant returns([]LibOrderOrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+// Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) view returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
 func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []LibOrderOrder, signatures [][]byte) (struct {
 	OrdersInfo                []LibOrderOrderInfo
 	FillableTakerAssetAmounts []*big.Int
@@ -587,7 +586,7 @@ func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Lib
 
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
-// Solidity: function getOrderRelevantStates([]LibOrderOrder orders, bytes[] signatures) constant returns([]LibOrderOrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+// Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) view returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
 func (f *FuturesSession) GetOrderRelevantStates(orders []LibOrderOrder, signatures [][]byte) (struct {
 	OrdersInfo                []LibOrderOrderInfo
 	FillableTakerAssetAmounts []*big.Int
@@ -598,7 +597,7 @@ func (f *FuturesSession) GetOrderRelevantStates(orders []LibOrderOrder, signatur
 
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
 //
-// Solidity: function getOrderRelevantStates([]LibOrderOrder orders, bytes[] signatures) constant returns([]LibOrderOrderInfo ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
+// Solidity: function getOrderRelevantStates((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, bytes[] signatures) view returns((uint8,bytes32,uint256)[] ordersInfo, uint256[] fillableTakerAssetAmounts, bool[] isValidSignature)
 func (f *FuturesCallerSession) GetOrderRelevantStates(orders []LibOrderOrder, signatures [][]byte) (struct {
 	OrdersInfo                []LibOrderOrderInfo
 	FillableTakerAssetAmounts []*big.Int
@@ -609,7 +608,7 @@ func (f *FuturesCallerSession) GetOrderRelevantStates(orders []LibOrderOrder, si
 
 // GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
 //
-// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) constant returns(uint256[] positionIDs)
+// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) view returns(uint256[] positionIDs)
 func (f *FuturesCaller) GetPositionIDsForTrader(opts *bind.CallOpts, trader common.Address, marketID [32]byte) ([]*big.Int, error) {
 	var (
 		ret0 = new([]*big.Int)
@@ -621,21 +620,21 @@ func (f *FuturesCaller) GetPositionIDsForTrader(opts *bind.CallOpts, trader comm
 
 // GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
 //
-// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) constant returns(uint256[] positionIDs)
+// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) view returns(uint256[] positionIDs)
 func (f *FuturesSession) GetPositionIDsForTrader(trader common.Address, marketID [32]byte) ([]*big.Int, error) {
 	return f.Contract.GetPositionIDsForTrader(&f.CallOpts, trader, marketID)
 }
 
 // GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
 //
-// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) constant returns(uint256[] positionIDs)
+// Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) view returns(uint256[] positionIDs)
 func (f *FuturesCallerSession) GetPositionIDsForTrader(trader common.Address, marketID [32]byte) ([]*big.Int, error) {
 	return f.Contract.GetPositionIDsForTrader(&f.CallOpts, trader, marketID)
 }
 
 // GetPositionsForTrader is a free data retrieval call binding the contract method 0x0088e8cc.
 //
-// Solidity: function getPositionsForTrader(address trader, bytes32 marketID) constant returns([]TypesPosition)
+// Solidity: function getPositionsForTrader(address trader, bytes32 marketID) view returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256)[])
 func (f *FuturesCaller) GetPositionsForTrader(opts *bind.CallOpts, trader common.Address, marketID [32]byte) ([]TypesPosition, error) {
 	var (
 		ret0 = new([]TypesPosition)
@@ -647,21 +646,21 @@ func (f *FuturesCaller) GetPositionsForTrader(opts *bind.CallOpts, trader common
 
 // GetPositionsForTrader is a free data retrieval call binding the contract method 0x0088e8cc.
 //
-// Solidity: function getPositionsForTrader(address trader, bytes32 marketID) constant returns([]TypesPosition)
+// Solidity: function getPositionsForTrader(address trader, bytes32 marketID) view returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256)[])
 func (f *FuturesSession) GetPositionsForTrader(trader common.Address, marketID [32]byte) ([]TypesPosition, error) {
 	return f.Contract.GetPositionsForTrader(&f.CallOpts, trader, marketID)
 }
 
 // GetPositionsForTrader is a free data retrieval call binding the contract method 0x0088e8cc.
 //
-// Solidity: function getPositionsForTrader(address trader, bytes32 marketID) constant returns([]TypesPosition)
+// Solidity: function getPositionsForTrader(address trader, bytes32 marketID) view returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256)[])
 func (f *FuturesCallerSession) GetPositionsForTrader(trader common.Address, marketID [32]byte) ([]TypesPosition, error) {
 	return f.Contract.GetPositionsForTrader(&f.CallOpts, trader, marketID)
 }
 
 // GetTransferableAssetAmount is a free data retrieval call binding the contract method 0x478482d8.
 //
-// Solidity: function getTransferableAssetAmount(address ownerAddress) constant returns(uint256 transferableAssetAmount)
+// Solidity: function getTransferableAssetAmount(address ownerAddress) view returns(uint256 transferableAssetAmount)
 func (f *FuturesCaller) GetTransferableAssetAmount(opts *bind.CallOpts, ownerAddress common.Address) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -673,21 +672,21 @@ func (f *FuturesCaller) GetTransferableAssetAmount(opts *bind.CallOpts, ownerAdd
 
 // GetTransferableAssetAmount is a free data retrieval call binding the contract method 0x478482d8.
 //
-// Solidity: function getTransferableAssetAmount(address ownerAddress) constant returns(uint256 transferableAssetAmount)
+// Solidity: function getTransferableAssetAmount(address ownerAddress) view returns(uint256 transferableAssetAmount)
 func (f *FuturesSession) GetTransferableAssetAmount(ownerAddress common.Address) (*big.Int, error) {
 	return f.Contract.GetTransferableAssetAmount(&f.CallOpts, ownerAddress)
 }
 
 // GetTransferableAssetAmount is a free data retrieval call binding the contract method 0x478482d8.
 //
-// Solidity: function getTransferableAssetAmount(address ownerAddress) constant returns(uint256 transferableAssetAmount)
+// Solidity: function getTransferableAssetAmount(address ownerAddress) view returns(uint256 transferableAssetAmount)
 func (f *FuturesCallerSession) GetTransferableAssetAmount(ownerAddress common.Address) (*big.Int, error) {
 	return f.Contract.GetTransferableAssetAmount(&f.CallOpts, ownerAddress)
 }
 
 // IsOwner is a free data retrieval call binding the contract method 0x8f32d59b.
 //
-// Solidity: function isOwner() constant returns(bool)
+// Solidity: function isOwner() view returns(bool)
 func (f *FuturesCaller) IsOwner(opts *bind.CallOpts) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -699,21 +698,21 @@ func (f *FuturesCaller) IsOwner(opts *bind.CallOpts) (bool, error) {
 
 // IsOwner is a free data retrieval call binding the contract method 0x8f32d59b.
 //
-// Solidity: function isOwner() constant returns(bool)
+// Solidity: function isOwner() view returns(bool)
 func (f *FuturesSession) IsOwner() (bool, error) {
 	return f.Contract.IsOwner(&f.CallOpts)
 }
 
 // IsOwner is a free data retrieval call binding the contract method 0x8f32d59b.
 //
-// Solidity: function isOwner() constant returns(bool)
+// Solidity: function isOwner() view returns(bool)
 func (f *FuturesCallerSession) IsOwner() (bool, error) {
 	return f.Contract.IsOwner(&f.CallOpts)
 }
 
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
 //
-// Solidity: function isValidOrderSignature(LibOrderOrder order, bytes signature) constant returns(bool isValid)
+// Solidity: function isValidOrderSignature((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, bytes signature) view returns(bool isValid)
 func (f *FuturesCaller) IsValidOrderSignature(opts *bind.CallOpts, order LibOrderOrder, signature []byte) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -725,21 +724,21 @@ func (f *FuturesCaller) IsValidOrderSignature(opts *bind.CallOpts, order LibOrde
 
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
 //
-// Solidity: function isValidOrderSignature(LibOrderOrder order, bytes signature) constant returns(bool isValid)
+// Solidity: function isValidOrderSignature((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, bytes signature) view returns(bool isValid)
 func (f *FuturesSession) IsValidOrderSignature(order LibOrderOrder, signature []byte) (bool, error) {
 	return f.Contract.IsValidOrderSignature(&f.CallOpts, order, signature)
 }
 
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
 //
-// Solidity: function isValidOrderSignature(LibOrderOrder order, bytes signature) constant returns(bool isValid)
+// Solidity: function isValidOrderSignature((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, bytes signature) view returns(bool isValid)
 func (f *FuturesCallerSession) IsValidOrderSignature(order LibOrderOrder, signature []byte) (bool, error) {
 	return f.Contract.IsValidOrderSignature(&f.CallOpts, order, signature)
 }
 
 // MarketCount is a free data retrieval call binding the contract method 0xec979082.
 //
-// Solidity: function marketCount() constant returns(uint256)
+// Solidity: function marketCount() view returns(uint256)
 func (f *FuturesCaller) MarketCount(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -751,21 +750,21 @@ func (f *FuturesCaller) MarketCount(opts *bind.CallOpts) (*big.Int, error) {
 
 // MarketCount is a free data retrieval call binding the contract method 0xec979082.
 //
-// Solidity: function marketCount() constant returns(uint256)
+// Solidity: function marketCount() view returns(uint256)
 func (f *FuturesSession) MarketCount() (*big.Int, error) {
 	return f.Contract.MarketCount(&f.CallOpts)
 }
 
 // MarketCount is a free data retrieval call binding the contract method 0xec979082.
 //
-// Solidity: function marketCount() constant returns(uint256)
+// Solidity: function marketCount() view returns(uint256)
 func (f *FuturesCallerSession) MarketCount() (*big.Int, error) {
 	return f.Contract.MarketCount(&f.CallOpts)
 }
 
 // MarketSerialToID is a free data retrieval call binding the contract method 0xbae18473.
 //
-// Solidity: function marketSerialToID(uint256 ) constant returns(bytes32)
+// Solidity: function marketSerialToID(uint256 ) view returns(bytes32)
 func (f *FuturesCaller) MarketSerialToID(opts *bind.CallOpts, arg0 *big.Int) ([32]byte, error) {
 	var (
 		ret0 = new([32]byte)
@@ -777,21 +776,21 @@ func (f *FuturesCaller) MarketSerialToID(opts *bind.CallOpts, arg0 *big.Int) ([3
 
 // MarketSerialToID is a free data retrieval call binding the contract method 0xbae18473.
 //
-// Solidity: function marketSerialToID(uint256 ) constant returns(bytes32)
+// Solidity: function marketSerialToID(uint256 ) view returns(bytes32)
 func (f *FuturesSession) MarketSerialToID(arg0 *big.Int) ([32]byte, error) {
 	return f.Contract.MarketSerialToID(&f.CallOpts, arg0)
 }
 
 // MarketSerialToID is a free data retrieval call binding the contract method 0xbae18473.
 //
-// Solidity: function marketSerialToID(uint256 ) constant returns(bytes32)
+// Solidity: function marketSerialToID(uint256 ) view returns(bytes32)
 func (f *FuturesCallerSession) MarketSerialToID(arg0 *big.Int) ([32]byte, error) {
 	return f.Contract.MarketSerialToID(&f.CallOpts, arg0)
 }
 
 // MarketToAccountToPositionID is a free data retrieval call binding the contract method 0x54971478.
 //
-// Solidity: function marketToAccountToPositionID(bytes32 , bytes32 ) constant returns(uint256)
+// Solidity: function marketToAccountToPositionID(bytes32 , bytes32 ) view returns(uint256)
 func (f *FuturesCaller) MarketToAccountToPositionID(opts *bind.CallOpts, arg0 [32]byte, arg1 [32]byte) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -803,21 +802,21 @@ func (f *FuturesCaller) MarketToAccountToPositionID(opts *bind.CallOpts, arg0 [3
 
 // MarketToAccountToPositionID is a free data retrieval call binding the contract method 0x54971478.
 //
-// Solidity: function marketToAccountToPositionID(bytes32 , bytes32 ) constant returns(uint256)
+// Solidity: function marketToAccountToPositionID(bytes32 , bytes32 ) view returns(uint256)
 func (f *FuturesSession) MarketToAccountToPositionID(arg0 [32]byte, arg1 [32]byte) (*big.Int, error) {
 	return f.Contract.MarketToAccountToPositionID(&f.CallOpts, arg0, arg1)
 }
 
 // MarketToAccountToPositionID is a free data retrieval call binding the contract method 0x54971478.
 //
-// Solidity: function marketToAccountToPositionID(bytes32 , bytes32 ) constant returns(uint256)
+// Solidity: function marketToAccountToPositionID(bytes32 , bytes32 ) view returns(uint256)
 func (f *FuturesCallerSession) MarketToAccountToPositionID(arg0 [32]byte, arg1 [32]byte) (*big.Int, error) {
 	return f.Contract.MarketToAccountToPositionID(&f.CallOpts, arg0, arg1)
 }
 
 // Markets is a free data retrieval call binding the contract method 0x7564912b.
 //
-// Solidity: function markets(bytes32 ) constant returns(bytes32 marketID, string ticker, address oracle, uint256 initialMarginRatio, uint256 liquidationPenalty, uint256 indexPrice, uint256 currFundingTimestamp, uint256 fundingInterval, int256 cumulativeFunding)
+// Solidity: function markets(bytes32 ) view returns(bytes32 marketID, string ticker, address oracle, uint256 initialMarginRatio, uint256 liquidationPenalty, uint256 indexPrice, uint256 currFundingTimestamp, uint256 fundingInterval, int256 cumulativeFunding)
 func (f *FuturesCaller) Markets(opts *bind.CallOpts, arg0 [32]byte) (struct {
 	MarketID             [32]byte
 	Ticker               string
@@ -847,7 +846,7 @@ func (f *FuturesCaller) Markets(opts *bind.CallOpts, arg0 [32]byte) (struct {
 
 // Markets is a free data retrieval call binding the contract method 0x7564912b.
 //
-// Solidity: function markets(bytes32 ) constant returns(bytes32 marketID, string ticker, address oracle, uint256 initialMarginRatio, uint256 liquidationPenalty, uint256 indexPrice, uint256 currFundingTimestamp, uint256 fundingInterval, int256 cumulativeFunding)
+// Solidity: function markets(bytes32 ) view returns(bytes32 marketID, string ticker, address oracle, uint256 initialMarginRatio, uint256 liquidationPenalty, uint256 indexPrice, uint256 currFundingTimestamp, uint256 fundingInterval, int256 cumulativeFunding)
 func (f *FuturesSession) Markets(arg0 [32]byte) (struct {
 	MarketID             [32]byte
 	Ticker               string
@@ -864,7 +863,7 @@ func (f *FuturesSession) Markets(arg0 [32]byte) (struct {
 
 // Markets is a free data retrieval call binding the contract method 0x7564912b.
 //
-// Solidity: function markets(bytes32 ) constant returns(bytes32 marketID, string ticker, address oracle, uint256 initialMarginRatio, uint256 liquidationPenalty, uint256 indexPrice, uint256 currFundingTimestamp, uint256 fundingInterval, int256 cumulativeFunding)
+// Solidity: function markets(bytes32 ) view returns(bytes32 marketID, string ticker, address oracle, uint256 initialMarginRatio, uint256 liquidationPenalty, uint256 indexPrice, uint256 currFundingTimestamp, uint256 fundingInterval, int256 cumulativeFunding)
 func (f *FuturesCallerSession) Markets(arg0 [32]byte) (struct {
 	MarketID             [32]byte
 	Ticker               string
@@ -881,7 +880,7 @@ func (f *FuturesCallerSession) Markets(arg0 [32]byte) (struct {
 
 // OrderPosition is a free data retrieval call binding the contract method 0x9a9137ce.
 //
-// Solidity: function orderPosition(bytes32 ) constant returns(uint256)
+// Solidity: function orderPosition(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) OrderPosition(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -893,21 +892,21 @@ func (f *FuturesCaller) OrderPosition(opts *bind.CallOpts, arg0 [32]byte) (*big.
 
 // OrderPosition is a free data retrieval call binding the contract method 0x9a9137ce.
 //
-// Solidity: function orderPosition(bytes32 ) constant returns(uint256)
+// Solidity: function orderPosition(bytes32 ) view returns(uint256)
 func (f *FuturesSession) OrderPosition(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.OrderPosition(&f.CallOpts, arg0)
 }
 
 // OrderPosition is a free data retrieval call binding the contract method 0x9a9137ce.
 //
-// Solidity: function orderPosition(bytes32 ) constant returns(uint256)
+// Solidity: function orderPosition(bytes32 ) view returns(uint256)
 func (f *FuturesCallerSession) OrderPosition(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.OrderPosition(&f.CallOpts, arg0)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() constant returns(address)
+// Solidity: function owner() view returns(address)
 func (f *FuturesCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
 	var (
 		ret0 = new(common.Address)
@@ -919,21 +918,21 @@ func (f *FuturesCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() constant returns(address)
+// Solidity: function owner() view returns(address)
 func (f *FuturesSession) Owner() (common.Address, error) {
 	return f.Contract.Owner(&f.CallOpts)
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
 //
-// Solidity: function owner() constant returns(address)
+// Solidity: function owner() view returns(address)
 func (f *FuturesCallerSession) Owner() (common.Address, error) {
 	return f.Contract.Owner(&f.CallOpts)
 }
 
 // PooledDeposits is a free data retrieval call binding the contract method 0xef2bcc0f.
 //
-// Solidity: function pooledDeposits(bytes32 ) constant returns(int256)
+// Solidity: function pooledDeposits(bytes32 ) view returns(int256)
 func (f *FuturesCaller) PooledDeposits(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -945,21 +944,21 @@ func (f *FuturesCaller) PooledDeposits(opts *bind.CallOpts, arg0 [32]byte) (*big
 
 // PooledDeposits is a free data retrieval call binding the contract method 0xef2bcc0f.
 //
-// Solidity: function pooledDeposits(bytes32 ) constant returns(int256)
+// Solidity: function pooledDeposits(bytes32 ) view returns(int256)
 func (f *FuturesSession) PooledDeposits(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.PooledDeposits(&f.CallOpts, arg0)
 }
 
 // PooledDeposits is a free data retrieval call binding the contract method 0xef2bcc0f.
 //
-// Solidity: function pooledDeposits(bytes32 ) constant returns(int256)
+// Solidity: function pooledDeposits(bytes32 ) view returns(int256)
 func (f *FuturesCallerSession) PooledDeposits(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.PooledDeposits(&f.CallOpts, arg0)
 }
 
 // PositionCount is a free data retrieval call binding the contract method 0xe7702d05.
 //
-// Solidity: function positionCount() constant returns(uint256)
+// Solidity: function positionCount() view returns(uint256)
 func (f *FuturesCaller) PositionCount(opts *bind.CallOpts) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -971,21 +970,21 @@ func (f *FuturesCaller) PositionCount(opts *bind.CallOpts) (*big.Int, error) {
 
 // PositionCount is a free data retrieval call binding the contract method 0xe7702d05.
 //
-// Solidity: function positionCount() constant returns(uint256)
+// Solidity: function positionCount() view returns(uint256)
 func (f *FuturesSession) PositionCount() (*big.Int, error) {
 	return f.Contract.PositionCount(&f.CallOpts)
 }
 
 // PositionCount is a free data retrieval call binding the contract method 0xe7702d05.
 //
-// Solidity: function positionCount() constant returns(uint256)
+// Solidity: function positionCount() view returns(uint256)
 func (f *FuturesCallerSession) PositionCount() (*big.Int, error) {
 	return f.Contract.PositionCount(&f.CallOpts)
 }
 
 // Positions is a free data retrieval call binding the contract method 0x99fbab88.
 //
-// Solidity: function positions(uint256 ) constant returns(bytes32 accountID, bytes32 marketID, uint8 direction, uint256 quantity, uint256 contractPrice, int256 NPV, uint256 minMargin, uint256 margin, int256 cumulativeFundingEntry)
+// Solidity: function positions(uint256 ) view returns(bytes32 accountID, bytes32 marketID, uint8 direction, uint256 quantity, uint256 contractPrice, int256 NPV, uint256 minMargin, uint256 margin, int256 cumulativeFundingEntry)
 func (f *FuturesCaller) Positions(opts *bind.CallOpts, arg0 *big.Int) (struct {
 	AccountID              [32]byte
 	MarketID               [32]byte
@@ -1015,7 +1014,7 @@ func (f *FuturesCaller) Positions(opts *bind.CallOpts, arg0 *big.Int) (struct {
 
 // Positions is a free data retrieval call binding the contract method 0x99fbab88.
 //
-// Solidity: function positions(uint256 ) constant returns(bytes32 accountID, bytes32 marketID, uint8 direction, uint256 quantity, uint256 contractPrice, int256 NPV, uint256 minMargin, uint256 margin, int256 cumulativeFundingEntry)
+// Solidity: function positions(uint256 ) view returns(bytes32 accountID, bytes32 marketID, uint8 direction, uint256 quantity, uint256 contractPrice, int256 NPV, uint256 minMargin, uint256 margin, int256 cumulativeFundingEntry)
 func (f *FuturesSession) Positions(arg0 *big.Int) (struct {
 	AccountID              [32]byte
 	MarketID               [32]byte
@@ -1032,7 +1031,7 @@ func (f *FuturesSession) Positions(arg0 *big.Int) (struct {
 
 // Positions is a free data retrieval call binding the contract method 0x99fbab88.
 //
-// Solidity: function positions(uint256 ) constant returns(bytes32 accountID, bytes32 marketID, uint8 direction, uint256 quantity, uint256 contractPrice, int256 NPV, uint256 minMargin, uint256 margin, int256 cumulativeFundingEntry)
+// Solidity: function positions(uint256 ) view returns(bytes32 accountID, bytes32 marketID, uint8 direction, uint256 quantity, uint256 contractPrice, int256 NPV, uint256 minMargin, uint256 margin, int256 cumulativeFundingEntry)
 func (f *FuturesCallerSession) Positions(arg0 *big.Int) (struct {
 	AccountID              [32]byte
 	MarketID               [32]byte
@@ -1049,7 +1048,7 @@ func (f *FuturesCallerSession) Positions(arg0 *big.Int) (struct {
 
 // PreSigned is a free data retrieval call binding the contract method 0x82c174d0.
 //
-// Solidity: function preSigned(bytes32 , address ) constant returns(bool)
+// Solidity: function preSigned(bytes32 , address ) view returns(bool)
 func (f *FuturesCaller) PreSigned(opts *bind.CallOpts, arg0 [32]byte, arg1 common.Address) (bool, error) {
 	var (
 		ret0 = new(bool)
@@ -1061,21 +1060,21 @@ func (f *FuturesCaller) PreSigned(opts *bind.CallOpts, arg0 [32]byte, arg1 commo
 
 // PreSigned is a free data retrieval call binding the contract method 0x82c174d0.
 //
-// Solidity: function preSigned(bytes32 , address ) constant returns(bool)
+// Solidity: function preSigned(bytes32 , address ) view returns(bool)
 func (f *FuturesSession) PreSigned(arg0 [32]byte, arg1 common.Address) (bool, error) {
 	return f.Contract.PreSigned(&f.CallOpts, arg0, arg1)
 }
 
 // PreSigned is a free data retrieval call binding the contract method 0x82c174d0.
 //
-// Solidity: function preSigned(bytes32 , address ) constant returns(bool)
+// Solidity: function preSigned(bytes32 , address ) view returns(bool)
 func (f *FuturesCallerSession) PreSigned(arg0 [32]byte, arg1 common.Address) (bool, error) {
 	return f.Contract.PreSigned(&f.CallOpts, arg0, arg1)
 }
 
 // RestrictedDeposits is a free data retrieval call binding the contract method 0x9a009c3f.
 //
-// Solidity: function restrictedDeposits(bytes32 ) constant returns(uint256)
+// Solidity: function restrictedDeposits(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) RestrictedDeposits(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -1087,21 +1086,21 @@ func (f *FuturesCaller) RestrictedDeposits(opts *bind.CallOpts, arg0 [32]byte) (
 
 // RestrictedDeposits is a free data retrieval call binding the contract method 0x9a009c3f.
 //
-// Solidity: function restrictedDeposits(bytes32 ) constant returns(uint256)
+// Solidity: function restrictedDeposits(bytes32 ) view returns(uint256)
 func (f *FuturesSession) RestrictedDeposits(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.RestrictedDeposits(&f.CallOpts, arg0)
 }
 
 // RestrictedDeposits is a free data retrieval call binding the contract method 0x9a009c3f.
 //
-// Solidity: function restrictedDeposits(bytes32 ) constant returns(uint256)
+// Solidity: function restrictedDeposits(bytes32 ) view returns(uint256)
 func (f *FuturesCallerSession) RestrictedDeposits(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.RestrictedDeposits(&f.CallOpts, arg0)
 }
 
 // UnrestrictedDeposits is a free data retrieval call binding the contract method 0xa890bb84.
 //
-// Solidity: function unrestrictedDeposits(bytes32 ) constant returns(uint256)
+// Solidity: function unrestrictedDeposits(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) UnrestrictedDeposits(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
 	var (
 		ret0 = new(*big.Int)
@@ -1113,77 +1112,77 @@ func (f *FuturesCaller) UnrestrictedDeposits(opts *bind.CallOpts, arg0 [32]byte)
 
 // UnrestrictedDeposits is a free data retrieval call binding the contract method 0xa890bb84.
 //
-// Solidity: function unrestrictedDeposits(bytes32 ) constant returns(uint256)
+// Solidity: function unrestrictedDeposits(bytes32 ) view returns(uint256)
 func (f *FuturesSession) UnrestrictedDeposits(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.UnrestrictedDeposits(&f.CallOpts, arg0)
 }
 
 // UnrestrictedDeposits is a free data retrieval call binding the contract method 0xa890bb84.
 //
-// Solidity: function unrestrictedDeposits(bytes32 ) constant returns(uint256)
+// Solidity: function unrestrictedDeposits(bytes32 ) view returns(uint256)
 func (f *FuturesCallerSession) UnrestrictedDeposits(arg0 [32]byte) (*big.Int, error) {
 	return f.Contract.UnrestrictedDeposits(&f.CallOpts, arg0)
 }
 
 // CancelOrder is a paid mutator transaction binding the contract method 0x2da62987.
 //
-// Solidity: function cancelOrder(LibOrderOrder order) returns()
+// Solidity: function cancelOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order) returns()
 func (f *FuturesTransactor) CancelOrder(opts *bind.TransactOpts, order LibOrderOrder) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "cancelOrder", order)
 }
 
 // CancelOrder is a paid mutator transaction binding the contract method 0x2da62987.
 //
-// Solidity: function cancelOrder(LibOrderOrder order) returns()
+// Solidity: function cancelOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order) returns()
 func (f *FuturesSession) CancelOrder(order LibOrderOrder) (*types.Transaction, error) {
 	return f.Contract.CancelOrder(&f.TransactOpts, order)
 }
 
 // CancelOrder is a paid mutator transaction binding the contract method 0x2da62987.
 //
-// Solidity: function cancelOrder(LibOrderOrder order) returns()
+// Solidity: function cancelOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order) returns()
 func (f *FuturesTransactorSession) CancelOrder(order LibOrderOrder) (*types.Transaction, error) {
 	return f.Contract.CancelOrder(&f.TransactOpts, order)
 }
 
 // ClosePosition is a paid mutator transaction binding the contract method 0xb012d424.
 //
-// Solidity: function closePosition(uint256 positionID, LibOrderOrder order, uint256 quantity, bytes signature) returns(bytes32)
+// Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns(bytes32)
 func (f *FuturesTransactor) ClosePosition(opts *bind.TransactOpts, positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "closePosition", positionID, order, quantity, signature)
 }
 
 // ClosePosition is a paid mutator transaction binding the contract method 0xb012d424.
 //
-// Solidity: function closePosition(uint256 positionID, LibOrderOrder order, uint256 quantity, bytes signature) returns(bytes32)
+// Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns(bytes32)
 func (f *FuturesSession) ClosePosition(positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.ClosePosition(&f.TransactOpts, positionID, order, quantity, signature)
 }
 
 // ClosePosition is a paid mutator transaction binding the contract method 0xb012d424.
 //
-// Solidity: function closePosition(uint256 positionID, LibOrderOrder order, uint256 quantity, bytes signature) returns(bytes32)
+// Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns(bytes32)
 func (f *FuturesTransactorSession) ClosePosition(positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.ClosePosition(&f.TransactOpts, positionID, order, quantity, signature)
 }
 
 // ClosePositionWithOrders is a paid mutator transaction binding the contract method 0xeeb3da17.
 //
-// Solidity: function closePositionWithOrders(uint256 positionID, []LibOrderOrder orders, uint256 quantity, bytes signature) returns()
+// Solidity: function closePositionWithOrders(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes signature) returns()
 func (f *FuturesTransactor) ClosePositionWithOrders(opts *bind.TransactOpts, positionID *big.Int, orders []LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "closePositionWithOrders", positionID, orders, quantity, signature)
 }
 
 // ClosePositionWithOrders is a paid mutator transaction binding the contract method 0xeeb3da17.
 //
-// Solidity: function closePositionWithOrders(uint256 positionID, []LibOrderOrder orders, uint256 quantity, bytes signature) returns()
+// Solidity: function closePositionWithOrders(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes signature) returns()
 func (f *FuturesSession) ClosePositionWithOrders(positionID *big.Int, orders []LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.ClosePositionWithOrders(&f.TransactOpts, positionID, orders, quantity, signature)
 }
 
 // ClosePositionWithOrders is a paid mutator transaction binding the contract method 0xeeb3da17.
 //
-// Solidity: function closePositionWithOrders(uint256 positionID, []LibOrderOrder orders, uint256 quantity, bytes signature) returns()
+// Solidity: function closePositionWithOrders(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes signature) returns()
 func (f *FuturesTransactorSession) ClosePositionWithOrders(positionID *big.Int, orders []LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.ClosePositionWithOrders(&f.TransactOpts, positionID, orders, quantity, signature)
 }
@@ -1316,21 +1315,21 @@ func (f *FuturesTransactorSession) DepositNewAccount(accountID [32]byte, amount 
 
 // FillOrder is a paid mutator transaction binding the contract method 0x833b2ea5.
 //
-// Solidity: function fillOrder(LibOrderOrder order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
+// Solidity: function fillOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
 func (f *FuturesTransactor) FillOrder(opts *bind.TransactOpts, order LibOrderOrder, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "fillOrder", order, quantity, margin, signature)
 }
 
 // FillOrder is a paid mutator transaction binding the contract method 0x833b2ea5.
 //
-// Solidity: function fillOrder(LibOrderOrder order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
+// Solidity: function fillOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
 func (f *FuturesSession) FillOrder(order LibOrderOrder, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.FillOrder(&f.TransactOpts, order, quantity, margin, signature)
 }
 
 // FillOrder is a paid mutator transaction binding the contract method 0x833b2ea5.
 //
-// Solidity: function fillOrder(LibOrderOrder order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
+// Solidity: function fillOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, uint256 margin, bytes signature) returns(bytes32)
 func (f *FuturesTransactorSession) FillOrder(order LibOrderOrder, quantity *big.Int, margin *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.FillOrder(&f.TransactOpts, order, quantity, margin, signature)
 }
@@ -1358,63 +1357,63 @@ func (f *FuturesTransactorSession) FundPooledDeposits(amount *big.Int, marketID 
 
 // MarketOrders is a paid mutator transaction binding the contract method 0xd440e9b6.
 //
-// Solidity: function marketOrders([]LibOrderOrder orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
+// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
 func (f *FuturesTransactor) MarketOrders(opts *bind.TransactOpts, orders []LibOrderOrder, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "marketOrders", orders, quantity, margin, signatures)
 }
 
 // MarketOrders is a paid mutator transaction binding the contract method 0xd440e9b6.
 //
-// Solidity: function marketOrders([]LibOrderOrder orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
+// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
 func (f *FuturesSession) MarketOrders(orders []LibOrderOrder, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
 	return f.Contract.MarketOrders(&f.TransactOpts, orders, quantity, margin, signatures)
 }
 
 // MarketOrders is a paid mutator transaction binding the contract method 0xd440e9b6.
 //
-// Solidity: function marketOrders([]LibOrderOrder orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
+// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes[] signatures) returns(bytes32)
 func (f *FuturesTransactorSession) MarketOrders(orders []LibOrderOrder, quantity *big.Int, margin *big.Int, signatures [][]byte) (*types.Transaction, error) {
 	return f.Contract.MarketOrders(&f.TransactOpts, orders, quantity, margin, signatures)
 }
 
 // MatchOrders is a paid mutator transaction binding the contract method 0x88ec79fb.
 //
-// Solidity: function matchOrders(LibOrderOrder leftOrder, LibOrderOrder rightOrder, bytes leftSignature, bytes rightSignature) returns()
+// Solidity: function matchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) leftOrder, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes leftSignature, bytes rightSignature) returns()
 func (f *FuturesTransactor) MatchOrders(opts *bind.TransactOpts, leftOrder LibOrderOrder, rightOrder LibOrderOrder, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "matchOrders", leftOrder, rightOrder, leftSignature, rightSignature)
 }
 
 // MatchOrders is a paid mutator transaction binding the contract method 0x88ec79fb.
 //
-// Solidity: function matchOrders(LibOrderOrder leftOrder, LibOrderOrder rightOrder, bytes leftSignature, bytes rightSignature) returns()
+// Solidity: function matchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) leftOrder, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes leftSignature, bytes rightSignature) returns()
 func (f *FuturesSession) MatchOrders(leftOrder LibOrderOrder, rightOrder LibOrderOrder, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.Contract.MatchOrders(&f.TransactOpts, leftOrder, rightOrder, leftSignature, rightSignature)
 }
 
 // MatchOrders is a paid mutator transaction binding the contract method 0x88ec79fb.
 //
-// Solidity: function matchOrders(LibOrderOrder leftOrder, LibOrderOrder rightOrder, bytes leftSignature, bytes rightSignature) returns()
+// Solidity: function matchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) leftOrder, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes leftSignature, bytes rightSignature) returns()
 func (f *FuturesTransactorSession) MatchOrders(leftOrder LibOrderOrder, rightOrder LibOrderOrder, leftSignature []byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.Contract.MatchOrders(&f.TransactOpts, leftOrder, rightOrder, leftSignature, rightSignature)
 }
 
 // MultiMatchOrders is a paid mutator transaction binding the contract method 0x86d7729c.
 //
-// Solidity: function multiMatchOrders([]LibOrderOrder leftOrders, LibOrderOrder rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
+// Solidity: function multiMatchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] leftOrders, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
 func (f *FuturesTransactor) MultiMatchOrders(opts *bind.TransactOpts, leftOrders []LibOrderOrder, rightOrder LibOrderOrder, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "multiMatchOrders", leftOrders, rightOrder, leftSignatures, rightSignature)
 }
 
 // MultiMatchOrders is a paid mutator transaction binding the contract method 0x86d7729c.
 //
-// Solidity: function multiMatchOrders([]LibOrderOrder leftOrders, LibOrderOrder rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
+// Solidity: function multiMatchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] leftOrders, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
 func (f *FuturesSession) MultiMatchOrders(leftOrders []LibOrderOrder, rightOrder LibOrderOrder, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.Contract.MultiMatchOrders(&f.TransactOpts, leftOrders, rightOrder, leftSignatures, rightSignature)
 }
 
 // MultiMatchOrders is a paid mutator transaction binding the contract method 0x86d7729c.
 //
-// Solidity: function multiMatchOrders([]LibOrderOrder leftOrders, LibOrderOrder rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
+// Solidity: function multiMatchOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] leftOrders, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) rightOrder, bytes[] leftSignatures, bytes rightSignature) returns()
 func (f *FuturesTransactorSession) MultiMatchOrders(leftOrders []LibOrderOrder, rightOrder LibOrderOrder, leftSignatures [][]byte, rightSignature []byte) (*types.Transaction, error) {
 	return f.Contract.MultiMatchOrders(&f.TransactOpts, leftOrders, rightOrder, leftSignatures, rightSignature)
 }
@@ -1463,21 +1462,21 @@ func (f *FuturesTransactorSession) TransferOwnership(newOwner common.Address) (*
 
 // VerifyClose is a paid mutator transaction binding the contract method 0xe8e73d08.
 //
-// Solidity: function verifyClose(uint256 positionID, LibOrderOrder order, uint256 quantity, bytes signature) returns(TypesPosition newPosition, bytes32 hash)
+// Solidity: function verifyClose(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256) newPosition, bytes32 hash)
 func (f *FuturesTransactor) VerifyClose(opts *bind.TransactOpts, positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "verifyClose", positionID, order, quantity, signature)
 }
 
 // VerifyClose is a paid mutator transaction binding the contract method 0xe8e73d08.
 //
-// Solidity: function verifyClose(uint256 positionID, LibOrderOrder order, uint256 quantity, bytes signature) returns(TypesPosition newPosition, bytes32 hash)
+// Solidity: function verifyClose(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256) newPosition, bytes32 hash)
 func (f *FuturesSession) VerifyClose(positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.VerifyClose(&f.TransactOpts, positionID, order, quantity, signature)
 }
 
 // VerifyClose is a paid mutator transaction binding the contract method 0xe8e73d08.
 //
-// Solidity: function verifyClose(uint256 positionID, LibOrderOrder order, uint256 quantity, bytes signature) returns(TypesPosition newPosition, bytes32 hash)
+// Solidity: function verifyClose(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, uint256 quantity, bytes signature) returns((bytes32,bytes32,uint8,uint256,uint256,int256,uint256,uint256,int256) newPosition, bytes32 hash)
 func (f *FuturesTransactorSession) VerifyClose(positionID *big.Int, order LibOrderOrder, quantity *big.Int, signature []byte) (*types.Transaction, error) {
 	return f.Contract.VerifyClose(&f.TransactOpts, positionID, order, quantity, signature)
 }
