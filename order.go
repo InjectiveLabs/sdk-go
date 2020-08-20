@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
-
-	"github.com/pkg/errors"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	gethsigner "github.com/ethereum/go-ethereum/signer/core"
+	"github.com/pkg/errors"
 	"golang.org/x/crypto/sha3"
 
 	"github.com/InjectiveLabs/zeroex-go/wrappers"
@@ -237,8 +237,6 @@ func (o *Order) MarshalIntoTrimmedOrderJSON() ([]byte, error) {
 	return trimmedOrderBytes, err
 }
 
-
-
 // SignedOrderJSON is an unmodified JSON representation of a SignedOrder
 type SignedOrderJSON struct {
 	ChainID               int64  `json:"chainId"`
@@ -368,91 +366,137 @@ func (s *SignedOrder) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// OrderStatus represents the status of an order as returned from the 0x smart contracts
+// as part of OrderInfo
+type OrderStatus uint8
 
-// StringSignedOrder is a special signed order structure
-// for including in Msgs, because it consists of just string types besides ChainID.
-type StringSignedOrder struct {
-	// ChainID is a network identifier of the order.
-	ChainID int64 `json:"chainId,omitempty"`
-	// Exchange v3 contract address.
-	ExchangeAddress string `json:"exchangeAddress,omitempty"`
-	// Address that created the order.
-	MakerAddress string `json:"makerAddress,omitempty"`
-	// ABIv2 encoded data that can be decoded by a specified proxy contract when
-	// transferring makerAsset.
-	MakerAssetData string `json:"makerAssetData,omitempty"`
-	// ABIv2 encoded data that can be decoded by a specified proxy contract when
-	// transferring makerFee.
-	MakerFeeAssetData string `json:"makerFeeAssetData,omitempty"`
-	// Amount of makerAsset being offered by maker. Must be greater than 0.
-	MakerAssetAmount string `json:"makerAssetAmount,omitempty"`
-	// Amount of Fee Asset paid to feeRecipientAddress by maker when order is filled. If set to
-	// 0, no transfer of Fee Asset from maker to feeRecipientAddress will be attempted.
-	MakerFee string `json:"makerFee,omitempty"`
-	// Address that is allowed to fill the order. If set to "0x0", any address is
-	// allowed to fill the order.
-	TakerAddress string `json:"takerAddress,omitempty"`
-	// ABIv2 encoded data that can be decoded by a specified proxy contract when
-	// transferring takerAsset.
-	TakerAssetData string `json:"takerAssetData,omitempty"`
-	// ABIv2 encoded data that can be decoded by a specified proxy contract when
-	// transferring takerFee.
-	TakerFeeAssetData string `json:"takerFeeAssetData,omitempty"`
-	// Amount of takerAsset being bid on by maker. Must be greater than 0.
-	TakerAssetAmount string `json:"takerAssetAmount,omitempty"`
-	// Amount of Fee Asset paid to feeRecipientAddress by taker when order is filled. If set to
-	// 0, no transfer of Fee Asset from taker to feeRecipientAddress will be attempted.
-	TakerFee string `json:"takerFee,omitempty"`
-	// Address that is allowed to call Exchange contract methods that affect this
-	// order. If set to "0x0", any address is allowed to call these methods.
-	SenderAddress string `json:"senderAddress,omitempty"`
-	// Address that will receive fees when order is filled.
-	FeeRecipientAddress string `json:"feeRecipientAddress,omitempty"`
-	// Timestamp in seconds at which order expires.
-	ExpirationTimeSeconds string `json:"expirationTimeSeconds,omitempty"`
-	// Arbitrary number to facilitate uniqueness of the order's hash.
-	Salt string `json:"salt,omitempty"`
-	// Order signature.
-	Signature string `json:"signature,omitempty"`
+// OrderStatus values
+const (
+	OSInvalid OrderStatus = iota
+	OSInvalidMakerAssetAmount
+	OSInvalidTakerAssetAmount
+	OSFillable
+	OSExpired
+	OSFullyFilled
+	OSCancelled
+	OSSignatureInvalid
+	OSInvalidMakerAssetData
+	OSInvalidTakerAssetData
+)
+
+// ContractEvent is an event emitted by a smart contract
+type ContractEvent struct {
+	BlockHash  common.Hash
+	TxHash     common.Hash
+	TxIndex    uint
+	LogIndex   uint
+	IsRemoved  bool
+	Address    common.Address
+	Kind       string
+	Parameters interface{}
 }
 
-// StringUnsignedBareOrder is a special unsigned signed order structure
-// for including in Msgs, because it consists of just string types for a bare 0x order without ChainId or ExchangeAddress.
-type StringUnsignedBareOrder struct {
-	// Address that created the order.
-	MakerAddress string `json:"makerAddress,omitempty"`
-	// ABIv2 encoded data that can be decoded by a specified proxy contract when
-	// transferring makerAsset.
-	MakerAssetData string `json:"makerAssetData,omitempty"`
-	// ABIv2 encoded data that can be decoded by a specified proxy contract when
-	// transferring makerFee.
-	MakerFeeAssetData string `json:"makerFeeAssetData,omitempty"`
-	// Amount of makerAsset being offered by maker. Must be greater than 0.
-	MakerAssetAmount string `json:"makerAssetAmount,omitempty"`
-	// Amount of Fee Asset paid to feeRecipientAddress by maker when order is filled. If set to
-	// 0, no transfer of Fee Asset from maker to feeRecipientAddress will be attempted.
-	MakerFee string `json:"makerFee,omitempty"`
-	// Address that is allowed to fill the order. If set to "0x0", any address is
-	// allowed to fill the order.
-	TakerAddress string `json:"takerAddress,omitempty"`
-	// ABIv2 encoded data that can be decoded by a specified proxy contract when
-	// transferring takerAsset.
-	TakerAssetData string `json:"takerAssetData,omitempty"`
-	// ABIv2 encoded data that can be decoded by a specified proxy contract when
-	// transferring takerFee.
-	TakerFeeAssetData string `json:"takerFeeAssetData,omitempty"`
-	// Amount of takerAsset being bid on by maker. Must be greater than 0.
-	TakerAssetAmount string `json:"takerAssetAmount,omitempty"`
-	// Amount of Fee Asset paid to feeRecipientAddress by taker when order is filled. If set to
-	// 0, no transfer of Fee Asset from taker to feeRecipientAddress will be attempted.
-	TakerFee string `json:"takerFee,omitempty"`
-	// Address that is allowed to call Exchange contract methods that affect this
-	// order. If set to "0x0", any address is allowed to call these methods.
-	SenderAddress string `json:"senderAddress,omitempty"`
-	// Address that will receive fees when order is filled.
-	FeeRecipientAddress string `json:"feeRecipientAddress,omitempty"`
-	// Timestamp in seconds at which order expires.
-	ExpirationTimeSeconds string `json:"expirationTimeSeconds,omitempty"`
-	// Arbitrary number to facilitate uniqueness of the order's hash.
-	Salt string `json:"salt,omitempty"`
+type contractEventJSON struct {
+	BlockHash  common.Hash
+	TxHash     common.Hash
+	TxIndex    uint
+	LogIndex   uint
+	IsRemoved  bool
+	Address    common.Address
+	Kind       string
+	Parameters json.RawMessage
 }
+
+// MarshalJSON implements a custom JSON marshaller for the ContractEvent type
+func (c ContractEvent) MarshalJSON() ([]byte, error) {
+	m := map[string]interface{}{
+		"blockHash":  c.BlockHash.Hex(),
+		"txHash":     c.TxHash.Hex(),
+		"txIndex":    c.TxIndex,
+		"logIndex":   c.LogIndex,
+		"isRemoved":  c.IsRemoved,
+		"address":    c.Address,
+		"kind":       c.Kind,
+		"parameters": c.Parameters,
+	}
+	return json.Marshal(m)
+}
+
+// OrderEvent is the order event emitted by Mesh nodes on the "orders" topic
+// when calling JSON-RPC method `mesh_subscribe`
+type OrderEvent struct {
+	// Timestamp is an order event timestamp that can be used for bookkeeping purposes.
+	// If the OrderEvent represents a Mesh-specific event (e.g., ADDED, STOPPED_WATCHING),
+	// the timestamp is when the event was generated. If the event was generated after
+	// re-validating an order at the latest block height (e.g., FILLED, UNFUNDED, CANCELED),
+	// then it is set to the latest block timestamp at which the order was re-validated.
+	Timestamp time.Time `json:"timestamp"`
+	// OrderHash is the EIP712 hash of the 0x order
+	OrderHash common.Hash `json:"orderHash"`
+	// SignedOrder is the signed 0x order struct
+	SignedOrder *SignedOrder `json:"signedOrder"`
+	// EndState is the end state of this order at the time this event was generated
+	EndState OrderEventEndState `json:"endState"`
+	// FillableTakerAssetAmount is the amount for which this order is still fillable
+	FillableTakerAssetAmount *big.Int `json:"fillableTakerAssetAmount"`
+	// ContractEvents contains all the contract events that triggered this orders re-evaluation.
+	// They did not all necessarily cause the orders state change itself, only it's re-evaluation.
+	// Since it's state _did_ change, at least one of them did cause the actual state change.
+	ContractEvents []*ContractEvent `json:"contractEvents"`
+}
+
+type orderEventJSON struct {
+	Timestamp                time.Time            `json:"timestamp"`
+	OrderHash                string               `json:"orderHash"`
+	SignedOrder              *SignedOrder         `json:"signedOrder"`
+	EndState                 string               `json:"endState"`
+	FillableTakerAssetAmount string               `json:"fillableTakerAssetAmount"`
+	ContractEvents           []*contractEventJSON `json:"contractEvents"`
+}
+
+// MarshalJSON implements a custom JSON marshaller for the OrderEvent type
+func (o OrderEvent) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]interface{}{
+		"timestamp":                o.Timestamp,
+		"orderHash":                o.OrderHash.Hex(),
+		"signedOrder":              o.SignedOrder,
+		"endState":                 o.EndState,
+		"fillableTakerAssetAmount": o.FillableTakerAssetAmount.String(),
+		"contractEvents":           o.ContractEvents,
+	})
+}
+
+// OrderEventEndState enumerates all the possible order event types. An OrderEventEndState describes the
+// end state of a 0x order after revalidation
+type OrderEventEndState string
+
+// OrderEventEndState values
+const (
+	// ESInvalid is an event that is never emitted. It is here to discern between a declared but uninitialized OrderEventEndState
+	ESInvalid = OrderEventEndState("INVALID")
+	// ESOrderAdded means an order was successfully added to the Mesh node
+	ESOrderAdded = OrderEventEndState("ADDED")
+	// ESOrderFilled means an order was filled for a partial amount
+	ESOrderFilled = OrderEventEndState("FILLED")
+	// ESOrderFullyFilled means an order was fully filled such that it's remaining fillableTakerAssetAmount is 0
+	ESOrderFullyFilled = OrderEventEndState("FULLY_FILLED")
+	// ESOrderCancelled means an order was cancelled on-chain
+	ESOrderCancelled = OrderEventEndState("CANCELLED")
+	// ESOrderExpired means an order expired according to the latest block timestamp
+	ESOrderExpired = OrderEventEndState("EXPIRED")
+	// ESOrderUnexpired means an order is no longer expired. This can happen if a block re-org causes the latest
+	// block timestamp to decline below the order's expirationTimestamp (rare and usually short-lived)
+	ESOrderUnexpired = OrderEventEndState("UNEXPIRED")
+	// ESOrderBecameUnfunded means an order has become unfunded. This happens if the maker transfers the balance /
+	// changes their allowance backing an order
+	ESOrderBecameUnfunded = OrderEventEndState("UNFUNDED")
+	// ESOrderFillabilityIncreased means the fillability of an order has increased. Fillability for an order can
+	// increase if a previously processed fill event gets reverted, or if a maker tops up their balance/allowance
+	// backing an order
+	ESOrderFillabilityIncreased = OrderEventEndState("FILLABILITY_INCREASED")
+	// ESStoppedWatching means an order is potentially still valid but was removed for a different reason (e.g.
+	// the database is full or the peer that sent the order was misbehaving). The order will no longer be watched
+	// and no further events for this order will be emitted. In some cases, the order may be re-added in the
+	// future.
+	ESStoppedWatching = OrderEventEndState("STOPPED_WATCHING")
+)
