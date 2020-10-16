@@ -103,7 +103,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 
 		txData = &ZeroExTransactionData{
 			FunctionName:          ExchangeFunctionName(method.Name),
-			Orders:                make([]*Order, 1),
+			Orders:                make([]*ZOrder, 1),
 			TakerAssetFillAmounts: make([]*big.Int, 1),
 			Signatures:            make([][]byte, 1),
 		}
@@ -124,7 +124,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 
 		txData = &ZeroExTransactionData{
 			FunctionName:          ExchangeFunctionName(method.Name),
-			Orders:                make([]*Order, len(inputs.Orders)),
+			Orders:                make([]*ZOrder, len(inputs.Orders)),
 			TakerAssetFillAmounts: make([]*big.Int, len(inputs.TakerAssetFillAmounts)),
 			Signatures:            make([][]byte, len(inputs.Signatures)),
 		}
@@ -153,7 +153,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 
 		txData = &ZeroExTransactionData{
 			FunctionName: ExchangeFunctionName(method.Name),
-			Orders:       make([]*Order, len(inputs.Orders)),
+			Orders:       make([]*ZOrder, len(inputs.Orders)),
 			Signatures:   make([][]byte, len(inputs.Signatures)),
 		}
 		for idx, order := range inputs.Orders {
@@ -179,7 +179,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 
 		txData = &ZeroExTransactionData{
 			FunctionName: ExchangeFunctionName(method.Name),
-			Orders:       make([]*Order, len(inputs.Orders)),
+			Orders:       make([]*ZOrder, len(inputs.Orders)),
 			Signatures:   make([][]byte, len(inputs.Signatures)),
 		}
 		for idx, order := range inputs.Orders {
@@ -204,7 +204,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 
 		txData = &ZeroExTransactionData{
 			FunctionName: ExchangeFunctionName(method.Name),
-			Orders:       make([]*Order, 1),
+			Orders:       make([]*ZOrder, 1),
 		}
 		txData.Orders[0] = FromTrimmedOrder(inputs.Order)
 
@@ -220,7 +220,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 
 		txData = &ZeroExTransactionData{
 			FunctionName: ExchangeFunctionName(method.Name),
-			Orders:       make([]*Order, len(inputs.Orders)),
+			Orders:       make([]*ZOrder, len(inputs.Orders)),
 		}
 		for idx, order := range inputs.Orders {
 			txData.Orders[idx] = FromTrimmedOrder(order)
@@ -239,8 +239,8 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 
 		txData = &ZeroExTransactionData{
 			FunctionName:    ExchangeFunctionName(method.Name),
-			LeftOrders:      make([]*Order, len(inputs.LeftOrders)),
-			RightOrders:     make([]*Order, len(inputs.RightOrders)),
+			LeftOrders:      make([]*ZOrder, len(inputs.LeftOrders)),
+			RightOrders:     make([]*ZOrder, len(inputs.RightOrders)),
 			LeftSignatures:  make([][]byte, len(inputs.LeftSignatures)),
 			RightSignatures: make([][]byte, len(inputs.RightSignatures)),
 		}
