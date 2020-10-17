@@ -72,9 +72,9 @@ func (tx *Transaction) ComputeTransactionHash() (common.Hash, error) {
 
 type ZeroExTransactionData struct {
 	FunctionName          ExchangeFunctionName
-	Orders                []*ZOrder
-	LeftOrders            []*ZOrder
-	RightOrders           []*ZOrder
+	Orders                []*Order
+	LeftOrders            []*Order
+	RightOrders           []*Order
 	TakerAssetFillAmounts []*big.Int
 	MakerAssetFillAmount  *big.Int
 	TakerAssetFillAmount  *big.Int

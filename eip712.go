@@ -31,7 +31,7 @@ var eip712OrderTypes = gethsigner.Types{
 			Type: "address",
 		},
 	},
-	"ZOrder": {
+	"Order": {
 		{
 			Name: "makerAddress",
 			Type: "address",

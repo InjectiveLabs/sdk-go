@@ -16,8 +16,8 @@ import (
 	"github.com/InjectiveLabs/zeroex-go/wrappers"
 )
 
-// ZOrder represents an unsigned 0x order
-type ZOrder struct {
+// Order represents an unsigned 0x order
+type Order struct {
 	ChainID               *big.Int       `json:"chainId"`
 	ExchangeAddress       common.Address `json:"exchangeAddress"`
 	MakerAddress          common.Address `json:"makerAddress"`
@@ -41,17 +41,17 @@ type ZOrder struct {
 
 // SignedOrder represents a signed 0x order
 type SignedOrder struct {
-	ZOrder
+	Order
 	Signature []byte `json:"signature"`
 }
 
 // ResetHash resets the cached order hash. Usually only required for testing.
-func (o *ZOrder) ResetHash() {
+func (o *Order) ResetHash() {
 	o.hash = nil
 }
 
 // ComputeOrderHash computes a 0x order hash
-func (o *ZOrder) ComputeOrderHash() (common.Hash, error) {
+func (o *Order) ComputeOrderHash() (common.Hash, error) {
 	if o.hash != nil {
 		return *o.hash, nil
 	}
@@ -83,7 +83,7 @@ func (o *ZOrder) ComputeOrderHash() (common.Hash, error) {
 
 	var typedData = gethsigner.TypedData{
 		Types:       eip712OrderTypes,
-		PrimaryType: "ZOrder",
+		PrimaryType: "Order",
 		Domain:      domain,
 		Message:     message,
 	}
@@ -109,7 +109,7 @@ func (o *ZOrder) ComputeOrderHash() (common.Hash, error) {
 }
 
 // SignOrder signs the 0x order with the supplied Signer.
-func SignOrder(signer Signer, order *ZOrder) (*SignedOrder, error) {
+func SignOrder(signer Signer, order *Order) (*SignedOrder, error) {
 	if order == nil {
 		return nil, errors.New("cannot sign nil order")
 	}
@@ -131,7 +131,7 @@ func SignOrder(signer Signer, order *ZOrder) (*SignedOrder, error) {
 	copy(signature[33:65], ecSignature.S[:])
 	signature[65] = byte(EthSignSignature)
 	signedOrder := &SignedOrder{
-		ZOrder:    *order,
+		Order:     *order,
 		Signature: signature,
 	}
 
@@ -159,8 +159,8 @@ func (s *SignedOrder) Trim() wrappers.Order {
 	}
 }
 
-func FromTrimmedOrder(order wrappers.Order) *ZOrder {
-	return &ZOrder{
+func FromTrimmedOrder(order wrappers.Order) *Order {
+	return &Order{
 		MakerAddress:          order.MakerAddress,
 		MakerAssetData:        order.MakerAssetData,
 		MakerFeeAssetData:     order.MakerFeeAssetData,
@@ -178,7 +178,7 @@ func FromTrimmedOrder(order wrappers.Order) *ZOrder {
 	}
 }
 
-// TrimmedOrderJSON is an unmodified JSON representation of a Trimmed ZOrder
+// TrimmedOrderJSON is an unmodified JSON representation of a Trimmed Order
 type TrimmedOrderJSON struct {
 	MakerAddress          string `json:"makerAddress"`
 	MakerAssetData        string `json:"makerAssetData"`
@@ -196,8 +196,8 @@ type TrimmedOrderJSON struct {
 	Salt                  string `json:"salt"`
 }
 
-// MarshalJSON implements a custom JSON marshaller for the ZOrder type into Trimmed ZOrder
-func (o *ZOrder) MarshalIntoTrimmedOrderJSON() ([]byte, error) {
+// MarshalJSON implements a custom JSON marshaller for the Order type into Trimmed Order
+func (o *Order) MarshalIntoTrimmedOrderJSON() ([]byte, error) {
 	makerAssetData := "0x"
 	if len(o.MakerAssetData) != 0 {
 		makerAssetData = fmt.Sprintf("0x%s", common.Bytes2Hex(o.MakerAssetData))
@@ -366,13 +366,13 @@ func (s *SignedOrder) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// ZOrderStatus represents the status of an order as returned from the 0x smart contracts
+// OrderStatus represents the status of an order as returned from the 0x smart contracts
 // as part of OrderInfo
-type ZOrderStatus uint8
+type OrderStatus uint8
 
-// ZOrderStatus values
+// OrderStatus values
 const (
-	OSInvalid ZOrderStatus = iota
+	OSInvalid OrderStatus = iota
 	OSInvalidMakerAssetAmount
 	OSInvalidTakerAssetAmount
 	OSFillable
