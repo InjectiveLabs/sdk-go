@@ -48,7 +48,7 @@ type ExchangeTransactor struct {
 
 // ExchangeFilterer is an auto generated log filtering Go binding around an Klaytn contract events.
 type ExchangeFilterer struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+	Contract *bind.BoundContract // Generic Contract wrapper for the low level calls
 }
 
 // ExchangeSession is an auto generated Go binding around an Klaytn contract,
@@ -94,7 +94,7 @@ func NewExchange(address common.Address, backend bind.ContractBackend) (*Exchang
 	if err != nil {
 		return nil, err
 	}
-	return &Exchange{ExchangeCaller: ExchangeCaller{contract: contract}, ExchangeTransactor: ExchangeTransactor{contract: contract}, ExchangeFilterer: ExchangeFilterer{contract: contract}}, nil
+	return &Exchange{ExchangeCaller: ExchangeCaller{contract: contract}, ExchangeTransactor: ExchangeTransactor{contract: contract}, ExchangeFilterer: ExchangeFilterer{Contract: contract}}, nil
 }
 
 // NewExchangeCaller creates a new read-only instance of Exchange, bound to a specific deployed contract.
@@ -121,7 +121,7 @@ func NewExchangeFilterer(address common.Address, filterer bind.ContractFilterer)
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeFilterer{contract: contract}, nil
+	return &ExchangeFilterer{Contract: contract}, nil
 }
 
 // bindExchange binds a generic wrapper to an already deployed contract.
@@ -1251,11 +1251,11 @@ type ExchangeAssetProxyRegistered struct {
 // Solidity: event AssetProxyRegistered(bytes4 id, address assetProxy)
 func (_Exchange *ExchangeFilterer) FilterAssetProxyRegistered(opts *bind.FilterOpts) (*ExchangeAssetProxyRegisteredIterator, error) {
 
-	logs, sub, err := _Exchange.contract.FilterLogs(opts, "AssetProxyRegistered")
+	logs, sub, err := _Exchange.Contract.FilterLogs(opts, "AssetProxyRegistered")
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeAssetProxyRegisteredIterator{contract: _Exchange.contract, event: "AssetProxyRegistered", logs: logs, sub: sub}, nil
+	return &ExchangeAssetProxyRegisteredIterator{contract: _Exchange.Contract, event: "AssetProxyRegistered", logs: logs, sub: sub}, nil
 }
 
 // WatchAssetProxyRegistered is a free log subscription operation binding the contract event 0xd2c6b762299c609bdb96520b58a49bfb80186934d4f71a86a367571a15c03194.
@@ -1263,7 +1263,7 @@ func (_Exchange *ExchangeFilterer) FilterAssetProxyRegistered(opts *bind.FilterO
 // Solidity: event AssetProxyRegistered(bytes4 id, address assetProxy)
 func (_Exchange *ExchangeFilterer) WatchAssetProxyRegistered(opts *bind.WatchOpts, sink chan<- *ExchangeAssetProxyRegistered) (event.Subscription, error) {
 
-	logs, sub, err := _Exchange.contract.WatchLogs(opts, "AssetProxyRegistered")
+	logs, sub, err := _Exchange.Contract.WatchLogs(opts, "AssetProxyRegistered")
 	if err != nil {
 		return nil, err
 	}
@@ -1274,7 +1274,7 @@ func (_Exchange *ExchangeFilterer) WatchAssetProxyRegistered(opts *bind.WatchOpt
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(ExchangeAssetProxyRegistered)
-				if err := _Exchange.contract.UnpackLog(event, "AssetProxyRegistered", log); err != nil {
+				if err := _Exchange.Contract.UnpackLog(event, "AssetProxyRegistered", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1300,7 +1300,7 @@ func (_Exchange *ExchangeFilterer) WatchAssetProxyRegistered(opts *bind.WatchOpt
 // Solidity: event AssetProxyRegistered(bytes4 id, address assetProxy)
 func (_Exchange *ExchangeFilterer) ParseAssetProxyRegistered(log types.Log) (*ExchangeAssetProxyRegistered, error) {
 	event := new(ExchangeAssetProxyRegistered)
-	if err := _Exchange.contract.UnpackLog(event, "AssetProxyRegistered", log); err != nil {
+	if err := _Exchange.Contract.UnpackLog(event, "AssetProxyRegistered", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -1403,11 +1403,11 @@ func (_Exchange *ExchangeFilterer) FilterCancel(opts *bind.FilterOpts, makerAddr
 		orderHashRule = append(orderHashRule, orderHashItem)
 	}
 
-	logs, sub, err := _Exchange.contract.FilterLogs(opts, "Cancel", makerAddressRule, feeRecipientAddressRule, orderHashRule)
+	logs, sub, err := _Exchange.Contract.FilterLogs(opts, "Cancel", makerAddressRule, feeRecipientAddressRule, orderHashRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeCancelIterator{contract: _Exchange.contract, event: "Cancel", logs: logs, sub: sub}, nil
+	return &ExchangeCancelIterator{contract: _Exchange.Contract, event: "Cancel", logs: logs, sub: sub}, nil
 }
 
 // WatchCancel is a free log subscription operation binding the contract event 0x02c310a9a43963ff31a754a4099cc435ed498049687539d72d7818d9b093415c.
@@ -1429,7 +1429,7 @@ func (_Exchange *ExchangeFilterer) WatchCancel(opts *bind.WatchOpts, sink chan<-
 		orderHashRule = append(orderHashRule, orderHashItem)
 	}
 
-	logs, sub, err := _Exchange.contract.WatchLogs(opts, "Cancel", makerAddressRule, feeRecipientAddressRule, orderHashRule)
+	logs, sub, err := _Exchange.Contract.WatchLogs(opts, "Cancel", makerAddressRule, feeRecipientAddressRule, orderHashRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1440,7 +1440,7 @@ func (_Exchange *ExchangeFilterer) WatchCancel(opts *bind.WatchOpts, sink chan<-
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(ExchangeCancel)
-				if err := _Exchange.contract.UnpackLog(event, "Cancel", log); err != nil {
+				if err := _Exchange.Contract.UnpackLog(event, "Cancel", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1466,7 +1466,7 @@ func (_Exchange *ExchangeFilterer) WatchCancel(opts *bind.WatchOpts, sink chan<-
 // Solidity: event Cancel(address indexed makerAddress, address indexed feeRecipientAddress, bytes makerAssetData, bytes takerAssetData, address senderAddress, bytes32 indexed orderHash)
 func (_Exchange *ExchangeFilterer) ParseCancel(log types.Log) (*ExchangeCancel, error) {
 	event := new(ExchangeCancel)
-	if err := _Exchange.contract.UnpackLog(event, "Cancel", log); err != nil {
+	if err := _Exchange.Contract.UnpackLog(event, "Cancel", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -1561,11 +1561,11 @@ func (_Exchange *ExchangeFilterer) FilterCancelUpTo(opts *bind.FilterOpts, maker
 		orderSenderAddressRule = append(orderSenderAddressRule, orderSenderAddressItem)
 	}
 
-	logs, sub, err := _Exchange.contract.FilterLogs(opts, "CancelUpTo", makerAddressRule, orderSenderAddressRule)
+	logs, sub, err := _Exchange.Contract.FilterLogs(opts, "CancelUpTo", makerAddressRule, orderSenderAddressRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeCancelUpToIterator{contract: _Exchange.contract, event: "CancelUpTo", logs: logs, sub: sub}, nil
+	return &ExchangeCancelUpToIterator{contract: _Exchange.Contract, event: "CancelUpTo", logs: logs, sub: sub}, nil
 }
 
 // WatchCancelUpTo is a free log subscription operation binding the contract event 0x82af639571738f4ebd4268fb0363d8957ebe1bbb9e78dba5ebd69eed39b154f0.
@@ -1582,7 +1582,7 @@ func (_Exchange *ExchangeFilterer) WatchCancelUpTo(opts *bind.WatchOpts, sink ch
 		orderSenderAddressRule = append(orderSenderAddressRule, orderSenderAddressItem)
 	}
 
-	logs, sub, err := _Exchange.contract.WatchLogs(opts, "CancelUpTo", makerAddressRule, orderSenderAddressRule)
+	logs, sub, err := _Exchange.Contract.WatchLogs(opts, "CancelUpTo", makerAddressRule, orderSenderAddressRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1593,7 +1593,7 @@ func (_Exchange *ExchangeFilterer) WatchCancelUpTo(opts *bind.WatchOpts, sink ch
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(ExchangeCancelUpTo)
-				if err := _Exchange.contract.UnpackLog(event, "CancelUpTo", log); err != nil {
+				if err := _Exchange.Contract.UnpackLog(event, "CancelUpTo", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1619,7 +1619,7 @@ func (_Exchange *ExchangeFilterer) WatchCancelUpTo(opts *bind.WatchOpts, sink ch
 // Solidity: event CancelUpTo(address indexed makerAddress, address indexed orderSenderAddress, uint256 orderEpoch)
 func (_Exchange *ExchangeFilterer) ParseCancelUpTo(log types.Log) (*ExchangeCancelUpTo, error) {
 	event := new(ExchangeCancelUpTo)
-	if err := _Exchange.contract.UnpackLog(event, "CancelUpTo", log); err != nil {
+	if err := _Exchange.Contract.UnpackLog(event, "CancelUpTo", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -1730,11 +1730,11 @@ func (_Exchange *ExchangeFilterer) FilterFill(opts *bind.FilterOpts, makerAddres
 		orderHashRule = append(orderHashRule, orderHashItem)
 	}
 
-	logs, sub, err := _Exchange.contract.FilterLogs(opts, "Fill", makerAddressRule, feeRecipientAddressRule, orderHashRule)
+	logs, sub, err := _Exchange.Contract.FilterLogs(opts, "Fill", makerAddressRule, feeRecipientAddressRule, orderHashRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeFillIterator{contract: _Exchange.contract, event: "Fill", logs: logs, sub: sub}, nil
+	return &ExchangeFillIterator{contract: _Exchange.Contract, event: "Fill", logs: logs, sub: sub}, nil
 }
 
 // WatchFill is a free log subscription operation binding the contract event 0x6869791f0a34781b29882982cc39e882768cf2c96995c2a110c577c53bc932d5.
@@ -1756,7 +1756,7 @@ func (_Exchange *ExchangeFilterer) WatchFill(opts *bind.WatchOpts, sink chan<- *
 		orderHashRule = append(orderHashRule, orderHashItem)
 	}
 
-	logs, sub, err := _Exchange.contract.WatchLogs(opts, "Fill", makerAddressRule, feeRecipientAddressRule, orderHashRule)
+	logs, sub, err := _Exchange.Contract.WatchLogs(opts, "Fill", makerAddressRule, feeRecipientAddressRule, orderHashRule)
 	if err != nil {
 		return nil, err
 	}
@@ -1767,7 +1767,7 @@ func (_Exchange *ExchangeFilterer) WatchFill(opts *bind.WatchOpts, sink chan<- *
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(ExchangeFill)
-				if err := _Exchange.contract.UnpackLog(event, "Fill", log); err != nil {
+				if err := _Exchange.Contract.UnpackLog(event, "Fill", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1793,7 +1793,7 @@ func (_Exchange *ExchangeFilterer) WatchFill(opts *bind.WatchOpts, sink chan<- *
 // Solidity: event Fill(address indexed makerAddress, address indexed feeRecipientAddress, bytes makerAssetData, bytes takerAssetData, bytes makerFeeAssetData, bytes takerFeeAssetData, bytes32 indexed orderHash, address takerAddress, address senderAddress, uint256 makerAssetFilledAmount, uint256 takerAssetFilledAmount, uint256 makerFeePaid, uint256 takerFeePaid, uint256 protocolFeePaid)
 func (_Exchange *ExchangeFilterer) ParseFill(log types.Log) (*ExchangeFill, error) {
 	event := new(ExchangeFill)
-	if err := _Exchange.contract.UnpackLog(event, "Fill", log); err != nil {
+	if err := _Exchange.Contract.UnpackLog(event, "Fill", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -1878,11 +1878,11 @@ type ExchangeProtocolFeeCollectorAddress struct {
 // Solidity: event ProtocolFeeCollectorAddress(address oldProtocolFeeCollector, address updatedProtocolFeeCollector)
 func (_Exchange *ExchangeFilterer) FilterProtocolFeeCollectorAddress(opts *bind.FilterOpts) (*ExchangeProtocolFeeCollectorAddressIterator, error) {
 
-	logs, sub, err := _Exchange.contract.FilterLogs(opts, "ProtocolFeeCollectorAddress")
+	logs, sub, err := _Exchange.Contract.FilterLogs(opts, "ProtocolFeeCollectorAddress")
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeProtocolFeeCollectorAddressIterator{contract: _Exchange.contract, event: "ProtocolFeeCollectorAddress", logs: logs, sub: sub}, nil
+	return &ExchangeProtocolFeeCollectorAddressIterator{contract: _Exchange.Contract, event: "ProtocolFeeCollectorAddress", logs: logs, sub: sub}, nil
 }
 
 // WatchProtocolFeeCollectorAddress is a free log subscription operation binding the contract event 0xe1a5430ebec577336427f40f15822f1f36c5e3509ff209d6db9e6c9e6941cb0b.
@@ -1890,7 +1890,7 @@ func (_Exchange *ExchangeFilterer) FilterProtocolFeeCollectorAddress(opts *bind.
 // Solidity: event ProtocolFeeCollectorAddress(address oldProtocolFeeCollector, address updatedProtocolFeeCollector)
 func (_Exchange *ExchangeFilterer) WatchProtocolFeeCollectorAddress(opts *bind.WatchOpts, sink chan<- *ExchangeProtocolFeeCollectorAddress) (event.Subscription, error) {
 
-	logs, sub, err := _Exchange.contract.WatchLogs(opts, "ProtocolFeeCollectorAddress")
+	logs, sub, err := _Exchange.Contract.WatchLogs(opts, "ProtocolFeeCollectorAddress")
 	if err != nil {
 		return nil, err
 	}
@@ -1901,7 +1901,7 @@ func (_Exchange *ExchangeFilterer) WatchProtocolFeeCollectorAddress(opts *bind.W
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(ExchangeProtocolFeeCollectorAddress)
-				if err := _Exchange.contract.UnpackLog(event, "ProtocolFeeCollectorAddress", log); err != nil {
+				if err := _Exchange.Contract.UnpackLog(event, "ProtocolFeeCollectorAddress", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -1927,7 +1927,7 @@ func (_Exchange *ExchangeFilterer) WatchProtocolFeeCollectorAddress(opts *bind.W
 // Solidity: event ProtocolFeeCollectorAddress(address oldProtocolFeeCollector, address updatedProtocolFeeCollector)
 func (_Exchange *ExchangeFilterer) ParseProtocolFeeCollectorAddress(log types.Log) (*ExchangeProtocolFeeCollectorAddress, error) {
 	event := new(ExchangeProtocolFeeCollectorAddress)
-	if err := _Exchange.contract.UnpackLog(event, "ProtocolFeeCollectorAddress", log); err != nil {
+	if err := _Exchange.Contract.UnpackLog(event, "ProtocolFeeCollectorAddress", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -2012,11 +2012,11 @@ type ExchangeProtocolFeeMultiplier struct {
 // Solidity: event ProtocolFeeMultiplier(uint256 oldProtocolFeeMultiplier, uint256 updatedProtocolFeeMultiplier)
 func (_Exchange *ExchangeFilterer) FilterProtocolFeeMultiplier(opts *bind.FilterOpts) (*ExchangeProtocolFeeMultiplierIterator, error) {
 
-	logs, sub, err := _Exchange.contract.FilterLogs(opts, "ProtocolFeeMultiplier")
+	logs, sub, err := _Exchange.Contract.FilterLogs(opts, "ProtocolFeeMultiplier")
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeProtocolFeeMultiplierIterator{contract: _Exchange.contract, event: "ProtocolFeeMultiplier", logs: logs, sub: sub}, nil
+	return &ExchangeProtocolFeeMultiplierIterator{contract: _Exchange.Contract, event: "ProtocolFeeMultiplier", logs: logs, sub: sub}, nil
 }
 
 // WatchProtocolFeeMultiplier is a free log subscription operation binding the contract event 0x3a3e76d7a75e198aef1f53137e4f2a8a2ec74e2e9526db8404d08ccc9f1e621d.
@@ -2024,7 +2024,7 @@ func (_Exchange *ExchangeFilterer) FilterProtocolFeeMultiplier(opts *bind.Filter
 // Solidity: event ProtocolFeeMultiplier(uint256 oldProtocolFeeMultiplier, uint256 updatedProtocolFeeMultiplier)
 func (_Exchange *ExchangeFilterer) WatchProtocolFeeMultiplier(opts *bind.WatchOpts, sink chan<- *ExchangeProtocolFeeMultiplier) (event.Subscription, error) {
 
-	logs, sub, err := _Exchange.contract.WatchLogs(opts, "ProtocolFeeMultiplier")
+	logs, sub, err := _Exchange.Contract.WatchLogs(opts, "ProtocolFeeMultiplier")
 	if err != nil {
 		return nil, err
 	}
@@ -2035,7 +2035,7 @@ func (_Exchange *ExchangeFilterer) WatchProtocolFeeMultiplier(opts *bind.WatchOp
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(ExchangeProtocolFeeMultiplier)
-				if err := _Exchange.contract.UnpackLog(event, "ProtocolFeeMultiplier", log); err != nil {
+				if err := _Exchange.Contract.UnpackLog(event, "ProtocolFeeMultiplier", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2061,7 +2061,7 @@ func (_Exchange *ExchangeFilterer) WatchProtocolFeeMultiplier(opts *bind.WatchOp
 // Solidity: event ProtocolFeeMultiplier(uint256 oldProtocolFeeMultiplier, uint256 updatedProtocolFeeMultiplier)
 func (_Exchange *ExchangeFilterer) ParseProtocolFeeMultiplier(log types.Log) (*ExchangeProtocolFeeMultiplier, error) {
 	event := new(ExchangeProtocolFeeMultiplier)
-	if err := _Exchange.contract.UnpackLog(event, "ProtocolFeeMultiplier", log); err != nil {
+	if err := _Exchange.Contract.UnpackLog(event, "ProtocolFeeMultiplier", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -2156,11 +2156,11 @@ func (_Exchange *ExchangeFilterer) FilterSignatureValidatorApproval(opts *bind.F
 		validatorAddressRule = append(validatorAddressRule, validatorAddressItem)
 	}
 
-	logs, sub, err := _Exchange.contract.FilterLogs(opts, "SignatureValidatorApproval", signerAddressRule, validatorAddressRule)
+	logs, sub, err := _Exchange.Contract.FilterLogs(opts, "SignatureValidatorApproval", signerAddressRule, validatorAddressRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeSignatureValidatorApprovalIterator{contract: _Exchange.contract, event: "SignatureValidatorApproval", logs: logs, sub: sub}, nil
+	return &ExchangeSignatureValidatorApprovalIterator{contract: _Exchange.Contract, event: "SignatureValidatorApproval", logs: logs, sub: sub}, nil
 }
 
 // WatchSignatureValidatorApproval is a free log subscription operation binding the contract event 0xa8656e308026eeabce8f0bc18048433252318ab80ac79da0b3d3d8697dfba891.
@@ -2177,7 +2177,7 @@ func (_Exchange *ExchangeFilterer) WatchSignatureValidatorApproval(opts *bind.Wa
 		validatorAddressRule = append(validatorAddressRule, validatorAddressItem)
 	}
 
-	logs, sub, err := _Exchange.contract.WatchLogs(opts, "SignatureValidatorApproval", signerAddressRule, validatorAddressRule)
+	logs, sub, err := _Exchange.Contract.WatchLogs(opts, "SignatureValidatorApproval", signerAddressRule, validatorAddressRule)
 	if err != nil {
 		return nil, err
 	}
@@ -2188,7 +2188,7 @@ func (_Exchange *ExchangeFilterer) WatchSignatureValidatorApproval(opts *bind.Wa
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(ExchangeSignatureValidatorApproval)
-				if err := _Exchange.contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
+				if err := _Exchange.Contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2214,7 +2214,7 @@ func (_Exchange *ExchangeFilterer) WatchSignatureValidatorApproval(opts *bind.Wa
 // Solidity: event SignatureValidatorApproval(address indexed signerAddress, address indexed validatorAddress, bool isApproved)
 func (_Exchange *ExchangeFilterer) ParseSignatureValidatorApproval(log types.Log) (*ExchangeSignatureValidatorApproval, error) {
 	event := new(ExchangeSignatureValidatorApproval)
-	if err := _Exchange.contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
+	if err := _Exchange.Contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -2303,11 +2303,11 @@ func (_Exchange *ExchangeFilterer) FilterTransactionExecution(opts *bind.FilterO
 		transactionHashRule = append(transactionHashRule, transactionHashItem)
 	}
 
-	logs, sub, err := _Exchange.contract.FilterLogs(opts, "TransactionExecution", transactionHashRule)
+	logs, sub, err := _Exchange.Contract.FilterLogs(opts, "TransactionExecution", transactionHashRule)
 	if err != nil {
 		return nil, err
 	}
-	return &ExchangeTransactionExecutionIterator{contract: _Exchange.contract, event: "TransactionExecution", logs: logs, sub: sub}, nil
+	return &ExchangeTransactionExecutionIterator{contract: _Exchange.Contract, event: "TransactionExecution", logs: logs, sub: sub}, nil
 }
 
 // WatchTransactionExecution is a free log subscription operation binding the contract event 0xa4a7329f1dd821363067e07d359e347b4af9b1efe4b6cccf13240228af3c800d.
@@ -2320,7 +2320,7 @@ func (_Exchange *ExchangeFilterer) WatchTransactionExecution(opts *bind.WatchOpt
 		transactionHashRule = append(transactionHashRule, transactionHashItem)
 	}
 
-	logs, sub, err := _Exchange.contract.WatchLogs(opts, "TransactionExecution", transactionHashRule)
+	logs, sub, err := _Exchange.Contract.WatchLogs(opts, "TransactionExecution", transactionHashRule)
 	if err != nil {
 		return nil, err
 	}
@@ -2331,7 +2331,7 @@ func (_Exchange *ExchangeFilterer) WatchTransactionExecution(opts *bind.WatchOpt
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(ExchangeTransactionExecution)
-				if err := _Exchange.contract.UnpackLog(event, "TransactionExecution", log); err != nil {
+				if err := _Exchange.Contract.UnpackLog(event, "TransactionExecution", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2357,7 +2357,7 @@ func (_Exchange *ExchangeFilterer) WatchTransactionExecution(opts *bind.WatchOpt
 // Solidity: event TransactionExecution(bytes32 indexed transactionHash)
 func (_Exchange *ExchangeFilterer) ParseTransactionExecution(log types.Log) (*ExchangeTransactionExecution, error) {
 	event := new(ExchangeTransactionExecution)
-	if err := _Exchange.contract.UnpackLog(event, "TransactionExecution", log); err != nil {
+	if err := _Exchange.Contract.UnpackLog(event, "TransactionExecution", log); err != nil {
 		return nil, err
 	}
 	return event, nil

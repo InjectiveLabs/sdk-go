@@ -101,7 +101,7 @@ type FuturesTransactor struct {
 
 // FuturesFilterer is an auto generated log filtering Go binding around an Ethereum contract events.
 type FuturesFilterer struct {
-	contract *bind.BoundContract // Generic contract wrapper for the low level calls
+	Contract *bind.BoundContract // Generic Contract wrapper for the low level calls
 }
 
 // FuturesSession is an auto generated Go binding around an Ethereum contract,
@@ -147,7 +147,7 @@ func NewFutures(address common.Address, backend bind.ContractBackend) (*Futures,
 	if err != nil {
 		return nil, err
 	}
-	return &Futures{FuturesCaller: FuturesCaller{contract: contract}, FuturesTransactor: FuturesTransactor{contract: contract}, FuturesFilterer: FuturesFilterer{contract: contract}}, nil
+	return &Futures{FuturesCaller: FuturesCaller{contract: contract}, FuturesTransactor: FuturesTransactor{contract: contract}, FuturesFilterer: FuturesFilterer{Contract: contract}}, nil
 }
 
 // NewFuturesCaller creates a new read-only instance of Futures, bound to a specific deployed contract.
@@ -174,7 +174,7 @@ func NewFuturesFilterer(address common.Address, filterer bind.ContractFilterer) 
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesFilterer{contract: contract}, nil
+	return &FuturesFilterer{Contract: contract}, nil
 }
 
 // bindFutures binds a generic wrapper to an already deployed contract.
@@ -2104,11 +2104,11 @@ func (f *FuturesFilterer) FilterAccountCreation(opts *bind.FilterOpts, creator [
 		creatorRule = append(creatorRule, creatorItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "AccountCreation", creatorRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "AccountCreation", creatorRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesAccountCreationIterator{contract: f.contract, event: "AccountCreation", logs: logs, sub: sub}, nil
+	return &FuturesAccountCreationIterator{contract: f.Contract, event: "AccountCreation", logs: logs, sub: sub}, nil
 }
 
 // WatchAccountCreation is a free log subscription operation binding the contract event 0x4a6d2d5a911a10d00446d1413ca969c249074711c144e93aeddfa4d77de64784.
@@ -2121,7 +2121,7 @@ func (f *FuturesFilterer) WatchAccountCreation(opts *bind.WatchOpts, sink chan<-
 		creatorRule = append(creatorRule, creatorItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "AccountCreation", creatorRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "AccountCreation", creatorRule)
 	if err != nil {
 		return nil, err
 	}
@@ -2132,7 +2132,7 @@ func (f *FuturesFilterer) WatchAccountCreation(opts *bind.WatchOpts, sink chan<-
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesAccountCreation)
-				if err := f.contract.UnpackLog(event, "AccountCreation", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "AccountCreation", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2158,7 +2158,7 @@ func (f *FuturesFilterer) WatchAccountCreation(opts *bind.WatchOpts, sink chan<-
 // Solidity: event AccountCreation(address indexed creator, bytes32 subAccountID, uint256 subAccountNonce)
 func (f *FuturesFilterer) ParseAccountCreation(log types.Log) (*FuturesAccountCreation, error) {
 	event := new(FuturesAccountCreation)
-	if err := f.contract.UnpackLog(event, "AccountCreation", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "AccountCreation", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -2248,11 +2248,11 @@ func (f *FuturesFilterer) FilterDecrementSubaccountDeposits(opts *bind.FilterOpt
 		subAccountIDRule = append(subAccountIDRule, subAccountIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "DecrementSubaccountDeposits", subAccountIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "DecrementSubaccountDeposits", subAccountIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesDecrementSubaccountDepositsIterator{contract: f.contract, event: "DecrementSubaccountDeposits", logs: logs, sub: sub}, nil
+	return &FuturesDecrementSubaccountDepositsIterator{contract: f.Contract, event: "DecrementSubaccountDeposits", logs: logs, sub: sub}, nil
 }
 
 // WatchDecrementSubaccountDeposits is a free log subscription operation binding the contract event 0x07cbd2a0bd322d5c23e10d71ecca0a9f41b9c9597b2f8736607b9435324e4357.
@@ -2265,7 +2265,7 @@ func (f *FuturesFilterer) WatchDecrementSubaccountDeposits(opts *bind.WatchOpts,
 		subAccountIDRule = append(subAccountIDRule, subAccountIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "DecrementSubaccountDeposits", subAccountIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "DecrementSubaccountDeposits", subAccountIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -2276,7 +2276,7 @@ func (f *FuturesFilterer) WatchDecrementSubaccountDeposits(opts *bind.WatchOpts,
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesDecrementSubaccountDeposits)
-				if err := f.contract.UnpackLog(event, "DecrementSubaccountDeposits", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "DecrementSubaccountDeposits", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2302,7 +2302,7 @@ func (f *FuturesFilterer) WatchDecrementSubaccountDeposits(opts *bind.WatchOpts,
 // Solidity: event DecrementSubaccountDeposits(bytes32 indexed subAccountID, uint256 amount)
 func (f *FuturesFilterer) ParseDecrementSubaccountDeposits(log types.Log) (*FuturesDecrementSubaccountDeposits, error) {
 	event := new(FuturesDecrementSubaccountDeposits)
-	if err := f.contract.UnpackLog(event, "DecrementSubaccountDeposits", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "DecrementSubaccountDeposits", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -2403,11 +2403,11 @@ func (f *FuturesFilterer) FilterFuturesCancel(opts *bind.FilterOpts, makerAddres
 		marketIDRule = append(marketIDRule, marketIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "FuturesCancel", makerAddressRule, orderHashRule, marketIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "FuturesCancel", makerAddressRule, orderHashRule, marketIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesCancelIterator{contract: f.contract, event: "FuturesCancel", logs: logs, sub: sub}, nil
+	return &FuturesCancelIterator{contract: f.Contract, event: "FuturesCancel", logs: logs, sub: sub}, nil
 }
 
 // WatchFuturesCancel is a free log subscription operation binding the contract event 0x414118d90fd71dbfe3eebc508a8edaebe20d4e43ac23c65ba56fe87edb7c61ca.
@@ -2428,7 +2428,7 @@ func (f *FuturesFilterer) WatchFuturesCancel(opts *bind.WatchOpts, sink chan<- *
 		marketIDRule = append(marketIDRule, marketIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "FuturesCancel", makerAddressRule, orderHashRule, marketIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "FuturesCancel", makerAddressRule, orderHashRule, marketIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -2439,7 +2439,7 @@ func (f *FuturesFilterer) WatchFuturesCancel(opts *bind.WatchOpts, sink chan<- *
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesCancel)
-				if err := f.contract.UnpackLog(event, "FuturesCancel", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "FuturesCancel", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2465,7 +2465,7 @@ func (f *FuturesFilterer) WatchFuturesCancel(opts *bind.WatchOpts, sink chan<- *
 // Solidity: event FuturesCancel(address indexed makerAddress, bytes32 indexed orderHash, bytes32 indexed marketID, uint256 contractPrice, uint256 quantityFilled)
 func (f *FuturesFilterer) ParseFuturesCancel(log types.Log) (*FuturesCancel, error) {
 	event := new(FuturesCancel)
-	if err := f.contract.UnpackLog(event, "FuturesCancel", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "FuturesCancel", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -2566,11 +2566,11 @@ func (f *FuturesFilterer) FilterFuturesClose(opts *bind.FilterOpts, positionID [
 		subAccountIDRule = append(subAccountIDRule, subAccountIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "FuturesClose", positionIDRule, marketIDRule, subAccountIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "FuturesClose", positionIDRule, marketIDRule, subAccountIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesCloseIterator{contract: f.contract, event: "FuturesClose", logs: logs, sub: sub}, nil
+	return &FuturesCloseIterator{contract: f.Contract, event: "FuturesClose", logs: logs, sub: sub}, nil
 }
 
 // WatchFuturesClose is a free log subscription operation binding the contract event 0x552b29e4ee304f6809a963a25ef66f4922981189771e56a21c4639b51b3ebff2.
@@ -2591,7 +2591,7 @@ func (f *FuturesFilterer) WatchFuturesClose(opts *bind.WatchOpts, sink chan<- *F
 		subAccountIDRule = append(subAccountIDRule, subAccountIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "FuturesClose", positionIDRule, marketIDRule, subAccountIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "FuturesClose", positionIDRule, marketIDRule, subAccountIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -2602,7 +2602,7 @@ func (f *FuturesFilterer) WatchFuturesClose(opts *bind.WatchOpts, sink chan<- *F
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesClose)
-				if err := f.contract.UnpackLog(event, "FuturesClose", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "FuturesClose", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2628,7 +2628,7 @@ func (f *FuturesFilterer) WatchFuturesClose(opts *bind.WatchOpts, sink chan<- *F
 // Solidity: event FuturesClose(uint256 indexed positionID, bytes32 indexed marketID, bytes32 indexed subAccountID, uint256 quantity, int256 contractPNL)
 func (f *FuturesFilterer) ParseFuturesClose(log types.Log) (*FuturesClose, error) {
 	event := new(FuturesClose)
-	if err := f.contract.UnpackLog(event, "FuturesClose", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "FuturesClose", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -2729,11 +2729,11 @@ func (f *FuturesFilterer) FilterFuturesLiquidation(opts *bind.FilterOpts, positi
 		subAccountIDRule = append(subAccountIDRule, subAccountIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "FuturesLiquidation", positionIDRule, marketIDRule, subAccountIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "FuturesLiquidation", positionIDRule, marketIDRule, subAccountIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesLiquidationIterator{contract: f.contract, event: "FuturesLiquidation", logs: logs, sub: sub}, nil
+	return &FuturesLiquidationIterator{contract: f.Contract, event: "FuturesLiquidation", logs: logs, sub: sub}, nil
 }
 
 // WatchFuturesLiquidation is a free log subscription operation binding the contract event 0xf7def0e827224d4fdf4354d5d330812ba6798aa95fc60d5ed8864290cb04d451.
@@ -2754,7 +2754,7 @@ func (f *FuturesFilterer) WatchFuturesLiquidation(opts *bind.WatchOpts, sink cha
 		subAccountIDRule = append(subAccountIDRule, subAccountIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "FuturesLiquidation", positionIDRule, marketIDRule, subAccountIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "FuturesLiquidation", positionIDRule, marketIDRule, subAccountIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -2765,7 +2765,7 @@ func (f *FuturesFilterer) WatchFuturesLiquidation(opts *bind.WatchOpts, sink cha
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesLiquidation)
-				if err := f.contract.UnpackLog(event, "FuturesLiquidation", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "FuturesLiquidation", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2791,7 +2791,7 @@ func (f *FuturesFilterer) WatchFuturesLiquidation(opts *bind.WatchOpts, sink cha
 // Solidity: event FuturesLiquidation(uint256 indexed positionID, bytes32 indexed marketID, bytes32 indexed subAccountID, uint256 quantity, int256 contractPNL)
 func (f *FuturesFilterer) ParseFuturesLiquidation(log types.Log) (*FuturesLiquidation, error) {
 	event := new(FuturesLiquidation)
-	if err := f.contract.UnpackLog(event, "FuturesLiquidation", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "FuturesLiquidation", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -2891,11 +2891,11 @@ func (f *FuturesFilterer) FilterFuturesMatch(opts *bind.FilterOpts, leftOrderHas
 		marketIDRule = append(marketIDRule, marketIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "FuturesMatch", leftOrderHashRule, rightOrderHashRule, marketIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "FuturesMatch", leftOrderHashRule, rightOrderHashRule, marketIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesMatchIterator{contract: f.contract, event: "FuturesMatch", logs: logs, sub: sub}, nil
+	return &FuturesMatchIterator{contract: f.Contract, event: "FuturesMatch", logs: logs, sub: sub}, nil
 }
 
 // WatchFuturesMatch is a free log subscription operation binding the contract event 0xf6dc3b6914c1ade29b4a0c34e7d47e49d51690d622548649e7f67ced15b09a06.
@@ -2916,7 +2916,7 @@ func (f *FuturesFilterer) WatchFuturesMatch(opts *bind.WatchOpts, sink chan<- *F
 		marketIDRule = append(marketIDRule, marketIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "FuturesMatch", leftOrderHashRule, rightOrderHashRule, marketIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "FuturesMatch", leftOrderHashRule, rightOrderHashRule, marketIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -2927,7 +2927,7 @@ func (f *FuturesFilterer) WatchFuturesMatch(opts *bind.WatchOpts, sink chan<- *F
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesMatch)
-				if err := f.contract.UnpackLog(event, "FuturesMatch", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "FuturesMatch", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -2953,7 +2953,7 @@ func (f *FuturesFilterer) WatchFuturesMatch(opts *bind.WatchOpts, sink chan<- *F
 // Solidity: event FuturesMatch(bytes32 indexed leftOrderHash, bytes32 indexed rightOrderHash, bytes32 indexed marketID, uint256 quantity)
 func (f *FuturesFilterer) ParseFuturesMatch(log types.Log) (*FuturesMatch, error) {
 	event := new(FuturesMatch)
-	if err := f.contract.UnpackLog(event, "FuturesMatch", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "FuturesMatch", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -3048,11 +3048,11 @@ func (f *FuturesFilterer) FilterFuturesOrderFill(opts *bind.FilterOpts, orderHas
 		marketIDRule = append(marketIDRule, marketIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "FuturesOrderFill", orderHashRule, marketIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "FuturesOrderFill", orderHashRule, marketIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesOrderFillIterator{contract: f.contract, event: "FuturesOrderFill", logs: logs, sub: sub}, nil
+	return &FuturesOrderFillIterator{contract: f.Contract, event: "FuturesOrderFill", logs: logs, sub: sub}, nil
 }
 
 // WatchFuturesOrderFill is a free log subscription operation binding the contract event 0xa7c00a70596823b554350f2addbfe1f5b49630f6ff4b8cfebb76e5c37ea402d8.
@@ -3069,7 +3069,7 @@ func (f *FuturesFilterer) WatchFuturesOrderFill(opts *bind.WatchOpts, sink chan<
 		marketIDRule = append(marketIDRule, marketIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "FuturesOrderFill", orderHashRule, marketIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "FuturesOrderFill", orderHashRule, marketIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -3080,7 +3080,7 @@ func (f *FuturesFilterer) WatchFuturesOrderFill(opts *bind.WatchOpts, sink chan<
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesOrderFill)
-				if err := f.contract.UnpackLog(event, "FuturesOrderFill", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "FuturesOrderFill", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -3106,7 +3106,7 @@ func (f *FuturesFilterer) WatchFuturesOrderFill(opts *bind.WatchOpts, sink chan<
 // Solidity: event FuturesOrderFill(bytes32 indexed orderHash, bytes32 indexed marketID, uint256 totalFilled)
 func (f *FuturesFilterer) ParseFuturesOrderFill(log types.Log) (*FuturesOrderFill, error) {
 	event := new(FuturesOrderFill)
-	if err := f.contract.UnpackLog(event, "FuturesOrderFill", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "FuturesOrderFill", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -3214,11 +3214,11 @@ func (f *FuturesFilterer) FilterFuturesPosition(opts *bind.FilterOpts, makerAddr
 		marketIDRule = append(marketIDRule, marketIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "FuturesPosition", makerAddressRule, orderHashRule, marketIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "FuturesPosition", makerAddressRule, orderHashRule, marketIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesPositionIterator{contract: f.contract, event: "FuturesPosition", logs: logs, sub: sub}, nil
+	return &FuturesPositionIterator{contract: f.Contract, event: "FuturesPosition", logs: logs, sub: sub}, nil
 }
 
 // WatchFuturesPosition is a free log subscription operation binding the contract event 0x3f15c65539a543c3d4f963f69449601ff9cb5921e1cf2872cef61f57127ded65.
@@ -3240,7 +3240,7 @@ func (f *FuturesFilterer) WatchFuturesPosition(opts *bind.WatchOpts, sink chan<-
 		marketIDRule = append(marketIDRule, marketIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "FuturesPosition", makerAddressRule, orderHashRule, marketIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "FuturesPosition", makerAddressRule, orderHashRule, marketIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -3251,7 +3251,7 @@ func (f *FuturesFilterer) WatchFuturesPosition(opts *bind.WatchOpts, sink chan<-
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesPosition)
-				if err := f.contract.UnpackLog(event, "FuturesPosition", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "FuturesPosition", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -3277,7 +3277,7 @@ func (f *FuturesFilterer) WatchFuturesPosition(opts *bind.WatchOpts, sink chan<-
 // Solidity: event FuturesPosition(address indexed makerAddress, bytes32 accountId, bytes32 indexed orderHash, bytes32 indexed marketID, uint256 contractPrice, uint256 quantityFilled, uint256 totalQuantity, uint256 initialMargin, int256 cumulativeFundingEntry, uint256 positionID, bool isLong)
 func (f *FuturesFilterer) ParseFuturesPosition(log types.Log) (*FuturesPosition, error) {
 	event := new(FuturesPosition)
-	if err := f.contract.UnpackLog(event, "FuturesPosition", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "FuturesPosition", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -3367,11 +3367,11 @@ func (f *FuturesFilterer) FilterIncrementSubaccountDeposits(opts *bind.FilterOpt
 		subAccountIDRule = append(subAccountIDRule, subAccountIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "IncrementSubaccountDeposits", subAccountIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "IncrementSubaccountDeposits", subAccountIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesIncrementSubaccountDepositsIterator{contract: f.contract, event: "IncrementSubaccountDeposits", logs: logs, sub: sub}, nil
+	return &FuturesIncrementSubaccountDepositsIterator{contract: f.Contract, event: "IncrementSubaccountDeposits", logs: logs, sub: sub}, nil
 }
 
 // WatchIncrementSubaccountDeposits is a free log subscription operation binding the contract event 0xa645c0b79353c4e5184d0db3b4af9170887ad392f0b06f835cfdab50e329b37f.
@@ -3384,7 +3384,7 @@ func (f *FuturesFilterer) WatchIncrementSubaccountDeposits(opts *bind.WatchOpts,
 		subAccountIDRule = append(subAccountIDRule, subAccountIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "IncrementSubaccountDeposits", subAccountIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "IncrementSubaccountDeposits", subAccountIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -3395,7 +3395,7 @@ func (f *FuturesFilterer) WatchIncrementSubaccountDeposits(opts *bind.WatchOpts,
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesIncrementSubaccountDeposits)
-				if err := f.contract.UnpackLog(event, "IncrementSubaccountDeposits", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "IncrementSubaccountDeposits", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -3421,7 +3421,7 @@ func (f *FuturesFilterer) WatchIncrementSubaccountDeposits(opts *bind.WatchOpts,
 // Solidity: event IncrementSubaccountDeposits(bytes32 indexed subAccountID, uint256 amount)
 func (f *FuturesFilterer) ParseIncrementSubaccountDeposits(log types.Log) (*FuturesIncrementSubaccountDeposits, error) {
 	event := new(FuturesIncrementSubaccountDeposits)
-	if err := f.contract.UnpackLog(event, "IncrementSubaccountDeposits", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "IncrementSubaccountDeposits", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -3511,11 +3511,11 @@ func (f *FuturesFilterer) FilterMarginAdded(opts *bind.FilterOpts, positionID []
 		positionIDRule = append(positionIDRule, positionIDItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "MarginAdded", positionIDRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "MarginAdded", positionIDRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesMarginAddedIterator{contract: f.contract, event: "MarginAdded", logs: logs, sub: sub}, nil
+	return &FuturesMarginAddedIterator{contract: f.Contract, event: "MarginAdded", logs: logs, sub: sub}, nil
 }
 
 // WatchMarginAdded is a free log subscription operation binding the contract event 0xe1f22f90ef2dc8cc8b52420487417e2d986cc8001133dff107fda9b9d8a7395b.
@@ -3528,7 +3528,7 @@ func (f *FuturesFilterer) WatchMarginAdded(opts *bind.WatchOpts, sink chan<- *Fu
 		positionIDRule = append(positionIDRule, positionIDItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "MarginAdded", positionIDRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "MarginAdded", positionIDRule)
 	if err != nil {
 		return nil, err
 	}
@@ -3539,7 +3539,7 @@ func (f *FuturesFilterer) WatchMarginAdded(opts *bind.WatchOpts, sink chan<- *Fu
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesMarginAdded)
-				if err := f.contract.UnpackLog(event, "MarginAdded", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "MarginAdded", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -3565,7 +3565,7 @@ func (f *FuturesFilterer) WatchMarginAdded(opts *bind.WatchOpts, sink chan<- *Fu
 // Solidity: event MarginAdded(uint256 indexed positionID, uint256 addedMargin)
 func (f *FuturesFilterer) ParseMarginAdded(log types.Log) (*FuturesMarginAdded, error) {
 	event := new(FuturesMarginAdded)
-	if err := f.contract.UnpackLog(event, "MarginAdded", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "MarginAdded", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -3665,11 +3665,11 @@ func (f *FuturesFilterer) FilterMarketCreation(opts *bind.FilterOpts, marketID [
 		oracleRule = append(oracleRule, oracleItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "MarketCreation", marketIDRule, tickerRule, oracleRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "MarketCreation", marketIDRule, tickerRule, oracleRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesMarketCreationIterator{contract: f.contract, event: "MarketCreation", logs: logs, sub: sub}, nil
+	return &FuturesMarketCreationIterator{contract: f.Contract, event: "MarketCreation", logs: logs, sub: sub}, nil
 }
 
 // WatchMarketCreation is a free log subscription operation binding the contract event 0x04cdf3d5287ea18d308c3d57ba0a554310054a27f0623991a304e64bef9e2eb0.
@@ -3690,7 +3690,7 @@ func (f *FuturesFilterer) WatchMarketCreation(opts *bind.WatchOpts, sink chan<- 
 		oracleRule = append(oracleRule, oracleItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "MarketCreation", marketIDRule, tickerRule, oracleRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "MarketCreation", marketIDRule, tickerRule, oracleRule)
 	if err != nil {
 		return nil, err
 	}
@@ -3701,7 +3701,7 @@ func (f *FuturesFilterer) WatchMarketCreation(opts *bind.WatchOpts, sink chan<- 
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesMarketCreation)
-				if err := f.contract.UnpackLog(event, "MarketCreation", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "MarketCreation", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -3727,7 +3727,7 @@ func (f *FuturesFilterer) WatchMarketCreation(opts *bind.WatchOpts, sink chan<- 
 // Solidity: event MarketCreation(bytes32 indexed marketID, string indexed ticker, address indexed oracle, uint256 maintenanceMarginRatio)
 func (f *FuturesFilterer) ParseMarketCreation(log types.Log) (*FuturesMarketCreation, error) {
 	event := new(FuturesMarketCreation)
-	if err := f.contract.UnpackLog(event, "MarketCreation", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "MarketCreation", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -3821,11 +3821,11 @@ func (f *FuturesFilterer) FilterOwnershipTransferred(opts *bind.FilterOpts, prev
 		newOwnerRule = append(newOwnerRule, newOwnerItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesOwnershipTransferredIterator{contract: f.contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
+	return &FuturesOwnershipTransferredIterator{contract: f.Contract, event: "OwnershipTransferred", logs: logs, sub: sub}, nil
 }
 
 // WatchOwnershipTransferred is a free log subscription operation binding the contract event 0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0.
@@ -3842,7 +3842,7 @@ func (f *FuturesFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink c
 		newOwnerRule = append(newOwnerRule, newOwnerItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "OwnershipTransferred", previousOwnerRule, newOwnerRule)
 	if err != nil {
 		return nil, err
 	}
@@ -3853,7 +3853,7 @@ func (f *FuturesFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink c
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesOwnershipTransferred)
-				if err := f.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -3879,7 +3879,7 @@ func (f *FuturesFilterer) WatchOwnershipTransferred(opts *bind.WatchOpts, sink c
 // Solidity: event OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
 func (f *FuturesFilterer) ParseOwnershipTransferred(log types.Log) (*FuturesOwnershipTransferred, error) {
 	event := new(FuturesOwnershipTransferred)
-	if err := f.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -3963,11 +3963,11 @@ type FuturesPaused struct {
 // Solidity: event Paused(address account)
 func (f *FuturesFilterer) FilterPaused(opts *bind.FilterOpts) (*FuturesPausedIterator, error) {
 
-	logs, sub, err := f.contract.FilterLogs(opts, "Paused")
+	logs, sub, err := f.Contract.FilterLogs(opts, "Paused")
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesPausedIterator{contract: f.contract, event: "Paused", logs: logs, sub: sub}, nil
+	return &FuturesPausedIterator{contract: f.Contract, event: "Paused", logs: logs, sub: sub}, nil
 }
 
 // WatchPaused is a free log subscription operation binding the contract event 0x62e78cea01bee320cd4e420270b5ea74000d11b0c9f74754ebdbfc544b05a258.
@@ -3975,7 +3975,7 @@ func (f *FuturesFilterer) FilterPaused(opts *bind.FilterOpts) (*FuturesPausedIte
 // Solidity: event Paused(address account)
 func (f *FuturesFilterer) WatchPaused(opts *bind.WatchOpts, sink chan<- *FuturesPaused) (event.Subscription, error) {
 
-	logs, sub, err := f.contract.WatchLogs(opts, "Paused")
+	logs, sub, err := f.Contract.WatchLogs(opts, "Paused")
 	if err != nil {
 		return nil, err
 	}
@@ -3986,7 +3986,7 @@ func (f *FuturesFilterer) WatchPaused(opts *bind.WatchOpts, sink chan<- *Futures
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesPaused)
-				if err := f.contract.UnpackLog(event, "Paused", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "Paused", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -4012,7 +4012,7 @@ func (f *FuturesFilterer) WatchPaused(opts *bind.WatchOpts, sink chan<- *Futures
 // Solidity: event Paused(address account)
 func (f *FuturesFilterer) ParsePaused(log types.Log) (*FuturesPaused, error) {
 	event := new(FuturesPaused)
-	if err := f.contract.UnpackLog(event, "Paused", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "Paused", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -4107,11 +4107,11 @@ func (f *FuturesFilterer) FilterSignatureValidatorApproval(opts *bind.FilterOpts
 		validatorAddressRule = append(validatorAddressRule, validatorAddressItem)
 	}
 
-	logs, sub, err := f.contract.FilterLogs(opts, "SignatureValidatorApproval", signerAddressRule, validatorAddressRule)
+	logs, sub, err := f.Contract.FilterLogs(opts, "SignatureValidatorApproval", signerAddressRule, validatorAddressRule)
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesSignatureValidatorApprovalIterator{contract: f.contract, event: "SignatureValidatorApproval", logs: logs, sub: sub}, nil
+	return &FuturesSignatureValidatorApprovalIterator{contract: f.Contract, event: "SignatureValidatorApproval", logs: logs, sub: sub}, nil
 }
 
 // WatchSignatureValidatorApproval is a free log subscription operation binding the contract event 0xa8656e308026eeabce8f0bc18048433252318ab80ac79da0b3d3d8697dfba891.
@@ -4128,7 +4128,7 @@ func (f *FuturesFilterer) WatchSignatureValidatorApproval(opts *bind.WatchOpts, 
 		validatorAddressRule = append(validatorAddressRule, validatorAddressItem)
 	}
 
-	logs, sub, err := f.contract.WatchLogs(opts, "SignatureValidatorApproval", signerAddressRule, validatorAddressRule)
+	logs, sub, err := f.Contract.WatchLogs(opts, "SignatureValidatorApproval", signerAddressRule, validatorAddressRule)
 	if err != nil {
 		return nil, err
 	}
@@ -4139,7 +4139,7 @@ func (f *FuturesFilterer) WatchSignatureValidatorApproval(opts *bind.WatchOpts, 
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesSignatureValidatorApproval)
-				if err := f.contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -4165,7 +4165,7 @@ func (f *FuturesFilterer) WatchSignatureValidatorApproval(opts *bind.WatchOpts, 
 // Solidity: event SignatureValidatorApproval(address indexed signerAddress, address indexed validatorAddress, bool isApproved)
 func (f *FuturesFilterer) ParseSignatureValidatorApproval(log types.Log) (*FuturesSignatureValidatorApproval, error) {
 	event := new(FuturesSignatureValidatorApproval)
-	if err := f.contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
 		return nil, err
 	}
 	return event, nil
@@ -4249,11 +4249,11 @@ type FuturesUnpaused struct {
 // Solidity: event Unpaused(address account)
 func (f *FuturesFilterer) FilterUnpaused(opts *bind.FilterOpts) (*FuturesUnpausedIterator, error) {
 
-	logs, sub, err := f.contract.FilterLogs(opts, "Unpaused")
+	logs, sub, err := f.Contract.FilterLogs(opts, "Unpaused")
 	if err != nil {
 		return nil, err
 	}
-	return &FuturesUnpausedIterator{contract: f.contract, event: "Unpaused", logs: logs, sub: sub}, nil
+	return &FuturesUnpausedIterator{contract: f.Contract, event: "Unpaused", logs: logs, sub: sub}, nil
 }
 
 // WatchUnpaused is a free log subscription operation binding the contract event 0x5db9ee0a495bf2e6ff9c91a7834c1ba4fdd244a5e8aa4e537bd38aeae4b073aa.
@@ -4261,7 +4261,7 @@ func (f *FuturesFilterer) FilterUnpaused(opts *bind.FilterOpts) (*FuturesUnpause
 // Solidity: event Unpaused(address account)
 func (f *FuturesFilterer) WatchUnpaused(opts *bind.WatchOpts, sink chan<- *FuturesUnpaused) (event.Subscription, error) {
 
-	logs, sub, err := f.contract.WatchLogs(opts, "Unpaused")
+	logs, sub, err := f.Contract.WatchLogs(opts, "Unpaused")
 	if err != nil {
 		return nil, err
 	}
@@ -4272,7 +4272,7 @@ func (f *FuturesFilterer) WatchUnpaused(opts *bind.WatchOpts, sink chan<- *Futur
 			case log := <-logs:
 				// New log arrived, parse the event and forward to the user
 				event := new(FuturesUnpaused)
-				if err := f.contract.UnpackLog(event, "Unpaused", log); err != nil {
+				if err := f.Contract.UnpackLog(event, "Unpaused", log); err != nil {
 					return err
 				}
 				event.Raw = log
@@ -4298,7 +4298,7 @@ func (f *FuturesFilterer) WatchUnpaused(opts *bind.WatchOpts, sink chan<- *Futur
 // Solidity: event Unpaused(address account)
 func (f *FuturesFilterer) ParseUnpaused(log types.Log) (*FuturesUnpaused, error) {
 	event := new(FuturesUnpaused)
-	if err := f.contract.UnpackLog(event, "Unpaused", log); err != nil {
+	if err := f.Contract.UnpackLog(event, "Unpaused", log); err != nil {
 		return nil, err
 	}
 	return event, nil
