@@ -209,7 +209,7 @@ func bindFutures(address common.Address, caller bind.ContractCaller, transactor 
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (f *FuturesRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
+func (f *FuturesRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
 	return f.Contract.FuturesCaller.contract.Call(opts, result, method, params...)
 }
 
@@ -228,7 +228,7 @@ func (f *FuturesRaw) Transact(opts *bind.TransactOpts, method string, params ...
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (f *FuturesCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
+func (f *FuturesCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
 	return f.Contract.contract.Call(opts, result, method, params...)
 }
 
@@ -247,17 +247,12 @@ func (f *FuturesTransactorRaw) Transact(opts *bind.TransactOpts, method string, 
 //
 // Solidity: function EIP712_EXCHANGE_DOMAIN_HASH() view returns(bytes32)
 func (f *FuturesCaller) EIP712EXCHANGEDOMAINHASH(opts *bind.CallOpts) ([32]byte, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "EIP712_EXCHANGE_DOMAIN_HASH")
-
-	if err != nil {
-		return *new([32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
-
-	return out0, err
-
+	var (
+		ret0 = new([32]byte)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "EIP712_EXCHANGE_DOMAIN_HASH")
+	return *ret0, err
 }
 
 // EIP712EXCHANGEDOMAINHASH is a free data retrieval call binding the contract method 0xc26cfecd.
@@ -278,17 +273,12 @@ func (f *FuturesCallerSession) EIP712EXCHANGEDOMAINHASH() ([32]byte, error) {
 //
 // Solidity: function MINIMUM_MARGIN_RATIO() view returns(uint256 value)
 func (f *FuturesCaller) MINIMUMMARGINRATIO(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "MINIMUM_MARGIN_RATIO")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "MINIMUM_MARGIN_RATIO")
+	return *ret0, err
 }
 
 // MINIMUMMARGINRATIO is a free data retrieval call binding the contract method 0xe63f9a7d.
@@ -312,19 +302,13 @@ func (f *FuturesCaller) Accounts(opts *bind.CallOpts, arg0 [32]byte) (struct {
 	SubAccountID    [32]byte
 	SubAccountNonce *big.Int
 }, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "accounts", arg0)
-
-	outstruct := new(struct {
+	ret := new(struct {
 		SubAccountID    [32]byte
 		SubAccountNonce *big.Int
 	})
-
-	outstruct.SubAccountID = out[0].([32]byte)
-	outstruct.SubAccountNonce = out[1].(*big.Int)
-
-	return *outstruct, err
-
+	out := ret
+	err := f.contract.Call(opts, out, "accounts", arg0)
+	return *ret, err
 }
 
 // Accounts is a free data retrieval call binding the contract method 0xbc529c43.
@@ -351,17 +335,12 @@ func (f *FuturesCallerSession) Accounts(arg0 [32]byte) (struct {
 //
 // Solidity: function addressToSubAccountIDs(address , uint256 ) view returns(bytes32)
 func (f *FuturesCaller) AddressToSubAccountIDs(opts *bind.CallOpts, arg0 common.Address, arg1 *big.Int) ([32]byte, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "addressToSubAccountIDs", arg0, arg1)
-
-	if err != nil {
-		return *new([32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
-
-	return out0, err
-
+	var (
+		ret0 = new([32]byte)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "addressToSubAccountIDs", arg0, arg1)
+	return *ret0, err
 }
 
 // AddressToSubAccountIDs is a free data retrieval call binding the contract method 0x07294a8e.
@@ -382,17 +361,12 @@ func (f *FuturesCallerSession) AddressToSubAccountIDs(arg0 common.Address, arg1 
 //
 // Solidity: function allowedValidators(address , address ) view returns(bool)
 func (f *FuturesCaller) AllowedValidators(opts *bind.CallOpts, arg0 common.Address, arg1 common.Address) (bool, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "allowedValidators", arg0, arg1)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
-
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "allowedValidators", arg0, arg1)
+	return *ret0, err
 }
 
 // AllowedValidators is a free data retrieval call binding the contract method 0x7b8e3514.
@@ -413,17 +387,12 @@ func (f *FuturesCallerSession) AllowedValidators(arg0 common.Address, arg1 commo
 //
 // Solidity: function calcCumulativeFunding(bytes32 marketID, int256 cumulativeFundingEntry) view returns(int256)
 func (f *FuturesCaller) CalcCumulativeFunding(opts *bind.CallOpts, marketID [32]byte, cumulativeFundingEntry *big.Int) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "calcCumulativeFunding", marketID, cumulativeFundingEntry)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "calcCumulativeFunding", marketID, cumulativeFundingEntry)
+	return *ret0, err
 }
 
 // CalcCumulativeFunding is a free data retrieval call binding the contract method 0xc5d135da.
@@ -444,17 +413,12 @@ func (f *FuturesCallerSession) CalcCumulativeFunding(marketID [32]byte, cumulati
 //
 // Solidity: function calcLiquidationFee(bytes32 marketID, uint256 quantity) view returns(uint256)
 func (f *FuturesCaller) CalcLiquidationFee(opts *bind.CallOpts, marketID [32]byte, quantity *big.Int) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "calcLiquidationFee", marketID, quantity)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "calcLiquidationFee", marketID, quantity)
+	return *ret0, err
 }
 
 // CalcLiquidationFee is a free data retrieval call binding the contract method 0xbbcac0d3.
@@ -475,17 +439,12 @@ func (f *FuturesCallerSession) CalcLiquidationFee(marketID [32]byte, quantity *b
 //
 // Solidity: function calcMinMargin(bytes32 marketID, uint256 quantity, uint256 price) view returns(uint256)
 func (f *FuturesCaller) CalcMinMargin(opts *bind.CallOpts, marketID [32]byte, quantity *big.Int, price *big.Int) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "calcMinMargin", marketID, quantity, price)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "calcMinMargin", marketID, quantity, price)
+	return *ret0, err
 }
 
 // CalcMinMargin is a free data retrieval call binding the contract method 0x35c43c4e.
@@ -506,17 +465,12 @@ func (f *FuturesCallerSession) CalcMinMargin(marketID [32]byte, quantity *big.In
 //
 // Solidity: function cancelled(bytes32 ) view returns(bool)
 func (f *FuturesCaller) Cancelled(opts *bind.CallOpts, arg0 [32]byte) (bool, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "cancelled", arg0)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
-
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "cancelled", arg0)
+	return *ret0, err
 }
 
 // Cancelled is a free data retrieval call binding the contract method 0x2ac12622.
@@ -537,17 +491,12 @@ func (f *FuturesCallerSession) Cancelled(arg0 [32]byte) (bool, error) {
 //
 // Solidity: function computeSubAccountIdFromNonce(address trader, uint256 subAccountNonce) pure returns(bytes32)
 func (f *FuturesCaller) ComputeSubAccountIdFromNonce(opts *bind.CallOpts, trader common.Address, subAccountNonce *big.Int) ([32]byte, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "computeSubAccountIdFromNonce", trader, subAccountNonce)
-
-	if err != nil {
-		return *new([32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
-
-	return out0, err
-
+	var (
+		ret0 = new([32]byte)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "computeSubAccountIdFromNonce", trader, subAccountNonce)
+	return *ret0, err
 }
 
 // ComputeSubAccountIdFromNonce is a free data retrieval call binding the contract method 0x1103b304.
@@ -568,17 +517,12 @@ func (f *FuturesCallerSession) ComputeSubAccountIdFromNonce(trader common.Addres
 //
 // Solidity: function filled(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) Filled(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "filled", arg0)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "filled", arg0)
+	return *ret0, err
 }
 
 // Filled is a free data retrieval call binding the contract method 0x288cdc91.
@@ -599,17 +543,12 @@ func (f *FuturesCallerSession) Filled(arg0 [32]byte) (*big.Int, error) {
 //
 // Solidity: function getDefaultSubAccountDeposits(address baseCurrency, address trader) view returns(uint256)
 func (f *FuturesCaller) GetDefaultSubAccountDeposits(opts *bind.CallOpts, baseCurrency common.Address, trader common.Address) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "getDefaultSubAccountDeposits", baseCurrency, trader)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "getDefaultSubAccountDeposits", baseCurrency, trader)
+	return *ret0, err
 }
 
 // GetDefaultSubAccountDeposits is a free data retrieval call binding the contract method 0x1883e458.
@@ -630,17 +569,12 @@ func (f *FuturesCallerSession) GetDefaultSubAccountDeposits(baseCurrency common.
 //
 // Solidity: function getDefaultSubAccountIdForTrader(address trader) pure returns(bytes32)
 func (f *FuturesCaller) GetDefaultSubAccountIdForTrader(opts *bind.CallOpts, trader common.Address) ([32]byte, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "getDefaultSubAccountIdForTrader", trader)
-
-	if err != nil {
-		return *new([32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
-
-	return out0, err
-
+	var (
+		ret0 = new([32]byte)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "getDefaultSubAccountIdForTrader", trader)
+	return *ret0, err
 }
 
 // GetDefaultSubAccountIdForTrader is a free data retrieval call binding the contract method 0x80755948.
@@ -665,21 +599,14 @@ func (f *FuturesCaller) GetOrderRelevantState(opts *bind.CallOpts, order Order, 
 	FillableTakerAssetAmount *big.Int
 	IsValidSignature         bool
 }, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "getOrderRelevantState", order, signature, indexPrice)
-
-	outstruct := new(struct {
+	ret := new(struct {
 		OrderInfo                DerivativeOrderInfo
 		FillableTakerAssetAmount *big.Int
 		IsValidSignature         bool
 	})
-
-	outstruct.OrderInfo = out[0].(DerivativeOrderInfo)
-	outstruct.FillableTakerAssetAmount = out[1].(*big.Int)
-	outstruct.IsValidSignature = out[2].(bool)
-
-	return *outstruct, err
-
+	out := ret
+	err := f.contract.Call(opts, out, "getOrderRelevantState", order, signature, indexPrice)
+	return *ret, err
 }
 
 // GetOrderRelevantState is a free data retrieval call binding the contract method 0xef3a29b3.
@@ -712,21 +639,14 @@ func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Ord
 	FillableTakerAssetAmounts []*big.Int
 	IsValidSignature          []bool
 }, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "getOrderRelevantStates", orders, signatures)
-
-	outstruct := new(struct {
+	ret := new(struct {
 		OrdersInfo                []DerivativeOrderInfo
 		FillableTakerAssetAmounts []*big.Int
 		IsValidSignature          []bool
 	})
-
-	outstruct.OrdersInfo = out[0].([]DerivativeOrderInfo)
-	outstruct.FillableTakerAssetAmounts = out[1].([]*big.Int)
-	outstruct.IsValidSignature = out[2].([]bool)
-
-	return *outstruct, err
-
+	out := ret
+	err := f.contract.Call(opts, out, "getOrderRelevantStates", orders, signatures)
+	return *ret, err
 }
 
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
@@ -755,17 +675,12 @@ func (f *FuturesCallerSession) GetOrderRelevantStates(orders []Order, signatures
 //
 // Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) view returns(uint256[] positionIDs)
 func (f *FuturesCaller) GetPositionIDsForTrader(opts *bind.CallOpts, trader common.Address, marketID [32]byte) ([]*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "getPositionIDsForTrader", trader, marketID)
-
-	if err != nil {
-		return *new([]*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([]*big.Int)).(*[]*big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new([]*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "getPositionIDsForTrader", trader, marketID)
+	return *ret0, err
 }
 
 // GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
@@ -786,17 +701,12 @@ func (f *FuturesCallerSession) GetPositionIDsForTrader(trader common.Address, ma
 //
 // Solidity: function getPositionsForTrader(address trader, bytes32 marketID) view returns((bytes32,bytes32,uint8,uint256,uint256,uint256,int256,bytes32)[])
 func (f *FuturesCaller) GetPositionsForTrader(opts *bind.CallOpts, trader common.Address, marketID [32]byte) ([]TypesPosition, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "getPositionsForTrader", trader, marketID)
-
-	if err != nil {
-		return *new([]TypesPosition), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([]TypesPosition)).(*[]TypesPosition)
-
-	return out0, err
-
+	var (
+		ret0 = new([]TypesPosition)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "getPositionsForTrader", trader, marketID)
+	return *ret0, err
 }
 
 // GetPositionsForTrader is a free data retrieval call binding the contract method 0x0088e8cc.
@@ -817,17 +727,12 @@ func (f *FuturesCallerSession) GetPositionsForTrader(trader common.Address, mark
 //
 // Solidity: function getTraderSubAccountsCount(address trader) view returns(uint256)
 func (f *FuturesCaller) GetTraderSubAccountsCount(opts *bind.CallOpts, trader common.Address) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "getTraderSubAccountsCount", trader)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "getTraderSubAccountsCount", trader)
+	return *ret0, err
 }
 
 // GetTraderSubAccountsCount is a free data retrieval call binding the contract method 0x603ca5dc.
@@ -848,17 +753,12 @@ func (f *FuturesCallerSession) GetTraderSubAccountsCount(trader common.Address) 
 //
 // Solidity: function getUnitPositionValue(uint256 positionID, uint256 indexPrice) view returns(int256 unitPositionValue)
 func (f *FuturesCaller) GetUnitPositionValue(opts *bind.CallOpts, positionID *big.Int, indexPrice *big.Int) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "getUnitPositionValue", positionID, indexPrice)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "getUnitPositionValue", positionID, indexPrice)
+	return *ret0, err
 }
 
 // GetUnitPositionValue is a free data retrieval call binding the contract method 0x574e2080.
@@ -879,17 +779,12 @@ func (f *FuturesCallerSession) GetUnitPositionValue(positionID *big.Int, indexPr
 //
 // Solidity: function insurancePools(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) InsurancePools(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "insurancePools", arg0)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "insurancePools", arg0)
+	return *ret0, err
 }
 
 // InsurancePools is a free data retrieval call binding the contract method 0x2514c1f1.
@@ -910,17 +805,12 @@ func (f *FuturesCallerSession) InsurancePools(arg0 [32]byte) (*big.Int, error) {
 //
 // Solidity: function isValidOrderSignature((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, bytes signature) view returns(bool isValid)
 func (f *FuturesCaller) IsValidOrderSignature(opts *bind.CallOpts, order Order, signature []byte) (bool, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "isValidOrderSignature", order, signature)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
-
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "isValidOrderSignature", order, signature)
+	return *ret0, err
 }
 
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
@@ -941,17 +831,12 @@ func (f *FuturesCallerSession) IsValidOrderSignature(order Order, signature []by
 //
 // Solidity: function marketCount() view returns(uint256)
 func (f *FuturesCaller) MarketCount(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "marketCount")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "marketCount")
+	return *ret0, err
 }
 
 // MarketCount is a free data retrieval call binding the contract method 0xec979082.
@@ -972,17 +857,12 @@ func (f *FuturesCallerSession) MarketCount() (*big.Int, error) {
 //
 // Solidity: function marketSerialToID(uint256 ) view returns(bytes32)
 func (f *FuturesCaller) MarketSerialToID(opts *bind.CallOpts, arg0 *big.Int) ([32]byte, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "marketSerialToID", arg0)
-
-	if err != nil {
-		return *new([32]byte), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
-
-	return out0, err
-
+	var (
+		ret0 = new([32]byte)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "marketSerialToID", arg0)
+	return *ret0, err
 }
 
 // MarketSerialToID is a free data retrieval call binding the contract method 0xbae18473.
@@ -1015,10 +895,7 @@ func (f *FuturesCaller) Markets(opts *bind.CallOpts, arg0 [32]byte) (struct {
 	CumulativeFunding        *big.Int
 	TransactionFees          TypesTransactionFees
 }, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "markets", arg0)
-
-	outstruct := new(struct {
+	ret := new(struct {
 		MarketID                 [32]byte
 		BaseCurrency             common.Address
 		Ticker                   string
@@ -1031,21 +908,9 @@ func (f *FuturesCaller) Markets(opts *bind.CallOpts, arg0 [32]byte) (struct {
 		CumulativeFunding        *big.Int
 		TransactionFees          TypesTransactionFees
 	})
-
-	outstruct.MarketID = out[0].([32]byte)
-	outstruct.BaseCurrency = out[1].(common.Address)
-	outstruct.Ticker = out[2].(string)
-	outstruct.Oracle = out[3].(common.Address)
-	outstruct.InitialMarginRatioFactor = out[4].(PermyriadMathPermyriad)
-	outstruct.MaintenanceMarginRatio = out[5].(PermyriadMathPermyriad)
-	outstruct.IndexPrice = out[6].(*big.Int)
-	outstruct.NextFundingTimestamp = out[7].(*big.Int)
-	outstruct.FundingInterval = out[8].(*big.Int)
-	outstruct.CumulativeFunding = out[9].(*big.Int)
-	outstruct.TransactionFees = out[10].(TypesTransactionFees)
-
-	return *outstruct, err
-
+	out := ret
+	err := f.contract.Call(opts, out, "markets", arg0)
+	return *ret, err
 }
 
 // Markets is a free data retrieval call binding the contract method 0x7564912b.
@@ -1090,17 +955,12 @@ func (f *FuturesCallerSession) Markets(arg0 [32]byte) (struct {
 //
 // Solidity: function mostRecentEpochQuantity(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) MostRecentEpochQuantity(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "mostRecentEpochQuantity", arg0)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "mostRecentEpochQuantity", arg0)
+	return *ret0, err
 }
 
 // MostRecentEpochQuantity is a free data retrieval call binding the contract method 0xf7a28a1a.
@@ -1121,17 +981,12 @@ func (f *FuturesCallerSession) MostRecentEpochQuantity(arg0 [32]byte) (*big.Int,
 //
 // Solidity: function mostRecentEpochVWAP(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) MostRecentEpochVWAP(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "mostRecentEpochVWAP", arg0)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "mostRecentEpochVWAP", arg0)
+	return *ret0, err
 }
 
 // MostRecentEpochVWAP is a free data retrieval call binding the contract method 0xcf03660b.
@@ -1152,17 +1007,12 @@ func (f *FuturesCallerSession) MostRecentEpochVWAP(arg0 [32]byte) (*big.Int, err
 //
 // Solidity: function mostRecentEpochVolume(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) MostRecentEpochVolume(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "mostRecentEpochVolume", arg0)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "mostRecentEpochVolume", arg0)
+	return *ret0, err
 }
 
 // MostRecentEpochVolume is a free data retrieval call binding the contract method 0x13626422.
@@ -1183,17 +1033,12 @@ func (f *FuturesCallerSession) MostRecentEpochVolume(arg0 [32]byte) (*big.Int, e
 //
 // Solidity: function orderHashToPositionID(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) OrderHashToPositionID(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "orderHashToPositionID", arg0)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "orderHashToPositionID", arg0)
+	return *ret0, err
 }
 
 // OrderHashToPositionID is a free data retrieval call binding the contract method 0x7c261203.
@@ -1214,17 +1059,12 @@ func (f *FuturesCallerSession) OrderHashToPositionID(arg0 [32]byte) (*big.Int, e
 //
 // Solidity: function owner() view returns(address)
 func (f *FuturesCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "owner")
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
-
+	var (
+		ret0 = new(common.Address)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "owner")
+	return *ret0, err
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
@@ -1245,17 +1085,12 @@ func (f *FuturesCallerSession) Owner() (common.Address, error) {
 //
 // Solidity: function paused() view returns(bool)
 func (f *FuturesCaller) Paused(opts *bind.CallOpts) (bool, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "paused")
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
-
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "paused")
+	return *ret0, err
 }
 
 // Paused is a free data retrieval call binding the contract method 0x5c975abb.
@@ -1276,17 +1111,12 @@ func (f *FuturesCallerSession) Paused() (bool, error) {
 //
 // Solidity: function positionCount() view returns(uint256)
 func (f *FuturesCaller) PositionCount(opts *bind.CallOpts) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "positionCount")
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "positionCount")
+	return *ret0, err
 }
 
 // PositionCount is a free data retrieval call binding the contract method 0xe7702d05.
@@ -1316,10 +1146,7 @@ func (f *FuturesCaller) Positions(opts *bind.CallOpts, arg0 *big.Int) (struct {
 	CumulativeFundingEntry *big.Int
 	OrderHash              [32]byte
 }, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "positions", arg0)
-
-	outstruct := new(struct {
+	ret := new(struct {
 		SubAccountID           [32]byte
 		MarketID               [32]byte
 		Direction              uint8
@@ -1329,18 +1156,9 @@ func (f *FuturesCaller) Positions(opts *bind.CallOpts, arg0 *big.Int) (struct {
 		CumulativeFundingEntry *big.Int
 		OrderHash              [32]byte
 	})
-
-	outstruct.SubAccountID = out[0].([32]byte)
-	outstruct.MarketID = out[1].([32]byte)
-	outstruct.Direction = out[2].(uint8)
-	outstruct.Quantity = out[3].(*big.Int)
-	outstruct.ContractPrice = out[4].(*big.Int)
-	outstruct.Margin = out[5].(*big.Int)
-	outstruct.CumulativeFundingEntry = out[6].(*big.Int)
-	outstruct.OrderHash = out[7].([32]byte)
-
-	return *outstruct, err
-
+	out := ret
+	err := f.contract.Call(opts, out, "positions", arg0)
+	return *ret, err
 }
 
 // Positions is a free data retrieval call binding the contract method 0x99fbab88.
@@ -1379,17 +1197,12 @@ func (f *FuturesCallerSession) Positions(arg0 *big.Int) (struct {
 //
 // Solidity: function preSigned(bytes32 , address ) view returns(bool)
 func (f *FuturesCaller) PreSigned(opts *bind.CallOpts, arg0 [32]byte, arg1 common.Address) (bool, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "preSigned", arg0, arg1)
-
-	if err != nil {
-		return *new(bool), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
-
-	return out0, err
-
+	var (
+		ret0 = new(bool)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "preSigned", arg0, arg1)
+	return *ret0, err
 }
 
 // PreSigned is a free data retrieval call binding the contract method 0x82c174d0.
@@ -1410,17 +1223,12 @@ func (f *FuturesCallerSession) PreSigned(arg0 [32]byte, arg1 common.Address) (bo
 //
 // Solidity: function restrictedDeposits(bytes32 , address ) view returns(uint256)
 func (f *FuturesCaller) RestrictedDeposits(opts *bind.CallOpts, arg0 [32]byte, arg1 common.Address) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "restrictedDeposits", arg0, arg1)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "restrictedDeposits", arg0, arg1)
+	return *ret0, err
 }
 
 // RestrictedDeposits is a free data retrieval call binding the contract method 0x475ca0bb.
@@ -1441,17 +1249,12 @@ func (f *FuturesCallerSession) RestrictedDeposits(arg0 [32]byte, arg1 common.Add
 //
 // Solidity: function subAccountDeposits(bytes32 , address ) view returns(uint256)
 func (f *FuturesCaller) SubAccountDeposits(opts *bind.CallOpts, arg0 [32]byte, arg1 common.Address) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "subAccountDeposits", arg0, arg1)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "subAccountDeposits", arg0, arg1)
+	return *ret0, err
 }
 
 // SubAccountDeposits is a free data retrieval call binding the contract method 0x666ffb9b.
@@ -1472,17 +1275,12 @@ func (f *FuturesCallerSession) SubAccountDeposits(arg0 [32]byte, arg1 common.Add
 //
 // Solidity: function subAccountIdToAddress(bytes32 ) view returns(address)
 func (f *FuturesCaller) SubAccountIdToAddress(opts *bind.CallOpts, arg0 [32]byte) (common.Address, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "subAccountIdToAddress", arg0)
-
-	if err != nil {
-		return *new(common.Address), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
-
-	return out0, err
-
+	var (
+		ret0 = new(common.Address)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "subAccountIdToAddress", arg0)
+	return *ret0, err
 }
 
 // SubAccountIdToAddress is a free data retrieval call binding the contract method 0x234842eb.
@@ -1503,17 +1301,12 @@ func (f *FuturesCallerSession) SubAccountIdToAddress(arg0 [32]byte) (common.Addr
 //
 // Solidity: function subAccountToMarketToPositionID(bytes32 , bytes32 ) view returns(uint256)
 func (f *FuturesCaller) SubAccountToMarketToPositionID(opts *bind.CallOpts, arg0 [32]byte, arg1 [32]byte) (*big.Int, error) {
-	var out []interface{}
-	err := f.contract.Call(opts, &out, "subAccountToMarketToPositionID", arg0, arg1)
-
-	if err != nil {
-		return *new(*big.Int), err
-	}
-
-	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
-
-	return out0, err
-
+	var (
+		ret0 = new(*big.Int)
+	)
+	out := ret0
+	err := f.contract.Call(opts, out, "subAccountToMarketToPositionID", arg0, arg1)
+	return *ret0, err
 }
 
 // SubAccountToMarketToPositionID is a free data retrieval call binding the contract method 0x1ebcc120.
