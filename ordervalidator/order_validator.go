@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 
-	zeroex "github.com/InjectiveLabs/zeroex-go"
+	sdk "github.com/InjectiveLabs/sdk-go"
 )
 
 const (
@@ -27,24 +27,24 @@ const (
 // machines with a `Code`
 type RejectedOrderInfo struct {
 	OrderHash   common.Hash         `json:"orderHash"`
-	SignedOrder *zeroex.SignedOrder `json:"signedOrder"`
+	SignedOrder *sdk.SignedOrder    `json:"signedOrder"`
 	Kind        RejectedOrderKind   `json:"kind"`
 	Status      RejectedOrderStatus `json:"status"`
 }
 
 // AcceptedOrderInfo represents an fillable order and how much it could be filled for
 type AcceptedOrderInfo struct {
-	OrderHash                common.Hash         `json:"orderHash"`
-	SignedOrder              *zeroex.SignedOrder `json:"signedOrder"`
-	FillableTakerAssetAmount *big.Int            `json:"fillableTakerAssetAmount"`
-	IsNew                    bool                `json:"isNew"`
+	OrderHash                common.Hash      `json:"orderHash"`
+	SignedOrder              *sdk.SignedOrder `json:"signedOrder"`
+	FillableTakerAssetAmount *big.Int         `json:"fillableTakerAssetAmount"`
+	IsNew                    bool             `json:"isNew"`
 }
 
 type acceptedOrderInfoJSON struct {
-	OrderHash                string              `json:"orderHash"`
-	SignedOrder              *zeroex.SignedOrder `json:"signedOrder"`
-	FillableTakerAssetAmount string              `json:"fillableTakerAssetAmount"`
-	IsNew                    bool                `json:"isNew"`
+	OrderHash                string           `json:"orderHash"`
+	SignedOrder              *sdk.SignedOrder `json:"signedOrder"`
+	FillableTakerAssetAmount string           `json:"fillableTakerAssetAmount"`
+	IsNew                    bool             `json:"isNew"`
 }
 
 // MarshalJSON is a custom Marshaler for AcceptedOrderInfo

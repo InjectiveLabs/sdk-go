@@ -1,4 +1,4 @@
-package zeroex
+package sdk
 
 import (
 	"math/big"

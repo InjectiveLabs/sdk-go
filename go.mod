@@ -1,6 +1,6 @@
-module github.com/InjectiveLabs/zeroex-go
+module github.com/InjectiveLabs/sdk-go
 
-go 1.13
+go 1.15
 
 require (
 	github.com/aristanetworks/goarista v0.0.0-20200410125653-0a3087568c00 // indirect

@@ -1,4 +1,4 @@
-package zeroex
+package sdk
 
 import (
 	"math/big"
@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 
-	"github.com/InjectiveLabs/zeroex-go/wrappers"
+	"github.com/InjectiveLabs/sdk-go/wrappers"
 )
 
 func OrdersToTrimmed(orders []*SignedOrder) []wrappers.Order {

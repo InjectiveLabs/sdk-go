@@ -1,4 +1,4 @@
-package zeroex
+package sdk
 
 import (
 	"math/big"
@@ -137,8 +137,8 @@ func (data *ZeroExTransactionData) ValidateAssetFillAmounts() error {
 			return err
 		}
 		return nil
-	}else if data.isMatchOrdersFn(){
-		if ((len(data.RightOrders) != len(data.LeftOrders)) || (len(data.RightOrders) != len(data.RightSignatures)) || (len(data.LeftSignatures) != len(data.RightSignatures))){
+	} else if data.isMatchOrdersFn() {
+		if (len(data.RightOrders) != len(data.LeftOrders)) || (len(data.RightOrders) != len(data.RightSignatures)) || (len(data.LeftSignatures) != len(data.RightSignatures)) {
 			err := errors.Errorf("tx is %s but length of RightOrders/LeftOrders/RightSignatures/LeftSignatures do not match", data.FunctionName)
 			return err
 		}

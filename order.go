@@ -1,4 +1,4 @@
-package zeroex
+package sdk
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/sha3"
 
-	"github.com/InjectiveLabs/zeroex-go/wrappers"
+	"github.com/InjectiveLabs/sdk-go/wrappers"
 )
 
 // Order represents an unsigned 0x order
