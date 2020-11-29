@@ -7,6 +7,8 @@ import (
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
@@ -26,6 +28,57 @@ const (
 	TypeMsgEthereumTx = "ethereum"
 )
 
+// NewMsgEthereumTx returns a reference to a new Ethereum transaction message.
+func NewMsgEthereumTx(
+	nonce uint64, to *ethcmn.Address, amount *big.Int,
+	gasLimit uint64, gasPrice *big.Int, payload []byte,
+) *MsgEthereumTx {
+	return newMsgEthereumTx(nonce, to, amount, gasLimit, gasPrice, payload)
+}
+
+// NewMsgEthereumTxContract returns a reference to a new Ethereum transaction
+// message designated for contract creation.
+func NewMsgEthereumTxContract(
+	nonce uint64, amount *big.Int, gasLimit uint64, gasPrice *big.Int, payload []byte,
+) *MsgEthereumTx {
+	return newMsgEthereumTx(nonce, nil, amount, gasLimit, gasPrice, payload)
+}
+
+func newMsgEthereumTx(
+	nonce uint64, to *ethcmn.Address, amount *big.Int, // nolint: interfacer
+	gasLimit uint64, gasPrice *big.Int, payload []byte,
+) *MsgEthereumTx {
+	if len(payload) > 0 {
+		payload = ethcmn.CopyBytes(payload)
+	}
+
+	var toBz []byte
+	if to != nil {
+		toBz = to.Bytes()
+	}
+
+	txData := &TxData{
+		AccountNonce: nonce,
+		Recipient:    toBz,
+		Payload:      payload,
+		GasLimit:     gasLimit,
+		Amount:       []byte{},
+		Price:        []byte{},
+		V:            []byte{},
+		R:            []byte{},
+		S:            []byte{},
+	}
+
+	if amount != nil {
+		txData.Amount = amount.Bytes()
+	}
+	if gasPrice != nil {
+		txData.Price = gasPrice.Bytes()
+	}
+
+	return &MsgEthereumTx{Data: txData}
+}
+
 // Route returns the route value of an MsgEthereumTx.
 func (msg MsgEthereumTx) Route() string { return RouterKey }
 
@@ -37,17 +90,17 @@ func (msg MsgEthereumTx) Type() string { return TypeMsgEthereumTx }
 func (msg MsgEthereumTx) ValidateBasic() error {
 	gasPrice := new(big.Int).SetBytes(msg.Data.Price)
 	// if gasPrice.Sign() == 0 {
-	// 	return fmt.Errorf("gas price cannot be 0")
+	// 	return sdkerrors.Wrapf(ErrInvalidValue, "gas price cannot be 0")
 	// }
 
 	if gasPrice.Sign() == -1 {
-		return fmt.Errorf("gas price cannot be negative %s", gasPrice)
+		return sdkerrors.Wrapf(ErrInvalidValue, "gas price cannot be negative %s", gasPrice)
 	}
 
 	// Amount can be 0
 	amount := new(big.Int).SetBytes(msg.Data.Amount)
 	if amount.Sign() == -1 {
-		return fmt.Errorf("amount cannot be negative %s", amount)
+		return sdkerrors.Wrapf(ErrInvalidValue, "amount cannot be negative %s", amount)
 	}
 
 	return nil
@@ -56,11 +109,11 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 // To returns the recipient address of the transaction. It returns nil if the
 // transaction is a contract creation.
 func (msg MsgEthereumTx) To() *ethcmn.Address {
-	if msg.Data.Recipient.IsNil() || len(*msg.Data.Recipient) == 0 {
+	if len(msg.Data.Recipient) == 0 {
 		return nil
 	}
 
-	recipient := ethcmn.BytesToAddress([]byte(*msg.Data.Recipient))
+	recipient := ethcmn.BytesToAddress(msg.Data.Recipient)
 	return &recipient
 }
 

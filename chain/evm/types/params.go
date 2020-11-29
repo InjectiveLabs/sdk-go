@@ -7,8 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
-
-	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 var _ paramtypes.ParamSet = &Params{}
@@ -33,7 +31,7 @@ func NewParams(evmDenom string) Params {
 // DefaultParams returns default evm parameters
 func DefaultParams() Params {
 	return Params{
-		EvmDenom: ctypes.InjectiveCoin,
+		EvmDenom: "inj",
 	}
 }
 
