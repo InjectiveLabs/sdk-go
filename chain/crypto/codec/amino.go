@@ -12,7 +12,7 @@ import (
 	tmed25519 "github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/crypto/sr25519"
 
-	"github.com/InjectiveLabs/injective-exchange/client/chain/crypto/ethsecp256k1"
+	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 )
 
 var amino *codec.LegacyAmino

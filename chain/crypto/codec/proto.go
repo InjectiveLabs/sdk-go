@@ -5,7 +5,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	tmcrypto "github.com/tendermint/tendermint/crypto"
 
-	"github.com/InjectiveLabs/injective-exchange/client/chain/crypto/ethsecp256k1"
+	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 )
 
 // RegisterInterfaces registers the ethsecp256k1 implementations of tendermint crypto types.
