@@ -18,8 +18,9 @@ import (
 
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/hd"
+	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	orders "github.com/InjectiveLabs/sdk-go/chain/orders/types"
-	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
+	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 func NewClientContext(
@@ -32,7 +33,8 @@ func NewClientContext(
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
 	orders.RegisterInterfaces(interfaceRegistry)
-	chaintypes.RegisterInterfaces(interfaceRegistry)
+	evm.RegisterInterfaces(interfaceRegistry)
+	ctypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{
