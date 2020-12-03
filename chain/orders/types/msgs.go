@@ -7,6 +7,8 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/ethereum/go-ethereum/common"
 
 	zeroex "github.com/InjectiveLabs/sdk-go"
@@ -29,6 +31,7 @@ var (
 	_ sdk.Msg = &MsgCreateSpotOrder{}
 	_ sdk.Msg = &MsgRequestFillSpotOrder{}
 	_ sdk.Msg = &MsgRequestSoftCancelSpotOrder{}
+	_ sdk.Msg = &MsgExecuteTakerTransaction{}
 )
 
 // Route should return the name of the module
@@ -457,6 +460,31 @@ func (msg MsgResumeSpotMarket) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
+// Route should return the name of the module
+func (msg MsgExecuteTakerTransaction) Route() string { return RouterKey }
+
+// Type should return the action
+func (msg MsgExecuteTakerTransaction) Type() string { return "executeTakerTransaction" }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgExecuteTakerTransaction) ValidateBasic() error {
+	// TODO : Add basic vaidation
+	return nil
+}
+
+func (msg *MsgExecuteTakerTransaction) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgExecuteTakerTransaction) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
 // SafeSignedOrder is a special signed order structure
 // for including in Msgs, because it consists of primitive types.
 // Avoid using raw *big.Int in Msgs.
@@ -518,8 +546,18 @@ func (m *BaseOrder) ToSignedOrder() *zeroex.SignedOrder {
 	}
 	return o
 }
-// GetDirectionAndMarketID
-func (m *BaseOrder) GetDirectionAndMarketID() (isLong bool, marketID string) {
+
+func ComputeSubaccountID(makerAddress string, takerFee string) (subaccountID common.Hash) {
+	subaccountID = crypto.Keccak256Hash(
+		common.HexToAddress(makerAddress).Bytes(),
+		common.LeftPadBytes(BigNum(takerFee).Int().Bytes(), 32),
+	)
+	//suplog.Debugf("%s + %s, => %s", makerAddress, takerFee, subaccountID.Hex())
+	return subaccountID
+}
+
+// GetDirectionMarketAndSubaccountID
+func (m *BaseOrder) GetDirectionMarketAndSubaccountID() (isLong bool, marketID string, subaccountID common.Hash) {
 	mData, tData := common.FromHex(m.GetMakerAssetData()), common.FromHex(m.GetTakerAssetData())
 
 	if len(mData) > common.HashLength {
@@ -530,14 +568,16 @@ func (m *BaseOrder) GetDirectionAndMarketID() (isLong bool, marketID string) {
 		tData = tData[:common.HashLength]
 	}
 
-	if bytes.Equal(tData,  common.Hash{}.Bytes()) {
+	if bytes.Equal(tData, common.Hash{}.Bytes()) {
 		isLong = true
 		marketID = common.Bytes2Hex(mData)
 	} else {
 		isLong = false
 		marketID = common.Bytes2Hex(tData)
 	}
-	return isLong, marketID
+	subaccountID = ComputeSubaccountID(m.GetMakerAddress(), m.GetTakerFee())
+
+	return isLong, marketID, subaccountID
 }
 
 // zo2so internal function converts model from *zeroex.SignedOrder to *SafeSignedOrder.
