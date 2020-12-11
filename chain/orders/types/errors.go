@@ -19,4 +19,7 @@ var (
 	ErrBadUpdateEvent     = sdkerrors.Register(ModuleName, 12, "order update event not confirmed")
 	ErrUpdateSameValue    = sdkerrors.Register(ModuleName, 13, "cannot update the record's field with the same value")
 	ErrOverLeveragedOrder = sdkerrors.Register(ModuleName, 14, "cannot add overlevered order")
+	ErrSubaccountNotFound = sdkerrors.Register(ModuleName, 15, "subaccount not found")
+	ErrOrderAlreadyExists = sdkerrors.Register(ModuleName, 16, "order already exists")
+	ErrInsufficientMargin = sdkerrors.Register(ModuleName, 17, "subaccount has insufficient margin")
 )
