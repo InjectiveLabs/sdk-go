@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
 	"strings"
-
-	"github.com/ethereum/go-ethereum/crypto"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 
@@ -29,9 +29,6 @@ var (
 	_ sdk.Msg = &MsgSuspendSpotMarket{}
 	_ sdk.Msg = &MsgResumeSpotMarket{}
 	_ sdk.Msg = &MsgCreateSpotOrder{}
-	_ sdk.Msg = &MsgRequestFillSpotOrder{}
-	_ sdk.Msg = &MsgRequestSoftCancelSpotOrder{}
-	_ sdk.Msg = &MsgExecuteTakerTransaction{}
 )
 
 // Route should return the name of the module
@@ -46,12 +43,15 @@ func (msg MsgCreateSpotOrder) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
+	quantity := BigNum(msg.Order.GetTakerAssetAmount()).Int()
 	if msg.Order == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
 	} else if _, err := msg.Order.ToSignedOrder().ComputeOrderHash(); err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
 	} else if !isValidSignature(msg.Order.Signature) {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
+	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
 	}
 
 	return nil
@@ -138,98 +138,6 @@ func (msg *MsgCreateDerivativeOrder) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgCreateDerivativeOrder) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route should return the name of the module
-func (msg MsgRequestFillSpotOrder) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgRequestFillSpotOrder) Type() string { return "requestFillSpotOrder" }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgRequestFillSpotOrder) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if msg.TxOrigin == "" {
-		return sdkerrors.Wrap(ErrBadField, "no txOrigin address specified")
-	} else if len(msg.SignedTransaction.Salt) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no salt specified")
-	} else if msg.SignedTransaction.SignerAddress == "" {
-		return sdkerrors.Wrap(ErrBadField, "no signerAddress address specified")
-	} else if msg.SignedTransaction.Domain.VerifyingContract == "" {
-		return sdkerrors.Wrap(ErrBadField, "no verifyingContract address specified")
-	} else if len(msg.SignedTransaction.Domain.ChainId) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no chainID specified")
-	} else if len(msg.SignedTransaction.GasPrice) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no gasPrice specified")
-	} else if len(msg.SignedTransaction.ExpirationTimeSeconds) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no expirationTimeSeconds specified")
-	} else if !isValidSignature(msg.SignedTransaction.Signature) {
-		return sdkerrors.Wrap(ErrBadField, "invalid transaction signature")
-	} else if !isValidSignature(msg.ApprovalSignature) {
-		return sdkerrors.Wrap(ErrBadField, "invalid approval signature")
-	}
-
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgRequestFillSpotOrder) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgRequestFillSpotOrder) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route should return the name of the module
-func (msg MsgRequestSoftCancelSpotOrder) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgRequestSoftCancelSpotOrder) Type() string { return "softCancelSpotOrder" }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgRequestSoftCancelSpotOrder) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if msg.TxOrigin == "" {
-		return sdkerrors.Wrap(ErrBadField, "no txOrigin address specified")
-	} else if len(msg.SignedTransaction.Salt) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no salt specified")
-	} else if msg.SignedTransaction.SignerAddress == "" {
-		return sdkerrors.Wrap(ErrBadField, "no signerAddress address specified")
-	} else if msg.SignedTransaction.Domain.VerifyingContract == "" {
-		return sdkerrors.Wrap(ErrBadField, "no verifyingContract address specified")
-	} else if len(msg.SignedTransaction.Domain.ChainId) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no chainID specified")
-	} else if len(msg.SignedTransaction.GasPrice) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no gasPrice specified")
-	} else if !isValidSignature(msg.SignedTransaction.Signature) {
-		return sdkerrors.Wrap(ErrBadField, "invalid signature")
-	}
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgRequestSoftCancelSpotOrder) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgRequestSoftCancelSpotOrder) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -460,31 +368,6 @@ func (msg MsgResumeSpotMarket) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-// Route should return the name of the module
-func (msg MsgExecuteTakerTransaction) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgExecuteTakerTransaction) Type() string { return "executeTakerTransaction" }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgExecuteTakerTransaction) ValidateBasic() error {
-	// TODO : Add basic vaidation
-	return nil
-}
-
-func (msg *MsgExecuteTakerTransaction) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgExecuteTakerTransaction) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
 // SafeSignedOrder is a special signed order structure
 // for including in Msgs, because it consists of primitive types.
 // Avoid using raw *big.Int in Msgs.
@@ -547,8 +430,99 @@ func (m *BaseOrder) ToSignedOrder() *zeroex.SignedOrder {
 	return o
 }
 
-func ComputeSubaccountID(makerAddress string, takerFee string) (subaccountID common.Hash) {
-	subaccountID = crypto.Keccak256Hash(
+func (order *Order) DoesValidationPass(isLong bool, market *DerivativeMarket, currBlockTime time.Time) error {
+	err := order.ComputeAndSetOrderType()
+	if err != nil {
+		return err
+	}
+	orderExpirationTime := BigNum(order.GetOrder().GetExpirationTimeSeconds()).Int()
+	blockTime := big.NewInt(currBlockTime.Unix())
+
+	if orderExpirationTime.Cmp(blockTime) <= 0 {
+		return sdkerrors.Wrapf(ErrOrderExpired, "order expiration %s <= block time %s", orderExpirationTime.String(), blockTime.String())
+	}
+	margin := BigNum(order.Order.GetMakerFee()).Int()
+	contractPriceMarginRequirement := order.ComputeContractPriceMarginRequirement(market)
+	if margin.Cmp(contractPriceMarginRequirement) < 0 {
+		return sdkerrors.Wrapf(ErrOverLeveragedOrder, "margin %s < contractPriceMarginRequirement %s", margin.String(), contractPriceMarginRequirement.String())
+	}
+
+	indexPriceMarginRequirement := order.ComputeIndexPriceMarginRequirement(isLong, market)
+	indexPrice := BigNum(market.GetIndexPrice()).Int()
+
+	if isLong && indexPrice.Cmp(indexPriceMarginRequirement) < 0 {
+		return sdkerrors.Wrapf(ErrOverLeveragedOrder, "indexPrice %s <= indexPriceReq %s", market.GetIndexPrice(), order.IndexPriceRequirement)
+	} else if !isLong && indexPrice.Cmp(indexPriceMarginRequirement) > 0 {
+		return sdkerrors.Wrapf(ErrOverLeveragedOrder, "indexPrice %s >= indexPriceReq %s", market.GetIndexPrice(), order.IndexPriceRequirement)
+	}
+	return nil
+}
+
+func (order *Order) ComputeAndSetOrderType() error {
+	orderTypeNumber := new(big.Int).SetBytes(common.FromHex(order.GetOrder().GetMakerFeeAssetData())[:common.HashLength]).Uint64()
+	if orderTypeNumber != 0 && orderTypeNumber != 5 {
+		return sdkerrors.Wrapf(ErrUnrecognizedOrderType, "Cannot recognize MakerFeeAssetData of %s", order.GetOrder().GetMakerFeeAssetData())
+	}
+	order.OrderType = orderTypeNumber
+	return nil
+}
+
+func (order *Order) ComputeIndexPriceMarginRequirement(isLong bool, market *DerivativeMarket) *big.Int {
+	price := BigNum(order.Order.GetMakerAssetAmount()).Int()
+	quantity := BigNum(order.Order.GetTakerAssetAmount()).Int()
+	margin := BigNum(order.Order.GetMakerFee()).Int()
+	pq := new(big.Int).Mul(price, quantity)
+	alphaQuantity := ScalePermyriad(quantity, BigNum(market.InitialMarginRatio).Int())
+	num := new(big.Int)
+	denom := new(big.Int)
+
+	if isLong {
+		num = num.Sub(margin, pq)
+		denom = denom.Sub(alphaQuantity, quantity)
+	} else {
+		num = num.Add(margin, pq)
+		denom = denom.Add(alphaQuantity, quantity)
+	}
+
+	indexPriceReq := new(big.Int).Div(num, denom)
+	order.IndexPriceRequirement = indexPriceReq.String()
+	return indexPriceReq
+}
+
+// quantity * initialMarginRatio * price
+func (order *Order) ComputeContractPriceMarginRequirement(market *DerivativeMarket) *big.Int {
+	price := BigNum(order.Order.GetMakerAssetAmount()).Int()
+	quantity := BigNum(order.Order.GetTakerAssetAmount()).Int()
+	alphaQuantity := ScalePermyriad(quantity, BigNum(market.InitialMarginRatio).Int())
+	return new(big.Int).Mul(alphaQuantity, price)
+}
+
+// orderMarginHold = 1.0015 * margin * (remainingQuantity) / order.quantity
+func (o *Order) ComputeOrderMarginHold(remainingQuantity, makerTxFeePermyriad *big.Int) (orderMarginHold *big.Int) {
+	margin := BigNum(o.GetOrder().GetMakerFee()).Int()
+	scaledMargin := IncrementByScaledPermyriad(margin, makerTxFeePermyriad)
+	originalQuantity := BigNum(o.GetOrder().GetTakerAssetAmount()).Int()
+
+	// TODO: filledAmount should always be zero with TEC since there will be no UnknownOrderHash
+	numerator := new(big.Int).Mul(scaledMargin, remainingQuantity)
+	orderMarginHold = new(big.Int).Div(numerator, originalQuantity)
+	return orderMarginHold
+}
+
+// return amount * (1 + permyriad/10000) = (amount + amount * permyriad/10000)
+func IncrementByScaledPermyriad(amount, permyriad *big.Int) *big.Int {
+	return new(big.Int).Add(amount, ScalePermyriad(amount, permyriad))
+}
+
+// return (amount * permyriad) / 10000
+func ScalePermyriad(amount, permyriad *big.Int) *big.Int {
+	PERMYRIAD_BASE := BigNum("10000").Int()
+	scaleFactor := new(big.Int).Mul(amount, permyriad)
+	return new(big.Int).Div(scaleFactor, PERMYRIAD_BASE)
+}
+
+func ComputeSubaccountID(makerAddress string, takerFee string) common.Hash {
+	subaccountID := crypto.Keccak256Hash(
 		common.HexToAddress(makerAddress).Bytes(),
 		common.LeftPadBytes(BigNum(takerFee).Int().Bytes(), 32),
 	)
@@ -557,7 +531,7 @@ func ComputeSubaccountID(makerAddress string, takerFee string) (subaccountID com
 }
 
 // GetDirectionMarketAndSubaccountID
-func (m *BaseOrder) GetDirectionMarketAndSubaccountID() (isLong bool, marketID string, subaccountID common.Hash) {
+func (m *BaseOrder) GetDirectionMarketAndSubaccountID() (isLong bool, marketID common.Hash, subaccountID common.Hash) {
 	mData, tData := common.FromHex(m.GetMakerAssetData()), common.FromHex(m.GetTakerAssetData())
 
 	if len(mData) > common.HashLength {
@@ -570,10 +544,10 @@ func (m *BaseOrder) GetDirectionMarketAndSubaccountID() (isLong bool, marketID s
 
 	if bytes.Equal(tData, common.Hash{}.Bytes()) {
 		isLong = true
-		marketID = common.Bytes2Hex(mData)
+		marketID = common.BytesToHash(mData)
 	} else {
 		isLong = false
-		marketID = common.Bytes2Hex(tData)
+		marketID = common.BytesToHash(tData)
 	}
 	subaccountID = ComputeSubaccountID(m.GetMakerAddress(), m.GetTakerFee())
 

@@ -2,13 +2,14 @@ package types
 
 import (
 	"errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"math/big"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"golang.org/x/crypto/sha3"
 )
-
 
 type Direction uint8
 
@@ -91,7 +92,6 @@ func (o OrderStatus) String() string {
 		return ""
 	}
 }
-
 
 func OrderStatusFromString(status string) OrderStatus {
 	switch status {
@@ -225,6 +225,14 @@ func (p TradePair) ComputeHash() (common.Hash, error) {
 	return hash, nil
 }
 
+func ComputeMarketHash(exchangeAddress common.Address, marketID common.Hash) common.Hash {
+	hash := common.BytesToHash(keccak256(
+		marketID.Bytes(),
+		exchangeAddress.Bytes(),
+	))
+	return hash
+}
+
 func (p DerivativeMarket) Hash() (common.Hash, error) {
 	if len(p.GetMarketId()) == 0 {
 		return common.Hash{}, errors.New("hash error: no MarketId specified")
@@ -247,6 +255,17 @@ func (p DerivativeMarket) Hash() (common.Hash, error) {
 	return hash, nil
 }
 
+func (m *DerivativeMarket) CheckExpiration(currBlockTime time.Time) error {
+	nextFundingTimestamp, fundingInterval := BigNum(m.GetNextFundingTimestamp()).Int(), BigNum(m.GetFundingInterval()).Int()
+	if fundingInterval.Cmp(big.NewInt(0)) == 0 {
+		// expiration time must be greater than current block time
+		if nextFundingTimestamp.Cmp(big.NewInt(currBlockTime.Unix())) <= 0 {
+			return sdkerrors.Wrap(ErrMarketExpired, m.GetTicker())
+		}
+	}
+	return nil
+}
+
 // keccak256 calculates and returns the Keccak256 hash of the input data.
 func keccak256(data ...[]byte) []byte {
 	d := sha3.NewLegacyKeccak256()
@@ -255,11 +274,3 @@ func keccak256(data ...[]byte) []byte {
 	}
 	return d.Sum(nil)
 }
-
-type ZeroExTransactionType int
-
-const (
-	ZeroExTransactionTypeUnknown   ZeroExTransactionType = 0
-	ZeroExOrderFillRequestTx       ZeroExTransactionType = 1
-	ZeroExOrderSoftCancelRequestTx ZeroExTransactionType = 2
-)

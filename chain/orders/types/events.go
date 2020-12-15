@@ -9,10 +9,14 @@ const (
 	EventTypeFillDerivativeOrder       = "fill_derivative_order"
 	EventTypeHardCancelSpotOrder       = "hard_cancel_spot_order"
 	EventTypeFillSpotOrder             = "fill_spot_order"
+	EventTypeSetPrice                  = "set_price"
 
 	AttributeKeyOrderHash     = "order_hash"
 	AttributeKeyMarketID      = "market_id"
+	AttributeKeySubaccountID  = "subaccount_id"
 	AttributeKeyTradePairHash = "trade_pair_hash"
 	AttributeKeySignedOrder   = "signed_order"
 	AttributeKeyFilledAmount  = "filled_amount"
+	AttributeKeyPrice         = "price"
+	AttributeKeyTicker        = "ticker"
 )

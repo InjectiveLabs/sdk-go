@@ -35,9 +35,11 @@ type QueryDerivativeOrdersQuoteRequest struct {
 	Quantity string `protobuf:"bytes,1,opt,name=quantity,proto3" json:"quantity,omitempty"`
 	// The desired marketID of the derivative orders to fill
 	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	// True if the desired direction of the derivative orders quotes you want is long.
+	// True if the desired direction of the derivative orders quotes you want is
+	// long.
 	IsLong bool `protobuf:"varint,3,opt,name=isLong,proto3" json:"isLong,omitempty"`
-	// Optional maker address of trader requesting the quote (to filter out the trader's own orders)
+	// Optional maker address of trader requesting the quote (to filter out the
+	// trader's own orders)
 	MakerAddress string `protobuf:"bytes,4,opt,name=maker_address,json=makerAddress,proto3" json:"maker_address,omitempty"`
 }
 
@@ -373,6 +375,132 @@ func (m *QueryDerivativeOrderbookResponse) GetLongs() []*PriceLevel {
 	return nil
 }
 
+// QueryMarginInfoRequest defines the request type for
+// Query/marginInfo RPC method.
+type QueryMarginInfoRequest struct {
+	// The maker_address of the trader
+	MakerAddress string `protobuf:"bytes,1,opt,name=maker_address,json=makerAddress,proto3" json:"maker_address,omitempty"`
+	// The subaccount nonce of the trader
+	TakerFee        string `protobuf:"bytes,2,opt,name=taker_fee,json=takerFee,proto3" json:"taker_fee,omitempty"`
+	SubaccountID    string `protobuf:"bytes,3,opt,name=subaccount_i_d,json=subaccountID,proto3" json:"subaccount_i_d,omitempty"`
+	BaseCurrency    string `protobuf:"bytes,4,opt,name=base_currency,json=baseCurrency,proto3" json:"base_currency,omitempty"`
+	ExchangeAddress string `protobuf:"bytes,5,opt,name=exchange_address,json=exchangeAddress,proto3" json:"exchange_address,omitempty"`
+}
+
+func (m *QueryMarginInfoRequest) Reset()         { *m = QueryMarginInfoRequest{} }
+func (m *QueryMarginInfoRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMarginInfoRequest) ProtoMessage()    {}
+func (*QueryMarginInfoRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d11505616d5f0a14, []int{6}
+}
+func (m *QueryMarginInfoRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryMarginInfoRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryMarginInfoRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryMarginInfoRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMarginInfoRequest.Merge(m, src)
+}
+func (m *QueryMarginInfoRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryMarginInfoRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMarginInfoRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryMarginInfoRequest proto.InternalMessageInfo
+
+func (m *QueryMarginInfoRequest) GetMakerAddress() string {
+	if m != nil {
+		return m.MakerAddress
+	}
+	return ""
+}
+
+func (m *QueryMarginInfoRequest) GetTakerFee() string {
+	if m != nil {
+		return m.TakerFee
+	}
+	return ""
+}
+
+func (m *QueryMarginInfoRequest) GetSubaccountID() string {
+	if m != nil {
+		return m.SubaccountID
+	}
+	return ""
+}
+
+func (m *QueryMarginInfoRequest) GetBaseCurrency() string {
+	if m != nil {
+		return m.BaseCurrency
+	}
+	return ""
+}
+
+func (m *QueryMarginInfoRequest) GetExchangeAddress() string {
+	if m != nil {
+		return m.ExchangeAddress
+	}
+	return ""
+}
+
+// QueryMarginInfoResponse defines the response type for
+// Query/marginInfo RPC method.
+type QueryMarginInfoResponse struct {
+	MarginInfo *MarginInfo `protobuf:"bytes,1,opt,name=margin_info,json=marginInfo,proto3" json:"margin_info,omitempty"`
+}
+
+func (m *QueryMarginInfoResponse) Reset()         { *m = QueryMarginInfoResponse{} }
+func (m *QueryMarginInfoResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryMarginInfoResponse) ProtoMessage()    {}
+func (*QueryMarginInfoResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d11505616d5f0a14, []int{7}
+}
+func (m *QueryMarginInfoResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryMarginInfoResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryMarginInfoResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryMarginInfoResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMarginInfoResponse.Merge(m, src)
+}
+func (m *QueryMarginInfoResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryMarginInfoResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMarginInfoResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryMarginInfoResponse proto.InternalMessageInfo
+
+func (m *QueryMarginInfoResponse) GetMarginInfo() *MarginInfo {
+	if m != nil {
+		return m.MarginInfo
+	}
+	return nil
+}
+
 // QueryDerivativeMarketsRequest defines the request type for the
 // Query/DerivativeMarkets RPC method
 type QueryDerivativeMarketsRequest struct {
@@ -382,7 +510,7 @@ func (m *QueryDerivativeMarketsRequest) Reset()         { *m = QueryDerivativeMa
 func (m *QueryDerivativeMarketsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryDerivativeMarketsRequest) ProtoMessage()    {}
 func (*QueryDerivativeMarketsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{6}
+	return fileDescriptor_d11505616d5f0a14, []int{8}
 }
 func (m *QueryDerivativeMarketsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -422,7 +550,7 @@ func (m *QueryDerivativeMarketsResponse) Reset()         { *m = QueryDerivativeM
 func (m *QueryDerivativeMarketsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryDerivativeMarketsResponse) ProtoMessage()    {}
 func (*QueryDerivativeMarketsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{7}
+	return fileDescriptor_d11505616d5f0a14, []int{9}
 }
 func (m *QueryDerivativeMarketsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -458,111 +586,8 @@ func (m *QueryDerivativeMarketsResponse) GetMarkets() []*DerivativeMarket {
 	return nil
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type QuerySoftCancelledOrdersRequest struct {
-	// The hashes of orders to be checked whether they can be soft-cancelled
-	OrderHashes []string `protobuf:"bytes,1,rep,name=order_hashes,json=orderHashes,proto3" json:"order_hashes,omitempty"`
-	// Ethereum Chain ID of the transaction
-	ChainId int64 `protobuf:"zigzag64,2,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
-}
-
-func (m *QuerySoftCancelledOrdersRequest) Reset()         { *m = QuerySoftCancelledOrdersRequest{} }
-func (m *QuerySoftCancelledOrdersRequest) String() string { return proto.CompactTextString(m) }
-func (*QuerySoftCancelledOrdersRequest) ProtoMessage()    {}
-func (*QuerySoftCancelledOrdersRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{8}
-}
-func (m *QuerySoftCancelledOrdersRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QuerySoftCancelledOrdersRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QuerySoftCancelledOrdersRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QuerySoftCancelledOrdersRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QuerySoftCancelledOrdersRequest.Merge(m, src)
-}
-func (m *QuerySoftCancelledOrdersRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QuerySoftCancelledOrdersRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QuerySoftCancelledOrdersRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QuerySoftCancelledOrdersRequest proto.InternalMessageInfo
-
-func (m *QuerySoftCancelledOrdersRequest) GetOrderHashes() []string {
-	if m != nil {
-		return m.OrderHashes
-	}
-	return nil
-}
-
-func (m *QuerySoftCancelledOrdersRequest) GetChainId() int64 {
-	if m != nil {
-		return m.ChainId
-	}
-	return 0
-}
-
-// QuerySoftCancelledOrdersResponse defines the response type for
-// Query/SoftCancelledOrders RPC method.
-type QuerySoftCancelledOrdersResponse struct {
-	// The subset of orders that have been soft-cancelled
-	OrderHashes []string `protobuf:"bytes,1,rep,name=order_hashes,json=orderHashes,proto3" json:"order_hashes,omitempty"`
-}
-
-func (m *QuerySoftCancelledOrdersResponse) Reset()         { *m = QuerySoftCancelledOrdersResponse{} }
-func (m *QuerySoftCancelledOrdersResponse) String() string { return proto.CompactTextString(m) }
-func (*QuerySoftCancelledOrdersResponse) ProtoMessage()    {}
-func (*QuerySoftCancelledOrdersResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{9}
-}
-func (m *QuerySoftCancelledOrdersResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QuerySoftCancelledOrdersResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QuerySoftCancelledOrdersResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QuerySoftCancelledOrdersResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QuerySoftCancelledOrdersResponse.Merge(m, src)
-}
-func (m *QuerySoftCancelledOrdersResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QuerySoftCancelledOrdersResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QuerySoftCancelledOrdersResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QuerySoftCancelledOrdersResponse proto.InternalMessageInfo
-
-func (m *QuerySoftCancelledOrdersResponse) GetOrderHashes() []string {
-	if m != nil {
-		return m.OrderHashes
-	}
-	return nil
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryOrderRequest defines the request type for
+// Query/Order RPC method.
 type QueryOrderRequest struct {
 	// The hash of the desired 0x order.
 	OrderHash string `protobuf:"bytes,1,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
@@ -626,8 +651,8 @@ func (m *QueryOrderRequest) GetSubaccountID() string {
 	return ""
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryOrderResponse defines the response type for
+// Query/Order RPC method.
 type QueryOrderResponse struct {
 	// Order data
 	Order *Order `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`
@@ -673,8 +698,8 @@ func (m *QueryOrderResponse) GetOrder() *Order {
 	return nil
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryActiveOrderRequest defines the request type for
+// Query/ActiveOrder RPC method.
 type QueryActiveOrderRequest struct {
 	// The hash of the desired 0x order.
 	OrderHash string `protobuf:"bytes,1,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
@@ -738,8 +763,8 @@ func (m *QueryActiveOrderRequest) GetSubaccountID() string {
 	return ""
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryActiveOrderResponse defines the request type for
+// Query/ActiveOrder RPC method.
 type QueryActiveOrderResponse struct {
 	// Order data
 	Order *Order `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`
@@ -785,126 +810,22 @@ func (m *QueryActiveOrderResponse) GetOrder() *Order {
 	return nil
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type QueryZeroExTransactionRequest struct {
-	TxHash string `protobuf:"bytes,1,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
-}
-
-func (m *QueryZeroExTransactionRequest) Reset()         { *m = QueryZeroExTransactionRequest{} }
-func (m *QueryZeroExTransactionRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryZeroExTransactionRequest) ProtoMessage()    {}
-func (*QueryZeroExTransactionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{14}
-}
-func (m *QueryZeroExTransactionRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryZeroExTransactionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryZeroExTransactionRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryZeroExTransactionRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryZeroExTransactionRequest.Merge(m, src)
-}
-func (m *QueryZeroExTransactionRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryZeroExTransactionRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryZeroExTransactionRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryZeroExTransactionRequest proto.InternalMessageInfo
-
-func (m *QueryZeroExTransactionRequest) GetTxHash() string {
-	if m != nil {
-		return m.TxHash
-	}
-	return ""
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type QueryZeroExTransactionResponse struct {
-	TxType             int64                     `protobuf:"zigzag64,1,opt,name=tx_type,json=txType,proto3" json:"tx_type,omitempty"`
-	FillRequests       []*OrderFillRequest       `protobuf:"bytes,2,rep,name=fill_requests,json=fillRequests,proto3" json:"fill_requests,omitempty"`
-	SoftCancelRequests []*OrderSoftCancelRequest `protobuf:"bytes,3,rep,name=soft_cancel_requests,json=softCancelRequests,proto3" json:"soft_cancel_requests,omitempty"`
-}
-
-func (m *QueryZeroExTransactionResponse) Reset()         { *m = QueryZeroExTransactionResponse{} }
-func (m *QueryZeroExTransactionResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryZeroExTransactionResponse) ProtoMessage()    {}
-func (*QueryZeroExTransactionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{15}
-}
-func (m *QueryZeroExTransactionResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryZeroExTransactionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryZeroExTransactionResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryZeroExTransactionResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryZeroExTransactionResponse.Merge(m, src)
-}
-func (m *QueryZeroExTransactionResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryZeroExTransactionResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryZeroExTransactionResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryZeroExTransactionResponse proto.InternalMessageInfo
-
-func (m *QueryZeroExTransactionResponse) GetTxType() int64 {
-	if m != nil {
-		return m.TxType
-	}
-	return 0
-}
-
-func (m *QueryZeroExTransactionResponse) GetFillRequests() []*OrderFillRequest {
-	if m != nil {
-		return m.FillRequests
-	}
-	return nil
-}
-
-func (m *QueryZeroExTransactionResponse) GetSoftCancelRequests() []*OrderSoftCancelRequest {
-	if m != nil {
-		return m.SoftCancelRequests
-	}
-	return nil
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryArchiveOrderRequest defines the request type for
+// Query/ArchiveOrder RPC method.
 type QueryArchiveOrderRequest struct {
 	// The hash of the desired 0x order.
 	OrderHash string `protobuf:"bytes,1,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// The marketID the desired 0x order.
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// The subaccount the desired 0x derivative order.
+	SubaccountID string `protobuf:"bytes,3,opt,name=subaccount_i_d,json=subaccountID,proto3" json:"subaccount_i_d,omitempty"`
 }
 
 func (m *QueryArchiveOrderRequest) Reset()         { *m = QueryArchiveOrderRequest{} }
 func (m *QueryArchiveOrderRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryArchiveOrderRequest) ProtoMessage()    {}
 func (*QueryArchiveOrderRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{16}
+	return fileDescriptor_d11505616d5f0a14, []int{14}
 }
 func (m *QueryArchiveOrderRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -940,8 +861,22 @@ func (m *QueryArchiveOrderRequest) GetOrderHash() string {
 	return ""
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+func (m *QueryArchiveOrderRequest) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
+func (m *QueryArchiveOrderRequest) GetSubaccountID() string {
+	if m != nil {
+		return m.SubaccountID
+	}
+	return ""
+}
+
+// QueryArchiveOrderResponse defines the request type for
+// Query/ArchiveOrder RPC method.
 type QueryArchiveOrderResponse struct {
 	// Order data
 	Order *Order `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`
@@ -951,7 +886,7 @@ func (m *QueryArchiveOrderResponse) Reset()         { *m = QueryArchiveOrderResp
 func (m *QueryArchiveOrderResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryArchiveOrderResponse) ProtoMessage()    {}
 func (*QueryArchiveOrderResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{17}
+	return fileDescriptor_d11505616d5f0a14, []int{15}
 }
 func (m *QueryArchiveOrderResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -987,8 +922,6 @@ func (m *QueryArchiveOrderResponse) GetOrder() *Order {
 	return nil
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
 type OrderFilters struct {
 	// for derivatives
 	ContractPriceBound string `protobuf:"bytes,1,opt,name=contract_price_bound,json=contractPriceBound,proto3" json:"contract_price_bound,omitempty"`
@@ -1019,7 +952,8 @@ type OrderFilters struct {
 	Direction string `protobuf:"bytes,21,opt,name=direction,proto3" json:"direction,omitempty"`
 	// Filter out orders whose price is not less than or equal to the filter bound
 	PriceLtOrEq string `protobuf:"bytes,22,opt,name=price_lt_or_eq,json=priceLtOrEq,proto3" json:"price_lt_or_eq,omitempty"`
-	// Filter out orders whose price is not greater than or equal to the filter bound
+	// Filter out orders whose price is not greater than or equal to the filter
+	// bound
 	PriceGtOrEq string `protobuf:"bytes,23,opt,name=price_gt_or_eq,json=priceGtOrEq,proto3" json:"price_gt_or_eq,omitempty"`
 	// Filters orders to satisfy the indexPriceMinMarginRequirement
 	IndexPrice string `protobuf:"bytes,24,opt,name=index_price,json=indexPrice,proto3" json:"index_price,omitempty"`
@@ -1031,7 +965,7 @@ func (m *OrderFilters) Reset()         { *m = OrderFilters{} }
 func (m *OrderFilters) String() string { return proto.CompactTextString(m) }
 func (*OrderFilters) ProtoMessage()    {}
 func (*OrderFilters) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{18}
+	return fileDescriptor_d11505616d5f0a14, []int{16}
 }
 func (m *OrderFilters) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1251,7 +1185,7 @@ func (m *QueryDerivativeOrdersRequest) Reset()         { *m = QueryDerivativeOrd
 func (m *QueryDerivativeOrdersRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryDerivativeOrdersRequest) ProtoMessage()    {}
 func (*QueryDerivativeOrdersRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{19}
+	return fileDescriptor_d11505616d5f0a14, []int{17}
 }
 func (m *QueryDerivativeOrdersRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1325,7 +1259,7 @@ func (m *QuerySubaccountMarketDerivativeOrdersRequest) String() string {
 }
 func (*QuerySubaccountMarketDerivativeOrdersRequest) ProtoMessage() {}
 func (*QuerySubaccountMarketDerivativeOrdersRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{20}
+	return fileDescriptor_d11505616d5f0a14, []int{18}
 }
 func (m *QuerySubaccountMarketDerivativeOrdersRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1382,8 +1316,8 @@ func (m *QuerySubaccountMarketDerivativeOrdersRequest) GetSubaccountID() string 
 	return ""
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QuerySpotOrdersRequest defines the request type for
+// Query/SpotOrders RPC method.
 type QuerySpotOrdersRequest struct {
 	Filters *OrderFilters `protobuf:"bytes,1,opt,name=filters,proto3" json:"filters,omitempty"`
 	// Filter by status of the order
@@ -1398,7 +1332,7 @@ func (m *QuerySpotOrdersRequest) Reset()         { *m = QuerySpotOrdersRequest{}
 func (m *QuerySpotOrdersRequest) String() string { return proto.CompactTextString(m) }
 func (*QuerySpotOrdersRequest) ProtoMessage()    {}
 func (*QuerySpotOrdersRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{21}
+	return fileDescriptor_d11505616d5f0a14, []int{19}
 }
 func (m *QuerySpotOrdersRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1455,8 +1389,8 @@ func (m *QuerySpotOrdersRequest) GetTradePairHash() string {
 	return ""
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QuerySpotOrdersResponse defines the request type for
+// Query/SpotOrders RPC method.
 type QuerySpotOrdersResponse struct {
 	// An array of matched orders.
 	Records []*Order `protobuf:"bytes,1,rep,name=records,proto3" json:"records,omitempty"`
@@ -1466,7 +1400,7 @@ func (m *QuerySpotOrdersResponse) Reset()         { *m = QuerySpotOrdersResponse
 func (m *QuerySpotOrdersResponse) String() string { return proto.CompactTextString(m) }
 func (*QuerySpotOrdersResponse) ProtoMessage()    {}
 func (*QuerySpotOrdersResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{22}
+	return fileDescriptor_d11505616d5f0a14, []int{20}
 }
 func (m *QuerySpotOrdersResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1502,335 +1436,8 @@ func (m *QuerySpotOrdersResponse) GetRecords() []*Order {
 	return nil
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type QueryFillRequestsRequest struct {
-	// EIP712 hash of order (see LibOrder.getTypedDataHash)
-	OrderHash string `protobuf:"bytes,1,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-}
-
-func (m *QueryFillRequestsRequest) Reset()         { *m = QueryFillRequestsRequest{} }
-func (m *QueryFillRequestsRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryFillRequestsRequest) ProtoMessage()    {}
-func (*QueryFillRequestsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{23}
-}
-func (m *QueryFillRequestsRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryFillRequestsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryFillRequestsRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryFillRequestsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFillRequestsRequest.Merge(m, src)
-}
-func (m *QueryFillRequestsRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryFillRequestsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFillRequestsRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryFillRequestsRequest proto.InternalMessageInfo
-
-func (m *QueryFillRequestsRequest) GetOrderHash() string {
-	if m != nil {
-		return m.OrderHash
-	}
-	return ""
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type OrderFillRequest struct {
-	TxHash               string   `protobuf:"bytes,1,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
-	OrderHash            string   `protobuf:"bytes,2,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	ApprovalSignatures   []string `protobuf:"bytes,3,rep,name=approval_signatures,json=approvalSignatures,proto3" json:"approval_signatures,omitempty"`
-	ExpiryAt             int64    `protobuf:"zigzag64,4,opt,name=expiry_at,json=expiryAt,proto3" json:"expiry_at,omitempty"`
-	TakerAssetFillAmount string   `protobuf:"bytes,5,opt,name=taker_asset_fill_amount,json=takerAssetFillAmount,proto3" json:"taker_asset_fill_amount,omitempty"`
-}
-
-func (m *OrderFillRequest) Reset()         { *m = OrderFillRequest{} }
-func (m *OrderFillRequest) String() string { return proto.CompactTextString(m) }
-func (*OrderFillRequest) ProtoMessage()    {}
-func (*OrderFillRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{24}
-}
-func (m *OrderFillRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *OrderFillRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_OrderFillRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *OrderFillRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_OrderFillRequest.Merge(m, src)
-}
-func (m *OrderFillRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *OrderFillRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_OrderFillRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_OrderFillRequest proto.InternalMessageInfo
-
-func (m *OrderFillRequest) GetTxHash() string {
-	if m != nil {
-		return m.TxHash
-	}
-	return ""
-}
-
-func (m *OrderFillRequest) GetOrderHash() string {
-	if m != nil {
-		return m.OrderHash
-	}
-	return ""
-}
-
-func (m *OrderFillRequest) GetApprovalSignatures() []string {
-	if m != nil {
-		return m.ApprovalSignatures
-	}
-	return nil
-}
-
-func (m *OrderFillRequest) GetExpiryAt() int64 {
-	if m != nil {
-		return m.ExpiryAt
-	}
-	return 0
-}
-
-func (m *OrderFillRequest) GetTakerAssetFillAmount() string {
-	if m != nil {
-		return m.TakerAssetFillAmount
-	}
-	return ""
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type OrderSoftCancelRequest struct {
-	TxHash             string   `protobuf:"bytes,1,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
-	OrderHash          string   `protobuf:"bytes,2,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	ApprovalSignatures []string `protobuf:"bytes,3,rep,name=approval_signatures,json=approvalSignatures,proto3" json:"approval_signatures,omitempty"`
-}
-
-func (m *OrderSoftCancelRequest) Reset()         { *m = OrderSoftCancelRequest{} }
-func (m *OrderSoftCancelRequest) String() string { return proto.CompactTextString(m) }
-func (*OrderSoftCancelRequest) ProtoMessage()    {}
-func (*OrderSoftCancelRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{25}
-}
-func (m *OrderSoftCancelRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *OrderSoftCancelRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_OrderSoftCancelRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *OrderSoftCancelRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_OrderSoftCancelRequest.Merge(m, src)
-}
-func (m *OrderSoftCancelRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *OrderSoftCancelRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_OrderSoftCancelRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_OrderSoftCancelRequest proto.InternalMessageInfo
-
-func (m *OrderSoftCancelRequest) GetTxHash() string {
-	if m != nil {
-		return m.TxHash
-	}
-	return ""
-}
-
-func (m *OrderSoftCancelRequest) GetOrderHash() string {
-	if m != nil {
-		return m.OrderHash
-	}
-	return ""
-}
-
-func (m *OrderSoftCancelRequest) GetApprovalSignatures() []string {
-	if m != nil {
-		return m.ApprovalSignatures
-	}
-	return nil
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type QueryFillRequestsResponse struct {
-	// Information about the signatures to fill the order.
-	FillRequests []*OrderFillRequest `protobuf:"bytes,1,rep,name=fill_requests,json=fillRequests,proto3" json:"fill_requests,omitempty"`
-}
-
-func (m *QueryFillRequestsResponse) Reset()         { *m = QueryFillRequestsResponse{} }
-func (m *QueryFillRequestsResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryFillRequestsResponse) ProtoMessage()    {}
-func (*QueryFillRequestsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{26}
-}
-func (m *QueryFillRequestsResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryFillRequestsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryFillRequestsResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryFillRequestsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryFillRequestsResponse.Merge(m, src)
-}
-func (m *QueryFillRequestsResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryFillRequestsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryFillRequestsResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryFillRequestsResponse proto.InternalMessageInfo
-
-func (m *QueryFillRequestsResponse) GetFillRequests() []*OrderFillRequest {
-	if m != nil {
-		return m.FillRequests
-	}
-	return nil
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type QueryOutstandingFillRequestsRequest struct {
-	TxHash string `protobuf:"bytes,1,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
-}
-
-func (m *QueryOutstandingFillRequestsRequest) Reset()         { *m = QueryOutstandingFillRequestsRequest{} }
-func (m *QueryOutstandingFillRequestsRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryOutstandingFillRequestsRequest) ProtoMessage()    {}
-func (*QueryOutstandingFillRequestsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{27}
-}
-func (m *QueryOutstandingFillRequestsRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryOutstandingFillRequestsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryOutstandingFillRequestsRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryOutstandingFillRequestsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryOutstandingFillRequestsRequest.Merge(m, src)
-}
-func (m *QueryOutstandingFillRequestsRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryOutstandingFillRequestsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryOutstandingFillRequestsRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryOutstandingFillRequestsRequest proto.InternalMessageInfo
-
-func (m *QueryOutstandingFillRequestsRequest) GetTxHash() string {
-	if m != nil {
-		return m.TxHash
-	}
-	return ""
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
-type QueryOutstandingFillRequestsResponse struct {
-	// Information about the signatures to fill the order.
-	FillRequests []*OrderFillRequest `protobuf:"bytes,1,rep,name=fill_requests,json=fillRequests,proto3" json:"fill_requests,omitempty"`
-}
-
-func (m *QueryOutstandingFillRequestsResponse) Reset()         { *m = QueryOutstandingFillRequestsResponse{} }
-func (m *QueryOutstandingFillRequestsResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryOutstandingFillRequestsResponse) ProtoMessage()    {}
-func (*QueryOutstandingFillRequestsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{28}
-}
-func (m *QueryOutstandingFillRequestsResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryOutstandingFillRequestsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryOutstandingFillRequestsResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryOutstandingFillRequestsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryOutstandingFillRequestsResponse.Merge(m, src)
-}
-func (m *QueryOutstandingFillRequestsResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryOutstandingFillRequestsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryOutstandingFillRequestsResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryOutstandingFillRequestsResponse proto.InternalMessageInfo
-
-func (m *QueryOutstandingFillRequestsResponse) GetFillRequests() []*OrderFillRequest {
-	if m != nil {
-		return m.FillRequests
-	}
-	return nil
-}
-
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryTradePairRequest defines the request type for
+// Query/TradePair RPC method.
 type QueryTradePairRequest struct {
 	// Specify name of the trade pair.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -1848,7 +1455,7 @@ func (m *QueryTradePairRequest) Reset()         { *m = QueryTradePairRequest{} }
 func (m *QueryTradePairRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryTradePairRequest) ProtoMessage()    {}
 func (*QueryTradePairRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{29}
+	return fileDescriptor_d11505616d5f0a14, []int{21}
 }
 func (m *QueryTradePairRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1905,8 +1512,8 @@ func (m *QueryTradePairRequest) GetTakerAssetData() string {
 	return ""
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryTradePairResponse defines the request type for
+// Query/TradePair RPC method.
 type QueryTradePairResponse struct {
 	// A name of the pair in format AAA/BBB, where AAA - maker's asset, BBB -
 	// taker's asset.
@@ -1927,7 +1534,7 @@ func (m *QueryTradePairResponse) Reset()         { *m = QueryTradePairResponse{}
 func (m *QueryTradePairResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryTradePairResponse) ProtoMessage()    {}
 func (*QueryTradePairResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{30}
+	return fileDescriptor_d11505616d5f0a14, []int{22}
 }
 func (m *QueryTradePairResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1991,8 +1598,8 @@ func (m *QueryTradePairResponse) GetEnabled() bool {
 	return false
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryDerivativeMarketRequest defines the request type for
+// Query/DerivativeMarket RPC method.
 type QueryDerivativeMarketRequest struct {
 	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	Ticker   string `protobuf:"bytes,2,opt,name=ticker,proto3" json:"ticker,omitempty"`
@@ -2002,7 +1609,7 @@ func (m *QueryDerivativeMarketRequest) Reset()         { *m = QueryDerivativeMar
 func (m *QueryDerivativeMarketRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryDerivativeMarketRequest) ProtoMessage()    {}
 func (*QueryDerivativeMarketRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{31}
+	return fileDescriptor_d11505616d5f0a14, []int{23}
 }
 func (m *QueryDerivativeMarketRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -2045,8 +1652,8 @@ func (m *QueryDerivativeMarketRequest) GetTicker() string {
 	return ""
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryDerivativeMarketResponse defines the request type for
+// Query/DerivativeMarket RPC method.
 type QueryDerivativeMarketResponse struct {
 	Market *DerivativeMarket `protobuf:"bytes,1,opt,name=market,proto3" json:"market,omitempty"`
 }
@@ -2055,7 +1662,7 @@ func (m *QueryDerivativeMarketResponse) Reset()         { *m = QueryDerivativeMa
 func (m *QueryDerivativeMarketResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryDerivativeMarketResponse) ProtoMessage()    {}
 func (*QueryDerivativeMarketResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{32}
+	return fileDescriptor_d11505616d5f0a14, []int{24}
 }
 func (m *QueryDerivativeMarketResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -2091,8 +1698,8 @@ func (m *QueryDerivativeMarketResponse) GetMarket() *DerivativeMarket {
 	return nil
 }
 
-// QuerySoftCancelledOrdersRequest defines the request type for
-// Query/SoftCancelledOrders RPC method.
+// QueryTradePairsRequest defines the request type for
+// Query/TradePairs RPC method.
 type QueryTradePairsRequest struct {
 }
 
@@ -2100,7 +1707,7 @@ func (m *QueryTradePairsRequest) Reset()         { *m = QueryTradePairsRequest{}
 func (m *QueryTradePairsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryTradePairsRequest) ProtoMessage()    {}
 func (*QueryTradePairsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{33}
+	return fileDescriptor_d11505616d5f0a14, []int{25}
 }
 func (m *QueryTradePairsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -2140,7 +1747,7 @@ func (m *QueryTradePairsResponse) Reset()         { *m = QueryTradePairsResponse
 func (m *QueryTradePairsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryTradePairsResponse) ProtoMessage()    {}
 func (*QueryTradePairsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{34}
+	return fileDescriptor_d11505616d5f0a14, []int{26}
 }
 func (m *QueryTradePairsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -2187,7 +1794,7 @@ func (m *QueryDerivativeOrdersResponse) Reset()         { *m = QueryDerivativeOr
 func (m *QueryDerivativeOrdersResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryDerivativeOrdersResponse) ProtoMessage()    {}
 func (*QueryDerivativeOrdersResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{35}
+	return fileDescriptor_d11505616d5f0a14, []int{27}
 }
 func (m *QueryDerivativeOrdersResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -2238,7 +1845,7 @@ func (m *QuerySubaccountMarketDerivativeOrdersResponse) String() string {
 }
 func (*QuerySubaccountMarketDerivativeOrdersResponse) ProtoMessage() {}
 func (*QuerySubaccountMarketDerivativeOrdersResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d11505616d5f0a14, []int{36}
+	return fileDescriptor_d11505616d5f0a14, []int{28}
 }
 func (m *QuerySubaccountMarketDerivativeOrdersResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -2281,16 +1888,14 @@ func init() {
 	proto.RegisterType((*QuerySubaccountMarginHoldResponse)(nil), "injective.orders.v1beta1.QuerySubaccountMarginHoldResponse")
 	proto.RegisterType((*QueryDerivativeOrderbookRequest)(nil), "injective.orders.v1beta1.QueryDerivativeOrderbookRequest")
 	proto.RegisterType((*QueryDerivativeOrderbookResponse)(nil), "injective.orders.v1beta1.QueryDerivativeOrderbookResponse")
+	proto.RegisterType((*QueryMarginInfoRequest)(nil), "injective.orders.v1beta1.QueryMarginInfoRequest")
+	proto.RegisterType((*QueryMarginInfoResponse)(nil), "injective.orders.v1beta1.QueryMarginInfoResponse")
 	proto.RegisterType((*QueryDerivativeMarketsRequest)(nil), "injective.orders.v1beta1.QueryDerivativeMarketsRequest")
 	proto.RegisterType((*QueryDerivativeMarketsResponse)(nil), "injective.orders.v1beta1.QueryDerivativeMarketsResponse")
-	proto.RegisterType((*QuerySoftCancelledOrdersRequest)(nil), "injective.orders.v1beta1.QuerySoftCancelledOrdersRequest")
-	proto.RegisterType((*QuerySoftCancelledOrdersResponse)(nil), "injective.orders.v1beta1.QuerySoftCancelledOrdersResponse")
 	proto.RegisterType((*QueryOrderRequest)(nil), "injective.orders.v1beta1.QueryOrderRequest")
 	proto.RegisterType((*QueryOrderResponse)(nil), "injective.orders.v1beta1.QueryOrderResponse")
 	proto.RegisterType((*QueryActiveOrderRequest)(nil), "injective.orders.v1beta1.QueryActiveOrderRequest")
 	proto.RegisterType((*QueryActiveOrderResponse)(nil), "injective.orders.v1beta1.QueryActiveOrderResponse")
-	proto.RegisterType((*QueryZeroExTransactionRequest)(nil), "injective.orders.v1beta1.QueryZeroExTransactionRequest")
-	proto.RegisterType((*QueryZeroExTransactionResponse)(nil), "injective.orders.v1beta1.QueryZeroExTransactionResponse")
 	proto.RegisterType((*QueryArchiveOrderRequest)(nil), "injective.orders.v1beta1.QueryArchiveOrderRequest")
 	proto.RegisterType((*QueryArchiveOrderResponse)(nil), "injective.orders.v1beta1.QueryArchiveOrderResponse")
 	proto.RegisterType((*OrderFilters)(nil), "injective.orders.v1beta1.OrderFilters")
@@ -2298,12 +1903,6 @@ func init() {
 	proto.RegisterType((*QuerySubaccountMarketDerivativeOrdersRequest)(nil), "injective.orders.v1beta1.QuerySubaccountMarketDerivativeOrdersRequest")
 	proto.RegisterType((*QuerySpotOrdersRequest)(nil), "injective.orders.v1beta1.QuerySpotOrdersRequest")
 	proto.RegisterType((*QuerySpotOrdersResponse)(nil), "injective.orders.v1beta1.QuerySpotOrdersResponse")
-	proto.RegisterType((*QueryFillRequestsRequest)(nil), "injective.orders.v1beta1.QueryFillRequestsRequest")
-	proto.RegisterType((*OrderFillRequest)(nil), "injective.orders.v1beta1.OrderFillRequest")
-	proto.RegisterType((*OrderSoftCancelRequest)(nil), "injective.orders.v1beta1.OrderSoftCancelRequest")
-	proto.RegisterType((*QueryFillRequestsResponse)(nil), "injective.orders.v1beta1.QueryFillRequestsResponse")
-	proto.RegisterType((*QueryOutstandingFillRequestsRequest)(nil), "injective.orders.v1beta1.QueryOutstandingFillRequestsRequest")
-	proto.RegisterType((*QueryOutstandingFillRequestsResponse)(nil), "injective.orders.v1beta1.QueryOutstandingFillRequestsResponse")
 	proto.RegisterType((*QueryTradePairRequest)(nil), "injective.orders.v1beta1.QueryTradePairRequest")
 	proto.RegisterType((*QueryTradePairResponse)(nil), "injective.orders.v1beta1.QueryTradePairResponse")
 	proto.RegisterType((*QueryDerivativeMarketRequest)(nil), "injective.orders.v1beta1.QueryDerivativeMarketRequest")
@@ -2319,139 +1918,117 @@ func init() {
 }
 
 var fileDescriptor_d11505616d5f0a14 = []byte{
-	// 2097 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x5a, 0xbf, 0x6f, 0xdc, 0xc8,
-	0xf5, 0x37, 0x25, 0x59, 0x3f, 0x9e, 0x7e, 0x58, 0x1e, 0xc9, 0xd2, 0x7a, 0xbf, 0x3e, 0x49, 0xa6,
-	0x24, 0x9f, 0xec, 0x93, 0x77, 0x25, 0xf9, 0xeb, 0xf3, 0xd9, 0xe7, 0x33, 0x62, 0x9f, 0xec, 0x3b,
-	0x23, 0x72, 0x7c, 0x5e, 0xbb, 0x08, 0xdc, 0x10, 0xb3, 0xe4, 0xec, 0x8a, 0x27, 0x2e, 0xb9, 0xe2,
-	0xcc, 0x2a, 0x52, 0x52, 0x25, 0x45, 0xea, 0x03, 0xae, 0x08, 0x02, 0xa4, 0x48, 0x91, 0x22, 0x45,
-	0x90, 0x00, 0x09, 0x90, 0x22, 0x48, 0x91, 0x74, 0x57, 0x04, 0x88, 0x81, 0x34, 0x57, 0x06, 0x76,
-	0xea, 0xfc, 0x05, 0x29, 0x02, 0xce, 0x0f, 0x92, 0xbb, 0x24, 0x97, 0x5c, 0x2b, 0x39, 0x20, 0x9d,
-	0xf6, 0xf1, 0xf3, 0xe6, 0x7d, 0xde, 0x9b, 0x37, 0xef, 0xbd, 0x21, 0x05, 0x6b, 0xb6, 0xfb, 0x39,
-	0x31, 0x99, 0x7d, 0x44, 0xaa, 0x9e, 0x6f, 0x11, 0x9f, 0x56, 0x8f, 0xb6, 0xeb, 0x84, 0xe1, 0xed,
-	0xea, 0x61, 0x87, 0xf8, 0x27, 0x95, 0xb6, 0xef, 0x31, 0x0f, 0x95, 0x42, 0x54, 0x45, 0xa0, 0x2a,
-	0x12, 0x55, 0xbe, 0xd4, 0xf4, 0xbc, 0xa6, 0x43, 0xaa, 0xb8, 0x6d, 0x57, 0xb1, 0xeb, 0x7a, 0x0c,
-	0x33, 0xdb, 0x73, 0xa9, 0xd0, 0x2b, 0xaf, 0x67, 0xae, 0x2e, 0x97, 0xe1, 0x30, 0xfd, 0xa7, 0x1a,
-	0x5c, 0x7e, 0x16, 0x98, 0xdb, 0x25, 0xbe, 0x7d, 0x84, 0x03, 0xfc, 0x53, 0xfe, 0xfc, 0x59, 0xc7,
-	0x63, 0xa4, 0x46, 0x0e, 0x3b, 0x84, 0x32, 0x54, 0x86, 0xf1, 0xc3, 0x0e, 0x76, 0x99, 0xcd, 0x4e,
-	0x4a, 0xda, 0x8a, 0xb6, 0x31, 0x51, 0x0b, 0x7f, 0xa3, 0xff, 0x83, 0x89, 0x16, 0xf6, 0x0f, 0x08,
-	0x33, 0x6c, 0xab, 0x34, 0x24, 0x1e, 0x0a, 0xc1, 0x63, 0x0b, 0x2d, 0xc0, 0xa8, 0x4d, 0xf7, 0x3c,
-	0xb7, 0x59, 0x1a, 0x5e, 0xd1, 0x36, 0xc6, 0x6b, 0xf2, 0x17, 0x5a, 0x85, 0xe9, 0x16, 0x3e, 0x20,
-	0xbe, 0x81, 0x2d, 0xcb, 0x27, 0x94, 0x96, 0x46, 0xb8, 0xe2, 0x14, 0x17, 0xde, 0x17, 0x32, 0xbd,
-	0x0e, 0x7a, 0x3f, 0x6a, 0xb4, 0xed, 0xb9, 0x94, 0xa0, 0xbb, 0x30, 0x7a, 0x18, 0x08, 0x68, 0x49,
-	0x5b, 0x19, 0xde, 0x98, 0xdc, 0x59, 0xab, 0x64, 0x45, 0xac, 0xc2, 0xd5, 0x85, 0xb6, 0xd4, 0xd1,
-	0x7f, 0xa3, 0xc1, 0x0a, 0x37, 0xf2, 0xbc, 0x53, 0xc7, 0xa6, 0xe9, 0x75, 0x5c, 0xf6, 0x04, 0xfb,
-	0x4d, 0xdb, 0xfd, 0xd4, 0x73, 0x2c, 0xe5, 0x7e, 0x82, 0xad, 0x96, 0x64, 0x1b, 0xc4, 0x81, 0x71,
-	0x50, 0x83, 0x10, 0x15, 0x07, 0x2e, 0x78, 0x44, 0x48, 0xb0, 0x42, 0x1d, 0x53, 0x62, 0x98, 0x1d,
-	0xdf, 0x27, 0xae, 0x79, 0xc2, 0xc3, 0x31, 0x51, 0x9b, 0x0a, 0x84, 0x1f, 0x4b, 0x19, 0x5a, 0x83,
-	0x19, 0x1a, 0xb2, 0x30, 0x6c, 0xc3, 0x52, 0x51, 0x89, 0xa4, 0x8f, 0x77, 0xf5, 0x5d, 0xb9, 0x61,
-	0xe9, 0x84, 0x65, 0x50, 0x96, 0x61, 0xb2, 0xc5, 0xa5, 0xc6, 0xbe, 0xe7, 0x58, 0x92, 0x2f, 0xb4,
-	0x42, 0xa0, 0x7e, 0x0f, 0x96, 0xd3, 0x62, 0x5b, 0xf7, 0xbc, 0x03, 0xe5, 0x75, 0xd7, 0xc6, 0x6a,
-	0xdd, 0x1b, 0xab, 0xff, 0x4c, 0xc5, 0x2d, 0x75, 0x81, 0x68, 0x6b, 0xe8, 0xbe, 0xe7, 0xb3, 0x02,
-	0x5b, 0xf3, 0x99, 0x6f, 0x9b, 0x64, 0x8f, 0x1c, 0x11, 0xa7, 0x26, 0x75, 0xd0, 0x1d, 0x38, 0xeb,
-	0x78, 0x6e, 0x93, 0x96, 0x86, 0x06, 0x50, 0x16, 0x2a, 0xfa, 0x32, 0xbc, 0xd3, 0xc3, 0xee, 0x09,
-	0x67, 0x4e, 0xa5, 0x73, 0x7a, 0x03, 0x96, 0xb2, 0x00, 0x92, 0xfc, 0x2e, 0x8c, 0x09, 0x6f, 0x15,
-	0xfb, 0x6b, 0xd9, 0x04, 0x7a, 0x57, 0xa9, 0x29, 0x55, 0xdd, 0x90, 0x71, 0x7e, 0xee, 0x35, 0xd8,
-	0xc7, 0xd8, 0x35, 0x89, 0xe3, 0x10, 0x4b, 0xa4, 0xb1, 0x8a, 0xf3, 0x65, 0x98, 0xe2, 0xcb, 0x19,
-	0xfb, 0x98, 0xee, 0xcb, 0x34, 0x9e, 0xa8, 0x4d, 0x72, 0xd9, 0xa7, 0x5c, 0x84, 0x2e, 0xc2, 0xb8,
-	0xb9, 0x8f, 0x6d, 0x57, 0x1d, 0x31, 0x54, 0x1b, 0xe3, 0xbf, 0x1f, 0x5b, 0xfa, 0x43, 0x95, 0xbf,
-	0x69, 0x06, 0xa4, 0x2b, 0xf9, 0x16, 0xf4, 0x0e, 0x9c, 0xe7, 0xcb, 0x70, 0x4d, 0xc5, 0xec, 0x1d,
-	0x80, 0x48, 0x4f, 0xa6, 0xc0, 0x44, 0xa8, 0xd5, 0xff, 0xe4, 0x27, 0x93, 0x79, 0x38, 0x25, 0x99,
-	0xbf, 0x0d, 0x28, 0x6e, 0x56, 0xf2, 0xbd, 0x09, 0x67, 0xb9, 0x15, 0x6e, 0x72, 0x72, 0x67, 0x39,
-	0xe7, 0x44, 0xd7, 0x04, 0x5a, 0xff, 0x01, 0x2c, 0xf2, 0xc5, 0xee, 0x9b, 0x61, 0x3a, 0x7e, 0x73,
-	0x9e, 0x3c, 0x83, 0x52, 0xd2, 0xf8, 0xe9, 0xfc, 0xf9, 0x40, 0x26, 0xf1, 0x4b, 0xe2, 0x7b, 0x0f,
-	0x8f, 0x5f, 0xf8, 0xd8, 0xa5, 0xd8, 0x0c, 0x6a, 0xbc, 0xf2, 0x6a, 0x11, 0xc6, 0xd8, 0x71, 0xdc,
-	0xa5, 0x51, 0x76, 0x1c, 0xf8, 0xa3, 0xff, 0x53, 0x93, 0xe9, 0x9d, 0xa2, 0x2a, 0x39, 0x09, 0x5d,
-	0x76, 0xd2, 0x26, 0x5c, 0x17, 0x05, 0xba, 0x2f, 0x4e, 0xda, 0x04, 0x3d, 0x85, 0xe9, 0x86, 0xed,
-	0x38, 0x86, 0x2f, 0x8c, 0xa8, 0xe3, 0x77, 0x2d, 0x87, 0xf4, 0x23, 0xdb, 0x71, 0x24, 0xaf, 0xda,
-	0x54, 0x23, 0xfa, 0x41, 0x51, 0x1d, 0xe6, 0xa9, 0xd7, 0x60, 0x86, 0xc9, 0xb3, 0x33, 0x5a, 0x77,
-	0x98, 0xaf, 0xbb, 0x95, 0xb3, 0x6e, 0x94, 0xd7, 0x6a, 0x75, 0x44, 0x7b, 0x45, 0x54, 0xbf, 0xad,
-	0xa2, 0xef, 0x9b, 0xfb, 0x83, 0xed, 0xbd, 0x5e, 0x83, 0x8b, 0x29, 0xaa, 0xa7, 0xdb, 0xb9, 0x1f,
-	0x8f, 0xc3, 0x94, 0x8a, 0x0a, 0x23, 0x3e, 0x45, 0x5b, 0x30, 0x6f, 0x7a, 0x2e, 0xf3, 0xb1, 0xc9,
-	0x8c, 0x76, 0x50, 0xad, 0x8c, 0xba, 0xd7, 0x71, 0x55, 0x59, 0x45, 0xea, 0x19, 0x2f, 0x64, 0x0f,
-	0x82, 0x27, 0xfd, 0x53, 0x72, 0x11, 0xc6, 0x6c, 0x6a, 0x38, 0xc9, 0xbe, 0xba, 0x0c, 0x93, 0xae,
-	0xc7, 0x0c, 0x72, 0xdc, 0xb6, 0x7d, 0x22, 0xfa, 0xc7, 0x78, 0x0d, 0x5c, 0x8f, 0x3d, 0x14, 0x12,
-	0x54, 0x81, 0x39, 0xd9, 0xca, 0x28, 0x25, 0x2c, 0x6c, 0x68, 0x67, 0xb9, 0x81, 0xf3, 0xa2, 0xa1,
-	0x05, 0x4f, 0x54, 0x57, 0xab, 0xc0, 0x1c, 0x4b, 0xc1, 0x8f, 0x0a, 0x3c, 0x4b, 0xe0, 0xaf, 0xc2,
-	0x2c, 0x39, 0x36, 0xf7, 0xb1, 0xdb, 0x24, 0x21, 0x78, 0x8c, 0x83, 0xcf, 0x29, 0xb9, 0x82, 0xae,
-	0xc3, 0x0c, 0x25, 0xae, 0x15, 0x6b, 0xab, 0xe3, 0x1c, 0x38, 0x2d, 0xa4, 0x0a, 0xb6, 0x01, 0xb3,
-	0x71, 0xc6, 0x16, 0x66, 0xb8, 0x34, 0xc1, 0x81, 0x33, 0x11, 0xdd, 0x5d, 0xcc, 0x70, 0x80, 0x64,
-	0xbd, 0x48, 0x10, 0x48, 0xd6, 0x8d, 0xdc, 0x04, 0xd4, 0x15, 0x85, 0x56, 0x70, 0x88, 0x4b, 0x93,
-	0x1c, 0x3b, 0x1b, 0x0b, 0x02, 0x97, 0x07, 0x68, 0x96, 0x44, 0x4f, 0x09, 0x34, 0xeb, 0x45, 0x27,
-	0x86, 0x85, 0xe9, 0x94, 0x61, 0xe1, 0x1a, 0x9c, 0x0f, 0xf6, 0xa9, 0x1b, 0x38, 0x23, 0xe2, 0xe4,
-	0x7a, 0xec, 0x49, 0x1c, 0xbb, 0x0a, 0xd3, 0xac, 0x0b, 0x77, 0x4e, 0x2c, 0xc8, 0xe2, 0xa0, 0x75,
-	0x98, 0x61, 0x3e, 0x8e, 0x07, 0x73, 0x56, 0x04, 0x53, 0x48, 0x15, 0x6c, 0x07, 0x2e, 0x34, 0x08,
-	0x31, 0x7c, 0x62, 0xda, 0x6d, 0x9b, 0xb8, 0xd1, 0x86, 0x9e, 0xe7, 0xe8, 0xb9, 0x06, 0x21, 0x35,
-	0xf5, 0x4c, 0xe9, 0x54, 0x61, 0xbe, 0xa5, 0x06, 0x9b, 0x78, 0x68, 0x51, 0x2c, 0x67, 0x1e, 0x11,
-	0x12, 0x45, 0xb7, 0x0a, 0xf3, 0x2c, 0x4d, 0x61, 0x2e, 0x96, 0x34, 0x5d, 0x0a, 0x57, 0x61, 0x36,
-	0x56, 0x61, 0x5d, 0xcf, 0x35, 0x49, 0x69, 0x5e, 0x04, 0x23, 0x92, 0x7f, 0x27, 0x10, 0xa3, 0x4b,
-	0x30, 0x61, 0xd9, 0x3e, 0xe1, 0xb5, 0xac, 0x74, 0x41, 0x9c, 0xe5, 0x50, 0x80, 0x56, 0x61, 0x46,
-	0x9c, 0x2e, 0x87, 0x19, 0x9e, 0x6f, 0x90, 0xc3, 0xd2, 0x02, 0x87, 0x4c, 0x72, 0xe9, 0x1e, 0x7b,
-	0xea, 0x3f, 0x3c, 0x8c, 0x40, 0x4d, 0x05, 0x5a, 0x8c, 0x81, 0x3e, 0x11, 0xa0, 0x65, 0x98, 0xb4,
-	0x5d, 0x8b, 0x1c, 0x8b, 0xd3, 0x5a, 0x2a, 0x89, 0x01, 0x8a, 0x8b, 0xf8, 0x21, 0x4d, 0xe9, 0x0a,
-	0x17, 0x53, 0xba, 0xc2, 0x9f, 0x34, 0xb8, 0x94, 0x3a, 0xc3, 0xaa, 0xe2, 0xf4, 0x2d, 0x18, 0x6b,
-	0x88, 0x1a, 0x21, 0x4b, 0xcc, 0x95, 0xfc, 0x3a, 0x1b, 0xa0, 0x6b, 0x4a, 0x2d, 0x18, 0xb1, 0x29,
-	0xc3, 0xac, 0x43, 0x65, 0x95, 0x90, 0xbf, 0xd0, 0x12, 0x80, 0xe9, 0x39, 0x8e, 0x0c, 0x95, 0x68,
-	0x59, 0x31, 0x09, 0xba, 0x02, 0xe7, 0x78, 0x6e, 0x18, 0x6d, 0x6c, 0xcb, 0xda, 0x38, 0x12, 0x4b,
-	0x99, 0xcf, 0xb0, 0x2d, 0xea, 0xe3, 0xef, 0x34, 0xd8, 0x4c, 0x0e, 0x9c, 0x07, 0x84, 0x65, 0xb9,
-	0xd4, 0x6f, 0x6e, 0x4c, 0x9e, 0x8e, 0xa1, 0xbc, 0x51, 0x7a, 0xb8, 0x67, 0x94, 0x2e, 0x36, 0x25,
-	0xff, 0x41, 0x83, 0x05, 0xc1, 0xba, 0xed, 0xb1, 0xff, 0xb5, 0x90, 0xbf, 0x90, 0x83, 0x4c, 0x9c,
-	0xbb, 0x6c, 0x48, 0xb7, 0x61, 0xcc, 0x27, 0xa6, 0xe7, 0x5b, 0x6a, 0x2a, 0xcd, 0x6d, 0x49, 0x0a,
-	0x1f, 0xf6, 0xc8, 0x58, 0xa7, 0xa6, 0x05, 0x7b, 0xe4, 0x5f, 0x35, 0x98, 0xed, 0xed, 0xf2, 0x99,
-	0xd3, 0x47, 0xcf, 0x62, 0x43, 0xbd, 0xc3, 0x56, 0x15, 0xe6, 0x70, 0xbb, 0xed, 0x7b, 0x47, 0xd8,
-	0x31, 0xa8, 0xdd, 0x74, 0x31, 0xeb, 0xf8, 0x44, 0x8c, 0x03, 0x13, 0x35, 0xa4, 0x1e, 0x3d, 0x0f,
-	0x9f, 0x04, 0xe9, 0xc0, 0x1b, 0xda, 0x89, 0x81, 0x19, 0x0f, 0x18, 0xaa, 0x8d, 0x0b, 0xc1, 0x7d,
-	0x86, 0x6e, 0xc2, 0x62, 0xbc, 0x38, 0xf3, 0xd1, 0x45, 0x56, 0x68, 0xd1, 0xd4, 0xe6, 0xa3, 0x0a,
-	0x1d, 0xb0, 0x17, 0x55, 0x5a, 0xff, 0xa1, 0x06, 0x0b, 0xe9, 0xf3, 0xc5, 0x37, 0xe6, 0x97, 0xee,
-	0xc8, 0xc9, 0xa3, 0x7b, 0x43, 0xe4, 0x46, 0x27, 0xc6, 0x30, 0xed, 0x74, 0x63, 0x98, 0x7e, 0x0f,
-	0x56, 0xc5, 0xa8, 0xdd, 0x61, 0x94, 0x61, 0xd7, 0xb2, 0xdd, 0x66, 0x5a, 0x26, 0x64, 0xce, 0x94,
-	0xdf, 0x83, 0xb5, 0xfe, 0xfa, 0xff, 0x2d, 0xe2, 0x5f, 0x6a, 0x70, 0x81, 0x5b, 0x7e, 0xa1, 0x0e,
-	0x89, 0xe2, 0x8a, 0x60, 0xc4, 0xc5, 0x2d, 0x22, 0x89, 0xf2, 0xbf, 0x03, 0x59, 0x6c, 0x7b, 0xf8,
-	0xdf, 0xa9, 0x23, 0xc4, 0x70, 0xe1, 0x11, 0x62, 0x24, 0x6d, 0x84, 0xd0, 0x7f, 0xad, 0x0a, 0x4c,
-	0x8c, 0x95, 0x8c, 0x40, 0x1a, 0xad, 0x34, 0x0a, 0x43, 0x85, 0x29, 0x0c, 0xa7, 0x4e, 0x31, 0xca,
-	0xd5, 0x91, 0x98, 0xab, 0x25, 0x18, 0x23, 0x2e, 0xae, 0x3b, 0xc4, 0xe2, 0xe9, 0x3f, 0x5e, 0x53,
-	0x3f, 0xf5, 0xe7, 0x89, 0x4e, 0x24, 0xef, 0xaa, 0x45, 0xca, 0xf6, 0x02, 0x8c, 0x32, 0xdb, 0x3c,
-	0x20, 0xbe, 0xaa, 0x78, 0xe2, 0x97, 0x6e, 0x66, 0xdc, 0xb3, 0xc3, 0x58, 0x3c, 0x80, 0x51, 0xb1,
-	0x88, 0xac, 0xb5, 0x83, 0x5c, 0xa2, 0xa5, 0xa6, 0x5e, 0xea, 0x8d, 0x74, 0x78, 0x8b, 0xff, 0xae,
-	0x2c, 0x94, 0xf1, 0x27, 0xd2, 0xf0, 0x47, 0xbd, 0x85, 0x72, 0x35, 0xdb, 0x72, 0xb4, 0x85, 0x61,
-	0xb1, 0x7c, 0x99, 0x70, 0xec, 0x3f, 0x57, 0x88, 0x3f, 0x87, 0xeb, 0x05, 0x1b, 0xea, 0xa9, 0x6d,
-	0xed, 0xfc, 0xe4, 0x22, 0x9c, 0xe5, 0xc6, 0xd0, 0x17, 0x1a, 0x40, 0x74, 0xd7, 0x46, 0xef, 0x65,
-	0x2f, 0x91, 0x78, 0x11, 0x50, 0xde, 0x2c, 0x06, 0x16, 0x74, 0xf5, 0x77, 0x7f, 0xf4, 0xb7, 0x7f,
-	0x7c, 0x39, 0x74, 0x19, 0x2d, 0x57, 0xfb, 0xbf, 0x83, 0x44, 0xbf, 0xd4, 0x60, 0xb6, 0xf7, 0xd2,
-	0x8c, 0xb6, 0x73, 0x6c, 0x25, 0x6f, 0xf7, 0xe5, 0x9d, 0x41, 0x54, 0x24, 0xc9, 0xeb, 0x9c, 0xe4,
-	0xbb, 0x68, 0x3d, 0x9b, 0x24, 0x8e, 0xb1, 0xfa, 0x95, 0x26, 0x5f, 0x90, 0xc4, 0xaf, 0x89, 0x28,
-	0xd7, 0x70, 0xf2, 0x3a, 0x5a, 0xbe, 0x31, 0x90, 0x8e, 0x64, 0x5b, 0xe1, 0x6c, 0x37, 0xd0, 0x95,
-	0x3e, 0x6c, 0xe3, 0xc4, 0x7e, 0xa1, 0xc1, 0xb9, 0x9e, 0x11, 0x02, 0x6d, 0xe5, 0x18, 0x4e, 0x4c,
-	0x4a, 0xe5, 0xed, 0x01, 0x34, 0x24, 0xd1, 0x4d, 0x4e, 0xf4, 0x0a, 0x5a, 0xcb, 0x26, 0x4a, 0x23,
-	0x4a, 0x3f, 0xd7, 0x60, 0xa6, 0xfb, 0x00, 0xa3, 0x6a, 0x8e, 0xcd, 0xde, 0x26, 0x50, 0xde, 0x2a,
-	0xae, 0x20, 0x39, 0xbe, 0xc7, 0x39, 0xae, 0xa3, 0xd5, 0x6c, 0x8e, 0xe1, 0x3c, 0x16, 0x45, 0x32,
-	0xaa, 0x31, 0xa8, 0xb0, 0xc9, 0xc2, 0x91, 0x4c, 0x16, 0xb0, 0x22, 0x91, 0x64, 0x11, 0xa5, 0xdf,
-	0xaa, 0x26, 0xd9, 0x5b, 0x45, 0xd1, 0xfb, 0x39, 0xa6, 0x33, 0xfa, 0x41, 0xf9, 0xd6, 0xc0, 0x7a,
-	0x92, 0xf8, 0x06, 0x27, 0xae, 0xa3, 0x95, 0x6c, 0xe2, 0xa2, 0xb0, 0xa3, 0xdf, 0xab, 0x1e, 0x9a,
-	0x78, 0x0b, 0x8b, 0x06, 0xb5, 0x1e, 0x46, 0xfa, 0x83, 0xc1, 0x15, 0x25, 0xef, 0xab, 0x9c, 0xf7,
-	0x2a, 0xba, 0x9c, 0xc7, 0x9b, 0xa2, 0x3f, 0x26, 0xa3, 0x2d, 0x33, 0xba, 0x78, 0xb4, 0xbb, 0x8f,
-	0xda, 0xad, 0x81, 0xf5, 0x24, 0xeb, 0x1d, 0xce, 0x7a, 0x13, 0x5d, 0xcb, 0x66, 0x6d, 0xf5, 0x92,
-	0xfc, 0x97, 0x06, 0xeb, 0x85, 0x3a, 0x10, 0x7a, 0x94, 0x57, 0x01, 0x8a, 0xdd, 0x09, 0xcb, 0x9f,
-	0x9c, 0x7a, 0x1d, 0xe9, 0xee, 0x03, 0xee, 0xee, 0x5d, 0x74, 0xa7, 0x4f, 0x7d, 0xc9, 0x73, 0xea,
-	0xcf, 0x2a, 0xed, 0x12, 0x6f, 0x47, 0x73, 0xd3, 0x2e, 0xeb, 0x55, 0x6c, 0x6e, 0xda, 0x65, 0xbe,
-	0x88, 0xd5, 0xff, 0x9f, 0x7b, 0x54, 0x41, 0x9b, 0xd9, 0x1e, 0x7d, 0x9f, 0xf8, 0x1e, 0x89, 0x2b,
-	0x53, 0xf4, 0x95, 0x26, 0x6f, 0x73, 0x29, 0xef, 0xfd, 0xd1, 0xed, 0xbc, 0x68, 0x67, 0x7e, 0x8c,
-	0x28, 0xdf, 0x79, 0x1b, 0x55, 0xe9, 0xc9, 0x4d, 0xee, 0x49, 0x15, 0x5d, 0xef, 0xb3, 0x37, 0x29,
-	0x6c, 0xbf, 0x56, 0xef, 0x48, 0x32, 0x6e, 0x16, 0xe8, 0xa3, 0xbc, 0xe9, 0xa3, 0xef, 0x8d, 0xa6,
-	0x7c, 0xef, 0x6d, 0xd5, 0xa5, 0x5b, 0xb7, 0xb9, 0x5b, 0x37, 0xd0, 0x76, 0x9f, 0x71, 0x26, 0x83,
-	0x79, 0x38, 0x35, 0x74, 0x49, 0xf3, 0xa6, 0x86, 0x34, 0x27, 0x6e, 0x0c, 0xa4, 0x53, 0x7c, 0x6a,
-	0xe8, 0x7a, 0x53, 0xff, 0x4a, 0x83, 0x72, 0xf6, 0x17, 0x57, 0xf4, 0xe1, 0x80, 0x35, 0x2a, 0xfe,
-	0x09, 0xb9, 0x7c, 0xf7, 0xed, 0x94, 0xa5, 0x27, 0xb7, 0xb8, 0x27, 0xdb, 0xa8, 0x5a, 0xbc, 0xca,
-	0x09, 0xce, 0x7f, 0xd1, 0xe4, 0x25, 0x3b, 0xed, 0x73, 0x29, 0xba, 0x33, 0x48, 0x59, 0xea, 0xfe,
-	0x28, 0x5c, 0xfe, 0xf0, 0xad, 0x74, 0xa5, 0x3f, 0xef, 0x73, 0x7f, 0xb6, 0x50, 0xa5, 0x60, 0x19,
-	0x53, 0x84, 0xc3, 0x63, 0x9f, 0xf2, 0xd9, 0x35, 0xf7, 0xd8, 0x67, 0x7f, 0xeb, 0xcd, 0x3d, 0xf6,
-	0x7d, 0xbe, 0xf2, 0x16, 0x39, 0xf6, 0x56, 0x52, 0xfd, 0x41, 0xe3, 0xab, 0xd7, 0x4b, 0xda, 0xab,
-	0xd7, 0x4b, 0xda, 0xdf, 0x5f, 0x2f, 0x69, 0x5f, 0xbc, 0x59, 0x3a, 0xf3, 0xea, 0xcd, 0xd2, 0x99,
-	0xaf, 0xdf, 0x2c, 0x9d, 0x79, 0xb9, 0xd7, 0xb4, 0xd9, 0x7e, 0xa7, 0x5e, 0x31, 0xbd, 0x56, 0xf5,
-	0xb1, 0x5a, 0x72, 0x0f, 0xd7, 0x69, 0x64, 0xe0, 0xba, 0xe9, 0xf9, 0x24, 0xfe, 0x73, 0x1f, 0xdb,
-	0x6e, 0xb5, 0xe5, 0x59, 0x1d, 0x87, 0x50, 0x65, 0x9d, 0x9d, 0xb4, 0x09, 0xad, 0x8f, 0xf2, 0x7f,
-	0x74, 0xb8, 0xf1, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0x82, 0x01, 0x27, 0x01, 0x6f, 0x21, 0x00,
-	0x00,
+	// 1759 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x59, 0xcd, 0x6f, 0x13, 0xd7,
+	0x16, 0x67, 0xf2, 0x9d, 0x93, 0xef, 0x9b, 0x10, 0x06, 0x3f, 0x70, 0xc2, 0xe4, 0x83, 0x00, 0x89,
+	0x9d, 0x04, 0x01, 0x8f, 0xc0, 0x7b, 0x7a, 0xe4, 0x85, 0x40, 0xd4, 0x50, 0xc0, 0xb0, 0xa8, 0xd8,
+	0xb8, 0xe3, 0x99, 0x6b, 0x7b, 0x88, 0x3d, 0xd7, 0x99, 0xb9, 0x8e, 0x88, 0xda, 0x55, 0x17, 0x5d,
+	0x23, 0xb1, 0xaa, 0xd4, 0x45, 0x17, 0xad, 0xd4, 0x45, 0xd5, 0x4a, 0xad, 0xd4, 0x45, 0xd5, 0x45,
+	0x97, 0x2c, 0xba, 0x88, 0xd4, 0x4d, 0x97, 0x15, 0xf4, 0xcf, 0xe8, 0xa2, 0x9a, 0xfb, 0xe1, 0x19,
+	0x7b, 0xc6, 0xf6, 0x98, 0x20, 0xa4, 0xee, 0x3c, 0x67, 0x7e, 0xe7, 0x9e, 0xdf, 0x39, 0xe7, 0xde,
+	0x73, 0xce, 0x5c, 0xc3, 0xbc, 0x65, 0x3f, 0xc5, 0x06, 0xb5, 0x0e, 0x70, 0x9a, 0x38, 0x26, 0x76,
+	0xdc, 0xf4, 0xc1, 0x5a, 0x0e, 0x53, 0x7d, 0x2d, 0xbd, 0x5f, 0xc5, 0xce, 0x61, 0xaa, 0xe2, 0x10,
+	0x4a, 0x90, 0x5a, 0x43, 0xa5, 0x38, 0x2a, 0x25, 0x50, 0x89, 0x33, 0x05, 0x42, 0x0a, 0x25, 0x9c,
+	0xd6, 0x2b, 0x56, 0x5a, 0xb7, 0x6d, 0x42, 0x75, 0x6a, 0x11, 0xdb, 0xe5, 0x7a, 0x89, 0x85, 0xa6,
+	0xab, 0x8b, 0x65, 0x18, 0x4c, 0xfb, 0x4c, 0x81, 0x73, 0x0f, 0x3d, 0x73, 0x5b, 0xd8, 0xb1, 0x0e,
+	0x74, 0x0f, 0x7f, 0x9f, 0xbd, 0x7f, 0x58, 0x25, 0x14, 0x67, 0xf0, 0x7e, 0x15, 0xbb, 0x14, 0x25,
+	0x60, 0x60, 0xbf, 0xaa, 0xdb, 0xd4, 0xa2, 0x87, 0xaa, 0x32, 0xab, 0x2c, 0x0d, 0x66, 0x6a, 0xcf,
+	0xe8, 0x5f, 0x30, 0x58, 0xd6, 0x9d, 0x3d, 0x4c, 0xb3, 0x96, 0xa9, 0x76, 0xf1, 0x97, 0x5c, 0xb0,
+	0x63, 0xa2, 0x69, 0xe8, 0xb3, 0xdc, 0x5d, 0x62, 0x17, 0xd4, 0xee, 0x59, 0x65, 0x69, 0x20, 0x23,
+	0x9e, 0xd0, 0x1c, 0x8c, 0x94, 0xf5, 0x3d, 0xec, 0x64, 0x75, 0xd3, 0x74, 0xb0, 0xeb, 0xaa, 0x3d,
+	0x4c, 0x71, 0x98, 0x09, 0x6f, 0x71, 0x99, 0x96, 0x03, 0xad, 0x15, 0x35, 0xb7, 0x42, 0x6c, 0x17,
+	0xa3, 0x9b, 0xd0, 0xb7, 0xef, 0x09, 0x5c, 0x55, 0x99, 0xed, 0x5e, 0x1a, 0x5a, 0x9f, 0x4f, 0x35,
+	0x8b, 0x58, 0x8a, 0xa9, 0x73, 0x6d, 0xa1, 0xa3, 0x7d, 0xa7, 0xc0, 0x2c, 0x33, 0xf2, 0xa8, 0x9a,
+	0xd3, 0x0d, 0x83, 0x54, 0x6d, 0x7a, 0x4f, 0x77, 0x0a, 0x96, 0x7d, 0x97, 0x94, 0x4c, 0xe9, 0x7e,
+	0x88, 0xad, 0x12, 0x66, 0xeb, 0xc5, 0x81, 0x32, 0x50, 0x1e, 0x63, 0x19, 0x07, 0x26, 0xd8, 0xc6,
+	0xd8, 0x5b, 0x21, 0xa7, 0xbb, 0x38, 0x6b, 0x54, 0x1d, 0x07, 0xdb, 0xc6, 0x21, 0x0b, 0xc7, 0x60,
+	0x66, 0xd8, 0x13, 0xfe, 0x5f, 0xc8, 0xd0, 0x3c, 0x8c, 0xba, 0x35, 0x16, 0x59, 0x2b, 0x6b, 0xca,
+	0xa8, 0xf8, 0xd2, 0x9d, 0x2d, 0x6d, 0x4b, 0x24, 0x2c, 0x9a, 0xb0, 0x08, 0xca, 0x0c, 0x0c, 0x95,
+	0x99, 0x34, 0x5b, 0x24, 0x25, 0x53, 0xf0, 0x85, 0x72, 0x0d, 0xa8, 0xfd, 0x17, 0x66, 0xa2, 0x62,
+	0x9b, 0x23, 0x64, 0x4f, 0x7a, 0x5d, 0x97, 0x58, 0xa5, 0x3e, 0xb1, 0xda, 0xe7, 0x32, 0x6e, 0x91,
+	0x0b, 0xf8, 0xa9, 0x71, 0x8b, 0xc4, 0xa1, 0x31, 0x52, 0xf3, 0xc0, 0xb1, 0x0c, 0xbc, 0x8b, 0x0f,
+	0x70, 0x29, 0x23, 0x74, 0xd0, 0x06, 0xf4, 0x96, 0x88, 0x5d, 0x70, 0xd5, 0xae, 0x0e, 0x94, 0xb9,
+	0x8a, 0x76, 0xa4, 0xc0, 0x34, 0xa3, 0xc7, 0x63, 0xb3, 0x63, 0xe7, 0xc9, 0xdb, 0x4b, 0x66, 0x38,
+	0x4f, 0xdd, 0xe1, 0x3c, 0x85, 0x53, 0xde, 0x13, 0x91, 0xf2, 0x0b, 0x30, 0x8e, 0x9f, 0x19, 0x45,
+	0xdd, 0x2e, 0xe0, 0x1a, 0x9f, 0x5e, 0x86, 0x1b, 0x93, 0x72, 0x79, 0x1a, 0x3e, 0x84, 0x53, 0x21,
+	0x8f, 0x44, 0x9c, 0x6f, 0xd7, 0xb2, 0x6d, 0xd9, 0x79, 0xc2, 0x1c, 0x6a, 0x19, 0xaf, 0xc0, 0x12,
+	0x62, 0x4f, 0x78, 0xbf, 0xb5, 0x19, 0x38, 0xdb, 0x90, 0xd2, 0x7b, 0x2c, 0xdd, 0xae, 0x08, 0x9d,
+	0x96, 0x87, 0x64, 0x33, 0x80, 0x60, 0xb2, 0x05, 0xfd, 0x7c, 0x8b, 0xc8, 0x94, 0x5f, 0x6c, 0xce,
+	0xa2, 0x71, 0x95, 0x8c, 0x54, 0xd5, 0xaa, 0x30, 0xc1, 0xec, 0xb0, 0x1d, 0x25, 0xf3, 0x76, 0x16,
+	0x80, 0x2d, 0x90, 0x2d, 0xea, 0x6e, 0x51, 0x24, 0x6d, 0x90, 0x49, 0xee, 0xea, 0x6e, 0xb1, 0x75,
+	0x19, 0x8a, 0x95, 0x31, 0xed, 0x3d, 0x40, 0x41, 0xb3, 0xc2, 0xa5, 0x2b, 0xd0, 0xcb, 0xac, 0x88,
+	0xb0, 0xce, 0xb4, 0x29, 0x2f, 0x19, 0x8e, 0xd6, 0x3e, 0x12, 0xe9, 0xba, 0x65, 0xd4, 0xce, 0xc6,
+	0xbb, 0xf3, 0xe4, 0x21, 0xa8, 0x61, 0xe3, 0xc7, 0xf3, 0xe7, 0x63, 0xb9, 0xa4, 0x63, 0x14, 0xdf,
+	0xbd, 0x43, 0x19, 0x38, 0x1d, 0x61, 0xfd, 0x78, 0x1e, 0x7d, 0x3a, 0x00, 0xc3, 0x4c, 0xb0, 0x6d,
+	0x95, 0x28, 0x76, 0x5c, 0xb4, 0x0a, 0x53, 0x06, 0xb1, 0xa9, 0xa3, 0x1b, 0x34, 0x5b, 0xf1, 0x4a,
+	0x4a, 0x36, 0x47, 0xaa, 0xb6, 0xac, 0x7d, 0x48, 0xbe, 0x63, 0xd5, 0x66, 0xd3, 0x7b, 0xd3, 0xda,
+	0xb3, 0x53, 0xd0, 0x6f, 0xb9, 0xd9, 0x52, 0xb8, 0xf9, 0xcd, 0xc0, 0x90, 0x4d, 0x68, 0x16, 0x3f,
+	0xab, 0x58, 0x0e, 0xe6, 0x45, 0x7e, 0x20, 0x03, 0x36, 0xa1, 0xb7, 0xb9, 0x04, 0xa5, 0x60, 0x52,
+	0x94, 0x28, 0xd7, 0xc5, 0xb4, 0xa1, 0x30, 0x4c, 0xf0, 0x42, 0xe5, 0xbd, 0x91, 0xd5, 0x2a, 0x05,
+	0x93, 0x34, 0x02, 0xdf, 0xc7, 0xf1, 0x34, 0x84, 0x8f, 0xaa, 0x3a, 0xfd, 0x91, 0x55, 0x07, 0x2d,
+	0xc0, 0xa8, 0x8b, 0x6d, 0x33, 0x50, 0x2e, 0x07, 0x18, 0x70, 0x84, 0x4b, 0x25, 0x6c, 0x09, 0xc6,
+	0x83, 0x8c, 0x4d, 0x9d, 0xea, 0xea, 0x20, 0x03, 0x8e, 0xfa, 0x74, 0xb7, 0x74, 0xaa, 0x7b, 0x48,
+	0xda, 0x88, 0x04, 0x8e, 0xa4, 0xf5, 0xc8, 0x65, 0x40, 0x75, 0x51, 0x28, 0x7b, 0x7b, 0x41, 0x1d,
+	0x62, 0xd8, 0xf1, 0x40, 0x10, 0x98, 0xdc, 0x43, 0xd3, 0x30, 0x7a, 0x98, 0xa3, 0x69, 0x23, 0x3a,
+	0xd4, 0x04, 0x46, 0x22, 0x9a, 0xc0, 0x45, 0x98, 0xf0, 0xf2, 0x54, 0x0f, 0x1c, 0xe5, 0x71, 0xb2,
+	0x09, 0xbd, 0x17, 0xc4, 0xce, 0xc1, 0x08, 0xad, 0xc3, 0x8d, 0xf1, 0x05, 0x69, 0x10, 0xb4, 0x00,
+	0xa3, 0xd4, 0xd1, 0x83, 0xc1, 0x1c, 0xe7, 0xc1, 0xe4, 0x52, 0x09, 0x5b, 0x87, 0x93, 0x79, 0x8c,
+	0xb3, 0x0e, 0x36, 0xac, 0x8a, 0x85, 0x6d, 0x3f, 0xa1, 0x13, 0x0c, 0x3d, 0x99, 0xc7, 0x38, 0x23,
+	0xdf, 0x49, 0x9d, 0x34, 0x4c, 0x95, 0x65, 0xc3, 0x0a, 0x86, 0x16, 0x05, 0xf6, 0xcc, 0x36, 0xc6,
+	0x7e, 0x74, 0xd3, 0x30, 0x45, 0xa3, 0x14, 0x26, 0x03, 0x9b, 0xa6, 0x4e, 0xe1, 0x02, 0x8c, 0x07,
+	0x0e, 0xaa, 0x4d, 0x6c, 0x03, 0xab, 0x53, 0x3c, 0x18, 0xbe, 0xfc, 0x7d, 0x4f, 0x8c, 0xce, 0xc0,
+	0xa0, 0x69, 0x39, 0xde, 0x11, 0x24, 0xb6, 0x7a, 0x92, 0x97, 0x83, 0x9a, 0x00, 0xcd, 0xc1, 0x28,
+	0x3f, 0x5d, 0x25, 0x9a, 0x25, 0x4e, 0x16, 0xef, 0xab, 0xd3, 0x0c, 0x32, 0xc4, 0xa4, 0xbb, 0xf4,
+	0xbe, 0x73, 0x7b, 0xdf, 0x07, 0x15, 0x24, 0xe8, 0x54, 0x00, 0x74, 0x87, 0x83, 0x66, 0x60, 0xc8,
+	0xb2, 0x4d, 0xfc, 0x8c, 0x9f, 0x56, 0x55, 0xe5, 0x53, 0x0e, 0x13, 0xb1, 0x43, 0x1a, 0x51, 0x5c,
+	0x4e, 0x47, 0x14, 0x97, 0x5f, 0x14, 0x38, 0x13, 0x39, 0x68, 0xca, 0xfa, 0xf6, 0x3f, 0xe8, 0xcf,
+	0xf3, 0x1a, 0x21, 0x4a, 0xcc, 0x62, 0x9b, 0x12, 0x23, 0x2a, 0x4a, 0x46, 0xaa, 0x79, 0x73, 0xb0,
+	0x4b, 0x75, 0x5a, 0x75, 0x45, 0x95, 0x10, 0x4f, 0x28, 0x09, 0x60, 0x90, 0x52, 0x49, 0x84, 0x8a,
+	0x57, 0xbe, 0x80, 0x04, 0x2d, 0xc2, 0x18, 0xdb, 0x1b, 0xd9, 0x8a, 0x6e, 0x89, 0xf2, 0xda, 0x13,
+	0xd8, 0x32, 0x0f, 0x74, 0x8b, 0x95, 0x58, 0xed, 0x07, 0x05, 0x96, 0xc3, 0x53, 0xe1, 0x1e, 0xa6,
+	0xcd, 0x5c, 0x6a, 0x35, 0xdc, 0x85, 0x4f, 0x47, 0x57, 0xbb, 0x11, 0xa9, 0xbb, 0xed, 0x88, 0x14,
+	0x35, 0xca, 0xfe, 0x24, 0xa7, 0xb4, 0x47, 0x15, 0x42, 0xff, 0x69, 0x21, 0x7f, 0x2c, 0x1a, 0x7c,
+	0x90, 0xbb, 0x68, 0x48, 0xd7, 0xa1, 0xdf, 0xc1, 0x06, 0x71, 0x4c, 0x39, 0x05, 0xb5, 0x6d, 0x49,
+	0x12, 0xaf, 0xbd, 0x50, 0xe0, 0x24, 0x5b, 0xf6, 0xb1, 0x34, 0x26, 0x23, 0x82, 0xa0, 0xc7, 0xd6,
+	0xcb, 0x58, 0x24, 0x8b, 0xfd, 0xf6, 0x64, 0x8c, 0x20, 0xf7, 0x90, 0xfd, 0x8e, 0x2c, 0xc5, 0xdd,
+	0xb1, 0x4b, 0x71, 0x4f, 0x54, 0x29, 0xd6, 0xbe, 0x95, 0x89, 0x0a, 0xb0, 0x12, 0xbe, 0x46, 0xd1,
+	0x8a, 0xa2, 0xd0, 0x15, 0x9b, 0x42, 0x77, 0x64, 0x37, 0x90, 0xae, 0xf6, 0x04, 0x5c, 0x55, 0xa1,
+	0x1f, 0xdb, 0x7a, 0xae, 0x84, 0x4d, 0xd6, 0x1b, 0x07, 0x32, 0xf2, 0x51, 0x7b, 0x14, 0x3a, 0xd1,
+	0x62, 0xc6, 0x8c, 0xb3, 0xfd, 0xa7, 0xa1, 0x8f, 0x5a, 0xc6, 0x1e, 0x76, 0xe4, 0xce, 0xe1, 0x4f,
+	0x9a, 0xd1, 0x64, 0x3e, 0xae, 0xc5, 0x62, 0x13, 0xfa, 0xf8, 0x22, 0x62, 0xcf, 0x76, 0x32, 0xfc,
+	0x0a, 0x4d, 0x4d, 0x6d, 0x8c, 0x74, 0x6d, 0xfa, 0xfe, 0x40, 0x6c, 0xb8, 0xe0, 0x1b, 0x61, 0xf8,
+	0x3f, 0x8d, 0x1b, 0x6e, 0xae, 0xb9, 0x65, 0x3f, 0x85, 0xb5, 0x4d, 0xf7, 0x24, 0xe4, 0xd8, 0xdb,
+	0xdb, 0xd0, 0x4f, 0x61, 0x25, 0x66, 0x61, 0x3a, 0xb6, 0xad, 0xf5, 0xaf, 0xa6, 0xa0, 0x97, 0x19,
+	0x43, 0xcf, 0x15, 0x00, 0x7f, 0x96, 0x47, 0x97, 0x9a, 0x2f, 0x11, 0xfa, 0xd0, 0x48, 0x2c, 0xc7,
+	0x03, 0x73, 0xba, 0xda, 0xf9, 0x4f, 0x7e, 0xfb, 0xf3, 0x45, 0xd7, 0x39, 0x34, 0x93, 0x6e, 0x7d,
+	0xe1, 0x82, 0xbe, 0x56, 0x60, 0xbc, 0x71, 0x28, 0x47, 0x6b, 0x6d, 0x6c, 0x85, 0xbf, 0x1e, 0x12,
+	0xeb, 0x9d, 0xa8, 0x08, 0x92, 0x2b, 0x8c, 0xe4, 0x79, 0xb4, 0xd0, 0x9c, 0xa4, 0x1e, 0x60, 0xf5,
+	0x8d, 0x22, 0x3e, 0xc0, 0x82, 0xe3, 0x36, 0x6a, 0x6b, 0x38, 0xfc, 0x65, 0x90, 0xb8, 0xdc, 0x91,
+	0x8e, 0x60, 0x9b, 0x62, 0x6c, 0x97, 0xd0, 0x62, 0x0b, 0xb6, 0x41, 0x62, 0x5f, 0x2a, 0x30, 0xd6,
+	0x50, 0x8a, 0xd1, 0x6a, 0x1b, 0xc3, 0xa1, 0x8e, 0x93, 0x58, 0xeb, 0x40, 0x43, 0x10, 0x5d, 0x66,
+	0x44, 0x17, 0xd1, 0x7c, 0x73, 0xa2, 0xae, 0x4f, 0xe9, 0x0b, 0x05, 0x46, 0xeb, 0x0f, 0x30, 0x4a,
+	0xb7, 0xb1, 0xd9, 0xd8, 0x04, 0x12, 0xab, 0xf1, 0x15, 0x04, 0xc7, 0x4b, 0x8c, 0xe3, 0x02, 0x9a,
+	0x6b, 0xce, 0xb1, 0xd6, 0xd7, 0xfc, 0x48, 0xfa, 0x35, 0x06, 0xc5, 0x36, 0x19, 0x3b, 0x92, 0xe1,
+	0x02, 0x16, 0x27, 0x92, 0xd4, 0xa7, 0xf4, 0xbd, 0x6c, 0x92, 0x8d, 0x55, 0x14, 0x5d, 0x6d, 0x63,
+	0xba, 0x49, 0x3f, 0x48, 0x5c, 0xeb, 0x58, 0x4f, 0x10, 0x5f, 0x62, 0xc4, 0x35, 0x34, 0xdb, 0x9c,
+	0x38, 0x2f, 0xec, 0xe8, 0x47, 0xd9, 0x43, 0x43, 0xb7, 0x27, 0xa8, 0x53, 0xeb, 0xb5, 0x48, 0xff,
+	0xbb, 0x73, 0x45, 0xc1, 0xfb, 0x02, 0xe3, 0x3d, 0x87, 0xce, 0xb5, 0xe3, 0xed, 0xa2, 0x9f, 0xc3,
+	0xd1, 0x16, 0x3b, 0x3a, 0x7e, 0xb4, 0xeb, 0x8f, 0xda, 0xb5, 0x8e, 0xf5, 0x04, 0xeb, 0x75, 0xc6,
+	0x7a, 0x19, 0x5d, 0x6c, 0xce, 0xda, 0x6c, 0x24, 0xf9, 0x97, 0x02, 0x0b, 0xb1, 0x3a, 0x10, 0xda,
+	0x6e, 0x57, 0x01, 0xe2, 0xcd, 0xd6, 0x89, 0x3b, 0xc7, 0x5e, 0x47, 0xb8, 0xbb, 0xc9, 0xdc, 0xbd,
+	0x89, 0x36, 0x5a, 0xd4, 0x97, 0x76, 0x4e, 0x1d, 0x29, 0x90, 0x68, 0x7e, 0x8b, 0x8e, 0x6e, 0x74,
+	0x98, 0x8a, 0xe0, 0xdf, 0x02, 0x89, 0x9b, 0x6f, 0xa6, 0x2c, 0xbc, 0xbb, 0xc6, 0xbc, 0x5b, 0x43,
+	0xe9, 0xf8, 0xc9, 0xe4, 0x9c, 0x7f, 0x55, 0xc4, 0x6d, 0x50, 0xd4, 0x15, 0x38, 0xda, 0xe8, 0x24,
+	0xfa, 0xf5, 0x17, 0xfd, 0x89, 0x1b, 0x6f, 0xa4, 0x2b, 0xfc, 0xb9, 0xca, 0xfc, 0x59, 0x45, 0xa9,
+	0x98, 0xd9, 0x92, 0x84, 0x5f, 0x2a, 0xe2, 0x6a, 0x2d, 0xe2, 0x2a, 0x1d, 0x5d, 0xef, 0x2c, 0xc4,
+	0x81, 0xfb, 0xfb, 0xc4, 0xc6, 0x9b, 0xa8, 0x0a, 0x5f, 0xae, 0x30, 0x5f, 0xd2, 0x68, 0x25, 0x76,
+	0x6e, 0x18, 0xdb, 0x5a, 0xff, 0xf0, 0x6f, 0x98, 0xdb, 0xf6, 0x8f, 0xd0, 0x0d, 0x7d, 0xdb, 0xfe,
+	0x11, 0xbe, 0x01, 0x8f, 0xd3, 0x3f, 0xfc, 0x8b, 0xee, 0xcd, 0xfc, 0xcb, 0x57, 0x49, 0xe5, 0xe8,
+	0x55, 0x52, 0xf9, 0xe3, 0x55, 0x52, 0x79, 0xfe, 0x3a, 0x79, 0xe2, 0xe8, 0x75, 0xf2, 0xc4, 0xef,
+	0xaf, 0x93, 0x27, 0x9e, 0xec, 0x16, 0x2c, 0x5a, 0xac, 0xe6, 0x52, 0x06, 0x29, 0xa7, 0x77, 0xe4,
+	0x4a, 0xbb, 0x7a, 0xce, 0xf5, 0xd7, 0x5d, 0x31, 0x88, 0x83, 0x83, 0x8f, 0x45, 0xdd, 0xb2, 0xd3,
+	0x65, 0x62, 0x56, 0x4b, 0xd8, 0x95, 0x46, 0xe9, 0x61, 0x05, 0xbb, 0xb9, 0x3e, 0xf6, 0x1f, 0xdb,
+	0xe5, 0xbf, 0x03, 0x00, 0x00, 0xff, 0xff, 0x6f, 0x06, 0xd1, 0x86, 0xea, 0x1b, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -2484,23 +2061,17 @@ type QueryClient interface {
 	QueryDerivativeMarkets(ctx context.Context, in *QueryDerivativeMarketsRequest, opts ...grpc.CallOption) (*QueryDerivativeMarketsResponse, error)
 	// Retrieves a list of derivative orders matching the filtering rules.
 	QueryDerivativeOrders(ctx context.Context, in *QueryDerivativeOrdersRequest, opts ...grpc.CallOption) (*QueryDerivativeOrdersResponse, error)
-	// Retrieves a list of derivative orders for a provided subaccount and marketID.
+	// Retrieves a list of derivative orders for a provided subaccount and
+	// marketID.
 	QuerySubaccountMarketDerivativeOrders(ctx context.Context, in *QuerySubaccountMarketDerivativeOrdersRequest, opts ...grpc.CallOption) (*QuerySubaccountMarketDerivativeOrdersResponse, error)
-	// Retrieves a list of derivative orders matching the filtering rules.
-	QueryZeroExTransaction(ctx context.Context, in *QueryZeroExTransactionRequest, opts ...grpc.CallOption) (*QueryZeroExTransactionResponse, error)
-	// Query whether a set of orders have been soft-cancelled. The response
-	// returns the subset of orders that have been soft-cancelled.
-	QuerySoftCancelledOrders(ctx context.Context, in *QuerySoftCancelledOrdersRequest, opts ...grpc.CallOption) (*QuerySoftCancelledOrdersResponse, error)
-	// Retrieves a list of fill requests matching the filtering rules.
-	QueryOutstandingFillRequests(ctx context.Context, in *QueryOutstandingFillRequestsRequest, opts ...grpc.CallOption) (*QueryOutstandingFillRequestsResponse, error)
-	// Retrieves a list of fill requests matching the filtering rules.
-	QueryFillRequests(ctx context.Context, in *QueryFillRequestsRequest, opts ...grpc.CallOption) (*QueryFillRequestsResponse, error)
 	// Retrieves a list of orders matching a given market, direction and quantity
 	QueryDerivativeOrdersQuote(ctx context.Context, in *QueryDerivativeOrdersQuoteRequest, opts ...grpc.CallOption) (*QueryDerivativeOrdersQuoteResponse, error)
 	// Retrieves a list of orders matching a given market, direction and quantity
 	QuerySubaccountMarginHold(ctx context.Context, in *QuerySubaccountMarginHoldRequest, opts ...grpc.CallOption) (*QuerySubaccountMarginHoldResponse, error)
 	// Retrieves a derivative market orderbook
 	QueryDerivativeOrderbook(ctx context.Context, in *QueryDerivativeOrderbookRequest, opts ...grpc.CallOption) (*QueryDerivativeOrderbookResponse, error)
+	// Retrieves a subaccount's margin info for a given base currency
+	QueryMarginInfo(ctx context.Context, in *QueryMarginInfoRequest, opts ...grpc.CallOption) (*QueryMarginInfoResponse, error)
 }
 
 type queryClient struct {
@@ -2601,42 +2172,6 @@ func (c *queryClient) QuerySubaccountMarketDerivativeOrders(ctx context.Context,
 	return out, nil
 }
 
-func (c *queryClient) QueryZeroExTransaction(ctx context.Context, in *QueryZeroExTransactionRequest, opts ...grpc.CallOption) (*QueryZeroExTransactionResponse, error) {
-	out := new(QueryZeroExTransactionResponse)
-	err := c.cc.Invoke(ctx, "/injective.orders.v1beta1.Query/QueryZeroExTransaction", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) QuerySoftCancelledOrders(ctx context.Context, in *QuerySoftCancelledOrdersRequest, opts ...grpc.CallOption) (*QuerySoftCancelledOrdersResponse, error) {
-	out := new(QuerySoftCancelledOrdersResponse)
-	err := c.cc.Invoke(ctx, "/injective.orders.v1beta1.Query/QuerySoftCancelledOrders", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) QueryOutstandingFillRequests(ctx context.Context, in *QueryOutstandingFillRequestsRequest, opts ...grpc.CallOption) (*QueryOutstandingFillRequestsResponse, error) {
-	out := new(QueryOutstandingFillRequestsResponse)
-	err := c.cc.Invoke(ctx, "/injective.orders.v1beta1.Query/QueryOutstandingFillRequests", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) QueryFillRequests(ctx context.Context, in *QueryFillRequestsRequest, opts ...grpc.CallOption) (*QueryFillRequestsResponse, error) {
-	out := new(QueryFillRequestsResponse)
-	err := c.cc.Invoke(ctx, "/injective.orders.v1beta1.Query/QueryFillRequests", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *queryClient) QueryDerivativeOrdersQuote(ctx context.Context, in *QueryDerivativeOrdersQuoteRequest, opts ...grpc.CallOption) (*QueryDerivativeOrdersQuoteResponse, error) {
 	out := new(QueryDerivativeOrdersQuoteResponse)
 	err := c.cc.Invoke(ctx, "/injective.orders.v1beta1.Query/QueryDerivativeOrdersQuote", in, out, opts...)
@@ -2664,6 +2199,15 @@ func (c *queryClient) QueryDerivativeOrderbook(ctx context.Context, in *QueryDer
 	return out, nil
 }
 
+func (c *queryClient) QueryMarginInfo(ctx context.Context, in *QueryMarginInfoRequest, opts ...grpc.CallOption) (*QueryMarginInfoResponse, error) {
+	out := new(QueryMarginInfoResponse)
+	err := c.cc.Invoke(ctx, "/injective.orders.v1beta1.Query/QueryMarginInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Retrieves an active 0x order that is associated with the hash.
@@ -2684,23 +2228,17 @@ type QueryServer interface {
 	QueryDerivativeMarkets(context.Context, *QueryDerivativeMarketsRequest) (*QueryDerivativeMarketsResponse, error)
 	// Retrieves a list of derivative orders matching the filtering rules.
 	QueryDerivativeOrders(context.Context, *QueryDerivativeOrdersRequest) (*QueryDerivativeOrdersResponse, error)
-	// Retrieves a list of derivative orders for a provided subaccount and marketID.
+	// Retrieves a list of derivative orders for a provided subaccount and
+	// marketID.
 	QuerySubaccountMarketDerivativeOrders(context.Context, *QuerySubaccountMarketDerivativeOrdersRequest) (*QuerySubaccountMarketDerivativeOrdersResponse, error)
-	// Retrieves a list of derivative orders matching the filtering rules.
-	QueryZeroExTransaction(context.Context, *QueryZeroExTransactionRequest) (*QueryZeroExTransactionResponse, error)
-	// Query whether a set of orders have been soft-cancelled. The response
-	// returns the subset of orders that have been soft-cancelled.
-	QuerySoftCancelledOrders(context.Context, *QuerySoftCancelledOrdersRequest) (*QuerySoftCancelledOrdersResponse, error)
-	// Retrieves a list of fill requests matching the filtering rules.
-	QueryOutstandingFillRequests(context.Context, *QueryOutstandingFillRequestsRequest) (*QueryOutstandingFillRequestsResponse, error)
-	// Retrieves a list of fill requests matching the filtering rules.
-	QueryFillRequests(context.Context, *QueryFillRequestsRequest) (*QueryFillRequestsResponse, error)
 	// Retrieves a list of orders matching a given market, direction and quantity
 	QueryDerivativeOrdersQuote(context.Context, *QueryDerivativeOrdersQuoteRequest) (*QueryDerivativeOrdersQuoteResponse, error)
 	// Retrieves a list of orders matching a given market, direction and quantity
 	QuerySubaccountMarginHold(context.Context, *QuerySubaccountMarginHoldRequest) (*QuerySubaccountMarginHoldResponse, error)
 	// Retrieves a derivative market orderbook
 	QueryDerivativeOrderbook(context.Context, *QueryDerivativeOrderbookRequest) (*QueryDerivativeOrderbookResponse, error)
+	// Retrieves a subaccount's margin info for a given base currency
+	QueryMarginInfo(context.Context, *QueryMarginInfoRequest) (*QueryMarginInfoResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -2737,18 +2275,6 @@ func (*UnimplementedQueryServer) QueryDerivativeOrders(ctx context.Context, req 
 func (*UnimplementedQueryServer) QuerySubaccountMarketDerivativeOrders(ctx context.Context, req *QuerySubaccountMarketDerivativeOrdersRequest) (*QuerySubaccountMarketDerivativeOrdersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QuerySubaccountMarketDerivativeOrders not implemented")
 }
-func (*UnimplementedQueryServer) QueryZeroExTransaction(ctx context.Context, req *QueryZeroExTransactionRequest) (*QueryZeroExTransactionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryZeroExTransaction not implemented")
-}
-func (*UnimplementedQueryServer) QuerySoftCancelledOrders(ctx context.Context, req *QuerySoftCancelledOrdersRequest) (*QuerySoftCancelledOrdersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QuerySoftCancelledOrders not implemented")
-}
-func (*UnimplementedQueryServer) QueryOutstandingFillRequests(ctx context.Context, req *QueryOutstandingFillRequestsRequest) (*QueryOutstandingFillRequestsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryOutstandingFillRequests not implemented")
-}
-func (*UnimplementedQueryServer) QueryFillRequests(ctx context.Context, req *QueryFillRequestsRequest) (*QueryFillRequestsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method QueryFillRequests not implemented")
-}
 func (*UnimplementedQueryServer) QueryDerivativeOrdersQuote(ctx context.Context, req *QueryDerivativeOrdersQuoteRequest) (*QueryDerivativeOrdersQuoteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryDerivativeOrdersQuote not implemented")
 }
@@ -2757,6 +2283,9 @@ func (*UnimplementedQueryServer) QuerySubaccountMarginHold(ctx context.Context, 
 }
 func (*UnimplementedQueryServer) QueryDerivativeOrderbook(ctx context.Context, req *QueryDerivativeOrderbookRequest) (*QueryDerivativeOrderbookResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryDerivativeOrderbook not implemented")
+}
+func (*UnimplementedQueryServer) QueryMarginInfo(ctx context.Context, req *QueryMarginInfoRequest) (*QueryMarginInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method QueryMarginInfo not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -2943,78 +2472,6 @@ func _Query_QuerySubaccountMarketDerivativeOrders_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_QueryZeroExTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryZeroExTransactionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).QueryZeroExTransaction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective.orders.v1beta1.Query/QueryZeroExTransaction",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).QueryZeroExTransaction(ctx, req.(*QueryZeroExTransactionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_QuerySoftCancelledOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QuerySoftCancelledOrdersRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).QuerySoftCancelledOrders(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective.orders.v1beta1.Query/QuerySoftCancelledOrders",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).QuerySoftCancelledOrders(ctx, req.(*QuerySoftCancelledOrdersRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_QueryOutstandingFillRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryOutstandingFillRequestsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).QueryOutstandingFillRequests(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective.orders.v1beta1.Query/QueryOutstandingFillRequests",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).QueryOutstandingFillRequests(ctx, req.(*QueryOutstandingFillRequestsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_QueryFillRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryFillRequestsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).QueryFillRequests(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective.orders.v1beta1.Query/QueryFillRequests",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).QueryFillRequests(ctx, req.(*QueryFillRequestsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Query_QueryDerivativeOrdersQuote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryDerivativeOrdersQuoteRequest)
 	if err := dec(in); err != nil {
@@ -3069,6 +2526,24 @@ func _Query_QueryDerivativeOrderbook_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_QueryMarginInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryMarginInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).QueryMarginInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.orders.v1beta1.Query/QueryMarginInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).QueryMarginInfo(ctx, req.(*QueryMarginInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.orders.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -3114,22 +2589,6 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_QuerySubaccountMarketDerivativeOrders_Handler,
 		},
 		{
-			MethodName: "QueryZeroExTransaction",
-			Handler:    _Query_QueryZeroExTransaction_Handler,
-		},
-		{
-			MethodName: "QuerySoftCancelledOrders",
-			Handler:    _Query_QuerySoftCancelledOrders_Handler,
-		},
-		{
-			MethodName: "QueryOutstandingFillRequests",
-			Handler:    _Query_QueryOutstandingFillRequests_Handler,
-		},
-		{
-			MethodName: "QueryFillRequests",
-			Handler:    _Query_QueryFillRequests_Handler,
-		},
-		{
 			MethodName: "QueryDerivativeOrdersQuote",
 			Handler:    _Query_QueryDerivativeOrdersQuote_Handler,
 		},
@@ -3140,6 +2599,10 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "QueryDerivativeOrderbook",
 			Handler:    _Query_QueryDerivativeOrderbook_Handler,
+		},
+		{
+			MethodName: "QueryMarginInfo",
+			Handler:    _Query_QueryMarginInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -3399,6 +2862,99 @@ func (m *QueryDerivativeOrderbookResponse) MarshalToSizedBuffer(dAtA []byte) (in
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryMarginInfoRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryMarginInfoRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryMarginInfoRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ExchangeAddress) > 0 {
+		i -= len(m.ExchangeAddress)
+		copy(dAtA[i:], m.ExchangeAddress)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.ExchangeAddress)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.BaseCurrency) > 0 {
+		i -= len(m.BaseCurrency)
+		copy(dAtA[i:], m.BaseCurrency)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.BaseCurrency)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.SubaccountID) > 0 {
+		i -= len(m.SubaccountID)
+		copy(dAtA[i:], m.SubaccountID)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.SubaccountID)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.TakerFee) > 0 {
+		i -= len(m.TakerFee)
+		copy(dAtA[i:], m.TakerFee)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.TakerFee)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.MakerAddress) > 0 {
+		i -= len(m.MakerAddress)
+		copy(dAtA[i:], m.MakerAddress)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.MakerAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryMarginInfoResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryMarginInfoResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryMarginInfoResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.MarginInfo != nil {
+		{
+			size, err := m.MarginInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *QueryDerivativeMarketsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -3452,75 +3008,6 @@ func (m *QueryDerivativeMarketsResponse) MarshalToSizedBuffer(dAtA []byte) (int,
 				i -= size
 				i = encodeVarintQuery(dAtA, i, uint64(size))
 			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QuerySoftCancelledOrdersRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QuerySoftCancelledOrdersRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QuerySoftCancelledOrdersRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.ChainId != 0 {
-		i = encodeVarintQuery(dAtA, i, uint64((uint64(m.ChainId)<<1)^uint64((m.ChainId>>63))))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.OrderHashes) > 0 {
-		for iNdEx := len(m.OrderHashes) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.OrderHashes[iNdEx])
-			copy(dAtA[i:], m.OrderHashes[iNdEx])
-			i = encodeVarintQuery(dAtA, i, uint64(len(m.OrderHashes[iNdEx])))
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QuerySoftCancelledOrdersResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QuerySoftCancelledOrdersResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QuerySoftCancelledOrdersResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.OrderHashes) > 0 {
-		for iNdEx := len(m.OrderHashes) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.OrderHashes[iNdEx])
-			copy(dAtA[i:], m.OrderHashes[iNdEx])
-			i = encodeVarintQuery(dAtA, i, uint64(len(m.OrderHashes[iNdEx])))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -3686,92 +3173,6 @@ func (m *QueryActiveOrderResponse) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryZeroExTransactionRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryZeroExTransactionRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryZeroExTransactionRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.TxHash) > 0 {
-		i -= len(m.TxHash)
-		copy(dAtA[i:], m.TxHash)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.TxHash)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryZeroExTransactionResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryZeroExTransactionResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryZeroExTransactionResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.SoftCancelRequests) > 0 {
-		for iNdEx := len(m.SoftCancelRequests) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.SoftCancelRequests[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x1a
-		}
-	}
-	if len(m.FillRequests) > 0 {
-		for iNdEx := len(m.FillRequests) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.FillRequests[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x12
-		}
-	}
-	if m.TxType != 0 {
-		i = encodeVarintQuery(dAtA, i, uint64((uint64(m.TxType)<<1)^uint64((m.TxType>>63))))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *QueryArchiveOrderRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -3792,6 +3193,20 @@ func (m *QueryArchiveOrderRequest) MarshalToSizedBuffer(dAtA []byte) (int, error
 	_ = i
 	var l int
 	_ = l
+	if len(m.SubaccountID) > 0 {
+		i -= len(m.SubaccountID)
+		copy(dAtA[i:], m.SubaccountID)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.SubaccountID)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0x12
+	}
 	if len(m.OrderHash) > 0 {
 		i -= len(m.OrderHash)
 		copy(dAtA[i:], m.OrderHash)
@@ -4261,244 +3676,6 @@ func (m *QuerySpotOrdersResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryFillRequestsRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryFillRequestsRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryFillRequestsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.OrderHash) > 0 {
-		i -= len(m.OrderHash)
-		copy(dAtA[i:], m.OrderHash)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.OrderHash)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *OrderFillRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *OrderFillRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *OrderFillRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.TakerAssetFillAmount) > 0 {
-		i -= len(m.TakerAssetFillAmount)
-		copy(dAtA[i:], m.TakerAssetFillAmount)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.TakerAssetFillAmount)))
-		i--
-		dAtA[i] = 0x2a
-	}
-	if m.ExpiryAt != 0 {
-		i = encodeVarintQuery(dAtA, i, uint64((uint64(m.ExpiryAt)<<1)^uint64((m.ExpiryAt>>63))))
-		i--
-		dAtA[i] = 0x20
-	}
-	if len(m.ApprovalSignatures) > 0 {
-		for iNdEx := len(m.ApprovalSignatures) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.ApprovalSignatures[iNdEx])
-			copy(dAtA[i:], m.ApprovalSignatures[iNdEx])
-			i = encodeVarintQuery(dAtA, i, uint64(len(m.ApprovalSignatures[iNdEx])))
-			i--
-			dAtA[i] = 0x1a
-		}
-	}
-	if len(m.OrderHash) > 0 {
-		i -= len(m.OrderHash)
-		copy(dAtA[i:], m.OrderHash)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.OrderHash)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.TxHash) > 0 {
-		i -= len(m.TxHash)
-		copy(dAtA[i:], m.TxHash)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.TxHash)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *OrderSoftCancelRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *OrderSoftCancelRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *OrderSoftCancelRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.ApprovalSignatures) > 0 {
-		for iNdEx := len(m.ApprovalSignatures) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.ApprovalSignatures[iNdEx])
-			copy(dAtA[i:], m.ApprovalSignatures[iNdEx])
-			i = encodeVarintQuery(dAtA, i, uint64(len(m.ApprovalSignatures[iNdEx])))
-			i--
-			dAtA[i] = 0x1a
-		}
-	}
-	if len(m.OrderHash) > 0 {
-		i -= len(m.OrderHash)
-		copy(dAtA[i:], m.OrderHash)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.OrderHash)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.TxHash) > 0 {
-		i -= len(m.TxHash)
-		copy(dAtA[i:], m.TxHash)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.TxHash)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryFillRequestsResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryFillRequestsResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryFillRequestsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.FillRequests) > 0 {
-		for iNdEx := len(m.FillRequests) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.FillRequests[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryOutstandingFillRequestsRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryOutstandingFillRequestsRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryOutstandingFillRequestsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.TxHash) > 0 {
-		i -= len(m.TxHash)
-		copy(dAtA[i:], m.TxHash)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.TxHash)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryOutstandingFillRequestsResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryOutstandingFillRequestsResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryOutstandingFillRequestsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.FillRequests) > 0 {
-		for iNdEx := len(m.FillRequests) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.FillRequests[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *QueryTradePairRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -4939,6 +4116,48 @@ func (m *QueryDerivativeOrderbookResponse) Size() (n int) {
 	return n
 }
 
+func (m *QueryMarginInfoRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.MakerAddress)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.TakerFee)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.SubaccountID)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.BaseCurrency)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.ExchangeAddress)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryMarginInfoResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.MarginInfo != nil {
+		l = m.MarginInfo.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
 func (m *QueryDerivativeMarketsRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -4957,39 +4176,6 @@ func (m *QueryDerivativeMarketsResponse) Size() (n int) {
 	if len(m.Markets) > 0 {
 		for _, e := range m.Markets {
 			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *QuerySoftCancelledOrdersRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.OrderHashes) > 0 {
-		for _, s := range m.OrderHashes {
-			l = len(s)
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	if m.ChainId != 0 {
-		n += 1 + sozQuery(uint64(m.ChainId))
-	}
-	return n
-}
-
-func (m *QuerySoftCancelledOrdersResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.OrderHashes) > 0 {
-		for _, s := range m.OrderHashes {
-			l = len(s)
 			n += 1 + l + sovQuery(uint64(l))
 		}
 	}
@@ -5064,43 +4250,6 @@ func (m *QueryActiveOrderResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryZeroExTransactionRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.TxHash)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *QueryZeroExTransactionResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.TxType != 0 {
-		n += 1 + sozQuery(uint64(m.TxType))
-	}
-	if len(m.FillRequests) > 0 {
-		for _, e := range m.FillRequests {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	if len(m.SoftCancelRequests) > 0 {
-		for _, e := range m.SoftCancelRequests {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
 func (m *QueryArchiveOrderRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -5108,6 +4257,14 @@ func (m *QueryArchiveOrderRequest) Size() (n int) {
 	var l int
 	_ = l
 	l = len(m.OrderHash)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.SubaccountID)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
 	}
@@ -5317,115 +4474,6 @@ func (m *QuerySpotOrdersResponse) Size() (n int) {
 	_ = l
 	if len(m.Records) > 0 {
 		for _, e := range m.Records {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *QueryFillRequestsRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.OrderHash)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *OrderFillRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.TxHash)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.OrderHash)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	if len(m.ApprovalSignatures) > 0 {
-		for _, s := range m.ApprovalSignatures {
-			l = len(s)
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	if m.ExpiryAt != 0 {
-		n += 1 + sozQuery(uint64(m.ExpiryAt))
-	}
-	l = len(m.TakerAssetFillAmount)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *OrderSoftCancelRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.TxHash)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	l = len(m.OrderHash)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	if len(m.ApprovalSignatures) > 0 {
-		for _, s := range m.ApprovalSignatures {
-			l = len(s)
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *QueryFillRequestsResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.FillRequests) > 0 {
-		for _, e := range m.FillRequests {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *QueryOutstandingFillRequestsRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.TxHash)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *QueryOutstandingFillRequestsResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.FillRequests) > 0 {
-		for _, e := range m.FillRequests {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -6304,6 +5352,308 @@ func (m *QueryDerivativeOrderbookResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *QueryMarginInfoRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryMarginInfoRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryMarginInfoRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MakerAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MakerAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TakerFee", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TakerFee = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SubaccountID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SubaccountID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BaseCurrency", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BaseCurrency = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExchangeAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ExchangeAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryMarginInfoResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryMarginInfoResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryMarginInfoResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarginInfo", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MarginInfo == nil {
+				m.MarginInfo = &MarginInfo{}
+			}
+			if err := m.MarginInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *QueryDerivativeMarketsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -6419,197 +5769,6 @@ func (m *QueryDerivativeMarketsResponse) Unmarshal(dAtA []byte) error {
 			if err := m.Markets[len(m.Markets)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QuerySoftCancelledOrdersRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QuerySoftCancelledOrdersRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QuerySoftCancelledOrdersRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OrderHashes", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OrderHashes = append(m.OrderHashes, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChainId", wireType)
-			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
-			m.ChainId = int64(v)
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QuerySoftCancelledOrdersResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QuerySoftCancelledOrdersResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QuerySoftCancelledOrdersResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OrderHashes", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OrderHashes = append(m.OrderHashes, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -7111,233 +6270,6 @@ func (m *QueryActiveOrderResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryZeroExTransactionRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryZeroExTransactionRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryZeroExTransactionRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.TxHash = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryZeroExTransactionResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryZeroExTransactionResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryZeroExTransactionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TxType", wireType)
-			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
-			m.TxType = int64(v)
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FillRequests", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FillRequests = append(m.FillRequests, &OrderFillRequest{})
-			if err := m.FillRequests[len(m.FillRequests)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SoftCancelRequests", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SoftCancelRequests = append(m.SoftCancelRequests, &OrderSoftCancelRequest{})
-			if err := m.SoftCancelRequests[len(m.SoftCancelRequests)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *QueryArchiveOrderRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -7398,6 +6330,70 @@ func (m *QueryArchiveOrderRequest) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.OrderHash = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SubaccountID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SubaccountID = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -8952,701 +7948,6 @@ func (m *QuerySpotOrdersResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.Records = append(m.Records, &Order{})
 			if err := m.Records[len(m.Records)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryFillRequestsRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFillRequestsRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFillRequestsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OrderHash", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OrderHash = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *OrderFillRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: OrderFillRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: OrderFillRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.TxHash = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OrderHash", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OrderHash = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApprovalSignatures", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApprovalSignatures = append(m.ApprovalSignatures, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ExpiryAt", wireType)
-			}
-			var v uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			v = (v >> 1) ^ uint64((int64(v&1)<<63)>>63)
-			m.ExpiryAt = int64(v)
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TakerAssetFillAmount", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.TakerAssetFillAmount = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *OrderSoftCancelRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: OrderSoftCancelRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: OrderSoftCancelRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.TxHash = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OrderHash", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OrderHash = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ApprovalSignatures", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ApprovalSignatures = append(m.ApprovalSignatures, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryFillRequestsResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryFillRequestsResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryFillRequestsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FillRequests", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FillRequests = append(m.FillRequests, &OrderFillRequest{})
-			if err := m.FillRequests[len(m.FillRequests)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryOutstandingFillRequestsRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryOutstandingFillRequestsRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryOutstandingFillRequestsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TxHash", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.TxHash = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryOutstandingFillRequestsResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryOutstandingFillRequestsResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryOutstandingFillRequestsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FillRequests", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.FillRequests = append(m.FillRequests, &OrderFillRequest{})
-			if err := m.FillRequests[len(m.FillRequests)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
