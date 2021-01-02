@@ -4,17 +4,18 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	log "github.com/xlab/suplog"
 	"math/big"
 	"strings"
 	"time"
-
-	"github.com/ethereum/go-ethereum/common"
 
 	zeroex "github.com/InjectiveLabs/sdk-go"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common/math"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 const RouterKey = ModuleName
@@ -25,11 +26,43 @@ var (
 	_ sdk.Msg = &MsgResumeDerivativeMarket{}
 	_ sdk.Msg = &MsgRegisterDerivativeMarket{}
 	_ sdk.Msg = &MsgCreateDerivativeOrder{}
+	_ sdk.Msg = &MsgSoftCancelDerivativeOrder{}
 	_ sdk.Msg = &MsgRegisterSpotMarket{}
 	_ sdk.Msg = &MsgSuspendSpotMarket{}
 	_ sdk.Msg = &MsgResumeSpotMarket{}
 	_ sdk.Msg = &MsgCreateSpotOrder{}
 )
+
+func (msg *MsgSoftCancelDerivativeOrder) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgSoftCancelDerivativeOrder) Type() string {
+	return "softCancelDerivativeOrder"
+}
+
+func (msg *MsgSoftCancelDerivativeOrder) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if msg.MarketId == "" || msg.OrderHash == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, msg.OrderHash)
+	}
+	return nil
+}
+
+func (msg *MsgSoftCancelDerivativeOrder) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgSoftCancelDerivativeOrder) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
 
 // Route should return the name of the module
 func (msg MsgCreateSpotOrder) Route() string { return RouterKey }
@@ -46,9 +79,14 @@ func (msg MsgCreateSpotOrder) ValidateBasic() error {
 	quantity := BigNum(msg.Order.GetTakerAssetAmount()).Int()
 	if msg.Order == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
-	} else if _, err := msg.Order.ToSignedOrder().ComputeOrderHash(); err != nil {
+	}
+
+	orderHash, err := msg.Order.ToSignedOrder().ComputeOrderHash()
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
-	} else if !isValidSignature(msg.Order.Signature) {
+	}
+	makerAddress := common.HexToAddress(msg.Order.MakerAddress)
+	if !isValidSignature(msg.Order.Signature, makerAddress, orderHash) {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
 	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
 		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
@@ -58,10 +96,9 @@ func (msg MsgCreateSpotOrder) ValidateBasic() error {
 }
 
 // isValidSignature checks that the signature of the order is correct
-func isValidSignature(sig string) bool {
+func isValidSignature(sig string, makerAddr common.Address, hash common.Hash) bool {
 	signature := common.FromHex(sig)
 	signatureType := zeroex.SignatureType(signature[len(signature)-1])
-
 	switch signatureType {
 	case zeroex.InvalidSignature, zeroex.IllegalSignature:
 		return false
@@ -70,28 +107,54 @@ func isValidSignature(sig string) bool {
 		if len(signature) != 66 {
 			return false
 		}
-		// TODO: Do further validation by splitting into r,s,v and do ECRecover
 
+		v := signature[0]
+		r := signature[1:33]
+		s := signature[33:65]
+
+		//build Eth signature
+		EthSignature := make([]byte, 65)
+		copy(EthSignature[0:32], r)
+		copy(EthSignature[32:64], s)
+		EthSignature[64] = v - 27
+
+		//validate signature
+		pubKey, err := ethcrypto.SigToPub(hash[:], EthSignature)
+		if err != nil {
+			return false
+		}
+
+		//compare recoveredAddr with makerAddress
+		recoveredAddr := ethcrypto.PubkeyToAddress(*pubKey)
+		return bytes.Equal(recoveredAddr.Bytes(), makerAddr.Bytes())
 	case zeroex.EthSignSignature:
 		if len(signature) != 66 {
 			return false
 		}
-		// TODO: Do further validation by splitting into r,s,v, add prefix to hash
-		// and do ECRecover
 
+		//validate signature
+		EthSignature := signature[:65]
+		EthSignature[64] = EthSignature[64] - 27
+		pubKey, err := ethcrypto.SigToPub(hash[:], EthSignature)
+		if err != nil {
+			return false
+		}
+
+		//compare recoveredAddr with makerAddress
+		recoveredAddr := ethcrypto.PubkeyToAddress(*pubKey)
+		return bytes.Equal(recoveredAddr.Bytes(), makerAddr.Bytes())
 	case zeroex.ValidatorSignature:
 		if len(signature) < 21 {
 			return false
 		}
-
+		// TODO: not supported yet
+		return false
 	case zeroex.PreSignedSignature, zeroex.WalletSignature, zeroex.EIP1271WalletSignature:
-		return true
-
+		// TODO: not supported yet
+		return false
 	default:
 		return false
 	}
-
-	return true
 }
 
 // GetSignBytes encodes the message for signing
@@ -122,10 +185,22 @@ func (msg MsgCreateDerivativeOrder) ValidateBasic() error {
 
 	if msg.Order == nil {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
-	} else if _, err := msg.Order.ToSignedOrder().ComputeOrderHash(); err != nil {
+	}
+
+	order := msg.Order.ToSignedOrder()
+	quantity := order.TakerAssetAmount
+	price := order.MakerAssetAmount
+	orderHash, err := order.ComputeOrderHash()
+	makerAddress := common.HexToAddress(msg.Order.MakerAddress)
+
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
-	} else if !isValidSignature(msg.Order.Signature) {
+	} else if !isValidSignature(msg.Order.Signature, makerAddress, orderHash) {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
+	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
+	} else if price == nil || price.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient price")
 	}
 
 	return nil
@@ -202,7 +277,16 @@ func (msg MsgRegisterDerivativeMarket) ValidateBasic() error {
 	} else if parts := strings.Split(market.Ticker, "/"); len(parts) != 2 ||
 		len(strings.TrimSpace(parts[0])) == 0 || len(strings.TrimSpace(parts[1])) == 0 {
 		return sdkerrors.Wrap(ErrBadField, "market ticker must be in format AAA/BBB")
+	} else if len(msg.Market.GetOracle()) != ADDRESS_LENGTH {
+		return sdkerrors.Wrap(ErrBadField, "oracle address must be of length 42")
+	} else if len(msg.Market.GetBaseCurrency()) != ADDRESS_LENGTH {
+		return sdkerrors.Wrap(ErrBadField, "base currency address must be of length 42")
+	} else if len(msg.Market.GetExchangeAddress()) != ADDRESS_LENGTH {
+		return sdkerrors.Wrap(ErrBadField, "exchange address must be of length 42")
+	} else if len(msg.Market.GetMarketId()) != BYTES32_LENGTH {
+		return sdkerrors.Wrapf(ErrBadField, "marketID must be of length 66 but got length %d", len(msg.Market.GetMarketId()))
 	}
+
 	// TODO: (albertchon) proper validation here
 	//hash, err := market.Hash()
 	//if err != nil {
@@ -430,40 +514,54 @@ func (m *BaseOrder) ToSignedOrder() *zeroex.SignedOrder {
 	return o
 }
 
-func (order *Order) DoesValidationPass(isLong bool, market *DerivativeMarket, currBlockTime time.Time) error {
+func (order *Order) IsReduceOnly() bool {
+	return BigNum(order.GetOrder().GetMakerFee()).Int().Cmp(big.NewInt(0)) == 0
+}
+
+func (order *Order) DoesValidationPass(
+	isLong bool,
+	market *DerivativeMarket,
+	currBlockTime time.Time,
+) error {
 	err := order.ComputeAndSetOrderType()
 	if err != nil {
+		log.Infoln("fail")
 		return err
 	}
+
 	orderExpirationTime := BigNum(order.GetOrder().GetExpirationTimeSeconds()).Int()
 	blockTime := big.NewInt(currBlockTime.Unix())
 
 	if orderExpirationTime.Cmp(blockTime) <= 0 {
 		return sdkerrors.Wrapf(ErrOrderExpired, "order expiration %s <= block time %s", orderExpirationTime.String(), blockTime.String())
 	}
-	margin := BigNum(order.Order.GetMakerFee()).Int()
-	contractPriceMarginRequirement := order.ComputeContractPriceMarginRequirement(market)
-	if margin.Cmp(contractPriceMarginRequirement) < 0 {
-		return sdkerrors.Wrapf(ErrOverLeveragedOrder, "margin %s < contractPriceMarginRequirement %s", margin.String(), contractPriceMarginRequirement.String())
+	if order.OrderType == 0 {
+		margin := BigNum(order.Order.GetMakerFee()).Int()
+		contractPriceMarginRequirement := order.ComputeContractPriceMarginRequirement(market)
+		if margin.Cmp(contractPriceMarginRequirement) < 0 {
+			return sdkerrors.Wrapf(ErrOverLeveragedOrder, "margin %s < contractPriceMarginRequirement %s", margin.String(), contractPriceMarginRequirement.String())
+		}
+
+		indexPriceMarginRequirement := order.ComputeIndexPriceMarginRequirement(isLong, market)
+		indexPrice := BigNum(market.GetIndexPrice()).Int()
+
+		if isLong && indexPrice.Cmp(indexPriceMarginRequirement) < 0 {
+			return sdkerrors.Wrapf(ErrOverLeveragedOrder, "indexPrice %s <= indexPriceReq %s", market.GetIndexPrice(), order.IndexPriceRequirement)
+		} else if !isLong && indexPrice.Cmp(indexPriceMarginRequirement) > 0 {
+			return sdkerrors.Wrapf(ErrOverLeveragedOrder, "indexPrice %s >= indexPriceReq %s", market.GetIndexPrice(), order.IndexPriceRequirement)
+		}
 	}
 
-	indexPriceMarginRequirement := order.ComputeIndexPriceMarginRequirement(isLong, market)
-	indexPrice := BigNum(market.GetIndexPrice()).Int()
-
-	if isLong && indexPrice.Cmp(indexPriceMarginRequirement) < 0 {
-		return sdkerrors.Wrapf(ErrOverLeveragedOrder, "indexPrice %s <= indexPriceReq %s", market.GetIndexPrice(), order.IndexPriceRequirement)
-	} else if !isLong && indexPrice.Cmp(indexPriceMarginRequirement) > 0 {
-		return sdkerrors.Wrapf(ErrOverLeveragedOrder, "indexPrice %s >= indexPriceReq %s", market.GetIndexPrice(), order.IndexPriceRequirement)
-	}
 	return nil
 }
 
 func (order *Order) ComputeAndSetOrderType() error {
 	orderTypeNumber := new(big.Int).SetBytes(common.FromHex(order.GetOrder().GetMakerFeeAssetData())[:common.HashLength]).Uint64()
-	if orderTypeNumber != 0 && orderTypeNumber != 5 {
+	if orderTypeNumber == 0 || orderTypeNumber == 5 {
+		order.OrderType = orderTypeNumber
+	} else {
 		return sdkerrors.Wrapf(ErrUnrecognizedOrderType, "Cannot recognize MakerFeeAssetData of %s", order.GetOrder().GetMakerFeeAssetData())
 	}
-	order.OrderType = orderTypeNumber
 	return nil
 }
 
@@ -505,6 +603,12 @@ func (o *Order) ComputeOrderMarginHold(remainingQuantity, makerTxFeePermyriad *b
 
 	// TODO: filledAmount should always be zero with TEC since there will be no UnknownOrderHash
 	numerator := new(big.Int).Mul(scaledMargin, remainingQuantity)
+
+	// originalQuantity should never be zero, however
+	if originalQuantity.Sign() == 0 {
+		return scaledMargin
+	}
+
 	orderMarginHold = new(big.Int).Div(numerator, originalQuantity)
 	return orderMarginHold
 }
@@ -526,7 +630,6 @@ func ComputeSubaccountID(makerAddress string, takerFee string) common.Hash {
 		common.HexToAddress(makerAddress).Bytes(),
 		common.LeftPadBytes(BigNum(takerFee).Int().Bytes(), 32),
 	)
-	//suplog.Debugf("%s + %s, => %s", makerAddress, takerFee, subaccountID.Hex())
 	return subaccountID
 }
 
@@ -599,7 +702,7 @@ func so2zo(o *BaseOrder) (*zeroex.SignedOrder, error) {
 	}
 
 	if v, ok := math.ParseBig256(string(o.MakerAssetAmount)); !ok {
-		return nil, errors.New("makerAssetAmmount parse failed")
+		return nil, errors.New("makerAssetAmount parse failed")
 	} else {
 		order.MakerAssetAmount = v
 	}
@@ -609,7 +712,7 @@ func so2zo(o *BaseOrder) (*zeroex.SignedOrder, error) {
 		order.MakerFee = v
 	}
 	if v, ok := math.ParseBig256(string(o.TakerAssetAmount)); !ok {
-		return nil, errors.New("takerAssetAmmount parse failed")
+		return nil, errors.New("takerAssetAmount parse failed")
 	} else {
 		order.TakerAssetAmount = v
 	}
