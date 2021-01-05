@@ -4,9 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-	log "github.com/xlab/suplog"
 	"math/big"
 	"strings"
 	"time"
@@ -14,8 +11,11 @@ import (
 	zeroex "github.com/InjectiveLabs/sdk-go"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/crypto"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	log "github.com/xlab/suplog"
 )
 
 const RouterKey = ModuleName
@@ -31,6 +31,8 @@ var (
 	_ sdk.Msg = &MsgSuspendSpotMarket{}
 	_ sdk.Msg = &MsgResumeSpotMarket{}
 	_ sdk.Msg = &MsgCreateSpotOrder{}
+	_ sdk.Msg = &MsgExecuteTakerTransaction{}
+	_ sdk.Msg = &MsgExecuteDerivativeTakeOrder{}
 )
 
 func (msg *MsgSoftCancelDerivativeOrder) Route() string {
@@ -445,6 +447,56 @@ func (msg *MsgResumeSpotMarket) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgResumeSpotMarket) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route should return the name of the module
+func (msg MsgExecuteTakerTransaction) Route() string { return RouterKey }
+
+// Type should return the action
+func (msg MsgExecuteTakerTransaction) Type() string { return "executeTakerTransaction" }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgExecuteTakerTransaction) ValidateBasic() error {
+	// TODO : Add basic vaidation
+	return nil
+}
+
+func (msg *MsgExecuteTakerTransaction) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgExecuteTakerTransaction) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route should return the name of the module
+func (msg MsgExecuteDerivativeTakeOrder) Route() string { return RouterKey }
+
+// Type should return the action
+func (msg MsgExecuteDerivativeTakeOrder) Type() string { return "executeDerivativeTakeOrder" }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgExecuteDerivativeTakeOrder) ValidateBasic() error {
+	// TODO : Add basic vaidation
+	return nil
+}
+
+func (msg *MsgExecuteDerivativeTakeOrder) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgExecuteDerivativeTakeOrder) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
