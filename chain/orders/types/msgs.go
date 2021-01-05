@@ -4,9 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
-	log "github.com/xlab/suplog"
 	"math/big"
 	"strings"
 	"time"
@@ -14,8 +11,11 @@ import (
 	zeroex "github.com/InjectiveLabs/sdk-go"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/crypto"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	log "github.com/xlab/suplog"
 )
 
 const RouterKey = ModuleName
@@ -31,6 +31,8 @@ var (
 	_ sdk.Msg = &MsgSuspendSpotMarket{}
 	_ sdk.Msg = &MsgResumeSpotMarket{}
 	_ sdk.Msg = &MsgCreateSpotOrder{}
+	_ sdk.Msg = &MsgExecuteTakerTransaction{}
+	_ sdk.Msg = &MsgExecuteDerivativeTakeOrder{}
 )
 
 func (msg *MsgSoftCancelDerivativeOrder) Route() string {
@@ -452,6 +454,84 @@ func (msg MsgResumeSpotMarket) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
+// Route should return the name of the module
+func (msg MsgExecuteTakerTransaction) Route() string { return RouterKey }
+
+// Type should return the action
+func (msg MsgExecuteTakerTransaction) Type() string { return "executeTakerTransaction" }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgExecuteTakerTransaction) ValidateBasic() error {
+	// TODO : Add basic vaidation
+	return nil
+}
+
+func (msg *MsgExecuteTakerTransaction) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgExecuteTakerTransaction) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route should return the name of the module
+func (msg MsgExecuteDerivativeTakeOrder) Route() string { return RouterKey }
+
+// Type should return the action
+func (msg MsgExecuteDerivativeTakeOrder) Type() string { return "executeDerivativeTakeOrder" }
+
+// ValidateBasic runs stateless checks on the message
+func (msg MsgExecuteDerivativeTakeOrder) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if msg.Order == nil {
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
+	}
+
+	order := msg.Order.ToSignedOrder()
+	quantity := order.TakerAssetAmount
+	margin := order.TakerFee
+	orderHash, err := order.ComputeOrderHash()
+	takerAddress := common.HexToAddress(msg.Order.TakerAddress)
+
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
+	} else if !isValidSignature(msg.Order.Signature, takerAddress, orderHash) {
+		// TODO @albert @venkatesh: delete return nil once this is ready
+		return nil
+		//return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
+	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
+	} else if margin == nil || margin.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient margin")
+	} else if !bytes.Equal(order.MakerAddress.Bytes(), common.Address{}.Bytes()) {
+		return sdkerrors.Wrap(ErrBadField, "maker address field must be empty")
+	} else if bytes.Equal(order.TakerAddress.Bytes(), common.Address{}.Bytes()) {
+		return sdkerrors.Wrap(ErrBadField, "taker address field must not be empty")
+	}
+	return nil
+}
+
+func (msg *MsgExecuteDerivativeTakeOrder) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg MsgExecuteDerivativeTakeOrder) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
 // SafeSignedOrder is a special signed order structure
 // for including in Msgs, because it consists of primitive types.
 // Avoid using raw *big.Int in Msgs.
@@ -625,16 +705,16 @@ func ScalePermyriad(amount, permyriad *big.Int) *big.Int {
 	return new(big.Int).Div(scaleFactor, PERMYRIAD_BASE)
 }
 
-func ComputeSubaccountID(makerAddress string, takerFee string) common.Hash {
+func ComputeSubaccountID(address string, takerFee string) common.Hash {
 	subaccountID := crypto.Keccak256Hash(
-		common.HexToAddress(makerAddress).Bytes(),
+		common.HexToAddress(address).Bytes(),
 		common.LeftPadBytes(BigNum(takerFee).Int().Bytes(), 32),
 	)
 	return subaccountID
 }
 
 // GetDirectionMarketAndSubaccountID
-func (m *BaseOrder) GetDirectionMarketAndSubaccountID() (isLong bool, marketID common.Hash, subaccountID common.Hash) {
+func (m *BaseOrder) GetDirectionMarketAndSubaccountID(shouldGetMakerSubaccount bool) (isLong bool, marketID common.Hash, subaccountID common.Hash) {
 	mData, tData := common.FromHex(m.GetMakerAssetData()), common.FromHex(m.GetTakerAssetData())
 
 	if len(mData) > common.HashLength {
@@ -652,7 +732,16 @@ func (m *BaseOrder) GetDirectionMarketAndSubaccountID() (isLong bool, marketID c
 		isLong = false
 		marketID = common.BytesToHash(tData)
 	}
-	subaccountID = ComputeSubaccountID(m.GetMakerAddress(), m.GetTakerFee())
+
+	var address string
+
+	if shouldGetMakerSubaccount {
+		address = m.GetMakerAddress()
+	} else {
+		address = m.GetTakerAddress()
+	}
+
+	subaccountID = ComputeSubaccountID(address, m.GetTakerFee())
 
 	return isLong, marketID, subaccountID
 }
