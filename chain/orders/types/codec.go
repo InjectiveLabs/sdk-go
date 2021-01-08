@@ -23,6 +23,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgSuspendDerivativeMarket{},
 		&MsgResumeDerivativeMarket{},
 		&MsgCreateDerivativeOrder{},
+		&MsgSoftCancelDerivativeOrder{},
 		&MsgRegisterSpotMarket{},
 		&MsgSuspendSpotMarket{},
 		&MsgResumeSpotMarket{},

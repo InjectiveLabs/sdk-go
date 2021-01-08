@@ -2,13 +2,19 @@ package types
 
 import (
 	"errors"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"math/big"
 	"strings"
 	"time"
 
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
 	"github.com/ethereum/go-ethereum/common"
 	"golang.org/x/crypto/sha3"
+)
+
+const (
+	ADDRESS_LENGTH = 42
+	BYTES32_LENGTH = 66
 )
 
 type Direction uint8
@@ -40,6 +46,33 @@ func (d Direction) String() string {
 	return ""
 }
 
+// Order Type denotes an order type
+type OrderType uint64
+
+const (
+	VANILLA_LIMIT     OrderType = 0
+	STOP_LIMIT_PROFIT OrderType = 1
+	STOP_LIMIT_LOSS   OrderType = 2
+	STOP_LOSS         OrderType = 3
+	TAKE_PROFIT       OrderType = 4
+	REDUCE_ONLY       OrderType = 5
+)
+
+func ComputePositionBankruptcyPrice(entryPrice, margin, quantity *big.Int, isDirectionLong bool) (*big.Int, error) {
+	if quantity.Cmp(new(big.Int)) <= 0 {
+		return nil, sdkerrors.Wrap(ErrBadField, "quantity invalid in ComputeBankruptcyPrice")
+	}
+
+	var bankruptcyPrice *big.Int
+	unitMargin := new(big.Int).Div(margin, quantity)
+	if isDirectionLong {
+		bankruptcyPrice = new(big.Int).Sub(entryPrice, unitMargin)
+	} else {
+		bankruptcyPrice = new(big.Int).Add(entryPrice, unitMargin)
+	}
+	return bankruptcyPrice, nil
+}
+
 // OrderStatus encodes order status according to LibOrder.OrderStatus
 type OrderStatus uint8
 
@@ -64,6 +97,10 @@ const (
 	StatusUntriggered OrderStatus = 8
 	// StatusInvalidTriggerPrice TakeProfit trigger price is lower than contract price or StopLoss trigger price is higher than contract price
 	StatusInvalidTriggerPrice OrderStatus = 9
+	// StatusReduceOnlyExpired when order has expired due to a reduce only condition invalidation
+	StatusReduceOnlyExpired OrderStatus = 10
+	// StatusSoftCancelled when order has been soft-cancelled
+	StatusSoftCancelled OrderStatus = 11
 )
 
 func (o OrderStatus) String() string {
@@ -87,7 +124,11 @@ func (o OrderStatus) String() string {
 	case StatusUntriggered:
 		return "untriggered"
 	case StatusInvalidTriggerPrice:
-		return "statusinvalidtriggerprice"
+		return "invalidTriggerPrice"
+	case StatusReduceOnlyExpired:
+		return "reduceOnlyExpired"
+	case StatusSoftCancelled:
+		return "softCancelled"
 	default:
 		return ""
 	}
@@ -113,8 +154,12 @@ func OrderStatusFromString(status string) OrderStatus {
 		return StatusUnfunded
 	case "untriggered":
 		return StatusUntriggered
-	case "statusinvalidtriggerprice":
+	case "invalidtriggerprice":
 		return StatusInvalidTriggerPrice
+	case "reduceOnlyExpired":
+		return StatusReduceOnlyExpired
+	case "softCancelled":
+		return StatusSoftCancelled
 	default:
 		return StatusInvalid
 	}
@@ -201,6 +246,14 @@ func NewBigNum(i *big.Int) BigNum {
 		return "0"
 	}
 	return BigNum(i.String())
+}
+
+func (m MarginInfo) IsMarginHoldBreached() (availableMargin *big.Int, isBreached bool) {
+	availableMargin = new(big.Int).Sub(BigNum(m.GetTotalDeposits()).Int(), BigNum(m.GetMarginHold()).Int())
+	if availableMargin.Cmp(big.NewInt(0)) < 0 {
+		return availableMargin, true
+	}
+	return availableMargin, false
 }
 
 func (p TradePair) ComputeHash() (common.Hash, error) {
