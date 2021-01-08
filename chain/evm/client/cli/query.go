@@ -30,6 +30,7 @@ func GetQueryCmd() *cobra.Command {
 		GetStorageCmd(),
 		GetCodeCmd(),
 		GetErc20Balance(),
+		GetAccount(),
 	)
 	return cmd
 }
@@ -154,6 +155,40 @@ func GetErc20Balance() *cobra.Command {
 			err = erc20ABI.Unpack(&ret, "balanceOf", res.Data)
 
 			return clientCtx.PrintString(ret.String())
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetAccount queries the account by address
+func GetAccount() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "account [address]",
+		Short: "Get an account by address",
+		Long:  "Get an account by address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			address := args[0]
+
+			req := &types.QueryAccountRequest{
+				Address: address,
+			}
+
+			res, err := queryClient.Account(rpc.ContextWithHeight(clientCtx.Height), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintOutput(res)
 		},
 	}
 
