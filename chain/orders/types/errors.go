@@ -28,4 +28,8 @@ var (
 	ErrUnrecognizedOrderType        = sdkerrors.Register(ModuleName, 21, "unrecognized order type")
 	ErrUnfundedPosition             = sdkerrors.Register(ModuleName, 22, "unfunded position for order type")
 	ErrInsufficientPositionQuantity = sdkerrors.Register(ModuleName, 23, "position quantity insufficient for order type")
+	ErrMarginNotBreached            = sdkerrors.Register(ModuleName, 24, "margin hold is not breached")
+	ErrInsufficientTakerMargin      = sdkerrors.Register(ModuleName, 25, "taker has insufficient available margin")
+	ErrInsufficientLiquidity        = sdkerrors.Register(ModuleName, 26, "insufficient liquidity in the orderbook")
+	ErrReplayTecTransaction         = sdkerrors.Register(ModuleName, 27, "cannot replay TEC transaction")
 )

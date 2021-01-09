@@ -28,5 +28,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgSuspendSpotMarket{},
 		&MsgResumeSpotMarket{},
 		&MsgCreateSpotOrder{},
+		&MsgExecuteDerivativeTakeOrder{},
+		&MsgExecuteTECTransaction{},
 	)
 }
