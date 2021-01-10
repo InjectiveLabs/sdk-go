@@ -124,12 +124,7 @@ func (tx *Transaction) DecodeTransactionData() (*ZeroExTransactionData, error) {
 			order.ChainID = tx.Domain.ChainID
 			order.ExchangeAddress = tx.Domain.VerifyingContract
 		}
-	} else if txData.RightOrders != nil {
-		for _, order := range txData.RightOrders {
-			// these two fields make the order a complete version
-			order.ChainID = tx.Domain.ChainID
-			order.ExchangeAddress = tx.Domain.VerifyingContract
-		}
+	} else if txData.LeftOrders != nil {
 		for _, order := range txData.LeftOrders {
 			// these two fields make the order a complete version
 			order.ChainID = tx.Domain.ChainID
