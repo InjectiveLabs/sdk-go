@@ -116,6 +116,20 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			SubAccountID: inputs.SubAccountID,
 			Amount:       inputs.Amount,
 		}
+	case Deposit:
+		inputs := struct {
+			BaseCurrency common.Address
+			Amount       *big.Int
+		}{}
+		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
+			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+			return nil, err
+		}
+		txData = &ZeroExTransactionData{
+			FunctionName: FuturesFunctionName(method.Name),
+			BaseCurrency: inputs.BaseCurrency,
+			Amount:       inputs.Amount,
+		}
 	case DepositForSubaccount:
 		inputs := struct {
 			BaseCurrency common.Address
@@ -210,6 +224,7 @@ const (
 	BatchCheckFunding                FuturesFunctionName = "batchCheckFunding"
 	WithdrawForSubAccount            FuturesFunctionName = "withdrawForSubAccount"
 	DepositForSubaccount             FuturesFunctionName = "depositForSubaccount"
+	Deposit                          FuturesFunctionName = "deposit"
 	CreateMarketWithFixedMarketId    FuturesFunctionName = "createMarketWithFixedMarketId"
 	BatchCancelOrders                FuturesFunctionName = "batchCancelOrders"
 	AddMarginIntoPosition            FuturesFunctionName = "addMarginIntoPosition"
