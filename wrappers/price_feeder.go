@@ -137,7 +137,7 @@ func bindPriceFeeder(address common.Address, caller bind.ContractCaller, transac
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (f *PriceFeederRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (f *PriceFeederRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return f.Contract.PriceFeederCaller.contract.Call(opts, result, method, params...)
 }
 
@@ -156,7 +156,7 @@ func (f *PriceFeederRaw) Transact(opts *bind.TransactOpts, method string, params
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (f *PriceFeederCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (f *PriceFeederCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return f.Contract.contract.Call(opts, result, method, params...)
 }
 
@@ -175,12 +175,17 @@ func (f *PriceFeederTransactorRaw) Transact(opts *bind.TransactOpts, method stri
 //
 // Solidity: function DEFAULT_ADMIN_ROLE() view returns(bytes32)
 func (f *PriceFeederCaller) DEFAULTADMINROLE(opts *bind.CallOpts) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "DEFAULT_ADMIN_ROLE")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "DEFAULT_ADMIN_ROLE")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // DEFAULTADMINROLE is a free data retrieval call binding the contract method 0xa217fddf.
@@ -201,12 +206,17 @@ func (f *PriceFeederCallerSession) DEFAULTADMINROLE() ([32]byte, error) {
 //
 // Solidity: function PRICE_FEEDER() view returns(bytes32)
 func (f *PriceFeederCaller) PRICEFEEDER(opts *bind.CallOpts) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "PRICE_FEEDER")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "PRICE_FEEDER")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // PRICEFEEDER is a free data retrieval call binding the contract method 0x882ed671.
@@ -227,12 +237,17 @@ func (f *PriceFeederCallerSession) PRICEFEEDER() ([32]byte, error) {
 //
 // Solidity: function currentPrices(bytes32 ) view returns(uint256)
 func (f *PriceFeederCaller) CurrentPrices(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "currentPrices", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "currentPrices", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // CurrentPrices is a free data retrieval call binding the contract method 0xacd0ecaf.
@@ -253,12 +268,17 @@ func (f *PriceFeederCallerSession) CurrentPrices(arg0 [32]byte) (*big.Int, error
 //
 // Solidity: function futuresSettlementPrice(bytes32 ) view returns(uint256)
 func (f *PriceFeederCaller) FuturesSettlementPrice(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "futuresSettlementPrice", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "futuresSettlementPrice", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // FuturesSettlementPrice is a free data retrieval call binding the contract method 0xc60f6ef5.
@@ -279,12 +299,17 @@ func (f *PriceFeederCallerSession) FuturesSettlementPrice(arg0 [32]byte) (*big.I
 //
 // Solidity: function futuresSettlementTimes(bytes32 ) view returns(uint256)
 func (f *PriceFeederCaller) FuturesSettlementTimes(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "futuresSettlementTimes", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "futuresSettlementTimes", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // FuturesSettlementTimes is a free data retrieval call binding the contract method 0x470b2d0e.
@@ -305,12 +330,17 @@ func (f *PriceFeederCallerSession) FuturesSettlementTimes(arg0 [32]byte) (*big.I
 //
 // Solidity: function getExpiryFuturesSettlementPrice(bytes32 marketID) view returns(uint256)
 func (f *PriceFeederCaller) GetExpiryFuturesSettlementPrice(opts *bind.CallOpts, marketID [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getExpiryFuturesSettlementPrice", marketID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getExpiryFuturesSettlementPrice", marketID)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetExpiryFuturesSettlementPrice is a free data retrieval call binding the contract method 0x57ab828a.
@@ -331,12 +361,17 @@ func (f *PriceFeederCallerSession) GetExpiryFuturesSettlementPrice(marketID [32]
 //
 // Solidity: function getFundingInterval(bytes32 marketID) view returns(uint256)
 func (f *PriceFeederCaller) GetFundingInterval(opts *bind.CallOpts, marketID [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getFundingInterval", marketID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getFundingInterval", marketID)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetFundingInterval is a free data retrieval call binding the contract method 0xaa7566de.
@@ -357,12 +392,17 @@ func (f *PriceFeederCallerSession) GetFundingInterval(marketID [32]byte) (*big.I
 //
 // Solidity: function getPrice(bytes32 marketID) view returns(uint256)
 func (f *PriceFeederCaller) GetPrice(opts *bind.CallOpts, marketID [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getPrice", marketID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getPrice", marketID)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetPrice is a free data retrieval call binding the contract method 0x31d98b3f.
@@ -383,12 +423,17 @@ func (f *PriceFeederCallerSession) GetPrice(marketID [32]byte) (*big.Int, error)
 //
 // Solidity: function getRoleAdmin(bytes32 role) view returns(bytes32)
 func (f *PriceFeederCaller) GetRoleAdmin(opts *bind.CallOpts, role [32]byte) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getRoleAdmin", role)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getRoleAdmin", role)
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // GetRoleAdmin is a free data retrieval call binding the contract method 0x248a9ca3.
@@ -409,12 +454,17 @@ func (f *PriceFeederCallerSession) GetRoleAdmin(role [32]byte) ([32]byte, error)
 //
 // Solidity: function getRoleMember(bytes32 role, uint256 index) view returns(address)
 func (f *PriceFeederCaller) GetRoleMember(opts *bind.CallOpts, role [32]byte, index *big.Int) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getRoleMember", role, index)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getRoleMember", role, index)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // GetRoleMember is a free data retrieval call binding the contract method 0x9010d07c.
@@ -435,12 +485,17 @@ func (f *PriceFeederCallerSession) GetRoleMember(role [32]byte, index *big.Int) 
 //
 // Solidity: function getRoleMemberCount(bytes32 role) view returns(uint256)
 func (f *PriceFeederCaller) GetRoleMemberCount(opts *bind.CallOpts, role [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getRoleMemberCount", role)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getRoleMemberCount", role)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetRoleMemberCount is a free data retrieval call binding the contract method 0xca15c873.
@@ -461,12 +516,17 @@ func (f *PriceFeederCallerSession) GetRoleMemberCount(role [32]byte) (*big.Int, 
 //
 // Solidity: function hasRole(bytes32 role, address account) view returns(bool)
 func (f *PriceFeederCaller) HasRole(opts *bind.CallOpts, role [32]byte, account common.Address) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "hasRole", role, account)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "hasRole", role, account)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // HasRole is a free data retrieval call binding the contract method 0x91d14854.
@@ -487,12 +547,17 @@ func (f *PriceFeederCallerSession) HasRole(role [32]byte, account common.Address
 //
 // Solidity: function isRegisteredMarket(bytes32 ) view returns(bool)
 func (f *PriceFeederCaller) IsRegisteredMarket(opts *bind.CallOpts, arg0 [32]byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isRegisteredMarket", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isRegisteredMarket", arg0)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsRegisteredMarket is a free data retrieval call binding the contract method 0x17eab5d6.
@@ -513,12 +578,17 @@ func (f *PriceFeederCallerSession) IsRegisteredMarket(arg0 [32]byte) (bool, erro
 //
 // Solidity: function marketCount() view returns(uint256)
 func (f *PriceFeederCaller) MarketCount(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "marketCount")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "marketCount")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MarketCount is a free data retrieval call binding the contract method 0xec979082.
@@ -539,12 +609,17 @@ func (f *PriceFeederCallerSession) MarketCount() (*big.Int, error) {
 //
 // Solidity: function marketFundingIntervals(bytes32 ) view returns(uint256)
 func (f *PriceFeederCaller) MarketFundingIntervals(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "marketFundingIntervals", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "marketFundingIntervals", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MarketFundingIntervals is a free data retrieval call binding the contract method 0x19cb625c.
@@ -851,6 +926,7 @@ func (f *PriceFeederFilterer) ParseRegisterFuturesMarket(log types.Log) (*PriceF
 	if err := f.contract.UnpackLog(event, "RegisterFuturesMarket", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -997,6 +1073,7 @@ func (f *PriceFeederFilterer) ParseRegisterPerpetualMarket(log types.Log) (*Pric
 	if err := f.contract.UnpackLog(event, "RegisterPerpetualMarket", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1158,6 +1235,7 @@ func (f *PriceFeederFilterer) ParseRoleAdminChanged(log types.Log) (*PriceFeeder
 	if err := f.contract.UnpackLog(event, "RoleAdminChanged", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1319,6 +1397,7 @@ func (f *PriceFeederFilterer) ParseRoleGranted(log types.Log) (*PriceFeederRoleG
 	if err := f.contract.UnpackLog(event, "RoleGranted", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1480,6 +1559,7 @@ func (f *PriceFeederFilterer) ParseRoleRevoked(log types.Log) (*PriceFeederRoleR
 	if err := f.contract.UnpackLog(event, "RoleRevoked", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1625,6 +1705,7 @@ func (f *PriceFeederFilterer) ParseSetPrice(log types.Log) (*PriceFeederSetPrice
 	if err := f.contract.UnpackLog(event, "SetPrice", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -1771,5 +1852,6 @@ func (f *PriceFeederFilterer) ParseSetSettlementPrice(log types.Log) (*PriceFeed
 	if err := f.contract.UnpackLog(event, "SetSettlementPrice", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }

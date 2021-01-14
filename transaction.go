@@ -79,6 +79,8 @@ type ZeroExTransactionData struct {
 	Orders                    []*Order
 	MarketIDs                 []common.Hash
 	SubAccountID              common.Hash
+	ExchangeAddress           common.Address
+	CloseQuantity             *big.Int
 	SubaccountID              common.Hash
 	Signatures                [][]byte
 	PositionID                *big.Int

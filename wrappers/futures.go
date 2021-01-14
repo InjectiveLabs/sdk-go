@@ -37,6 +37,15 @@ type DerivativeOrderInfo struct {
 	EntryPrice                  *big.Int
 }
 
+// LibZeroExTransactionZeroExTransaction is an auto generated low-level Go binding around an user-defined struct.
+type LibZeroExTransactionZeroExTransaction struct {
+	Salt                  *big.Int
+	ExpirationTimeSeconds *big.Int
+	GasPrice              *big.Int
+	SignerAddress         common.Address
+	Data                  []byte
+}
+
 // MixinOrdersFillResults is an auto generated low-level Go binding around an user-defined struct.
 type MixinOrdersFillResults struct {
 	MakerPositionID *big.Int
@@ -91,7 +100,7 @@ type TypesTransactionFees struct {
 }
 
 // FuturesABI is the input ABI used to generate the binding from.
-const FuturesABI = "[{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"_minimumMarginRatio\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"auctionTimeInterval_\",\"type\":\"uint256\"},{\"internalType\":\"contractERC20Burnable\",\"name\":\"injectiveToken_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"creator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"subAccountNonce\",\"type\":\"uint256\"}],\"name\":\"AccountCreation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"contractPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"quantityFilled\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isLong\",\"type\":\"bool\"}],\"name\":\"FuturesCancel\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isResultingPositionLong\",\"type\":\"bool\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"resultingMargin\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"resultingEntryPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"resultingQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"cumulativeFundingEntry\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isTradeDirectionLong\",\"type\":\"bool\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"executionPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"executionQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalForOrderFilled\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"enumTypes.TradeOrTransferType\",\"name\":\"tradeType\",\"type\":\"uint8\"}],\"name\":\"FuturesTrade\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"changedMargin\",\"type\":\"int256\"}],\"name\":\"MarginChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"ticker\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maintenanceMarginRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"initialMarginRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"makerTxFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"takerTxFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"relayerFeePercentage\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expirationTime\",\"type\":\"uint256\"}],\"name\":\"MarketCreation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"senderPositionID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"receiverPositionID\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"toSubAccountID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"enumTypes.DirectionalStatus\",\"name\":\"directionalStatus\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"srcResultingPositionMargin\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"srcResultingPositionEntryPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"srcResultingPositionQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"srcResultingPositionCumulativeFundingEntry\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"destResultingPositionMargin\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"destResultingPositionEntryPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"destResultingPositionQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"destResultingPositionCumulativeFundingEntry\",\"type\":\"int256\"}],\"name\":\"PositionTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"fundingFee\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"cumulativeFunding\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expiryOrNextFundingTimestamp\",\"type\":\"uint256\"}],\"name\":\"SetFunding\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"signerAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"SignatureValidatorApproval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"enumMixinAccounts.DepositChangeType\",\"name\":\"depositChangeType\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"changeAmount\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"currentAmount\",\"type\":\"uint256\"}],\"name\":\"SubaccountDepositsChange\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mostRecentEpochVolume\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mostRecentEpochQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"mostRecentEpochScaledContractIndexDiff\",\"type\":\"int256\"}],\"name\":\"UpdateValuesForVWAP\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"EIP712_EXCHANGE_DOMAIN_HASH\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MINIMUM_MARGIN_RATIO\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TEC_ADDRESS\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"accounts\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"subAccountNonce\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"addedMargin\",\"type\":\"uint256\"}],\"name\":\"addMarginIntoPosition\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"addressToSubAccountIDs\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"allowedValidators\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"approveTo\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"approveForReceiving\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"auction\",\"outputs\":[{\"internalType\":\"contractIAuction\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"auctionTimeInterval\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"baseCurrencies\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"}],\"name\":\"batchCancelOrders\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"marketIDs\",\"type\":\"bytes32[]\"}],\"name\":\"batchCheckFunding\",\"outputs\":[{\"internalType\":\"bool[]\",\"name\":\"\",\"type\":\"bool[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20[]\",\"name\":\"baseCurrencies\",\"type\":\"address[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"subAccountIDs\",\"type\":\"bytes32[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"batchDepositForSubAccounts\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20[]\",\"name\":\"baseCurrencies\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"traders\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"batchDepositForTraders\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[]\",\"name\":\"positionIDs\",\"type\":\"uint256[]\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[][]\",\"name\":\"orders\",\"type\":\"tuple[][]\"},{\"internalType\":\"uint256[]\",\"name\":\"quantities\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes[][]\",\"name\":\"signatures\",\"type\":\"bytes[][]\"}],\"name\":\"batchLiquidatePosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults[]\",\"name\":\"results\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32[]\",\"name\":\"subAccountIDs\",\"type\":\"bytes32[]\"}],\"name\":\"batchSettleExpiryFuturesPosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults[]\",\"name\":\"results\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"int256\",\"name\":\"cumulativeFundingEntry\",\"type\":\"int256\"}],\"name\":\"calcCumulativeFunding\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"}],\"name\":\"calcLiquidationFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"}],\"name\":\"calcMinMargin\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order\",\"name\":\"order\",\"type\":\"tuple\"}],\"name\":\"cancelOrder\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"cancelled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"maxBaseCurrencyCap_\",\"type\":\"uint256\"}],\"name\":\"changeMaxBaseCurrencyCap\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"checkFunding\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isRevertingOnPartialFills\",\"type\":\"bool\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"closePosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults\",\"name\":\"results\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"subAccountNonce\",\"type\":\"uint256\"}],\"name\":\"computeSubAccountIdFromNonce\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"createDefaultSubAccountAndDeposit\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"ticker\",\"type\":\"string\"},{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"initialMarginRatio\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maintenanceMarginRatio\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTime\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"makerTxFee\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"takerTxFee\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"relayerFeePercentage\",\"type\":\"tuple\"}],\"name\":\"createMarket\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"ticker\",\"type\":\"string\"},{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"initialMarginRatio\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maintenanceMarginRatio\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTime\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"makerTxFee\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"takerTxFee\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"relayerFeePercentage\",\"type\":\"tuple\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"createMarketWithFixedMarketId\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"subAccountNonce\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"createSubAccountAndDeposit\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"subAccountNonce\",\"type\":\"uint256\"}],\"name\":\"createSubAccountForTraderWithNonce\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentEndingTimeForAuction\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"depositFor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"depositForSubaccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"depositIntoSubAccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"doesPositionExist\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"emergencyStopFutures\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"epochFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"filled\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"getApproved\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"}],\"name\":\"getDefaultSubAccountDeposits\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"}],\"name\":\"getDefaultSubAccountIdForTrader\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"getMaxFundingFeeAbs\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order\",\"name\":\"order\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"indexPrice\",\"type\":\"uint256\"}],\"name\":\"getOrderRelevantState\",\"outputs\":[{\"components\":[{\"internalType\":\"enumLibOrder.OrderStatus\",\"name\":\"orderStatus\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"orderTakerAssetFilledAmount\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"enumTypes.Direction\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"}],\"internalType\":\"structLibOrder.DerivativeOrderInfo\",\"name\":\"orderInfo\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"fillableTakerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isValidSignature\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"getOrderRelevantStates\",\"outputs\":[{\"components\":[{\"internalType\":\"enumLibOrder.OrderStatus\",\"name\":\"orderStatus\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"orderTakerAssetFilledAmount\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"enumTypes.Direction\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"}],\"internalType\":\"structLibOrder.DerivativeOrderInfo[]\",\"name\":\"ordersInfo\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256[]\",\"name\":\"fillableTakerAssetAmounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bool[]\",\"name\":\"isValidSignature\",\"type\":\"bool[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"getPositionIDsForTrader\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"positionIDs\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"getPositionsForTrader\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"enumTypes.Direction\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"margin\",\"type\":\"uint256\"},{\"internalType\":\"int256\",\"name\":\"cumulativeFundingEntry\",\"type\":\"int256\"}],\"internalType\":\"structTypes.Position[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"getReceiptApproved\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"}],\"name\":\"getTraderSubAccountsCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"priceToUse\",\"type\":\"uint256\"}],\"name\":\"getUnitPositionValue\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"unitPositionValue\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"insurancePools\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"}],\"name\":\"isAllowedToReceivePosition\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"isAllowedToTransferPosition\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"isApprovedForMarket\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"isFuturesMarketSettled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isReceiptApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"isReceiptApprovedForMarket\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isValidBaseCurrency\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order\",\"name\":\"order\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"isValidOrderSignature\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"lastValidVWAP\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"liquidatePosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults\",\"name\":\"results\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"marketCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"margin\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bool\",\"name\":\"isRevertingOnPartialFills\",\"type\":\"bool\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"marketOrders\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"makerPositionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerPositionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerMarginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerMarginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantityFilled\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFeePaid\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFeePaid\",\"type\":\"uint256\"}],\"internalType\":\"structMixinOrders.FillResults[]\",\"name\":\"results\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"marketSerialToID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"markets\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ticker\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"initialMarginRatio\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maintenanceMarginRatio\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"indexPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expiryOrNextFundingTimestamp\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"},{\"internalType\":\"int256\",\"name\":\"cumulativeFunding\",\"type\":\"int256\"},{\"components\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maker\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"taker\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"relayer\",\"type\":\"tuple\"}],\"internalType\":\"structTypes.TransactionFees\",\"name\":\"transactionFees\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxBaseCurrencyCap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"mostRecentEpochQuantity\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"mostRecentEpochVolume\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"mostRecentEpochWeightedAverageContractIndexDiff\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"mostRecentmostRecentEpochVolumeEpochQuantity\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"leftOrders\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order\",\"name\":\"rightOrder\",\"type\":\"tuple\"},{\"internalType\":\"bytes[]\",\"name\":\"leftSignatures\",\"type\":\"bytes[]\"},{\"internalType\":\"bytes\",\"name\":\"rightSignature\",\"type\":\"bytes\"}],\"name\":\"multiMatchOrders\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"leftPositionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rightPositionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"leftMarginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rightMarginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantityFilled\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"leftFeePaid\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rightFeePaid\",\"type\":\"uint256\"}],\"internalType\":\"structMixinOrders.MatchResults[]\",\"name\":\"results\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"payIntoInsurancePool\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"positionCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"positions\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"enumTypes.Direction\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"margin\",\"type\":\"uint256\"},{\"internalType\":\"int256\",\"name\":\"cumulativeFundingEntry\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"preSigned\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"restrictedDeposits\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"resumeFutures\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"setApprovalForMarket\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"setFundingRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"setReceiptApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"setReceiptApprovalForMarket\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"}],\"name\":\"settleExpiryFuturesPosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults\",\"name\":\"results\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"settleMarket\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"subAccountDeposits\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"subAccountIdToAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"subAccountToMarketToPositionID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"transferQuantity\",\"type\":\"uint256\"}],\"name\":\"transferPosition\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"toSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferToSubAccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"vaporizePosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults\",\"name\":\"results\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"withdrawForSubAccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
+const FuturesABI = "[{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"_minimumMarginRatio\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"auctionTimeInterval_\",\"type\":\"uint256\"},{\"internalType\":\"contractERC20Burnable\",\"name\":\"injectiveToken_\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"creator\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint96\",\"name\":\"subAccountNonce\",\"type\":\"uint96\"}],\"name\":\"AccountCreation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"contractPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"quantityFilled\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isLong\",\"type\":\"bool\"}],\"name\":\"FuturesCancel\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isResultingPositionLong\",\"type\":\"bool\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"resultingMargin\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"resultingEntryPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"resultingQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"cumulativeFundingEntry\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isTradeDirectionLong\",\"type\":\"bool\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"executionPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"executionQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalForOrderFilled\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"enumTypes.TradeOrTransferType\",\"name\":\"tradeType\",\"type\":\"uint8\"}],\"name\":\"FuturesTrade\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"changedMargin\",\"type\":\"int256\"}],\"name\":\"MarginChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"ticker\",\"type\":\"string\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"maintenanceMarginRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"initialMarginRatio\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"makerTxFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"takerTxFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"relayerFeePercentage\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expirationTime\",\"type\":\"uint256\"}],\"name\":\"MarketCreation\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Paused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"senderPositionID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"receiverPositionID\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"toSubAccountID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"enumTypes.DirectionalStatus\",\"name\":\"directionalStatus\",\"type\":\"uint8\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"srcResultingPositionMargin\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"srcResultingPositionEntryPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"srcResultingPositionQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"srcResultingPositionCumulativeFundingEntry\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"destResultingPositionMargin\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"destResultingPositionEntryPrice\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"destResultingPositionQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"destResultingPositionCumulativeFundingEntry\",\"type\":\"int256\"}],\"name\":\"PositionTransfer\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"fundingFee\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"cumulativeFunding\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expiryOrNextFundingTimestamp\",\"type\":\"uint256\"}],\"name\":\"SetFunding\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"signerAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"SignatureValidatorApproval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"enumMixinAccounts.DepositChangeType\",\"name\":\"depositChangeType\",\"type\":\"uint8\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"changeAmount\",\"type\":\"int256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"currentAmount\",\"type\":\"uint256\"}],\"name\":\"SubaccountDepositsChange\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"transactionHash\",\"type\":\"bytes32\"}],\"name\":\"TransactionExecution\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"Unpaused\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mostRecentEpochVolume\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"mostRecentEpochQuantity\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"int256\",\"name\":\"mostRecentEpochScaledContractIndexDiff\",\"type\":\"int256\"}],\"name\":\"UpdateValuesForVWAP\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"EIP1271_MAGIC_VALUE\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"EIP712_EXCHANGE_DOMAIN_HASH\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"MINIMUM_MARGIN_RATIO\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TEC_ADDRESS\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"accounts\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"subAccountNonce\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"addedMargin\",\"type\":\"uint256\"}],\"name\":\"addMarginIntoPosition\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"addressToSubAccountIDs\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"allowedValidators\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"approveTo\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"approveForReceiving\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"auction\",\"outputs\":[{\"internalType\":\"contractIAuction\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"auctionTimeInterval\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"baseCurrencies\",\"outputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"}],\"name\":\"batchCancelOrders\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32[]\",\"name\":\"marketIDs\",\"type\":\"bytes32[]\"}],\"name\":\"batchCheckFunding\",\"outputs\":[{\"internalType\":\"bool[]\",\"name\":\"\",\"type\":\"bool[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20[]\",\"name\":\"baseCurrencies\",\"type\":\"address[]\"},{\"internalType\":\"bytes32[]\",\"name\":\"subAccountIDs\",\"type\":\"bytes32[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"batchDepositForSubAccounts\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20[]\",\"name\":\"baseCurrencies\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"traders\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amounts\",\"type\":\"uint256[]\"}],\"name\":\"batchDepositForTraders\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gasPrice\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"signerAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"structLibZeroExTransaction.ZeroExTransaction[]\",\"name\":\"transactions\",\"type\":\"tuple[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"batchExecuteTransactions\",\"outputs\":[{\"internalType\":\"bytes[]\",\"name\":\"returnData\",\"type\":\"bytes[]\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256[]\",\"name\":\"positionIDs\",\"type\":\"uint256[]\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[][]\",\"name\":\"orders\",\"type\":\"tuple[][]\"},{\"internalType\":\"uint256[]\",\"name\":\"quantities\",\"type\":\"uint256[]\"},{\"internalType\":\"bytes[][]\",\"name\":\"signatures\",\"type\":\"bytes[][]\"},{\"internalType\":\"address\",\"name\":\"liquidationCaller\",\"type\":\"address\"}],\"name\":\"batchLiquidatePosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults[]\",\"name\":\"results\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32[]\",\"name\":\"subAccountIDs\",\"type\":\"bytes32[]\"}],\"name\":\"batchSettleExpiryFuturesPosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults[]\",\"name\":\"results\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"int256\",\"name\":\"cumulativeFundingEntry\",\"type\":\"int256\"}],\"name\":\"calcCumulativeFunding\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"}],\"name\":\"calcLiquidationFee\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"}],\"name\":\"calcMinMargin\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order\",\"name\":\"order\",\"type\":\"tuple\"}],\"name\":\"cancelOrder\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"cancelled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"auctionTimeInterval_\",\"type\":\"uint256\"}],\"name\":\"changeAuctionTimeInterval\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"}],\"name\":\"changeMarketFundingInterval\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"initialMarginRatio\",\"type\":\"tuple\"}],\"name\":\"changeMarketInitialMarginRatio\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maintenanceMarginRatio\",\"type\":\"tuple\"}],\"name\":\"changeMarketMaintenanceMarginRatio\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"makerTxFee\",\"type\":\"tuple\"}],\"name\":\"changeMarketMakerTxFee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"}],\"name\":\"changeMarketOracle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"}],\"name\":\"changeMarketOracle\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"relayerTxFee\",\"type\":\"tuple\"}],\"name\":\"changeMarketRelayerTxFee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"takerTxFee\",\"type\":\"tuple\"}],\"name\":\"changeMarketTakerTxFee\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"maxBaseCurrencyCap_\",\"type\":\"uint256\"}],\"name\":\"changeMaxBaseCurrencyCap\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"MINIMUM_MARGIN_RATIO_\",\"type\":\"tuple\"}],\"name\":\"changeMinimumMarginRatio\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"checkFunding\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isRevertingOnPartialFills\",\"type\":\"bool\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"closePosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults\",\"name\":\"results\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"exchangeAddress\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isRevertingOnPartialFills\",\"type\":\"bool\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"closeQuantity\",\"type\":\"uint256\"}],\"name\":\"closePositionMetaTransaction\",\"outputs\":[],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"uint96\",\"name\":\"subAccountNonce\",\"type\":\"uint96\"}],\"name\":\"computeSubAccountIdFromNonce\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"createDefaultSubAccountAndDeposit\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"ticker\",\"type\":\"string\"},{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"initialMarginRatio\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maintenanceMarginRatio\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTime\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"makerTxFee\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"takerTxFee\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"relayerFeePercentage\",\"type\":\"tuple\"}],\"name\":\"createMarket\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"ticker\",\"type\":\"string\"},{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"initialMarginRatio\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maintenanceMarginRatio\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTime\",\"type\":\"uint256\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"makerTxFee\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"takerTxFee\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"relayerFeePercentage\",\"type\":\"tuple\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"createMarketWithFixedMarketId\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"uint96\",\"name\":\"subAccountNonce\",\"type\":\"uint96\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"createSubAccountAndDeposit\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"uint96\",\"name\":\"subAccountNonce\",\"type\":\"uint96\"}],\"name\":\"createSubAccountForTraderWithNonce\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentContextAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentEndingTimeForAuction\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"depositFor\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"depositForSubaccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"depositIntoSubAccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"doesPositionExist\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"emergencyStopFutures\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"emergencyStopMarket\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"epochFees\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gasPrice\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"signerAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"structLibZeroExTransaction.ZeroExTransaction\",\"name\":\"transaction\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"executeTransaction\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"filled\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"getApproved\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"}],\"name\":\"getDefaultSubAccountDeposits\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"}],\"name\":\"getDefaultSubAccountIdForTrader\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"getMaxFundingFeeAbs\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order\",\"name\":\"order\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"indexPrice\",\"type\":\"uint256\"}],\"name\":\"getOrderRelevantState\",\"outputs\":[{\"components\":[{\"internalType\":\"enumLibOrder.OrderStatus\",\"name\":\"orderStatus\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"orderTakerAssetFilledAmount\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"enumTypes.Direction\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"}],\"internalType\":\"structLibOrder.DerivativeOrderInfo\",\"name\":\"orderInfo\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"fillableTakerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isValidSignature\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"getOrderRelevantStates\",\"outputs\":[{\"components\":[{\"internalType\":\"enumLibOrder.OrderStatus\",\"name\":\"orderStatus\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"orderHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"orderTakerAssetFilledAmount\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"enumTypes.Direction\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"}],\"internalType\":\"structLibOrder.DerivativeOrderInfo[]\",\"name\":\"ordersInfo\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256[]\",\"name\":\"fillableTakerAssetAmounts\",\"type\":\"uint256[]\"},{\"internalType\":\"bool[]\",\"name\":\"isValidSignature\",\"type\":\"bool[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"getPositionIDsForTrader\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"positionIDs\",\"type\":\"uint256[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"getPositionsForTrader\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"enumTypes.Direction\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"margin\",\"type\":\"uint256\"},{\"internalType\":\"int256\",\"name\":\"cumulativeFundingEntry\",\"type\":\"int256\"}],\"internalType\":\"structTypes.Position[]\",\"name\":\"\",\"type\":\"tuple[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"}],\"name\":\"getReceiptApproved\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"trader\",\"type\":\"address\"}],\"name\":\"getTraderSubAccountsCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"priceToUse\",\"type\":\"uint256\"}],\"name\":\"getUnitPositionValue\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"unitPositionValue\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"insurancePools\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"}],\"name\":\"isAllowedToReceivePosition\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"}],\"name\":\"isAllowedToTransferPosition\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"isApprovedForMarket\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"isFuturesMarketSettled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"}],\"name\":\"isReceiptApprovedForAll\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"isReceiptApprovedForMarket\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"isTimeExpiryFuturesMarket\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"isValidBaseCurrency\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"signerAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"isValidHashSignature\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order\",\"name\":\"order\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"isValidOrderSignature\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"gasPrice\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"signerAddress\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"structLibZeroExTransaction.ZeroExTransaction\",\"name\":\"transaction\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"isValidTransactionSignature\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"lastValidVWAP\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"liquidationCaller\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"liquidatePosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults\",\"name\":\"results\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"marketCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"margin\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bool\",\"name\":\"isRevertingOnPartialFills\",\"type\":\"bool\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"}],\"name\":\"marketOrders\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"makerPositionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerPositionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerMarginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerMarginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantityFilled\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFeePaid\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFeePaid\",\"type\":\"uint256\"}],\"internalType\":\"structMixinOrders.FillResults[]\",\"name\":\"results\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"marketSerialToID\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"markets\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"ticker\",\"type\":\"string\"},{\"internalType\":\"address\",\"name\":\"oracle\",\"type\":\"address\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"initialMarginRatio\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maintenanceMarginRatio\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"indexPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expiryOrNextFundingTimestamp\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fundingInterval\",\"type\":\"uint256\"},{\"internalType\":\"int256\",\"name\":\"cumulativeFunding\",\"type\":\"int256\"},{\"components\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"maker\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"taker\",\"type\":\"tuple\"},{\"components\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"internalType\":\"structPermyriadMath.Permyriad\",\"name\":\"relayer\",\"type\":\"tuple\"}],\"internalType\":\"structTypes.TransactionFees\",\"name\":\"transactionFees\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"maxBaseCurrencyCap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"mostRecentEpochQuantity\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"mostRecentEpochVolume\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"mostRecentEpochWeightedAverageContractIndexDiff\",\"outputs\":[{\"internalType\":\"int256\",\"name\":\"\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"mostRecentmostRecentEpochVolumeEpochQuantity\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"leftOrders\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order\",\"name\":\"rightOrder\",\"type\":\"tuple\"},{\"internalType\":\"bytes[]\",\"name\":\"leftSignatures\",\"type\":\"bytes[]\"},{\"internalType\":\"bytes\",\"name\":\"rightSignature\",\"type\":\"bytes\"}],\"name\":\"multiMatchOrders\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"leftPositionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rightPositionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"leftMarginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rightMarginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantityFilled\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"leftFeePaid\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"rightFeePaid\",\"type\":\"uint256\"}],\"internalType\":\"structMixinOrders.MatchResults[]\",\"name\":\"results\",\"type\":\"tuple[]\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"paused\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"payIntoInsurancePool\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"positionCount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"positionCountInTEF\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"positions\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"enumTypes.Direction\",\"name\":\"direction\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"entryPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"margin\",\"type\":\"uint256\"},{\"internalType\":\"int256\",\"name\":\"cumulativeFundingEntry\",\"type\":\"int256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"hash\",\"type\":\"bytes32\"}],\"name\":\"preSign\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"preSigned\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"restrictedDeposits\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"resumeFutures\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"setApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"setApprovalForMarket\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"setFundingRate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"setReceiptApprovalForAll\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"operator\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"bool\",\"name\":\"isApproved\",\"type\":\"bool\"}],\"name\":\"setReceiptApprovalForMarket\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"validatorAddress\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"approval\",\"type\":\"bool\"}],\"name\":\"setSignatureValidatorApproval\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"}],\"name\":\"settleExpiryFuturesPosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults\",\"name\":\"results\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"}],\"name\":\"settleMarket\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"contractIERC20\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"subAccountDeposits\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"subAccountIdToAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"subAccountToMarketToPositionID\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"transactionsExecuted\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"receiverSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"transferQuantity\",\"type\":\"uint256\"}],\"name\":\"transferPosition\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"fromSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"toSubAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferToSubAccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"components\":[{\"internalType\":\"address\",\"name\":\"makerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"takerAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feeRecipientAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"senderAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"makerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerAssetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"makerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"takerFee\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimeSeconds\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"salt\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"makerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"makerFeeAssetData\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"takerFeeAssetData\",\"type\":\"bytes\"}],\"internalType\":\"structLibOrder.Order[]\",\"name\":\"orders\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"bytes[]\",\"name\":\"signatures\",\"type\":\"bytes[]\"}],\"name\":\"vaporizePosition\",\"outputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"positionID\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marginUsed\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"quantity\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"internalType\":\"structTypes.PositionResults\",\"name\":\"results\",\"type\":\"tuple\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIERC20\",\"name\":\"baseCurrency\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"subAccountID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"withdrawForSubAccount\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"receiver\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"marketID\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"withdrawFromInsurancePool\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]"
 
 // Futures is an auto generated Go binding around an Ethereum contract.
 type Futures struct {
@@ -201,7 +210,7 @@ func bindFutures(address common.Address, caller bind.ContractCaller, transactor 
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (f *FuturesRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (f *FuturesRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return f.Contract.FuturesCaller.contract.Call(opts, result, method, params...)
 }
 
@@ -220,7 +229,7 @@ func (f *FuturesRaw) Transact(opts *bind.TransactOpts, method string, params ...
 // sets the output to result. The result type might be a single field for simple
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
-func (f *FuturesCallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+func (f *FuturesCallerRaw) Call(opts *bind.CallOpts, result *[]interface{}, method string, params ...interface{}) error {
 	return f.Contract.contract.Call(opts, result, method, params...)
 }
 
@@ -235,16 +244,52 @@ func (f *FuturesTransactorRaw) Transact(opts *bind.TransactOpts, method string, 
 	return f.Contract.contract.Transact(opts, method, params...)
 }
 
+// EIP1271MAGICVALUE is a free data retrieval call binding the contract method 0xdd885e2d.
+//
+// Solidity: function EIP1271_MAGIC_VALUE() view returns(bytes4)
+func (f *FuturesCaller) EIP1271MAGICVALUE(opts *bind.CallOpts) ([4]byte, error) {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "EIP1271_MAGIC_VALUE")
+
+	if err != nil {
+		return *new([4]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([4]byte)).(*[4]byte)
+
+	return out0, err
+
+}
+
+// EIP1271MAGICVALUE is a free data retrieval call binding the contract method 0xdd885e2d.
+//
+// Solidity: function EIP1271_MAGIC_VALUE() view returns(bytes4)
+func (f *FuturesSession) EIP1271MAGICVALUE() ([4]byte, error) {
+	return f.Contract.EIP1271MAGICVALUE(&f.CallOpts)
+}
+
+// EIP1271MAGICVALUE is a free data retrieval call binding the contract method 0xdd885e2d.
+//
+// Solidity: function EIP1271_MAGIC_VALUE() view returns(bytes4)
+func (f *FuturesCallerSession) EIP1271MAGICVALUE() ([4]byte, error) {
+	return f.Contract.EIP1271MAGICVALUE(&f.CallOpts)
+}
+
 // EIP712EXCHANGEDOMAINHASH is a free data retrieval call binding the contract method 0xc26cfecd.
 //
 // Solidity: function EIP712_EXCHANGE_DOMAIN_HASH() view returns(bytes32)
 func (f *FuturesCaller) EIP712EXCHANGEDOMAINHASH(opts *bind.CallOpts) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "EIP712_EXCHANGE_DOMAIN_HASH")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "EIP712_EXCHANGE_DOMAIN_HASH")
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // EIP712EXCHANGEDOMAINHASH is a free data retrieval call binding the contract method 0xc26cfecd.
@@ -265,12 +310,17 @@ func (f *FuturesCallerSession) EIP712EXCHANGEDOMAINHASH() ([32]byte, error) {
 //
 // Solidity: function MINIMUM_MARGIN_RATIO() view returns(uint256 value)
 func (f *FuturesCaller) MINIMUMMARGINRATIO(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "MINIMUM_MARGIN_RATIO")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "MINIMUM_MARGIN_RATIO")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MINIMUMMARGINRATIO is a free data retrieval call binding the contract method 0xe63f9a7d.
@@ -291,12 +341,17 @@ func (f *FuturesCallerSession) MINIMUMMARGINRATIO() (*big.Int, error) {
 //
 // Solidity: function TEC_ADDRESS() view returns(address)
 func (f *FuturesCaller) TECADDRESS(opts *bind.CallOpts) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "TEC_ADDRESS")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "TEC_ADDRESS")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // TECADDRESS is a free data retrieval call binding the contract method 0xe6077ac2.
@@ -320,13 +375,19 @@ func (f *FuturesCaller) Accounts(opts *bind.CallOpts, arg0 [32]byte) (struct {
 	SubAccountID    [32]byte
 	SubAccountNonce *big.Int
 }, error) {
-	ret := new(struct {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "accounts", arg0)
+
+	outstruct := new(struct {
 		SubAccountID    [32]byte
 		SubAccountNonce *big.Int
 	})
-	out := ret
-	err := f.contract.Call(opts, out, "accounts", arg0)
-	return *ret, err
+
+	outstruct.SubAccountID = out[0].([32]byte)
+	outstruct.SubAccountNonce = out[1].(*big.Int)
+
+	return *outstruct, err
+
 }
 
 // Accounts is a free data retrieval call binding the contract method 0xbc529c43.
@@ -353,12 +414,17 @@ func (f *FuturesCallerSession) Accounts(arg0 [32]byte) (struct {
 //
 // Solidity: function addressToSubAccountIDs(address , uint256 ) view returns(bytes32)
 func (f *FuturesCaller) AddressToSubAccountIDs(opts *bind.CallOpts, arg0 common.Address, arg1 *big.Int) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "addressToSubAccountIDs", arg0, arg1)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "addressToSubAccountIDs", arg0, arg1)
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // AddressToSubAccountIDs is a free data retrieval call binding the contract method 0x07294a8e.
@@ -379,12 +445,17 @@ func (f *FuturesCallerSession) AddressToSubAccountIDs(arg0 common.Address, arg1 
 //
 // Solidity: function allowedValidators(address , address ) view returns(bool)
 func (f *FuturesCaller) AllowedValidators(opts *bind.CallOpts, arg0 common.Address, arg1 common.Address) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "allowedValidators", arg0, arg1)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "allowedValidators", arg0, arg1)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // AllowedValidators is a free data retrieval call binding the contract method 0x7b8e3514.
@@ -405,12 +476,17 @@ func (f *FuturesCallerSession) AllowedValidators(arg0 common.Address, arg1 commo
 //
 // Solidity: function auction() view returns(address)
 func (f *FuturesCaller) Auction(opts *bind.CallOpts) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "auction")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "auction")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // Auction is a free data retrieval call binding the contract method 0x7d9f6db5.
@@ -431,12 +507,17 @@ func (f *FuturesCallerSession) Auction() (common.Address, error) {
 //
 // Solidity: function auctionTimeInterval() view returns(uint256)
 func (f *FuturesCaller) AuctionTimeInterval(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "auctionTimeInterval")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "auctionTimeInterval")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // AuctionTimeInterval is a free data retrieval call binding the contract method 0xc583f691.
@@ -457,12 +538,17 @@ func (f *FuturesCallerSession) AuctionTimeInterval() (*big.Int, error) {
 //
 // Solidity: function baseCurrencies(uint256 ) view returns(address)
 func (f *FuturesCaller) BaseCurrencies(opts *bind.CallOpts, arg0 *big.Int) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "baseCurrencies", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "baseCurrencies", arg0)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // BaseCurrencies is a free data retrieval call binding the contract method 0x95092e50.
@@ -483,12 +569,17 @@ func (f *FuturesCallerSession) BaseCurrencies(arg0 *big.Int) (common.Address, er
 //
 // Solidity: function calcCumulativeFunding(bytes32 marketID, int256 cumulativeFundingEntry) view returns(int256)
 func (f *FuturesCaller) CalcCumulativeFunding(opts *bind.CallOpts, marketID [32]byte, cumulativeFundingEntry *big.Int) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "calcCumulativeFunding", marketID, cumulativeFundingEntry)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "calcCumulativeFunding", marketID, cumulativeFundingEntry)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // CalcCumulativeFunding is a free data retrieval call binding the contract method 0xc5d135da.
@@ -509,12 +600,17 @@ func (f *FuturesCallerSession) CalcCumulativeFunding(marketID [32]byte, cumulati
 //
 // Solidity: function calcLiquidationFee(bytes32 marketID, uint256 quantity) view returns(uint256)
 func (f *FuturesCaller) CalcLiquidationFee(opts *bind.CallOpts, marketID [32]byte, quantity *big.Int) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "calcLiquidationFee", marketID, quantity)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "calcLiquidationFee", marketID, quantity)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // CalcLiquidationFee is a free data retrieval call binding the contract method 0xbbcac0d3.
@@ -535,12 +631,17 @@ func (f *FuturesCallerSession) CalcLiquidationFee(marketID [32]byte, quantity *b
 //
 // Solidity: function calcMinMargin(bytes32 marketID, uint256 quantity, uint256 price) view returns(uint256)
 func (f *FuturesCaller) CalcMinMargin(opts *bind.CallOpts, marketID [32]byte, quantity *big.Int, price *big.Int) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "calcMinMargin", marketID, quantity, price)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "calcMinMargin", marketID, quantity, price)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // CalcMinMargin is a free data retrieval call binding the contract method 0x35c43c4e.
@@ -561,12 +662,17 @@ func (f *FuturesCallerSession) CalcMinMargin(marketID [32]byte, quantity *big.In
 //
 // Solidity: function cancelled(bytes32 ) view returns(bool)
 func (f *FuturesCaller) Cancelled(opts *bind.CallOpts, arg0 [32]byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "cancelled", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "cancelled", arg0)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // Cancelled is a free data retrieval call binding the contract method 0x2ac12622.
@@ -583,42 +689,112 @@ func (f *FuturesCallerSession) Cancelled(arg0 [32]byte) (bool, error) {
 	return f.Contract.Cancelled(&f.CallOpts, arg0)
 }
 
-// ComputeSubAccountIdFromNonce is a free data retrieval call binding the contract method 0x1103b304.
+// ClosePositionMetaTransaction is a free data retrieval call binding the contract method 0x1c51d905.
 //
-// Solidity: function computeSubAccountIdFromNonce(address trader, uint256 subAccountNonce) pure returns(bytes32)
-func (f *FuturesCaller) ComputeSubAccountIdFromNonce(opts *bind.CallOpts, trader common.Address, subAccountNonce *big.Int) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "computeSubAccountIdFromNonce", trader, subAccountNonce)
-	return *ret0, err
+// Solidity: function closePositionMetaTransaction(address exchangeAddress, bool isRevertingOnPartialFills, bytes32 subAccountID, bytes32 marketID, uint256 closeQuantity) pure returns()
+func (f *FuturesCaller) ClosePositionMetaTransaction(opts *bind.CallOpts, exchangeAddress common.Address, isRevertingOnPartialFills bool, subAccountID [32]byte, marketID [32]byte, closeQuantity *big.Int) error {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "closePositionMetaTransaction", exchangeAddress, isRevertingOnPartialFills, subAccountID, marketID, closeQuantity)
+
+	if err != nil {
+		return err
+	}
+
+	return err
+
 }
 
-// ComputeSubAccountIdFromNonce is a free data retrieval call binding the contract method 0x1103b304.
+// ClosePositionMetaTransaction is a free data retrieval call binding the contract method 0x1c51d905.
 //
-// Solidity: function computeSubAccountIdFromNonce(address trader, uint256 subAccountNonce) pure returns(bytes32)
+// Solidity: function closePositionMetaTransaction(address exchangeAddress, bool isRevertingOnPartialFills, bytes32 subAccountID, bytes32 marketID, uint256 closeQuantity) pure returns()
+func (f *FuturesSession) ClosePositionMetaTransaction(exchangeAddress common.Address, isRevertingOnPartialFills bool, subAccountID [32]byte, marketID [32]byte, closeQuantity *big.Int) error {
+	return f.Contract.ClosePositionMetaTransaction(&f.CallOpts, exchangeAddress, isRevertingOnPartialFills, subAccountID, marketID, closeQuantity)
+}
+
+// ClosePositionMetaTransaction is a free data retrieval call binding the contract method 0x1c51d905.
+//
+// Solidity: function closePositionMetaTransaction(address exchangeAddress, bool isRevertingOnPartialFills, bytes32 subAccountID, bytes32 marketID, uint256 closeQuantity) pure returns()
+func (f *FuturesCallerSession) ClosePositionMetaTransaction(exchangeAddress common.Address, isRevertingOnPartialFills bool, subAccountID [32]byte, marketID [32]byte, closeQuantity *big.Int) error {
+	return f.Contract.ClosePositionMetaTransaction(&f.CallOpts, exchangeAddress, isRevertingOnPartialFills, subAccountID, marketID, closeQuantity)
+}
+
+// ComputeSubAccountIdFromNonce is a free data retrieval call binding the contract method 0x2488c4d8.
+//
+// Solidity: function computeSubAccountIdFromNonce(address trader, uint96 subAccountNonce) pure returns(bytes32)
+func (f *FuturesCaller) ComputeSubAccountIdFromNonce(opts *bind.CallOpts, trader common.Address, subAccountNonce *big.Int) ([32]byte, error) {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "computeSubAccountIdFromNonce", trader, subAccountNonce)
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
+}
+
+// ComputeSubAccountIdFromNonce is a free data retrieval call binding the contract method 0x2488c4d8.
+//
+// Solidity: function computeSubAccountIdFromNonce(address trader, uint96 subAccountNonce) pure returns(bytes32)
 func (f *FuturesSession) ComputeSubAccountIdFromNonce(trader common.Address, subAccountNonce *big.Int) ([32]byte, error) {
 	return f.Contract.ComputeSubAccountIdFromNonce(&f.CallOpts, trader, subAccountNonce)
 }
 
-// ComputeSubAccountIdFromNonce is a free data retrieval call binding the contract method 0x1103b304.
+// ComputeSubAccountIdFromNonce is a free data retrieval call binding the contract method 0x2488c4d8.
 //
-// Solidity: function computeSubAccountIdFromNonce(address trader, uint256 subAccountNonce) pure returns(bytes32)
+// Solidity: function computeSubAccountIdFromNonce(address trader, uint96 subAccountNonce) pure returns(bytes32)
 func (f *FuturesCallerSession) ComputeSubAccountIdFromNonce(trader common.Address, subAccountNonce *big.Int) ([32]byte, error) {
 	return f.Contract.ComputeSubAccountIdFromNonce(&f.CallOpts, trader, subAccountNonce)
+}
+
+// CurrentContextAddress is a free data retrieval call binding the contract method 0xeea086ba.
+//
+// Solidity: function currentContextAddress() view returns(address)
+func (f *FuturesCaller) CurrentContextAddress(opts *bind.CallOpts) (common.Address, error) {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "currentContextAddress")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
+}
+
+// CurrentContextAddress is a free data retrieval call binding the contract method 0xeea086ba.
+//
+// Solidity: function currentContextAddress() view returns(address)
+func (f *FuturesSession) CurrentContextAddress() (common.Address, error) {
+	return f.Contract.CurrentContextAddress(&f.CallOpts)
+}
+
+// CurrentContextAddress is a free data retrieval call binding the contract method 0xeea086ba.
+//
+// Solidity: function currentContextAddress() view returns(address)
+func (f *FuturesCallerSession) CurrentContextAddress() (common.Address, error) {
+	return f.Contract.CurrentContextAddress(&f.CallOpts)
 }
 
 // CurrentEndingTimeForAuction is a free data retrieval call binding the contract method 0x268f490e.
 //
 // Solidity: function currentEndingTimeForAuction() view returns(uint256)
 func (f *FuturesCaller) CurrentEndingTimeForAuction(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "currentEndingTimeForAuction")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "currentEndingTimeForAuction")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // CurrentEndingTimeForAuction is a free data retrieval call binding the contract method 0x268f490e.
@@ -639,12 +815,17 @@ func (f *FuturesCallerSession) CurrentEndingTimeForAuction() (*big.Int, error) {
 //
 // Solidity: function doesPositionExist(uint256 positionID) view returns(bool)
 func (f *FuturesCaller) DoesPositionExist(opts *bind.CallOpts, positionID *big.Int) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "doesPositionExist", positionID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "doesPositionExist", positionID)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // DoesPositionExist is a free data retrieval call binding the contract method 0x2c12d600.
@@ -665,12 +846,17 @@ func (f *FuturesCallerSession) DoesPositionExist(positionID *big.Int) (bool, err
 //
 // Solidity: function epochFees(address ) view returns(uint256)
 func (f *FuturesCaller) EpochFees(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "epochFees", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "epochFees", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // EpochFees is a free data retrieval call binding the contract method 0xfe944a57.
@@ -691,12 +877,17 @@ func (f *FuturesCallerSession) EpochFees(arg0 common.Address) (*big.Int, error) 
 //
 // Solidity: function filled(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) Filled(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "filled", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "filled", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // Filled is a free data retrieval call binding the contract method 0x288cdc91.
@@ -717,12 +908,17 @@ func (f *FuturesCallerSession) Filled(arg0 [32]byte) (*big.Int, error) {
 //
 // Solidity: function getApproved(uint256 positionID) view returns(address)
 func (f *FuturesCaller) GetApproved(opts *bind.CallOpts, positionID *big.Int) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getApproved", positionID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getApproved", positionID)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // GetApproved is a free data retrieval call binding the contract method 0x081812fc.
@@ -743,12 +939,17 @@ func (f *FuturesCallerSession) GetApproved(positionID *big.Int) (common.Address,
 //
 // Solidity: function getDefaultSubAccountDeposits(address baseCurrency, address trader) view returns(uint256)
 func (f *FuturesCaller) GetDefaultSubAccountDeposits(opts *bind.CallOpts, baseCurrency common.Address, trader common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getDefaultSubAccountDeposits", baseCurrency, trader)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getDefaultSubAccountDeposits", baseCurrency, trader)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetDefaultSubAccountDeposits is a free data retrieval call binding the contract method 0x1883e458.
@@ -769,12 +970,17 @@ func (f *FuturesCallerSession) GetDefaultSubAccountDeposits(baseCurrency common.
 //
 // Solidity: function getDefaultSubAccountIdForTrader(address trader) pure returns(bytes32)
 func (f *FuturesCaller) GetDefaultSubAccountIdForTrader(opts *bind.CallOpts, trader common.Address) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getDefaultSubAccountIdForTrader", trader)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getDefaultSubAccountIdForTrader", trader)
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // GetDefaultSubAccountIdForTrader is a free data retrieval call binding the contract method 0x80755948.
@@ -795,12 +1001,17 @@ func (f *FuturesCallerSession) GetDefaultSubAccountIdForTrader(trader common.Add
 //
 // Solidity: function getMaxFundingFeeAbs(bytes32 marketID) view returns(uint256)
 func (f *FuturesCaller) GetMaxFundingFeeAbs(opts *bind.CallOpts, marketID [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getMaxFundingFeeAbs", marketID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getMaxFundingFeeAbs", marketID)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetMaxFundingFeeAbs is a free data retrieval call binding the contract method 0xa9d56fe9.
@@ -825,14 +1036,21 @@ func (f *FuturesCaller) GetOrderRelevantState(opts *bind.CallOpts, order Order, 
 	FillableTakerAssetAmount *big.Int
 	IsValidSignature         bool
 }, error) {
-	ret := new(struct {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getOrderRelevantState", order, signature, indexPrice)
+
+	outstruct := new(struct {
 		OrderInfo                DerivativeOrderInfo
 		FillableTakerAssetAmount *big.Int
 		IsValidSignature         bool
 	})
-	out := ret
-	err := f.contract.Call(opts, out, "getOrderRelevantState", order, signature, indexPrice)
-	return *ret, err
+
+	outstruct.OrderInfo = out[0].(DerivativeOrderInfo)
+	outstruct.FillableTakerAssetAmount = out[1].(*big.Int)
+	outstruct.IsValidSignature = out[2].(bool)
+
+	return *outstruct, err
+
 }
 
 // GetOrderRelevantState is a free data retrieval call binding the contract method 0xef3a29b3.
@@ -865,14 +1083,21 @@ func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Ord
 	FillableTakerAssetAmounts []*big.Int
 	IsValidSignature          []bool
 }, error) {
-	ret := new(struct {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getOrderRelevantStates", orders, signatures)
+
+	outstruct := new(struct {
 		OrdersInfo                []DerivativeOrderInfo
 		FillableTakerAssetAmounts []*big.Int
 		IsValidSignature          []bool
 	})
-	out := ret
-	err := f.contract.Call(opts, out, "getOrderRelevantStates", orders, signatures)
-	return *ret, err
+
+	outstruct.OrdersInfo = out[0].([]DerivativeOrderInfo)
+	outstruct.FillableTakerAssetAmounts = out[1].([]*big.Int)
+	outstruct.IsValidSignature = out[2].([]bool)
+
+	return *outstruct, err
+
 }
 
 // GetOrderRelevantStates is a free data retrieval call binding the contract method 0xe25cabf7.
@@ -901,12 +1126,17 @@ func (f *FuturesCallerSession) GetOrderRelevantStates(orders []Order, signatures
 //
 // Solidity: function getPositionIDsForTrader(address trader, bytes32 marketID) view returns(uint256[] positionIDs)
 func (f *FuturesCaller) GetPositionIDsForTrader(opts *bind.CallOpts, trader common.Address, marketID [32]byte) ([]*big.Int, error) {
-	var (
-		ret0 = new([]*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getPositionIDsForTrader", trader, marketID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getPositionIDsForTrader", trader, marketID)
+
+	if err != nil {
+		return *new([]*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]*big.Int)).(*[]*big.Int)
+
+	return out0, err
+
 }
 
 // GetPositionIDsForTrader is a free data retrieval call binding the contract method 0xc3e49bb7.
@@ -927,12 +1157,17 @@ func (f *FuturesCallerSession) GetPositionIDsForTrader(trader common.Address, ma
 //
 // Solidity: function getPositionsForTrader(address trader, bytes32 marketID) view returns((bytes32,bytes32,uint8,uint256,uint256,uint256,int256)[])
 func (f *FuturesCaller) GetPositionsForTrader(opts *bind.CallOpts, trader common.Address, marketID [32]byte) ([]TypesPosition, error) {
-	var (
-		ret0 = new([]TypesPosition)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getPositionsForTrader", trader, marketID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getPositionsForTrader", trader, marketID)
+
+	if err != nil {
+		return *new([]TypesPosition), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]TypesPosition)).(*[]TypesPosition)
+
+	return out0, err
+
 }
 
 // GetPositionsForTrader is a free data retrieval call binding the contract method 0x0088e8cc.
@@ -953,12 +1188,17 @@ func (f *FuturesCallerSession) GetPositionsForTrader(trader common.Address, mark
 //
 // Solidity: function getReceiptApproved(bytes32 receiverSubAccountID, uint256 positionID) view returns(bool)
 func (f *FuturesCaller) GetReceiptApproved(opts *bind.CallOpts, receiverSubAccountID [32]byte, positionID *big.Int) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getReceiptApproved", receiverSubAccountID, positionID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getReceiptApproved", receiverSubAccountID, positionID)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // GetReceiptApproved is a free data retrieval call binding the contract method 0x228906c8.
@@ -979,12 +1219,17 @@ func (f *FuturesCallerSession) GetReceiptApproved(receiverSubAccountID [32]byte,
 //
 // Solidity: function getTraderSubAccountsCount(address trader) view returns(uint256)
 func (f *FuturesCaller) GetTraderSubAccountsCount(opts *bind.CallOpts, trader common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getTraderSubAccountsCount", trader)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getTraderSubAccountsCount", trader)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetTraderSubAccountsCount is a free data retrieval call binding the contract method 0x603ca5dc.
@@ -1005,12 +1250,17 @@ func (f *FuturesCallerSession) GetTraderSubAccountsCount(trader common.Address) 
 //
 // Solidity: function getUnitPositionValue(uint256 positionID, uint256 priceToUse) view returns(int256 unitPositionValue)
 func (f *FuturesCaller) GetUnitPositionValue(opts *bind.CallOpts, positionID *big.Int, priceToUse *big.Int) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "getUnitPositionValue", positionID, priceToUse)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "getUnitPositionValue", positionID, priceToUse)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // GetUnitPositionValue is a free data retrieval call binding the contract method 0x574e2080.
@@ -1031,12 +1281,17 @@ func (f *FuturesCallerSession) GetUnitPositionValue(positionID *big.Int, priceTo
 //
 // Solidity: function insurancePools(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) InsurancePools(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "insurancePools", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "insurancePools", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // InsurancePools is a free data retrieval call binding the contract method 0x2514c1f1.
@@ -1057,12 +1312,17 @@ func (f *FuturesCallerSession) InsurancePools(arg0 [32]byte) (*big.Int, error) {
 //
 // Solidity: function isAllowedToReceivePosition(uint256 positionID, address sender, bytes32 receiverSubAccountID) view returns(bool)
 func (f *FuturesCaller) IsAllowedToReceivePosition(opts *bind.CallOpts, positionID *big.Int, sender common.Address, receiverSubAccountID [32]byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isAllowedToReceivePosition", positionID, sender, receiverSubAccountID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isAllowedToReceivePosition", positionID, sender, receiverSubAccountID)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsAllowedToReceivePosition is a free data retrieval call binding the contract method 0x57971430.
@@ -1083,12 +1343,17 @@ func (f *FuturesCallerSession) IsAllowedToReceivePosition(positionID *big.Int, s
 //
 // Solidity: function isAllowedToTransferPosition(uint256 positionID, address sender) view returns(bool)
 func (f *FuturesCaller) IsAllowedToTransferPosition(opts *bind.CallOpts, positionID *big.Int, sender common.Address) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isAllowedToTransferPosition", positionID, sender)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isAllowedToTransferPosition", positionID, sender)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsAllowedToTransferPosition is a free data retrieval call binding the contract method 0x0e6c0912.
@@ -1109,12 +1374,17 @@ func (f *FuturesCallerSession) IsAllowedToTransferPosition(positionID *big.Int, 
 //
 // Solidity: function isApprovedForAll(bytes32 fromSubAccountID, address operator) view returns(bool)
 func (f *FuturesCaller) IsApprovedForAll(opts *bind.CallOpts, fromSubAccountID [32]byte, operator common.Address) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isApprovedForAll", fromSubAccountID, operator)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isApprovedForAll", fromSubAccountID, operator)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsApprovedForAll is a free data retrieval call binding the contract method 0xb0698628.
@@ -1135,12 +1405,17 @@ func (f *FuturesCallerSession) IsApprovedForAll(fromSubAccountID [32]byte, opera
 //
 // Solidity: function isApprovedForMarket(bytes32 fromSubAccountID, address operator, bytes32 marketID) view returns(bool)
 func (f *FuturesCaller) IsApprovedForMarket(opts *bind.CallOpts, fromSubAccountID [32]byte, operator common.Address, marketID [32]byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isApprovedForMarket", fromSubAccountID, operator, marketID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isApprovedForMarket", fromSubAccountID, operator, marketID)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsApprovedForMarket is a free data retrieval call binding the contract method 0x1d37b559.
@@ -1161,12 +1436,17 @@ func (f *FuturesCallerSession) IsApprovedForMarket(fromSubAccountID [32]byte, op
 //
 // Solidity: function isFuturesMarketSettled(bytes32 ) view returns(bool)
 func (f *FuturesCaller) IsFuturesMarketSettled(opts *bind.CallOpts, arg0 [32]byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isFuturesMarketSettled", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isFuturesMarketSettled", arg0)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsFuturesMarketSettled is a free data retrieval call binding the contract method 0xd5a5c5e2.
@@ -1187,12 +1467,17 @@ func (f *FuturesCallerSession) IsFuturesMarketSettled(arg0 [32]byte) (bool, erro
 //
 // Solidity: function isReceiptApprovedForAll(bytes32 receiverSubAccountID, address operator) view returns(bool)
 func (f *FuturesCaller) IsReceiptApprovedForAll(opts *bind.CallOpts, receiverSubAccountID [32]byte, operator common.Address) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isReceiptApprovedForAll", receiverSubAccountID, operator)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isReceiptApprovedForAll", receiverSubAccountID, operator)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsReceiptApprovedForAll is a free data retrieval call binding the contract method 0x2d1792bd.
@@ -1213,12 +1498,17 @@ func (f *FuturesCallerSession) IsReceiptApprovedForAll(receiverSubAccountID [32]
 //
 // Solidity: function isReceiptApprovedForMarket(bytes32 receiverSubAccountID, address operator, bytes32 marketID) view returns(bool)
 func (f *FuturesCaller) IsReceiptApprovedForMarket(opts *bind.CallOpts, receiverSubAccountID [32]byte, operator common.Address, marketID [32]byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isReceiptApprovedForMarket", receiverSubAccountID, operator, marketID)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isReceiptApprovedForMarket", receiverSubAccountID, operator, marketID)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsReceiptApprovedForMarket is a free data retrieval call binding the contract method 0x218c106c.
@@ -1235,16 +1525,52 @@ func (f *FuturesCallerSession) IsReceiptApprovedForMarket(receiverSubAccountID [
 	return f.Contract.IsReceiptApprovedForMarket(&f.CallOpts, receiverSubAccountID, operator, marketID)
 }
 
+// IsTimeExpiryFuturesMarket is a free data retrieval call binding the contract method 0x6e664084.
+//
+// Solidity: function isTimeExpiryFuturesMarket(bytes32 marketID) view returns(bool)
+func (f *FuturesCaller) IsTimeExpiryFuturesMarket(opts *bind.CallOpts, marketID [32]byte) (bool, error) {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isTimeExpiryFuturesMarket", marketID)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// IsTimeExpiryFuturesMarket is a free data retrieval call binding the contract method 0x6e664084.
+//
+// Solidity: function isTimeExpiryFuturesMarket(bytes32 marketID) view returns(bool)
+func (f *FuturesSession) IsTimeExpiryFuturesMarket(marketID [32]byte) (bool, error) {
+	return f.Contract.IsTimeExpiryFuturesMarket(&f.CallOpts, marketID)
+}
+
+// IsTimeExpiryFuturesMarket is a free data retrieval call binding the contract method 0x6e664084.
+//
+// Solidity: function isTimeExpiryFuturesMarket(bytes32 marketID) view returns(bool)
+func (f *FuturesCallerSession) IsTimeExpiryFuturesMarket(marketID [32]byte) (bool, error) {
+	return f.Contract.IsTimeExpiryFuturesMarket(&f.CallOpts, marketID)
+}
+
 // IsValidBaseCurrency is a free data retrieval call binding the contract method 0x227cdb85.
 //
 // Solidity: function isValidBaseCurrency(address ) view returns(bool)
 func (f *FuturesCaller) IsValidBaseCurrency(opts *bind.CallOpts, arg0 common.Address) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isValidBaseCurrency", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isValidBaseCurrency", arg0)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsValidBaseCurrency is a free data retrieval call binding the contract method 0x227cdb85.
@@ -1261,16 +1587,52 @@ func (f *FuturesCallerSession) IsValidBaseCurrency(arg0 common.Address) (bool, e
 	return f.Contract.IsValidBaseCurrency(&f.CallOpts, arg0)
 }
 
+// IsValidHashSignature is a free data retrieval call binding the contract method 0x8171c407.
+//
+// Solidity: function isValidHashSignature(bytes32 hash, address signerAddress, bytes signature) view returns(bool isValid)
+func (f *FuturesCaller) IsValidHashSignature(opts *bind.CallOpts, hash [32]byte, signerAddress common.Address, signature []byte) (bool, error) {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isValidHashSignature", hash, signerAddress, signature)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// IsValidHashSignature is a free data retrieval call binding the contract method 0x8171c407.
+//
+// Solidity: function isValidHashSignature(bytes32 hash, address signerAddress, bytes signature) view returns(bool isValid)
+func (f *FuturesSession) IsValidHashSignature(hash [32]byte, signerAddress common.Address, signature []byte) (bool, error) {
+	return f.Contract.IsValidHashSignature(&f.CallOpts, hash, signerAddress, signature)
+}
+
+// IsValidHashSignature is a free data retrieval call binding the contract method 0x8171c407.
+//
+// Solidity: function isValidHashSignature(bytes32 hash, address signerAddress, bytes signature) view returns(bool isValid)
+func (f *FuturesCallerSession) IsValidHashSignature(hash [32]byte, signerAddress common.Address, signature []byte) (bool, error) {
+	return f.Contract.IsValidHashSignature(&f.CallOpts, hash, signerAddress, signature)
+}
+
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
 //
 // Solidity: function isValidOrderSignature((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes) order, bytes signature) view returns(bool isValid)
 func (f *FuturesCaller) IsValidOrderSignature(opts *bind.CallOpts, order Order, signature []byte) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "isValidOrderSignature", order, signature)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isValidOrderSignature", order, signature)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // IsValidOrderSignature is a free data retrieval call binding the contract method 0xa12dcc6f.
@@ -1287,16 +1649,52 @@ func (f *FuturesCallerSession) IsValidOrderSignature(order Order, signature []by
 	return f.Contract.IsValidOrderSignature(&f.CallOpts, order, signature)
 }
 
+// IsValidTransactionSignature is a free data retrieval call binding the contract method 0x8d45cd23.
+//
+// Solidity: function isValidTransactionSignature((uint256,uint256,uint256,address,bytes) transaction, bytes signature) view returns(bool isValid)
+func (f *FuturesCaller) IsValidTransactionSignature(opts *bind.CallOpts, transaction LibZeroExTransactionZeroExTransaction, signature []byte) (bool, error) {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "isValidTransactionSignature", transaction, signature)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// IsValidTransactionSignature is a free data retrieval call binding the contract method 0x8d45cd23.
+//
+// Solidity: function isValidTransactionSignature((uint256,uint256,uint256,address,bytes) transaction, bytes signature) view returns(bool isValid)
+func (f *FuturesSession) IsValidTransactionSignature(transaction LibZeroExTransactionZeroExTransaction, signature []byte) (bool, error) {
+	return f.Contract.IsValidTransactionSignature(&f.CallOpts, transaction, signature)
+}
+
+// IsValidTransactionSignature is a free data retrieval call binding the contract method 0x8d45cd23.
+//
+// Solidity: function isValidTransactionSignature((uint256,uint256,uint256,address,bytes) transaction, bytes signature) view returns(bool isValid)
+func (f *FuturesCallerSession) IsValidTransactionSignature(transaction LibZeroExTransactionZeroExTransaction, signature []byte) (bool, error) {
+	return f.Contract.IsValidTransactionSignature(&f.CallOpts, transaction, signature)
+}
+
 // LastValidVWAP is a free data retrieval call binding the contract method 0x42151440.
 //
 // Solidity: function lastValidVWAP(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) LastValidVWAP(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "lastValidVWAP", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "lastValidVWAP", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // LastValidVWAP is a free data retrieval call binding the contract method 0x42151440.
@@ -1317,12 +1715,17 @@ func (f *FuturesCallerSession) LastValidVWAP(arg0 [32]byte) (*big.Int, error) {
 //
 // Solidity: function marketCount() view returns(uint256)
 func (f *FuturesCaller) MarketCount(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "marketCount")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "marketCount")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MarketCount is a free data retrieval call binding the contract method 0xec979082.
@@ -1343,12 +1746,17 @@ func (f *FuturesCallerSession) MarketCount() (*big.Int, error) {
 //
 // Solidity: function marketSerialToID(uint256 ) view returns(bytes32)
 func (f *FuturesCaller) MarketSerialToID(opts *bind.CallOpts, arg0 *big.Int) ([32]byte, error) {
-	var (
-		ret0 = new([32]byte)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "marketSerialToID", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "marketSerialToID", arg0)
+
+	if err != nil {
+		return *new([32]byte), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([32]byte)).(*[32]byte)
+
+	return out0, err
+
 }
 
 // MarketSerialToID is a free data retrieval call binding the contract method 0xbae18473.
@@ -1381,7 +1789,10 @@ func (f *FuturesCaller) Markets(opts *bind.CallOpts, arg0 [32]byte) (struct {
 	CumulativeFunding            *big.Int
 	TransactionFees              TypesTransactionFees
 }, error) {
-	ret := new(struct {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "markets", arg0)
+
+	outstruct := new(struct {
 		MarketID                     [32]byte
 		BaseCurrency                 common.Address
 		Ticker                       string
@@ -1394,9 +1805,21 @@ func (f *FuturesCaller) Markets(opts *bind.CallOpts, arg0 [32]byte) (struct {
 		CumulativeFunding            *big.Int
 		TransactionFees              TypesTransactionFees
 	})
-	out := ret
-	err := f.contract.Call(opts, out, "markets", arg0)
-	return *ret, err
+
+	outstruct.MarketID = out[0].([32]byte)
+	outstruct.BaseCurrency = out[1].(common.Address)
+	outstruct.Ticker = out[2].(string)
+	outstruct.Oracle = out[3].(common.Address)
+	outstruct.InitialMarginRatio = out[4].(PermyriadMathPermyriad)
+	outstruct.MaintenanceMarginRatio = out[5].(PermyriadMathPermyriad)
+	outstruct.IndexPrice = out[6].(*big.Int)
+	outstruct.ExpiryOrNextFundingTimestamp = out[7].(*big.Int)
+	outstruct.FundingInterval = out[8].(*big.Int)
+	outstruct.CumulativeFunding = out[9].(*big.Int)
+	outstruct.TransactionFees = out[10].(TypesTransactionFees)
+
+	return *outstruct, err
+
 }
 
 // Markets is a free data retrieval call binding the contract method 0x7564912b.
@@ -1441,12 +1864,17 @@ func (f *FuturesCallerSession) Markets(arg0 [32]byte) (struct {
 //
 // Solidity: function maxBaseCurrencyCap() view returns(uint256)
 func (f *FuturesCaller) MaxBaseCurrencyCap(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "maxBaseCurrencyCap")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "maxBaseCurrencyCap")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MaxBaseCurrencyCap is a free data retrieval call binding the contract method 0xf8720a75.
@@ -1467,12 +1895,17 @@ func (f *FuturesCallerSession) MaxBaseCurrencyCap() (*big.Int, error) {
 //
 // Solidity: function mostRecentEpochQuantity(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) MostRecentEpochQuantity(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "mostRecentEpochQuantity", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "mostRecentEpochQuantity", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MostRecentEpochQuantity is a free data retrieval call binding the contract method 0xf7a28a1a.
@@ -1493,12 +1926,17 @@ func (f *FuturesCallerSession) MostRecentEpochQuantity(arg0 [32]byte) (*big.Int,
 //
 // Solidity: function mostRecentEpochVolume(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) MostRecentEpochVolume(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "mostRecentEpochVolume", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "mostRecentEpochVolume", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MostRecentEpochVolume is a free data retrieval call binding the contract method 0x13626422.
@@ -1519,12 +1957,17 @@ func (f *FuturesCallerSession) MostRecentEpochVolume(arg0 [32]byte) (*big.Int, e
 //
 // Solidity: function mostRecentEpochWeightedAverageContractIndexDiff(bytes32 ) view returns(int256)
 func (f *FuturesCaller) MostRecentEpochWeightedAverageContractIndexDiff(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "mostRecentEpochWeightedAverageContractIndexDiff", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "mostRecentEpochWeightedAverageContractIndexDiff", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MostRecentEpochWeightedAverageContractIndexDiff is a free data retrieval call binding the contract method 0x32d22e7d.
@@ -1545,12 +1988,17 @@ func (f *FuturesCallerSession) MostRecentEpochWeightedAverageContractIndexDiff(a
 //
 // Solidity: function mostRecentmostRecentEpochVolumeEpochQuantity(bytes32 ) view returns(uint256)
 func (f *FuturesCaller) MostRecentmostRecentEpochVolumeEpochQuantity(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "mostRecentmostRecentEpochVolumeEpochQuantity", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "mostRecentmostRecentEpochVolumeEpochQuantity", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // MostRecentmostRecentEpochVolumeEpochQuantity is a free data retrieval call binding the contract method 0x45194767.
@@ -1571,12 +2019,17 @@ func (f *FuturesCallerSession) MostRecentmostRecentEpochVolumeEpochQuantity(arg0
 //
 // Solidity: function owner() view returns(address)
 func (f *FuturesCaller) Owner(opts *bind.CallOpts) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "owner")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "owner")
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // Owner is a free data retrieval call binding the contract method 0x8da5cb5b.
@@ -1597,12 +2050,17 @@ func (f *FuturesCallerSession) Owner() (common.Address, error) {
 //
 // Solidity: function paused() view returns(bool)
 func (f *FuturesCaller) Paused(opts *bind.CallOpts) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "paused")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "paused")
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // Paused is a free data retrieval call binding the contract method 0x5c975abb.
@@ -1623,12 +2081,17 @@ func (f *FuturesCallerSession) Paused() (bool, error) {
 //
 // Solidity: function positionCount() view returns(uint256)
 func (f *FuturesCaller) PositionCount(opts *bind.CallOpts) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "positionCount")
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "positionCount")
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // PositionCount is a free data retrieval call binding the contract method 0xe7702d05.
@@ -1645,6 +2108,37 @@ func (f *FuturesCallerSession) PositionCount() (*big.Int, error) {
 	return f.Contract.PositionCount(&f.CallOpts)
 }
 
+// PositionCountInTEF is a free data retrieval call binding the contract method 0x4ded3208.
+//
+// Solidity: function positionCountInTEF(bytes32 ) view returns(uint256)
+func (f *FuturesCaller) PositionCountInTEF(opts *bind.CallOpts, arg0 [32]byte) (*big.Int, error) {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "positionCountInTEF", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// PositionCountInTEF is a free data retrieval call binding the contract method 0x4ded3208.
+//
+// Solidity: function positionCountInTEF(bytes32 ) view returns(uint256)
+func (f *FuturesSession) PositionCountInTEF(arg0 [32]byte) (*big.Int, error) {
+	return f.Contract.PositionCountInTEF(&f.CallOpts, arg0)
+}
+
+// PositionCountInTEF is a free data retrieval call binding the contract method 0x4ded3208.
+//
+// Solidity: function positionCountInTEF(bytes32 ) view returns(uint256)
+func (f *FuturesCallerSession) PositionCountInTEF(arg0 [32]byte) (*big.Int, error) {
+	return f.Contract.PositionCountInTEF(&f.CallOpts, arg0)
+}
+
 // Positions is a free data retrieval call binding the contract method 0x99fbab88.
 //
 // Solidity: function positions(uint256 ) view returns(bytes32 subAccountID, bytes32 marketID, uint8 direction, uint256 quantity, uint256 entryPrice, uint256 margin, int256 cumulativeFundingEntry)
@@ -1657,7 +2151,10 @@ func (f *FuturesCaller) Positions(opts *bind.CallOpts, arg0 *big.Int) (struct {
 	Margin                 *big.Int
 	CumulativeFundingEntry *big.Int
 }, error) {
-	ret := new(struct {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "positions", arg0)
+
+	outstruct := new(struct {
 		SubAccountID           [32]byte
 		MarketID               [32]byte
 		Direction              uint8
@@ -1666,9 +2163,17 @@ func (f *FuturesCaller) Positions(opts *bind.CallOpts, arg0 *big.Int) (struct {
 		Margin                 *big.Int
 		CumulativeFundingEntry *big.Int
 	})
-	out := ret
-	err := f.contract.Call(opts, out, "positions", arg0)
-	return *ret, err
+
+	outstruct.SubAccountID = out[0].([32]byte)
+	outstruct.MarketID = out[1].([32]byte)
+	outstruct.Direction = out[2].(uint8)
+	outstruct.Quantity = out[3].(*big.Int)
+	outstruct.EntryPrice = out[4].(*big.Int)
+	outstruct.Margin = out[5].(*big.Int)
+	outstruct.CumulativeFundingEntry = out[6].(*big.Int)
+
+	return *outstruct, err
+
 }
 
 // Positions is a free data retrieval call binding the contract method 0x99fbab88.
@@ -1705,12 +2210,17 @@ func (f *FuturesCallerSession) Positions(arg0 *big.Int) (struct {
 //
 // Solidity: function preSigned(bytes32 , address ) view returns(bool)
 func (f *FuturesCaller) PreSigned(opts *bind.CallOpts, arg0 [32]byte, arg1 common.Address) (bool, error) {
-	var (
-		ret0 = new(bool)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "preSigned", arg0, arg1)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "preSigned", arg0, arg1)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
 }
 
 // PreSigned is a free data retrieval call binding the contract method 0x82c174d0.
@@ -1731,12 +2241,17 @@ func (f *FuturesCallerSession) PreSigned(arg0 [32]byte, arg1 common.Address) (bo
 //
 // Solidity: function restrictedDeposits(bytes32 , address ) view returns(uint256)
 func (f *FuturesCaller) RestrictedDeposits(opts *bind.CallOpts, arg0 [32]byte, arg1 common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "restrictedDeposits", arg0, arg1)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "restrictedDeposits", arg0, arg1)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // RestrictedDeposits is a free data retrieval call binding the contract method 0x475ca0bb.
@@ -1757,12 +2272,17 @@ func (f *FuturesCallerSession) RestrictedDeposits(arg0 [32]byte, arg1 common.Add
 //
 // Solidity: function subAccountDeposits(bytes32 , address ) view returns(uint256)
 func (f *FuturesCaller) SubAccountDeposits(opts *bind.CallOpts, arg0 [32]byte, arg1 common.Address) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "subAccountDeposits", arg0, arg1)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "subAccountDeposits", arg0, arg1)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // SubAccountDeposits is a free data retrieval call binding the contract method 0x666ffb9b.
@@ -1783,12 +2303,17 @@ func (f *FuturesCallerSession) SubAccountDeposits(arg0 [32]byte, arg1 common.Add
 //
 // Solidity: function subAccountIdToAddress(bytes32 ) view returns(address)
 func (f *FuturesCaller) SubAccountIdToAddress(opts *bind.CallOpts, arg0 [32]byte) (common.Address, error) {
-	var (
-		ret0 = new(common.Address)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "subAccountIdToAddress", arg0)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "subAccountIdToAddress", arg0)
+
+	if err != nil {
+		return *new(common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(common.Address)).(*common.Address)
+
+	return out0, err
+
 }
 
 // SubAccountIdToAddress is a free data retrieval call binding the contract method 0x234842eb.
@@ -1809,12 +2334,17 @@ func (f *FuturesCallerSession) SubAccountIdToAddress(arg0 [32]byte) (common.Addr
 //
 // Solidity: function subAccountToMarketToPositionID(bytes32 , bytes32 ) view returns(uint256)
 func (f *FuturesCaller) SubAccountToMarketToPositionID(opts *bind.CallOpts, arg0 [32]byte, arg1 [32]byte) (*big.Int, error) {
-	var (
-		ret0 = new(*big.Int)
-	)
-	out := ret0
-	err := f.contract.Call(opts, out, "subAccountToMarketToPositionID", arg0, arg1)
-	return *ret0, err
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "subAccountToMarketToPositionID", arg0, arg1)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
 }
 
 // SubAccountToMarketToPositionID is a free data retrieval call binding the contract method 0x1ebcc120.
@@ -1829,6 +2359,37 @@ func (f *FuturesSession) SubAccountToMarketToPositionID(arg0 [32]byte, arg1 [32]
 // Solidity: function subAccountToMarketToPositionID(bytes32 , bytes32 ) view returns(uint256)
 func (f *FuturesCallerSession) SubAccountToMarketToPositionID(arg0 [32]byte, arg1 [32]byte) (*big.Int, error) {
 	return f.Contract.SubAccountToMarketToPositionID(&f.CallOpts, arg0, arg1)
+}
+
+// TransactionsExecuted is a free data retrieval call binding the contract method 0x0228e168.
+//
+// Solidity: function transactionsExecuted(bytes32 ) view returns(bool)
+func (f *FuturesCaller) TransactionsExecuted(opts *bind.CallOpts, arg0 [32]byte) (bool, error) {
+	var out []interface{}
+	err := f.contract.Call(opts, &out, "transactionsExecuted", arg0)
+
+	if err != nil {
+		return *new(bool), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(bool)).(*bool)
+
+	return out0, err
+
+}
+
+// TransactionsExecuted is a free data retrieval call binding the contract method 0x0228e168.
+//
+// Solidity: function transactionsExecuted(bytes32 ) view returns(bool)
+func (f *FuturesSession) TransactionsExecuted(arg0 [32]byte) (bool, error) {
+	return f.Contract.TransactionsExecuted(&f.CallOpts, arg0)
+}
+
+// TransactionsExecuted is a free data retrieval call binding the contract method 0x0228e168.
+//
+// Solidity: function transactionsExecuted(bytes32 ) view returns(bool)
+func (f *FuturesCallerSession) TransactionsExecuted(arg0 [32]byte) (bool, error) {
+	return f.Contract.TransactionsExecuted(&f.CallOpts, arg0)
 }
 
 // AddMarginIntoPosition is a paid mutator transaction binding the contract method 0x62c6985e.
@@ -1978,25 +2539,46 @@ func (f *FuturesTransactorSession) BatchDepositForTraders(baseCurrencies []commo
 	return f.Contract.BatchDepositForTraders(&f.TransactOpts, baseCurrencies, traders, amounts)
 }
 
-// BatchLiquidatePosition is a paid mutator transaction binding the contract method 0x4532ab06.
+// BatchExecuteTransactions is a paid mutator transaction binding the contract method 0xfc74896d.
 //
-// Solidity: function batchLiquidatePosition(uint256[] positionIDs, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[][] orders, uint256[] quantities, bytes[][] signatures) returns((uint256,uint256,uint256,uint256)[] results)
-func (f *FuturesTransactor) BatchLiquidatePosition(opts *bind.TransactOpts, positionIDs []*big.Int, orders [][]Order, quantities []*big.Int, signatures [][][]byte) (*types.Transaction, error) {
-	return f.contract.Transact(opts, "batchLiquidatePosition", positionIDs, orders, quantities, signatures)
+// Solidity: function batchExecuteTransactions((uint256,uint256,uint256,address,bytes)[] transactions, bytes[] signatures) payable returns(bytes[] returnData)
+func (f *FuturesTransactor) BatchExecuteTransactions(opts *bind.TransactOpts, transactions []LibZeroExTransactionZeroExTransaction, signatures [][]byte) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "batchExecuteTransactions", transactions, signatures)
 }
 
-// BatchLiquidatePosition is a paid mutator transaction binding the contract method 0x4532ab06.
+// BatchExecuteTransactions is a paid mutator transaction binding the contract method 0xfc74896d.
 //
-// Solidity: function batchLiquidatePosition(uint256[] positionIDs, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[][] orders, uint256[] quantities, bytes[][] signatures) returns((uint256,uint256,uint256,uint256)[] results)
-func (f *FuturesSession) BatchLiquidatePosition(positionIDs []*big.Int, orders [][]Order, quantities []*big.Int, signatures [][][]byte) (*types.Transaction, error) {
-	return f.Contract.BatchLiquidatePosition(&f.TransactOpts, positionIDs, orders, quantities, signatures)
+// Solidity: function batchExecuteTransactions((uint256,uint256,uint256,address,bytes)[] transactions, bytes[] signatures) payable returns(bytes[] returnData)
+func (f *FuturesSession) BatchExecuteTransactions(transactions []LibZeroExTransactionZeroExTransaction, signatures [][]byte) (*types.Transaction, error) {
+	return f.Contract.BatchExecuteTransactions(&f.TransactOpts, transactions, signatures)
 }
 
-// BatchLiquidatePosition is a paid mutator transaction binding the contract method 0x4532ab06.
+// BatchExecuteTransactions is a paid mutator transaction binding the contract method 0xfc74896d.
 //
-// Solidity: function batchLiquidatePosition(uint256[] positionIDs, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[][] orders, uint256[] quantities, bytes[][] signatures) returns((uint256,uint256,uint256,uint256)[] results)
-func (f *FuturesTransactorSession) BatchLiquidatePosition(positionIDs []*big.Int, orders [][]Order, quantities []*big.Int, signatures [][][]byte) (*types.Transaction, error) {
-	return f.Contract.BatchLiquidatePosition(&f.TransactOpts, positionIDs, orders, quantities, signatures)
+// Solidity: function batchExecuteTransactions((uint256,uint256,uint256,address,bytes)[] transactions, bytes[] signatures) payable returns(bytes[] returnData)
+func (f *FuturesTransactorSession) BatchExecuteTransactions(transactions []LibZeroExTransactionZeroExTransaction, signatures [][]byte) (*types.Transaction, error) {
+	return f.Contract.BatchExecuteTransactions(&f.TransactOpts, transactions, signatures)
+}
+
+// BatchLiquidatePosition is a paid mutator transaction binding the contract method 0x1b934aea.
+//
+// Solidity: function batchLiquidatePosition(uint256[] positionIDs, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[][] orders, uint256[] quantities, bytes[][] signatures, address liquidationCaller) returns((uint256,uint256,uint256,uint256)[] results)
+func (f *FuturesTransactor) BatchLiquidatePosition(opts *bind.TransactOpts, positionIDs []*big.Int, orders [][]Order, quantities []*big.Int, signatures [][][]byte, liquidationCaller common.Address) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "batchLiquidatePosition", positionIDs, orders, quantities, signatures, liquidationCaller)
+}
+
+// BatchLiquidatePosition is a paid mutator transaction binding the contract method 0x1b934aea.
+//
+// Solidity: function batchLiquidatePosition(uint256[] positionIDs, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[][] orders, uint256[] quantities, bytes[][] signatures, address liquidationCaller) returns((uint256,uint256,uint256,uint256)[] results)
+func (f *FuturesSession) BatchLiquidatePosition(positionIDs []*big.Int, orders [][]Order, quantities []*big.Int, signatures [][][]byte, liquidationCaller common.Address) (*types.Transaction, error) {
+	return f.Contract.BatchLiquidatePosition(&f.TransactOpts, positionIDs, orders, quantities, signatures, liquidationCaller)
+}
+
+// BatchLiquidatePosition is a paid mutator transaction binding the contract method 0x1b934aea.
+//
+// Solidity: function batchLiquidatePosition(uint256[] positionIDs, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[][] orders, uint256[] quantities, bytes[][] signatures, address liquidationCaller) returns((uint256,uint256,uint256,uint256)[] results)
+func (f *FuturesTransactorSession) BatchLiquidatePosition(positionIDs []*big.Int, orders [][]Order, quantities []*big.Int, signatures [][][]byte, liquidationCaller common.Address) (*types.Transaction, error) {
+	return f.Contract.BatchLiquidatePosition(&f.TransactOpts, positionIDs, orders, quantities, signatures, liquidationCaller)
 }
 
 // BatchSettleExpiryFuturesPosition is a paid mutator transaction binding the contract method 0xb378df0b.
@@ -2041,6 +2623,195 @@ func (f *FuturesTransactorSession) CancelOrder(order Order) (*types.Transaction,
 	return f.Contract.CancelOrder(&f.TransactOpts, order)
 }
 
+// ChangeAuctionTimeInterval is a paid mutator transaction binding the contract method 0x5852ca61.
+//
+// Solidity: function changeAuctionTimeInterval(uint256 auctionTimeInterval_) returns()
+func (f *FuturesTransactor) ChangeAuctionTimeInterval(opts *bind.TransactOpts, auctionTimeInterval_ *big.Int) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeAuctionTimeInterval", auctionTimeInterval_)
+}
+
+// ChangeAuctionTimeInterval is a paid mutator transaction binding the contract method 0x5852ca61.
+//
+// Solidity: function changeAuctionTimeInterval(uint256 auctionTimeInterval_) returns()
+func (f *FuturesSession) ChangeAuctionTimeInterval(auctionTimeInterval_ *big.Int) (*types.Transaction, error) {
+	return f.Contract.ChangeAuctionTimeInterval(&f.TransactOpts, auctionTimeInterval_)
+}
+
+// ChangeAuctionTimeInterval is a paid mutator transaction binding the contract method 0x5852ca61.
+//
+// Solidity: function changeAuctionTimeInterval(uint256 auctionTimeInterval_) returns()
+func (f *FuturesTransactorSession) ChangeAuctionTimeInterval(auctionTimeInterval_ *big.Int) (*types.Transaction, error) {
+	return f.Contract.ChangeAuctionTimeInterval(&f.TransactOpts, auctionTimeInterval_)
+}
+
+// ChangeMarketFundingInterval is a paid mutator transaction binding the contract method 0x7a540e43.
+//
+// Solidity: function changeMarketFundingInterval(bytes32 marketID, uint256 fundingInterval) returns()
+func (f *FuturesTransactor) ChangeMarketFundingInterval(opts *bind.TransactOpts, marketID [32]byte, fundingInterval *big.Int) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMarketFundingInterval", marketID, fundingInterval)
+}
+
+// ChangeMarketFundingInterval is a paid mutator transaction binding the contract method 0x7a540e43.
+//
+// Solidity: function changeMarketFundingInterval(bytes32 marketID, uint256 fundingInterval) returns()
+func (f *FuturesSession) ChangeMarketFundingInterval(marketID [32]byte, fundingInterval *big.Int) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketFundingInterval(&f.TransactOpts, marketID, fundingInterval)
+}
+
+// ChangeMarketFundingInterval is a paid mutator transaction binding the contract method 0x7a540e43.
+//
+// Solidity: function changeMarketFundingInterval(bytes32 marketID, uint256 fundingInterval) returns()
+func (f *FuturesTransactorSession) ChangeMarketFundingInterval(marketID [32]byte, fundingInterval *big.Int) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketFundingInterval(&f.TransactOpts, marketID, fundingInterval)
+}
+
+// ChangeMarketInitialMarginRatio is a paid mutator transaction binding the contract method 0x50f2722b.
+//
+// Solidity: function changeMarketInitialMarginRatio(bytes32 marketID, (uint256) initialMarginRatio) returns()
+func (f *FuturesTransactor) ChangeMarketInitialMarginRatio(opts *bind.TransactOpts, marketID [32]byte, initialMarginRatio PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMarketInitialMarginRatio", marketID, initialMarginRatio)
+}
+
+// ChangeMarketInitialMarginRatio is a paid mutator transaction binding the contract method 0x50f2722b.
+//
+// Solidity: function changeMarketInitialMarginRatio(bytes32 marketID, (uint256) initialMarginRatio) returns()
+func (f *FuturesSession) ChangeMarketInitialMarginRatio(marketID [32]byte, initialMarginRatio PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketInitialMarginRatio(&f.TransactOpts, marketID, initialMarginRatio)
+}
+
+// ChangeMarketInitialMarginRatio is a paid mutator transaction binding the contract method 0x50f2722b.
+//
+// Solidity: function changeMarketInitialMarginRatio(bytes32 marketID, (uint256) initialMarginRatio) returns()
+func (f *FuturesTransactorSession) ChangeMarketInitialMarginRatio(marketID [32]byte, initialMarginRatio PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketInitialMarginRatio(&f.TransactOpts, marketID, initialMarginRatio)
+}
+
+// ChangeMarketMaintenanceMarginRatio is a paid mutator transaction binding the contract method 0x267f8feb.
+//
+// Solidity: function changeMarketMaintenanceMarginRatio(bytes32 marketID, (uint256) maintenanceMarginRatio) returns()
+func (f *FuturesTransactor) ChangeMarketMaintenanceMarginRatio(opts *bind.TransactOpts, marketID [32]byte, maintenanceMarginRatio PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMarketMaintenanceMarginRatio", marketID, maintenanceMarginRatio)
+}
+
+// ChangeMarketMaintenanceMarginRatio is a paid mutator transaction binding the contract method 0x267f8feb.
+//
+// Solidity: function changeMarketMaintenanceMarginRatio(bytes32 marketID, (uint256) maintenanceMarginRatio) returns()
+func (f *FuturesSession) ChangeMarketMaintenanceMarginRatio(marketID [32]byte, maintenanceMarginRatio PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketMaintenanceMarginRatio(&f.TransactOpts, marketID, maintenanceMarginRatio)
+}
+
+// ChangeMarketMaintenanceMarginRatio is a paid mutator transaction binding the contract method 0x267f8feb.
+//
+// Solidity: function changeMarketMaintenanceMarginRatio(bytes32 marketID, (uint256) maintenanceMarginRatio) returns()
+func (f *FuturesTransactorSession) ChangeMarketMaintenanceMarginRatio(marketID [32]byte, maintenanceMarginRatio PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketMaintenanceMarginRatio(&f.TransactOpts, marketID, maintenanceMarginRatio)
+}
+
+// ChangeMarketMakerTxFee is a paid mutator transaction binding the contract method 0x2c23608b.
+//
+// Solidity: function changeMarketMakerTxFee(bytes32 marketID, (uint256) makerTxFee) returns()
+func (f *FuturesTransactor) ChangeMarketMakerTxFee(opts *bind.TransactOpts, marketID [32]byte, makerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMarketMakerTxFee", marketID, makerTxFee)
+}
+
+// ChangeMarketMakerTxFee is a paid mutator transaction binding the contract method 0x2c23608b.
+//
+// Solidity: function changeMarketMakerTxFee(bytes32 marketID, (uint256) makerTxFee) returns()
+func (f *FuturesSession) ChangeMarketMakerTxFee(marketID [32]byte, makerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketMakerTxFee(&f.TransactOpts, marketID, makerTxFee)
+}
+
+// ChangeMarketMakerTxFee is a paid mutator transaction binding the contract method 0x2c23608b.
+//
+// Solidity: function changeMarketMakerTxFee(bytes32 marketID, (uint256) makerTxFee) returns()
+func (f *FuturesTransactorSession) ChangeMarketMakerTxFee(marketID [32]byte, makerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketMakerTxFee(&f.TransactOpts, marketID, makerTxFee)
+}
+
+// ChangeMarketOracle is a paid mutator transaction binding the contract method 0x555eb5ed.
+//
+// Solidity: function changeMarketOracle(bytes32 marketID, address oracle) returns()
+func (f *FuturesTransactor) ChangeMarketOracle(opts *bind.TransactOpts, marketID [32]byte, oracle common.Address) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMarketOracle", marketID, oracle)
+}
+
+// ChangeMarketOracle is a paid mutator transaction binding the contract method 0x555eb5ed.
+//
+// Solidity: function changeMarketOracle(bytes32 marketID, address oracle) returns()
+func (f *FuturesSession) ChangeMarketOracle(marketID [32]byte, oracle common.Address) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketOracle(&f.TransactOpts, marketID, oracle)
+}
+
+// ChangeMarketOracle is a paid mutator transaction binding the contract method 0x555eb5ed.
+//
+// Solidity: function changeMarketOracle(bytes32 marketID, address oracle) returns()
+func (f *FuturesTransactorSession) ChangeMarketOracle(marketID [32]byte, oracle common.Address) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketOracle(&f.TransactOpts, marketID, oracle)
+}
+
+// ChangeMarketOracle0 is a paid mutator transaction binding the contract method 0xdb39261d.
+//
+// Solidity: function changeMarketOracle(bytes32 marketID, uint256 fundingInterval) returns()
+func (f *FuturesTransactor) ChangeMarketOracle0(opts *bind.TransactOpts, marketID [32]byte, fundingInterval *big.Int) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMarketOracle0", marketID, fundingInterval)
+}
+
+// ChangeMarketOracle0 is a paid mutator transaction binding the contract method 0xdb39261d.
+//
+// Solidity: function changeMarketOracle(bytes32 marketID, uint256 fundingInterval) returns()
+func (f *FuturesSession) ChangeMarketOracle0(marketID [32]byte, fundingInterval *big.Int) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketOracle0(&f.TransactOpts, marketID, fundingInterval)
+}
+
+// ChangeMarketOracle0 is a paid mutator transaction binding the contract method 0xdb39261d.
+//
+// Solidity: function changeMarketOracle(bytes32 marketID, uint256 fundingInterval) returns()
+func (f *FuturesTransactorSession) ChangeMarketOracle0(marketID [32]byte, fundingInterval *big.Int) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketOracle0(&f.TransactOpts, marketID, fundingInterval)
+}
+
+// ChangeMarketRelayerTxFee is a paid mutator transaction binding the contract method 0x6db346d3.
+//
+// Solidity: function changeMarketRelayerTxFee(bytes32 marketID, (uint256) relayerTxFee) returns()
+func (f *FuturesTransactor) ChangeMarketRelayerTxFee(opts *bind.TransactOpts, marketID [32]byte, relayerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMarketRelayerTxFee", marketID, relayerTxFee)
+}
+
+// ChangeMarketRelayerTxFee is a paid mutator transaction binding the contract method 0x6db346d3.
+//
+// Solidity: function changeMarketRelayerTxFee(bytes32 marketID, (uint256) relayerTxFee) returns()
+func (f *FuturesSession) ChangeMarketRelayerTxFee(marketID [32]byte, relayerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketRelayerTxFee(&f.TransactOpts, marketID, relayerTxFee)
+}
+
+// ChangeMarketRelayerTxFee is a paid mutator transaction binding the contract method 0x6db346d3.
+//
+// Solidity: function changeMarketRelayerTxFee(bytes32 marketID, (uint256) relayerTxFee) returns()
+func (f *FuturesTransactorSession) ChangeMarketRelayerTxFee(marketID [32]byte, relayerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketRelayerTxFee(&f.TransactOpts, marketID, relayerTxFee)
+}
+
+// ChangeMarketTakerTxFee is a paid mutator transaction binding the contract method 0xbba21c56.
+//
+// Solidity: function changeMarketTakerTxFee(bytes32 marketID, (uint256) takerTxFee) returns()
+func (f *FuturesTransactor) ChangeMarketTakerTxFee(opts *bind.TransactOpts, marketID [32]byte, takerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMarketTakerTxFee", marketID, takerTxFee)
+}
+
+// ChangeMarketTakerTxFee is a paid mutator transaction binding the contract method 0xbba21c56.
+//
+// Solidity: function changeMarketTakerTxFee(bytes32 marketID, (uint256) takerTxFee) returns()
+func (f *FuturesSession) ChangeMarketTakerTxFee(marketID [32]byte, takerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketTakerTxFee(&f.TransactOpts, marketID, takerTxFee)
+}
+
+// ChangeMarketTakerTxFee is a paid mutator transaction binding the contract method 0xbba21c56.
+//
+// Solidity: function changeMarketTakerTxFee(bytes32 marketID, (uint256) takerTxFee) returns()
+func (f *FuturesTransactorSession) ChangeMarketTakerTxFee(marketID [32]byte, takerTxFee PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMarketTakerTxFee(&f.TransactOpts, marketID, takerTxFee)
+}
+
 // ChangeMaxBaseCurrencyCap is a paid mutator transaction binding the contract method 0xea7a4b3f.
 //
 // Solidity: function changeMaxBaseCurrencyCap(uint256 maxBaseCurrencyCap_) returns()
@@ -2060,6 +2831,27 @@ func (f *FuturesSession) ChangeMaxBaseCurrencyCap(maxBaseCurrencyCap_ *big.Int) 
 // Solidity: function changeMaxBaseCurrencyCap(uint256 maxBaseCurrencyCap_) returns()
 func (f *FuturesTransactorSession) ChangeMaxBaseCurrencyCap(maxBaseCurrencyCap_ *big.Int) (*types.Transaction, error) {
 	return f.Contract.ChangeMaxBaseCurrencyCap(&f.TransactOpts, maxBaseCurrencyCap_)
+}
+
+// ChangeMinimumMarginRatio is a paid mutator transaction binding the contract method 0x5d19277f.
+//
+// Solidity: function changeMinimumMarginRatio((uint256) MINIMUM_MARGIN_RATIO_) returns()
+func (f *FuturesTransactor) ChangeMinimumMarginRatio(opts *bind.TransactOpts, MINIMUM_MARGIN_RATIO_ PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "changeMinimumMarginRatio", MINIMUM_MARGIN_RATIO_)
+}
+
+// ChangeMinimumMarginRatio is a paid mutator transaction binding the contract method 0x5d19277f.
+//
+// Solidity: function changeMinimumMarginRatio((uint256) MINIMUM_MARGIN_RATIO_) returns()
+func (f *FuturesSession) ChangeMinimumMarginRatio(MINIMUM_MARGIN_RATIO_ PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMinimumMarginRatio(&f.TransactOpts, MINIMUM_MARGIN_RATIO_)
+}
+
+// ChangeMinimumMarginRatio is a paid mutator transaction binding the contract method 0x5d19277f.
+//
+// Solidity: function changeMinimumMarginRatio((uint256) MINIMUM_MARGIN_RATIO_) returns()
+func (f *FuturesTransactorSession) ChangeMinimumMarginRatio(MINIMUM_MARGIN_RATIO_ PermyriadMathPermyriad) (*types.Transaction, error) {
+	return f.Contract.ChangeMinimumMarginRatio(&f.TransactOpts, MINIMUM_MARGIN_RATIO_)
 }
 
 // CheckFunding is a paid mutator transaction binding the contract method 0x70f1c88b.
@@ -2083,25 +2875,25 @@ func (f *FuturesTransactorSession) CheckFunding(marketID [32]byte) (*types.Trans
 	return f.Contract.CheckFunding(&f.TransactOpts, marketID)
 }
 
-// ClosePosition is a paid mutator transaction binding the contract method 0xdbf46b9a.
+// ClosePosition is a paid mutator transaction binding the contract method 0x73ea5056.
 //
-// Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesTransactor) ClosePosition(opts *bind.TransactOpts, positionID *big.Int, orders []Order, quantity *big.Int, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
-	return f.contract.Transact(opts, "closePosition", positionID, orders, quantity, isRevertingOnPartialFills, signatures)
+// Solidity: function closePosition(bytes32 subAccountID, bytes32 marketID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesTransactor) ClosePosition(opts *bind.TransactOpts, subAccountID [32]byte, marketID [32]byte, orders []Order, quantity *big.Int, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "closePosition", subAccountID, marketID, orders, quantity, isRevertingOnPartialFills, signatures)
 }
 
-// ClosePosition is a paid mutator transaction binding the contract method 0xdbf46b9a.
+// ClosePosition is a paid mutator transaction binding the contract method 0x73ea5056.
 //
-// Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesSession) ClosePosition(positionID *big.Int, orders []Order, quantity *big.Int, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
-	return f.Contract.ClosePosition(&f.TransactOpts, positionID, orders, quantity, isRevertingOnPartialFills, signatures)
+// Solidity: function closePosition(bytes32 subAccountID, bytes32 marketID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesSession) ClosePosition(subAccountID [32]byte, marketID [32]byte, orders []Order, quantity *big.Int, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
+	return f.Contract.ClosePosition(&f.TransactOpts, subAccountID, marketID, orders, quantity, isRevertingOnPartialFills, signatures)
 }
 
-// ClosePosition is a paid mutator transaction binding the contract method 0xdbf46b9a.
+// ClosePosition is a paid mutator transaction binding the contract method 0x73ea5056.
 //
-// Solidity: function closePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesTransactorSession) ClosePosition(positionID *big.Int, orders []Order, quantity *big.Int, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
-	return f.Contract.ClosePosition(&f.TransactOpts, positionID, orders, quantity, isRevertingOnPartialFills, signatures)
+// Solidity: function closePosition(bytes32 subAccountID, bytes32 marketID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesTransactorSession) ClosePosition(subAccountID [32]byte, marketID [32]byte, orders []Order, quantity *big.Int, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
+	return f.Contract.ClosePosition(&f.TransactOpts, subAccountID, marketID, orders, quantity, isRevertingOnPartialFills, signatures)
 }
 
 // CreateDefaultSubAccountAndDeposit is a paid mutator transaction binding the contract method 0xcaa5cf87.
@@ -2167,44 +2959,44 @@ func (f *FuturesTransactorSession) CreateMarketWithFixedMarketId(ticker string, 
 	return f.Contract.CreateMarketWithFixedMarketId(&f.TransactOpts, ticker, baseCurrency, oracle, initialMarginRatio, maintenanceMarginRatio, fundingInterval, expirationTime, makerTxFee, takerTxFee, relayerFeePercentage, marketID)
 }
 
-// CreateSubAccountAndDeposit is a paid mutator transaction binding the contract method 0x3bc22e90.
+// CreateSubAccountAndDeposit is a paid mutator transaction binding the contract method 0x06bc2e72.
 //
-// Solidity: function createSubAccountAndDeposit(address baseCurrency, uint256 subAccountNonce, uint256 amount) returns(bytes32)
+// Solidity: function createSubAccountAndDeposit(address baseCurrency, uint96 subAccountNonce, uint256 amount) returns(bytes32)
 func (f *FuturesTransactor) CreateSubAccountAndDeposit(opts *bind.TransactOpts, baseCurrency common.Address, subAccountNonce *big.Int, amount *big.Int) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "createSubAccountAndDeposit", baseCurrency, subAccountNonce, amount)
 }
 
-// CreateSubAccountAndDeposit is a paid mutator transaction binding the contract method 0x3bc22e90.
+// CreateSubAccountAndDeposit is a paid mutator transaction binding the contract method 0x06bc2e72.
 //
-// Solidity: function createSubAccountAndDeposit(address baseCurrency, uint256 subAccountNonce, uint256 amount) returns(bytes32)
+// Solidity: function createSubAccountAndDeposit(address baseCurrency, uint96 subAccountNonce, uint256 amount) returns(bytes32)
 func (f *FuturesSession) CreateSubAccountAndDeposit(baseCurrency common.Address, subAccountNonce *big.Int, amount *big.Int) (*types.Transaction, error) {
 	return f.Contract.CreateSubAccountAndDeposit(&f.TransactOpts, baseCurrency, subAccountNonce, amount)
 }
 
-// CreateSubAccountAndDeposit is a paid mutator transaction binding the contract method 0x3bc22e90.
+// CreateSubAccountAndDeposit is a paid mutator transaction binding the contract method 0x06bc2e72.
 //
-// Solidity: function createSubAccountAndDeposit(address baseCurrency, uint256 subAccountNonce, uint256 amount) returns(bytes32)
+// Solidity: function createSubAccountAndDeposit(address baseCurrency, uint96 subAccountNonce, uint256 amount) returns(bytes32)
 func (f *FuturesTransactorSession) CreateSubAccountAndDeposit(baseCurrency common.Address, subAccountNonce *big.Int, amount *big.Int) (*types.Transaction, error) {
 	return f.Contract.CreateSubAccountAndDeposit(&f.TransactOpts, baseCurrency, subAccountNonce, amount)
 }
 
-// CreateSubAccountForTraderWithNonce is a paid mutator transaction binding the contract method 0x2d1fb098.
+// CreateSubAccountForTraderWithNonce is a paid mutator transaction binding the contract method 0x510d4093.
 //
-// Solidity: function createSubAccountForTraderWithNonce(address trader, uint256 subAccountNonce) returns(bytes32)
+// Solidity: function createSubAccountForTraderWithNonce(address trader, uint96 subAccountNonce) returns(bytes32)
 func (f *FuturesTransactor) CreateSubAccountForTraderWithNonce(opts *bind.TransactOpts, trader common.Address, subAccountNonce *big.Int) (*types.Transaction, error) {
 	return f.contract.Transact(opts, "createSubAccountForTraderWithNonce", trader, subAccountNonce)
 }
 
-// CreateSubAccountForTraderWithNonce is a paid mutator transaction binding the contract method 0x2d1fb098.
+// CreateSubAccountForTraderWithNonce is a paid mutator transaction binding the contract method 0x510d4093.
 //
-// Solidity: function createSubAccountForTraderWithNonce(address trader, uint256 subAccountNonce) returns(bytes32)
+// Solidity: function createSubAccountForTraderWithNonce(address trader, uint96 subAccountNonce) returns(bytes32)
 func (f *FuturesSession) CreateSubAccountForTraderWithNonce(trader common.Address, subAccountNonce *big.Int) (*types.Transaction, error) {
 	return f.Contract.CreateSubAccountForTraderWithNonce(&f.TransactOpts, trader, subAccountNonce)
 }
 
-// CreateSubAccountForTraderWithNonce is a paid mutator transaction binding the contract method 0x2d1fb098.
+// CreateSubAccountForTraderWithNonce is a paid mutator transaction binding the contract method 0x510d4093.
 //
-// Solidity: function createSubAccountForTraderWithNonce(address trader, uint256 subAccountNonce) returns(bytes32)
+// Solidity: function createSubAccountForTraderWithNonce(address trader, uint96 subAccountNonce) returns(bytes32)
 func (f *FuturesTransactorSession) CreateSubAccountForTraderWithNonce(trader common.Address, subAccountNonce *big.Int) (*types.Transaction, error) {
 	return f.Contract.CreateSubAccountForTraderWithNonce(&f.TransactOpts, trader, subAccountNonce)
 }
@@ -2314,46 +3106,88 @@ func (f *FuturesTransactorSession) EmergencyStopFutures() (*types.Transaction, e
 	return f.Contract.EmergencyStopFutures(&f.TransactOpts)
 }
 
-// LiquidatePosition is a paid mutator transaction binding the contract method 0x472275aa.
+// EmergencyStopMarket is a paid mutator transaction binding the contract method 0xd135eeb3.
 //
-// Solidity: function liquidatePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesTransactor) LiquidatePosition(opts *bind.TransactOpts, positionID *big.Int, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
-	return f.contract.Transact(opts, "liquidatePosition", positionID, orders, quantity, signatures)
+// Solidity: function emergencyStopMarket(bytes32 marketID) returns()
+func (f *FuturesTransactor) EmergencyStopMarket(opts *bind.TransactOpts, marketID [32]byte) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "emergencyStopMarket", marketID)
 }
 
-// LiquidatePosition is a paid mutator transaction binding the contract method 0x472275aa.
+// EmergencyStopMarket is a paid mutator transaction binding the contract method 0xd135eeb3.
 //
-// Solidity: function liquidatePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesSession) LiquidatePosition(positionID *big.Int, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
-	return f.Contract.LiquidatePosition(&f.TransactOpts, positionID, orders, quantity, signatures)
+// Solidity: function emergencyStopMarket(bytes32 marketID) returns()
+func (f *FuturesSession) EmergencyStopMarket(marketID [32]byte) (*types.Transaction, error) {
+	return f.Contract.EmergencyStopMarket(&f.TransactOpts, marketID)
 }
 
-// LiquidatePosition is a paid mutator transaction binding the contract method 0x472275aa.
+// EmergencyStopMarket is a paid mutator transaction binding the contract method 0xd135eeb3.
 //
-// Solidity: function liquidatePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesTransactorSession) LiquidatePosition(positionID *big.Int, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
-	return f.Contract.LiquidatePosition(&f.TransactOpts, positionID, orders, quantity, signatures)
+// Solidity: function emergencyStopMarket(bytes32 marketID) returns()
+func (f *FuturesTransactorSession) EmergencyStopMarket(marketID [32]byte) (*types.Transaction, error) {
+	return f.Contract.EmergencyStopMarket(&f.TransactOpts, marketID)
 }
 
-// MarketOrders is a paid mutator transaction binding the contract method 0x9d32759f.
+// ExecuteTransaction is a paid mutator transaction binding the contract method 0x2280c910.
 //
-// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes32 subAccountID, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256,uint256,uint256,uint256)[] results)
-func (f *FuturesTransactor) MarketOrders(opts *bind.TransactOpts, orders []Order, quantity *big.Int, margin *big.Int, subAccountID [32]byte, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
-	return f.contract.Transact(opts, "marketOrders", orders, quantity, margin, subAccountID, isRevertingOnPartialFills, signatures)
+// Solidity: function executeTransaction((uint256,uint256,uint256,address,bytes) transaction, bytes signature) payable returns(bytes)
+func (f *FuturesTransactor) ExecuteTransaction(opts *bind.TransactOpts, transaction LibZeroExTransactionZeroExTransaction, signature []byte) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "executeTransaction", transaction, signature)
 }
 
-// MarketOrders is a paid mutator transaction binding the contract method 0x9d32759f.
+// ExecuteTransaction is a paid mutator transaction binding the contract method 0x2280c910.
 //
-// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes32 subAccountID, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256,uint256,uint256,uint256)[] results)
-func (f *FuturesSession) MarketOrders(orders []Order, quantity *big.Int, margin *big.Int, subAccountID [32]byte, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
-	return f.Contract.MarketOrders(&f.TransactOpts, orders, quantity, margin, subAccountID, isRevertingOnPartialFills, signatures)
+// Solidity: function executeTransaction((uint256,uint256,uint256,address,bytes) transaction, bytes signature) payable returns(bytes)
+func (f *FuturesSession) ExecuteTransaction(transaction LibZeroExTransactionZeroExTransaction, signature []byte) (*types.Transaction, error) {
+	return f.Contract.ExecuteTransaction(&f.TransactOpts, transaction, signature)
 }
 
-// MarketOrders is a paid mutator transaction binding the contract method 0x9d32759f.
+// ExecuteTransaction is a paid mutator transaction binding the contract method 0x2280c910.
 //
-// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes32 subAccountID, bool isRevertingOnPartialFills, bytes[] signatures) returns((uint256,uint256,uint256,uint256,uint256,uint256,uint256)[] results)
-func (f *FuturesTransactorSession) MarketOrders(orders []Order, quantity *big.Int, margin *big.Int, subAccountID [32]byte, isRevertingOnPartialFills bool, signatures [][]byte) (*types.Transaction, error) {
-	return f.Contract.MarketOrders(&f.TransactOpts, orders, quantity, margin, subAccountID, isRevertingOnPartialFills, signatures)
+// Solidity: function executeTransaction((uint256,uint256,uint256,address,bytes) transaction, bytes signature) payable returns(bytes)
+func (f *FuturesTransactorSession) ExecuteTransaction(transaction LibZeroExTransactionZeroExTransaction, signature []byte) (*types.Transaction, error) {
+	return f.Contract.ExecuteTransaction(&f.TransactOpts, transaction, signature)
+}
+
+// LiquidatePosition is a paid mutator transaction binding the contract method 0xd6128693.
+//
+// Solidity: function liquidatePosition(bytes32 subAccountID, bytes32 marketID, address liquidationCaller, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesTransactor) LiquidatePosition(opts *bind.TransactOpts, subAccountID [32]byte, marketID [32]byte, liquidationCaller common.Address, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "liquidatePosition", subAccountID, marketID, liquidationCaller, orders, quantity, signatures)
+}
+
+// LiquidatePosition is a paid mutator transaction binding the contract method 0xd6128693.
+//
+// Solidity: function liquidatePosition(bytes32 subAccountID, bytes32 marketID, address liquidationCaller, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesSession) LiquidatePosition(subAccountID [32]byte, marketID [32]byte, liquidationCaller common.Address, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
+	return f.Contract.LiquidatePosition(&f.TransactOpts, subAccountID, marketID, liquidationCaller, orders, quantity, signatures)
+}
+
+// LiquidatePosition is a paid mutator transaction binding the contract method 0xd6128693.
+//
+// Solidity: function liquidatePosition(bytes32 subAccountID, bytes32 marketID, address liquidationCaller, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesTransactorSession) LiquidatePosition(subAccountID [32]byte, marketID [32]byte, liquidationCaller common.Address, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
+	return f.Contract.LiquidatePosition(&f.TransactOpts, subAccountID, marketID, liquidationCaller, orders, quantity, signatures)
+}
+
+// MarketOrders is a paid mutator transaction binding the contract method 0xfd7d3b8a.
+//
+// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes32 subAccountID, bool isRevertingOnPartialFills, bytes[] signatures, address feeRecipientAddress) returns((uint256,uint256,uint256,uint256,uint256,uint256,uint256)[] results)
+func (f *FuturesTransactor) MarketOrders(opts *bind.TransactOpts, orders []Order, quantity *big.Int, margin *big.Int, subAccountID [32]byte, isRevertingOnPartialFills bool, signatures [][]byte, feeRecipientAddress common.Address) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "marketOrders", orders, quantity, margin, subAccountID, isRevertingOnPartialFills, signatures, feeRecipientAddress)
+}
+
+// MarketOrders is a paid mutator transaction binding the contract method 0xfd7d3b8a.
+//
+// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes32 subAccountID, bool isRevertingOnPartialFills, bytes[] signatures, address feeRecipientAddress) returns((uint256,uint256,uint256,uint256,uint256,uint256,uint256)[] results)
+func (f *FuturesSession) MarketOrders(orders []Order, quantity *big.Int, margin *big.Int, subAccountID [32]byte, isRevertingOnPartialFills bool, signatures [][]byte, feeRecipientAddress common.Address) (*types.Transaction, error) {
+	return f.Contract.MarketOrders(&f.TransactOpts, orders, quantity, margin, subAccountID, isRevertingOnPartialFills, signatures, feeRecipientAddress)
+}
+
+// MarketOrders is a paid mutator transaction binding the contract method 0xfd7d3b8a.
+//
+// Solidity: function marketOrders((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, uint256 margin, bytes32 subAccountID, bool isRevertingOnPartialFills, bytes[] signatures, address feeRecipientAddress) returns((uint256,uint256,uint256,uint256,uint256,uint256,uint256)[] results)
+func (f *FuturesTransactorSession) MarketOrders(orders []Order, quantity *big.Int, margin *big.Int, subAccountID [32]byte, isRevertingOnPartialFills bool, signatures [][]byte, feeRecipientAddress common.Address) (*types.Transaction, error) {
+	return f.Contract.MarketOrders(&f.TransactOpts, orders, quantity, margin, subAccountID, isRevertingOnPartialFills, signatures, feeRecipientAddress)
 }
 
 // MultiMatchOrders is a paid mutator transaction binding the contract method 0x86d7729c.
@@ -2396,6 +3230,27 @@ func (f *FuturesSession) PayIntoInsurancePool(marketID [32]byte, amount *big.Int
 // Solidity: function payIntoInsurancePool(bytes32 marketID, uint256 amount) returns()
 func (f *FuturesTransactorSession) PayIntoInsurancePool(marketID [32]byte, amount *big.Int) (*types.Transaction, error) {
 	return f.Contract.PayIntoInsurancePool(&f.TransactOpts, marketID, amount)
+}
+
+// PreSign is a paid mutator transaction binding the contract method 0x46c02d7a.
+//
+// Solidity: function preSign(bytes32 hash) payable returns()
+func (f *FuturesTransactor) PreSign(opts *bind.TransactOpts, hash [32]byte) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "preSign", hash)
+}
+
+// PreSign is a paid mutator transaction binding the contract method 0x46c02d7a.
+//
+// Solidity: function preSign(bytes32 hash) payable returns()
+func (f *FuturesSession) PreSign(hash [32]byte) (*types.Transaction, error) {
+	return f.Contract.PreSign(&f.TransactOpts, hash)
+}
+
+// PreSign is a paid mutator transaction binding the contract method 0x46c02d7a.
+//
+// Solidity: function preSign(bytes32 hash) payable returns()
+func (f *FuturesTransactorSession) PreSign(hash [32]byte) (*types.Transaction, error) {
+	return f.Contract.PreSign(&f.TransactOpts, hash)
 }
 
 // RenounceOwnership is a paid mutator transaction binding the contract method 0x715018a6.
@@ -2545,6 +3400,27 @@ func (f *FuturesTransactorSession) SetReceiptApprovalForMarket(receiverSubAccoun
 	return f.Contract.SetReceiptApprovalForMarket(&f.TransactOpts, receiverSubAccountID, operator, marketID, isApproved)
 }
 
+// SetSignatureValidatorApproval is a paid mutator transaction binding the contract method 0x77fcce68.
+//
+// Solidity: function setSignatureValidatorApproval(address validatorAddress, bool approval) payable returns()
+func (f *FuturesTransactor) SetSignatureValidatorApproval(opts *bind.TransactOpts, validatorAddress common.Address, approval bool) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "setSignatureValidatorApproval", validatorAddress, approval)
+}
+
+// SetSignatureValidatorApproval is a paid mutator transaction binding the contract method 0x77fcce68.
+//
+// Solidity: function setSignatureValidatorApproval(address validatorAddress, bool approval) payable returns()
+func (f *FuturesSession) SetSignatureValidatorApproval(validatorAddress common.Address, approval bool) (*types.Transaction, error) {
+	return f.Contract.SetSignatureValidatorApproval(&f.TransactOpts, validatorAddress, approval)
+}
+
+// SetSignatureValidatorApproval is a paid mutator transaction binding the contract method 0x77fcce68.
+//
+// Solidity: function setSignatureValidatorApproval(address validatorAddress, bool approval) payable returns()
+func (f *FuturesTransactorSession) SetSignatureValidatorApproval(validatorAddress common.Address, approval bool) (*types.Transaction, error) {
+	return f.Contract.SetSignatureValidatorApproval(&f.TransactOpts, validatorAddress, approval)
+}
+
 // SettleExpiryFuturesPosition is a paid mutator transaction binding the contract method 0xa30b87ad.
 //
 // Solidity: function settleExpiryFuturesPosition(bytes32 marketID, bytes32 subAccountID) returns((uint256,uint256,uint256,uint256) results)
@@ -2650,25 +3526,25 @@ func (f *FuturesTransactorSession) TransferToSubAccount(baseCurrency common.Addr
 	return f.Contract.TransferToSubAccount(&f.TransactOpts, baseCurrency, fromSubAccountID, toSubAccountID, amount)
 }
 
-// VaporizePosition is a paid mutator transaction binding the contract method 0x20f3c024.
+// VaporizePosition is a paid mutator transaction binding the contract method 0xcaa065b9.
 //
-// Solidity: function vaporizePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesTransactor) VaporizePosition(opts *bind.TransactOpts, positionID *big.Int, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
-	return f.contract.Transact(opts, "vaporizePosition", positionID, orders, quantity, signatures)
+// Solidity: function vaporizePosition(bytes32 subAccountID, bytes32 marketID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesTransactor) VaporizePosition(opts *bind.TransactOpts, subAccountID [32]byte, marketID [32]byte, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "vaporizePosition", subAccountID, marketID, orders, quantity, signatures)
 }
 
-// VaporizePosition is a paid mutator transaction binding the contract method 0x20f3c024.
+// VaporizePosition is a paid mutator transaction binding the contract method 0xcaa065b9.
 //
-// Solidity: function vaporizePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesSession) VaporizePosition(positionID *big.Int, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
-	return f.Contract.VaporizePosition(&f.TransactOpts, positionID, orders, quantity, signatures)
+// Solidity: function vaporizePosition(bytes32 subAccountID, bytes32 marketID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesSession) VaporizePosition(subAccountID [32]byte, marketID [32]byte, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
+	return f.Contract.VaporizePosition(&f.TransactOpts, subAccountID, marketID, orders, quantity, signatures)
 }
 
-// VaporizePosition is a paid mutator transaction binding the contract method 0x20f3c024.
+// VaporizePosition is a paid mutator transaction binding the contract method 0xcaa065b9.
 //
-// Solidity: function vaporizePosition(uint256 positionID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
-func (f *FuturesTransactorSession) VaporizePosition(positionID *big.Int, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
-	return f.Contract.VaporizePosition(&f.TransactOpts, positionID, orders, quantity, signatures)
+// Solidity: function vaporizePosition(bytes32 subAccountID, bytes32 marketID, (address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes)[] orders, uint256 quantity, bytes[] signatures) returns((uint256,uint256,uint256,uint256) results)
+func (f *FuturesTransactorSession) VaporizePosition(subAccountID [32]byte, marketID [32]byte, orders []Order, quantity *big.Int, signatures [][]byte) (*types.Transaction, error) {
+	return f.Contract.VaporizePosition(&f.TransactOpts, subAccountID, marketID, orders, quantity, signatures)
 }
 
 // WithdrawForSubAccount is a paid mutator transaction binding the contract method 0x803a90d8.
@@ -2690,6 +3566,27 @@ func (f *FuturesSession) WithdrawForSubAccount(baseCurrency common.Address, subA
 // Solidity: function withdrawForSubAccount(address baseCurrency, bytes32 subAccountID, uint256 amount) returns()
 func (f *FuturesTransactorSession) WithdrawForSubAccount(baseCurrency common.Address, subAccountID [32]byte, amount *big.Int) (*types.Transaction, error) {
 	return f.Contract.WithdrawForSubAccount(&f.TransactOpts, baseCurrency, subAccountID, amount)
+}
+
+// WithdrawFromInsurancePool is a paid mutator transaction binding the contract method 0xb7d4078d.
+//
+// Solidity: function withdrawFromInsurancePool(address receiver, bytes32 marketID, uint256 amount) returns()
+func (f *FuturesTransactor) WithdrawFromInsurancePool(opts *bind.TransactOpts, receiver common.Address, marketID [32]byte, amount *big.Int) (*types.Transaction, error) {
+	return f.contract.Transact(opts, "withdrawFromInsurancePool", receiver, marketID, amount)
+}
+
+// WithdrawFromInsurancePool is a paid mutator transaction binding the contract method 0xb7d4078d.
+//
+// Solidity: function withdrawFromInsurancePool(address receiver, bytes32 marketID, uint256 amount) returns()
+func (f *FuturesSession) WithdrawFromInsurancePool(receiver common.Address, marketID [32]byte, amount *big.Int) (*types.Transaction, error) {
+	return f.Contract.WithdrawFromInsurancePool(&f.TransactOpts, receiver, marketID, amount)
+}
+
+// WithdrawFromInsurancePool is a paid mutator transaction binding the contract method 0xb7d4078d.
+//
+// Solidity: function withdrawFromInsurancePool(address receiver, bytes32 marketID, uint256 amount) returns()
+func (f *FuturesTransactorSession) WithdrawFromInsurancePool(receiver common.Address, marketID [32]byte, amount *big.Int) (*types.Transaction, error) {
+	return f.Contract.WithdrawFromInsurancePool(&f.TransactOpts, receiver, marketID, amount)
 }
 
 // FuturesAccountCreationIterator is returned from FilterAccountCreation and is used to iterate over the raw logs and unpacked data for AccountCreation events raised by the Futures contract.
@@ -2767,9 +3664,9 @@ type FuturesAccountCreation struct {
 	Raw             types.Log // Blockchain specific contextual infos
 }
 
-// FilterAccountCreation is a free log retrieval operation binding the contract event 0x4a6d2d5a911a10d00446d1413ca969c249074711c144e93aeddfa4d77de64784.
+// FilterAccountCreation is a free log retrieval operation binding the contract event 0x6da62924036c396387aa0340b6df622a60ea3f2dcd19bd4a7d77df13013f3043.
 //
-// Solidity: event AccountCreation(address indexed creator, bytes32 subAccountID, uint256 subAccountNonce)
+// Solidity: event AccountCreation(address indexed creator, bytes32 subAccountID, uint96 subAccountNonce)
 func (f *FuturesFilterer) FilterAccountCreation(opts *bind.FilterOpts, creator []common.Address) (*FuturesAccountCreationIterator, error) {
 
 	var creatorRule []interface{}
@@ -2784,9 +3681,9 @@ func (f *FuturesFilterer) FilterAccountCreation(opts *bind.FilterOpts, creator [
 	return &FuturesAccountCreationIterator{contract: f.contract, event: "AccountCreation", logs: logs, sub: sub}, nil
 }
 
-// WatchAccountCreation is a free log subscription operation binding the contract event 0x4a6d2d5a911a10d00446d1413ca969c249074711c144e93aeddfa4d77de64784.
+// WatchAccountCreation is a free log subscription operation binding the contract event 0x6da62924036c396387aa0340b6df622a60ea3f2dcd19bd4a7d77df13013f3043.
 //
-// Solidity: event AccountCreation(address indexed creator, bytes32 subAccountID, uint256 subAccountNonce)
+// Solidity: event AccountCreation(address indexed creator, bytes32 subAccountID, uint96 subAccountNonce)
 func (f *FuturesFilterer) WatchAccountCreation(opts *bind.WatchOpts, sink chan<- *FuturesAccountCreation, creator []common.Address) (event.Subscription, error) {
 
 	var creatorRule []interface{}
@@ -2826,14 +3723,15 @@ func (f *FuturesFilterer) WatchAccountCreation(opts *bind.WatchOpts, sink chan<-
 	}), nil
 }
 
-// ParseAccountCreation is a log parse operation binding the contract event 0x4a6d2d5a911a10d00446d1413ca969c249074711c144e93aeddfa4d77de64784.
+// ParseAccountCreation is a log parse operation binding the contract event 0x6da62924036c396387aa0340b6df622a60ea3f2dcd19bd4a7d77df13013f3043.
 //
-// Solidity: event AccountCreation(address indexed creator, bytes32 subAccountID, uint256 subAccountNonce)
+// Solidity: event AccountCreation(address indexed creator, bytes32 subAccountID, uint96 subAccountNonce)
 func (f *FuturesFilterer) ParseAccountCreation(log types.Log) (*FuturesAccountCreation, error) {
 	event := new(FuturesAccountCreation)
 	if err := f.contract.UnpackLog(event, "AccountCreation", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -2999,6 +3897,7 @@ func (f *FuturesFilterer) ParseFuturesCancel(log types.Log) (*FuturesCancel, err
 	if err := f.contract.UnpackLog(event, "FuturesCancel", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -3173,6 +4072,7 @@ func (f *FuturesFilterer) ParseFuturesTrade(log types.Log) (*FuturesTrade, error
 	if err := f.contract.UnpackLog(event, "FuturesTrade", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -3317,6 +4217,7 @@ func (f *FuturesFilterer) ParseMarginChanged(log types.Log) (*FuturesMarginChang
 	if err := f.contract.UnpackLog(event, "MarginChanged", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -3486,6 +4387,7 @@ func (f *FuturesFilterer) ParseMarketCreation(log types.Log) (*FuturesMarketCrea
 	if err := f.contract.UnpackLog(event, "MarketCreation", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -3638,6 +4540,7 @@ func (f *FuturesFilterer) ParseOwnershipTransferred(log types.Log) (*FuturesOwne
 	if err := f.contract.UnpackLog(event, "OwnershipTransferred", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -3771,6 +4674,7 @@ func (f *FuturesFilterer) ParsePaused(log types.Log) (*FuturesPaused, error) {
 	if err := f.contract.UnpackLog(event, "Paused", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -3935,6 +4839,7 @@ func (f *FuturesFilterer) ParsePositionTransfer(log types.Log) (*FuturesPosition
 	if err := f.contract.UnpackLog(event, "PositionTransfer", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -4081,6 +4986,7 @@ func (f *FuturesFilterer) ParseSetFunding(log types.Log) (*FuturesSetFunding, er
 	if err := f.contract.UnpackLog(event, "SetFunding", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -4234,6 +5140,7 @@ func (f *FuturesFilterer) ParseSignatureValidatorApproval(log types.Log) (*Futur
 	if err := f.contract.UnpackLog(event, "SignatureValidatorApproval", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -4397,6 +5304,151 @@ func (f *FuturesFilterer) ParseSubaccountDepositsChange(log types.Log) (*Futures
 	if err := f.contract.UnpackLog(event, "SubaccountDepositsChange", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
+	return event, nil
+}
+
+// FuturesTransactionExecutionIterator is returned from FilterTransactionExecution and is used to iterate over the raw logs and unpacked data for TransactionExecution events raised by the Futures contract.
+type FuturesTransactionExecutionIterator struct {
+	Event *FuturesTransactionExecution // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *FuturesTransactionExecutionIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(FuturesTransactionExecution)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(FuturesTransactionExecution)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *FuturesTransactionExecutionIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *FuturesTransactionExecutionIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// FuturesTransactionExecution represents a TransactionExecution event raised by the Futures contract.
+type FuturesTransactionExecution struct {
+	TransactionHash [32]byte
+	Raw             types.Log // Blockchain specific contextual infos
+}
+
+// FilterTransactionExecution is a free log retrieval operation binding the contract event 0xa4a7329f1dd821363067e07d359e347b4af9b1efe4b6cccf13240228af3c800d.
+//
+// Solidity: event TransactionExecution(bytes32 indexed transactionHash)
+func (f *FuturesFilterer) FilterTransactionExecution(opts *bind.FilterOpts, transactionHash [][32]byte) (*FuturesTransactionExecutionIterator, error) {
+
+	var transactionHashRule []interface{}
+	for _, transactionHashItem := range transactionHash {
+		transactionHashRule = append(transactionHashRule, transactionHashItem)
+	}
+
+	logs, sub, err := f.contract.FilterLogs(opts, "TransactionExecution", transactionHashRule)
+	if err != nil {
+		return nil, err
+	}
+	return &FuturesTransactionExecutionIterator{contract: f.contract, event: "TransactionExecution", logs: logs, sub: sub}, nil
+}
+
+// WatchTransactionExecution is a free log subscription operation binding the contract event 0xa4a7329f1dd821363067e07d359e347b4af9b1efe4b6cccf13240228af3c800d.
+//
+// Solidity: event TransactionExecution(bytes32 indexed transactionHash)
+func (f *FuturesFilterer) WatchTransactionExecution(opts *bind.WatchOpts, sink chan<- *FuturesTransactionExecution, transactionHash [][32]byte) (event.Subscription, error) {
+
+	var transactionHashRule []interface{}
+	for _, transactionHashItem := range transactionHash {
+		transactionHashRule = append(transactionHashRule, transactionHashItem)
+	}
+
+	logs, sub, err := f.contract.WatchLogs(opts, "TransactionExecution", transactionHashRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(FuturesTransactionExecution)
+				if err := f.contract.UnpackLog(event, "TransactionExecution", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseTransactionExecution is a log parse operation binding the contract event 0xa4a7329f1dd821363067e07d359e347b4af9b1efe4b6cccf13240228af3c800d.
+//
+// Solidity: event TransactionExecution(bytes32 indexed transactionHash)
+func (f *FuturesFilterer) ParseTransactionExecution(log types.Log) (*FuturesTransactionExecution, error) {
+	event := new(FuturesTransactionExecution)
+	if err := f.contract.UnpackLog(event, "TransactionExecution", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -4530,6 +5582,7 @@ func (f *FuturesFilterer) ParseUnpaused(log types.Log) (*FuturesUnpaused, error)
 	if err := f.contract.UnpackLog(event, "Unpaused", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
 
@@ -4676,5 +5729,6 @@ func (f *FuturesFilterer) ParseUpdateValuesForVWAP(log types.Log) (*FuturesUpdat
 	if err := f.contract.UnpackLog(event, "UpdateValuesForVWAP", log); err != nil {
 		return nil, err
 	}
+	event.Raw = log
 	return event, nil
 }
