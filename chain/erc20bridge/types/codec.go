@@ -20,6 +20,7 @@ var (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(TokenMapping{}, "cosmos-sdk/TokenMapping", nil)
 	cdc.RegisterConcrete(&RegisterTokenMappingProposal{}, "cosmos-sdk/RegisterTokenMappingProposal", nil)
+	cdc.RegisterConcrete(&ResetHubProposal{}, "cosmos-sdk/ResetHubProposal", nil)
 }
 
 // RegisterInterfaces register implementations
@@ -32,5 +33,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*govtypes.Content)(nil),
 		&RegisterTokenMappingProposal{},
+		&ResetHubProposal{},
 	)
 }

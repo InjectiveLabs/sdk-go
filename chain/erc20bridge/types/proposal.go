@@ -1,13 +1,24 @@
 package types
 
 import (
+	fmt "fmt"
+
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // constants
 const (
 	ProposalTypeRegisterTokenMapping string = "RegisterTokenMapping"
+	ProposalTypeResetHub             string = "ResetHub"
 )
+
+func init() {
+	gov.RegisterProposalType(ProposalTypeRegisterTokenMapping)
+	gov.RegisterProposalType(ProposalTypeResetHub)
+	gov.RegisterProposalTypeCodec(&RegisterTokenMappingProposal{}, "cosmos-sdk/RegisterTokenMappingProposal")
+	gov.RegisterProposalTypeCodec(&ResetHubProposal{}, "cosmos-sdk/ResetHubProposal")
+}
 
 // NewRegisterTokenMappingProposal returns new instance of TokenMappingProposal
 func NewRegisterTokenMappingProposal(title, description string, mapping TokenMapping) gov.Content {
@@ -16,11 +27,6 @@ func NewRegisterTokenMappingProposal(title, description string, mapping TokenMap
 
 // Implements Proposal Interface
 var _ gov.Content = &RegisterTokenMappingProposal{}
-
-func init() {
-	gov.RegisterProposalType(ProposalTypeRegisterTokenMapping)
-	gov.RegisterProposalTypeCodec(&RegisterTokenMappingProposal{}, "cosmos-sdk/RegisterTokenMappingProposal")
-}
 
 // ProposalRoute returns router key for this proposal
 func (sup *RegisterTokenMappingProposal) ProposalRoute() string { return RouterKey }
@@ -36,4 +42,28 @@ func (sup *RegisterTokenMappingProposal) ValidateBasic() error {
 		return err
 	}
 	return gov.ValidateAbstract(sup)
+}
+
+// NewResetHubProposal returns new instance of ResetHubProposal
+func NewResetHubProposal(title, description string, hub string) gov.Content {
+	return &ResetHubProposal{title, description, hub}
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &ResetHubProposal{}
+
+// ProposalRoute returns router key for this proposal
+func (rh *ResetHubProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type for this proposal
+func (rh *ResetHubProposal) ProposalType() string {
+	return ProposalTypeResetHub
+}
+
+// ValidateBasic returns ValidateBasic result for this proposal
+func (rh *ResetHubProposal) ValidateBasic() error {
+	if !common.IsHexAddress(rh.HubAddress) {
+		return fmt.Errorf("invalid hub address: %s", rh.HubAddress)
+	}
+	return gov.ValidateAbstract(rh)
 }

@@ -12,4 +12,5 @@ var (
 	ErrInternalEthMinting    = sdkerrors.Register(ModuleName, 4, "internal ethereum minting error")
 	ErrInitHubABI            = sdkerrors.Register(ModuleName, 5, "init hub abi error")
 	ErrWritingEthTxPayload   = sdkerrors.Register(ModuleName, 6, "writing ethereum tx payload error")
+	ErrHubAlreadySet         = sdkerrors.Register(ModuleName, 7, "hub already set")
 )
