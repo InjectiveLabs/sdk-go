@@ -172,7 +172,7 @@ func (c *cosmosClient) broadcastTx(
 		return nil, err
 	}
 
-	err = tx.Sign(txf, clientCtx.GetFromName(), builder)
+	err = tx.Sign(txf, clientCtx.GetFromName(), builder, true)
 	if err != nil {
 		return nil, err
 	}
