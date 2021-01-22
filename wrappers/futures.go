@@ -1051,7 +1051,17 @@ func (f *FuturesCaller) GetOrderRelevantState(opts *bind.CallOpts, order Order, 
 		return *outstruct, err
 	}
 
-	outstruct.OrderInfo = out[0].(DerivativeOrderInfo)
+	tmp := out[0].(struct {
+		OrderStatus                 uint8     `json:"orderStatus"`
+		OrderHash                   [32]uint8 `json:"orderHash"`
+		OrderTakerAssetFilledAmount *big.Int  `json:"orderTakerAssetFilledAmount"`
+		SubAccountID                [32]uint8 `json:"subAccountID"`
+		Direction                   uint8     `json:"direction"`
+		MarketID                    [32]uint8 `json:"marketID"`
+		EntryPrice                  *big.Int  `json:"entryPrice"`
+	})
+
+	outstruct.OrderInfo = DerivativeOrderInfo(tmp)
 	outstruct.FillableTakerAssetAmount = out[1].(*big.Int)
 	outstruct.IsValidSignature = out[2].(bool)
 
@@ -1101,7 +1111,20 @@ func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Ord
 		return *outstruct, err
 	}
 
-	outstruct.OrdersInfo = out[0].([]DerivativeOrderInfo)
+	tmp := out[0].([]struct {
+		OrderStatus                 uint8     `json:"orderStatus"`
+		OrderHash                   [32]uint8 `json:"orderHash"`
+		OrderTakerAssetFilledAmount *big.Int  `json:"orderTakerAssetFilledAmount"`
+		SubAccountID                [32]uint8 `json:"subAccountID"`
+		Direction                   uint8     `json:"direction"`
+		MarketID                    [32]uint8 `json:"marketID"`
+		EntryPrice                  *big.Int  `json:"entryPrice"`
+	})
+
+	outstruct.OrdersInfo = make([]DerivativeOrderInfo, len(tmp))
+	for i := range tmp {
+		outstruct.OrdersInfo[i] = DerivativeOrderInfo(tmp[i])
+	}
 	outstruct.FillableTakerAssetAmounts = out[1].([]*big.Int)
 	outstruct.IsValidSignature = out[2].([]bool)
 
