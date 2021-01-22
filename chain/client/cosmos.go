@@ -162,6 +162,7 @@ func (c *cosmosClient) broadcastTx(
 	if err != nil {
 		return nil, err
 	}
+	txf = txf.WithGas(10000000)
 
 	builder, err := tx.BuildUnsignedTx(txf, msgs...)
 	if err != nil {
@@ -203,6 +204,7 @@ func (c *cosmosClient) broadcastTx(
 
 		txf = txf.WithGas(adjusted * 10000)
 	}
+
 
 	log.Infoln(txf)
 	await = true
