@@ -193,6 +193,7 @@ func (c *cosmosClient) broadcastTx(
 
 		var simResponse sdk.SimulationResponse
 		err = jsonpb.Unmarshal(strings.NewReader(string(queryResult.Value)), &simResponse)
+		if err != nil {
 			return nil, err
 		}
 
