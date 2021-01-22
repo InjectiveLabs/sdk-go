@@ -179,7 +179,7 @@ func (c *cosmosClient) broadcastTx(
 		return nil, err
 	}
 
-	if txf.SimulateAndExecute() || clientCtx.Simulate {
+	if (txf.SimulateAndExecute() || clientCtx.Simulate) && false {
 
 		// simulate by calling ABCI Query
 		query := abci.RequestQuery{
