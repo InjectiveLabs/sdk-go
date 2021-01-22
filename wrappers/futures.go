@@ -382,6 +382,9 @@ func (f *FuturesCaller) Accounts(opts *bind.CallOpts, arg0 [32]byte) (struct {
 		SubAccountID    [32]byte
 		SubAccountNonce *big.Int
 	})
+	if err != nil {
+		return *outstruct, err
+	}
 
 	outstruct.SubAccountID = out[0].([32]byte)
 	outstruct.SubAccountNonce = out[1].(*big.Int)
@@ -1044,6 +1047,9 @@ func (f *FuturesCaller) GetOrderRelevantState(opts *bind.CallOpts, order Order, 
 		FillableTakerAssetAmount *big.Int
 		IsValidSignature         bool
 	})
+	if err != nil {
+		return *outstruct, err
+	}
 
 	outstruct.OrderInfo = out[0].(DerivativeOrderInfo)
 	outstruct.FillableTakerAssetAmount = out[1].(*big.Int)
@@ -1091,6 +1097,9 @@ func (f *FuturesCaller) GetOrderRelevantStates(opts *bind.CallOpts, orders []Ord
 		FillableTakerAssetAmounts []*big.Int
 		IsValidSignature          []bool
 	})
+	if err != nil {
+		return *outstruct, err
+	}
 
 	outstruct.OrdersInfo = out[0].([]DerivativeOrderInfo)
 	outstruct.FillableTakerAssetAmounts = out[1].([]*big.Int)
@@ -1805,6 +1814,9 @@ func (f *FuturesCaller) Markets(opts *bind.CallOpts, arg0 [32]byte) (struct {
 		CumulativeFunding            *big.Int
 		TransactionFees              TypesTransactionFees
 	})
+	if err != nil {
+		return *outstruct, err
+	}
 
 	outstruct.MarketID = out[0].([32]byte)
 	outstruct.BaseCurrency = out[1].(common.Address)
@@ -2163,6 +2175,9 @@ func (f *FuturesCaller) Positions(opts *bind.CallOpts, arg0 *big.Int) (struct {
 		Margin                 *big.Int
 		CumulativeFundingEntry *big.Int
 	})
+	if err != nil {
+		return *outstruct, err
+	}
 
 	outstruct.SubAccountID = out[0].([32]byte)
 	outstruct.MarketID = out[1].([32]byte)
