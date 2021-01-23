@@ -198,21 +198,15 @@ func (c *cosmosClient) broadcastTx(
 			return nil, err
 		}
 
-		log.Debugln("simResponse is", simResponse)
 		adjusted := simResponse.GetGasUsed()
-		log.Infof("Getting gas with adjusted %d wanted %d", adjusted, simResponse.GetGasWanted())
-
 		txf = txf.WithGas(adjusted * 10000)
 	}
 
 
-	log.Infoln(txf)
 	await = true
 	if await {
 		// BroadcastTxCommit - full synced commit with await
-		log.Infoln("BroadcastTxCommit with", txf.Gas(), "gas")
 		res, err := clientCtx.BroadcastTxCommit(txBytes)
-		log.Infoln(res, err)
 		return res, err
 	}
 
