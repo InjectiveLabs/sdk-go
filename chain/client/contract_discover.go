@@ -11,9 +11,6 @@ import (
 )
 
 type ContractSet struct {
-	ExchangeContract    common.Address
-	CoordinatorContract common.Address
-	DevUtilsContract    common.Address
 	FuturesContract     common.Address
 	PriceFeederContract common.Address
 }

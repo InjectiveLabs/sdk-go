@@ -14,9 +14,9 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	tmcrypto "github.com/tendermint/tendermint/crypto"
 
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
+	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/hd"
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	orders "github.com/InjectiveLabs/sdk-go/chain/orders/types"
@@ -25,7 +25,7 @@ import (
 
 func NewClientContext(
 	chainId string,
-	privKey tmcrypto.PrivKey,
+	privKey *ethsecp256k1.PrivKey,
 ) (client.Context, error) {
 	clientCtx := client.Context{}
 

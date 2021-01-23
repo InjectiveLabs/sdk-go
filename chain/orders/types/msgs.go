@@ -13,7 +13,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/crypto"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	log "github.com/xlab/suplog"
 )
@@ -734,12 +733,13 @@ func ScalePermyriad(amount, permyriad *big.Int) *big.Int {
 	return new(big.Int).Div(scaleFactor, PERMYRIAD_BASE)
 }
 
-func ComputeSubaccountID(address string, takerFee string) common.Hash {
-	subaccountID := crypto.Keccak256Hash(
-		common.HexToAddress(address).Bytes(),
-		common.LeftPadBytes(BigNum(takerFee).Int().Bytes(), 32),
-	)
-	return subaccountID
+func ComputeSubaccountID(address string, takerFee string) (common.Hash, error) {
+	nonce := BigNum(takerFee).Int()
+	MAX_UINT96 := BigNum("79228162514264337593543950335").Int()
+	if nonce.Cmp(MAX_UINT96) > 0 {
+		return common.Hash{}, nil
+	}
+	return common.BytesToHash(append(common.HexToAddress(address).Bytes(), common.LeftPadBytes(nonce.Bytes(), 12)...)), nil
 }
 
 // GetDirectionMarketAndSubaccountID
@@ -770,7 +770,7 @@ func (o *BaseOrder) GetDirectionMarketAndSubaccountID(shouldGetMakerSubaccount b
 		address = o.GetTakerAddress()
 	}
 
-	subaccountID = ComputeSubaccountID(address, o.GetTakerFee())
+	subaccountID, _ = ComputeSubaccountID(address, o.GetTakerFee())
 
 	return isLong, marketID, subaccountID
 }

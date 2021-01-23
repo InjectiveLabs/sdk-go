@@ -69,5 +69,5 @@ func (s *NullableString) String() string {
 		return ""
 	}
 
-	return common.ToHex([]byte(*s))
+	return common.Bytes2Hex([]byte(*s))
 }
