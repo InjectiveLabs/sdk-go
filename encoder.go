@@ -38,8 +38,11 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			CloseQuantity             *big.Int
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(ClosePositionMetaTransaction), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
 
@@ -61,8 +64,11 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			Signatures                [][]byte
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(ClosePosition), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
 
@@ -93,8 +99,11 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			Signatures        [][]byte
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(LiquidatePosition), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
 
@@ -123,8 +132,11 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			Signatures   [][]byte
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(VaporizePosition), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
 
@@ -147,10 +159,15 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		inputs := struct {
 			MarketIDs []common.Hash
 		}{}
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(BatchCheckFunding), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
+
 		txData = &ZeroExTransactionData{
 			FunctionName: FuturesFunctionName(method.Name),
 			MarketIDs:    make([]common.Hash, len(inputs.MarketIDs)),
@@ -164,10 +181,15 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			SubAccountID common.Hash
 			Amount       *big.Int
 		}{}
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(WithdrawForSubAccount), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
+
 		txData = &ZeroExTransactionData{
 			FunctionName: FuturesFunctionName(method.Name),
 			BaseCurrency: inputs.BaseCurrency,
@@ -179,10 +201,15 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			BaseCurrency common.Address
 			Amount       *big.Int
 		}{}
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(Deposit), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
+
 		txData = &ZeroExTransactionData{
 			FunctionName: FuturesFunctionName(method.Name),
 			BaseCurrency: inputs.BaseCurrency,
@@ -194,10 +221,15 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			SubaccountID common.Hash
 			Amount       *big.Int
 		}{}
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(DepositForSubaccount), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
+
 		txData = &ZeroExTransactionData{
 			FunctionName: FuturesFunctionName(method.Name),
 			BaseCurrency: inputs.BaseCurrency,
@@ -218,10 +250,15 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			RelayerFeePercentage   Permyriad
 			MarketID               common.Hash
 		}{}
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(CreateMarketWithFixedMarketId), data); err != nil {
-			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
+
 		txData = &ZeroExTransactionData{
 			FunctionName:           FuturesFunctionName(method.Name),
 			Ticker:                 inputs.Ticker,
@@ -241,8 +278,11 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			Orders []wrappers.Order
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(&inputs, string(BatchCancelOrders), data); err != nil {
-			err = errors.Wrap(err, "failed to unpack method inputs")
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
 			return nil, err
 		}
 
@@ -253,7 +293,6 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		for idx, order := range inputs.Orders {
 			txData.Orders[idx] = FromTrimmedOrder(order)
 		}
-
 	}
 
 	return txData, nil
