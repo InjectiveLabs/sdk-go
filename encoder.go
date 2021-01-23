@@ -26,6 +26,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		err = errors.Wrap(err, "failed to get method name")
 		return nil, err
 	}
+	data = data[4:]
 
 	switch FuturesFunctionName(method.Name) {
 	case ClosePositionMetaTransaction:
@@ -37,8 +38,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			CloseQuantity             *big.Int
 		}{}
 
-
-		if err = futuresABI.UnpackIntoInterface(inputs, string(ClosePositionMetaTransaction), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(ClosePositionMetaTransaction), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -61,7 +61,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			Signatures                [][]byte
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(inputs, string(ClosePosition), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(ClosePosition), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -93,7 +93,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			Signatures        [][]byte
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(inputs, string(LiquidatePosition), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(LiquidatePosition), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -123,7 +123,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			Signatures   [][]byte
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(inputs, string(VaporizePosition), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(VaporizePosition), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -147,7 +147,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 		inputs := struct {
 			MarketIDs []common.Hash
 		}{}
-		if err = futuresABI.UnpackIntoInterface(inputs, string(BatchCheckFunding), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(BatchCheckFunding), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -164,7 +164,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			SubAccountID common.Hash
 			Amount       *big.Int
 		}{}
-		if err = futuresABI.UnpackIntoInterface(inputs, string(WithdrawForSubAccount), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(WithdrawForSubAccount), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -179,7 +179,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			BaseCurrency common.Address
 			Amount       *big.Int
 		}{}
-		if err = futuresABI.UnpackIntoInterface(inputs, string(Deposit), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(Deposit), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -194,7 +194,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			SubaccountID common.Hash
 			Amount       *big.Int
 		}{}
-		if err = futuresABI.UnpackIntoInterface(inputs, string(DepositForSubaccount), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(DepositForSubaccount), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -218,7 +218,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			RelayerFeePercentage   Permyriad
 			MarketID               common.Hash
 		}{}
-		if err = futuresABI.UnpackIntoInterface(inputs, string(CreateMarketWithFixedMarketId), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(CreateMarketWithFixedMarketId), data); err != nil {
 			err = errors.Wrapf(err, "failed to unpack %s method inputs", method.Name)
 			return nil, err
 		}
@@ -241,7 +241,7 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 			Orders []wrappers.Order
 		}{}
 
-		if err = futuresABI.UnpackIntoInterface(inputs, string(BatchCancelOrders), data); err != nil {
+		if err = futuresABI.UnpackIntoInterface(&inputs, string(BatchCancelOrders), data); err != nil {
 			err = errors.Wrap(err, "failed to unpack method inputs")
 			return nil, err
 		}
