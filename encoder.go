@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"fmt"
 	"math/big"
 	"strings"
 
@@ -11,6 +12,391 @@ import (
 	"github.com/InjectiveLabs/sdk-go/wrappers"
 )
 
+func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err error) {
+	if len(data) < 4 {
+		err := errors.New("data must be at least 4 bytes long")
+		return nil, err
+	}
+
+	id := data[:4]
+	method, err := futuresABI.MethodById(id)
+	fmt.Println("KAWABANGAAAAAAA")
+	fmt.Printf("method %s has id %s", method, common.Bytes2Hex(id))
+	if err != nil {
+		err = errors.Wrap(err, "failed to get method name")
+		return nil, err
+	}
+	data = data[4:]
+
+	switch FuturesFunctionName(method.Name) {
+	case ClosePositionMetaTransaction:
+		inputs := struct {
+			ExchangeAddress           common.Address
+			IsRevertingOnPartialFills bool
+			SubAccountID              common.Hash
+			MarketID                  common.Hash
+			CloseQuantity             *big.Int
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName:              FuturesFunctionName(method.Name),
+			ExchangeAddress:           inputs.ExchangeAddress,
+			IsRevertingOnPartialFills: inputs.IsRevertingOnPartialFills,
+			SubAccountID:              inputs.SubAccountID,
+			MarketID:                  inputs.MarketID,
+			CloseQuantity:             inputs.CloseQuantity,
+		}
+	case ClosePosition:
+		inputs := struct {
+			SubAccountID              common.Hash
+			MarketID                  common.Hash
+			Orders                    []wrappers.Order
+			Quantity                  *big.Int
+			IsRevertingOnPartialFills bool
+			Signatures                [][]byte
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName:              FuturesFunctionName(method.Name),
+			Orders:                    make([]*Order, len(inputs.Orders)),
+			Signatures:                make([][]byte, len(inputs.Signatures)),
+			SubAccountID:              inputs.SubAccountID,
+			MarketID:                  inputs.MarketID,
+			Quantity:                  inputs.Quantity,
+			IsRevertingOnPartialFills: inputs.IsRevertingOnPartialFills,
+		}
+
+		for idx, order := range inputs.Orders {
+			txData.Orders[idx] = FromTrimmedOrder(order)
+		}
+
+		for idx, signature := range inputs.Signatures {
+			txData.Signatures[idx] = signature
+		}
+	case LiquidatePosition:
+		inputs := struct {
+			SubAccountID      common.Hash
+			MarketID          common.Hash
+			LiquidationCaller common.Address
+			Orders            []wrappers.Order
+			Quantity          *big.Int
+			Signatures        [][]byte
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: FuturesFunctionName(method.Name),
+			Orders:       make([]*Order, len(inputs.Orders)),
+			Signatures:   make([][]byte, len(inputs.Signatures)),
+			SubAccountID: inputs.SubAccountID,
+			MarketID:     inputs.MarketID,
+			Quantity:     inputs.Quantity,
+		}
+
+		for idx, order := range inputs.Orders {
+			txData.Orders[idx] = FromTrimmedOrder(order)
+		}
+
+		for idx, signature := range inputs.Signatures {
+			txData.Signatures[idx] = signature
+		}
+	case VaporizePosition:
+		inputs := struct {
+			SubAccountID common.Hash
+			MarketID     common.Hash
+			Orders       []wrappers.Order
+			Quantity     *big.Int
+			Signatures   [][]byte
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: FuturesFunctionName(method.Name),
+			Orders:       make([]*Order, 0),
+			Signatures:   make([][]byte, 0),
+			SubAccountID: inputs.SubAccountID,
+			MarketID:     inputs.MarketID,
+			Quantity:     inputs.Quantity,
+		}
+		for idx, order := range inputs.Orders {
+			txData.Orders[idx] = FromTrimmedOrder(order)
+		}
+
+		for idx, signature := range inputs.Signatures {
+			txData.Signatures[idx] = signature
+		}
+	case BatchCheckFunding:
+		inputs := struct {
+			MarketIDs []common.Hash
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: FuturesFunctionName(method.Name),
+			MarketIDs:    make([]common.Hash, len(inputs.MarketIDs)),
+		}
+		for idx, marketID := range inputs.MarketIDs {
+			txData.MarketIDs[idx] = marketID
+		}
+	case WithdrawForSubAccount:
+		inputs := struct {
+			BaseCurrency common.Address
+			SubAccountID common.Hash
+			Amount       *big.Int
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: FuturesFunctionName(method.Name),
+			BaseCurrency: inputs.BaseCurrency,
+			SubAccountID: inputs.SubAccountID,
+			Amount:       inputs.Amount,
+		}
+	case Deposit:
+		inputs := struct {
+			BaseCurrency common.Address
+			Amount       *big.Int
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: FuturesFunctionName(method.Name),
+			BaseCurrency: inputs.BaseCurrency,
+			Amount:       inputs.Amount,
+		}
+	case DepositForSubaccount:
+		inputs := struct {
+			BaseCurrency common.Address
+			SubaccountID common.Hash
+			Amount       *big.Int
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: FuturesFunctionName(method.Name),
+			BaseCurrency: inputs.BaseCurrency,
+			SubaccountID: inputs.SubaccountID,
+			Amount:       inputs.Amount,
+		}
+	case CreateMarketWithFixedMarketId:
+		inputs := struct {
+			Ticker                 string
+			BaseCurrency           common.Address
+			Oracle                 common.Address
+			InitialMarginRatio     Permyriad
+			MaintenanceMarginRatio Permyriad
+			FundingInterval        *big.Int
+			ExpirationTime         *big.Int
+			MakerTxFee             Permyriad
+			TakerTxFee             Permyriad
+			RelayerFeePercentage   Permyriad
+			MarketID               common.Hash
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName:           FuturesFunctionName(method.Name),
+			Ticker:                 inputs.Ticker,
+			BaseCurrency:           inputs.BaseCurrency,
+			Oracle:                 inputs.Oracle,
+			InitialMarginRatio:     inputs.InitialMarginRatio,
+			MaintenanceMarginRatio: inputs.MaintenanceMarginRatio,
+			FundingInterval:        inputs.FundingInterval,
+			ExpirationTime:         inputs.ExpirationTime,
+			MakerTxFee:             inputs.MakerTxFee,
+			TakerTxFee:             inputs.TakerTxFee,
+			RelayerFeePercentage:   inputs.RelayerFeePercentage,
+			MarketID:               inputs.MarketID,
+		}
+	case BatchCancelOrders:
+		inputs := struct {
+			Orders []wrappers.Order
+		}{}
+
+		if values, err := method.Inputs.Unpack(data); err != nil {
+			err = errors.Wrapf(err, "failed to unpack method %s inputs", method.Name)
+			return nil, err
+		} else if err = method.Inputs.Copy(&inputs, values); err != nil {
+			err = errors.Wrapf(err, "failed to copy %s args to Go struct", method.Name)
+			return nil, err
+		}
+
+		txData = &ZeroExTransactionData{
+			FunctionName: FuturesFunctionName(method.Name),
+			Orders:       make([]*Order, len(inputs.Orders)),
+		}
+		for idx, order := range inputs.Orders {
+			txData.Orders[idx] = FromTrimmedOrder(order)
+		}
+	}
+
+	return txData, nil
+}
+
+var futuresABI, _ = abi.JSON(strings.NewReader(wrappers.FuturesABI))
+
+func IFuturesABIPack(fnName FuturesFunctionName, args ...interface{}) (data []byte, err error) {
+	return futuresABI.Pack(string(fnName), args...)
+}
+
+type FuturesFunctionName string
+
+func (e FuturesFunctionName) HasPart(part string) bool {
+	return strings.Contains(string(e), part)
+}
+
+const (
+	ClosePositionMetaTransaction     FuturesFunctionName = "closePositionMetaTransaction"
+	ClosePosition                    FuturesFunctionName = "closePosition"
+	LiquidatePosition                FuturesFunctionName = "liquidatePosition"
+	VaporizePosition                 FuturesFunctionName = "vaporizePosition"
+	BatchCheckFunding                FuturesFunctionName = "batchCheckFunding"
+	WithdrawForSubAccount            FuturesFunctionName = "withdrawForSubAccount"
+	DepositForSubaccount             FuturesFunctionName = "depositForSubaccount"
+	Deposit                          FuturesFunctionName = "deposit"
+	CreateMarketWithFixedMarketId    FuturesFunctionName = "createMarketWithFixedMarketId"
+	BatchCancelOrders                FuturesFunctionName = "batchCancelOrders"
+	AddMarginIntoPosition            FuturesFunctionName = "addMarginIntoPosition"
+	SettleExpiryFuturesPosition      FuturesFunctionName = "settleExpiryFuturesPosition"
+	BatchSettleExpiryFuturesPosition FuturesFunctionName = "batchSettleExpiryFuturesPosition"
+	TransferPosition                 FuturesFunctionName = "transferPosition"
+	ApproveForReceiving              FuturesFunctionName = "approveForReceiving"
+	SetReceiptApprovalForMarket      FuturesFunctionName = "setReceiptApprovalForMarket"
+	SetReceiptApprovalForAll         FuturesFunctionName = "setReceiptApprovalForAll"
+	Approve                          FuturesFunctionName = "approve"
+	SetApprovalForMarket             FuturesFunctionName = "setApprovalForMarket"
+	SetApprovalForAll                FuturesFunctionName = "setApprovalForAll"
+)
+
+const (
+	//BatchCancelOrders                 FuturesFunctionName = "batchCancelOrders"
+	BatchExecuteTransactions          FuturesFunctionName = "batchExecuteTransactions"
+	BatchFillOrKillOrders             FuturesFunctionName = "batchFillOrKillOrders"
+	BatchFillOrders                   FuturesFunctionName = "batchFillOrders"
+	BatchFillOrdersNoThrow            FuturesFunctionName = "batchFillOrdersNoThrow"
+	BatchMatchOrders                  FuturesFunctionName = "batchMatchOrders"
+	BatchMatchOrdersWithMaximalFill   FuturesFunctionName = "batchMatchOrdersWithMaximalFill"
+	CancelOrder                       FuturesFunctionName = "cancelOrder"
+	CancelOrdersUpTo                  FuturesFunctionName = "cancelOrdersUpTo"
+	ExecuteTransaction                FuturesFunctionName = "executeTransaction"
+	FillOrKillOrder                   FuturesFunctionName = "fillOrKillOrder"
+	FillOrder                         FuturesFunctionName = "fillOrder"
+	FillOrderNoThrow                  FuturesFunctionName = "fillOrderNoThrow"
+	MarketBuyOrdersNoThrow            FuturesFunctionName = "marketBuyOrdersNoThrow"
+	MarketSellOrdersNoThrow           FuturesFunctionName = "marketSellOrdersNoThrow"
+	MarketBuyOrdersFillOrKill         FuturesFunctionName = "marketBuyOrdersFillOrKill"
+	MarketSellOrdersFillOrKill        FuturesFunctionName = "marketSellOrdersFillOrKill"
+	MatchOrders                       FuturesFunctionName = "matchOrders"
+	MatchOrdersWithMaximalFill        FuturesFunctionName = "matchOrdersWithMaximalFill"
+	PreSign                           FuturesFunctionName = "preSign"
+	RegisterAssetProxy                FuturesFunctionName = "registerAssetProxy"
+	SetSignatureValidatorApproval     FuturesFunctionName = "setSignatureValidatorApproval"
+	SimulateDispatchTransferFromCalls FuturesFunctionName = "simulateDispatchTransferFromCalls"
+	TransferOwnership                 FuturesFunctionName = "transferOwnership"
+	SetProtocolFeeMultiplier          FuturesFunctionName = "setProtocolFeeMultiplier"
+	SetProtocolFeeCollectorAddress    FuturesFunctionName = "setProtocolFeeCollectorAddress"
+	DetachProtocolFeeCollector        FuturesFunctionName = "detachProtocolFeeCollector"
+)
+
+var SingleFillFnNames = map[FuturesFunctionName]bool{
+	FillOrder:       true,
+	FillOrKillOrder: true,
+}
+
+var BatchFillFnNames = map[FuturesFunctionName]bool{
+	BatchFillOrders:        true,
+	BatchFillOrKillOrders:  true,
+	BatchFillOrdersNoThrow: true,
+}
+
+var MarketFillFnNames = map[FuturesFunctionName]bool{
+	MarketBuyOrdersFillOrKill:  true,
+	MarketSellOrdersFillOrKill: true,
+	MarketBuyOrdersNoThrow:     true,
+	MarketSellOrdersNoThrow:    true,
+}
+
+var MatchOrderFnNames = map[FuturesFunctionName]bool{
+	MatchOrders:                true,
+	MatchOrdersWithMaximalFill: true,
+}
+
+var BatchMatchOrderFnNames = map[FuturesFunctionName]bool{
+	BatchMatchOrders:                true,
+	BatchMatchOrdersWithMaximalFill: true,
+}
+
+var cancelOrderFnNames = map[FuturesFunctionName]bool{
+	CancelOrder:       true,
+	BatchCancelOrders: true,
+	CancelOrdersUpTo:  true,
+}
+
 func OrdersToTrimmed(orders []*SignedOrder) []wrappers.Order {
 	trimmedOrders := make([]wrappers.Order, len(orders))
 	for idx, o := range orders {
@@ -20,343 +406,57 @@ func OrdersToTrimmed(orders []*SignedOrder) []wrappers.Order {
 	return trimmedOrders
 }
 
-func EncodeOrdersToExchangeData(fnName ExchangeFunctionName, signedOrders []*SignedOrder) (data []byte, err error) {
-	orders := OrdersToTrimmed(signedOrders)
-
-	switch {
-	case SingleFillFnNames[fnName]:
-		data, err = IExchangeABIPack(fnName, orders[0], orders[0].TakerAssetAmount, signedOrders[0].Signature)
-	case BatchFillFnNames[fnName]:
-		takerAssetAmounts := make([]*big.Int, len(orders))
-		signatures := make([][]byte, len(orders))
-
-		for idx, o := range orders {
-			takerAssetAmounts[idx] = o.TakerAssetAmount
-			signatures[idx] = signedOrders[idx].Signature
-		}
-
-		data, err = IExchangeABIPack(fnName, orders, takerAssetAmounts, signatures)
-	case MarketFillFnNames[fnName]:
-		totalFillAmount := new(big.Int)
-		signatures := make([][]byte, len(orders))
-
-		for idx, o := range orders {
-			if fnName.HasPart("Buy") {
-				totalFillAmount.Add(totalFillAmount, o.MakerAssetAmount)
-			} else {
-				totalFillAmount.Add(totalFillAmount, o.TakerAssetAmount)
-			}
-			signatures[idx] = signedOrders[idx].Signature
-		}
-
-		data, err = IExchangeABIPack(fnName, orders, totalFillAmount, signatures)
-	case MatchOrderFnNames[fnName]:
-		data, err = IExchangeABIPack(fnName, orders[0], orders[1], signedOrders[0].Signature, signedOrders[1].Signature)
-	case fnName == CancelOrder:
-		data, err = IExchangeABIPack(fnName, orders[0])
-	case fnName == BatchCancelOrders:
-		data, err = IExchangeABIPack(fnName, orders)
-	case fnName == CancelOrdersUpTo:
-		data, err = IExchangeABIPack(fnName, new(big.Int))
-	case fnName == PreSign:
-		orderHash, _ := signedOrders[0].ComputeOrderHash()
-		data, err = IExchangeABIPack(fnName, orderHash.Bytes())
-	case fnName == SetSignatureValidatorApproval:
-		data, err = IExchangeABIPack(fnName, common.Address{}, true)
-	default:
-		err = errors.Errorf("IExchange function is not supported: %s", fnName)
-		return nil, err
-	}
-
-	if err != nil {
-		err = errors.Wrapf(err, "failed to pack %s", fnName)
-	}
-
-	return data, err
-}
-
-func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err error) {
-	if len(data) < 4 {
-		err := errors.New("data must be at least 4 bytes long")
-		return nil, err
-	}
-
-	id := data[:4]
-	method, err := exchangeABI.MethodById(id)
-	if err != nil {
-		err = errors.Wrap(err, "failed to get method name")
-		return nil, err
-	}
-
-	switch ExchangeFunctionName(method.Name) {
-	case FillOrder:
-		inputs := struct {
-			Order                wrappers.Order
-			TakerAssetFillAmount *big.Int
-			Signature            []byte
-		}{}
-
-		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
-			err = errors.Wrap(err, "failed to unpack method inputs")
-			return nil, err
-		}
-
-		txData = &ZeroExTransactionData{
-			FunctionName:          ExchangeFunctionName(method.Name),
-			Orders:                make([]*Order, 1),
-			TakerAssetFillAmounts: make([]*big.Int, 1),
-			Signatures:            make([][]byte, 1),
-		}
-		txData.Orders[0] = FromTrimmedOrder(inputs.Order)
-		txData.TakerAssetFillAmounts[0] = inputs.TakerAssetFillAmount
-		txData.Signatures[0] = inputs.Signature
-	case BatchFillOrders:
-		inputs := struct {
-			Orders                []wrappers.Order
-			TakerAssetFillAmounts []*big.Int
-			Signatures            [][]byte
-		}{}
-
-		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
-			err = errors.Wrap(err, "failed to unpack method inputs")
-			return nil, err
-		}
-
-		txData = &ZeroExTransactionData{
-			FunctionName:          ExchangeFunctionName(method.Name),
-			Orders:                make([]*Order, len(inputs.Orders)),
-			TakerAssetFillAmounts: make([]*big.Int, len(inputs.TakerAssetFillAmounts)),
-			Signatures:            make([][]byte, len(inputs.Signatures)),
-		}
-		for idx, order := range inputs.Orders {
-			txData.Orders[idx] = FromTrimmedOrder(order)
-		}
-		for idx, takerAssetFillAmount := range inputs.TakerAssetFillAmounts {
-			txData.TakerAssetFillAmounts[idx] = takerAssetFillAmount
-		}
-		for idx, signature := range inputs.Signatures {
-			txData.Signatures[idx] = signature
-		}
-
-	case MarketBuyOrdersNoThrow,
-		MarketBuyOrdersFillOrKill:
-		inputs := struct {
-			Orders               []wrappers.Order
-			MakerAssetFillAmount *big.Int
-			Signatures           [][]byte
-		}{}
-
-		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
-			err = errors.Wrap(err, "failed to unpack method inputs")
-			return nil, err
-		}
-
-		txData = &ZeroExTransactionData{
-			FunctionName: ExchangeFunctionName(method.Name),
-			Orders:       make([]*Order, len(inputs.Orders)),
-			Signatures:   make([][]byte, len(inputs.Signatures)),
-		}
-		for idx, order := range inputs.Orders {
-			txData.Orders[idx] = FromTrimmedOrder(order)
-		}
-
-		txData.MakerAssetFillAmount = inputs.MakerAssetFillAmount
-
-		for idx, signature := range inputs.Signatures {
-			txData.Signatures[idx] = signature
-		}
-	case MarketSellOrdersNoThrow,
-		MarketSellOrdersFillOrKill:
-		inputs := struct {
-			Orders               []wrappers.Order
-			TakerAssetFillAmount *big.Int
-			Signatures           [][]byte
-		}{}
-		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
-			err = errors.Wrap(err, "failed to unpack method inputs")
-			return nil, err
-		}
-
-		txData = &ZeroExTransactionData{
-			FunctionName: ExchangeFunctionName(method.Name),
-			Orders:       make([]*Order, len(inputs.Orders)),
-			Signatures:   make([][]byte, len(inputs.Signatures)),
-		}
-		for idx, order := range inputs.Orders {
-			txData.Orders[idx] = FromTrimmedOrder(order)
-		}
-
-		txData.TakerAssetFillAmount = inputs.TakerAssetFillAmount
-
-		for idx, signature := range inputs.Signatures {
-			txData.Signatures[idx] = signature
-		}
-
-	case CancelOrder:
-		inputs := struct {
-			Order wrappers.Order
-		}{}
-
-		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
-			err = errors.Wrap(err, "failed to unpack method inputs")
-			return nil, err
-		}
-
-		txData = &ZeroExTransactionData{
-			FunctionName: ExchangeFunctionName(method.Name),
-			Orders:       make([]*Order, 1),
-		}
-		txData.Orders[0] = FromTrimmedOrder(inputs.Order)
-
-	case BatchCancelOrders:
-		inputs := struct {
-			Orders []wrappers.Order
-		}{}
-
-		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
-			err = errors.Wrap(err, "failed to unpack method inputs")
-			return nil, err
-		}
-
-		txData = &ZeroExTransactionData{
-			FunctionName: ExchangeFunctionName(method.Name),
-			Orders:       make([]*Order, len(inputs.Orders)),
-		}
-		for idx, order := range inputs.Orders {
-			txData.Orders[idx] = FromTrimmedOrder(order)
-		}
-	case BatchMatchOrdersWithMaximalFill:
-		inputs := struct {
-			LeftOrders      []wrappers.Order
-			RightOrders     []wrappers.Order
-			LeftSignatures  [][]byte
-			RightSignatures [][]byte
-		}{}
-		if err = method.Inputs.Unpack(&inputs, data[4:]); err != nil {
-			err = errors.Wrap(err, "failed to unpack method inputs")
-			return nil, err
-		}
-
-		txData = &ZeroExTransactionData{
-			FunctionName:    ExchangeFunctionName(method.Name),
-			LeftOrders:      make([]*Order, len(inputs.LeftOrders)),
-			RightOrders:     make([]*Order, len(inputs.RightOrders)),
-			LeftSignatures:  make([][]byte, len(inputs.LeftSignatures)),
-			RightSignatures: make([][]byte, len(inputs.RightSignatures)),
-		}
-		for idx, order := range inputs.LeftOrders {
-			txData.LeftOrders[idx] = FromTrimmedOrder(order)
-		}
-
-		for idx, order := range inputs.RightOrders {
-			txData.RightOrders[idx] = FromTrimmedOrder(order)
-		}
-
-		for idx, signature := range inputs.LeftSignatures {
-			txData.LeftSignatures[idx] = signature
-		}
-
-		for idx, signature := range inputs.RightSignatures {
-			txData.RightSignatures[idx] = signature
-		}
-
-	default:
-		panic("not supported: " + method.Name)
-	}
-
-	return txData, nil
-}
-
-var exchangeABI, _ = abi.JSON(strings.NewReader(wrappers.ExchangeABI))
-var futuresABI, _ = abi.JSON(strings.NewReader(wrappers.FuturesABI))
-
-func IFuturesABIPack(fnName FuturesFunctionName, args ...interface{}) (data []byte, err error) {
-	return futuresABI.Pack(string(fnName), args...)
-}
-
-func IExchangeABIPack(fnName ExchangeFunctionName, args ...interface{}) (data []byte, err error) {
-	return exchangeABI.Pack(string(fnName), args...)
-}
-
-func IExchangeABIUnpack(fnName ExchangeFunctionName, data []byte, out interface{}) error {
-	return exchangeABI.Unpack(out, string(fnName), data)
-}
-
-type ExchangeFunctionName string
-type FuturesFunctionName string
-
-func (e ExchangeFunctionName) HasPart(part string) bool {
-	return strings.Contains(string(e), part)
-}
-
-func (e FuturesFunctionName) HasPart(part string) bool {
-	return strings.Contains(string(e), part)
-}
-
-const (
-	MultiMatchOrders FuturesFunctionName = "multiMatchOrders"
-)
-
-const (
-	BatchCancelOrders                 ExchangeFunctionName = "batchCancelOrders"
-	BatchExecuteTransactions          ExchangeFunctionName = "batchExecuteTransactions"
-	BatchFillOrKillOrders             ExchangeFunctionName = "batchFillOrKillOrders"
-	BatchFillOrders                   ExchangeFunctionName = "batchFillOrders"
-	BatchFillOrdersNoThrow            ExchangeFunctionName = "batchFillOrdersNoThrow"
-	BatchMatchOrders                  ExchangeFunctionName = "batchMatchOrders"
-	BatchMatchOrdersWithMaximalFill   ExchangeFunctionName = "batchMatchOrdersWithMaximalFill"
-	CancelOrder                       ExchangeFunctionName = "cancelOrder"
-	CancelOrdersUpTo                  ExchangeFunctionName = "cancelOrdersUpTo"
-	ExecuteTransaction                ExchangeFunctionName = "executeTransaction"
-	FillOrKillOrder                   ExchangeFunctionName = "fillOrKillOrder"
-	FillOrder                         ExchangeFunctionName = "fillOrder"
-	FillOrderNoThrow                  ExchangeFunctionName = "fillOrderNoThrow"
-	MarketBuyOrdersNoThrow            ExchangeFunctionName = "marketBuyOrdersNoThrow"
-	MarketSellOrdersNoThrow           ExchangeFunctionName = "marketSellOrdersNoThrow"
-	MarketBuyOrdersFillOrKill         ExchangeFunctionName = "marketBuyOrdersFillOrKill"
-	MarketSellOrdersFillOrKill        ExchangeFunctionName = "marketSellOrdersFillOrKill"
-	MatchOrders                       ExchangeFunctionName = "matchOrders"
-	MatchOrdersWithMaximalFill        ExchangeFunctionName = "matchOrdersWithMaximalFill"
-	PreSign                           ExchangeFunctionName = "preSign"
-	RegisterAssetProxy                ExchangeFunctionName = "registerAssetProxy"
-	SetSignatureValidatorApproval     ExchangeFunctionName = "setSignatureValidatorApproval"
-	SimulateDispatchTransferFromCalls ExchangeFunctionName = "simulateDispatchTransferFromCalls"
-	TransferOwnership                 ExchangeFunctionName = "transferOwnership"
-	SetProtocolFeeMultiplier          ExchangeFunctionName = "setProtocolFeeMultiplier"
-	SetProtocolFeeCollectorAddress    ExchangeFunctionName = "setProtocolFeeCollectorAddress"
-	DetachProtocolFeeCollector        ExchangeFunctionName = "detachProtocolFeeCollector"
-)
-
-var SingleFillFnNames = map[ExchangeFunctionName]bool{
-	FillOrder:       true,
-	FillOrKillOrder: true,
-}
-
-var BatchFillFnNames = map[ExchangeFunctionName]bool{
-	BatchFillOrders:        true,
-	BatchFillOrKillOrders:  true,
-	BatchFillOrdersNoThrow: true,
-}
-
-var MarketFillFnNames = map[ExchangeFunctionName]bool{
-	MarketBuyOrdersFillOrKill:  true,
-	MarketSellOrdersFillOrKill: true,
-	MarketBuyOrdersNoThrow:     true,
-	MarketSellOrdersNoThrow:    true,
-}
-
-var MatchOrderFnNames = map[ExchangeFunctionName]bool{
-	MatchOrders:                true,
-	MatchOrdersWithMaximalFill: true,
-}
-
-var BatchMatchOrderFnNames = map[ExchangeFunctionName]bool{
-	BatchMatchOrders:                true,
-	BatchMatchOrdersWithMaximalFill: true,
-}
-
-var cancelOrderFnNames = map[ExchangeFunctionName]bool{
-	CancelOrder:       true,
-	BatchCancelOrders: true,
-	CancelOrdersUpTo:  true,
-}
+//func EncodeOrdersToExchangeData(fnName FuturesFunctionName, signedOrders []*SignedOrder) (data []byte, err error) {
+//	orders := OrdersToTrimmed(signedOrders)
+//
+//	switch {
+//	case SingleFillFnNames[fnName]:
+//		data, err = IExchangeABIPack(fnName, orders[0], orders[0].TakerAssetAmount, signedOrders[0].Signature)
+//	case BatchFillFnNames[fnName]:
+//		takerAssetAmounts := make([]*big.Int, len(orders))
+//		signatures := make([][]byte, len(orders))
+//
+//		for idx, o := range orders {
+//			takerAssetAmounts[idx] = o.TakerAssetAmount
+//			signatures[idx] = signedOrders[idx].Signature
+//		}
+//
+//		data, err = IExchangeABIPack(fnName, orders, takerAssetAmounts, signatures)
+//	case MarketFillFnNames[fnName]:
+//		totalFillAmount := new(big.Int)
+//		signatures := make([][]byte, len(orders))
+//
+//		for idx, o := range orders {
+//			if fnName.HasPart("Buy") {
+//				totalFillAmount.Add(totalFillAmount, o.MakerAssetAmount)
+//			} else {
+//				totalFillAmount.Add(totalFillAmount, o.TakerAssetAmount)
+//			}
+//			signatures[idx] = signedOrders[idx].Signature
+//		}
+//
+//		data, err = IExchangeABIPack(fnName, orders, totalFillAmount, signatures)
+//	case MatchOrderFnNames[fnName]:
+//		data, err = IExchangeABIPack(fnName, orders[0], orders[1], signedOrders[0].Signature, signedOrders[1].Signature)
+//	case fnName == CancelOrder:
+//		data, err = IExchangeABIPack(fnName, orders[0])
+//	case fnName == BatchCancelOrders:
+//		data, err = IExchangeABIPack(fnName, orders)
+//	case fnName == CancelOrdersUpTo:
+//		data, err = IExchangeABIPack(fnName, new(big.Int))
+//	case fnName == PreSign:
+//		orderHash, _ := signedOrders[0].ComputeOrderHash()
+//		data, err = IExchangeABIPack(fnName, orderHash.Bytes())
+//	case fnName == SetSignatureValidatorApproval:
+//		data, err = IExchangeABIPack(fnName, common.Address{}, true)
+//	default:
+//		err = errors.Errorf("IExchange function is not supported: %s", fnName)
+//		return nil, err
+//	}
+//
+//	if err != nil {
+//		err = errors.Wrapf(err, "failed to pack %s", fnName)
+//	}
+//
+//	return data, err
+//}

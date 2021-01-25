@@ -13,7 +13,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/crypto"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	log "github.com/xlab/suplog"
 )
@@ -31,8 +30,8 @@ var (
 	_ sdk.Msg = &MsgSuspendSpotMarket{}
 	_ sdk.Msg = &MsgResumeSpotMarket{}
 	_ sdk.Msg = &MsgCreateSpotOrder{}
-	_ sdk.Msg = &MsgExecuteTakerTransaction{}
 	_ sdk.Msg = &MsgExecuteDerivativeTakeOrder{}
+	_ sdk.Msg = &MsgExecuteTECTransaction{}
 )
 
 func (msg *MsgSoftCancelDerivativeOrder) Route() string {
@@ -454,24 +453,45 @@ func (msg MsgResumeSpotMarket) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-// Route should return the name of the module
-func (msg MsgExecuteTakerTransaction) Route() string { return RouterKey }
+func (msg *MsgExecuteTECTransaction) Route() string {
+	return RouterKey
+}
 
-// Type should return the action
-func (msg MsgExecuteTakerTransaction) Type() string { return "executeTakerTransaction" }
+func (msg *MsgExecuteTECTransaction) Type() string {
+	return "executeTECTransaction"
+}
 
-// ValidateBasic runs stateless checks on the message
-func (msg MsgExecuteTakerTransaction) ValidateBasic() error {
-	// TODO : Add basic vaidation
+func (msg *MsgExecuteTECTransaction) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	// TODO: hash this and validate
+	transactionHash := common.Hash{}
+
+	if len(msg.TecTransaction.Salt) == 0 {
+		return sdkerrors.Wrap(ErrBadField, "no salt specified")
+	} else if msg.TecTransaction.SignerAddress == "" {
+		return sdkerrors.Wrap(ErrBadField, "no signerAddress address specified")
+	} else if msg.TecTransaction.Domain.VerifyingContract == "" {
+		return sdkerrors.Wrap(ErrBadField, "no verifyingContract address specified")
+	} else if msg.TecTransaction.Domain.ChainId != "888" {
+		return sdkerrors.Wrap(ErrBadField, "wrong chainID specified")
+	} else if len(msg.TecTransaction.GasPrice) == 0 {
+		return sdkerrors.Wrap(ErrBadField, "no gasPrice specified")
+	} else if len(msg.TecTransaction.ExpirationTimeSeconds) == 0 {
+		return sdkerrors.Wrap(ErrBadField, "no expirationTimeSeconds specified")
+	} else if !isValidSignature(msg.TecTransaction.Signature, common.HexToAddress(msg.TecTransaction.SignerAddress), transactionHash) {
+		return sdkerrors.Wrap(ErrBadField, "invalid transaction signature")
+	}
 	return nil
 }
 
-func (msg *MsgExecuteTakerTransaction) GetSignBytes() []byte {
+func (msg *MsgExecuteTECTransaction) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-// GetSigners defines whose signature is required
-func (msg MsgExecuteTakerTransaction) GetSigners() []sdk.AccAddress {
+func (msg *MsgExecuteTECTransaction) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -487,7 +507,35 @@ func (msg MsgExecuteDerivativeTakeOrder) Type() string { return "executeDerivati
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgExecuteDerivativeTakeOrder) ValidateBasic() error {
-	// TODO : Add basic vaidation
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if msg.Order == nil {
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
+	}
+
+	order := msg.Order.ToSignedOrder()
+	quantity := order.TakerAssetAmount
+	margin := order.MakerFee
+	orderHash, err := order.ComputeOrderHash()
+	takerAddress := common.HexToAddress(msg.Order.TakerAddress)
+
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
+	} else if !isValidSignature(msg.Order.Signature, takerAddress, orderHash) {
+		// TODO @albert @venkatesh: delete return nil once this is ready
+		return nil
+		//return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
+	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
+	} else if margin == nil || margin.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientTakerMargin, "insufficient margin")
+	} else if !bytes.Equal(order.MakerAddress.Bytes(), common.Address{}.Bytes()) {
+		return sdkerrors.Wrap(ErrBadField, "maker address field must be empty")
+	} else if bytes.Equal(order.TakerAddress.Bytes(), common.Address{}.Bytes()) {
+		return sdkerrors.Wrap(ErrBadField, "taker address field must not be empty")
+	}
 	return nil
 }
 
@@ -581,11 +629,9 @@ func (order *Order) DoesValidationPass(
 		return err
 	}
 
-	orderExpirationTime := BigNum(order.GetOrder().GetExpirationTimeSeconds()).Int()
-	blockTime := big.NewInt(currBlockTime.Unix())
-
-	if orderExpirationTime.Cmp(blockTime) <= 0 {
-		return sdkerrors.Wrapf(ErrOrderExpired, "order expiration %s <= block time %s", orderExpirationTime.String(), blockTime.String())
+	isOrderExpired := order.Order.IsExpired(currBlockTime)
+	if isOrderExpired {
+		return sdkerrors.Wrapf(ErrOrderExpired, "order expiration %s <= block time %d", order.GetOrder().GetExpirationTimeSeconds(), currBlockTime.Unix())
 	}
 	if order.OrderType == 0 {
 		margin := BigNum(order.Order.GetMakerFee()).Int()
@@ -647,11 +693,11 @@ func (order *Order) ComputeContractPriceMarginRequirement(market *DerivativeMark
 	return new(big.Int).Mul(alphaQuantity, price)
 }
 
-// orderMarginHold = 1.0015 * margin * (remainingQuantity) / order.quantity
-func (o *Order) ComputeOrderMarginHold(remainingQuantity, makerTxFeePermyriad *big.Int) (orderMarginHold *big.Int) {
-	margin := BigNum(o.GetOrder().GetMakerFee()).Int()
-	scaledMargin := IncrementByScaledPermyriad(margin, makerTxFeePermyriad)
-	originalQuantity := BigNum(o.GetOrder().GetTakerAssetAmount()).Int()
+// orderMarginHold = (1 + txFeePermyriad / 10000) * margin * (remainingQuantity) / order.quantity
+func (o *BaseOrder) ComputeOrderMarginHold(remainingQuantity, txFeePermyriad *big.Int) (orderMarginHold *big.Int) {
+	margin := BigNum(o.GetMakerFee()).Int()
+	scaledMargin := IncrementByScaledPermyriad(margin, txFeePermyriad)
+	originalQuantity := BigNum(o.GetTakerAssetAmount()).Int()
 
 	// TODO: filledAmount should always be zero with TEC since there will be no UnknownOrderHash
 	numerator := new(big.Int).Mul(scaledMargin, remainingQuantity)
@@ -663,6 +709,16 @@ func (o *Order) ComputeOrderMarginHold(remainingQuantity, makerTxFeePermyriad *b
 
 	orderMarginHold = new(big.Int).Div(numerator, originalQuantity)
 	return orderMarginHold
+}
+
+func (o *BaseOrder) IsExpired(currBlockTime time.Time) bool {
+	blockTime := big.NewInt(currBlockTime.Unix())
+	orderExpirationTime := BigNum(o.GetExpirationTimeSeconds()).Int()
+
+	if orderExpirationTime.Cmp(blockTime) <= 0 {
+		return true
+	}
+	return false
 }
 
 // return amount * (1 + permyriad/10000) = (amount + amount * permyriad/10000)
@@ -677,17 +733,18 @@ func ScalePermyriad(amount, permyriad *big.Int) *big.Int {
 	return new(big.Int).Div(scaleFactor, PERMYRIAD_BASE)
 }
 
-func ComputeSubaccountID(makerAddress string, takerFee string) common.Hash {
-	subaccountID := crypto.Keccak256Hash(
-		common.HexToAddress(makerAddress).Bytes(),
-		common.LeftPadBytes(BigNum(takerFee).Int().Bytes(), 32),
-	)
-	return subaccountID
+func ComputeSubaccountID(address string, takerFee string) (common.Hash, error) {
+	nonce := BigNum(takerFee).Int()
+	MAX_UINT96 := BigNum("79228162514264337593543950335").Int()
+	if nonce.Cmp(MAX_UINT96) > 0 {
+		return common.Hash{}, nil
+	}
+	return common.BytesToHash(append(common.HexToAddress(address).Bytes(), common.LeftPadBytes(nonce.Bytes(), 12)...)), nil
 }
 
 // GetDirectionMarketAndSubaccountID
-func (m *BaseOrder) GetDirectionMarketAndSubaccountID() (isLong bool, marketID common.Hash, subaccountID common.Hash) {
-	mData, tData := common.FromHex(m.GetMakerAssetData()), common.FromHex(m.GetTakerAssetData())
+func (o *BaseOrder) GetDirectionMarketAndSubaccountID(shouldGetMakerSubaccount bool) (isLong bool, marketID common.Hash, subaccountID common.Hash) {
+	mData, tData := common.FromHex(o.GetMakerAssetData()), common.FromHex(o.GetTakerAssetData())
 
 	if len(mData) > common.HashLength {
 		mData = mData[:common.HashLength]
@@ -704,7 +761,16 @@ func (m *BaseOrder) GetDirectionMarketAndSubaccountID() (isLong bool, marketID c
 		isLong = false
 		marketID = common.BytesToHash(tData)
 	}
-	subaccountID = ComputeSubaccountID(m.GetMakerAddress(), m.GetTakerFee())
+
+	var address string
+
+	if shouldGetMakerSubaccount {
+		address = o.GetMakerAddress()
+	} else {
+		address = o.GetTakerAddress()
+	}
+
+	subaccountID, _ = ComputeSubaccountID(address, o.GetTakerFee())
 
 	return isLong, marketID, subaccountID
 }

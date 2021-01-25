@@ -2,11 +2,10 @@ package types
 
 import (
 	"errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"math/big"
 	"strings"
 	"time"
-
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/ethereum/go-ethereum/common"
 	"golang.org/x/crypto/sha3"
@@ -57,21 +56,6 @@ const (
 	TAKE_PROFIT       OrderType = 4
 	REDUCE_ONLY       OrderType = 5
 )
-
-func ComputePositionBankruptcyPrice(entryPrice, margin, quantity *big.Int, isDirectionLong bool) (*big.Int, error) {
-	if quantity.Cmp(new(big.Int)) <= 0 {
-		return nil, sdkerrors.Wrap(ErrBadField, "quantity invalid in ComputeBankruptcyPrice")
-	}
-
-	var bankruptcyPrice *big.Int
-	unitMargin := new(big.Int).Div(margin, quantity)
-	if isDirectionLong {
-		bankruptcyPrice = new(big.Int).Sub(entryPrice, unitMargin)
-	} else {
-		bankruptcyPrice = new(big.Int).Add(entryPrice, unitMargin)
-	}
-	return bankruptcyPrice, nil
-}
 
 // OrderStatus encodes order status according to LibOrder.OrderStatus
 type OrderStatus uint8
@@ -187,7 +171,7 @@ func (h Hash) MarshalJSON() ([]byte, error) {
 type HexBytes []byte
 
 func (h HexBytes) MarshalJSON() ([]byte, error) {
-	hex := common.ToHex(h)
+	hex := common.Bytes2Hex(h)
 	buf := make([]byte, 0, len(hex)+2)
 	buf = append(buf, '"')
 	buf = append(buf, hex...)
@@ -207,7 +191,7 @@ func (h *HexBytes) UnmarshalJSON(src []byte) error {
 }
 
 func (h HexBytes) String() string {
-	return common.ToHex([]byte(h))
+	return common.Bytes2Hex([]byte(h))
 }
 
 type Address struct {

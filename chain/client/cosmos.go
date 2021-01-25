@@ -2,6 +2,8 @@ package client
 
 import (
 	"encoding/json"
+	"github.com/gogo/protobuf/jsonpb"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -44,6 +46,7 @@ func NewCosmosClient(ctx client.Context, protoAddr string) (CosmosClient, error)
 		return nil, err
 	}
 
+
 	cc := &cosmosClient{
 		ctx: ctx,
 		logger: log.WithFields(log.Fields{
@@ -74,6 +77,7 @@ func NewCosmosClient(ctx client.Context, protoAddr string) (CosmosClient, error)
 
 func (c *cosmosClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
+	log.Infoln("SYNCING NONCE:", num, seq, err)
 	if err != nil {
 		c.logger.WithError(err).Errorln("failed to get account seq")
 		return
@@ -153,26 +157,19 @@ func (c *cosmosClient) broadcastTx(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*sdk.TxResponse, error) {
+
 	txf, err := tx.PrepareFactory(clientCtx, txf)
 	if err != nil {
 		return nil, err
 	}
-
-	if txf.SimulateAndExecute() || clientCtx.Simulate {
-		_, adjusted, err := tx.CalculateGas(clientCtx.QueryWithData, txf, msgs...)
-		if err != nil {
-			return nil, err
-		}
-
-		txf = txf.WithGas(adjusted)
-	}
+	txf = txf.WithGas(10000000)
 
 	builder, err := tx.BuildUnsignedTx(txf, msgs...)
 	if err != nil {
 		return nil, err
 	}
 
-	err = tx.Sign(txf, clientCtx.GetFromName(), builder)
+	err = tx.Sign(txf, clientCtx.GetFromName(), builder, false)
 	if err != nil {
 		return nil, err
 	}
@@ -182,9 +179,35 @@ func (c *cosmosClient) broadcastTx(
 		return nil, err
 	}
 
+	if (txf.SimulateAndExecute() || clientCtx.Simulate) && false {
+
+		// simulate by calling ABCI Query
+		query := abci.RequestQuery{
+			Path:   "/app/simulate",
+			Data:   txBytes,
+		}
+
+		queryResult, err := clientCtx.QueryABCI(query)
+		if err != nil {
+			return nil, err
+		}
+
+		var simResponse sdk.SimulationResponse
+		err = jsonpb.Unmarshal(strings.NewReader(string(queryResult.Value)), &simResponse)
+		if err != nil {
+			return nil, err
+		}
+
+		adjusted := simResponse.GetGasUsed()
+		txf = txf.WithGas(adjusted * 10000)
+	}
+
+
+	await = true
 	if await {
 		// BroadcastTxCommit - full synced commit with await
-		return clientCtx.BroadcastTxCommit(txBytes)
+		res, err := clientCtx.BroadcastTxCommit(txBytes)
+		return res, err
 	}
 
 	// BroadcastTxSync - only CheckTx, don't wait confirmation
@@ -243,12 +266,13 @@ func (c *cosmosClient) runBatchBroadcast() {
 		defer c.syncMux.Unlock()
 
 		c.txFactory = c.txFactory.WithSequence(c.accSeq)
-
+		log.Debugln("broadcastTx with nonce", c.accSeq)
 		res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgBatch...)
 		if err != nil {
 			if strings.HasPrefix(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
 				c.txFactory = c.txFactory.WithSequence(c.accSeq)
+				log.Debugln("retrying broadcastTx with nonce", c.accSeq)
 				res, err = c.broadcastTx(c.ctx, c.txFactory, true, msgBatch...)
 			}
 			if err != nil {
@@ -259,6 +283,7 @@ func (c *cosmosClient) runBatchBroadcast() {
 		}
 
 		c.accSeq++
+		log.Debugln("nonce incremented to ", c.accSeq)
 	}
 
 	for {

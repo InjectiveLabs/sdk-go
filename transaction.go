@@ -70,15 +70,41 @@ func (tx *Transaction) ComputeTransactionHash() (common.Hash, error) {
 	return hash, nil
 }
 
+type Permyriad struct {
+	Value *big.Int
+}
+
 type ZeroExTransactionData struct {
-	FunctionName          ExchangeFunctionName
-	Orders                []*Order
+	FunctionName              FuturesFunctionName
+	Orders                    []*Order
+	MarketIDs                 []common.Hash
+	SubAccountID              common.Hash
+	ExchangeAddress           common.Address
+	CloseQuantity             *big.Int
+	SubaccountID              common.Hash
+	Signatures                [][]byte
+	PositionID                *big.Int
+	Quantity                  *big.Int
+	BaseCurrency              common.Address
+	Amount                    *big.Int
+	IsRevertingOnPartialFills bool
+	// market specific parameters
+	Ticker                 string
+	Oracle                 common.Address
+	InitialMarginRatio     Permyriad
+	MaintenanceMarginRatio Permyriad
+	FundingInterval        *big.Int
+	ExpirationTime         *big.Int
+	MakerTxFee             Permyriad
+	TakerTxFee             Permyriad
+	RelayerFeePercentage   Permyriad
+	MarketID               common.Hash
+	// parameters from 0x
 	LeftOrders            []*Order
 	RightOrders           []*Order
 	TakerAssetFillAmounts []*big.Int
 	MakerAssetFillAmount  *big.Int
 	TakerAssetFillAmount  *big.Int
-	Signatures            [][]byte
 	LeftSignatures        [][]byte
 	RightSignatures       [][]byte
 }
@@ -100,12 +126,7 @@ func (tx *Transaction) DecodeTransactionData() (*ZeroExTransactionData, error) {
 			order.ChainID = tx.Domain.ChainID
 			order.ExchangeAddress = tx.Domain.VerifyingContract
 		}
-	} else if txData.RightOrders != nil {
-		for _, order := range txData.RightOrders {
-			// these two fields make the order a complete version
-			order.ChainID = tx.Domain.ChainID
-			order.ExchangeAddress = tx.Domain.VerifyingContract
-		}
+	} else if txData.LeftOrders != nil {
 		for _, order := range txData.LeftOrders {
 			// these two fields make the order a complete version
 			order.ChainID = tx.Domain.ChainID

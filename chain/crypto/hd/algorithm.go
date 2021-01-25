@@ -4,10 +4,10 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	ethaccounts "github.com/ethereum/go-ethereum/accounts"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
-	"github.com/tendermint/tendermint/crypto"
-	bip39 "github.com/tyler-smith/go-bip39"
+	"github.com/tyler-smith/go-bip39"
 
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -92,7 +92,7 @@ func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
 
 // Generate generates a secp256k1 private key from the given bytes.
 func (s ethSecp256k1Algo) Generate() hd.GenerateFn {
-	return func(bz []byte) crypto.PrivKey {
+	return func(bz []byte) cryptotypes.PrivKey {
 		var bzArr = make([]byte, ethsecp256k1.PrivKeySize)
 		copy(bzArr, bz)
 
