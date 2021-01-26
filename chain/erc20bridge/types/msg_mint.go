@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -29,9 +30,12 @@ func (msg MsgERC20BridgeMint) Type() string { return TypeMsgMint }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgERC20BridgeMint) ValidateBasic() error {
-	_, ok := sdk.NewIntFromString(msg.Amount)
-	if !ok {
-		return errors.New("invalid amount field")
+	coins, err := sdk.ParseCoinsNormalized(msg.Amount)
+	if err != nil {
+		return err
+	}
+	if len(coins) > 1 || coins.Empty() {
+		return fmt.Errorf("invalid coins field: %s", coins.String())
 	}
 	if msg.Proposer.Empty() {
 		return errors.New("empty proposer")

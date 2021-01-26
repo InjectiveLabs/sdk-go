@@ -20,6 +20,17 @@ func init() {
 	gov.RegisterProposalTypeCodec(&ResetHubProposal{}, "cosmos-sdk/ResetHubProposal")
 }
 
+// NewTokenMapping returns an instance of TokenMapping
+func NewTokenMapping(name string, erc20Address string, cosmosDenom string, scalingFactor int64, enabled bool) TokenMapping {
+	return TokenMapping{
+		Name:          name,
+		Erc20Address:  erc20Address,
+		CosmosDenom:   cosmosDenom,
+		ScalingFactor: scalingFactor,
+		Enabled:       true,
+	}
+}
+
 // NewRegisterTokenMappingProposal returns new instance of TokenMappingProposal
 func NewRegisterTokenMappingProposal(title, description string, mapping TokenMapping) gov.Content {
 	return &RegisterTokenMappingProposal{title, description, mapping}
