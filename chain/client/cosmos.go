@@ -162,7 +162,28 @@ func (c *cosmosClient) broadcastTx(
 	if err != nil {
 		return nil, err
 	}
-	txf = txf.WithGas(10000000)
+
+	/*
+	CONTEXT
+
+	submitTx flow:
+	txf.SimulateAndExecute() || clientCtx.Simulate
+		CalculateGas
+		txf.WithGas
+		...
+
+	the CalculateGas function call into the core to simulate and calculate the gas there
+	but it's broken in 0.40.1, look like work in progress
+
+	We attempt to simulate ourselves using abci.RequestQuery
+	unlike simulation inside the core, this somehow requires txf must have sufficient gas at beginning
+
+	So we can just input the big number of gas for the txf and simulate to get the correct gas value
+	this will be feasible enough until the core simulation works again
+	*/
+
+	//fund the tx with abundant amount of gas
+	txf = txf.WithGas(10000000000)
 
 	builder, err := tx.BuildUnsignedTx(txf, msgs...)
 	if err != nil {
@@ -179,7 +200,7 @@ func (c *cosmosClient) broadcastTx(
 		return nil, err
 	}
 
-	if (txf.SimulateAndExecute() || clientCtx.Simulate) && false {
+	if (txf.SimulateAndExecute() || clientCtx.Simulate) {
 
 		// simulate by calling ABCI Query
 		query := abci.RequestQuery{
@@ -198,6 +219,7 @@ func (c *cosmosClient) broadcastTx(
 			return nil, err
 		}
 
+		//around 750000 - 1500000
 		adjusted := simResponse.GetGasUsed()
 		txf = txf.WithGas(adjusted * 10000)
 	}
