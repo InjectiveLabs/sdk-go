@@ -4,6 +4,7 @@ import (
 	"math/big"
 	"strings"
 
+	rpctypes "github.com/InjectiveLabs/injective-core/ethereum/rpc/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/spf13/cobra"
@@ -16,7 +17,7 @@ import (
 	"github.com/InjectiveLabs/sdk-go/wrappers"
 )
 
-// GetQueryCmd returns the parent command for all modules/bank CLi query commands.
+// GetQueryCmd returns the parent command for all x/bank CLi query commands.
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
@@ -43,8 +44,7 @@ func GetStorageCmd() *cobra.Command {
 		Long:  "Gets storage for an account with a given key and height. If the height is not provided, it will use the latest height from context.",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -63,12 +63,12 @@ func GetStorageCmd() *cobra.Command {
 				Key:     key,
 			}
 
-			res, err := queryClient.Storage(rpc.ContextWithHeight(clientCtx.Height), req)
+			res, err := queryClient.Storage(rpctypes.ContextWithHeight(clientCtx.Height), req)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintOutput(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 
@@ -84,8 +84,7 @@ func GetCodeCmd() *cobra.Command {
 		Long:  "Gets code from an account. If the height is not provided, it will use the latest height from context.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -101,12 +100,12 @@ func GetCodeCmd() *cobra.Command {
 				Address: address,
 			}
 
-			res, err := queryClient.Code(rpc.ContextWithHeight(clientCtx.Height), req)
+			res, err := queryClient.Code(rpctypes.ContextWithHeight(clientCtx.Height), req)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintOutput(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 
@@ -123,7 +122,7 @@ func GetErc20Balance() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -152,7 +151,10 @@ func GetErc20Balance() *cobra.Command {
 				return err
 			}
 			ret := big.NewInt(0)
-			err = erc20ABI.Unpack(&ret, "balanceOf", res.Data)
+			err = erc20ABI.UnpackIntoInterface(&ret, "balanceOf", res.Data)
+			if err != nil {
+				return err
+			}
 
 			return clientCtx.PrintString(ret.String())
 		},
@@ -171,7 +173,7 @@ func GetAccount() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -188,7 +190,7 @@ func GetAccount() *cobra.Command {
 				return err
 			}
 
-			return clientCtx.PrintOutput(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 

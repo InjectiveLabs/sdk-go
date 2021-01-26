@@ -1,8 +1,9 @@
 package cli
 
 import (
+	"context"
+
 	"github.com/InjectiveLabs/sdk-go/chain/erc20bridge/types"
-	"github.com/InjectiveLabs/sdk-go/ethereum/rpc"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
@@ -34,7 +35,7 @@ func GetBridgesCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -43,12 +44,12 @@ func GetBridgesCmd() *cobra.Command {
 
 			req := &types.QueryBridgesRequest{}
 
-			res, err := queryClient.Bridges(rpc.ContextWithHeight(clientCtx.Height), req)
+			res, err := queryClient.Bridges(context.Background(), req)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintOutput(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 
@@ -65,7 +66,7 @@ func GetHubParamsCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
-			clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
@@ -74,12 +75,12 @@ func GetHubParamsCmd() *cobra.Command {
 
 			req := &types.QueryHubParamsRequest{}
 
-			res, err := queryClient.HubParams(rpc.ContextWithHeight(clientCtx.Height), req)
+			res, err := queryClient.HubParams(context.Background(), req)
 			if err != nil {
 				return err
 			}
 
-			return clientCtx.PrintOutput(res)
+			return clientCtx.PrintProto(res)
 		},
 	}
 
