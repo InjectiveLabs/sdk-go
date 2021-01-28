@@ -354,3 +354,11 @@ func deriveChainID(v *big.Int) *big.Int {
 	v = new(big.Int).Sub(v, big.NewInt(35))
 	return v.Div(v, big.NewInt(2))
 }
+
+// NewEIP155Signer returns instance of evmtypes.EIP155Signer
+func NewEIP155Signer(chainID []byte, chainIDMul []byte) *EIP155Signer {
+	return &EIP155Signer{
+		chainId:    chainID,
+		chainIdMul: chainIDMul,
+	}
+}
