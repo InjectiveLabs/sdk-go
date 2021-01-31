@@ -32,7 +32,33 @@ var (
 	_ sdk.Msg = &MsgCreateSpotOrder{}
 	_ sdk.Msg = &MsgExecuteDerivativeTakeOrder{}
 	_ sdk.Msg = &MsgExecuteTECTransaction{}
+	_ sdk.Msg = &MsgInitExchange{}
 )
+
+func (msg *MsgInitExchange) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgInitExchange) Type() string {
+	return "msgInitExchange"
+}
+
+func (msg *MsgInitExchange) ValidateBasic() error {
+	if msg.Sender.Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender.String())
+	} else if !common.IsHexAddress(msg.ExchangeAddress) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ExchangeAddress)
+	}
+	return nil
+}
+
+func (msg *MsgInitExchange) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgInitExchange) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Sender}
+}
 
 func (msg *MsgSoftCancelDerivativeOrder) Route() string {
 	return RouterKey
@@ -45,6 +71,26 @@ func (msg *MsgSoftCancelDerivativeOrder) Type() string {
 func (msg *MsgSoftCancelDerivativeOrder) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if msg.Order == nil {
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
+	}
+
+	order := msg.Order.ToSignedOrder()
+	quantity := order.TakerAssetAmount
+	price := order.MakerAssetAmount
+	orderHash, err := order.ComputeOrderHash()
+	makerAddress := common.HexToAddress(msg.Order.MakerAddress)
+
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
+	} else if !isValidSignature(msg.Order.Signature, makerAddress, orderHash) {
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
+	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
+	} else if price == nil || price.Cmp(big.NewInt(0)) <= 0 {
+		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient price")
 	}
 
 	return nil
@@ -194,9 +240,7 @@ func (msg MsgCreateDerivativeOrder) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
 	} else if !isValidSignature(msg.Order.Signature, makerAddress, orderHash) {
-		// TODO: @ALBERT DONT FORGET TO UNCOMMENT THIS BEFORE COMMITTING
-		return nil
-		//return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
+		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
 	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
 		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
 	} else if price == nil || price.Cmp(big.NewInt(0)) <= 0 {
