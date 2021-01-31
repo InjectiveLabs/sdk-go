@@ -46,7 +46,6 @@ func NewCosmosClient(ctx client.Context, protoAddr string) (CosmosClient, error)
 		return nil, err
 	}
 
-
 	cc := &cosmosClient{
 		ctx: ctx,
 		logger: log.WithFields(log.Fields{
@@ -64,6 +63,7 @@ func NewCosmosClient(ctx client.Context, protoAddr string) (CosmosClient, error)
 		var err error
 
 		cc.accNum, cc.accSeq, err = cc.txFactory.AccountRetriever().GetAccountNumberSequence(ctx, ctx.GetFromAddress())
+		log.Infoln("accNum", cc.accNum, "accSeq", cc.accSeq)
 		if err != nil {
 			err = errors.Wrap(err, "failed to get initial account num and seq")
 			return nil, err
@@ -164,22 +164,22 @@ func (c *cosmosClient) broadcastTx(
 	}
 
 	/*
-	CONTEXT
+		CONTEXT
 
-	submitTx flow:
-	txf.SimulateAndExecute() || clientCtx.Simulate
-		CalculateGas
-		txf.WithGas
-		...
+		submitTx flow:
+		txf.SimulateAndExecute() || clientCtx.Simulate
+			CalculateGas
+			txf.WithGas
+			...
 
-	the CalculateGas function call into the core to simulate and calculate the gas there
-	but it's broken in 0.40.1, look like work in progress
+		the CalculateGas function call into the core to simulate and calculate the gas there
+		but it's broken in 0.40.1, look like work in progress
 
-	We attempt to simulate ourselves using abci.RequestQuery
-	unlike simulation inside the core, this somehow requires txf must have sufficient gas at beginning
+		We attempt to simulate ourselves using abci.RequestQuery
+		unlike simulation inside the core, this somehow requires txf must have sufficient gas at beginning
 
-	So we can just input the big number of gas for the txf and simulate to get the correct gas value
-	this will be feasible enough until the core simulation works again
+		So we can just input the big number of gas for the txf and simulate to get the correct gas value
+		this will be feasible enough until the core simulation works again
 	*/
 
 	//fund the tx with abundant amount of gas
@@ -200,12 +200,12 @@ func (c *cosmosClient) broadcastTx(
 		return nil, err
 	}
 
-	if (txf.SimulateAndExecute() || clientCtx.Simulate) {
+	if txf.SimulateAndExecute() || clientCtx.Simulate {
 
 		// simulate by calling ABCI Query
 		query := abci.RequestQuery{
-			Path:   "/app/simulate",
-			Data:   txBytes,
+			Path: "/app/simulate",
+			Data: txBytes,
 		}
 
 		queryResult, err := clientCtx.QueryABCI(query)
@@ -223,7 +223,6 @@ func (c *cosmosClient) broadcastTx(
 		adjusted := simResponse.GetGasUsed()
 		txf = txf.WithGas(adjusted * 10000)
 	}
-
 
 	await = true
 	if await {

@@ -21,6 +21,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus/common v0.15.0
 	github.com/prometheus/tsdb v0.10.0 // indirect
 	github.com/regen-network/cosmos-proto v0.3.1
 	github.com/rjeczalik/notify v0.9.2 // indirect
