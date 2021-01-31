@@ -32,4 +32,8 @@ var (
 	ErrInsufficientTakerMargin      = sdkerrors.Register(ModuleName, 25, "taker has insufficient available margin")
 	ErrInsufficientLiquidity        = sdkerrors.Register(ModuleName, 26, "insufficient liquidity in the orderbook")
 	ErrReplayTecTransaction         = sdkerrors.Register(ModuleName, 27, "cannot replay TEC transaction")
+	ErrOrderAlreadyArchived         = sdkerrors.Register(ModuleName, 28, "order already in archive store")
+	ErrAddressNotContract           = sdkerrors.Register(ModuleName, 29, "address is not a smart contract")
+	ErrExchangeAlreadySet           = sdkerrors.Register(ModuleName, 30, "Exchange address already set")
+	ErrBadExchangeAddress           = sdkerrors.Register(ModuleName, 31, "Bad exchange address")
 )

@@ -49,6 +49,14 @@ var (
 	ModuleStatePrefix = []byte{0xff}
 )
 
+func DerivativeMarketByExchangeAddressEnabledPrefix(exchangeAddress common.Address, isEnabled bool) []byte {
+	isEnabledByte := byte(0)
+	if isEnabled {
+		isEnabledByte = byte(1)
+	}
+	return append(exchangeAddress.Bytes(), isEnabledByte)
+}
+
 // OrdersByMarketDirectionPriceOrderHashPrefix turns a marketID + direction + price + order hash to prefix used to get an order from the store.
 func OrdersByMarketDirectionPriceOrderHashPrefix(marketID common.Hash, orderHash common.Hash, price *big.Int, isLong bool) []byte {
 	return append(OrdersByMarketDirectionPricePrefix(marketID, price, isLong), orderHash.Bytes()...)

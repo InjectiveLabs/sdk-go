@@ -10,7 +10,7 @@ var _ paramtypes.ParamSet = &Params{}
 
 // Parameter keys
 var (
-	ParamStoreKeyFuturesEnabled = []byte("FuturesEnabled")
+	ParamStoreKeyExchangeParams = []byte("ExchangeParams")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -19,39 +19,29 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(futuresAddresses FuturesEnabledParams) Params {
+func NewParams(ep ExchangeParams) Params {
 	return Params{
-		FuturesEnabled: futuresAddresses,
-	}
-}
-
-// DefaultParams returns default evm parameters
-func DefaultParams() Params {
-	return Params{
-		FuturesEnabled: FuturesEnabledParams{},
+		ExchangeParams: ep,
 	}
 }
 
 // ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
+func (m *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(ParamStoreKeyFuturesEnabled, &p.FuturesEnabled, validateFuturesEnabled),
+		paramtypes.NewParamSetPair(ParamStoreKeyExchangeParams, &m.ExchangeParams, validateExchangeParams),
 	}
 }
 
 // Validate performs basic validation on orders parameters.
-func (p Params) Validate() error {
-	return validateFuturesEnabled(p.FuturesEnabled)
+func (m Params) Validate() error {
+	return validateExchangeParams(m.ExchangeParams)
 }
 
-func validateFuturesEnabled(i interface{}) error {
-	_, ok := i.(string)
+func validateExchangeParams(i interface{}) error {
+	_, ok := i.(ExchangeParams)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	return nil
 }
-
-// FuturesEnabledParams is a collection of parameters indicating if a futures address is enabled
-type FuturesEnabledParams []string

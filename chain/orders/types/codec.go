@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 var (
@@ -19,6 +20,7 @@ var (
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
+		&MsgInitExchange{},
 		&MsgRegisterDerivativeMarket{},
 		&MsgSuspendDerivativeMarket{},
 		&MsgResumeDerivativeMarket{},
@@ -30,5 +32,10 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgCreateSpotOrder{},
 		&MsgExecuteDerivativeTakeOrder{},
 		&MsgExecuteTECTransaction{},
+	)
+
+	registry.RegisterImplementations(
+		(*govtypes.Content)(nil),
+		&RegisterExchangeProposal{},
 	)
 }

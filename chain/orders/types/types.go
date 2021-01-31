@@ -57,6 +57,40 @@ const (
 	REDUCE_ONLY       OrderType = 5
 )
 
+func ComputePositionBankruptcyPrice(
+	entryPrice, margin, quantity, marketCumulativeFunding, positionCumFundingEntry *big.Int,
+	isDirectionLong bool,
+) *big.Int {
+	// funding fee = position quantity * (market cumulative funding - position cumulative funding entry)
+	fundingFee := new(big.Int).Mul(quantity, new(big.Int).Sub(marketCumulativeFunding, positionCumFundingEntry))
+
+	isFundingPositive := fundingFee.Cmp(big.NewInt(0)) > 0
+
+	// When the funding rate is positive, longs pay shorts. When negative, shorts pay longs.
+	longPositionGetsPaid := isDirectionLong && !isFundingPositive
+	longPositionPays := isDirectionLong && isFundingPositive
+
+	shortPositionGetsPaid := !isDirectionLong && isFundingPositive
+	shortPositionPays := !isDirectionLong && !isFundingPositive
+
+	netMargin := BigNum(margin.String()).Int()
+
+	if longPositionGetsPaid || shortPositionGetsPaid {
+		netMargin = new(big.Int).Add(margin, fundingFee)
+	} else if longPositionPays || shortPositionPays {
+		netMargin = new(big.Int).Sub(margin, fundingFee)
+	}
+
+	var bankruptcyPrice *big.Int
+	unitMargin := new(big.Int).Div(netMargin, quantity)
+	if isDirectionLong {
+		bankruptcyPrice = new(big.Int).Sub(entryPrice, unitMargin)
+	} else {
+		bankruptcyPrice = new(big.Int).Add(entryPrice, unitMargin)
+	}
+	return bankruptcyPrice
+}
+
 // OrderStatus encodes order status according to LibOrder.OrderStatus
 type OrderStatus uint8
 

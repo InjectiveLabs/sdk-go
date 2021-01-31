@@ -1,6 +1,5 @@
 package types
 
-
 type OrderCollectionType string
 
 const (
