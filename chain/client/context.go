@@ -23,6 +23,19 @@ import (
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
+// NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
+func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
+	interfaceRegistry := types.NewInterfaceRegistry()
+	keyscodec.RegisterInterfaces(interfaceRegistry)
+	std.RegisterInterfaces(interfaceRegistry)
+	orders.RegisterInterfaces(interfaceRegistry)
+	evm.RegisterInterfaces(interfaceRegistry)
+	ctypes.RegisterInterfaces(interfaceRegistry)
+
+	marshaler := codec.NewProtoCodec(interfaceRegistry)
+	return tx.NewTxConfig(marshaler, signModes)
+}
+
 func NewClientContext(
 	chainId string,
 	privKey *ethsecp256k1.PrivKey,
@@ -40,7 +53,7 @@ func NewClientContext(
 	encodingConfig := EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Marshaler:         marshaler,
-		TxConfig: tx.NewTxConfig(marshaler, []signingtypes.SignMode{
+		TxConfig: NewTxConfig([]signingtypes.SignMode{
 			signingtypes.SignMode_SIGN_MODE_DIRECT,
 		}),
 	}
