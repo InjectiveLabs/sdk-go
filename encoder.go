@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"math/big"
 	"strings"
 
@@ -20,8 +19,6 @@ func DecodeFromTransactionData(data []byte) (txData *ZeroExTransactionData, err 
 
 	id := data[:4]
 	method, err := futuresABI.MethodById(id)
-	fmt.Println("KAWABANGAAAAAAA")
-	fmt.Printf("method %s has id %s", method, common.Bytes2Hex(id))
 	if err != nil {
 		err = errors.Wrap(err, "failed to get method name")
 		return nil, err

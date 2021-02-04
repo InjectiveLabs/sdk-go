@@ -63,7 +63,6 @@ func NewCosmosClient(ctx client.Context, protoAddr string) (CosmosClient, error)
 		var err error
 
 		cc.accNum, cc.accSeq, err = cc.txFactory.AccountRetriever().GetAccountNumberSequence(ctx, ctx.GetFromAddress())
-		log.Infoln("accNum", cc.accNum, "accSeq", cc.accSeq)
 		if err != nil {
 			err = errors.Wrap(err, "failed to get initial account num and seq")
 			return nil, err
@@ -77,7 +76,6 @@ func NewCosmosClient(ctx client.Context, protoAddr string) (CosmosClient, error)
 
 func (c *cosmosClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
-	log.Infoln("SYNCING NONCE:", num, seq, err)
 	if err != nil {
 		c.logger.WithError(err).Errorln("failed to get account seq")
 		return

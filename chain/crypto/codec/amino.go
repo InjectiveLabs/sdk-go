@@ -11,7 +11,6 @@ import (
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 )
 
-
 var amino *codec.LegacyAmino
 
 func init() {

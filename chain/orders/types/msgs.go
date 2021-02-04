@@ -14,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
-	log "github.com/xlab/suplog"
 )
 
 const RouterKey = ModuleName
@@ -670,7 +669,6 @@ func (order *Order) DoesValidationPass(
 ) error {
 	err := order.ComputeAndSetOrderType()
 	if err != nil {
-		log.Infoln("fail")
 		return err
 	}
 
