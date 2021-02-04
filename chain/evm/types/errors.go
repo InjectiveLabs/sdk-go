@@ -33,4 +33,13 @@ var (
 
 	// ErrVMExecution returns an error resulting from an error in EVM execution.
 	ErrVMExecution = sdkerrors.Register(ModuleName, 10, "error while executing evm transaction")
+
+	// ErrTxReceiptNotFound returns an error if the transaction receipt could not be found
+	ErrTxReceiptNotFound = sdkerrors.Register(ModuleName, 11, "transaction receipt not found")
+
+	// ErrCreateDisabled returns an error if the EnableCreate parameter is false.
+	ErrCreateDisabled = sdkerrors.Register(ModuleName, 12, "EVM Create operation is disabled")
+
+	// ErrCallDisabled returns an error if the EnableCall parameter is false.
+	ErrCallDisabled = sdkerrors.Register(ModuleName, 13, "EVM Call operation is disabled")
 )
