@@ -20,6 +20,7 @@ import (
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/hd"
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	orders "github.com/InjectiveLabs/sdk-go/chain/orders/types"
+	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
@@ -30,6 +31,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	std.RegisterInterfaces(interfaceRegistry)
 	orders.RegisterInterfaces(interfaceRegistry)
 	evm.RegisterInterfaces(interfaceRegistry)
+	peggy.RegisterInterfaces(interfaceRegistry)
 	ctypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
@@ -47,6 +49,7 @@ func NewClientContext(
 	std.RegisterInterfaces(interfaceRegistry)
 	orders.RegisterInterfaces(interfaceRegistry)
 	evm.RegisterInterfaces(interfaceRegistry)
+	peggy.RegisterInterfaces(interfaceRegistry)
 	ctypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
