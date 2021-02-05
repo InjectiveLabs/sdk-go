@@ -21,13 +21,12 @@ func init() {
 }
 
 // NewTokenMapping returns an instance of TokenMapping
-func NewTokenMapping(name string, erc20Address string, cosmosDenom string, scalingFactor int64, enabled bool) TokenMapping {
+func NewTokenMapping(name string, erc20Address string, cosmosDenom string, enabled bool) TokenMapping {
 	return TokenMapping{
-		Name:          name,
-		Erc20Address:  erc20Address,
-		CosmosDenom:   cosmosDenom,
-		ScalingFactor: scalingFactor,
-		Enabled:       true,
+		Name:         name,
+		Erc20Address: erc20Address,
+		CosmosDenom:  cosmosDenom,
+		Enabled:      true,
 	}
 }
 
