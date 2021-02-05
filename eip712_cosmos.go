@@ -95,7 +95,7 @@ func extractTypes(rootType string, v map[string]interface{}) typeddata.Types {
 	const typeDefPrefix = "_."
 	typeDefs := map[string]string{}
 
-	fields := structwalk.FieldList(msgValue)
+	fields := structwalk.FieldListNoSort(msgValue)
 	for _, field := range fields {
 		parent, childName, childType, ok := childTypeInParent(field, msgValue)
 		if !ok {

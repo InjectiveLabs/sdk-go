@@ -3,7 +3,6 @@ package typeddata
 import (
 	"bytes"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -20,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/clique"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/pkg/errors"
 )
 
 type SigFormat struct {
@@ -109,6 +109,24 @@ var typedDataReferenceTypeRegexp = regexp.MustCompile(`^[A-Z](\w*)(\[\])?$`)
 func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
 	msg := fmt.Sprintf("\x19\x00%s%s", string(validatorData.Address.Bytes()), string(validatorData.Message))
 	return crypto.Keccak256([]byte(msg)), msg
+}
+
+// ComputeTypedDataHash computes keccak hash of typed data for signing.
+func ComputeTypedDataHash(typedData TypedData) ([]byte, error) {
+	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
+	if err != nil {
+		err = errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
+		return nil, err
+	}
+
+	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
+	if err != nil {
+		err = errors.Wrap(err, "failed to pack and hash typedData primary type")
+		return nil, err
+	}
+
+	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
+	return crypto.Keccak256(rawData), nil
 }
 
 // cliqueHeaderHashAndRlp returns the hash which is used as input for the proof-of-authority
