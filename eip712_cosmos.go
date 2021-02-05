@@ -9,21 +9,22 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
 	"github.com/pkg/errors"
 	"github.com/xlab/structwalk"
+
+	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
 // WrapTxToEIP712 is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible request. All messages must be of the same type.
-func WrapTxToEIP712(chainID uint64, data []byte) (gethsigner.TypedData, error) {
+func WrapTxToEIP712(chainID uint64, data []byte) (typeddata.TypedData, error) {
 	message := make(map[string]interface{})
 	if err := json.Unmarshal(data, &message); err != nil {
 		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
-		return gethsigner.TypedData{}, err
+		return typeddata.TypedData{}, err
 	}
 
-	domain := gethsigner.TypedDataDomain{
+	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
 		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
@@ -31,7 +32,7 @@ func WrapTxToEIP712(chainID uint64, data []byte) (gethsigner.TypedData, error) {
 		Salt:              "0",
 	}
 
-	var typedData = gethsigner.TypedData{
+	var typedData = typeddata.TypedData{
 		Types:       extractTypes("Tx", message),
 		PrimaryType: "Tx",
 		Domain:      domain,
@@ -41,8 +42,8 @@ func WrapTxToEIP712(chainID uint64, data []byte) (gethsigner.TypedData, error) {
 	return typedData, nil
 }
 
-func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
-	rootTypes := gethsigner.Types{
+func extractTypes(rootType string, v map[string]interface{}) typeddata.Types {
+	rootTypes := typeddata.Types{
 		"EIP712Domain": {
 			{
 				Name: "name",
@@ -102,7 +103,7 @@ func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 		}
 
 		if len(parent) == 0 {
-			rootTypes["MsgValue"] = append(rootTypes["MsgValue"], gethsigner.Type{
+			rootTypes["MsgValue"] = append(rootTypes["MsgValue"], typeddata.Type{
 				Name: childName,
 				Type: childType,
 			})
@@ -111,7 +112,7 @@ func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 		}
 
 		typeDef := sanitizeTypedef(typeDefPrefix + parent)
-		rootTypes[typeDef] = append(rootTypes[typeDef], gethsigner.Type{
+		rootTypes[typeDef] = append(rootTypes[typeDef], typeddata.Type{
 			Name: childName,
 			Type: childType,
 		})
@@ -121,7 +122,7 @@ func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 
 	for parent, subParent := range typeDefs {
 		if len(subParent) == 0 {
-			rootTypes["MsgValue"] = append(rootTypes["MsgValue"], gethsigner.Type{
+			rootTypes["MsgValue"] = append(rootTypes["MsgValue"], typeddata.Type{
 				Name: parent,
 				Type: sanitizeTypedef(typeDefPrefix + parent),
 			})
@@ -130,7 +131,7 @@ func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 		}
 
 		subParent = sanitizeTypedef(typeDefPrefix + subParent)
-		rootTypes[subParent] = append(rootTypes[subParent], gethsigner.Type{
+		rootTypes[subParent] = append(rootTypes[subParent], typeddata.Type{
 			Name: parent,
 			Type: sanitizeTypedef(typeDefPrefix + parent),
 		})

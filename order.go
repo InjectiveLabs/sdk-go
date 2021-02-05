@@ -9,10 +9,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/sha3"
 
+	"github.com/InjectiveLabs/sdk-go/typeddata"
 	"github.com/InjectiveLabs/sdk-go/wrappers"
 )
 
@@ -57,7 +57,7 @@ func (o *Order) ComputeOrderHash() (common.Hash, error) {
 	}
 
 	chainID := math.NewHexOrDecimal256(o.ChainID.Int64())
-	var domain = gethsigner.TypedDataDomain{
+	var domain = typeddata.TypedDataDomain{
 		Name:              "0x Protocol",
 		Version:           "3.0.0",
 		ChainId:           chainID,
@@ -81,7 +81,7 @@ func (o *Order) ComputeOrderHash() (common.Hash, error) {
 		"expirationTimeSeconds": o.ExpirationTimeSeconds.String(),
 	}
 
-	var typedData = gethsigner.TypedData{
+	var typedData = typeddata.TypedData{
 		Types:       eip712OrderTypes,
 		PrimaryType: "Order",
 		Domain:      domain,

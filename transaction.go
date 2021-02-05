@@ -6,9 +6,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/sha3"
+
+	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
 type Transaction struct {
@@ -42,7 +43,7 @@ func (tx *Transaction) ComputeTransactionHash() (common.Hash, error) {
 		"data":                  tx.Data,
 	}
 
-	var typedData = gethsigner.TypedData{
+	var typedData = typeddata.TypedData{
 		Types:       eip712TransactionTypes,
 		PrimaryType: "ZeroExTransaction",
 		Domain:      tx.ExchangeDomain(),
@@ -226,15 +227,15 @@ func SignTransaction(
 	return signedTransaction, nil
 }
 
-func (tx *Transaction) ExchangeDomain() gethsigner.TypedDataDomain {
+func (tx *Transaction) ExchangeDomain() typeddata.TypedDataDomain {
 	return makeExchangeDomain(tx.Domain.ChainID, tx.Domain.VerifyingContract)
 }
 
 func makeExchangeDomain(
 	chainID *big.Int,
 	verifyingContract common.Address,
-) gethsigner.TypedDataDomain {
-	return gethsigner.TypedDataDomain{
+) typeddata.TypedDataDomain {
+	return typeddata.TypedDataDomain{
 		Name:              "0x Protocol",
 		Version:           "3.0.0",
 		ChainId:           math.NewHexOrDecimal256(chainID.Int64()),

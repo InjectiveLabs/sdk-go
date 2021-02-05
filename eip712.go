@@ -4,7 +4,8 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
+
+	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
 type EIP712Domain struct {
@@ -12,7 +13,7 @@ type EIP712Domain struct {
 	ChainID           *big.Int       `json:"chainID"`
 }
 
-var eip712OrderTypes = gethsigner.Types{
+var eip712OrderTypes = typeddata.Types{
 	"EIP712Domain": {
 		{
 			Name: "name",
@@ -91,7 +92,7 @@ var eip712OrderTypes = gethsigner.Types{
 	},
 }
 
-var eip712TransactionTypes = gethsigner.Types{
+var eip712TransactionTypes = typeddata.Types{
 	"EIP712Domain": {
 		{
 			Name: "name",
@@ -134,7 +135,7 @@ var eip712TransactionTypes = gethsigner.Types{
 	},
 }
 
-var eip712CoordinatorApprovalTypes = gethsigner.Types{
+var eip712CoordinatorApprovalTypes = typeddata.Types{
 	"EIP712Domain": {
 		{
 			Name: "name",

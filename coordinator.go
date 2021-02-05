@@ -5,9 +5,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/sha3"
+
+	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
 type CoordinatorApproval struct {
@@ -36,7 +37,7 @@ func (a *CoordinatorApproval) ComputeApprovalHash() (common.Hash, error) {
 		"transactionSignature": a.TransactionSignature,
 	}
 
-	var typedData = gethsigner.TypedData{
+	var typedData = typeddata.TypedData{
 		Types:       eip712CoordinatorApprovalTypes,
 		PrimaryType: "CoordinatorApproval",
 		Domain:      a.CoordinatorDomain(),
@@ -97,15 +98,15 @@ func SignCoordinatorApproval(
 	return signedApproval, nil
 }
 
-func (a *CoordinatorApproval) CoordinatorDomain() gethsigner.TypedDataDomain {
+func (a *CoordinatorApproval) CoordinatorDomain() typeddata.TypedDataDomain {
 	return makeCoordinatorDomain(a.Domain.ChainID, a.Domain.VerifyingContract)
 }
 
 func makeCoordinatorDomain(
 	chainID *big.Int,
 	verifyingContract common.Address,
-) gethsigner.TypedDataDomain {
-	return gethsigner.TypedDataDomain{
+) typeddata.TypedDataDomain {
+	return typeddata.TypedDataDomain{
 		Name:              "0x Protocol Coordinator",
 		Version:           "3.0.0",
 		ChainId:           math.NewHexOrDecimal256(chainID.Int64()),
