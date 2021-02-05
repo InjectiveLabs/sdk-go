@@ -24,9 +24,11 @@ func WrapTxToEIP712(chainID uint64, data []byte) (gethsigner.TypedData, error) {
 	}
 
 	domain := gethsigner.TypedDataDomain{
-		Name:    "Injective Web3",
-		Version: "1.0.0",
-		ChainId: math.NewHexOrDecimal256(int64(chainID)),
+		Name:              "Injective Web3",
+		Version:           "1.0.0",
+		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
+		VerifyingContract: "cosmos",
+		Salt:              "0",
 	}
 
 	var typedData = gethsigner.TypedData{
@@ -56,7 +58,7 @@ func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 			},
 			{
 				Name: "verifyingContract",
-				Type: "address",
+				Type: "string",
 			},
 			{
 				Name: "salt",
@@ -137,7 +139,7 @@ func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 	return rootTypes
 }
 
-// _.foo_bar.baz -> _FooBarBaz
+// _.foo_bar.baz -> TypeFooBarBaz
 //
 // this is needed for Geth's own signing code which doesn't
 // tolerate complex type names
@@ -147,7 +149,7 @@ func sanitizeTypedef(str string) string {
 
 	for _, part := range parts {
 		if part == "_" {
-			buf.WriteString(part)
+			buf.WriteString("Type")
 			continue
 		}
 
