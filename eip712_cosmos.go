@@ -15,11 +15,11 @@ import (
 
 // WrapTxToEIP712 is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible request. All messages must be of the same type.
-func WrapTxToEIP712(chainID uint64, data []byte) ([]byte, error) {
+func WrapTxToEIP712(chainID uint64, data []byte) (gethsigner.TypedData, error) {
 	message := make(map[string]interface{})
 	if err := json.Unmarshal(data, &message); err != nil {
 		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
-		return nil, err
+		return gethsigner.TypedData{}, err
 	}
 
 	domain := gethsigner.TypedDataDomain{
@@ -35,7 +35,7 @@ func WrapTxToEIP712(chainID uint64, data []byte) ([]byte, error) {
 		Message:     message,
 	}
 
-	return json.Marshal(typedData)
+	return typedData, nil
 }
 
 func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
