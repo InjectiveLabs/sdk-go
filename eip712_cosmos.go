@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"bytes"
 	"encoding/json"
 	"math/big"
 	"reflect"
@@ -40,6 +41,28 @@ func WrapTxToEIP712(chainID uint64, data []byte) (gethsigner.TypedData, error) {
 
 func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 	rootTypes := gethsigner.Types{
+		"EIP712Domain": {
+			{
+				Name: "name",
+				Type: "string",
+			},
+			{
+				Name: "version",
+				Type: "string",
+			},
+			{
+				Name: "chainId",
+				Type: "uint256",
+			},
+			{
+				Name: "verifyingContract",
+				Type: "address",
+			},
+			{
+				Name: "salt",
+				Type: "string",
+			},
+		},
 		"Tx": {
 			{Name: "account_number", Type: "string"},
 			{Name: "chain_id", Type: "string"},
@@ -85,7 +108,7 @@ func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 			continue
 		}
 
-		typeDef := typeDefPrefix + parent
+		typeDef := sanitizeTypedef(typeDefPrefix + parent)
 		rootTypes[typeDef] = append(rootTypes[typeDef], gethsigner.Type{
 			Name: childName,
 			Type: childType,
@@ -98,20 +121,43 @@ func extractTypes(rootType string, v map[string]interface{}) gethsigner.Types {
 		if len(subParent) == 0 {
 			rootTypes["MsgValue"] = append(rootTypes["MsgValue"], gethsigner.Type{
 				Name: parent,
-				Type: typeDefPrefix + parent,
+				Type: sanitizeTypedef(typeDefPrefix + parent),
 			})
 
 			continue
 		}
 
-		subParent = typeDefPrefix + subParent
+		subParent = sanitizeTypedef(typeDefPrefix + subParent)
 		rootTypes[subParent] = append(rootTypes[subParent], gethsigner.Type{
 			Name: parent,
-			Type: typeDefPrefix + parent,
+			Type: sanitizeTypedef(typeDefPrefix + parent),
 		})
 	}
 
 	return rootTypes
+}
+
+// _.foo_bar.baz -> _FooBarBaz
+//
+// this is needed for Geth's own signing code which doesn't
+// tolerate complex type names
+func sanitizeTypedef(str string) string {
+	buf := new(bytes.Buffer)
+	parts := strings.Split(str, ".")
+
+	for _, part := range parts {
+		if part == "_" {
+			buf.WriteString(part)
+			continue
+		}
+
+		subparts := strings.Split(part, "_")
+		for _, subpart := range subparts {
+			buf.WriteString(strings.Title(subpart))
+		}
+	}
+
+	return buf.String()
 }
 
 // foo.bar.baz = "5" -> FooBar: { Baz: "string" }
