@@ -15,6 +15,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
+	evidence "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
+
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/hd"
@@ -34,6 +39,12 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	peggy.RegisterInterfaces(interfaceRegistry)
 	ctypes.RegisterInterfaces(interfaceRegistry)
 
+	// more cosmos types
+	bank.RegisterInterfaces(interfaceRegistry)
+	staking.RegisterInterfaces(interfaceRegistry)
+	gov.RegisterInterfaces(interfaceRegistry)
+	evidence.RegisterInterfaces(interfaceRegistry)
+
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	return tx.NewTxConfig(marshaler, signModes)
 }
@@ -51,6 +62,12 @@ func NewClientContext(
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	ctypes.RegisterInterfaces(interfaceRegistry)
+
+	// more cosmos types
+	bank.RegisterInterfaces(interfaceRegistry)
+	staking.RegisterInterfaces(interfaceRegistry)
+	gov.RegisterInterfaces(interfaceRegistry)
+	evidence.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{
