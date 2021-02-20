@@ -50,6 +50,10 @@ func (o *Order) ResetHash() {
 	o.hash = nil
 }
 
+func (o *Order) ComputeSubaccountID() common.Hash {
+	return common.BytesToHash(append(o.MakerAddress.Bytes(), common.LeftPadBytes(o.TakerFee.Bytes(), 12)...))
+}
+
 // ComputeOrderHash computes a 0x order hash
 func (o *Order) ComputeOrderHash() (common.Hash, error) {
 	if o.hash != nil {
