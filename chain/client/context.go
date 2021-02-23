@@ -3,17 +3,16 @@ package client
 import (
 	"os"
 
-	"github.com/pkg/errors"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/std"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/pkg/errors"
 
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	evidence "github.com/cosmos/cosmos-sdk/x/evidence/types"
@@ -21,8 +20,7 @@ import (
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
-	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
-	"github.com/InjectiveLabs/sdk-go/chain/crypto/hd"
+
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	orders "github.com/InjectiveLabs/sdk-go/chain/orders/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
@@ -49,9 +47,11 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	return tx.NewTxConfig(marshaler, signModes)
 }
 
+// NewClientContext creates a new Cosmos Client context, where chainID
+// corresponds to Cosmos chain ID, fromSpec is either name of the key, or bech32-address
+// of the Cosmos account. Keyring is required to contain the specified key.
 func NewClientContext(
-	chainId string,
-	privKey *ethsecp256k1.PrivKey,
+	chainId, fromSpec string, kb keyring.Keyring,
 ) (client.Context, error) {
 	clientCtx := client.Context{}
 
@@ -78,22 +78,21 @@ func NewClientContext(
 		}),
 	}
 
-	var kb keyring.Keyring
-	var info keyring.Info
+	var keyInfo keyring.Info
+	var err error
 
-	if privKey != nil {
-		kb = keyring.NewInMemory(hd.EthSecp256k1Option())
-		tmpPhrase := randPhrase(64)
-		armor := crypto.EncryptArmorPrivKey(privKey, tmpPhrase, "eth_secp256k1")
-		err := kb.ImportPrivKey(clientKeyName, armor, tmpPhrase)
+	addr, err := cosmtypes.AccAddressFromBech32(fromSpec)
+	if err == nil {
+		keyInfo, err = kb.KeyByAddress(addr)
 		if err != nil {
-			err = errors.Wrap(err, "failed to import privkey")
+			err = errors.Wrapf(err, "failed to load key info by address %s", addr.String())
 			return clientCtx, err
 		}
-
-		info, err = kb.Key(clientKeyName)
+	} else {
+		// failed to parse Bech32, is it a name?
+		keyInfo, err = kb.Key(fromSpec)
 		if err != nil {
-			err = errors.Wrap(err, "failed to get info about imported privkey")
+			err = errors.Wrapf(err, "no key in keyring for name: %s", fromSpec)
 			return clientCtx, err
 		}
 	}
@@ -102,7 +101,7 @@ func NewClientContext(
 		chainId,
 		encodingConfig,
 		kb,
-		info,
+		keyInfo,
 	)
 
 	return clientCtx, nil
@@ -114,13 +113,11 @@ type EncodingConfig struct {
 	TxConfig          client.TxConfig
 }
 
-var clientKeyName = "client"
-
 func newContext(
 	chainId string,
 	encodingConfig EncodingConfig,
 	kb keyring.Keyring,
-	account keyring.Info,
+	keyInfo keyring.Info,
 ) client.Context {
 	clientCtx := client.Context{
 		ChainID:           chainId,
@@ -129,9 +126,9 @@ func newContext(
 		Keyring:           kb,
 		Output:            os.Stderr,
 		OutputFormat:      "json",
-		From:              clientKeyName,
+		From:              keyInfo.GetName(),
 		BroadcastMode:     "block",
-		FromName:          clientKeyName,
+		FromName:          keyInfo.GetName(),
 		UseLedger:         false,
 		Simulate:          false,
 		GenerateOnly:      false,
@@ -141,8 +138,8 @@ func newContext(
 		AccountRetriever:  authtypes.AccountRetriever{},
 	}
 
-	if account != nil {
-		clientCtx = clientCtx.WithFromAddress(account.GetAddress())
+	if keyInfo != nil {
+		clientCtx = clientCtx.WithFromAddress(keyInfo.GetAddress())
 	}
 
 	return clientCtx
