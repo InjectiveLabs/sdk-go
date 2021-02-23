@@ -92,6 +92,70 @@ var eip712OrderTypes = typeddata.Types{
 	},
 }
 
+var eip712SpotOrderTypes = typeddata.Types{
+	"EIP712Domain": {
+		{
+			Name: "name",
+			Type: "string",
+		},
+		{
+			Name: "version",
+			Type: "string",
+		},
+		{
+			Name: "chainId",
+			Type: "uint256",
+		},
+		{
+			Name: "verifyingContract",
+			Type: "string",
+		},
+	},
+	"SpotOrder": {
+		{
+			Name: "subaccountID",
+			Type: "bytes32",
+		},
+		{
+			Name: "sender",
+			Type: "address",
+		},
+		{
+			Name: "feeRecipient",
+			Type: "address",
+		},
+		{
+			Name: "expiry",
+			Type: "uint64",
+		},
+		{
+			Name: "marketID",
+			Type: "bytes32",
+		},
+		{
+			Name: "supplyAmount",
+			Type: "uint128",
+		},
+		{
+			Name: "receiveAmount",
+			Type: "uint128",
+		},
+		{
+			Name: "salt",
+			Type: "uint64",
+		},
+		{
+			Name: "orderType",
+			Type: "uint8",
+		},
+		{
+			Name: "triggerPrice",
+			Type: "uint128",
+		},
+	},
+}
+
+
 var eip712TransactionTypes = typeddata.Types{
 	"EIP712Domain": {
 		{
