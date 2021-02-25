@@ -13,17 +13,17 @@ import (
 
 // SpotOrder represents an unsigned Injective Spot order
 type SpotOrder struct {
-	ChainID       int64          `json:"chainId"`
-	SubaccountID  common.Hash    `json:"subaccountID"`
-	Sender        common.Address `json:"sender"`
-	FeeRecipient  common.Address `json:"feeRecipient"`
-	Expiry        uint64         `json:"expiry"`
-	MarketID      common.Hash    `json:"marketID"`
-	SupplyAmount  *big.Int       `json:"supplyAmount"`
-	ReceiveAmount *big.Int       `json:"receiveAmount"`
-	Salt          uint64         `json:"salt"`
-	OrderType     uint8          `json:"orderType"`
-	TriggerPrice  *big.Int       `json:"triggerPrice"`
+	ChainID      int64          `json:"chainId"`
+	SubaccountID common.Hash    `json:"subaccountID"`
+	Sender       common.Address `json:"sender"`
+	FeeRecipient common.Address `json:"feeRecipient"`
+	Expiry       uint64         `json:"expiry"`
+	MarketID     common.Hash    `json:"marketID"`
+	SupplyAmount *big.Int       `json:"supplyAmount"`
+	DemandAmount *big.Int       `json:"demandAmount"`
+	Salt         uint64         `json:"salt"`
+	OrderType    uint8          `json:"orderType"`
+	TriggerPrice *big.Int       `json:"triggerPrice"`
 
 	// Cache hash for performance
 	hash  *common.Hash
@@ -32,8 +32,8 @@ type SpotOrder struct {
 
 func (s *SignedSpotOrder) ComputeSpotPrice() *decimal.Decimal {
 	var price decimal.Decimal
-	supplyAmount, receiveAmount := decimal.NewFromBigInt(s.SupplyAmount, 0), decimal.NewFromBigInt(s.ReceiveAmount, 0)
-	if s.OrderType % 2 == 0 {
+	supplyAmount, receiveAmount := decimal.NewFromBigInt(s.SupplyAmount, 0), decimal.NewFromBigInt(s.DemandAmount, 0)
+	if s.OrderType%2 == 0 {
 		price = supplyAmount.Div(receiveAmount)
 	} else {
 		price = receiveAmount.Div(supplyAmount)
@@ -71,16 +71,16 @@ func (o *SpotOrder) ComputeOrderHash() (common.Hash, error) {
 	}
 
 	var message = map[string]interface{}{
-		"subaccountID":  o.SubaccountID.Hex(),
-		"sender":        o.Sender.Hex(),
-		"feeRecipient":  o.FeeRecipient.Hex(),
-		"expiry":        o.Expiry,
-		"marketID":      o.MarketID,
-		"supplyAmount":  o.SupplyAmount,
-		"receiveAmount": o.ReceiveAmount,
-		"salt":          o.Salt,
-		"orderType":     o.OrderType,
-		"triggerPrice":  o.TriggerPrice,
+		"subaccountID": o.SubaccountID.Hex(),
+		"sender":       o.Sender.Hex(),
+		"feeRecipient": o.FeeRecipient.Hex(),
+		"expiry":       o.Expiry,
+		"marketID":     o.MarketID,
+		"supplyAmount": o.SupplyAmount,
+		"demandAmount": o.DemandAmount,
+		"salt":         o.Salt,
+		"orderType":    o.OrderType,
+		"triggerPrice": o.TriggerPrice,
 	}
 
 	var typedData = typeddata.TypedData{
