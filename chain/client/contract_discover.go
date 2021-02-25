@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	log "github.com/xlab/suplog"
 
-	ordertypes "github.com/InjectiveLabs/sdk-go/chain/orders/types"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 )
 
 type ContractSet struct {
@@ -19,7 +19,7 @@ type ContractDiscoverer interface {
 	GetContractSet(ctx context.Context) ContractSet
 }
 
-func NewContractDiscoverer(ordersQuerier ordertypes.QueryClient) ContractDiscoverer {
+func NewContractDiscoverer(ordersQuerier exchangetypes.QueryClient) ContractDiscoverer {
 	return &contractDiscoverer{
 		queryClient: ordersQuerier,
 		logger: log.WithFields(log.Fields{
@@ -30,7 +30,7 @@ func NewContractDiscoverer(ordersQuerier ordertypes.QueryClient) ContractDiscove
 }
 
 type contractDiscoverer struct {
-	queryClient ordertypes.QueryClient
+	queryClient exchangetypes.QueryClient
 	logger      log.Logger
 }
 
@@ -42,7 +42,7 @@ func (c *contractDiscoverer) GetContractSet(ctx context.Context) (set ContractSe
 		case <-ctx.Done():
 			return
 		default:
-			resp, err := c.queryClient.QueryDerivativeMarkets(ctx, &ordertypes.QueryDerivativeMarketsRequest{})
+			resp, err := c.queryClient.QueryDerivativeMarkets(ctx, &exchangetypes.QueryDerivativeMarketsRequest{})
 			if err != nil {
 				c.logger.WithError(err).Warningln("failed to query derivative markets, retry in 10s")
 				time.Sleep(defaultRetryDelay)

@@ -4,7 +4,6 @@ import (
 	"errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"math/big"
-	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -274,56 +273,15 @@ func (m MarginInfo) IsMarginHoldBreached() (availableMargin *big.Int, isBreached
 	return availableMargin, false
 }
 
-func (p TradePair) ComputeHash() (common.Hash, error) {
-	if p.Hash != "" {
-		return common.HexToHash(p.Hash), nil
-	}
 
-	if len(p.MakerAssetData) == 0 {
-		return common.Hash{}, errors.New("hash error: no maker asset data specified")
-	} else if len(p.TakerAssetData) == 0 {
-		return common.Hash{}, errors.New("hash error: no taker asset data specified")
-	}
-
-	var hash common.Hash
-
-	if strings.Compare(p.MakerAssetData, p.TakerAssetData) < 0 {
-		hash = common.BytesToHash(keccak256([]byte(p.MakerAssetData), []byte(p.TakerAssetData)))
-	} else {
-		hash = common.BytesToHash(keccak256([]byte(p.TakerAssetData), []byte(p.MakerAssetData)))
-	}
-
-	return hash, nil
+func GetMarketIdFromAssetPair(baseAsset common.Address, quoteAsset common.Address, exchangeAddress common.Address) common.Hash {
+	return common.BytesToHash(keccak256(baseAsset.Bytes(), quoteAsset.Bytes(), exchangeAddress.Bytes()))
 }
 
-func ComputeMarketHash(exchangeAddress common.Address, marketID common.Hash) common.Hash {
-	hash := common.BytesToHash(keccak256(
-		marketID.Bytes(),
-		exchangeAddress.Bytes(),
-	))
-	return hash
-}
-
-func (p DerivativeMarket) Hash() (common.Hash, error) {
-	if len(p.GetMarketId()) == 0 {
-		return common.Hash{}, errors.New("hash error: no MarketId specified")
-	} else if len(p.GetExchangeAddress()) == 0 {
-		return common.Hash{}, errors.New("hash error: no ExchangeAddress specified")
-	}
-
-	var hash common.Hash
-
-	marketIdBytes := common.FromHex(p.MarketId)
-	if len(marketIdBytes) > common.HashLength {
-		marketIdBytes = marketIdBytes[:common.HashLength]
-	}
-
-	hash = common.BytesToHash(keccak256(
-		marketIdBytes,
-		common.HexToAddress(p.ExchangeAddress).Bytes(),
-	))
-
-	return hash, nil
+func (bo *BaseOrder) GetMakerTakerAssets() (makerAsset common.Address, takerAsset common.Address) {
+	makerAsset = common.BytesToAddress(common.FromHex(bo.GetMakerAssetData())[:common.AddressLength])
+	takerAsset = common.BytesToAddress(common.FromHex(bo.GetTakerAssetData())[:common.AddressLength])
+	return
 }
 
 func (m *DerivativeMarket) CheckExpiration(currBlockTime time.Time) error {

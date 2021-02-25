@@ -32,7 +32,7 @@ func (m *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	}
 }
 
-// Validate performs basic validation on orders parameters.
+// Validate performs basic validation on exchange parameters.
 func (m Params) Validate() error {
 	return validateExchangeParams(m.ExchangeParams)
 }

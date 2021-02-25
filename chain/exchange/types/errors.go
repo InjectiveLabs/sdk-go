@@ -9,7 +9,7 @@ var (
 	ErrOrderNotFound                = sdkerrors.Register(ModuleName, 2, "no active order found for the hash")
 	ErrPairSuspended                = sdkerrors.Register(ModuleName, 3, "trade pair suspended")
 	ErrPairNotFound                 = sdkerrors.Register(ModuleName, 4, "trade pair not found")
-	ErrPairExists                   = sdkerrors.Register(ModuleName, 5, "trade pair exists")
+	ErrSpotMarketExists                   = sdkerrors.Register(ModuleName, 5, "trade pair exists")
 	ErrPairMismatch                 = sdkerrors.Register(ModuleName, 6, "trade pair mismatch")
 	ErrBadField                     = sdkerrors.Register(ModuleName, 7, "struct field error")
 	ErrMarketNotFound               = sdkerrors.Register(ModuleName, 8, "derivative market not found")

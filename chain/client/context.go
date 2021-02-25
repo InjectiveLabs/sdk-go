@@ -22,7 +22,7 @@ import (
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
 
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
-	orders "github.com/InjectiveLabs/sdk-go/chain/orders/types"
+	orders "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
