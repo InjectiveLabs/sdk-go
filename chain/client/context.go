@@ -79,21 +79,22 @@ func NewClientContext(
 	}
 
 	var keyInfo keyring.Info
-	var err error
 
-	addr, err := cosmtypes.AccAddressFromBech32(fromSpec)
-	if err == nil {
-		keyInfo, err = kb.KeyByAddress(addr)
-		if err != nil {
-			err = errors.Wrapf(err, "failed to load key info by address %s", addr.String())
-			return clientCtx, err
-		}
-	} else {
-		// failed to parse Bech32, is it a name?
-		keyInfo, err = kb.Key(fromSpec)
-		if err != nil {
-			err = errors.Wrapf(err, "no key in keyring for name: %s", fromSpec)
-			return clientCtx, err
+	if kb != nil {
+		addr, err := cosmtypes.AccAddressFromBech32(fromSpec)
+		if err == nil {
+			keyInfo, err = kb.KeyByAddress(addr)
+			if err != nil {
+				err = errors.Wrapf(err, "failed to load key info by address %s", addr.String())
+				return clientCtx, err
+			}
+		} else {
+			// failed to parse Bech32, is it a name?
+			keyInfo, err = kb.Key(fromSpec)
+			if err != nil {
+				err = errors.Wrapf(err, "no key in keyring for name: %s", fromSpec)
+				return clientCtx, err
+			}
 		}
 	}
 
@@ -123,12 +124,9 @@ func newContext(
 		ChainID:           chainId,
 		JSONMarshaler:     encodingConfig.Marshaler,
 		InterfaceRegistry: encodingConfig.InterfaceRegistry,
-		Keyring:           kb,
 		Output:            os.Stderr,
 		OutputFormat:      "json",
-		From:              keyInfo.GetName(),
 		BroadcastMode:     "block",
-		FromName:          keyInfo.GetName(),
 		UseLedger:         false,
 		Simulate:          false,
 		GenerateOnly:      false,
@@ -139,7 +137,10 @@ func newContext(
 	}
 
 	if keyInfo != nil {
+		clientCtx = clientCtx.WithKeyring(kb)
 		clientCtx = clientCtx.WithFromAddress(keyInfo.GetAddress())
+		clientCtx = clientCtx.WithFromName(keyInfo.GetName())
+		clientCtx = clientCtx.WithFrom(keyInfo.GetName())
 	}
 
 	return clientCtx
