@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
@@ -16,26 +17,33 @@ var (
 	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 )
 
-// RegisterCodec registers concrete types on the Amino codec
+// RegisterInterfaces registers concrete types on the Amino codec
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgInitExchange{},
-		&MsgRegisterDerivativeMarket{},
-		&MsgSuspendDerivativeMarket{},
-		&MsgResumeDerivativeMarket{},
-		&MsgCreateDerivativeOrder{},
-		&MsgSoftCancelDerivativeOrder{},
-		&MsgRegisterSpotMarket{},
-		&MsgSuspendSpotMarket{},
-		&MsgResumeSpotMarket{},
-		&MsgCreateSpotOrder{},
-		&MsgExecuteDerivativeTakeOrder{},
-		&MsgExecuteTECTransaction{},
+		&MsgDeposit{},
+		&MsgWithdraw{},
+		&MsgInstantSpotMarketLaunch{},
+		&MsgCreateSpotLimitOrder{},
+		&MsgCreateSpotMarketOrder{},
+		&MsgCancelSpotOrder{},
+		&MsgCreateDerivativeLimitOrder{},
+		&MsgCreateDerivativeMarketOrder{},
+		&MsgCancelDerivativeOrder{},
+		&MsgSubaccountTransfer{},
+		&MsgExternalTransfer{},
 	)
 
 	registry.RegisterImplementations(
 		(*govtypes.Content)(nil),
-		&RegisterExchangeProposal{},
+		&SpotMarketParamUpdateProposal{},
+		&SpotMarketLaunchProposal{},
+		&SpotMarketStatusSetProposal{},
+		&PerpetualMarketLaunchProposal{},
+		&ExpiryFuturesMarketLaunchProposal{},
+		&DerivativeMarketParamUpdateProposal{},
+		&DerivativeMarketStatusSetProposal{},
 	)
+
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }

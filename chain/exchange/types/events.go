@@ -17,7 +17,7 @@ const (
 	AttributeKeyTradePairHash  = "trade_pair_hash"
 	AttributeKeySignedOrder    = "signed_order"
 	AttributeKeyFilledAmount   = "filled_amount"
-	AttributeKeyUnfilledAmount = "unfilled_amount"
+	AttributeKeyFillableAmount = "fillable_amount"
 	AttributeKeyWasActiveOrder = "was_active_order"
 	AttributeKeyPrice          = "price"
 	AttributeKeyTicker         = "ticker"
