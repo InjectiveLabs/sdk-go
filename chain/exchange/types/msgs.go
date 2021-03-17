@@ -2,101 +2,278 @@ package types
 
 import (
 	"bytes"
-	"fmt"
-	"math/big"
-	"strings"
 
-	zeroex "github.com/InjectiveLabs/sdk-go"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/common"
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/pkg/errors"
 )
 
 const RouterKey = ModuleName
 
 var (
-	_ sdk.Msg = &MsgRegisterDerivativeMarket{}
-	_ sdk.Msg = &MsgSuspendDerivativeMarket{}
-	_ sdk.Msg = &MsgResumeDerivativeMarket{}
-	_ sdk.Msg = &MsgRegisterDerivativeMarket{}
-	_ sdk.Msg = &MsgCreateDerivativeOrder{}
-	_ sdk.Msg = &MsgSoftCancelDerivativeOrder{}
-	_ sdk.Msg = &MsgRegisterSpotMarket{}
-	_ sdk.Msg = &MsgSuspendSpotMarket{}
-	_ sdk.Msg = &MsgResumeSpotMarket{}
-	_ sdk.Msg = &MsgCreateSpotOrder{}
-	_ sdk.Msg = &MsgExecuteDerivativeTakeOrder{}
-	_ sdk.Msg = &MsgExecuteTECTransaction{}
-	_ sdk.Msg = &MsgInitExchange{}
+	_ sdk.Msg = &MsgDeposit{}
+	_ sdk.Msg = &MsgWithdraw{}
+	_ sdk.Msg = &MsgCreateSpotLimitOrder{}
+	_ sdk.Msg = &MsgCreateSpotMarketOrder{}
+	_ sdk.Msg = &MsgCancelSpotOrder{}
+	_ sdk.Msg = &MsgCreateDerivativeLimitOrder{}
+	_ sdk.Msg = &MsgCreateDerivativeMarketOrder{}
+	_ sdk.Msg = &MsgCancelDerivativeOrder{}
+	_ sdk.Msg = &MsgSubaccountTransfer{}
+	_ sdk.Msg = &MsgExternalTransfer{}
 )
 
-func (msg *MsgInitExchange) Route() string {
-	return RouterKey
-}
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgDeposit) Route() string { return RouterKey }
 
-func (msg *MsgInitExchange) Type() string {
-	return "msgInitExchange"
-}
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgDeposit) Type() string { return "msgDeposit" }
 
-func (msg *MsgInitExchange) ValidateBasic() error {
-	if msg.Sender.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender.String())
-	} else if !common.IsHexAddress(msg.ExchangeAddress) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ExchangeAddress)
-	}
-	return nil
-}
-
-func (msg *MsgInitExchange) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-func (msg *MsgInitExchange) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Sender}
-}
-
-func (msg *MsgSoftCancelDerivativeOrder) Route() string {
-	return RouterKey
-}
-
-func (msg *MsgSoftCancelDerivativeOrder) Type() string {
-	return "softCancelDerivativeOrder"
-}
-
-func (msg *MsgSoftCancelDerivativeOrder) ValidateBasic() error {
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgDeposit) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if msg.Order == nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
+	if !msg.Amount.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	order := msg.Order.ToSignedOrder()
-	quantity := order.TakerAssetAmount
-	price := order.MakerAssetAmount
-	orderHash, err := order.ComputeOrderHash()
-	makerAddress := common.HexToAddress(msg.Order.MakerAddress)
-
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
-	} else if !isValidSignature(msg.Order.Signature, makerAddress, orderHash) {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
-	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
-		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
-	} else if price == nil || price.Cmp(big.NewInt(0)) <= 0 {
-		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient price")
+	if !msg.Amount.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+	if _, ok := IsValidSubaccountID(msg.SubaccountId); !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 	}
 
 	return nil
 }
 
-func (msg *MsgSoftCancelDerivativeOrder) GetSignBytes() []byte {
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgDeposit) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func (msg *MsgSoftCancelDerivativeOrder) GetSigners() []sdk.AccAddress {
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgDeposit) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgWithdraw) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgWithdraw) Type() string { return "msgWithdraw" }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgWithdraw) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !msg.Amount.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+
+	if !msg.Amount.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+
+	subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(err, "must provide a valid Bech32 address")
+	}
+	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgWithdraw) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgWithdraw) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgInstantSpotMarketLaunch) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgInstantSpotMarketLaunch) Type() string { return "listingFeeBasedSpotMarketLaunch" }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if msg.Ticker == "" {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
+	}
+	if msg.BaseDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "base denom should not be empty")
+	}
+	if msg.QuoteDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidBaseDenom, "quote denom should not be empty")
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgInstantSpotMarketLaunch) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgInstantSpotMarketLaunch) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgCreateSpotLimitOrder) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgCreateSpotLimitOrder) Type() string { return "createSpotLimitOrder" }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if msg.Order.MarketId == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.Order.MarketId)
+	}
+	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
+		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, string(msg.Order.OrderType))
+	}
+	if msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.TriggerPrice.String())
+	}
+	if msg.Order.OrderInfo.SubaccountId == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.Order.OrderInfo.SubaccountId)
+	}
+	if msg.Order.OrderInfo.FeeRecipient == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Order.OrderInfo.FeeRecipient)
+	}
+	if msg.Order.OrderInfo.Price.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.OrderInfo.Price.String())
+	}
+	if msg.Order.OrderInfo.Quantity.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.OrderInfo.Quantity.String())
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgCreateSpotLimitOrder) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgCreateSpotLimitOrder) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgCreateSpotMarketOrder) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgCreateSpotMarketOrder) Type() string { return "createSpotMarketOrder" }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if msg.Order.MarketId == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.Order.MarketId)
+	}
+	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
+		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, string(msg.Order.OrderType))
+	}
+	if msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.TriggerPrice.String())
+	}
+	if msg.Order.OrderInfo.SubaccountId == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.Order.OrderInfo.SubaccountId)
+	}
+	if msg.Order.OrderInfo.FeeRecipient == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Order.OrderInfo.FeeRecipient)
+	}
+	if msg.Order.OrderInfo.Quantity.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.OrderInfo.Quantity.String())
+	}
+	if msg.Order.OrderInfo.Price.IsNil() {
+		return sdkerrors.Wrap(ErrOrderInvalid, "order worst price cannot be nil")
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgCreateSpotMarketOrder) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgCreateSpotMarketOrder) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg *MsgCancelSpotOrder) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg *MsgCancelSpotOrder) Type() string { return "cancelSpotOrder" }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg *MsgCancelSpotOrder) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	// TODO: check if subaccountId and sender matches or not
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgCancelSpotOrder) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg *MsgCancelSpotOrder) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -105,251 +282,45 @@ func (msg *MsgSoftCancelDerivativeOrder) GetSigners() []sdk.AccAddress {
 }
 
 // Route should return the name of the module
-func (msg MsgCreateSpotOrder) Route() string { return RouterKey }
+func (msg MsgCreateDerivativeLimitOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateSpotOrder) Type() string { return "createSpotOrder" }
+func (msg MsgCreateDerivativeLimitOrder) Type() string { return "createDerivativeLimitOrder" }
 
 // ValidateBasic runs stateless checks on the message
-func (msg MsgCreateSpotOrder) ValidateBasic() error {
+func (msg MsgCreateDerivativeLimitOrder) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	sOrder := msg.Order.ToSignedOrder()
-
-	if msg.Order == nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
-	}
-
-	orderHash, err := msg.Order.ToSignedOrder().ComputeOrderHash()
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
-	}
-	makerAddress, _ := sOrder.GetMakerAddressAndNonce()
-
-	// TODO: also allow for exchange without signatures (just cosmos)
-	if !isValidSignature(msg.Order.Signature, makerAddress, orderHash) {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
-	}
-
-	return nil
-}
-
-// isValidSignature checks that the signature of the order is correct
-func isValidSignature(sig string, makerAddr common.Address, hash common.Hash) bool {
-	signature := common.FromHex(sig)
-	signatureType := zeroex.SignatureType(signature[len(signature)-1])
-	switch signatureType {
-	case zeroex.InvalidSignature, zeroex.IllegalSignature:
-		return false
-
-	case zeroex.EIP712Signature:
-		if len(signature) != 66 {
-			return false
-		}
-
-		v := signature[0]
-		r := signature[1:33]
-		s := signature[33:65]
-
-		//build Eth signature
-		EthSignature := make([]byte, 65)
-		copy(EthSignature[0:32], r)
-		copy(EthSignature[32:64], s)
-		EthSignature[64] = v - 27
-
-		//validate signature
-		pubKey, err := ethcrypto.SigToPub(hash[:], EthSignature)
-		if err != nil {
-			return false
-		}
-
-		//compare recoveredAddr with makerAddress
-		recoveredAddr := ethcrypto.PubkeyToAddress(*pubKey)
-		return bytes.Equal(recoveredAddr.Bytes(), makerAddr.Bytes())
-	case zeroex.EthSignSignature:
-		if len(signature) != 66 {
-			return false
-		}
-
-		//validate signature
-		EthSignature := signature[:65]
-		EthSignature[64] = EthSignature[64] - 27
-		pubKey, err := ethcrypto.SigToPub(hash[:], EthSignature)
-		if err != nil {
-			return false
-		}
-
-		//compare recoveredAddr with makerAddress
-		recoveredAddr := ethcrypto.PubkeyToAddress(*pubKey)
-		return bytes.Equal(recoveredAddr.Bytes(), makerAddr.Bytes())
-	case zeroex.ValidatorSignature:
-		if len(signature) < 21 {
-			return false
-		}
-		// TODO: not supported yet
-		return false
-	case zeroex.PreSignedSignature, zeroex.WalletSignature, zeroex.EIP1271WalletSignature:
-		// TODO: not supported yet
-		return false
-	default:
-		return false
-	}
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgCreateSpotOrder) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgCreateSpotOrder) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route should return the name of the module
-func (msg MsgCreateDerivativeOrder) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgCreateDerivativeOrder) Type() string { return "createDerivativeOrder" }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgCreateDerivativeOrder) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if msg.Order == nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
-	}
-
-	order := msg.Order.ToSignedOrder()
-	quantity := order.TakerAssetAmount
-	price := order.MakerAssetAmount
-	orderHash, err := order.ComputeOrderHash()
-	makerAddress := common.HexToAddress(msg.Order.MakerAddress)
-
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
-	} else if !isValidSignature(msg.Order.Signature, makerAddress, orderHash) {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
-	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
-		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
-	} else if price == nil || price.Cmp(big.NewInt(0)) <= 0 {
-		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient price")
-	}
-
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgCreateDerivativeOrder) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgCreateDerivativeOrder) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route should return the name of the module
-func (msg MsgRegisterSpotMarket) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgRegisterSpotMarket) Type() string { return "registerSpotMarket" }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgRegisterSpotMarket) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if len(msg.Ticker) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no trade pair name specified")
-	} else if parts := strings.Split(msg.Ticker, "/"); len(parts) != 2 ||
-		len(strings.TrimSpace(parts[0])) == 0 || len(strings.TrimSpace(parts[1])) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "pair name must be in format AAA/BBB")
-	}
-
-	if !common.IsHexAddress(msg.BaseAsset) {
-		return sdkerrors.Wrap(ErrBadField, "no valid BaseAsset specified")
-	} else if !common.IsHexAddress(msg.QuoteAsset) {
-		return sdkerrors.Wrap(ErrBadField, "no valid QuoteAsset specified")
-	}
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgRegisterSpotMarket) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgRegisterSpotMarket) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route should return the name of the module
-func (msg MsgRegisterDerivativeMarket) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgRegisterDerivativeMarket) Type() string { return "registerDerivativeMarket" }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgRegisterDerivativeMarket) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	market := msg.Market
-
-	if len(market.Ticker) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no market ticker name specified")
-	} else if parts := strings.Split(market.Ticker, "/"); len(parts) != 2 ||
-		len(strings.TrimSpace(parts[0])) == 0 || len(strings.TrimSpace(parts[1])) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "market ticker must be in format AAA/BBB")
-	} else if len(msg.Market.GetOracle()) != ADDRESS_LENGTH {
-		return sdkerrors.Wrap(ErrBadField, "oracle address must be of length 42")
-	} else if len(msg.Market.GetBaseCurrency()) != ADDRESS_LENGTH {
-		return sdkerrors.Wrap(ErrBadField, "base currency address must be of length 42")
-	} else if len(msg.Market.GetExchangeAddress()) != ADDRESS_LENGTH {
-		return sdkerrors.Wrap(ErrBadField, "exchange address must be of length 42")
-	} else if len(msg.Market.GetMarketId()) != BYTES32_LENGTH {
-		return sdkerrors.Wrapf(ErrBadField, "marketID must be of length 66 but got length %d", len(msg.Market.GetMarketId()))
-	}
-
-	// TODO: (albertchon) proper validation here
-	//hash, err := market.Hash()
+	//if msg.Order == nil {
+	//	return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
+	//}
+	//
+	//order := msg.Order.ToSignedOrder()
+	//quantity := order.TakerAssetAmount
+	//price := order.MakerAssetAmount
+	//orderHash, err := order.ComputeOrderHash()
+	//makerAddress := common.HexToAddress(msg.Order.MakerAddress)
+	//
 	//if err != nil {
-	//	return sdkerrors.Wrap(ErrMarketInvalid, err.Error())
+	//	return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
+	//} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
+	//	return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
+	//} else if price == nil || price.Cmp(big.NewInt(0)) <= 0 {
+	//	return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient price")
 	//}
-	//if hash.String() != market.MarketId {
-	//	errMsg := "The MarketID " + market.MarketId + " provided does not match the MarketID " + hash.String() + " computed"
-	//	errMsg += "\n for Ticker: " + market.Ticker + "\nOracle: " + market.Oracle + "\nBaseCurrency: " + market.BaseCurrency + "\nNonce: " + market.Nonce
-	//	return sdkerrors.Wrap(ErrMarketInvalid, errMsg)
-	//}
 
 	return nil
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgRegisterDerivativeMarket) GetSignBytes() []byte {
+func (msg *MsgCreateDerivativeLimitOrder) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
-func (msg MsgRegisterDerivativeMarket) GetSigners() []sdk.AccAddress {
+func (msg MsgCreateDerivativeLimitOrder) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -358,34 +329,27 @@ func (msg MsgRegisterDerivativeMarket) GetSigners() []sdk.AccAddress {
 }
 
 // Route should return the name of the module
-func (msg MsgSuspendDerivativeMarket) Route() string { return RouterKey }
+func (msg MsgCreateDerivativeMarketOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgSuspendDerivativeMarket) Type() string {
-	return "suspendDerivativeMarket"
-}
+func (msg MsgCreateDerivativeMarketOrder) Type() string { return "createDerivativeMarketOrder" }
 
 // ValidateBasic runs stateless checks on the message
-func (msg MsgSuspendDerivativeMarket) ValidateBasic() error {
-	// TODO: albertchon proper length checks here
+func (msg MsgCreateDerivativeMarketOrder) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	} else if msg.MarketId == "" {
-		return sdkerrors.Wrap(ErrBadField, "no derivative market ID specified")
-	} else if msg.ExchangeAddress == "" {
-		return sdkerrors.Wrap(ErrBadField, "no derivative exchange address specified")
-
 	}
+
 	return nil
 }
 
 // GetSignBytes encodes the message for signing
-func (msg *MsgSuspendDerivativeMarket) GetSignBytes() []byte {
+func (msg *MsgCreateDerivativeMarketOrder) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners defines whose signature is required
-func (msg MsgSuspendDerivativeMarket) GetSigners() []sdk.AccAddress {
+func (msg MsgCreateDerivativeMarketOrder) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -393,148 +357,32 @@ func (msg MsgSuspendDerivativeMarket) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-// Route should return the name of the module
-func (msg MsgResumeDerivativeMarket) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgResumeDerivativeMarket) Type() string {
-	return "resumeDerivativeMarket"
-}
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgResumeDerivativeMarket) ValidateBasic() error {
-	// TODO: albertchon proper validation
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	} else if msg.MarketId == "" {
-		return sdkerrors.Wrap(ErrBadField, "no derivative market ID specified")
-	} else if msg.ExchangeAddress == "" {
-		return sdkerrors.Wrap(ErrBadField, "no derivative market ID specified")
-	}
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgResumeDerivativeMarket) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgResumeDerivativeMarket) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route should return the name of the module
-func (msg MsgSuspendSpotMarket) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgSuspendSpotMarket) Type() string { return "suspendSpotMarket" }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgSuspendSpotMarket) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if len(msg.Name) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no trade pair name specified")
-	}
-
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgSuspendSpotMarket) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgSuspendSpotMarket) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route should return the name of the module
-func (msg MsgResumeSpotMarket) Route() string { return RouterKey }
-
-// Type should return the action
-func (msg MsgResumeSpotMarket) Type() string { return "resumeSpotMarket" }
-
-// ValidateBasic runs stateless checks on the message
-func (msg MsgResumeSpotMarket) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if len(msg.Name) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no trade pair name specified")
-	}
-
-	return nil
-}
-
-// GetSignBytes encodes the message for signing
-func (msg *MsgResumeSpotMarket) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners defines whose signature is required
-func (msg MsgResumeSpotMarket) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-func (msg *MsgExecuteTECTransaction) Route() string {
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg *MsgCancelDerivativeOrder) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgExecuteTECTransaction) Type() string {
-	return "executeTECTransaction"
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg *MsgCancelDerivativeOrder) Type() string {
+	return "cancelDerivativeOrder"
 }
 
-func (msg *MsgExecuteTECTransaction) ValidateBasic() error {
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg *MsgCancelDerivativeOrder) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
-
-	// TODO: hash this and validate
-	transactionHash := common.Hash{}
-
-	if len(msg.TecTransaction.Salt) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no salt specified")
-	} else if msg.TecTransaction.SignerAddress == "" {
-		return sdkerrors.Wrap(ErrBadField, "no signerAddress address specified")
-	} else if msg.TecTransaction.Domain.VerifyingContract == "" {
-		return sdkerrors.Wrap(ErrBadField, "no verifyingContract address specified")
-	} else if msg.TecTransaction.Domain.ChainId != "888" {
-		return sdkerrors.Wrap(ErrBadField, "wrong chainID specified")
-	} else if len(msg.TecTransaction.GasPrice) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no gasPrice specified")
-	} else if len(msg.TecTransaction.ExpirationTimeSeconds) == 0 {
-		return sdkerrors.Wrap(ErrBadField, "no expirationTimeSeconds specified")
-	} else if !isValidSignature(msg.TecTransaction.Signature, common.HexToAddress(msg.TecTransaction.SignerAddress), transactionHash) {
-		// TODO: fix this later
-		return nil
-		//return sdkerrors.Wrap(ErrBadField, "invalid transaction signature")
-	}
+	// TODO: implement this
 	return nil
 }
 
-func (msg *MsgExecuteTECTransaction) GetSignBytes() []byte {
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgCancelDerivativeOrder) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func (msg *MsgExecuteTECTransaction) GetSigners() []sdk.AccAddress {
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg *MsgCancelDerivativeOrder) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -542,52 +390,105 @@ func (msg *MsgExecuteTECTransaction) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-// Route should return the name of the module
-func (msg MsgExecuteDerivativeTakeOrder) Route() string { return RouterKey }
+func (msg *MsgSubaccountTransfer) Route() string {
+	return RouterKey
+}
 
-// Type should return the action
-func (msg MsgExecuteDerivativeTakeOrder) Type() string { return "executeDerivativeTakeOrder" }
+func (msg *MsgSubaccountTransfer) Type() string {
+	return "subaccountTransfer"
+}
 
-// ValidateBasic runs stateless checks on the message
-func (msg MsgExecuteDerivativeTakeOrder) ValidateBasic() error {
+func (msg *MsgSubaccountTransfer) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
-
-	if msg.Order == nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "no make order specified")
+	if !msg.Amount.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	order := msg.Order.ToSignedOrder()
-	quantity := order.TakerAssetAmount
-	margin := order.MakerFee
-	orderHash, err := order.ComputeOrderHash()
-	takerAddress := common.HexToAddress(msg.Order.TakerAddress)
+	if !msg.Amount.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
 
+	subaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+	}
+	destSubaccountAddress, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+	}
+	if !bytes.Equal(subaccountAddress.Bytes(), destSubaccountAddress.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+	}
+
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, fmt.Sprintf("hash check failed: %v", err))
-	} else if !isValidSignature(msg.Order.Signature, takerAddress, orderHash) {
-		// TODO @albert @venkatesh: delete return nil once this is ready
-		return nil
-		//return sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "invalid signature")
-	} else if quantity == nil || quantity.Cmp(big.NewInt(0)) <= 0 {
-		return sdkerrors.Wrap(ErrInsufficientOrderQuantity, "insufficient quantity")
-	} else if margin == nil || margin.Cmp(big.NewInt(0)) <= 0 {
-		return sdkerrors.Wrap(ErrInsufficientTakerMargin, "insufficient margin")
-	} else if !bytes.Equal(order.MakerAddress.Bytes(), common.Address{}.Bytes()) {
-		return sdkerrors.Wrap(ErrBadField, "maker address field must be empty")
-	} else if bytes.Equal(order.TakerAddress.Bytes(), common.Address{}.Bytes()) {
-		return sdkerrors.Wrap(ErrBadField, "taker address field must not be empty")
+		return errors.Wrap(err, "must provide a valid Bech32 address")
+	}
+	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
 	}
 	return nil
 }
 
-func (msg *MsgExecuteDerivativeTakeOrder) GetSignBytes() []byte {
+func (msg *MsgSubaccountTransfer) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-// GetSigners defines whose signature is required
-func (msg MsgExecuteDerivativeTakeOrder) GetSigners() []sdk.AccAddress {
+func (msg *MsgSubaccountTransfer) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgExternalTransfer) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgExternalTransfer) Type() string {
+	return "externalTransfer"
+}
+
+func (msg *MsgExternalTransfer) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !msg.Amount.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+
+	if !msg.Amount.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+
+	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+	}
+	_, ok = IsValidSubaccountID(msg.DestinationSubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+	}
+
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(err, "must provide a valid Bech32 address")
+	}
+	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+	return nil
+}
+
+func (msg *MsgExternalTransfer) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgExternalTransfer) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
