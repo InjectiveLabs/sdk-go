@@ -8,7 +8,6 @@ import (
 
 type (
 	ExtensionOptionsEthereumTxI interface{}
-	ExtensionOptionsWeb3TxI     interface{}
 )
 
 // RegisterInterfaces registers the client interfaces to protobuf Any.
@@ -22,12 +21,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*ExtensionOptionsEthereumTxI)(nil),
 		&ExtensionOptionsEthereumTx{},
-	)
-
-	registry.RegisterInterface("injective.evm.v1beta1.ExtensionOptionsWeb3Tx", (*ExtensionOptionsWeb3TxI)(nil))
-	registry.RegisterImplementations(
-		(*ExtensionOptionsWeb3TxI)(nil),
-		&ExtensionOptionsWeb3Tx{},
 	)
 }
 
