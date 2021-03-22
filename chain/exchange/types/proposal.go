@@ -2,11 +2,11 @@ package types
 
 import (
 	"errors"
-	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // constants
@@ -38,9 +38,9 @@ func init() {
 }
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
-func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate sdk.Dec) *SpotMarketParamUpdateProposal {
+func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate sdk.Dec, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *SpotMarketParamUpdateProposal {
 	return &SpotMarketParamUpdateProposal{
-		title, description, marketID.Hex(), makerFeeRate, takerFeeRate, relayerFeeShareRate,
+		title, description, marketID.Hex(), makerFeeRate, takerFeeRate, relayerFeeShareRate, maxPriceScaleDecimals, maxQuantityScaleDecimals,
 	}
 }
 
@@ -84,9 +84,9 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 }
 
 // NewSpotMarketLaunchProposal returns new instance of SpotMarketLaunchProposal
-func NewSpotMarketLaunchProposal(title, description, ticker, baseDenom, quoteDenom string) *SpotMarketLaunchProposal {
+func NewSpotMarketLaunchProposal(title, description, ticker, baseDenom, quoteDenom string, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *SpotMarketLaunchProposal {
 	return &SpotMarketLaunchProposal{
-		title, description, ticker, baseDenom, quoteDenom,
+		title, description, ticker, baseDenom, quoteDenom, maxPriceScaleDecimals, maxQuantityScaleDecimals,
 	}
 }
 
@@ -202,6 +202,7 @@ func NewDerivativeMarketParamUpdateProposal(
 	title, description string, marketID string,
 	initialMarginRatio, maintenanceMarginRatio,
 	makerFeeRate, takerFeeRate, relayerFeeShareRate *sdk.Dec,
+	maxPriceScaleDecimals, maxQuantityScaleDecimals uint32,
 ) *DerivativeMarketParamUpdateProposal {
 	return &DerivativeMarketParamUpdateProposal{
 		title,
@@ -212,6 +213,8 @@ func NewDerivativeMarketParamUpdateProposal(
 		makerFeeRate,
 		takerFeeRate,
 		relayerFeeShareRate,
+		maxPriceScaleDecimals,
+		maxQuantityScaleDecimals,
 	}
 }
 
@@ -238,31 +241,30 @@ func (p *DerivativeMarketParamUpdateProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
-
 	if p.MakerFeeRate != nil {
-		if err := ValidateFee(p.MakerFeeRate); err != nil {
+		if err := ValidateFee(*p.MakerFeeRate); err != nil {
 			return err
 		}
 	}
 	if p.TakerFeeRate != nil {
-		if err := ValidateFee(p.TakerFeeRate); err != nil {
+		if err := ValidateFee(*p.TakerFeeRate); err != nil {
 			return err
 		}
 	}
 
 	if p.RelayerFeeShareRate != nil {
-		if err := ValidateFee(p.RelayerFeeShareRate); err != nil {
+		if err := ValidateFee(*p.RelayerFeeShareRate); err != nil {
 			return err
 		}
 	}
 
 	if p.InitialMarginRatio != nil {
-		if err := ValidateMarginRatio(p.InitialMarginRatio); err != nil {
+		if err := ValidateMarginRatio(*p.InitialMarginRatio); err != nil {
 			return err
 		}
 	}
 	if p.MaintenanceMarginRatio != nil {
-		if err := ValidateMarginRatio(p.MaintenanceMarginRatio); err != nil {
+		if err := ValidateMarginRatio(*p.MaintenanceMarginRatio); err != nil {
 			return err
 		}
 	}
@@ -283,9 +285,9 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 }
 
 // NewPerpetualMarketLaunchProposal returns new instance of PerpetualMarketLaunchProposal
-func NewPerpetualMarketLaunchProposal(title, description, ticker, baseDenom, oracle string) *PerpetualMarketLaunchProposal {
+func NewPerpetualMarketLaunchProposal(title, description, ticker, quoteDenom, oracle string, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
-		title, description, ticker, baseDenom, oracle,
+		title, description, ticker, quoteDenom, oracle, maxPriceScaleDecimals, maxQuantityScaleDecimals,
 	}
 }
 
@@ -319,9 +321,9 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 }
 
 // NewExpiryFuturesMarketLaunchProposal returns new instance of ExpiryFuturesMarketLaunchProposal
-func NewExpiryFuturesMarketLaunchProposal(title, description, ticker, baseDenom, oracle string, expiry int64) *ExpiryFuturesMarketLaunchProposal {
+func NewExpiryFuturesMarketLaunchProposal(title, description, ticker, quoteDenom, oracle string, expiry int64, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
-		title, description, ticker, baseDenom, oracle, expiry,
+		title, description, ticker, quoteDenom, oracle, expiry, maxPriceScaleDecimals, maxQuantityScaleDecimals,
 	}
 }
 

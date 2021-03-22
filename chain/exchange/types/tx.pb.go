@@ -59,7 +59,7 @@ func (x MarketStatusUpdateProposal_StatusAction) String() string {
 }
 
 func (MarketStatusUpdateProposal_StatusAction) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{27, 0}
+	return fileDescriptor_bd45b74cb6d81462, []int{31, 0}
 }
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's bank balance into the subaccount's exchange deposits
@@ -376,6 +376,176 @@ func (m *MsgInstantSpotMarketLaunchResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgInstantSpotMarketLaunchResponse proto.InternalMessageInfo
 
+// MsgInstantPerpetualMarketLaunch defines a SDK message for creating a new perpetual futures market by paying listing fee without governance
+type MsgInstantPerpetualMarketLaunch struct {
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// Ticker for the derivative market.
+	Ticker string `protobuf:"bytes,2,opt,name=ticker,proto3" json:"ticker,omitempty"`
+	// type of coin to use as the base currency
+	QuoteDenom string `protobuf:"bytes,3,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
+	// Address of the oracle for the derivative contract
+	Oracle string `protobuf:"bytes,4,opt,name=oracle,proto3" json:"oracle,omitempty"`
+}
+
+func (m *MsgInstantPerpetualMarketLaunch) Reset()         { *m = MsgInstantPerpetualMarketLaunch{} }
+func (m *MsgInstantPerpetualMarketLaunch) String() string { return proto.CompactTextString(m) }
+func (*MsgInstantPerpetualMarketLaunch) ProtoMessage()    {}
+func (*MsgInstantPerpetualMarketLaunch) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bd45b74cb6d81462, []int{8}
+}
+func (m *MsgInstantPerpetualMarketLaunch) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgInstantPerpetualMarketLaunch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgInstantPerpetualMarketLaunch.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgInstantPerpetualMarketLaunch) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgInstantPerpetualMarketLaunch.Merge(m, src)
+}
+func (m *MsgInstantPerpetualMarketLaunch) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgInstantPerpetualMarketLaunch) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgInstantPerpetualMarketLaunch.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgInstantPerpetualMarketLaunch proto.InternalMessageInfo
+
+// MsgInstantPerpetualMarketLaunchResponse defines the Msg/InstantPerpetualMarketLaunchResponse response type.
+type MsgInstantPerpetualMarketLaunchResponse struct {
+}
+
+func (m *MsgInstantPerpetualMarketLaunchResponse) Reset() {
+	*m = MsgInstantPerpetualMarketLaunchResponse{}
+}
+func (m *MsgInstantPerpetualMarketLaunchResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgInstantPerpetualMarketLaunchResponse) ProtoMessage()    {}
+func (*MsgInstantPerpetualMarketLaunchResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bd45b74cb6d81462, []int{9}
+}
+func (m *MsgInstantPerpetualMarketLaunchResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgInstantPerpetualMarketLaunchResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgInstantPerpetualMarketLaunchResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgInstantPerpetualMarketLaunchResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgInstantPerpetualMarketLaunchResponse.Merge(m, src)
+}
+func (m *MsgInstantPerpetualMarketLaunchResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgInstantPerpetualMarketLaunchResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgInstantPerpetualMarketLaunchResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgInstantPerpetualMarketLaunchResponse proto.InternalMessageInfo
+
+// MsgInstantExpiryFuturesMarketLaunch defines a SDK message for creating a new expiry futures market by paying listing fee without governance
+type MsgInstantExpiryFuturesMarketLaunch struct {
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// Ticker for the derivative market.
+	Ticker string `protobuf:"bytes,2,opt,name=ticker,proto3" json:"ticker,omitempty"`
+	// type of coin to use as the quote currency
+	QuoteDenom string `protobuf:"bytes,3,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
+	// Address of the oracle for the derivative market
+	Oracle string `protobuf:"bytes,4,opt,name=oracle,proto3" json:"oracle,omitempty"`
+	// Expiration time of the market
+	Expiry int64 `protobuf:"varint,5,opt,name=expiry,proto3" json:"expiry,omitempty"`
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunch) Reset()         { *m = MsgInstantExpiryFuturesMarketLaunch{} }
+func (m *MsgInstantExpiryFuturesMarketLaunch) String() string { return proto.CompactTextString(m) }
+func (*MsgInstantExpiryFuturesMarketLaunch) ProtoMessage()    {}
+func (*MsgInstantExpiryFuturesMarketLaunch) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bd45b74cb6d81462, []int{10}
+}
+func (m *MsgInstantExpiryFuturesMarketLaunch) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgInstantExpiryFuturesMarketLaunch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunch.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgInstantExpiryFuturesMarketLaunch) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunch.Merge(m, src)
+}
+func (m *MsgInstantExpiryFuturesMarketLaunch) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgInstantExpiryFuturesMarketLaunch) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunch.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunch proto.InternalMessageInfo
+
+// MsgInstantExpiryFuturesMarketLaunchResponse defines the Msg/InstantExpiryFuturesMarketLaunch response type.
+type MsgInstantExpiryFuturesMarketLaunchResponse struct {
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) Reset() {
+	*m = MsgInstantExpiryFuturesMarketLaunchResponse{}
+}
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) String() string {
+	return proto.CompactTextString(m)
+}
+func (*MsgInstantExpiryFuturesMarketLaunchResponse) ProtoMessage() {}
+func (*MsgInstantExpiryFuturesMarketLaunchResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_bd45b74cb6d81462, []int{11}
+}
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunchResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunchResponse.Merge(m, src)
+}
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunchResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunchResponse proto.InternalMessageInfo
+
 // MsgCreateSpotMarketOrder defines a SDK message for creating a new spot market order.
 type MsgCreateSpotMarketOrder struct {
 	Sender string    `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -386,7 +556,7 @@ func (m *MsgCreateSpotMarketOrder) Reset()         { *m = MsgCreateSpotMarketOrd
 func (m *MsgCreateSpotMarketOrder) String() string { return proto.CompactTextString(m) }
 func (*MsgCreateSpotMarketOrder) ProtoMessage()    {}
 func (*MsgCreateSpotMarketOrder) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{8}
+	return fileDescriptor_bd45b74cb6d81462, []int{12}
 }
 func (m *MsgCreateSpotMarketOrder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -423,7 +593,7 @@ func (m *MsgCreateSpotMarketOrderResponse) Reset()         { *m = MsgCreateSpotM
 func (m *MsgCreateSpotMarketOrderResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgCreateSpotMarketOrderResponse) ProtoMessage()    {}
 func (*MsgCreateSpotMarketOrderResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{9}
+	return fileDescriptor_bd45b74cb6d81462, []int{13}
 }
 func (m *MsgCreateSpotMarketOrderResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -462,7 +632,7 @@ func (m *MsgCreateDerivativeLimitOrder) Reset()         { *m = MsgCreateDerivati
 func (m *MsgCreateDerivativeLimitOrder) String() string { return proto.CompactTextString(m) }
 func (*MsgCreateDerivativeLimitOrder) ProtoMessage()    {}
 func (*MsgCreateDerivativeLimitOrder) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{10}
+	return fileDescriptor_bd45b74cb6d81462, []int{14}
 }
 func (m *MsgCreateDerivativeLimitOrder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -499,7 +669,7 @@ func (m *MsgCreateDerivativeLimitOrderResponse) Reset()         { *m = MsgCreate
 func (m *MsgCreateDerivativeLimitOrderResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgCreateDerivativeLimitOrderResponse) ProtoMessage()    {}
 func (*MsgCreateDerivativeLimitOrderResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{11}
+	return fileDescriptor_bd45b74cb6d81462, []int{15}
 }
 func (m *MsgCreateDerivativeLimitOrderResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -541,7 +711,7 @@ func (m *MsgCancelSpotOrder) Reset()         { *m = MsgCancelSpotOrder{} }
 func (m *MsgCancelSpotOrder) String() string { return proto.CompactTextString(m) }
 func (*MsgCancelSpotOrder) ProtoMessage()    {}
 func (*MsgCancelSpotOrder) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{12}
+	return fileDescriptor_bd45b74cb6d81462, []int{16}
 }
 func (m *MsgCancelSpotOrder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -578,7 +748,7 @@ func (m *MsgCancelSpotOrderResponse) Reset()         { *m = MsgCancelSpotOrderRe
 func (m *MsgCancelSpotOrderResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgCancelSpotOrderResponse) ProtoMessage()    {}
 func (*MsgCancelSpotOrderResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{13}
+	return fileDescriptor_bd45b74cb6d81462, []int{17}
 }
 func (m *MsgCancelSpotOrderResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -617,7 +787,7 @@ func (m *MsgCreateDerivativeMarketOrder) Reset()         { *m = MsgCreateDerivat
 func (m *MsgCreateDerivativeMarketOrder) String() string { return proto.CompactTextString(m) }
 func (*MsgCreateDerivativeMarketOrder) ProtoMessage()    {}
 func (*MsgCreateDerivativeMarketOrder) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{14}
+	return fileDescriptor_bd45b74cb6d81462, []int{18}
 }
 func (m *MsgCreateDerivativeMarketOrder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -656,7 +826,7 @@ func (m *MsgCreateDerivativeMarketOrderResponse) Reset() {
 func (m *MsgCreateDerivativeMarketOrderResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgCreateDerivativeMarketOrderResponse) ProtoMessage()    {}
 func (*MsgCreateDerivativeMarketOrderResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{15}
+	return fileDescriptor_bd45b74cb6d81462, []int{19}
 }
 func (m *MsgCreateDerivativeMarketOrderResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -698,7 +868,7 @@ func (m *MsgCancelDerivativeOrder) Reset()         { *m = MsgCancelDerivativeOrd
 func (m *MsgCancelDerivativeOrder) String() string { return proto.CompactTextString(m) }
 func (*MsgCancelDerivativeOrder) ProtoMessage()    {}
 func (*MsgCancelDerivativeOrder) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{16}
+	return fileDescriptor_bd45b74cb6d81462, []int{20}
 }
 func (m *MsgCancelDerivativeOrder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -735,7 +905,7 @@ func (m *MsgCancelDerivativeOrderResponse) Reset()         { *m = MsgCancelDeriv
 func (m *MsgCancelDerivativeOrderResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgCancelDerivativeOrderResponse) ProtoMessage()    {}
 func (*MsgCancelDerivativeOrderResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{17}
+	return fileDescriptor_bd45b74cb6d81462, []int{21}
 }
 func (m *MsgCancelDerivativeOrderResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -776,7 +946,7 @@ func (m *MsgSubaccountTransfer) Reset()         { *m = MsgSubaccountTransfer{} }
 func (m *MsgSubaccountTransfer) String() string { return proto.CompactTextString(m) }
 func (*MsgSubaccountTransfer) ProtoMessage()    {}
 func (*MsgSubaccountTransfer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{18}
+	return fileDescriptor_bd45b74cb6d81462, []int{22}
 }
 func (m *MsgSubaccountTransfer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -841,7 +1011,7 @@ func (m *MsgSubaccountTransferResponse) Reset()         { *m = MsgSubaccountTran
 func (m *MsgSubaccountTransferResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgSubaccountTransferResponse) ProtoMessage()    {}
 func (*MsgSubaccountTransferResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{19}
+	return fileDescriptor_bd45b74cb6d81462, []int{23}
 }
 func (m *MsgSubaccountTransferResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -882,7 +1052,7 @@ func (m *MsgExternalTransfer) Reset()         { *m = MsgExternalTransfer{} }
 func (m *MsgExternalTransfer) String() string { return proto.CompactTextString(m) }
 func (*MsgExternalTransfer) ProtoMessage()    {}
 func (*MsgExternalTransfer) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{20}
+	return fileDescriptor_bd45b74cb6d81462, []int{24}
 }
 func (m *MsgExternalTransfer) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -947,7 +1117,7 @@ func (m *MsgExternalTransferResponse) Reset()         { *m = MsgExternalTransfer
 func (m *MsgExternalTransferResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgExternalTransferResponse) ProtoMessage()    {}
 func (*MsgExternalTransferResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{21}
+	return fileDescriptor_bd45b74cb6d81462, []int{25}
 }
 func (m *MsgExternalTransferResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -985,14 +1155,18 @@ type SpotMarketParamUpdateProposal struct {
 	// taker_fee_rate defines the trade fee rate for takers on the spot market
 	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
 	// relayer_fee_share_rate defines the relayer fee share rate for the spot market
-	RelayerFeeShareRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"relayer_fee_share_rate"`
+	RelayerFeeShareRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"relayer_fee_share_rate"`
+	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price cannot exceed
+	MaxPriceScaleDecimals uint32 `protobuf:"varint,7,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
+	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
+	MaxQuantityScaleDecimals uint32 `protobuf:"varint,8,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
 }
 
 func (m *SpotMarketParamUpdateProposal) Reset()         { *m = SpotMarketParamUpdateProposal{} }
 func (m *SpotMarketParamUpdateProposal) String() string { return proto.CompactTextString(m) }
 func (*SpotMarketParamUpdateProposal) ProtoMessage()    {}
 func (*SpotMarketParamUpdateProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{22}
+	return fileDescriptor_bd45b74cb6d81462, []int{26}
 }
 func (m *SpotMarketParamUpdateProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1031,13 +1205,17 @@ type SpotMarketLaunchProposal struct {
 	BaseDenom string `protobuf:"bytes,4,opt,name=base_denom,json=baseDenom,proto3" json:"base_denom,omitempty"`
 	// type of coin to use as the quote currency
 	QuoteDenom string `protobuf:"bytes,5,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
+	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price cannot exceed
+	MaxPriceScaleDecimals uint32 `protobuf:"varint,6,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
+	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
+	MaxQuantityScaleDecimals uint32 `protobuf:"varint,7,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
 }
 
 func (m *SpotMarketLaunchProposal) Reset()         { *m = SpotMarketLaunchProposal{} }
 func (m *SpotMarketLaunchProposal) String() string { return proto.CompactTextString(m) }
 func (*SpotMarketLaunchProposal) ProtoMessage()    {}
 func (*SpotMarketLaunchProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{23}
+	return fileDescriptor_bd45b74cb6d81462, []int{27}
 }
 func (m *SpotMarketLaunchProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1082,7 +1260,7 @@ func (m *SpotMarketStatusSetProposal) Reset()         { *m = SpotMarketStatusSet
 func (m *SpotMarketStatusSetProposal) String() string { return proto.CompactTextString(m) }
 func (*SpotMarketStatusSetProposal) ProtoMessage()    {}
 func (*SpotMarketStatusSetProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{24}
+	return fileDescriptor_bd45b74cb6d81462, []int{28}
 }
 func (m *SpotMarketStatusSetProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1121,13 +1299,17 @@ type PerpetualMarketLaunchProposal struct {
 	QuoteDenom string `protobuf:"bytes,4,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
 	// Address of the oracle for the derivative contract
 	Oracle string `protobuf:"bytes,5,opt,name=oracle,proto3" json:"oracle,omitempty"`
+	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price and margin cannot exceed
+	MaxPriceScaleDecimals uint32 `protobuf:"varint,6,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
+	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
+	MaxQuantityScaleDecimals uint32 `protobuf:"varint,7,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
 }
 
 func (m *PerpetualMarketLaunchProposal) Reset()         { *m = PerpetualMarketLaunchProposal{} }
 func (m *PerpetualMarketLaunchProposal) String() string { return proto.CompactTextString(m) }
 func (*PerpetualMarketLaunchProposal) ProtoMessage()    {}
 func (*PerpetualMarketLaunchProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{25}
+	return fileDescriptor_bd45b74cb6d81462, []int{29}
 }
 func (m *PerpetualMarketLaunchProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1168,13 +1350,17 @@ type ExpiryFuturesMarketLaunchProposal struct {
 	Oracle string `protobuf:"bytes,5,opt,name=oracle,proto3" json:"oracle,omitempty"`
 	// Expiration time of the market
 	Expiry int64 `protobuf:"varint,6,opt,name=expiry,proto3" json:"expiry,omitempty"`
+	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price and margin cannot exceed
+	MaxPriceScaleDecimals uint32 `protobuf:"varint,7,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
+	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
+	MaxQuantityScaleDecimals uint32 `protobuf:"varint,8,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
 }
 
 func (m *ExpiryFuturesMarketLaunchProposal) Reset()         { *m = ExpiryFuturesMarketLaunchProposal{} }
 func (m *ExpiryFuturesMarketLaunchProposal) String() string { return proto.CompactTextString(m) }
 func (*ExpiryFuturesMarketLaunchProposal) ProtoMessage()    {}
 func (*ExpiryFuturesMarketLaunchProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{26}
+	return fileDescriptor_bd45b74cb6d81462, []int{30}
 }
 func (m *ExpiryFuturesMarketLaunchProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1215,7 +1401,7 @@ func (m *MarketStatusUpdateProposal) Reset()         { *m = MarketStatusUpdatePr
 func (m *MarketStatusUpdateProposal) String() string { return proto.CompactTextString(m) }
 func (*MarketStatusUpdateProposal) ProtoMessage()    {}
 func (*MarketStatusUpdateProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{27}
+	return fileDescriptor_bd45b74cb6d81462, []int{31}
 }
 func (m *MarketStatusUpdateProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1256,7 +1442,7 @@ func (m *DerivativeMarketStatusSetProposal) Reset()         { *m = DerivativeMar
 func (m *DerivativeMarketStatusSetProposal) String() string { return proto.CompactTextString(m) }
 func (*DerivativeMarketStatusSetProposal) ProtoMessage()    {}
 func (*DerivativeMarketStatusSetProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{28}
+	return fileDescriptor_bd45b74cb6d81462, []int{32}
 }
 func (m *DerivativeMarketStatusSetProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1299,13 +1485,17 @@ type DerivativeMarketParamUpdateProposal struct {
 	TakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate,omitempty"`
 	// relayer_fee_share_rate defines the relayer fee share rate for the derivative market
 	RelayerFeeShareRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"relayer_fee_share_rate,omitempty"`
+	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price cannot exceed
+	MaxPriceScaleDecimals uint32 `protobuf:"varint,9,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
+	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
+	MaxQuantityScaleDecimals uint32 `protobuf:"varint,10,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
 }
 
 func (m *DerivativeMarketParamUpdateProposal) Reset()         { *m = DerivativeMarketParamUpdateProposal{} }
 func (m *DerivativeMarketParamUpdateProposal) String() string { return proto.CompactTextString(m) }
 func (*DerivativeMarketParamUpdateProposal) ProtoMessage()    {}
 func (*DerivativeMarketParamUpdateProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_bd45b74cb6d81462, []int{29}
+	return fileDescriptor_bd45b74cb6d81462, []int{33}
 }
 func (m *DerivativeMarketParamUpdateProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1344,6 +1534,10 @@ func init() {
 	proto.RegisterType((*MsgCreateSpotLimitOrderResponse)(nil), "injective.exchange.v1beta1.MsgCreateSpotLimitOrderResponse")
 	proto.RegisterType((*MsgInstantSpotMarketLaunch)(nil), "injective.exchange.v1beta1.MsgInstantSpotMarketLaunch")
 	proto.RegisterType((*MsgInstantSpotMarketLaunchResponse)(nil), "injective.exchange.v1beta1.MsgInstantSpotMarketLaunchResponse")
+	proto.RegisterType((*MsgInstantPerpetualMarketLaunch)(nil), "injective.exchange.v1beta1.MsgInstantPerpetualMarketLaunch")
+	proto.RegisterType((*MsgInstantPerpetualMarketLaunchResponse)(nil), "injective.exchange.v1beta1.MsgInstantPerpetualMarketLaunchResponse")
+	proto.RegisterType((*MsgInstantExpiryFuturesMarketLaunch)(nil), "injective.exchange.v1beta1.MsgInstantExpiryFuturesMarketLaunch")
+	proto.RegisterType((*MsgInstantExpiryFuturesMarketLaunchResponse)(nil), "injective.exchange.v1beta1.MsgInstantExpiryFuturesMarketLaunchResponse")
 	proto.RegisterType((*MsgCreateSpotMarketOrder)(nil), "injective.exchange.v1beta1.MsgCreateSpotMarketOrder")
 	proto.RegisterType((*MsgCreateSpotMarketOrderResponse)(nil), "injective.exchange.v1beta1.MsgCreateSpotMarketOrderResponse")
 	proto.RegisterType((*MsgCreateDerivativeLimitOrder)(nil), "injective.exchange.v1beta1.MsgCreateDerivativeLimitOrder")
@@ -1373,95 +1567,106 @@ func init() {
 }
 
 var fileDescriptor_bd45b74cb6d81462 = []byte{
-	// 1397 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xdc, 0x98, 0x4f, 0x6f, 0x1b, 0xc5,
-	0x1b, 0xc7, 0x33, 0xf5, 0x9f, 0x26, 0x8f, 0xf3, 0xeb, 0x2f, 0xda, 0x26, 0xa9, 0xbb, 0x21, 0x76,
-	0xea, 0xd2, 0x36, 0x08, 0x75, 0x4d, 0xd3, 0xaa, 0x55, 0x0b, 0x42, 0x34, 0x49, 0x0b, 0x91, 0x6a,
-	0x88, 0xd6, 0x45, 0x48, 0x70, 0x30, 0xe3, 0xdd, 0xa9, 0x3d, 0xc4, 0xde, 0x35, 0x3b, 0xb3, 0x21,
-	0x91, 0x10, 0x48, 0x1c, 0xa0, 0x12, 0x20, 0xe0, 0x82, 0x10, 0x12, 0x52, 0xcf, 0x9c, 0x10, 0xe2,
-	0x25, 0xf4, 0xd0, 0x13, 0xea, 0x01, 0x21, 0xc4, 0xa1, 0xa2, 0xed, 0x85, 0x97, 0x81, 0x76, 0x76,
-	0x3d, 0x5e, 0x3b, 0xeb, 0xf5, 0x9f, 0x46, 0xa1, 0xe2, 0x64, 0xef, 0xec, 0xf3, 0x7c, 0x9f, 0xcf,
-	0xb3, 0xfb, 0xcc, 0x3c, 0xb3, 0x03, 0x27, 0xa9, 0xf5, 0x1e, 0x31, 0x38, 0xdd, 0x26, 0x45, 0xb2,
-	0x63, 0xd4, 0xb1, 0x55, 0x23, 0xc5, 0xed, 0x73, 0x55, 0xc2, 0xf1, 0xb9, 0x22, 0xdf, 0xd1, 0x5a,
-	0x8e, 0xcd, 0x6d, 0x45, 0x95, 0x46, 0x5a, 0xdb, 0x48, 0x0b, 0x8c, 0xd4, 0xd9, 0x9a, 0x5d, 0xb3,
-	0x85, 0x59, 0xd1, 0xfb, 0xe7, 0x7b, 0xa8, 0x39, 0xc3, 0x66, 0x4d, 0x9b, 0x15, 0xab, 0x98, 0x75,
-	0xf4, 0x0c, 0x9b, 0x5a, 0xc1, 0xfd, 0xe7, 0x62, 0xc2, 0xca, 0x10, 0xc2, 0xb4, 0xf0, 0x05, 0x02,
-	0x28, 0xb1, 0xda, 0x3a, 0x69, 0xd9, 0x8c, 0x72, 0x65, 0x1e, 0xd2, 0x8c, 0x58, 0x26, 0x71, 0xb2,
-	0x68, 0x09, 0x2d, 0x4f, 0xe9, 0xc1, 0x95, 0x72, 0x12, 0xfe, 0xc7, 0xdc, 0x2a, 0x36, 0x0c, 0xdb,
-	0xb5, 0x78, 0x85, 0x9a, 0xd9, 0x43, 0xe2, 0xf6, 0x74, 0x67, 0x70, 0xc3, 0x54, 0x2e, 0x41, 0x1a,
-	0x37, 0xbd, 0xff, 0xd9, 0xc4, 0x12, 0x5a, 0xce, 0xac, 0x1c, 0xd7, 0x7c, 0x4e, 0xcd, 0xe3, 0x6c,
-	0xa7, 0xa4, 0xad, 0xd9, 0xd4, 0x5a, 0x4d, 0xde, 0x7b, 0x90, 0x9f, 0xd0, 0x03, 0xf3, 0x2b, 0x93,
-	0xb7, 0xef, 0xe4, 0x27, 0xfe, 0xbe, 0x93, 0x9f, 0x28, 0xcc, 0x82, 0xd2, 0xa1, 0xd1, 0x09, 0x6b,
-	0xd9, 0x16, 0x23, 0x85, 0x2f, 0x11, 0x64, 0x4a, 0xac, 0xf6, 0x16, 0xe5, 0x75, 0xd3, 0xc1, 0x1f,
-	0xfc, 0xeb, 0x94, 0x73, 0x70, 0x34, 0x84, 0x23, 0x31, 0x3f, 0x82, 0x63, 0x25, 0x56, 0x5b, 0x73,
-	0x08, 0xe6, 0xa4, 0xdc, 0xb2, 0xf9, 0x0d, 0xda, 0xa4, 0xfc, 0x0d, 0xc7, 0x23, 0xeb, 0x47, 0x7c,
-	0x15, 0x52, 0xb6, 0x67, 0x20, 0x48, 0x33, 0x2b, 0xa7, 0xb4, 0xfe, 0xb5, 0xa0, 0x79, 0x92, 0x42,
-	0x2d, 0xe0, 0xf2, 0x3d, 0x43, 0x58, 0x27, 0x20, 0xdf, 0x27, 0xbe, 0x44, 0xfc, 0x16, 0x81, 0x5a,
-	0x62, 0xb5, 0x0d, 0x8b, 0x71, 0x6c, 0x71, 0xcf, 0xa8, 0x84, 0x9d, 0x2d, 0xc2, 0x6f, 0x60, 0xd7,
-	0x32, 0xea, 0x7d, 0x31, 0xe7, 0x21, 0xcd, 0xa9, 0xb1, 0x15, 0x70, 0x4e, 0xe9, 0xc1, 0x95, 0xb2,
-	0x08, 0xe0, 0x3d, 0xb5, 0x8a, 0x49, 0x2c, 0xbb, 0x29, 0x9e, 0xe7, 0x94, 0x3e, 0xe5, 0x8d, 0xac,
-	0x7b, 0x03, 0x4a, 0x1e, 0x32, 0xef, 0xbb, 0x36, 0x6f, 0xdf, 0x4f, 0x8a, 0xfb, 0x20, 0x86, 0x84,
-	0x41, 0x88, 0xfd, 0x59, 0x28, 0xf4, 0xe7, 0x92, 0xf8, 0x1f, 0x43, 0xb6, 0x2b, 0x43, 0xdf, 0xe8,
-	0x00, 0x1f, 0x71, 0x01, 0x96, 0xfa, 0x01, 0x48, 0xc8, 0x4f, 0x11, 0x2c, 0x4a, 0xa3, 0x75, 0xe2,
-	0xd0, 0x6d, 0xec, 0x45, 0x1b, 0xa2, 0x1a, 0x5e, 0xed, 0x46, 0x7d, 0x3e, 0x0e, 0xb5, 0x23, 0x1c,
-	0x01, 0x9c, 0xf4, 0x80, 0x0b, 0x67, 0xe0, 0x54, 0x2c, 0x87, 0x24, 0xfe, 0x11, 0x89, 0x69, 0xb7,
-	0x86, 0x2d, 0x83, 0x34, 0xe4, 0x33, 0xe8, 0x8b, 0xb9, 0x00, 0x53, 0x4d, 0x91, 0x77, 0x67, 0x8a,
-	0x4d, 0xfa, 0x03, 0x1b, 0xa6, 0x32, 0x07, 0x69, 0xca, 0x2a, 0x55, 0x77, 0x57, 0x94, 0xc3, 0xa4,
-	0x9e, 0xa2, 0x6c, 0xd5, 0xdd, 0xdd, 0x3b, 0x35, 0x93, 0x11, 0x53, 0x73, 0x11, 0x40, 0xf0, 0x57,
-	0xea, 0x98, 0xd5, 0xb3, 0x29, 0xbf, 0x9c, 0xc4, 0xc8, 0x6b, 0x98, 0xd5, 0x83, 0xac, 0x9e, 0x11,
-	0x15, 0xdc, 0xc3, 0x2a, 0x53, 0xf9, 0x0c, 0x41, 0x2e, 0x22, 0xe9, 0x61, 0x0a, 0x65, 0x9f, 0x9f,
-	0xfe, 0x32, 0x9c, 0x8e, 0x07, 0x91, 0xcc, 0x3f, 0x21, 0xbf, 0xac, 0x45, 0x4a, 0x3d, 0xca, 0x4f,
-	0xe9, 0x4b, 0x08, 0xe6, 0x41, 0x14, 0xb1, 0x4c, 0xeb, 0x77, 0x04, 0x73, 0x25, 0x56, 0x2b, 0x4b,
-	0xf1, 0x9b, 0x0e, 0xb6, 0xd8, 0xad, 0x98, 0x9c, 0x5e, 0x80, 0x59, 0x66, 0xbb, 0x8e, 0x41, 0x2a,
-	0x51, 0xcb, 0xb8, 0xe2, 0xdf, 0x2b, 0x87, 0x61, 0xaf, 0xc0, 0x71, 0x93, 0x30, 0x4e, 0x2d, 0xcc,
-	0xa9, 0x6d, 0xf5, 0xb8, 0xf9, 0xeb, 0xd1, 0xb1, 0x90, 0x41, 0x39, 0xba, 0x11, 0x24, 0x47, 0x6a,
-	0x04, 0x85, 0xbc, 0x98, 0xdf, 0x7b, 0xf3, 0x92, 0x99, 0xff, 0x86, 0x44, 0x83, 0xb8, 0xb6, 0xc3,
-	0x89, 0x63, 0xe1, 0xc6, 0x7f, 0x25, 0xef, 0x45, 0x58, 0x88, 0xc8, 0x4a, 0x66, 0xfd, 0x55, 0x02,
-	0x16, 0x3b, 0x6b, 0xe2, 0x26, 0x76, 0x70, 0xf3, 0xcd, 0x96, 0x89, 0x39, 0xd9, 0x74, 0xec, 0x96,
-	0xcd, 0x70, 0x43, 0x99, 0x85, 0x14, 0xa7, 0xbc, 0x41, 0x82, 0xf4, 0xfd, 0x0b, 0x65, 0x09, 0x32,
-	0x26, 0x61, 0x86, 0x43, 0x5b, 0x1e, 0x6a, 0x90, 0x74, 0x78, 0xa8, 0xbb, 0xd6, 0x13, 0x3d, 0xb5,
-	0x7e, 0x13, 0x8e, 0x34, 0xf1, 0x16, 0x71, 0x2a, 0xb7, 0x08, 0xa9, 0x38, 0x98, 0x13, 0xbf, 0xaa,
-	0x57, 0x35, 0x8f, 0xfd, 0xcf, 0x07, 0xf9, 0xd3, 0x35, 0xca, 0xeb, 0x6e, 0x55, 0x33, 0xec, 0x66,
-	0x31, 0xd8, 0x37, 0xf9, 0x3f, 0x67, 0x99, 0xb9, 0x55, 0xe4, 0xbb, 0x2d, 0xc2, 0xb4, 0x75, 0x62,
-	0xe8, 0xd3, 0x42, 0xe5, 0x3a, 0x21, 0x3a, 0xe6, 0xc4, 0x53, 0xe5, 0xdd, 0xaa, 0xa9, 0xf1, 0x54,
-	0x79, 0x58, 0xd5, 0x80, 0x79, 0x87, 0x34, 0xf0, 0x6e, 0xa0, 0xcb, 0xea, 0xd8, 0x09, 0xd4, 0x27,
-	0xc7, 0x52, 0x3f, 0x1a, 0xa8, 0x5d, 0x27, 0xa4, 0xec, 0x69, 0x79, 0x41, 0x42, 0xdd, 0xea, 0x17,
-	0x04, 0xd9, 0xde, 0x5e, 0xfa, 0xc4, 0x2f, 0xa3, 0xb3, 0x17, 0x48, 0xc4, 0xec, 0x05, 0x92, 0x03,
-	0xf6, 0x02, 0xa9, 0x98, 0xbd, 0xc0, 0x43, 0x04, 0x0b, 0x1d, 0xec, 0x32, 0xc7, 0xdc, 0x65, 0x65,
-	0xc2, 0x9f, 0x98, 0xfc, 0x09, 0x77, 0x2b, 0xca, 0x2b, 0x90, 0x66, 0x02, 0x46, 0xd0, 0x1f, 0x59,
-	0x59, 0x8e, 0xeb, 0x10, 0x61, 0x78, 0x3d, 0xf0, 0x0b, 0xe5, 0xf8, 0x33, 0x82, 0xc5, 0x4d, 0xe2,
-	0xb4, 0x08, 0x77, 0x71, 0xe3, 0x40, 0xde, 0xcf, 0xc0, 0xf4, 0xe6, 0x21, 0x6d, 0x3b, 0xd8, 0x68,
-	0x04, 0xa5, 0xae, 0x07, 0x57, 0x21, 0xe8, 0x5f, 0x11, 0x9c, 0xb8, 0xb6, 0xd3, 0xa2, 0xce, 0xee,
-	0x75, 0x97, 0xbb, 0x0e, 0x61, 0x4f, 0x35, 0xb8, 0x37, 0x4e, 0x04, 0x6d, 0x36, 0xbd, 0x84, 0x96,
-	0x13, 0x7a, 0x70, 0x15, 0x4a, 0xe8, 0xbb, 0x43, 0xa0, 0x86, 0x5f, 0xd4, 0x41, 0xac, 0x57, 0xef,
-	0x40, 0x1a, 0x1b, 0xc2, 0x33, 0x29, 0xaa, 0x68, 0x6d, 0xd8, 0x2a, 0xea, 0x86, 0xd3, 0xfc, 0xc1,
-	0xab, 0x42, 0x4a, 0x0f, 0x24, 0x0b, 0xab, 0x30, 0x1d, 0x1e, 0x57, 0xa6, 0x61, 0xd2, 0xfb, 0xb7,
-	0x8d, 0x39, 0x99, 0x99, 0x50, 0xa6, 0x20, 0xb5, 0x89, 0x5d, 0x46, 0x66, 0x90, 0x92, 0x81, 0xc3,
-	0x65, 0x97, 0xb5, 0x88, 0x65, 0xce, 0x1c, 0xf2, 0xac, 0xd6, 0x49, 0xd3, 0x6e, 0x50, 0x56, 0x9f,
-	0x49, 0x04, 0x1d, 0xfe, 0x2e, 0x82, 0x13, 0xbd, 0xdb, 0x96, 0xfd, 0x9b, 0x8a, 0xb1, 0x4f, 0x68,
-	0x3f, 0xe7, 0xd9, 0xc3, 0x24, 0x9c, 0xec, 0x4d, 0xe3, 0xc0, 0x5a, 0xd3, 0xbb, 0x30, 0x4b, 0x2d,
-	0xca, 0x29, 0x6e, 0x54, 0x9a, 0xd8, 0xa9, 0x51, 0xcb, 0x5b, 0xeb, 0xa9, 0x1d, 0x6a, 0x50, 0x68,
-	0x84, 0xc5, 0x5e, 0x09, 0xb4, 0x4a, 0x42, 0x4a, 0xf7, 0x94, 0x94, 0x3a, 0x64, 0x9b, 0x98, 0x5a,
-	0x9c, 0x58, 0xde, 0x56, 0xac, 0x3b, 0x4a, 0x6a, 0xac, 0x28, 0xf3, 0x21, 0xbd, 0x70, 0xa4, 0xbd,
-	0x6d, 0x36, 0x3d, 0x96, 0xfe, 0xa0, 0x36, 0x7b, 0x78, 0x3c, 0xd5, 0x91, 0xdb, 0x2c, 0xda, 0xb7,
-	0x36, 0xbb, 0x72, 0x37, 0x03, 0x89, 0x12, 0xab, 0x29, 0x18, 0x0e, 0xb7, 0xcf, 0x51, 0x4e, 0xc7,
-	0x96, 0xac, 0x3c, 0xe1, 0x50, 0xb5, 0xe1, 0xec, 0xda, 0x7b, 0x2c, 0xc5, 0x84, 0x49, 0x79, 0x0a,
-	0x72, 0x66, 0x80, 0x6f, 0xdb, 0x50, 0x2d, 0x0e, 0x69, 0x28, 0xa3, 0x7c, 0x83, 0xe0, 0x58, 0xbf,
-	0x23, 0x82, 0x8b, 0x03, 0xc4, 0xfa, 0xf8, 0xa9, 0x2f, 0x8f, 0xe7, 0x27, 0x99, 0x6e, 0x23, 0x98,
-	0x8d, 0x3c, 0x5a, 0x39, 0x3f, 0x40, 0x38, 0xca, 0x49, 0x7d, 0x71, 0x0c, 0x27, 0x89, 0xf2, 0x39,
-	0x82, 0xb9, 0xe8, 0x33, 0x88, 0x0b, 0x43, 0xcb, 0x86, 0xbc, 0xd4, 0x97, 0xc6, 0xf1, 0x92, 0x34,
-	0xbb, 0xf0, 0xff, 0xde, 0x0f, 0xf7, 0x41, 0x55, 0xd5, 0x63, 0xaf, 0x5e, 0x1c, 0xcd, 0x5e, 0x86,
-	0xfe, 0x1e, 0x81, 0x1a, 0x73, 0xcc, 0x71, 0x79, 0xa8, 0xbc, 0xa2, 0x5c, 0xd5, 0xab, 0x63, 0xbb,
-	0x4a, 0xb8, 0x1f, 0x10, 0x2c, 0xc4, 0x1d, 0x03, 0x5c, 0x19, 0x31, 0x44, 0xf8, 0x8d, 0xad, 0x8e,
-	0xef, 0xdb, 0x5d, 0x45, 0x91, 0x9f, 0xfc, 0x17, 0x86, 0x7a, 0x1d, 0x3d, 0x5e, 0x83, 0xab, 0x28,
-	0xee, 0x63, 0x5d, 0xf9, 0x04, 0x81, 0x12, 0xf1, 0xa5, 0x7e, 0x6e, 0x80, 0xe8, 0x5e, 0x17, 0xf5,
-	0xf2, 0xc8, 0x2e, 0x12, 0xe2, 0x43, 0x98, 0xd9, 0xf3, 0xcd, 0x3c, 0x68, 0xf1, 0xea, 0x75, 0x50,
-	0x2f, 0x8d, 0xe8, 0xd0, 0x8e, 0xbe, 0x5a, 0xbf, 0xf7, 0x28, 0x87, 0xee, 0x3f, 0xca, 0xa1, 0xbf,
-	0x1e, 0xe5, 0xd0, 0xd7, 0x8f, 0x73, 0x13, 0xf7, 0x1f, 0xe7, 0x26, 0xfe, 0x78, 0x9c, 0x9b, 0x78,
-	0xfb, 0xf5, 0x50, 0x9f, 0xd8, 0x68, 0x8b, 0xdf, 0xc0, 0x55, 0x56, 0x94, 0xa1, 0xce, 0x1a, 0xb6,
-	0x43, 0xc2, 0x97, 0x75, 0x4c, 0xad, 0x62, 0xd3, 0x36, 0xdd, 0x06, 0x61, 0x9d, 0x53, 0x78, 0xd1,
-	0x53, 0xaa, 0x69, 0x71, 0xf6, 0x7e, 0xfe, 0x9f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x10, 0xd3, 0x09,
-	0x83, 0x1f, 0x18, 0x00, 0x00,
+	// 1574 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xdc, 0x59, 0xdf, 0x6f, 0x13, 0xc7,
+	0x16, 0xce, 0x24, 0xb6, 0x13, 0x9f, 0x04, 0x6e, 0xb4, 0x24, 0xc1, 0x6c, 0x88, 0x13, 0x9c, 0x0b,
+	0x04, 0x21, 0xec, 0x4b, 0x40, 0x20, 0xe0, 0xf6, 0x07, 0x49, 0x80, 0x46, 0xc2, 0x6d, 0x6a, 0x53,
+	0x55, 0x6a, 0x1f, 0xdc, 0xc9, 0x7a, 0xb0, 0xa7, 0xb1, 0x77, 0xcd, 0xce, 0x6c, 0x9a, 0x48, 0x55,
+	0x2b, 0xf5, 0xa1, 0x45, 0x6a, 0x2b, 0xb5, 0x52, 0x85, 0xaa, 0x4a, 0x95, 0x78, 0x46, 0x3c, 0xf4,
+	0x8f, 0xa8, 0x2a, 0x1e, 0x79, 0xa8, 0xaa, 0xb6, 0x0f, 0xa8, 0x85, 0x97, 0xfe, 0x19, 0xd5, 0x8c,
+	0xd7, 0xe3, 0xb5, 0xb3, 0x5e, 0xaf, 0x6d, 0x0a, 0xa8, 0x4f, 0xf1, 0xcc, 0x9c, 0xef, 0x3b, 0xdf,
+	0x99, 0x3d, 0x33, 0x73, 0x74, 0x02, 0x8b, 0xd4, 0x7c, 0x9f, 0x18, 0x9c, 0x6e, 0x93, 0x0c, 0xd9,
+	0x31, 0xca, 0xd8, 0x2c, 0x91, 0xcc, 0xf6, 0xe9, 0x4d, 0xc2, 0xf1, 0xe9, 0x0c, 0xdf, 0x49, 0xd7,
+	0x6c, 0x8b, 0x5b, 0x9a, 0xae, 0x8c, 0xd2, 0x0d, 0xa3, 0xb4, 0x6b, 0xa4, 0x4f, 0x95, 0xac, 0x92,
+	0x25, 0xcd, 0x32, 0xe2, 0x57, 0x1d, 0xa1, 0x27, 0x0d, 0x8b, 0x55, 0x2d, 0x96, 0xd9, 0xc4, 0xac,
+	0xc9, 0x67, 0x58, 0xd4, 0x74, 0xd7, 0x4f, 0x04, 0xb8, 0x55, 0x2e, 0xa4, 0x69, 0xea, 0x0b, 0x04,
+	0x90, 0x65, 0xa5, 0x35, 0x52, 0xb3, 0x18, 0xe5, 0xda, 0x0c, 0xc4, 0x18, 0x31, 0x8b, 0xc4, 0x4e,
+	0xa0, 0x05, 0xb4, 0x14, 0xcf, 0xb9, 0x23, 0x6d, 0x11, 0xf6, 0x31, 0x67, 0x13, 0x1b, 0x86, 0xe5,
+	0x98, 0xbc, 0x40, 0x8b, 0x89, 0x61, 0xb9, 0x3c, 0xd1, 0x9c, 0x5c, 0x2f, 0x6a, 0xe7, 0x21, 0x86,
+	0xab, 0xe2, 0x77, 0x62, 0x64, 0x01, 0x2d, 0x8d, 0x2f, 0x1f, 0x4a, 0xd7, 0x75, 0xa6, 0x85, 0xce,
+	0x46, 0x48, 0xe9, 0x55, 0x8b, 0x9a, 0x2b, 0x91, 0x07, 0x8f, 0xe6, 0x87, 0x72, 0xae, 0xf9, 0xc5,
+	0xb1, 0xdb, 0x77, 0xe7, 0x87, 0xfe, 0xba, 0x3b, 0x3f, 0x94, 0x9a, 0x02, 0xad, 0xa9, 0x26, 0x47,
+	0x58, 0xcd, 0x32, 0x19, 0x49, 0x7d, 0x89, 0x60, 0x3c, 0xcb, 0x4a, 0x6f, 0x53, 0x5e, 0x2e, 0xda,
+	0xf8, 0x83, 0xe7, 0xae, 0x72, 0x1a, 0x0e, 0x78, 0xe4, 0x28, 0x99, 0x1f, 0xc1, 0xc1, 0x2c, 0x2b,
+	0xad, 0xda, 0x04, 0x73, 0x92, 0xaf, 0x59, 0xfc, 0x3a, 0xad, 0x52, 0xfe, 0x86, 0x2d, 0x94, 0x75,
+	0x52, 0x7c, 0x19, 0xa2, 0x96, 0x30, 0x90, 0x4a, 0xc7, 0x97, 0x8f, 0xa6, 0x3b, 0xe7, 0x42, 0x5a,
+	0x50, 0x4a, 0x36, 0x57, 0x57, 0x1d, 0xe9, 0x91, 0x75, 0x04, 0xe6, 0x3b, 0xf8, 0x57, 0x12, 0xef,
+	0x20, 0xd0, 0xb3, 0xac, 0xb4, 0x6e, 0x32, 0x8e, 0x4d, 0x2e, 0x8c, 0xb2, 0xd8, 0xde, 0x22, 0xfc,
+	0x3a, 0x76, 0x4c, 0xa3, 0xdc, 0x51, 0xe6, 0x0c, 0xc4, 0x38, 0x35, 0xb6, 0x5c, 0x9d, 0xf1, 0x9c,
+	0x3b, 0xd2, 0xe6, 0x00, 0xc4, 0xae, 0x15, 0x8a, 0xc4, 0xb4, 0xaa, 0x72, 0x3f, 0xe3, 0xb9, 0xb8,
+	0x98, 0x59, 0x13, 0x13, 0xda, 0x3c, 0x8c, 0xdf, 0x72, 0x2c, 0xde, 0x58, 0x8f, 0xc8, 0x75, 0x90,
+	0x53, 0xd2, 0xc0, 0xa3, 0xfd, 0xbf, 0x90, 0xea, 0xac, 0x4b, 0xc9, 0xff, 0x06, 0xc9, 0x10, 0x5d,
+	0xb3, 0x0d, 0x62, 0xd7, 0x08, 0x77, 0x70, 0x65, 0xa0, 0x18, 0xda, 0x44, 0x8e, 0xb4, 0x8b, 0x14,
+	0x40, 0xcb, 0xc6, 0x46, 0x85, 0xb8, 0x01, 0xb8, 0x23, 0x8f, 0xf8, 0x13, 0x70, 0xbc, 0x8b, 0x2a,
+	0x15, 0xc1, 0x0f, 0x08, 0x16, 0x9b, 0xb6, 0x57, 0x76, 0x6a, 0xd4, 0xde, 0xbd, 0xea, 0x70, 0xc7,
+	0x26, 0xec, 0xb9, 0x44, 0x21, 0xe6, 0x89, 0x54, 0x91, 0x88, 0x2e, 0xa0, 0xa5, 0x91, 0x9c, 0x3b,
+	0xf2, 0x44, 0x77, 0x0a, 0x4e, 0x86, 0x50, 0xac, 0x22, 0xfc, 0x18, 0x12, 0x2d, 0x59, 0x58, 0x37,
+	0x7a, 0x86, 0xc7, 0x20, 0x05, 0x0b, 0x9d, 0x04, 0x28, 0x91, 0x9f, 0x22, 0x98, 0x53, 0x46, 0x6b,
+	0xc4, 0xa6, 0xdb, 0x58, 0x78, 0x0b, 0x71, 0x62, 0xaf, 0xb5, 0x4a, 0x3d, 0x19, 0x24, 0xb5, 0x49,
+	0xec, 0x23, 0x38, 0x22, 0x04, 0xa7, 0x8e, 0xc3, 0xd1, 0x40, 0x1d, 0x4a, 0xf1, 0x3d, 0x24, 0xaf,
+	0xc6, 0x55, 0x6c, 0x1a, 0xa4, 0xa2, 0xf6, 0xa0, 0xa3, 0xcc, 0x59, 0x88, 0x57, 0x65, 0xdc, 0xcd,
+	0x6b, 0x70, 0xac, 0x3e, 0xb1, 0x5e, 0xd4, 0xa6, 0x21, 0x46, 0x59, 0x61, 0xd3, 0xd9, 0x95, 0x79,
+	0x32, 0x96, 0x8b, 0x52, 0xb6, 0xe2, 0xec, 0xee, 0xbd, 0x3e, 0x23, 0x3e, 0xd7, 0xe7, 0x1c, 0x80,
+	0xd4, 0x5f, 0x28, 0x63, 0x56, 0x96, 0x39, 0x13, 0xcf, 0xc5, 0xe5, 0xcc, 0x6b, 0x98, 0x95, 0xdd,
+	0xa8, 0x0e, 0xcb, 0x5b, 0xa6, 0x4d, 0xab, 0x0a, 0xe5, 0x33, 0x04, 0x49, 0x9f, 0xa0, 0xc3, 0x24,
+	0xca, 0x53, 0xde, 0xfd, 0x25, 0x38, 0x16, 0x2c, 0xc4, 0x7b, 0x6e, 0x13, 0x2a, 0xa4, 0x36, 0xe6,
+	0x17, 0xf4, 0x23, 0xb8, 0xe7, 0xc0, 0x4f, 0xb1, 0x0a, 0xeb, 0x17, 0x04, 0xd3, 0x59, 0x56, 0xca,
+	0x2b, 0xf2, 0x1b, 0x36, 0x36, 0xd9, 0xcd, 0x80, 0x98, 0xfe, 0x07, 0x53, 0xcc, 0x72, 0x6c, 0x83,
+	0x14, 0xfc, 0x9e, 0x5a, 0xad, 0xbe, 0x96, 0xf7, 0x8a, 0xbd, 0x08, 0x87, 0x8a, 0x84, 0x71, 0x6a,
+	0x62, 0x4e, 0x2d, 0xb3, 0x0d, 0x56, 0xbf, 0xa8, 0x0e, 0x7a, 0x0c, 0xf2, 0xfe, 0x8f, 0x75, 0xa4,
+	0xa7, 0xc7, 0x3a, 0x35, 0x2f, 0xcf, 0xf7, 0xde, 0xb8, 0x54, 0xe4, 0x3f, 0x23, 0xf9, 0x88, 0x5f,
+	0xd9, 0xe1, 0xc4, 0x36, 0x71, 0xe5, 0xdf, 0x12, 0xf7, 0x1c, 0xcc, 0xfa, 0x44, 0xd5, 0x3c, 0x7a,
+	0x11, 0x98, 0x6b, 0xde, 0x89, 0x1b, 0xd8, 0xc6, 0xd5, 0xb7, 0x6a, 0x45, 0xcc, 0xc9, 0x86, 0x6d,
+	0xd5, 0x2c, 0x86, 0x2b, 0xda, 0x14, 0x44, 0x39, 0xe5, 0x15, 0xe2, 0x86, 0x5f, 0x1f, 0x68, 0x0b,
+	0x30, 0x5e, 0x24, 0xcc, 0xb0, 0x69, 0x4d, 0x48, 0x75, 0x83, 0xf6, 0x4e, 0xb5, 0xe6, 0xfa, 0x48,
+	0x5b, 0xae, 0xdf, 0x80, 0xfd, 0x55, 0xbc, 0x45, 0xec, 0xc2, 0x4d, 0x42, 0x0a, 0x36, 0xe6, 0xee,
+	0x23, 0xb4, 0x92, 0x16, 0xda, 0x7f, 0x7f, 0x34, 0x7f, 0xac, 0x44, 0x79, 0xd9, 0xd9, 0x4c, 0x1b,
+	0x56, 0x35, 0xe3, 0xd6, 0xb6, 0xf5, 0x3f, 0xa7, 0x58, 0x71, 0x2b, 0xc3, 0x77, 0x6b, 0x84, 0xa5,
+	0xd7, 0x88, 0x91, 0x9b, 0x90, 0x2c, 0x57, 0x09, 0xc9, 0x61, 0x4e, 0x04, 0x2b, 0x6f, 0x65, 0x8d,
+	0xf6, 0xc7, 0xca, 0xbd, 0xac, 0x06, 0xcc, 0xd8, 0xa4, 0x82, 0x77, 0x5d, 0x5e, 0x56, 0xc6, 0xb6,
+	0xcb, 0x1e, 0xeb, 0x8b, 0xfd, 0x80, 0xcb, 0x76, 0x95, 0x90, 0xbc, 0xe0, 0x92, 0x4e, 0xce, 0x43,
+	0xa2, 0x8a, 0x77, 0x0a, 0x35, 0x9b, 0x8a, 0x84, 0x32, 0x70, 0x45, 0x3c, 0xdc, 0x06, 0xad, 0xe2,
+	0x0a, 0x4b, 0x8c, 0x2e, 0xa0, 0xa5, 0x7d, 0xb9, 0xe9, 0x2a, 0xde, 0xd9, 0x10, 0xcb, 0x79, 0xb1,
+	0xba, 0xe6, 0x2e, 0x6a, 0x2f, 0xc1, 0xac, 0x00, 0xde, 0x72, 0xb0, 0xc9, 0x29, 0xdf, 0x6d, 0xc7,
+	0x8e, 0x49, 0xac, 0xe0, 0x7e, 0xd3, 0xb5, 0x68, 0x81, 0x7b, 0x5e, 0xc9, 0xfb, 0xc3, 0x90, 0x68,
+	0xaf, 0xb3, 0x06, 0x4e, 0x82, 0x66, 0x75, 0x32, 0x12, 0x50, 0x27, 0x46, 0xba, 0xd4, 0x89, 0xd1,
+	0x3d, 0xc5, 0x4b, 0xd0, 0x76, 0xc5, 0x06, 0xd8, 0xae, 0xd1, 0xd0, 0xdb, 0xf5, 0x27, 0x82, 0xd9,
+	0xe6, 0x76, 0xe5, 0x39, 0xe6, 0x0e, 0xcb, 0x13, 0x3e, 0xf0, 0x8e, 0x0d, 0x58, 0x41, 0x6b, 0xaf,
+	0x42, 0x8c, 0x49, 0x31, 0x72, 0xd7, 0xf6, 0x2f, 0x2f, 0x05, 0xbd, 0x88, 0x5e, 0xf1, 0x39, 0x17,
+	0xe7, 0x89, 0xf1, 0xde, 0x30, 0xcc, 0xf9, 0x56, 0xaf, 0xff, 0x58, 0x5e, 0x74, 0x0d, 0xaf, 0x59,
+	0xb5, 0x46, 0x5b, 0xaa, 0xd6, 0xe7, 0x9f, 0x10, 0x3f, 0x0d, 0xc3, 0x91, 0x8e, 0xc5, 0xf0, 0x8b,
+	0xb7, 0x61, 0xcd, 0x32, 0x3f, 0xe6, 0x2d, 0xf3, 0x5f, 0x80, 0x8b, 0xe8, 0xdb, 0x61, 0xd0, 0xbd,
+	0x89, 0xf9, 0x2c, 0xde, 0xa3, 0x77, 0x21, 0x86, 0x0d, 0x89, 0x8c, 0xc8, 0x53, 0xb3, 0x1a, 0xf6,
+	0xd4, 0xb4, 0x8a, 0x4b, 0xd7, 0x27, 0x2f, 0x4b, 0xaa, 0x9c, 0x4b, 0x99, 0x5a, 0x81, 0x09, 0xef,
+	0xbc, 0x36, 0x01, 0x63, 0xe2, 0xd7, 0x36, 0xe6, 0x64, 0x72, 0x48, 0x8b, 0x43, 0x74, 0x03, 0x3b,
+	0x8c, 0x4c, 0x22, 0x6d, 0x1c, 0x46, 0xf3, 0x0e, 0xab, 0x11, 0xb3, 0x38, 0x39, 0x2c, 0xac, 0xd6,
+	0x48, 0xd5, 0xaa, 0x50, 0x56, 0x9e, 0x1c, 0x71, 0x2b, 0xb8, 0x1f, 0x11, 0x1c, 0x69, 0x2f, 0x4b,
+	0x9f, 0xde, 0xd5, 0x13, 0xb8, 0x43, 0x4f, 0xf3, 0x5e, 0xf9, 0x2d, 0x0a, 0x8b, 0xed, 0x61, 0x3c,
+	0xb3, 0xd2, 0xe3, 0x3d, 0x98, 0xa2, 0x26, 0xe5, 0x14, 0x57, 0x0a, 0x55, 0x6c, 0x97, 0xa8, 0x29,
+	0xde, 0x72, 0x6a, 0x79, 0x0a, 0x10, 0xd4, 0xc3, 0x63, 0xae, 0xb9, 0x5c, 0x59, 0x49, 0x95, 0x13,
+	0x4c, 0x5a, 0x59, 0x1c, 0x21, 0x6a, 0x72, 0x62, 0x8a, 0x52, 0xbb, 0xd5, 0x4b, 0xb4, 0x2f, 0x2f,
+	0x33, 0x1e, 0x3e, 0xaf, 0xa7, 0xbd, 0x65, 0x54, 0xac, 0x2f, 0xfe, 0x6e, 0x65, 0xd4, 0x68, 0x7f,
+	0xac, 0x21, 0xcb, 0xa8, 0xb1, 0xbe, 0xd8, 0x7b, 0x2e, 0xa3, 0xe2, 0x03, 0xdc, 0x5e, 0x10, 0xf6,
+	0xf6, 0x5a, 0xbe, 0xb3, 0x1f, 0x46, 0xb2, 0xac, 0xa4, 0x61, 0x18, 0x6d, 0xf4, 0x50, 0x8f, 0x05,
+	0x1e, 0x15, 0xd5, 0xdd, 0xd4, 0xd3, 0xe1, 0xec, 0x1a, 0xb5, 0xbb, 0x56, 0x84, 0x31, 0xd5, 0x01,
+	0x3d, 0xde, 0x05, 0xdb, 0x30, 0xd4, 0x33, 0x21, 0x0d, 0x95, 0x97, 0xaf, 0x11, 0x1c, 0xec, 0xd4,
+	0x1e, 0x3c, 0xd7, 0x85, 0xac, 0x03, 0x4e, 0x7f, 0xb9, 0x3f, 0x9c, 0xd2, 0x74, 0x17, 0xc1, 0xe1,
+	0xc0, 0x9e, 0xdf, 0xa5, 0x70, 0x0e, 0x7c, 0xc1, 0xfa, 0xea, 0x00, 0x60, 0x25, 0xf1, 0x3e, 0x82,
+	0x85, 0xae, 0x4d, 0xbd, 0x57, 0xc2, 0x79, 0xea, 0x48, 0xa0, 0x5f, 0x1b, 0x90, 0x40, 0xc9, 0xbd,
+	0x8d, 0x60, 0xca, 0xb7, 0x51, 0x7d, 0xa6, 0x8b, 0x07, 0x3f, 0x90, 0x7e, 0xa9, 0x0f, 0x90, 0x92,
+	0xf2, 0x39, 0x82, 0x69, 0xff, 0x6e, 0xe1, 0xd9, 0xd0, 0xb4, 0x1e, 0x94, 0xfe, 0xff, 0x7e, 0x50,
+	0x4a, 0xcd, 0x2e, 0xfc, 0xa7, 0xbd, 0xc5, 0xd6, 0xed, 0x9c, 0xb6, 0xd9, 0xeb, 0xe7, 0x7a, 0xb3,
+	0x57, 0xae, 0xbf, 0x43, 0xa0, 0x07, 0x34, 0x24, 0x2f, 0x84, 0x8a, 0xcb, 0x0f, 0xaa, 0x5f, 0xee,
+	0x1b, 0xaa, 0xc4, 0x7d, 0x8f, 0x60, 0x36, 0xa8, 0x61, 0x77, 0xb1, 0x47, 0x17, 0xde, 0x2f, 0xb6,
+	0xd2, 0x3f, 0xb6, 0x35, 0x8b, 0x7c, 0x9b, 0x73, 0x67, 0x43, 0x7d, 0x8e, 0x36, 0x54, 0xf7, 0x2c,
+	0x0a, 0x6a, 0xab, 0x69, 0x9f, 0x20, 0xd0, 0x7c, 0x7a, 0x6a, 0xa7, 0xbb, 0x90, 0xee, 0x85, 0xe8,
+	0x17, 0x7a, 0x86, 0x28, 0x11, 0x1f, 0xc2, 0xe4, 0x9e, 0xee, 0x56, 0xb7, 0xe7, 0xa0, 0x1d, 0xa0,
+	0x9f, 0xef, 0x11, 0xd0, 0xf0, 0xbe, 0x52, 0x7e, 0xf0, 0x38, 0x89, 0x1e, 0x3e, 0x4e, 0xa2, 0x3f,
+	0x1e, 0x27, 0xd1, 0x57, 0x4f, 0x92, 0x43, 0x0f, 0x9f, 0x24, 0x87, 0x7e, 0x7d, 0x92, 0x1c, 0x7a,
+	0xe7, 0x75, 0xcf, 0x8b, 0xbf, 0xde, 0x20, 0xbf, 0x8e, 0x37, 0x59, 0x46, 0xb9, 0x3a, 0x65, 0x58,
+	0x36, 0xf1, 0x0e, 0xcb, 0x98, 0x9a, 0x99, 0xaa, 0x55, 0x74, 0x2a, 0x84, 0x35, 0xff, 0xa7, 0x29,
+	0xab, 0x83, 0xcd, 0x98, 0xfc, 0x4f, 0xe6, 0x99, 0xbf, 0x03, 0x00, 0x00, 0xff, 0xff, 0xa3, 0x5d,
+	0xd6, 0x89, 0x6d, 0x1d, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1482,6 +1687,10 @@ type MsgClient interface {
 	Withdraw(ctx context.Context, in *MsgWithdraw, opts ...grpc.CallOption) (*MsgWithdrawResponse, error)
 	// InstantSpotMarketLaunch defines method for creating a spot market by paying listing fee without governance
 	InstantSpotMarketLaunch(ctx context.Context, in *MsgInstantSpotMarketLaunch, opts ...grpc.CallOption) (*MsgInstantSpotMarketLaunchResponse, error)
+	// InstantPerpetualMarketLaunch defines a method for creating a new perpetual futures market by paying listing fee without governance
+	InstantPerpetualMarketLaunch(ctx context.Context, in *MsgInstantPerpetualMarketLaunch, opts ...grpc.CallOption) (*MsgInstantPerpetualMarketLaunchResponse, error)
+	// InstantExpiryFuturesMarketLaunch defines a method for creating a new expiry futures market by paying listing fee without governance
+	InstantExpiryFuturesMarketLaunch(ctx context.Context, in *MsgInstantExpiryFuturesMarketLaunch, opts ...grpc.CallOption) (*MsgInstantExpiryFuturesMarketLaunchResponse, error)
 	// CreateSpotLimitOrder defines a method for creating a new spot limit order.
 	CreateSpotLimitOrder(ctx context.Context, in *MsgCreateSpotLimitOrder, opts ...grpc.CallOption) (*MsgCreateSpotLimitOrderResponse, error)
 	// CreateSpotMarketOrder defines a method for creating a new spot market order.
@@ -1529,6 +1738,24 @@ func (c *msgClient) Withdraw(ctx context.Context, in *MsgWithdraw, opts ...grpc.
 func (c *msgClient) InstantSpotMarketLaunch(ctx context.Context, in *MsgInstantSpotMarketLaunch, opts ...grpc.CallOption) (*MsgInstantSpotMarketLaunchResponse, error) {
 	out := new(MsgInstantSpotMarketLaunchResponse)
 	err := c.cc.Invoke(ctx, "/injective.exchange.v1beta1.Msg/InstantSpotMarketLaunch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) InstantPerpetualMarketLaunch(ctx context.Context, in *MsgInstantPerpetualMarketLaunch, opts ...grpc.CallOption) (*MsgInstantPerpetualMarketLaunchResponse, error) {
+	out := new(MsgInstantPerpetualMarketLaunchResponse)
+	err := c.cc.Invoke(ctx, "/injective.exchange.v1beta1.Msg/InstantPerpetualMarketLaunch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) InstantExpiryFuturesMarketLaunch(ctx context.Context, in *MsgInstantExpiryFuturesMarketLaunch, opts ...grpc.CallOption) (*MsgInstantExpiryFuturesMarketLaunchResponse, error) {
+	out := new(MsgInstantExpiryFuturesMarketLaunchResponse)
+	err := c.cc.Invoke(ctx, "/injective.exchange.v1beta1.Msg/InstantExpiryFuturesMarketLaunch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1615,6 +1842,10 @@ type MsgServer interface {
 	Withdraw(context.Context, *MsgWithdraw) (*MsgWithdrawResponse, error)
 	// InstantSpotMarketLaunch defines method for creating a spot market by paying listing fee without governance
 	InstantSpotMarketLaunch(context.Context, *MsgInstantSpotMarketLaunch) (*MsgInstantSpotMarketLaunchResponse, error)
+	// InstantPerpetualMarketLaunch defines a method for creating a new perpetual futures market by paying listing fee without governance
+	InstantPerpetualMarketLaunch(context.Context, *MsgInstantPerpetualMarketLaunch) (*MsgInstantPerpetualMarketLaunchResponse, error)
+	// InstantExpiryFuturesMarketLaunch defines a method for creating a new expiry futures market by paying listing fee without governance
+	InstantExpiryFuturesMarketLaunch(context.Context, *MsgInstantExpiryFuturesMarketLaunch) (*MsgInstantExpiryFuturesMarketLaunchResponse, error)
 	// CreateSpotLimitOrder defines a method for creating a new spot limit order.
 	CreateSpotLimitOrder(context.Context, *MsgCreateSpotLimitOrder) (*MsgCreateSpotLimitOrderResponse, error)
 	// CreateSpotMarketOrder defines a method for creating a new spot market order.
@@ -1645,6 +1876,12 @@ func (*UnimplementedMsgServer) Withdraw(ctx context.Context, req *MsgWithdraw) (
 }
 func (*UnimplementedMsgServer) InstantSpotMarketLaunch(ctx context.Context, req *MsgInstantSpotMarketLaunch) (*MsgInstantSpotMarketLaunchResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InstantSpotMarketLaunch not implemented")
+}
+func (*UnimplementedMsgServer) InstantPerpetualMarketLaunch(ctx context.Context, req *MsgInstantPerpetualMarketLaunch) (*MsgInstantPerpetualMarketLaunchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InstantPerpetualMarketLaunch not implemented")
+}
+func (*UnimplementedMsgServer) InstantExpiryFuturesMarketLaunch(ctx context.Context, req *MsgInstantExpiryFuturesMarketLaunch) (*MsgInstantExpiryFuturesMarketLaunchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InstantExpiryFuturesMarketLaunch not implemented")
 }
 func (*UnimplementedMsgServer) CreateSpotLimitOrder(ctx context.Context, req *MsgCreateSpotLimitOrder) (*MsgCreateSpotLimitOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSpotLimitOrder not implemented")
@@ -1725,6 +1962,42 @@ func _Msg_InstantSpotMarketLaunch_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).InstantSpotMarketLaunch(ctx, req.(*MsgInstantSpotMarketLaunch))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_InstantPerpetualMarketLaunch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgInstantPerpetualMarketLaunch)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).InstantPerpetualMarketLaunch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.exchange.v1beta1.Msg/InstantPerpetualMarketLaunch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).InstantPerpetualMarketLaunch(ctx, req.(*MsgInstantPerpetualMarketLaunch))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_InstantExpiryFuturesMarketLaunch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgInstantExpiryFuturesMarketLaunch)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).InstantExpiryFuturesMarketLaunch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.exchange.v1beta1.Msg/InstantExpiryFuturesMarketLaunch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).InstantExpiryFuturesMarketLaunch(ctx, req.(*MsgInstantExpiryFuturesMarketLaunch))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1888,6 +2161,14 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InstantSpotMarketLaunch",
 			Handler:    _Msg_InstantSpotMarketLaunch_Handler,
+		},
+		{
+			MethodName: "InstantPerpetualMarketLaunch",
+			Handler:    _Msg_InstantPerpetualMarketLaunch_Handler,
+		},
+		{
+			MethodName: "InstantExpiryFuturesMarketLaunch",
+			Handler:    _Msg_InstantExpiryFuturesMarketLaunch_Handler,
 		},
 		{
 			MethodName: "CreateSpotLimitOrder",
@@ -2196,6 +2477,159 @@ func (m *MsgInstantSpotMarketLaunchResponse) MarshalTo(dAtA []byte) (int, error)
 }
 
 func (m *MsgInstantSpotMarketLaunchResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgInstantPerpetualMarketLaunch) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgInstantPerpetualMarketLaunch) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgInstantPerpetualMarketLaunch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Oracle) > 0 {
+		i -= len(m.Oracle)
+		copy(dAtA[i:], m.Oracle)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Oracle)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.QuoteDenom) > 0 {
+		i -= len(m.QuoteDenom)
+		copy(dAtA[i:], m.QuoteDenom)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.QuoteDenom)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Ticker) > 0 {
+		i -= len(m.Ticker)
+		copy(dAtA[i:], m.Ticker)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Ticker)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Sender) > 0 {
+		i -= len(m.Sender)
+		copy(dAtA[i:], m.Sender)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Sender)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgInstantPerpetualMarketLaunchResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgInstantPerpetualMarketLaunchResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgInstantPerpetualMarketLaunchResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunch) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunch) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Expiry != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.Expiry))
+		i--
+		dAtA[i] = 0x28
+	}
+	if len(m.Oracle) > 0 {
+		i -= len(m.Oracle)
+		copy(dAtA[i:], m.Oracle)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Oracle)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.QuoteDenom) > 0 {
+		i -= len(m.QuoteDenom)
+		copy(dAtA[i:], m.QuoteDenom)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.QuoteDenom)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Ticker) > 0 {
+		i -= len(m.Ticker)
+		copy(dAtA[i:], m.Ticker)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Ticker)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Sender) > 0 {
+		i -= len(m.Sender)
+		copy(dAtA[i:], m.Sender)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Sender)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -2734,6 +3168,16 @@ func (m *SpotMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byte) (int, 
 	_ = i
 	var l int
 	_ = l
+	if m.MaxQuantityScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
+		i--
+		dAtA[i] = 0x40
+	}
+	if m.MaxPriceScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
+		i--
+		dAtA[i] = 0x38
+	}
 	{
 		size := m.RelayerFeeShareRate.Size()
 		i -= size
@@ -2743,7 +3187,7 @@ func (m *SpotMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byte) (int, 
 		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x42
+	dAtA[i] = 0x32
 	{
 		size := m.TakerFeeRate.Size()
 		i -= size
@@ -2808,6 +3252,16 @@ func (m *SpotMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (int, error
 	_ = i
 	var l int
 	_ = l
+	if m.MaxQuantityScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
+		i--
+		dAtA[i] = 0x38
+	}
+	if m.MaxPriceScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
+		i--
+		dAtA[i] = 0x30
+	}
 	if len(m.QuoteDenom) > 0 {
 		i -= len(m.QuoteDenom)
 		copy(dAtA[i:], m.QuoteDenom)
@@ -2922,6 +3376,16 @@ func (m *PerpetualMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (int, 
 	_ = i
 	var l int
 	_ = l
+	if m.MaxQuantityScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
+		i--
+		dAtA[i] = 0x38
+	}
+	if m.MaxPriceScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
+		i--
+		dAtA[i] = 0x30
+	}
 	if len(m.Oracle) > 0 {
 		i -= len(m.Oracle)
 		copy(dAtA[i:], m.Oracle)
@@ -2980,6 +3444,16 @@ func (m *ExpiryFuturesMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (i
 	_ = i
 	var l int
 	_ = l
+	if m.MaxQuantityScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
+		i--
+		dAtA[i] = 0x40
+	}
+	if m.MaxPriceScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
+		i--
+		dAtA[i] = 0x38
+	}
 	if m.Expiry != 0 {
 		i = encodeVarintTx(dAtA, i, uint64(m.Expiry))
 		i--
@@ -3141,6 +3615,16 @@ func (m *DerivativeMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byte) 
 	_ = i
 	var l int
 	_ = l
+	if m.MaxQuantityScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
+		i--
+		dAtA[i] = 0x50
+	}
+	if m.MaxPriceScaleDecimals != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
+		i--
+		dAtA[i] = 0x48
+	}
 	if m.RelayerFeeShareRate != nil {
 		{
 			size := m.RelayerFeeShareRate.Size()
@@ -3342,6 +3826,77 @@ func (m *MsgInstantSpotMarketLaunch) Size() (n int) {
 }
 
 func (m *MsgInstantSpotMarketLaunchResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgInstantPerpetualMarketLaunch) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Sender)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Ticker)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.QuoteDenom)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Oracle)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgInstantPerpetualMarketLaunchResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunch) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Sender)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Ticker)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.QuoteDenom)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Oracle)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.Expiry != 0 {
+		n += 1 + sovTx(uint64(m.Expiry))
+	}
+	return n
+}
+
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -3584,6 +4139,12 @@ func (m *SpotMarketParamUpdateProposal) Size() (n int) {
 	n += 1 + l + sovTx(uint64(l))
 	l = m.RelayerFeeShareRate.Size()
 	n += 1 + l + sovTx(uint64(l))
+	if m.MaxPriceScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
+	}
+	if m.MaxQuantityScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
+	}
 	return n
 }
 
@@ -3612,6 +4173,12 @@ func (m *SpotMarketLaunchProposal) Size() (n int) {
 	l = len(m.QuoteDenom)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.MaxPriceScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
+	}
+	if m.MaxQuantityScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
 	}
 	return n
 }
@@ -3670,6 +4237,12 @@ func (m *PerpetualMarketLaunchProposal) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
+	if m.MaxPriceScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
+	}
+	if m.MaxQuantityScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
+	}
 	return n
 }
 
@@ -3701,6 +4274,12 @@ func (m *ExpiryFuturesMarketLaunchProposal) Size() (n int) {
 	}
 	if m.Expiry != 0 {
 		n += 1 + sovTx(uint64(m.Expiry))
+	}
+	if m.MaxPriceScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
+	}
+	if m.MaxQuantityScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
 	}
 	return n
 }
@@ -3790,6 +4369,12 @@ func (m *DerivativeMarketParamUpdateProposal) Size() (n int) {
 	if m.RelayerFeeShareRate != nil {
 		l = m.RelayerFeeShareRate.Size()
 		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.MaxPriceScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
+	}
+	if m.MaxQuantityScaleDecimals != 0 {
+		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
 	}
 	return n
 }
@@ -4564,6 +5149,481 @@ func (m *MsgInstantSpotMarketLaunchResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgInstantSpotMarketLaunchResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgInstantPerpetualMarketLaunch) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgInstantPerpetualMarketLaunch: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgInstantPerpetualMarketLaunch: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Sender = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ticker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Ticker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field QuoteDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.QuoteDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Oracle", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Oracle = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgInstantPerpetualMarketLaunchResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgInstantPerpetualMarketLaunchResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgInstantPerpetualMarketLaunchResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgInstantExpiryFuturesMarketLaunch) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgInstantExpiryFuturesMarketLaunch: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgInstantExpiryFuturesMarketLaunch: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Sender = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ticker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Ticker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field QuoteDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.QuoteDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Oracle", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Oracle = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Expiry", wireType)
+			}
+			m.Expiry = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Expiry |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgInstantExpiryFuturesMarketLaunchResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgInstantExpiryFuturesMarketLaunchResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgInstantExpiryFuturesMarketLaunchResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -6229,7 +7289,7 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 8:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RelayerFeeShareRate", wireType)
 			}
@@ -6263,6 +7323,44 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			}
+			m.MaxPriceScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			}
+			m.MaxQuantityScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -6473,6 +7571,44 @@ func (m *SpotMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 			}
 			m.QuoteDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			}
+			m.MaxPriceScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			}
+			m.MaxQuantityScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -6880,6 +8016,44 @@ func (m *PerpetualMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 			}
 			m.Oracle = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			}
+			m.MaxPriceScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			}
+			m.MaxQuantityScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -7105,6 +8279,44 @@ func (m *ExpiryFuturesMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.Expiry |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			}
+			m.MaxPriceScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			}
+			m.MaxQuantityScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -7765,6 +8977,44 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			}
+			m.MaxPriceScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 10:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			}
+			m.MaxQuantityScaleDecimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])

@@ -24,6 +24,8 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgDeposit{},
 		&MsgWithdraw{},
 		&MsgInstantSpotMarketLaunch{},
+		&MsgInstantPerpetualMarketLaunch{},
+		&MsgInstantExpiryFuturesMarketLaunch{},
 		&MsgCreateSpotLimitOrder{},
 		&MsgCreateSpotMarketOrder{},
 		&MsgCancelSpotOrder{},

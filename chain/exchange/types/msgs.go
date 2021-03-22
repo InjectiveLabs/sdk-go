@@ -117,7 +117,7 @@ func (msg MsgWithdraw) GetSigners() []sdk.AccAddress {
 func (msg MsgInstantSpotMarketLaunch) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgInstantSpotMarketLaunch) Type() string { return "listingFeeBasedSpotMarketLaunch" }
+func (msg MsgInstantSpotMarketLaunch) Type() string { return "instantSpotMarketLaunch" }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
@@ -144,6 +144,87 @@ func (msg *MsgInstantSpotMarketLaunch) GetSignBytes() []byte {
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
 func (msg MsgInstantSpotMarketLaunch) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgInstantPerpetualMarketLaunch) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgInstantPerpetualMarketLaunch) Type() string { return "instantPerpetualMarketLaunch" }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if msg.Ticker == "" {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
+	}
+	if msg.QuoteDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if msg.Oracle == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle should not be empty")
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgInstantPerpetualMarketLaunch) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgInstantPerpetualMarketLaunch) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgInstantExpiryFuturesMarketLaunch) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgInstantExpiryFuturesMarketLaunch) Type() string {
+	return "instantExpiryFuturesMarketLaunch"
+}
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if msg.Ticker == "" {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
+	}
+	if msg.QuoteDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if msg.Oracle == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle should not be empty")
+	}
+	if msg.Expiry == 0 {
+		return sdkerrors.Wrap(ErrInvalidExpiry, "expirty should not be empty")
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgInstantExpiryFuturesMarketLaunch) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgInstantExpiryFuturesMarketLaunch) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

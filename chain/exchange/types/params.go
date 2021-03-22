@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 
+	chaintypes "github.com/InjectiveLabs/injective-core/injective-chain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
@@ -98,8 +99,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 func DefaultParams() Params {
 
 	return Params{
-		SpotMarketInstantListingFee:       NewInjectiveCoin(sdk.NewIntWithDecimal(SpotMarketInstantListingFee, BaseDenomUnit)),
-		DerivativeMarketInstantListingFee: NewInjectiveCoin(sdk.NewIntWithDecimal(DerivativeMarketInstantListingFee, BaseDenomUnit)),
+		SpotMarketInstantListingFee:       chaintypes.NewInjectiveCoin(sdk.NewIntWithDecimal(SpotMarketInstantListingFee, chaintypes.BaseDenomUnit)),
+		DerivativeMarketInstantListingFee: chaintypes.NewInjectiveCoin(sdk.NewIntWithDecimal(DerivativeMarketInstantListingFee, chaintypes.BaseDenomUnit)),
 		DefaultSpotMakerFeeRate:           sdk.NewDecWithPrec(1, 3), // default 0.1% fees
 		DefaultSpotTakerFeeRate:           sdk.NewDecWithPrec(2, 3), // default 0.2% fees
 		DefaultDerivativeMakerFeeRate:     sdk.NewDecWithPrec(5, 3),

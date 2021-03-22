@@ -1,9 +1,9 @@
 package types
 
 import (
-	"fmt"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"golang.org/x/crypto/sha3"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -64,7 +64,7 @@ func (o *DerivativeOrder) ComputeOrderHash() (common.Hash, error) {
 		"Margin":       o.Margin.String(),
 		"OrderType":    string(o.OrderType),
 		"TriggerPrice": o.TriggerPrice.String(),
-		"Salt":         fmt.Sprint(o.Salt),
+		"Salt":         strconv.Itoa(int(o.Salt)),
 	}
 
 	var typedData = gethsigner.TypedData{
@@ -111,7 +111,7 @@ func (o *SpotOrder) ComputeOrderHash() (common.Hash, error) {
 			"Price":        o.OrderInfo.Price.String(),
 			"Quantity":     o.OrderInfo.Quantity.String(),
 		},
-		"Salt":         fmt.Sprint(o.Salt),
+		"Salt":         strconv.Itoa(int(o.Salt)),
 		"OrderType":    string(o.OrderType),
 		"TriggerPrice": o.TriggerPrice.String(),
 	}

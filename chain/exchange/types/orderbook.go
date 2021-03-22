@@ -17,7 +17,6 @@ type Orderbook interface {
 	GetTotalQuantityFilled() types.Dec
 	GetTransientOrderbookFills() *OrderbookFills
 	GetRestingOrderbookFills() *OrderbookFills
-	Done() bool
 	Peek() *PriceLevel
 	Fill(types.Dec) error
 	Close() error
