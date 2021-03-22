@@ -8,23 +8,31 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/std"
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/pkg/errors"
-
-	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
-	evidence "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
-	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
 
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
-	orders "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
-	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
+
+	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	ibcapplicationtypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+	ibccoretypes "github.com/cosmos/cosmos-sdk/x/ibc/core/types"
+	paramproposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
+	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
@@ -32,16 +40,25 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	interfaceRegistry := types.NewInterfaceRegistry()
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
-	orders.RegisterInterfaces(interfaceRegistry)
+	exchange.RegisterInterfaces(interfaceRegistry)
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
-	ctypes.RegisterInterfaces(interfaceRegistry)
+	chaintypes.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
-	bank.RegisterInterfaces(interfaceRegistry)
-	staking.RegisterInterfaces(interfaceRegistry)
-	gov.RegisterInterfaces(interfaceRegistry)
-	evidence.RegisterInterfaces(interfaceRegistry)
+	authtypes.RegisterInterfaces(interfaceRegistry)
+	vestingtypes.RegisterInterfaces(interfaceRegistry)
+	banktypes.RegisterInterfaces(interfaceRegistry)
+	crisistypes.RegisterInterfaces(interfaceRegistry)
+	distributiontypes.RegisterInterfaces(interfaceRegistry)
+	evidencetypes.RegisterInterfaces(interfaceRegistry)
+	govtypes.RegisterInterfaces(interfaceRegistry)
+	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
+	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
+	ibccoretypes.RegisterInterfaces(interfaceRegistry)
+	slashingtypes.RegisterInterfaces(interfaceRegistry)
+	stakingtypes.RegisterInterfaces(interfaceRegistry)
+	upgradetypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	return tx.NewTxConfig(marshaler, signModes)
@@ -58,16 +75,25 @@ func NewClientContext(
 	interfaceRegistry := types.NewInterfaceRegistry()
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
-	orders.RegisterInterfaces(interfaceRegistry)
+	exchange.RegisterInterfaces(interfaceRegistry)
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
-	ctypes.RegisterInterfaces(interfaceRegistry)
+	chaintypes.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
-	bank.RegisterInterfaces(interfaceRegistry)
-	staking.RegisterInterfaces(interfaceRegistry)
-	gov.RegisterInterfaces(interfaceRegistry)
-	evidence.RegisterInterfaces(interfaceRegistry)
+	authtypes.RegisterInterfaces(interfaceRegistry)
+	vestingtypes.RegisterInterfaces(interfaceRegistry)
+	banktypes.RegisterInterfaces(interfaceRegistry)
+	crisistypes.RegisterInterfaces(interfaceRegistry)
+	distributiontypes.RegisterInterfaces(interfaceRegistry)
+	evidencetypes.RegisterInterfaces(interfaceRegistry)
+	govtypes.RegisterInterfaces(interfaceRegistry)
+	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
+	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
+	ibccoretypes.RegisterInterfaces(interfaceRegistry)
+	slashingtypes.RegisterInterfaces(interfaceRegistry)
+	stakingtypes.RegisterInterfaces(interfaceRegistry)
+	upgradetypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{
@@ -81,7 +107,7 @@ func NewClientContext(
 	var keyInfo keyring.Info
 
 	if kb != nil {
-		addr, err := cosmtypes.AccAddressFromBech32(fromSpec)
+		addr, err := cosmostypes.AccAddressFromBech32(fromSpec)
 		if err == nil {
 			keyInfo, err = kb.KeyByAddress(addr)
 			if err != nil {
