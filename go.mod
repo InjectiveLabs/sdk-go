@@ -31,11 +31,11 @@ require (
 	github.com/tendermint/tendermint v0.34.3
 	github.com/tyler-smith/go-bip39 v1.0.2
 	github.com/xlab/structwalk v1.1.1
-	github.com/xlab/suplog v1.0.0
+	github.com/xlab/suplog v1.3.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
 	google.golang.org/genproto v0.0.0-20210114201628-6edceaf6022f
 	google.golang.org/grpc v1.35.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
