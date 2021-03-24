@@ -40,6 +40,8 @@ var (
 	KeyDefaultFundingInterval            = []byte("DefaultFundingInterval")
 	KeyFundingMultiple                   = []byte("FundingMultiple")
 	KeyRelayerFeeShareRate               = []byte("RelayerFeeShareRate")
+	KeyDefaultHourlyFundingRateCap       = []byte("DefaultHourlyFundingRateCap")
+	KeyDefaultHourlyInterestRate         = []byte("DefaultHourlyInterestRate")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -60,6 +62,8 @@ func NewParams(
 	defaultFundingInterval int64,
 	fundingMultiple int64,
 	relayerFeeShare sdk.Dec,
+	defaultHourlyFundingRateCap sdk.Dec,
+	defaultHourlyInterestRate sdk.Dec,
 ) Params {
 	return Params{
 		SpotMarketInstantListingFee:       SpotMarketInstantListingFee,
@@ -73,6 +77,8 @@ func NewParams(
 		DefaultFundingInterval:            defaultFundingInterval,
 		FundingMultiple:                   fundingMultiple,
 		RelayerFeeShareRate:               relayerFeeShare,
+		DefaultHourlyFundingRateCap:       defaultHourlyFundingRateCap,
+		DefaultHourlyInterestRate:         defaultHourlyInterestRate,
 	}
 }
 
@@ -91,6 +97,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyDefaultFundingInterval, &p.DefaultFundingInterval, validateFundingInterval),
 		paramtypes.NewParamSetPair(KeyFundingMultiple, &p.FundingMultiple, validateFundingMultiple),
 		paramtypes.NewParamSetPair(KeyRelayerFeeShareRate, &p.RelayerFeeShareRate, ValidateFee),
+		paramtypes.NewParamSetPair(KeyDefaultHourlyFundingRateCap, &p.DefaultHourlyFundingRateCap, ValidateFee),
+		paramtypes.NewParamSetPair(KeyDefaultHourlyInterestRate, &p.DefaultHourlyInterestRate, ValidateFee),
 	}
 }
 
@@ -100,15 +108,17 @@ func DefaultParams() Params {
 	return Params{
 		SpotMarketInstantListingFee:       sdk.NewCoin("inj", sdk.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
 		DerivativeMarketInstantListingFee: sdk.NewCoin("inj", sdk.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
-		DefaultSpotMakerFeeRate:           sdk.NewDecWithPrec(1, 3), // default 0.1% fees
-		DefaultSpotTakerFeeRate:           sdk.NewDecWithPrec(2, 3), // default 0.2% fees
-		DefaultDerivativeMakerFeeRate:     sdk.NewDecWithPrec(5, 3),
-		DefaultDerivativeTakerFeeRate:     sdk.NewDecWithPrec(5, 3),
-		DefaultInitialMarginRatio:         sdk.NewDecWithPrec(20, 2), // default 20% initial margin ratio
-		DefaultMaintenanceMarginRatio:     sdk.NewDecWithPrec(10, 2), // default 10% maintenance margin ratio
+		DefaultSpotMakerFeeRate:           sdk.NewDecWithPrec(1, 3), // default 0.1% maker fees
+		DefaultSpotTakerFeeRate:           sdk.NewDecWithPrec(2, 3), // default 0.2% taker fees
+		DefaultDerivativeMakerFeeRate:     sdk.NewDecWithPrec(1, 3), // default 0.1% maker fees
+		DefaultDerivativeTakerFeeRate:     sdk.NewDecWithPrec(2, 3), // default 0.2% taker fees
+		DefaultInitialMarginRatio:         sdk.NewDecWithPrec(5, 2), // default 5% initial margin ratio
+		DefaultMaintenanceMarginRatio:     sdk.NewDecWithPrec(2, 2), // default 2% maintenance margin ratio
 		DefaultFundingInterval:            DefaultFundingIntervalSeconds,
 		FundingMultiple:                   DefaultFundingMultipleSeconds,
-		RelayerFeeShareRate:               sdk.NewDecWithPrec(40, 2),
+		RelayerFeeShareRate:               sdk.NewDecWithPrec(40, 2),      // default 40% relayer fee share
+		DefaultHourlyFundingRateCap:       sdk.NewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
+		DefaultHourlyInterestRate:         sdk.NewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
 	}
 }
 
@@ -145,6 +155,12 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := ValidateFee(p.RelayerFeeShareRate); err != nil {
+		return err
+	}
+	if err := ValidateFee(p.DefaultHourlyFundingRateCap); err != nil {
+		return err
+	}
+	if err := ValidateFee(p.DefaultHourlyInterestRate); err != nil {
 		return err
 	}
 

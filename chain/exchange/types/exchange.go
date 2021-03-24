@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"golang.org/x/crypto/sha3"
 	"strconv"
@@ -43,7 +44,7 @@ var eip712OrderTypes = gethsigner.Types{
 }
 
 // ComputeOrderHash computes the order hash for given derivative limit order
-func (o *DerivativeOrder) ComputeOrderHash() (common.Hash, error) {
+func (o *DerivativeOrder) ComputeOrderHash(nonce uint32) (common.Hash, error) {
 	chainID := ethmath.NewHexOrDecimal256(888)
 	var domain = gethsigner.TypedDataDomain{
 		Name:              "Injective Protocol",
@@ -64,7 +65,7 @@ func (o *DerivativeOrder) ComputeOrderHash() (common.Hash, error) {
 		"Margin":       o.Margin.String(),
 		"OrderType":    string(o.OrderType),
 		"TriggerPrice": o.TriggerPrice.String(),
-		"Salt":         strconv.Itoa(int(o.Salt)),
+		"Salt":         strconv.Itoa(int(nonce)),
 	}
 
 	var typedData = gethsigner.TypedData{
@@ -93,7 +94,7 @@ func (o *DerivativeOrder) ComputeOrderHash() (common.Hash, error) {
 }
 
 // ComputeOrderHash computes the order hash for given spot limit order
-func (o *SpotOrder) ComputeOrderHash() (common.Hash, error) {
+func (o *SpotOrder) ComputeOrderHash(nonce uint32) (common.Hash, error) {
 	chainID := ethmath.NewHexOrDecimal256(888)
 	var domain = gethsigner.TypedDataDomain{
 		Name:              "Injective Protocol",
@@ -111,7 +112,7 @@ func (o *SpotOrder) ComputeOrderHash() (common.Hash, error) {
 			"Price":        o.OrderInfo.Price.String(),
 			"Quantity":     o.OrderInfo.Quantity.String(),
 		},
-		"Salt":         strconv.Itoa(int(o.Salt)),
+		"Salt":         strconv.Itoa(int(nonce)),
 		"OrderType":    string(o.OrderType),
 		"TriggerPrice": o.TriggerPrice.String(),
 	}
@@ -249,21 +250,23 @@ func (m *SpotOrder) CheckMarketOrderBalanceHold(market *SpotMarket, availableBal
 	return balanceHold, nil
 }
 
-func (o *DerivativeOrder) CheckMarginAndGetBalanceHold(market *DerivativeMarket) (balanceHold sdk.Dec, err error) {
+func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket) (marginHold sdk.Dec, err error) {
 	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
 	feeAmount := notional.Mul(market.TakerFeeRate)
 	// Margin ≥ InitialMarginRatio * Price * Quantity
 	if o.Margin.LT(market.InitialMarginRatio.Mul(notional)) {
-		return sdk.Dec{}, ErrInsufficientOrderMargin
+		fmt.Println(o.String())
+		fmt.Println(market.InitialMarginRatio.String())
+		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", market.InitialMarginRatio.Mul(notional).String(), o.Margin.String())
 	}
 
 	markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(market.InitialMarginRatio)
 	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
 	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1+ InitialMarginRatio) * Quantity)
 	if o.OrderType.IsBuy() && market.MarkPrice.LT(markPriceThreshold) {
-		return sdk.Dec{}, ErrInsufficientOrderMargin
+		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark price %s must be GTE %s", market.MarkPrice.String(), markPriceThreshold.String())
 	} else if !o.OrderType.IsBuy() && market.MarkPrice.GT(markPriceThreshold) {
-		return sdk.Dec{}, ErrInsufficientOrderMargin
+		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark price %s must be LTE %s", market.MarkPrice.String(), markPriceThreshold.String())
 	}
 	return o.Margin.Add(feeAmount), nil
 }
@@ -279,25 +282,4 @@ func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(init
 		denominator = initialMarginRatio.Add(sdk.OneDec()).Mul(o.OrderInfo.Quantity)
 	}
 	return numerator.Quo(denominator)
-}
-
-// TODO do for market order
-func (o *DerivativeOrder) CheckMarketOrderMarginHold(market *DerivativeMarket) (balanceHold sdk.Dec, err error) {
-	//notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-	//feeAmount := notional.Mul(market.TakerFeeRate)
-	// Margin ≥ InitialMarginRatio * Price * Quantity
-	//if o.Margin.LT(market.InitialMarginRatio.Mul(notional)) {
-	//	return sdk.Dec{}, ErrInsufficientOrderMargin
-	//}
-
-	//markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(market.InitialMarginRatio)
-	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
-	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1+ InitialMarginRatio) * Quantity)
-	//if o.OrderType.IsBuy() && market.MarkPrice.LT(markPriceThreshold) {
-	//	return sdk.Dec{}, ErrInsufficientOrderMargin
-	//} else if !o.OrderType.IsBuy() && market.MarkPrice.GT(markPriceThreshold) {
-	//	return sdk.Dec{}, ErrInsufficientOrderMargin
-	//}
-	//return o.Margin.Add(feeAmount), nil
-	return
 }

@@ -34,6 +34,8 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgCancelDerivativeOrder{},
 		&MsgSubaccountTransfer{},
 		&MsgExternalTransfer{},
+		&MsgIncreasePositionMargin{},
+		&MsgLiquidatePosition{},
 	)
 
 	registry.RegisterImplementations(

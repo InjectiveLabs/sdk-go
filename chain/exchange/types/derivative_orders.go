@@ -14,3 +14,7 @@ func (o *DerivativeOrder) GetNewDerivativeLimitOrder(hash common.Hash) *Derivati
 		Hash:         hash.Bytes(),
 	}
 }
+
+func (o *DerivativeOrder) IsReduceOnly() bool {
+	return o.Margin.IsZero()
+}

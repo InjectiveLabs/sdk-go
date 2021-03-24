@@ -21,6 +21,8 @@ var (
 	_ sdk.Msg = &MsgCancelDerivativeOrder{}
 	_ sdk.Msg = &MsgSubaccountTransfer{}
 	_ sdk.Msg = &MsgExternalTransfer{}
+	_ sdk.Msg = &MsgIncreasePositionMargin{}
+	_ sdk.Msg = &MsgLiquidatePosition{}
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -570,6 +572,95 @@ func (msg *MsgExternalTransfer) GetSignBytes() []byte {
 }
 
 func (msg *MsgExternalTransfer) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgIncreasePositionMargin) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgIncreasePositionMargin) Type() string {
+	return "increasePositionMargin"
+}
+
+func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if msg.MarketId == "" {
+		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
+	}
+	if !msg.Amount.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+
+	subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(err, "must provide a valid Bech32 address")
+	}
+	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+	return nil
+}
+
+func (msg *MsgIncreasePositionMargin) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgIncreasePositionMargin) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgLiquidatePosition) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgLiquidatePosition) Type() string {
+	return "liquidatePosition"
+}
+
+func (msg *MsgLiquidatePosition) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if msg.MarketId == "" {
+		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
+	}
+
+	_, ok := IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(err, "must provide a valid Bech32 address")
+	}
+
+	return nil
+}
+
+func (msg *MsgLiquidatePosition) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

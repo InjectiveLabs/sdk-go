@@ -22,24 +22,26 @@ const SpotPriceDecimalPlaces = 18
 
 var (
 	// Keys for store prefixes
-	DepositKey                = []byte{0x01} // prefix for each key to a Deposit
-	TECSeenHashStoreKeyPrefix = []byte{0x02} // prefix for the seen state of a TEC transaction hash
+	DepositKey              = []byte{0x01} // prefix for each key to a Deposit
+	SubaccountTradeNonceKey = []byte{0x02} // prefix for each key to a Subaccount Trade Nonce
 
 	SpotMarketKey                       = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
 	SpotLimitOrdersKey                  = []byte{0x12} // prefix for each key to a spot order, by (marketID, direction, price level, order hash)
 	SpotMarketOrdersKey                 = []byte{0x13} // prefix for each key to a spot order, by (marketID, direction, price level, order hash)
 	SpotLimitOrdersBySubaccountIndexKey = []byte{0x14} // prefix for each key to a spot order index, by (marketID, direction, subaccountID, order hash)
 	SpotMarketOrderIndicatorKey         = []byte{0x15} // prefix for each key to a spot market order indicator, by marketID and direction
-	SpotOrderHashKey                    = []byte{0x16} // prefix for each key for an archived spot order hash
 
 	DerivativeMarketKey                       = []byte{0x21} // prefix for each key to a derivative market by (exchange address, isEnabled, marketID)
 	DerivativeLimitOrdersKey                  = []byte{0x22} // prefix for each key to an derivative limit order, by (marketID, direction, price level, order hash)
 	DerivativeMarketOrdersKey                 = []byte{0x23} // prefix for each key to a derivative order, by (marketID, direction, price level, order hash)
 	DerivativeLimitOrdersBySubaccountIndexKey = []byte{0x24} // prefix for each key to a derivative order index, by (marketID, direction, subaccountID, order hash)
-	DerivativeMarketOrderIndicatorKey         = []byte{0x25} // prefix for each key to a derivative market order indicator, by marketID and direction
-	DerivativePositionKey                     = []byte{0x26} // prefix for each key to a Position
+	DerivativeLimitOrderIndicatorKey          = []byte{0x25} // prefix for each key to a derivative limit order indicator, by marketID and direction
+	DerivativeMarketOrderIndicatorKey         = []byte{0x26} // prefix for each key to a derivative market order indicator, by marketID and direction
+	DerivativePositionKey                     = []byte{0x27} // prefix for each key to a Position
+	DerivativePositionBySubaccountIndexKey    = []byte{0x28} // prefix for each index key to a Position Key
 
-	DerivativeOrderHashKey = []byte{0x26} // prefix for each key for a derivative order hash
+	PerpetualMarketFundingStateKey = []byte{0x31} // prefix for each key to a perpetual market's funding state
+	PerpetualMarketInfoKey         = []byte{0x32} // prefix for each key to a perpetual market's market info
 
 )
 
@@ -48,12 +50,21 @@ func GetDepositKey(subaccountID common.Hash, denom string) []byte {
 	return append(subaccountID.Bytes(), []byte(denom)...)
 }
 
+// GetSubaccountTradeNonceKeyPrefix provides the prefix to obtain a given subaccount's trade nonce
+func GetSubaccountTradeNonceKey(subaccountID common.Hash) []byte {
+	return append(SubaccountTradeNonceKey, subaccountID.Bytes()...)
+}
+
 func GetSpotMarketKey(isEnabled bool) []byte {
 	return append(SpotMarketKey, enabledPrefix(isEnabled)...)
 }
 
 func GetSpotMarketTransientMarketsKeyPrefix(marketId common.Hash, isBuy bool) []byte {
 	return append(SpotMarketKey, MarketDirectionPrefix(marketId, isBuy)...)
+}
+
+func GetDerivativeMarketTransientMarketsKeyPrefix(marketId common.Hash, isBuy bool) []byte {
+	return append(DerivativeLimitOrderIndicatorKey, MarketDirectionPrefix(marketId, isBuy)...)
 }
 
 // TODO: properly compute this without using decimal.Decimal
@@ -144,19 +155,13 @@ func GetMarketIdDirectionFromKey(key []byte) (marketId common.Hash, isBuy bool) 
 	return marketID, bytes.Equal(isBuyBytes, []byte{byte(0)})
 }
 
-// MarginInfoByExchangeSubaccountBaseCurrencyPrefix provides the prefix key to obtain a given subaccount's base currency
-// margin info in a given exchange
-func MarginInfoByExchangeSubaccountBaseCurrencyPrefix(subaccountID common.Hash, baseCurrencyAddress common.Address) []byte {
-	return append(MarginInfoByExchangeSubaccountPrefix(subaccountID), baseCurrencyAddress.Bytes()...)
+// PositionByMarketSubaccountPrefix provides the prefix key to obtain a position for a given market and subaccount
+func PositionByMarketSubaccountPrefix(marketID, subaccountID common.Hash) []byte {
+	return append(marketID.Bytes(), subaccountID.Bytes()...)
 }
 
-// MarginInfoByExchangeSubaccountPrefix provides the prefix key to obtain a given subaccount's margin info in a given exchange
-func MarginInfoByExchangeSubaccountPrefix(subaccountID common.Hash) []byte {
-	return subaccountID.Bytes()
-}
-
-// PositionBySubaccountMarketIDPrefix provides the prefix key to obtain a position for a given subaccount in a given market
-func PositionBySubaccountMarketIDPrefix(subaccountID common.Hash, marketID common.Hash) []byte {
+// PositionIndexBySubaccountMarketPrefix provides the prefix key to obtain a position key for a given market and subaccount
+func PositionIndexBySubaccountMarketPrefix(subaccountID, marketID common.Hash) []byte {
 	return append(subaccountID.Bytes(), marketID.Bytes()...)
 }
 
@@ -166,9 +171,4 @@ func GetSubaccountAndMarketIDFromPositionKey(key []byte) (subaccountID, marketID
 	subaccountID = common.BytesToHash(key[keyOffsetLen:subaccountOffsetLen])
 	marketID = common.BytesToHash(key[subaccountOffsetLen : subaccountOffsetLen+common.HashLength])
 	return subaccountID, marketID
-}
-
-// SpotMarketsStoreKey turns a pair hash to key used to get it from the store.
-func SpotMarketsStoreKey(hash common.Hash) []byte {
-	return append(SpotMarketKey, hash.Bytes()...)
 }
