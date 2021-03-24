@@ -6,7 +6,6 @@ const (
 	EventTypeMultisigBootstrap         = "multisig_bootstrap"
 	EventTypeMultisigUpdateRequest     = "multisig_update_request"
 	EventTypeOutgoingBatchCanceled     = "outgoing_batch_canceled"
-	EventTypeOutgoingLogicCallCanceled = "outgoing_logic_call_canceled"
 	EventTypeBridgeWithdrawalReceived  = "withdrawal_received"
 	EventTypeBridgeDepositReceived     = "deposit_received"
 
@@ -24,6 +23,4 @@ const (
 	AttributeKeyBatchNonce        = "batch_nonce"
 	AttributeKeyBridgeChainID     = "bridge_chain_id"
 	AttributeKeySetOperatorAddr   = "set_operator_address"
-	AttributeKeyInvalidationID    = "logic_call_invalidation_id"
-	AttributeKeyInvalidationNonce = "logic_call_invalidation_nonce"
 )

@@ -50,25 +50,4 @@ const (
 			{ "internalType": "bytes32", "name": "", "type": "bytes32" }
 		]
 	}]`
-
-	// OutgoingLogicCallABIJSON checks the ETH ABI for compatability of the logic call message
-	OutgoingLogicCallABIJSON = `[{
-	  "name": "checkpoint",
-      "outputs": [],
-      "stateMutability": "pure",
-      "type": "function",
-      "inputs": [
-			{ "internalType": "bytes32",   "name": "_peggyId",                "type": "bytes32"   },
-			{ "internalType": "bytes32",   "name": "_methodName",             "type": "bytes32"   },
-			{ "internalType": "uint256[]", "name": "_transferAmounts",        "type": "uint256[]" },
-			{ "internalType": "address[]", "name": "_transferTokenContracts", "type": "address[]" },
-			{ "internalType": "uint256[]", "name": "_feeAmounts",             "type": "uint256[]" },
-			{ "internalType": "address[]", "name": "_feeTokenContracts",      "type": "address[]" },
-			{ "internalType": "address",   "name": "_logicContractAddress",   "type": "address"   },
-			{ "internalType": "bytes",     "name": "_payload",                "type": "bytes"     },
-			{ "internalType": "uint256",   "name": "_timeout",                "type": "uint256"   },
-			{ "internalType": "bytes32",   "name": "_invalidationId",         "type": "bytes32"   },
-			{ "internalType": "uint256",   "name": "_invalidationNonce",      "type": "uint256"   }
-      ]
-    }]`
 )

@@ -3,7 +3,7 @@ package types
 import (
 	"encoding/binary"
 	"fmt"
-	math "math"
+	"math"
 	"math/big"
 	"sort"
 	"strconv"
@@ -139,7 +139,7 @@ func (b BridgeValidators) ValidateBasic() error {
 // NewValset returns a new valset
 func NewValset(nonce, height uint64, members BridgeValidators) *Valset {
 	members.Sort()
-	var mem []*BridgeValidator
+	mem := make([]*BridgeValidator, 0)
 	for _, val := range members {
 		mem = append(mem, val)
 	}
