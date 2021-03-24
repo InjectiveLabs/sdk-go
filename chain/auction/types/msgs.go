@@ -1,7 +1,6 @@
 package types
 
 import (
-	chaintypes "github.com/InjectiveLabs/injective-core/injective-chain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -26,10 +25,6 @@ func (msg MsgBid) ValidateBasic() error {
 
 	if !msg.BidAmount.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.BidAmount.String())
-	}
-
-	if msg.BidAmount.Denom != chaintypes.InjectiveCoin {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.BidAmount.Denom)
 	}
 
 	if !msg.BidAmount.IsPositive() {
