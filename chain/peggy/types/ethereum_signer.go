@@ -1,9 +1,11 @@
 package types
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -22,7 +24,7 @@ func NewEthereumSignature(hash []byte, privateKey *ecdsa.PrivateKey) ([]byte, er
 
 // ValidateEthereumSignature takes a message, an associated signature and public key and
 // returns an error if the signature isn't valid
-func ValidateEthereumSignature(hash []byte, signature []byte, ethAddress string) error {
+func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress common.Address) error {
 	if len(signature) < 65 {
 		return sdkerrors.Wrap(ErrInvalid, "signature too short")
 	}
@@ -44,7 +46,7 @@ func ValidateEthereumSignature(hash []byte, signature []byte, ethAddress string)
 		signature[64] -= 27
 	}
 
-	protectedHash := crypto.Keccak256Hash(append([]uint8(signaturePrefix), hash...))
+	protectedHash := crypto.Keccak256Hash(append([]byte(signaturePrefix), hash[:]...))
 
 	pubkey, err := crypto.SigToPub(protectedHash.Bytes(), signature)
 	if err != nil {
@@ -53,7 +55,7 @@ func ValidateEthereumSignature(hash []byte, signature []byte, ethAddress string)
 
 	addr := crypto.PubkeyToAddress(*pubkey)
 
-	if addr.Hex() != ethAddress {
+	if !bytes.Equal(addr.Bytes(), ethAddress.Bytes()) {
 		return sdkerrors.Wrap(ErrInvalid, "signature not matching")
 	}
 

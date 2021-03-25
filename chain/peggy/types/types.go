@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -146,8 +147,8 @@ func NewValset(nonce, height uint64, members BridgeValidators) *Valset {
 	return &Valset{Nonce: uint64(nonce), Members: mem, Height: height}
 }
 
-// GetCheckpoint returns the checkpoint
-func (v Valset) GetCheckpoint(peggyIDstring string) []byte {
+// GetCheckpoint returns the checkpoint hash
+func (v Valset) GetCheckpoint(peggyIDstring string) common.Hash {
 	// TODO replace hardcoded "foo" here with a getter to retrieve the correct PeggyID from the store
 	// this will work for now because 'foo' is the test Peggy ID we are using
 	// var peggyIDString = "foo"
@@ -192,7 +193,7 @@ func (v Valset) GetCheckpoint(peggyIDstring string) []byte {
 	// method name 'checkpoint'. If you where to replace the checkpoint constant in this code you would
 	// then need to adjust how many bytes you truncate off the front to get the output of abi.encode()
 	hash := crypto.Keccak256Hash(bytes[4:])
-	return hash.Bytes()
+	return hash
 }
 
 // WithoutEmptyMembers returns a new Valset without member that have 0 power or an empty Ethereum address.

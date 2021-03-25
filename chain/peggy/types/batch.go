@@ -6,16 +6,16 @@ import (
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	gethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // GetCheckpoint gets the checkpoint signature from the given outgoing tx batch
-func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) ([]byte, error) {
+func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) (common.Hash, error) {
 
 	abi, err := abi.JSON(strings.NewReader(OutgoingBatchTxCheckpointABIJSON))
 	if err != nil {
-		return nil, sdkerrors.Wrap(err, "bad ABI definition in code")
+		return common.Hash{}, sdkerrors.Wrap(err, "bad ABI definition in code")
 	}
 
 	// the contract argument is not a arbitrary length array but a fixed length 32 byte
@@ -34,11 +34,11 @@ func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) ([]byte, error) {
 
 	// Run through the elements of the batch and serialize them
 	txAmounts := make([]*big.Int, len(b.Transactions))
-	txDestinations := make([]gethcommon.Address, len(b.Transactions))
+	txDestinations := make([]common.Address, len(b.Transactions))
 	txFees := make([]*big.Int, len(b.Transactions))
 	for i, tx := range b.Transactions {
 		txAmounts[i] = tx.Erc20Token.Amount.BigInt()
-		txDestinations[i] = gethcommon.HexToAddress(tx.DestAddress)
+		txDestinations[i] = common.HexToAddress(tx.DestAddress)
 		txFees[i] = tx.Erc20Fee.Amount.BigInt()
 	}
 
@@ -52,18 +52,16 @@ func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) ([]byte, error) {
 		txDestinations,
 		txFees,
 		big.NewInt(int64(b.BatchNonce)),
-		gethcommon.HexToAddress(b.TokenContract),
+		common.HexToAddress(b.TokenContract),
 		big.NewInt(int64(b.BatchTimeout)),
 	)
 
 	// this should never happen outside of test since any case that could crash on encoding
 	// should be filtered above.
 	if err != nil {
-		return nil, sdkerrors.Wrap(err, "packing checkpoint")
+		return common.Hash{}, sdkerrors.Wrap(err, "packing checkpoint")
 	}
 
-	// we hash the resulting encoded bytes discarding the first 4 bytes these 4 bytes are the constant
-	// method name 'checkpoint'. If you where to replace the checkpoint constant in this code you would
-	// then need to adjust how many bytes you truncate off the front to get the output of abi.encode()
-	return crypto.Keccak256Hash(abiEncodedBatch[4:]).Bytes(), nil
+	hash := crypto.Keccak256Hash(abiEncodedBatch[4:])
+	return hash, nil
 }
