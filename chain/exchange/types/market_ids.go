@@ -4,7 +4,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	peggytypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types"
+	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 )
 
 func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {
