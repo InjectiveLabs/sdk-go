@@ -1,7 +1,7 @@
 package types
 
 import (
-	"fmt"
+	"github.com/ethereum/go-ethereum/crypto"
 	"strconv"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -12,6 +12,10 @@ import (
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	gethsigner "github.com/ethereum/go-ethereum/signer/core"
 )
+
+func ComputeSpotMarketID(baseDenom, quoteDenom string) common.Hash {
+	return crypto.Keccak256Hash([]byte((baseDenom + quoteDenom)))
+}
 
 var eip712OrderTypes = gethsigner.Types{
 	"EIP712Domain": {
@@ -257,8 +261,6 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket) 
 
 	// Margin ≥ InitialMarginRatio * Price * Quantity
 	if o.Margin.LT(market.InitialMarginRatio.Mul(notional)) {
-		fmt.Println(o.String())
-		fmt.Println(market.InitialMarginRatio.String())
 		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", market.InitialMarginRatio.Mul(notional).String(), o.Margin.String())
 	}
 
@@ -287,3 +289,7 @@ func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(init
 	}
 	return numerator.Quo(denominator)
 }
+
+func (m *Position) IsShort() bool { return !m.IsLong }
+
+func (m *PositionDelta) IsShort() bool { return !m.IsLong }

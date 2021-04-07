@@ -1,33 +1,33 @@
 package types
 
 import (
-	"github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type OrderbookStateChange struct {
-	NewBuyOrderbookFills      *OrderbookFills
-	RestingBuyOrderbookFills  *OrderbookFills
-	NewSellOrderbookFills     *OrderbookFills
-	RestingSellOrderbookFills *OrderbookFills
-	ClearingPrice             types.Dec
+	TransientBuyOrderbookFills  *OrderbookFills
+	RestingBuyOrderbookFills    *OrderbookFills
+	TransientSellOrderbookFills *OrderbookFills
+	RestingSellOrderbookFills   *OrderbookFills
+	ClearingPrice               sdk.Dec
 }
 
-type Orderbook interface {
-	GetNotional() types.Dec
-	GetTotalQuantityFilled() types.Dec
+type SpotOrderbook interface {
+	GetNotional() sdk.Dec
+	GetTotalQuantityFilled() sdk.Dec
 	GetTransientOrderbookFills() *OrderbookFills
 	GetRestingOrderbookFills() *OrderbookFills
 	Peek() *PriceLevel
-	Fill(types.Dec) error
+	Fill(sdk.Dec) error
 	Close() error
 }
 
 type OrderbookFills struct {
 	Orders         []*SpotLimitOrder
-	FillQuantities []types.Dec
+	FillQuantities []sdk.Dec
 }
 
 type PriceLevel struct {
-	Price    types.Dec
-	Quantity types.Dec
+	Price    sdk.Dec
+	Quantity sdk.Dec
 }

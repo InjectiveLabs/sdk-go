@@ -3,11 +3,12 @@ package types
 import (
 	"bytes"
 	"fmt"
+	"math/big"
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/shopspring/decimal"
-	"math/big"
-	"strings"
 )
 
 const (
@@ -30,6 +31,7 @@ var (
 	SpotMarketOrdersKey                 = []byte{0x13} // prefix for each key to a spot order, by (marketID, direction, price level, order hash)
 	SpotLimitOrdersBySubaccountIndexKey = []byte{0x14} // prefix for each key to a spot order index, by (marketID, direction, subaccountID, order hash)
 	SpotMarketOrderIndicatorKey         = []byte{0x15} // prefix for each key to a spot market order indicator, by marketID and direction
+	SpotMarketParamUpdateScheduleKey    = []byte{0x16} // prefix for a key to save scheduled spot market params update
 
 	DerivativeMarketKey                       = []byte{0x21} // prefix for each key to a derivative market by (exchange address, isEnabled, marketID)
 	DerivativeLimitOrdersKey                  = []byte{0x22} // prefix for each key to an derivative limit order, by (marketID, direction, price level, order hash)

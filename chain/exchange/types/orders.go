@@ -33,8 +33,8 @@ type SpotOrderStateExpansion struct {
 
 type SpotMarketBatchExecutionData struct {
 	Market                         *SpotMarket
-	BaseDenomDepositMap            map[common.Hash]*DepositDelta
-	QuoteDenomDepositMap           map[common.Hash]*DepositDelta
+	BaseDenomDepositDeltas         map[common.Hash]*DepositDelta
+	QuoteDenomDepositDeltas        map[common.Hash]*DepositDelta
 	BaseDenomDepositSubaccountIDs  []common.Hash
 	QuoteDenomDepositSubaccountIDs []common.Hash
 	LimitOrderFilledDeltas         []*SpotLimitOrderFilledDelta
@@ -59,8 +59,8 @@ func ProcessBothRestingLimitOrderExpansions(
 	marketID common.Hash,
 	clearingPrice sdk.Dec,
 	tradeFeeRate, relayerFeeShareRate sdk.Dec,
-	baseDenomDepositMap map[common.Hash]*DepositDelta,
-	quoteDenomDepositMap map[common.Hash]*DepositDelta,
+	baseDenomDepositDeltas map[common.Hash]*DepositDelta,
+	quoteDenomDepositDeltas map[common.Hash]*DepositDelta,
 ) (limitBuyRestingOrderBatchEvent *EventBatchSpotExecution, limitSellRestingOrderBatchEvent *EventBatchSpotExecution, filledDeltas []*SpotLimitOrderFilledDelta) {
 	spotLimitBuyOrderStateExpansions := make([]*SpotOrderStateExpansion, 0)
 	spotLimitSellOrderStateExpansions := make([]*SpotOrderStateExpansion, 0)
@@ -76,7 +76,7 @@ func ProcessBothRestingLimitOrderExpansions(
 			marketID,
 			ExecutionType_LimitMatchRestingOrder,
 			spotLimitBuyOrderStateExpansions,
-			baseDenomDepositMap, quoteDenomDepositMap,
+			baseDenomDepositDeltas, quoteDenomDepositDeltas,
 		)
 		filledDeltas = append(filledDeltas, currFilledDeltas...)
 	}
@@ -89,7 +89,7 @@ func ProcessBothRestingLimitOrderExpansions(
 			marketID,
 			ExecutionType_LimitMatchRestingOrder,
 			spotLimitSellOrderStateExpansions,
-			baseDenomDepositMap, quoteDenomDepositMap,
+			baseDenomDepositDeltas, quoteDenomDepositDeltas,
 		)
 		filledDeltas = append(filledDeltas, currFilledDeltas...)
 	}
@@ -102,31 +102,31 @@ func ProcessBothTransientLimitOrderExpansions(
 	marketID common.Hash,
 	clearingPrice sdk.Dec,
 	makerFeeRate, takerFeeRate, relayerFeeShareRate sdk.Dec,
-	baseDenomDepositMap map[common.Hash]*DepositDelta,
-	quoteDenomDepositMap map[common.Hash]*DepositDelta,
+	baseDenomDepositDeltas map[common.Hash]*DepositDelta,
+	quoteDenomDepositDeltas map[common.Hash]*DepositDelta,
 ) (limitBuyNewOrderBatchEvent *EventBatchSpotExecution, limitSellNewOrderBatchEvent *EventBatchSpotExecution,
 	newRestingBuySpotLimitOrders []*SpotLimitOrder, newRestingSellSpotLimitOrders []*SpotLimitOrder,
 ) {
 	var expansions []*SpotOrderStateExpansion
-	if orderbookStateChange.NewBuyOrderbookFills != nil {
-		expansions, newRestingBuySpotLimitOrders = ProcessNewLimitBuyExpansions(orderbookStateChange.NewBuyOrderbookFills, clearingPrice, makerFeeRate, takerFeeRate, relayerFeeShareRate)
+	if orderbookStateChange.TransientBuyOrderbookFills != nil {
+		expansions, newRestingBuySpotLimitOrders = ProcessNewLimitBuyExpansions(orderbookStateChange.TransientBuyOrderbookFills, clearingPrice, makerFeeRate, takerFeeRate, relayerFeeShareRate)
 		limitBuyNewOrderBatchEvent, _ = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			true,
 			marketID,
 			ExecutionType_LimitMatchNewOrder,
 			expansions,
-			baseDenomDepositMap, quoteDenomDepositMap,
+			baseDenomDepositDeltas, quoteDenomDepositDeltas,
 		)
 	}
 
-	if orderbookStateChange.NewSellOrderbookFills != nil {
-		expansions, newRestingSellSpotLimitOrders = ProcessNewLimitSellExpansions(orderbookStateChange.NewSellOrderbookFills, clearingPrice, takerFeeRate, relayerFeeShareRate)
+	if orderbookStateChange.TransientSellOrderbookFills != nil {
+		expansions, newRestingSellSpotLimitOrders = ProcessNewLimitSellExpansions(orderbookStateChange.TransientSellOrderbookFills, clearingPrice, takerFeeRate, relayerFeeShareRate)
 		limitSellNewOrderBatchEvent, _ = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			false,
 			marketID,
 			ExecutionType_LimitMatchNewOrder,
 			expansions,
-			baseDenomDepositMap, quoteDenomDepositMap,
+			baseDenomDepositDeltas, quoteDenomDepositDeltas,
 		)
 	}
 	return
@@ -199,7 +199,7 @@ func ProcessNewLimitSellExpansions(
 }
 
 func GetLimitSellStateExpansion(
-	sellOrder *SpotLimitOrder,
+	order *SpotLimitOrder,
 	fillQuantity, fillPrice, tradeFeeRate, relayerFeeShare sdk.Dec,
 ) *SpotOrderStateExpansion {
 	orderNotional := fillQuantity.Mul(fillPrice)
@@ -217,23 +217,23 @@ func GetLimitSellStateExpansion(
 		BaseRefundAmount:   sdk.ZeroDec(),
 		QuoteChangeAmount:  quoteChangeAmount,
 		QuoteRefundAmount:  sdk.ZeroDec(),
-		FeeRecipient:       common.HexToAddress(sellOrder.OrderInfo.FeeRecipient),
+		FeeRecipient:       common.HexToAddress(order.OrderInfo.FeeRecipient),
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
-		OrderHash:          common.BytesToHash(sellOrder.OrderHash),
-		SubaccountID:       common.HexToHash(sellOrder.OrderInfo.SubaccountId),
-		FillableAmount:     sellOrder.Fillable.Sub(fillQuantity),
+		OrderHash:          common.BytesToHash(order.OrderHash),
+		SubaccountID:       common.HexToHash(order.OrderInfo.SubaccountId),
+		FillableAmount:     order.Fillable.Sub(fillQuantity),
 	}
 	return &stateExpansion
 }
 
 func GetRestingLimitBuyStateExpansion(
-	buyOrder *SpotLimitOrder,
+	order *SpotLimitOrder,
 	orderHash common.Hash,
 	fillQuantity, fillPrice, makerFeeRate, relayerFeeShare sdk.Dec,
 ) *SpotOrderStateExpansion {
 	var baseChangeAmount, quoteChangeAmount sdk.Dec
-	fillableAmount := buyOrder.Fillable.Sub(fillQuantity)
+	fillableAmount := order.Fillable.Sub(fillQuantity)
 	orderNotional := fillQuantity.Mul(fillPrice)
 	tradingFee := orderNotional.Mul(makerFeeRate)
 	feeRecipientReward := relayerFeeShare.Mul(tradingFee)
@@ -244,8 +244,8 @@ func GetRestingLimitBuyStateExpansion(
 	quoteChangeAmount = orderNotional.Add(tradingFee).Neg()
 	quoteRefund := sdk.ZeroDec()
 
-	if !fillPrice.Equal(buyOrder.OrderInfo.Price) {
-		priceDelta := buyOrder.OrderInfo.Price.Sub(fillPrice)
+	if !fillPrice.Equal(order.OrderInfo.Price) {
+		priceDelta := order.OrderInfo.Price.Sub(fillPrice)
 		clearingRefund := fillQuantity.Mul(priceDelta)
 		matchedFeeRefund := fillQuantity.Mul(makerFeeRate).Mul(priceDelta)
 		quoteRefund = clearingRefund.Add(matchedFeeRefund)
@@ -255,11 +255,11 @@ func GetRestingLimitBuyStateExpansion(
 		BaseRefundAmount:   sdk.ZeroDec(),
 		QuoteChangeAmount:  quoteChangeAmount,
 		QuoteRefundAmount:  quoteRefund,
-		FeeRecipient:       common.HexToAddress(buyOrder.OrderInfo.FeeRecipient),
+		FeeRecipient:       common.HexToAddress(order.OrderInfo.FeeRecipient),
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
 		OrderHash:          orderHash,
-		SubaccountID:       common.HexToHash(buyOrder.OrderInfo.SubaccountId),
+		SubaccountID:       order.SubaccountID(),
 		FillableAmount:     fillableAmount,
 	}
 	return &stateExpansion
@@ -336,7 +336,7 @@ func GetNewLimitBuyStateExpansion(
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
 		OrderHash:          orderHash,
-		SubaccountID:       common.HexToHash(buyOrder.OrderInfo.SubaccountId),
+		SubaccountID:       buyOrder.SubaccountID(),
 		FillableAmount:     fillableAmount,
 	}
 	return &stateExpansion
@@ -413,7 +413,7 @@ func GetMarketOrderStateExpansion(
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
 		OrderHash:          common.HexToHash(marketOrder.OrderHash),
-		SubaccountID:       common.HexToHash(marketOrder.OrderInfo.SubaccountId),
+		SubaccountID:       marketOrder.SubaccountID(),
 		FillableAmount:     marketOrder.OrderInfo.Quantity.Sub(fillQuantity),
 	}
 	return &stateExpansion
@@ -424,7 +424,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	marketID common.Hash,
 	executionType ExecutionType,
 	spotLimitOrderStateExpansions []*SpotOrderStateExpansion,
-	baseDenomDepositMap map[common.Hash]*DepositDelta, quoteDenomDepositMap map[common.Hash]*DepositDelta,
+	baseDenomDepositDeltas map[common.Hash]*DepositDelta, quoteDenomDepositDeltas map[common.Hash]*DepositDelta,
 ) (*EventBatchSpotExecution, []*SpotLimitOrderFilledDelta) {
 	limitOrderBatchEvent := EventBatchSpotExecution{
 		MarketId:      marketID.Hex(),
@@ -439,7 +439,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 
 	for idx := range spotLimitOrderStateExpansions {
 		expansion := spotLimitOrderStateExpansions[idx]
-		UpdateDepositMap(baseDenomDepositMap, quoteDenomDepositMap, expansion)
+		UpdateDepositDeltasFromSpotExpansion(baseDenomDepositDeltas, quoteDenomDepositDeltas, expansion)
 		// skip adding trade data if there was no trade (unfilled new order)
 		fillQuantity := spotLimitOrderStateExpansions[idx].BaseChangeAmount
 		if fillQuantity.IsZero() {
@@ -474,15 +474,15 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	return &limitOrderBatchEvent, filledDeltas
 }
 
-func UpdateDepositMap(baseDenomDepositMap map[common.Hash]*DepositDelta, quoteDenomDepositMap map[common.Hash]*DepositDelta, expansion *SpotOrderStateExpansion) {
-	baseDenomDeposit := baseDenomDepositMap[expansion.SubaccountID]
+func UpdateDepositDeltasFromSpotExpansion(baseDenomDepositDeltas map[common.Hash]*DepositDelta, quoteDenomDepositDeltas map[common.Hash]*DepositDelta, expansion *SpotOrderStateExpansion) {
+	baseDenomDeposit := baseDenomDepositDeltas[expansion.SubaccountID]
 	baseDenomAvailableBalanceDelta := expansion.BaseRefundAmount
 	if baseDenomDeposit == nil {
 		// increment availableBalanceDelta in tandem with TotalBalanceDelta if positive
 		if expansion.BaseChangeAmount.IsPositive() {
 			baseDenomAvailableBalanceDelta = baseDenomAvailableBalanceDelta.Add(expansion.BaseChangeAmount)
 		}
-		baseDenomDepositMap[expansion.SubaccountID] = &DepositDelta{
+		baseDenomDepositDeltas[expansion.SubaccountID] = &DepositDelta{
 			TotalBalanceDelta:     expansion.BaseChangeAmount,
 			AvailableBalanceDelta: baseDenomAvailableBalanceDelta,
 		}
@@ -494,13 +494,13 @@ func UpdateDepositMap(baseDenomDepositMap map[common.Hash]*DepositDelta, quoteDe
 		}
 	}
 
-	traderQuoteDepositDelta := quoteDenomDepositMap[expansion.SubaccountID]
+	traderQuoteDepositDelta := quoteDenomDepositDeltas[expansion.SubaccountID]
 	if traderQuoteDepositDelta == nil {
-		quoteDenomDepositMap[expansion.SubaccountID] = &DepositDelta{
+		quoteDenomDepositDeltas[expansion.SubaccountID] = &DepositDelta{
 			TotalBalanceDelta:     sdk.ZeroDec(),
 			AvailableBalanceDelta: sdk.ZeroDec(),
 		}
-		traderQuoteDepositDelta = quoteDenomDepositMap[expansion.SubaccountID]
+		traderQuoteDepositDelta = quoteDenomDepositDeltas[expansion.SubaccountID]
 	}
 
 	traderQuoteDepositDelta.TotalBalanceDelta = expansion.QuoteChangeAmount.Add(traderQuoteDepositDelta.TotalBalanceDelta)
@@ -514,26 +514,26 @@ func UpdateDepositMap(baseDenomDepositMap map[common.Hash]*DepositDelta, quoteDe
 	// increment fee recipient's balances
 	feeSubaccount := common.BytesToHash(common.RightPadBytes(expansion.FeeRecipient.Bytes(), common.HashLength))
 
-	feeRecipientQuoteDepositDelta := quoteDenomDepositMap[feeSubaccount]
+	feeRecipientQuoteDepositDelta := quoteDenomDepositDeltas[feeSubaccount]
 	if feeRecipientQuoteDepositDelta == nil {
-		quoteDenomDepositMap[feeSubaccount] = &DepositDelta{
+		quoteDenomDepositDeltas[feeSubaccount] = &DepositDelta{
 			TotalBalanceDelta:     sdk.ZeroDec(),
 			AvailableBalanceDelta: sdk.ZeroDec(),
 		}
-		feeRecipientQuoteDepositDelta = quoteDenomDepositMap[feeSubaccount]
+		feeRecipientQuoteDepositDelta = quoteDenomDepositDeltas[feeSubaccount]
 
 	}
 	feeRecipientQuoteDepositDelta.TotalBalanceDelta = feeRecipientQuoteDepositDelta.TotalBalanceDelta.Add(expansion.FeeRecipientReward)
 	feeRecipientQuoteDepositDelta.AvailableBalanceDelta = feeRecipientQuoteDepositDelta.AvailableBalanceDelta.Add(expansion.FeeRecipientReward)
 
 	// increment auction fee balance
-	auctionQuoteDepositDelta := quoteDenomDepositMap[ZeroHash]
+	auctionQuoteDepositDelta := quoteDenomDepositDeltas[ZeroHash]
 	if auctionQuoteDepositDelta == nil {
-		quoteDenomDepositMap[ZeroHash] = &DepositDelta{
+		quoteDenomDepositDeltas[ZeroHash] = &DepositDelta{
 			AvailableBalanceDelta: sdk.ZeroDec(),
 			TotalBalanceDelta:     sdk.ZeroDec(),
 		}
-		auctionQuoteDepositDelta = quoteDenomDepositMap[ZeroHash]
+		auctionQuoteDepositDelta = quoteDenomDepositDeltas[ZeroHash]
 	}
 	auctionQuoteDepositDelta.TotalBalanceDelta = auctionQuoteDepositDelta.TotalBalanceDelta.Add(expansion.AuctionFeeReward)
 	auctionQuoteDepositDelta.AvailableBalanceDelta = auctionQuoteDepositDelta.AvailableBalanceDelta.Add(expansion.AuctionFeeReward)

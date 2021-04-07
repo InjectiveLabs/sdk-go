@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -123,9 +124,9 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 }
 
 // NewSpotMarketStatusSetProposal returns new instance of SpotMarketStatusSetProposal
-func NewSpotMarketStatusSetProposal(title, description, baseDenom, quoteDenom string, status MarketStatus) *SpotMarketStatusSetProposal {
+func NewSpotMarketStatusSetProposal(title, description, marketID string, status MarketStatus) *SpotMarketStatusSetProposal {
 	return &SpotMarketStatusSetProposal{
-		title, description, baseDenom, quoteDenom, status,
+		title, description, marketID, status,
 	}
 }
 
@@ -152,11 +153,9 @@ func (p *SpotMarketStatusSetProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SpotMarketStatusSetProposal) ValidateBasic() error {
-	if err := types.ValidateDenom(p.BaseDenom); err != nil {
-		return err
-	}
-	if err := types.ValidateDenom(p.QuoteDenom); err != nil {
-		return err
+
+	if p.MarketId == "" {
+		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 	if p.Status.String() == "" {
 		return errors.New("Invalid status")

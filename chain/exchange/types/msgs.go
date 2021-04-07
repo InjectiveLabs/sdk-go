@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/pkg/errors"
 )
 
 const RouterKey = ModuleName
@@ -33,7 +32,9 @@ func (msg MsgDeposit) Type() string { return "msgDeposit" }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgDeposit) ValidateBasic() error {
-	if msg.Sender == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
@@ -44,7 +45,10 @@ func (msg MsgDeposit) ValidateBasic() error {
 	if !msg.Amount.IsPositive() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
-	if _, ok := IsValidSubaccountID(msg.SubaccountId); !ok {
+
+	if len(msg.SubaccountId) == 0 {
+		return nil
+	} else if _, ok := IsValidSubaccountID(msg.SubaccountId); !ok {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 	}
 
@@ -73,7 +77,8 @@ func (msg MsgWithdraw) Type() string { return "msgWithdraw" }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgWithdraw) ValidateBasic() error {
-	if msg.Sender == "" {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
@@ -88,11 +93,6 @@ func (msg MsgWithdraw) ValidateBasic() error {
 	subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
 	if !ok {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
-	}
-
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(err, "must provide a valid Bech32 address")
 	}
 	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
@@ -123,17 +123,18 @@ func (msg MsgInstantSpotMarketLaunch) Type() string { return "instantSpotMarketL
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
-	if msg.Sender == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Ticker == "" {
 		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
 	}
 	if msg.BaseDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "base denom should not be empty")
+		return sdkerrors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
 	}
 	if msg.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidBaseDenom, "quote denom should not be empty")
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 
 	return nil
@@ -161,7 +162,8 @@ func (msg MsgInstantPerpetualMarketLaunch) Type() string { return "instantPerpet
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
-	if msg.Sender == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Ticker == "" {
@@ -201,7 +203,8 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) Type() string {
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
-	if msg.Sender == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Ticker == "" {
@@ -214,7 +217,7 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidOracle, "oracle should not be empty")
 	}
 	if msg.Expiry == 0 {
-		return sdkerrors.Wrap(ErrInvalidExpiry, "expirty should not be empty")
+		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
 	}
 
 	return nil
@@ -242,11 +245,12 @@ func (msg MsgCreateSpotLimitOrder) Type() string { return "createSpotLimitOrder"
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
-	if msg.Sender == "" {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil { // We don't need to check if sender is empty.
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Order.MarketId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.Order.MarketId)
+		return sdkerrors.Wrap(ErrMarketInvalid, msg.Order.MarketId)
 	}
 	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
 		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, string(msg.Order.OrderType))
@@ -254,10 +258,16 @@ func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
 	if msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.TriggerPrice.String())
 	}
-	if msg.Order.OrderInfo.SubaccountId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.Order.OrderInfo.SubaccountId)
+
+	subaccountAddress, ok := IsValidSubaccountID(msg.Order.OrderInfo.SubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Order.OrderInfo.SubaccountId)
 	}
-	if msg.Order.OrderInfo.FeeRecipient == "" {
+	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+	//_, err = sdk.AccAddressFromBech32(msg.Order.OrderInfo.FeeRecipient) // TODO
+	if msg.Order.OrderInfo.FeeRecipient == "" /* || err != nil */ {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Order.OrderInfo.FeeRecipient)
 	}
 	if msg.Order.OrderInfo.Price.LTE(sdk.ZeroDec()) {
@@ -292,11 +302,12 @@ func (msg MsgCreateSpotMarketOrder) Type() string { return "createSpotMarketOrde
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
-	if msg.Sender == "" {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Order.MarketId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.Order.MarketId)
+		return sdkerrors.Wrap(ErrMarketInvalid, msg.Order.MarketId)
 	}
 	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
 		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, string(msg.Order.OrderType))
@@ -304,8 +315,13 @@ func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
 	if msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.TriggerPrice.String())
 	}
-	if msg.Order.OrderInfo.SubaccountId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.Order.OrderInfo.SubaccountId)
+
+	subaccountAddress, ok := IsValidSubaccountID(msg.Order.OrderInfo.SubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Order.OrderInfo.SubaccountId)
+	}
+	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
 	}
 	if msg.Order.OrderInfo.FeeRecipient == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Order.OrderInfo.FeeRecipient)
@@ -342,11 +358,26 @@ func (msg *MsgCancelSpotOrder) Type() string { return "cancelSpotOrder" }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg *MsgCancelSpotOrder) ValidateBasic() error {
-	if msg.Sender == "" {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
+	if msg.MarketId == "" {
+		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
+	}
 
-	// TODO: check if subaccountId and sender matches or not
+	subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
+	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+
+	ok = IsValidOrderHash(msg.OrderHash)
+	if !ok {
+		return sdkerrors.Wrap(ErrOrderHashInvalid, msg.OrderHash)
+	}
 	return nil
 }
 
@@ -372,7 +403,8 @@ func (msg MsgCreateDerivativeLimitOrder) Type() string { return "createDerivativ
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateDerivativeLimitOrder) ValidateBasic() error {
-	if msg.Sender == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
@@ -419,7 +451,8 @@ func (msg MsgCreateDerivativeMarketOrder) Type() string { return "createDerivati
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateDerivativeMarketOrder) ValidateBasic() error {
-	if msg.Sender == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
@@ -452,7 +485,8 @@ func (msg *MsgCancelDerivativeOrder) Type() string {
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg *MsgCancelDerivativeOrder) ValidateBasic() error {
-	if msg.Sender == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	// TODO: implement this
@@ -482,7 +516,8 @@ func (msg *MsgSubaccountTransfer) Type() string {
 }
 
 func (msg *MsgSubaccountTransfer) ValidateBasic() error {
-	if msg.Sender == "" {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if !msg.Amount.IsValid() {
@@ -503,11 +538,6 @@ func (msg *MsgSubaccountTransfer) ValidateBasic() error {
 	}
 	if !bytes.Equal(subaccountAddress.Bytes(), destSubaccountAddress.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
-	}
-
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(err, "must provide a valid Bech32 address")
 	}
 	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
@@ -536,7 +566,8 @@ func (msg *MsgExternalTransfer) Type() string {
 }
 
 func (msg *MsgExternalTransfer) ValidateBasic() error {
-	if msg.Sender == "" {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
@@ -552,14 +583,10 @@ func (msg *MsgExternalTransfer) ValidateBasic() error {
 	if !ok {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
+
 	_, ok = IsValidSubaccountID(msg.DestinationSubaccountId)
 	if !ok {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
-	}
-
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(err, "must provide a valid Bech32 address")
 	}
 	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
@@ -588,7 +615,8 @@ func (msg *MsgIncreasePositionMargin) Type() string {
 }
 
 func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
-	if msg.Sender == "" {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
@@ -604,10 +632,6 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 	}
 
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(err, "must provide a valid Bech32 address")
-	}
 	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
 	}
@@ -635,7 +659,9 @@ func (msg *MsgLiquidatePosition) Type() string {
 }
 
 func (msg *MsgLiquidatePosition) ValidateBasic() error {
-	if msg.Sender == "" {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+
+	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
@@ -646,11 +672,6 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 	_, ok := IsValidSubaccountID(msg.SubaccountId)
 	if !ok {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
-	}
-
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(err, "must provide a valid Bech32 address")
 	}
 
 	return nil
