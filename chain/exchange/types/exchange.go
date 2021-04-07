@@ -2,9 +2,10 @@ package types
 
 import (
 	"fmt"
+	"strconv"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"golang.org/x/crypto/sha3"
-	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -253,6 +254,7 @@ func (m *SpotOrder) CheckMarketOrderBalanceHold(market *SpotMarket, availableBal
 func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket) (marginHold sdk.Dec, err error) {
 	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
 	feeAmount := notional.Mul(market.TakerFeeRate)
+
 	// Margin ≥ InitialMarginRatio * Price * Quantity
 	if o.Margin.LT(market.InitialMarginRatio.Mul(notional)) {
 		fmt.Println(o.String())
@@ -266,8 +268,10 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket) 
 	if o.OrderType.IsBuy() && market.MarkPrice.LT(markPriceThreshold) {
 		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark price %s must be GTE %s", market.MarkPrice.String(), markPriceThreshold.String())
 	} else if !o.OrderType.IsBuy() && market.MarkPrice.GT(markPriceThreshold) {
+
 		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark price %s must be LTE %s", market.MarkPrice.String(), markPriceThreshold.String())
 	}
+
 	return o.Margin.Add(feeAmount), nil
 }
 

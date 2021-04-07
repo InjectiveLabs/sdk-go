@@ -7,24 +7,25 @@ import (
 
 var ZeroHash = common.Hash{}
 
-func (o *SpotOrder) GetNewSpotLimitOrder(hash common.Hash) *SpotLimitOrder {
+func (o *SpotOrder) GetNewSpotLimitOrder(orderHash common.Hash) *SpotLimitOrder {
 	return &SpotLimitOrder{
 		OrderInfo:    o.OrderInfo,
 		OrderType:    o.OrderType,
 		Fillable:     o.OrderInfo.Quantity,
 		TriggerPrice: o.TriggerPrice,
-		Hash:         hash.Bytes(),
+		OrderHash:    orderHash.Bytes(),
 	}
 }
 
 type SpotOrderStateExpansion struct {
 	BaseChangeAmount   sdk.Dec
+	BaseRefundAmount   sdk.Dec
 	QuoteChangeAmount  sdk.Dec
 	QuoteRefundAmount  sdk.Dec
 	FeeRecipient       common.Address
 	FeeRecipientReward sdk.Dec
 	AuctionFeeReward   sdk.Dec
-	Hash               common.Hash
+	OrderHash          common.Hash
 	SubaccountID       common.Hash
 	// for market orders, FillableAmount refers to the fillable quantity of the market order execution (if any)
 	FillableAmount sdk.Dec
@@ -149,7 +150,7 @@ func ProcessRestingLimitOrderExpansions(
 		if isLimitBuy {
 			stateExpansions[idx] = GetRestingLimitBuyStateExpansion(
 				order,
-				common.BytesToHash(order.Hash),
+				common.BytesToHash(order.OrderHash),
 				fillQuantity,
 				fillPrice,
 				makerFeeRate,
@@ -213,12 +214,13 @@ func GetLimitSellStateExpansion(
 	stateExpansion := SpotOrderStateExpansion{
 		// limit sells are debited by fillQuantity in base denom
 		BaseChangeAmount:   fillQuantity.Neg(),
+		BaseRefundAmount:   sdk.ZeroDec(),
 		QuoteChangeAmount:  quoteChangeAmount,
 		QuoteRefundAmount:  sdk.ZeroDec(),
 		FeeRecipient:       common.HexToAddress(sellOrder.OrderInfo.FeeRecipient),
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
-		Hash:               common.BytesToHash(sellOrder.Hash),
+		OrderHash:          common.BytesToHash(sellOrder.OrderHash),
 		SubaccountID:       common.HexToHash(sellOrder.OrderInfo.SubaccountId),
 		FillableAmount:     sellOrder.Fillable.Sub(fillQuantity),
 	}
@@ -250,12 +252,13 @@ func GetRestingLimitBuyStateExpansion(
 	}
 	stateExpansion := SpotOrderStateExpansion{
 		BaseChangeAmount:   baseChangeAmount,
+		BaseRefundAmount:   sdk.ZeroDec(),
 		QuoteChangeAmount:  quoteChangeAmount,
 		QuoteRefundAmount:  quoteRefund,
 		FeeRecipient:       common.HexToAddress(buyOrder.OrderInfo.FeeRecipient),
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
-		Hash:               orderHash,
+		OrderHash:          orderHash,
 		SubaccountID:       common.HexToHash(buyOrder.OrderInfo.SubaccountId),
 		FillableAmount:     fillableAmount,
 	}
@@ -277,7 +280,7 @@ func ProcessNewLimitBuyExpansions(
 		}
 		stateExpansions[idx] = GetNewLimitBuyStateExpansion(
 			order,
-			common.BytesToHash(order.Hash),
+			common.BytesToHash(order.OrderHash),
 			clearingPrice, fillQuantity,
 			makerFeeRate, takerFeeRate, relayerFeeShare,
 		)
@@ -326,12 +329,13 @@ func GetNewLimitBuyStateExpansion(
 	quoteRefundAmount := clearingRefund.Add(feeRefund)
 	stateExpansion := SpotOrderStateExpansion{
 		BaseChangeAmount:   baseChangeAmount,
+		BaseRefundAmount:   sdk.ZeroDec(),
 		QuoteChangeAmount:  quoteChangeAmount,
 		QuoteRefundAmount:  quoteRefundAmount,
 		FeeRecipient:       common.HexToAddress(buyOrder.OrderInfo.FeeRecipient),
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
-		Hash:               orderHash,
+		OrderHash:          orderHash,
 		SubaccountID:       common.HexToHash(buyOrder.OrderInfo.SubaccountId),
 		FillableAmount:     fillableAmount,
 	}
@@ -339,7 +343,7 @@ func GetNewLimitBuyStateExpansion(
 }
 
 // NOTE: clearingPrice may be Nil
-func ProcessMarketOrderStateExpansions(
+func ProcessSpotMarketOrderStateExpansions(
 	isMarketBuy bool,
 	marketOrders []*SpotMarketOrder,
 	marketFillQuantities []sdk.Dec,
@@ -379,7 +383,7 @@ func GetMarketOrderStateExpansion(
 	tradingFee := orderNotional.Mul(takerFeeRate)
 	feeRecipientReward := relayerFeeShare.Mul(tradingFee)
 	auctionFeeReward := tradingFee.Sub(feeRecipientReward)
-	quoteRefundAmount, quoteChangeAmount := sdk.ZeroDec(), sdk.ZeroDec()
+	baseRefundAmount, quoteRefundAmount, quoteChangeAmount := sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()
 	if isMarketBuy {
 		// market buys are credited with the order fill quantity in base denom
 		baseChangeAmount = fillQuantity
@@ -395,15 +399,20 @@ func GetMarketOrderStateExpansion(
 		if !clearingPrice.IsNil() {
 			quoteChangeAmount = orderNotional.Sub(tradingFee)
 		}
+		// base denom refund unfilled market order quantity
+		if fillQuantity.LT(marketOrder.OrderInfo.Quantity) {
+			baseRefundAmount = marketOrder.OrderInfo.Quantity.Sub(fillQuantity)
+		}
 	}
 	stateExpansion := SpotOrderStateExpansion{
 		BaseChangeAmount:   baseChangeAmount,
+		BaseRefundAmount:   baseRefundAmount,
 		QuoteChangeAmount:  quoteChangeAmount,
 		QuoteRefundAmount:  quoteRefundAmount,
 		FeeRecipient:       common.HexToAddress(marketOrder.OrderInfo.FeeRecipient),
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
-		Hash:               common.HexToHash(marketOrder.Hash),
+		OrderHash:          common.HexToHash(marketOrder.OrderHash),
 		SubaccountID:       common.HexToHash(marketOrder.OrderInfo.SubaccountId),
 		FillableAmount:     marketOrder.OrderInfo.Quantity.Sub(fillQuantity),
 	}
@@ -438,8 +447,13 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 		}
 
 		filledDeltas = append(filledDeltas, &SpotLimitOrderFilledDelta{
-			SubaccountIndexKey: GetLimitOrderBySubaccountKey(marketID, limitOrderBatchEvent.IsBuy, expansion.SubaccountID, expansion.Hash),
-			FillableAmount:     expansion.FillableAmount,
+			SubaccountIndexKey: GetLimitOrderBySubaccountKey(
+				marketID,
+				limitOrderBatchEvent.IsBuy,
+				expansion.SubaccountID,
+				expansion.OrderHash,
+			),
+			FillableAmount: expansion.FillableAmount,
 		})
 
 		fee := expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward)
@@ -453,7 +467,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			Price:        price,
 			SubaccountId: expansion.SubaccountID.Hex(),
 			Fee:          fee,
-			Hash:         expansion.Hash.Hex(),
+			OrderHash:    expansion.OrderHash.Hex(),
 		})
 	}
 	limitOrderBatchEvent.Trades = trades
@@ -462,15 +476,15 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 
 func UpdateDepositMap(baseDenomDepositMap map[common.Hash]*DepositDelta, quoteDenomDepositMap map[common.Hash]*DepositDelta, expansion *SpotOrderStateExpansion) {
 	baseDenomDeposit := baseDenomDepositMap[expansion.SubaccountID]
+	baseDenomAvailableBalanceDelta := expansion.BaseRefundAmount
 	if baseDenomDeposit == nil {
-		availableBalanceDelta := sdk.ZeroDec()
 		// increment availableBalanceDelta in tandem with TotalBalanceDelta if positive
 		if expansion.BaseChangeAmount.IsPositive() {
-			availableBalanceDelta = expansion.BaseChangeAmount
+			baseDenomAvailableBalanceDelta = baseDenomAvailableBalanceDelta.Add(expansion.BaseChangeAmount)
 		}
 		baseDenomDepositMap[expansion.SubaccountID] = &DepositDelta{
 			TotalBalanceDelta:     expansion.BaseChangeAmount,
-			AvailableBalanceDelta: availableBalanceDelta,
+			AvailableBalanceDelta: baseDenomAvailableBalanceDelta,
 		}
 	} else {
 		baseDenomDeposit.TotalBalanceDelta = expansion.BaseChangeAmount.Add(baseDenomDeposit.TotalBalanceDelta)

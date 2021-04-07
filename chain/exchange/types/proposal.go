@@ -62,7 +62,7 @@ func (p *SpotMarketParamUpdateProposal) ProposalRoute() string { return RouterKe
 
 // ProposalType returns proposal type of this proposal.
 func (p *SpotMarketParamUpdateProposal) ProposalType() string {
-	return ProposalTypeSpotMarketLaunch
+	return ProposalTypeSpotMarketParamUpdate
 }
 
 // ValidateBasic returns ValidateBasic result of this proposal.
