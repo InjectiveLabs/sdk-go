@@ -16,6 +16,7 @@ type TendermintClient interface {
 	GetBlock(ctx context.Context, height int64) (*tmctypes.ResultBlock, error)
 	GetLatestBlockHeight(ctx context.Context) (int64, error)
 	GetTxs(ctx context.Context, block *tmctypes.ResultBlock) ([]*ctypes.ResultTx, error)
+	GetBlockResults(ctx context.Context, height int64) (*ctypes.ResultBlockResults, error)
 	GetValidatorSet(ctx context.Context, height int64) (*tmctypes.ResultValidators, error)
 }
 
@@ -37,6 +38,11 @@ func NewRPCClient(rpcNodeAddr string) TendermintClient {
 // GetBlock queries for a block by height. An error is returned if the query fails.
 func (c *tmClient) GetBlock(ctx context.Context, height int64) (*tmctypes.ResultBlock, error) {
 	return c.rpcClient.Block(ctx, &height)
+}
+
+// GetBlock queries for a block by height. An error is returned if the query fails.
+func (c *tmClient) GetBlockResults(ctx context.Context, height int64) (*ctypes.ResultBlockResults, error) {
+	return c.rpcClient.BlockResults(ctx, &height)
 }
 
 // GetLatestBlockHeight returns the latest block height on the active chain.

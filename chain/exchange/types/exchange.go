@@ -1,16 +1,16 @@
 package types
 
 import (
-	"github.com/ethereum/go-ethereum/crypto"
 	"strconv"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"golang.org/x/crypto/sha3"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/crypto"
 	gethsigner "github.com/ethereum/go-ethereum/signer/core"
+	proto "github.com/gogo/protobuf/proto"
+	"golang.org/x/crypto/sha3"
 )
 
 func ComputeSpotMarketID(baseDenom, quoteDenom string) common.Hash {
@@ -151,6 +151,42 @@ type MatchedMarketDirection struct {
 	MarketId    common.Hash
 	BuysExists  bool
 	SellsExists bool
+}
+
+func (m *MarketStatus) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(MarketStatus_value, data, "MarketStatus")
+	if err != nil {
+		return err
+	}
+	*m = MarketStatus(value)
+	return nil
+}
+
+func (m *ExecutionType) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(ExecutionType_value, data, "ExecutionType")
+	if err != nil {
+		return err
+	}
+	*m = ExecutionType(value)
+	return nil
+}
+
+func (m *OrderType) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(OrderType_value, data, "OrderType")
+	if err != nil {
+		return err
+	}
+	*m = OrderType(value)
+	return nil
+}
+
+func (m *Direction) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(Direction_value, data, "Direction")
+	if err != nil {
+		return err
+	}
+	*m = Direction(value)
+	return nil
 }
 
 func (m *SpotOrder) IsBuy() bool {
