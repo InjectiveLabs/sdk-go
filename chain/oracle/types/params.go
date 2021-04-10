@@ -1,22 +1,12 @@
 package types
 
 import (
-	"fmt"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 var _ paramtypes.ParamSet = &Params{}
 
-// Auction params default values
-const (
-	// DefaultOraclePeriodDurationSeconds represents the number of seconds in two weeks
-	DefaultOraclePeriod int64 = 60 * 60 * 24 * 14
-)
-
 // Parameter keys
-var (
-	KeyOraclePeriod = []byte("OraclePeriod")
-)
 
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
@@ -24,47 +14,21 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(
-	oraclePeriod int64,
-) Params {
-	return Params{
-		OraclePeriod: oraclePeriod,
-	}
+func NewParams() Params {
+	return Params{}
 }
 
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	// TODO: @albert, add the rest of the parameters
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyOraclePeriod, &p.OraclePeriod, validateOraclePeriodDuration),
-	}
+	return paramtypes.ParamSetPairs{}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
-	return Params{
-		OraclePeriod: DefaultOraclePeriod,
-	}
+	return Params{}
 }
 
-// Validate performs basic validation on oracle parameters.
+// Validate performs basic validation on auction parameters.
 func (p Params) Validate() error {
-	if err := validateOraclePeriodDuration(p.OraclePeriod); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func validateOraclePeriodDuration(i interface{}) error {
-	v, ok := i.(int64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v == 0 {
-		return fmt.Errorf("OraclePeriodDuration must be positive: %d", v)
-	}
-
 	return nil
 }
