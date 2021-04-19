@@ -25,6 +25,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgWithdrawClaim{},
 		&MsgERC20DeployedClaim{},
 		&MsgSetOrchestratorAddresses{},
+		&MsgCancelSendToEth{},
 	)
 
 	registry.RegisterInterface(
@@ -44,6 +45,7 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSetOrchestratorAddresses{}, "peggy/MsgSetOrchestratorAddresses", nil)
 	cdc.RegisterConcrete(&MsgValsetConfirm{}, "peggy/MsgValsetConfirm", nil)
 	cdc.RegisterConcrete(&MsgSendToEth{}, "peggy/MsgSendToEth", nil)
+	cdc.RegisterConcrete(&MsgCancelSendToEth{}, "peggy/MsgCancelSendToEth", nil)
 	cdc.RegisterConcrete(&MsgRequestBatch{}, "peggy/MsgRequestBatch", nil)
 	cdc.RegisterConcrete(&MsgConfirmBatch{}, "peggy/MsgConfirmBatch", nil)
 	cdc.RegisterConcrete(&Valset{}, "peggy/Valset", nil)

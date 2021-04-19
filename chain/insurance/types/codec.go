@@ -2,24 +2,23 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-var (
-	// ModuleCdc references the global insurance module codec. Note, the codec should
-	// ONLY be used in certain instances of tests and for JSON encoding.
-	//
-	// The actual codec used for serialization should be provided to modules/insurance and
-	// defined at the application level.
-	ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
-)
+// RegisterLegacyAminoCodec registers the necessary x/insurance interfaces and concrete types
+// on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&MsgCreateInsuranceFund{}, "insurance/MsgCreateInsuranceFund", nil)
+	cdc.RegisterConcrete(&MsgUnderwrite{}, "insurance/MsgUnderwrite", nil)
+	cdc.RegisterConcrete(&MsgRequestRedemption{}, "insurance/MsgRequestRedemption", nil)
+	cdc.RegisterConcrete(&MsgClaimRedemption{}, "insurance/MsgClaimRedemption", nil)
+}
 
-// RegisterCodec registers concrete types on the Amino codec
-func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
-	registry.RegisterImplementations(
-		(*sdk.Msg)(nil),
+func RegisterInterfaces(registry types.InterfaceRegistry) {
+	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreateInsuranceFund{},
 		&MsgUnderwrite{},
 		&MsgRequestRedemption{},
@@ -27,5 +26,22 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
+}
 
+var (
+	amino = codec.NewLegacyAmino()
+
+	// ModuleCdc references the global x/insurance module codec. Note, the codec should
+	// ONLY be used in certain instances of tests and for JSON encoding as Amino is
+	// still used for that purpose.
+	//
+	// The actual codec used for serialization should be provided to x/insurance and
+	// defined at the application level.
+	ModuleCdc = codec.NewAminoCodec(amino)
+)
+
+func init() {
+	RegisterLegacyAminoCodec(amino)
+	cryptocodec.RegisterCrypto(amino)
+	amino.Seal()
 }
