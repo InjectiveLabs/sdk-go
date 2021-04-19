@@ -85,7 +85,7 @@ func (p PeggyDenom) TokenContract() (common.Address, error) {
 
 func NewPeggyDenom(tokenContract common.Address) PeggyDenom {
 	buf := make([]byte, 0, PeggyDenomLen)
-	buf = append(buf, (PeggyDenomPrefix + PeggyDenomSeparator)...)
+	buf = append(buf, PeggyDenomPrefix+PeggyDenomSeparator...)
 	buf = append(buf, tokenContract.Bytes()...)
 
 	return PeggyDenom(buf)

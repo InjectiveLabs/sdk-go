@@ -69,7 +69,10 @@ var (
 	SecondIndexNonceByClaimKey = []byte{0xf}
 
 	// LastEventNonceByValidatorKey indexes lateset event nonce by validator
-	LastEventNonceByValidatorKey = []byte{0xf1}
+	LastEventNonceByValidatorKey = []byte{0xe2}
+
+	// LastEventByValidatorKey indexes lateset claim event by validator
+	LastEventByValidatorKey = []byte{0xf1}
 
 	// LastObservedEventNonceKey indexes the latest event nonce
 	LastObservedEventNonceKey = []byte{0xf2}
@@ -238,7 +241,7 @@ func GetBatchConfirmKey(tokenContract common.Address, batchNonce uint64, validat
 // GetFeeSecondIndexKey returns the following key format
 // prefix            eth-contract-address            					fee_amount
 // [0x9][0xc783df8a850f42e7F7e57013759C285caa701eB6][0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
-func GetFeeSecondIndexKey(tokenContract common.Address, fee sdk.Coin) []byte {
+func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token) []byte {
 	buf := make([]byte, 0, len(SecondIndexOutgoingTXFeeKey)+ETHContractAddressLen+32)
 	buf = append(buf, SecondIndexOutgoingTXFeeKey...)
 	buf = append(buf, tokenContract.Bytes()...)
@@ -256,15 +259,27 @@ func GetFeeSecondIndexKey(tokenContract common.Address, fee sdk.Coin) []byte {
 // prefix              cosmos-validator
 // [0x0][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
 func GetLastEventNonceByValidatorKey(validator sdk.ValAddress) []byte {
-	buf := make([]byte, 0, len(LastEventNonceByValidatorKey) + len(validator))
+	buf := make([]byte, 0, len(LastEventNonceByValidatorKey)+len(validator))
 	buf = append(buf, LastEventNonceByValidatorKey...)
 	buf = append(buf, validator.Bytes()...)
 
 	return buf
 }
 
+// GetLastEventByValidatorKey indexes lateset event by validator
+// GetLastEventByValidatorKey returns the following key format
+// prefix              cosmos-validator
+// [0x0][cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn]
+func GetLastEventByValidatorKey(validator sdk.ValAddress) []byte {
+	buf := make([]byte, 0, len(LastEventByValidatorKey)+len(validator))
+	buf = append(buf, LastEventByValidatorKey...)
+	buf = append(buf, validator.Bytes()...)
+
+	return buf
+}
+
 func GetCosmosDenomToERC20Key(denom string) []byte {
-	buf := make([]byte, 0, len(DenomToERC20Key) + len(denom))
+	buf := make([]byte, 0, len(DenomToERC20Key)+len(denom))
 	buf = append(buf, DenomToERC20Key...)
 	buf = append(buf, denom...)
 
@@ -272,7 +287,7 @@ func GetCosmosDenomToERC20Key(denom string) []byte {
 }
 
 func GetERC20ToCosmosDenomKey(tokenContract common.Address) []byte {
-	buf := make([]byte, 0, len(ERC20ToDenomKey) + ETHContractAddressLen)
+	buf := make([]byte, 0, len(ERC20ToDenomKey)+ETHContractAddressLen)
 	buf = append(buf, ERC20ToDenomKey...)
 	buf = append(buf, tokenContract.Bytes()...)
 

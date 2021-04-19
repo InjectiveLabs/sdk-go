@@ -16,6 +16,10 @@ var (
 	_ sdk.Msg = &MsgRequestBatch{}
 	_ sdk.Msg = &MsgConfirmBatch{}
 	_ sdk.Msg = &MsgSetOrchestratorAddresses{}
+	_ sdk.Msg = &MsgERC20DeployedClaim{}
+	_ sdk.Msg = &MsgDepositClaim{}
+	_ sdk.Msg = &MsgWithdrawClaim{}
+	_ sdk.Msg = &MsgCancelSendToEth{}
 )
 
 // NewMsgSetOrchestratorAddress returns a new MsgSetOrchestratorAddresses
@@ -447,4 +451,40 @@ func (msg MsgERC20DeployedClaim) Route() string { return RouterKey }
 func (b *MsgERC20DeployedClaim) ClaimHash() []byte {
 	path := fmt.Sprintf("%s/%s/%s/%s/%d/", b.CosmosDenom, b.TokenContract, b.Name, b.Symbol, b.Decimals)
 	return tmhash.Sum([]byte(path))
+}
+
+// NewMsgCancelSendToEth returns a new msgMsgCancelSendToEth
+func NewMsgCancelSendToEth(sender sdk.AccAddress, id uint64) *MsgCancelSendToEth {
+	return &MsgCancelSendToEth{
+		TransactionId: id,
+		Sender:        sender.String(),
+	}
+}
+
+// Route should return the name of the module
+func (msg *MsgCancelSendToEth) Route() string { return RouterKey }
+
+// Type should return the action
+func (msg *MsgCancelSendToEth) Type() string { return "cancel_send_to_eth" }
+
+// ValidateBasic performs stateless checks
+func (msg *MsgCancelSendToEth) ValidateBasic() (err error) {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	return nil
+}
+
+// GetSignBytes encodes the message for signing
+func (msg *MsgCancelSendToEth) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners defines whose signature is required
+func (msg *MsgCancelSendToEth) GetSigners() []sdk.AccAddress {
+	acc, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{acc}
 }
