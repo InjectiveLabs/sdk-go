@@ -22,6 +22,9 @@ var (
 	_ sdk.Msg = &MsgExternalTransfer{}
 	_ sdk.Msg = &MsgIncreasePositionMargin{}
 	_ sdk.Msg = &MsgLiquidatePosition{}
+	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}
+	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
+	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -172,8 +175,11 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if msg.QuoteDenom == "" {
 		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
-	if msg.Oracle == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle should not be empty")
+	if msg.OracleBase == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
+	}
+	if msg.OracleQuote == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
 	}
 
 	return nil
@@ -213,8 +219,11 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	if msg.QuoteDenom == "" {
 		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
-	if msg.Oracle == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle should not be empty")
+	if msg.OracleBase == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
+	}
+	if msg.OracleQuote == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
 	}
 	if msg.Expiry == 0 {
 		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
@@ -253,7 +262,7 @@ func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrMarketInvalid, msg.Order.MarketId)
 	}
 	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, string(msg.Order.OrderType))
+		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
 	}
 	if msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.TriggerPrice.String())
@@ -310,7 +319,7 @@ func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrMarketInvalid, msg.Order.MarketId)
 	}
 	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, string(msg.Order.OrderType))
+		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
 	}
 	if msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.TriggerPrice.String())

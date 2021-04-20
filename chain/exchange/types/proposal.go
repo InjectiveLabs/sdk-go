@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -284,9 +285,9 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 }
 
 // NewPerpetualMarketLaunchProposal returns new instance of PerpetualMarketLaunchProposal
-func NewPerpetualMarketLaunchProposal(title, description, ticker, quoteDenom, oracle string, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *PerpetualMarketLaunchProposal {
+func NewPerpetualMarketLaunchProposal(title, description, ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
-		title, description, ticker, quoteDenom, oracle, maxPriceScaleDecimals, maxQuantityScaleDecimals,
+		title, description, ticker, quoteDenom, oracleBase, oracleQuote, oracleType, maxPriceScaleDecimals, maxQuantityScaleDecimals,
 	}
 }
 
@@ -320,9 +321,9 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 }
 
 // NewExpiryFuturesMarketLaunchProposal returns new instance of ExpiryFuturesMarketLaunchProposal
-func NewExpiryFuturesMarketLaunchProposal(title, description, ticker, quoteDenom, oracle string, expiry int64, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *ExpiryFuturesMarketLaunchProposal {
+func NewExpiryFuturesMarketLaunchProposal(title, description, ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, expiry int64, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
-		title, description, ticker, quoteDenom, oracle, expiry, maxPriceScaleDecimals, maxQuantityScaleDecimals,
+		title, description, ticker, quoteDenom, oracleBase, oracleQuote, oracleType, expiry, maxPriceScaleDecimals, maxQuantityScaleDecimals,
 	}
 }
 

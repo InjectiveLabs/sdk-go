@@ -3,8 +3,10 @@ package types
 import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
+	"strconv"
 
-	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
+	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
+	peggytypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types"
 )
 
 func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {
@@ -19,4 +21,29 @@ func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {
 	}
 
 	return crypto.Keccak256Hash([]byte((baseDenom + quoteDenom)))
+}
+
+func NewPerpetualMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType) common.Hash {
+	quotePeggyDenom, err := peggytypes.NewPeggyDenomFromString(quoteDenom)
+	if err == nil {
+		quoteDenom = quotePeggyDenom.String()
+	}
+
+	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleBase + oracleQuote)))
+}
+
+func NewExpiryFuturesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, expiry int64) common.Hash {
+	quotePeggyDenom, err := peggytypes.NewPeggyDenomFromString(quoteDenom)
+	if err == nil {
+		quoteDenom = quotePeggyDenom.String()
+	}
+	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleBase + oracleQuote + strconv.Itoa(int(expiry)))))
+}
+
+func NewDerivativesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, expiry int64) common.Hash {
+	if expiry == -1 {
+		return NewPerpetualMarketID(ticker, quoteDenom, oracleBase, oracleQuote, oracleType)
+	} else {
+		return NewExpiryFuturesMarketID(ticker, quoteDenom, oracleBase, oracleQuote, oracleType, expiry)
+	}
 }
