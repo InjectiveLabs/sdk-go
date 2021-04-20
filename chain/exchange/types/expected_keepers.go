@@ -1,7 +1,7 @@
 package types
 
 import (
-	insurancetypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types"
+	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankexported "github.com/cosmos/cosmos-sdk/x/bank/exported"
 	"github.com/ethereum/go-ethereum/common"

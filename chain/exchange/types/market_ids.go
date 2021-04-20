@@ -5,8 +5,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"strconv"
 
-	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
-	peggytypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types"
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 )
 
 func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {

@@ -4,18 +4,18 @@
 package types
 
 import (
-	"context"
-	"fmt"
+	context "context"
+	fmt "fmt"
 	_ "github.com/cosmos/cosmos-sdk/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
-	"github.com/gogo/protobuf/proto"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"io"
-	"math"
+	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	io "io"
+	math "math"
 	math_bits "math/bits"
 )
 

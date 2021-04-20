@@ -12,4 +12,5 @@ var (
 	ErrRelayerNotAuthorized   = sdkerrors.Register(ModuleName, 5, "relayer not authorized")
 	ErrBadPriceFeedBaseCount  = sdkerrors.Register(ModuleName, 6, "bad price feed base count")
 	ErrBadPriceFeedQuoteCount = sdkerrors.Register(ModuleName, 7, "bad price feed quote count")
+	ErrUnsupportedOracleType  = sdkerrors.Register(ModuleName, 8, "unsupported oracle type")
 )

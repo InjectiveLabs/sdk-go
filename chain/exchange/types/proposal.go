@@ -2,7 +2,7 @@ package types
 
 import (
 	"errors"
-	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/cosmos/cosmos-sdk/types"
