@@ -62,7 +62,7 @@ func GetDerivativeOrderBatchEvent(
 			tradeLog := &DerivativeTradeLog{
 				SubaccountId:  expansion.SubaccountID.Bytes(),
 				PositionDelta: expansion.PositionDelta,
-				Payout:        &expansion.Payout,
+				Payout:        expansion.Payout,
 				Fee:           expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward),
 				OrderHash:     expansion.OrderHash.Bytes(),
 			}
