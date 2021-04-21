@@ -58,12 +58,16 @@ func GetDepositKeyPrefixBySubaccountID(subaccountID common.Hash) []byte {
 	return append(DepositsPrefix, subaccountID.Bytes()...)
 }
 
-func ParseDepositKey(key []byte) (subaccountID common.Hash, denom string) {
-	fmt.Println("ParseDepositKey", common.Bytes2Hex(key))
+func ParseDepositStoreKey(key []byte) (subaccountID common.Hash, denom string) {
 	subaccountEndIdx := common.HashLength
 	subaccountID = common.BytesToHash(key[:subaccountEndIdx])
 	denom = string(key[subaccountEndIdx:])
 	return subaccountID, denom
+}
+
+// ParseDepositTransientStoreKey parses the deposit transient store key.
+func ParseDepositTransientStoreKey(prefix, key []byte) (subaccountID common.Hash, denom string) {
+	return ParseDepositStoreKey(key[len(prefix):])
 }
 
 // GetSubaccountTradeNonceKey provides the prefix to obtain a given subaccount's trade nonce.

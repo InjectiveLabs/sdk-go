@@ -42,9 +42,9 @@ func GetSpotMarketOrderBatchExecution(
 		trades[idx] = &TradeLog{
 			Quantity:     expansion.BaseChangeAmount,
 			Price:        clearingPrice,
-			SubaccountId: expansion.SubaccountID.Hex(),
+			SubaccountId: expansion.SubaccountID.Bytes(),
 			Fee:          expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward),
-			OrderHash:    expansion.OrderHash.Hex(),
+			OrderHash:    expansion.OrderHash.Bytes(),
 		}
 	}
 	marketOrderBatchEvent.Trades = trades
@@ -165,9 +165,9 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 		trades = append(trades, &TradeLog{
 			Quantity:     expansion.BaseChangeAmount.Abs(),
 			Price:        price,
-			SubaccountId: expansion.SubaccountID.Hex(),
+			SubaccountId: expansion.SubaccountID.Bytes(),
 			Fee:          fee,
-			OrderHash:    expansion.OrderHash.Hex(),
+			OrderHash:    expansion.OrderHash.Bytes(),
 		})
 	}
 	limitOrderBatchEvent.Trades = trades

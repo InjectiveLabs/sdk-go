@@ -60,11 +60,11 @@ func GetDerivativeOrderBatchEvent(
 
 		if expansion.PositionDelta != nil {
 			tradeLog := &DerivativeTradeLog{
-				SubaccountId:  expansion.SubaccountID.Hex(),
+				SubaccountId:  expansion.SubaccountID.Bytes(),
 				PositionDelta: expansion.PositionDelta,
 				Payout:        &expansion.Payout,
 				Fee:           expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward),
-				OrderHash:     expansion.OrderHash.Hex(),
+				OrderHash:     expansion.OrderHash.Bytes(),
 			}
 			trades = append(trades, tradeLog)
 		}
@@ -182,7 +182,7 @@ func GetDerivativeMarketOrderStateExpansion(
 		AuctionFeeReward:      auctionFeeReward,
 		FeeRecipientReward:    feeRecipientReward,
 		FeeRecipient:          common.HexToAddress(order.OrderInfo.FeeRecipient),
-		OrderHash:             common.HexToHash(order.OrderHash),
+		OrderHash:             common.BytesToHash(order.OrderHash),
 		FillableAmount:        order.OrderInfo.Quantity.Sub(fillQuantity),
 	}
 

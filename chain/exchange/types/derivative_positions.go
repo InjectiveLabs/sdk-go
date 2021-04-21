@@ -36,7 +36,7 @@ func (p *PositionStates) GetPositionUpdateEvent(
 		position := (*p)[subaccountID]
 		positions[idx] = position.Position
 		positionLogs[idx] = &DerivativePositionLog{
-			SubaccountId:   subaccountID.Hex(),
+			SubaccountId:   subaccountID.Bytes(),
 			Position:       position.Position,
 			FundingPayment: position.FundingPayment,
 		}

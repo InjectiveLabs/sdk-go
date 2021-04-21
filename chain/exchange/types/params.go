@@ -25,6 +25,9 @@ const (
 
 	// DerivativeMarketInstantListingFee is 1000 INJ
 	DerivativeMarketInstantListingFee int64 = 1000
+
+	DefaultMaxPriceScaleDecimals    = 8
+	DefaultMaxQuantityScaleDecimals = 8
 )
 
 // Parameter keys

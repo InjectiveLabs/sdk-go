@@ -264,7 +264,7 @@ func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
 	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
 	}
-	if msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
+	if msg.Order.TriggerPrice != nil && msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.TriggerPrice.String())
 	}
 
@@ -321,7 +321,7 @@ func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
 	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
 	}
-	if msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
+	if msg.Order.TriggerPrice != nil && msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Order.TriggerPrice.String())
 	}
 

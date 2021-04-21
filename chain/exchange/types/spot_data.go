@@ -273,7 +273,7 @@ func getSpotMarketOrderStateExpansion(
 		FeeRecipient:       common.HexToAddress(marketOrder.OrderInfo.FeeRecipient),
 		FeeRecipientReward: feeRecipientReward,
 		AuctionFeeReward:   auctionFeeReward,
-		OrderHash:          common.HexToHash(marketOrder.OrderHash),
+		OrderHash:          common.BytesToHash(marketOrder.OrderHash),
 		SubaccountID:       marketOrder.SubaccountID(),
 		FillableAmount:     marketOrder.OrderInfo.Quantity.Sub(fillQuantity),
 	}
