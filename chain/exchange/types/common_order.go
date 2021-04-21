@@ -135,12 +135,3 @@ func (m *OrderType) UnmarshalJSON(data []byte) error {
 	*m = OrderType(value)
 	return nil
 }
-
-func (m *Direction) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(Direction_value, data, "Direction")
-	if err != nil {
-		return err
-	}
-	*m = Direction(value)
-	return nil
-}

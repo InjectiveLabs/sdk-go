@@ -445,8 +445,8 @@ var _ = Describe("Msgs", func() {
 						Price:        sdk.NewDec(137),
 						Quantity:     sdk.NewDec(24),
 					},
-					OrderType:    0,
-					TriggerPrice: dec,
+					OrderType:    types.OrderType_BUY,
+					TriggerPrice: &dec,
 				},
 			}
 
@@ -579,7 +579,7 @@ var _ = Describe("Msgs", func() {
 				Expect(err.Error()).To(Equal(expectedError))
 			})
 			It("should be invalid with key not found error when OrderType is greater than 5", func() {
-				msg.Order.OrderType = 6
+				msg.Order.OrderType = 7
 				err := msg.ValidateBasic()
 
 				expectedError := string(msg.Order.OrderType) + ": " + ErrUnrecognizedOrderType.Error()
@@ -590,7 +590,7 @@ var _ = Describe("Msgs", func() {
 		Context("With negative TriggerPrice field", func() {
 			It("should be invalid with invalid coins error when TriggerPrice is smaller than 0", func() {
 				minusDec := sdk.NewDec(-1)
-				msg.Order.TriggerPrice = minusDec
+				msg.Order.TriggerPrice = &minusDec
 				err := msg.ValidateBasic()
 
 				expectedError := msg.Order.TriggerPrice.String() + ": " + sdkerrors.ErrInvalidCoins.Error()
@@ -619,8 +619,8 @@ var _ = Describe("Msgs", func() {
 						Price:        sdk.ZeroDec(),
 						Quantity:     sdk.NewDec(24),
 					},
-					OrderType:    0,
-					TriggerPrice: dec,
+					OrderType:    types.OrderType_BUY,
+					TriggerPrice: &dec,
 				},
 			}
 
@@ -746,7 +746,7 @@ var _ = Describe("Msgs", func() {
 				Expect(err.Error()).To(Equal(expectedError))
 			})
 			It("should be invalid with key not found error when OrderType is greater than 5", func() {
-				msg.Order.OrderType = 6
+				msg.Order.OrderType = 7
 				err := msg.ValidateBasic()
 
 				expectedError := string(msg.Order.OrderType) + ": " + ErrUnrecognizedOrderType.Error()
@@ -757,7 +757,7 @@ var _ = Describe("Msgs", func() {
 		Context("With negative TriggerPrice field", func() {
 			It("should be invalid with invalid coins error when TriggerPrice is smaller than 0", func() {
 				minusDec := sdk.NewDec(-1)
-				msg.Order.TriggerPrice = minusDec
+				msg.Order.TriggerPrice = &minusDec
 				err := msg.ValidateBasic()
 
 				expectedError := msg.Order.TriggerPrice.String() + ": " + sdkerrors.ErrInvalidCoins.Error()

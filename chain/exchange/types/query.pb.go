@@ -484,7 +484,7 @@ func (m *QuerySpotMarketsRequest) GetStatus() MarketStatus {
 	if m != nil {
 		return m.Status
 	}
-	return MarketStatus_Active
+	return MarketStatus_Unspecified
 }
 
 // QuerySpotMarketsResponse is the response type for the Query/SpotMarkets RPC method.
@@ -666,7 +666,7 @@ func (m *QueryDerivativeMarketsRequest) GetStatus() MarketStatus {
 	if m != nil {
 		return m.Status
 	}
-	return MarketStatus_Active
+	return MarketStatus_Unspecified
 }
 
 // QueryDerivativeMarketsResponse is the response type for the Query/DerivativeMarkets RPC method.

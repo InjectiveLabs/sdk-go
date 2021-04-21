@@ -261,7 +261,7 @@ func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
 	if msg.Order.MarketId == "" {
 		return sdkerrors.Wrap(ErrMarketInvalid, msg.Order.MarketId)
 	}
-	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
+	if msg.Order.OrderType <= 0 || msg.Order.OrderType > 6 {
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
 	}
 	if msg.Order.TriggerPrice != nil && msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
@@ -318,7 +318,7 @@ func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
 	if msg.Order.MarketId == "" {
 		return sdkerrors.Wrap(ErrMarketInvalid, msg.Order.MarketId)
 	}
-	if msg.Order.OrderType < 0 || msg.Order.OrderType > 5 {
+	if msg.Order.OrderType <= 0 || msg.Order.OrderType > 6 {
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
 	}
 	if msg.Order.TriggerPrice != nil && msg.Order.TriggerPrice.LT(sdk.ZeroDec()) {
