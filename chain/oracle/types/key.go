@@ -17,8 +17,9 @@ var (
 	BandRelayerKey = []byte{0x02}
 
 	// Keys for pricefeeder store prefixes
-	PricefeedPriceKey   = []byte{0x11}
-	PricefeedRelayerKey = []byte{0x12}
+	PricefeedInfoKey    = []byte{0x11}
+	PricefeedPriceKey   = []byte{0x12}
+	PricefeedRelayerKey = []byte{0x13}
 )
 
 func GetBandRefStoreKey(symbol string) []byte {
@@ -33,8 +34,8 @@ func GetBaseQuoteHash(oracleBase, oracleQuote string) common.Hash {
 	return crypto.Keccak256Hash([]byte(oracleBase + oracleQuote))
 }
 
-func GetPriceFeedPriceStoreKeyFromBaseQuote(oracleBase, oracleQuote string) []byte {
-	return GetPriceFeedPriceStoreKey(GetBaseQuoteHash(oracleBase, oracleQuote))
+func GetPriceFeedInfoKey(priceFeedInfo *PriceFeedInfo) []byte {
+	return append(PricefeedInfoKey, GetBaseQuoteHash(priceFeedInfo.Base, priceFeedInfo.Quote).Bytes()...)
 }
 
 func GetPriceFeedPriceStoreKey(baseQuoteHash common.Hash) []byte {

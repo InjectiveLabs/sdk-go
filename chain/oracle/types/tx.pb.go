@@ -30,7 +30,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgSetPrice defines a SDK message for for creating an oracle
+// MsgSetPrice defines a SDK message for setting a price through the pricefeed oracle.
 type MsgSetPriceFeederPrice struct {
 	Sender string   `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 	Base   []string `protobuf:"bytes,2,rep,name=base,proto3" json:"base,omitempty"`
@@ -220,47 +220,129 @@ func (m *MsgRelayResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRelayResponse proto.InternalMessageInfo
 
+// MsgRelayCoinbaseMessages defines a SDK message for relaying price messages from Coinbase API.
+type MsgRelayCoinbaseMessages struct {
+	Sender     string   `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	Messages   [][]byte `protobuf:"bytes,2,rep,name=messages,proto3" json:"messages,omitempty"`
+	Signatures [][]byte `protobuf:"bytes,3,rep,name=signatures,proto3" json:"signatures,omitempty"`
+}
+
+func (m *MsgRelayCoinbaseMessages) Reset()         { *m = MsgRelayCoinbaseMessages{} }
+func (m *MsgRelayCoinbaseMessages) String() string { return proto.CompactTextString(m) }
+func (*MsgRelayCoinbaseMessages) ProtoMessage()    {}
+func (*MsgRelayCoinbaseMessages) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5fdf1c490eba4310, []int{4}
+}
+func (m *MsgRelayCoinbaseMessages) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRelayCoinbaseMessages) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRelayCoinbaseMessages.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRelayCoinbaseMessages) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRelayCoinbaseMessages.Merge(m, src)
+}
+func (m *MsgRelayCoinbaseMessages) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRelayCoinbaseMessages) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRelayCoinbaseMessages.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRelayCoinbaseMessages proto.InternalMessageInfo
+
+type MsgRelayCoinbaseMessagesResponse struct {
+}
+
+func (m *MsgRelayCoinbaseMessagesResponse) Reset()         { *m = MsgRelayCoinbaseMessagesResponse{} }
+func (m *MsgRelayCoinbaseMessagesResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgRelayCoinbaseMessagesResponse) ProtoMessage()    {}
+func (*MsgRelayCoinbaseMessagesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5fdf1c490eba4310, []int{5}
+}
+func (m *MsgRelayCoinbaseMessagesResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRelayCoinbaseMessagesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRelayCoinbaseMessagesResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRelayCoinbaseMessagesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRelayCoinbaseMessagesResponse.Merge(m, src)
+}
+func (m *MsgRelayCoinbaseMessagesResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRelayCoinbaseMessagesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRelayCoinbaseMessagesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRelayCoinbaseMessagesResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgSetPriceFeederPrice)(nil), "injective.oracle.v1beta1.MsgSetPriceFeederPrice")
 	proto.RegisterType((*MsgSetPriceFeederPriceResponse)(nil), "injective.oracle.v1beta1.MsgSetPriceFeederPriceResponse")
 	proto.RegisterType((*MsgRelay)(nil), "injective.oracle.v1beta1.MsgRelay")
 	proto.RegisterType((*MsgRelayResponse)(nil), "injective.oracle.v1beta1.MsgRelayResponse")
+	proto.RegisterType((*MsgRelayCoinbaseMessages)(nil), "injective.oracle.v1beta1.MsgRelayCoinbaseMessages")
+	proto.RegisterType((*MsgRelayCoinbaseMessagesResponse)(nil), "injective.oracle.v1beta1.MsgRelayCoinbaseMessagesResponse")
 }
 
 func init() { proto.RegisterFile("injective/oracle/v1beta1/tx.proto", fileDescriptor_5fdf1c490eba4310) }
 
 var fileDescriptor_5fdf1c490eba4310 = []byte{
-	// 466 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0x31, 0x6f, 0xd3, 0x40,
-	0x14, 0xf6, 0x91, 0xa4, 0xb4, 0x4f, 0x20, 0xa1, 0xa3, 0xaa, 0xac, 0x0c, 0x97, 0x60, 0x04, 0xaa,
-	0x90, 0xea, 0xa3, 0xb0, 0x20, 0xc6, 0x2a, 0x42, 0xaa, 0xd4, 0x48, 0xc8, 0x20, 0x21, 0xb1, 0x20,
-	0xdb, 0x79, 0xb8, 0x06, 0xdb, 0x97, 0xde, 0xbb, 0x44, 0x64, 0x64, 0x63, 0x64, 0x65, 0xeb, 0xcc,
-	0x2f, 0xe9, 0xd8, 0x11, 0x31, 0x54, 0x28, 0x59, 0xf8, 0x19, 0xc8, 0x67, 0x3b, 0x64, 0x48, 0x40,
-	0x9d, 0xfc, 0xbe, 0x77, 0xdf, 0x7d, 0xf7, 0xbe, 0xe7, 0x0f, 0xee, 0xa5, 0xc5, 0x07, 0x8c, 0x4d,
-	0x3a, 0x45, 0xa9, 0x74, 0x18, 0x67, 0x28, 0xa7, 0x87, 0x11, 0x9a, 0xf0, 0x50, 0x9a, 0x4f, 0xfe,
-	0x58, 0x2b, 0xa3, 0xb8, 0xbb, 0xa4, 0xf8, 0x15, 0xc5, 0xaf, 0x29, 0xdd, 0xdd, 0x44, 0x25, 0xca,
-	0x92, 0x64, 0x59, 0x55, 0xfc, 0xae, 0x88, 0x15, 0xe5, 0x8a, 0x64, 0x14, 0xd2, 0x5f, 0xb5, 0x58,
-	0xa5, 0x45, 0x7d, 0xfe, 0x60, 0xe3, 0x93, 0xb5, 0xbc, 0xa5, 0x79, 0xdf, 0x19, 0xec, 0x0d, 0x29,
-	0x79, 0x85, 0xe6, 0xa5, 0x4e, 0x63, 0x7c, 0x81, 0x38, 0x42, 0x6d, 0x4b, 0xbe, 0x07, 0x5b, 0x84,
-	0xc5, 0x08, 0xb5, 0xcb, 0xfa, 0x6c, 0x7f, 0x27, 0xa8, 0x11, 0xe7, 0xd0, 0x2e, 0x1f, 0x75, 0x6f,
-	0xf4, 0x5b, 0xfb, 0x3b, 0x81, 0xad, 0xf9, 0x2e, 0x74, 0xce, 0x26, 0xca, 0xa0, 0xdb, 0xb2, 0xcd,
-	0x0a, 0xf0, 0x01, 0x74, 0xc6, 0xa5, 0x94, 0xdb, 0x2e, 0xbb, 0x47, 0xfe, 0xc5, 0x55, 0xcf, 0xf9,
-	0x79, 0xd5, 0x7b, 0x98, 0xa4, 0xe6, 0x74, 0x12, 0xf9, 0xb1, 0xca, 0x65, 0xed, 0xa2, 0xfa, 0x1c,
-	0xd0, 0xe8, 0xa3, 0x34, 0xb3, 0x31, 0x92, 0x3f, 0xc0, 0x38, 0xa8, 0x2e, 0x3f, 0xdf, 0xfe, 0x72,
-	0xde, 0x73, 0x7e, 0x9f, 0xf7, 0x1c, 0xaf, 0x0f, 0x62, 0xfd, 0xac, 0x01, 0xd2, 0x58, 0x15, 0x84,
-	0xde, 0x37, 0x06, 0xdb, 0x43, 0x4a, 0x02, 0xcc, 0xc2, 0x19, 0x77, 0xe1, 0xa6, 0x2e, 0x8b, 0xa5,
-	0x83, 0x06, 0x96, 0x27, 0x34, 0xcb, 0x23, 0x95, 0x51, 0xed, 0xa2, 0x81, 0xa5, 0x11, 0x1d, 0x1a,
-	0x24, 0x6b, 0xa4, 0x1d, 0x54, 0x80, 0xdf, 0x87, 0xdb, 0x1a, 0x49, 0x65, 0x53, 0x7c, 0x67, 0xd2,
-	0x1c, 0xc9, 0x1a, 0x6a, 0x07, 0xb7, 0xea, 0xe6, 0xeb, 0xb2, 0xc7, 0x05, 0x80, 0xc6, 0xb3, 0x09,
-	0x92, 0x39, 0x1e, 0x90, 0xdb, 0xb1, 0x8c, 0x95, 0x8e, 0xc7, 0xe1, 0x4e, 0x33, 0x5a, 0x33, 0xef,
-	0x93, 0x39, 0x83, 0xd6, 0x90, 0x12, 0xfe, 0x99, 0xc1, 0xdd, 0x75, 0xff, 0xe0, 0xb1, 0xbf, 0x29,
-	0x16, 0xfe, 0xfa, 0x4d, 0x74, 0x9f, 0x5d, 0xf7, 0x46, 0x33, 0x0b, 0x7f, 0x03, 0x9d, 0x6a, 0x6f,
-	0xde, 0x3f, 0x25, 0x2c, 0xa7, 0xfb, 0xe8, 0xff, 0x9c, 0x46, 0xf8, 0xe8, 0xfd, 0xc5, 0x5c, 0xb0,
-	0xcb, 0xb9, 0x60, 0xbf, 0xe6, 0x82, 0x7d, 0x5d, 0x08, 0xe7, 0x72, 0x21, 0x9c, 0x1f, 0x0b, 0xe1,
-	0xbc, 0x3d, 0x59, 0x49, 0xc2, 0x71, 0xa3, 0x77, 0x12, 0x46, 0x24, 0x97, 0xea, 0x07, 0xb1, 0xd2,
-	0xb8, 0x0a, 0x4f, 0xc3, 0xb4, 0x90, 0xb9, 0x1a, 0x4d, 0x32, 0xa4, 0x26, 0xda, 0x36, 0x33, 0xd1,
-	0x96, 0x8d, 0xf4, 0xd3, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0xf7, 0x1f, 0x44, 0x0b, 0x6e, 0x03,
-	0x00, 0x00,
+	// 537 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0xbf, 0x6f, 0xd3, 0x50,
+	0x10, 0xb6, 0x9b, 0xa4, 0xa4, 0xa7, 0x20, 0xa1, 0x47, 0xa9, 0x2c, 0x0f, 0x4e, 0x30, 0x02, 0x55,
+	0x48, 0xb5, 0x69, 0x59, 0x50, 0xc7, 0x12, 0x21, 0x55, 0x6a, 0x24, 0x64, 0x90, 0x90, 0x58, 0x90,
+	0xed, 0x1c, 0xae, 0x21, 0xf6, 0x4b, 0xdf, 0xbd, 0x44, 0xcd, 0xc8, 0x04, 0x23, 0x2b, 0x5b, 0x67,
+	0xfe, 0x92, 0x8e, 0x1d, 0x11, 0x43, 0x85, 0x92, 0x85, 0x81, 0x3f, 0x02, 0xf9, 0xf9, 0x07, 0x16,
+	0x4a, 0x5a, 0x75, 0xf2, 0xdd, 0xbd, 0xef, 0xbe, 0xfb, 0xbe, 0xf7, 0xc3, 0x70, 0x3f, 0x4e, 0x3f,
+	0x60, 0x28, 0xe3, 0x29, 0xba, 0x5c, 0xf8, 0xe1, 0x08, 0xdd, 0xe9, 0x6e, 0x80, 0xd2, 0xdf, 0x75,
+	0xe5, 0xa9, 0x33, 0x16, 0x5c, 0x72, 0x66, 0x54, 0x10, 0x27, 0x87, 0x38, 0x05, 0xc4, 0xdc, 0x8c,
+	0x78, 0xc4, 0x15, 0xc8, 0xcd, 0xa2, 0x1c, 0x6f, 0x5a, 0x21, 0xa7, 0x84, 0x93, 0x1b, 0xf8, 0xf4,
+	0x8f, 0x2d, 0xe4, 0x71, 0x5a, 0xac, 0x3f, 0x5c, 0x39, 0xb2, 0xa0, 0x57, 0x30, 0xfb, 0xbb, 0x0e,
+	0x5b, 0x03, 0x8a, 0x5e, 0xa1, 0x7c, 0x29, 0xe2, 0x10, 0x5f, 0x20, 0x0e, 0x51, 0xa8, 0x90, 0x6d,
+	0xc1, 0x3a, 0x61, 0x3a, 0x44, 0x61, 0xe8, 0x3d, 0x7d, 0x7b, 0xc3, 0x2b, 0x32, 0xc6, 0xa0, 0x99,
+	0x0d, 0x35, 0xd6, 0x7a, 0x8d, 0xed, 0x0d, 0x4f, 0xc5, 0x6c, 0x13, 0x5a, 0x27, 0x13, 0x2e, 0xd1,
+	0x68, 0xa8, 0x62, 0x9e, 0xb0, 0x3e, 0xb4, 0xc6, 0x19, 0x95, 0xd1, 0xcc, 0xaa, 0x07, 0xce, 0xf9,
+	0x65, 0x57, 0xfb, 0x79, 0xd9, 0x7d, 0x14, 0xc5, 0xf2, 0x78, 0x12, 0x38, 0x21, 0x4f, 0xdc, 0xc2,
+	0x45, 0xfe, 0xd9, 0xa1, 0xe1, 0x47, 0x57, 0xce, 0xc6, 0x48, 0x4e, 0x1f, 0x43, 0x2f, 0x6f, 0xde,
+	0x6f, 0x7f, 0x39, 0xeb, 0x6a, 0xbf, 0xcf, 0xba, 0x9a, 0xdd, 0x03, 0x6b, 0xb9, 0x56, 0x0f, 0x69,
+	0xcc, 0x53, 0x42, 0xfb, 0x9b, 0x0e, 0xed, 0x01, 0x45, 0x1e, 0x8e, 0xfc, 0x19, 0x33, 0xe0, 0x96,
+	0xc8, 0x82, 0xca, 0x41, 0x99, 0x66, 0x2b, 0x34, 0x4b, 0x02, 0x3e, 0xa2, 0xc2, 0x45, 0x99, 0x66,
+	0x46, 0x84, 0x2f, 0x91, 0x94, 0x91, 0xa6, 0x97, 0x27, 0xec, 0x01, 0xdc, 0x16, 0x48, 0x7c, 0x34,
+	0xc5, 0x77, 0x32, 0x4e, 0x90, 0x94, 0xa1, 0xa6, 0xd7, 0x29, 0x8a, 0xaf, 0xb3, 0x1a, 0xb3, 0x00,
+	0x04, 0x9e, 0x4c, 0x90, 0xe4, 0x61, 0x9f, 0x8c, 0x96, 0x42, 0xd4, 0x2a, 0x36, 0x83, 0x3b, 0xa5,
+	0xb4, 0x4a, 0xef, 0x29, 0x18, 0x65, 0xed, 0x39, 0x8f, 0xd3, 0x6c, 0x2f, 0x07, 0x48, 0xe4, 0x47,
+	0x48, 0x2b, 0xf7, 0xdf, 0x84, 0x76, 0x52, 0x60, 0x94, 0xfa, 0x8e, 0x57, 0xe5, 0x99, 0x06, 0x8a,
+	0xa3, 0xd4, 0x97, 0x13, 0x51, 0x78, 0xe8, 0x78, 0xb5, 0x4a, 0x6d, 0x2f, 0x6d, 0xe8, 0xad, 0x9a,
+	0x5c, 0xaa, 0xdb, 0xfb, 0xb3, 0x06, 0x8d, 0x01, 0x45, 0xec, 0x93, 0x0e, 0x77, 0x97, 0xdd, 0x90,
+	0x27, 0xce, 0xaa, 0x4b, 0xeb, 0x2c, 0x3f, 0x27, 0xf3, 0xd9, 0x4d, 0x3b, 0x4a, 0x2d, 0xec, 0x0d,
+	0xb4, 0xf2, 0x53, 0xb5, 0xaf, 0xa4, 0x50, 0x18, 0xf3, 0xf1, 0xf5, 0x98, 0x8a, 0xf8, 0xb3, 0x0e,
+	0xf7, 0x96, 0x1f, 0xc0, 0xde, 0xf5, 0x2c, 0xff, 0xf7, 0x98, 0xfb, 0x37, 0xef, 0x29, 0x95, 0x1c,
+	0xbc, 0x3f, 0x9f, 0x5b, 0xfa, 0xc5, 0xdc, 0xd2, 0x7f, 0xcd, 0x2d, 0xfd, 0xeb, 0xc2, 0xd2, 0x2e,
+	0x16, 0x96, 0xf6, 0x63, 0x61, 0x69, 0x6f, 0x8f, 0x6a, 0x2f, 0xe6, 0xb0, 0xe4, 0x3f, 0xf2, 0x03,
+	0x72, 0xab, 0x69, 0x3b, 0x21, 0x17, 0x58, 0x4f, 0x8f, 0xfd, 0x38, 0x75, 0x13, 0x3e, 0x9c, 0x8c,
+	0x90, 0xca, 0x5f, 0x80, 0x7a, 0x5b, 0xc1, 0xba, 0x7a, 0xfa, 0x4f, 0xff, 0x06, 0x00, 0x00, 0xff,
+	0xff, 0xa5, 0x67, 0xa3, 0xf3, 0x96, 0x04, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -279,6 +361,8 @@ type MsgClient interface {
 	SetPriceFeederPrice(ctx context.Context, in *MsgSetPriceFeederPrice, opts ...grpc.CallOption) (*MsgSetPriceFeederPriceResponse, error)
 	// Relay defines a method for relaying rates from Band
 	Relay(ctx context.Context, in *MsgRelay, opts ...grpc.CallOption) (*MsgRelayResponse, error)
+	// RelayCoinbaseMessages defines a method for relaying price messages from Coinbase API
+	RelayCoinbaseMessages(ctx context.Context, in *MsgRelayCoinbaseMessages, opts ...grpc.CallOption) (*MsgRelayCoinbaseMessagesResponse, error)
 }
 
 type msgClient struct {
@@ -307,12 +391,23 @@ func (c *msgClient) Relay(ctx context.Context, in *MsgRelay, opts ...grpc.CallOp
 	return out, nil
 }
 
+func (c *msgClient) RelayCoinbaseMessages(ctx context.Context, in *MsgRelayCoinbaseMessages, opts ...grpc.CallOption) (*MsgRelayCoinbaseMessagesResponse, error) {
+	out := new(MsgRelayCoinbaseMessagesResponse)
+	err := c.cc.Invoke(ctx, "/injective.oracle.v1beta1.Msg/RelayCoinbaseMessages", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// SetPriceFeederPrice defines a method for setting a price for a price feeder-based oracle
 	SetPriceFeederPrice(context.Context, *MsgSetPriceFeederPrice) (*MsgSetPriceFeederPriceResponse, error)
 	// Relay defines a method for relaying rates from Band
 	Relay(context.Context, *MsgRelay) (*MsgRelayResponse, error)
+	// RelayCoinbaseMessages defines a method for relaying price messages from Coinbase API
+	RelayCoinbaseMessages(context.Context, *MsgRelayCoinbaseMessages) (*MsgRelayCoinbaseMessagesResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -324,6 +419,9 @@ func (*UnimplementedMsgServer) SetPriceFeederPrice(ctx context.Context, req *Msg
 }
 func (*UnimplementedMsgServer) Relay(ctx context.Context, req *MsgRelay) (*MsgRelayResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Relay not implemented")
+}
+func (*UnimplementedMsgServer) RelayCoinbaseMessages(ctx context.Context, req *MsgRelayCoinbaseMessages) (*MsgRelayCoinbaseMessagesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RelayCoinbaseMessages not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -366,6 +464,24 @@ func _Msg_Relay_Handler(srv interface{}, ctx context.Context, dec func(interface
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_RelayCoinbaseMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgRelayCoinbaseMessages)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).RelayCoinbaseMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.oracle.v1beta1.Msg/RelayCoinbaseMessages",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).RelayCoinbaseMessages(ctx, req.(*MsgRelayCoinbaseMessages))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.oracle.v1beta1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -377,6 +493,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Relay",
 			Handler:    _Msg_Relay_Handler,
+		},
+		{
+			MethodName: "RelayCoinbaseMessages",
+			Handler:    _Msg_RelayCoinbaseMessages_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -584,6 +704,77 @@ func (m *MsgRelayResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *MsgRelayCoinbaseMessages) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRelayCoinbaseMessages) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRelayCoinbaseMessages) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signatures) > 0 {
+		for iNdEx := len(m.Signatures) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Signatures[iNdEx])
+			copy(dAtA[i:], m.Signatures[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.Signatures[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Messages) > 0 {
+		for iNdEx := len(m.Messages) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Messages[iNdEx])
+			copy(dAtA[i:], m.Messages[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.Messages[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Sender) > 0 {
+		i -= len(m.Sender)
+		copy(dAtA[i:], m.Sender)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Sender)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgRelayCoinbaseMessagesResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRelayCoinbaseMessagesResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRelayCoinbaseMessagesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -676,6 +867,40 @@ func (m *MsgRelay) Size() (n int) {
 }
 
 func (m *MsgRelayResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgRelayCoinbaseMessages) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Sender)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Messages) > 0 {
+		for _, b := range m.Messages {
+			l = len(b)
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	if len(m.Signatures) > 0 {
+		for _, b := range m.Signatures {
+			l = len(b)
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgRelayCoinbaseMessagesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1291,6 +1516,202 @@ func (m *MsgRelayResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgRelayResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgRelayCoinbaseMessages) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRelayCoinbaseMessages: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRelayCoinbaseMessages: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Sender = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Messages", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Messages = append(m.Messages, make([]byte, postIndex-iNdEx))
+			copy(m.Messages[len(m.Messages)-1], dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signatures", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signatures = append(m.Signatures, make([]byte, postIndex-iNdEx))
+			copy(m.Signatures[len(m.Signatures)-1], dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgRelayCoinbaseMessagesResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRelayCoinbaseMessagesResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRelayCoinbaseMessagesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

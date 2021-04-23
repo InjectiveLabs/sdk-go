@@ -14,20 +14,28 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSetPriceFeederPrice{}, "oracle/MsgSetPriceFeederPrice", nil)
 	cdc.RegisterConcrete(&MsgRelay{}, "oracle/MsgRelay", nil)
+	cdc.RegisterConcrete(&MsgRelayCoinbaseMessages{}, "oracle/MsgRelayCoinbaseMessages", nil)
+
+
+	cdc.RegisterConcrete(&GrantBandOraclePrivilegeProposal{}, "oracle/GrantBandOraclePrivilegeProposal", nil)
+	cdc.RegisterConcrete(&RevokeBandOraclePrivilegeProposal{}, "oracle/RevokeBandOraclePrivilegeProposal", nil)
+	cdc.RegisterConcrete(&GrantPriceFeederPrivilegeProposal{}, "oracle/GrantPriceFeederPrivilegeProposal", nil)
+	cdc.RegisterConcrete(&RevokePriceFeederPrivilegeProposal{}, "oracle/RevokePriceFeederPrivilegeProposal", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgSetPriceFeederPrice{},
 		&MsgRelay{},
+		&MsgRelayCoinbaseMessages{},
 	)
 
 	registry.RegisterImplementations(
 		(*govtypes.Content)(nil),
 		&GrantBandOraclePrivilegeProposal{},
 		&RevokeBandOraclePrivilegeProposal{},
-		&GrantBandOraclePrivilegeProposal{},
-		&RevokeBandOraclePrivilegeProposal{},
+		&GrantPriceFeederPrivilegeProposal{},
+		&RevokePriceFeederPrivilegeProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
