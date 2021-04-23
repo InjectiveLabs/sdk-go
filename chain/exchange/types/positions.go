@@ -132,6 +132,7 @@ func (p *Position) GetUpdatedPositionState(funding *PerpetualMarketFunding) *Pos
 func (p *Position) GetAverageWeightedEntryPrice(executionQuantity, executionPrice sdk.Dec) sdk.Dec {
 	num := p.Quantity.Mul(p.EntryPrice).Add(executionQuantity.Mul(executionPrice))
 	denom := p.Quantity.Add(executionQuantity)
+
 	return num.Quo(denom)
 }
 
@@ -151,9 +152,9 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradeFeeRate sdk.Dec
 	isNettingInSameDirection := (p.IsLong && delta.IsLong) || (p.IsShort() && delta.IsShort())
 
 	if isNettingInSameDirection {
+		p.EntryPrice = p.GetAverageWeightedEntryPrice(delta.ExecutionQuantity, delta.ExecutionPrice)
 		p.Quantity = p.Quantity.Add(delta.ExecutionQuantity)
 		p.Margin = p.Margin.Add(delta.ExecutionMargin)
-		p.EntryPrice = p.GetAverageWeightedEntryPrice(delta.ExecutionQuantity, delta.ExecutionPrice)
 		collateralizationMargin = delta.ExecutionMargin
 
 		return payout, closeExecutionMargin, collateralizationMargin

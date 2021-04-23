@@ -100,14 +100,14 @@ func (e *DerivativeMatchingExpansionData) GetDerivativeLimitOrderBatchExecution(
 	depositDeltas := NewDepositDeltas()
 
 	// process undermargined resting limit order forced cancellations
-	cancelLimitOrdersEvents := e.GetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, depositDeltas, positionStates)
+	cancelLimitOrdersEvents := e.ApplyCancellationsAndGetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, depositDeltas, positionStates)
 
 	positionUpdateEvent, positions, positionSubaccountIDs := positionStates.GetPositionUpdateEvent(market.MarketID(), funding)
 
-	transientLimitBuyOrderBatchEvent, transientLimitBuyFilledDeltas := GetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitBuyExpansions, depositDeltas)
-	restingLimitBuyOrderBatchEvent, restingLimitBuyFilledDeltas := GetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitBuyExpansions, depositDeltas)
-	transientLimitSellOrderBatchEvent, transientLimitSellFilledDeltas := GetDerivativeOrderBatchEvent(false, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitSellExpansions, depositDeltas)
-	restingLimitSellOrderBatchEvent, restingLimitSellFilledDeltas := GetDerivativeOrderBatchEvent(false, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitSellExpansions, depositDeltas)
+	transientLimitBuyOrderBatchEvent, transientLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitBuyExpansions, depositDeltas)
+	restingLimitBuyOrderBatchEvent, restingLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitBuyExpansions, depositDeltas)
+	transientLimitSellOrderBatchEvent, transientLimitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitSellExpansions, depositDeltas)
+	restingLimitSellOrderBatchEvent, restingLimitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitSellExpansions, depositDeltas)
 
 	filledDeltas := mergeDerivativeLimitOrderFilledDeltas(transientLimitBuyFilledDeltas, restingLimitBuyFilledDeltas, transientLimitSellFilledDeltas, restingLimitSellFilledDeltas)
 
@@ -190,7 +190,7 @@ func applyDerivativeLimitCancellation(
 	}
 }
 
-func (e *DerivativeMatchingExpansionData) GetDerivativeLimitCancelEvents(
+func (e *DerivativeMatchingExpansionData) ApplyCancellationsAndGetDerivativeLimitCancelEvents(
 	marketID common.Hash,
 	makerFeeRate sdk.Dec,
 	depositDeltas DepositDeltas,
@@ -221,7 +221,7 @@ func (e *DerivativeMatchingExpansionData) GetDerivativeLimitCancelEvents(
 	return cancelOrdersEvent
 }
 
-func (e *DerivativeMarketOrderExpansionData) GetDerivativeLimitCancelEvents(
+func (e *DerivativeMarketOrderExpansionData) ApplyCancellationsAndGetDerivativeLimitCancelEvents(
 	marketID common.Hash,
 	makerFeeRate sdk.Dec,
 	depositDeltas DepositDeltas,
@@ -259,20 +259,18 @@ func (e *DerivativeMarketOrderExpansionData) GetDerivativeMarketOrderBatchExecut
 ) *DerivativeBatchExecutionData {
 	depositDeltas := NewDepositDeltas()
 
-	// TODO rename get event functions (they do more than just getting events)
-
 	// process undermargined limit order forced cancellations
-	cancelLimitOrdersEvents := e.GetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, depositDeltas, positionStates)
+	cancelLimitOrdersEvents := e.ApplyCancellationsAndGetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, depositDeltas, positionStates)
 
 	// process unfilled market order cancellations
 	cancelMarketOrdersEvents := e.GetDerivativeMarketCancelEvents(market.MarketID(), depositDeltas, positionStates)
 
 	positionUpdateEvent, positions, positionSubaccountIDs := positionStates.GetPositionUpdateEvent(market.MarketID(), funding)
 
-	buyMarketOrderBatchEvent, _ := GetDerivativeOrderBatchEvent(true, ExecutionType_Market, market, funding, e.MarketBuyExpansions, depositDeltas)
-	sellMarketOrderBatchEvent, _ := GetDerivativeOrderBatchEvent(false, ExecutionType_Market, market, funding, e.MarketSellExpansions, depositDeltas)
-	restingLimitBuyOrderBatchEvent, limitBuyFilledDeltas := GetDerivativeOrderBatchEvent(true, ExecutionType_LimitFill, market, funding, e.LimitBuyExpansions, depositDeltas)
-	restingLimitSellOrderBatchEvent, limitSellFilledDeltas := GetDerivativeOrderBatchEvent(false, ExecutionType_LimitFill, market, funding, e.LimitSellExpansions, depositDeltas)
+	buyMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_Market, market, funding, e.MarketBuyExpansions, depositDeltas)
+	sellMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_Market, market, funding, e.MarketSellExpansions, depositDeltas)
+	restingLimitBuyOrderBatchEvent, limitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitFill, market, funding, e.LimitBuyExpansions, depositDeltas)
+	restingLimitSellOrderBatchEvent, limitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitFill, market, funding, e.LimitSellExpansions, depositDeltas)
 
 	filledDeltas := mergeDerivativeLimitOrderFilledDeltas(limitBuyFilledDeltas, limitSellFilledDeltas, nil, nil)
 

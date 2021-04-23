@@ -285,9 +285,18 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 }
 
 // NewPerpetualMarketLaunchProposal returns new instance of PerpetualMarketLaunchProposal
-func NewPerpetualMarketLaunchProposal(title, description, ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *PerpetualMarketLaunchProposal {
+func NewPerpetualMarketLaunchProposal(title, description, ticker, quoteDenom, oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
-		title, description, ticker, quoteDenom, oracleBase, oracleQuote, oracleType, maxPriceScaleDecimals, maxQuantityScaleDecimals,
+		Title:                    title,
+		Description:              description,
+		Ticker:                   ticker,
+		QuoteDenom:               quoteDenom,
+		OracleBase:               oracleBase,
+		OracleQuote:              oracleQuote,
+		OracleScaleFactor:        oracleScaleFactor,
+		OracleType:               oracleType,
+		MaxPriceScaleDecimals:    maxPriceScaleDecimals,
+		MaxQuantityScaleDecimals: maxQuantityScaleDecimals,
 	}
 }
 
@@ -321,9 +330,19 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 }
 
 // NewExpiryFuturesMarketLaunchProposal returns new instance of ExpiryFuturesMarketLaunchProposal
-func NewExpiryFuturesMarketLaunchProposal(title, description, ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, expiry int64, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *ExpiryFuturesMarketLaunchProposal {
+func NewExpiryFuturesMarketLaunchProposal(title, description, ticker, quoteDenom, oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, expiry int64, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
-		title, description, ticker, quoteDenom, oracleBase, oracleQuote, oracleType, expiry, maxPriceScaleDecimals, maxQuantityScaleDecimals,
+		Title:                    title,
+		Description:              description,
+		Ticker:                   ticker,
+		QuoteDenom:               quoteDenom,
+		OracleBase:               oracleBase,
+		OracleQuote:              oracleQuote,
+		OracleScaleFactor:        oracleScaleFactor,
+		OracleType:               oracleType,
+		Expiry:                   expiry,
+		MaxPriceScaleDecimals:    maxPriceScaleDecimals,
+		MaxQuantityScaleDecimals: maxQuantityScaleDecimals,
 	}
 }
 

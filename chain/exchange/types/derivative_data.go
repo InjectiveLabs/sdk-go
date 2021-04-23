@@ -26,7 +26,7 @@ type DerivativeOrderStateExpansion struct {
 	FillableAmount sdk.Dec
 }
 
-func GetDerivativeOrderBatchEvent(
+func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 	isBuy bool,
 	executionType ExecutionType,
 	market *DerivativeMarket,
@@ -92,7 +92,7 @@ func ProcessDerivativeMarketOrderStateExpansions(
 	stateExpansions := make([]*DerivativeOrderStateExpansion, len(marketOrders))
 	ordersToCancel := make([]*DerivativeMarketOrderCancel, 0, len(marketOrders))
 	for idx := range marketOrders {
-		stateExpansions[idx] = GetDerivativeMarketOrderStateExpansion(
+		stateExpansions[idx] = ApplyPositionDeltaAndGetDerivativeMarketOrderStateExpansion(
 			isMarketBuy,
 			marketOrders[idx],
 			positionStates,
@@ -111,7 +111,7 @@ func ProcessDerivativeMarketOrderStateExpansions(
 	return stateExpansions, ordersToCancel
 }
 
-func GetDerivativeMarketOrderStateExpansion(
+func ApplyPositionDeltaAndGetDerivativeMarketOrderStateExpansion(
 	isBuy bool,
 	order *DerivativeMarketOrder,
 	positionStates map[common.Hash]*PositionState,
