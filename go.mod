@@ -1,6 +1,6 @@
 module github.com/InjectiveLabs/sdk-go
 
-go 1.15
+go 1.16
 
 require (
 	github.com/allegro/bigcache v1.2.1 // indirect
