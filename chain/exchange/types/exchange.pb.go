@@ -318,7 +318,7 @@ func (m *DerivativeMarket) GetOracleType() types1.OracleType {
 	if m != nil {
 		return m.OracleType
 	}
-	return types1.OracleType_Band
+	return types1.OracleType_Unspecified
 }
 
 func (m *DerivativeMarket) GetOracleScaleFactor() uint32 {

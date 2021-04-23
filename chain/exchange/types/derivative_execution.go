@@ -114,11 +114,6 @@ func (e *DerivativeMatchingExpansionData) GetDerivativeLimitOrderBatchExecution(
 	// sort keys since map iteration is non-deterministic
 	depositDeltaKeys := depositDeltas.GetSortedSubaccountKeys()
 
-	newOrdersEvent := &EventNewDerivativeOrders{
-		MarketId:   market.MarketId,
-		BuyOrders:  e.NewRestingLimitBuyOrders,
-		SellOrders: e.NewRestingLimitSellOrders,
-	}
 	// Final Step: Store the DerivativeBatchExecutionData for future reduction/processing
 	batch := &DerivativeBatchExecutionData{
 		Market:                                market,
@@ -136,10 +131,19 @@ func (e *DerivativeMatchingExpansionData) GetDerivativeLimitOrderBatchExecution(
 		TransientLimitBuyOrderExecutionEvent:  transientLimitBuyOrderBatchEvent,
 		TransientLimitSellOrderExecutionEvent: transientLimitSellOrderBatchEvent,
 		PositionUpdateEvent:                   positionUpdateEvent,
-		NewOrdersEvent:                        newOrdersEvent,
+		NewOrdersEvent:                        nil,
 		CancelLimitOrderEvents:                cancelLimitOrdersEvents,
 		CancelMarketOrderEvents:               nil,
 	}
+
+	if len(e.NewRestingLimitBuyOrders) > 0 || len(e.NewRestingLimitSellOrders) > 0 {
+		batch.NewOrdersEvent = &EventNewDerivativeOrders{
+			MarketId:   market.MarketId,
+			BuyOrders:  e.NewRestingLimitBuyOrders,
+			SellOrders: e.NewRestingLimitSellOrders,
+		}
+	}
+
 	return batch
 }
 

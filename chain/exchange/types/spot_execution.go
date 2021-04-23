@@ -109,11 +109,14 @@ func GetSpotLimitMatchingBatchExecution(
 			limitBuyNewOrderBatchEvent,
 			limitSellNewOrderBatchEvent,
 		},
-		NewOrdersEvent: &EventNewSpotOrders{
+	}
+
+	if len(newRestingBuySpotLimitOrders) > 0 || len(newRestingSellSpotLimitOrders) > 0 {
+		batch.NewOrdersEvent = &EventNewSpotOrders{
 			MarketId:   market.MarketId,
 			BuyOrders:  newRestingBuySpotLimitOrders,
 			SellOrders: newRestingSellSpotLimitOrders,
-		},
+		}
 	}
 	return batch
 }
