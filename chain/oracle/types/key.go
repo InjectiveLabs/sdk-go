@@ -20,6 +20,8 @@ var (
 	PricefeedInfoKey    = []byte{0x11}
 	PricefeedPriceKey   = []byte{0x12}
 	PricefeedRelayerKey = []byte{0x13}
+
+	CoinbasePriceKey = []byte{0x21}
 )
 
 func GetBandRefStoreKey(symbol string) []byte {
@@ -48,4 +50,8 @@ func GetPricefeedRelayerStoreKey(oracleBase, oracleQuote string, relayer sdk.Acc
 
 func GetPricefeedRelayerStorePrefix(baseQuoteHash common.Hash) []byte {
 	return append(PricefeedRelayerKey, baseQuoteHash.Bytes()...)
+}
+
+func GetCoinbasePriceStoreKey(key string) []byte {
+	return append(CoinbasePriceKey, []byte(key)...)
 }

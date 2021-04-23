@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/gogo/protobuf/proto"
 	"strings"
@@ -30,4 +31,9 @@ func (o *OracleType) UnmarshalJSON(data []byte) error {
 	}
 	*o = OracleType(value)
 	return nil
+}
+
+func (c *CoinbasePriceData) GetDecPrice() sdk.Dec {
+	// price = price/10^6
+	return sdk.NewDec(int64(c.Value)).QuoTruncate(sdk.NewDec(10).Power(6))
 }
