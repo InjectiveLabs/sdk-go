@@ -160,8 +160,9 @@ func (e *DerivativeMarketOrderExpansionData) GetDerivativeMarketCancelEvents(
 		orderCancel := e.MarketBuyOrderCancels[idx]
 		orderCancel.ApplyDerivativeMarketCancellation(depositDeltas, positionStates)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
-			MarketId: marketIDHex,
-			Order:    &EventCancelDerivativeOrder_MarketOrderCancel{MarketOrderCancel: orderCancel},
+			MarketId:          marketIDHex,
+			IsLimitCancel:     false,
+			MarketOrderCancel: orderCancel,
 		})
 	}
 
@@ -169,8 +170,9 @@ func (e *DerivativeMarketOrderExpansionData) GetDerivativeMarketCancelEvents(
 		orderCancel := e.MarketSellOrderCancels[idx]
 		orderCancel.ApplyDerivativeMarketCancellation(depositDeltas, positionStates)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
-			MarketId: marketIDHex,
-			Order:    &EventCancelDerivativeOrder_MarketOrderCancel{MarketOrderCancel: orderCancel},
+			MarketId:          marketIDHex,
+			IsLimitCancel:     false,
+			MarketOrderCancel: orderCancel,
 		})
 	}
 	return cancelOrdersEvent
@@ -208,8 +210,9 @@ func (e *DerivativeMatchingExpansionData) ApplyCancellationsAndGetDerivativeLimi
 		order := e.RestingLimitBuyOrderCancels[idx]
 		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, positionStates)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
-			MarketId: marketIDHex,
-			Order:    &EventCancelDerivativeOrder_LimitOrder{LimitOrder: order},
+			MarketId:      marketIDHex,
+			IsLimitCancel: true,
+			LimitOrder:    order,
 		})
 	}
 
@@ -217,8 +220,9 @@ func (e *DerivativeMatchingExpansionData) ApplyCancellationsAndGetDerivativeLimi
 		order := e.RestingLimitSellOrderCancels[idx]
 		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, positionStates)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
-			MarketId: marketIDHex,
-			Order:    &EventCancelDerivativeOrder_LimitOrder{LimitOrder: order},
+			MarketId:      marketIDHex,
+			IsLimitCancel: true,
+			LimitOrder:    order,
 		})
 	}
 
@@ -238,8 +242,9 @@ func (e *DerivativeMarketOrderExpansionData) ApplyCancellationsAndGetDerivativeL
 		order := e.LimitBuyOrderCancels[idx]
 		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, positionStates)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
-			MarketId: marketIDHex,
-			Order:    &EventCancelDerivativeOrder_LimitOrder{LimitOrder: order},
+			MarketId:      marketIDHex,
+			IsLimitCancel: true,
+			LimitOrder:    order,
 		})
 	}
 
@@ -247,8 +252,9 @@ func (e *DerivativeMarketOrderExpansionData) ApplyCancellationsAndGetDerivativeL
 		order := e.LimitSellOrderCancels[idx]
 		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, positionStates)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
-			MarketId: marketIDHex,
-			Order:    &EventCancelDerivativeOrder_LimitOrder{LimitOrder: order},
+			MarketId:      marketIDHex,
+			IsLimitCancel: true,
+			LimitOrder:    order,
 		})
 	}
 
