@@ -13,8 +13,11 @@ import (
 
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
 
+	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
+	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 
@@ -41,6 +44,9 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
 	exchange.RegisterInterfaces(interfaceRegistry)
+	oracle.RegisterInterfaces(interfaceRegistry)
+	insurance.RegisterInterfaces(interfaceRegistry)
+	auction.RegisterInterfaces(interfaceRegistry)
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
@@ -76,6 +82,9 @@ func NewClientContext(
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
 	exchange.RegisterInterfaces(interfaceRegistry)
+	insurance.RegisterInterfaces(interfaceRegistry)
+	auction.RegisterInterfaces(interfaceRegistry)
+	oracle.RegisterInterfaces(interfaceRegistry)
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)

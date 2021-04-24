@@ -21,6 +21,8 @@ type OracleKeeper interface {
 	GetBandReferencePrice(ctx sdk.Context, base string, quote string) *sdk.Dec
 	// GetPriceFeedPrice fetches the price for a given pair in sdk.Dec
 	GetPriceFeedPrice(ctx sdk.Context, base string, quote string) *sdk.Dec
+	// GetCoinbasePrice fetches the price for a given pair in sdk.Dec
+	GetCoinbasePrice(ctx sdk.Context, base string, quote string) *sdk.Dec
 }
 
 // InsuranceKeeper defines the expected insurance keeper methods.
