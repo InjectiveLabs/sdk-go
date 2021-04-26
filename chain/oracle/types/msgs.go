@@ -8,19 +8,19 @@ import (
 const RouterKey = ModuleName
 
 var (
-	_ sdk.Msg = &MsgSetPriceFeederPrice{}
-	_ sdk.Msg = &MsgRelay{}
+	_ sdk.Msg = &MsgRelayPriceFeedPrice{}
+	_ sdk.Msg = &MsgRelayBandRates{}
 	_ sdk.Msg = &MsgRelayCoinbaseMessages{}
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgSetPriceFeederPrice) Route() string { return RouterKey }
+func (msg MsgRelayPriceFeedPrice) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgSetPriceFeederPrice) Type() string { return "msgSetPriceFeederPrice" }
+func (msg MsgRelayPriceFeedPrice) Type() string { return "msgRelayPriceFeedPrice" }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgSetPriceFeederPrice) ValidateBasic() error {
+func (msg MsgRelayPriceFeedPrice) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
@@ -38,12 +38,12 @@ func (msg MsgSetPriceFeederPrice) ValidateBasic() error {
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgSetPriceFeederPrice) GetSignBytes() []byte {
+func (msg *MsgRelayPriceFeedPrice) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgSetPriceFeederPrice) GetSigners() []sdk.AccAddress {
+func (msg MsgRelayPriceFeedPrice) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -52,13 +52,13 @@ func (msg MsgSetPriceFeederPrice) GetSigners() []sdk.AccAddress {
 }
 
 // Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgRelay) Route() string { return RouterKey }
+func (msg MsgRelayBandRates) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgRelay) Type() string { return "msgRelay" }
+func (msg MsgRelayBandRates) Type() string { return "msgRelayBandRates" }
 
 // ValidateBasic implements the sdk.Msg interface for MsgRelay.
-func (msg MsgRelay) ValidateBasic() error {
+func (msg MsgRelayBandRates) ValidateBasic() error {
 	if msg.Relayer == "" {
 		return ErrEmptyRelayerAddr
 	}
@@ -79,12 +79,12 @@ func (msg MsgRelay) ValidateBasic() error {
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgRelay) GetSignBytes() []byte {
+func (msg *MsgRelayBandRates) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgRelay) GetSigners() []sdk.AccAddress {
+func (msg MsgRelayBandRates) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Relayer)
 	if err != nil {
 		panic(err)

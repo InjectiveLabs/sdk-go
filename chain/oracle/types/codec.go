@@ -12,10 +12,9 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/oracle interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&MsgSetPriceFeederPrice{}, "oracle/MsgSetPriceFeederPrice", nil)
-	cdc.RegisterConcrete(&MsgRelay{}, "oracle/MsgRelay", nil)
+	cdc.RegisterConcrete(&MsgRelayPriceFeedPrice{}, "oracle/MsgRelayPriceFeedPrice", nil)
+	cdc.RegisterConcrete(&MsgRelayBandRates{}, "oracle/MsgRelayBandRates", nil)
 	cdc.RegisterConcrete(&MsgRelayCoinbaseMessages{}, "oracle/MsgRelayCoinbaseMessages", nil)
-
 
 	cdc.RegisterConcrete(&GrantBandOraclePrivilegeProposal{}, "oracle/GrantBandOraclePrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokeBandOraclePrivilegeProposal{}, "oracle/RevokeBandOraclePrivilegeProposal", nil)
@@ -25,8 +24,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgSetPriceFeederPrice{},
-		&MsgRelay{},
+		&MsgRelayPriceFeedPrice{},
+		&MsgRelayBandRates{},
 		&MsgRelayCoinbaseMessages{},
 	)
 
