@@ -164,11 +164,11 @@ func (o *SpotOrder) ComputeOrderHash(nonce uint32) (common.Hash, error) {
 
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
 	if err != nil {
-		return ZeroHash, err
+		return AuctionSubaccountID, err
 	}
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
-		return ZeroHash, err
+		return AuctionSubaccountID, err
 	}
 
 	w := sha3.NewLegacyKeccak256()

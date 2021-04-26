@@ -93,11 +93,11 @@ func computeOrderHash(marketId, subaccountId, feeRecipient, price, quantity, mar
 
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
 	if err != nil {
-		return ZeroHash, err
+		return AuctionSubaccountID, err
 	}
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
-		return ZeroHash, err
+		return AuctionSubaccountID, err
 	}
 
 	w := sha3.NewLegacyKeccak256()

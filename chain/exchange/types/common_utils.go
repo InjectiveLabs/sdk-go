@@ -19,7 +19,7 @@ type LimitOrderFilledDelta struct {
 	FillableAmount     sdk.Dec
 }
 
-var ZeroHash = common.Hash{}
+var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
 
 func IsValidSubaccountID(subaccountID string) (*common.Address, bool) {
 	if len(subaccountID) != 66 {
@@ -65,7 +65,7 @@ func (s *Subaccount) GetSubaccountID() (*common.Hash, error) {
 
 func SdkAddressWithNonceToSubaccountID(addr sdk.Address, nonce uint32) (*common.Hash, error) {
 	if len(addr.Bytes()) > common.AddressLength {
-		return &ZeroHash, ErrBadSubaccountID
+		return &AuctionSubaccountID, ErrBadSubaccountID
 	}
 	subaccountID := common.BytesToHash(append(addr.Bytes(), common.LeftPadBytes(big.NewInt(int64(nonce)).Bytes(), 12)...))
 

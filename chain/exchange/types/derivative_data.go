@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -46,9 +47,15 @@ func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 
 	for idx := range stateExpansions {
 		expansion := stateExpansions[idx]
+
+		feeRecipientSubaccount := EthAddressToSubaccountID(expansion.FeeRecipient)
+		if bytes.Equal(feeRecipientSubaccount.Bytes(), common.Hash{}.Bytes()) {
+			feeRecipientSubaccount = AuctionSubaccountID
+		}
+
 		depositDeltas.ApplyDepositDelta(expansion.SubaccountID, &DepositDelta{TotalBalanceDelta: expansion.TotalBalanceDelta, AvailableBalanceDelta: expansion.AvailableBalanceDelta})
-		depositDeltas.ApplyUniformDelta(EthAddressToSubaccountID(expansion.FeeRecipient), expansion.FeeRecipientReward)
-		depositDeltas.ApplyUniformDelta(ZeroHash, expansion.AuctionFeeReward)
+		depositDeltas.ApplyUniformDelta(feeRecipientSubaccount, expansion.FeeRecipientReward)
+		depositDeltas.ApplyUniformDelta(AuctionSubaccountID, expansion.AuctionFeeReward)
 
 		if executionType == ExecutionType_LimitMatchRestingOrder || executionType == ExecutionType_LimitFill {
 			filledDelta := &LimitOrderFilledDelta{

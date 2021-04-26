@@ -4,11 +4,11 @@
 package types
 
 import (
-	"fmt"
+	fmt "fmt"
 	_ "github.com/gogo/protobuf/gogoproto"
-	"github.com/gogo/protobuf/proto"
-	"io"
-	"math"
+	proto "github.com/gogo/protobuf/proto"
+	io "io"
+	math "math"
 	math_bits "math/bits"
 )
 

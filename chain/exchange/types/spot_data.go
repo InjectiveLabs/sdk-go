@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -98,15 +99,20 @@ func (e *SpotOrderStateExpansion) UpdateDepositDeltas(baseDenomDepositDeltas Dep
 		traderQuoteDepositDelta.AddAvailableBalance(e.QuoteChangeAmount)
 	}
 
+	feeRecipientSubaccount := EthAddressToSubaccountID(e.FeeRecipient)
+	if bytes.Equal(feeRecipientSubaccount.Bytes(), common.Hash{}.Bytes()) {
+		feeRecipientSubaccount = AuctionSubaccountID
+	}
+
 	// update trader's base and quote balances
 	baseDenomDepositDeltas.ApplyDepositDelta(e.SubaccountID, traderBaseDepositDelta)
 	quoteDenomDepositDeltas.ApplyDepositDelta(e.SubaccountID, traderQuoteDepositDelta)
 
 	// increment fee recipient's balances
-	quoteDenomDepositDeltas.ApplyUniformDelta(EthAddressToSubaccountID(e.FeeRecipient), e.FeeRecipientReward)
+	quoteDenomDepositDeltas.ApplyUniformDelta(feeRecipientSubaccount, e.FeeRecipientReward)
 
 	// increment auction fee balance
-	quoteDenomDepositDeltas.ApplyUniformDelta(ZeroHash, e.AuctionFeeReward)
+	quoteDenomDepositDeltas.ApplyUniformDelta(AuctionSubaccountID, e.AuctionFeeReward)
 
 }
 
@@ -265,6 +271,7 @@ func getSpotMarketOrderStateExpansion(
 			baseRefundAmount = marketOrder.OrderInfo.Quantity.Sub(fillQuantity)
 		}
 	}
+
 	stateExpansion := SpotOrderStateExpansion{
 		BaseChangeAmount:   baseChangeAmount,
 		BaseRefundAmount:   baseRefundAmount,
