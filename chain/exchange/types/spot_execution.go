@@ -27,7 +27,7 @@ func GetSpotMarketOrderBatchExecution(
 	quoteDenomDepositDeltas := NewDepositDeltas()
 
 	// Step 3a: Process market order events
-	marketOrderBatchEvent := EventBatchSpotExecution{
+	marketOrderBatchEvent := &EventBatchSpotExecution{
 		MarketId:      market.MarketID().Hex(),
 		IsBuy:         isMarketBuy,
 		ExecutionType: ExecutionType_Market,
@@ -49,6 +49,10 @@ func GetSpotMarketOrderBatchExecution(
 	}
 	marketOrderBatchEvent.Trades = trades
 
+	if len(trades) == 0 {
+		marketOrderBatchEvent = nil
+	}
+
 	// Stage 3b: Process limit order events
 	limitOrderBatchEvent, filledDeltas := GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 		!isMarketBuy,
@@ -58,6 +62,11 @@ func GetSpotMarketOrderBatchExecution(
 		baseDenomDepositDeltas, quoteDenomDepositDeltas,
 	)
 
+	limitOrderExecutionEvent := make([]*EventBatchSpotExecution, 0)
+	if limitOrderBatchEvent != nil {
+		limitOrderExecutionEvent = append(limitOrderExecutionEvent, limitOrderBatchEvent)
+	}
+
 	// Final Step: Store the SpotBatchExecutionData for future reduction/processing
 	batch := &SpotBatchExecutionData{
 		Market:                         market,
@@ -66,8 +75,8 @@ func GetSpotMarketOrderBatchExecution(
 		BaseDenomDepositSubaccountIDs:  baseDenomDepositDeltas.GetSortedSubaccountKeys(),
 		QuoteDenomDepositSubaccountIDs: quoteDenomDepositDeltas.GetSortedSubaccountKeys(),
 		LimitOrderFilledDeltas:         filledDeltas,
-		MarketOrderExecutionEvent:      &marketOrderBatchEvent,
-		LimitOrderExecutionEvent:       []*EventBatchSpotExecution{limitOrderBatchEvent},
+		MarketOrderExecutionEvent:      marketOrderBatchEvent,
+		LimitOrderExecutionEvent:       limitOrderExecutionEvent,
 	}
 	return batch
 }
@@ -95,6 +104,24 @@ func GetSpotLimitMatchingBatchExecution(
 		baseDenomDepositDeltas, quoteDenomDepositDeltas,
 	)
 
+	eventBatchSpotExecution := make([]*EventBatchSpotExecution, 0)
+
+	if limitBuyRestingOrderBatchEvent != nil {
+		eventBatchSpotExecution = append(eventBatchSpotExecution, limitBuyRestingOrderBatchEvent)
+	}
+
+	if limitSellRestingOrderBatchEvent != nil {
+		eventBatchSpotExecution = append(eventBatchSpotExecution, limitSellRestingOrderBatchEvent)
+	}
+
+	if limitBuyNewOrderBatchEvent != nil {
+		eventBatchSpotExecution = append(eventBatchSpotExecution, limitBuyNewOrderBatchEvent)
+	}
+
+	if limitSellNewOrderBatchEvent != nil {
+		eventBatchSpotExecution = append(eventBatchSpotExecution, limitSellNewOrderBatchEvent)
+	}
+
 	// Final Step: Store the SpotBatchExecutionData for future reduction/processing
 	batch := &SpotBatchExecutionData{
 		Market:                         market,
@@ -103,12 +130,7 @@ func GetSpotLimitMatchingBatchExecution(
 		BaseDenomDepositSubaccountIDs:  baseDenomDepositDeltas.GetSortedSubaccountKeys(),
 		QuoteDenomDepositSubaccountIDs: quoteDenomDepositDeltas.GetSortedSubaccountKeys(),
 		LimitOrderFilledDeltas:         filledDeltas,
-		LimitOrderExecutionEvent: []*EventBatchSpotExecution{
-			limitBuyRestingOrderBatchEvent,
-			limitSellRestingOrderBatchEvent,
-			limitBuyNewOrderBatchEvent,
-			limitSellNewOrderBatchEvent,
-		},
+		LimitOrderExecutionEvent:       eventBatchSpotExecution,
 	}
 
 	if len(newRestingBuySpotLimitOrders) > 0 || len(newRestingSellSpotLimitOrders) > 0 {
@@ -128,7 +150,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	spotLimitOrderStateExpansions []*SpotOrderStateExpansion,
 	baseDenomDepositDeltas DepositDeltas, quoteDenomDepositDeltas DepositDeltas,
 ) (*EventBatchSpotExecution, []*LimitOrderFilledDelta) {
-	limitOrderBatchEvent := EventBatchSpotExecution{
+	limitOrderBatchEvent := &EventBatchSpotExecution{
 		MarketId:      marketID.Hex(),
 		IsBuy:         isBuy,
 		ExecutionType: executionType,
@@ -174,5 +196,9 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 		})
 	}
 	limitOrderBatchEvent.Trades = trades
-	return &limitOrderBatchEvent, filledDeltas
+
+	if len(trades) == 0 {
+		limitOrderBatchEvent = nil
+	}
+	return limitOrderBatchEvent, filledDeltas
 }
