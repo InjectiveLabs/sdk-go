@@ -1,0 +1,130 @@
+// Code generated with goa v3.3.1, DO NOT EDIT.
+//
+// InjectiveAccountsRPC protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+
+syntax = "proto3";
+
+package injective_accounts_rpc;
+
+option go_package = "/injective_accounts_rpcpb";
+
+// InjectiveAccountsRPC defines gRPC API of Exchange Accounts provider.
+service InjectiveAccountsRPC {
+	// List all subaccounts IDs of an account address
+	rpc SubaccountsList (SubaccountsListRequest) returns (SubaccountsListResponse);
+	// List subaccount balances for the provided denoms.
+	rpc SubaccountBalancesList (SubaccountBalancesListRequest) returns (SubaccountBalancesListResponse);
+	// Gets a balance for specific coin denom
+	rpc SubaccountBalanceEndpoint (SubaccountBalanceRequest) returns (SubaccountBalanceResponse);
+	// StreamSubaccountBalance streams new balance changes for a specified
+// subaccount and denoms. If no denoms are provided, all denom changes are
+// streamed.
+	rpc StreamSubaccountBalance (StreamSubaccountBalanceRequest) returns (stream StreamSubaccountBalanceResponse);
+	// Get subaccount's deposits and withdrawals history
+	rpc SubaccountHistory (SubaccountHistoryRequest) returns (SubaccountHistoryResponse);
+}
+
+message SubaccountsListRequest {
+	// Account address, the subaccounts owner
+	string account_address = 1;
+}
+
+message SubaccountsListResponse {
+	repeated string subaccounts = 1;
+}
+
+message SubaccountBalancesListRequest {
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 1;
+	// Filter balances by denoms. If not set, the balances of all the denoms for
+// the subaccount are provided.
+	repeated string denoms = 2;
+}
+
+message SubaccountBalancesListResponse {
+	// List of subaccount balances
+	repeated SubaccountBalance balances = 1;
+}
+
+message SubaccountBalance {
+	// Related subaccount ID
+	string subaccount_id = 1;
+	// Account address, owner of this subaccount
+	string account_address = 2;
+	// Coin denom on the chain.
+	string denom = 3;
+	SubaccountDeposit deposit = 4;
+}
+
+message SubaccountDeposit {
+	string total_balance = 1;
+	string available_balance = 2;
+}
+
+message SubaccountBalanceRequest {
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 1;
+	// Specify denom to get balance
+	string denom = 2;
+}
+
+message SubaccountBalanceResponse {
+	// Subaccount balance
+	SubaccountBalance balance = 1;
+}
+
+message StreamSubaccountBalanceRequest {
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 1;
+	// Filter balances by denoms. If not set, the balances of all the denoms for
+// the subaccount are provided.
+	repeated string denoms = 2;
+}
+
+message StreamSubaccountBalanceResponse {
+	// Subaccount balance
+	SubaccountBalance balance = 1;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 2;
+}
+
+message SubaccountHistoryRequest {
+	// SubaccountId of the trader we want to get the history from
+	string subaccount_id = 1;
+	// Filter history by denom
+	string denom = 2;
+	// Filter history by transfer type
+	repeated string transfer_types = 3;
+}
+
+message SubaccountHistoryResponse {
+	// List of subaccount transfers
+	repeated SubaccountBalanceTransfer transfers = 1;
+}
+
+message SubaccountBalanceTransfer {
+	// Type of the subaccount balance transfer
+	string transfer_type = 1;
+	// Subaccount ID of the sending side
+	string src_subaccount_id = 2;
+	// Account address of the sending side
+	string src_account_address = 3;
+	// Subaccount ID of the receiving side
+	string dst_subaccount_id = 4;
+	// Account address of the receiving side
+	string dst_account_address = 5;
+	// Coin amount of the transfer
+	CosmosCoin amount = 6;
+	// Timestamp of the transfer in UNIX millis
+	sint64 executed_at = 7;
+}
+
+message CosmosCoin {
+	// Coin denominator
+	string denom = 1;
+	// Coin amount (big int)
+	string amount = 2;
+}

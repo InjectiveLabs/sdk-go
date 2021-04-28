@@ -14,6 +14,16 @@ $ go install ./...
 
 ---
 
+## Updating Exchange API proto and client
+
+```bash
+$ make copy-exchange-client
+```
+
+(you have to clone [this repo](https://github.com/InjectiveLabs/injective-exchange) into `../injective-exchange`)
+
+---
+
 ## Publishing Tagged Release
 
 ```bash

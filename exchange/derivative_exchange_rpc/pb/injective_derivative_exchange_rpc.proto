@@ -1,0 +1,380 @@
+// Code generated with goa v3.3.1, DO NOT EDIT.
+//
+// InjectiveDerivativeExchangeRPC protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+
+syntax = "proto3";
+
+package injective_derivative_exchange_rpc;
+
+option go_package = "/injective_derivative_exchange_rpcpb";
+
+// InjectiveDerivativeExchangeRPC defines gRPC API of Derivative Markets
+// provider.
+service InjectiveDerivativeExchangeRPC {
+	// Markets gets a list of Derivative Markets
+	rpc Markets (MarketsRequest) returns (MarketsResponse);
+	// Market gets details of a single derivative market
+	rpc Market (MarketRequest) returns (MarketResponse);
+	// StreamMarket streams live updates of selected derivative markets
+	rpc StreamMarket (StreamMarketRequest) returns (stream StreamMarketResponse);
+	// Orderbook gets the Orderbook of a Derivative Market
+	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
+	// StreamOrderbook streams live updates of selected derivative market orderbook.
+	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
+	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
+	rpc Orders (OrdersRequest) returns (OrdersResponse);
+	// Positions gets the positions for a trader.
+	rpc Positions (PositionsRequest) returns (PositionsResponse);
+	// StreamOrders streams updates to individual orders of a Derivative Market.
+	rpc StreamOrders (StreamOrdersRequest) returns (stream StreamOrdersResponse);
+	// Trades gets the trades of a Derivative Market.
+	rpc Trades (TradesRequest) returns (TradesResponse);
+	// StreamTrades streams newly executed trades from Derivative Market.
+	rpc StreamTrades (StreamTradesRequest) returns (stream StreamTradesResponse);
+	// SubaccountOrdersList lists orders posted from this subaccount.
+	rpc SubaccountOrdersList (SubaccountOrdersListRequest) returns (SubaccountOrdersListResponse);
+	// SubaccountTradesList gets a list of derivatives trades executed by this
+// subaccount.
+	rpc SubaccountTradesList (SubaccountTradesListRequest) returns (SubaccountTradesListResponse);
+}
+
+message MarketsRequest {
+	// Filter by market status
+	string market_status = 1;
+	// Filter by the Coin denomination of the quote currency
+	string quote_denom = 2;
+}
+
+message MarketsResponse {
+	// Derivative Markets list
+	repeated DerivativeMarketInfo markets = 1;
+}
+
+message DerivativeMarketInfo {
+	// DerivativeMarket ID is crypto.Keccak256Hash([]byte((oracleType.String() +
+// ticker + quoteDenom + oracleBase + oracleQuote))) for perpetual markets and
+// crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom +
+// oracleBase + oracleQuote + strconv.Itoa(int(expiry))))) for expiry futures
+// markets
+	string market_id = 1;
+	// The status of the market
+	string market_status = 2;
+	// A name of the pair in format AAA/BBB, where AAA is base asset, BBB is quote
+// asset.
+	string ticker = 3;
+	// Oracle base currency
+	string oracle_base = 4;
+	// Oracle quote currency
+	string oracle_quote = 5;
+	// Oracle Type
+	string oracle_type = 6;
+	// Defines the initial margin ratio of a derivative market
+	string initial_margin_ratio = 7;
+	// Defines the maintenance margin ratio of a derivative market
+	string maintenance_margin_ratio = 8;
+	// Coin denom used for the quote asset.
+	string quote_denom = 9;
+	// Token metadata for quote asset, only for Ethereum-based assets
+	TokenMeta quote_token_meta = 10;
+	// Defines the fee percentage makers pay when trading (in quote asset)
+	string maker_fee_rate = 11;
+	// Defines the fee percentage takers pay when trading (in quote asset)
+	string taker_fee_rate = 12;
+	// Percentage of the transaction fee shared with the service provider
+	string service_provider_fee = 13;
+	// True if the market is a perpetual swap market
+	bool is_perpetual = 14;
+	// Defines the maximum amount of decimal places that each order's price cannot
+// exceed
+	uint32 max_price_scale_decimals = 15;
+	// Defines the maximum amount of decimal places that each order's quantity
+// cannot exceed
+	uint32 max_quantity_scale_decimals = 16;
+}
+
+message TokenMeta {
+	// Token full name
+	string name = 1;
+	// Token Ethereum contract address
+	string address = 2;
+	// Token symbol short name
+	string symbol = 3;
+	// URL to the logo image
+	string logo = 4;
+	// Token decimals
+	sint32 decimals = 5;
+	// Token metadata fetched timestamp in UNIX millis.
+	sint64 updated_at = 6;
+}
+
+message MarketRequest {
+	// MarketId of the market we want to fetch
+	string market_id = 1;
+}
+
+message MarketResponse {
+	// Info about particular derivative market
+	DerivativeMarketInfo market = 1;
+}
+
+message StreamMarketRequest {
+	// List of market IDs for updates streaming, empty means 'ALL' derivative
+// markets
+	repeated string market_ids = 1;
+}
+
+message StreamMarketResponse {
+	// Info about particular derivative market
+	DerivativeMarketInfo market = 1;
+	// Update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+}
+
+message OrderbookRequest {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+}
+
+message OrderbookResponse {
+	// Orderbook of a particular derivative market
+	DerivativeLimitOrderbook orderbook = 1;
+}
+
+message DerivativeLimitOrderbook {
+	// Array of price levels for buys
+	repeated PriceLevel buys = 1;
+	// Array of price levels for sells
+	repeated PriceLevel sells = 2;
+}
+
+message PriceLevel {
+	// Price number of the price level.
+	string price = 1;
+	// Quantity of the price level.
+	string quantity = 2;
+	// Price level last updated timestamp in UNIX millis.
+	sint64 timestamp = 3;
+}
+
+message StreamOrderbookRequest {
+	// Market ID for orderbook updates streaming
+	string market_id = 1;
+}
+
+message StreamOrderbookResponse {
+	// Orderbook of a Derivative Market
+	DerivativeLimitOrderbook orderbook = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+}
+
+message OrdersRequest {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+	// Look for specific order type
+	string order_type = 2;
+	// Look for specific trade direction of an order
+	string direction = 3;
+	// Look for specific subaccountId of an order
+	string subaccount_id = 4;
+}
+
+message OrdersResponse {
+	// List of derivative market orders
+	repeated DerivativeLimitOrder orders = 1;
+}
+
+message DerivativeLimitOrder {
+	// Hash of the order
+	string order_hash = 1;
+	// The type of the order
+	string order_type = 2;
+	// DerivativeMarket ID is keccak265(baseDenom || quoteDenom)
+	string market_id = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// True if the order is a reduce-only order
+	bool is_reduce_only = 5;
+	// Margin of the order
+	string margin = 6;
+	// Price of the order
+	string price = 7;
+	// Quantity of the order
+	string quantity = 8;
+	// The amount of the quantity remaining unfilled
+	string unfilled_quantity = 9;
+	// Trigger price is the trigger price used by stop/take orders
+	string trigger_price = 10;
+	// Fee recipient address
+	string fee_recipient = 11;
+	// Order state
+	string state = 12;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 13;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 14;
+}
+
+message PositionsRequest {
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 1;
+	// MarketId of the position we want to fetch
+	string market_id = 2;
+}
+
+message PositionsResponse {
+	// List of derivative positions
+	repeated DerivativePosition positions = 1;
+}
+
+message DerivativePosition {
+	// DerivativeMarket ID is keccak265(baseDenom || quoteDenom)
+	string market_id = 1;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 2;
+	// Direction of the position
+	string direction = 3;
+	// Quantity of the order
+	string quantity = 4;
+	// Price of the order
+	string entry_price = 5;
+	// Margin of the position
+	string margin = 6;
+	// Hold quantity of the position
+	string hold_quantity = 7;
+	// LiquidationPrice of the position
+	string liquidation_price = 8;
+	// LiquidationPrice of the position
+	string mark_price = 9;
+	// Implied PNL of the Position
+	string implied_pnl = 10;
+	// Leverage of the Position
+	string leverage = 11;
+}
+
+message StreamOrdersRequest {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+	// Look for specific order type
+	string order_type = 2;
+	// Look for specific trade direction of an order
+	string direction = 3;
+	// Look for specific subaccountId of an order
+	string subaccount_id = 4;
+}
+
+message StreamOrdersResponse {
+	// Updated market order
+	DerivativeLimitOrder order = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+}
+
+message TradesRequest {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+	// Filter by execution type of the trade
+	string execution_type = 2;
+	// Filter by execution side of the trade
+	string execution_side = 3;
+	// Filter by direction the trade
+	string direction = 4;
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 5;
+}
+
+message TradesResponse {
+	// Trades of a Derivative Market
+	repeated DerivativeTrade trades = 1;
+}
+
+message DerivativeTrade {
+	// Order hash.
+	string order_hash = 1;
+	// The subaccountId that executed the trade
+	string subaccount_id = 2;
+	// The ID of the market that this trade is in
+	string market_id = 3;
+	// The execution type of the trade
+	string trade_execution_type = 4;
+	// True if the trade is a liquidation
+	bool is_liquidation = 5;
+	// Position Delta from the trade
+	PositionDelta position_delta = 6;
+	// The payout associated with the trade
+	string payout = 7;
+	// The fee associated with the trade
+	string fee = 8;
+	// Timestamp of trade execution in UNIX millis
+	sint64 executed_at = 9;
+}
+
+message PositionDelta {
+	// The direction the trade
+	string trade_direction = 1;
+	// Execution Price of the trade.
+	string execution_price = 2;
+	// Execution Quantity of the trade.
+	string execution_quantity = 3;
+	// Execution Margin of the trade.
+	string execution_margin = 4;
+}
+
+message StreamTradesRequest {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+	// Filter by execution type of the trade
+	string execution_type = 2;
+	// Filter by execution side of the trade
+	string execution_side = 3;
+	// Filter by direction the trade
+	string direction = 4;
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 5;
+}
+
+message StreamTradesResponse {
+	// New derivative market trade
+	DerivativeTrade trade = 1;
+	// Executed trades update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+}
+
+message SubaccountOrdersListRequest {
+	// subaccount ID to filter orders for specific subaccount
+	string subaccount_id = 1;
+	// Market ID to filter orders for specific market
+	string market_id = 2;
+}
+
+message SubaccountOrdersListResponse {
+	// List of derivative orders
+	repeated DerivativeLimitOrder orders = 1;
+}
+
+message SubaccountTradesListRequest {
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 1;
+	// Filter trades by market ID
+	string market_id = 2;
+	// Filter by execution type of trades
+	string execution_type = 3;
+	// Filter by direction trades
+	string direction = 4;
+}
+
+message SubaccountTradesListResponse {
+	// List of derivative market trades
+	repeated DerivativeTrade trades = 1;
+}
