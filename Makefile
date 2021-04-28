@@ -1,13 +1,14 @@
 all:
 
 copy-exchange-client:
-	cp -r ../injective-exchange/api/gen/grpc/injective_exchange_rpc exchange/exchange_rpc
-	cp -r ../injective-exchange/api/gen/grpc/injective_accounts_rpc exchange/accounts_rpc
-	cp -r ../injective-exchange/api/gen/grpc/injective_spot_exchange_rpc exchange/spot_exchange_rpc
-	cp -r ../injective-exchange/api/gen/grpc/injective_derivative_exchange_rpc exchange/derivative_exchange_rpc
-	rm -rf exchange/exchange_rpc/server
-	rm -rf exchange/accounts_rpc/server
-	rm -rf exchange/spot_exchange_rpc/server
-	rm -rf exchange/derivative_exchange_rpc/server
+	mkdir -p exchange/exchange_rpc
+	mkdir -p exchange/accounts_rpc
+	mkdir -p exchange/spot_exchange_rpc
+	mkdir -p exchange/derivative_exchange_rpc
+
+	cp -r ../injective-exchange/api/gen/grpc/injective_exchange_rpc/pb exchange/exchange_rpc/pb
+	cp -r ../injective-exchange/api/gen/grpc/injective_accounts_rpc/pb exchange/accounts_rpc/pb
+	cp -r ../injective-exchange/api/gen/grpc/injective_spot_exchange_rpc/pb exchange/spot_exchange_rpc/pb
+	cp -r ../injective-exchange/api/gen/grpc/injective_derivative_exchange_rpc/pb exchange/derivative_exchange_rpc/pb
 
 .PHONY: copy-exchange-client
