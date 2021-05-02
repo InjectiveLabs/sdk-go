@@ -21,12 +21,12 @@ func NewVwapData() *VwapData {
 }
 
 func (p *VwapData) ApplyExecution(price, quantity sdk.Dec) *VwapData {
-	if price.IsNil() || quantity.IsNil() || quantity.IsZero() {
-		return NewVwapData()
+	if p == nil {
+		p = NewVwapData()
 	}
 
-	if p == nil {
-		return &VwapData{price, quantity}
+	if price.IsNil() || quantity.IsNil() || quantity.IsZero() {
+		return p
 	}
 
 	newQuantity := p.Quantity.Add(quantity)
@@ -72,6 +72,7 @@ func (p *PerpetualVwapInfo) GetSortedMarketIDs() []common.Hash {
 	for k := range *p {
 		marketIDs = append(marketIDs, k)
 	}
+
 	sort.SliceStable(marketIDs, func(i, j int) bool {
 		return bytes.Compare(marketIDs[i].Bytes(), marketIDs[j].Bytes()) < 0
 	})

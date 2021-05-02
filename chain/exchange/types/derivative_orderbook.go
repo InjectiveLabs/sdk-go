@@ -31,7 +31,7 @@ func (o *DerivativeOrderbookFills) ProcessTransientDerivativeLimitOrderExpansion
 
 	for idx := range o.Orders {
 		order := o.Orders[idx]
-		stateExpansions[idx] = GetDerivativeLimitOrderStateExpansion(
+		stateExpansions[idx] = ApplyPositionDeltaAndGetDerivativeLimitOrderStateExpansion(
 			isBuy,
 			true,
 			order,
@@ -64,7 +64,7 @@ func (o *DerivativeOrderbookFills) ProcessRestingDerivativeLimitOrderExpansions(
 	takerFeeRate := sdk.Dec{}
 
 	for idx := range o.Orders {
-		stateExpansions[idx] = GetDerivativeLimitOrderStateExpansion(
+		stateExpansions[idx] = ApplyPositionDeltaAndGetDerivativeLimitOrderStateExpansion(
 			isBuy,
 			false,
 			o.Orders[idx],

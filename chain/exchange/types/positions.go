@@ -136,7 +136,7 @@ func (p *Position) GetAverageWeightedEntryPrice(executionQuantity, executionPric
 	return num.Quo(denom)
 }
 
-func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradeFeeRate sdk.Dec) (
+func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceOnly sdk.Dec) (
 	payout, closeExecutionMargin, collateralizationMargin sdk.Dec,
 ) {
 	// No payouts or margin changes if the position delta is nil
@@ -179,9 +179,8 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradeFeeRate sdk.Dec
 	if isReduceOnlyTrade {
 		// deduct fees from PNL (position margin) for reduce-only orders
 
-		// only compute the closing trading fee for now
-		tradingFee := delta.ExecutionPrice.Mul(closingQuantity).Mul(tradeFeeRate)
-		pnl = pnl.Sub(tradingFee)
+		// only use the closing trading fee for now
+		pnl = pnl.Sub(tradingFeeForReduceOnly)
 		p.HoldQuantity = p.HoldQuantity.Sub(closingQuantity)
 	}
 
@@ -205,7 +204,7 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradeFeeRate sdk.Dec
 			ExecutionPrice:    delta.ExecutionPrice,
 		}
 		// recurse
-		_, _, collateralizationMargin = p.ApplyPositionDelta(newPositionDelta, tradeFeeRate)
+		_, _, collateralizationMargin = p.ApplyPositionDelta(newPositionDelta, tradingFeeForReduceOnly)
 	}
 
 	return payout, closeExecutionMargin, collateralizationMargin

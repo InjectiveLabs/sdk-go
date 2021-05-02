@@ -308,10 +308,10 @@ type MsgInstantSpotMarketLaunch struct {
 	BaseDenom string `protobuf:"bytes,3,opt,name=base_denom,json=baseDenom,proto3" json:"base_denom,omitempty"`
 	// type of coin to use as the quote currency
 	QuoteDenom string `protobuf:"bytes,4,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
-	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price cannot exceed
-	MaxPriceScaleDecimals uint32 `protobuf:"varint,5,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
-	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
-	MaxQuantityScaleDecimals uint32 `protobuf:"varint,6,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
+	// min_price_tick_size defines the minimum tick size of the order's price
+	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	// min_quantity_tick_size defines the minimum tick size of the order's quantity
+	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
 }
 
 func (m *MsgInstantSpotMarketLaunch) Reset()         { *m = MsgInstantSpotMarketLaunch{} }
@@ -399,10 +399,18 @@ type MsgInstantPerpetualMarketLaunch struct {
 	OracleScaleFactor uint32 `protobuf:"varint,6,opt,name=oracle_scale_factor,json=oracleScaleFactor,proto3" json:"oracle_scale_factor,omitempty"`
 	// Oracle type
 	OracleType types1.OracleType `protobuf:"varint,7,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
-	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price and margin cannot exceed
-	MaxPriceScaleDecimals uint32 `protobuf:"varint,8,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
-	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
-	MaxQuantityScaleDecimals uint32 `protobuf:"varint,9,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
+	// maker_fee_rate defines the trade fee rate for makers on the spot market
+	MakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate"`
+	// taker_fee_rate defines the trade fee rate for takers on the spot market
+	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
+	// initial_margin_ratio defines the initial margin ratio for the derivative market
+	InitialMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"initial_margin_ratio"`
+	// maintenance_margin_ratio defines the maintenance margin ratio for the derivative market
+	MaintenanceMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maintenance_margin_ratio"`
+	// min_price_tick_size defines the minimum tick size of the order's price and margin
+	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	// min_quantity_tick_size defines the minimum tick size of the order's quantity
+	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
 }
 
 func (m *MsgInstantPerpetualMarketLaunch) Reset()         { *m = MsgInstantPerpetualMarketLaunch{} }
@@ -494,10 +502,18 @@ type MsgInstantExpiryFuturesMarketLaunch struct {
 	OracleScaleFactor uint32 `protobuf:"varint,7,opt,name=oracle_scale_factor,json=oracleScaleFactor,proto3" json:"oracle_scale_factor,omitempty"`
 	// Expiration time of the market
 	Expiry int64 `protobuf:"varint,8,opt,name=expiry,proto3" json:"expiry,omitempty"`
-	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price and margin cannot exceed
-	MaxPriceScaleDecimals uint32 `protobuf:"varint,9,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
-	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
-	MaxQuantityScaleDecimals uint32 `protobuf:"varint,10,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
+	// maker_fee_rate defines the trade fee rate for makers on the spot market
+	MakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate"`
+	// taker_fee_rate defines the trade fee rate for takers on the spot market
+	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
+	// initial_margin_ratio defines the initial margin ratio for the derivative market
+	InitialMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"initial_margin_ratio"`
+	// maintenance_margin_ratio defines the maintenance margin ratio for the derivative market
+	MaintenanceMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maintenance_margin_ratio"`
+	// min_price_tick_size defines the minimum tick size of the order's price and margin
+	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	// min_quantity_tick_size defines the minimum tick size of the order's quantity
+	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,14,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
 }
 
 func (m *MsgInstantExpiryFuturesMarketLaunch) Reset()         { *m = MsgInstantExpiryFuturesMarketLaunch{} }
@@ -1389,10 +1405,10 @@ type SpotMarketParamUpdateProposal struct {
 	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
 	// relayer_fee_share_rate defines the relayer fee share rate for the spot market
 	RelayerFeeShareRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"relayer_fee_share_rate"`
-	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price cannot exceed
-	MaxPriceScaleDecimals uint32 `protobuf:"varint,7,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
-	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
-	MaxQuantityScaleDecimals uint32 `protobuf:"varint,8,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
+	// min_price_tick_size defines the minimum tick size of the order's price and margin
+	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	// min_quantity_tick_size defines the minimum tick size of the order's quantity
+	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
 }
 
 func (m *SpotMarketParamUpdateProposal) Reset()         { *m = SpotMarketParamUpdateProposal{} }
@@ -1438,10 +1454,10 @@ type SpotMarketLaunchProposal struct {
 	BaseDenom string `protobuf:"bytes,4,opt,name=base_denom,json=baseDenom,proto3" json:"base_denom,omitempty"`
 	// type of coin to use as the quote currency
 	QuoteDenom string `protobuf:"bytes,5,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
-	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price cannot exceed
-	MaxPriceScaleDecimals uint32 `protobuf:"varint,6,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
-	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
-	MaxQuantityScaleDecimals uint32 `protobuf:"varint,7,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
+	// min_price_tick_size defines the minimum tick size of the order's price
+	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	// min_quantity_tick_size defines the minimum tick size of the order's quantity
+	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
 }
 
 func (m *SpotMarketLaunchProposal) Reset()         { *m = SpotMarketLaunchProposal{} }
@@ -1535,10 +1551,18 @@ type PerpetualMarketLaunchProposal struct {
 	OracleScaleFactor uint32 `protobuf:"varint,7,opt,name=oracle_scale_factor,json=oracleScaleFactor,proto3" json:"oracle_scale_factor,omitempty"`
 	// Oracle type
 	OracleType types1.OracleType `protobuf:"varint,8,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
-	// max_price_scale_decimals define the maximum amount of decimal places that each order's price and margin cannot exceed
-	MaxPriceScaleDecimals uint32 `protobuf:"varint,9,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
-	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
-	MaxQuantityScaleDecimals uint32 `protobuf:"varint,10,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
+	// initial_margin_ratio defines the initial margin ratio for the derivative market
+	InitialMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"initial_margin_ratio"`
+	// maintenance_margin_ratio defines the maintenance margin ratio for the derivative market
+	MaintenanceMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maintenance_margin_ratio"`
+	// maker_fee_rate defines the exchange trade fee for makers for the derivative market
+	MakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate"`
+	// taker_fee_rate defines the exchange trade fee for takers for the derivative market
+	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
+	// min_price_tick_size defines the minimum tick size of the order's price and margin
+	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	// min_quantity_tick_size defines the minimum tick size of the order's quantity
+	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,14,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
 }
 
 func (m *PerpetualMarketLaunchProposal) Reset()         { *m = PerpetualMarketLaunchProposal{} }
@@ -1592,10 +1616,18 @@ type ExpiryFuturesMarketLaunchProposal struct {
 	OracleType types1.OracleType `protobuf:"varint,8,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
 	// Expiration time of the market
 	Expiry int64 `protobuf:"varint,9,opt,name=expiry,proto3" json:"expiry,omitempty"`
-	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price and margin cannot exceed
-	MaxPriceScaleDecimals uint32 `protobuf:"varint,10,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
-	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
-	MaxQuantityScaleDecimals uint32 `protobuf:"varint,11,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
+	// initial_margin_ratio defines the initial margin ratio for the derivative market
+	InitialMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"initial_margin_ratio"`
+	// maintenance_margin_ratio defines the maintenance margin ratio for the derivative market
+	MaintenanceMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maintenance_margin_ratio"`
+	// maker_fee_rate defines the exchange trade fee for makers for the derivative market
+	MakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate"`
+	// taker_fee_rate defines the exchange trade fee for takers for the derivative market
+	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
+	// min_price_tick_size defines the minimum tick size of the order's price and margin
+	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,14,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	// min_quantity_tick_size defines the minimum tick size of the order's quantity
+	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,15,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
 }
 
 func (m *ExpiryFuturesMarketLaunchProposal) Reset()         { *m = ExpiryFuturesMarketLaunchProposal{} }
@@ -1727,10 +1759,10 @@ type DerivativeMarketParamUpdateProposal struct {
 	TakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate,omitempty"`
 	// relayer_fee_share_rate defines the relayer fee share rate for the derivative market
 	RelayerFeeShareRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"relayer_fee_share_rate,omitempty"`
-	// max_price_scale_decimals defines the maximum amount of decimal places that each order's price cannot exceed
-	MaxPriceScaleDecimals uint32 `protobuf:"varint,9,opt,name=max_price_scale_decimals,json=maxPriceScaleDecimals,proto3" json:"max_price_scale_decimals,omitempty"`
-	// max_quantity_scale_decimals defines the maximum amount of decimal places that each order's quantity cannot exceed
-	MaxQuantityScaleDecimals uint32 `protobuf:"varint,10,opt,name=max_quantity_scale_decimals,json=maxQuantityScaleDecimals,proto3" json:"max_quantity_scale_decimals,omitempty"`
+	// min_price_tick_size defines the minimum tick size of the order's price and margin
+	MinPriceTickSize *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size,omitempty"`
+	// min_quantity_tick_size defines the minimum tick size of the order's quantity
+	MinQuantityTickSize *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size,omitempty"`
 }
 
 func (m *DerivativeMarketParamUpdateProposal) Reset()         { *m = DerivativeMarketParamUpdateProposal{} }
@@ -1813,121 +1845,127 @@ func init() {
 }
 
 var fileDescriptor_bd45b74cb6d81462 = []byte{
-	// 1818 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x5a, 0xdd, 0x8f, 0x1b, 0x57,
-	0x15, 0xdf, 0xbb, 0xfe, 0x3e, 0xde, 0xa6, 0xdb, 0xc9, 0x66, 0xe3, 0xcc, 0x66, 0xed, 0x5d, 0x6f,
-	0x93, 0x6c, 0x55, 0xc5, 0x6e, 0xb6, 0xa5, 0xa1, 0x29, 0x05, 0xb2, 0xbb, 0xd9, 0x12, 0x29, 0xa6,
-	0x5b, 0x3b, 0x15, 0x12, 0x3c, 0x98, 0xbb, 0xe3, 0x1b, 0xfb, 0x12, 0x7b, 0xc6, 0x99, 0x7b, 0x1d,
-	0x76, 0x25, 0x44, 0x25, 0x1e, 0xa0, 0x12, 0x50, 0x81, 0x78, 0x02, 0x09, 0x29, 0x8f, 0x20, 0x55,
-	0xe2, 0x99, 0x07, 0x78, 0xe2, 0xa1, 0x12, 0x42, 0xea, 0x03, 0x42, 0xc0, 0x43, 0x85, 0x92, 0x17,
-	0xf8, 0x2f, 0xd0, 0xbd, 0x33, 0xbe, 0x1e, 0xdb, 0xe3, 0xf1, 0x78, 0xcc, 0x6e, 0x11, 0xe2, 0x69,
-	0x3d, 0x73, 0xcf, 0xf9, 0x9d, 0xdf, 0x39, 0xe7, 0x7e, 0x9c, 0x73, 0x67, 0x61, 0x8b, 0x9a, 0xdf,
-	0x22, 0x06, 0xa7, 0x8f, 0x49, 0x99, 0x1c, 0x1b, 0x2d, 0x6c, 0x36, 0x49, 0xf9, 0xf1, 0x8d, 0x23,
-	0xc2, 0xf1, 0x8d, 0x32, 0x3f, 0x2e, 0x75, 0x6d, 0x8b, 0x5b, 0x9a, 0xae, 0x84, 0x4a, 0x7d, 0xa1,
-	0x92, 0x2b, 0xa4, 0xaf, 0x34, 0xad, 0xa6, 0x25, 0xc5, 0xca, 0xe2, 0x97, 0xa3, 0xa1, 0x5f, 0x19,
-	0xc0, 0x5a, 0x36, 0x36, 0xda, 0x03, 0x50, 0xe7, 0xd1, 0x15, 0x7b, 0x29, 0xc0, 0xba, 0xb2, 0xe4,
-	0x88, 0xe6, 0x0d, 0x8b, 0x75, 0x2c, 0x56, 0x3e, 0xc2, 0x6c, 0x20, 0x63, 0x58, 0xd4, 0x74, 0xc6,
-	0x8b, 0x3f, 0x42, 0x00, 0x15, 0xd6, 0xdc, 0x27, 0x5d, 0x8b, 0x51, 0xae, 0xad, 0x42, 0x92, 0x11,
-	0xb3, 0x41, 0xec, 0x1c, 0xda, 0x40, 0xdb, 0x99, 0xaa, 0xfb, 0xa4, 0x6d, 0xc1, 0x73, 0xac, 0x77,
-	0x84, 0x0d, 0xc3, 0xea, 0x99, 0xbc, 0x4e, 0x1b, 0xb9, 0x45, 0x39, 0xbc, 0x34, 0x78, 0x79, 0xb7,
-	0xa1, 0xdd, 0x84, 0x24, 0xee, 0x88, 0xdf, 0xb9, 0xd8, 0x06, 0xda, 0xce, 0xee, 0x5c, 0x2a, 0x39,
-	0xc6, 0x4b, 0xc2, 0x78, 0xdf, 0xf3, 0xd2, 0x9e, 0x45, 0xcd, 0xdd, 0xf8, 0xc7, 0x9f, 0x16, 0x16,
-	0xaa, 0xae, 0xf8, 0xad, 0xf4, 0x07, 0x4f, 0x0a, 0x0b, 0xff, 0x7c, 0x52, 0x58, 0x28, 0xae, 0x80,
-	0x36, 0x60, 0x53, 0x25, 0xac, 0x6b, 0x99, 0x8c, 0x14, 0x7f, 0x8c, 0x20, 0x5b, 0x61, 0xcd, 0xaf,
-	0x51, 0xde, 0x6a, 0xd8, 0xf8, 0xdb, 0x9f, 0x39, 0xcb, 0x0b, 0x70, 0xde, 0x43, 0x47, 0xd1, 0xfc,
-	0x2e, 0x5c, 0xac, 0xb0, 0xe6, 0x9e, 0x4d, 0x30, 0x27, 0xb5, 0xae, 0xc5, 0xef, 0xd1, 0x0e, 0xe5,
-	0xef, 0xd8, 0x82, 0xd9, 0x24, 0xc6, 0xb7, 0x21, 0x61, 0x09, 0x01, 0xc9, 0x34, 0xbb, 0x73, 0xa5,
-	0x34, 0x79, 0xca, 0x94, 0x04, 0xa4, 0x44, 0x73, 0x79, 0x39, 0x9a, 0x1e, 0x5a, 0x9b, 0x50, 0x98,
-	0x60, 0x5f, 0x51, 0xfc, 0x70, 0x11, 0xf4, 0x0a, 0x6b, 0xde, 0x35, 0x19, 0xc7, 0x26, 0x17, 0x42,
-	0x15, 0x6c, 0x3f, 0x24, 0xfc, 0x1e, 0xee, 0x99, 0x46, 0x6b, 0x22, 0xcd, 0x55, 0x48, 0x72, 0x6a,
-	0x3c, 0x74, 0x79, 0x66, 0xaa, 0xee, 0x93, 0xb6, 0x0e, 0x20, 0xa2, 0x56, 0x6f, 0x10, 0xd3, 0xea,
-	0xc8, 0x78, 0x66, 0xaa, 0x19, 0xf1, 0x66, 0x5f, 0xbc, 0xd0, 0x0a, 0x90, 0x7d, 0xd4, 0xb3, 0x78,
-	0x7f, 0x3c, 0x2e, 0xc7, 0x41, 0xbe, 0x72, 0x04, 0x6e, 0x42, 0xae, 0x83, 0x8f, 0xeb, 0x5d, 0x9b,
-	0x1a, 0xa4, 0xce, 0x0c, 0xdc, 0x16, 0xa2, 0x06, 0xed, 0xe0, 0x36, 0xcb, 0x25, 0x36, 0xd0, 0xf6,
-	0x73, 0xd5, 0x0b, 0x1d, 0x7c, 0x7c, 0x28, 0x86, 0x6b, 0x62, 0x74, 0xdf, 0x1d, 0xd4, 0xde, 0x82,
-	0x35, 0xa1, 0xf8, 0xa8, 0x87, 0x4d, 0x4e, 0xf9, 0xc9, 0xa8, 0x6e, 0x52, 0xea, 0x0a, 0xec, 0x77,
-	0x5d, 0x89, 0x21, 0x75, 0x4f, 0xcc, 0x5e, 0x84, 0xe2, 0xe4, 0x78, 0xa8, 0xb0, 0xfd, 0x26, 0x26,
-	0x43, 0xeb, 0x8a, 0x1d, 0x12, 0xbb, 0x4b, 0x78, 0x0f, 0xb7, 0xe7, 0x8a, 0xdd, 0x48, 0x70, 0x62,
-	0x63, 0xc1, 0x29, 0x40, 0xd6, 0x59, 0xf5, 0x75, 0x11, 0xd1, 0x7e, 0xf4, 0x9c, 0x57, 0xbb, 0x98,
-	0x11, 0x6d, 0x13, 0x96, 0x5c, 0x01, 0xa9, 0x25, 0x23, 0x96, 0xa9, 0xba, 0x4a, 0xef, 0x8a, 0x57,
-	0x5a, 0x09, 0xce, 0xbb, 0x22, 0x4e, 0x84, 0x1e, 0x60, 0x83, 0x5b, 0xb6, 0x1b, 0x9f, 0x17, 0x9c,
-	0x21, 0x19, 0x9a, 0x03, 0x39, 0xa0, 0xdd, 0x51, 0x36, 0xf9, 0x49, 0x97, 0xe4, 0x52, 0x1b, 0x68,
-	0xfb, 0xdc, 0xce, 0x8b, 0x9e, 0x59, 0xe9, 0xee, 0x43, 0xfd, 0x39, 0xf9, 0x8e, 0x7c, 0xbc, 0x7f,
-	0xd2, 0x25, 0x7d, 0x66, 0xe2, 0x77, 0x60, 0x5e, 0xd3, 0x73, 0xe4, 0x35, 0x13, 0x3a, 0xaf, 0x2f,
-	0xc1, 0xb5, 0x29, 0x09, 0x53, 0xc9, 0xfd, 0x63, 0x0c, 0xb6, 0x06, 0xb2, 0x77, 0x8e, 0xbb, 0xd4,
-	0x3e, 0x39, 0xe8, 0xf1, 0x9e, 0x4d, 0xd8, 0x7f, 0x7f, 0x82, 0x47, 0x12, 0x96, 0x8c, 0x98, 0xb0,
-	0x09, 0xf3, 0x24, 0x35, 0x69, 0x9e, 0xac, 0x42, 0x92, 0xc8, 0x40, 0xc9, 0x74, 0xc6, 0xaa, 0xee,
-	0x53, 0x60, 0xe2, 0x33, 0x73, 0x24, 0x1e, 0x42, 0x27, 0xfe, 0x3a, 0xbc, 0x1c, 0x22, 0x99, 0x2a,
-	0xf9, 0xef, 0x43, 0x6e, 0x68, 0xcf, 0x74, 0x84, 0xce, 0x70, 0xd3, 0x2e, 0xc2, 0xc6, 0x24, 0x02,
-	0x8a, 0xe4, 0xf7, 0x11, 0xac, 0x2b, 0xa1, 0x7d, 0x62, 0xd3, 0xc7, 0x58, 0x58, 0x0b, 0x71, 0xbe,
-	0xbc, 0x3d, 0x4c, 0xf5, 0xe5, 0x20, 0xaa, 0x03, 0x60, 0x1f, 0xc2, 0x71, 0x41, 0xb8, 0x78, 0x0d,
-	0xae, 0x04, 0xf2, 0x50, 0x8c, 0x7f, 0x86, 0xe4, 0x41, 0xbe, 0x87, 0x4d, 0x83, 0xb4, 0x55, 0x0c,
-	0x26, 0xd2, 0x5c, 0x83, 0x4c, 0x47, 0xfa, 0x3d, 0x38, 0xb4, 0xd3, 0xce, 0x8b, 0xbb, 0x8d, 0xf1,
-	0x53, 0x3d, 0xe6, 0x73, 0xaa, 0xaf, 0x03, 0x48, 0xa2, 0xf5, 0x16, 0x66, 0x2d, 0x77, 0x29, 0x65,
-	0xe4, 0x9b, 0xaf, 0x60, 0xd6, 0x72, 0xe9, 0x5f, 0x96, 0x87, 0xdf, 0x08, 0x29, 0xc5, 0xf9, 0x07,
-	0x08, 0xf2, 0x3e, 0xde, 0x85, 0x99, 0x11, 0xff, 0xe1, 0x30, 0x6f, 0xc3, 0xd5, 0x60, 0x22, 0x8a,
-	0xf3, 0xcf, 0x91, 0x33, 0x7f, 0xa5, 0x4b, 0x23, 0xc8, 0x9f, 0x75, 0xb4, 0xdd, 0x99, 0xed, 0x47,
-	0x4d, 0xf1, 0xff, 0x0b, 0x82, 0x0b, 0x15, 0xd6, 0xac, 0x29, 0xf0, 0xfb, 0x36, 0x36, 0xd9, 0x83,
-	0x00, 0xf2, 0xaf, 0xc0, 0x0a, 0xb3, 0x7a, 0xb6, 0xd8, 0x5e, 0x7c, 0x4a, 0x3d, 0xcd, 0x19, 0xab,
-	0x79, 0xc9, 0xde, 0x82, 0x4b, 0x0d, 0xc2, 0x38, 0x35, 0x31, 0xa7, 0x96, 0x59, 0xf7, 0xf3, 0xee,
-	0xa2, 0x47, 0xa0, 0xe6, 0x5f, 0x2c, 0xc6, 0x67, 0x2a, 0x16, 0x8b, 0x05, 0xb9, 0x62, 0xc7, 0xfd,
-	0x52, 0x9e, 0xff, 0x19, 0xc9, 0x22, 0xf2, 0xce, 0x31, 0x27, 0xb6, 0x89, 0xdb, 0xff, 0x2b, 0x7e,
-	0xaf, 0xc3, 0x9a, 0x8f, 0x57, 0xca, 0xeb, 0xdf, 0x22, 0x58, 0xa9, 0xb0, 0xe6, 0x3d, 0xfa, 0xa8,
-	0x47, 0x1b, 0x98, 0x93, 0x43, 0x51, 0xe7, 0x53, 0xcb, 0x9c, 0xaf, 0xa4, 0x1f, 0x9a, 0xd0, 0xb1,
-	0x91, 0x09, 0xad, 0xd6, 0x66, 0x3c, 0xda, 0xda, 0x44, 0xee, 0xda, 0x2c, 0xe6, 0xe1, 0xb2, 0x1f,
-	0x75, 0xe5, 0xdb, 0xef, 0x10, 0x5c, 0x92, 0x47, 0x8f, 0x61, 0x13, 0xcc, 0xd4, 0x78, 0x05, 0xdb,
-	0x4d, 0x7a, 0x9a, 0x0e, 0x1e, 0x0c, 0xe5, 0x2a, 0xb3, 0x5b, 0x12, 0x09, 0xf9, 0xfb, 0xa7, 0x85,
-	0xab, 0x4d, 0xca, 0x5b, 0xbd, 0xa3, 0x92, 0x61, 0x75, 0xca, 0x6e, 0x17, 0xe8, 0xfc, 0xb9, 0xce,
-	0x1a, 0x0f, 0xcb, 0xa2, 0x5c, 0x60, 0xa5, 0x7d, 0x62, 0xa8, 0xd4, 0x6d, 0xc1, 0xe6, 0x44, 0xfa,
-	0x83, 0x4d, 0x32, 0x0e, 0xeb, 0x83, 0x63, 0xea, 0x10, 0xdb, 0xb8, 0xf3, 0x5e, 0x57, 0x86, 0xc3,
-	0xb6, 0xba, 0x16, 0xc3, 0x6d, 0x6d, 0x05, 0x12, 0x9c, 0xf2, 0x36, 0x71, 0xfd, 0x74, 0x1e, 0xb4,
-	0x0d, 0xc8, 0x36, 0x08, 0x33, 0x6c, 0xda, 0x15, 0xa0, 0xae, 0x93, 0xde, 0x57, 0xc1, 0x3e, 0xde,
-	0x87, 0x73, 0x1d, 0xfc, 0x90, 0xd8, 0xf5, 0x07, 0x84, 0xd4, 0x6d, 0xcc, 0x49, 0x44, 0x5f, 0x97,
-	0x24, 0xca, 0x01, 0x21, 0x55, 0xcc, 0x89, 0x40, 0xe5, 0xc3, 0xa8, 0x89, 0x68, 0xa8, 0xdc, 0x8b,
-	0x6a, 0xc0, 0xaa, 0x4d, 0xda, 0xf8, 0xc4, 0xc5, 0x65, 0x2d, 0x6c, 0xbb, 0xe8, 0xc9, 0x48, 0xe8,
-	0xe7, 0x5d, 0xb4, 0x03, 0x42, 0x6a, 0x02, 0x4b, 0x1a, 0x09, 0x2a, 0xb4, 0x52, 0x73, 0x14, 0x5a,
-	0xe9, 0xd0, 0x85, 0xd6, 0x47, 0x8b, 0x90, 0x1b, 0x6d, 0x98, 0xe6, 0x9e, 0x04, 0x83, 0x5a, 0x3a,
-	0x16, 0xd0, 0x68, 0xc6, 0xa7, 0x34, 0x9a, 0x89, 0x99, 0x1a, 0xcd, 0xe4, 0x1c, 0xe1, 0x4a, 0x85,
-	0x0e, 0xd7, 0xef, 0x11, 0xac, 0x0d, 0xc2, 0x55, 0xe3, 0x98, 0xf7, 0x58, 0x8d, 0xf0, 0xd3, 0x5d,
-	0x36, 0x5f, 0x86, 0x24, 0x93, 0x96, 0x64, 0xc8, 0xce, 0xed, 0x6c, 0x07, 0x6d, 0x7e, 0x5e, 0x66,
-	0x55, 0x57, 0xcf, 0xe3, 0xc0, 0x9f, 0x62, 0xb0, 0xee, 0xdb, 0x48, 0x9d, 0x5a, 0xd2, 0xa7, 0x5e,
-	0x1f, 0x8c, 0x34, 0x50, 0x89, 0xa9, 0x0d, 0x54, 0x32, 0x74, 0x87, 0x9c, 0x0a, 0xd9, 0x21, 0xa7,
-	0x4f, 0xa1, 0x43, 0x3e, 0x9b, 0x46, 0xe9, 0x5f, 0x31, 0xd8, 0x9c, 0xd8, 0x1f, 0xfd, 0x3f, 0xa7,
-	0x11, 0x72, 0x3a, 0x68, 0x8a, 0x33, 0xa1, 0x9b, 0x62, 0x98, 0x23, 0xd7, 0xd9, 0xd0, 0xb9, 0xfe,
-	0xf5, 0x22, 0xe8, 0xde, 0xe5, 0x7d, 0x16, 0x47, 0xf6, 0x37, 0x20, 0x89, 0x0d, 0xa9, 0xe9, 0xec,
-	0x3d, 0x7b, 0x61, 0xf7, 0x9e, 0x61, 0x72, 0x25, 0xe7, 0xe5, 0x6d, 0x09, 0x55, 0x75, 0x21, 0x8b,
-	0x35, 0x58, 0xf2, 0xbe, 0xd7, 0x9e, 0x87, 0xec, 0x7b, 0x26, 0xeb, 0x12, 0x83, 0x3e, 0xa0, 0xa4,
-	0xb1, 0xbc, 0xa0, 0x2d, 0x41, 0x5a, 0x0c, 0x3d, 0xc6, 0x9c, 0x2c, 0x23, 0x2d, 0x03, 0x89, 0x43,
-	0xdc, 0x63, 0x64, 0x79, 0x51, 0xcb, 0x42, 0xaa, 0xd6, 0x63, 0x5d, 0x62, 0x36, 0x96, 0x63, 0x42,
-	0x6a, 0x9f, 0x74, 0xac, 0x36, 0x65, 0xad, 0xe5, 0xb8, 0xdb, 0xb6, 0xfc, 0x01, 0xc1, 0xe6, 0x68,
-	0xd3, 0x75, 0xe6, 0xdb, 0x75, 0x62, 0xee, 0xed, 0xfa, 0x6f, 0x09, 0xd8, 0x1a, 0x75, 0xe3, 0xcc,
-	0xca, 0xb5, 0x6f, 0xc2, 0x0a, 0x35, 0x29, 0xa7, 0xb8, 0x5d, 0xef, 0xc8, 0xfa, 0x51, 0xd4, 0x3f,
-	0xd4, 0xf2, 0x14, 0x6d, 0x68, 0x86, 0x02, 0x48, 0x73, 0xb1, 0xdc, 0x52, 0x54, 0x20, 0x69, 0x2d,
-	0xb1, 0xa6, 0xa8, 0xc9, 0x89, 0x29, 0xfa, 0xcb, 0x61, 0x2b, 0x89, 0x48, 0x56, 0x56, 0x3d, 0x78,
-	0x5e, 0x4b, 0xe3, 0xa5, 0x67, 0x32, 0x12, 0xfe, 0xb4, 0xd2, 0x33, 0x15, 0x0d, 0x35, 0x64, 0xe9,
-	0x99, 0x8e, 0x84, 0x3e, 0x73, 0xe9, 0x79, 0x26, 0x47, 0xd7, 0xce, 0xaf, 0x96, 0x21, 0x56, 0x61,
-	0x4d, 0x0d, 0x43, 0xaa, 0xff, 0xe1, 0xea, 0x6a, 0xe0, 0x52, 0x51, 0x9f, 0x94, 0xf4, 0x52, 0x38,
-	0xb9, 0x7e, 0xbf, 0xa3, 0x35, 0x20, 0xad, 0x3e, 0x3b, 0x5d, 0x9b, 0xa2, 0xdb, 0x17, 0xd4, 0xcb,
-	0x21, 0x05, 0x95, 0x95, 0x9f, 0x22, 0xb8, 0x38, 0xe9, 0x9b, 0xcc, 0xeb, 0x53, 0xc0, 0x26, 0xe8,
-	0xe9, 0x5f, 0x8c, 0xa6, 0xa7, 0x38, 0x3d, 0x41, 0x70, 0x39, 0xf0, 0x83, 0xc7, 0x9b, 0xe1, 0x0c,
-	0xf8, 0x2a, 0xeb, 0x7b, 0x73, 0x28, 0x2b, 0x8a, 0x1f, 0x21, 0xd8, 0x98, 0x7a, 0x6d, 0xff, 0xa5,
-	0x70, 0x96, 0x26, 0x02, 0xe8, 0x6f, 0xcf, 0x09, 0xa0, 0xe8, 0x7e, 0x80, 0x60, 0xc5, 0xf7, 0xeb,
-	0xe0, 0xab, 0x53, 0x2c, 0xf8, 0x29, 0xe9, 0x6f, 0x46, 0x50, 0x52, 0x54, 0x7e, 0x88, 0xe0, 0x82,
-	0xff, 0xa5, 0xf7, 0x6b, 0xa1, 0x61, 0x3d, 0x5a, 0xfa, 0x17, 0xa2, 0x68, 0x29, 0x36, 0x27, 0xf0,
-	0xfc, 0xe8, 0x4d, 0xf1, 0xb4, 0x75, 0x3a, 0x22, 0xaf, 0xbf, 0x3e, 0x9b, 0xbc, 0x32, 0xfd, 0x0b,
-	0x04, 0x7a, 0xc0, 0xbd, 0xfa, 0x1b, 0xa1, 0xfc, 0xf2, 0x53, 0xd5, 0x6f, 0x47, 0x56, 0x55, 0xe4,
-	0x7e, 0x89, 0x60, 0x2d, 0xe8, 0x3a, 0xfa, 0xd6, 0x8c, 0x26, 0xbc, 0x19, 0xdb, 0x8d, 0xae, 0x3b,
-	0x3c, 0x8b, 0x7c, 0xaf, 0x9e, 0x5f, 0x0b, 0x95, 0x8e, 0x11, 0xad, 0xe9, 0xb3, 0x28, 0xe8, 0x2e,
-	0x59, 0xfb, 0x1e, 0x02, 0xcd, 0xe7, 0x22, 0xf9, 0xc6, 0x14, 0xd0, 0x71, 0x15, 0xfd, 0x8d, 0x99,
-	0x55, 0x14, 0x89, 0xef, 0xc0, 0xf2, 0xd8, 0x95, 0xee, 0xb4, 0xe3, 0x60, 0x54, 0x41, 0xbf, 0x39,
-	0xa3, 0x82, 0xb2, 0xfe, 0x3e, 0xbc, 0x30, 0x7e, 0xb5, 0xfa, 0xca, 0x14, 0xb4, 0x31, 0x0d, 0xfd,
-	0xf3, 0xb3, 0x6a, 0x28, 0x02, 0x1f, 0x22, 0x58, 0x9d, 0x70, 0x01, 0xfa, 0xb9, 0xa9, 0xdb, 0xa8,
-	0x9f, 0x9a, 0xfe, 0x56, 0x24, 0xb5, 0x3e, 0xa1, 0xdd, 0xd6, 0xc7, 0x4f, 0xf3, 0xe8, 0x93, 0xa7,
-	0x79, 0xf4, 0x8f, 0xa7, 0x79, 0xf4, 0x93, 0x67, 0xf9, 0x85, 0x4f, 0x9e, 0xe5, 0x17, 0xfe, 0xfa,
-	0x2c, 0xbf, 0xf0, 0xf5, 0xaf, 0x7a, 0x6a, 0xa0, 0xbb, 0x7d, 0x13, 0xf7, 0xf0, 0x11, 0x2b, 0x2b,
-	0x83, 0xd7, 0x0d, 0xcb, 0x26, 0xde, 0xc7, 0x16, 0xa6, 0x66, 0xb9, 0x63, 0x35, 0x7a, 0x6d, 0xc2,
-	0x06, 0xff, 0x7a, 0x23, 0xeb, 0xa5, 0xa3, 0xa4, 0xfc, 0x87, 0x9a, 0x57, 0xff, 0x1d, 0x00, 0x00,
-	0xff, 0xff, 0xb4, 0x08, 0x92, 0x22, 0x1b, 0x24, 0x00, 0x00,
+	// 1916 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x5a, 0xcd, 0x6f, 0x1b, 0xc7,
+	0x15, 0xd7, 0x4a, 0xfc, 0x10, 0x1f, 0x29, 0x99, 0x59, 0xcb, 0x32, 0xbd, 0xb6, 0x48, 0x89, 0x8a,
+	0x6d, 0x05, 0x81, 0xc9, 0x58, 0x49, 0x93, 0xc6, 0xe9, 0x97, 0x25, 0x59, 0xa9, 0x01, 0xb3, 0x51,
+	0x48, 0x07, 0x05, 0x5a, 0x14, 0xec, 0x68, 0x39, 0x26, 0xa7, 0x22, 0x77, 0xe9, 0x9d, 0xa1, 0x6b,
+	0x05, 0x45, 0x03, 0xf4, 0xd0, 0x06, 0xe8, 0x67, 0xd0, 0x53, 0x0b, 0x14, 0xf0, 0xa5, 0x40, 0x0b,
+	0xb4, 0x7f, 0x40, 0x0f, 0xed, 0xa9, 0x87, 0x1c, 0x03, 0xb4, 0x28, 0x8a, 0x1c, 0x82, 0xc2, 0xbe,
+	0xf4, 0xde, 0x4b, 0x8f, 0xc5, 0xcc, 0x2e, 0x87, 0x4b, 0x72, 0x97, 0x5c, 0xae, 0xbc, 0x4a, 0x61,
+	0xe4, 0x44, 0xee, 0xcc, 0x7b, 0xbf, 0xf7, 0x7b, 0x33, 0xf3, 0x66, 0xdf, 0x9b, 0x59, 0xd8, 0x24,
+	0xc6, 0x77, 0xb0, 0xce, 0xc8, 0x03, 0x5c, 0xc6, 0x0f, 0xf5, 0x16, 0x32, 0x9a, 0xb8, 0xfc, 0xe0,
+	0xfa, 0x21, 0x66, 0xe8, 0x7a, 0x99, 0x3d, 0x2c, 0x75, 0x2d, 0x93, 0x99, 0xaa, 0x26, 0x85, 0x4a,
+	0x7d, 0xa1, 0x92, 0x23, 0xa4, 0xad, 0x34, 0xcd, 0xa6, 0x29, 0xc4, 0xca, 0xfc, 0x9f, 0xad, 0xa1,
+	0x5d, 0x1e, 0xc0, 0x9a, 0x16, 0xd2, 0xdb, 0x03, 0x50, 0xfb, 0xd1, 0x11, 0x7b, 0x61, 0x82, 0x75,
+	0x69, 0xc9, 0x16, 0xcd, 0xeb, 0x26, 0xed, 0x98, 0xb4, 0x7c, 0x88, 0xe8, 0x40, 0x46, 0x37, 0x89,
+	0x61, 0xf7, 0x17, 0x7f, 0xa2, 0x00, 0x54, 0x68, 0x73, 0x0f, 0x77, 0x4d, 0x4a, 0x98, 0xba, 0x0a,
+	0x09, 0x8a, 0x8d, 0x06, 0xb6, 0x72, 0xca, 0xba, 0xb2, 0x95, 0xaa, 0x3a, 0x4f, 0xea, 0x26, 0x2c,
+	0xd1, 0xde, 0x21, 0xd2, 0x75, 0xb3, 0x67, 0xb0, 0x3a, 0x69, 0xe4, 0xe6, 0x45, 0x77, 0x66, 0xd0,
+	0x78, 0xbb, 0xa1, 0xbe, 0x06, 0x09, 0xd4, 0xe1, 0xff, 0x73, 0x0b, 0xeb, 0xca, 0x56, 0x7a, 0xfb,
+	0x42, 0xc9, 0x36, 0x5e, 0xe2, 0xc6, 0xfb, 0x9e, 0x97, 0x76, 0x4d, 0x62, 0xec, 0xc4, 0x3e, 0xfc,
+	0xa4, 0x30, 0x57, 0x75, 0xc4, 0x6f, 0x2c, 0xbe, 0xff, 0xa8, 0x30, 0xf7, 0xef, 0x47, 0x85, 0xb9,
+	0xe2, 0x0a, 0xa8, 0x03, 0x36, 0x55, 0x4c, 0xbb, 0xa6, 0x41, 0x71, 0xf1, 0xa7, 0x0a, 0xa4, 0x2b,
+	0xb4, 0xf9, 0x75, 0xc2, 0x5a, 0x0d, 0x0b, 0x7d, 0xf7, 0x53, 0x67, 0x79, 0x0e, 0xce, 0xba, 0xe8,
+	0x48, 0x9a, 0xdf, 0x87, 0xf3, 0x15, 0xda, 0xdc, 0xb5, 0x30, 0x62, 0xb8, 0xd6, 0x35, 0xd9, 0x1d,
+	0xd2, 0x21, 0xec, 0x2d, 0x8b, 0x33, 0xf3, 0x63, 0x7c, 0x13, 0xe2, 0x26, 0x17, 0x10, 0x4c, 0xd3,
+	0xdb, 0x97, 0x4b, 0xfe, 0x4b, 0xa6, 0xc4, 0x21, 0x05, 0x9a, 0xc3, 0xcb, 0xd6, 0x74, 0xd1, 0xda,
+	0x80, 0x82, 0x8f, 0x7d, 0x49, 0xf1, 0xe3, 0x79, 0xd0, 0x2a, 0xb4, 0x79, 0xdb, 0xa0, 0x0c, 0x19,
+	0x8c, 0x0b, 0x55, 0x90, 0x75, 0x84, 0xd9, 0x1d, 0xd4, 0x33, 0xf4, 0x96, 0x2f, 0xcd, 0x55, 0x48,
+	0x30, 0xa2, 0x1f, 0x39, 0x3c, 0x53, 0x55, 0xe7, 0x49, 0x5d, 0x03, 0xe0, 0xa3, 0x56, 0x6f, 0x60,
+	0xc3, 0xec, 0x88, 0xf1, 0x4c, 0x55, 0x53, 0xbc, 0x65, 0x8f, 0x37, 0xa8, 0x05, 0x48, 0xdf, 0xef,
+	0x99, 0xac, 0xdf, 0x1f, 0x13, 0xfd, 0x20, 0x9a, 0x6c, 0x81, 0x6f, 0xc1, 0xd9, 0x0e, 0x31, 0xea,
+	0x5d, 0x8b, 0xe8, 0xb8, 0xce, 0x31, 0xeb, 0x94, 0xbc, 0x8b, 0x73, 0x71, 0x2e, 0xb8, 0x53, 0xe2,
+	0x5e, 0x7e, 0xfc, 0x49, 0xe1, 0x4a, 0x93, 0xb0, 0x56, 0xef, 0xb0, 0xa4, 0x9b, 0x9d, 0xb2, 0xb3,
+	0x9a, 0xed, 0x9f, 0x6b, 0xb4, 0x71, 0x54, 0x66, 0xc7, 0x5d, 0x4c, 0x4b, 0x7b, 0x58, 0xaf, 0x66,
+	0x3b, 0xc4, 0x38, 0xe0, 0x48, 0x77, 0x89, 0x7e, 0x54, 0x23, 0xef, 0x62, 0x55, 0x87, 0x55, 0x0e,
+	0x7f, 0xbf, 0x87, 0x0c, 0x46, 0xd8, 0xb1, 0xcb, 0x42, 0x22, 0x94, 0x05, 0x4e, 0xf6, 0x6d, 0x07,
+	0xac, 0x6f, 0xc4, 0x35, 0xfe, 0xcf, 0x43, 0xd1, 0x7f, 0x6c, 0xe5, 0x14, 0xfc, 0x27, 0x21, 0xa6,
+	0xc9, 0x11, 0x3b, 0xc0, 0x56, 0x17, 0xb3, 0x1e, 0x6a, 0x9f, 0x68, 0x1e, 0x46, 0x06, 0x7a, 0x61,
+	0x6c, 0xa0, 0x0b, 0x90, 0xb6, 0x77, 0x90, 0x3a, 0x9f, 0x9d, 0xfe, 0x4c, 0xd8, 0x4d, 0x3b, 0x88,
+	0x62, 0x75, 0x03, 0x32, 0x8e, 0x80, 0xd0, 0xb2, 0xa7, 0xa0, 0xea, 0x28, 0xbd, 0xcd, 0x9b, 0xd4,
+	0x12, 0x9c, 0x75, 0x44, 0xa8, 0x8e, 0xda, 0xb8, 0x7e, 0x0f, 0xe9, 0xcc, 0xb4, 0xc4, 0x50, 0x2e,
+	0x55, 0x9f, 0xb3, 0xbb, 0x6a, 0xbc, 0x67, 0x5f, 0x74, 0xa8, 0xb7, 0xa4, 0x4d, 0x3e, 0x82, 0xb9,
+	0xe4, 0xba, 0xb2, 0xb5, 0xbc, 0xfd, 0xbc, 0x6b, 0x85, 0x3b, 0x7b, 0x5a, 0x7f, 0x7d, 0xbf, 0x25,
+	0x1e, 0xef, 0x1e, 0x77, 0x71, 0x9f, 0x19, 0xff, 0xaf, 0xde, 0x85, 0xe5, 0x0e, 0x3a, 0xc2, 0x56,
+	0xfd, 0x1e, 0xc6, 0x75, 0x0b, 0x31, 0x9c, 0x5b, 0x0c, 0x35, 0x79, 0x19, 0x81, 0xb2, 0x8f, 0x71,
+	0x15, 0x31, 0x81, 0xca, 0x86, 0x51, 0x53, 0xe1, 0x50, 0x99, 0x1b, 0xf5, 0xdb, 0xb0, 0x42, 0x0c,
+	0xc2, 0x08, 0x6a, 0xd7, 0x3b, 0xc8, 0x6a, 0x12, 0x83, 0x43, 0x13, 0x33, 0x07, 0xa1, 0xb0, 0x55,
+	0x07, 0xab, 0x22, 0xa0, 0xaa, 0x1c, 0x49, 0x6d, 0x41, 0xae, 0x83, 0x88, 0xc1, 0xb0, 0x81, 0x0c,
+	0x1d, 0x0f, 0x5b, 0x49, 0x87, 0xb2, 0xb2, 0xea, 0xc2, 0x73, 0x5b, 0xf2, 0x89, 0xcd, 0x4c, 0xe4,
+	0xb1, 0xb9, 0x14, 0x45, 0x6c, 0xbe, 0x00, 0x57, 0xa7, 0x04, 0x9d, 0x0c, 0xd0, 0x9f, 0x27, 0x61,
+	0x73, 0x20, 0x7b, 0xeb, 0x61, 0x97, 0x58, 0xc7, 0xfb, 0x3d, 0xd6, 0xb3, 0x30, 0xfd, 0xff, 0x0f,
+	0xd2, 0x91, 0xa0, 0x4b, 0x84, 0x0c, 0x3a, 0x9f, 0x58, 0x4f, 0xfa, 0xc5, 0xfa, 0x2a, 0x24, 0xb0,
+	0x18, 0x28, 0x11, 0x9c, 0x0b, 0x55, 0xe7, 0xc9, 0x23, 0x78, 0x53, 0x91, 0x04, 0x2f, 0x44, 0x18,
+	0xbc, 0xe9, 0x53, 0x09, 0xde, 0xcc, 0x69, 0x04, 0xef, 0x52, 0xe4, 0xc1, 0xbb, 0x1c, 0x45, 0xf0,
+	0x5e, 0x83, 0x17, 0x03, 0x04, 0xa4, 0x0c, 0xe0, 0xf7, 0x20, 0x37, 0x94, 0x07, 0xd9, 0x42, 0xa7,
+	0x98, 0x88, 0x15, 0x61, 0xdd, 0x8f, 0x80, 0x24, 0xf9, 0x43, 0x05, 0xd6, 0xa4, 0xd0, 0x1e, 0xb6,
+	0xc8, 0x03, 0xc4, 0xad, 0x05, 0xc8, 0x19, 0xdf, 0x1c, 0xa6, 0xfa, 0xe2, 0x24, 0xaa, 0x03, 0x60,
+	0x0f, 0xc2, 0x31, 0x4e, 0xb8, 0x78, 0x15, 0x2e, 0x4f, 0xe4, 0x21, 0x19, 0xff, 0x52, 0x11, 0xc9,
+	0xf9, 0x2e, 0x5f, 0x6b, 0x6d, 0x39, 0x06, 0xbe, 0x34, 0x2f, 0x42, 0xaa, 0x23, 0xfc, 0x1e, 0x24,
+	0xe2, 0x8b, 0x76, 0xc3, 0xed, 0xc6, 0x78, 0xa6, 0xbe, 0xe0, 0x91, 0xa9, 0xaf, 0x01, 0x08, 0xa2,
+	0xf5, 0x16, 0xa2, 0x2d, 0x67, 0x3b, 0x4c, 0x89, 0x96, 0xaf, 0x22, 0xda, 0x72, 0xe8, 0x5f, 0x12,
+	0x09, 0xed, 0x08, 0x29, 0xc9, 0xf9, 0x47, 0x0a, 0xe4, 0x3d, 0xbc, 0x0b, 0xb2, 0x22, 0x9e, 0xf2,
+	0x30, 0x6f, 0xc1, 0x95, 0xc9, 0x44, 0x24, 0xe7, 0x5f, 0x29, 0xf6, 0xfa, 0x15, 0x2e, 0x8d, 0x20,
+	0x7f, 0xda, 0xa3, 0xed, 0xac, 0x6c, 0x2f, 0x6a, 0x92, 0xff, 0x3f, 0x14, 0x38, 0x57, 0xa1, 0xcd,
+	0x9a, 0x04, 0xbf, 0x6b, 0x21, 0x83, 0xde, 0x9b, 0x40, 0xfe, 0x25, 0x58, 0xa1, 0x66, 0xcf, 0xd2,
+	0x71, 0xdd, 0xab, 0x7c, 0x53, 0xed, 0xbe, 0x9a, 0x9b, 0xec, 0x0d, 0xb8, 0xd0, 0xc0, 0x94, 0x11,
+	0x83, 0xef, 0x76, 0x46, 0xdd, 0xcb, 0xbb, 0xf3, 0x2e, 0x81, 0x9a, 0x77, 0x01, 0x18, 0x9b, 0xa9,
+	0x00, 0x2c, 0x16, 0x44, 0xc4, 0x8e, 0xfb, 0x25, 0x3d, 0xff, 0xbb, 0x22, 0x0a, 0xc3, 0x5b, 0x0f,
+	0x19, 0xb6, 0x0c, 0xd4, 0x7e, 0x56, 0xfc, 0x5e, 0x83, 0x8b, 0x1e, 0x5e, 0x49, 0xaf, 0xff, 0xa4,
+	0xc0, 0x4a, 0x85, 0x36, 0xef, 0x90, 0xfb, 0x3d, 0xd2, 0x40, 0x0c, 0x1f, 0xf0, 0xda, 0x9d, 0x98,
+	0xc6, 0xc9, 0xca, 0xf4, 0xa1, 0x05, 0xbd, 0x30, 0xb2, 0xa0, 0x65, 0x6c, 0xc6, 0xc2, 0xc5, 0xa6,
+	0xe2, 0xc4, 0x66, 0x31, 0x0f, 0x97, 0xbc, 0xa8, 0x4b, 0xdf, 0xfe, 0xac, 0xc0, 0x05, 0xf1, 0xea,
+	0xd1, 0x2d, 0x8c, 0xa8, 0xec, 0xb7, 0x5f, 0xb5, 0x11, 0x3a, 0xb8, 0x3f, 0x34, 0x57, 0xb3, 0xbf,
+	0x50, 0xfb, 0x53, 0xb7, 0x09, 0x1b, 0xbe, 0xf4, 0xa5, 0x93, 0x7f, 0x8b, 0xc1, 0xda, 0xe0, 0x35,
+	0x75, 0x80, 0x2c, 0xd4, 0x79, 0xa7, 0x2b, 0x86, 0xc3, 0x32, 0xbb, 0x26, 0x45, 0x6d, 0x75, 0x05,
+	0xe2, 0x8c, 0xb0, 0x36, 0x76, 0xfc, 0xb4, 0x1f, 0xd4, 0x75, 0x48, 0x37, 0x30, 0xd5, 0x2d, 0xd2,
+	0xe5, 0xa0, 0x8e, 0x93, 0xee, 0xa6, 0xc9, 0x3e, 0x8e, 0xe7, 0x86, 0xb1, 0x48, 0x72, 0xc3, 0xf8,
+	0x53, 0xc8, 0x0d, 0x75, 0x58, 0xb5, 0x70, 0x1b, 0x1d, 0x3b, 0xb8, 0xb4, 0x85, 0x2c, 0x07, 0x3d,
+	0xe4, 0x49, 0x82, 0x83, 0xb6, 0x8f, 0x71, 0x8d, 0x63, 0x09, 0x23, 0x3e, 0x49, 0x5b, 0x32, 0xf2,
+	0xa4, 0x6d, 0x31, 0x8a, 0xa4, 0xed, 0xbf, 0xf3, 0x90, 0x1b, 0x3d, 0x04, 0x39, 0xf1, 0x82, 0x1a,
+	0xd4, 0x56, 0x0b, 0x13, 0x0e, 0xa2, 0x62, 0x53, 0x0e, 0xa2, 0xe2, 0x41, 0x0f, 0xa2, 0x12, 0x91,
+	0x0f, 0x7d, 0x32, 0x8a, 0xa1, 0xff, 0x8b, 0x02, 0x17, 0x07, 0x43, 0x5f, 0x63, 0x88, 0xf5, 0x68,
+	0x0d, 0xb3, 0x68, 0xc3, 0xf9, 0x2b, 0x90, 0xa0, 0xc2, 0x92, 0x18, 0xfe, 0xe5, 0xed, 0xad, 0x49,
+	0x9b, 0xb2, 0x9b, 0x59, 0xd5, 0xd1, 0x73, 0x39, 0xf0, 0x41, 0x12, 0xd6, 0x3c, 0x8b, 0xf4, 0xc8,
+	0x16, 0xd0, 0xd4, 0xa3, 0xca, 0x91, 0xe2, 0x3c, 0x3e, 0xb5, 0x38, 0x4f, 0x04, 0x3e, 0x41, 0x4b,
+	0x06, 0x3c, 0x41, 0x5b, 0x0c, 0x59, 0xcc, 0xfb, 0x15, 0xb6, 0xa9, 0x53, 0x29, 0x6c, 0xe1, 0xa9,
+	0x16, 0xb6, 0xe3, 0x2f, 0x8d, 0x74, 0x24, 0x2f, 0x8d, 0xcc, 0x53, 0x78, 0x69, 0x3c, 0x5b, 0x45,
+	0xf8, 0x1f, 0x93, 0xb0, 0xe1, 0x5b, 0x7b, 0x7f, 0x16, 0x97, 0x21, 0xe2, 0x72, 0x70, 0x68, 0x96,
+	0x1a, 0x3a, 0x34, 0x7b, 0x96, 0x4e, 0x91, 0xc7, 0xe3, 0x35, 0x13, 0x49, 0xbc, 0x2e, 0x45, 0x17,
+	0xaf, 0xcb, 0x91, 0xc7, 0xeb, 0x99, 0x28, 0xe2, 0xf5, 0xf7, 0xf3, 0xa0, 0xb9, 0x5f, 0xb3, 0xa7,
+	0x91, 0xd2, 0x7f, 0x13, 0x12, 0x48, 0x17, 0x9a, 0x76, 0x0e, 0xb0, 0x1b, 0x34, 0x07, 0x18, 0x26,
+	0x57, 0xb2, 0x1b, 0x6f, 0x0a, 0xa8, 0xaa, 0x03, 0x59, 0xac, 0x41, 0xc6, 0xdd, 0xae, 0x9e, 0x81,
+	0xf4, 0x3b, 0x06, 0xed, 0x62, 0x9d, 0xdc, 0x23, 0xb8, 0x91, 0x9d, 0x53, 0x33, 0xb0, 0xc8, 0xbb,
+	0x1e, 0x20, 0x86, 0xb3, 0x8a, 0x9a, 0x82, 0xf8, 0x01, 0xea, 0x51, 0x9c, 0x9d, 0x57, 0xd3, 0x90,
+	0xac, 0xf5, 0x68, 0x17, 0x1b, 0x8d, 0xec, 0x02, 0x97, 0xda, 0xc3, 0x1d, 0xb3, 0x4d, 0x68, 0x2b,
+	0x1b, 0x73, 0x8e, 0x35, 0xfe, 0xaa, 0xc0, 0xc6, 0xe8, 0xa1, 0xcc, 0xa9, 0xa7, 0x4d, 0xf1, 0x13,
+	0xa7, 0x4d, 0xbf, 0x4d, 0xc0, 0xe6, 0xa8, 0x1b, 0xa7, 0x56, 0xce, 0xf9, 0xed, 0x5a, 0x83, 0xa2,
+	0x4e, 0x89, 0x70, 0xd7, 0x8a, 0x87, 0xb2, 0x12, 0x7c, 0xd7, 0x4a, 0x84, 0xc2, 0x9f, 0xb6, 0x6b,
+	0x25, 0xc3, 0xa1, 0x06, 0x2c, 0x4d, 0x17, 0x43, 0xa1, 0xcf, 0x52, 0x9a, 0xa6, 0x42, 0x59, 0x98,
+	0x65, 0x6b, 0x84, 0x70, 0x3e, 0x4c, 0xdc, 0x1a, 0xb7, 0x7f, 0x97, 0x85, 0x85, 0x0a, 0x6d, 0xaa,
+	0x08, 0x92, 0xfd, 0x0f, 0x5f, 0xae, 0x4c, 0x0c, 0x3b, 0xf9, 0x49, 0x8a, 0x56, 0x0a, 0x26, 0xd7,
+	0x3f, 0x5b, 0x51, 0x1b, 0xb0, 0x28, 0x3f, 0x5b, 0xb9, 0x3a, 0x45, 0xb7, 0x2f, 0xa8, 0x95, 0x03,
+	0x0a, 0x4a, 0x2b, 0x1f, 0x28, 0x70, 0xde, 0xef, 0x9b, 0x8e, 0x57, 0xa7, 0x80, 0xf9, 0xe8, 0x69,
+	0x5f, 0x0a, 0xa7, 0x27, 0x39, 0x3d, 0x52, 0xe0, 0xd2, 0xc4, 0x8f, 0x1c, 0xde, 0x08, 0x66, 0xc0,
+	0x53, 0x59, 0xdb, 0x3d, 0x81, 0xb2, 0xa4, 0xf8, 0x07, 0x05, 0xd6, 0xa7, 0x5e, 0xf3, 0x7e, 0x39,
+	0x98, 0x25, 0x5f, 0x00, 0xed, 0xcd, 0x13, 0x02, 0x48, 0xba, 0xef, 0x2b, 0xb0, 0xe2, 0xf9, 0x75,
+	0xd1, 0xcb, 0x53, 0x2c, 0x78, 0x29, 0x69, 0x6f, 0x84, 0x50, 0x92, 0x54, 0x7e, 0xac, 0xc0, 0x39,
+	0xef, 0x0b, 0xb6, 0x57, 0x02, 0xc3, 0xba, 0xb4, 0xb4, 0x2f, 0x84, 0xd1, 0x92, 0x6c, 0x8e, 0xe1,
+	0xcc, 0xe8, 0xad, 0xd4, 0xb4, 0x38, 0x1d, 0x91, 0xd7, 0x5e, 0x9d, 0x4d, 0x5e, 0x9a, 0xfe, 0xb5,
+	0x02, 0xda, 0x84, 0x3b, 0xbc, 0xd7, 0x03, 0xf9, 0xe5, 0xa5, 0xaa, 0xdd, 0x0c, 0xad, 0x2a, 0xc9,
+	0xfd, 0x46, 0x81, 0x8b, 0x93, 0xae, 0xbe, 0x6e, 0xcc, 0x68, 0xc2, 0x3d, 0x63, 0x3b, 0xe1, 0x75,
+	0x87, 0x57, 0x91, 0xe7, 0x35, 0xd7, 0x2b, 0x81, 0xa6, 0x63, 0x44, 0x6b, 0xfa, 0x2a, 0x9a, 0x74,
+	0x6f, 0xa5, 0xfe, 0x40, 0x01, 0xd5, 0xe3, 0xd2, 0xea, 0xfa, 0x14, 0xd0, 0x71, 0x15, 0xed, 0xf5,
+	0x99, 0x55, 0x24, 0x89, 0xef, 0x41, 0x76, 0xec, 0xfa, 0x68, 0xda, 0xeb, 0x60, 0x54, 0x41, 0x7b,
+	0x6d, 0x46, 0x05, 0x69, 0xfd, 0x3d, 0x78, 0x6e, 0xfc, 0x1a, 0xe7, 0xa5, 0x29, 0x68, 0x63, 0x1a,
+	0xda, 0xe7, 0x67, 0xd5, 0x90, 0x04, 0x7e, 0xa6, 0xc0, 0xaa, 0xcf, 0x65, 0xcb, 0xe7, 0xa6, 0x6e,
+	0xa3, 0x5e, 0x6a, 0xda, 0x17, 0x43, 0xa9, 0xf5, 0x09, 0xed, 0xb4, 0x3e, 0x7c, 0x9c, 0x57, 0x3e,
+	0x7a, 0x9c, 0x57, 0xfe, 0xf5, 0x38, 0xaf, 0xfc, 0xe2, 0x49, 0x7e, 0xee, 0xa3, 0x27, 0xf9, 0xb9,
+	0x7f, 0x3e, 0xc9, 0xcf, 0x7d, 0xe3, 0x6b, 0xae, 0x5c, 0xe4, 0x76, 0xdf, 0xc4, 0x1d, 0x74, 0x48,
+	0xcb, 0xd2, 0xe0, 0x35, 0xdd, 0xb4, 0xb0, 0xfb, 0xb1, 0x85, 0x88, 0x51, 0xee, 0x98, 0x8d, 0x5e,
+	0x1b, 0xd3, 0xc1, 0xa7, 0xbb, 0x22, 0x6f, 0x39, 0x4c, 0x88, 0x0f, 0x72, 0x5f, 0xfe, 0x5f, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0x4d, 0xdc, 0x3f, 0xb7, 0x5b, 0x2c, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -2767,16 +2805,26 @@ func (m *MsgInstantSpotMarketLaunch) MarshalToSizedBuffer(dAtA []byte) (int, err
 	_ = i
 	var l int
 	_ = l
-	if m.MaxQuantityScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
-		i--
-		dAtA[i] = 0x30
+	{
+		size := m.MinQuantityTickSize.Size()
+		i -= size
+		if _, err := m.MinQuantityTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
-		i--
-		dAtA[i] = 0x28
+	i--
+	dAtA[i] = 0x32
+	{
+		size := m.MinPriceTickSize.Size()
+		i -= size
+		if _, err := m.MinPriceTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x2a
 	if len(m.QuoteDenom) > 0 {
 		i -= len(m.QuoteDenom)
 		copy(dAtA[i:], m.QuoteDenom)
@@ -2851,16 +2899,66 @@ func (m *MsgInstantPerpetualMarketLaunch) MarshalToSizedBuffer(dAtA []byte) (int
 	_ = i
 	var l int
 	_ = l
-	if m.MaxQuantityScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
-		i--
-		dAtA[i] = 0x48
+	{
+		size := m.MinQuantityTickSize.Size()
+		i -= size
+		if _, err := m.MinQuantityTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
-		i--
-		dAtA[i] = 0x40
+	i--
+	dAtA[i] = 0x6a
+	{
+		size := m.MinPriceTickSize.Size()
+		i -= size
+		if _, err := m.MinPriceTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x62
+	{
+		size := m.MaintenanceMarginRatio.Size()
+		i -= size
+		if _, err := m.MaintenanceMarginRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x5a
+	{
+		size := m.InitialMarginRatio.Size()
+		i -= size
+		if _, err := m.InitialMarginRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x52
+	{
+		size := m.TakerFeeRate.Size()
+		i -= size
+		if _, err := m.TakerFeeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x4a
+	{
+		size := m.MakerFeeRate.Size()
+		i -= size
+		if _, err := m.MakerFeeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x42
 	if m.OracleType != 0 {
 		i = encodeVarintTx(dAtA, i, uint64(m.OracleType))
 		i--
@@ -2952,16 +3050,66 @@ func (m *MsgInstantExpiryFuturesMarketLaunch) MarshalToSizedBuffer(dAtA []byte) 
 	_ = i
 	var l int
 	_ = l
-	if m.MaxQuantityScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
-		i--
-		dAtA[i] = 0x50
+	{
+		size := m.MinQuantityTickSize.Size()
+		i -= size
+		if _, err := m.MinQuantityTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
-		i--
-		dAtA[i] = 0x48
+	i--
+	dAtA[i] = 0x72
+	{
+		size := m.MinPriceTickSize.Size()
+		i -= size
+		if _, err := m.MinPriceTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x6a
+	{
+		size := m.MaintenanceMarginRatio.Size()
+		i -= size
+		if _, err := m.MaintenanceMarginRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x62
+	{
+		size := m.InitialMarginRatio.Size()
+		i -= size
+		if _, err := m.InitialMarginRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x5a
+	{
+		size := m.TakerFeeRate.Size()
+		i -= size
+		if _, err := m.TakerFeeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x52
+	{
+		size := m.MakerFeeRate.Size()
+		i -= size
+		if _, err := m.MakerFeeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x4a
 	if m.Expiry != 0 {
 		i = encodeVarintTx(dAtA, i, uint64(m.Expiry))
 		i--
@@ -3705,16 +3853,26 @@ func (m *SpotMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byte) (int, 
 	_ = i
 	var l int
 	_ = l
-	if m.MaxQuantityScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
-		i--
-		dAtA[i] = 0x40
+	{
+		size := m.MinQuantityTickSize.Size()
+		i -= size
+		if _, err := m.MinQuantityTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
-		i--
-		dAtA[i] = 0x38
+	i--
+	dAtA[i] = 0x42
+	{
+		size := m.MinPriceTickSize.Size()
+		i -= size
+		if _, err := m.MinPriceTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x3a
 	{
 		size := m.RelayerFeeShareRate.Size()
 		i -= size
@@ -3789,16 +3947,26 @@ func (m *SpotMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (int, error
 	_ = i
 	var l int
 	_ = l
-	if m.MaxQuantityScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
-		i--
-		dAtA[i] = 0x38
+	{
+		size := m.MinQuantityTickSize.Size()
+		i -= size
+		if _, err := m.MinQuantityTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
-		i--
-		dAtA[i] = 0x30
+	i--
+	dAtA[i] = 0x3a
+	{
+		size := m.MinPriceTickSize.Size()
+		i -= size
+		if _, err := m.MinPriceTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x32
 	if len(m.QuoteDenom) > 0 {
 		i -= len(m.QuoteDenom)
 		copy(dAtA[i:], m.QuoteDenom)
@@ -3906,16 +4074,66 @@ func (m *PerpetualMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (int, 
 	_ = i
 	var l int
 	_ = l
-	if m.MaxQuantityScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
-		i--
-		dAtA[i] = 0x50
+	{
+		size := m.MinQuantityTickSize.Size()
+		i -= size
+		if _, err := m.MinQuantityTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
-		i--
-		dAtA[i] = 0x48
+	i--
+	dAtA[i] = 0x72
+	{
+		size := m.MinPriceTickSize.Size()
+		i -= size
+		if _, err := m.MinPriceTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x6a
+	{
+		size := m.TakerFeeRate.Size()
+		i -= size
+		if _, err := m.TakerFeeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x62
+	{
+		size := m.MakerFeeRate.Size()
+		i -= size
+		if _, err := m.MakerFeeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x5a
+	{
+		size := m.MaintenanceMarginRatio.Size()
+		i -= size
+		if _, err := m.MaintenanceMarginRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x52
+	{
+		size := m.InitialMarginRatio.Size()
+		i -= size
+		if _, err := m.InitialMarginRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x4a
 	if m.OracleType != 0 {
 		i = encodeVarintTx(dAtA, i, uint64(m.OracleType))
 		i--
@@ -3991,16 +4209,66 @@ func (m *ExpiryFuturesMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (i
 	_ = i
 	var l int
 	_ = l
-	if m.MaxQuantityScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
-		i--
-		dAtA[i] = 0x58
+	{
+		size := m.MinQuantityTickSize.Size()
+		i -= size
+		if _, err := m.MinQuantityTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
-		i--
-		dAtA[i] = 0x50
+	i--
+	dAtA[i] = 0x7a
+	{
+		size := m.MinPriceTickSize.Size()
+		i -= size
+		if _, err := m.MinPriceTickSize.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x72
+	{
+		size := m.TakerFeeRate.Size()
+		i -= size
+		if _, err := m.TakerFeeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x6a
+	{
+		size := m.MakerFeeRate.Size()
+		i -= size
+		if _, err := m.MakerFeeRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x62
+	{
+		size := m.MaintenanceMarginRatio.Size()
+		i -= size
+		if _, err := m.MaintenanceMarginRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x5a
+	{
+		size := m.InitialMarginRatio.Size()
+		i -= size
+		if _, err := m.InitialMarginRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x52
 	if m.Expiry != 0 {
 		i = encodeVarintTx(dAtA, i, uint64(m.Expiry))
 		i--
@@ -4179,15 +4447,29 @@ func (m *DerivativeMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byte) 
 	_ = i
 	var l int
 	_ = l
-	if m.MaxQuantityScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxQuantityScaleDecimals))
+	if m.MinQuantityTickSize != nil {
+		{
+			size := m.MinQuantityTickSize.Size()
+			i -= size
+			if _, err := m.MinQuantityTickSize.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
 		i--
-		dAtA[i] = 0x50
+		dAtA[i] = 0x52
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.MaxPriceScaleDecimals))
+	if m.MinPriceTickSize != nil {
+		{
+			size := m.MinPriceTickSize.Size()
+			i -= size
+			if _, err := m.MinPriceTickSize.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
 		i--
-		dAtA[i] = 0x48
+		dAtA[i] = 0x4a
 	}
 	if m.RelayerFeeShareRate != nil {
 		{
@@ -4386,12 +4668,10 @@ func (m *MsgInstantSpotMarketLaunch) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
-	}
-	if m.MaxQuantityScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
-	}
+	l = m.MinPriceTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinQuantityTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
@@ -4436,12 +4716,18 @@ func (m *MsgInstantPerpetualMarketLaunch) Size() (n int) {
 	if m.OracleType != 0 {
 		n += 1 + sovTx(uint64(m.OracleType))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
-	}
-	if m.MaxQuantityScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
-	}
+	l = m.MakerFeeRate.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.TakerFeeRate.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.InitialMarginRatio.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MaintenanceMarginRatio.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinPriceTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinQuantityTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
@@ -4489,12 +4775,18 @@ func (m *MsgInstantExpiryFuturesMarketLaunch) Size() (n int) {
 	if m.Expiry != 0 {
 		n += 1 + sovTx(uint64(m.Expiry))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
-	}
-	if m.MaxQuantityScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
-	}
+	l = m.MakerFeeRate.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.TakerFeeRate.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.InitialMarginRatio.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MaintenanceMarginRatio.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinPriceTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinQuantityTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
@@ -4801,12 +5093,10 @@ func (m *SpotMarketParamUpdateProposal) Size() (n int) {
 	n += 1 + l + sovTx(uint64(l))
 	l = m.RelayerFeeShareRate.Size()
 	n += 1 + l + sovTx(uint64(l))
-	if m.MaxPriceScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
-	}
-	if m.MaxQuantityScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
-	}
+	l = m.MinPriceTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinQuantityTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
@@ -4836,12 +5126,10 @@ func (m *SpotMarketLaunchProposal) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
-	}
-	if m.MaxQuantityScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
-	}
+	l = m.MinPriceTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinQuantityTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
@@ -4905,12 +5193,18 @@ func (m *PerpetualMarketLaunchProposal) Size() (n int) {
 	if m.OracleType != 0 {
 		n += 1 + sovTx(uint64(m.OracleType))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
-	}
-	if m.MaxQuantityScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
-	}
+	l = m.InitialMarginRatio.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MaintenanceMarginRatio.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MakerFeeRate.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.TakerFeeRate.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinPriceTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinQuantityTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
@@ -4953,12 +5247,18 @@ func (m *ExpiryFuturesMarketLaunchProposal) Size() (n int) {
 	if m.Expiry != 0 {
 		n += 1 + sovTx(uint64(m.Expiry))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
-	}
-	if m.MaxQuantityScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
-	}
+	l = m.InitialMarginRatio.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MaintenanceMarginRatio.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MakerFeeRate.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.TakerFeeRate.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinPriceTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinQuantityTickSize.Size()
+	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
@@ -5048,11 +5348,13 @@ func (m *DerivativeMarketParamUpdateProposal) Size() (n int) {
 		l = m.RelayerFeeShareRate.Size()
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.MaxPriceScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxPriceScaleDecimals))
+	if m.MinPriceTickSize != nil {
+		l = m.MinPriceTickSize.Size()
+		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.MaxQuantityScaleDecimals != 0 {
-		n += 1 + sovTx(uint64(m.MaxQuantityScaleDecimals))
+	if m.MinQuantityTickSize != nil {
+		l = m.MinQuantityTickSize.Size()
+		n += 1 + l + sovTx(uint64(l))
 	}
 	return n
 }
@@ -5780,10 +6082,10 @@ func (m *MsgInstantSpotMarketLaunch) Unmarshal(dAtA []byte) error {
 			m.QuoteDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinPriceTickSize", wireType)
 			}
-			m.MaxPriceScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5793,16 +6095,31 @@ func (m *MsgInstantSpotMarketLaunch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 6:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinQuantityTickSize", wireType)
 			}
-			m.MaxQuantityScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -5812,11 +6129,26 @@ func (m *MsgInstantSpotMarketLaunch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -6116,10 +6448,10 @@ func (m *MsgInstantPerpetualMarketLaunch) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 8:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MakerFeeRate", wireType)
 			}
-			m.MaxPriceScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6129,16 +6461,31 @@ func (m *MsgInstantPerpetualMarketLaunch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 9:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TakerFeeRate", wireType)
 			}
-			m.MaxQuantityScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6148,11 +6495,162 @@ func (m *MsgInstantPerpetualMarketLaunch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InitialMarginRatio", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InitialMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceMarginRatio", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaintenanceMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinPriceTickSize", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 13:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinQuantityTickSize", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -6471,10 +6969,10 @@ func (m *MsgInstantExpiryFuturesMarketLaunch) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 9:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MakerFeeRate", wireType)
 			}
-			m.MaxPriceScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6484,16 +6982,31 @@ func (m *MsgInstantExpiryFuturesMarketLaunch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 10:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TakerFeeRate", wireType)
 			}
-			m.MaxQuantityScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -6503,11 +7016,162 @@ func (m *MsgInstantExpiryFuturesMarketLaunch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InitialMarginRatio", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InitialMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceMarginRatio", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaintenanceMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 13:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinPriceTickSize", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 14:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinQuantityTickSize", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -8678,10 +9342,10 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 7:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinPriceTickSize", wireType)
 			}
-			m.MaxPriceScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -8691,16 +9355,31 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 8:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinQuantityTickSize", wireType)
 			}
-			m.MaxQuantityScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -8710,11 +9389,26 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -8926,10 +9620,10 @@ func (m *SpotMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 			m.QuoteDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 6:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinPriceTickSize", wireType)
 			}
-			m.MaxPriceScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -8939,16 +9633,31 @@ func (m *SpotMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 7:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinQuantityTickSize", wireType)
 			}
-			m.MaxQuantityScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -8958,11 +9667,26 @@ func (m *SpotMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -9409,10 +10133,10 @@ func (m *PerpetualMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 9:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InitialMarginRatio", wireType)
 			}
-			m.MaxPriceScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -9422,16 +10146,31 @@ func (m *PerpetualMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InitialMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 10:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceMarginRatio", wireType)
 			}
-			m.MaxQuantityScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -9441,11 +10180,162 @@ func (m *PerpetualMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaintenanceMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MakerFeeRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TakerFeeRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 13:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinPriceTickSize", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 14:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinQuantityTickSize", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -9746,10 +10636,10 @@ func (m *ExpiryFuturesMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 10:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InitialMarginRatio", wireType)
 			}
-			m.MaxPriceScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -9759,16 +10649,31 @@ func (m *ExpiryFuturesMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.InitialMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 11:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaintenanceMarginRatio", wireType)
 			}
-			m.MaxQuantityScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -9778,11 +10683,162 @@ func (m *ExpiryFuturesMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MaintenanceMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MakerFeeRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 13:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TakerFeeRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 14:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinPriceTickSize", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 15:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinQuantityTickSize", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -10440,10 +11496,10 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 9:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxPriceScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinPriceTickSize", wireType)
 			}
-			m.MaxPriceScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -10453,16 +11509,33 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxPriceScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			var v github_com_cosmos_cosmos_sdk_types.Dec
+			m.MinPriceTickSize = &v
+			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 10:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxQuantityScaleDecimals", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinQuantityTickSize", wireType)
 			}
-			m.MaxQuantityScaleDecimals = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTx
@@ -10472,11 +11545,28 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxQuantityScaleDecimals |= uint32(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			var v github_com_cosmos_cosmos_sdk_types.Dec
+			m.MinQuantityTickSize = &v
+			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])

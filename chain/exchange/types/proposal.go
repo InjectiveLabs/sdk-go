@@ -40,9 +40,9 @@ func init() {
 }
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
-func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate sdk.Dec, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *SpotMarketParamUpdateProposal {
+func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize sdk.Dec) *SpotMarketParamUpdateProposal {
 	return &SpotMarketParamUpdateProposal{
-		title, description, marketID.Hex(), makerFeeRate, takerFeeRate, relayerFeeShareRate, maxPriceScaleDecimals, maxQuantityScaleDecimals,
+		title, description, marketID.Hex(), makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize,
 	}
 }
 
@@ -86,9 +86,9 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 }
 
 // NewSpotMarketLaunchProposal returns new instance of SpotMarketLaunchProposal
-func NewSpotMarketLaunchProposal(title, description, ticker, baseDenom, quoteDenom string, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *SpotMarketLaunchProposal {
+func NewSpotMarketLaunchProposal(title, description, ticker, baseDenom, quoteDenom string, minPriceTickSize, minQuantityTickSize sdk.Dec) *SpotMarketLaunchProposal {
 	return &SpotMarketLaunchProposal{
-		title, description, ticker, baseDenom, quoteDenom, maxPriceScaleDecimals, maxQuantityScaleDecimals,
+		title, description, ticker, baseDenom, quoteDenom, minPriceTickSize, minQuantityTickSize,
 	}
 }
 
@@ -201,8 +201,7 @@ func (p *DerivativeMarketStatusSetProposal) ValidateBasic() error {
 func NewDerivativeMarketParamUpdateProposal(
 	title, description string, marketID string,
 	initialMarginRatio, maintenanceMarginRatio,
-	makerFeeRate, takerFeeRate, relayerFeeShareRate *sdk.Dec,
-	maxPriceScaleDecimals, maxQuantityScaleDecimals uint32,
+	makerFeeRate, takerFeeRate, relayerFeeShareRate, maxPriceScaleDecimals, maxQuantityScaleDecimals *sdk.Dec,
 ) *DerivativeMarketParamUpdateProposal {
 	return &DerivativeMarketParamUpdateProposal{
 		title,
@@ -285,18 +284,26 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 }
 
 // NewPerpetualMarketLaunchProposal returns new instance of PerpetualMarketLaunchProposal
-func NewPerpetualMarketLaunchProposal(title, description, ticker, quoteDenom, oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *PerpetualMarketLaunchProposal {
+func NewPerpetualMarketLaunchProposal(
+	title, description, ticker, quoteDenom,
+	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType,
+	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize sdk.Dec,
+) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
-		Title:                    title,
-		Description:              description,
-		Ticker:                   ticker,
-		QuoteDenom:               quoteDenom,
-		OracleBase:               oracleBase,
-		OracleQuote:              oracleQuote,
-		OracleScaleFactor:        oracleScaleFactor,
-		OracleType:               oracleType,
-		MaxPriceScaleDecimals:    maxPriceScaleDecimals,
-		MaxQuantityScaleDecimals: maxQuantityScaleDecimals,
+		Title:                  title,
+		Description:            description,
+		Ticker:                 ticker,
+		QuoteDenom:             quoteDenom,
+		OracleBase:             oracleBase,
+		OracleQuote:            oracleQuote,
+		OracleScaleFactor:      oracleScaleFactor,
+		OracleType:             oracleType,
+		InitialMarginRatio:     initialMarginRatio,
+		MaintenanceMarginRatio: maintenanceMarginRatio,
+		MakerFeeRate:           makerFeeRate,
+		TakerFeeRate:           takerFeeRate,
+		MinPriceTickSize:       minPriceTickSize,
+		MinQuantityTickSize:    minQuantityTickSize,
 	}
 }
 
@@ -330,19 +337,27 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 }
 
 // NewExpiryFuturesMarketLaunchProposal returns new instance of ExpiryFuturesMarketLaunchProposal
-func NewExpiryFuturesMarketLaunchProposal(title, description, ticker, quoteDenom, oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, expiry int64, maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) *ExpiryFuturesMarketLaunchProposal {
+func NewExpiryFuturesMarketLaunchProposal(
+	title, description, ticker, quoteDenom,
+	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, expiry int64,
+	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize sdk.Dec,
+) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
-		Title:                    title,
-		Description:              description,
-		Ticker:                   ticker,
-		QuoteDenom:               quoteDenom,
-		OracleBase:               oracleBase,
-		OracleQuote:              oracleQuote,
-		OracleScaleFactor:        oracleScaleFactor,
-		OracleType:               oracleType,
-		Expiry:                   expiry,
-		MaxPriceScaleDecimals:    maxPriceScaleDecimals,
-		MaxQuantityScaleDecimals: maxQuantityScaleDecimals,
+		Title:                  title,
+		Description:            description,
+		Ticker:                 ticker,
+		QuoteDenom:             quoteDenom,
+		OracleBase:             oracleBase,
+		OracleQuote:            oracleQuote,
+		OracleScaleFactor:      oracleScaleFactor,
+		OracleType:             oracleType,
+		Expiry:                 expiry,
+		InitialMarginRatio:     initialMarginRatio,
+		MaintenanceMarginRatio: maintenanceMarginRatio,
+		MakerFeeRate:           makerFeeRate,
+		TakerFeeRate:           takerFeeRate,
+		MinPriceTickSize:       minPriceTickSize,
+		MinQuantityTickSize:    minQuantityTickSize,
 	}
 }
 

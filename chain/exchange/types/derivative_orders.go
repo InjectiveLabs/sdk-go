@@ -94,13 +94,13 @@ func (o *DerivativeLimitOrder) GetCancelDepositDelta(makerFeeRate sdk.Dec) *Depo
 	return depositDelta
 }
 
-func (o *DerivativeOrder) CheckDecimalScale(maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) error {
+func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
 	// reject order if non-zero price decimals or trigger price decimals exceeds market.MaxPriceScaleDecimals or quantity decimals exceeds market.MaxQuantityScaleDecimals
-	if checkIfExceedDecimals(o.OrderInfo.Price, maxPriceScaleDecimals) {
-		return sdkerrors.Wrapf(ErrInvalidPrice, "price exceeds market maximum price decimals %d", maxPriceScaleDecimals)
+	if breachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
+		return sdkerrors.Wrapf(ErrInvalidPrice, "price exceeds market maximum price decimals %s", minPriceTickSize.String())
 	}
-	if checkIfExceedDecimals(o.OrderInfo.Quantity, maxQuantityScaleDecimals) {
-		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity exceeds market maximum quantity decimals %d", maxQuantityScaleDecimals)
+	if breachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
+		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity exceeds market maximum quantity decimals %s", minQuantityTickSize.String())
 	}
 	return nil
 }

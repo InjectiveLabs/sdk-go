@@ -32,12 +32,12 @@ func (o *SpotMarketOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
 
-func (o *SpotOrder) CheckDecimalScale(maxPriceScaleDecimals, maxQuantityScaleDecimals uint32) error {
-	if checkIfExceedDecimals(o.OrderInfo.Price, maxPriceScaleDecimals) {
-		return sdkerrors.Wrapf(ErrInvalidPrice, "price exceeds market maximum price decimals %d", maxPriceScaleDecimals)
+func (o *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
+	if breachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
+		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s does not meet market minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
 	}
-	if checkIfExceedDecimals(o.OrderInfo.Quantity, maxQuantityScaleDecimals) {
-		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity exceeds market maximum quantity decimals %d", maxQuantityScaleDecimals)
+	if breachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
+		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity %s does not meet market minimum price tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
 	}
 	return nil
 }

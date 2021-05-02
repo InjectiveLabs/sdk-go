@@ -1,10 +1,11 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/olekukonko/tablewriter"
 	"math/big"
 	"os"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -20,6 +21,7 @@ type LimitOrderFilledDelta struct {
 }
 
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
+var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
 
 func IsValidSubaccountID(subaccountID string) (*common.Address, bool) {
 	if len(subaccountID) != 66 {
@@ -50,9 +52,13 @@ func IsValidOrderHash(orderHash string) bool {
 	return true
 }
 
-func checkIfExceedDecimals(dec sdk.Dec, maxDecimals uint32) bool {
-	powered := dec.Mul(sdk.NewDec(10).Power(uint64(maxDecimals)))
-	return !powered.Equal(powered.Ceil())
+// TODO: Test
+func breachesMinimumTickSize(dec sdk.Dec, minTickSize sdk.Dec) bool {
+	quotient := dec.Quo(minTickSize)
+	if !quotient.TruncateDec().Equal(quotient) {
+		return true
+	}
+	return false
 }
 
 func (s *Subaccount) GetSubaccountID() (*common.Hash, error) {

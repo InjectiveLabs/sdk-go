@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -76,6 +77,11 @@ func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 			trades = append(trades, tradeLog)
 		}
 	}
+
+	if len(trades) == 0 {
+		return nil, filledDeltas
+	}
+
 	batch = &EventBatchDerivativeExecution{
 		MarketId:          market.MarketId,
 		IsBuy:             isBuy,
@@ -144,7 +150,7 @@ func ApplyPositionDeltaAndGetDerivativeMarketOrderStateExpansion(
 	// and then refunding the unused margin instead?
 	var positionDelta *PositionDelta
 
-	if !fillQuantity.IsZero() {
+	if fillQuantity.IsPositive() {
 		positionDelta = &PositionDelta{
 			IsLong:            isBuy,
 			ExecutionQuantity: fillQuantity,
@@ -153,7 +159,7 @@ func ApplyPositionDeltaAndGetDerivativeMarketOrderStateExpansion(
 		}
 	}
 
-	payout, closeExecutionMargin, collateralizationMargin := position.ApplyPositionDelta(positionDelta, takerFeeRate)
+	payout, closeExecutionMargin, collateralizationMargin := position.ApplyPositionDelta(positionDelta, tradingFee)
 
 	clearingFeeChargeOrRefund := sdk.ZeroDec()
 	feeCharge := sdk.ZeroDec()
@@ -206,7 +212,7 @@ func getOrderFillFeeInfo(orderFillNotional, tradeFeeRate, relayerFeeShareRate sd
 }
 
 // NOTE: clearingPrice can be nil
-func GetDerivativeLimitOrderStateExpansion(
+func ApplyPositionDeltaAndGetDerivativeLimitOrderStateExpansion(
 	isBuy bool,
 	isTransient bool,
 	order *DerivativeLimitOrder,
@@ -247,7 +253,7 @@ func GetDerivativeLimitOrderStateExpansion(
 		}
 	}
 
-	payout, closeExecutionMargin, collateralizationMargin := position.ApplyPositionDelta(positionDelta, takerFeeRate)
+	payout, closeExecutionMargin, collateralizationMargin := position.ApplyPositionDelta(positionDelta, tradingFee)
 	tradingFeeBalanceDebitAmount := sdk.ZeroDec()
 	clearingChargeOrRefund := sdk.ZeroDec()
 	fillableQuantity := order.OrderInfo.Quantity.Sub(fillQuantity)

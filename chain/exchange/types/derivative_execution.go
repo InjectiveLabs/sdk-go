@@ -47,6 +47,7 @@ type DerivativeMatchingExpansionData struct {
 	RestingLimitBuyOrderCancels  []*DerivativeLimitOrder
 	RestingLimitSellOrderCancels []*DerivativeLimitOrder
 	ClearingPrice                sdk.Dec
+	ClearingQuantity             sdk.Dec
 	NewRestingLimitBuyOrders     []*DerivativeLimitOrder // transient buy orders that become new resting limit orders
 	NewRestingLimitSellOrders    []*DerivativeLimitOrder // transient sell orders that become new resting limit orders
 }
@@ -114,6 +115,11 @@ func (e *DerivativeMatchingExpansionData) GetDerivativeLimitOrderBatchExecution(
 	// sort keys since map iteration is non-deterministic
 	depositDeltaKeys := depositDeltas.GetSortedSubaccountKeys()
 
+	var vwapData *VwapData
+	if market.IsPerpetual {
+		vwapData = vwapData.ApplyExecution(e.ClearingPrice, e.ClearingQuantity)
+	}
+
 	// Final Step: Store the DerivativeBatchExecutionData for future reduction/processing
 	batch := &DerivativeBatchExecutionData{
 		Market:                                market,
@@ -134,6 +140,7 @@ func (e *DerivativeMatchingExpansionData) GetDerivativeLimitOrderBatchExecution(
 		NewOrdersEvent:                        nil,
 		CancelLimitOrderEvents:                cancelLimitOrdersEvents,
 		CancelMarketOrderEvents:               nil,
+		VwapData:                              vwapData,
 	}
 
 	if len(e.NewRestingLimitBuyOrders) > 0 || len(e.NewRestingLimitSellOrders) > 0 {

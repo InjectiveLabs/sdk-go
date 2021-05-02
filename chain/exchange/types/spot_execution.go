@@ -40,7 +40,7 @@ func GetSpotMarketOrderBatchExecution(
 		expansion.UpdateDepositDeltas(baseDenomDepositDeltas, quoteDenomDepositDeltas)
 
 		trades[idx] = &TradeLog{
-			Quantity:     expansion.BaseChangeAmount,
+			Quantity:     expansion.BaseChangeAmount.Abs(),
 			Price:        clearingPrice,
 			SubaccountId: expansion.SubaccountID.Bytes(),
 			Fee:          expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward),
