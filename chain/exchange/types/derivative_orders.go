@@ -97,10 +97,10 @@ func (o *DerivativeLimitOrder) GetCancelDepositDelta(makerFeeRate sdk.Dec) *Depo
 func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
 	// reject order if non-zero price decimals or trigger price decimals exceeds market.MaxPriceScaleDecimals or quantity decimals exceeds market.MaxQuantityScaleDecimals
 	if breachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidPrice, "price exceeds market maximum price decimals %s", minPriceTickSize.String())
+		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s does not meet market minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
 	}
 	if breachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity exceeds market maximum quantity decimals %s", minQuantityTickSize.String())
+		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity %s does not meet market minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
 	}
 	return nil
 }

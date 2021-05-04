@@ -23,30 +23,15 @@ func (p *PositionStates) GetSortedSubaccountKeys() []common.Hash {
 	return subaccountKeys
 }
 
-func (p *PositionStates) GetPositionUpdateEvent(
-	marketID common.Hash,
-	funding *PerpetualMarketFunding,
-) (*EventBatchDerivativePosition, []*Position, []common.Hash) {
+func (p *PositionStates) GetPositionSliceData() ([]*Position, []common.Hash) {
 	positionSubaccountIDs := p.GetSortedSubaccountKeys()
 	positions := make([]*Position, len(positionSubaccountIDs))
-	positionLogs := make([]*DerivativePositionLog, len(positionSubaccountIDs))
 
 	for idx := range positionSubaccountIDs {
 		subaccountID := positionSubaccountIDs[idx]
 		position := (*p)[subaccountID]
 		positions[idx] = position.Position
-		positionLogs[idx] = &DerivativePositionLog{
-			SubaccountId:   subaccountID.Bytes(),
-			Position:       position.Position,
-			FundingPayment: position.FundingPayment,
-		}
 	}
 
-	event := &EventBatchDerivativePosition{
-		MarketId:          marketID.Hex(),
-		CumulativeFunding: &funding.CumulativeFunding,
-		Positions:         positionLogs,
-	}
-
-	return event, positions, positionSubaccountIDs
+	return positions, positionSubaccountIDs
 }

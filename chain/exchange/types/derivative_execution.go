@@ -29,7 +29,6 @@ type DerivativeBatchExecutionData struct {
 	RestingLimitSellOrderExecutionEvent   *EventBatchDerivativeExecution
 	TransientLimitBuyOrderExecutionEvent  *EventBatchDerivativeExecution
 	TransientLimitSellOrderExecutionEvent *EventBatchDerivativeExecution
-	PositionUpdateEvent                   *EventBatchDerivativePosition
 
 	// event for new orders to add to the orderbook
 	NewOrdersEvent          *EventNewDerivativeOrders
@@ -103,7 +102,7 @@ func (e *DerivativeMatchingExpansionData) GetDerivativeLimitOrderBatchExecution(
 	// process undermargined resting limit order forced cancellations
 	cancelLimitOrdersEvents := e.ApplyCancellationsAndGetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, depositDeltas, positionStates)
 
-	positionUpdateEvent, positions, positionSubaccountIDs := positionStates.GetPositionUpdateEvent(market.MarketID(), funding)
+	positions, positionSubaccountIDs := positionStates.GetPositionSliceData()
 
 	transientLimitBuyOrderBatchEvent, transientLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitBuyExpansions, depositDeltas)
 	restingLimitBuyOrderBatchEvent, restingLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitBuyExpansions, depositDeltas)
@@ -136,7 +135,6 @@ func (e *DerivativeMatchingExpansionData) GetDerivativeLimitOrderBatchExecution(
 		RestingLimitSellOrderExecutionEvent:   restingLimitSellOrderBatchEvent,
 		TransientLimitBuyOrderExecutionEvent:  transientLimitBuyOrderBatchEvent,
 		TransientLimitSellOrderExecutionEvent: transientLimitSellOrderBatchEvent,
-		PositionUpdateEvent:                   positionUpdateEvent,
 		NewOrdersEvent:                        nil,
 		CancelLimitOrderEvents:                cancelLimitOrdersEvents,
 		CancelMarketOrderEvents:               nil,
@@ -282,7 +280,7 @@ func (e *DerivativeMarketOrderExpansionData) GetDerivativeMarketOrderBatchExecut
 	// process unfilled market order cancellations
 	cancelMarketOrdersEvents := e.GetDerivativeMarketCancelEvents(market.MarketID(), depositDeltas, positionStates)
 
-	positionUpdateEvent, positions, positionSubaccountIDs := positionStates.GetPositionUpdateEvent(market.MarketID(), funding)
+	positions, positionSubaccountIDs := positionStates.GetPositionSliceData()
 
 	buyMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_Market, market, funding, e.MarketBuyExpansions, depositDeltas)
 	sellMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_Market, market, funding, e.MarketSellExpansions, depositDeltas)
@@ -316,7 +314,6 @@ func (e *DerivativeMarketOrderExpansionData) GetDerivativeMarketOrderBatchExecut
 		RestingLimitSellOrderExecutionEvent:   restingLimitSellOrderBatchEvent,
 		TransientLimitBuyOrderExecutionEvent:  nil,
 		TransientLimitSellOrderExecutionEvent: nil,
-		PositionUpdateEvent:                   positionUpdateEvent,
 		NewOrdersEvent:                        nil,
 		CancelLimitOrderEvents:                cancelLimitOrdersEvents,
 		CancelMarketOrderEvents:               cancelMarketOrdersEvents,

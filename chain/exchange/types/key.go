@@ -186,6 +186,14 @@ func PositionIndexBySubaccountMarketPrefix(subaccountID, marketID common.Hash) [
 	return append(subaccountID.Bytes(), marketID.Bytes()...)
 }
 
+func ParsePositionTransientStoreKey(key []byte) (marketID, subaccountID common.Hash) {
+	prefixLen := len(DerivativePositionsPrefix)
+	marketIDEndIdx := common.HashLength + prefixLen
+	marketID = common.BytesToHash(key[prefixLen:marketIDEndIdx])
+	subaccountID = common.BytesToHash(key[marketIDEndIdx : marketIDEndIdx+common.HashLength])
+	return marketID, subaccountID
+}
+
 func GetSubaccountAndMarketIDFromPositionKey(key []byte) (subaccountID, marketID common.Hash) {
 	subaccountOffsetLen := common.HashLength
 	subaccountID = common.BytesToHash(key[:subaccountOffsetLen])
