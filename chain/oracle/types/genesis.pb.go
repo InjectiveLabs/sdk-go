@@ -26,11 +26,11 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // GenesisState defines the oracle module's genesis state.
 type GenesisState struct {
 	// params defines all the parameters of related to oracle.
-	Params            Params               `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	BandRelayers      []string             `protobuf:"bytes,2,rep,name=band_relayers,json=bandRelayers,proto3" json:"band_relayers,omitempty"`
-	BandRefDataState  []BandRefDataState   `protobuf:"bytes,3,rep,name=band_ref_data_state,json=bandRefDataState,proto3" json:"band_ref_data_state"`
-	PriceFeedState    []*PriceFeedState    `protobuf:"bytes,4,rep,name=price_feed_state,json=priceFeedState,proto3" json:"price_feed_state,omitempty"`
-	CoinbasePriceData []*CoinbasePriceData `protobuf:"bytes,5,rep,name=coinbase_price_data,json=coinbasePriceData,proto3" json:"coinbase_price_data,omitempty"`
+	Params               Params                `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+	BandRelayers         []string              `protobuf:"bytes,2,rep,name=band_relayers,json=bandRelayers,proto3" json:"band_relayers,omitempty"`
+	BandPriceStates      []*BandPriceState     `protobuf:"bytes,3,rep,name=band_price_states,json=bandPriceStates,proto3" json:"band_price_states,omitempty"`
+	PriceFeedPriceStates []*PriceFeedState     `protobuf:"bytes,4,rep,name=price_feed_price_states,json=priceFeedPriceStates,proto3" json:"price_feed_price_states,omitempty"`
+	CoinbasePriceStates  []*CoinbasePriceState `protobuf:"bytes,5,rep,name=coinbase_price_states,json=coinbasePriceStates,proto3" json:"coinbase_price_states,omitempty"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
@@ -80,82 +80,29 @@ func (m *GenesisState) GetBandRelayers() []string {
 	return nil
 }
 
-func (m *GenesisState) GetBandRefDataState() []BandRefDataState {
+func (m *GenesisState) GetBandPriceStates() []*BandPriceState {
 	if m != nil {
-		return m.BandRefDataState
+		return m.BandPriceStates
 	}
 	return nil
 }
 
-func (m *GenesisState) GetPriceFeedState() []*PriceFeedState {
+func (m *GenesisState) GetPriceFeedPriceStates() []*PriceFeedState {
 	if m != nil {
-		return m.PriceFeedState
+		return m.PriceFeedPriceStates
 	}
 	return nil
 }
 
-func (m *GenesisState) GetCoinbasePriceData() []*CoinbasePriceData {
+func (m *GenesisState) GetCoinbasePriceStates() []*CoinbasePriceState {
 	if m != nil {
-		return m.CoinbasePriceData
-	}
-	return nil
-}
-
-type BandRefDataState struct {
-	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Ref    *Ref   `protobuf:"bytes,2,opt,name=ref,proto3" json:"ref,omitempty"`
-}
-
-func (m *BandRefDataState) Reset()         { *m = BandRefDataState{} }
-func (m *BandRefDataState) String() string { return proto.CompactTextString(m) }
-func (*BandRefDataState) ProtoMessage()    {}
-func (*BandRefDataState) Descriptor() ([]byte, []int) {
-	return fileDescriptor_f7e14cf80151b4d2, []int{1}
-}
-func (m *BandRefDataState) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *BandRefDataState) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_BandRefDataState.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *BandRefDataState) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_BandRefDataState.Merge(m, src)
-}
-func (m *BandRefDataState) XXX_Size() int {
-	return m.Size()
-}
-func (m *BandRefDataState) XXX_DiscardUnknown() {
-	xxx_messageInfo_BandRefDataState.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_BandRefDataState proto.InternalMessageInfo
-
-func (m *BandRefDataState) GetSymbol() string {
-	if m != nil {
-		return m.Symbol
-	}
-	return ""
-}
-
-func (m *BandRefDataState) GetRef() *Ref {
-	if m != nil {
-		return m.Ref
+		return m.CoinbasePriceStates
 	}
 	return nil
 }
 
 func init() {
 	proto.RegisterType((*GenesisState)(nil), "injective.oracle.v1beta1.GenesisState")
-	proto.RegisterType((*BandRefDataState)(nil), "injective.oracle.v1beta1.BandRefDataState")
 }
 
 func init() {
@@ -163,32 +110,29 @@ func init() {
 }
 
 var fileDescriptor_f7e14cf80151b4d2 = []byte{
-	// 399 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x92, 0x41, 0x8b, 0xd3, 0x40,
-	0x14, 0x80, 0x93, 0xcd, 0x5a, 0xd8, 0xd9, 0x55, 0xea, 0xac, 0x48, 0x58, 0x30, 0x86, 0x05, 0x25,
-	0x2a, 0x66, 0xd8, 0x7a, 0xf7, 0x50, 0x45, 0x11, 0x7a, 0x90, 0xf1, 0x66, 0x0f, 0x61, 0x26, 0x79,
-	0x49, 0x23, 0x49, 0x26, 0xcc, 0x4c, 0x0b, 0xfd, 0x0d, 0x5e, 0xfc, 0x59, 0x3d, 0xf6, 0xe8, 0x49,
-	0xa4, 0xfd, 0x23, 0x92, 0xc9, 0xb4, 0x68, 0x21, 0xde, 0xe6, 0xbd, 0xf9, 0xde, 0xf7, 0xde, 0x30,
-	0x0f, 0x3d, 0x2f, 0x9b, 0x6f, 0x90, 0xea, 0x72, 0x05, 0x44, 0x48, 0x96, 0x56, 0x40, 0x56, 0x77,
-	0x1c, 0x34, 0xbb, 0x23, 0x05, 0x34, 0xa0, 0x4a, 0x15, 0xb7, 0x52, 0x68, 0x81, 0xfd, 0x23, 0x17,
-	0xf7, 0x5c, 0x6c, 0xb9, 0x9b, 0x67, 0x83, 0x06, 0x0b, 0x1a, 0xc1, 0xcd, 0xa3, 0x42, 0x14, 0xc2,
-	0x1c, 0x49, 0x77, 0xea, 0xb3, 0xb7, 0xdf, 0x3d, 0x74, 0xf5, 0xb1, 0x6f, 0xf4, 0x45, 0x33, 0x0d,
-	0xf8, 0x2d, 0x1a, 0xb5, 0x4c, 0xb2, 0x5a, 0xf9, 0x6e, 0xe8, 0x46, 0x97, 0x93, 0x30, 0x1e, 0x6a,
-	0x1c, 0x7f, 0x36, 0xdc, 0xf4, 0x7c, 0xf3, 0xeb, 0xa9, 0x43, 0x6d, 0x15, 0x7e, 0x81, 0xee, 0x73,
-	0xd6, 0x64, 0x89, 0x84, 0x8a, 0xad, 0x41, 0x2a, 0xff, 0x2c, 0xf4, 0xa2, 0x0b, 0x0b, 0x5d, 0x75,
-	0x57, 0xd4, 0xde, 0xe0, 0x04, 0x5d, 0x5b, 0x34, 0x4f, 0x32, 0xa6, 0x59, 0xa2, 0xba, 0x09, 0x7c,
-	0x2f, 0xf4, 0xa2, 0xcb, 0xc9, 0xcb, 0xe1, 0xbe, 0x53, 0x23, 0xc9, 0xdf, 0x33, 0xcd, 0xcc, 0xcc,
-	0x56, 0x3e, 0xe6, 0x27, 0x79, 0x4c, 0xd1, 0xb8, 0x95, 0x65, 0x0a, 0x49, 0x0e, 0x90, 0x59, 0xfb,
-	0xb9, 0xb1, 0x47, 0xff, 0x79, 0x55, 0x57, 0xf1, 0x01, 0x20, 0x33, 0x0e, 0xfa, 0xa0, 0xfd, 0x27,
-	0xc6, 0x73, 0x74, 0x9d, 0x8a, 0xb2, 0xe1, 0x4c, 0x41, 0xd2, 0xcb, 0xbb, 0xd1, 0xfd, 0x7b, 0x46,
-	0xfb, 0x6a, 0x58, 0xfb, 0xce, 0x16, 0x19, 0x7d, 0x37, 0x22, 0x7d, 0x98, 0x9e, 0xa6, 0x6e, 0xe7,
-	0x68, 0x7c, 0xfa, 0x38, 0xfc, 0x18, 0x8d, 0xd4, 0xba, 0xe6, 0xa2, 0x32, 0x1f, 0x72, 0x41, 0x6d,
-	0x84, 0x09, 0xf2, 0x24, 0xe4, 0xfe, 0x99, 0xf9, 0xa5, 0x27, 0xc3, 0x8d, 0x29, 0xe4, 0xb4, 0x23,
-	0xa7, 0xf9, 0x66, 0x17, 0xb8, 0xdb, 0x5d, 0xe0, 0xfe, 0xde, 0x05, 0xee, 0x8f, 0x7d, 0xe0, 0x6c,
-	0xf7, 0x81, 0xf3, 0x73, 0x1f, 0x38, 0x5f, 0x67, 0x45, 0xa9, 0x17, 0x4b, 0x1e, 0xa7, 0xa2, 0x26,
-	0x9f, 0x0e, 0x9e, 0x19, 0xe3, 0x8a, 0x1c, 0xad, 0xaf, 0x53, 0x21, 0xe1, 0xef, 0x70, 0xc1, 0xca,
-	0x86, 0xd4, 0x22, 0x5b, 0x56, 0xa0, 0x0e, 0x7b, 0xa7, 0xd7, 0x2d, 0x28, 0x3e, 0x32, 0x9b, 0xf5,
-	0xe6, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xad, 0xa5, 0x61, 0x3c, 0xda, 0x02, 0x00, 0x00,
+	// 350 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0xc1, 0x4a, 0xeb, 0x40,
+	0x14, 0x86, 0x93, 0x9b, 0xde, 0xc2, 0x4d, 0x7b, 0x11, 0x63, 0xc5, 0xd0, 0x45, 0x0c, 0x8a, 0x92,
+	0x85, 0x26, 0xb4, 0xee, 0x5d, 0x54, 0x50, 0x84, 0x2e, 0x4a, 0x74, 0xe5, 0xa6, 0xce, 0x4c, 0x4e,
+	0xd3, 0x91, 0x36, 0x13, 0x66, 0xa6, 0x85, 0xbe, 0x83, 0x0b, 0x1f, 0xab, 0xcb, 0x2e, 0x5d, 0x89,
+	0xb4, 0x2f, 0x22, 0x99, 0xa4, 0xa5, 0x55, 0x82, 0xbb, 0x39, 0x3f, 0xff, 0xf9, 0xbe, 0x03, 0x89,
+	0x79, 0x4e, 0x93, 0x17, 0x20, 0x92, 0x4e, 0x21, 0x60, 0x1c, 0x91, 0x11, 0x04, 0xd3, 0x16, 0x06,
+	0x89, 0x5a, 0x41, 0x0c, 0x09, 0x08, 0x2a, 0xfc, 0x94, 0x33, 0xc9, 0x2c, 0x7b, 0xd3, 0xf3, 0xf3,
+	0x9e, 0x5f, 0xf4, 0x9a, 0x67, 0xa5, 0x84, 0xa2, 0xa8, 0x00, 0xcd, 0x46, 0xcc, 0x62, 0xa6, 0x9e,
+	0x41, 0xf6, 0xca, 0xd3, 0x93, 0x57, 0xc3, 0xac, 0xdf, 0xe5, 0xa2, 0x07, 0x89, 0x24, 0x58, 0xd7,
+	0x66, 0x35, 0x45, 0x1c, 0x8d, 0x85, 0xad, 0xbb, 0xba, 0x57, 0x6b, 0xbb, 0x7e, 0x99, 0xd8, 0xef,
+	0xa9, 0x5e, 0xa7, 0x32, 0xff, 0x38, 0xd6, 0xc2, 0x62, 0xcb, 0x3a, 0x35, 0xff, 0x63, 0x94, 0x44,
+	0x7d, 0x0e, 0x23, 0x34, 0x03, 0x2e, 0xec, 0x3f, 0xae, 0xe1, 0xfd, 0x0b, 0xeb, 0x59, 0x18, 0x16,
+	0x99, 0xf5, 0x68, 0xee, 0xab, 0x52, 0xca, 0x29, 0x81, 0xbe, 0xc8, 0xc4, 0xc2, 0x36, 0x5c, 0xc3,
+	0xab, 0xb5, 0xbd, 0x72, 0x5f, 0x07, 0x25, 0x51, 0x2f, 0xdb, 0x50, 0x97, 0x86, 0x7b, 0x78, 0x67,
+	0x16, 0x56, 0xdf, 0x3c, 0xca, 0x81, 0x03, 0x80, 0x6f, 0xec, 0xca, 0x6f, 0x6c, 0xc5, 0xb9, 0x05,
+	0x88, 0x72, 0x76, 0x23, 0x5d, 0xcf, 0xdb, 0x82, 0x67, 0xf3, 0x90, 0x30, 0x9a, 0x60, 0x24, 0x60,
+	0x17, 0xff, 0x57, 0xe1, 0x2f, 0xca, 0xf1, 0x37, 0xc5, 0xda, 0xd6, 0xf9, 0x07, 0xe4, 0x47, 0x26,
+	0x3a, 0x83, 0xf9, 0xd2, 0xd1, 0x17, 0x4b, 0x47, 0xff, 0x5c, 0x3a, 0xfa, 0xdb, 0xca, 0xd1, 0x16,
+	0x2b, 0x47, 0x7b, 0x5f, 0x39, 0xda, 0x53, 0x37, 0xa6, 0x72, 0x38, 0xc1, 0x3e, 0x61, 0xe3, 0xe0,
+	0x7e, 0xad, 0xe9, 0x22, 0x2c, 0x82, 0x8d, 0xf4, 0x92, 0x30, 0x0e, 0xdb, 0xe3, 0x10, 0xd1, 0x24,
+	0x18, 0xb3, 0x68, 0x32, 0x02, 0xb1, 0xfe, 0x37, 0xe4, 0x2c, 0x05, 0x81, 0xab, 0xea, 0xeb, 0x5f,
+	0x7d, 0x05, 0x00, 0x00, 0xff, 0xff, 0xe3, 0xdb, 0xb7, 0x5d, 0x7e, 0x02, 0x00, 0x00,
 }
 
 func (m *GenesisState) Marshal() (dAtA []byte, err error) {
@@ -211,10 +155,10 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.CoinbasePriceData) > 0 {
-		for iNdEx := len(m.CoinbasePriceData) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.CoinbasePriceStates) > 0 {
+		for iNdEx := len(m.CoinbasePriceStates) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.CoinbasePriceData[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.CoinbasePriceStates[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -225,10 +169,10 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x2a
 		}
 	}
-	if len(m.PriceFeedState) > 0 {
-		for iNdEx := len(m.PriceFeedState) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.PriceFeedPriceStates) > 0 {
+		for iNdEx := len(m.PriceFeedPriceStates) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.PriceFeedState[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.PriceFeedPriceStates[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -239,10 +183,10 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x22
 		}
 	}
-	if len(m.BandRefDataState) > 0 {
-		for iNdEx := len(m.BandRefDataState) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.BandPriceStates) > 0 {
+		for iNdEx := len(m.BandPriceStates) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.BandRefDataState[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.BandPriceStates[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -275,48 +219,6 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *BandRefDataState) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *BandRefDataState) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *BandRefDataState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Ref != nil {
-		{
-			size, err := m.Ref.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintGenesis(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Symbol) > 0 {
-		i -= len(m.Symbol)
-		copy(dAtA[i:], m.Symbol)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Symbol)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	offset -= sovGenesis(v)
 	base := offset
@@ -342,40 +244,23 @@ func (m *GenesisState) Size() (n int) {
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
-	if len(m.BandRefDataState) > 0 {
-		for _, e := range m.BandRefDataState {
+	if len(m.BandPriceStates) > 0 {
+		for _, e := range m.BandPriceStates {
 			l = e.Size()
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
-	if len(m.PriceFeedState) > 0 {
-		for _, e := range m.PriceFeedState {
+	if len(m.PriceFeedPriceStates) > 0 {
+		for _, e := range m.PriceFeedPriceStates {
 			l = e.Size()
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
-	if len(m.CoinbasePriceData) > 0 {
-		for _, e := range m.CoinbasePriceData {
+	if len(m.CoinbasePriceStates) > 0 {
+		for _, e := range m.CoinbasePriceStates {
 			l = e.Size()
 			n += 1 + l + sovGenesis(uint64(l))
 		}
-	}
-	return n
-}
-
-func (m *BandRefDataState) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Symbol)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
-	}
-	if m.Ref != nil {
-		l = m.Ref.Size()
-		n += 1 + l + sovGenesis(uint64(l))
 	}
 	return n
 }
@@ -482,7 +367,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BandRefDataState", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BandPriceStates", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -509,14 +394,14 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BandRefDataState = append(m.BandRefDataState, BandRefDataState{})
-			if err := m.BandRefDataState[len(m.BandRefDataState)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.BandPriceStates = append(m.BandPriceStates, &BandPriceState{})
+			if err := m.BandPriceStates[len(m.BandPriceStates)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PriceFeedState", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PriceFeedPriceStates", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -543,14 +428,14 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.PriceFeedState = append(m.PriceFeedState, &PriceFeedState{})
-			if err := m.PriceFeedState[len(m.PriceFeedState)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.PriceFeedPriceStates = append(m.PriceFeedPriceStates, &PriceFeedState{})
+			if err := m.PriceFeedPriceStates[len(m.PriceFeedPriceStates)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CoinbasePriceData", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field CoinbasePriceStates", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -577,126 +462,8 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.CoinbasePriceData = append(m.CoinbasePriceData, &CoinbasePriceData{})
-			if err := m.CoinbasePriceData[len(m.CoinbasePriceData)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipGenesis(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *BandRefDataState) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowGenesis
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: BandRefDataState: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: BandRefDataState: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Symbol", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Symbol = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Ref", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Ref == nil {
-				m.Ref = &Ref{}
-			}
-			if err := m.Ref.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.CoinbasePriceStates = append(m.CoinbasePriceStates, &CoinbasePriceState{})
+			if err := m.CoinbasePriceStates[len(m.CoinbasePriceStates)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

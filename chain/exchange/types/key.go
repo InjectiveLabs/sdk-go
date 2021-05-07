@@ -42,10 +42,11 @@ var (
 	DerivativePositionsPrefix            = []byte{0x27} // prefix for each key to a Position
 	DerivativePositionsIndexPrefix       = []byte{0x28} // prefix for each index key to a Position Key
 
-	PerpetualMarketFundingPrefix  = []byte{0x31} // prefix for each key to a perpetual market's funding state
-	PerpetualMarketInfoPrefix     = []byte{0x32} // prefix for each key to a perpetual market's market info
-	ExpiryFuturesMarketInfoPrefix = []byte{0x33} // prefix for each key to a expiry futures market's market info
-	NextFundingTimestampKey       = []byte{0x34} // key to the next perpetual market funding timestamp
+	PerpetualMarketFundingPrefix             = []byte{0x31} // prefix for each key to a perpetual market's funding state
+	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
+	ExpiryFuturesMarketInfoPrefix            = []byte{0x33} // prefix for each key to a expiry futures market's market info
+	ExpiryFuturesMarketInfoByTimestampPrefix = []byte{0x34} // prefix for each index key to a expiry futures market's market info
+	NextFundingTimestampKey                  = []byte{0x35} // key to the next perpetual market funding timestamp
 
 )
 
@@ -199,4 +200,8 @@ func GetSubaccountAndMarketIDFromPositionKey(key []byte) (subaccountID, marketID
 	subaccountID = common.BytesToHash(key[:subaccountOffsetLen])
 	marketID = common.BytesToHash(key[subaccountOffsetLen : subaccountOffsetLen+common.HashLength])
 	return subaccountID, marketID
+}
+
+func GetExpiryFuturesMarketInfoByTimestampKey(timestamp int64, marketID common.Hash) []byte {
+	return append(ExpiryFuturesMarketInfoByTimestampPrefix, append(sdk.Uint64ToBigEndian(uint64(timestamp)), marketID.Bytes()...)...)
 }

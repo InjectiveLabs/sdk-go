@@ -12,7 +12,7 @@ import (
 
 const (
 	CoinbaseOraclePublicKey = "0xfCEAdAFab14d46e20144F48824d0C09B1a03F2BC"
-	preamblePrefix					= "\x19Ethereum Signed Message:\n32"
+	preamblePrefix          = "\x19Ethereum Signed Message:\n32"
 )
 
 const CoinbaseABIJSON = `[{
@@ -33,7 +33,7 @@ func ValidateCoinbaseSignature(message, signature []byte) error {
 	return ValidateEthereumSignature(hash, signature, common.HexToAddress(CoinbaseOraclePublicKey))
 }
 
-func ParseCoinbaseMessage(message []byte) (*CoinbasePriceData, error) {
+func ParseCoinbaseMessage(message []byte) (*CoinbasePriceState, error) {
 	contractAbi, abiErr := abi.JSON(strings.NewReader(CoinbaseABIJSON))
 	if abiErr != nil {
 		panic("Bad ABI constant!")
@@ -51,38 +51,44 @@ func ParseCoinbaseMessage(message []byte) (*CoinbasePriceData, error) {
 		return nil, err
 	}
 
-	var priceData CoinbasePriceData
-	if err := method.Inputs.Copy(&priceData, values); err != nil {
+	var priceState CoinbasePriceState
+	if err := method.Inputs.Copy(&priceState, values); err != nil {
 		return nil, err
 	}
 
-	if priceData.Kind != "prices" || priceData.Timestamp == 0 || priceData.Key == "" || priceData.Value == 0 {
+	if priceState.Kind != "prices" || priceState.Timestamp == 0 || priceState.Key == "" || priceState.Value == 0 {
 		return nil, ErrBadCoinbaseMessage
 	}
 
-	return &priceData, nil
+	return &priceState, nil
 }
 
 // ValidateEthereumSignature takes a message, an associated signature and public key and
 // returns an error if the signature isn't valid
 // TODO: refactor to shared common dir, copy pasted below code from Peggy
 func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress common.Address) error {
-	if len(signature) < 65 {
+
+	// convert malformed coinbase sig in oracle response to 65-byte signature 
+	trimmedSig := make([]byte, 65)
+	trimmedSig = signature[:65]
+	trimmedSig[64] = signature[95]
+
+	if len(trimmedSig) < 65 {
 		return sdkerrors.Wrap(ErrInvalidEthereumSignature, "signature too short")
 	}
 
 	// calculate recover id
-	if signature[64] == 27 || signature[64] == 28 {
-		signature[64] -= 27
+	if trimmedSig[64] == 27 || signature[64] == 28 {
+		trimmedSig[64] -= 27
 	}
 
 	// manually build the hash with ethereum prefix
 	preamblePrefix := []byte(preamblePrefix)
-	preambleMessage := append(preamblePrefix,hash.Bytes()...)
+	preambleMessage := append(preamblePrefix, hash.Bytes()...)
 	preambleHash := crypto.Keccak256Hash(preambleMessage)
 
 	// verify signature
-	pubkey, err := crypto.SigToPub(preambleHash.Bytes(), signature)
+	pubkey, err := crypto.SigToPub(preambleHash.Bytes(), trimmedSig)
 	if err != nil {
 		return sdkerrors.Wrap(err, "signature to public key")
 	}

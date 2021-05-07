@@ -2,6 +2,7 @@ package types
 
 import (
 	"errors"
+
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -201,7 +202,7 @@ func (p *DerivativeMarketStatusSetProposal) ValidateBasic() error {
 func NewDerivativeMarketParamUpdateProposal(
 	title, description string, marketID string,
 	initialMarginRatio, maintenanceMarginRatio,
-	makerFeeRate, takerFeeRate, relayerFeeShareRate, maxPriceScaleDecimals, maxQuantityScaleDecimals *sdk.Dec,
+	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec,
 ) *DerivativeMarketParamUpdateProposal {
 	return &DerivativeMarketParamUpdateProposal{
 		title,
@@ -212,8 +213,8 @@ func NewDerivativeMarketParamUpdateProposal(
 		makerFeeRate,
 		takerFeeRate,
 		relayerFeeShareRate,
-		maxPriceScaleDecimals,
-		maxQuantityScaleDecimals,
+		minPriceTickSize,
+		minQuantityTickSize,
 	}
 }
 

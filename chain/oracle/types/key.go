@@ -13,7 +13,7 @@ const (
 
 var (
 	// Keys for band store prefixes
-	BandRefKey     = []byte{0x01}
+	BandPriceKey   = []byte{0x01}
 	BandRelayerKey = []byte{0x02}
 
 	// Keys for pricefeeder store prefixes
@@ -24,8 +24,8 @@ var (
 	CoinbasePriceKey = []byte{0x21}
 )
 
-func GetBandRefStoreKey(symbol string) []byte {
-	return append(BandRefKey, []byte(symbol)...)
+func GetBandPriceStoreKey(symbol string) []byte {
+	return append(BandPriceKey, []byte(symbol)...)
 }
 
 func GetBandRelayerStoreKey(relayer sdk.AccAddress) []byte {

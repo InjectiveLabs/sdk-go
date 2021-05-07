@@ -59,4 +59,5 @@ var (
 	ErrInvalidReduceOnlyPositionDirection = sdkerrors.Register(ModuleName, 52, "Position direction does not oppose the reduce-only order")
 	ErrPriceSurpassesBankruptcyPrice      = sdkerrors.Register(ModuleName, 53, "Price Surpasses Bankruptcy Price")
 	ErrPositionNotLiquidable              = sdkerrors.Register(ModuleName, 54, "Position not liquidable")
+	ErrInvalidTriggerPrice                = sdkerrors.Register(ModuleName, 55, "invalid trigger price")
 )

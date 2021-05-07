@@ -83,12 +83,14 @@ func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 	}
 
 	batch = &EventBatchDerivativeExecution{
-		MarketId:          market.MarketId,
-		IsBuy:             isBuy,
-		IsLiquidation:     false,
-		CumulativeFunding: &funding.CumulativeFunding,
-		ExecutionType:     executionType,
-		Trades:            trades,
+		MarketId:      market.MarketId,
+		IsBuy:         isBuy,
+		IsLiquidation: false,
+		ExecutionType: executionType,
+		Trades:        trades,
+	}
+	if funding != nil {
+		batch.CumulativeFunding = &funding.CumulativeFunding
 	}
 	return batch, filledDeltas
 }

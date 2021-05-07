@@ -2,6 +2,7 @@ package types
 
 import (
 	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankexported "github.com/cosmos/cosmos-sdk/x/bank/exported"
 	"github.com/ethereum/go-ethereum/common"
@@ -17,12 +18,9 @@ type BankKeeper interface {
 
 // OracleKeeper defines the expected oracle keeper methods.
 type OracleKeeper interface {
-	// GetBandReferencePrice fetches prices for a given pair in sdk.Dec
-	GetBandReferencePrice(ctx sdk.Context, base string, quote string) *sdk.Dec
-	// GetPriceFeedPrice fetches the price for a given pair in sdk.Dec
-	GetPriceFeedPrice(ctx sdk.Context, base string, quote string) *sdk.Dec
-	// GetCoinbasePrice fetches the price for a given pair in sdk.Dec
-	GetCoinbasePrice(ctx sdk.Context, base string, quote string) *sdk.Dec
+	GetPrice(ctx sdk.Context, oracletype oracletypes.OracleType, base string, quote string) *sdk.Dec
+
+	GetCumulativePrice(ctx sdk.Context, oracleType oracletypes.OracleType, base string, quote string) *sdk.Dec
 }
 
 // InsuranceKeeper defines the expected insurance keeper methods.

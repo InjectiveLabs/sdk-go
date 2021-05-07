@@ -91,7 +91,7 @@ func (p *Position) GetLiquidationPrice(maintenanceMarginRatio sdk.Dec, funding *
 func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding) sdk.Dec {
 	adjustedMargin := p.Margin
 
-	// Compute the adjusted position margin for positions in perpetual markets
+	// Compute the adjusted posetion margin for positions in perpetual markets
 	if funding != nil {
 		unrealizedFundingPayment := p.Quantity.Mul(p.CumulativeFundingEntry.Sub(funding.CumulativeFunding))
 

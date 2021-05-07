@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+const QuoteUSD = "USD"
+
 func GetOracleType(oracleTypeStr string) (OracleType, error) {
 	oracleTypeStr = strings.ToLower(oracleTypeStr)
 	var oracleType OracleType
@@ -33,7 +35,22 @@ func (o *OracleType) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c *CoinbasePriceData) GetDecPrice() sdk.Dec {
+func (c *CoinbasePriceState) GetDecPrice() sdk.Dec {
 	// price = price/10^6
 	return sdk.NewDec(int64(c.Value)).QuoTruncate(sdk.NewDec(10).Power(6))
+}
+
+func NewPriceState(price sdk.Dec, timestamp int64) *PriceState {
+	return &PriceState{
+		Price:           price,
+		CumulativePrice: sdk.ZeroDec(),
+		Timestamp:       timestamp,
+	}
+}
+
+func (p *PriceState) UpdatePrice(price sdk.Dec, timestamp int64) {
+	cumulativePriceDelta := sdk.NewDec(timestamp - p.Timestamp).Mul(p.Price)
+	p.CumulativePrice = p.CumulativePrice.Add(cumulativePriceDelta)
+	p.Timestamp = timestamp
+	p.Price = price
 }
