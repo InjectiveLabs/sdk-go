@@ -5,18 +5,25 @@ package types
 
 import (
 	fmt "fmt"
-	types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types1 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
+	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	_ "google.golang.org/protobuf/types/known/durationpb"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -27,7 +34,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type Params struct {
 	// default_redemption_notice_period_duration defines the default minimum notice period duration that must pass after an underwriter sends
 	// a redemption request before the underwriter can claim his tokens
-	DefaultRedemptionNoticePeriodDuration int64 `protobuf:"varint,1,opt,name=default_redemption_notice_period_duration,json=defaultRedemptionNoticePeriodDuration,proto3" json:"default_redemption_notice_period_duration,omitempty"`
+	DefaultRedemptionNoticePeriodDuration time.Duration `protobuf:"bytes,1,opt,name=default_redemption_notice_period_duration,json=defaultRedemptionNoticePeriodDuration,proto3,stdduration" json:"default_redemption_notice_period_duration" yaml:"default_redemption_notice_period_duration"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -63,7 +70,7 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-func (m *Params) GetDefaultRedemptionNoticePeriodDuration() int64 {
+func (m *Params) GetDefaultRedemptionNoticePeriodDuration() time.Duration {
 	if m != nil {
 		return m.DefaultRedemptionNoticePeriodDuration
 	}
@@ -77,9 +84,23 @@ type InsuranceFund struct {
 	InsurancePoolTokenDenom string `protobuf:"bytes,2,opt,name=insurance_pool_token_denom,json=insurancePoolTokenDenom,proto3" json:"insurance_pool_token_denom,omitempty"`
 	// redemption_notice_period_duration defines the minimum notice period duration that must pass after an underwriter sends
 	// a redemption request before the underwriter can claim his tokens
-	RedemptionNoticePeriodDuration int64 `protobuf:"varint,3,opt,name=redemption_notice_period_duration,json=redemptionNoticePeriodDuration,proto3" json:"redemption_notice_period_duration,omitempty"`
-	// market ID of the derivative market
-	MarketId string `protobuf:"bytes,4,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	RedemptionNoticePeriodDuration time.Duration `protobuf:"bytes,3,opt,name=redemption_notice_period_duration,json=redemptionNoticePeriodDuration,proto3,stdduration" json:"redemption_notice_period_duration" yaml:"redemption_notice_period_duration"`
+	// balance of fund
+	Balance github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,4,opt,name=balance,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"balance"`
+	// total share tokens minted
+	TotalShare github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=total_share,json=totalShare,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_share"`
+	// marketID of the derivative market
+	MarketId string `protobuf:"bytes,6,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// ticker of the derivative market
+	MarketTicker string `protobuf:"bytes,7,opt,name=market_ticker,json=marketTicker,proto3" json:"market_ticker,omitempty"`
+	// Oracle base currency of the derivative market
+	OracleBase string `protobuf:"bytes,8,opt,name=oracle_base,json=oracleBase,proto3" json:"oracle_base,omitempty"`
+	// Oracle quote currency of the derivative market
+	OracleQuote string `protobuf:"bytes,9,opt,name=oracle_quote,json=oracleQuote,proto3" json:"oracle_quote,omitempty"`
+	// Oracle type of the derivative market
+	OracleType types.OracleType `protobuf:"varint,10,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
+	// Expiration time of the derivative market. Should be -1 for perpetual markets.
+	Expiry int64 `protobuf:"varint,11,opt,name=expiry,proto3" json:"expiry,omitempty"`
 }
 
 func (m *InsuranceFund) Reset()         { *m = InsuranceFund{} }
@@ -129,7 +150,7 @@ func (m *InsuranceFund) GetInsurancePoolTokenDenom() string {
 	return ""
 }
 
-func (m *InsuranceFund) GetRedemptionNoticePeriodDuration() int64 {
+func (m *InsuranceFund) GetRedemptionNoticePeriodDuration() time.Duration {
 	if m != nil {
 		return m.RedemptionNoticePeriodDuration
 	}
@@ -143,13 +164,52 @@ func (m *InsuranceFund) GetMarketId() string {
 	return ""
 }
 
+func (m *InsuranceFund) GetMarketTicker() string {
+	if m != nil {
+		return m.MarketTicker
+	}
+	return ""
+}
+
+func (m *InsuranceFund) GetOracleBase() string {
+	if m != nil {
+		return m.OracleBase
+	}
+	return ""
+}
+
+func (m *InsuranceFund) GetOracleQuote() string {
+	if m != nil {
+		return m.OracleQuote
+	}
+	return ""
+}
+
+func (m *InsuranceFund) GetOracleType() types.OracleType {
+	if m != nil {
+		return m.OracleType
+	}
+	return types.OracleType_Unspecified
+}
+
+func (m *InsuranceFund) GetExpiry() int64 {
+	if m != nil {
+		return m.Expiry
+	}
+	return 0
+}
+
 type RedemptionSchedule struct {
+	// id of redemption schedule
+	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// marketId of redemption schedule
+	MarketId string `protobuf:"bytes,2,opt,name=marketId,proto3" json:"marketId,omitempty"`
 	// address of the redeemer
-	Redeemer string `protobuf:"bytes,1,opt,name=redeemer,proto3" json:"redeemer,omitempty"`
+	Redeemer string `protobuf:"bytes,3,opt,name=redeemer,proto3" json:"redeemer,omitempty"`
 	// the time after which the redemption can be claimed
-	ClaimableRedemptionTime int64 `protobuf:"varint,2,opt,name=claimable_redemption_time,json=claimableRedemptionTime,proto3" json:"claimable_redemption_time,omitempty"`
+	ClaimableRedemptionTime time.Time `protobuf:"bytes,4,opt,name=claimable_redemption_time,json=claimableRedemptionTime,proto3,stdtime" json:"claimable_redemption_time" yaml:"claimable_redemption_time"`
 	// the insurance_pool_token amount to redeem
-	RedemptionAmount types.Coin `protobuf:"bytes,3,opt,name=redemption_amount,json=redemptionAmount,proto3" json:"redemption_amount"`
+	RedemptionAmount types1.Coin `protobuf:"bytes,5,opt,name=redemption_amount,json=redemptionAmount,proto3" json:"redemption_amount"`
 }
 
 func (m *RedemptionSchedule) Reset()         { *m = RedemptionSchedule{} }
@@ -185,6 +245,20 @@ func (m *RedemptionSchedule) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RedemptionSchedule proto.InternalMessageInfo
 
+func (m *RedemptionSchedule) GetId() uint64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *RedemptionSchedule) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
 func (m *RedemptionSchedule) GetRedeemer() string {
 	if m != nil {
 		return m.Redeemer
@@ -192,24 +266,169 @@ func (m *RedemptionSchedule) GetRedeemer() string {
 	return ""
 }
 
-func (m *RedemptionSchedule) GetClaimableRedemptionTime() int64 {
+func (m *RedemptionSchedule) GetClaimableRedemptionTime() time.Time {
 	if m != nil {
 		return m.ClaimableRedemptionTime
 	}
-	return 0
+	return time.Time{}
 }
 
-func (m *RedemptionSchedule) GetRedemptionAmount() types.Coin {
+func (m *RedemptionSchedule) GetRedemptionAmount() types1.Coin {
 	if m != nil {
 		return m.RedemptionAmount
 	}
-	return types.Coin{}
+	return types1.Coin{}
+}
+
+type EventInsuranceFundUpdate struct {
+	Fund *InsuranceFund `protobuf:"bytes,1,opt,name=fund,proto3" json:"fund,omitempty"`
+}
+
+func (m *EventInsuranceFundUpdate) Reset()         { *m = EventInsuranceFundUpdate{} }
+func (m *EventInsuranceFundUpdate) String() string { return proto.CompactTextString(m) }
+func (*EventInsuranceFundUpdate) ProtoMessage()    {}
+func (*EventInsuranceFundUpdate) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dbc47a7b76393948, []int{3}
+}
+func (m *EventInsuranceFundUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventInsuranceFundUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventInsuranceFundUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventInsuranceFundUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventInsuranceFundUpdate.Merge(m, src)
+}
+func (m *EventInsuranceFundUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventInsuranceFundUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventInsuranceFundUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventInsuranceFundUpdate proto.InternalMessageInfo
+
+func (m *EventInsuranceFundUpdate) GetFund() *InsuranceFund {
+	if m != nil {
+		return m.Fund
+	}
+	return nil
+}
+
+type EventRequestRedemption struct {
+	Schedule *RedemptionSchedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule,omitempty"`
+}
+
+func (m *EventRequestRedemption) Reset()         { *m = EventRequestRedemption{} }
+func (m *EventRequestRedemption) String() string { return proto.CompactTextString(m) }
+func (*EventRequestRedemption) ProtoMessage()    {}
+func (*EventRequestRedemption) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dbc47a7b76393948, []int{4}
+}
+func (m *EventRequestRedemption) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventRequestRedemption) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventRequestRedemption.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventRequestRedemption) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventRequestRedemption.Merge(m, src)
+}
+func (m *EventRequestRedemption) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventRequestRedemption) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventRequestRedemption.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventRequestRedemption proto.InternalMessageInfo
+
+func (m *EventRequestRedemption) GetSchedule() *RedemptionSchedule {
+	if m != nil {
+		return m.Schedule
+	}
+	return nil
+}
+
+type EventWithdrawRedemption struct {
+	// redemption schedule triggered withdraw
+	Schedule *RedemptionSchedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule,omitempty"`
+	// redeem coin amount in base_curency
+	RedeemCoin types1.Coin `protobuf:"bytes,2,opt,name=redeem_coin,json=redeemCoin,proto3" json:"redeem_coin"`
+}
+
+func (m *EventWithdrawRedemption) Reset()         { *m = EventWithdrawRedemption{} }
+func (m *EventWithdrawRedemption) String() string { return proto.CompactTextString(m) }
+func (*EventWithdrawRedemption) ProtoMessage()    {}
+func (*EventWithdrawRedemption) Descriptor() ([]byte, []int) {
+	return fileDescriptor_dbc47a7b76393948, []int{5}
+}
+func (m *EventWithdrawRedemption) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventWithdrawRedemption) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventWithdrawRedemption.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventWithdrawRedemption) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventWithdrawRedemption.Merge(m, src)
+}
+func (m *EventWithdrawRedemption) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventWithdrawRedemption) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventWithdrawRedemption.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventWithdrawRedemption proto.InternalMessageInfo
+
+func (m *EventWithdrawRedemption) GetSchedule() *RedemptionSchedule {
+	if m != nil {
+		return m.Schedule
+	}
+	return nil
+}
+
+func (m *EventWithdrawRedemption) GetRedeemCoin() types1.Coin {
+	if m != nil {
+		return m.RedeemCoin
+	}
+	return types1.Coin{}
 }
 
 func init() {
 	proto.RegisterType((*Params)(nil), "injective.insurance.v1beta1.Params")
 	proto.RegisterType((*InsuranceFund)(nil), "injective.insurance.v1beta1.InsuranceFund")
 	proto.RegisterType((*RedemptionSchedule)(nil), "injective.insurance.v1beta1.RedemptionSchedule")
+	proto.RegisterType((*EventInsuranceFundUpdate)(nil), "injective.insurance.v1beta1.EventInsuranceFundUpdate")
+	proto.RegisterType((*EventRequestRedemption)(nil), "injective.insurance.v1beta1.EventRequestRedemption")
+	proto.RegisterType((*EventWithdrawRedemption)(nil), "injective.insurance.v1beta1.EventWithdrawRedemption")
 }
 
 func init() {
@@ -217,36 +436,60 @@ func init() {
 }
 
 var fileDescriptor_dbc47a7b76393948 = []byte{
-	// 453 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0xc1, 0x6a, 0xd4, 0x40,
-	0x18, 0xc7, 0x37, 0xee, 0x52, 0xda, 0xd1, 0x82, 0x0e, 0x42, 0xdb, 0x2d, 0xa4, 0xba, 0x22, 0x28,
-	0x62, 0x42, 0xf5, 0x56, 0x4f, 0xd6, 0x22, 0x2c, 0x14, 0x5d, 0x62, 0x0f, 0xe2, 0x25, 0x4c, 0x66,
-	0x3e, 0x77, 0xc7, 0x66, 0xe6, 0x0b, 0x33, 0x93, 0x82, 0x6f, 0xe1, 0x23, 0xf8, 0x1c, 0x3e, 0x41,
-	0x8f, 0x7b, 0xd4, 0x8b, 0xc8, 0xee, 0xc5, 0xc7, 0x90, 0x4c, 0xb2, 0x49, 0x4e, 0xf6, 0xb6, 0xf3,
-	0xff, 0x7e, 0xff, 0x6f, 0xf3, 0x9f, 0xf9, 0x93, 0x67, 0x52, 0x7f, 0x01, 0xee, 0xe4, 0x15, 0xc4,
-	0x52, 0xdb, 0xd2, 0x30, 0xcd, 0x21, 0xbe, 0x3a, 0xce, 0xc0, 0xb1, 0xe3, 0x4e, 0x89, 0x0a, 0x83,
-	0x0e, 0xe9, 0x61, 0x0b, 0x47, 0xdd, 0xa8, 0x81, 0xc7, 0xf7, 0xe7, 0x38, 0x47, 0xcf, 0xc5, 0xd5,
-	0xaf, 0xda, 0x32, 0x0e, 0x39, 0x5a, 0x85, 0x36, 0xce, 0x98, 0xed, 0xf6, 0x72, 0x94, 0xba, 0x9e,
-	0x4f, 0x16, 0x64, 0x6b, 0xc6, 0x0c, 0x53, 0x96, 0x7e, 0x24, 0x4f, 0x05, 0x7c, 0x66, 0x65, 0xee,
-	0x52, 0x03, 0x02, 0x54, 0xe1, 0x24, 0xea, 0x54, 0xa3, 0x93, 0x1c, 0xd2, 0x02, 0x8c, 0x44, 0x91,
-	0x8a, 0xd2, 0xb0, 0x4a, 0xde, 0x0f, 0x1e, 0x04, 0x4f, 0x86, 0xc9, 0xe3, 0xc6, 0x90, 0xb4, 0xfc,
-	0x3b, 0x8f, 0xcf, 0x3c, 0x7d, 0xd6, 0xc0, 0x27, 0xa3, 0xbf, 0xdf, 0x8f, 0x82, 0xc9, 0xaf, 0x80,
-	0xec, 0x4e, 0x37, 0x5f, 0xfd, 0xb6, 0xd4, 0x82, 0x3e, 0x22, 0xbb, 0x02, 0x0a, 0xb4, 0xd2, 0xa5,
-	0x02, 0x34, 0x2a, 0xbf, 0x75, 0x27, 0xb9, 0xd3, 0x88, 0x67, 0x95, 0x46, 0x5f, 0x91, 0x71, 0x9b,
-	0x35, 0x2d, 0x10, 0xf3, 0xd4, 0xe1, 0x25, 0xe8, 0xc6, 0x71, 0xcb, 0x3b, 0xf6, 0x5a, 0x62, 0x86,
-	0x98, 0x5f, 0x54, 0xf3, 0xda, 0x3c, 0x25, 0x0f, 0x6f, 0xce, 0x32, 0xf4, 0x59, 0x42, 0xf3, 0xdf,
-	0x10, 0xf4, 0x90, 0xec, 0x28, 0x66, 0x2e, 0xc1, 0xa5, 0x52, 0xec, 0x8f, 0xfc, 0xdf, 0x6e, 0xd7,
-	0xc2, 0x54, 0x4c, 0x7e, 0x04, 0x84, 0x76, 0x97, 0xf0, 0x81, 0x2f, 0x40, 0x94, 0x39, 0xd0, 0x31,
-	0xd9, 0xae, 0xb6, 0x82, 0x02, 0xd3, 0x64, 0x6b, 0xcf, 0xf4, 0x84, 0x1c, 0xf0, 0x9c, 0x49, 0xc5,
-	0xb2, 0x1c, 0xfa, 0x17, 0xee, 0xa4, 0x02, 0x1f, 0x6b, 0x98, 0xec, 0xb5, 0x40, 0xb7, 0xfb, 0x42,
-	0x2a, 0xa0, 0xe7, 0xe4, 0x5e, 0xcf, 0xc1, 0x14, 0x96, 0xda, 0xf9, 0x18, 0xb7, 0x5f, 0x1c, 0x44,
-	0xf5, 0x83, 0x47, 0xd5, 0x83, 0x6f, 0xba, 0x11, 0xbd, 0x41, 0xa9, 0x4f, 0x47, 0xd7, 0xbf, 0x8f,
-	0x06, 0xc9, 0xdd, 0xce, 0xf9, 0xda, 0x1b, 0x4f, 0xe5, 0xf5, 0x2a, 0x0c, 0x96, 0xab, 0x30, 0xf8,
-	0xb3, 0x0a, 0x83, 0x6f, 0xeb, 0x70, 0xb0, 0x5c, 0x87, 0x83, 0x9f, 0xeb, 0x70, 0xf0, 0xe9, 0xfd,
-	0x5c, 0xba, 0x45, 0x99, 0x45, 0x1c, 0x55, 0x3c, 0xdd, 0x54, 0xef, 0x9c, 0x65, 0x36, 0x6e, 0x8b,
-	0xf8, 0x9c, 0xa3, 0x81, 0xfe, 0x71, 0xc1, 0xa4, 0x8e, 0x15, 0x56, 0xf9, 0x6d, 0xaf, 0xd2, 0xee,
-	0x6b, 0x01, 0x36, 0xdb, 0xf2, 0xa5, 0x7b, 0xf9, 0x2f, 0x00, 0x00, 0xff, 0xff, 0x9b, 0xeb, 0x11,
-	0x5c, 0xf6, 0x02, 0x00, 0x00,
+	// 840 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0xcf, 0x8f, 0xdb, 0x44,
+	0x14, 0x8e, 0xd3, 0x34, 0x4d, 0x26, 0x6d, 0x05, 0x23, 0xd4, 0x75, 0x53, 0xc9, 0x49, 0x0d, 0x45,
+	0xe1, 0x47, 0x6d, 0xba, 0x70, 0x2a, 0x08, 0x41, 0x68, 0x11, 0x11, 0x15, 0xbb, 0xb8, 0x41, 0x48,
+	0xbd, 0x58, 0x63, 0xfb, 0x6d, 0x32, 0xc4, 0xf6, 0xb8, 0xf6, 0x78, 0x21, 0x77, 0xce, 0xa8, 0x47,
+	0xc4, 0x89, 0x23, 0xd7, 0xfe, 0x0b, 0x9c, 0x7a, 0xec, 0x11, 0x71, 0x58, 0xd0, 0xee, 0x85, 0x33,
+	0x7f, 0x01, 0x9a, 0x1f, 0xb6, 0xb3, 0xac, 0xd8, 0x5d, 0x21, 0xf5, 0x14, 0xcf, 0x9b, 0xef, 0xfb,
+	0xe6, 0xcd, 0x7b, 0xdf, 0xbc, 0xa0, 0xb7, 0x68, 0xfa, 0x0d, 0x84, 0x9c, 0xee, 0x83, 0x4b, 0xd3,
+	0xa2, 0xcc, 0x49, 0x1a, 0x82, 0xbb, 0x7f, 0x27, 0x00, 0x4e, 0xee, 0x34, 0x11, 0x27, 0xcb, 0x19,
+	0x67, 0xf8, 0x46, 0x0d, 0x76, 0x9a, 0x2d, 0x0d, 0x1e, 0xbe, 0xb2, 0x60, 0x0b, 0x26, 0x71, 0xae,
+	0xf8, 0x52, 0x94, 0xa1, 0xb5, 0x60, 0x6c, 0x11, 0x83, 0x2b, 0x57, 0x41, 0xb9, 0xe7, 0x46, 0x65,
+	0x4e, 0x38, 0x65, 0xa9, 0xde, 0x1f, 0xfd, 0x7b, 0x9f, 0xd3, 0x04, 0x0a, 0x4e, 0x92, 0xac, 0x12,
+	0x08, 0x59, 0x91, 0xb0, 0xc2, 0x0d, 0x48, 0xd1, 0x24, 0x16, 0x32, 0x5a, 0x09, 0xdc, 0x6a, 0x2e,
+	0xc0, 0x72, 0x12, 0xc6, 0x0d, 0x48, 0x2d, 0x15, 0xcc, 0xfe, 0xd5, 0x40, 0xdd, 0x5d, 0x92, 0x93,
+	0xa4, 0xc0, 0x4f, 0x0d, 0xf4, 0x46, 0x04, 0x7b, 0xa4, 0x8c, 0xb9, 0x9f, 0x43, 0x04, 0x49, 0x26,
+	0xf2, 0xf1, 0x53, 0xc6, 0x69, 0x08, 0x7e, 0x06, 0x39, 0x65, 0x91, 0x5f, 0xa5, 0x69, 0x1a, 0x63,
+	0x63, 0x32, 0xd8, 0xbe, 0xee, 0xa8, 0x3c, 0x9d, 0x2a, 0x4f, 0xe7, 0x9e, 0x06, 0x4c, 0x3f, 0x78,
+	0x76, 0x30, 0x6a, 0xfd, 0x7d, 0x30, 0x7a, 0x67, 0x4d, 0x92, 0xf8, 0xae, 0x7d, 0x6e, 0x65, 0xfb,
+	0xc7, 0x3f, 0x46, 0x86, 0x77, 0x4b, 0xe3, 0xbd, 0x1a, 0xfe, 0x85, 0x44, 0xef, 0x4a, 0x70, 0x75,
+	0xc8, 0xdd, 0xce, 0x5f, 0x3f, 0x8f, 0x0c, 0xfb, 0x87, 0x8b, 0xe8, 0xca, 0xac, 0x2a, 0xfc, 0xa7,
+	0x65, 0x1a, 0xe1, 0x57, 0xd1, 0x95, 0x08, 0x32, 0x56, 0x50, 0xee, 0x47, 0x90, 0xb2, 0x44, 0xa6,
+	0xdb, 0xf7, 0x2e, 0xeb, 0xe0, 0x3d, 0x11, 0xc3, 0xef, 0xa3, 0x61, 0xdd, 0x2e, 0x3f, 0x63, 0x2c,
+	0xf6, 0x39, 0x5b, 0x41, 0xaa, 0x19, 0x6d, 0xc9, 0xd8, 0xaa, 0x11, 0xbb, 0x8c, 0xc5, 0x73, 0xb1,
+	0xaf, 0xc8, 0x3f, 0x19, 0xe8, 0xe6, 0xd9, 0x55, 0xba, 0x70, 0x56, 0x95, 0xde, 0xd3, 0x55, 0x9a,
+	0xa8, 0x2a, 0x9d, 0xb3, 0x3a, 0x56, 0x7e, 0x6a, 0x59, 0xf0, 0x67, 0xe8, 0x52, 0x40, 0x62, 0x91,
+	0xb5, 0xd9, 0x11, 0xd7, 0x98, 0x3a, 0xe2, 0x98, 0xdf, 0x0f, 0x46, 0xaf, 0x2f, 0x28, 0x5f, 0x96,
+	0x81, 0x13, 0xb2, 0xc4, 0xd5, 0x06, 0x52, 0x3f, 0xb7, 0x8b, 0x68, 0xe5, 0xf2, 0x75, 0x06, 0x85,
+	0x33, 0x4b, 0xb9, 0x57, 0xd1, 0xf1, 0x0e, 0x1a, 0x70, 0xc6, 0x49, 0xec, 0x17, 0x4b, 0x92, 0x83,
+	0x79, 0xf1, 0x7f, 0xa9, 0x21, 0x29, 0xf1, 0x50, 0x28, 0xe0, 0x1b, 0xa8, 0x9f, 0x90, 0x7c, 0x05,
+	0xdc, 0xa7, 0x91, 0xd9, 0x95, 0x35, 0xee, 0xa9, 0xc0, 0x4c, 0xb6, 0x4d, 0x6f, 0x72, 0x1a, 0xae,
+	0x20, 0x37, 0x2f, 0xa9, 0xb6, 0xa9, 0xe0, 0x5c, 0xc6, 0xf0, 0x08, 0x0d, 0x94, 0x85, 0x7d, 0xe1,
+	0x7d, 0xb3, 0x27, 0x21, 0x48, 0x85, 0xa6, 0xa4, 0x00, 0x7c, 0x13, 0x5d, 0xd6, 0x80, 0xc7, 0x25,
+	0xe3, 0x60, 0xf6, 0x25, 0x42, 0x93, 0xbe, 0x14, 0x21, 0x7c, 0xbf, 0xd6, 0x10, 0x59, 0x9a, 0x68,
+	0x6c, 0x4c, 0xae, 0x6e, 0xbf, 0xe6, 0x34, 0xef, 0x58, 0x3f, 0x12, 0xfd, 0x66, 0x9c, 0x1d, 0xb9,
+	0x9c, 0xaf, 0x33, 0xa8, 0x4e, 0x12, 0xdf, 0xf8, 0x1a, 0xea, 0xc2, 0x77, 0x19, 0xcd, 0xd7, 0xe6,
+	0x60, 0x6c, 0x4c, 0x2e, 0x78, 0x7a, 0x65, 0x3f, 0x6d, 0x23, 0xdc, 0x38, 0xf7, 0x61, 0xb8, 0x84,
+	0xa8, 0x8c, 0x01, 0x5f, 0x45, 0x6d, 0x1a, 0x49, 0x2b, 0x76, 0xbc, 0x36, 0x8d, 0xf0, 0x10, 0xd5,
+	0x57, 0xd7, 0x76, 0x6b, 0x4a, 0x31, 0x44, 0x3d, 0xd1, 0x64, 0x48, 0x20, 0x97, 0x2e, 0xea, 0x7b,
+	0xf5, 0x1a, 0x7f, 0x6f, 0xa0, 0xeb, 0x61, 0x4c, 0x68, 0x42, 0x82, 0x18, 0x36, 0x5f, 0x94, 0x18,
+	0x12, 0xb2, 0xe3, 0x83, 0xed, 0xe1, 0x09, 0xcf, 0xcd, 0xab, 0x09, 0x32, 0x7d, 0x5b, 0x9b, 0x6e,
+	0xac, 0x4c, 0xf7, 0x9f, 0x52, 0xf6, 0x13, 0x61, 0xb6, 0xad, 0x7a, 0xbf, 0xb9, 0x92, 0xd0, 0xc2,
+	0x0f, 0xd0, 0xcb, 0x1b, 0x04, 0x92, 0xb0, 0x32, 0xe5, 0xd2, 0x21, 0xc2, 0xf1, 0xca, 0x08, 0x8e,
+	0x68, 0x51, 0x5d, 0xc5, 0x4f, 0x18, 0x4d, 0xa7, 0x1d, 0x71, 0xb8, 0xf7, 0x52, 0xc3, 0xfc, 0x58,
+	0x12, 0xed, 0x47, 0xc8, 0xbc, 0xbf, 0x0f, 0x29, 0x3f, 0xf6, 0x90, 0xbf, 0xca, 0x22, 0xc2, 0x01,
+	0x7f, 0x88, 0x3a, 0x7b, 0x65, 0x1a, 0xe9, 0xa1, 0xf3, 0xa6, 0x73, 0xca, 0xbc, 0x75, 0x8e, 0xf1,
+	0x3d, 0xc9, 0xb3, 0x01, 0x5d, 0x93, 0xda, 0x1e, 0x3c, 0x2e, 0xa1, 0xd8, 0x18, 0x2a, 0xf8, 0x73,
+	0xd4, 0x2b, 0x74, 0x7b, 0xb4, 0xba, 0x7b, 0xaa, 0xfa, 0xc9, 0xae, 0x7a, 0xb5, 0x80, 0xfd, 0x8b,
+	0x81, 0xb6, 0xe4, 0x39, 0x5f, 0x53, 0xbe, 0x8c, 0x72, 0xf2, 0xed, 0x0b, 0x3a, 0x08, 0x7f, 0x84,
+	0x06, 0xca, 0x0c, 0xbe, 0x98, 0xf8, 0xd2, 0x3b, 0xe7, 0xa8, 0x39, 0x52, 0x1c, 0x19, 0xa1, 0xcf,
+	0x0e, 0x2d, 0xe3, 0xf9, 0xa1, 0x65, 0xfc, 0x79, 0x68, 0x19, 0x4f, 0x8e, 0xac, 0xd6, 0xf3, 0x23,
+	0xab, 0xf5, 0xdb, 0x91, 0xd5, 0x7a, 0xb4, 0xb3, 0xf1, 0xa8, 0x67, 0x55, 0x82, 0x0f, 0x48, 0x50,
+	0xb8, 0x75, 0xba, 0xb7, 0x43, 0x96, 0xc3, 0xe6, 0x72, 0x49, 0x68, 0xea, 0x26, 0x4c, 0xe4, 0x56,
+	0x6c, 0xfc, 0x5f, 0xca, 0x09, 0x10, 0x74, 0xa5, 0x03, 0xdf, 0xfd, 0x27, 0x00, 0x00, 0xff, 0xff,
+	0xe4, 0xb7, 0xcd, 0x37, 0x53, 0x07, 0x00, 0x00,
 }
 
 func (this *Params) Equal(that interface{}) bool {
@@ -293,11 +536,14 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.DefaultRedemptionNoticePeriodDuration != 0 {
-		i = encodeVarintInsurance(dAtA, i, uint64(m.DefaultRedemptionNoticePeriodDuration))
-		i--
-		dAtA[i] = 0x8
+	n1, err1 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.DefaultRedemptionNoticePeriodDuration, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.DefaultRedemptionNoticePeriodDuration):])
+	if err1 != nil {
+		return 0, err1
 	}
+	i -= n1
+	i = encodeVarintInsurance(dAtA, i, uint64(n1))
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -321,18 +567,72 @@ func (m *InsuranceFund) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.Expiry != 0 {
+		i = encodeVarintInsurance(dAtA, i, uint64(m.Expiry))
+		i--
+		dAtA[i] = 0x58
+	}
+	if m.OracleType != 0 {
+		i = encodeVarintInsurance(dAtA, i, uint64(m.OracleType))
+		i--
+		dAtA[i] = 0x50
+	}
+	if len(m.OracleQuote) > 0 {
+		i -= len(m.OracleQuote)
+		copy(dAtA[i:], m.OracleQuote)
+		i = encodeVarintInsurance(dAtA, i, uint64(len(m.OracleQuote)))
+		i--
+		dAtA[i] = 0x4a
+	}
+	if len(m.OracleBase) > 0 {
+		i -= len(m.OracleBase)
+		copy(dAtA[i:], m.OracleBase)
+		i = encodeVarintInsurance(dAtA, i, uint64(len(m.OracleBase)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if len(m.MarketTicker) > 0 {
+		i -= len(m.MarketTicker)
+		copy(dAtA[i:], m.MarketTicker)
+		i = encodeVarintInsurance(dAtA, i, uint64(len(m.MarketTicker)))
+		i--
+		dAtA[i] = 0x3a
+	}
 	if len(m.MarketId) > 0 {
 		i -= len(m.MarketId)
 		copy(dAtA[i:], m.MarketId)
 		i = encodeVarintInsurance(dAtA, i, uint64(len(m.MarketId)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x32
 	}
-	if m.RedemptionNoticePeriodDuration != 0 {
-		i = encodeVarintInsurance(dAtA, i, uint64(m.RedemptionNoticePeriodDuration))
-		i--
-		dAtA[i] = 0x18
+	{
+		size := m.TotalShare.Size()
+		i -= size
+		if _, err := m.TotalShare.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintInsurance(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x2a
+	{
+		size := m.Balance.Size()
+		i -= size
+		if _, err := m.Balance.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintInsurance(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	n2, err2 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.RedemptionNoticePeriodDuration, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.RedemptionNoticePeriodDuration):])
+	if err2 != nil {
+		return 0, err2
+	}
+	i -= n2
+	i = encodeVarintInsurance(dAtA, i, uint64(n2))
+	i--
+	dAtA[i] = 0x1a
 	if len(m.InsurancePoolTokenDenom) > 0 {
 		i -= len(m.InsurancePoolTokenDenom)
 		copy(dAtA[i:], m.InsurancePoolTokenDenom)
@@ -379,16 +679,146 @@ func (m *RedemptionSchedule) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintInsurance(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x1a
-	if m.ClaimableRedemptionTime != 0 {
-		i = encodeVarintInsurance(dAtA, i, uint64(m.ClaimableRedemptionTime))
-		i--
-		dAtA[i] = 0x10
+	dAtA[i] = 0x2a
+	n4, err4 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.ClaimableRedemptionTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.ClaimableRedemptionTime):])
+	if err4 != nil {
+		return 0, err4
 	}
+	i -= n4
+	i = encodeVarintInsurance(dAtA, i, uint64(n4))
+	i--
+	dAtA[i] = 0x22
 	if len(m.Redeemer) > 0 {
 		i -= len(m.Redeemer)
 		copy(dAtA[i:], m.Redeemer)
 		i = encodeVarintInsurance(dAtA, i, uint64(len(m.Redeemer)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintInsurance(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Id != 0 {
+		i = encodeVarintInsurance(dAtA, i, uint64(m.Id))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventInsuranceFundUpdate) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventInsuranceFundUpdate) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventInsuranceFundUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Fund != nil {
+		{
+			size, err := m.Fund.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintInsurance(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventRequestRedemption) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventRequestRedemption) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventRequestRedemption) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Schedule != nil {
+		{
+			size, err := m.Schedule.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintInsurance(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventWithdrawRedemption) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventWithdrawRedemption) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventWithdrawRedemption) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.RedeemCoin.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintInsurance(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if m.Schedule != nil {
+		{
+			size, err := m.Schedule.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintInsurance(dAtA, i, uint64(size))
+		}
 		i--
 		dAtA[i] = 0xa
 	}
@@ -412,9 +842,8 @@ func (m *Params) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.DefaultRedemptionNoticePeriodDuration != 0 {
-		n += 1 + sovInsurance(uint64(m.DefaultRedemptionNoticePeriodDuration))
-	}
+	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.DefaultRedemptionNoticePeriodDuration)
+	n += 1 + l + sovInsurance(uint64(l))
 	return n
 }
 
@@ -432,12 +861,33 @@ func (m *InsuranceFund) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovInsurance(uint64(l))
 	}
-	if m.RedemptionNoticePeriodDuration != 0 {
-		n += 1 + sovInsurance(uint64(m.RedemptionNoticePeriodDuration))
-	}
+	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.RedemptionNoticePeriodDuration)
+	n += 1 + l + sovInsurance(uint64(l))
+	l = m.Balance.Size()
+	n += 1 + l + sovInsurance(uint64(l))
+	l = m.TotalShare.Size()
+	n += 1 + l + sovInsurance(uint64(l))
 	l = len(m.MarketId)
 	if l > 0 {
 		n += 1 + l + sovInsurance(uint64(l))
+	}
+	l = len(m.MarketTicker)
+	if l > 0 {
+		n += 1 + l + sovInsurance(uint64(l))
+	}
+	l = len(m.OracleBase)
+	if l > 0 {
+		n += 1 + l + sovInsurance(uint64(l))
+	}
+	l = len(m.OracleQuote)
+	if l > 0 {
+		n += 1 + l + sovInsurance(uint64(l))
+	}
+	if m.OracleType != 0 {
+		n += 1 + sovInsurance(uint64(m.OracleType))
+	}
+	if m.Expiry != 0 {
+		n += 1 + sovInsurance(uint64(m.Expiry))
 	}
 	return n
 }
@@ -448,14 +898,61 @@ func (m *RedemptionSchedule) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.Id != 0 {
+		n += 1 + sovInsurance(uint64(m.Id))
+	}
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovInsurance(uint64(l))
+	}
 	l = len(m.Redeemer)
 	if l > 0 {
 		n += 1 + l + sovInsurance(uint64(l))
 	}
-	if m.ClaimableRedemptionTime != 0 {
-		n += 1 + sovInsurance(uint64(m.ClaimableRedemptionTime))
-	}
+	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.ClaimableRedemptionTime)
+	n += 1 + l + sovInsurance(uint64(l))
 	l = m.RedemptionAmount.Size()
+	n += 1 + l + sovInsurance(uint64(l))
+	return n
+}
+
+func (m *EventInsuranceFundUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Fund != nil {
+		l = m.Fund.Size()
+		n += 1 + l + sovInsurance(uint64(l))
+	}
+	return n
+}
+
+func (m *EventRequestRedemption) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Schedule != nil {
+		l = m.Schedule.Size()
+		n += 1 + l + sovInsurance(uint64(l))
+	}
+	return n
+}
+
+func (m *EventWithdrawRedemption) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Schedule != nil {
+		l = m.Schedule.Size()
+		n += 1 + l + sovInsurance(uint64(l))
+	}
+	l = m.RedeemCoin.Size()
 	n += 1 + l + sovInsurance(uint64(l))
 	return n
 }
@@ -496,10 +993,10 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field DefaultRedemptionNoticePeriodDuration", wireType)
 			}
-			m.DefaultRedemptionNoticePeriodDuration = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowInsurance
@@ -509,11 +1006,25 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DefaultRedemptionNoticePeriodDuration |= int64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.DefaultRedemptionNoticePeriodDuration, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipInsurance(dAtA[iNdEx:])
@@ -629,10 +1140,10 @@ func (m *InsuranceFund) Unmarshal(dAtA []byte) error {
 			m.InsurancePoolTokenDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
-			if wireType != 0 {
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RedemptionNoticePeriodDuration", wireType)
 			}
-			m.RedemptionNoticePeriodDuration = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowInsurance
@@ -642,12 +1153,94 @@ func (m *InsuranceFund) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.RedemptionNoticePeriodDuration |= int64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.RedemptionNoticePeriodDuration, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Balance", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Balance.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalShare", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TotalShare.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
 			}
@@ -679,6 +1272,140 @@ func (m *InsuranceFund) Unmarshal(dAtA []byte) error {
 			}
 			m.MarketId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketTicker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketTicker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OracleBase", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OracleBase = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OracleQuote", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OracleQuote = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 10:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OracleType", wireType)
+			}
+			m.OracleType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.OracleType |= types.OracleType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 11:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Expiry", wireType)
+			}
+			m.Expiry = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Expiry |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipInsurance(dAtA[iNdEx:])
@@ -730,6 +1457,57 @@ func (m *RedemptionSchedule) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Redeemer", wireType)
 			}
@@ -761,11 +1539,11 @@ func (m *RedemptionSchedule) Unmarshal(dAtA []byte) error {
 			}
 			m.Redeemer = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
+		case 4:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ClaimableRedemptionTime", wireType)
 			}
-			m.ClaimableRedemptionTime = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowInsurance
@@ -775,12 +1553,26 @@ func (m *RedemptionSchedule) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ClaimableRedemptionTime |= int64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-		case 3:
+			if msglen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.ClaimableRedemptionTime, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field RedemptionAmount", wireType)
 			}
@@ -810,6 +1602,297 @@ func (m *RedemptionSchedule) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.RedemptionAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipInsurance(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventInsuranceFundUpdate) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowInsurance
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventInsuranceFundUpdate: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventInsuranceFundUpdate: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Fund", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Fund == nil {
+				m.Fund = &InsuranceFund{}
+			}
+			if err := m.Fund.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipInsurance(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventRequestRedemption) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowInsurance
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventRequestRedemption: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventRequestRedemption: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedule", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Schedule == nil {
+				m.Schedule = &RedemptionSchedule{}
+			}
+			if err := m.Schedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipInsurance(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventWithdrawRedemption) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowInsurance
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventWithdrawRedemption: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventWithdrawRedemption: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedule", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Schedule == nil {
+				m.Schedule = &RedemptionSchedule{}
+			}
+			if err := m.Schedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RedeemCoin", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowInsurance
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthInsurance
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.RedeemCoin.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

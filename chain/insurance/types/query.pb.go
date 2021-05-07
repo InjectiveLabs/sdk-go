@@ -6,7 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
@@ -112,9 +112,209 @@ func (m *QueryInsuranceParamsResponse) GetParams() Params {
 	return Params{}
 }
 
+// QueryEstimatedRedemptionsRequest is the request type for the Query/EstimatedRedemptions RPC method.
+type QueryEstimatedRedemptionsRequest struct {
+	MarketId string `protobuf:"bytes,1,opt,name=marketId,proto3" json:"marketId,omitempty"`
+	Address  string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+}
+
+func (m *QueryEstimatedRedemptionsRequest) Reset()         { *m = QueryEstimatedRedemptionsRequest{} }
+func (m *QueryEstimatedRedemptionsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryEstimatedRedemptionsRequest) ProtoMessage()    {}
+func (*QueryEstimatedRedemptionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{2}
+}
+func (m *QueryEstimatedRedemptionsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryEstimatedRedemptionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryEstimatedRedemptionsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryEstimatedRedemptionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryEstimatedRedemptionsRequest.Merge(m, src)
+}
+func (m *QueryEstimatedRedemptionsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryEstimatedRedemptionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryEstimatedRedemptionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryEstimatedRedemptionsRequest proto.InternalMessageInfo
+
+func (m *QueryEstimatedRedemptionsRequest) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
+func (m *QueryEstimatedRedemptionsRequest) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+// QueryEstimatedRedemptionsResponse is the response type for the Query/EstimatedRedemptions RPC method.
+type QueryEstimatedRedemptionsResponse struct {
+	Amount []types.Coin `protobuf:"bytes,3,rep,name=amount,proto3" json:"amount"`
+}
+
+func (m *QueryEstimatedRedemptionsResponse) Reset()         { *m = QueryEstimatedRedemptionsResponse{} }
+func (m *QueryEstimatedRedemptionsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryEstimatedRedemptionsResponse) ProtoMessage()    {}
+func (*QueryEstimatedRedemptionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{3}
+}
+func (m *QueryEstimatedRedemptionsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryEstimatedRedemptionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryEstimatedRedemptionsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryEstimatedRedemptionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryEstimatedRedemptionsResponse.Merge(m, src)
+}
+func (m *QueryEstimatedRedemptionsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryEstimatedRedemptionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryEstimatedRedemptionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryEstimatedRedemptionsResponse proto.InternalMessageInfo
+
+func (m *QueryEstimatedRedemptionsResponse) GetAmount() []types.Coin {
+	if m != nil {
+		return m.Amount
+	}
+	return nil
+}
+
+// QueryPendingRedemptionsRequest is the request type for the Query/PendingRedemptions RPC method.
+type QueryPendingRedemptionsRequest struct {
+	MarketId string `protobuf:"bytes,1,opt,name=marketId,proto3" json:"marketId,omitempty"`
+	Address  string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+}
+
+func (m *QueryPendingRedemptionsRequest) Reset()         { *m = QueryPendingRedemptionsRequest{} }
+func (m *QueryPendingRedemptionsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryPendingRedemptionsRequest) ProtoMessage()    {}
+func (*QueryPendingRedemptionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{4}
+}
+func (m *QueryPendingRedemptionsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryPendingRedemptionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryPendingRedemptionsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryPendingRedemptionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPendingRedemptionsRequest.Merge(m, src)
+}
+func (m *QueryPendingRedemptionsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryPendingRedemptionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPendingRedemptionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPendingRedemptionsRequest proto.InternalMessageInfo
+
+func (m *QueryPendingRedemptionsRequest) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
+func (m *QueryPendingRedemptionsRequest) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+// QueryPendingRedemptionsResponse is the response type for the Query/PendingRedemptions RPC method.
+type QueryPendingRedemptionsResponse struct {
+	Amount []types.Coin `protobuf:"bytes,3,rep,name=amount,proto3" json:"amount"`
+}
+
+func (m *QueryPendingRedemptionsResponse) Reset()         { *m = QueryPendingRedemptionsResponse{} }
+func (m *QueryPendingRedemptionsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryPendingRedemptionsResponse) ProtoMessage()    {}
+func (*QueryPendingRedemptionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{5}
+}
+func (m *QueryPendingRedemptionsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryPendingRedemptionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryPendingRedemptionsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryPendingRedemptionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPendingRedemptionsResponse.Merge(m, src)
+}
+func (m *QueryPendingRedemptionsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryPendingRedemptionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPendingRedemptionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPendingRedemptionsResponse proto.InternalMessageInfo
+
+func (m *QueryPendingRedemptionsResponse) GetAmount() []types.Coin {
+	if m != nil {
+		return m.Amount
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*QueryInsuranceParamsRequest)(nil), "injective.insurance.v1beta1.QueryInsuranceParamsRequest")
 	proto.RegisterType((*QueryInsuranceParamsResponse)(nil), "injective.insurance.v1beta1.QueryInsuranceParamsResponse")
+	proto.RegisterType((*QueryEstimatedRedemptionsRequest)(nil), "injective.insurance.v1beta1.QueryEstimatedRedemptionsRequest")
+	proto.RegisterType((*QueryEstimatedRedemptionsResponse)(nil), "injective.insurance.v1beta1.QueryEstimatedRedemptionsResponse")
+	proto.RegisterType((*QueryPendingRedemptionsRequest)(nil), "injective.insurance.v1beta1.QueryPendingRedemptionsRequest")
+	proto.RegisterType((*QueryPendingRedemptionsResponse)(nil), "injective.insurance.v1beta1.QueryPendingRedemptionsResponse")
 }
 
 func init() {
@@ -122,28 +322,40 @@ func init() {
 }
 
 var fileDescriptor_74cebfe4cd18bca2 = []byte{
-	// 327 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x51, 0xbd, 0x4a, 0x3b, 0x41,
-	0x10, 0xbf, 0xfd, 0xf3, 0x37, 0xc5, 0x59, 0x08, 0x87, 0x85, 0x24, 0x71, 0x95, 0x04, 0x51, 0x08,
-	0xde, 0x92, 0xd8, 0x68, 0x69, 0xba, 0x80, 0xa0, 0xa6, 0xb4, 0xdb, 0x3b, 0x87, 0xcb, 0x4a, 0x6e,
-	0xe7, 0x72, 0xb3, 0x17, 0x48, 0xeb, 0x13, 0x08, 0x3e, 0x8a, 0xb5, 0x7d, 0xca, 0x80, 0x8d, 0x95,
-	0x48, 0xe2, 0x83, 0x48, 0x6e, 0xf3, 0x85, 0xc8, 0x15, 0x76, 0xf3, 0xf1, 0xfb, 0x1a, 0xc6, 0x3d,
-	0x56, 0xfa, 0x01, 0x42, 0xa3, 0x86, 0x20, 0x94, 0xa6, 0x2c, 0x95, 0x3a, 0x04, 0x31, 0x6c, 0x06,
-	0x60, 0x64, 0x53, 0x0c, 0x32, 0x48, 0x47, 0x7e, 0x92, 0xa2, 0x41, 0xaf, 0xb2, 0x02, 0xfa, 0x2b,
-	0xa0, 0xbf, 0x00, 0x96, 0xab, 0x11, 0x62, 0xd4, 0x07, 0x21, 0x13, 0x25, 0xa4, 0xd6, 0x68, 0xa4,
-	0x51, 0xa8, 0xc9, 0x52, 0xcb, 0x8d, 0x22, 0x8f, 0xb5, 0x98, 0x05, 0xef, 0x46, 0x18, 0x61, 0x5e,
-	0x8a, 0x79, 0xb5, 0x98, 0xf2, 0x10, 0x29, 0x46, 0x12, 0x81, 0xa4, 0x35, 0x35, 0x44, 0xa5, 0xed,
-	0xbe, 0xb6, 0xef, 0x56, 0x6e, 0xe7, 0x61, 0x3b, 0x4b, 0xb5, 0x1b, 0x99, 0xca, 0x98, 0xba, 0x30,
-	0xc8, 0x80, 0x4c, 0x4d, 0xba, 0xd5, 0xdf, 0xd7, 0x94, 0xa0, 0x26, 0xf0, 0x2e, 0xdd, 0x52, 0x92,
-	0x4f, 0xf6, 0xd8, 0x21, 0x3b, 0xd9, 0x6e, 0xd5, 0xfd, 0x82, 0x6b, 0x7d, 0x4b, 0x6e, 0xff, 0x1f,
-	0x7f, 0x1c, 0x38, 0xdd, 0x05, 0xb1, 0xf5, 0xca, 0xdc, 0xad, 0xdc, 0xc3, 0x7b, 0x61, 0xee, 0xce,
-	0x0f, 0x23, 0xef, 0xbc, 0x50, 0xb0, 0x20, 0x7a, 0xf9, 0xe2, 0x0f, 0x4c, 0x7b, 0x55, 0xad, 0xf1,
-	0xf8, 0xf6, 0xf5, 0xfc, 0xef, 0xc8, 0xab, 0x8b, 0xa2, 0x07, 0xd8, 0xfc, 0x6d, 0x35, 0x9e, 0x72,
-	0x36, 0x99, 0x72, 0xf6, 0x39, 0xe5, 0xec, 0x69, 0xc6, 0x9d, 0xc9, 0x8c, 0x3b, 0xef, 0x33, 0xee,
-	0xdc, 0x5d, 0x47, 0xca, 0xf4, 0xb2, 0xc0, 0x0f, 0x31, 0x16, 0x9d, 0xa5, 0xd0, 0x95, 0x0c, 0x68,
-	0x2d, 0x7b, 0x1a, 0x62, 0x0a, 0x9b, 0x6d, 0x4f, 0x2a, 0x2d, 0x62, 0xbc, 0xcf, 0xfa, 0x40, 0x1b,
-	0x9e, 0x66, 0x94, 0x00, 0x05, 0xa5, 0xfc, 0x67, 0x67, 0xdf, 0x01, 0x00, 0x00, 0xff, 0xff, 0xa2,
-	0x34, 0xc3, 0x31, 0x7c, 0x02, 0x00, 0x00,
+	// 514 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0x4f, 0x6b, 0xd4, 0x40,
+	0x14, 0xdf, 0xb4, 0x75, 0xd5, 0xe9, 0x41, 0x18, 0x7a, 0x58, 0xd3, 0x9a, 0xae, 0x29, 0x62, 0xa1,
+	0x98, 0xb1, 0x51, 0xb0, 0xfe, 0x05, 0x2b, 0x1e, 0x16, 0x04, 0xeb, 0x1e, 0x44, 0x8a, 0x20, 0x93,
+	0xe4, 0x91, 0x8e, 0x36, 0x33, 0x69, 0x66, 0x52, 0xe8, 0xd5, 0x4f, 0x20, 0xf8, 0x51, 0xfc, 0x12,
+	0xf5, 0x56, 0xf1, 0xe2, 0x45, 0x91, 0x5d, 0x3f, 0x88, 0xec, 0x4c, 0xb2, 0x1b, 0xb4, 0x9d, 0x85,
+	0xd5, 0x5b, 0xde, 0xbc, 0xf7, 0xfb, 0xbd, 0xdf, 0xef, 0xbd, 0x47, 0xd0, 0x75, 0xc6, 0xdf, 0x42,
+	0xac, 0xd8, 0x21, 0x10, 0xc6, 0x65, 0x59, 0x50, 0x1e, 0x03, 0x39, 0xdc, 0x8c, 0x40, 0xd1, 0x4d,
+	0x72, 0x50, 0x42, 0x71, 0x14, 0xe4, 0x85, 0x50, 0x02, 0x2f, 0x8f, 0x0b, 0x83, 0x71, 0x61, 0x50,
+	0x15, 0xba, 0x2b, 0xa9, 0x10, 0xe9, 0x3e, 0x10, 0x9a, 0x33, 0x42, 0x39, 0x17, 0x8a, 0x2a, 0x26,
+	0xb8, 0x34, 0x50, 0x77, 0xc3, 0xd6, 0x63, 0x42, 0x66, 0x8a, 0x97, 0x52, 0x91, 0x0a, 0xfd, 0x49,
+	0x46, 0x5f, 0xd5, 0xab, 0x17, 0x0b, 0x99, 0x09, 0x49, 0x22, 0x2a, 0x27, 0xd0, 0x58, 0x30, 0x6e,
+	0xf2, 0xfe, 0x15, 0xb4, 0xfc, 0x62, 0x24, 0xb6, 0x57, 0xb3, 0xed, 0xd0, 0x82, 0x66, 0xb2, 0x0f,
+	0x07, 0x25, 0x48, 0xe5, 0x53, 0xb4, 0x72, 0x7a, 0x5a, 0xe6, 0x82, 0x4b, 0xc0, 0x8f, 0x51, 0x3b,
+	0xd7, 0x2f, 0x1d, 0xa7, 0xeb, 0xac, 0x2f, 0x86, 0x6b, 0x81, 0xc5, 0x6d, 0x60, 0xc0, 0xdb, 0x0b,
+	0xc7, 0x3f, 0x56, 0x5b, 0xfd, 0x0a, 0xe8, 0xbf, 0x42, 0x5d, 0xdd, 0xe2, 0xa9, 0x54, 0x2c, 0xa3,
+	0x0a, 0x92, 0x3e, 0x24, 0x90, 0xe5, 0x7a, 0x0e, 0x95, 0x0c, 0xec, 0xa2, 0x0b, 0x19, 0x2d, 0xde,
+	0x81, 0xea, 0x25, 0xba, 0xd1, 0xc5, 0xfe, 0x38, 0xc6, 0x1d, 0x74, 0x9e, 0x26, 0x49, 0x01, 0x52,
+	0x76, 0xe6, 0x74, 0xaa, 0x0e, 0xfd, 0xd7, 0xe8, 0xaa, 0x85, 0xb9, 0x72, 0x70, 0x07, 0xb5, 0x69,
+	0x26, 0x4a, 0xae, 0x3a, 0xf3, 0xdd, 0xf9, 0xf5, 0xc5, 0xf0, 0x72, 0x60, 0x26, 0x16, 0x8c, 0x26,
+	0x36, 0x56, 0xfe, 0x44, 0x30, 0x5e, 0xeb, 0x36, 0xe5, 0xfe, 0x4b, 0xe4, 0x69, 0xf6, 0x1d, 0xe0,
+	0x09, 0xe3, 0xe9, 0x7f, 0x53, 0xbd, 0x8b, 0x56, 0xcf, 0xe4, 0xfd, 0x47, 0xcd, 0xe1, 0xf7, 0x05,
+	0x74, 0x4e, 0x93, 0xe3, 0x4f, 0x0e, 0xba, 0xf4, 0xc7, 0x52, 0xf1, 0x96, 0x75, 0x79, 0x96, 0x33,
+	0x71, 0xef, 0xce, 0x80, 0x34, 0x5e, 0xfc, 0x8d, 0xf7, 0x5f, 0x7f, 0x7d, 0x9c, 0xbb, 0x86, 0xd7,
+	0x88, 0xed, 0xd8, 0xcd, 0xad, 0xe0, 0x2f, 0x0e, 0x5a, 0x3a, 0x6d, 0x9b, 0xf8, 0xe1, 0x74, 0x01,
+	0x96, 0xfb, 0x72, 0x1f, 0xcd, 0x0a, 0xaf, 0x4c, 0xdc, 0xd3, 0x26, 0x6e, 0xe3, 0xd0, 0x6a, 0x02,
+	0x6a, 0x8a, 0x37, 0x45, 0x43, 0xfa, 0x67, 0x07, 0xe1, 0xbf, 0x77, 0x8d, 0xef, 0x4f, 0x97, 0x74,
+	0xe6, 0xe5, 0xb9, 0x0f, 0x66, 0x03, 0x57, 0x6e, 0xb6, 0xb4, 0x9b, 0x10, 0xdf, 0xb4, 0xaf, 0xc4,
+	0x10, 0x34, 0xbd, 0x6c, 0xb3, 0xe3, 0x81, 0xe7, 0x9c, 0x0c, 0x3c, 0xe7, 0xe7, 0xc0, 0x73, 0x3e,
+	0x0c, 0xbd, 0xd6, 0xc9, 0xd0, 0x6b, 0x7d, 0x1b, 0x7a, 0xad, 0xdd, 0xe7, 0x29, 0x53, 0x7b, 0x65,
+	0x14, 0xc4, 0x22, 0x23, 0xbd, 0x9a, 0xf5, 0x19, 0x8d, 0xe4, 0xa4, 0xc7, 0x8d, 0x58, 0x14, 0xd0,
+	0x0c, 0xf7, 0x28, 0xe3, 0x24, 0x13, 0x49, 0xb9, 0x0f, 0xb2, 0x21, 0x40, 0x1d, 0xe5, 0x20, 0xa3,
+	0xb6, 0xfe, 0x7f, 0xdd, 0xfa, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x67, 0xc1, 0x4f, 0x7a, 0x88, 0x05,
+	0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -160,6 +372,8 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Retrieves insurance params
 	InsuranceParams(ctx context.Context, in *QueryInsuranceParamsRequest, opts ...grpc.CallOption) (*QueryInsuranceParamsResponse, error)
+	EstimatedRedemptions(ctx context.Context, in *QueryEstimatedRedemptionsRequest, opts ...grpc.CallOption) (*QueryEstimatedRedemptionsResponse, error)
+	PendingRedemptions(ctx context.Context, in *QueryPendingRedemptionsRequest, opts ...grpc.CallOption) (*QueryPendingRedemptionsResponse, error)
 }
 
 type queryClient struct {
@@ -179,10 +393,30 @@ func (c *queryClient) InsuranceParams(ctx context.Context, in *QueryInsurancePar
 	return out, nil
 }
 
+func (c *queryClient) EstimatedRedemptions(ctx context.Context, in *QueryEstimatedRedemptionsRequest, opts ...grpc.CallOption) (*QueryEstimatedRedemptionsResponse, error) {
+	out := new(QueryEstimatedRedemptionsResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/EstimatedRedemptions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) PendingRedemptions(ctx context.Context, in *QueryPendingRedemptionsRequest, opts ...grpc.CallOption) (*QueryPendingRedemptionsResponse, error) {
+	out := new(QueryPendingRedemptionsResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/PendingRedemptions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Retrieves insurance params
 	InsuranceParams(context.Context, *QueryInsuranceParamsRequest) (*QueryInsuranceParamsResponse, error)
+	EstimatedRedemptions(context.Context, *QueryEstimatedRedemptionsRequest) (*QueryEstimatedRedemptionsResponse, error)
+	PendingRedemptions(context.Context, *QueryPendingRedemptionsRequest) (*QueryPendingRedemptionsResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -191,6 +425,12 @@ type UnimplementedQueryServer struct {
 
 func (*UnimplementedQueryServer) InsuranceParams(ctx context.Context, req *QueryInsuranceParamsRequest) (*QueryInsuranceParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InsuranceParams not implemented")
+}
+func (*UnimplementedQueryServer) EstimatedRedemptions(ctx context.Context, req *QueryEstimatedRedemptionsRequest) (*QueryEstimatedRedemptionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EstimatedRedemptions not implemented")
+}
+func (*UnimplementedQueryServer) PendingRedemptions(ctx context.Context, req *QueryPendingRedemptionsRequest) (*QueryPendingRedemptionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PendingRedemptions not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -215,6 +455,42 @@ func _Query_InsuranceParams_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_EstimatedRedemptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryEstimatedRedemptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).EstimatedRedemptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/EstimatedRedemptions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).EstimatedRedemptions(ctx, req.(*QueryEstimatedRedemptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_PendingRedemptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryPendingRedemptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).PendingRedemptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/PendingRedemptions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).PendingRedemptions(ctx, req.(*QueryPendingRedemptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.insurance.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -222,6 +498,14 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "InsuranceParams",
 			Handler:    _Query_InsuranceParams_Handler,
+		},
+		{
+			MethodName: "EstimatedRedemptions",
+			Handler:    _Query_EstimatedRedemptions_Handler,
+		},
+		{
+			MethodName: "PendingRedemptions",
+			Handler:    _Query_PendingRedemptions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -284,6 +568,154 @@ func (m *QueryInsuranceParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryEstimatedRedemptionsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryEstimatedRedemptionsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryEstimatedRedemptionsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryEstimatedRedemptionsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryEstimatedRedemptionsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryEstimatedRedemptionsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryPendingRedemptionsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryPendingRedemptionsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryPendingRedemptionsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryPendingRedemptionsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryPendingRedemptionsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryPendingRedemptionsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -312,6 +744,70 @@ func (m *QueryInsuranceParamsResponse) Size() (n int) {
 	_ = l
 	l = m.Params.Size()
 	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryEstimatedRedemptionsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryEstimatedRedemptionsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		for _, e := range m.Amount {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QueryPendingRedemptionsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryPendingRedemptionsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		for _, e := range m.Amount {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -430,6 +926,402 @@ func (m *QueryInsuranceParamsResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryEstimatedRedemptionsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryEstimatedRedemptionsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryEstimatedRedemptionsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryEstimatedRedemptionsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryEstimatedRedemptionsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryEstimatedRedemptionsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amount = append(m.Amount, types.Coin{})
+			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryPendingRedemptionsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryPendingRedemptionsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryPendingRedemptionsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryPendingRedemptionsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryPendingRedemptionsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryPendingRedemptionsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amount = append(m.Amount, types.Coin{})
+			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

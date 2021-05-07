@@ -2,15 +2,17 @@ package types
 
 import (
 	"fmt"
+	"time"
+
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 var _ paramtypes.ParamSet = &Params{}
 
-// Auction params default values
+// insurance params default values
 const (
 	// DefaultInsurancePeriodDurationSeconds represents the number of seconds in two weeks
-	DefaultInsurancePeriod int64 = 60 * 60 * 24 * 14
+	DefaultInsurancePeriod time.Duration = time.Hour * 24 * 14
 )
 
 // Parameter keys
@@ -25,7 +27,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new Params instance
 func NewParams(
-	defaultRedemptionNoticePeriodDuration int64,
+	defaultRedemptionNoticePeriodDuration time.Duration,
 ) Params {
 	return Params{
 		DefaultRedemptionNoticePeriodDuration: defaultRedemptionNoticePeriodDuration,
@@ -34,7 +36,6 @@ func NewParams(
 
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	// TODO: @albert, add the rest of the parameters
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyDefaultRedemptionNoticePeriodDuration, &p.DefaultRedemptionNoticePeriodDuration, validateNoticePeriodDuration),
 	}
@@ -57,7 +58,7 @@ func (p Params) Validate() error {
 }
 
 func validateNoticePeriodDuration(i interface{}) error {
-	v, ok := i.(int64)
+	v, ok := i.(time.Duration)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}

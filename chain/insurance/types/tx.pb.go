@@ -6,7 +6,8 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	types1 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
@@ -31,10 +32,21 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgCreateInsuranceFund defines a message for creating an insurance fund for a derivative market
 type MsgCreateInsuranceFund struct {
-	Sender        string     `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	OracleId      string     `protobuf:"bytes,2,opt,name=oracle_id,json=oracleId,proto3" json:"oracle_id,omitempty"`
-	MarketId      string     `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	DepositAmount types.Coin `protobuf:"bytes,4,opt,name=deposit_amount,json=depositAmount,proto3" json:"deposit_amount"`
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// Ticker for the derivative market.
+	Ticker string `protobuf:"bytes,2,opt,name=ticker,proto3" json:"ticker,omitempty"`
+	// type of coin to use as the base currency
+	QuoteDenom string `protobuf:"bytes,3,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
+	// Oracle base currency
+	OracleBase string `protobuf:"bytes,4,opt,name=oracle_base,json=oracleBase,proto3" json:"oracle_base,omitempty"`
+	// Oracle quote currency
+	OracleQuote string `protobuf:"bytes,5,opt,name=oracle_quote,json=oracleQuote,proto3" json:"oracle_quote,omitempty"`
+	// Oracle type
+	OracleType types.OracleType `protobuf:"varint,6,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
+	// Expiration time of the market. Should be -1 for perpetual markets.
+	Expiry int64 `protobuf:"varint,7,opt,name=expiry,proto3" json:"expiry,omitempty"`
+	// Initial deposit of the insurance fund
+	InitialDeposit types1.Coin `protobuf:"bytes,8,opt,name=initial_deposit,json=initialDeposit,proto3" json:"initial_deposit"`
 }
 
 func (m *MsgCreateInsuranceFund) Reset()         { *m = MsgCreateInsuranceFund{} }
@@ -108,10 +120,9 @@ var xxx_messageInfo_MsgCreateInsuranceFundResponse proto.InternalMessageInfo
 
 // MsgUnderwrite defines a message for depositing tokens to underwrite an insurance fund
 type MsgUnderwrite struct {
-	Sender        string     `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	OracleId      string     `protobuf:"bytes,2,opt,name=oracle_id,json=oracleId,proto3" json:"oracle_id,omitempty"`
-	MarketId      string     `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	DepositAmount types.Coin `protobuf:"bytes,4,opt,name=deposit_amount,json=depositAmount,proto3" json:"deposit_amount"`
+	Sender   string      `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	MarketId string      `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	Deposit  types1.Coin `protobuf:"bytes,3,opt,name=deposit,proto3" json:"deposit"`
 }
 
 func (m *MsgUnderwrite) Reset()         { *m = MsgUnderwrite{} }
@@ -185,9 +196,9 @@ var xxx_messageInfo_MsgUnderwriteResponse proto.InternalMessageInfo
 
 // MsgRequestRedemption defines a message for requesting a redemption of the sender's insurance fund tokens
 type MsgRequestRedemption struct {
-	Sender   string     `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	MarketId string     `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Amount   types.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
+	Sender   string      `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	MarketId string      `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	Amount   types1.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
 }
 
 func (m *MsgRequestRedemption) Reset()         { *m = MsgRequestRedemption{} }
@@ -259,81 +270,6 @@ func (m *MsgRequestRedemptionResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRequestRedemptionResponse proto.InternalMessageInfo
 
-// MsgClaimRedemption defines a message for processing a redemption claim
-type MsgClaimRedemption struct {
-	Sender   string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-}
-
-func (m *MsgClaimRedemption) Reset()         { *m = MsgClaimRedemption{} }
-func (m *MsgClaimRedemption) String() string { return proto.CompactTextString(m) }
-func (*MsgClaimRedemption) ProtoMessage()    {}
-func (*MsgClaimRedemption) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7e1fa941c3fd0dc4, []int{6}
-}
-func (m *MsgClaimRedemption) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgClaimRedemption) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgClaimRedemption.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgClaimRedemption) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgClaimRedemption.Merge(m, src)
-}
-func (m *MsgClaimRedemption) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgClaimRedemption) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgClaimRedemption.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgClaimRedemption proto.InternalMessageInfo
-
-type MsgClaimRedemptionResponse struct {
-}
-
-func (m *MsgClaimRedemptionResponse) Reset()         { *m = MsgClaimRedemptionResponse{} }
-func (m *MsgClaimRedemptionResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgClaimRedemptionResponse) ProtoMessage()    {}
-func (*MsgClaimRedemptionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_7e1fa941c3fd0dc4, []int{7}
-}
-func (m *MsgClaimRedemptionResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgClaimRedemptionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgClaimRedemptionResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgClaimRedemptionResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgClaimRedemptionResponse.Merge(m, src)
-}
-func (m *MsgClaimRedemptionResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgClaimRedemptionResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgClaimRedemptionResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgClaimRedemptionResponse proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*MsgCreateInsuranceFund)(nil), "injective.insurance.v1beta1.MsgCreateInsuranceFund")
 	proto.RegisterType((*MsgCreateInsuranceFundResponse)(nil), "injective.insurance.v1beta1.MsgCreateInsuranceFundResponse")
@@ -341,8 +277,6 @@ func init() {
 	proto.RegisterType((*MsgUnderwriteResponse)(nil), "injective.insurance.v1beta1.MsgUnderwriteResponse")
 	proto.RegisterType((*MsgRequestRedemption)(nil), "injective.insurance.v1beta1.MsgRequestRedemption")
 	proto.RegisterType((*MsgRequestRedemptionResponse)(nil), "injective.insurance.v1beta1.MsgRequestRedemptionResponse")
-	proto.RegisterType((*MsgClaimRedemption)(nil), "injective.insurance.v1beta1.MsgClaimRedemption")
-	proto.RegisterType((*MsgClaimRedemptionResponse)(nil), "injective.insurance.v1beta1.MsgClaimRedemptionResponse")
 }
 
 func init() {
@@ -350,40 +284,45 @@ func init() {
 }
 
 var fileDescriptor_7e1fa941c3fd0dc4 = []byte{
-	// 527 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x94, 0xbf, 0x6e, 0xd3, 0x50,
-	0x14, 0xc6, 0x7d, 0x9b, 0xaa, 0x6a, 0x0f, 0x2a, 0x08, 0x53, 0x4a, 0x70, 0x2b, 0x27, 0x8a, 0x18,
-	0x2a, 0x10, 0xb6, 0x92, 0x0e, 0x15, 0x30, 0xd1, 0x4a, 0x95, 0x22, 0x11, 0x21, 0x05, 0xb1, 0xb0,
-	0x54, 0xd7, 0xf6, 0x91, 0x7b, 0x21, 0xbe, 0xd7, 0xf8, 0x5e, 0x17, 0x10, 0x13, 0x13, 0x4c, 0x88,
-	0x47, 0xe8, 0x3b, 0xb0, 0xf2, 0x00, 0x1d, 0x3b, 0x32, 0x21, 0x94, 0x2c, 0x3c, 0x05, 0x42, 0xfe,
-	0x1b, 0xb7, 0x89, 0x92, 0x16, 0x26, 0xb6, 0xd8, 0xe7, 0xfb, 0xce, 0xf7, 0x3b, 0xb9, 0xc7, 0x17,
-	0xee, 0x30, 0xfe, 0x12, 0x5d, 0xc5, 0x8e, 0xd0, 0x66, 0x5c, 0xc6, 0x11, 0xe5, 0x2e, 0xda, 0x47,
-	0x6d, 0x07, 0x15, 0x6d, 0xdb, 0xea, 0xad, 0x15, 0x46, 0x42, 0x09, 0x7d, 0xa3, 0x54, 0x59, 0xa5,
-	0xca, 0xca, 0x55, 0xc6, 0x9a, 0x2f, 0x7c, 0x91, 0xea, 0xec, 0xe4, 0x57, 0x66, 0x31, 0x4c, 0x57,
-	0xc8, 0x40, 0x48, 0xdb, 0xa1, 0x72, 0xdc, 0xd0, 0x15, 0x8c, 0xe7, 0xf5, 0x7b, 0xb3, 0x82, 0xc7,
-	0x21, 0xa9, 0xb8, 0xf5, 0x8d, 0xc0, 0x7a, 0x4f, 0xfa, 0x7b, 0x11, 0x52, 0x85, 0xdd, 0xa2, 0xb8,
-	0x1f, 0x73, 0x4f, 0x5f, 0x87, 0x25, 0x89, 0xdc, 0xc3, 0xa8, 0x4e, 0x9a, 0x64, 0x6b, 0xa5, 0x9f,
-	0x3f, 0xe9, 0x1b, 0xb0, 0x22, 0x22, 0xea, 0x0e, 0xf0, 0x80, 0x79, 0xf5, 0x85, 0xb4, 0xb4, 0x9c,
-	0xbd, 0xe8, 0x7a, 0x49, 0x31, 0xa0, 0xd1, 0x2b, 0x54, 0x49, 0xb1, 0x96, 0x15, 0xb3, 0x17, 0x5d,
-	0x4f, 0xdf, 0x87, 0xab, 0x1e, 0x86, 0x42, 0x32, 0x75, 0x40, 0x03, 0x11, 0x73, 0x55, 0x5f, 0x6c,
-	0x92, 0xad, 0x2b, 0x9d, 0xdb, 0x56, 0x36, 0x92, 0x95, 0x8c, 0x54, 0x4c, 0x6f, 0xed, 0x09, 0xc6,
-	0x77, 0x17, 0x4f, 0x7e, 0x34, 0xb4, 0xfe, 0x6a, 0x6e, 0x7b, 0x9c, 0xba, 0x1e, 0x2e, 0x7f, 0x3a,
-	0x6e, 0x68, 0xbf, 0x8e, 0x1b, 0x5a, 0xab, 0x09, 0xe6, 0x74, 0xfa, 0x3e, 0xca, 0x50, 0x70, 0x89,
-	0xad, 0xaf, 0x04, 0x56, 0x7b, 0xd2, 0x7f, 0x9e, 0xa0, 0xbf, 0x89, 0x98, 0xc2, 0xff, 0x62, 0xae,
-	0x5b, 0x70, 0xf3, 0x0c, 0x74, 0x39, 0xce, 0x67, 0x02, 0x6b, 0x3d, 0xe9, 0xf7, 0xf1, 0x75, 0x8c,
-	0x52, 0xf5, 0xd1, 0xc3, 0x20, 0x54, 0x4c, 0xf0, 0x59, 0x53, 0x8d, 0xc1, 0x17, 0xce, 0x81, 0xef,
-	0xc0, 0x52, 0x0e, 0x5c, 0xbb, 0x18, 0x70, 0x2e, 0xaf, 0x90, 0x9a, 0xb0, 0x39, 0x8d, 0xa7, 0x04,
-	0x7e, 0x06, 0x7a, 0x72, 0x42, 0x03, 0xca, 0x82, 0x7f, 0xa4, 0xad, 0x84, 0x6e, 0x82, 0x31, 0xd9,
-	0xb4, 0x88, 0xec, 0xfc, 0xae, 0x41, 0xad, 0x27, 0x7d, 0xfd, 0x23, 0x81, 0x1b, 0xd3, 0x16, 0x7b,
-	0xdb, 0x9a, 0xf1, 0xd1, 0x59, 0xd3, 0xf7, 0xc9, 0x78, 0xf4, 0x17, 0xa6, 0x82, 0x48, 0x1f, 0x00,
-	0x54, 0x16, 0xf0, 0xee, 0xbc, 0x56, 0x63, 0xad, 0xd1, 0xb9, 0xb8, 0xb6, 0x4c, 0xfb, 0x40, 0xe0,
-	0xfa, 0xe4, 0x82, 0xb4, 0xe7, 0x75, 0x9a, 0xb0, 0x18, 0x0f, 0x2e, 0x6d, 0x29, 0x19, 0xde, 0xc3,
-	0xb5, 0xf3, 0x67, 0x6e, 0xcf, 0xfd, 0x07, 0xcf, 0x1a, 0x8c, 0x9d, 0x4b, 0x1a, 0x8a, 0xf0, 0x5d,
-	0x76, 0x32, 0x34, 0xc9, 0xe9, 0xd0, 0x24, 0x3f, 0x87, 0x26, 0xf9, 0x32, 0x32, 0xb5, 0xd3, 0x91,
-	0xa9, 0x7d, 0x1f, 0x99, 0xda, 0x8b, 0xa7, 0x3e, 0x53, 0x87, 0xb1, 0x63, 0xb9, 0x22, 0xb0, 0xbb,
-	0x45, 0xf3, 0x27, 0xd4, 0x91, 0x76, 0x19, 0x75, 0xdf, 0x15, 0x11, 0x56, 0x1f, 0x0f, 0x29, 0xe3,
-	0x76, 0x20, 0xbc, 0x78, 0x80, 0xb2, 0x72, 0xa3, 0xaa, 0x77, 0x21, 0x4a, 0x67, 0x29, 0xbd, 0x46,
-	0xb7, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0x50, 0xca, 0x9b, 0x47, 0xee, 0x05, 0x00, 0x00,
+	// 595 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x94, 0xc1, 0x6e, 0xd3, 0x40,
+	0x10, 0x86, 0xbd, 0x4d, 0x49, 0xdb, 0x2d, 0x14, 0x61, 0x4a, 0x31, 0x29, 0x72, 0x42, 0x54, 0xa4,
+	0x08, 0x84, 0xad, 0xa4, 0x07, 0x54, 0xb8, 0xa5, 0x05, 0x11, 0x89, 0xa8, 0xc2, 0x82, 0x0b, 0x97,
+	0xc8, 0xb1, 0x47, 0xee, 0xd2, 0x78, 0xd7, 0xf5, 0xae, 0x4b, 0x73, 0xec, 0x09, 0xb8, 0x20, 0x1e,
+	0xa1, 0x8f, 0xd3, 0x63, 0x8f, 0x9c, 0x50, 0x95, 0x5c, 0x78, 0x0c, 0x64, 0x7b, 0x6d, 0x07, 0x35,
+	0xb4, 0xa1, 0x37, 0xcf, 0xec, 0xff, 0xcf, 0x7c, 0x3b, 0x93, 0x2c, 0xde, 0x20, 0xf4, 0x13, 0x38,
+	0x82, 0x1c, 0x82, 0x49, 0x28, 0x8f, 0x42, 0x9b, 0x3a, 0x60, 0x1e, 0x36, 0xfb, 0x20, 0xec, 0xa6,
+	0x29, 0x8e, 0x8c, 0x20, 0x64, 0x82, 0xa9, 0xeb, 0xb9, 0xca, 0xc8, 0x55, 0x86, 0x54, 0x55, 0x56,
+	0x3d, 0xe6, 0xb1, 0x44, 0x67, 0xc6, 0x5f, 0xa9, 0xa5, 0xa2, 0x3b, 0x8c, 0xfb, 0x8c, 0x9b, 0x7d,
+	0x9b, 0x17, 0x05, 0x1d, 0x46, 0xa8, 0x3c, 0x7f, 0x5c, 0x34, 0x66, 0xa1, 0xed, 0x0c, 0x0a, 0x51,
+	0x1a, 0x4a, 0xd9, 0xd3, 0xcb, 0xf8, 0x0a, 0x96, 0x44, 0x5c, 0x3f, 0x9f, 0xc3, 0x6b, 0x5d, 0xee,
+	0x6d, 0x87, 0x60, 0x0b, 0xe8, 0x64, 0x87, 0xaf, 0x23, 0xea, 0xaa, 0x6b, 0xb8, 0xcc, 0x81, 0xba,
+	0x10, 0x6a, 0xa8, 0x86, 0x1a, 0x4b, 0x96, 0x8c, 0xe2, 0xbc, 0x20, 0xce, 0x3e, 0x84, 0xda, 0x5c,
+	0x9a, 0x4f, 0x23, 0xb5, 0x8a, 0x97, 0x0f, 0x22, 0x26, 0xa0, 0xe7, 0x02, 0x65, 0xbe, 0x56, 0x4a,
+	0x0e, 0x71, 0x92, 0xda, 0x89, 0x33, 0xb1, 0x20, 0x05, 0xed, 0xc5, 0x37, 0xd4, 0xe6, 0x53, 0x41,
+	0x9a, 0x6a, 0xdb, 0x1c, 0xd4, 0x47, 0xf8, 0xa6, 0x14, 0x24, 0x2e, 0xed, 0x46, 0xa2, 0x90, 0xa6,
+	0x77, 0x71, 0x4a, 0x7d, 0x95, 0xd7, 0x10, 0xc3, 0x00, 0xb4, 0x72, 0x0d, 0x35, 0x56, 0x5a, 0x1b,
+	0x46, 0x31, 0x6c, 0x39, 0x0a, 0x79, 0x5f, 0x63, 0x37, 0x09, 0xdf, 0x0f, 0x03, 0xc8, 0x3a, 0xc5,
+	0xdf, 0xf1, 0x1d, 0xe0, 0x28, 0x20, 0xe1, 0x50, 0x5b, 0xa8, 0xa1, 0x46, 0xc9, 0x92, 0x91, 0xfa,
+	0x06, 0xdf, 0x26, 0x94, 0x08, 0x62, 0x0f, 0x7a, 0x2e, 0x04, 0x8c, 0x13, 0xa1, 0x2d, 0xd6, 0x50,
+	0x63, 0xb9, 0xf5, 0xc0, 0x48, 0x97, 0x63, 0xc4, 0xe8, 0x79, 0xf5, 0x6d, 0x46, 0x68, 0x7b, 0xfe,
+	0xf4, 0x57, 0x55, 0xb1, 0x56, 0xa4, 0x6f, 0x27, 0xb5, 0xbd, 0x58, 0xfc, 0x7a, 0x52, 0x55, 0x7e,
+	0x9f, 0x54, 0x95, 0x7a, 0x0d, 0xeb, 0xd3, 0x27, 0x6c, 0x01, 0x0f, 0x18, 0xe5, 0x50, 0xff, 0x86,
+	0xf0, 0xad, 0x2e, 0xf7, 0x3e, 0xc4, 0xe3, 0xfd, 0x1c, 0x12, 0x01, 0xff, 0x9c, 0xfd, 0x3a, 0x5e,
+	0xf2, 0xed, 0x70, 0x1f, 0x44, 0x8f, 0xb8, 0x72, 0xfc, 0x8b, 0x69, 0xa2, 0xe3, 0xaa, 0x5b, 0x78,
+	0x21, 0x83, 0x2e, 0xcd, 0x06, 0x9d, 0xe9, 0x27, 0x68, 0xef, 0xe3, 0x7b, 0x7f, 0xa1, 0xe4, 0x90,
+	0xdf, 0x11, 0x5e, 0xed, 0x72, 0xcf, 0x82, 0x83, 0x08, 0xb8, 0xb0, 0xc0, 0x05, 0x3f, 0x10, 0x84,
+	0xd1, 0xeb, 0xb1, 0x3e, 0xc7, 0x65, 0xdb, 0x67, 0x11, 0x9d, 0x19, 0x55, 0xca, 0x27, 0x48, 0x75,
+	0xfc, 0x70, 0x1a, 0x4f, 0x06, 0xdc, 0x3a, 0x2e, 0xe1, 0x52, 0x97, 0x7b, 0xea, 0x17, 0x84, 0xef,
+	0x4e, 0xfb, 0x7d, 0x6f, 0x1a, 0x97, 0xfc, 0x45, 0x8d, 0xe9, 0x2b, 0xab, 0xbc, 0xbc, 0x86, 0x29,
+	0x23, 0x52, 0x07, 0x18, 0x4f, 0xec, 0xf8, 0xc9, 0x55, 0xa5, 0x0a, 0x6d, 0xa5, 0x35, 0xbb, 0x36,
+	0xef, 0x76, 0x8c, 0xf0, 0x9d, 0x8b, 0xdb, 0x6a, 0x5e, 0x55, 0xe9, 0x82, 0xa5, 0xb2, 0xf5, 0xdf,
+	0x96, 0x8c, 0xa1, 0x4d, 0x4e, 0x47, 0x3a, 0x3a, 0x1b, 0xe9, 0xe8, 0x7c, 0xa4, 0xa3, 0x1f, 0x63,
+	0x5d, 0x39, 0x1b, 0xeb, 0xca, 0xcf, 0xb1, 0xae, 0x7c, 0xdc, 0xf5, 0x88, 0xd8, 0x8b, 0xfa, 0x86,
+	0xc3, 0x7c, 0xb3, 0x93, 0x95, 0x7f, 0x6b, 0xf7, 0xb9, 0x99, 0x37, 0x7b, 0xe6, 0xb0, 0x10, 0x26,
+	0xc3, 0x3d, 0x9b, 0x50, 0xd3, 0x67, 0x6e, 0x34, 0x00, 0x3e, 0xf1, 0xb6, 0xc5, 0x2f, 0x01, 0xef,
+	0x97, 0x93, 0x07, 0x6d, 0xf3, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x6e, 0x95, 0x4f, 0x41, 0x9f,
+	0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -404,8 +343,6 @@ type MsgClient interface {
 	Underwrite(ctx context.Context, in *MsgUnderwrite, opts ...grpc.CallOption) (*MsgUnderwriteResponse, error)
 	// RequestRedemption defines a method for requesting a redemption of the sender's insurance fund tokens
 	RequestRedemption(ctx context.Context, in *MsgRequestRedemption, opts ...grpc.CallOption) (*MsgRequestRedemptionResponse, error)
-	// ClaimRedemption defines a method for processing a redemption claim
-	ClaimRedemption(ctx context.Context, in *MsgClaimRedemption, opts ...grpc.CallOption) (*MsgClaimRedemptionResponse, error)
 }
 
 type msgClient struct {
@@ -443,15 +380,6 @@ func (c *msgClient) RequestRedemption(ctx context.Context, in *MsgRequestRedempt
 	return out, nil
 }
 
-func (c *msgClient) ClaimRedemption(ctx context.Context, in *MsgClaimRedemption, opts ...grpc.CallOption) (*MsgClaimRedemptionResponse, error) {
-	out := new(MsgClaimRedemptionResponse)
-	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Msg/ClaimRedemption", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
 	// CreateInsuranceFund defines a method for creating an insurance fund
@@ -460,8 +388,6 @@ type MsgServer interface {
 	Underwrite(context.Context, *MsgUnderwrite) (*MsgUnderwriteResponse, error)
 	// RequestRedemption defines a method for requesting a redemption of the sender's insurance fund tokens
 	RequestRedemption(context.Context, *MsgRequestRedemption) (*MsgRequestRedemptionResponse, error)
-	// ClaimRedemption defines a method for processing a redemption claim
-	ClaimRedemption(context.Context, *MsgClaimRedemption) (*MsgClaimRedemptionResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -476,9 +402,6 @@ func (*UnimplementedMsgServer) Underwrite(ctx context.Context, req *MsgUnderwrit
 }
 func (*UnimplementedMsgServer) RequestRedemption(ctx context.Context, req *MsgRequestRedemption) (*MsgRequestRedemptionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestRedemption not implemented")
-}
-func (*UnimplementedMsgServer) ClaimRedemption(ctx context.Context, req *MsgClaimRedemption) (*MsgClaimRedemptionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ClaimRedemption not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -539,24 +462,6 @@ func _Msg_RequestRedemption_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_ClaimRedemption_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgClaimRedemption)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).ClaimRedemption(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective.insurance.v1beta1.Msg/ClaimRedemption",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).ClaimRedemption(ctx, req.(*MsgClaimRedemption))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.insurance.v1beta1.Msg",
 	HandlerType: (*MsgServer)(nil),
@@ -572,10 +477,6 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RequestRedemption",
 			Handler:    _Msg_RequestRedemption_Handler,
-		},
-		{
-			MethodName: "ClaimRedemption",
-			Handler:    _Msg_ClaimRedemption_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -603,7 +504,7 @@ func (m *MsgCreateInsuranceFund) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	var l int
 	_ = l
 	{
-		size, err := m.DepositAmount.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.InitialDeposit.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -611,18 +512,42 @@ func (m *MsgCreateInsuranceFund) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x22
-	if len(m.MarketId) > 0 {
-		i -= len(m.MarketId)
-		copy(dAtA[i:], m.MarketId)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.MarketId)))
+	dAtA[i] = 0x42
+	if m.Expiry != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.Expiry))
+		i--
+		dAtA[i] = 0x38
+	}
+	if m.OracleType != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.OracleType))
+		i--
+		dAtA[i] = 0x30
+	}
+	if len(m.OracleQuote) > 0 {
+		i -= len(m.OracleQuote)
+		copy(dAtA[i:], m.OracleQuote)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.OracleQuote)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.OracleBase) > 0 {
+		i -= len(m.OracleBase)
+		copy(dAtA[i:], m.OracleBase)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.OracleBase)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.QuoteDenom) > 0 {
+		i -= len(m.QuoteDenom)
+		copy(dAtA[i:], m.QuoteDenom)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.QuoteDenom)))
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.OracleId) > 0 {
-		i -= len(m.OracleId)
-		copy(dAtA[i:], m.OracleId)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.OracleId)))
+	if len(m.Ticker) > 0 {
+		i -= len(m.Ticker)
+		copy(dAtA[i:], m.Ticker)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Ticker)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -680,7 +605,7 @@ func (m *MsgUnderwrite) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	{
-		size, err := m.DepositAmount.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.Deposit.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -688,18 +613,11 @@ func (m *MsgUnderwrite) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintTx(dAtA, i, uint64(size))
 	}
 	i--
-	dAtA[i] = 0x22
+	dAtA[i] = 0x1a
 	if len(m.MarketId) > 0 {
 		i -= len(m.MarketId)
 		copy(dAtA[i:], m.MarketId)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.MarketId)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.OracleId) > 0 {
-		i -= len(m.OracleId)
-		copy(dAtA[i:], m.OracleId)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.OracleId)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -806,66 +724,6 @@ func (m *MsgRequestRedemptionResponse) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgClaimRedemption) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgClaimRedemption) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgClaimRedemption) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.MarketId) > 0 {
-		i -= len(m.MarketId)
-		copy(dAtA[i:], m.MarketId)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.MarketId)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Sender) > 0 {
-		i -= len(m.Sender)
-		copy(dAtA[i:], m.Sender)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Sender)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgClaimRedemptionResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgClaimRedemptionResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgClaimRedemptionResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	offset -= sovTx(v)
 	base := offset
@@ -887,15 +745,29 @@ func (m *MsgCreateInsuranceFund) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.OracleId)
+	l = len(m.Ticker)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.MarketId)
+	l = len(m.QuoteDenom)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = m.DepositAmount.Size()
+	l = len(m.OracleBase)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.OracleQuote)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.OracleType != 0 {
+		n += 1 + sovTx(uint64(m.OracleType))
+	}
+	if m.Expiry != 0 {
+		n += 1 + sovTx(uint64(m.Expiry))
+	}
+	l = m.InitialDeposit.Size()
 	n += 1 + l + sovTx(uint64(l))
 	return n
 }
@@ -919,15 +791,11 @@ func (m *MsgUnderwrite) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.OracleId)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
 	l = len(m.MarketId)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = m.DepositAmount.Size()
+	l = m.Deposit.Size()
 	n += 1 + l + sovTx(uint64(l))
 	return n
 }
@@ -961,32 +829,6 @@ func (m *MsgRequestRedemption) Size() (n int) {
 }
 
 func (m *MsgRequestRedemptionResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *MsgClaimRedemption) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Sender)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.MarketId)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgClaimRedemptionResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1064,7 +906,7 @@ func (m *MsgCreateInsuranceFund) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OracleId", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Ticker", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1092,11 +934,11 @@ func (m *MsgCreateInsuranceFund) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.OracleId = string(dAtA[iNdEx:postIndex])
+			m.Ticker = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field QuoteDenom", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1124,11 +966,113 @@ func (m *MsgCreateInsuranceFund) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.MarketId = string(dAtA[iNdEx:postIndex])
+			m.QuoteDenom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DepositAmount", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field OracleBase", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OracleBase = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OracleQuote", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OracleQuote = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OracleType", wireType)
+			}
+			m.OracleType = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.OracleType |= types.OracleType(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Expiry", wireType)
+			}
+			m.Expiry = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Expiry |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InitialDeposit", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1155,7 +1099,7 @@ func (m *MsgCreateInsuranceFund) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.DepositAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.InitialDeposit.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1293,38 +1237,6 @@ func (m *MsgUnderwrite) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OracleId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.OracleId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
 			}
 			var stringLen uint64
@@ -1355,9 +1267,9 @@ func (m *MsgUnderwrite) Unmarshal(dAtA []byte) error {
 			}
 			m.MarketId = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DepositAmount", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Deposit", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1384,7 +1296,7 @@ func (m *MsgUnderwrite) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.DepositAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Deposit.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1633,170 +1545,6 @@ func (m *MsgRequestRedemptionResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgRequestRedemptionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgClaimRedemption) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgClaimRedemption: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgClaimRedemption: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Sender = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.MarketId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgClaimRedemptionResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgClaimRedemptionResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgClaimRedemptionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

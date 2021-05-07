@@ -11,7 +11,6 @@ var (
 	_ sdk.Msg = &MsgCreateInsuranceFund{}
 	_ sdk.Msg = &MsgUnderwrite{}
 	_ sdk.Msg = &MsgRequestRedemption{}
-	_ sdk.Msg = &MsgClaimRedemption{}
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -25,17 +24,27 @@ func (msg MsgCreateInsuranceFund) ValidateBasic() error {
 	if msg.Sender == "" {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
-	if msg.OracleId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.OracleId)
+	if msg.Ticker == "" {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
 	}
-	if msg.MarketId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.MarketId)
+	if msg.QuoteDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
-	if !msg.DepositAmount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.DepositAmount.String())
+	if msg.OracleBase == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
 	}
-	if !msg.DepositAmount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.DepositAmount.String())
+	if msg.OracleQuote == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
+	}
+	if msg.QuoteDenom != msg.InitialDeposit.Denom {
+		return sdkerrors.Wrapf(ErrInvalidDepositDenom, "oracle quote denom %s does not match deposit denom %s", msg.QuoteDenom, msg.InitialDeposit.Denom)
+	}
+
+	if !msg.InitialDeposit.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
+	}
+	if !msg.InitialDeposit.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
 	}
 	return nil
 }
@@ -66,16 +75,13 @@ func (msg MsgUnderwrite) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.MarketId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.MarketId)
+		return sdkerrors.Wrap(ErrInvalidMarketID, msg.MarketId)
 	}
-	if msg.OracleId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.OracleId)
+	if !msg.Deposit.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
 	}
-	if !msg.DepositAmount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.DepositAmount.String())
-	}
-	if !msg.DepositAmount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.DepositAmount.String())
+	if !msg.Deposit.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
 	}
 	return nil
 }
@@ -106,7 +112,7 @@ func (msg MsgRequestRedemption) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.MarketId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.MarketId)
+		return sdkerrors.Wrap(ErrInvalidMarketID, msg.MarketId)
 	}
 
 	if !msg.Amount.IsValid() {
@@ -126,38 +132,6 @@ func (msg *MsgRequestRedemption) GetSignBytes() []byte {
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
 func (msg MsgRequestRedemption) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgClaimRedemption) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgClaimRedemption) Type() string { return "claimRedemption" }
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgClaimRedemption) ValidateBasic() error {
-	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if msg.MarketId == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, msg.MarketId)
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgClaimRedemption) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgClaimRedemption) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
