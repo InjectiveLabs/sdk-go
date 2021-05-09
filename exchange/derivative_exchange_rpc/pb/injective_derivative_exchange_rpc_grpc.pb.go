@@ -32,6 +32,10 @@ type InjectiveDerivativeExchangeRPCClient interface {
 	Orders(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*OrdersResponse, error)
 	// Positions gets the positions for a trader.
 	Positions(ctx context.Context, in *PositionsRequest, opts ...grpc.CallOption) (*PositionsResponse, error)
+	// LiquidablePositions gets all the liquidable positions.
+	LiquidablePositions(ctx context.Context, in *LiquidablePositionsRequest, opts ...grpc.CallOption) (*LiquidablePositionsResponse, error)
+	// StreamPositions streams derivatives position updates.
+	StreamPositions(ctx context.Context, in *StreamPositionsRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
 	// StreamOrders streams updates to individual orders of a Derivative Market.
 	StreamOrders(ctx context.Context, in *StreamOrdersRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrdersClient, error)
 	// Trades gets the trades of a Derivative Market.
@@ -162,8 +166,49 @@ func (c *injectiveDerivativeExchangeRPCClient) Positions(ctx context.Context, in
 	return out, nil
 }
 
+func (c *injectiveDerivativeExchangeRPCClient) LiquidablePositions(ctx context.Context, in *LiquidablePositionsRequest, opts ...grpc.CallOption) (*LiquidablePositionsResponse, error) {
+	out := new(LiquidablePositionsResponse)
+	err := c.cc.Invoke(ctx, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/LiquidablePositions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveDerivativeExchangeRPCClient) StreamPositions(ctx context.Context, in *StreamPositionsRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamPositionsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[2], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamPositions", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &injectiveDerivativeExchangeRPCStreamPositionsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type InjectiveDerivativeExchangeRPC_StreamPositionsClient interface {
+	Recv() (*StreamPositionsResponse, error)
+	grpc.ClientStream
+}
+
+type injectiveDerivativeExchangeRPCStreamPositionsClient struct {
+	grpc.ClientStream
+}
+
+func (x *injectiveDerivativeExchangeRPCStreamPositionsClient) Recv() (*StreamPositionsResponse, error) {
+	m := new(StreamPositionsResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *injectiveDerivativeExchangeRPCClient) StreamOrders(ctx context.Context, in *StreamOrdersRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrdersClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[2], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrders", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[3], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrders", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +249,7 @@ func (c *injectiveDerivativeExchangeRPCClient) Trades(ctx context.Context, in *T
 }
 
 func (c *injectiveDerivativeExchangeRPCClient) StreamTrades(ctx context.Context, in *StreamTradesRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamTradesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[3], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamTrades", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[4], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamTrades", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -271,6 +316,10 @@ type InjectiveDerivativeExchangeRPCServer interface {
 	Orders(context.Context, *OrdersRequest) (*OrdersResponse, error)
 	// Positions gets the positions for a trader.
 	Positions(context.Context, *PositionsRequest) (*PositionsResponse, error)
+	// LiquidablePositions gets all the liquidable positions.
+	LiquidablePositions(context.Context, *LiquidablePositionsRequest) (*LiquidablePositionsResponse, error)
+	// StreamPositions streams derivatives position updates.
+	StreamPositions(*StreamPositionsRequest, InjectiveDerivativeExchangeRPC_StreamPositionsServer) error
 	// StreamOrders streams updates to individual orders of a Derivative Market.
 	StreamOrders(*StreamOrdersRequest, InjectiveDerivativeExchangeRPC_StreamOrdersServer) error
 	// Trades gets the trades of a Derivative Market.
@@ -309,6 +358,12 @@ func (UnimplementedInjectiveDerivativeExchangeRPCServer) Orders(context.Context,
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) Positions(context.Context, *PositionsRequest) (*PositionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Positions not implemented")
+}
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) LiquidablePositions(context.Context, *LiquidablePositionsRequest) (*LiquidablePositionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LiquidablePositions not implemented")
+}
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) StreamPositions(*StreamPositionsRequest, InjectiveDerivativeExchangeRPC_StreamPositionsServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamPositions not implemented")
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) StreamOrders(*StreamOrdersRequest, InjectiveDerivativeExchangeRPC_StreamOrdersServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamOrders not implemented")
@@ -471,6 +526,45 @@ func _InjectiveDerivativeExchangeRPC_Positions_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveDerivativeExchangeRPC_LiquidablePositions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LiquidablePositionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveDerivativeExchangeRPCServer).LiquidablePositions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/LiquidablePositions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveDerivativeExchangeRPCServer).LiquidablePositions(ctx, req.(*LiquidablePositionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveDerivativeExchangeRPC_StreamPositions_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamPositionsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveDerivativeExchangeRPCServer).StreamPositions(m, &injectiveDerivativeExchangeRPCStreamPositionsServer{stream})
+}
+
+type InjectiveDerivativeExchangeRPC_StreamPositionsServer interface {
+	Send(*StreamPositionsResponse) error
+	grpc.ServerStream
+}
+
+type injectiveDerivativeExchangeRPCStreamPositionsServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveDerivativeExchangeRPCStreamPositionsServer) Send(m *StreamPositionsResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _InjectiveDerivativeExchangeRPC_StreamOrders_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StreamOrdersRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -595,6 +689,10 @@ var InjectiveDerivativeExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _InjectiveDerivativeExchangeRPC_Positions_Handler,
 		},
 		{
+			MethodName: "LiquidablePositions",
+			Handler:    _InjectiveDerivativeExchangeRPC_LiquidablePositions_Handler,
+		},
+		{
 			MethodName: "Trades",
 			Handler:    _InjectiveDerivativeExchangeRPC_Trades_Handler,
 		},
@@ -616,6 +714,11 @@ var InjectiveDerivativeExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamOrderbook",
 			Handler:       _InjectiveDerivativeExchangeRPC_StreamOrderbook_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamPositions",
+			Handler:       _InjectiveDerivativeExchangeRPC_StreamPositions_Handler,
 			ServerStreams: true,
 		},
 		{

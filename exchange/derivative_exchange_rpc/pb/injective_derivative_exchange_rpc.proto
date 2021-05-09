@@ -28,6 +28,10 @@ service InjectiveDerivativeExchangeRPC {
 	rpc Orders (OrdersRequest) returns (OrdersResponse);
 	// Positions gets the positions for a trader.
 	rpc Positions (PositionsRequest) returns (PositionsResponse);
+	// LiquidablePositions gets all the liquidable positions.
+	rpc LiquidablePositions (LiquidablePositionsRequest) returns (LiquidablePositionsResponse);
+	// StreamPositions streams derivatives position updates.
+	rpc StreamPositions (StreamPositionsRequest) returns (stream StreamPositionsResponse);
 	// StreamOrders streams updates to individual orders of a Derivative Market.
 	rpc StreamOrders (StreamOrdersRequest) returns (stream StreamOrdersResponse);
 	// Trades gets the trades of a Derivative Market.
@@ -87,12 +91,10 @@ message DerivativeMarketInfo {
 	string service_provider_fee = 13;
 	// True if the market is a perpetual swap market
 	bool is_perpetual = 14;
-	// Defines the maximum amount of decimal places that each order's price cannot
-// exceed
-	uint32 max_price_scale_decimals = 15;
-	// Defines the maximum amount of decimal places that each order's quantity
-// cannot exceed
-	uint32 max_quantity_scale_decimals = 16;
+	// Defines the minimum required tick size for the order's price
+	string min_price_tick_size = 15;
+	// Defines the minimum required tick size for the order's quantity
+	string min_quantity_tick_size = 16;
 }
 
 message TokenMeta {
@@ -196,7 +198,7 @@ message DerivativeLimitOrder {
 	string order_hash = 1;
 	// The type of the order
 	string order_type = 2;
-	// DerivativeMarket ID is keccak265(baseDenom || quoteDenom)
+	// DerivativeMarket ID
 	string market_id = 3;
 	// The subaccountId that this order belongs to
 	string subaccount_id = 4;
@@ -235,28 +237,52 @@ message PositionsResponse {
 }
 
 message DerivativePosition {
-	// DerivativeMarket ID is keccak265(baseDenom || quoteDenom)
-	string market_id = 1;
-	// The subaccountId that this order belongs to
-	string subaccount_id = 2;
+	// Ticker of the derivative market
+	string ticker = 1;
+	// Derivative Market ID
+	string market_id = 2;
+	// The subaccountId that the position belongs to
+	string subaccount_id = 3;
 	// Direction of the position
-	string direction = 3;
-	// Quantity of the order
-	string quantity = 4;
-	// Price of the order
-	string entry_price = 5;
+	string direction = 4;
+	// Quantity of the position
+	string quantity = 5;
+	// Price of the position
+	string entry_price = 6;
 	// Margin of the position
-	string margin = 6;
+	string margin = 7;
 	// Hold quantity of the position
-	string hold_quantity = 7;
+	string hold_quantity = 8;
 	// LiquidationPrice of the position
-	string liquidation_price = 8;
-	// LiquidationPrice of the position
-	string mark_price = 9;
-	// Implied PNL of the Position
-	string implied_pnl = 10;
-	// Leverage of the Position
-	string leverage = 11;
+	string liquidation_price = 9;
+	// MarkPrice of the position
+	string mark_price = 10;
+	// Unrealized PNL of the Position
+	string unrealized_pnl = 11;
+}
+
+message LiquidablePositionsRequest {
+	// Market ID to filter orders for specific market
+	string market_id = 1;
+}
+
+message LiquidablePositionsResponse {
+	// List of derivative positions
+	repeated DerivativePosition positions = 1;
+}
+
+message StreamPositionsRequest {
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 1;
+	// MarketId of the position we want to fetch
+	string market_id = 2;
+}
+
+message StreamPositionsResponse {
+	// Updated Derivative Position
+	DerivativePosition position = 1;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 2;
 }
 
 message StreamOrdersRequest {
@@ -282,14 +308,12 @@ message StreamOrdersResponse {
 message TradesRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
-	// Filter by execution type of the trade
-	string execution_type = 2;
 	// Filter by execution side of the trade
-	string execution_side = 3;
+	string execution_side = 2;
 	// Filter by direction the trade
-	string direction = 4;
+	string direction = 3;
 	// SubaccountId of the trader we want to get the trades from
-	string subaccount_id = 5;
+	string subaccount_id = 4;
 }
 
 message TradesResponse {
@@ -332,14 +356,12 @@ message PositionDelta {
 message StreamTradesRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
-	// Filter by execution type of the trade
-	string execution_type = 2;
 	// Filter by execution side of the trade
-	string execution_side = 3;
+	string execution_side = 2;
 	// Filter by direction the trade
-	string direction = 4;
+	string direction = 3;
 	// SubaccountId of the trader we want to get the trades from
-	string subaccount_id = 5;
+	string subaccount_id = 4;
 }
 
 message StreamTradesResponse {
