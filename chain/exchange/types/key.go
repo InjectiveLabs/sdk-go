@@ -197,9 +197,17 @@ func ParsePositionTransientStoreKey(key []byte) (marketID, subaccountID common.H
 
 func GetSubaccountAndMarketIDFromPositionKey(key []byte) (subaccountID, marketID common.Hash) {
 	subaccountOffsetLen := common.HashLength
-	subaccountID = common.BytesToHash(key[:subaccountOffsetLen])
-	marketID = common.BytesToHash(key[subaccountOffsetLen : subaccountOffsetLen+common.HashLength])
+	marketID = common.BytesToHash(key[:subaccountOffsetLen])
+	subaccountID = common.BytesToHash(key[subaccountOffsetLen : subaccountOffsetLen+common.HashLength])
+
 	return subaccountID, marketID
+}
+
+func GetSubaccountIDFromPositionKey(key []byte) (subaccountID common.Hash) {
+	subaccountOffsetLen := common.HashLength
+	subaccountID = common.BytesToHash(key[:subaccountOffsetLen])
+
+	return subaccountID
 }
 
 func GetExpiryFuturesMarketInfoByTimestampKey(timestamp int64, marketID common.Hash) []byte {

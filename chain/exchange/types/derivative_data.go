@@ -161,7 +161,7 @@ func ApplyPositionDeltaAndGetDerivativeMarketOrderStateExpansion(
 		}
 	}
 
-	payout, closeExecutionMargin, collateralizationMargin := position.ApplyPositionDelta(positionDelta, tradingFee)
+	payout, _, closeExecutionMargin, collateralizationMargin := position.ApplyPositionDelta(positionDelta, tradingFee)
 
 	clearingFeeChargeOrRefund := sdk.ZeroDec()
 	feeCharge := sdk.ZeroDec()
@@ -255,7 +255,7 @@ func ApplyPositionDeltaAndGetDerivativeLimitOrderStateExpansion(
 		}
 	}
 
-	payout, closeExecutionMargin, collateralizationMargin := position.ApplyPositionDelta(positionDelta, tradingFee)
+	payout, _, closeExecutionMargin, collateralizationMargin := position.ApplyPositionDelta(positionDelta, tradingFee)
 	tradingFeeBalanceDebitAmount := sdk.ZeroDec()
 	clearingChargeOrRefund := sdk.ZeroDec()
 	fillableQuantity := order.OrderInfo.Quantity.Sub(fillQuantity)

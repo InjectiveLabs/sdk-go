@@ -82,13 +82,13 @@ func (o *DerivativeOrder) GetNewDerivativeLimitOrder(orderHash common.Hash) *Der
 	}
 }
 
-func (o *DerivativeLimitOrder) GetCancelDepositDelta(makerFeeRate sdk.Dec) *DepositDelta {
+func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate sdk.Dec) *DepositDelta {
 	depositDelta := NewDepositDelta()
 	if o.IsVanilla() {
-		// Refund = (Fillable / Quantity) * (Margin + Price * Quantity * MakerFeeRate)
+		// Refund = (Fillable / Quantity) * (Margin + Price * Quantity * feeRate)
 		fillableFraction := o.Fillable.Quo(o.OrderInfo.Quantity)
 		notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-		marginHoldRefund := fillableFraction.Mul(o.Margin.Add(notional.Mul(makerFeeRate)))
+		marginHoldRefund := fillableFraction.Mul(o.Margin.Add(notional.Mul(feeRate)))
 		depositDelta.AvailableBalanceDelta = marginHoldRefund
 	}
 	return depositDelta
@@ -105,9 +105,9 @@ func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sd
 	return nil
 }
 
-func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket, markPrice sdk.Dec) (marginHold sdk.Dec, err error) {
+func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket, markPrice, feeRate sdk.Dec) (marginHold sdk.Dec, err error) {
 	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-	feeAmount := notional.Mul(market.TakerFeeRate)
+	feeAmount := notional.Mul(feeRate)
 
 	// Margin ≥ InitialMarginRatio * Price * Quantity
 	if o.Margin.LT(market.InitialMarginRatio.Mul(notional)) {
