@@ -19,7 +19,13 @@ import (
 
 // WrapTxToEIP712 is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible request. All messages must be of the same type.
-func WrapTxToEIP712(cdc codectypes.AnyUnpacker, chainID uint64, msg cosmtypes.Msg, data []byte) (typeddata.TypedData, error) {
+func WrapTxToEIP712(
+	cdc codectypes.AnyUnpacker,
+	chainID uint64,
+	msg cosmtypes.Msg,
+	data []byte,
+	feeDelegation *FeeDelegationOptions,
+) (typeddata.TypedData, error) {
 	txData := make(map[string]interface{})
 	if err := json.Unmarshal(data, &txData); err != nil {
 		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
@@ -39,6 +45,18 @@ func WrapTxToEIP712(cdc codectypes.AnyUnpacker, chainID uint64, msg cosmtypes.Ms
 		return typeddata.TypedData{}, err
 	}
 
+	if feeDelegation != nil {
+		txData["fee"] = map[string]string{
+			"feePayer": feeDelegation.FeePayer.String(),
+			"gas":      txData["fee"].(map[string]interface{})["gas"].(string),
+		}
+
+		msgTypes["Fee"] = []typeddata.Type{
+			{Name: "feePayer", Type: "string"},
+			{Name: "gas", Type: "string"},
+		}
+	}
+
 	var typedData = typeddata.TypedData{
 		Types:       msgTypes,
 		PrimaryType: "Tx",
@@ -47,6 +65,10 @@ func WrapTxToEIP712(cdc codectypes.AnyUnpacker, chainID uint64, msg cosmtypes.Ms
 	}
 
 	return typedData, nil
+}
+
+type FeeDelegationOptions struct {
+	FeePayer cosmtypes.AccAddress
 }
 
 func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtypes.Msg) (typeddata.Types, error) {
