@@ -75,26 +75,28 @@ message DerivativeMarketInfo {
 	string oracle_quote = 5;
 	// Oracle Type
 	string oracle_type = 6;
+	// OracleScaleFactor
+	uint32 oracle_scale_factor = 7;
 	// Defines the initial margin ratio of a derivative market
-	string initial_margin_ratio = 7;
+	string initial_margin_ratio = 8;
 	// Defines the maintenance margin ratio of a derivative market
-	string maintenance_margin_ratio = 8;
+	string maintenance_margin_ratio = 9;
 	// Coin denom used for the quote asset.
-	string quote_denom = 9;
+	string quote_denom = 10;
 	// Token metadata for quote asset, only for Ethereum-based assets
-	TokenMeta quote_token_meta = 10;
+	TokenMeta quote_token_meta = 11;
 	// Defines the fee percentage makers pay when trading (in quote asset)
-	string maker_fee_rate = 11;
+	string maker_fee_rate = 12;
 	// Defines the fee percentage takers pay when trading (in quote asset)
-	string taker_fee_rate = 12;
+	string taker_fee_rate = 13;
 	// Percentage of the transaction fee shared with the service provider
-	string service_provider_fee = 13;
+	string service_provider_fee = 14;
 	// True if the market is a perpetual swap market
-	bool is_perpetual = 14;
+	bool is_perpetual = 15;
 	// Defines the minimum required tick size for the order's price
-	string min_price_tick_size = 15;
+	string min_price_tick_size = 16;
 	// Defines the minimum required tick size for the order's quantity
-	string min_quantity_tick_size = 16;
+	string min_quantity_tick_size = 17;
 }
 
 message TokenMeta {
