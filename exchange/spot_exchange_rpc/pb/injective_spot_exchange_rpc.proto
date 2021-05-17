@@ -73,12 +73,10 @@ message SpotMarketInfo {
 	string taker_fee_rate = 9;
 	// Percentage of the transaction fee shared with the service provider
 	string service_provider_fee = 10;
-	// Defines the maximum amount of decimal places that each order's price cannot
-// exceed
-	uint32 max_price_scale_decimals = 11;
-	// Defines the maximum amount of decimal places that each order's quantity
-// cannot exceed
-	uint32 max_quantity_scale_decimals = 12;
+	// Defines the minimum required tick size for the order's price
+	string min_price_tick_size = 11;
+	// Defines the minimum required tick size for the order's quantity
+	string min_quantity_tick_size = 12;
 }
 
 message TokenMeta {
@@ -226,14 +224,12 @@ message StreamOrdersResponse {
 message TradesRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
-	// Filter by execution type of the trade
-	string execution_type = 2;
 	// Filter by execution side of the trade
-	string execution_side = 3;
+	string execution_side = 2;
 	// Filter by direction the trade
-	string direction = 4;
+	string direction = 3;
 	// SubaccountId of the trader we want to get the trades from
-	string subaccount_id = 5;
+	string subaccount_id = 4;
 }
 
 message TradesResponse {
@@ -263,14 +259,12 @@ message SpotTrade {
 message StreamTradesRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
-	// Filter by execution type of the trade
-	string execution_type = 2;
 	// Filter by execution side of the trade
-	string execution_side = 3;
+	string execution_side = 2;
 	// Filter by direction the trade
-	string direction = 4;
+	string direction = 3;
 	// SubaccountId of the trader we want to get the trades from
-	string subaccount_id = 5;
+	string subaccount_id = 4;
 }
 
 message StreamTradesResponse {

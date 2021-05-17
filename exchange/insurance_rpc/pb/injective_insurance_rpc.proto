@@ -1,0 +1,65 @@
+// Code generated with goa v3.3.1, DO NOT EDIT.
+//
+// InjectiveInsuranceRPC protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+
+syntax = "proto3";
+
+package injective_insurance_rpc;
+
+option go_package = "/injective_insurance_rpcpb";
+
+// InjectiveInsuranceRPC defines gRPC API of Insurance provider.
+service InjectiveInsuranceRPC {
+	// Funds lists all insurance funds.
+	rpc Funds (FundsRequest) returns (FundsResponse);
+}
+
+message FundsRequest {
+}
+
+message FundsResponse {
+	repeated InsuranceFund funds = 1;
+}
+
+message InsuranceFund {
+	// Ticker of the derivative market.
+	string market_ticker = 1;
+	// Derivative Market ID
+	string market_id = 2;
+	// Coin denom used for the underwriting of the insurance fund.
+	string deposit_denom = 3;
+	// Pool token denom
+	string pool_token_denom = 4;
+	// Redemption notice period duration in seconds.
+	sint64 redemption_notice_period_duration = 5;
+	string balance = 6;
+	string total_share = 7;
+	// Oracle base currency
+	string oracle_base = 8;
+	// Oracle quote currency
+	string oracle_quote = 9;
+	// Oracle Type
+	string oracle_type = 10;
+	// Defines the expiry, if any
+	sint64 expiry = 11;
+	// Token metadata for the deposit asset, only for Ethereum-based assets
+	TokenMeta deposit_token_meta = 12;
+}
+
+message TokenMeta {
+	// Token full name
+	string name = 1;
+	// Token Ethereum contract address
+	string address = 2;
+	// Token symbol short name
+	string symbol = 3;
+	// URL to the logo image
+	string logo = 4;
+	// Token decimals
+	sint32 decimals = 5;
+	// Token metadata fetched timestamp in UNIX millis.
+	sint64 updated_at = 6;
+}
