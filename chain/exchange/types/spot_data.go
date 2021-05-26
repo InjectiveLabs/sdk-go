@@ -7,19 +7,23 @@ import (
 )
 
 type SpotOrderStateExpansion struct {
-	BaseChangeAmount   sdk.Dec
-	BaseRefundAmount   sdk.Dec
-	QuoteChangeAmount  sdk.Dec
-	QuoteRefundAmount  sdk.Dec
-	FeeRecipient       common.Address
-	FeeRecipientReward sdk.Dec
-	AuctionFeeReward   sdk.Dec
-	OrderHash          common.Hash
-	SubaccountID       common.Hash
-	// for market orders, FillableAmount refers to the fillable quantity of the market order execution (if any)
-	FillableAmount sdk.Dec
+	BaseChangeAmount        sdk.Dec
+	BaseRefundAmount        sdk.Dec
+	QuoteChangeAmount       sdk.Dec
+	QuoteRefundAmount       sdk.Dec
+	FeeRecipient            common.Address
+	FeeRecipientReward      sdk.Dec
+	AuctionFeeReward        sdk.Dec
+	LimitOrder              *SpotLimitOrder
+	LimitOrderFillQuantity  sdk.Dec
+	MarketOrder             *SpotMarketOrder
+	MarketOrderFillQuantity sdk.Dec
+	OrderHash               common.Hash
+	OrderPrice              sdk.Dec
+	SubaccountID            common.Hash
 }
 
+// ProcessSpotMarketOrderStateExpansions processes the spot market order state expansions.
 // NOTE: clearingPrice may be Nil
 func ProcessSpotMarketOrderStateExpansions(
 	isMarketBuy bool,
@@ -59,7 +63,7 @@ func ProcessRestingSpotLimitOrderExpansions(
 		if isLimitBuy {
 			stateExpansions[idx] = getRestingSpotLimitBuyStateExpansion(
 				order,
-				common.BytesToHash(order.OrderHash),
+				order.Hash(),
 				fillQuantity,
 				fillPrice,
 				makerFeeRate,
@@ -100,7 +104,7 @@ func (e *SpotOrderStateExpansion) UpdateDepositDeltas(baseDenomDepositDeltas Dep
 	}
 
 	feeRecipientSubaccount := EthAddressToSubaccountID(e.FeeRecipient)
-	if bytes.Equal(feeRecipientSubaccount.Bytes(), common.Hash{}.Bytes()) {
+	if bytes.Equal(feeRecipientSubaccount.Bytes(), ZeroSubaccountID.Bytes()) {
 		feeRecipientSubaccount = AuctionSubaccountID
 	}
 
@@ -128,19 +132,22 @@ func getSpotLimitSellStateExpansion(
 
 	// limit sells are credited with the (fillQuantity * price) * (1 - tradeFeeRate) in quote denom
 	quoteChangeAmount := orderNotional.Sub(tradingFee)
+	order.Fillable = order.Fillable.Sub(fillQuantity)
 
 	stateExpansion := SpotOrderStateExpansion{
 		// limit sells are debited by fillQuantity in base denom
-		BaseChangeAmount:   fillQuantity.Neg(),
-		BaseRefundAmount:   sdk.ZeroDec(),
-		QuoteChangeAmount:  quoteChangeAmount,
-		QuoteRefundAmount:  sdk.ZeroDec(),
-		FeeRecipient:       common.HexToAddress(order.OrderInfo.FeeRecipient),
-		FeeRecipientReward: feeRecipientReward,
-		AuctionFeeReward:   auctionFeeReward,
-		OrderHash:          common.BytesToHash(order.OrderHash),
-		SubaccountID:       common.HexToHash(order.OrderInfo.SubaccountId),
-		FillableAmount:     order.Fillable.Sub(fillQuantity),
+		BaseChangeAmount:       fillQuantity.Neg(),
+		BaseRefundAmount:       sdk.ZeroDec(),
+		QuoteChangeAmount:      quoteChangeAmount,
+		QuoteRefundAmount:      sdk.ZeroDec(),
+		FeeRecipient:           common.HexToAddress(order.OrderInfo.FeeRecipient),
+		FeeRecipientReward:     feeRecipientReward,
+		AuctionFeeReward:       auctionFeeReward,
+		LimitOrder:             order,
+		LimitOrderFillQuantity: fillQuantity,
+		OrderPrice:             order.OrderInfo.Price,
+		OrderHash:              common.BytesToHash(order.OrderHash),
+		SubaccountID:           common.HexToHash(order.OrderInfo.SubaccountId),
 	}
 	return &stateExpansion
 }
@@ -151,7 +158,6 @@ func getRestingSpotLimitBuyStateExpansion(
 	fillQuantity, fillPrice, makerFeeRate, relayerFeeShare sdk.Dec,
 ) *SpotOrderStateExpansion {
 	var baseChangeAmount, quoteChangeAmount sdk.Dec
-	fillableAmount := order.Fillable.Sub(fillQuantity)
 	orderNotional := fillQuantity.Mul(fillPrice)
 	tradingFee := orderNotional.Mul(makerFeeRate)
 	feeRecipientReward := relayerFeeShare.Mul(tradingFee)
@@ -168,17 +174,20 @@ func getRestingSpotLimitBuyStateExpansion(
 		matchedFeeRefund := fillQuantity.Mul(makerFeeRate).Mul(priceDelta)
 		quoteRefund = clearingRefund.Add(matchedFeeRefund)
 	}
+	order.Fillable = order.Fillable.Sub(fillQuantity)
 	stateExpansion := SpotOrderStateExpansion{
-		BaseChangeAmount:   baseChangeAmount,
-		BaseRefundAmount:   sdk.ZeroDec(),
-		QuoteChangeAmount:  quoteChangeAmount,
-		QuoteRefundAmount:  quoteRefund,
-		FeeRecipient:       common.HexToAddress(order.OrderInfo.FeeRecipient),
-		FeeRecipientReward: feeRecipientReward,
-		AuctionFeeReward:   auctionFeeReward,
-		OrderHash:          orderHash,
-		SubaccountID:       order.SubaccountID(),
-		FillableAmount:     fillableAmount,
+		BaseChangeAmount:       baseChangeAmount,
+		BaseRefundAmount:       sdk.ZeroDec(),
+		QuoteChangeAmount:      quoteChangeAmount,
+		QuoteRefundAmount:      quoteRefund,
+		FeeRecipient:           common.HexToAddress(order.OrderInfo.FeeRecipient),
+		FeeRecipientReward:     feeRecipientReward,
+		AuctionFeeReward:       auctionFeeReward,
+		LimitOrder:             order,
+		LimitOrderFillQuantity: fillQuantity,
+		OrderPrice:             order.OrderInfo.Price,
+		OrderHash:              orderHash,
+		SubaccountID:           order.SubaccountID(),
 	}
 	return &stateExpansion
 }
@@ -191,7 +200,6 @@ func getNewSpotLimitBuyStateExpansion(
 ) *SpotOrderStateExpansion {
 	// TODO: optimize for the case when fillQuantity is 0
 	var baseChangeAmount, quoteChangeAmount sdk.Dec
-	fillableAmount := buyOrder.Fillable.Sub(fillQuantity)
 
 	orderNotional := sdk.ZeroDec()
 	clearingRefund := sdk.ZeroDec()
@@ -217,17 +225,20 @@ func getNewSpotLimitBuyStateExpansion(
 	feeRefund := matchedFeeRefund.Add(unmatchedFeeRefund)
 	// refund amount = clearing refund + matched fee refund + unmatched fee refund
 	quoteRefundAmount := clearingRefund.Add(feeRefund)
+	buyOrder.Fillable = buyOrder.Fillable.Sub(fillQuantity)
 	stateExpansion := SpotOrderStateExpansion{
-		BaseChangeAmount:   baseChangeAmount,
-		BaseRefundAmount:   sdk.ZeroDec(),
-		QuoteChangeAmount:  quoteChangeAmount,
-		QuoteRefundAmount:  quoteRefundAmount,
-		FeeRecipient:       common.HexToAddress(buyOrder.OrderInfo.FeeRecipient),
-		FeeRecipientReward: feeRecipientReward,
-		AuctionFeeReward:   auctionFeeReward,
-		OrderHash:          orderHash,
-		SubaccountID:       buyOrder.SubaccountID(),
-		FillableAmount:     fillableAmount,
+		BaseChangeAmount:       baseChangeAmount,
+		BaseRefundAmount:       sdk.ZeroDec(),
+		QuoteChangeAmount:      quoteChangeAmount,
+		QuoteRefundAmount:      quoteRefundAmount,
+		FeeRecipient:           common.HexToAddress(buyOrder.OrderInfo.FeeRecipient),
+		FeeRecipientReward:     feeRecipientReward,
+		AuctionFeeReward:       auctionFeeReward,
+		LimitOrder:             buyOrder,
+		LimitOrderFillQuantity: fillQuantity,
+		OrderPrice:             buyOrder.OrderInfo.Price,
+		OrderHash:              orderHash,
+		SubaccountID:           buyOrder.SubaccountID(),
 	}
 	return &stateExpansion
 }
@@ -273,16 +284,18 @@ func getSpotMarketOrderStateExpansion(
 	}
 
 	stateExpansion := SpotOrderStateExpansion{
-		BaseChangeAmount:   baseChangeAmount,
-		BaseRefundAmount:   baseRefundAmount,
-		QuoteChangeAmount:  quoteChangeAmount,
-		QuoteRefundAmount:  quoteRefundAmount,
-		FeeRecipient:       common.HexToAddress(marketOrder.OrderInfo.FeeRecipient),
-		FeeRecipientReward: feeRecipientReward,
-		AuctionFeeReward:   auctionFeeReward,
-		OrderHash:          common.BytesToHash(marketOrder.OrderHash),
-		SubaccountID:       marketOrder.SubaccountID(),
-		FillableAmount:     marketOrder.OrderInfo.Quantity.Sub(fillQuantity),
+		BaseChangeAmount:        baseChangeAmount,
+		BaseRefundAmount:        baseRefundAmount,
+		QuoteChangeAmount:       quoteChangeAmount,
+		QuoteRefundAmount:       quoteRefundAmount,
+		FeeRecipient:            common.HexToAddress(marketOrder.OrderInfo.FeeRecipient),
+		FeeRecipientReward:      feeRecipientReward,
+		AuctionFeeReward:        auctionFeeReward,
+		MarketOrder:             marketOrder,
+		MarketOrderFillQuantity: fillQuantity,
+		OrderPrice:              marketOrder.OrderInfo.Price,
+		OrderHash:               common.BytesToHash(marketOrder.OrderHash),
+		SubaccountID:            marketOrder.SubaccountID(),
 	}
 	return &stateExpansion
 }

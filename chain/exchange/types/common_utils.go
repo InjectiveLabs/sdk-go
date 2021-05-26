@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"math/big"
 	"os"
 
@@ -15,9 +16,44 @@ type PriceLevel struct {
 	Quantity sdk.Dec
 }
 
-type LimitOrderFilledDelta struct {
-	SubaccountIndexKey []byte
-	FillableAmount     sdk.Dec
+type SpotLimitOrderDelta struct {
+	Order        *SpotLimitOrder
+	FillQuantity sdk.Dec
+}
+
+type DerivativeLimitOrderDelta struct {
+	Order          *DerivativeLimitOrder
+	FillQuantity   sdk.Dec
+	CancelQuantity sdk.Dec
+}
+
+type DerivativeMarketOrderDelta struct {
+	Order        *DerivativeMarketOrder
+	FillQuantity sdk.Dec
+}
+
+func (d *DerivativeMarketOrderDelta) UnfilledQuantity() sdk.Dec {
+	return d.Order.OrderInfo.Quantity.Sub(d.FillQuantity)
+}
+
+func (d *DerivativeLimitOrderDelta) IsBuy() bool {
+	return d.Order.IsBuy()
+}
+
+func (d *DerivativeLimitOrderDelta) SubaccountID() common.Hash {
+	return d.Order.SubaccountID()
+}
+
+func (d *DerivativeLimitOrderDelta) Price() sdk.Dec {
+	return d.Order.Price()
+}
+
+func (d *DerivativeLimitOrderDelta) FillableQuantity() sdk.Dec {
+	return d.Order.Fillable.Sub(d.CancelQuantity)
+}
+
+func (d *DerivativeLimitOrderDelta) OrderHash() common.Hash {
+	return d.Order.Hash()
 }
 
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
@@ -52,13 +88,19 @@ func IsValidOrderHash(orderHash string) bool {
 	return true
 }
 
-// TODO: Test
-func breachesMinimumTickSize(dec sdk.Dec, minTickSize sdk.Dec) bool {
-	quotient := dec.Quo(minTickSize)
-	if !quotient.TruncateDec().Equal(quotient) {
+func BreachesMinimumTickSize(value sdk.Dec, minTickSize sdk.Dec) bool {
+	// obviously breached if the value less than the minTickSize
+	if value.LT(minTickSize) {
 		return true
 	}
-	return false
+
+	// prevent mod by 0
+	if minTickSize.IsZero() {
+		return true
+	}
+
+	residue := new(big.Int).Mod(value.BigInt(), minTickSize.BigInt())
+	return !bytes.Equal(residue.Bytes(), big.NewInt(0).Bytes())
 }
 
 func (s *Subaccount) GetSubaccountID() (*common.Hash, error) {
@@ -74,7 +116,6 @@ func SdkAddressWithNonceToSubaccountID(addr sdk.Address, nonce uint32) (*common.
 		return &AuctionSubaccountID, ErrBadSubaccountID
 	}
 	subaccountID := common.BytesToHash(append(addr.Bytes(), common.LeftPadBytes(big.NewInt(int64(nonce)).Bytes(), 12)...))
-
 	return &subaccountID, nil
 }
 

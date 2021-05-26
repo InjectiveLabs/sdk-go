@@ -61,12 +61,12 @@ func (o *SpotOrderbookStateChange) ProcessBothRestingSpotLimitOrderExpansions(
 	tradeFeeRate, relayerFeeShareRate sdk.Dec,
 	baseDenomDepositDeltas DepositDeltas,
 	quoteDenomDepositDeltas DepositDeltas,
-) (limitBuyRestingOrderBatchEvent *EventBatchSpotExecution, limitSellRestingOrderBatchEvent *EventBatchSpotExecution, filledDeltas []*LimitOrderFilledDelta) {
+) (limitBuyRestingOrderBatchEvent *EventBatchSpotExecution, limitSellRestingOrderBatchEvent *EventBatchSpotExecution, filledDeltas []*SpotLimitOrderDelta) {
 	spotLimitBuyOrderStateExpansions := make([]*SpotOrderStateExpansion, 0)
 	spotLimitSellOrderStateExpansions := make([]*SpotOrderStateExpansion, 0)
-	filledDeltas = make([]*LimitOrderFilledDelta, 0)
+	filledDeltas = make([]*SpotLimitOrderDelta, 0)
 
-	var currFilledDeltas []*LimitOrderFilledDelta
+	var currFilledDeltas []*SpotLimitOrderDelta
 
 	if o.RestingBuyOrderbookFills != nil {
 		spotLimitBuyOrderStateExpansions = o.ProcessRestingSpotLimitOrderExpansions(true, clearingPrice, tradeFeeRate, relayerFeeShareRate)
@@ -203,8 +203,7 @@ func (o *SpotOrderbookStateChange) processNewSpotLimitSellExpansions(
 			takerFeeRate,
 			relayerFeeShare,
 		)
-		if fillQuantity.LT(order.OrderInfo.Quantity) {
-			order.Fillable = order.Fillable.Sub(fillQuantity)
+		if order.Fillable.IsPositive() {
 			newRestingOrders = append(newRestingOrders, order)
 		}
 	}

@@ -2,19 +2,19 @@ package types
 
 import (
 	"bytes"
-	"github.com/ethereum/go-ethereum/common"
+	"fmt"
 	"sort"
+
+	"github.com/ethereum/go-ethereum/common"
 )
 
-type PositionStates map[common.Hash]*PositionState
-
-func NewPositionStates() PositionStates {
-	return make(PositionStates)
+func NewPositionStates() map[common.Hash]*PositionState {
+	return make(map[common.Hash]*PositionState)
 }
 
-func (p *PositionStates) GetSortedSubaccountKeys() []common.Hash {
+func GetSortedSubaccountKeys(p map[common.Hash]*PositionState) []common.Hash {
 	subaccountKeys := make([]common.Hash, 0)
-	for k := range *p {
+	for k := range p {
 		subaccountKeys = append(subaccountKeys, k)
 	}
 	sort.SliceStable(subaccountKeys, func(i, j int) bool {
@@ -23,15 +23,21 @@ func (p *PositionStates) GetSortedSubaccountKeys() []common.Hash {
 	return subaccountKeys
 }
 
-func (p *PositionStates) GetPositionSliceData() ([]*Position, []common.Hash) {
-	positionSubaccountIDs := p.GetSortedSubaccountKeys()
-	positions := make([]*Position, len(positionSubaccountIDs))
+func GetPositionSliceData(p map[common.Hash]*PositionState) ([]*Position, []common.Hash) {
+	positionSubaccountIDs := GetSortedSubaccountKeys(p)
+	positions := make([]*Position, 0, len(positionSubaccountIDs))
 
+	nonNilPositionSubaccountIDs := make([]common.Hash, 0)
 	for idx := range positionSubaccountIDs {
 		subaccountID := positionSubaccountIDs[idx]
-		position := (*p)[subaccountID]
-		positions[idx] = position.Position
+		position := p[subaccountID]
+		if position.Position != nil {
+			positions = append(positions, position.Position)
+			nonNilPositionSubaccountIDs = append(nonNilPositionSubaccountIDs, subaccountID)
+		} else {
+			fmt.Println("❌ position is nil for subaccount", subaccountID.Hex())
+		}
 	}
 
-	return positions, positionSubaccountIDs
+	return positions, nonNilPositionSubaccountIDs
 }

@@ -11,7 +11,7 @@ type SpotBatchExecutionData struct {
 	QuoteDenomDepositDeltas        DepositDeltas
 	BaseDenomDepositSubaccountIDs  []common.Hash
 	QuoteDenomDepositSubaccountIDs []common.Hash
-	LimitOrderFilledDeltas         []*LimitOrderFilledDelta
+	LimitOrderFilledDeltas         []*SpotLimitOrderDelta
 	MarketOrderExecutionEvent      *EventBatchSpotExecution
 	LimitOrderExecutionEvent       []*EventBatchSpotExecution
 	NewOrdersEvent                 *EventNewSpotOrders
@@ -149,7 +149,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	executionType ExecutionType,
 	spotLimitOrderStateExpansions []*SpotOrderStateExpansion,
 	baseDenomDepositDeltas DepositDeltas, quoteDenomDepositDeltas DepositDeltas,
-) (*EventBatchSpotExecution, []*LimitOrderFilledDelta) {
+) (*EventBatchSpotExecution, []*SpotLimitOrderDelta) {
 	limitOrderBatchEvent := &EventBatchSpotExecution{
 		MarketId:      marketID.Hex(),
 		IsBuy:         isBuy,
@@ -159,7 +159,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	trades := make([]*TradeLog, 0, len(spotLimitOrderStateExpansions))
 
 	// array of (SubaccountIndexKey, fillableAmount) to update/delete
-	filledDeltas := make([]*LimitOrderFilledDelta, 0, len(spotLimitOrderStateExpansions))
+	filledDeltas := make([]*SpotLimitOrderDelta, 0, len(spotLimitOrderStateExpansions))
 
 	for idx := range spotLimitOrderStateExpansions {
 		expansion := spotLimitOrderStateExpansions[idx]
@@ -171,14 +171,9 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			continue
 		}
 
-		filledDeltas = append(filledDeltas, &LimitOrderFilledDelta{
-			SubaccountIndexKey: GetLimitOrderIndexKey(
-				marketID,
-				limitOrderBatchEvent.IsBuy,
-				expansion.SubaccountID,
-				expansion.OrderHash,
-			),
-			FillableAmount: expansion.FillableAmount,
+		filledDeltas = append(filledDeltas, &SpotLimitOrderDelta{
+			Order:        expansion.LimitOrder,
+			FillQuantity: expansion.LimitOrderFillQuantity,
 		})
 
 		fee := expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward)

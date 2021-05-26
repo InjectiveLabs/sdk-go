@@ -2,7 +2,9 @@ package types
 
 import (
 	"bytes"
+	"errors"
 
+	"github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -140,6 +142,13 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 
+	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
+	}
+	if msg.MinQuantityTickSize.IsNil() || msg.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, msg.MinQuantityTickSize.String())
+	}
+
 	return nil
 }
 
@@ -180,6 +189,37 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	}
 	if msg.OracleQuote == "" {
 		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
+	}
+	switch msg.OracleType {
+	case types.OracleType_Band, types.OracleType_PriceFeed, types.OracleType_Coinbase, types.OracleType_Chainlink, types.OracleType_Razor,
+		types.OracleType_Dia, types.OracleType_API3, types.OracleType_Uma, types.OracleType_Pyth, types.OracleType_BandIBC:
+
+	default:
+		return sdkerrors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
+	}
+	if err := ValidateFee(msg.MakerFeeRate); err != nil {
+		return err
+	}
+	if err := ValidateFee(msg.TakerFeeRate); err != nil {
+		return err
+	}
+	if err := ValidateMarginRatio(msg.InitialMarginRatio); err != nil {
+		return err
+	}
+	if err := ValidateMarginRatio(msg.MaintenanceMarginRatio); err != nil {
+		return err
+	}
+	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
+		return errors.New("MakerFeeRate cannot be greater than TakerFeeRate")
+	}
+	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
+		return errors.New("MaintenanceMarginRatio cannot be greater than InitialMarginRatio")
+	}
+	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
+	}
+	if msg.MinQuantityTickSize.IsNil() || msg.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, msg.MinQuantityTickSize.String())
 	}
 
 	return nil
@@ -225,8 +265,39 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	if msg.OracleQuote == "" {
 		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
 	}
+	switch msg.OracleType {
+	case types.OracleType_Band, types.OracleType_PriceFeed, types.OracleType_Coinbase, types.OracleType_Chainlink, types.OracleType_Razor,
+		types.OracleType_Dia, types.OracleType_API3, types.OracleType_Uma, types.OracleType_Pyth, types.OracleType_BandIBC:
+
+	default:
+		return sdkerrors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
+	}
 	if msg.Expiry <= 0 {
 		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
+	}
+	if err := ValidateFee(msg.MakerFeeRate); err != nil {
+		return err
+	}
+	if err := ValidateFee(msg.TakerFeeRate); err != nil {
+		return err
+	}
+	if err := ValidateMarginRatio(msg.InitialMarginRatio); err != nil {
+		return err
+	}
+	if err := ValidateMarginRatio(msg.MaintenanceMarginRatio); err != nil {
+		return err
+	}
+	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
+		return errors.New("MakerFeeRate cannot be greater than TakerFeeRate")
+	}
+	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
+		return errors.New("MaintenanceMarginRatio cannot be greater than InitialMarginRatio")
+	}
+	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
+	}
+	if msg.MinPriceTickSize.IsNil() || msg.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, msg.MinQuantityTickSize.String())
 	}
 
 	return nil
@@ -336,7 +407,7 @@ func (msg SpotOrder) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.OrderInfo.FeeRecipient)
 	}
-	if msg.OrderInfo.Quantity.LTE(sdk.ZeroDec()) {
+	if msg.OrderInfo.Quantity.IsNil() || msg.OrderInfo.Quantity.LTE(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(ErrInvalidQuantity, msg.OrderInfo.Quantity.String())
 	}
 
@@ -426,8 +497,14 @@ func (msg MsgCreateDerivativeLimitOrder) ValidateBasic() error {
 	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
 	}
-	if msg.Order.OrderInfo.Price.LTE(sdk.ZeroDec()) {
+	if msg.Order.OrderInfo.Price.IsNil() || msg.Order.OrderInfo.Price.LTE(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(ErrInvalidPrice, msg.Order.OrderInfo.Price.String())
+	}
+	if msg.Order.OrderInfo.Quantity.IsNil() || msg.Order.OrderInfo.Quantity.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantity, msg.Order.OrderInfo.Quantity.String())
+	}
+	if msg.Order.Margin.IsNil() || msg.Order.Margin.LT(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidMargin, msg.Order.Margin.String())
 	}
 
 	return nil
@@ -495,7 +572,7 @@ func (msg DerivativeOrder) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.OrderInfo.FeeRecipient)
 	}
-	if msg.OrderInfo.Quantity.LTE(sdk.ZeroDec()) {
+	if msg.OrderInfo.Quantity.IsNil() || msg.OrderInfo.Quantity.LTE(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(ErrInvalidQuantity, msg.OrderInfo.Quantity.String())
 	}
 
@@ -746,7 +823,7 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 			return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
 		}
 
-		if msg.Order.OrderInfo.Price.LTE(sdk.ZeroDec()) {
+		if msg.Order.OrderInfo.Price.IsNil() || msg.Order.OrderInfo.Price.LTE(sdk.ZeroDec()) {
 			return sdkerrors.Wrap(ErrInvalidPrice, msg.Order.OrderInfo.Price.String())
 		}
 	}

@@ -17,3 +17,7 @@ func (m *DerivativeMarket) MarketID() common.Hash {
 func (m *SpotMarket) MarketID() common.Hash {
 	return common.HexToHash(m.MarketId)
 }
+
+func (e ExecutionType) IsMarket() bool {
+	return e == ExecutionType_Market
+}

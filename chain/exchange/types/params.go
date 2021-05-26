@@ -26,8 +26,8 @@ const (
 	// DerivativeMarketInstantListingFee is 1000 INJ
 	DerivativeMarketInstantListingFee int64 = 1000
 
-	DefaultMaxPriceScaleDecimals    = 8
-	DefaultMaxQuantityScaleDecimals = 8
+	// MaxDerivativeOrderSideCount is 20
+	MaxDerivativeOrderSideCount uint32 = 20
 )
 
 // Parameter keys
@@ -45,6 +45,7 @@ var (
 	KeyRelayerFeeShareRate               = []byte("RelayerFeeShareRate")
 	KeyDefaultHourlyFundingRateCap       = []byte("DefaultHourlyFundingRateCap")
 	KeyDefaultHourlyInterestRate         = []byte("DefaultHourlyInterestRate")
+	KeyMaxDerivativeOrderSideCount       = []byte("MaxDerivativeOrderSideCount")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -67,6 +68,7 @@ func NewParams(
 	relayerFeeShare sdk.Dec,
 	defaultHourlyFundingRateCap sdk.Dec,
 	defaultHourlyInterestRate sdk.Dec,
+	maxDerivativeSideOrderCount uint32,
 ) Params {
 	return Params{
 		SpotMarketInstantListingFee:       SpotMarketInstantListingFee,
@@ -82,12 +84,12 @@ func NewParams(
 		RelayerFeeShareRate:               relayerFeeShare,
 		DefaultHourlyFundingRateCap:       defaultHourlyFundingRateCap,
 		DefaultHourlyInterestRate:         defaultHourlyInterestRate,
+		MaxDerivativeOrderSideCount:       maxDerivativeSideOrderCount,
 	}
 }
 
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	// TODO: @albert, add the rest of the parameters
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeySpotMarketInstantListingFee, &p.SpotMarketInstantListingFee, validateSpotMarketInstantListingFee),
 		paramtypes.NewParamSetPair(KeyDerivativeMarketInstantListingFee, &p.DerivativeMarketInstantListingFee, validateDerivativeMarketInstantListingFee),
@@ -102,6 +104,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyRelayerFeeShareRate, &p.RelayerFeeShareRate, ValidateFee),
 		paramtypes.NewParamSetPair(KeyDefaultHourlyFundingRateCap, &p.DefaultHourlyFundingRateCap, ValidateFee),
 		paramtypes.NewParamSetPair(KeyDefaultHourlyInterestRate, &p.DefaultHourlyInterestRate, ValidateFee),
+		paramtypes.NewParamSetPair(KeyMaxDerivativeOrderSideCount, &p.MaxDerivativeOrderSideCount, validateDerivativeOrderSideCount),
 	}
 }
 
@@ -122,6 +125,7 @@ func DefaultParams() Params {
 		RelayerFeeShareRate:               sdk.NewDecWithPrec(40, 2),      // default 40% relayer fee share
 		DefaultHourlyFundingRateCap:       sdk.NewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
 		DefaultHourlyInterestRate:         sdk.NewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
+		MaxDerivativeOrderSideCount:       MaxDerivativeOrderSideCount,
 	}
 }
 
@@ -166,6 +170,9 @@ func (p Params) Validate() error {
 	if err := ValidateFee(p.DefaultHourlyInterestRate); err != nil {
 		return err
 	}
+	if err := validateDerivativeOrderSideCount(p.MaxDerivativeOrderSideCount); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -202,6 +209,10 @@ func ValidateFee(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
+	if v.IsNil() {
+		return fmt.Errorf("exchange fee cannot be nil: %s", v)
+	}
+
 	if v.IsNegative() {
 		return fmt.Errorf("exchange fee cannot be negative: %s", v)
 	}
@@ -218,11 +229,14 @@ func ValidateMarginRatio(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
+	if v.IsNil() {
+		return fmt.Errorf("margin ratio cannot be nil: %s", v)
+	}
 	if v.IsNegative() {
 		return fmt.Errorf("margin ratio cannot be negative: %s", v)
 	}
-	if v.GT(sdk.OneDec()) {
-		return fmt.Errorf("margin ratio cannot be greater than 1: %s", v)
+	if v.GTE(sdk.OneDec()) {
+		return fmt.Errorf("margin ratio cannot be greater than or equal to 1: %s", v)
 	}
 
 	return nil
@@ -249,6 +263,19 @@ func validateFundingMultiple(i interface{}) error {
 
 	if v == 0 {
 		return fmt.Errorf("fundingMultiple must be positive: %d", v)
+	}
+
+	return nil
+}
+
+func validateDerivativeOrderSideCount(i interface{}) error {
+	v, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == 0 {
+		return fmt.Errorf("DerivativeOrderSideCount must be positive: %d", v)
 	}
 
 	return nil

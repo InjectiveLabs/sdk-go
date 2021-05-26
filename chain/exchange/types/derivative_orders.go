@@ -6,7 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-const Int64Max int64 = 9223372036854775807
 
 func NewMarketOrderForLiquidation(position *Position, positionSubaccountID common.Hash, liquidator sdk.Address) *DerivativeMarketOrder {
 
@@ -18,8 +17,8 @@ func NewMarketOrderForLiquidation(position *Position, positionSubaccountID commo
 		worstPrice = sdk.ZeroDec()
 		orderType = OrderType_SELL
 	} else {
-		// TODO: should use biggest sdk.Dec instead, which can be larger than Int64Max
-		worstPrice = sdk.NewDec(Int64Max)
+		// cap the worst price to sell a position at 200x the entry price
+		worstPrice = position.EntryPrice.MulInt64(200)
 		orderType = OrderType_BUY
 	}
 
@@ -54,7 +53,6 @@ func (o *DerivativeMarketOrderCancel) GetCancelDepositDelta() *DepositDelta {
 
 func (o *DerivativeMarketOrderCancel) ApplyDerivativeMarketCancellation(
 	depositDeltas DepositDeltas,
-	positionStates PositionStates,
 ) {
 	order := o.MarketOrder
 	subaccountID := order.SubaccountID()
@@ -65,13 +63,20 @@ func (o *DerivativeMarketOrderCancel) ApplyDerivativeMarketCancellation(
 		if depositDelta != nil {
 			depositDeltas.ApplyDepositDelta(subaccountID, depositDelta)
 		}
-	} else if order.IsReduceOnly() {
-		position := positionStates[subaccountID].Position
-		position.HoldQuantity = position.HoldQuantity.Sub(o.CancelQuantity)
 	}
 }
 
-func (o *DerivativeOrder) GetNewDerivativeLimitOrder(orderHash common.Hash) *DerivativeLimitOrder {
+func NewDerivativeMarketOrder(o *DerivativeOrder, orderHash common.Hash) *DerivativeMarketOrder {
+	return &DerivativeMarketOrder{
+		OrderInfo:    o.OrderInfo,
+		OrderType:    o.OrderType,
+		Margin:       o.Margin,
+		MarginHold:   sdk.ZeroDec(),
+		TriggerPrice: o.TriggerPrice,
+		OrderHash:    orderHash.Bytes(),
+	}
+}
+func NewDerivativeLimitOrder(o *DerivativeOrder, orderHash common.Hash) *DerivativeLimitOrder {
 	return &DerivativeLimitOrder{
 		OrderInfo:    o.OrderInfo,
 		OrderType:    o.OrderType,
@@ -85,22 +90,25 @@ func (o *DerivativeOrder) GetNewDerivativeLimitOrder(orderHash common.Hash) *Der
 func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate sdk.Dec) *DepositDelta {
 	depositDelta := NewDepositDelta()
 	if o.IsVanilla() {
-		// Refund = (Fillable / Quantity) * (Margin + Price * Quantity * feeRate)
-		fillableFraction := o.Fillable.Quo(o.OrderInfo.Quantity)
+		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
 		notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-		marginHoldRefund := fillableFraction.Mul(o.Margin.Add(notional.Mul(feeRate)))
+		marginHoldRefund := o.Fillable.Mul(o.Margin.Add(notional.Mul(feeRate))).Quo(o.OrderInfo.Quantity)
 		depositDelta.AvailableBalanceDelta = marginHoldRefund
 	}
 	return depositDelta
 }
 
 func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
-	// reject order if non-zero price decimals or trigger price decimals exceeds market.MaxPriceScaleDecimals or quantity decimals exceeds market.MaxQuantityScaleDecimals
-	if breachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s does not meet market minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
+	if BreachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
+		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
 	}
-	if breachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity %s does not meet market minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
+	if BreachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
+		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
+	}
+	if !o.Margin.IsZero() {
+		if BreachesMinimumTickSize(o.Margin, minQuantityTickSize) {
+			return sdkerrors.Wrapf(ErrInvalidMargin, "margin %s must be a multiple of the minimum price tick size %s", o.Margin.String(), minPriceTickSize.String())
+		}
 	}
 	return nil
 }
@@ -170,6 +178,22 @@ func (o *DerivativeLimitOrder) IsReduceOnly() bool {
 	return o.Margin.IsZero()
 }
 
+func (o *DerivativeLimitOrder) Hash() common.Hash {
+	return common.BytesToHash(o.OrderHash)
+}
+
+func (o *DerivativeMarketOrder) Hash() common.Hash {
+	return common.BytesToHash(o.OrderHash)
+}
+
+func (o *DerivativeLimitOrder) FeeRecipient() common.Address {
+	return common.HexToAddress(o.OrderInfo.FeeRecipient)
+}
+
+func (o *DerivativeMarketOrder) FeeRecipient() common.Address {
+	return common.HexToAddress(o.OrderInfo.FeeRecipient)
+}
+
 func (o *DerivativeOrder) IsVanilla() bool {
 	return !o.IsReduceOnly()
 }
@@ -190,8 +214,36 @@ func (m *DerivativeLimitOrder) IsBuy() bool {
 	return m.OrderType.IsBuy()
 }
 
+func (m *DerivativeOrder) IsBuy() bool {
+	return m.OrderType.IsBuy()
+}
+
+func (m *DerivativeMarketOrder) Quantity() sdk.Dec {
+	return m.OrderInfo.Quantity
+}
+
+func (m *DerivativeMarketOrder) FillableQuantity() sdk.Dec {
+	return m.OrderInfo.Quantity
+}
+
+func (m *DerivativeMarketOrder) Price() sdk.Dec {
+	return m.OrderInfo.Price
+}
+
+func (m *DerivativeLimitOrder) Price() sdk.Dec {
+	return m.OrderInfo.Price
+}
+
+func (m *DerivativeOrder) Price() sdk.Dec {
+	return m.OrderInfo.Price
+}
+
 func (o *DerivativeOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
+}
+
+func (o *DerivativeOrder) MarketID() common.Hash {
+	return common.HexToHash(o.MarketId)
 }
 
 func (o *DerivativeMarketOrder) SubaccountID() common.Hash {

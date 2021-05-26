@@ -2,7 +2,6 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 type positionPayout struct {
@@ -22,7 +21,6 @@ func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 		Quantity:     sdk.ZeroDec(),
 		EntryPrice:   sdk.ZeroDec(),
 		Margin:       sdk.ZeroDec(),
-		HoldQuantity: sdk.ZeroDec(),
 	}
 	if !cumulativeFundingEntry.IsNil() {
 		position.CumulativeFundingEntry = cumulativeFundingEntry
@@ -31,13 +29,21 @@ func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 }
 
 // ApplyProfitHaircut results in reducing the payout (pnl * quantity) by the given rate (e.g. 0.1=10%) by modifying the entry price.
+// Formula for adjustment:
+// newPayoutFromPnl = oldPayoutFromPnl * (1 - missingFundsRate)
+// => Entry price adjustment for buys
+// (newEntryPrice - settlementPrice) * quantity = (entryPrice - settlementPrice) * quantity * (1- missingFundsRate)
+// newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
+// => Entry price adjustment for sells
+// (settlementPrice - newEntryPrice) * quantity = (settlementPrice - entryPrice) * quantity * (1 - missingFundsRate)
+// newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
 func (p *Position) ApplyProfitHaircut(haircutPercentage, settlementPrice sdk.Dec) {
-	// newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlePrice * haircutPercentage
+	// newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
 	newEntryPrice := p.EntryPrice.Sub(p.EntryPrice.Mul(haircutPercentage)).Add(settlementPrice.Mul(haircutPercentage))
 	p.EntryPrice = newEntryPrice
 }
 
-func (p *Position) ClosePositionWithSettlePrice(settlePrice sdk.Dec) sdk.Dec {
+func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate sdk.Dec) sdk.Dec {
 	// TODO change this, there should not be positions with 0 quantity
 	if p.Quantity.IsZero() {
 		return sdk.ZeroDec()
@@ -50,10 +56,11 @@ func (p *Position) ClosePositionWithSettlePrice(settlePrice sdk.Dec) sdk.Dec {
 		IsLong:            closingDirection,
 		ExecutionQuantity: fullyClosingQuantity,
 		ExecutionMargin:   sdk.ZeroDec(),
-		ExecutionPrice:    settlePrice,
+		ExecutionPrice:    settlementPrice,
 	}
 
-	payout, _, _, _ := p.ApplyPositionDelta(positionDelta, sdk.ZeroDec())
+	closeTradingFee := settlementPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
+	payout, _, _, _ := p.ApplyPositionDelta(positionDelta, closeTradingFee)
 	return payout
 }
 
@@ -65,17 +72,17 @@ func (p *Position) GetDirectionString() string {
 	return directionStr
 }
 
-func (p *Position) CheckValidPositionToSell(order OrderInfo, isBuyOrder bool, tradeFeeRate sdk.Dec, funding *PerpetualMarketFunding) error {
-
-	if order.Quantity.GT(p.Quantity.Sub(p.HoldQuantity)) {
-		return sdkerrors.Wrapf(ErrInsufficientPositionQuantity, "Position Quantity %s - Hold Quantity %s must be GTE reduce-only order quantity %s", p.Quantity.String(), p.HoldQuantity.String(), order.Quantity.String())
-	}
-
+func (p *Position) CheckValidPositionToReduce(
+	reducePrice sdk.Dec,
+	isBuyOrder bool,
+	tradeFeeRate sdk.Dec,
+	funding *PerpetualMarketFunding,
+) error {
 	if isBuyOrder == p.IsLong {
 		return ErrInvalidReduceOnlyPositionDirection
 	}
 
-	if err := p.CheckValidClosingPrice(order.Price, tradeFeeRate, funding); err != nil {
+	if err := p.CheckValidClosingPrice(reducePrice, tradeFeeRate, funding); err != nil {
 		return err
 	}
 
@@ -89,14 +96,14 @@ func (p *Position) CheckValidClosingPrice(closingPrice sdk.Dec, tradeFeeRate sdk
 		// For long positions, Price ≥ BankruptcyPrice / (1 - TakerFeeRate) must hold
 		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(sdk.OneDec().Sub(tradeFeeRate))
 
-		if !closingPrice.GTE(feeAdjustedBankruptcyPrice) {
+		if closingPrice.LT(feeAdjustedBankruptcyPrice) {
 			return ErrPriceSurpassesBankruptcyPrice
 		}
 	} else {
 		// For short positions, Price ≤ BankruptcyPrice / (1 + TakerFeeRate) must hold
 		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(sdk.OneDec().Add(tradeFeeRate))
 
-		if !closingPrice.LTE(feeAdjustedBankruptcyPrice) {
+		if closingPrice.GT(feeAdjustedBankruptcyPrice) {
 			return ErrPriceSurpassesBankruptcyPrice
 		}
 	}
@@ -155,11 +162,11 @@ func (p *Position) ApplyFundingAndGetUpdatedPositionState(funding *PerpetualMark
 		}
 		p.Margin = p.Margin.Add(fundingPayment)
 	}
-	positionState := PositionState{
+	positionState := &PositionState{
 		Position:       p,
 		FundingPayment: fundingPayment,
 	}
-	return &positionState
+	return positionState
 }
 
 func (p *Position) GetAverageWeightedEntryPrice(executionQuantity, executionPrice sdk.Dec) sdk.Dec {
@@ -169,13 +176,13 @@ func (p *Position) GetAverageWeightedEntryPrice(executionQuantity, executionPric
 	return num.Quo(denom)
 }
 
-func (p *Position) GetPayoutIfFullyClosing(closingPrice, tradeFeeRate sdk.Dec) *positionPayout {
+func (p *Position) GetPayoutIfFullyClosing(closingPrice, closingFeeRate sdk.Dec) *positionPayout {
 	isProfitable := (p.IsLong && p.EntryPrice.LT(closingPrice)) || (!p.IsLong && p.EntryPrice.GT(closingPrice))
 
 	fullyClosingQuantity := p.Quantity
 	positionClosingMargin := p.Margin
 
-	closeTradingFee := closingPrice.Mul(fullyClosingQuantity).Mul(tradeFeeRate)
+	closeTradingFee := closingPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
 	payoutFromPnl := p.GetPayoutFromPnl(closingPrice, fullyClosingQuantity)
 	pnlNotional := payoutFromPnl.Sub(closeTradingFee)
 	payout := pnlNotional.Add(positionClosingMargin)
@@ -246,7 +253,6 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 
 		// only use the closing trading fee for now
 		pnlNotional = payoutFromPnl.Sub(tradingFeeForReduceOnly)
-		p.HoldQuantity = p.HoldQuantity.Sub(closingQuantity)
 	}
 
 	positionClosingMargin := p.Margin.Mul(closingQuantity).Quo(p.Quantity)
@@ -270,6 +276,7 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 		}
 		// recurse
 		_, _, _, collateralizationMargin = p.ApplyPositionDelta(newPositionDelta, tradingFeeForReduceOnly)
+
 	}
 
 	return payout, pnlNotional, closeExecutionMargin, collateralizationMargin

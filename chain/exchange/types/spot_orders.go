@@ -1,13 +1,14 @@
 package types
 
 import (
+	"strconv"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	gethsigner "github.com/ethereum/go-ethereum/signer/core"
 	"golang.org/x/crypto/sha3"
-	"strconv"
 )
 
 func (o *SpotOrder) GetNewSpotLimitOrder(orderHash common.Hash) *SpotLimitOrder {
@@ -33,11 +34,11 @@ func (o *SpotMarketOrder) SubaccountID() common.Hash {
 }
 
 func (o *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
-	if breachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s does not meet market minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
+	if BreachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
+		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
 	}
-	if breachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity %s does not meet market minimum price tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
+	if BreachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
+		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
 	}
 	return nil
 }
@@ -48,6 +49,10 @@ func (m *SpotOrder) IsBuy() bool {
 
 func (m *SpotLimitOrder) IsBuy() bool {
 	return m.OrderType.IsBuy()
+}
+
+func (m *SpotLimitOrder) Hash() common.Hash {
+	return common.BytesToHash(m.OrderHash)
 }
 
 func (m *SpotLimitOrder) GetUnfilledNotional() sdk.Dec {
