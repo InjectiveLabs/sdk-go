@@ -253,14 +253,12 @@ message DerivativePosition {
 	string entry_price = 6;
 	// Margin of the position
 	string margin = 7;
-	// Hold quantity of the position
-	string hold_quantity = 8;
 	// LiquidationPrice of the position
-	string liquidation_price = 9;
+	string liquidation_price = 8;
 	// MarkPrice of the position
-	string mark_price = 10;
+	string mark_price = 9;
 	// Unrealized PNL of the Position
-	string unrealized_pnl = 11;
+	string unrealized_pnl = 10;
 }
 
 message LiquidablePositionsRequest {
