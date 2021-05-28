@@ -25,6 +25,8 @@ service InjectiveAccountsRPC {
 	rpc StreamSubaccountBalance (StreamSubaccountBalanceRequest) returns (stream StreamSubaccountBalanceResponse);
 	// Get subaccount's deposits and withdrawals history
 	rpc SubaccountHistory (SubaccountHistoryRequest) returns (SubaccountHistoryResponse);
+	// Get subaccount's orders summary
+	rpc SubaccountOrderSummary (SubaccountOrderSummaryRequest) returns (SubaccountOrderSummaryResponse);
 }
 
 message SubaccountsListRequest {
@@ -127,4 +129,20 @@ message CosmosCoin {
 	string denom = 1;
 	// Coin amount (big int)
 	string amount = 2;
+}
+
+message SubaccountOrderSummaryRequest {
+	// SubaccountId of the trader we want to get the summary from
+	string subaccount_id = 1;
+	// MarketId is limiting order summary to specific market only
+	string market_id = 2;
+	// Filter by direction of the orders
+	string order_direction = 3;
+}
+
+message SubaccountOrderSummaryResponse {
+	// Total count of subaccount's spot orders in given market and direction
+	sint64 spot_orders_total = 1;
+	// Total count of subaccount's derivative orders in given market and direction
+	sint64 derivative_orders_total = 2;
 }

@@ -30,6 +30,8 @@ type InjectiveAccountsRPCClient interface {
 	StreamSubaccountBalance(ctx context.Context, in *StreamSubaccountBalanceRequest, opts ...grpc.CallOption) (InjectiveAccountsRPC_StreamSubaccountBalanceClient, error)
 	// Get subaccount's deposits and withdrawals history
 	SubaccountHistory(ctx context.Context, in *SubaccountHistoryRequest, opts ...grpc.CallOption) (*SubaccountHistoryResponse, error)
+	// Get subaccount's orders summary
+	SubaccountOrderSummary(ctx context.Context, in *SubaccountOrderSummaryRequest, opts ...grpc.CallOption) (*SubaccountOrderSummaryResponse, error)
 }
 
 type injectiveAccountsRPCClient struct {
@@ -108,6 +110,15 @@ func (c *injectiveAccountsRPCClient) SubaccountHistory(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *injectiveAccountsRPCClient) SubaccountOrderSummary(ctx context.Context, in *SubaccountOrderSummaryRequest, opts ...grpc.CallOption) (*SubaccountOrderSummaryResponse, error) {
+	out := new(SubaccountOrderSummaryResponse)
+	err := c.cc.Invoke(ctx, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InjectiveAccountsRPCServer is the server API for InjectiveAccountsRPC service.
 // All implementations must embed UnimplementedInjectiveAccountsRPCServer
 // for forward compatibility
@@ -124,6 +135,8 @@ type InjectiveAccountsRPCServer interface {
 	StreamSubaccountBalance(*StreamSubaccountBalanceRequest, InjectiveAccountsRPC_StreamSubaccountBalanceServer) error
 	// Get subaccount's deposits and withdrawals history
 	SubaccountHistory(context.Context, *SubaccountHistoryRequest) (*SubaccountHistoryResponse, error)
+	// Get subaccount's orders summary
+	SubaccountOrderSummary(context.Context, *SubaccountOrderSummaryRequest) (*SubaccountOrderSummaryResponse, error)
 	mustEmbedUnimplementedInjectiveAccountsRPCServer()
 }
 
@@ -145,6 +158,9 @@ func (UnimplementedInjectiveAccountsRPCServer) StreamSubaccountBalance(*StreamSu
 }
 func (UnimplementedInjectiveAccountsRPCServer) SubaccountHistory(context.Context, *SubaccountHistoryRequest) (*SubaccountHistoryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubaccountHistory not implemented")
+}
+func (UnimplementedInjectiveAccountsRPCServer) SubaccountOrderSummary(context.Context, *SubaccountOrderSummaryRequest) (*SubaccountOrderSummaryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubaccountOrderSummary not implemented")
 }
 func (UnimplementedInjectiveAccountsRPCServer) mustEmbedUnimplementedInjectiveAccountsRPCServer() {}
 
@@ -252,6 +268,24 @@ func _InjectiveAccountsRPC_SubaccountHistory_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveAccountsRPC_SubaccountOrderSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubaccountOrderSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveAccountsRPCServer).SubaccountOrderSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveAccountsRPCServer).SubaccountOrderSummary(ctx, req.(*SubaccountOrderSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InjectiveAccountsRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveAccountsRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -274,6 +308,10 @@ var InjectiveAccountsRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubaccountHistory",
 			Handler:    _InjectiveAccountsRPC_SubaccountHistory_Handler,
+		},
+		{
+			MethodName: "SubaccountOrderSummary",
+			Handler:    _InjectiveAccountsRPC_SubaccountOrderSummary_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
