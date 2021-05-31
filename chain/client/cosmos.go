@@ -1,16 +1,13 @@
 package client
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
@@ -214,25 +211,80 @@ func (c *cosmosClient) broadcastTx(
 	msgs ...sdk.Msg,
 ) (*sdk.TxResponse, error) {
 
-
-	if await {
-		clientCtx.BroadcastMode = flags.BroadcastBlock
-	} else {
-		clientCtx.BroadcastMode = flags.BroadcastSync
-	}
-	var buf bytes.Buffer
-	clientCtx = clientCtx.WithOutput(&buf)
-	if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
+	txf, err := c.prepareFactory(clientCtx, txf)
+	if err != nil {
+		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, err
 	}
-	var resp sdk.TxResponse
 
-	if err := clientCtx.JSONCodec.UnmarshalJSON(buf.Bytes(), &resp); err != nil {
-		fmt.Println("❌ couldn't UnmarshalJSON")
-		return nil, nil
+	if txf.SimulateAndExecute() || clientCtx.Simulate {
+		_, adjusted, err := tx.CalculateGas(clientCtx, txf, msgs...)
+		if err != nil {
+			err = errors.Wrap(err, "failed to CalculateGas")
+			return nil, err
+		}
+
+		txf = txf.WithGas(adjusted)
 	}
 
-	return &resp, nil
+	txn, err := tx.BuildUnsignedTx(txf, msgs...)
+	if err != nil {
+		err = errors.Wrap(err, "failed to BuildUnsignedTx")
+		return nil, err
+	}
+
+	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
+	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
+	if err != nil {
+		err = errors.Wrap(err, "failed to Sign Tx")
+		return nil, err
+	}
+
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txn.GetTx())
+	if err != nil {
+		err = errors.Wrap(err, "failed TxEncoder to encode Tx")
+		return nil, err
+	}
+
+	// broadcast to a Tendermint node
+	if await {
+		// BroadcastTxCommit - full synced commit with await
+		res, err := clientCtx.BroadcastTxCommit(txBytes)
+		return res, err
+	}
+
+	// BroadcastTxSync - only CheckTx, don't wait confirmation
+	return clientCtx.BroadcastTxSync(txBytes)
+}
+
+// prepareFactory ensures the account defined by ctx.GetFromAddress() exists and
+// if the account number and/or the account sequence number are zero (not set),
+// they will be queried for and set on the provided Factory. A new Factory with
+// the updated fields will be returned.
+func (c *cosmosClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+	from := clientCtx.GetFromAddress()
+
+	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
+		return txf, err
+	}
+
+	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
+	if initNum == 0 || initSeq == 0 {
+		num, seq, err := txf.AccountRetriever().GetAccountNumberSequence(clientCtx, from)
+		if err != nil {
+			return txf, err
+		}
+
+		if initNum == 0 {
+			txf = txf.WithAccountNumber(num)
+		}
+
+		if initSeq == 0 {
+			txf = txf.WithSequence(seq)
+		}
+	}
+
+	return txf, nil
 }
 
 func (c *cosmosClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
