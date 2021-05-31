@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
@@ -211,37 +212,16 @@ func (c *cosmosClient) broadcastTx(
 	msgs ...sdk.Msg,
 ) (*sdk.TxResponse, error) {
 
-	if err := tx.GenerateTx(clientCtx, txf, msgs...); err != nil {
-		return nil, err
-	}
-
-	builder, err := tx.BuildUnsignedTx(txf, msgs...)
-	if err != nil {
-		err = errors.Wrap(err, "BuildUnsignedTx failed")
-		return nil, err
-	}
-
-	// builder.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(txf, clientCtx.GetFromName(), builder, true)
-	if err != nil {
-		err = errors.Wrapf(err, "tx signing with from %s failed", clientCtx.GetFromName())
-		return nil, err
-	}
-
-	txBytes, err := clientCtx.TxConfig.TxEncoder()(builder.GetTx())
-	if err != nil {
-		err = errors.Wrap(err, "tx encoding with txConfig failed")
-		return nil, err
-	}
-
 	if await {
-		// BroadcastTxCommit - full synced commit with await
-		res, err := clientCtx.BroadcastTxCommit(txBytes)
-		return res, err
+		clientCtx.BroadcastMode = flags.BroadcastBlock
+	} else {
+		clientCtx.BroadcastMode = flags.BroadcastSync
+	}
+	if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
+		return nil, err
 	}
 
-	// BroadcastTxSync - only CheckTx, don't wait confirmation
-	return clientCtx.BroadcastTxSync(txBytes)
+	return nil, nil
 }
 
 func (c *cosmosClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
