@@ -1,7 +1,9 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -212,16 +214,25 @@ func (c *cosmosClient) broadcastTx(
 	msgs ...sdk.Msg,
 ) (*sdk.TxResponse, error) {
 
+
 	if await {
 		clientCtx.BroadcastMode = flags.BroadcastBlock
 	} else {
 		clientCtx.BroadcastMode = flags.BroadcastSync
 	}
+	var buf bytes.Buffer
+	clientCtx = clientCtx.WithOutput(&buf)
 	if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
 		return nil, err
 	}
+	var resp sdk.TxResponse
 
-	return nil, nil
+	if err := clientCtx.JSONCodec.UnmarshalJSON(buf.Bytes(), &resp); err != nil {
+		fmt.Println("❌ couldn't UnmarshalJSON")
+		return nil, nil
+	}
+
+	return &resp, nil
 }
 
 func (c *cosmosClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
