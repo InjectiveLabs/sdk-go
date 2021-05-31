@@ -3,8 +3,11 @@ package types
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/pkg/errors"
+	"strings"
 
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -56,16 +59,10 @@ func (acc EthAccount) MarshalYAML() (interface{}, error) {
 		AccountNumber: acc.AccountNumber,
 		Sequence:      acc.Sequence,
 		CodeHash:      ethcmn.Bytes2Hex(acc.CodeHash),
+		PubKey:        "",
 	}
 
 	var err error
-
-	if acc.PubKey != nil {
-		alias.PubKey, err = sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, acc.GetPubKey())
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	bz, err := yaml.Marshal(alias)
 	if err != nil {
@@ -89,15 +86,7 @@ func (acc EthAccount) MarshalJSON() ([]byte, error) {
 		AccountNumber: acc.AccountNumber,
 		Sequence:      acc.Sequence,
 		CodeHash:      ethcmn.Bytes2Hex(acc.CodeHash),
-	}
-
-	var err error
-
-	if acc.PubKey != nil {
-		alias.PubKey, err = sdk.Bech32ifyPubKey(sdk.Bech32PubKeyTypeAccPub, acc.GetPubKey())
-		if err != nil {
-			return nil, err
-		}
+		PubKey:        "",
 	}
 
 	return json.Marshal(alias)
@@ -158,16 +147,6 @@ func (acc *EthAccount) UnmarshalJSON(bz []byte) error {
 		Sequence:      alias.Sequence,
 	}
 
-	if alias.PubKey != "" {
-		pubkey, err := sdk.GetPubKeyFromBech32(sdk.Bech32PubKeyTypeAccPub, alias.PubKey)
-		if err != nil {
-			return err
-		}
-		if err := acc.SetPubKey(pubkey); err != nil {
-			return err
-		}
-	}
-
 	acc.CodeHash = ethcmn.HexToHash(alias.CodeHash).Bytes()
 
 	return nil
@@ -177,4 +156,29 @@ func (acc *EthAccount) UnmarshalJSON(bz []byte) error {
 func (acc EthAccount) String() string {
 	out, _ := yaml.Marshal(acc)
 	return string(out)
+}
+
+func CosmosAddressToEthAddress(addr string) (ethcmn.Address, error) {
+	if strings.HasPrefix(addr, sdk.GetConfig().GetBech32AccountAddrPrefix()) {
+		// Check to see if address is Cosmos bech32 formatted
+		toAddr, err := sdk.AccAddressFromBech32(addr)
+		if err != nil {
+			return ethcmn.Address{}, errors.Wrap(err, "must provide a valid Bech32 address")
+		}
+		ethAddr := ethcmn.BytesToAddress(toAddr.Bytes())
+		return ethAddr, nil
+	}
+
+	if !strings.HasPrefix(addr, "0x") {
+		addr = "0x" + addr
+	}
+
+	valid := ethcmn.IsHexAddress(addr)
+	if !valid {
+		return ethcmn.Address{}, fmt.Errorf("%s is not a valid Ethereum or Cosmos address", addr)
+	}
+
+	ethAddr := ethcmn.HexToAddress(addr)
+
+	return ethAddr, nil
 }
