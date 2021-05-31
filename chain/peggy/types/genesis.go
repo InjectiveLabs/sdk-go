@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -15,7 +14,6 @@ import (
 const (
 	// todo: implement oracle constants as params
 	DefaultParamspace = ModuleName
-	AttestationPeriod = 24 * time.Hour // TODO: value????
 )
 
 var (
@@ -82,6 +80,13 @@ var (
 	// ParamStoreClaimSlashingEnabled stores ClaimSlashing is enabled or not
 	ParamStoreClaimSlashingEnabled = []byte("ClaimSlashingEnabled")
 
+	// ParamStoreSlashFractionBadEthSignature stores the amount by which a validator making a fraudulent eth signature will be slashed
+	ParamStoreSlashFractionBadEthSignature = []byte("SlashFractionBadEthSignature")
+
+	// ValsetRewardAmount the amount of the coin, both denom and amount to issue
+	// to a relayer when they relay a valset
+	ParamStoreValsetRewardAmount = []byte("ValsetReward")
+
 	// Ensure that params implements the proper interface
 	_ paramtypes.ParamSet = &Params{}
 )
@@ -117,6 +122,7 @@ func DefaultParams() *Params {
 		SlashFractionBatch:            sdk.NewDec(1).Quo(sdk.NewDec(1000)),
 		SlashFractionClaim:            sdk.NewDec(1).Quo(sdk.NewDec(1000)),
 		SlashFractionConflictingClaim: sdk.NewDec(1).Quo(sdk.NewDec(1000)),
+		SlashFractionBadEthSignature:  sdk.NewDec(1).Quo(sdk.NewDec(1000)),
 		CosmosCoinDenom:               "inj",
 		UnbondSlashingValsetsWindow:   10000,
 		ClaimSlashingEnabled:          false,
@@ -176,6 +182,9 @@ func (p Params) ValidateBasic() error {
 	if err := validateSlashFractionConflictingClaim(p.SlashFractionConflictingClaim); err != nil {
 		return sdkerrors.Wrap(err, "slash fraction valset")
 	}
+	if err := validateSlashFractionBadEthSignature(p.SlashFractionBadEthSignature); err != nil {
+		return sdkerrors.Wrap(err, "slash fraction BadEthSignature")
+	}
 	if err := validateUnbondSlashingValsetsWindow(p.UnbondSlashingValsetsWindow); err != nil {
 		return sdkerrors.Wrap(err, "unbond Slashing valset window")
 	}
@@ -211,16 +220,18 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamsStoreSlashFractionBatch, &p.SlashFractionBatch, validateSlashFractionBatch),
 		paramtypes.NewParamSetPair(ParamsStoreSlashFractionClaim, &p.SlashFractionClaim, validateSlashFractionClaim),
 		paramtypes.NewParamSetPair(ParamsStoreSlashFractionConflictingClaim, &p.SlashFractionConflictingClaim, validateSlashFractionConflictingClaim),
+		paramtypes.NewParamSetPair(ParamStoreSlashFractionBadEthSignature, &p.SlashFractionBadEthSignature, validateSlashFractionBadEthSignature),
 		paramtypes.NewParamSetPair(ParamStoreUnbondSlashingValsetsWindow, &p.UnbondSlashingValsetsWindow, validateUnbondSlashingValsetsWindow),
 		paramtypes.NewParamSetPair(ParamStoreClaimSlashingEnabled, &p.ClaimSlashingEnabled, validateClaimSlashingEnabled),
 		paramtypes.NewParamSetPair(ParamsStoreKeyBridgeContractStartHeight, &p.BridgeContractStartHeight, validateBridgeContractStartHeight),
+		paramtypes.NewParamSetPair(ParamStoreValsetRewardAmount, &p.ValsetReward, validateValsetReward),
 	}
 }
 
 // Equal returns a boolean determining if two Params types are identical.
 func (p Params) Equal(p2 Params) bool {
-	bz1 := ModuleCdc.MustMarshalBinaryLengthPrefixed(&p)
-	bz2 := ModuleCdc.MustMarshalBinaryLengthPrefixed(&p2)
+	bz1 := ModuleCdc.MustMarshalLengthPrefixed(&p)
+	bz2 := ModuleCdc.MustMarshalLengthPrefixed(&p2)
 	return bytes.Equal(bz1, bz2)
 }
 
@@ -414,5 +425,17 @@ func validateClaimSlashingEnabled(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
+	return nil
+}
+
+func validateSlashFractionBadEthSignature(i interface{}) error {
+	// TODO: do we want to set some bounds on this value?
+	if _, ok := i.(sdk.Dec); !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	return nil
+}
+
+func validateValsetReward(i interface{}) error {
 	return nil
 }

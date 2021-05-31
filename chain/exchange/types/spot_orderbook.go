@@ -172,8 +172,7 @@ func (o *SpotOrderbookStateChange) processNewSpotLimitBuyExpansions(
 			makerFeeRate, takerFeeRate, relayerFeeShare,
 		)
 
-		if fillQuantity.LT(order.OrderInfo.Quantity) {
-			order.Fillable = order.Fillable.Sub(fillQuantity)
+		if order.Fillable.IsPositive() {
 			newRestingOrders = append(newRestingOrders, order)
 		}
 	}

@@ -30,12 +30,12 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	ibcapplicationtypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-	ibccoretypes "github.com/cosmos/cosmos-sdk/x/ibc/core/types"
 	paramproposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibcapplicationtypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
+	ibccoretypes "github.com/cosmos/ibc-go/modules/core/types"
 )
 
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
@@ -145,7 +145,7 @@ func NewClientContext(
 
 type EncodingConfig struct {
 	InterfaceRegistry types.InterfaceRegistry
-	Marshaler         codec.Marshaler
+	Marshaler         codec.Codec
 	TxConfig          client.TxConfig
 }
 
@@ -157,7 +157,7 @@ func newContext(
 ) client.Context {
 	clientCtx := client.Context{
 		ChainID:           chainId,
-		JSONMarshaler:     encodingConfig.Marshaler,
+		JSONCodec:     encodingConfig.Marshaler,
 		InterfaceRegistry: encodingConfig.InterfaceRegistry,
 		Output:            os.Stderr,
 		OutputFormat:      "json",

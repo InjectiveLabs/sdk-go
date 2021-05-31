@@ -1,7 +1,6 @@
 package types
 
 import (
-	"bytes"
 	"crypto/ecdsa"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -14,19 +13,19 @@ const (
 )
 
 // NewEthereumSignature creates a new signuature over a given byte array
-func NewEthereumSignature(hash []byte, privateKey *ecdsa.PrivateKey) ([]byte, error) {
+func NewEthereumSignature(hash common.Hash, privateKey *ecdsa.PrivateKey) ([]byte, error) {
 	if privateKey == nil {
 		return nil, sdkerrors.Wrap(ErrEmpty, "private key")
 	}
-	protectedHash := crypto.Keccak256Hash(append([]uint8(signaturePrefix), hash...))
+	protectedHash := crypto.Keccak256Hash(append([]uint8(signaturePrefix), hash[:]...))
 	return crypto.Sign(protectedHash.Bytes(), privateKey)
 }
 
 // ValidateEthereumSignature takes a message, an associated signature and public key and
 // returns an error if the signature isn't valid
-func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress common.Address) error {
+func EthAddressFromSignature(hash common.Hash, signature []byte) (common.Address, error) {
 	if len(signature) < 65 {
-		return sdkerrors.Wrap(ErrInvalid, "signature too short")
+		return common.Address{}, sdkerrors.Wrap(ErrInvalid, "signature too short")
 	}
 	// To verify signature
 	// - use crypto.SigToPub to get the public key
@@ -50,12 +49,24 @@ func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress co
 
 	pubkey, err := crypto.SigToPub(protectedHash.Bytes(), signature)
 	if err != nil {
-		return sdkerrors.Wrap(err, "signature to public key")
+		return common.Address{}, sdkerrors.Wrap(err, "signature to public key")
 	}
 
 	addr := crypto.PubkeyToAddress(*pubkey)
 
-	if !bytes.Equal(addr.Bytes(), ethAddress.Bytes()) {
+	return addr, nil
+}
+
+// ValidateEthereumSignature takes a message, an associated signature and public key and
+// returns an error if the signature isn't valid
+func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress common.Address) error {
+	addr, err := EthAddressFromSignature(hash, signature)
+
+	if err != nil {
+		return sdkerrors.Wrap(err, "")
+	}
+
+	if addr != ethAddress {
 		return sdkerrors.Wrap(ErrInvalid, "signature not matching")
 	}
 

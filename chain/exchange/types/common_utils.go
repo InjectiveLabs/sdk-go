@@ -116,6 +116,7 @@ func SdkAddressWithNonceToSubaccountID(addr sdk.Address, nonce uint32) (*common.
 		return &AuctionSubaccountID, ErrBadSubaccountID
 	}
 	subaccountID := common.BytesToHash(append(addr.Bytes(), common.LeftPadBytes(big.NewInt(int64(nonce)).Bytes(), 12)...))
+
 	return &subaccountID, nil
 }
 

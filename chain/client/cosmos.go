@@ -210,20 +210,9 @@ func (c *cosmosClient) broadcastTx(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*sdk.TxResponse, error) {
-	txf, err := tx.PrepareFactory(clientCtx, txf)
-	if err != nil {
-		err = errors.Wrap(err, "tx factory preparation failed")
+
+	if err := tx.GenerateTx(clientCtx, txf, msgs...); err != nil {
 		return nil, err
-	}
-
-	if txf.SimulateAndExecute() || clientCtx.Simulate {
-		_, adjusted, err := tx.CalculateGas(clientCtx.QueryWithData, txf, msgs...)
-		if err != nil {
-			err = errors.Wrap(err, "tx gas calculation failed")
-			return nil, err
-		}
-
-		txf = txf.WithGas(adjusted)
 	}
 
 	builder, err := tx.BuildUnsignedTx(txf, msgs...)
