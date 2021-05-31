@@ -4,7 +4,6 @@ import (
 	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankexported "github.com/cosmos/cosmos-sdk/x/bank/exported"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -13,7 +12,7 @@ type BankKeeper interface {
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
-	GetSupply(ctx sdk.Context) bankexported.SupplyI
+	GetSupply(ctx sdk.Context) sdk.Coin
 }
 
 // OracleKeeper defines the expected oracle keeper methods.

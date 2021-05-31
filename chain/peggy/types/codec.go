@@ -25,7 +25,9 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgWithdrawClaim{},
 		&MsgERC20DeployedClaim{},
 		&MsgSetOrchestratorAddresses{},
+		&MsgValsetUpdatedClaim{},
 		&MsgCancelSendToEth{},
+		&MsgSubmitBadSignatureEvidence{},
 	)
 
 	registry.RegisterInterface(
@@ -34,6 +36,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgDepositClaim{},
 		&MsgWithdrawClaim{},
 		&MsgERC20DeployedClaim{},
+		&MsgValsetUpdatedClaim{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -52,9 +55,12 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgDepositClaim{}, "peggy/MsgDepositClaim", nil)
 	cdc.RegisterConcrete(&MsgWithdrawClaim{}, "peggy/MsgWithdrawClaim", nil)
 	cdc.RegisterConcrete(&MsgERC20DeployedClaim{}, "peggy/MsgERC20DeployedClaim", nil)
+	cdc.RegisterConcrete(&MsgValsetUpdatedClaim{}, "peggy/MsgValsetUpdatedClaim", nil)
 	cdc.RegisterConcrete(&OutgoingTxBatch{}, "peggy/OutgoingTxBatch", nil)
 	cdc.RegisterConcrete(&OutgoingTransferTx{}, "peggy/OutgoingTransferTx", nil)
 	cdc.RegisterConcrete(&ERC20Token{}, "peggy/ERC20Token", nil)
 	cdc.RegisterConcrete(&IDSet{}, "peggy/IDSet", nil)
 	cdc.RegisterConcrete(&Attestation{}, "peggy/Attestation", nil)
+	cdc.RegisterConcrete(&MsgSubmitBadSignatureEvidence{}, "peggy/MsgSubmitBadSignatureEvidence", nil)
+
 }

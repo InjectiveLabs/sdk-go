@@ -1,21 +1,21 @@
 package types
 
 import (
+	fmt "fmt"
 	"math/big"
 	"strings"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // GetCheckpoint gets the checkpoint signature from the given outgoing tx batch
-func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) (common.Hash, error) {
+func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) common.Hash {
 
 	abi, err := abi.JSON(strings.NewReader(OutgoingBatchTxCheckpointABIJSON))
 	if err != nil {
-		return common.Hash{}, sdkerrors.Wrap(err, "bad ABI definition in code")
+		panic("Bad ABI constant!")
 	}
 
 	// the contract argument is not a arbitrary length array but a fixed length 32 byte
@@ -59,9 +59,9 @@ func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) (common.Hash, error
 	// this should never happen outside of test since any case that could crash on encoding
 	// should be filtered above.
 	if err != nil {
-		return common.Hash{}, sdkerrors.Wrap(err, "packing checkpoint")
+		panic(fmt.Sprintf("Error packing checkpoint! %s/n", err))
 	}
 
 	hash := crypto.Keccak256Hash(abiEncodedBatch[4:])
-	return hash, nil
+	return hash
 }

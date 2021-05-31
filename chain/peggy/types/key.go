@@ -20,9 +20,13 @@ const (
 )
 
 var (
-	// EthAddressKey indexes cosmos validator account addresses
+	// EthAddressByValidatorKey indexes cosmos validator account addresses
 	// i.e. cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn
-	EthAddressKey = []byte{0x1}
+	EthAddressByValidatorKey = []byte{0x1}
+
+	// ValidatorByEthAddressKey indexes ethereum addresses
+	// i.e. 0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B
+	ValidatorByEthAddressKey = []byte{0xfb}
 
 	// ValsetRequestKey indexes valset requests by nonce
 	ValsetRequestKey = []byte{0x2}
@@ -109,6 +113,15 @@ var (
 
 	// LastUnBondingBlockHeight indexes the last validator unbonding block height
 	LastUnBondingBlockHeight = []byte{0xf8}
+
+	// LastObservedValsetNonceKey indexes the latest observed valset nonce
+	// HERE THERE BE DRAGONS, do not use this value as an up to date validator set
+	// on Ethereum it will always lag significantly and may be totally wrong at some
+	// times.
+	LastObservedValsetKey = []byte{0xfa}
+
+	// PastEthSignatureCheckpointKey indexes eth signature checkpoints that have existed
+	PastEthSignatureCheckpointKey = []byte{0x1b}
 )
 
 // GetOrchestratorAddressKey returns the following key format
@@ -118,11 +131,18 @@ func GetOrchestratorAddressKey(orc sdk.AccAddress) []byte {
 	return append(KeyOrchestratorAddress, orc.Bytes()...)
 }
 
-// GetEthAddressKey returns the following key format
+// GetEthAddressByValidatorKey returns the following key format
 // prefix              cosmos-validator
 // [0x0][cosmosvaloper1ahx7f8wyertuus9r20284ej0asrs085case3kn]
-func GetEthAddressKey(validator sdk.ValAddress) []byte {
-	return append(EthAddressKey, validator.Bytes()...)
+func GetEthAddressByValidatorKey(validator sdk.ValAddress) []byte {
+	return append(EthAddressByValidatorKey, validator.Bytes()...)
+}
+
+// GetValidatorByEthAddressKey returns the following key format
+// prefix              cosmos-validator
+// [0xf9][0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B]
+func GetValidatorByEthAddressKey(ethAddress common.Address) []byte {
+	return append(ValidatorByEthAddressKey, ethAddress.Bytes()...)
 }
 
 // GetValsetKey returns the following key format
@@ -154,13 +174,13 @@ func GetClaimKey(details EthereumClaim) []byte {
 	}
 	claimTypeLen := len([]byte{byte(details.GetType())})
 	nonceBz := UInt64Bytes(details.GetEventNonce())
-	key := make([]byte, len(OracleClaimKey)+claimTypeLen+sdk.AddrLen+len(nonceBz)+len(detailsHash))
+	key := make([]byte, len(OracleClaimKey)+claimTypeLen+common.AddressLength+len(nonceBz)+len(detailsHash))
 	copy(key[0:], OracleClaimKey)
 	copy(key[len(OracleClaimKey):], []byte{byte(details.GetType())})
 	// TODO this is the delegate address, should be stored by the valaddress
 	copy(key[len(OracleClaimKey)+claimTypeLen:], details.GetClaimer())
-	copy(key[len(OracleClaimKey)+claimTypeLen+sdk.AddrLen:], nonceBz)
-	copy(key[len(OracleClaimKey)+claimTypeLen+sdk.AddrLen+len(nonceBz):], detailsHash)
+	copy(key[len(OracleClaimKey)+claimTypeLen+common.AddressLength:], nonceBz)
+	copy(key[len(OracleClaimKey)+claimTypeLen+common.AddressLength+len(nonceBz):], detailsHash)
 	return key
 }
 
@@ -292,4 +312,11 @@ func GetERC20ToCosmosDenomKey(tokenContract common.Address) []byte {
 	buf = append(buf, tokenContract.Bytes()...)
 
 	return buf
+}
+
+// GetPastEthSignatureCheckpointKey returns the following key format
+// prefix    checkpoint
+// [0x0][ checkpoint bytes ]
+func GetPastEthSignatureCheckpointKey(checkpoint common.Hash) []byte {
+	return append(PastEthSignatureCheckpointKey, checkpoint[:]...)
 }
