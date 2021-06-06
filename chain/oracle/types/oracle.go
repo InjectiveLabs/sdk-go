@@ -1,13 +1,15 @@
 package types
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/gogo/protobuf/proto"
-	"strings"
 )
 
 const QuoteUSD = "USD"
+const TwapWindow = int64(5 * 60) // 5 minute TWAP window
 
 func GetOracleType(oracleTypeStr string) (OracleType, error) {
 	oracleTypeStr = strings.ToLower(oracleTypeStr)

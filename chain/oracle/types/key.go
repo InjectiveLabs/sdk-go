@@ -52,6 +52,11 @@ func GetPricefeedRelayerStorePrefix(baseQuoteHash common.Hash) []byte {
 	return append(PricefeedRelayerKey, baseQuoteHash.Bytes()...)
 }
 
-func GetCoinbasePriceStoreKey(key string) []byte {
-	return append(CoinbasePriceKey, []byte(key)...)
+func GetCoinbasePriceStoreKey(key string, timestamp uint64) []byte {
+	timeKey := sdk.Uint64ToBigEndian(timestamp)
+	return append(append(CoinbasePriceKey, []byte(key)...), timeKey...)
+}
+
+func GetCoinbasePriceStoreIterationKey(key string) []byte {
+	return append(append(CoinbasePriceKey, []byte(key)...))
 }

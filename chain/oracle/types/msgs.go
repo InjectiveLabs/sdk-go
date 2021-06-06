@@ -7,6 +7,13 @@ import (
 
 const RouterKey = ModuleName
 
+// oracle message types
+const (
+	TypeMsgRelayPriceFeedPrice   = "relayPriceFeedPrice"
+	TypeMsgRelayBandRates        = "relayBandRates"
+	TypeMsgRelayCoinbaseMessages = "relayCoinbaseMessages"
+)
+
 var (
 	_ sdk.Msg = &MsgRelayPriceFeedPrice{}
 	_ sdk.Msg = &MsgRelayBandRates{}
@@ -17,7 +24,7 @@ var (
 func (msg MsgRelayPriceFeedPrice) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgRelayPriceFeedPrice) Type() string { return "msgRelayPriceFeedPrice" }
+func (msg MsgRelayPriceFeedPrice) Type() string { return TypeMsgRelayPriceFeedPrice }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgRelayPriceFeedPrice) ValidateBasic() error {
@@ -55,7 +62,7 @@ func (msg MsgRelayPriceFeedPrice) GetSigners() []sdk.AccAddress {
 func (msg MsgRelayBandRates) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgRelayBandRates) Type() string { return "msgRelayBandRates" }
+func (msg MsgRelayBandRates) Type() string { return TypeMsgRelayBandRates }
 
 // ValidateBasic implements the sdk.Msg interface for MsgRelay.
 func (msg MsgRelayBandRates) ValidateBasic() error {
@@ -96,7 +103,7 @@ func (msg MsgRelayBandRates) GetSigners() []sdk.AccAddress {
 func (msg MsgRelayCoinbaseMessages) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgRelayCoinbaseMessages) Type() string { return "msgRelayCoinbaseMessages" }
+func (msg MsgRelayCoinbaseMessages) Type() string { return TypeMsgRelayCoinbaseMessages }
 
 // ValidateBasic implements the sdk.Msg interface for MsgRelay.
 func (msg MsgRelayCoinbaseMessages) ValidateBasic() error {

@@ -157,7 +157,7 @@ func newContext(
 ) client.Context {
 	clientCtx := client.Context{
 		ChainID:           chainId,
-		JSONCodec:     encodingConfig.Marshaler,
+		JSONCodec:         encodingConfig.Marshaler,
 		InterfaceRegistry: encodingConfig.InterfaceRegistry,
 		Output:            os.Stderr,
 		OutputFormat:      "json",
