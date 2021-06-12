@@ -18,11 +18,15 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgInstantPerpetualMarketLaunch{}, "exchange/MsgInstantPerpetualMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantExpiryFuturesMarketLaunch{}, "exchange/MsgInstantExpiryFuturesMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgCreateSpotLimitOrder{}, "exchange/MsgCreateSpotLimitOrder", nil)
+	cdc.RegisterConcrete(&MsgBatchCreateSpotLimitOrders{}, "exchange/MsgBatchCreateSpotLimitOrders", nil)
 	cdc.RegisterConcrete(&MsgCreateSpotMarketOrder{}, "exchange/MsgCreateSpotMarketOrder", nil)
 	cdc.RegisterConcrete(&MsgCancelSpotOrder{}, "exchange/MsgCancelSpotOrder", nil)
+	cdc.RegisterConcrete(&MsgBatchCancelSpotOrders{}, "exchange/MsgBatchCancelSpotOrders", nil)
 	cdc.RegisterConcrete(&MsgCreateDerivativeLimitOrder{}, "exchange/MsgCreateDerivativeLimitOrder", nil)
+	cdc.RegisterConcrete(&MsgBatchCreateDerivativeLimitOrders{}, "exchange/MsgBatchCreateDerivativeLimitOrders", nil)
 	cdc.RegisterConcrete(&MsgCreateDerivativeMarketOrder{}, "exchange/MsgCreateDerivativeMarketOrder", nil)
 	cdc.RegisterConcrete(&MsgCancelDerivativeOrder{}, "exchange/MsgCancelDerivativeOrder", nil)
+	cdc.RegisterConcrete(&MsgBatchCancelDerivativeOrders{}, "exchange/MsgBatchCancelDerivativeOrders", nil)
 	cdc.RegisterConcrete(&MsgSubaccountTransfer{}, "exchange/MsgSubaccountTransfer", nil)
 	cdc.RegisterConcrete(&MsgExternalTransfer{}, "exchange/MsgExternalTransfer", nil)
 	cdc.RegisterConcrete(&MsgIncreasePositionMargin{}, "exchange/MsgIncreasePositionMargin", nil)
@@ -45,11 +49,15 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgInstantPerpetualMarketLaunch{},
 		&MsgInstantExpiryFuturesMarketLaunch{},
 		&MsgCreateSpotLimitOrder{},
+		&MsgBatchCreateSpotLimitOrders{},
 		&MsgCreateSpotMarketOrder{},
 		&MsgCancelSpotOrder{},
+		&MsgBatchCancelSpotOrders{},
 		&MsgCreateDerivativeLimitOrder{},
+		&MsgBatchCreateDerivativeLimitOrders{},
 		&MsgCreateDerivativeMarketOrder{},
 		&MsgCancelDerivativeOrder{},
+		&MsgBatchCancelDerivativeOrders{},
 		&MsgSubaccountTransfer{},
 		&MsgExternalTransfer{},
 		&MsgIncreasePositionMargin{},

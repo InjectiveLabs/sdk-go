@@ -2,7 +2,6 @@ package types
 
 import (
 	"bytes"
-	"fmt"
 	"sort"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -35,7 +34,7 @@ func GetPositionSliceData(p map[common.Hash]*PositionState) ([]*Position, []comm
 			positions = append(positions, position.Position)
 			nonNilPositionSubaccountIDs = append(nonNilPositionSubaccountIDs, subaccountID)
 		} else {
-			fmt.Println("❌ position is nil for subaccount", subaccountID.Hex())
+			//fmt.Println("❌ position is nil for subaccount", subaccountID.Hex())
 		}
 	}
 

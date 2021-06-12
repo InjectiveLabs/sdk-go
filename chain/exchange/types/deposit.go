@@ -2,9 +2,10 @@ package types
 
 import (
 	"bytes"
+	"sort"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"sort"
 )
 
 func NewDeposit() *Deposit {

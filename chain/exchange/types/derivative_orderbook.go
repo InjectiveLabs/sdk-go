@@ -15,6 +15,6 @@ type DerivativeOrderbook interface {
 }
 
 type DerivativeOrderbookFills struct {
-	Orders               []*DerivativeLimitOrder
-	FillQuantities       []sdk.Dec
+	Orders         []*DerivativeLimitOrder
+	FillQuantities []sdk.Dec
 }

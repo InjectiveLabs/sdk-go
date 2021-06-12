@@ -1,7 +1,6 @@
 package types
 
 import (
-	"bytes"
 	"fmt"
 	"math/big"
 	"strings"
@@ -19,7 +18,7 @@ const (
 	StoreKey  = ModuleName
 	TStoreKey = "transient_exchange"
 )
-const SpotPriceDecimalPlaces = 18
+const PriceDecimalPlaces = 18
 
 var (
 	// Keys for store prefixes
@@ -37,14 +36,15 @@ var (
 	SpotMarketOrderIndicatorPrefix   = []byte{0x15} // prefix for each key to a spot market order indicator, by marketID and direction
 	SpotMarketParamUpdateScheduleKey = []byte{0x16} // prefix for a key to save scheduled spot market params update
 
-	DerivativeMarketPrefix                 = []byte{0x21} // prefix for each key to a derivative market by (exchange address, isEnabled, marketID)
-	DerivativeLimitOrdersPrefix            = []byte{0x22} // prefix for each key to an derivative limit order, by (marketID, direction, price level, order hash)
-	DerivativeMarketOrdersPrefix           = []byte{0x23} // prefix for each key to a derivative order, by (marketID, direction, price level, order hash)
-	DerivativeLimitOrdersIndexPrefix       = []byte{0x24} // prefix for each key to a derivative order index, by (marketID, direction, subaccountID, order hash)
-	DerivativeLimitOrderIndicatorPrefix    = []byte{0x25} // prefix for each key to a derivative limit order indicator, by marketID and direction
-	DerivativeMarketOrderIndicatorPrefix   = []byte{0x26} // prefix for each key to a derivative market order indicator, by marketID and direction
-	DerivativePositionsPrefix              = []byte{0x27} // prefix for each key to a Position
-	DerivativeMarketParamUpdateScheduleKey = []byte{0x28} // prefix for a key to save scheduled derivative market params update
+	DerivativeMarketPrefix                  = []byte{0x21} // prefix for each key to a derivative market by (exchange address, isEnabled, marketID)
+	DerivativeLimitOrdersPrefix             = []byte{0x22} // prefix for each key to an derivative limit order, by (marketID, direction, price level, order hash)
+	DerivativeMarketOrdersPrefix            = []byte{0x23} // prefix for each key to a derivative order, by (marketID, direction, price level, order hash)
+	DerivativeLimitOrdersIndexPrefix        = []byte{0x24} // prefix for each key to a derivative order index, by (marketID, direction, subaccountID, order hash)
+	DerivativeLimitOrderIndicatorPrefix     = []byte{0x25} // prefix for each key to a derivative limit order indicator, by marketID and direction
+	DerivativeMarketOrderIndicatorPrefix    = []byte{0x26} // prefix for each key to a derivative market order indicator, by marketID and direction
+	DerivativePositionsPrefix               = []byte{0x27} // prefix for each key to a Position
+	DerivativeMarketParamUpdateScheduleKey  = []byte{0x28} // prefix for a key to save scheduled derivative market params update
+	DerivativeMarketScheduledSettlementInfo = []byte{0x29} // prefix for a key to save scheduled derivative market settlements
 
 	PerpetualMarketFundingPrefix             = []byte{0x31} // prefix for each key to a perpetual market's funding state
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
@@ -117,14 +117,11 @@ func GetDerivativeMarketTransientMarketsKeyPrefix(marketID common.Hash, isBuy bo
 	return append(DerivativeLimitOrderIndicatorPrefix, MarketDirectionPrefix(marketID, isBuy)...)
 }
 
-// TODO: properly compute this without using decimal.Decimal
 func getPaddedPrice(price sdk.Dec) string {
-	priceString := price.String()
-	temp, _ := decimal.NewFromString(priceString)
-	priceString = temp.StringFixed(SpotPriceDecimalPlaces)
-	leftSide := fmt.Sprintf("%032s", temp.Floor().String())
-	priceComponents := strings.Split(priceString, ".")
-	return leftSide + "." + priceComponents[1]
+	dec := decimal.NewFromBigInt(price.BigInt(), -18).StringFixed(PriceDecimalPlaces)
+	components := strings.Split(dec, ".")
+	naturalPart, decimalPart := components[0], components[1]
+	return fmt.Sprintf("%032s.%s", naturalPart, decimalPart)
 }
 
 func GetLimitOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
@@ -164,7 +161,7 @@ func GetDerivativeMarketKey(isEnabled bool) []byte {
 func getBoolPrefix(isEnabled bool) []byte {
 	isEnabledByte := byte(0)
 	if isEnabled {
-		isEnabledByte = byte(1)
+		isEnabledByte = TrueByte
 	}
 	return []byte{isEnabledByte}
 }
@@ -189,11 +186,13 @@ func OrderIndexByMarketDirectionSubaccountPrefix(marketID common.Hash, subaccoun
 	return append(MarketDirectionPrefix(marketID, isLong), subaccountID.Bytes()...)
 }
 
+const TrueByte byte = byte(1)
+
 // MarketDirectionPrefix allows to obtain prefix against a particular marketID, direction
 func MarketDirectionPrefix(marketID common.Hash, isLong bool) []byte {
 	direction := byte(0)
 	if isLong {
-		direction = byte(1)
+		direction = TrueByte
 	}
 	return append(marketID.Bytes(), direction)
 }
@@ -202,8 +201,8 @@ func MarketDirectionPrefix(marketID common.Hash, isLong bool) []byte {
 // NOTE: this will not work for a normal key.
 func GetMarketIdDirectionFromTransientKey(prefix, key []byte) (marketID common.Hash, isBuy bool) {
 	marketID = common.BytesToHash(key[len(prefix) : common.HashLength+len(prefix)])
-	isBuyBytes := key[common.HashLength+len(prefix):]
-	return marketID, bytes.Equal(isBuyBytes, []byte{byte(0)})
+	isBuyByte := key[common.HashLength+len(prefix)]
+	return marketID, isBuyByte == TrueByte
 }
 
 // MarketSubaccountInfix provides the infix given a marketID and subaccountID

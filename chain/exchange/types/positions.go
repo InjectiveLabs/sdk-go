@@ -17,10 +17,10 @@ func (m *PositionDelta) IsShort() bool { return !m.IsLong }
 // NewPosition initializes a new position with a given cumulativeFundingEntry (should be nil for non-perpetual markets)
 func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 	position := &Position{
-		IsLong:       isLong,
-		Quantity:     sdk.ZeroDec(),
-		EntryPrice:   sdk.ZeroDec(),
-		Margin:       sdk.ZeroDec(),
+		IsLong:     isLong,
+		Quantity:   sdk.ZeroDec(),
+		EntryPrice: sdk.ZeroDec(),
+		Margin:     sdk.ZeroDec(),
 	}
 	if !cumulativeFundingEntry.IsNil() {
 		position.CumulativeFundingEntry = cumulativeFundingEntry
@@ -37,14 +37,16 @@ func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 // => Entry price adjustment for sells
 // (settlementPrice - newEntryPrice) * quantity = (settlementPrice - entryPrice) * quantity * (1 - missingFundsRate)
 // newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
-func (p *Position) ApplyProfitHaircut(haircutPercentage, settlementPrice sdk.Dec) {
-	// newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
-	newEntryPrice := p.EntryPrice.Sub(p.EntryPrice.Mul(haircutPercentage)).Add(settlementPrice.Mul(haircutPercentage))
+func (p *Position) ApplyProfitHaircut(deficitAmount, totalProfits, settlementPrice sdk.Dec) {
+	// haircutPercentage = deficitAmount / totalProfits
+	// To preserve precision, the division by totalProfits is done last.
+	// newEntryPrice =  haircutPercentage * (settlementPrice - entryPrice) + entryPrice
+	newEntryPrice := deficitAmount.Mul(settlementPrice.Sub(p.EntryPrice)).Quo(totalProfits).Add(p.EntryPrice)
 	p.EntryPrice = newEntryPrice
 }
 
-func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate sdk.Dec) sdk.Dec {
-	// TODO change this, there should not be positions with 0 quantity
+func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate sdk.Dec) (payout sdk.Dec) {
+	// there should not be positions with 0 quantity
 	if p.Quantity.IsZero() {
 		return sdk.ZeroDec()
 	}
@@ -60,7 +62,8 @@ func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate 
 	}
 
 	closeTradingFee := settlementPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
-	payout, _, _, _ := p.ApplyPositionDelta(positionDelta, closeTradingFee)
+	payout, _, _, _ = p.ApplyPositionDelta(positionDelta, closeTradingFee)
+
 	return payout
 }
 
@@ -180,12 +183,12 @@ func (p *Position) GetPayoutIfFullyClosing(closingPrice, closingFeeRate sdk.Dec)
 	isProfitable := (p.IsLong && p.EntryPrice.LT(closingPrice)) || (!p.IsLong && p.EntryPrice.GT(closingPrice))
 
 	fullyClosingQuantity := p.Quantity
-	positionClosingMargin := p.Margin
+	positionMargin := p.Margin
 
 	closeTradingFee := closingPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
 	payoutFromPnl := p.GetPayoutFromPnl(closingPrice, fullyClosingQuantity)
 	pnlNotional := payoutFromPnl.Sub(closeTradingFee)
-	payout := pnlNotional.Add(positionClosingMargin)
+	payout := pnlNotional.Add(positionMargin)
 
 	return &positionPayout{
 		Payout:       payout,

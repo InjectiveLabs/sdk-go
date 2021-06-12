@@ -28,10 +28,10 @@ func (o *SubaccountOrder) IsVanilla() bool {
 }
 
 func (m *SubaccountOrderbookMetadata) ApplyDelta(d *SubaccountOrderbookMetadata) {
-	if !d.AggregateReduceOnlyQuantity.IsZero(){
+	if !d.AggregateReduceOnlyQuantity.IsZero() {
 		m.AggregateReduceOnlyQuantity = m.AggregateReduceOnlyQuantity.Add(d.AggregateReduceOnlyQuantity)
 	}
-	if !d.AggregateVanillaQuantity.IsZero(){
+	if !d.AggregateVanillaQuantity.IsZero() {
 		m.AggregateVanillaQuantity = m.AggregateVanillaQuantity.Add(d.AggregateVanillaQuantity)
 	}
 	m.VanillaLimitOrderCount += d.VanillaLimitOrderCount

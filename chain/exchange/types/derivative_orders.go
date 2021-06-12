@@ -6,7 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-
 func NewMarketOrderForLiquidation(position *Position, positionSubaccountID common.Hash, liquidator sdk.Address) *DerivativeMarketOrder {
 
 	// if long position, market sell order at price 0
@@ -87,6 +86,25 @@ func NewDerivativeLimitOrder(o *DerivativeOrder, orderHash common.Hash) *Derivat
 	}
 }
 
+func (o *DerivativeLimitOrder) ToDerivativeOrder(marketID string) *DerivativeOrder {
+	return &DerivativeOrder{
+		MarketId:     marketID,
+		OrderInfo:    o.OrderInfo,
+		OrderType:    o.OrderType,
+		Margin:       o.Margin,
+		TriggerPrice: o.TriggerPrice,
+	}
+}
+func (o *DerivativeMarketOrder) ToDerivativeOrder(marketID string) *DerivativeOrder {
+	return &DerivativeOrder{
+		MarketId:     marketID,
+		OrderInfo:    o.OrderInfo,
+		OrderType:    o.OrderType,
+		Margin:       o.Margin,
+		TriggerPrice: o.TriggerPrice,
+	}
+}
+
 func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate sdk.Dec) *DepositDelta {
 	depositDelta := NewDepositDelta()
 	if o.IsVanilla() {
@@ -122,17 +140,24 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket, 
 		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", market.InitialMarginRatio.Mul(notional).String(), o.Margin.String())
 	}
 
-	markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(market.InitialMarginRatio)
-	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
-	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1+ InitialMarginRatio) * Quantity)
-	if o.OrderType.IsBuy() && markPrice.LT(markPriceThreshold) {
-		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
-	} else if !o.OrderType.IsBuy() && markPrice.GT(markPriceThreshold) {
-
-		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
+	if err = o.CheckInitialMarginRequirementMarkPriceThreshold(market.InitialMarginRatio, markPrice); err != nil {
+		return sdk.Dec{}, err
 	}
 
 	return o.Margin.Add(feeAmount), nil
+}
+
+func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice sdk.Dec) (err error) {
+	markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio)
+	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
+	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1+ InitialMarginRatio) * Quantity)
+	if o.OrderType.IsBuy() && markPrice.LT(markPriceThreshold) {
+		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
+	} else if !o.OrderType.IsBuy() && markPrice.GT(markPriceThreshold) {
+		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
+	}
+
+	return nil
 }
 
 func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio sdk.Dec) sdk.Dec {
@@ -146,6 +171,14 @@ func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(init
 		denominator = initialMarginRatio.Add(sdk.OneDec()).Mul(o.OrderInfo.Quantity)
 	}
 	return numerator.Quo(denominator)
+}
+
+func (o *DerivativeLimitOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice sdk.Dec) (err error) {
+	return o.ToDerivativeOrder("").CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice)
+}
+
+func (o *DerivativeMarketOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice sdk.Dec) (err error) {
+	return o.ToDerivativeOrder("").CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice)
 }
 
 func (o *DerivativeMarketOrder) ComputeOrderHash(nonce uint32, marketId string) (common.Hash, error) {

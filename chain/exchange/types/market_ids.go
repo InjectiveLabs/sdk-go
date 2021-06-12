@@ -1,9 +1,10 @@
 package types
 
 import (
+	"strconv"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"strconv"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"

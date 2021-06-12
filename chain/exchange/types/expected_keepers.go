@@ -1,10 +1,11 @@
 package types
 
 import (
-	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
+
+	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 )
 
 // BankKeeper defines the expected bank keeper methods.
