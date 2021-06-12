@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
@@ -345,6 +346,7 @@ func (c *cosmosClient) runBatchBroadcast() {
 		c.txFactory = c.txFactory.WithSequence(c.accSeq)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 		log.Debugln("broadcastTx with nonce", c.accSeq)
+		c.ctx = c.ctx.WithBroadcastMode(flags.BroadcastAsync)
 		res, err := c.broadcastTx(c.ctx, c.txFactory, false, msgBatch...)
 		if err != nil {
 			if strings.Contains(err.Error(), "account sequence mismatch") {
