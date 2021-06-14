@@ -101,7 +101,6 @@ func (s GenesisState) ValidateBasic() error {
 }
 
 // DefaultGenesisState returns empty genesis state
-// TODO: set some better defaults here
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
 		Params: DefaultParams(),
@@ -247,17 +246,7 @@ func validatePeggyID(i interface{}) error {
 }
 
 func validateContractHash(i interface{}) error {
-	// TODO: should we validate that the input here is a properly formatted
-	// SHA256 (or other) hash?
 	if _, ok := i.(string); !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
-}
-
-func validateStartThreshold(i interface{}) error {
-	// TODO: do we want to validate a range of values here?
-	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
@@ -313,7 +302,6 @@ func validateBridgeContractAddress(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	if err := ValidateEthAddress(v); err != nil {
-		// TODO: ensure that empty addresses are valid in params
 		if !strings.Contains(err.Error(), "empty") {
 			return err
 		}
@@ -322,7 +310,6 @@ func validateBridgeContractAddress(i interface{}) error {
 }
 
 func validateSignedValsetsWindow(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -330,7 +317,6 @@ func validateSignedValsetsWindow(i interface{}) error {
 }
 
 func validateUnbondSlashingValsetsWindow(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -338,7 +324,6 @@ func validateUnbondSlashingValsetsWindow(i interface{}) error {
 }
 
 func validateSlashFractionValset(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(sdk.Dec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -346,7 +331,6 @@ func validateSlashFractionValset(i interface{}) error {
 }
 
 func validateSignedBatchesWindow(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -354,7 +338,6 @@ func validateSignedBatchesWindow(i interface{}) error {
 }
 
 func validateSignedClaimsWindow(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -362,7 +345,6 @@ func validateSignedClaimsWindow(i interface{}) error {
 }
 
 func validateSlashFractionBatch(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(sdk.Dec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -370,7 +352,6 @@ func validateSlashFractionBatch(i interface{}) error {
 }
 
 func validateSlashFractionClaim(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(sdk.Dec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -378,7 +359,6 @@ func validateSlashFractionClaim(i interface{}) error {
 }
 
 func validateSlashFractionConflictingClaim(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(sdk.Dec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -429,7 +409,6 @@ func validateClaimSlashingEnabled(i interface{}) error {
 }
 
 func validateSlashFractionBadEthSignature(i interface{}) error {
-	// TODO: do we want to set some bounds on this value?
 	if _, ok := i.(sdk.Dec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
