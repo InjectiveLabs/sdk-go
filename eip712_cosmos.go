@@ -46,7 +46,7 @@ func WrapTxToEIP712(
 	}
 
 	if feeDelegation != nil {
-		txData["fee"] = map[string]string{
+		txData["fee"] = map[string]interface{}{
 			"feePayer": feeDelegation.FeePayer.String(),
 			"gas":      txData["fee"].(map[string]interface{})["gas"].(string),
 		}

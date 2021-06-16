@@ -155,7 +155,6 @@ var eip712SpotOrderTypes = typeddata.Types{
 	},
 }
 
-
 var eip712TransactionTypes = typeddata.Types{
 	"EIP712Domain": {
 		{
