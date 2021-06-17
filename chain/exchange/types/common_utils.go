@@ -99,6 +99,7 @@ func BreachesMinimumTickSize(value sdk.Dec, minTickSize sdk.Dec) bool {
 		return true
 	}
 
+	// is breaching when value % minTickSize != 0
 	residue := new(big.Int).Mod(value.BigInt(), minTickSize.BigInt())
 	return !bytes.Equal(residue.Bytes(), big.NewInt(0).Bytes())
 }

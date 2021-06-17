@@ -43,8 +43,8 @@ func (o *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec)
 	return nil
 }
 
-func (m *SpotOrder) IsBuy() bool {
-	return m.OrderType.IsBuy()
+func (o *SpotOrder) IsBuy() bool {
+	return o.OrderType.IsBuy()
 }
 
 func (m *SpotLimitOrder) IsBuy() bool {

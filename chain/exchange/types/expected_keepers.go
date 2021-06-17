@@ -1,11 +1,14 @@
 package types
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 // BankKeeper defines the expected bank keeper methods.
@@ -33,4 +36,9 @@ type InsuranceKeeper interface {
 	DepositIntoInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdk.Int) error
 	// WithdrawFromInsuranceFund decrements the insurance fund balance by amount and sends
 	WithdrawFromInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdk.Int) error
+}
+
+type GovKeeper interface {
+	IterateActiveProposalsQueue(ctx sdk.Context, endTime time.Time, cb func(proposal govtypes.Proposal) (stop bool))
+	GetVotingParams(ctx sdk.Context) govtypes.VotingParams
 }

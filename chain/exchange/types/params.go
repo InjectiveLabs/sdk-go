@@ -28,7 +28,13 @@ const (
 
 	// MaxDerivativeOrderSideCount is 20
 	MaxDerivativeOrderSideCount uint32 = 20
+
+	MaxOracleScaleFactor uint32 = 18
 )
+
+// MaxOrderPrice equals 10^32
+var MaxOrderPrice = sdk.MustNewDecFromStr("100000000000000000000000000000000")
+var MaxOrderQuantity = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 
 // Parameter keys
 var (

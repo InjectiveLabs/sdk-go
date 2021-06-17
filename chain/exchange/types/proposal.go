@@ -1,13 +1,10 @@
 package types
 
 import (
-	"errors"
-
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 
-	"github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -17,11 +14,9 @@ import (
 const (
 	ProposalTypeSpotMarketParamUpdate       string = "ProposalTypeSpotMarketParamUpdate"
 	ProposalTypeSpotMarketLaunch            string = "ProposalTypeSpotMarketLaunch"
-	ProposalTypeSetSpotMarketStatus         string = "ProposalTypeSetSpotMarketStatus"
 	ProposalTypePerpetualMarketLaunch       string = "ProposalTypePerpetualMarketLaunch"
 	ProposalTypeExpiryFuturesMarketLaunch   string = "ProposalTypeExpiryFuturesMarketLaunch"
 	ProposalTypeDerivativeMarketParamUpdate string = "ProposalTypeDerivativeMarketParamUpdate"
-	ProposalTypeSetDerivativeMarketStatus   string = "ProposalTypeSetDerivativeMarketStatus"
 )
 
 func init() {
@@ -29,22 +24,26 @@ func init() {
 	gov.RegisterProposalTypeCodec(&SpotMarketParamUpdateProposal{}, "injective/SpotMarketParamUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeSpotMarketLaunch)
 	gov.RegisterProposalTypeCodec(&SpotMarketLaunchProposal{}, "injective/SpotMarketLaunchProposal")
-	gov.RegisterProposalType(ProposalTypeSetSpotMarketStatus)
-	gov.RegisterProposalTypeCodec(&SpotMarketStatusSetProposal{}, "injective/SpotMarketStatusSetProposal")
 	gov.RegisterProposalType(ProposalTypePerpetualMarketLaunch)
 	gov.RegisterProposalTypeCodec(&PerpetualMarketLaunchProposal{}, "injective/PerpetualMarketLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeExpiryFuturesMarketLaunch)
 	gov.RegisterProposalTypeCodec(&ExpiryFuturesMarketLaunchProposal{}, "injective/ExpiryFuturesMarketLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
 	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
-	gov.RegisterProposalType(ProposalTypeSetDerivativeMarketStatus)
-	gov.RegisterProposalTypeCodec(&DerivativeMarketStatusSetProposal{}, "injective/DerivativeMarketStatusSetProposal")
 }
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
-func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize sdk.Dec) *SpotMarketParamUpdateProposal {
+func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec, status MarketStatus) *SpotMarketParamUpdateProposal {
 	return &SpotMarketParamUpdateProposal{
-		title, description, marketID.Hex(), makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize,
+		title,
+		description,
+		marketID.Hex(),
+		makerFeeRate,
+		takerFeeRate,
+		relayerFeeShareRate,
+		minPriceTickSize,
+		minQuantityTickSize,
+		status,
 	}
 }
 
@@ -71,19 +70,49 @@ func (p *SpotMarketParamUpdateProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
+	if p.MarketId == "" {
+		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+	}
+	if p.MakerFeeRate == nil && p.TakerFeeRate == nil && p.RelayerFeeShareRate == nil && p.MinPriceTickSize == nil && p.MinQuantityTickSize == nil && p.Status == MarketStatus_Unspecified {
+		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+	}
 
-	if err := ValidateFee(p.MakerFeeRate); err != nil {
-		return err
+	if p.MakerFeeRate != nil {
+		if err := ValidateFee(*p.MakerFeeRate); err != nil {
+			return err
+		}
 	}
-	if err := ValidateFee(p.TakerFeeRate); err != nil {
-		return err
+	if p.TakerFeeRate != nil {
+		if err := ValidateFee(*p.TakerFeeRate); err != nil {
+			return err
+		}
 	}
-	if err := ValidateFee(p.RelayerFeeShareRate); err != nil {
-		return err
+	if p.RelayerFeeShareRate != nil {
+		if err := ValidateFee(*p.RelayerFeeShareRate); err != nil {
+			return err
+		}
 	}
-	if p.MakerFeeRate.GT(p.TakerFeeRate) {
-		return errors.New("MakerFeeRate cannot be greater than TakerFeeRate")
+
+	if p.MinPriceTickSize != nil && p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
 	}
+	if p.MinQuantityTickSize != nil && p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
+	}
+
+	switch p.Status {
+	case
+		MarketStatus_Unspecified,
+		MarketStatus_Active,
+		MarketStatus_Paused,
+		MarketStatus_Suspended,
+		MarketStatus_Demolished,
+		MarketStatus_Expired:
+
+	default:
+		return sdkerrors.Wrap(ErrInvalidMarketStatus, p.Status.String())
+	}
+
 	return gov.ValidateAbstract(p)
 }
 
@@ -117,85 +146,25 @@ func (p *SpotMarketLaunchProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SpotMarketLaunchProposal) ValidateBasic() error {
-	if err := types.ValidateDenom(p.BaseDenom); err != nil {
-		return err
+	if p.Ticker == "" {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
 	}
-	if err := types.ValidateDenom(p.QuoteDenom); err != nil {
-		return err
+	if p.BaseDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
 	}
-	return gov.ValidateAbstract(p)
-}
-
-// NewSpotMarketStatusSetProposal returns new instance of SpotMarketStatusSetProposal
-func NewSpotMarketStatusSetProposal(title, description, marketID string, status MarketStatus) *SpotMarketStatusSetProposal {
-	return &SpotMarketStatusSetProposal{
-		title, description, marketID, status,
+	if p.QuoteDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
-}
-
-// Implements Proposal Interface
-var _ gov.Content = &SpotMarketStatusSetProposal{}
-
-// GetTitle returns the title of this proposal.
-func (p *SpotMarketStatusSetProposal) GetTitle() string {
-	return p.Title
-}
-
-// GetDescription returns the description of this proposal.
-func (p *SpotMarketStatusSetProposal) GetDescription() string {
-	return p.Description
-}
-
-// ProposalRoute returns router key of this proposal.
-func (p *SpotMarketStatusSetProposal) ProposalRoute() string { return RouterKey }
-
-// ProposalType returns proposal type of this proposal.
-func (p *SpotMarketStatusSetProposal) ProposalType() string {
-	return ProposalTypeSetSpotMarketStatus
-}
-
-// ValidateBasic returns ValidateBasic result of this proposal.
-func (p *SpotMarketStatusSetProposal) ValidateBasic() error {
-
-	if p.MarketId == "" {
-		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+	if p.BaseDenom == p.QuoteDenom {
+		return ErrSameDenoms
 	}
-	if p.Status.String() == "" {
-		return errors.New("Invalid status")
+
+	if p.MinPriceTickSize.IsNil() || p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
 	}
-	return gov.ValidateAbstract(p)
-}
-
-// NewDerivativeMarketStatusSetProposal returns new instance of DerivativeMarketStatusSetProposal
-func NewDerivativeMarketStatusSetProposal(title, description, marketID string, status MarketStatus) *DerivativeMarketStatusSetProposal {
-	return &DerivativeMarketStatusSetProposal{
-		title, description, marketID, status,
+	if p.MinQuantityTickSize.IsNil() || p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
 	}
-}
-
-// Implements Proposal Interface
-var _ gov.Content = &DerivativeMarketStatusSetProposal{}
-
-// GetTitle returns the title of this proposal.
-func (p *DerivativeMarketStatusSetProposal) GetTitle() string {
-	return p.Title
-}
-
-// GetDescription returns the description of this proposal.
-func (p *DerivativeMarketStatusSetProposal) GetDescription() string {
-	return p.Description
-}
-
-// ProposalRoute returns router key of this proposal.
-func (p *DerivativeMarketStatusSetProposal) ProposalRoute() string { return RouterKey }
-
-// ProposalType returns proposal type of this proposal.
-func (p *DerivativeMarketStatusSetProposal) ProposalType() string {
-	return ProposalTypeSetDerivativeMarketStatus
-}
-
-// ValidateBasic returns ValidateBasic result of this proposal.
-func (p *DerivativeMarketStatusSetProposal) ValidateBasic() error {
 	return gov.ValidateAbstract(p)
 }
 
@@ -204,6 +173,7 @@ func NewDerivativeMarketParamUpdateProposal(
 	title, description string, marketID string,
 	initialMarginRatio, maintenanceMarginRatio,
 	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec,
+	status MarketStatus,
 ) *DerivativeMarketParamUpdateProposal {
 	return &DerivativeMarketParamUpdateProposal{
 		title,
@@ -216,6 +186,7 @@ func NewDerivativeMarketParamUpdateProposal(
 		relayerFeeShareRate,
 		minPriceTickSize,
 		minQuantityTickSize,
+		status,
 	}
 }
 
@@ -242,6 +213,20 @@ func (p *DerivativeMarketParamUpdateProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
+	if p.MarketId == "" {
+		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+	}
+	if p.MakerFeeRate == nil &&
+		p.TakerFeeRate == nil &&
+		p.RelayerFeeShareRate == nil &&
+		p.MinPriceTickSize == nil &&
+		p.MinQuantityTickSize == nil &&
+		p.InitialMarginRatio == nil &&
+		p.MaintenanceMarginRatio == nil &&
+		p.Status == MarketStatus_Unspecified {
+		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+	}
+
 	if p.MakerFeeRate != nil {
 		if err := ValidateFee(*p.MakerFeeRate); err != nil {
 			return err
@@ -270,16 +255,24 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	if p.MakerFeeRate != nil && p.TakerFeeRate != nil {
-		if p.MakerFeeRate.GT(*p.TakerFeeRate) {
-			return errors.New("MakerFeeRate cannot be greater than TakerFeeRate")
-		}
+	if p.MinPriceTickSize != nil && p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
+	}
+	if p.MinQuantityTickSize != nil && p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
 	}
 
-	if p.MaintenanceMarginRatio != nil && p.InitialMarginRatio != nil {
-		if p.InitialMarginRatio.LT(*p.MaintenanceMarginRatio) {
-			return errors.New("MaintenanceMarginRatio cannot be greater than InitialMarginRatio")
-		}
+	switch p.Status {
+	case
+		MarketStatus_Unspecified,
+		MarketStatus_Active,
+		MarketStatus_Paused,
+		MarketStatus_Suspended,
+		MarketStatus_Demolished,
+		MarketStatus_Expired:
+
+	default:
+		return sdkerrors.Wrap(ErrInvalidMarketStatus, p.Status.String())
 	}
 
 	return gov.ValidateAbstract(p)
@@ -332,9 +325,56 @@ func (p *PerpetualMarketLaunchProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
-	if err := types.ValidateDenom(p.QuoteDenom); err != nil {
+	if p.Ticker == "" {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
+	}
+	if p.QuoteDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if p.OracleBase == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
+	}
+	if p.OracleQuote == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
+	}
+	if p.OracleBase == p.OracleQuote {
+		return ErrSameOracles
+	}
+	switch p.OracleType {
+	case oracletypes.OracleType_Band, oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor,
+		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC:
+
+	default:
+		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+	}
+	if p.OracleScaleFactor > MaxOracleScaleFactor {
+		return ErrExceedsMaxOracleScaleFactor
+	}
+	if err := ValidateFee(p.MakerFeeRate); err != nil {
 		return err
 	}
+	if err := ValidateFee(p.TakerFeeRate); err != nil {
+		return err
+	}
+	if err := ValidateMarginRatio(p.InitialMarginRatio); err != nil {
+		return err
+	}
+	if err := ValidateMarginRatio(p.MaintenanceMarginRatio); err != nil {
+		return err
+	}
+	if p.MakerFeeRate.GT(p.TakerFeeRate) {
+		return ErrFeeRatesRelation
+	}
+	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
+		return ErrMarginsRelation
+	}
+	if p.MinPriceTickSize.IsNil() || p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
+	}
+	if p.MinQuantityTickSize.IsNil() || p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
+	}
+
 	return gov.ValidateAbstract(p)
 }
 
@@ -386,8 +426,58 @@ func (p *ExpiryFuturesMarketLaunchProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
-	if err := types.ValidateDenom(p.QuoteDenom); err != nil {
+	if p.Ticker == "" {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
+	}
+	if p.QuoteDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if p.OracleBase == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
+	}
+	if p.OracleQuote == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
+	}
+	if p.OracleBase == p.OracleQuote {
+		return ErrSameOracles
+	}
+	switch p.OracleType {
+	case oracletypes.OracleType_Band, oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor,
+		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC:
+
+	default:
+		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+	}
+	if p.OracleScaleFactor > MaxOracleScaleFactor {
+		return ErrExceedsMaxOracleScaleFactor
+	}
+	if p.Expiry <= 0 {
+		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
+	}
+	if err := ValidateFee(p.MakerFeeRate); err != nil {
 		return err
 	}
+	if err := ValidateFee(p.TakerFeeRate); err != nil {
+		return err
+	}
+	if err := ValidateMarginRatio(p.InitialMarginRatio); err != nil {
+		return err
+	}
+	if err := ValidateMarginRatio(p.MaintenanceMarginRatio); err != nil {
+		return err
+	}
+	if p.MakerFeeRate.GT(p.TakerFeeRate) {
+		return ErrFeeRatesRelation
+	}
+	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
+		return ErrMarginsRelation
+	}
+	if p.MinPriceTickSize.IsNil() || p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
+	}
+	if p.MinQuantityTickSize.IsNil() || p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
+	}
+
 	return gov.ValidateAbstract(p)
 }

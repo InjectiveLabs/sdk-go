@@ -2,7 +2,6 @@ package types
 
 import (
 	"bytes"
-	"errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -44,7 +43,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
 	}
-	if o.TriggerPrice != nil && o.TriggerPrice.LT(sdk.ZeroDec()) {
+	if o.TriggerPrice != nil && (o.TriggerPrice.LT(sdk.ZeroDec()) || o.TriggerPrice.GT(MaxOrderPrice)) {
 		return sdkerrors.Wrap(ErrInvalidTriggerPrice, o.TriggerPrice.String())
 	}
 
@@ -65,11 +64,11 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(ErrBadSubaccountID, senderAddr.String())
 	}
 
-	if o.Quantity.IsNil() || o.Quantity.LTE(sdk.ZeroDec()) {
+	if o.Quantity.IsNil() || o.Quantity.LTE(sdk.ZeroDec()) || o.Quantity.GT(MaxOrderQuantity) {
 		return sdkerrors.Wrap(ErrInvalidQuantity, o.Quantity.String())
 	}
 
-	if o.Price.IsNil() || o.Price.LTE(sdk.ZeroDec()) {
+	if o.Price.IsNil() || o.Price.LTE(sdk.ZeroDec()) || o.Price.GT(MaxOrderPrice) {
 		return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
 	}
 	return nil
@@ -86,10 +85,10 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
 	}
 
-	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) {
+	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) || o.Margin.GT(MaxOrderPrice) {
 		return sdkerrors.Wrap(ErrInsufficientOrderMargin, o.Margin.String())
 	}
-	if o.TriggerPrice != nil && o.TriggerPrice.LT(sdk.ZeroDec()) {
+	if o.TriggerPrice != nil && (o.TriggerPrice.LT(sdk.ZeroDec()) || o.TriggerPrice.GT(MaxOrderPrice)) {
 		return sdkerrors.Wrap(ErrInvalidTriggerPrice, o.TriggerPrice.String())
 	}
 
@@ -234,6 +233,9 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 	if msg.QuoteDenom == "" {
 		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
+	if msg.BaseDenom == msg.QuoteDenom {
+		return ErrSameDenoms
+	}
 
 	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
@@ -283,12 +285,18 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if msg.OracleQuote == "" {
 		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
 	}
+	if msg.OracleBase == msg.OracleQuote {
+		return ErrSameOracles
+	}
 	switch msg.OracleType {
 	case types.OracleType_Band, types.OracleType_PriceFeed, types.OracleType_Coinbase, types.OracleType_Chainlink, types.OracleType_Razor,
 		types.OracleType_Dia, types.OracleType_API3, types.OracleType_Uma, types.OracleType_Pyth, types.OracleType_BandIBC:
 
 	default:
 		return sdkerrors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
+	}
+	if msg.OracleScaleFactor > MaxOracleScaleFactor {
+		return ErrExceedsMaxOracleScaleFactor
 	}
 	if err := ValidateFee(msg.MakerFeeRate); err != nil {
 		return err
@@ -303,10 +311,10 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 		return err
 	}
 	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
-		return errors.New("MakerFeeRate cannot be greater than TakerFeeRate")
+		return ErrFeeRatesRelation
 	}
 	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
-		return errors.New("MaintenanceMarginRatio cannot be greater than InitialMarginRatio")
+		return ErrMarginsRelation
 	}
 	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
@@ -358,12 +366,18 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	if msg.OracleQuote == "" {
 		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
 	}
+	if msg.OracleBase == msg.OracleQuote {
+		return ErrSameOracles
+	}
 	switch msg.OracleType {
 	case types.OracleType_Band, types.OracleType_PriceFeed, types.OracleType_Coinbase, types.OracleType_Chainlink, types.OracleType_Razor,
 		types.OracleType_Dia, types.OracleType_API3, types.OracleType_Uma, types.OracleType_Pyth, types.OracleType_BandIBC:
 
 	default:
 		return sdkerrors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
+	}
+	if msg.OracleScaleFactor > MaxOracleScaleFactor {
+		return ErrExceedsMaxOracleScaleFactor
 	}
 	if msg.Expiry <= 0 {
 		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
@@ -381,10 +395,10 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 		return err
 	}
 	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
-		return errors.New("MakerFeeRate cannot be greater than TakerFeeRate")
+		return ErrFeeRatesRelation
 	}
 	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
-		return errors.New("MaintenanceMarginRatio cannot be greater than InitialMarginRatio")
+		return ErrMarginsRelation
 	}
 	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
@@ -618,7 +632,9 @@ func (msg MsgCreateDerivativeLimitOrder) GetSigners() []sdk.AccAddress {
 func (msg MsgBatchCreateDerivativeLimitOrders) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgBatchCreateDerivativeLimitOrders) Type() string { return "batchCreateDerivativeLimitOrder" }
+func (msg MsgBatchCreateDerivativeLimitOrders) Type() string {
+	return "batchCreateDerivativeLimitOrder"
+}
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgBatchCreateDerivativeLimitOrders) ValidateBasic() error {
