@@ -46,13 +46,13 @@ func WrapTxToEIP712(
 	}
 
 	if feeDelegation != nil {
-		txData["fee"] = map[string]interface{}{
-			"feePayer": feeDelegation.FeePayer.String(),
-			"gas":      txData["fee"].(map[string]interface{})["gas"].(string),
-		}
+		feeInfo := txData["fee"].(map[string]interface{})
+		feeInfo["feePayer"] = feeDelegation.FeePayer.String()
 
+		// also patching msgTypes to include feePayer
 		msgTypes["Fee"] = []typeddata.Type{
 			{Name: "feePayer", Type: "string"},
+			{Name: "amount", Type: "Coin[]"},
 			{Name: "gas", Type: "string"},
 		}
 	}
