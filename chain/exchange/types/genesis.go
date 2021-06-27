@@ -14,6 +14,8 @@ func (gs GenesisState) Validate() error {
 
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Params: DefaultParams(),
+		Params:                       DefaultParams(),
+		IsSpotExchangeEnabled:        true,
+		IsDerivativesExchangeEnabled: true,
 	}
 }

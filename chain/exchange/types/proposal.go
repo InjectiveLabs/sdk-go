@@ -12,6 +12,7 @@ import (
 
 // constants
 const (
+	ProposalTypeExchangeEnable              string = "ProposalTypeExchangeEnable"
 	ProposalTypeSpotMarketParamUpdate       string = "ProposalTypeSpotMarketParamUpdate"
 	ProposalTypeSpotMarketLaunch            string = "ProposalTypeSpotMarketLaunch"
 	ProposalTypePerpetualMarketLaunch       string = "ProposalTypePerpetualMarketLaunch"
@@ -20,6 +21,8 @@ const (
 )
 
 func init() {
+	gov.RegisterProposalType(ProposalTypeExchangeEnable)
+	gov.RegisterProposalTypeCodec(&ExchangeEnableProposal{}, "injective/ExchangeEnableProposal")
 	gov.RegisterProposalType(ProposalTypeSpotMarketParamUpdate)
 	gov.RegisterProposalTypeCodec(&SpotMarketParamUpdateProposal{}, "injective/SpotMarketParamUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeSpotMarketLaunch)
@@ -30,6 +33,38 @@ func init() {
 	gov.RegisterProposalTypeCodec(&ExpiryFuturesMarketLaunchProposal{}, "injective/ExpiryFuturesMarketLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
 	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &ExchangeEnableProposal{}
+
+// GetTitle returns the title of this proposal.
+func (p *ExchangeEnableProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal.
+func (p *ExchangeEnableProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *ExchangeEnableProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *ExchangeEnableProposal) ProposalType() string {
+	return ProposalTypeExchangeEnable
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *ExchangeEnableProposal) ValidateBasic() error {
+
+	switch p.ExchangeType {
+	case ExchangeType_SPOT, ExchangeType_DERIVATIVES:
+	default:
+		return ErrBadField
+	}
+	return gov.ValidateAbstract(p)
 }
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
@@ -93,11 +128,15 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	if p.MinPriceTickSize != nil && p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
+	if p.MinPriceTickSize != nil {
+		if err := ValidateTickSize(*p.MinPriceTickSize); err != nil {
+			return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		}
 	}
-	if p.MinQuantityTickSize != nil && p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
+	if p.MinQuantityTickSize != nil {
+		if err := ValidateTickSize(*p.MinQuantityTickSize); err != nil {
+			return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		}
 	}
 
 	switch p.Status {
@@ -159,11 +198,11 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 		return ErrSameDenoms
 	}
 
-	if p.MinPriceTickSize.IsNil() || p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
+	if err := ValidateTickSize(p.MinPriceTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
-	if p.MinQuantityTickSize.IsNil() || p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
+	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 	return gov.ValidateAbstract(p)
 }
@@ -255,11 +294,15 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	if p.MinPriceTickSize != nil && p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
+	if p.MinPriceTickSize != nil {
+		if err := ValidateTickSize(*p.MinPriceTickSize); err != nil {
+			return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		}
 	}
-	if p.MinQuantityTickSize != nil && p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
+	if p.MinQuantityTickSize != nil {
+		if err := ValidateTickSize(*p.MinQuantityTickSize); err != nil {
+			return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		}
 	}
 
 	switch p.Status {
@@ -368,11 +411,12 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
-	if p.MinPriceTickSize.IsNil() || p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
+
+	if err := ValidateTickSize(p.MinPriceTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
-	if p.MinQuantityTickSize.IsNil() || p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
+	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return gov.ValidateAbstract(p)
@@ -472,11 +516,12 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
-	if p.MinPriceTickSize.IsNil() || p.MinPriceTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, p.MinPriceTickSize.String())
+
+	if err := ValidateTickSize(p.MinPriceTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
-	if p.MinQuantityTickSize.IsNil() || p.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, p.MinQuantityTickSize.String())
+	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return gov.ValidateAbstract(p)

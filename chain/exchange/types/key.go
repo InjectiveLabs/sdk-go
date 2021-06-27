@@ -28,6 +28,8 @@ var (
 	SubaccountOrderPrefix                = []byte{0x04} // prefix for each key to a Subaccount derivative limit Order
 	SubaccountMarketOrderIndicatorPrefix = []byte{0x05} // prefix for each key to a Subaccount market order indicator
 	SubaccountLimitOrderIndicatorPrefix  = []byte{0x06} // prefix for each key to a Subaccount limit order indicator
+	SpotExchangeEnabledKey               = []byte{0x07} // key for whether spot exchange is enabled
+	DerivativeExchangeEnabledKey         = []byte{0x08} // key for whether derivative exchange is enabled
 
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
 	SpotLimitOrdersPrefix            = []byte{0x12} // prefix for each key to a spot order, by (marketID, direction, price level, order hash)

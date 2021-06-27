@@ -43,7 +43,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
 	}
-	if o.TriggerPrice != nil && (o.TriggerPrice.LT(sdk.ZeroDec()) || o.TriggerPrice.GT(MaxOrderPrice)) {
+	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.LT(sdk.ZeroDec()) || o.TriggerPrice.GT(MaxOrderPrice)) {
 		return sdkerrors.Wrap(ErrInvalidTriggerPrice, o.TriggerPrice.String())
 	}
 
@@ -88,7 +88,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) || o.Margin.GT(MaxOrderPrice) {
 		return sdkerrors.Wrap(ErrInsufficientOrderMargin, o.Margin.String())
 	}
-	if o.TriggerPrice != nil && (o.TriggerPrice.LT(sdk.ZeroDec()) || o.TriggerPrice.GT(MaxOrderPrice)) {
+	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.LT(sdk.ZeroDec()) || o.TriggerPrice.GT(MaxOrderPrice)) {
 		return sdkerrors.Wrap(ErrInvalidTriggerPrice, o.TriggerPrice.String())
 	}
 
@@ -237,11 +237,11 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 		return ErrSameDenoms
 	}
 
-	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
+	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
-	if msg.MinQuantityTickSize.IsNil() || msg.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, msg.MinQuantityTickSize.String())
+	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return nil
@@ -316,11 +316,11 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
-	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
+	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
-	if msg.MinQuantityTickSize.IsNil() || msg.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, msg.MinQuantityTickSize.String())
+	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return nil
@@ -400,11 +400,11 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
-	if msg.MinPriceTickSize.IsNil() || msg.MinPriceTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, msg.MinPriceTickSize.String())
+	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
-	if msg.MinPriceTickSize.IsNil() || msg.MinQuantityTickSize.LTE(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, msg.MinQuantityTickSize.String())
+	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return nil

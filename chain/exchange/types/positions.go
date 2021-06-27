@@ -136,7 +136,7 @@ func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding)
 
 	// Compute the adjusted position margin for positions in perpetual markets
 	if funding != nil {
-		unrealizedFundingPayment := p.Quantity.Mul(p.CumulativeFundingEntry.Sub(funding.CumulativeFunding))
+		unrealizedFundingPayment := p.Quantity.Mul(funding.CumulativeFunding.Sub(p.CumulativeFundingEntry))
 
 		// For longs, Margin -= Funding
 		// For shorts, Margin += Funding
@@ -157,7 +157,7 @@ func (p *Position) ApplyFundingAndGetUpdatedPositionState(funding *PerpetualMark
 	fundingPayment := sdk.ZeroDec()
 
 	if funding != nil {
-		fundingPayment = p.Quantity.Mul(p.CumulativeFundingEntry.Sub(funding.CumulativeFunding))
+		fundingPayment = p.Quantity.Mul(funding.CumulativeFunding.Sub(p.CumulativeFundingEntry))
 		// For longs, Margin -= Funding
 		// For shorts, Margin += Funding
 		if p.IsLong {

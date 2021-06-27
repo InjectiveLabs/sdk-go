@@ -74,6 +74,6 @@ func (d *DepositDeltas) ApplyDelta(subaccountID common.Hash, totalBalanceDelta, 
 	delta.TotalBalanceDelta = delta.TotalBalanceDelta.Add(totalBalanceDelta)
 }
 
-func (d *Deposit) HasRestingVanillaLimitOrders() bool {
+func (d *Deposit) HasTransientOrRestingVanillaLimitOrders() bool {
 	return d.AvailableBalance.LT(d.TotalBalance)
 }

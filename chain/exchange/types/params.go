@@ -36,6 +36,8 @@ const (
 var MaxOrderPrice = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 var MaxOrderQuantity = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 
+var minMarginRatio = sdk.NewDecWithPrec(5, 3)
+
 // Parameter keys
 var (
 	KeySpotMarketInstantListingFee       = []byte("SpotMarketInstantListingFee")
@@ -229,6 +231,48 @@ func ValidateFee(i interface{}) error {
 	return nil
 }
 
+func ValidateTickSize(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("tick size cannot be nil: %s", v)
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("tick size cannot be negative: %s", v)
+	}
+
+	if v.IsZero() {
+		return fmt.Errorf("tick size cannot be zero: %s", v)
+	}
+
+	if v.GT(MaxOrderPrice) {
+		return fmt.Errorf("unsupported tick size amount")
+	}
+
+	// 1e18 scaleFactor
+	scaleFactor := sdk.NewDec(1000000000000000000)
+	// v can be a decimal (e.g. 1e-18) so we scale by 1e18
+	scaledValue := v.Mul(scaleFactor)
+
+	power := sdk.NewDec(1)
+	ten := sdk.NewDec(10)
+
+	// determine whether scaledValue is a power of 10
+	for power.LT(scaledValue) {
+		power = power.Mul(ten)
+	}
+
+	if !power.Equal(scaledValue) {
+		return fmt.Errorf("unsupported tick size")
+	}
+
+	return nil
+}
+
 func ValidateMarginRatio(i interface{}) error {
 	v, ok := i.(sdk.Dec)
 	if !ok {
@@ -238,8 +282,8 @@ func ValidateMarginRatio(i interface{}) error {
 	if v.IsNil() {
 		return fmt.Errorf("margin ratio cannot be nil: %s", v)
 	}
-	if v.IsNegative() {
-		return fmt.Errorf("margin ratio cannot be negative: %s", v)
+	if v.LT(minMarginRatio) {
+		return fmt.Errorf("margin ratio cannot be less than minimum: %s", v)
 	}
 	if v.GTE(sdk.OneDec()) {
 		return fmt.Errorf("margin ratio cannot be greater than or equal to 1: %s", v)
