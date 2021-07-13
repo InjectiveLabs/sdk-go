@@ -26,9 +26,6 @@ var (
 	// ParamsStoreKeyContractHash stores the contract hash
 	ParamsStoreKeyContractHash = []byte("ContractHash")
 
-	// ParamsStoreKeyStartThreshold stores the start threshold
-	ParamsStoreKeyStartThreshold = []byte("StartThreshold")
-
 	// ParamsStoreKeyBridgeContractAddress stores the contract address
 	ParamsStoreKeyBridgeContractAddress = []byte("BridgeContractAddress")
 
@@ -53,13 +50,13 @@ var (
 	// ParamsStoreKeySignedClaimsWindow stores the signed blocks window
 	ParamsStoreKeySignedClaimsWindow = []byte("SignedClaimsWindow")
 
-	// ParamsStoreKeySignedClaimsWindow stores the signed blocks window
+	// ParamsStoreKeyTargetBatchTimeout stores
 	ParamsStoreKeyTargetBatchTimeout = []byte("TargetBatchTimeout")
 
-	// ParamsStoreKeySignedClaimsWindow stores the signed blocks window
+	// ParamsStoreKeyAverageBlockTime stores the average block time of the Injective Chain in milliseconds
 	ParamsStoreKeyAverageBlockTime = []byte("AverageBlockTime")
 
-	// ParamsStoreKeySignedClaimsWindow stores the signed blocks window
+	// ParamsStoreKeyAverageEthereumBlockTime stores the average block time of Ethereum in milliseconds
 	ParamsStoreKeyAverageEthereumBlockTime = []byte("AverageEthereumBlockTime")
 
 	// ParamsStoreSlashFractionValset stores the slash fraction valset
@@ -74,7 +71,7 @@ var (
 	// ParamsStoreSlashFractionConflictingClaim stores the slash fraction ConflictingClaim
 	ParamsStoreSlashFractionConflictingClaim = []byte("SlashFractionConflictingClaim")
 
-	//  ParamStoreUnbondSlashingValsetsWindow stores unbond slashing valset window
+	// ParamStoreUnbondSlashingValsetsWindow stores unbond slashing valset window
 	ParamStoreUnbondSlashingValsetsWindow = []byte("UnbondSlashingValsetsWindow")
 
 	// ParamStoreClaimSlashingEnabled stores ClaimSlashing is enabled or not
@@ -83,7 +80,7 @@ var (
 	// ParamStoreSlashFractionBadEthSignature stores the amount by which a validator making a fraudulent eth signature will be slashed
 	ParamStoreSlashFractionBadEthSignature = []byte("SlashFractionBadEthSignature")
 
-	// ValsetRewardAmount the amount of the coin, both denom and amount to issue
+	// ParamStoreValsetRewardAmount is the amount of the coin, both denom and amount to issue
 	// to a relayer when they relay a valset
 	ParamStoreValsetRewardAmount = []byte("ValsetReward")
 

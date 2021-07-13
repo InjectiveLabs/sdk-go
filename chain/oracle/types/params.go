@@ -1,10 +1,13 @@
 package types
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 var _ paramtypes.ParamSet = &Params{}
+
+var LargestDecPrice sdk.Dec = sdk.MustNewDecFromStr("10000000")
 
 // Parameter keys
 

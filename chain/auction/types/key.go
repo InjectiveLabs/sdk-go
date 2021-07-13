@@ -3,12 +3,12 @@ package types
 const (
 	ModuleName = "auction"
 	StoreKey   = ModuleName
+	TStoreKey  = "transient_auction"
 )
 
 var (
 	// Keys for store prefixes
 	BidsKey            = []byte{0x01}
-	KeyLastBid         = []byte{0x02}
-	KeyAuctionRound    = []byte{0x03}
+	AuctionRoundKey    = []byte{0x03}
 	KeyEndingTimeStamp = []byte{0x04}
 )

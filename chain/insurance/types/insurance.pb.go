@@ -202,7 +202,7 @@ func (m *InsuranceFund) GetExpiry() int64 {
 type RedemptionSchedule struct {
 	// id of redemption schedule
 	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// marketId of redemption schedule
+	// marketId of insurance fund for the redemption
 	MarketId string `protobuf:"bytes,2,opt,name=marketId,proto3" json:"marketId,omitempty"`
 	// address of the redeemer
 	Redeemer string `protobuf:"bytes,3,opt,name=redeemer,proto3" json:"redeemer,omitempty"`
@@ -371,7 +371,7 @@ func (m *EventRequestRedemption) GetSchedule() *RedemptionSchedule {
 type EventWithdrawRedemption struct {
 	// redemption schedule triggered withdraw
 	Schedule *RedemptionSchedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule,omitempty"`
-	// redeem coin amount in base_curency
+	// redeem coin amount in base_currency
 	RedeemCoin types1.Coin `protobuf:"bytes,2,opt,name=redeem_coin,json=redeemCoin,proto3" json:"redeem_coin"`
 }
 

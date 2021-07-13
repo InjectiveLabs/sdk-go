@@ -116,21 +116,19 @@ func (e *ERC20Token) ValidateBasic() error {
 	if err := ValidateEthAddress(e.Contract); err != nil {
 		return sdkerrors.Wrap(err, "ethereum address")
 	}
-	// TODO: Validate all the things
 	return nil
 }
 
 // Add adds one ERC20 to another
-// TODO: make this return errors instead
-func (e *ERC20Token) Add(o *ERC20Token) *ERC20Token {
+func (e *ERC20Token) Add(o *ERC20Token) (*ERC20Token, error) {
 	if string(e.Contract) != string(o.Contract) {
-		panic("invalid contract address")
+		return nil, errors.New("invalid contract address")
 	}
 
 	sum := e.Amount.Add(o.Amount)
 	if !sum.IsUint64() {
-		panic("invalid amount")
+		return nil, errors.New("invalid amount")
 	}
 
-	return NewERC20Token(sum.Uint64(), common.HexToAddress(e.Contract))
+	return NewERC20Token(sum.Uint64(), common.HexToAddress(e.Contract)), nil
 }

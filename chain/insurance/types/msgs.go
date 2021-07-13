@@ -3,6 +3,8 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 )
 
 const RouterKey = ModuleName
@@ -35,6 +37,9 @@ func (msg MsgCreateInsuranceFund) ValidateBasic() error {
 	}
 	if msg.OracleQuote == "" {
 		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
+	}
+	if msg.OracleType == oracletypes.OracleType_Unspecified {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle type should not be unspecified")
 	}
 	if msg.QuoteDenom != msg.InitialDeposit.Denom {
 		return sdkerrors.Wrapf(ErrInvalidDepositDenom, "oracle quote denom %s does not match deposit denom %s", msg.QuoteDenom, msg.InitialDeposit.Denom)

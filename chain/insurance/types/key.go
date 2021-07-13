@@ -12,14 +12,11 @@ const (
 )
 
 var (
-	// Keys for store prefixes
-	BidsKey = []byte{0x01}
-
 	// Key for insurance prefixes
 	InsuranceFundPrefixKey = []byte{0x02}
 
 	// Key for insurance redemption prefixes
-	RedemptionSchedulePrefixKey = []byte{0x03, 0x05}
+	RedemptionSchedulePrefixKey = []byte{0x03}
 
 	GlobalShareDenomIdPrefixKey         = []byte{0x04, 0x00}
 	GlobalRedemptionScheduleIdPrefixKey = []byte{0x05, 0x00}

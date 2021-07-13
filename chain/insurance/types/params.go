@@ -12,7 +12,7 @@ var _ paramtypes.ParamSet = &Params{}
 // insurance params default values
 const (
 	// DefaultInsurancePeriodDurationSeconds represents the number of seconds in two weeks
-	DefaultInsurancePeriod time.Duration = time.Hour * 24 * 14
+	DefaultInsurancePeriod = time.Hour * 24 * 14
 )
 
 // Parameter keys

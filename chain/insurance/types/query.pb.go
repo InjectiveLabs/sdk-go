@@ -112,6 +112,179 @@ func (m *QueryInsuranceParamsResponse) GetParams() Params {
 	return Params{}
 }
 
+// QueryInsuranceFundRequest is the request type for the Query/InsuranceFunds RPC method.
+type QueryInsuranceFundRequest struct {
+	// Market ID for the market
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+}
+
+func (m *QueryInsuranceFundRequest) Reset()         { *m = QueryInsuranceFundRequest{} }
+func (m *QueryInsuranceFundRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryInsuranceFundRequest) ProtoMessage()    {}
+func (*QueryInsuranceFundRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{2}
+}
+func (m *QueryInsuranceFundRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryInsuranceFundRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryInsuranceFundRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryInsuranceFundRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryInsuranceFundRequest.Merge(m, src)
+}
+func (m *QueryInsuranceFundRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryInsuranceFundRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryInsuranceFundRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryInsuranceFundRequest proto.InternalMessageInfo
+
+func (m *QueryInsuranceFundRequest) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
+// QueryInsuranceFundResponse is the response type for the Query/InsuranceFund RPC method.
+type QueryInsuranceFundResponse struct {
+	Fund *InsuranceFund `protobuf:"bytes,1,opt,name=fund,proto3" json:"fund,omitempty"`
+}
+
+func (m *QueryInsuranceFundResponse) Reset()         { *m = QueryInsuranceFundResponse{} }
+func (m *QueryInsuranceFundResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryInsuranceFundResponse) ProtoMessage()    {}
+func (*QueryInsuranceFundResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{3}
+}
+func (m *QueryInsuranceFundResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryInsuranceFundResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryInsuranceFundResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryInsuranceFundResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryInsuranceFundResponse.Merge(m, src)
+}
+func (m *QueryInsuranceFundResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryInsuranceFundResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryInsuranceFundResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryInsuranceFundResponse proto.InternalMessageInfo
+
+func (m *QueryInsuranceFundResponse) GetFund() *InsuranceFund {
+	if m != nil {
+		return m.Fund
+	}
+	return nil
+}
+
+// QueryInsuranceFundsRequest is the request type for the Query/InsuranceFunds RPC method.
+type QueryInsuranceFundsRequest struct {
+}
+
+func (m *QueryInsuranceFundsRequest) Reset()         { *m = QueryInsuranceFundsRequest{} }
+func (m *QueryInsuranceFundsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryInsuranceFundsRequest) ProtoMessage()    {}
+func (*QueryInsuranceFundsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{4}
+}
+func (m *QueryInsuranceFundsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryInsuranceFundsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryInsuranceFundsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryInsuranceFundsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryInsuranceFundsRequest.Merge(m, src)
+}
+func (m *QueryInsuranceFundsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryInsuranceFundsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryInsuranceFundsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryInsuranceFundsRequest proto.InternalMessageInfo
+
+// QueryInsuranceFundsResponse is the response type for the Query/InsuranceFunds RPC method.
+type QueryInsuranceFundsResponse struct {
+	Funds []InsuranceFund `protobuf:"bytes,1,rep,name=funds,proto3" json:"funds"`
+}
+
+func (m *QueryInsuranceFundsResponse) Reset()         { *m = QueryInsuranceFundsResponse{} }
+func (m *QueryInsuranceFundsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryInsuranceFundsResponse) ProtoMessage()    {}
+func (*QueryInsuranceFundsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{5}
+}
+func (m *QueryInsuranceFundsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryInsuranceFundsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryInsuranceFundsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryInsuranceFundsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryInsuranceFundsResponse.Merge(m, src)
+}
+func (m *QueryInsuranceFundsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryInsuranceFundsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryInsuranceFundsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryInsuranceFundsResponse proto.InternalMessageInfo
+
+func (m *QueryInsuranceFundsResponse) GetFunds() []InsuranceFund {
+	if m != nil {
+		return m.Funds
+	}
+	return nil
+}
+
 // QueryEstimatedRedemptionsRequest is the request type for the Query/EstimatedRedemptions RPC method.
 type QueryEstimatedRedemptionsRequest struct {
 	MarketId string `protobuf:"bytes,1,opt,name=marketId,proto3" json:"marketId,omitempty"`
@@ -122,7 +295,7 @@ func (m *QueryEstimatedRedemptionsRequest) Reset()         { *m = QueryEstimated
 func (m *QueryEstimatedRedemptionsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryEstimatedRedemptionsRequest) ProtoMessage()    {}
 func (*QueryEstimatedRedemptionsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_74cebfe4cd18bca2, []int{2}
+	return fileDescriptor_74cebfe4cd18bca2, []int{6}
 }
 func (m *QueryEstimatedRedemptionsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -167,14 +340,14 @@ func (m *QueryEstimatedRedemptionsRequest) GetAddress() string {
 
 // QueryEstimatedRedemptionsResponse is the response type for the Query/EstimatedRedemptions RPC method.
 type QueryEstimatedRedemptionsResponse struct {
-	Amount []types.Coin `protobuf:"bytes,3,rep,name=amount,proto3" json:"amount"`
+	Amount []types.Coin `protobuf:"bytes,1,rep,name=amount,proto3" json:"amount"`
 }
 
 func (m *QueryEstimatedRedemptionsResponse) Reset()         { *m = QueryEstimatedRedemptionsResponse{} }
 func (m *QueryEstimatedRedemptionsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryEstimatedRedemptionsResponse) ProtoMessage()    {}
 func (*QueryEstimatedRedemptionsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_74cebfe4cd18bca2, []int{3}
+	return fileDescriptor_74cebfe4cd18bca2, []int{7}
 }
 func (m *QueryEstimatedRedemptionsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -220,7 +393,7 @@ func (m *QueryPendingRedemptionsRequest) Reset()         { *m = QueryPendingRede
 func (m *QueryPendingRedemptionsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryPendingRedemptionsRequest) ProtoMessage()    {}
 func (*QueryPendingRedemptionsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_74cebfe4cd18bca2, []int{4}
+	return fileDescriptor_74cebfe4cd18bca2, []int{8}
 }
 func (m *QueryPendingRedemptionsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -265,14 +438,14 @@ func (m *QueryPendingRedemptionsRequest) GetAddress() string {
 
 // QueryPendingRedemptionsResponse is the response type for the Query/PendingRedemptions RPC method.
 type QueryPendingRedemptionsResponse struct {
-	Amount []types.Coin `protobuf:"bytes,3,rep,name=amount,proto3" json:"amount"`
+	Amount []types.Coin `protobuf:"bytes,1,rep,name=amount,proto3" json:"amount"`
 }
 
 func (m *QueryPendingRedemptionsResponse) Reset()         { *m = QueryPendingRedemptionsResponse{} }
 func (m *QueryPendingRedemptionsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryPendingRedemptionsResponse) ProtoMessage()    {}
 func (*QueryPendingRedemptionsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_74cebfe4cd18bca2, []int{5}
+	return fileDescriptor_74cebfe4cd18bca2, []int{9}
 }
 func (m *QueryPendingRedemptionsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -308,13 +481,101 @@ func (m *QueryPendingRedemptionsResponse) GetAmount() []types.Coin {
 	return nil
 }
 
+// QueryModuleStateRequest is the request type for the Query/InsuranceModuleState RPC method.
+type QueryModuleStateRequest struct {
+}
+
+func (m *QueryModuleStateRequest) Reset()         { *m = QueryModuleStateRequest{} }
+func (m *QueryModuleStateRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryModuleStateRequest) ProtoMessage()    {}
+func (*QueryModuleStateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{10}
+}
+func (m *QueryModuleStateRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryModuleStateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryModuleStateRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryModuleStateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryModuleStateRequest.Merge(m, src)
+}
+func (m *QueryModuleStateRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryModuleStateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryModuleStateRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
+
+// QueryModuleStateResponse is the response type for the Query/InsuranceModuleState RPC method.
+type QueryModuleStateResponse struct {
+	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
+}
+
+func (m *QueryModuleStateResponse) Reset()         { *m = QueryModuleStateResponse{} }
+func (m *QueryModuleStateResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryModuleStateResponse) ProtoMessage()    {}
+func (*QueryModuleStateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{11}
+}
+func (m *QueryModuleStateResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryModuleStateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryModuleStateResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryModuleStateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryModuleStateResponse.Merge(m, src)
+}
+func (m *QueryModuleStateResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryModuleStateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryModuleStateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryModuleStateResponse proto.InternalMessageInfo
+
+func (m *QueryModuleStateResponse) GetState() *GenesisState {
+	if m != nil {
+		return m.State
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*QueryInsuranceParamsRequest)(nil), "injective.insurance.v1beta1.QueryInsuranceParamsRequest")
 	proto.RegisterType((*QueryInsuranceParamsResponse)(nil), "injective.insurance.v1beta1.QueryInsuranceParamsResponse")
+	proto.RegisterType((*QueryInsuranceFundRequest)(nil), "injective.insurance.v1beta1.QueryInsuranceFundRequest")
+	proto.RegisterType((*QueryInsuranceFundResponse)(nil), "injective.insurance.v1beta1.QueryInsuranceFundResponse")
+	proto.RegisterType((*QueryInsuranceFundsRequest)(nil), "injective.insurance.v1beta1.QueryInsuranceFundsRequest")
+	proto.RegisterType((*QueryInsuranceFundsResponse)(nil), "injective.insurance.v1beta1.QueryInsuranceFundsResponse")
 	proto.RegisterType((*QueryEstimatedRedemptionsRequest)(nil), "injective.insurance.v1beta1.QueryEstimatedRedemptionsRequest")
 	proto.RegisterType((*QueryEstimatedRedemptionsResponse)(nil), "injective.insurance.v1beta1.QueryEstimatedRedemptionsResponse")
 	proto.RegisterType((*QueryPendingRedemptionsRequest)(nil), "injective.insurance.v1beta1.QueryPendingRedemptionsRequest")
 	proto.RegisterType((*QueryPendingRedemptionsResponse)(nil), "injective.insurance.v1beta1.QueryPendingRedemptionsResponse")
+	proto.RegisterType((*QueryModuleStateRequest)(nil), "injective.insurance.v1beta1.QueryModuleStateRequest")
+	proto.RegisterType((*QueryModuleStateResponse)(nil), "injective.insurance.v1beta1.QueryModuleStateResponse")
 }
 
 func init() {
@@ -322,40 +583,53 @@ func init() {
 }
 
 var fileDescriptor_74cebfe4cd18bca2 = []byte{
-	// 514 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0x4f, 0x6b, 0xd4, 0x40,
-	0x14, 0xdf, 0xb4, 0x75, 0xd5, 0xe9, 0x41, 0x18, 0x7a, 0x58, 0xd3, 0x9a, 0xae, 0x29, 0x62, 0xa1,
-	0x98, 0xb1, 0x51, 0xb0, 0xfe, 0x05, 0x2b, 0x1e, 0x16, 0x04, 0xeb, 0x1e, 0x44, 0x8a, 0x20, 0x93,
-	0xe4, 0x91, 0x8e, 0x36, 0x33, 0x69, 0x66, 0x52, 0xe8, 0xd5, 0x4f, 0x20, 0xf8, 0x51, 0xfc, 0x12,
-	0xf5, 0x56, 0xf1, 0xe2, 0x45, 0x91, 0x5d, 0x3f, 0x88, 0xec, 0x4c, 0xb2, 0x1b, 0xb4, 0x9d, 0x85,
-	0xd5, 0x5b, 0xde, 0xbc, 0xf7, 0xfb, 0xbd, 0xdf, 0xef, 0xbd, 0x47, 0xd0, 0x75, 0xc6, 0xdf, 0x42,
-	0xac, 0xd8, 0x21, 0x10, 0xc6, 0x65, 0x59, 0x50, 0x1e, 0x03, 0x39, 0xdc, 0x8c, 0x40, 0xd1, 0x4d,
-	0x72, 0x50, 0x42, 0x71, 0x14, 0xe4, 0x85, 0x50, 0x02, 0x2f, 0x8f, 0x0b, 0x83, 0x71, 0x61, 0x50,
-	0x15, 0xba, 0x2b, 0xa9, 0x10, 0xe9, 0x3e, 0x10, 0x9a, 0x33, 0x42, 0x39, 0x17, 0x8a, 0x2a, 0x26,
-	0xb8, 0x34, 0x50, 0x77, 0xc3, 0xd6, 0x63, 0x42, 0x66, 0x8a, 0x97, 0x52, 0x91, 0x0a, 0xfd, 0x49,
-	0x46, 0x5f, 0xd5, 0xab, 0x17, 0x0b, 0x99, 0x09, 0x49, 0x22, 0x2a, 0x27, 0xd0, 0x58, 0x30, 0x6e,
-	0xf2, 0xfe, 0x15, 0xb4, 0xfc, 0x62, 0x24, 0xb6, 0x57, 0xb3, 0xed, 0xd0, 0x82, 0x66, 0xb2, 0x0f,
-	0x07, 0x25, 0x48, 0xe5, 0x53, 0xb4, 0x72, 0x7a, 0x5a, 0xe6, 0x82, 0x4b, 0xc0, 0x8f, 0x51, 0x3b,
-	0xd7, 0x2f, 0x1d, 0xa7, 0xeb, 0xac, 0x2f, 0x86, 0x6b, 0x81, 0xc5, 0x6d, 0x60, 0xc0, 0xdb, 0x0b,
-	0xc7, 0x3f, 0x56, 0x5b, 0xfd, 0x0a, 0xe8, 0xbf, 0x42, 0x5d, 0xdd, 0xe2, 0xa9, 0x54, 0x2c, 0xa3,
-	0x0a, 0x92, 0x3e, 0x24, 0x90, 0xe5, 0x7a, 0x0e, 0x95, 0x0c, 0xec, 0xa2, 0x0b, 0x19, 0x2d, 0xde,
-	0x81, 0xea, 0x25, 0xba, 0xd1, 0xc5, 0xfe, 0x38, 0xc6, 0x1d, 0x74, 0x9e, 0x26, 0x49, 0x01, 0x52,
-	0x76, 0xe6, 0x74, 0xaa, 0x0e, 0xfd, 0xd7, 0xe8, 0xaa, 0x85, 0xb9, 0x72, 0x70, 0x07, 0xb5, 0x69,
-	0x26, 0x4a, 0xae, 0x3a, 0xf3, 0xdd, 0xf9, 0xf5, 0xc5, 0xf0, 0x72, 0x60, 0x26, 0x16, 0x8c, 0x26,
-	0x36, 0x56, 0xfe, 0x44, 0x30, 0x5e, 0xeb, 0x36, 0xe5, 0xfe, 0x4b, 0xe4, 0x69, 0xf6, 0x1d, 0xe0,
-	0x09, 0xe3, 0xe9, 0x7f, 0x53, 0xbd, 0x8b, 0x56, 0xcf, 0xe4, 0xfd, 0x47, 0xcd, 0xe1, 0xf7, 0x05,
-	0x74, 0x4e, 0x93, 0xe3, 0x4f, 0x0e, 0xba, 0xf4, 0xc7, 0x52, 0xf1, 0x96, 0x75, 0x79, 0x96, 0x33,
-	0x71, 0xef, 0xce, 0x80, 0x34, 0x5e, 0xfc, 0x8d, 0xf7, 0x5f, 0x7f, 0x7d, 0x9c, 0xbb, 0x86, 0xd7,
-	0x88, 0xed, 0xd8, 0xcd, 0xad, 0xe0, 0x2f, 0x0e, 0x5a, 0x3a, 0x6d, 0x9b, 0xf8, 0xe1, 0x74, 0x01,
-	0x96, 0xfb, 0x72, 0x1f, 0xcd, 0x0a, 0xaf, 0x4c, 0xdc, 0xd3, 0x26, 0x6e, 0xe3, 0xd0, 0x6a, 0x02,
-	0x6a, 0x8a, 0x37, 0x45, 0x43, 0xfa, 0x67, 0x07, 0xe1, 0xbf, 0x77, 0x8d, 0xef, 0x4f, 0x97, 0x74,
-	0xe6, 0xe5, 0xb9, 0x0f, 0x66, 0x03, 0x57, 0x6e, 0xb6, 0xb4, 0x9b, 0x10, 0xdf, 0xb4, 0xaf, 0xc4,
-	0x10, 0x34, 0xbd, 0x6c, 0xb3, 0xe3, 0x81, 0xe7, 0x9c, 0x0c, 0x3c, 0xe7, 0xe7, 0xc0, 0x73, 0x3e,
-	0x0c, 0xbd, 0xd6, 0xc9, 0xd0, 0x6b, 0x7d, 0x1b, 0x7a, 0xad, 0xdd, 0xe7, 0x29, 0x53, 0x7b, 0x65,
-	0x14, 0xc4, 0x22, 0x23, 0xbd, 0x9a, 0xf5, 0x19, 0x8d, 0xe4, 0xa4, 0xc7, 0x8d, 0x58, 0x14, 0xd0,
-	0x0c, 0xf7, 0x28, 0xe3, 0x24, 0x13, 0x49, 0xb9, 0x0f, 0xb2, 0x21, 0x40, 0x1d, 0xe5, 0x20, 0xa3,
-	0xb6, 0xfe, 0x7f, 0xdd, 0xfa, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x67, 0xc1, 0x4f, 0x7a, 0x88, 0x05,
-	0x00, 0x00,
+	// 727 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0xdf, 0x4b, 0x14, 0x41,
+	0x1c, 0xbf, 0x35, 0xb5, 0x9c, 0xa8, 0x60, 0x10, 0x3a, 0x57, 0x5b, 0x6d, 0x25, 0xca, 0xac, 0xdd,
+	0xbc, 0x2c, 0xcf, 0x7e, 0x28, 0x19, 0x19, 0x42, 0x91, 0x5d, 0x10, 0x61, 0xc2, 0x31, 0x77, 0x3b,
+	0xad, 0x53, 0xee, 0xcc, 0xb9, 0x33, 0x2b, 0x48, 0xf4, 0xd2, 0x5f, 0x10, 0x04, 0xfd, 0x23, 0x41,
+	0xd0, 0x63, 0x6f, 0xf6, 0x66, 0xf4, 0xd2, 0x53, 0x84, 0xf6, 0x87, 0xc4, 0xce, 0xce, 0xae, 0x77,
+	0x7a, 0x8e, 0xed, 0xd5, 0xdb, 0xed, 0xcc, 0x7c, 0x7e, 0x7d, 0x67, 0xbe, 0x5f, 0x0e, 0x9c, 0x27,
+	0xf4, 0x25, 0xae, 0x0b, 0xb2, 0x8e, 0x5d, 0x42, 0x79, 0x14, 0x22, 0x5a, 0xc7, 0xee, 0xfa, 0x44,
+	0x0d, 0x0b, 0x34, 0xe1, 0xae, 0x45, 0x38, 0xdc, 0x70, 0x1a, 0x21, 0x13, 0x0c, 0x0e, 0x66, 0x07,
+	0x9d, 0xec, 0xa0, 0xa3, 0x0e, 0x9a, 0x43, 0x3e, 0x63, 0xfe, 0x2a, 0x76, 0x51, 0x83, 0xb8, 0x88,
+	0x52, 0x26, 0x90, 0x20, 0x8c, 0xf2, 0x04, 0x6a, 0x8e, 0xeb, 0x34, 0x76, 0xc9, 0x92, 0xc3, 0xfd,
+	0x3e, 0xf3, 0x99, 0xfc, 0xe9, 0xc6, 0xbf, 0xd4, 0xaa, 0x55, 0x67, 0x3c, 0x60, 0xdc, 0xad, 0x21,
+	0xbe, 0x0b, 0xad, 0x33, 0x42, 0xd5, 0xfe, 0x98, 0x4e, 0xc2, 0xc7, 0x14, 0x73, 0xa2, 0xdc, 0xd8,
+	0x67, 0xc0, 0xe0, 0xe3, 0x38, 0xd7, 0x42, 0x7a, 0x6e, 0x11, 0x85, 0x28, 0xe0, 0x15, 0xbc, 0x16,
+	0x61, 0x2e, 0x6c, 0x04, 0x86, 0xda, 0x6f, 0xf3, 0x06, 0xa3, 0x1c, 0xc3, 0x3b, 0xa0, 0xb7, 0x21,
+	0x57, 0x8a, 0xc6, 0x88, 0x71, 0xe1, 0x78, 0x69, 0xd4, 0xd1, 0x14, 0xc6, 0x49, 0xc0, 0x73, 0xdd,
+	0x9b, 0x3f, 0x87, 0x0b, 0x15, 0x05, 0xb4, 0xcb, 0x60, 0xa0, 0x55, 0x62, 0x3e, 0xa2, 0x9e, 0xd2,
+	0x87, 0x83, 0xa0, 0x2f, 0x40, 0xe1, 0x2b, 0x2c, 0xaa, 0xc4, 0x93, 0x12, 0x7d, 0x95, 0x63, 0xc9,
+	0xc2, 0x82, 0x67, 0x2f, 0x03, 0xb3, 0x1d, 0x52, 0x59, 0x9b, 0x01, 0xdd, 0x2f, 0x22, 0xea, 0x29,
+	0x63, 0x17, 0xb5, 0xc6, 0x5a, 0x19, 0x24, 0xce, 0x1e, 0x6a, 0xc7, 0x9e, 0x15, 0x06, 0xef, 0xad,
+	0x9b, 0xda, 0x55, 0xe2, 0xf3, 0xa0, 0x27, 0x26, 0x89, 0xcb, 0x72, 0x24, 0x9f, 0xba, 0xaa, 0x4e,
+	0x02, 0xb7, 0x9f, 0x81, 0x11, 0x29, 0x73, 0x8f, 0x0b, 0x12, 0x20, 0x81, 0xbd, 0x0a, 0xf6, 0x70,
+	0xd0, 0x90, 0xef, 0x29, 0xad, 0x91, 0x09, 0xb2, 0x92, 0xec, 0x2d, 0x11, 0x2c, 0x82, 0xa3, 0xc8,
+	0xf3, 0x42, 0xcc, 0x79, 0xb1, 0x4b, 0x6e, 0xa5, 0x9f, 0xf6, 0x32, 0x38, 0xab, 0x61, 0x56, 0x31,
+	0xa6, 0x40, 0x2f, 0x0a, 0x58, 0x44, 0x85, 0xca, 0x31, 0xe0, 0x24, 0x2f, 0xcf, 0x89, 0x5f, 0x5e,
+	0xe6, 0xff, 0x2e, 0x23, 0x34, 0xbd, 0xd4, 0xe4, 0xb8, 0xfd, 0x14, 0x58, 0x92, 0x7d, 0x11, 0x53,
+	0x8f, 0x50, 0xff, 0xbf, 0xb9, 0x5e, 0x02, 0xc3, 0x07, 0xf2, 0xfe, 0xab, 0xe7, 0x01, 0x70, 0x5a,
+	0x72, 0x3f, 0x64, 0x5e, 0xb4, 0x8a, 0x9f, 0x08, 0x24, 0x70, 0x7a, 0xdb, 0xcf, 0x41, 0x71, 0xff,
+	0x96, 0xd2, 0x9b, 0x05, 0x3d, 0x3c, 0x5e, 0x50, 0x0f, 0x6d, 0x4c, 0x7b, 0xd5, 0xf7, 0x93, 0xe6,
+	0x4b, 0x18, 0x12, 0x5c, 0xe9, 0x43, 0x1f, 0xe8, 0x91, 0xec, 0xf0, 0xa3, 0x01, 0x4e, 0xed, 0xe9,
+	0x34, 0x58, 0xd6, 0xf2, 0x69, 0x7a, 0xd7, 0x9c, 0xee, 0x00, 0x99, 0x64, 0xb2, 0xc7, 0xdf, 0x7e,
+	0xff, 0xfd, 0xbe, 0xeb, 0x1c, 0x1c, 0x75, 0x75, 0x93, 0x24, 0x69, 0x60, 0xf8, 0xc5, 0x00, 0x27,
+	0x5a, 0x9e, 0x30, 0xbc, 0x9e, 0x43, 0xb9, 0xa9, 0xdb, 0xcd, 0xa9, 0xdc, 0x38, 0xe5, 0x77, 0x56,
+	0xfa, 0x9d, 0x86, 0x53, 0xee, 0x5f, 0x0d, 0xd7, 0x6a, 0xdc, 0x5c, 0xee, 0xeb, 0x6c, 0xb2, 0xbc,
+	0x81, 0x9f, 0x0d, 0x70, 0xb2, 0xb5, 0x95, 0x61, 0x5e, 0x33, 0x59, 0xdd, 0xcb, 0xf9, 0x81, 0x2a,
+	0xc6, 0xa4, 0x8c, 0xe1, 0xc0, 0x4b, 0x39, 0x62, 0x70, 0xf8, 0xcd, 0x00, 0xfd, 0xed, 0xba, 0x18,
+	0xde, 0x3e, 0xdc, 0x88, 0x66, 0xae, 0x98, 0x33, 0x9d, 0xc2, 0x55, 0x9a, 0x1b, 0x32, 0xcd, 0x24,
+	0x2c, 0x69, 0xd3, 0xe0, 0x94, 0xa2, 0x1a, 0x36, 0x59, 0xff, 0x6a, 0x00, 0xb8, 0xbf, 0xc7, 0xe1,
+	0xcd, 0xc3, 0x2d, 0x1d, 0x38, 0x71, 0xcc, 0x5b, 0x9d, 0x81, 0x55, 0x9a, 0xb2, 0x4c, 0x53, 0x82,
+	0x57, 0xf4, 0x2d, 0x91, 0x10, 0xb4, 0x64, 0xf9, 0x64, 0x80, 0xfe, 0xec, 0xc2, 0x9b, 0x26, 0x08,
+	0x9c, 0x3c, 0xdc, 0xd0, 0xfe, 0x59, 0x64, 0x5e, 0xcb, 0x89, 0x52, 0xfe, 0x27, 0xa4, 0xff, 0x71,
+	0x38, 0xa6, 0xf5, 0x1f, 0x48, 0x64, 0x55, 0x0e, 0xa6, 0x39, 0xb2, 0xb9, 0x6d, 0x19, 0x5b, 0xdb,
+	0x96, 0xf1, 0x6b, 0xdb, 0x32, 0xde, 0xed, 0x58, 0x85, 0xad, 0x1d, 0xab, 0xf0, 0x63, 0xc7, 0x2a,
+	0x2c, 0x3d, 0xf2, 0x89, 0x58, 0x89, 0x6a, 0x4e, 0x9d, 0x05, 0xee, 0x42, 0x4a, 0xf7, 0x00, 0xd5,
+	0xf8, 0x2e, 0xf9, 0xe5, 0x3a, 0x0b, 0x71, 0xf3, 0xe7, 0x0a, 0x22, 0x54, 0xf1, 0xf3, 0x26, 0x65,
+	0xb1, 0xd1, 0xc0, 0xbc, 0xd6, 0x2b, 0xff, 0x8d, 0x5c, 0xfd, 0x13, 0x00, 0x00, 0xff, 0xff, 0x23,
+	0x60, 0x60, 0x91, 0x81, 0x09, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -372,8 +646,12 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Retrieves insurance params
 	InsuranceParams(ctx context.Context, in *QueryInsuranceParamsRequest, opts ...grpc.CallOption) (*QueryInsuranceParamsResponse, error)
+	InsuranceFund(ctx context.Context, in *QueryInsuranceFundRequest, opts ...grpc.CallOption) (*QueryInsuranceFundResponse, error)
+	InsuranceFunds(ctx context.Context, in *QueryInsuranceFundsRequest, opts ...grpc.CallOption) (*QueryInsuranceFundsResponse, error)
 	EstimatedRedemptions(ctx context.Context, in *QueryEstimatedRedemptionsRequest, opts ...grpc.CallOption) (*QueryEstimatedRedemptionsResponse, error)
 	PendingRedemptions(ctx context.Context, in *QueryPendingRedemptionsRequest, opts ...grpc.CallOption) (*QueryPendingRedemptionsResponse, error)
+	// Retrieves the entire insurance module's state
+	InsuranceModuleState(ctx context.Context, in *QueryModuleStateRequest, opts ...grpc.CallOption) (*QueryModuleStateResponse, error)
 }
 
 type queryClient struct {
@@ -387,6 +665,24 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 func (c *queryClient) InsuranceParams(ctx context.Context, in *QueryInsuranceParamsRequest, opts ...grpc.CallOption) (*QueryInsuranceParamsResponse, error) {
 	out := new(QueryInsuranceParamsResponse)
 	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/InsuranceParams", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) InsuranceFund(ctx context.Context, in *QueryInsuranceFundRequest, opts ...grpc.CallOption) (*QueryInsuranceFundResponse, error) {
+	out := new(QueryInsuranceFundResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/InsuranceFund", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) InsuranceFunds(ctx context.Context, in *QueryInsuranceFundsRequest, opts ...grpc.CallOption) (*QueryInsuranceFundsResponse, error) {
+	out := new(QueryInsuranceFundsResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/InsuranceFunds", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -411,12 +707,25 @@ func (c *queryClient) PendingRedemptions(ctx context.Context, in *QueryPendingRe
 	return out, nil
 }
 
+func (c *queryClient) InsuranceModuleState(ctx context.Context, in *QueryModuleStateRequest, opts ...grpc.CallOption) (*QueryModuleStateResponse, error) {
+	out := new(QueryModuleStateResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/InsuranceModuleState", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Retrieves insurance params
 	InsuranceParams(context.Context, *QueryInsuranceParamsRequest) (*QueryInsuranceParamsResponse, error)
+	InsuranceFund(context.Context, *QueryInsuranceFundRequest) (*QueryInsuranceFundResponse, error)
+	InsuranceFunds(context.Context, *QueryInsuranceFundsRequest) (*QueryInsuranceFundsResponse, error)
 	EstimatedRedemptions(context.Context, *QueryEstimatedRedemptionsRequest) (*QueryEstimatedRedemptionsResponse, error)
 	PendingRedemptions(context.Context, *QueryPendingRedemptionsRequest) (*QueryPendingRedemptionsResponse, error)
+	// Retrieves the entire insurance module's state
+	InsuranceModuleState(context.Context, *QueryModuleStateRequest) (*QueryModuleStateResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -426,11 +735,20 @@ type UnimplementedQueryServer struct {
 func (*UnimplementedQueryServer) InsuranceParams(ctx context.Context, req *QueryInsuranceParamsRequest) (*QueryInsuranceParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InsuranceParams not implemented")
 }
+func (*UnimplementedQueryServer) InsuranceFund(ctx context.Context, req *QueryInsuranceFundRequest) (*QueryInsuranceFundResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsuranceFund not implemented")
+}
+func (*UnimplementedQueryServer) InsuranceFunds(ctx context.Context, req *QueryInsuranceFundsRequest) (*QueryInsuranceFundsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsuranceFunds not implemented")
+}
 func (*UnimplementedQueryServer) EstimatedRedemptions(ctx context.Context, req *QueryEstimatedRedemptionsRequest) (*QueryEstimatedRedemptionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EstimatedRedemptions not implemented")
 }
 func (*UnimplementedQueryServer) PendingRedemptions(ctx context.Context, req *QueryPendingRedemptionsRequest) (*QueryPendingRedemptionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PendingRedemptions not implemented")
+}
+func (*UnimplementedQueryServer) InsuranceModuleState(ctx context.Context, req *QueryModuleStateRequest) (*QueryModuleStateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsuranceModuleState not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -451,6 +769,42 @@ func _Query_InsuranceParams_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).InsuranceParams(ctx, req.(*QueryInsuranceParamsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_InsuranceFund_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryInsuranceFundRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).InsuranceFund(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/InsuranceFund",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).InsuranceFund(ctx, req.(*QueryInsuranceFundRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_InsuranceFunds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryInsuranceFundsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).InsuranceFunds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/InsuranceFunds",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).InsuranceFunds(ctx, req.(*QueryInsuranceFundsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -491,6 +845,24 @@ func _Query_PendingRedemptions_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_InsuranceModuleState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryModuleStateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).InsuranceModuleState(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/InsuranceModuleState",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).InsuranceModuleState(ctx, req.(*QueryModuleStateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.insurance.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -500,12 +872,24 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_InsuranceParams_Handler,
 		},
 		{
+			MethodName: "InsuranceFund",
+			Handler:    _Query_InsuranceFund_Handler,
+		},
+		{
+			MethodName: "InsuranceFunds",
+			Handler:    _Query_InsuranceFunds_Handler,
+		},
+		{
 			MethodName: "EstimatedRedemptions",
 			Handler:    _Query_EstimatedRedemptions_Handler,
 		},
 		{
 			MethodName: "PendingRedemptions",
 			Handler:    _Query_PendingRedemptions_Handler,
+		},
+		{
+			MethodName: "InsuranceModuleState",
+			Handler:    _Query_InsuranceModuleState_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -565,6 +949,131 @@ func (m *QueryInsuranceParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, e
 	}
 	i--
 	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryInsuranceFundRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryInsuranceFundRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryInsuranceFundRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryInsuranceFundResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryInsuranceFundResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryInsuranceFundResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Fund != nil {
+		{
+			size, err := m.Fund.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryInsuranceFundsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryInsuranceFundsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryInsuranceFundsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryInsuranceFundsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryInsuranceFundsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryInsuranceFundsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Funds) > 0 {
+		for iNdEx := len(m.Funds) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Funds[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -636,7 +1145,7 @@ func (m *QueryEstimatedRedemptionsResponse) MarshalToSizedBuffer(dAtA []byte) (i
 				i = encodeVarintQuery(dAtA, i, uint64(size))
 			}
 			i--
-			dAtA[i] = 0x1a
+			dAtA[i] = 0xa
 		}
 	}
 	return len(dAtA) - i, nil
@@ -710,8 +1219,66 @@ func (m *QueryPendingRedemptionsResponse) MarshalToSizedBuffer(dAtA []byte) (int
 				i = encodeVarintQuery(dAtA, i, uint64(size))
 			}
 			i--
-			dAtA[i] = 0x1a
+			dAtA[i] = 0xa
 		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryModuleStateRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryModuleStateRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryModuleStateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryModuleStateResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryModuleStateResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryModuleStateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.State != nil {
+		{
+			size, err := m.State.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -744,6 +1311,56 @@ func (m *QueryInsuranceParamsResponse) Size() (n int) {
 	_ = l
 	l = m.Params.Size()
 	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryInsuranceFundRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryInsuranceFundResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Fund != nil {
+		l = m.Fund.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryInsuranceFundsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryInsuranceFundsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Funds) > 0 {
+		for _, e := range m.Funds {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -807,6 +1424,28 @@ func (m *QueryPendingRedemptionsResponse) Size() (n int) {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
+	}
+	return n
+}
+
+func (m *QueryModuleStateRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryModuleStateResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.State != nil {
+		l = m.State.Size()
+		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
 }
@@ -926,6 +1565,308 @@ func (m *QueryInsuranceParamsResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryInsuranceFundRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryInsuranceFundRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryInsuranceFundRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryInsuranceFundResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryInsuranceFundResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryInsuranceFundResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Fund", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Fund == nil {
+				m.Fund = &InsuranceFund{}
+			}
+			if err := m.Fund.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryInsuranceFundsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryInsuranceFundsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryInsuranceFundsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryInsuranceFundsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryInsuranceFundsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryInsuranceFundsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Funds", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Funds = append(m.Funds, InsuranceFund{})
+			if err := m.Funds[len(m.Funds)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1093,7 +2034,7 @@ func (m *QueryEstimatedRedemptionsResponse) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: QueryEstimatedRedemptionsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 3:
+		case 1:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
 			}
@@ -1291,7 +2232,7 @@ func (m *QueryPendingRedemptionsResponse) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: QueryPendingRedemptionsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 3:
+		case 1:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
 			}
@@ -1322,6 +2263,142 @@ func (m *QueryPendingRedemptionsResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.Amount = append(m.Amount, types.Coin{})
 			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryModuleStateRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryModuleStateRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryModuleStateRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryModuleStateResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryModuleStateResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryModuleStateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field State", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.State == nil {
+				m.State = &GenesisState{}
+			}
+			if err := m.State.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

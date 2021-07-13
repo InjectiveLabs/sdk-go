@@ -18,4 +18,6 @@ var (
 	ErrInvalidEthereumSignature    = sdkerrors.Register(ModuleName, 11, "bad Ethereum signature")
 	ErrBadCoinbaseMessageTimestamp = sdkerrors.Register(ModuleName, 12, "bad Coinbase message timestamp")
 	ErrCoinbasePriceNotFound       = sdkerrors.Register(ModuleName, 13, "Coinbase price not found")
+	ErrBadPrice                    = sdkerrors.Register(ModuleName, 14, "Prices must be positive")
+	ErrPriceTooLarge               = sdkerrors.Register(ModuleName, 15, "Prices must be less than 10 million.")
 )

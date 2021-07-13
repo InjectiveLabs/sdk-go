@@ -27,7 +27,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Params struct {
 	// auction_period_duration defines the auction period duration
-	AuctionPeriod int64 `protobuf:"varint,1,opt,name=auction_period,json=auctionPeriod,proto3" json:"auction_period,omitempty" yaml:"auction_period"`
+	AuctionPeriod int64 `protobuf:"varint,1,opt,name=auction_period,json=auctionPeriod,proto3" json:"auction_period,omitempty"`
+	// min_next_bid_increment_rate defines the minimum increment rate for new bids
+	MinNextBidIncrementRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=min_next_bid_increment_rate,json=minNextBidIncrementRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_next_bid_increment_rate"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -71,8 +73,8 @@ func (m *Params) GetAuctionPeriod() int64 {
 }
 
 type Bid struct {
-	Bidder string                                  `protobuf:"bytes,1,opt,name=bidder,proto3" json:"bidder,omitempty" yaml:"bidder"`
-	Amount github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"amount" yaml:"amount"`
+	Bidder string                                  `protobuf:"bytes,1,opt,name=bidder,proto3" json:"bidder" yaml:"bidder"`
+	Amount github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"amount"`
 }
 
 func (m *Bid) Reset()         { *m = Bid{} }
@@ -115,9 +117,117 @@ func (m *Bid) GetBidder() string {
 	return ""
 }
 
+type EventBid struct {
+	Bidder string                                  `protobuf:"bytes,1,opt,name=bidder,proto3" json:"bidder,omitempty"`
+	Amount github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"amount"`
+	Round  uint64                                  `protobuf:"varint,3,opt,name=round,proto3" json:"round,omitempty"`
+}
+
+func (m *EventBid) Reset()         { *m = EventBid{} }
+func (m *EventBid) String() string { return proto.CompactTextString(m) }
+func (*EventBid) ProtoMessage()    {}
+func (*EventBid) Descriptor() ([]byte, []int) {
+	return fileDescriptor_49edfee5f1ef4b5a, []int{2}
+}
+func (m *EventBid) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventBid) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventBid.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventBid) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventBid.Merge(m, src)
+}
+func (m *EventBid) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventBid) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventBid.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventBid proto.InternalMessageInfo
+
+func (m *EventBid) GetBidder() string {
+	if m != nil {
+		return m.Bidder
+	}
+	return ""
+}
+
+func (m *EventBid) GetRound() uint64 {
+	if m != nil {
+		return m.Round
+	}
+	return 0
+}
+
+type EventAuctionResult struct {
+	Winner string                                  `protobuf:"bytes,1,opt,name=winner,proto3" json:"winner,omitempty"`
+	Amount github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"amount"`
+	Round  uint64                                  `protobuf:"varint,3,opt,name=round,proto3" json:"round,omitempty"`
+}
+
+func (m *EventAuctionResult) Reset()         { *m = EventAuctionResult{} }
+func (m *EventAuctionResult) String() string { return proto.CompactTextString(m) }
+func (*EventAuctionResult) ProtoMessage()    {}
+func (*EventAuctionResult) Descriptor() ([]byte, []int) {
+	return fileDescriptor_49edfee5f1ef4b5a, []int{3}
+}
+func (m *EventAuctionResult) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventAuctionResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventAuctionResult.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventAuctionResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventAuctionResult.Merge(m, src)
+}
+func (m *EventAuctionResult) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventAuctionResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventAuctionResult.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventAuctionResult proto.InternalMessageInfo
+
+func (m *EventAuctionResult) GetWinner() string {
+	if m != nil {
+		return m.Winner
+	}
+	return ""
+}
+
+func (m *EventAuctionResult) GetRound() uint64 {
+	if m != nil {
+		return m.Round
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Params)(nil), "injective.auction.v1beta1.Params")
 	proto.RegisterType((*Bid)(nil), "injective.auction.v1beta1.Bid")
+	proto.RegisterType((*EventBid)(nil), "injective.auction.v1beta1.EventBid")
+	proto.RegisterType((*EventAuctionResult)(nil), "injective.auction.v1beta1.EventAuctionResult")
 }
 
 func init() {
@@ -125,28 +235,34 @@ func init() {
 }
 
 var fileDescriptor_49edfee5f1ef4b5a = []byte{
-	// 325 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x54, 0x91, 0x41, 0x4b, 0xf3, 0x30,
-	0x18, 0xc7, 0x9b, 0x77, 0x2f, 0x05, 0x0b, 0x13, 0x2c, 0x0a, 0xdb, 0x0e, 0xa9, 0xf4, 0x32, 0x3d,
-	0xac, 0x61, 0x78, 0xdb, 0x69, 0xd4, 0x93, 0xa0, 0x30, 0x76, 0x12, 0x2f, 0x92, 0xb6, 0xa1, 0x8b,
-	0x2e, 0x7d, 0x46, 0x93, 0x0e, 0xf6, 0x15, 0x3c, 0xf9, 0x11, 0xfc, 0x38, 0x3b, 0xee, 0x28, 0x1e,
-	0x8a, 0x6c, 0x17, 0xcf, 0xfb, 0x04, 0x62, 0x9a, 0xd6, 0x79, 0x4a, 0x9e, 0xe7, 0xf9, 0xe5, 0x47,
-	0xf2, 0x8f, 0xd3, 0xe7, 0xd9, 0x13, 0x8b, 0x15, 0x5f, 0x32, 0x42, 0x8b, 0x58, 0x71, 0xc8, 0xc8,
-	0x72, 0x18, 0x31, 0x45, 0x87, 0x75, 0x1d, 0x2c, 0x72, 0x50, 0xe0, 0x76, 0x1b, 0x30, 0xa8, 0x07,
-	0x06, 0xec, 0x9d, 0xa6, 0x90, 0x82, 0xa6, 0xc8, 0xcf, 0xae, 0x3a, 0xd0, 0xc3, 0x31, 0x48, 0x01,
-	0x92, 0x44, 0x54, 0xb2, 0xc6, 0x19, 0x03, 0x37, 0x42, 0x7f, 0xe2, 0xd8, 0x13, 0x9a, 0x53, 0x21,
-	0xdd, 0xb1, 0x73, 0x6c, 0x94, 0x8f, 0x0b, 0x96, 0x73, 0x48, 0x3a, 0xe8, 0x1c, 0x5d, 0xb4, 0xc2,
-	0xee, 0xbe, 0xf4, 0xce, 0x56, 0x54, 0xcc, 0x47, 0xfe, 0xdf, 0xb9, 0x3f, 0x6d, 0x9b, 0xc6, 0x44,
-	0xd7, 0xa3, 0xff, 0x5f, 0x6f, 0x1e, 0xf2, 0x5f, 0x90, 0xd3, 0x0a, 0x79, 0xe2, 0x5e, 0x3a, 0x76,
-	0xc4, 0x93, 0x84, 0xe5, 0xda, 0x73, 0x14, 0x9e, 0xec, 0x4b, 0xaf, 0x5d, 0x79, 0xaa, 0xbe, 0x3f,
-	0x35, 0x80, 0x7b, 0xef, 0xd8, 0x54, 0x40, 0x91, 0xa9, 0xce, 0x3f, 0x8d, 0x8e, 0xd7, 0xa5, 0x67,
-	0x7d, 0x94, 0x5e, 0x3f, 0xe5, 0x6a, 0x56, 0x44, 0x41, 0x0c, 0x82, 0x98, 0x77, 0x54, 0xcb, 0x40,
-	0x26, 0xcf, 0x44, 0xad, 0x16, 0x4c, 0x06, 0xd7, 0xc0, 0xb3, 0x5f, 0x73, 0xa5, 0xf1, 0xa7, 0xc6,
-	0x17, 0xa6, 0xeb, 0x2d, 0x46, 0x9b, 0x2d, 0x46, 0x9f, 0x5b, 0x8c, 0x5e, 0x77, 0xd8, 0xda, 0xec,
-	0xb0, 0xf5, 0xbe, 0xc3, 0xd6, 0xc3, 0xdd, 0x81, 0xfb, 0xa6, 0x0e, 0xf5, 0x96, 0x46, 0x92, 0x34,
-	0x11, 0x0f, 0x62, 0xc8, 0xd9, 0x61, 0x39, 0xa3, 0x3c, 0x23, 0x02, 0x92, 0x62, 0xce, 0x64, 0xf3,
-	0x51, 0xfa, 0x1a, 0x91, 0xad, 0xe3, 0xbc, 0xfa, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x0e, 0x99, 0xa5,
-	0x2f, 0xca, 0x01, 0x00, 0x00,
+	// 432 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x93, 0xbf, 0x6f, 0x13, 0x31,
+	0x14, 0xc7, 0x63, 0x52, 0x22, 0x6a, 0xa9, 0x0c, 0xa7, 0x0a, 0x42, 0x2b, 0xdd, 0x45, 0x27, 0x41,
+	0xb3, 0xf4, 0xac, 0xaa, 0x5b, 0x37, 0x0e, 0x10, 0xaa, 0x04, 0xa8, 0xba, 0x91, 0xe5, 0xe4, 0xb3,
+	0x9f, 0xd2, 0x07, 0xb1, 0x1d, 0xd9, 0xbe, 0xd0, 0x8e, 0x88, 0x91, 0x85, 0x3f, 0x01, 0x89, 0x7f,
+	0xa6, 0x63, 0x47, 0xc4, 0x10, 0xa1, 0x64, 0x41, 0x8c, 0xfc, 0x05, 0x28, 0x77, 0x4e, 0x08, 0x1b,
+	0x03, 0x9d, 0xec, 0xef, 0xfb, 0xf1, 0x7d, 0x1f, 0xc9, 0xcf, 0xf4, 0x00, 0xf5, 0x1b, 0x10, 0x1e,
+	0xa7, 0xc0, 0x78, 0x2d, 0x3c, 0x1a, 0xcd, 0xa6, 0x47, 0x15, 0x78, 0x7e, 0xb4, 0xd2, 0xd9, 0xc4,
+	0x1a, 0x6f, 0xa2, 0x07, 0xeb, 0xc2, 0x6c, 0x95, 0x08, 0x85, 0x7b, 0xbb, 0x23, 0x33, 0x32, 0x4d,
+	0x15, 0x5b, 0xde, 0xda, 0x86, 0xbd, 0x58, 0x18, 0xa7, 0x8c, 0x63, 0x15, 0x77, 0xb0, 0xf6, 0x14,
+	0x06, 0x83, 0x61, 0xfa, 0x85, 0xd0, 0xde, 0x19, 0xb7, 0x5c, 0xb9, 0xe8, 0x21, 0xbd, 0x1b, 0x3c,
+	0xcb, 0x09, 0x58, 0x34, 0xb2, 0x4f, 0x06, 0x64, 0xd8, 0x2d, 0x76, 0x42, 0xf4, 0xac, 0x09, 0x46,
+	0x63, 0xba, 0xaf, 0x50, 0x97, 0x1a, 0x2e, 0x7c, 0x59, 0xa1, 0x2c, 0x51, 0x0b, 0x0b, 0x0a, 0xb4,
+	0x2f, 0x2d, 0xf7, 0xd0, 0xbf, 0x35, 0x20, 0xc3, 0xed, 0x3c, 0xbb, 0x9a, 0x25, 0x9d, 0x6f, 0xb3,
+	0xe4, 0xd1, 0x08, 0xfd, 0x79, 0x5d, 0x65, 0xc2, 0x28, 0x16, 0x48, 0xda, 0xe3, 0xd0, 0xc9, 0xb7,
+	0xcc, 0x5f, 0x4e, 0xc0, 0x65, 0x4f, 0x41, 0x14, 0xf7, 0x15, 0xea, 0x57, 0x70, 0xe1, 0x73, 0x94,
+	0xa7, 0x2b, 0xbf, 0x82, 0x7b, 0x38, 0xd9, 0xfa, 0xf1, 0x39, 0x21, 0xe9, 0x07, 0x42, 0xbb, 0x39,
+	0xca, 0xe8, 0x98, 0xf6, 0x2a, 0x94, 0x12, 0x6c, 0x83, 0xb6, 0x9d, 0xef, 0xff, 0x9c, 0x25, 0x21,
+	0xf2, 0x6b, 0x96, 0xec, 0x5c, 0x72, 0x35, 0x3e, 0x49, 0x5b, 0x9d, 0x16, 0x21, 0x11, 0x3d, 0xa7,
+	0x3d, 0xae, 0x4c, 0xad, 0x7d, 0x60, 0x63, 0x81, 0xed, 0xe0, 0x1f, 0xd8, 0x9e, 0x18, 0xd4, 0x45,
+	0x68, 0x4f, 0xdf, 0x13, 0x7a, 0xe7, 0xd9, 0x14, 0xf4, 0x92, 0x32, 0xba, 0xf7, 0x37, 0xca, 0x7f,
+	0x9f, 0x16, 0xed, 0xd2, 0xdb, 0xd6, 0xd4, 0x5a, 0xf6, 0xbb, 0x03, 0x32, 0xdc, 0x2a, 0x5a, 0x91,
+	0x7e, 0x24, 0x34, 0x6a, 0x18, 0x1e, 0xb7, 0x8f, 0x52, 0x80, 0xab, 0xc7, 0x7e, 0x49, 0xf3, 0x0e,
+	0xb5, 0xfe, 0x43, 0xd3, 0xaa, 0x1b, 0xa6, 0xc9, 0x47, 0x57, 0xf3, 0x98, 0x5c, 0xcf, 0x63, 0xf2,
+	0x7d, 0x1e, 0x93, 0x4f, 0x8b, 0xb8, 0x73, 0xbd, 0x88, 0x3b, 0x5f, 0x17, 0x71, 0xe7, 0xf5, 0xcb,
+	0x8d, 0x01, 0xa7, 0xab, 0x9d, 0x7d, 0xc1, 0x2b, 0xc7, 0xd6, 0x1b, 0x7c, 0x28, 0x8c, 0x85, 0x4d,
+	0x79, 0xce, 0x51, 0x33, 0x65, 0x64, 0x3d, 0x06, 0xb7, 0xfe, 0x07, 0x0d, 0x4b, 0xd5, 0x6b, 0xb6,
+	0xf5, 0xf8, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x31, 0xfc, 0x97, 0x08, 0x29, 0x03, 0x00, 0x00,
 }
 
 func (this *Params) Equal(that interface{}) bool {
@@ -171,6 +287,9 @@ func (this *Params) Equal(that interface{}) bool {
 	if this.AuctionPeriod != that1.AuctionPeriod {
 		return false
 	}
+	if !this.MinNextBidIncrementRate.Equal(that1.MinNextBidIncrementRate) {
+		return false
+	}
 	return true
 }
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -193,6 +312,16 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	{
+		size := m.MinNextBidIncrementRate.Size()
+		i -= size
+		if _, err := m.MinNextBidIncrementRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintAuction(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
 	if m.AuctionPeriod != 0 {
 		i = encodeVarintAuction(dAtA, i, uint64(m.AuctionPeriod))
 		i--
@@ -241,6 +370,96 @@ func (m *Bid) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *EventBid) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventBid) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventBid) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Round != 0 {
+		i = encodeVarintAuction(dAtA, i, uint64(m.Round))
+		i--
+		dAtA[i] = 0x18
+	}
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintAuction(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Bidder) > 0 {
+		i -= len(m.Bidder)
+		copy(dAtA[i:], m.Bidder)
+		i = encodeVarintAuction(dAtA, i, uint64(len(m.Bidder)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventAuctionResult) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventAuctionResult) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventAuctionResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Round != 0 {
+		i = encodeVarintAuction(dAtA, i, uint64(m.Round))
+		i--
+		dAtA[i] = 0x18
+	}
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintAuction(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Winner) > 0 {
+		i -= len(m.Winner)
+		copy(dAtA[i:], m.Winner)
+		i = encodeVarintAuction(dAtA, i, uint64(len(m.Winner)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintAuction(dAtA []byte, offset int, v uint64) int {
 	offset -= sovAuction(v)
 	base := offset
@@ -261,6 +480,8 @@ func (m *Params) Size() (n int) {
 	if m.AuctionPeriod != 0 {
 		n += 1 + sovAuction(uint64(m.AuctionPeriod))
 	}
+	l = m.MinNextBidIncrementRate.Size()
+	n += 1 + l + sovAuction(uint64(l))
 	return n
 }
 
@@ -276,6 +497,42 @@ func (m *Bid) Size() (n int) {
 	}
 	l = m.Amount.Size()
 	n += 1 + l + sovAuction(uint64(l))
+	return n
+}
+
+func (m *EventBid) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Bidder)
+	if l > 0 {
+		n += 1 + l + sovAuction(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovAuction(uint64(l))
+	if m.Round != 0 {
+		n += 1 + sovAuction(uint64(m.Round))
+	}
+	return n
+}
+
+func (m *EventAuctionResult) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Winner)
+	if l > 0 {
+		n += 1 + l + sovAuction(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovAuction(uint64(l))
+	if m.Round != 0 {
+		n += 1 + sovAuction(uint64(m.Round))
+	}
 	return n
 }
 
@@ -333,6 +590,40 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinNextBidIncrementRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinNextBidIncrementRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipAuction(dAtA[iNdEx:])
@@ -449,6 +740,276 @@ func (m *Bid) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAuction(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAuction
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventBid) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAuction
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventBid: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventBid: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Bidder", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Bidder = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Round", wireType)
+			}
+			m.Round = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Round |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAuction(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAuction
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventAuctionResult) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAuction
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventAuctionResult: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventAuctionResult: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Winner", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Winner = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthAuction
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthAuction
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Round", wireType)
+			}
+			m.Round = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAuction
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Round |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipAuction(dAtA[iNdEx:])

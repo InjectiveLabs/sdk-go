@@ -41,6 +41,14 @@ func (msg MsgRelayPriceFeedPrice) ValidateBasic() error {
 	if len(msg.Quote) != priceCount {
 		return ErrBadPriceFeedQuoteCount
 	}
+	for _, price := range msg.Price {
+		if !price.IsPositive() {
+			return ErrBadPrice
+		}
+		if price.GT(LargestDecPrice) {
+			return ErrPriceTooLarge
+		}
+	}
 	return nil
 }
 
@@ -81,7 +89,6 @@ func (msg MsgRelayBandRates) ValidateBasic() error {
 	if len(msg.RequestIDs) != symbolsCount {
 		return ErrBadRequestIDsCount
 	}
-
 	return nil
 }
 

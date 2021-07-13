@@ -102,7 +102,6 @@ func (msg *MsgValsetConfirm) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg *MsgValsetConfirm) GetSigners() []sdk.AccAddress {
-	// TODO: figure out how to convert between AccAddress and ValAddress properly
 	acc, err := sdk.AccAddressFromBech32(msg.Orchestrator)
 	if err != nil {
 		panic(err)
@@ -141,13 +140,12 @@ func (msg MsgSendToEth) ValidateBasic() error {
 	if !msg.Amount.IsValid() || msg.Amount.IsZero() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "amount")
 	}
-	if !msg.BridgeFee.IsValid() {
+	if !msg.BridgeFee.IsValid() || msg.BridgeFee.IsZero() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "fee")
 	}
 	if err := ValidateEthAddress(msg.EthDest); err != nil {
 		return sdkerrors.Wrap(err, "ethereum address")
 	}
-	// TODO validate fee is sufficient, fixed fee to start
 	return nil
 }
 
@@ -581,7 +579,11 @@ func (msg MsgSubmitBadSignatureEvidence) GetSignBytes() []byte {
 
 // GetSigners defines whose signature is required
 func (msg MsgSubmitBadSignatureEvidence) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{}
+	acc, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{acc}
 }
 
 // Type should return the action

@@ -1,11 +1,12 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 	"time"
 
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	"github.com/ethereum/go-ethereum/common"
+
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

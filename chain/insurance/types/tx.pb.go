@@ -30,12 +30,13 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgCreateInsuranceFund defines a message for creating an insurance fund for a derivative market
+// MsgCreateInsuranceFund a message to create an insurance fund for a derivative market.
 type MsgCreateInsuranceFund struct {
+	// Creator of the insurance fund.
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 	// Ticker for the derivative market.
 	Ticker string `protobuf:"bytes,2,opt,name=ticker,proto3" json:"ticker,omitempty"`
-	// type of coin to use as the base currency
+	// Coin denom to use for the market quote denom
 	QuoteDenom string `protobuf:"bytes,3,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
 	// Oracle base currency
 	OracleBase string `protobuf:"bytes,4,opt,name=oracle_base,json=oracleBase,proto3" json:"oracle_base,omitempty"`
@@ -118,11 +119,14 @@ func (m *MsgCreateInsuranceFundResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCreateInsuranceFundResponse proto.InternalMessageInfo
 
-// MsgUnderwrite defines a message for depositing tokens to underwrite an insurance fund
+// MsgUnderwrite defines a message for depositing coins to underwrite an insurance fund
 type MsgUnderwrite struct {
-	Sender   string      `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	MarketId string      `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Deposit  types1.Coin `protobuf:"bytes,3,opt,name=deposit,proto3" json:"deposit"`
+	// Address of the underwriter.
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// MarketID of the insurance fund.
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// Amount of quote_denom to underwrite the insurance fund.
+	Deposit types1.Coin `protobuf:"bytes,3,opt,name=deposit,proto3" json:"deposit"`
 }
 
 func (m *MsgUnderwrite) Reset()         { *m = MsgUnderwrite{} }
@@ -196,9 +200,12 @@ var xxx_messageInfo_MsgUnderwriteResponse proto.InternalMessageInfo
 
 // MsgRequestRedemption defines a message for requesting a redemption of the sender's insurance fund tokens
 type MsgRequestRedemption struct {
-	Sender   string      `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	MarketId string      `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Amount   types1.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
+	// Address of the underwriter requesting a redemption.
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// MarketID of the insurance fund.
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// Insurance fund share token amount to be redeemed.
+	Amount types1.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
 }
 
 func (m *MsgRequestRedemption) Reset()         { *m = MsgRequestRedemption{} }
