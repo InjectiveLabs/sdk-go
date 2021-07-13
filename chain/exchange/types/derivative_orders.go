@@ -37,6 +37,17 @@ func NewMarketOrderForLiquidation(position *Position, positionSubaccountID commo
 	return &order
 }
 
+func (m *DerivativeLimitOrder) ToTrimmed() *TrimmedDerivativeLimitOrder {
+	return &TrimmedDerivativeLimitOrder{
+		Price:     m.OrderInfo.Price,
+		Quantity:  m.OrderInfo.Quantity,
+		Margin:    m.Margin,
+		Fillable:  m.Fillable,
+		IsBuy:     m.IsBuy(),
+		OrderHash: common.Bytes2Hex(m.OrderHash),
+	}
+}
+
 func (o *DerivativeMarketOrderCancel) GetCancelDepositDelta() *DepositDelta {
 	order := o.MarketOrder
 	// no market order quantity was executed, so refund the entire margin hold
@@ -56,7 +67,6 @@ func (o *DerivativeMarketOrderCancel) ApplyDerivativeMarketCancellation(
 	order := o.MarketOrder
 	subaccountID := order.SubaccountID()
 	// For vanilla orders that were not executed at all, increment the available balance
-	// For reduce-only orders, free the position hold quantity
 	if order.IsVanilla() {
 		depositDelta := o.GetCancelDepositDelta()
 		if depositDelta != nil {

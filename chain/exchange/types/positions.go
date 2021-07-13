@@ -240,22 +240,14 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 	// closeExecutionMargin = execution margin * closing quantity / execution quantity
 	closeExecutionMargin = delta.ExecutionMargin.Mul(closingQuantity).Quo(delta.ExecutionQuantity)
 
-	if p.IsLong {
-		// pnl = closingQuantity * (executionPrice - entryPrice)
-		pnlNotional = closingQuantity.Mul(delta.ExecutionPrice.Sub(p.EntryPrice))
-	} else {
-		// pnl = -closingQuantity * (executionPrice - entryPrice)
-		pnlNotional = closingQuantity.Mul(delta.ExecutionPrice.Sub(p.EntryPrice)).Neg()
-	}
-
-	payoutFromPnl := p.GetPayoutFromPnl(delta.ExecutionPrice, closingQuantity)
+	pnlNotional = p.GetPayoutFromPnl(delta.ExecutionPrice, closingQuantity)
 	isReduceOnlyTrade := delta.ExecutionMargin.IsZero()
 
 	if isReduceOnlyTrade {
 		// deduct fees from PNL (position margin) for reduce-only orders
 
 		// only use the closing trading fee for now
-		pnlNotional = payoutFromPnl.Sub(tradingFeeForReduceOnly)
+		pnlNotional = pnlNotional.Sub(tradingFeeForReduceOnly)
 	}
 
 	positionClosingMargin := p.Margin.Mul(closingQuantity).Quo(p.Quantity)

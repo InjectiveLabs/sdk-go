@@ -11,11 +11,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-type PriceLevel struct {
-	Price    sdk.Dec
-	Quantity sdk.Dec
-}
-
 type SpotLimitOrderDelta struct {
 	Order        *SpotLimitOrder
 	FillQuantity sdk.Dec

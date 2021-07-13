@@ -167,15 +167,12 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 
 func (e *DerivativeMarketOrderExpansionData) getDerivativeMarketCancelEvents(
 	marketID common.Hash,
-	depositDeltas DepositDeltas,
 ) []*EventCancelDerivativeOrder {
-
 	marketIDHex := marketID.Hex()
 	cancelOrdersEvent := make([]*EventCancelDerivativeOrder, 0, len(e.MarketBuyOrderCancels)+len(e.MarketSellOrderCancels))
 
 	for idx := range e.MarketBuyOrderCancels {
 		orderCancel := e.MarketBuyOrderCancels[idx]
-		orderCancel.ApplyDerivativeMarketCancellation(depositDeltas)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:          marketIDHex,
 			IsLimitCancel:     false,
@@ -185,7 +182,6 @@ func (e *DerivativeMarketOrderExpansionData) getDerivativeMarketCancelEvents(
 
 	for idx := range e.MarketSellOrderCancels {
 		orderCancel := e.MarketSellOrderCancels[idx]
-		orderCancel.ApplyDerivativeMarketCancellation(depositDeltas)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:          marketIDHex,
 			IsLimitCancel:     false,
@@ -241,6 +237,7 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 
 	for idx := range e.RestingLimitSellOrderCancels {
 		order := e.RestingLimitSellOrderCancels[idx]
+
 		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
@@ -256,6 +253,7 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 
 	for idx := range e.TransientLimitBuyOrderCancels {
 		order := e.TransientLimitBuyOrderCancels[idx]
+
 		applyDerivativeLimitCancellation(order, takerFeeRate, depositDeltas)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
@@ -291,9 +289,14 @@ func (e *DerivativeMarketOrderExpansionData) applyCancellationsAndGetDerivativeL
 	marketID common.Hash,
 	makerFeeRate sdk.Dec,
 	depositDeltas DepositDeltas,
-) []*EventCancelDerivativeOrder {
+) (
+	cancelOrdersEvent []*EventCancelDerivativeOrder,
+	restingOrderCancelledDeltas []*DerivativeLimitOrderDelta,
+) {
 	marketIDHex := marketID.Hex()
-	cancelOrdersEvent := make([]*EventCancelDerivativeOrder, 0, len(e.RestingLimitBuyOrderCancels)+len(e.RestingLimitSellOrderCancels))
+	cancelOrdersEvent = make([]*EventCancelDerivativeOrder, 0, len(e.RestingLimitBuyOrderCancels)+len(e.RestingLimitSellOrderCancels))
+
+	restingOrderCancelledDeltas = make([]*DerivativeLimitOrderDelta, 0, len(e.RestingLimitBuyOrderCancels)+len(e.RestingLimitSellOrderCancels))
 
 	for idx := range e.RestingLimitBuyOrderCancels {
 		order := e.RestingLimitBuyOrderCancels[idx]
@@ -302,6 +305,12 @@ func (e *DerivativeMarketOrderExpansionData) applyCancellationsAndGetDerivativeL
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
 			LimitOrder:    order,
+		})
+
+		restingOrderCancelledDeltas = append(restingOrderCancelledDeltas, &DerivativeLimitOrderDelta{
+			Order:          order,
+			FillQuantity:   sdk.ZeroDec(),
+			CancelQuantity: order.Fillable,
 		})
 	}
 
@@ -313,8 +322,14 @@ func (e *DerivativeMarketOrderExpansionData) applyCancellationsAndGetDerivativeL
 			IsLimitCancel: true,
 			LimitOrder:    order,
 		})
+
+		restingOrderCancelledDeltas = append(restingOrderCancelledDeltas, &DerivativeLimitOrderDelta{
+			Order:          order,
+			FillQuantity:   sdk.ZeroDec(),
+			CancelQuantity: order.Fillable,
+		})
 	}
-	return cancelOrdersEvent
+	return cancelOrdersEvent, restingOrderCancelledDeltas
 }
 
 func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionData(
@@ -326,10 +341,10 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 	depositDeltas := NewDepositDeltas()
 
 	// process undermargined limit order forced cancellations
-	cancelLimitOrdersEvents := e.applyCancellationsAndGetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, depositDeltas)
+	cancelLimitOrdersEvents, restingOrderCancelledDeltas := e.applyCancellationsAndGetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, depositDeltas)
 
 	// process unfilled market order cancellations
-	cancelMarketOrdersEvents := e.getDerivativeMarketCancelEvents(market.MarketID(), depositDeltas)
+	cancelMarketOrdersEvents := e.getDerivativeMarketCancelEvents(market.MarketID())
 
 	positions, positionSubaccountIDs := GetPositionSliceData(positionStates)
 
@@ -358,8 +373,10 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		DepositSubaccountIDs:                  depositDeltaKeys,
 		Positions:                             positions,
 		PositionSubaccountIDs:                 positionSubaccountIDs,
-		RestingLimitOrderFilledDeltas:         filledDeltas,
 		TransientLimitOrderFilledDeltas:       nil,
+		RestingLimitOrderFilledDeltas:         filledDeltas,
+		TransientLimitOrderCancelledDeltas:    nil,
+		RestingLimitOrderCancelledDeltas:      restingOrderCancelledDeltas,
 		MarketBuyOrderExecutionEvent:          buyMarketOrderBatchEvent,
 		MarketSellOrderExecutionEvent:         sellMarketOrderBatchEvent,
 		RestingLimitBuyOrderExecutionEvent:    restingLimitBuyOrderBatchEvent,

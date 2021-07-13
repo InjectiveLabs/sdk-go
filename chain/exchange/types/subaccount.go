@@ -1,6 +1,10 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	"fmt"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 func NewSubaccountOrderbookMetadata() *SubaccountOrderbookMetadata {
 	return &SubaccountOrderbookMetadata{
@@ -27,6 +31,25 @@ func (o *SubaccountOrder) IsVanilla() bool {
 	return !o.IsReduceOnly
 }
 
+func (m *SubaccountOrderbookMetadata) AssertValid() {
+	errStr := ""
+	if m.AggregateVanillaQuantity.IsNegative() {
+		errStr += "m.AggregateVanillaQuantity is negative with " + m.AggregateVanillaQuantity.String() + "\n"
+	}
+	if m.AggregateReduceOnlyQuantity.IsNegative() {
+		errStr += "m.AggregateReduceOnlyQuantity is negative with " + m.AggregateReduceOnlyQuantity.String() + "\n"
+	}
+	if m.VanillaLimitOrderCount > 20 {
+		errStr += fmt.Sprintf("m.AggregateVanillaQuantity is GT 20 %d\n", m.VanillaLimitOrderCount)
+	}
+	if m.ReduceOnlyLimitOrderCount > 20 {
+		errStr += fmt.Sprintf("m.ReduceOnlyLimitOrderCount is GT 20 %d\n", m.ReduceOnlyLimitOrderCount)
+	}
+	if errStr != "" {
+		panic(errStr)
+	}
+}
+
 func (m *SubaccountOrderbookMetadata) ApplyDelta(d *SubaccountOrderbookMetadata) {
 	if !d.AggregateReduceOnlyQuantity.IsZero() {
 		m.AggregateReduceOnlyQuantity = m.AggregateReduceOnlyQuantity.Add(d.AggregateReduceOnlyQuantity)
@@ -36,4 +59,5 @@ func (m *SubaccountOrderbookMetadata) ApplyDelta(d *SubaccountOrderbookMetadata)
 	}
 	m.VanillaLimitOrderCount += d.VanillaLimitOrderCount
 	m.ReduceOnlyLimitOrderCount += d.ReduceOnlyLimitOrderCount
+	//m.AssertValid()
 }

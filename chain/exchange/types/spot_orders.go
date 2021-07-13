@@ -131,6 +131,16 @@ func (m *SpotOrder) CheckMarketOrderBalanceHold(market *SpotMarket, availableBal
 	return balanceHold, nil
 }
 
+func (m *SpotLimitOrder) ToTrimmed() *TrimmedSpotLimitOrder {
+	return &TrimmedSpotLimitOrder{
+		Price:     m.OrderInfo.Price,
+		Quantity:  m.OrderInfo.Quantity,
+		Fillable:  m.Fillable,
+		IsBuy:     m.IsBuy(),
+		OrderHash: common.Bytes2Hex(m.OrderHash),
+	}
+}
+
 // ComputeOrderHash computes the order hash for given spot limit order
 func (o *SpotOrder) ComputeOrderHash(nonce uint32) (common.Hash, error) {
 	chainID := ethmath.NewHexOrDecimal256(888)
