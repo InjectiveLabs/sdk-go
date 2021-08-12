@@ -1,4 +1,4 @@
-// Code generated with goa v3.3.1, DO NOT EDIT.
+// Code generated with goa v3.4.3, DO NOT EDIT.
 //
 // InjectiveExchangeRPC protocol buffer definition
 //
@@ -84,10 +84,13 @@ message PrepareTxRequest {
 }
 
 message CosmosTxFee {
-	// List of coins for the fee
-	repeated CosmosCoin amounts = 1;
+	// Transaction gas price
+	repeated CosmosCoin price = 1;
 	// Transaction gas limit
 	uint64 gas = 2;
+	// Explicitly require fee delegation when set to true. Or don't care = false.
+// Will be replaced by other flag in the next version.
+	bool delegate_fee = 3;
 }
 
 message CosmosCoin {
@@ -106,6 +109,10 @@ message PrepareTxResponse {
 	string sign_mode = 3;
 	// Specify proto-URL of a public key, which defines the signature format
 	string pub_key_type = 4;
+	// Fee payer address provided by service
+	string fee_payer = 5;
+	// Hex-encoded ethsecp256k1 signature bytes from fee payer
+	string fee_payer_sig = 6;
 }
 
 message BroadcastTxRequest {
@@ -119,8 +126,12 @@ message BroadcastTxRequest {
 	CosmosPubKey pub_key = 4;
 	// Hex-encoded ethsecp256k1 signature bytes
 	string signature = 5;
+	// Fee payer address provided by service
+	string fee_payer = 6;
+	// Hex-encoded ethsecp256k1 signature bytes from fee payer
+	string fee_payer_sig = 7;
 	// Broadcast mode
-	string mode = 6;
+	string mode = 8;
 }
 
 message CosmosPubKey {

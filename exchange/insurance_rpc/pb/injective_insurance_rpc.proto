@@ -1,4 +1,4 @@
-// Code generated with goa v3.4.0, DO NOT EDIT.
+// Code generated with goa v3.4.3, DO NOT EDIT.
 //
 // InjectiveInsuranceRPC protocol buffer definition
 //
@@ -15,6 +15,8 @@ option go_package = "/injective_insurance_rpcpb";
 service InjectiveInsuranceRPC {
 	// Funds lists all insurance funds.
 	rpc Funds (FundsRequest) returns (FundsResponse);
+	// PendingRedemptions lists all pending redemptions according to a filter
+	rpc Redemptions (RedemptionsRequest) returns (RedemptionsResponse);
 }
 
 message FundsRequest {
@@ -62,4 +64,40 @@ message TokenMeta {
 	sint32 decimals = 5;
 	// Token metadata fetched timestamp in UNIX millis.
 	sint64 updated_at = 6;
+}
+
+message RedemptionsRequest {
+	// Account address of the redemption owner
+	string redeemer = 1;
+	// Denom of the insurance pool token.
+	string redemption_denom = 2;
+	// Status of the redemption. Either pending or disbursed.
+	string status = 3;
+}
+
+message RedemptionsResponse {
+	repeated RedemptionSchedule redemption_schedules = 1;
+}
+
+message RedemptionSchedule {
+	// Redemption ID.
+	uint64 redemption_id = 1;
+	// Status of the redemption. Either pending or disbursed.
+	string status = 2;
+	// Account address of the redemption owner
+	string redeemer = 3;
+	// Claimable redemption time in seconds
+	sint64 claimable_redemption_time = 4;
+	// Amount of pool tokens being redeemed.
+	string redemption_amount = 5;
+	// Pool token denom being redeemed.
+	string redemption_denom = 6;
+	// Redemption request time in unix milliseconds.
+	sint64 requested_at = 7;
+	// Amount of quote tokens disbursed
+	string disbursed_amount = 8;
+	// Denom of the quote tokens disbursed
+	string disbursed_denom = 9;
+	// Redemption disbursement time in unix milliseconds.
+	sint64 disbursed_at = 10;
 }

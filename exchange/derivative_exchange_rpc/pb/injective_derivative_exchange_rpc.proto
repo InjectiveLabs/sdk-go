@@ -1,4 +1,4 @@
-// Code generated with goa v3.4.0, DO NOT EDIT.
+// Code generated with goa v3.4.3, DO NOT EDIT.
 //
 // InjectiveDerivativeExchangeRPC protocol buffer definition
 //
@@ -97,6 +97,9 @@ message DerivativeMarketInfo {
 	string min_price_tick_size = 16;
 	// Defines the minimum required tick size for the order's quantity
 	string min_quantity_tick_size = 17;
+	PerpetualMarketInfo perpetual_market_info = 18;
+	PerpetualMarketFunding perpetual_market_funding = 19;
+	ExpiryFuturesMarketInfo expiry_futures_market_info = 20;
 }
 
 message TokenMeta {
@@ -112,6 +115,37 @@ message TokenMeta {
 	sint32 decimals = 5;
 	// Token metadata fetched timestamp in UNIX millis.
 	sint64 updated_at = 6;
+}
+
+message PerpetualMarketInfo {
+	// Defines the default maximum absolute value of the hourly funding rate of the
+// perpetual market.
+	string hourly_funding_rate_cap = 1;
+	// Defines the hourly interest rate of the perpetual market.
+	string hourly_interest_rate = 2;
+	// Defines the next funding timestamp in seconds of a perpetual market in UNIX
+// seconds.
+	sint64 next_funding_timestamp = 3;
+	// Defines the funding interval in seconds of a perpetual market in seconds.
+	sint64 funding_interval = 4;
+}
+
+message PerpetualMarketFunding {
+	// Defines the cumulative funding of a perpetual market.
+	string cumulative_funding = 1;
+	// Defines defines the cumulative price for the current hour up to the last
+// timestamp.
+	string cumulative_price = 2;
+	// Defines the last funding timestamp in seconds of a perpetual market in UNIX
+// seconds.
+	sint64 last_timestamp = 3;
+}
+
+message ExpiryFuturesMarketInfo {
+	// Defines the expiration time for a time expiry futures market in UNIX seconds.
+	sint64 expiration_timestamp = 1;
+	// Defines the settlement price for a time expiry futures market.
+	string settlement_price = 2;
 }
 
 message MarketRequest {
@@ -182,12 +216,10 @@ message StreamOrderbookResponse {
 message OrdersRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
-	// Look for specific order type
-	string order_type = 2;
-	// Look for specific trade direction of an order
-	string direction = 3;
+	// Look for specific order side
+	string order_side = 2;
 	// Look for specific subaccountId of an order
-	string subaccount_id = 4;
+	string subaccount_id = 3;
 }
 
 message OrdersResponse {
@@ -199,8 +231,8 @@ message DerivativeLimitOrder {
 	// Hash of the order
 	string order_hash = 1;
 	// The type of the order
-	string order_type = 2;
-	// DerivativeMarket ID
+	string order_side = 2;
+	// Derivative Market ID
 	string market_id = 3;
 	// The subaccountId that this order belongs to
 	string subaccount_id = 4;
@@ -257,8 +289,8 @@ message DerivativePosition {
 	string liquidation_price = 8;
 	// MarkPrice of the position
 	string mark_price = 9;
-	// Unrealized PNL of the Position
-	string unrealized_pnl = 10;
+	// Aggregate Quantity of the Reduce Only orders associated with the position
+	string aggregate_reduce_only_quantity = 11;
 }
 
 message LiquidablePositionsRequest {
@@ -288,12 +320,10 @@ message StreamPositionsResponse {
 message StreamOrdersRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
-	// Look for specific order type
-	string order_type = 2;
-	// Look for specific trade direction of an order
-	string direction = 3;
+	// Look for specific order side
+	string order_side = 2;
 	// Look for specific subaccountId of an order
-	string subaccount_id = 4;
+	string subaccount_id = 3;
 }
 
 message StreamOrdersResponse {

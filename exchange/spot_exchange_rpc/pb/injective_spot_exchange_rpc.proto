@@ -1,4 +1,4 @@
-// Code generated with goa v3.4.0, DO NOT EDIT.
+// Code generated with goa v3.4.3, DO NOT EDIT.
 //
 // InjectiveSpotExchangeRPC protocol buffer definition
 //
@@ -161,12 +161,10 @@ message StreamOrderbookResponse {
 message OrdersRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
-	// Look for specific order type
-	string order_type = 2;
-	// Look for specific trade direction of an order
-	string direction = 3;
+	// Look for specific order side
+	string order_side = 2;
 	// Look for specific subaccountId of an order
-	string subaccount_id = 4;
+	string subaccount_id = 3;
 }
 
 message OrdersResponse {
@@ -178,8 +176,8 @@ message SpotLimitOrder {
 	// Hash of the order
 	string order_hash = 1;
 	// The type of the order
-	string order_type = 2;
-	// SpotMarket ID is keccak265(baseDenom || quoteDenom)
+	string order_side = 2;
+	// Spot Market ID is keccak265(baseDenom + quoteDenom)
 	string market_id = 3;
 	// The subaccountId that this order belongs to
 	string subaccount_id = 4;
@@ -189,7 +187,8 @@ message SpotLimitOrder {
 	string quantity = 6;
 	// The amount of the quantity remaining unfilled
 	string unfilled_quantity = 7;
-	// Trigger price is the trigger price used by stop/take orders
+	// Trigger price is the trigger price used by stop/take orders. 0 if the
+// trigger price is not set.
 	string trigger_price = 8;
 	// Fee recipient address
 	string fee_recipient = 9;
@@ -204,12 +203,10 @@ message SpotLimitOrder {
 message StreamOrdersRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
-	// Look for specific order type
-	string order_type = 2;
-	// Look for specific trade direction of an order
-	string direction = 3;
+	// Look for specific order side
+	string order_side = 2;
 	// Look for specific subaccountId of an order
-	string subaccount_id = 4;
+	string subaccount_id = 3;
 }
 
 message StreamOrdersResponse {
@@ -250,7 +247,7 @@ message SpotTrade {
 	string trade_direction = 5;
 	// Price level at which trade has been executed
 	PriceLevel price = 6;
-	// The fee associated with the trade (base asset denom)
+	// The fee associated with the trade (quote asset denom)
 	string fee = 7;
 	// Timestamp of trade execution in UNIX millis
 	sint64 executed_at = 8;
