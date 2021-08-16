@@ -82,6 +82,7 @@ func GetSpotMarketOrderBatchExecution(
 }
 
 func GetSpotLimitMatchingBatchExecution(
+	isCanaryV2 bool,
 	market *SpotMarket,
 	orderbookStateChange *SpotOrderbookStateChange,
 	clearingPrice sdk.Dec,
@@ -92,12 +93,13 @@ func GetSpotLimitMatchingBatchExecution(
 	quoteDenomDepositDeltas := NewDepositDeltas()
 
 	limitBuyRestingOrderBatchEvent, limitSellRestingOrderBatchEvent, filledDeltas := orderbookStateChange.ProcessBothRestingSpotLimitOrderExpansions(
-		market.MarketID(), clearingPrice, market.MakerFeeRate, market.RelayerFeeShareRate,
+		isCanaryV2, market.MarketID(), clearingPrice, market.MakerFeeRate, market.RelayerFeeShareRate,
 		baseDenomDepositDeltas, quoteDenomDepositDeltas,
 	)
 
 	// filled deltas are handled implicitly with the new resting spot limit orders
 	limitBuyNewOrderBatchEvent, limitSellNewOrderBatchEvent, newRestingBuySpotLimitOrders, newRestingSellSpotLimitOrders := orderbookStateChange.ProcessBothTransientSpotLimitOrderExpansions(
+		isCanaryV2,
 		market.MarketID(),
 		clearingPrice,
 		market.MakerFeeRate, market.TakerFeeRate, market.RelayerFeeShareRate,
@@ -176,17 +178,33 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			FillQuantity: expansion.LimitOrderFillQuantity,
 		})
 
-		fee := expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward)
-		// Fee is always positive, so for both cases can just be added to the quote change amount.
-		// For limit sells, QuoteChangeAmount is positive (receiving quote), but already includes the paid fees. To get the actual price, add the fee.
+		hasNegativeMakerFee := expansion.AuctionFeeReward.IsNegative()
+		var traderFee sdk.Dec
+
 		// For limit buys, QuoteChangeAmount is negative (selling quote), but also was used to pay the fee. To get the actual price, add the fee.
-		price := expansion.QuoteChangeAmount.Add(fee).Quo(expansion.BaseChangeAmount).Abs()
+		// For limit sells, QuoteChangeAmount is positive (receiving quote), but already includes the paid fees. To get the actual price, add the fee.
+
+		if hasNegativeMakerFee {
+			// TraderFeeReward is positive, subtract the value from QuoteChangeAmount
+			traderFee = expansion.TraderFeeReward.Neg()
+		} else {
+			traderFee = expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward)
+		}
+
+		price := expansion.QuoteChangeAmount.Add(traderFee).Quo(expansion.BaseChangeAmount).Abs()
+		var totalTradeFee sdk.Dec
+
+		if hasNegativeMakerFee {
+			totalTradeFee = expansion.FeeRecipientReward.Add(expansion.TraderFeeReward)
+		} else {
+			totalTradeFee = traderFee
+		}
 
 		trades = append(trades, &TradeLog{
 			Quantity:     expansion.BaseChangeAmount.Abs(),
 			Price:        price,
 			SubaccountId: expansion.SubaccountID.Bytes(),
-			Fee:          fee,
+			Fee:          totalTradeFee,
 			OrderHash:    expansion.OrderHash.Bytes(),
 		})
 	}

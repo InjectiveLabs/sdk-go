@@ -6,9 +6,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
 	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 // BankKeeper defines the expected bank keeper methods.
@@ -36,6 +37,8 @@ type InsuranceKeeper interface {
 	DepositIntoInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdk.Int) error
 	// WithdrawFromInsuranceFund decrements the insurance fund balance by amount and sends
 	WithdrawFromInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdk.Int) error
+	// UpdateInsuranceFundBandOracle updates the insurance fund's oracle from Band to Band IBC
+	UpdateInsuranceFundBandOracle(ctx sdk.Context, marketID common.Hash) error
 }
 
 type GovKeeper interface {

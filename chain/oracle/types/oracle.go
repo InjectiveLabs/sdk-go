@@ -10,6 +10,7 @@ import (
 
 const QuoteUSD = "USD"
 const TwapWindow = int64(5 * 60) // 5 minute TWAP window
+const BandPriceMultiplier uint64 = 1000000000 // 1e9
 
 func GetOracleType(oracleTypeStr string) (OracleType, error) {
 	oracleTypeStr = strings.ToLower(oracleTypeStr)
@@ -18,6 +19,8 @@ func GetOracleType(oracleTypeStr string) (OracleType, error) {
 	switch oracleTypeStr {
 	case "band":
 		oracleType = OracleType_Band
+	case "bandibc":
+		oracleType = OracleType_BandIBC
 	case "pricefeed":
 		oracleType = OracleType_PriceFeed
 	case "coinbase":

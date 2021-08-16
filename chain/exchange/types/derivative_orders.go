@@ -24,7 +24,7 @@ func NewMarketOrderForLiquidation(position *Position, positionSubaccountID commo
 	order := DerivativeMarketOrder{
 		OrderInfo: OrderInfo{
 			SubaccountId: positionSubaccountID.Hex(),
-			FeeRecipient: SdkAddressToEthAddress(liquidator).Hex(),
+			FeeRecipient: liquidator.String(),
 			Price:        worstPrice,
 			Quantity:     position.Quantity,
 		},
@@ -230,11 +230,11 @@ func (o *DerivativeMarketOrder) Hash() common.Hash {
 }
 
 func (o *DerivativeLimitOrder) FeeRecipient() common.Address {
-	return common.HexToAddress(o.OrderInfo.FeeRecipient)
+	return o.OrderInfo.FeeRecipientAddress()
 }
 
 func (o *DerivativeMarketOrder) FeeRecipient() common.Address {
-	return common.HexToAddress(o.OrderInfo.FeeRecipient)
+	return o.OrderInfo.FeeRecipientAddress()
 }
 
 func (o *DerivativeOrder) IsVanilla() bool {
@@ -299,4 +299,9 @@ func (o *DerivativeLimitOrder) SubaccountID() common.Hash {
 
 func (o *OrderInfo) SubaccountID() common.Hash {
 	return common.HexToHash(o.SubaccountId)
+}
+
+func (o *OrderInfo) FeeRecipientAddress() common.Address {
+	address, _ := sdk.AccAddressFromBech32(o.FeeRecipient)
+	return common.BytesToAddress(address.Bytes())
 }

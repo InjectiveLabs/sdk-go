@@ -12,12 +12,13 @@ import (
 
 // constants
 const (
-	ProposalTypeExchangeEnable              string = "ProposalTypeExchangeEnable"
-	ProposalTypeSpotMarketParamUpdate       string = "ProposalTypeSpotMarketParamUpdate"
-	ProposalTypeSpotMarketLaunch            string = "ProposalTypeSpotMarketLaunch"
-	ProposalTypePerpetualMarketLaunch       string = "ProposalTypePerpetualMarketLaunch"
-	ProposalTypeExpiryFuturesMarketLaunch   string = "ProposalTypeExpiryFuturesMarketLaunch"
-	ProposalTypeDerivativeMarketParamUpdate string = "ProposalTypeDerivativeMarketParamUpdate"
+	ProposalTypeExchangeEnable                      string = "ProposalTypeExchangeEnable"
+	ProposalTypeSpotMarketParamUpdate               string = "ProposalTypeSpotMarketParamUpdate"
+	ProposalTypeSpotMarketLaunch                    string = "ProposalTypeSpotMarketLaunch"
+	ProposalTypePerpetualMarketLaunch               string = "ProposalTypePerpetualMarketLaunch"
+	ProposalTypeExpiryFuturesMarketLaunch           string = "ProposalTypeExpiryFuturesMarketLaunch"
+	ProposalTypeDerivativeMarketParamUpdate         string = "ProposalTypeDerivativeMarketParamUpdate"
+	ProposalTypeDerivativeMarketBandOraclePromotion string = "ProposalTypeDerivativeMarketBandOraclePromotion"
 )
 
 func init() {
@@ -33,6 +34,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&ExpiryFuturesMarketLaunchProposal{}, "injective/ExpiryFuturesMarketLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
 	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
+	gov.RegisterProposalType(ProposalTypeDerivativeMarketBandOraclePromotion)
+	gov.RegisterProposalTypeCodec(&DerivativeMarketBandOraclePromotionProposal{}, "injective/DerivativeMarketBandOraclePromotionProposal")
 }
 
 // Implements Proposal Interface
@@ -69,6 +72,7 @@ func (p *ExchangeEnableProposal) ValidateBasic() error {
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
 func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec, status MarketStatus) *SpotMarketParamUpdateProposal {
+
 	return &SpotMarketParamUpdateProposal{
 		title,
 		description,
@@ -113,7 +117,7 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 	}
 
 	if p.MakerFeeRate != nil {
-		if err := ValidateFee(*p.MakerFeeRate); err != nil {
+		if err := ValidateMakerFee(*p.MakerFeeRate); err != nil {
 			return err
 		}
 	}
@@ -522,6 +526,45 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
 		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+	}
+
+	return gov.ValidateAbstract(p)
+}
+
+// NewDerivativeMarketBandOraclePromotionProposal returns new instance of DerivativeMarketBandOraclePromotionProposal
+func NewDerivativeMarketBandOraclePromotionProposal(title, description string, marketID string) *DerivativeMarketBandOraclePromotionProposal {
+	return &DerivativeMarketBandOraclePromotionProposal{
+		title,
+		description,
+		marketID,
+	}
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &DerivativeMarketBandOraclePromotionProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *DerivativeMarketBandOraclePromotionProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *DerivativeMarketBandOraclePromotionProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *DerivativeMarketBandOraclePromotionProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *DerivativeMarketBandOraclePromotionProposal) ProposalType() string {
+	return ProposalTypeDerivativeMarketBandOraclePromotion
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *DerivativeMarketBandOraclePromotionProposal) ValidateBasic() error {
+	if p.MarketId == "" {
+		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 
 	return gov.ValidateAbstract(p)

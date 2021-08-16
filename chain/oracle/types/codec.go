@@ -15,11 +15,15 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRelayPriceFeedPrice{}, "oracle/MsgRelayPriceFeedPrice", nil)
 	cdc.RegisterConcrete(&MsgRelayBandRates{}, "oracle/MsgRelayBandRates", nil)
 	cdc.RegisterConcrete(&MsgRelayCoinbaseMessages{}, "oracle/MsgRelayCoinbaseMessages", nil)
+	cdc.RegisterConcrete(&MsgRequestBandIBCRates{}, "oracle/MsgRequestBandIBCRates", nil)
 
 	cdc.RegisterConcrete(&GrantBandOraclePrivilegeProposal{}, "oracle/GrantBandOraclePrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokeBandOraclePrivilegeProposal{}, "oracle/RevokeBandOraclePrivilegeProposal", nil)
 	cdc.RegisterConcrete(&GrantPriceFeederPrivilegeProposal{}, "oracle/GrantPriceFeederPrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokePriceFeederPrivilegeProposal{}, "oracle/RevokePriceFeederPrivilegeProposal", nil)
+	cdc.RegisterConcrete(&AuthorizeBandOracleRequestProposal{}, "oracle/AuthorizeBandOracleRequestProposal", nil)
+	cdc.RegisterConcrete(&EnableBandIBCProposal{}, "oracle/EnableBandIBCProposal", nil)
+
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -27,6 +31,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgRelayPriceFeedPrice{},
 		&MsgRelayBandRates{},
 		&MsgRelayCoinbaseMessages{},
+		&MsgRequestBandIBCRates{},
 	)
 
 	registry.RegisterImplementations(
@@ -35,6 +40,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&RevokeBandOraclePrivilegeProposal{},
 		&GrantPriceFeederPrivilegeProposal{},
 		&RevokePriceFeederPrivilegeProposal{},
+		&AuthorizeBandOracleRequestProposal{},
+		&EnableBandIBCProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -49,7 +56,9 @@ var (
 	//
 	// The actual codec used for serialization should be provided to x/oracle and
 	// defined at the application level.
-	ModuleCdc = codec.NewAminoCodec(amino)
+	// ModuleCdc = codec.NewAminoCodec(amino)
+
+	ModuleCdc = codec.NewProtoCodec(types.NewInterfaceRegistry())
 )
 
 func init() {

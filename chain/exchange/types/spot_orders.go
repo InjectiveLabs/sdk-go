@@ -33,6 +33,14 @@ func (o *SpotMarketOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
 
+func (o *SpotLimitOrder) FeeRecipient() common.Address {
+	return o.OrderInfo.FeeRecipientAddress()
+}
+
+func (o *SpotMarketOrder) FeeRecipient() common.Address {
+	return o.OrderInfo.FeeRecipientAddress()
+}
+
 func (o *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
 	if BreachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
 		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
@@ -78,14 +86,20 @@ func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (sdk.Dec, s
 	return balanceHold, denom
 }
 
-func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket) (sdk.Dec, string) {
+func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (sdk.Dec, string) {
 	var denom string
 	var balanceHold sdk.Dec
 	if m.IsBuy() {
-		// for a limit buy in the ETH/USDT market, denom is USDT and fillable amount is BalanceHold is (1 + makerFee)*(price * quantity)
-		// (takerFee - makerFee) is already refunded
+		var tradeFeeRate sdk.Dec
+
+		if isTransient {
+			tradeFeeRate = market.TakerFeeRate
+		} else {
+			tradeFeeRate = market.MakerFeeRate
+		}
+		// for a resting limit buy in the ETH/USDT market, denom is USDT and fillable amount is BalanceHold is (1 + makerFee)*(price * quantity) since (takerFee - makerFee) is already refunded
 		denom = market.QuoteDenom
-		balanceHold = m.GetUnfilledNotional().Add(m.GetUnfilledFeeAmount(market.MakerFeeRate))
+		balanceHold = m.GetUnfilledNotional().Add(m.GetUnfilledFeeAmount(tradeFeeRate))
 	} else {
 		// for a limit sell in the ETH/USDT market, denom is ETH and balanceHold is just quantity
 		denom = market.BaseDenom

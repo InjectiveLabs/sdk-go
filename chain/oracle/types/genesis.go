@@ -1,5 +1,8 @@
 package types
 
+// DefaultIndex is the default capability global index
+const DefaultIndex uint64 = 1
+
 func NewGenesisState() GenesisState {
 	return GenesisState{}
 }
@@ -14,6 +17,6 @@ func (gs GenesisState) Validate() error {
 
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Params: DefaultParams(),
+		Params:        DefaultParams(),
 	}
 }

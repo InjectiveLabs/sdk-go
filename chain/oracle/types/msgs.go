@@ -12,12 +12,14 @@ const (
 	TypeMsgRelayPriceFeedPrice   = "relayPriceFeedPrice"
 	TypeMsgRelayBandRates        = "relayBandRates"
 	TypeMsgRelayCoinbaseMessages = "relayCoinbaseMessages"
+	TypeMsgRequestBandIBCRates   = "requestBandIBCRates"
 )
 
 var (
 	_ sdk.Msg = &MsgRelayPriceFeedPrice{}
 	_ sdk.Msg = &MsgRelayBandRates{}
 	_ sdk.Msg = &MsgRelayCoinbaseMessages{}
+	_ sdk.Msg = &MsgRequestBandIBCRates{}
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -138,4 +140,46 @@ func (msg MsgRelayCoinbaseMessages) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{sender}
+}
+
+// NewMsgRequestBandIBCRates creates a new MsgRequestBandIBCRates instance.
+func NewMsgRequestBandIBCRates(
+	sender sdk.AccAddress,
+) *MsgRequestBandIBCRates {
+	return &MsgRequestBandIBCRates{
+		Sender: sender.String(),
+	}
+}
+
+// Route implements the sdk.Msg interface for MsgRequestData.
+func (msg MsgRequestBandIBCRates) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface for MsgRequestData.
+func (msg MsgRequestBandIBCRates) Type() string { return TypeMsgRequestBandIBCRates }
+
+// ValidateBasic implements the sdk.Msg interface for MsgRequestData.
+func (msg MsgRequestBandIBCRates) ValidateBasic() error {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return err
+	}
+	if sender.Empty() {
+		return sdkerrors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: Sender address must not be empty.")
+	}
+	return nil
+}
+
+// GetSigners implements the sdk.Msg interface for MsgRequestData.
+func (msg MsgRequestBandIBCRates) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// GetSignBytes implements the sdk.Msg interface for MsgRequestData.
+func (msg MsgRequestBandIBCRates) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&msg)
+	return sdk.MustSortJSON(bz)
 }

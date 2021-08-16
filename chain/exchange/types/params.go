@@ -101,7 +101,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeySpotMarketInstantListingFee, &p.SpotMarketInstantListingFee, validateSpotMarketInstantListingFee),
 		paramtypes.NewParamSetPair(KeyDerivativeMarketInstantListingFee, &p.DerivativeMarketInstantListingFee, validateDerivativeMarketInstantListingFee),
-		paramtypes.NewParamSetPair(KeyDefaultSpotMakerFeeRate, &p.DefaultSpotMakerFeeRate, ValidateFee),
+		paramtypes.NewParamSetPair(KeyDefaultSpotMakerFeeRate, &p.DefaultSpotMakerFeeRate, ValidateMakerFee),
 		paramtypes.NewParamSetPair(KeyDefaultSpotTakerFeeRate, &p.DefaultSpotTakerFeeRate, ValidateFee),
 		paramtypes.NewParamSetPair(KeyDefaultDerivativeMakerFeeRate, &p.DefaultDerivativeMakerFeeRate, ValidateFee),
 		paramtypes.NewParamSetPair(KeyDefaultDerivativeTakerFeeRate, &p.DefaultDerivativeTakerFeeRate, ValidateFee),
@@ -145,7 +145,7 @@ func (p Params) Validate() error {
 	if err := validateDerivativeMarketInstantListingFee(p.DerivativeMarketInstantListingFee); err != nil {
 		return err
 	}
-	if err := ValidateFee(p.DefaultSpotMakerFeeRate); err != nil {
+	if err := ValidateMakerFee(p.DefaultSpotMakerFeeRate); err != nil {
 		return err
 	}
 	if err := ValidateFee(p.DefaultSpotTakerFeeRate); err != nil {
@@ -224,6 +224,23 @@ func ValidateFee(i interface{}) error {
 	if v.IsNegative() {
 		return fmt.Errorf("exchange fee cannot be negative: %s", v)
 	}
+	if v.GT(sdk.OneDec()) {
+		return fmt.Errorf("exchange fee cannot be greater than 1: %s", v)
+	}
+
+	return nil
+}
+
+func ValidateMakerFee(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("exchange fee cannot be nil: %s", v)
+	}
+
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("exchange fee cannot be greater than 1: %s", v)
 	}

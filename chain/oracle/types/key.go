@@ -9,6 +9,15 @@ import (
 const (
 	ModuleName = "oracle"
 	StoreKey   = ModuleName
+
+	// MemStoreKey defines the in-memory store key
+	MemStoreKey = "mem_capability"
+
+	//// Version defines the current version the IBC module supports
+	//Version = "bandchain-1"
+	//
+	//// PortID is the default port id that module binds to
+	//PortID = "oracle"
 )
 
 var (
@@ -22,6 +31,13 @@ var (
 	PricefeedRelayerKey = []byte{0x13}
 
 	CoinbasePriceKey = []byte{0x21}
+
+	// Band IBC
+	BandIBCPriceKey          = []byte{0x31}
+	LatestClientIDKey        = []byte{0x32}
+	BandIBCCallDataRecordKey = []byte{0x33}
+	BandIBCOracleRequestKey  = []byte{0x34}
+	BandIBCParamsKey         = []byte{0x35}
 )
 
 func GetBandPriceStoreKey(symbol string) []byte {
@@ -30,6 +46,14 @@ func GetBandPriceStoreKey(symbol string) []byte {
 
 func GetBandRelayerStoreKey(relayer sdk.AccAddress) []byte {
 	return append(BandRelayerKey, relayer.Bytes()...)
+}
+
+func GetBandIBCPriceStoreKey(symbol string) []byte {
+	return append(BandIBCPriceKey, []byte(symbol)...)
+}
+
+func GetBandIBCCallDataRecordKey(clientID uint64) []byte {
+	return append(BandIBCCallDataRecordKey, sdk.Uint64ToBigEndian(clientID)...)
 }
 
 func GetBaseQuoteHash(oracleBase, oracleQuote string) common.Hash {

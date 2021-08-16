@@ -7,9 +7,9 @@ import (
 
 var _ paramtypes.ParamSet = &Params{}
 
-var LargestDecPrice sdk.Dec = sdk.MustNewDecFromStr("10000000")
-
-// Parameter keys
+var (
+	LargestDecPrice sdk.Dec = sdk.MustNewDecFromStr("10000000")
+)
 
 // ParamKeyTable returns the parameter key table.
 func ParamKeyTable() paramtypes.KeyTable {
