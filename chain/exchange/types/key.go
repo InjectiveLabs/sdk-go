@@ -53,8 +53,6 @@ var (
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
 	ExpiryFuturesMarketInfoPrefix            = []byte{0x33} // prefix for each key to a expiry futures market's market info
 	ExpiryFuturesMarketInfoByTimestampPrefix = []byte{0x34} // prefix for each index key to a expiry futures market's market info
-	NextFundingTimestampKey                  = []byte{0x35} // key to the next perpetual market funding timestamp
-
 )
 
 // GetDepositKey provides the key to obtain a given subaccount's deposits for a given denom

@@ -248,6 +248,54 @@ func ValidateMakerFee(i interface{}) error {
 	return nil
 }
 
+func ValidateHourlyFundingRateCap(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("hourly interest rate cannot be nil: %s", v)
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("hourly interest rate cannot be negative: %s", v)
+	}
+
+	if v.IsZero() {
+		return fmt.Errorf("hourly interest rate cannot be zero: %s", v)
+	}
+
+	// TODO validate more ?
+
+	return nil
+}
+
+func ValidateHourlyInterestRate(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("hourly interest rate cannot be nil: %s", v)
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("hourly interest rate cannot be negative: %s", v)
+	}
+
+	if v.IsZero() {
+		return fmt.Errorf("hourly interest rate cannot be zero: %s", v)
+	}
+
+	// TODO validate more ?
+
+	return nil
+}
+
 func ValidateTickSize(i interface{}) error {
 	v, ok := i.(sdk.Dec)
 	if !ok {

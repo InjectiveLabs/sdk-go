@@ -216,6 +216,7 @@ func NewDerivativeMarketParamUpdateProposal(
 	title, description string, marketID string,
 	initialMarginRatio, maintenanceMarginRatio,
 	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec,
+	hourlyInterestRate, hourlyFundingRateCap *sdk.Dec,
 	status MarketStatus,
 ) *DerivativeMarketParamUpdateProposal {
 	return &DerivativeMarketParamUpdateProposal{
@@ -229,6 +230,8 @@ func NewDerivativeMarketParamUpdateProposal(
 		relayerFeeShareRate,
 		minPriceTickSize,
 		minQuantityTickSize,
+		hourlyInterestRate,
+		hourlyFundingRateCap,
 		status,
 	}
 }
@@ -266,6 +269,8 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.MinQuantityTickSize == nil &&
 		p.InitialMarginRatio == nil &&
 		p.MaintenanceMarginRatio == nil &&
+		p.HourlyInterestRate == nil &&
+		p.HourlyFundingRateCap == nil &&
 		p.Status == MarketStatus_Unspecified {
 		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
@@ -306,6 +311,18 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if p.MinQuantityTickSize != nil {
 		if err := ValidateTickSize(*p.MinQuantityTickSize); err != nil {
 			return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		}
+	}
+
+	if p.HourlyInterestRate != nil {
+		if err := ValidateHourlyInterestRate(*p.HourlyInterestRate); err != nil {
+			return sdkerrors.Wrap(ErrInvalidHourlyInterestRate, err.Error())
+		}
+	}
+
+	if p.HourlyFundingRateCap != nil {
+		if err := ValidateHourlyFundingRateCap(*p.HourlyFundingRateCap); err != nil {
+			return sdkerrors.Wrap(ErrInvalidHourlyFundingRateCap, err.Error())
 		}
 	}
 

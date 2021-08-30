@@ -54,4 +54,7 @@ var (
 	ErrSpotExchangeNotEnabled                  = sdkerrors.Register(ModuleName, 47, "Spot exchange is not enabled yet")
 	ErrDerivativesExchangeNotEnabled           = sdkerrors.Register(ModuleName, 48, "Derivatives exchange is not enabled yet")
 	ErrBandIBCOraclePriceDeltaExceedsThreshold = sdkerrors.Register(ModuleName, 49, "Band IBC oracle price delta exceeds threshold")
+	ErrInvalidHourlyInterestRate               = sdkerrors.Register(ModuleName, 50, "Invalid hourly interest rate")
+	ErrInvalidHourlyFundingRateCap             = sdkerrors.Register(ModuleName, 51, "Invalid hourly funding rate cap")
+	ErrInvalidMarketFundingParamUpdate         = sdkerrors.Register(ModuleName, 52, "Only perpetual markets can update funding parameters")
 )

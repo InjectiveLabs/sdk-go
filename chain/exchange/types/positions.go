@@ -80,20 +80,21 @@ func (p *Position) CheckValidPositionToReduce(
 	isBuyOrder bool,
 	tradeFeeRate sdk.Dec,
 	funding *PerpetualMarketFunding,
+	orderMargin sdk.Dec,
 ) error {
 	if isBuyOrder == p.IsLong {
 		return ErrInvalidReduceOnlyPositionDirection
 	}
 
-	if err := p.CheckValidClosingPrice(reducePrice, tradeFeeRate, funding); err != nil {
+	if err := p.checkValidClosingPrice(reducePrice, tradeFeeRate, funding, orderMargin); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (p *Position) CheckValidClosingPrice(closingPrice sdk.Dec, tradeFeeRate sdk.Dec, funding *PerpetualMarketFunding) error {
-	bankruptcyPrice := p.GetBankruptcyPrice(funding)
+func (p *Position) checkValidClosingPrice(closingPrice sdk.Dec, tradeFeeRate sdk.Dec, funding *PerpetualMarketFunding, orderMargin sdk.Dec) error {
+	bankruptcyPrice := p.getBankruptcyPriceWithAddedMargin(funding, orderMargin)
 
 	if p.IsLong {
 		// For long positions, Price ≥ BankruptcyPrice / (1 - TakerFeeRate) must hold
@@ -117,8 +118,16 @@ func (p *Position) GetBankruptcyPrice(funding *PerpetualMarketFunding) (bankrupt
 	return p.GetLiquidationPrice(sdk.ZeroDec(), funding)
 }
 
+func (p *Position) getBankruptcyPriceWithAddedMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) (bankruptcyPrice sdk.Dec) {
+	return p.getLiquidationPriceWithAddedMargin(sdk.ZeroDec(), funding, addedMargin)
+}
+
 func (p *Position) GetLiquidationPrice(maintenanceMarginRatio sdk.Dec, funding *PerpetualMarketFunding) sdk.Dec {
-	adjustedUnitMargin := p.getFundingAdjustedUnitMargin(funding)
+	return p.getLiquidationPriceWithAddedMargin(maintenanceMarginRatio, funding, sdk.ZeroDec())
+}
+
+func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio sdk.Dec, funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
+	adjustedUnitMargin := p.getFundingAdjustedUnitMargin(funding, addedMargin)
 
 	var liquidationPrice sdk.Dec
 	if p.IsLong {
@@ -131,8 +140,8 @@ func (p *Position) GetLiquidationPrice(maintenanceMarginRatio sdk.Dec, funding *
 	return liquidationPrice
 }
 
-func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding) sdk.Dec {
-	adjustedMargin := p.Margin
+func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
+	adjustedMargin := p.Margin.Add(addedMargin)
 
 	// Compute the adjusted position margin for positions in perpetual markets
 	if funding != nil {
@@ -142,9 +151,9 @@ func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding)
 		// For longs, Margin -= Funding
 		// For shorts, Margin += Funding
 		if p.IsLong {
-			adjustedMargin = p.Margin.Sub(unrealizedFundingPayment)
+			adjustedMargin = adjustedMargin.Sub(unrealizedFundingPayment)
 		} else {
-			adjustedMargin = p.Margin.Add(unrealizedFundingPayment)
+			adjustedMargin = adjustedMargin.Add(unrealizedFundingPayment)
 		}
 	}
 
@@ -166,6 +175,8 @@ func (p *Position) ApplyFundingAndGetUpdatedPositionState(funding *PerpetualMark
 			fundingPayment = fundingPayment.Neg()
 		}
 		p.Margin = p.Margin.Add(fundingPayment)
+		// update the cumulative funding entry to current
+		p.CumulativeFundingEntry = funding.CumulativeFunding
 	}
 	positionState := &PositionState{
 		Position:       p,
@@ -265,6 +276,7 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 	if isFlippingPosition {
 		remainingExecutionQuantity := delta.ExecutionQuantity.Sub(closingQuantity)
 		remainingExecutionMargin := delta.ExecutionMargin.Sub(closeExecutionMargin)
+
 		newPositionDelta := &PositionDelta{
 			IsLong:            !p.IsLong,
 			ExecutionQuantity: remainingExecutionQuantity,

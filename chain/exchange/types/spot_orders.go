@@ -95,8 +95,9 @@ func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket,
 		if isTransient {
 			tradeFeeRate = market.TakerFeeRate
 		} else {
-			tradeFeeRate = market.MakerFeeRate
+			tradeFeeRate = sdk.MaxDec(sdk.ZeroDec(), market.MakerFeeRate)
 		}
+
 		// for a resting limit buy in the ETH/USDT market, denom is USDT and fillable amount is BalanceHold is (1 + makerFee)*(price * quantity) since (takerFee - makerFee) is already refunded
 		denom = market.QuoteDenom
 		balanceHold = m.GetUnfilledNotional().Add(m.GetUnfilledFeeAmount(tradeFeeRate))
