@@ -145,9 +145,11 @@ func (msg MsgRelayCoinbaseMessages) GetSigners() []sdk.AccAddress {
 // NewMsgRequestBandIBCRates creates a new MsgRequestBandIBCRates instance.
 func NewMsgRequestBandIBCRates(
 	sender sdk.AccAddress,
+	requestID uint64,
 ) *MsgRequestBandIBCRates {
 	return &MsgRequestBandIBCRates{
-		Sender: sender.String(),
+		Sender:    sender.String(),
+		RequestId: requestID,
 	}
 }
 
@@ -165,6 +167,10 @@ func (msg MsgRequestBandIBCRates) ValidateBasic() error {
 	}
 	if sender.Empty() {
 		return sdkerrors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: Sender address must not be empty.")
+	}
+
+	if msg.RequestId == 0 {
+		return sdkerrors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: requestID should be greater than zero")
 	}
 	return nil
 }

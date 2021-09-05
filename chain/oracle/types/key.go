@@ -33,11 +33,12 @@ var (
 	CoinbasePriceKey = []byte{0x21}
 
 	// Band IBC
-	BandIBCPriceKey          = []byte{0x31}
-	LatestClientIDKey        = []byte{0x32}
-	BandIBCCallDataRecordKey = []byte{0x33}
-	BandIBCOracleRequestKey  = []byte{0x34}
-	BandIBCParamsKey         = []byte{0x35}
+	BandIBCPriceKey           = []byte{0x31}
+	LatestClientIDKey         = []byte{0x32}
+	BandIBCCallDataRecordKey  = []byte{0x33}
+	BandIBCOracleRequestIDKey = []byte{0x34}
+	BandIBCParamsKey          = []byte{0x35}
+	LatestRequestIDKey        = []byte{0x36}
 )
 
 func GetBandPriceStoreKey(symbol string) []byte {
@@ -46,6 +47,10 @@ func GetBandPriceStoreKey(symbol string) []byte {
 
 func GetBandRelayerStoreKey(relayer sdk.AccAddress) []byte {
 	return append(BandRelayerKey, relayer.Bytes()...)
+}
+
+func GetBandIBCOracleRequestIDKey(requestID uint64) []byte {
+	return append(BandIBCOracleRequestIDKey, sdk.Uint64ToBigEndian(requestID)...)
 }
 
 func GetBandIBCPriceStoreKey(symbol string) []byte {

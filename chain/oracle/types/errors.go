@@ -28,4 +28,6 @@ var (
 	ErrInvalidPortID               = sdkerrors.Register(ModuleName, 21, "invalid IBC Port ID")
 	ErrInvalidChannelID            = sdkerrors.Register(ModuleName, 22, "invalid IBC Channel ID")
 	ErrBadRequestInterval          = sdkerrors.Register(ModuleName, 23, "invalid Band IBC request interval")
+	ErrInvalidBandIBCUpdateRequest = sdkerrors.Register(ModuleName, 24, "Invalid Band IBC Update Request Proposal")
+	ErrBandIBCRequestNotFound      = sdkerrors.Register(ModuleName, 25, "Band IBC Oracle Request not found")
 )
