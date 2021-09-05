@@ -1,15 +1,13 @@
 package types
 
 import (
-	"strings"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	bandprice "github.com/InjectiveLabs/sdk-go/bandchain/hooks/price"
-	"github.com/InjectiveLabs/sdk-go/bandchain/obi"
 	bandoracle "github.com/InjectiveLabs/sdk-go/bandchain/oracle/types"
+	bandobi "github.com/bandprotocol/bandchain-packet/obi"
 )
 
 // constants
@@ -19,6 +17,7 @@ const (
 	ProposalTypeGrantPriceFeederOraclePrivilege  string = "ProposalTypeGrantPriceFeederOraclePrivilege"
 	ProposalTypeRevokePriceFeederOraclePrivilege string = "ProposalTypeRevokePriceFeederOraclePrivilege"
 	ProposalAuthorizeBandOracleRequest           string = "ProposalTypeAuthorizeBandOracleRequest"
+	ProposalUpdateBandOracleRequest              string = "ProposalUpdateBandOracleRequest"
 	ProposalEnableBandIBC                        string = "ProposalTypeEnableBandIBC"
 )
 
@@ -35,6 +34,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&AuthorizeBandOracleRequestProposal{}, "injective/AuthorizeBandOracleRequestProposal")
 	gov.RegisterProposalType(ProposalEnableBandIBC)
 	gov.RegisterProposalTypeCodec(&EnableBandIBCProposal{}, "injective/EnableBandIBCProposal")
+	gov.RegisterProposalType(ProposalUpdateBandOracleRequest)
+	gov.RegisterProposalTypeCodec(&UpdateBandOracleRequestProposal{}, "injective/UpdateBandOracleRequestProposal")
 }
 
 // Implements Proposal Interface
@@ -43,6 +44,7 @@ var _ gov.Content = &RevokeBandOraclePrivilegeProposal{}
 var _ gov.Content = &GrantPriceFeederPrivilegeProposal{}
 var _ gov.Content = &RevokePriceFeederPrivilegeProposal{}
 var _ gov.Content = &AuthorizeBandOracleRequestProposal{}
+var _ gov.Content = &UpdateBandOracleRequestProposal{}
 var _ gov.Content = &EnableBandIBCProposal{}
 
 // GetTitle returns the title of this proposal.
@@ -173,18 +175,11 @@ func (p *AuthorizeBandOracleRequestProposal) ProposalRoute() string { return Rou
 
 // ProposalType returns proposal type of this proposal.
 func (p *AuthorizeBandOracleRequestProposal) ProposalType() string {
-	return ProposalAuthorizeBandOracleRequest
+	return ProposalTypeRevokePriceFeederOraclePrivilege
 }
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *AuthorizeBandOracleRequestProposal) ValidateBasic() error {
-	if p.Request.IbcSourceChannel == "" {
-		return sdkerrors.Wrap(ErrInvalidBandIBCRequest, "AuthorizeBandOracleRequestProposal: IBC Source Chanel must not be empty.")
-	}
-	if p.Request.IbcVersion == "" {
-		return sdkerrors.Wrap(bandoracle.ErrInvalidVersion, "AuthorizeBandOracleRequestProposal: IBC Version must not be empty.")
-	}
-
 	if p.Request.OracleScriptId <= 0 {
 		return sdkerrors.Wrapf(ErrInvalidBandIBCRequest, "AuthorizeBandOracleRequestProposal: Oracle script id (%d) must be positive.", p.Request.OracleScriptId)
 	}
@@ -197,7 +192,7 @@ func (p *AuthorizeBandOracleRequestProposal) ValidateBasic() error {
 		Symbols:    p.Request.Symbols,
 		Multiplier: BandPriceMultiplier,
 	}
-	callData := obi.MustEncode(requestCallData)
+	callData := bandobi.MustEncode(requestCallData)
 
 	if len(callData) > bandoracle.MaxDataSize {
 		return bandoracle.WrapMaxError(bandoracle.ErrTooLargeCalldata, len(callData), bandoracle.MaxDataSize)
@@ -217,18 +212,6 @@ func (p *AuthorizeBandOracleRequestProposal) ValidateBasic() error {
 
 	if !p.Request.FeeLimit.IsValid() {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "AuthorizeBandOracleRequestProposal: Invalid Fee Limit (%s)", p.Request.GetFeeLimit().String())
-	}
-
-	if p.Request.RequestKey == "" {
-		return sdkerrors.Wrapf(bandoracle.ErrInvalidRequestKey, "AuthorizeBandOracleRequestProposal: Invalid Request Key (%s)", p.Request.GetRequestKey())
-	}
-
-	if strings.Contains(p.Request.RequestKey, "/") {
-		return sdkerrors.Wrapf(bandoracle.ErrInvalidRequestKey, "AuthorizeBandOracleRequestProposal: Invalid Request Key (%s)", p.Request.GetRequestKey())
-	}
-
-	if len(p.Request.RequestKey) > bandoracle.MaxRequestKeyLength {
-		return bandoracle.WrapMaxError(bandoracle.ErrTooLongRequestKey, len(p.Request.RequestKey), bandoracle.MaxRequestKeyLength)
 	}
 
 	if p.Request.PrepareGas <= 0 {
@@ -270,5 +253,69 @@ func (p *EnableBandIBCProposal) ValidateBasic() error {
 	if p.BandIbcParams.IbcRequestInterval == 0 {
 		return ErrBadRequestInterval
 	}
+
+	if p.BandIbcParams.IbcSourceChannel == "" {
+		return sdkerrors.Wrap(ErrInvalidBandIBCRequest, "AuthorizeBandOracleRequestProposal: IBC Source Chanel must not be empty.")
+	}
+	if p.BandIbcParams.IbcVersion == "" {
+		return sdkerrors.Wrap(bandoracle.ErrInvalidVersion, "AuthorizeBandOracleRequestProposal: IBC Version must not be empty.")
+	}
+
+	return gov.ValidateAbstract(p)
+}
+
+// GetTitle returns the title of this proposal.
+func (p *UpdateBandOracleRequestProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal.
+func (p *UpdateBandOracleRequestProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *UpdateBandOracleRequestProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *UpdateBandOracleRequestProposal) ProposalType() string {
+	return ProposalUpdateBandOracleRequest
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *UpdateBandOracleRequestProposal) ValidateBasic() error {
+
+	if p.DeleteRequestId == 0 && p.UpdateOracleRequest == nil {
+		return ErrInvalidBandIBCUpdateRequest
+	}
+
+	if p.DeleteRequestId > 0 && p.UpdateOracleRequest != nil {
+		return sdkerrors.Wrapf(ErrInvalidBandIBCUpdateRequest, "cannot update requestID %T and delete reqeustID %T at same time", p.UpdateOracleRequest.RequestId, p.DeleteRequestId)
+	}
+
+	if p.UpdateOracleRequest != nil && len(p.UpdateOracleRequest.Symbols) > 0 {
+		requestCallData := bandprice.Input{
+			Symbols:    p.UpdateOracleRequest.Symbols,
+			Multiplier: BandPriceMultiplier,
+		}
+		callData := bandobi.MustEncode(requestCallData)
+
+		if len(callData) > bandoracle.MaxDataSize {
+			return bandoracle.WrapMaxError(bandoracle.ErrTooLargeCalldata, len(callData), bandoracle.MaxDataSize)
+		}
+	}
+
+	if p.UpdateOracleRequest != nil && p.UpdateOracleRequest.AskCount > 0 && p.UpdateOracleRequest.MinCount > 0 && p.UpdateOracleRequest.AskCount < p.UpdateOracleRequest.MinCount {
+		return sdkerrors.Wrapf(bandoracle.ErrInvalidAskCount, "UpdateBandOracleRequestProposal: Request validator count (%d) must not be less than sufficient validator count (%d).", p.UpdateOracleRequest.AskCount, p.UpdateOracleRequest.MinCount)
+	}
+
+	if p.UpdateOracleRequest != nil && p.UpdateOracleRequest.FeeLimit != nil && !p.UpdateOracleRequest.FeeLimit.IsValid() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "UpdateBandOracleRequestProposal: Invalid Fee Limit (%s)", p.UpdateOracleRequest.GetFeeLimit().String())
+	}
+
+	if p.UpdateOracleRequest != nil && p.UpdateOracleRequest.PrepareGas > 0 && p.UpdateOracleRequest.ExecuteGas > 0 && p.UpdateOracleRequest.PrepareGas+p.UpdateOracleRequest.ExecuteGas > bandoracle.MaximumOwasmGas {
+		return sdkerrors.Wrapf(bandoracle.ErrInvalidOwasmGas, "UpdateBandOracleRequestProposal: Sum of prepare gas and execute gas (%d) exceeds Maximum gas (%d)", (p.UpdateOracleRequest.PrepareGas + p.UpdateOracleRequest.ExecuteGas), bandoracle.MaximumOwasmGas)
+	}
+
 	return gov.ValidateAbstract(p)
 }
