@@ -53,6 +53,12 @@ var (
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
 	ExpiryFuturesMarketInfoPrefix            = []byte{0x33} // prefix for each key to a expiry futures market's market info
 	ExpiryFuturesMarketInfoByTimestampPrefix = []byte{0x34} // prefix for each index key to a expiry futures market's market info
+
+	LiquidityMiningMarketRewardsRateKey = []byte{0x40} // prefix for each key to a market's liquidity mining reward rate
+	LiquidityMiningAccountPointsKey     = []byte{0x41} // prefix for each key to an account's liquidity mining points
+	CurrentLiquidityMiningCampaignKey   = []byte{0x42} // key to the current liquidity mining campaign
+	UpcomingLiquidityMiningCampaignKey  = []byte{0x43} // key to the upcoming liquidity mining campaign
+	TotalLiquidityMiningPointsKey       = []byte{0x44} // key to the total liquidity mining points
 )
 
 // GetDepositKey provides the key to obtain a given subaccount's deposits for a given denom
@@ -157,6 +163,10 @@ func SpotMarketDirectionPriceHashPrefix(marketID common.Hash, isBuy bool, price 
 
 func GetDerivativeMarketKey(isEnabled bool) []byte {
 	return append(DerivativeMarketPrefix, getBoolPrefix(isEnabled)...)
+}
+
+func GetAccountLiquidityMiningPointsKey(account sdk.AccAddress) []byte {
+	return append(LiquidityMiningAccountPointsKey, account.Bytes()...)
 }
 
 func getBoolPrefix(isEnabled bool) []byte {

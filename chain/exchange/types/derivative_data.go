@@ -20,12 +20,13 @@ type DerivativeOrderStateExpansion struct {
 	TotalBalanceDelta     sdk.Dec
 	AvailableBalanceDelta sdk.Dec
 
-	AuctionFeeReward       sdk.Dec
-	FeeRecipientReward     sdk.Dec
-	FeeRecipient           common.Address
-	LimitOrderFilledDelta  *DerivativeLimitOrderDelta
-	MarketOrderFilledDelta *DerivativeMarketOrderDelta
-	OrderHash              common.Hash
+	AuctionFeeReward            sdk.Dec
+	LiquidityMiningRewardPoints sdk.Dec
+	FeeRecipientReward          sdk.Dec
+	FeeRecipient                common.Address
+	LimitOrderFilledDelta       *DerivativeLimitOrderDelta
+	MarketOrderFilledDelta      *DerivativeMarketOrderDelta
+	OrderHash                   common.Hash
 }
 
 func ApplyDeltasAndGetDerivativeOrderBatchEvent(
@@ -35,6 +36,7 @@ func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 	funding *PerpetualMarketFunding,
 	stateExpansions []*DerivativeOrderStateExpansion,
 	depositDeltas DepositDeltas,
+	liquidityMiningRewards LiquidityMiningRewards,
 ) (batch *EventBatchDerivativeExecution, filledDeltas []*DerivativeLimitOrderDelta) {
 	if len(stateExpansions) == 0 {
 		return
@@ -60,6 +62,11 @@ func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 		})
 		depositDeltas.ApplyUniformDelta(feeRecipientSubaccount, expansion.FeeRecipientReward)
 		depositDeltas.ApplyUniformDelta(AuctionSubaccountID, expansion.AuctionFeeReward)
+
+		sender := SubaccountIDToSdkAddress(expansion.SubaccountID)
+		if expansion.LiquidityMiningRewardPoints.IsPositive() {
+			liquidityMiningRewards.AddPointsForAddress(sender.String(), expansion.LiquidityMiningRewardPoints)
+		}
 
 		if !executionType.IsMarket() {
 			filledDeltas = append(filledDeltas, expansion.LimitOrderFilledDelta)

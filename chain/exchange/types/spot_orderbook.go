@@ -56,51 +56,61 @@ func NewSpotOrderbookStateChange(transientBuyOrders []*SpotLimitOrder, transient
 // ProcessBothRestingSpotLimitOrderExpansions processes both the orderbook state change to produce the spot execution batch events and filledDelta.
 // Note: clearingPrice should be set to sdk.Dec{} for normal fills
 func (o *SpotOrderbookStateChange) ProcessBothRestingSpotLimitOrderExpansions(
-	isCanaryV2 bool,
 	marketID common.Hash,
 	clearingPrice sdk.Dec,
 	tradeFeeRate, relayerFeeShareRate sdk.Dec,
 	baseDenomDepositDeltas DepositDeltas,
 	quoteDenomDepositDeltas DepositDeltas,
-) (limitBuyRestingOrderBatchEvent *EventBatchSpotExecution, limitSellRestingOrderBatchEvent *EventBatchSpotExecution, filledDeltas []*SpotLimitOrderDelta) {
+	liquidityMiningRewardsRate sdk.Dec,
+) (
+	limitBuyRestingOrderBatchEvent *EventBatchSpotExecution,
+	limitSellRestingOrderBatchEvent *EventBatchSpotExecution,
+	filledDeltas []*SpotLimitOrderDelta,
+	liquidityMiningRewards LiquidityMiningRewards,
+) {
 	spotLimitBuyOrderStateExpansions := make([]*SpotOrderStateExpansion, 0)
 	spotLimitSellOrderStateExpansions := make([]*SpotOrderStateExpansion, 0)
 	filledDeltas = make([]*SpotLimitOrderDelta, 0)
 
 	var currFilledDeltas []*SpotLimitOrderDelta
+	var buyLiquidityMiningRewards LiquidityMiningRewards
+	var sellLiquidityMiningRewards LiquidityMiningRewards
 
 	if o.RestingBuyOrderbookFills != nil {
-		spotLimitBuyOrderStateExpansions = o.ProcessRestingSpotLimitOrderExpansions(isCanaryV2, true, clearingPrice, tradeFeeRate, relayerFeeShareRate)
+		spotLimitBuyOrderStateExpansions = o.ProcessRestingSpotLimitOrderExpansions(true, clearingPrice, tradeFeeRate, relayerFeeShareRate)
 		// Process limit order events and filledDeltas
-		limitBuyRestingOrderBatchEvent, currFilledDeltas = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
+		limitBuyRestingOrderBatchEvent, currFilledDeltas, buyLiquidityMiningRewards = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			true,
 			marketID,
 			ExecutionType_LimitMatchRestingOrder,
 			spotLimitBuyOrderStateExpansions,
 			baseDenomDepositDeltas, quoteDenomDepositDeltas,
+			liquidityMiningRewardsRate,
 		)
 		filledDeltas = append(filledDeltas, currFilledDeltas...)
 	}
 
 	if o.RestingSellOrderbookFills != nil {
-		spotLimitSellOrderStateExpansions = o.ProcessRestingSpotLimitOrderExpansions(isCanaryV2, false, clearingPrice, tradeFeeRate, relayerFeeShareRate)
+		spotLimitSellOrderStateExpansions = o.ProcessRestingSpotLimitOrderExpansions(false, clearingPrice, tradeFeeRate, relayerFeeShareRate)
 		// Process limit order events and filledDeltas
-		limitSellRestingOrderBatchEvent, currFilledDeltas = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
+		limitSellRestingOrderBatchEvent, currFilledDeltas, sellLiquidityMiningRewards = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			false,
 			marketID,
 			ExecutionType_LimitMatchRestingOrder,
 			spotLimitSellOrderStateExpansions,
 			baseDenomDepositDeltas, quoteDenomDepositDeltas,
+			liquidityMiningRewardsRate,
 		)
 		filledDeltas = append(filledDeltas, currFilledDeltas...)
 	}
+
+	liquidityMiningRewards = MergeLiquidityMiningRewards(buyLiquidityMiningRewards, sellLiquidityMiningRewards)
 	return
 }
 
 // ProcessBothTransientSpotLimitOrderExpansions processes the transient spot limit orderbook state change.
 // Note: clearingPrice should be set to sdk.Dec{} for normal fills
 func (o *SpotOrderbookStateChange) ProcessBothTransientSpotLimitOrderExpansions(
-	isCanaryV2 bool,
 	marketID common.Hash,
 	clearingPrice sdk.Dec,
 	makerFeeRate, takerFeeRate, relayerFeeShareRate sdk.Dec,
@@ -114,24 +124,26 @@ func (o *SpotOrderbookStateChange) ProcessBothTransientSpotLimitOrderExpansions(
 ) {
 	var expansions []*SpotOrderStateExpansion
 	if o.TransientBuyOrderbookFills != nil {
-		expansions, newRestingBuySpotLimitOrders = o.processNewSpotLimitBuyExpansions(isCanaryV2,clearingPrice, makerFeeRate, takerFeeRate, relayerFeeShareRate)
-		limitBuyNewOrderBatchEvent, _ = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
+		expansions, newRestingBuySpotLimitOrders = o.processNewSpotLimitBuyExpansions(clearingPrice, makerFeeRate, takerFeeRate, relayerFeeShareRate)
+		limitBuyNewOrderBatchEvent, _, _ = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			true,
 			marketID,
 			ExecutionType_LimitMatchNewOrder,
 			expansions,
 			baseDenomDepositDeltas, quoteDenomDepositDeltas,
+			sdk.ZeroDec(),
 		)
 	}
 
 	if o.TransientSellOrderbookFills != nil {
-		expansions, newRestingSellSpotLimitOrders = o.processNewSpotLimitSellExpansions(isCanaryV2, clearingPrice, takerFeeRate, relayerFeeShareRate)
-		limitSellNewOrderBatchEvent, _ = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
+		expansions, newRestingSellSpotLimitOrders = o.processNewSpotLimitSellExpansions(clearingPrice, takerFeeRate, relayerFeeShareRate)
+		limitSellNewOrderBatchEvent, _, _ = GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			false,
 			marketID,
 			ExecutionType_LimitMatchNewOrder,
 			expansions,
 			baseDenomDepositDeltas, quoteDenomDepositDeltas,
+			sdk.ZeroDec(),
 		)
 	}
 	return
@@ -140,7 +152,6 @@ func (o *SpotOrderbookStateChange) ProcessBothTransientSpotLimitOrderExpansions(
 // ProcessRestingSpotLimitOrderExpansions processes the resting spot limit orderbook state change.
 // Note: clearingPrice should be set to sdk.Dec{} for normal fills
 func (o *SpotOrderbookStateChange) ProcessRestingSpotLimitOrderExpansions(
-	isCanaryV2 bool,
 	isLimitBuy bool,
 	clearingPrice sdk.Dec,
 	makerFeeRate, relayerFeeShare sdk.Dec,
@@ -151,12 +162,11 @@ func (o *SpotOrderbookStateChange) ProcessRestingSpotLimitOrderExpansions(
 	} else {
 		fills = o.RestingSellOrderbookFills
 	}
-	return ProcessRestingSpotLimitOrderExpansions(isCanaryV2, fills, isLimitBuy, clearingPrice, makerFeeRate, relayerFeeShare)
+	return ProcessRestingSpotLimitOrderExpansions(fills, isLimitBuy, clearingPrice, makerFeeRate, relayerFeeShare)
 }
 
 // TODO: refactor to merge processNewSpotLimitBuyExpansions and processNewSpotLimitSellExpansions
 func (o *SpotOrderbookStateChange) processNewSpotLimitBuyExpansions(
-	isCanaryV2 bool,
 	clearingPrice sdk.Dec,
 	makerFeeRate, takerFeeRate, relayerFeeShare sdk.Dec,
 ) ([]*SpotOrderStateExpansion, []*SpotLimitOrder) {
@@ -170,7 +180,6 @@ func (o *SpotOrderbookStateChange) processNewSpotLimitBuyExpansions(
 			fillQuantity = orderbookFills.FillQuantities[idx]
 		}
 		stateExpansions[idx] = getNewSpotLimitBuyStateExpansion(
-			isCanaryV2,
 			order,
 			common.BytesToHash(order.OrderHash),
 			clearingPrice, fillQuantity,
@@ -187,7 +196,6 @@ func (o *SpotOrderbookStateChange) processNewSpotLimitBuyExpansions(
 // processNewSpotLimitSellExpansions processes.
 // Note: clearingPrice should be set to sdk.Dec{} for normal fills
 func (o *SpotOrderbookStateChange) processNewSpotLimitSellExpansions(
-	isCanaryV2 bool,
 	clearingPrice sdk.Dec,
 	takerFeeRate, relayerFeeShare sdk.Dec,
 ) ([]*SpotOrderStateExpansion, []*SpotLimitOrder) {
@@ -202,7 +210,6 @@ func (o *SpotOrderbookStateChange) processNewSpotLimitSellExpansions(
 			fillPrice = clearingPrice
 		}
 		stateExpansions[idx] = getSpotLimitSellStateExpansion(
-			isCanaryV2,
 			order,
 			fillQuantity,
 			fillPrice,

@@ -28,7 +28,6 @@ type SpotOrderStateExpansion struct {
 // ProcessSpotMarketOrderStateExpansions processes the spot market order state expansions.
 // NOTE: clearingPrice may be Nil
 func ProcessSpotMarketOrderStateExpansions(
-	isCanaryV2 bool,
 	isMarketBuy bool,
 	marketOrders []*SpotMarketOrder,
 	marketFillQuantities []sdk.Dec,
@@ -39,7 +38,6 @@ func ProcessSpotMarketOrderStateExpansions(
 
 	for idx := range marketOrders {
 		stateExpansions[idx] = getSpotMarketOrderStateExpansion(
-			isCanaryV2,
 			marketOrders[idx],
 			isMarketBuy,
 			marketFillQuantities[idx],
@@ -52,7 +50,6 @@ func ProcessSpotMarketOrderStateExpansions(
 }
 
 func ProcessRestingSpotLimitOrderExpansions(
-	isCanaryV2 bool,
 	fills *OrderbookFills,
 	isLimitBuy bool,
 	clearingPrice sdk.Dec,
@@ -67,7 +64,6 @@ func ProcessRestingSpotLimitOrderExpansions(
 
 		if isLimitBuy {
 			stateExpansions[idx] = getRestingSpotLimitBuyStateExpansion(
-				isCanaryV2,
 				order,
 				order.Hash(),
 				fillQuantity,
@@ -77,7 +73,6 @@ func ProcessRestingSpotLimitOrderExpansions(
 			)
 		} else {
 			stateExpansions[idx] = getSpotLimitSellStateExpansion(
-				isCanaryV2,
 				order,
 				fillQuantity,
 				fillPrice,
@@ -128,7 +123,6 @@ func (e *SpotOrderStateExpansion) UpdateDepositDeltas(baseDenomDepositDeltas Dep
 }
 
 func getSpotLimitSellStateExpansion(
-	isCanaryV2 bool,
 	order *SpotLimitOrder,
 	fillQuantity, fillPrice, tradeFeeRate, relayerFeeShare sdk.Dec,
 ) *SpotOrderStateExpansion {
@@ -151,19 +145,13 @@ func getSpotLimitSellStateExpansion(
 	quoteChangeAmount := orderNotional.Sub(traderFee)
 	order.Fillable = order.Fillable.Sub(fillQuantity)
 
-	// get correct fee recipient while still supporting legacy (incorrect) fee recipient
-	feeRecipient := common.HexToAddress(order.OrderInfo.FeeRecipient)
-	if isCanaryV2 {
-		feeRecipient = order.FeeRecipient()
-	}
-
 	stateExpansion := SpotOrderStateExpansion{
 		// limit sells are debited by fillQuantity in base denom
 		BaseChangeAmount:       fillQuantity.Neg(),
 		BaseRefundAmount:       sdk.ZeroDec(),
 		QuoteChangeAmount:      quoteChangeAmount,
 		QuoteRefundAmount:      sdk.ZeroDec(),
-		FeeRecipient:           feeRecipient,
+		FeeRecipient:           order.FeeRecipient(),
 		FeeRecipientReward:     feeRecipientReward,
 		AuctionFeeReward:       auctionFeeReward,
 		TraderFeeReward:        traderFee.Abs(),
@@ -177,7 +165,6 @@ func getSpotLimitSellStateExpansion(
 }
 
 func getRestingSpotLimitBuyStateExpansion(
-	isCanaryV2 bool,
 	order *SpotLimitOrder,
 	orderHash common.Hash,
 	fillQuantity, fillPrice, makerFeeRate, relayerFeeShareRate sdk.Dec,
@@ -222,18 +209,13 @@ func getRestingSpotLimitBuyStateExpansion(
 	}
 	order.Fillable = order.Fillable.Sub(fillQuantity)
 
-	// get correct fee recipient while still supporting legacy (incorrect) fee recipient
-	feeRecipient := common.HexToAddress(order.OrderInfo.FeeRecipient)
-	if isCanaryV2 {
-		feeRecipient = order.FeeRecipient()
-	}
 
 	stateExpansion := SpotOrderStateExpansion{
 		BaseChangeAmount:       baseChangeAmount,
 		BaseRefundAmount:       sdk.ZeroDec(),
 		QuoteChangeAmount:      quoteChangeAmount,
 		QuoteRefundAmount:      quoteRefund,
-		FeeRecipient:           feeRecipient,
+		FeeRecipient:           order.FeeRecipient(),
 		FeeRecipientReward:     feeRecipientReward,
 		AuctionFeeReward:       auctionFeeReward,
 		TraderFeeReward:        feeRebate,
@@ -247,7 +229,6 @@ func getRestingSpotLimitBuyStateExpansion(
 }
 
 func getNewSpotLimitBuyStateExpansion(
-	isCanaryV2 bool,
 	buyOrder *SpotLimitOrder,
 	orderHash common.Hash,
 	clearingPrice, fillQuantity,
@@ -282,18 +263,12 @@ func getNewSpotLimitBuyStateExpansion(
 	quoteRefundAmount := clearingRefund.Add(feeRefund)
 	buyOrder.Fillable = buyOrder.Fillable.Sub(fillQuantity)
 
-	// get correct fee recipient while still supporting legacy (incorrect) fee recipient
-	feeRecipient := common.HexToAddress(buyOrder.OrderInfo.FeeRecipient)
-	if isCanaryV2 {
-		feeRecipient = buyOrder.FeeRecipient()
-	}
-
 	stateExpansion := SpotOrderStateExpansion{
 		BaseChangeAmount:       baseChangeAmount,
 		BaseRefundAmount:       sdk.ZeroDec(),
 		QuoteChangeAmount:      quoteChangeAmount,
 		QuoteRefundAmount:      quoteRefundAmount,
-		FeeRecipient:           feeRecipient,
+		FeeRecipient:           buyOrder.FeeRecipient(),
 		FeeRecipientReward:     feeRecipientReward,
 		AuctionFeeReward:       auctionFeeReward,
 		TraderFeeReward:        sdk.ZeroDec(),
@@ -307,7 +282,6 @@ func getNewSpotLimitBuyStateExpansion(
 }
 
 func getSpotMarketOrderStateExpansion(
-	isCanaryV2 bool,
 	marketOrder *SpotMarketOrder,
 	isMarketBuy bool,
 	fillQuantity, clearingPrice sdk.Dec,
@@ -347,18 +321,12 @@ func getSpotMarketOrderStateExpansion(
 		}
 	}
 
-	// get correct fee recipient while still supporting legacy (incorrect) fee recipient
-	feeRecipient := common.HexToAddress(marketOrder.OrderInfo.FeeRecipient)
-	if isCanaryV2 {
-		feeRecipient = marketOrder.FeeRecipient()
-	}
-
 	stateExpansion := SpotOrderStateExpansion{
 		BaseChangeAmount:        baseChangeAmount,
 		BaseRefundAmount:        baseRefundAmount,
 		QuoteChangeAmount:       quoteChangeAmount,
 		QuoteRefundAmount:       quoteRefundAmount,
-		FeeRecipient:            feeRecipient,
+		FeeRecipient:            marketOrder.FeeRecipient(),
 		FeeRecipientReward:      feeRecipientReward,
 		AuctionFeeReward:        auctionFeeReward,
 		TraderFeeReward:         sdk.ZeroDec(),

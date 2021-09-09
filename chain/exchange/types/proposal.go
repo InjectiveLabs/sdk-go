@@ -19,6 +19,7 @@ const (
 	ProposalTypeExpiryFuturesMarketLaunch           string = "ProposalTypeExpiryFuturesMarketLaunch"
 	ProposalTypeDerivativeMarketParamUpdate         string = "ProposalTypeDerivativeMarketParamUpdate"
 	ProposalTypeDerivativeMarketBandOraclePromotion string = "ProposalTypeDerivativeMarketBandOraclePromotion"
+	ProposalTypeLiquidityMiningCampaign             string = "ProposalTypeLiquidityMiningCampaign"
 )
 
 func init() {
@@ -36,6 +37,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeDerivativeMarketBandOraclePromotion)
 	gov.RegisterProposalTypeCodec(&DerivativeMarketBandOraclePromotionProposal{}, "injective/DerivativeMarketBandOraclePromotionProposal")
+	gov.RegisterProposalType(ProposalTypeLiquidityMiningCampaign)
+	gov.RegisterProposalTypeCodec(&LiquidityMiningCampaignProposal{}, "injective/LiquidityMiningCampaignProposal")
 }
 
 // Implements Proposal Interface
@@ -582,6 +585,136 @@ func (p *DerivativeMarketBandOraclePromotionProposal) ProposalType() string {
 func (p *DerivativeMarketBandOraclePromotionProposal) ValidateBasic() error {
 	if p.MarketId == "" {
 		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+	}
+
+	return gov.ValidateAbstract(p)
+}
+
+// NewLiquidityMiningCampaignProposal returns new instance of LiquidityMiningCampaignProposal
+func NewLiquidityMiningCampaignProposal(
+	title, description string,
+	spotMarketIDs []string,
+	spotMarketWeights []sdk.Dec,
+	derivativeMarketIDs []string,
+	derivativeMarketWeights []sdk.Dec,
+	maxEpochRewards sdk.Coins,
+) *LiquidityMiningCampaignProposal {
+	p := &LiquidityMiningCampaignProposal{
+		Title:       title,
+		Description: description,
+		Campaign: &LiquidityMiningCampaign{
+			SpotMarketIds:           spotMarketIDs,
+			SpotMarketWeights:       spotMarketWeights,
+			DerivativeMarketIds:     derivativeMarketIDs,
+			DerivativeMarketWeights: derivativeMarketWeights,
+			MaxEpochRewards:         maxEpochRewards,
+		},
+	}
+	if err := p.ValidateBasic(); err != nil {
+		panic(err)
+	}
+	return p
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &LiquidityMiningCampaignProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *LiquidityMiningCampaignProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *LiquidityMiningCampaignProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *LiquidityMiningCampaignProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *LiquidityMiningCampaignProposal) ProposalType() string {
+	return ProposalTypeLiquidityMiningCampaign
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *LiquidityMiningCampaignProposal) ValidateBasic() error {
+	if p.Campaign == nil {
+		return ErrInvalidLiquidityMiningCampaign
+	}
+
+	isEndingCampaign := len(p.Campaign.MaxEpochRewards) == 0
+	hasOtherNonEmptyFields := len(p.Campaign.SpotMarketIds) != 0 || len(p.Campaign.SpotMarketWeights) != 0 ||
+		len(p.Campaign.DerivativeMarketIds) != 0 || len(p.Campaign.DerivativeMarketWeights) != 0
+
+	if isEndingCampaign && hasOtherNonEmptyFields {
+		return ErrInvalidLiquidityMiningCampaign
+	}
+
+	if isEndingCampaign {
+		return nil
+	}
+
+	if len(p.Campaign.SpotMarketWeights) != len(p.Campaign.SpotMarketIds) {
+		return ErrInvalidLiquidityMiningMarket
+	}
+
+	if len(p.Campaign.DerivativeMarketWeights) != len(p.Campaign.DerivativeMarketIds) {
+		return ErrInvalidLiquidityMiningMarket
+	}
+
+	if len(p.Campaign.SpotMarketIds) == 0 && len(p.Campaign.DerivativeMarketIds) == 0 {
+		return ErrInvalidLiquidityMiningMarket
+	}
+
+	hasDuplicatesInMarkets := HasDuplicates(p.Campaign.SpotMarketIds) || HasDuplicates(p.Campaign.DerivativeMarketIds)
+
+	if hasDuplicatesInMarkets {
+		return ErrInvalidLiquidityMiningMarket
+	}
+
+	totalWeight := sdk.ZeroDec()
+
+	for idx, weight := range p.Campaign.SpotMarketWeights {
+		if weight.IsNil() || !weight.IsPositive() {
+			return ErrInvalidLiquidityMiningMarketWeights
+		}
+
+		if p.Campaign.SpotMarketIds[idx] == "" {
+			return ErrInvalidLiquidityMiningMarket
+		}
+		totalWeight = totalWeight.Add(weight)
+	}
+
+	for idx, weight := range p.Campaign.DerivativeMarketWeights {
+		if weight.IsNil() || weight.IsNegative() {
+			return ErrInvalidLiquidityMiningMarketWeights
+		}
+		if p.Campaign.DerivativeMarketIds[idx] == "" {
+			return ErrInvalidLiquidityMiningMarket
+		}
+		totalWeight = totalWeight.Add(weight)
+	}
+
+	// sum of weights must equal 1
+	if !totalWeight.Equal(sdk.OneDec()) {
+		return ErrInvalidLiquidityMiningMarketWeights
+	}
+
+	hasDuplicatesInEpochRewards := HasDuplicatesCoin(p.Campaign.MaxEpochRewards)
+
+	if hasDuplicatesInEpochRewards {
+		return ErrInvalidLiquidityMiningReward
+	}
+
+	for _, epochRewardDenom := range p.Campaign.MaxEpochRewards {
+		if !epochRewardDenom.IsValid() {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, epochRewardDenom.String())
+		}
+
+		if epochRewardDenom.Amount.IsZero() {
+			return ErrInvalidLiquidityMiningReward
+		}
 	}
 
 	return gov.ValidateAbstract(p)

@@ -256,18 +256,20 @@ func ValidateHourlyFundingRateCap(i interface{}) error {
 	}
 
 	if v.IsNil() {
-		return fmt.Errorf("hourly interest rate cannot be nil: %s", v)
+		return fmt.Errorf("hourly funding rate cap cannot be nil: %s", v)
 	}
 
 	if v.IsNegative() {
-		return fmt.Errorf("hourly interest rate cannot be negative: %s", v)
+		return fmt.Errorf("hourly funding rate cap cannot be negative: %s", v)
 	}
 
 	if v.IsZero() {
-		return fmt.Errorf("hourly interest rate cannot be zero: %s", v)
+		return fmt.Errorf("hourly funding rate cap cannot be zero: %s", v)
 	}
 
-	// TODO validate more ?
+	if v.GT(sdk.NewDecWithPrec(3, 2)) {
+		return fmt.Errorf("hourly funding rate cap cannot be larger than 3 percent: %s", v)
+	}
 
 	return nil
 }
@@ -287,11 +289,9 @@ func ValidateHourlyInterestRate(i interface{}) error {
 		return fmt.Errorf("hourly interest rate cannot be negative: %s", v)
 	}
 
-	if v.IsZero() {
-		return fmt.Errorf("hourly interest rate cannot be zero: %s", v)
+	if v.GT(sdk.NewDecWithPrec(1, 2)) {
+		return fmt.Errorf("hourly interest rate cannot be larger than 1 percent: %s", v)
 	}
-
-	// TODO validate more ?
 
 	return nil
 }

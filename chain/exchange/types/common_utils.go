@@ -54,6 +54,9 @@ func (d *DerivativeLimitOrderDelta) OrderHash() common.Hash {
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
 var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
 
+// TempRewardsSenderAddress equals sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
+var TempRewardsSenderAddress, _ = sdk.AccAddressFromBech32("inj1zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3t5qxqh")
+
 func IsValidSubaccountID(subaccountID string) (*common.Address, bool) {
 	if len(subaccountID) != 66 {
 		return nil, false
@@ -124,8 +127,24 @@ func SdkAddressToEthAddress(addr sdk.Address) common.Address {
 	return common.BytesToAddress(addr.Bytes())
 }
 
+func SubaccountIDToSdkAddress(subaccountID common.Hash) sdk.Address {
+	return sdk.AccAddress(subaccountID[:common.AddressLength])
+}
+
 func EthAddressToSubaccountID(addr common.Address) common.Hash {
 	return common.BytesToHash(common.RightPadBytes(addr.Bytes(), 32))
+}
+
+func DecToDecBytes(dec sdk.Dec) []byte {
+	return dec.BigInt().Bytes()
+}
+
+func DecBytesToDec(bz []byte) sdk.Dec {
+	dec := sdk.NewDecFromBigIntWithPrec(new(big.Int).SetBytes(bz), sdk.Precision)
+	if dec.IsNil() {
+		return sdk.ZeroDec()
+	}
+	return dec
 }
 
 // PrintSpotLimitOrderbookState is a helper debugger function to print a tabular view of the spot limit orderbook fill state
@@ -168,4 +187,26 @@ func PrintSpotLimitOrderbookState(buyOrderbookState *OrderbookFills, sellOrderbo
 		table.Append(row)
 	}
 	table.Render()
+}
+
+func HasDuplicates(slice []string) bool {
+	seen := make(map[string]bool)
+	for _, item := range slice {
+		if seen[item] {
+			return true
+		}
+		seen[item] = true
+	}
+	return false
+}
+
+func HasDuplicatesCoin(slice []sdk.Coin) bool {
+	seen := make(map[string]bool)
+	for _, item := range slice {
+		if seen[item.Denom] {
+			return true
+		}
+		seen[item.Denom] = true
+	}
+	return false
 }

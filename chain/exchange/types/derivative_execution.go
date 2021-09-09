@@ -15,6 +15,8 @@ type DerivativeBatchExecutionData struct {
 	DepositDeltas        DepositDeltas
 	DepositSubaccountIDs []common.Hash
 
+	LiquidityMiningRewards         LiquidityMiningRewards
+
 	// updated positions
 	Positions             []*Position
 	PositionSubaccountIDs []common.Hash
@@ -106,16 +108,17 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 	positionStates map[common.Hash]*PositionState,
 ) *DerivativeBatchExecutionData {
 	depositDeltas := NewDepositDeltas()
+	liquidityMiningRewards := NewLiquidityMiningRewards()
 
 	// process undermargined resting limit order forced cancellations
 	cancelLimitOrdersEvents, restingOrderCancelledDeltas, transientOrderCancelledDeltas := e.applyCancellationsAndGetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, market.TakerFeeRate, depositDeltas)
 
 	positions, positionSubaccountIDs := GetPositionSliceData(positionStates)
 
-	transientLimitBuyOrderBatchEvent, transientLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitBuyExpansions, depositDeltas)
-	restingLimitBuyOrderBatchEvent, restingLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitBuyExpansions, depositDeltas)
-	transientLimitSellOrderBatchEvent, transientLimitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitSellExpansions, depositDeltas)
-	restingLimitSellOrderBatchEvent, restingLimitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitSellExpansions, depositDeltas)
+	transientLimitBuyOrderBatchEvent, transientLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitBuyExpansions, depositDeltas, liquidityMiningRewards)
+	restingLimitBuyOrderBatchEvent, restingLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitBuyExpansions, depositDeltas, liquidityMiningRewards)
+	transientLimitSellOrderBatchEvent, transientLimitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitMatchNewOrder, market, funding, e.TransientLimitSellExpansions, depositDeltas, liquidityMiningRewards)
+	restingLimitSellOrderBatchEvent, restingLimitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitMatchRestingOrder, market, funding, e.RestingLimitSellExpansions, depositDeltas, liquidityMiningRewards)
 
 	restingOrderFilledDeltas := mergeDerivativeLimitOrderFilledDeltas(restingLimitBuyFilledDeltas, restingLimitSellFilledDeltas)
 	transientOrderFilledDeltas := mergeDerivativeLimitOrderFilledDeltas(transientLimitBuyFilledDeltas, transientLimitSellFilledDeltas)
@@ -144,6 +147,7 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		Funding:                               funding,
 		DepositDeltas:                         depositDeltas,
 		DepositSubaccountIDs:                  depositDeltaKeys,
+		LiquidityMiningRewards:                liquidityMiningRewards,
 		Positions:                             positions,
 		PositionSubaccountIDs:                 positionSubaccountIDs,
 		RestingLimitOrderFilledDeltas:         restingOrderFilledDeltas,
@@ -339,6 +343,7 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 	positionStates map[common.Hash]*PositionState,
 ) *DerivativeBatchExecutionData {
 	depositDeltas := NewDepositDeltas()
+	liquidityMiningRewards := NewLiquidityMiningRewards()
 
 	// process undermargined limit order forced cancellations
 	cancelLimitOrdersEvents, restingOrderCancelledDeltas := e.applyCancellationsAndGetDerivativeLimitCancelEvents(market.MarketID(), market.MakerFeeRate, depositDeltas)
@@ -348,10 +353,10 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 
 	positions, positionSubaccountIDs := GetPositionSliceData(positionStates)
 
-	buyMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_Market, market, funding, e.MarketBuyExpansions, depositDeltas)
-	sellMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_Market, market, funding, e.MarketSellExpansions, depositDeltas)
-	restingLimitBuyOrderBatchEvent, limitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitFill, market, funding, e.LimitBuyExpansions, depositDeltas)
-	restingLimitSellOrderBatchEvent, limitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitFill, market, funding, e.LimitSellExpansions, depositDeltas)
+	buyMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_Market, market, funding, e.MarketBuyExpansions, depositDeltas, liquidityMiningRewards)
+	sellMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_Market, market, funding, e.MarketSellExpansions, depositDeltas, liquidityMiningRewards)
+	restingLimitBuyOrderBatchEvent, limitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(true, ExecutionType_LimitFill, market, funding, e.LimitBuyExpansions, depositDeltas, liquidityMiningRewards)
+	restingLimitSellOrderBatchEvent, limitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(false, ExecutionType_LimitFill, market, funding, e.LimitSellExpansions, depositDeltas, liquidityMiningRewards)
 
 	filledDeltas := mergeDerivativeLimitOrderFilledDeltas(limitBuyFilledDeltas, limitSellFilledDeltas)
 
@@ -371,6 +376,7 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		Funding:                               funding,
 		DepositDeltas:                         depositDeltas,
 		DepositSubaccountIDs:                  depositDeltaKeys,
+		LiquidityMiningRewards:                liquidityMiningRewards,
 		Positions:                             positions,
 		PositionSubaccountIDs:                 positionSubaccountIDs,
 		TransientLimitOrderFilledDeltas:       nil,

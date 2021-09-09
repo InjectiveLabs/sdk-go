@@ -15,6 +15,7 @@ type SpotBatchExecutionData struct {
 	MarketOrderExecutionEvent      *EventBatchSpotExecution
 	LimitOrderExecutionEvent       []*EventBatchSpotExecution
 	NewOrdersEvent                 *EventNewSpotOrders
+	LiquidityMiningRewards         LiquidityMiningRewards
 }
 
 func GetSpotMarketOrderBatchExecution(
@@ -22,6 +23,7 @@ func GetSpotMarketOrderBatchExecution(
 	market *SpotMarket,
 	spotLimitOrderStateExpansions, spotMarketOrderStateExpansions []*SpotOrderStateExpansion,
 	clearingPrice sdk.Dec,
+	liquidityMiningRewardsRate sdk.Dec,
 ) *SpotBatchExecutionData {
 	baseDenomDepositDeltas := NewDepositDeltas()
 	quoteDenomDepositDeltas := NewDepositDeltas()
@@ -54,12 +56,13 @@ func GetSpotMarketOrderBatchExecution(
 	}
 
 	// Stage 3b: Process limit order events
-	limitOrderBatchEvent, filledDeltas := GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
+	limitOrderBatchEvent, filledDeltas, liquidityMiningRewards := GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 		!isMarketBuy,
 		market.MarketID(),
 		ExecutionType_LimitFill,
 		spotLimitOrderStateExpansions,
 		baseDenomDepositDeltas, quoteDenomDepositDeltas,
+		liquidityMiningRewardsRate,
 	)
 
 	limitOrderExecutionEvent := make([]*EventBatchSpotExecution, 0)
@@ -77,29 +80,29 @@ func GetSpotMarketOrderBatchExecution(
 		LimitOrderFilledDeltas:         filledDeltas,
 		MarketOrderExecutionEvent:      marketOrderBatchEvent,
 		LimitOrderExecutionEvent:       limitOrderExecutionEvent,
+		LiquidityMiningRewards:         liquidityMiningRewards,
 	}
 	return batch
 }
 
 func GetSpotLimitMatchingBatchExecution(
-	isCanaryV2 bool,
 	market *SpotMarket,
 	orderbookStateChange *SpotOrderbookStateChange,
 	clearingPrice sdk.Dec,
+	liquidityMiningRewardsRate sdk.Dec,
 ) *SpotBatchExecutionData {
 
 	// Initialize map DepositKey subaccountID => Deposit Delta (availableBalanceDelta, totalDepositsDelta)
 	baseDenomDepositDeltas := NewDepositDeltas()
 	quoteDenomDepositDeltas := NewDepositDeltas()
 
-	limitBuyRestingOrderBatchEvent, limitSellRestingOrderBatchEvent, filledDeltas := orderbookStateChange.ProcessBothRestingSpotLimitOrderExpansions(
-		isCanaryV2, market.MarketID(), clearingPrice, market.MakerFeeRate, market.RelayerFeeShareRate,
-		baseDenomDepositDeltas, quoteDenomDepositDeltas,
+	limitBuyRestingOrderBatchEvent, limitSellRestingOrderBatchEvent, filledDeltas, liquidityMiningRewards := orderbookStateChange.ProcessBothRestingSpotLimitOrderExpansions(
+		market.MarketID(), clearingPrice, market.MakerFeeRate, market.RelayerFeeShareRate,
+		baseDenomDepositDeltas, quoteDenomDepositDeltas, liquidityMiningRewardsRate,
 	)
 
 	// filled deltas are handled implicitly with the new resting spot limit orders
 	limitBuyNewOrderBatchEvent, limitSellNewOrderBatchEvent, newRestingBuySpotLimitOrders, newRestingSellSpotLimitOrders := orderbookStateChange.ProcessBothTransientSpotLimitOrderExpansions(
-		isCanaryV2,
 		market.MarketID(),
 		clearingPrice,
 		market.MakerFeeRate, market.TakerFeeRate, market.RelayerFeeShareRate,
@@ -133,6 +136,7 @@ func GetSpotLimitMatchingBatchExecution(
 		QuoteDenomDepositSubaccountIDs: quoteDenomDepositDeltas.GetSortedSubaccountKeys(),
 		LimitOrderFilledDeltas:         filledDeltas,
 		LimitOrderExecutionEvent:       eventBatchSpotExecution,
+		LiquidityMiningRewards:         liquidityMiningRewards,
 	}
 
 	if len(newRestingBuySpotLimitOrders) > 0 || len(newRestingSellSpotLimitOrders) > 0 {
@@ -151,7 +155,8 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	executionType ExecutionType,
 	spotLimitOrderStateExpansions []*SpotOrderStateExpansion,
 	baseDenomDepositDeltas DepositDeltas, quoteDenomDepositDeltas DepositDeltas,
-) (*EventBatchSpotExecution, []*SpotLimitOrderDelta) {
+	liquidityMiningRewardsRate sdk.Dec,
+) (*EventBatchSpotExecution, []*SpotLimitOrderDelta, LiquidityMiningRewards) {
 	limitOrderBatchEvent := &EventBatchSpotExecution{
 		MarketId:      marketID.Hex(),
 		IsBuy:         isBuy,
@@ -162,6 +167,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 
 	// array of (SubaccountIndexKey, fillableAmount) to update/delete
 	filledDeltas := make([]*SpotLimitOrderDelta, 0, len(spotLimitOrderStateExpansions))
+	liquidityMiningRewards := NewLiquidityMiningRewards()
 
 	for idx := range spotLimitOrderStateExpansions {
 		expansion := spotLimitOrderStateExpansions[idx]
@@ -192,6 +198,14 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 		}
 
 		price := expansion.QuoteChangeAmount.Add(traderFee).Quo(expansion.BaseChangeAmount).Abs()
+		hasLiquidityMiningRewards := (executionType == ExecutionType_LimitFill || executionType == ExecutionType_LimitMatchRestingOrder) && liquidityMiningRewardsRate.IsPositive()
+
+		if hasLiquidityMiningRewards {
+			addr := SubaccountIDToSdkAddress(expansion.SubaccountID)
+			newPoints := price.Mul(expansion.LimitOrderFillQuantity).Mul(liquidityMiningRewardsRate)
+			liquidityMiningRewards.AddPointsForAddress(addr.String(), newPoints)
+		}
+
 		var totalTradeFee sdk.Dec
 
 		if hasNegativeMakerFee {
@@ -213,5 +227,5 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	if len(trades) == 0 {
 		limitOrderBatchEvent = nil
 	}
-	return limitOrderBatchEvent, filledDeltas
+	return limitOrderBatchEvent, filledDeltas, liquidityMiningRewards
 }
