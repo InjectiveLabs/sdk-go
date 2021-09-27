@@ -13,7 +13,7 @@ require (
 	github.com/bugsnag/panicwrap v1.2.0 // indirect
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/cosmos/cosmos-sdk v0.44.0
-	github.com/cosmos/ibc-go v1.0.0
+	github.com/cosmos/ibc-go v1.2.0
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/ethereum/go-ethereum v1.9.25
 	github.com/fjl/memsize v0.0.0-20190710130421-bcb5799ab5e5 // indirect
@@ -32,9 +32,10 @@ require (
 	github.com/regen-network/cosmos-proto v0.3.1
 	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/shopspring/decimal v1.2.0
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/status-im/keycard-go v0.0.0-20200402102358-957c09536969 // indirect
-	github.com/tendermint/tendermint v0.34.12
+	github.com/tendermint/tendermint v0.34.13
 	github.com/tyler-smith/go-bip39 v1.0.2
 	github.com/xlab/suplog v1.3.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
