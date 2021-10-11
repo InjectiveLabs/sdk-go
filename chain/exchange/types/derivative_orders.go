@@ -305,3 +305,11 @@ func (o *OrderInfo) FeeRecipientAddress() common.Address {
 	address, _ := sdk.AccAddressFromBech32(o.FeeRecipient)
 	return common.BytesToAddress(address.Bytes())
 }
+
+func (o *DerivativeLimitOrder) SdkAccAddress() sdk.AccAddress {
+	return sdk.AccAddress(o.SubaccountID().Bytes()[:common.AddressLength])
+}
+
+func (o *DerivativeMarketOrder) SdkAccAddress() sdk.AccAddress {
+	return sdk.AccAddress(o.SubaccountID().Bytes()[:common.AddressLength])
+}

@@ -33,6 +33,14 @@ func (o *SpotMarketOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
 
+func (o *SpotMarketOrder) SdkAccAddress() sdk.AccAddress {
+	return sdk.AccAddress(o.SubaccountID().Bytes()[:common.AddressLength])
+}
+
+func (o *SpotLimitOrder) SdkAccAddress() sdk.AccAddress {
+	return sdk.AccAddress(o.SubaccountID().Bytes()[:common.AddressLength])
+}
+
 func (o *SpotLimitOrder) FeeRecipient() common.Address {
 	return o.OrderInfo.FeeRecipientAddress()
 }

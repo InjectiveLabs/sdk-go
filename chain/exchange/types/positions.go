@@ -62,7 +62,7 @@ func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate 
 	}
 
 	closeTradingFee := settlementPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
-	payout, _, _, _ = p.ApplyPositionDelta(positionDelta, closeTradingFee)
+	payout, _, _ = p.ApplyPositionDelta(positionDelta, closeTradingFee)
 
 	return payout
 }
@@ -129,6 +129,16 @@ func (p *Position) GetLiquidationPrice(maintenanceMarginRatio sdk.Dec, funding *
 func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio sdk.Dec, funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
 	adjustedUnitMargin := p.getFundingAdjustedUnitMargin(funding, addedMargin)
 
+	// TODO include closing fee for reduce only ?
+
+	if adjustedUnitMargin.IsNegative() && p.IsLong {
+		return MinLongLiquidationPrice
+	}
+
+	if adjustedUnitMargin.IsNegative() && p.IsShort() {
+		return MaxShortLiquidationPrice
+	}
+
 	var liquidationPrice sdk.Dec
 	if p.IsLong {
 		// liquidation price = (entry price - unit margin) / (1 - maintenanceMarginRatio)
@@ -145,8 +155,7 @@ func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding,
 
 	// Compute the adjusted position margin for positions in perpetual markets
 	if funding != nil {
-		notional := p.Quantity.Mul(p.EntryPrice)
-		unrealizedFundingPayment := notional.Mul(funding.CumulativeFunding.Sub(p.CumulativeFundingEntry))
+		unrealizedFundingPayment := p.Quantity.Mul(funding.CumulativeFunding.Sub(p.CumulativeFundingEntry))
 
 		// For longs, Margin -= Funding
 		// For shorts, Margin += Funding
@@ -160,29 +169,6 @@ func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding,
 	// Unit Margin = PositionMargin / PositionQuantity
 	fundingAdjustedUnitMargin := adjustedMargin.Quo(p.Quantity)
 	return fundingAdjustedUnitMargin
-}
-
-// ApplyFundingAndGetUpdatedPositionState updates the position to account for any funding payment and returns a PositionState.
-func (p *Position) ApplyFundingAndGetUpdatedPositionState(funding *PerpetualMarketFunding) *PositionState {
-	fundingPayment := sdk.ZeroDec()
-
-	if funding != nil {
-		notional := p.Quantity.Mul(p.EntryPrice)
-		fundingPayment = notional.Mul(funding.CumulativeFunding.Sub(p.CumulativeFundingEntry))
-		// For longs, Margin -= Funding
-		// For shorts, Margin += Funding
-		if p.IsLong {
-			fundingPayment = fundingPayment.Neg()
-		}
-		p.Margin = p.Margin.Add(fundingPayment)
-		// update the cumulative funding entry to current
-		p.CumulativeFundingEntry = funding.CumulativeFunding
-	}
-	positionState := &PositionState{
-		Position:       p,
-		FundingPayment: fundingPayment,
-	}
-	return positionState
 }
 
 func (p *Position) GetAverageWeightedEntryPrice(executionQuantity, executionPrice sdk.Dec) sdk.Dec {
@@ -225,18 +211,18 @@ func (p *Position) GetPayoutFromPnl(closingPrice, closingQuantity sdk.Dec) sdk.D
 }
 
 func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceOnly sdk.Dec) (
-	payout, pnlNotional, closeExecutionMargin, collateralizationMargin sdk.Dec,
+	payout, closeExecutionMargin, collateralizationMargin sdk.Dec,
 ) {
 	// No payouts or margin changes if the position delta is nil
 	if delta == nil || p == nil {
-		return sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()
+		return sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()
 	}
 
 	if p.Quantity.IsZero() {
 		p.IsLong = delta.IsLong
 	}
 
-	payout, pnlNotional, closeExecutionMargin, collateralizationMargin = sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()
+	payout, closeExecutionMargin, collateralizationMargin = sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()
 	isNettingInSameDirection := (p.IsLong && delta.IsLong) || (p.IsShort() && delta.IsShort())
 
 	if isNettingInSameDirection {
@@ -245,7 +231,7 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 		p.Margin = p.Margin.Add(delta.ExecutionMargin)
 		collateralizationMargin = delta.ExecutionMargin
 
-		return payout, pnlNotional, closeExecutionMargin, collateralizationMargin
+		return payout, closeExecutionMargin, collateralizationMargin
 	}
 
 	// netting in opposing direction
@@ -253,7 +239,7 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 	// closeExecutionMargin = execution margin * closing quantity / execution quantity
 	closeExecutionMargin = delta.ExecutionMargin.Mul(closingQuantity).Quo(delta.ExecutionQuantity)
 
-	pnlNotional = p.GetPayoutFromPnl(delta.ExecutionPrice, closingQuantity)
+	pnlNotional := p.GetPayoutFromPnl(delta.ExecutionPrice, closingQuantity)
 	isReduceOnlyTrade := delta.ExecutionMargin.IsZero()
 
 	if isReduceOnlyTrade {
@@ -284,9 +270,9 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 			ExecutionPrice:    delta.ExecutionPrice,
 		}
 		// recurse
-		_, _, _, collateralizationMargin = p.ApplyPositionDelta(newPositionDelta, tradingFeeForReduceOnly)
+		_, _, collateralizationMargin = p.ApplyPositionDelta(newPositionDelta, tradingFeeForReduceOnly)
 
 	}
 
-	return payout, pnlNotional, closeExecutionMargin, collateralizationMargin
+	return payout, closeExecutionMargin, collateralizationMargin
 }

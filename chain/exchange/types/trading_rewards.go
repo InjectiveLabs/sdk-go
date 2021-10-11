@@ -6,15 +6,15 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type LiquidityMiningRewards map[string]sdk.Dec
+type TradingRewardPoints map[string]sdk.Dec
 
-func NewLiquidityMiningRewards() LiquidityMiningRewards {
-	liquidityMiningRewards := make(LiquidityMiningRewards)
+func NewTradingRewardPoints() TradingRewardPoints {
+	liquidityMiningRewards := make(TradingRewardPoints)
 
 	return liquidityMiningRewards
 }
 
-func (l LiquidityMiningRewards) GetSortedAccountKeys() []string {
+func (l TradingRewardPoints) GetSortedAccountKeys() []string {
 	accountKeys := make([]string, 0, len(l))
 	for k := range l {
 		accountKeys = append(accountKeys, k)
@@ -23,7 +23,7 @@ func (l LiquidityMiningRewards) GetSortedAccountKeys() []string {
 	return accountKeys
 }
 
-func (l LiquidityMiningRewards) AddPointsForAddress(addr string, newPoints sdk.Dec) {
+func (l TradingRewardPoints) AddPointsForAddress(addr string, newPoints sdk.Dec) {
 	v, found := l[addr]
 	if !found {
 		l[addr] = newPoints
@@ -32,7 +32,7 @@ func (l LiquidityMiningRewards) AddPointsForAddress(addr string, newPoints sdk.D
 	}
 }
 
-func (l *LiquidityMiningRewards) GetAllAccountAddresses() []string {
+func (l *TradingRewardPoints) GetAllAccountAddresses() []string {
 	accountAddresses := make([]string, 0)
 
 	for k := range *l {
@@ -42,7 +42,7 @@ func (l *LiquidityMiningRewards) GetAllAccountAddresses() []string {
 	return accountAddresses
 }
 
-func MergeLiquidityMiningRewards(m1, m2 LiquidityMiningRewards) LiquidityMiningRewards {
+func MergeTradingRewardPoints(m1, m2 TradingRewardPoints) TradingRewardPoints {
 	if m1 == nil || len(m1) == 0 {
 		return m2
 	} else if m2 == nil || len(m2) == 0 {

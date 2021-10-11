@@ -48,3 +48,35 @@ func NewDerivativesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, 
 		return NewExpiryFuturesMarketID(ticker, quoteDenom, oracleBase, oracleQuote, oracleType, expiry)
 	}
 }
+
+func (m *SpotMarket) IsActive() bool {
+	return m.Status == MarketStatus_Active
+}
+
+func (m *SpotMarket) IsInactive() bool {
+	return !m.IsActive()
+}
+
+func (m *ExpiryFuturesMarketInfo) IsPremature(currBlockTime int64) bool {
+	return currBlockTime < m.TwapStartTimestamp
+}
+
+func (m *ExpiryFuturesMarketInfo) IsStartingMaturation(currBlockTime int64) bool {
+	return currBlockTime >= m.TwapStartTimestamp && (m.ExpirationTwapStartPriceCumulative.IsNil() || m.ExpirationTwapStartPriceCumulative.IsZero())
+}
+
+func (m *ExpiryFuturesMarketInfo) IsMatured(currBlockTime int64) bool {
+	return currBlockTime >= m.ExpirationTimestamp
+}
+
+func (m *DerivativeMarket) IsTimeExpiry() bool {
+	return !m.IsPerpetual
+}
+
+func (m *DerivativeMarket) IsActive() bool {
+	return m.Status == MarketStatus_Active
+}
+
+func (m *DerivativeMarket) IsInactive() bool {
+	return !m.IsActive()
+}

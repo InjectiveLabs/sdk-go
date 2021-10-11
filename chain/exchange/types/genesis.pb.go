@@ -49,12 +49,15 @@ type GenesisState struct {
 	// perpetual_market_funding_state defines the funding state for the perpetual derivative markets at genesis
 	PerpetualMarketFundingState []PerpetualMarketFundingState `protobuf:"bytes,11,rep,name=perpetual_market_funding_state,json=perpetualMarketFundingState,proto3" json:"perpetual_market_funding_state"`
 	// derivative_market_settlement_scheduled defines the scheduled markets for settlement at genesis
-	DerivativeMarketSettlementScheduled []DerivativeMarketSettlementInfo `protobuf:"bytes,12,rep,name=derivative_market_settlement_scheduled,json=derivativeMarketSettlementScheduled,proto3" json:"derivative_market_settlement_scheduled"`
-	IsSpotExchangeEnabled               bool                             `protobuf:"varint,13,opt,name=is_spot_exchange_enabled,json=isSpotExchangeEnabled,proto3" json:"is_spot_exchange_enabled,omitempty"`
-	IsDerivativesExchangeEnabled        bool                             `protobuf:"varint,14,opt,name=is_derivatives_exchange_enabled,json=isDerivativesExchangeEnabled,proto3" json:"is_derivatives_exchange_enabled,omitempty"`
-	LiquidityMiningAccountPoints        []LiquidityMiningAccountPoints   `protobuf:"bytes,15,rep,name=liquidity_mining_account_points,json=liquidityMiningAccountPoints,proto3" json:"liquidity_mining_account_points"`
-	CurrentLiquidityMiningCampaign      *LiquidityMiningCampaign         `protobuf:"bytes,16,opt,name=current_liquidity_mining_campaign,json=currentLiquidityMiningCampaign,proto3" json:"current_liquidity_mining_campaign,omitempty"`
-	UpcomingLiquidityMiningCampaign     *LiquidityMiningCampaign         `protobuf:"bytes,17,opt,name=upcoming_liquidity_mining_campaign,json=upcomingLiquidityMiningCampaign,proto3" json:"upcoming_liquidity_mining_campaign,omitempty"`
+	DerivativeMarketSettlementScheduled []DerivativeMarketSettlementInfo      `protobuf:"bytes,12,rep,name=derivative_market_settlement_scheduled,json=derivativeMarketSettlementScheduled,proto3" json:"derivative_market_settlement_scheduled"`
+	IsSpotExchangeEnabled               bool                                  `protobuf:"varint,13,opt,name=is_spot_exchange_enabled,json=isSpotExchangeEnabled,proto3" json:"is_spot_exchange_enabled,omitempty"`
+	IsDerivativesExchangeEnabled        bool                                  `protobuf:"varint,14,opt,name=is_derivatives_exchange_enabled,json=isDerivativesExchangeEnabled,proto3" json:"is_derivatives_exchange_enabled,omitempty"`
+	TradingRewardCampaignInfo           *TradingRewardCampaignInfo            `protobuf:"bytes,15,opt,name=trading_reward_campaign_info,json=tradingRewardCampaignInfo,proto3" json:"trading_reward_campaign_info,omitempty"`
+	TradingRewardPoolCampaignSchedule   []*CampaignRewardPool                 `protobuf:"bytes,16,rep,name=trading_reward_pool_campaign_schedule,json=tradingRewardPoolCampaignSchedule,proto3" json:"trading_reward_pool_campaign_schedule,omitempty"`
+	TradingRewardCampaignAccountPoints  []*TradingRewardCampaignAccountPoints `protobuf:"bytes,17,rep,name=trading_reward_campaign_account_points,json=tradingRewardCampaignAccountPoints,proto3" json:"trading_reward_campaign_account_points,omitempty"`
+	FeeDiscountSchedule                 *FeeDiscountSchedule                  `protobuf:"bytes,18,opt,name=fee_discount_schedule,json=feeDiscountSchedule,proto3" json:"fee_discount_schedule,omitempty"`
+	FeeDiscountAccountTierTtl           []*FeeDiscountAccountTierTTL          `protobuf:"bytes,20,rep,name=fee_discount_account_tier_ttl,json=feeDiscountAccountTierTtl,proto3" json:"fee_discount_account_tier_ttl,omitempty"`
+	FeeDiscountBucketFeesPaidAccounts   []*FeeDiscountBucketFeesPaidAccounts  `protobuf:"bytes,21,rep,name=fee_discount_bucket_fees_paid_accounts,json=feeDiscountBucketFeesPaidAccounts,proto3" json:"fee_discount_bucket_fees_paid_accounts,omitempty"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }
@@ -188,25 +191,240 @@ func (m *GenesisState) GetIsDerivativesExchangeEnabled() bool {
 	return false
 }
 
-func (m *GenesisState) GetLiquidityMiningAccountPoints() []LiquidityMiningAccountPoints {
+func (m *GenesisState) GetTradingRewardCampaignInfo() *TradingRewardCampaignInfo {
 	if m != nil {
-		return m.LiquidityMiningAccountPoints
+		return m.TradingRewardCampaignInfo
 	}
 	return nil
 }
 
-func (m *GenesisState) GetCurrentLiquidityMiningCampaign() *LiquidityMiningCampaign {
+func (m *GenesisState) GetTradingRewardPoolCampaignSchedule() []*CampaignRewardPool {
 	if m != nil {
-		return m.CurrentLiquidityMiningCampaign
+		return m.TradingRewardPoolCampaignSchedule
 	}
 	return nil
 }
 
-func (m *GenesisState) GetUpcomingLiquidityMiningCampaign() *LiquidityMiningCampaign {
+func (m *GenesisState) GetTradingRewardCampaignAccountPoints() []*TradingRewardCampaignAccountPoints {
 	if m != nil {
-		return m.UpcomingLiquidityMiningCampaign
+		return m.TradingRewardCampaignAccountPoints
 	}
 	return nil
+}
+
+func (m *GenesisState) GetFeeDiscountSchedule() *FeeDiscountSchedule {
+	if m != nil {
+		return m.FeeDiscountSchedule
+	}
+	return nil
+}
+
+func (m *GenesisState) GetFeeDiscountAccountTierTtl() []*FeeDiscountAccountTierTTL {
+	if m != nil {
+		return m.FeeDiscountAccountTierTtl
+	}
+	return nil
+}
+
+func (m *GenesisState) GetFeeDiscountBucketFeesPaidAccounts() []*FeeDiscountBucketFeesPaidAccounts {
+	if m != nil {
+		return m.FeeDiscountBucketFeesPaidAccounts
+	}
+	return nil
+}
+
+type FeeDiscountAccountTierTTL struct {
+	Account string              `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	TierTtl *FeeDiscountTierTTL `protobuf:"bytes,2,opt,name=tier_ttl,json=tierTtl,proto3" json:"tier_ttl,omitempty"`
+}
+
+func (m *FeeDiscountAccountTierTTL) Reset()         { *m = FeeDiscountAccountTierTTL{} }
+func (m *FeeDiscountAccountTierTTL) String() string { return proto.CompactTextString(m) }
+func (*FeeDiscountAccountTierTTL) ProtoMessage()    {}
+func (*FeeDiscountAccountTierTTL) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c47ec6b98758ed05, []int{1}
+}
+func (m *FeeDiscountAccountTierTTL) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FeeDiscountAccountTierTTL) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FeeDiscountAccountTierTTL.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FeeDiscountAccountTierTTL) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FeeDiscountAccountTierTTL.Merge(m, src)
+}
+func (m *FeeDiscountAccountTierTTL) XXX_Size() int {
+	return m.Size()
+}
+func (m *FeeDiscountAccountTierTTL) XXX_DiscardUnknown() {
+	xxx_messageInfo_FeeDiscountAccountTierTTL.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FeeDiscountAccountTierTTL proto.InternalMessageInfo
+
+func (m *FeeDiscountAccountTierTTL) GetAccount() string {
+	if m != nil {
+		return m.Account
+	}
+	return ""
+}
+
+func (m *FeeDiscountAccountTierTTL) GetTierTtl() *FeeDiscountTierTTL {
+	if m != nil {
+		return m.TierTtl
+	}
+	return nil
+}
+
+type FeeDiscountBucketFeesPaidAccounts struct {
+	BucketStartTimestamp int64              `protobuf:"varint,1,opt,name=bucket_start_timestamp,json=bucketStartTimestamp,proto3" json:"bucket_start_timestamp,omitempty"`
+	AccountFeesPaid      []*AccountFeesPaid `protobuf:"bytes,2,rep,name=account_fees_paid,json=accountFeesPaid,proto3" json:"account_fees_paid,omitempty"`
+}
+
+func (m *FeeDiscountBucketFeesPaidAccounts) Reset()         { *m = FeeDiscountBucketFeesPaidAccounts{} }
+func (m *FeeDiscountBucketFeesPaidAccounts) String() string { return proto.CompactTextString(m) }
+func (*FeeDiscountBucketFeesPaidAccounts) ProtoMessage()    {}
+func (*FeeDiscountBucketFeesPaidAccounts) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c47ec6b98758ed05, []int{2}
+}
+func (m *FeeDiscountBucketFeesPaidAccounts) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FeeDiscountBucketFeesPaidAccounts) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FeeDiscountBucketFeesPaidAccounts.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FeeDiscountBucketFeesPaidAccounts) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FeeDiscountBucketFeesPaidAccounts.Merge(m, src)
+}
+func (m *FeeDiscountBucketFeesPaidAccounts) XXX_Size() int {
+	return m.Size()
+}
+func (m *FeeDiscountBucketFeesPaidAccounts) XXX_DiscardUnknown() {
+	xxx_messageInfo_FeeDiscountBucketFeesPaidAccounts.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FeeDiscountBucketFeesPaidAccounts proto.InternalMessageInfo
+
+func (m *FeeDiscountBucketFeesPaidAccounts) GetBucketStartTimestamp() int64 {
+	if m != nil {
+		return m.BucketStartTimestamp
+	}
+	return 0
+}
+
+func (m *FeeDiscountBucketFeesPaidAccounts) GetAccountFeesPaid() []*AccountFeesPaid {
+	if m != nil {
+		return m.AccountFeesPaid
+	}
+	return nil
+}
+
+type AccountFeesPaid struct {
+	Account  string                                 `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	FeesPaid github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=fees_paid,json=feesPaid,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"fees_paid"`
+}
+
+func (m *AccountFeesPaid) Reset()         { *m = AccountFeesPaid{} }
+func (m *AccountFeesPaid) String() string { return proto.CompactTextString(m) }
+func (*AccountFeesPaid) ProtoMessage()    {}
+func (*AccountFeesPaid) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c47ec6b98758ed05, []int{3}
+}
+func (m *AccountFeesPaid) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *AccountFeesPaid) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AccountFeesPaid.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *AccountFeesPaid) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AccountFeesPaid.Merge(m, src)
+}
+func (m *AccountFeesPaid) XXX_Size() int {
+	return m.Size()
+}
+func (m *AccountFeesPaid) XXX_DiscardUnknown() {
+	xxx_messageInfo_AccountFeesPaid.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AccountFeesPaid proto.InternalMessageInfo
+
+func (m *AccountFeesPaid) GetAccount() string {
+	if m != nil {
+		return m.Account
+	}
+	return ""
+}
+
+type TradingRewardCampaignAccountPoints struct {
+	Account string                                 `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	Points  github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=points,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"points"`
+}
+
+func (m *TradingRewardCampaignAccountPoints) Reset()         { *m = TradingRewardCampaignAccountPoints{} }
+func (m *TradingRewardCampaignAccountPoints) String() string { return proto.CompactTextString(m) }
+func (*TradingRewardCampaignAccountPoints) ProtoMessage()    {}
+func (*TradingRewardCampaignAccountPoints) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c47ec6b98758ed05, []int{4}
+}
+func (m *TradingRewardCampaignAccountPoints) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *TradingRewardCampaignAccountPoints) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_TradingRewardCampaignAccountPoints.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *TradingRewardCampaignAccountPoints) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TradingRewardCampaignAccountPoints.Merge(m, src)
+}
+func (m *TradingRewardCampaignAccountPoints) XXX_Size() int {
+	return m.Size()
+}
+func (m *TradingRewardCampaignAccountPoints) XXX_DiscardUnknown() {
+	xxx_messageInfo_TradingRewardCampaignAccountPoints.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TradingRewardCampaignAccountPoints proto.InternalMessageInfo
+
+func (m *TradingRewardCampaignAccountPoints) GetAccount() string {
+	if m != nil {
+		return m.Account
+	}
+	return ""
 }
 
 // Spot Exchange Limit Orderbook
@@ -220,7 +438,7 @@ func (m *SpotOrderBook) Reset()         { *m = SpotOrderBook{} }
 func (m *SpotOrderBook) String() string { return proto.CompactTextString(m) }
 func (*SpotOrderBook) ProtoMessage()    {}
 func (*SpotOrderBook) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c47ec6b98758ed05, []int{1}
+	return fileDescriptor_c47ec6b98758ed05, []int{5}
 }
 func (m *SpotOrderBook) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -260,7 +478,7 @@ func (m *DerivativeOrderBook) Reset()         { *m = DerivativeOrderBook{} }
 func (m *DerivativeOrderBook) String() string { return proto.CompactTextString(m) }
 func (*DerivativeOrderBook) ProtoMessage()    {}
 func (*DerivativeOrderBook) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c47ec6b98758ed05, []int{2}
+	return fileDescriptor_c47ec6b98758ed05, []int{6}
 }
 func (m *DerivativeOrderBook) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -299,7 +517,7 @@ func (m *Balance) Reset()         { *m = Balance{} }
 func (m *Balance) String() string { return proto.CompactTextString(m) }
 func (*Balance) ProtoMessage()    {}
 func (*Balance) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c47ec6b98758ed05, []int{3}
+	return fileDescriptor_c47ec6b98758ed05, []int{7}
 }
 func (m *Balance) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -338,7 +556,7 @@ func (m *DerivativePosition) Reset()         { *m = DerivativePosition{} }
 func (m *DerivativePosition) String() string { return proto.CompactTextString(m) }
 func (*DerivativePosition) ProtoMessage()    {}
 func (*DerivativePosition) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c47ec6b98758ed05, []int{4}
+	return fileDescriptor_c47ec6b98758ed05, []int{8}
 }
 func (m *DerivativePosition) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -376,7 +594,7 @@ func (m *SubaccountNonce) Reset()         { *m = SubaccountNonce{} }
 func (m *SubaccountNonce) String() string { return proto.CompactTextString(m) }
 func (*SubaccountNonce) ProtoMessage()    {}
 func (*SubaccountNonce) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c47ec6b98758ed05, []int{5}
+	return fileDescriptor_c47ec6b98758ed05, []int{9}
 }
 func (m *SubaccountNonce) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -414,7 +632,7 @@ func (m *ExpiryFuturesMarketInfoState) Reset()         { *m = ExpiryFuturesMarke
 func (m *ExpiryFuturesMarketInfoState) String() string { return proto.CompactTextString(m) }
 func (*ExpiryFuturesMarketInfoState) ProtoMessage()    {}
 func (*ExpiryFuturesMarketInfoState) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c47ec6b98758ed05, []int{6}
+	return fileDescriptor_c47ec6b98758ed05, []int{10}
 }
 func (m *ExpiryFuturesMarketInfoState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -466,7 +684,7 @@ func (m *PerpetualMarketFundingState) Reset()         { *m = PerpetualMarketFund
 func (m *PerpetualMarketFundingState) String() string { return proto.CompactTextString(m) }
 func (*PerpetualMarketFundingState) ProtoMessage()    {}
 func (*PerpetualMarketFundingState) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c47ec6b98758ed05, []int{7}
+	return fileDescriptor_c47ec6b98758ed05, []int{11}
 }
 func (m *PerpetualMarketFundingState) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -509,46 +727,12 @@ func (m *PerpetualMarketFundingState) GetFunding() *PerpetualMarketFunding {
 	return nil
 }
 
-type LiquidityMiningAccountPoints struct {
-	Account string                                 `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
-	Points  github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=points,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"points"`
-}
-
-func (m *LiquidityMiningAccountPoints) Reset()         { *m = LiquidityMiningAccountPoints{} }
-func (m *LiquidityMiningAccountPoints) String() string { return proto.CompactTextString(m) }
-func (*LiquidityMiningAccountPoints) ProtoMessage()    {}
-func (*LiquidityMiningAccountPoints) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c47ec6b98758ed05, []int{8}
-}
-func (m *LiquidityMiningAccountPoints) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *LiquidityMiningAccountPoints) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_LiquidityMiningAccountPoints.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *LiquidityMiningAccountPoints) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_LiquidityMiningAccountPoints.Merge(m, src)
-}
-func (m *LiquidityMiningAccountPoints) XXX_Size() int {
-	return m.Size()
-}
-func (m *LiquidityMiningAccountPoints) XXX_DiscardUnknown() {
-	xxx_messageInfo_LiquidityMiningAccountPoints.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_LiquidityMiningAccountPoints proto.InternalMessageInfo
-
 func init() {
 	proto.RegisterType((*GenesisState)(nil), "injective.exchange.v1beta1.GenesisState")
+	proto.RegisterType((*FeeDiscountAccountTierTTL)(nil), "injective.exchange.v1beta1.FeeDiscountAccountTierTTL")
+	proto.RegisterType((*FeeDiscountBucketFeesPaidAccounts)(nil), "injective.exchange.v1beta1.FeeDiscountBucketFeesPaidAccounts")
+	proto.RegisterType((*AccountFeesPaid)(nil), "injective.exchange.v1beta1.AccountFeesPaid")
+	proto.RegisterType((*TradingRewardCampaignAccountPoints)(nil), "injective.exchange.v1beta1.TradingRewardCampaignAccountPoints")
 	proto.RegisterType((*SpotOrderBook)(nil), "injective.exchange.v1beta1.SpotOrderBook")
 	proto.RegisterType((*DerivativeOrderBook)(nil), "injective.exchange.v1beta1.DerivativeOrderBook")
 	proto.RegisterType((*Balance)(nil), "injective.exchange.v1beta1.Balance")
@@ -556,7 +740,6 @@ func init() {
 	proto.RegisterType((*SubaccountNonce)(nil), "injective.exchange.v1beta1.SubaccountNonce")
 	proto.RegisterType((*ExpiryFuturesMarketInfoState)(nil), "injective.exchange.v1beta1.ExpiryFuturesMarketInfoState")
 	proto.RegisterType((*PerpetualMarketFundingState)(nil), "injective.exchange.v1beta1.PerpetualMarketFundingState")
-	proto.RegisterType((*LiquidityMiningAccountPoints)(nil), "injective.exchange.v1beta1.LiquidityMiningAccountPoints")
 }
 
 func init() {
@@ -564,73 +747,87 @@ func init() {
 }
 
 var fileDescriptor_c47ec6b98758ed05 = []byte{
-	// 1056 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x57, 0x4f, 0x6f, 0x1b, 0xc5,
-	0x1b, 0xf6, 0xa4, 0x6d, 0x62, 0xbf, 0x8e, 0xdb, 0x5f, 0xa7, 0xc9, 0x8f, 0x55, 0x62, 0xd9, 0xc1,
-	0x41, 0x51, 0x0a, 0xd4, 0xa6, 0xe9, 0xa1, 0xa8, 0x17, 0x8a, 0x89, 0x03, 0x96, 0xd2, 0x12, 0xad,
-	0x2b, 0x0e, 0x70, 0x58, 0xad, 0x77, 0x27, 0xf6, 0x10, 0xef, 0xce, 0xb2, 0x33, 0x1b, 0x35, 0x17,
-	0x84, 0x90, 0x40, 0x15, 0x17, 0xe0, 0x80, 0xc4, 0xb1, 0x42, 0x9c, 0xf9, 0x1c, 0x3d, 0xf6, 0x88,
-	0x10, 0xaa, 0x50, 0x72, 0xe1, 0x63, 0xa0, 0x9d, 0x9d, 0xfd, 0x13, 0x3b, 0x5e, 0x3b, 0x70, 0xf2,
-	0xec, 0xcc, 0xfb, 0x3e, 0xcf, 0x33, 0x7f, 0xde, 0xf7, 0x91, 0x61, 0x9b, 0xba, 0x9f, 0x13, 0x4b,
-	0xd0, 0x63, 0xd2, 0x22, 0x4f, 0xad, 0xa1, 0xe9, 0x0e, 0x48, 0xeb, 0xf8, 0x6e, 0x9f, 0x08, 0xf3,
-	0x6e, 0x6b, 0x40, 0x5c, 0xc2, 0x29, 0x6f, 0x7a, 0x3e, 0x13, 0x0c, 0xaf, 0x25, 0x91, 0xcd, 0x38,
-	0xb2, 0xa9, 0x22, 0xd7, 0x6e, 0xe7, 0xa0, 0x24, 0xc1, 0x12, 0x66, 0x6d, 0x65, 0xc0, 0x06, 0x4c,
-	0x0e, 0x5b, 0xe1, 0x28, 0x9a, 0x6d, 0xfc, 0x59, 0x81, 0xe5, 0x0f, 0x23, 0xba, 0x9e, 0x30, 0x05,
-	0xc1, 0x0f, 0x61, 0xd1, 0x33, 0x7d, 0xd3, 0xe1, 0x1a, 0xda, 0x40, 0xdb, 0xe5, 0x9d, 0x46, 0x73,
-	0x3a, 0x7d, 0xf3, 0x40, 0x46, 0xb6, 0xaf, 0xbe, 0x78, 0x55, 0x2f, 0xe8, 0x2a, 0x0f, 0x77, 0x61,
-	0x99, 0x7b, 0x4c, 0x18, 0x8e, 0xe9, 0x1f, 0x11, 0xc1, 0xb5, 0x85, 0x8d, 0x2b, 0xdb, 0xe5, 0x9d,
-	0xad, 0x3c, 0x9c, 0x9e, 0xc7, 0xc4, 0x23, 0x19, 0xae, 0x97, 0x79, 0x32, 0xe6, 0xf8, 0x33, 0xc0,
-	0x36, 0xf1, 0xe9, 0xb1, 0x19, 0xa6, 0x25, 0x80, 0x57, 0x24, 0xe0, 0xdb, 0x79, 0x80, 0xbb, 0x49,
-	0x96, 0x82, 0xbd, 0x69, 0x8f, 0xcd, 0x70, 0xfc, 0x09, 0x5c, 0x97, 0x3a, 0x99, 0x6f, 0x13, 0xbf,
-	0xcf, 0xd8, 0x91, 0x76, 0x55, 0x02, 0xdf, 0x9e, 0xa5, 0xf4, 0xe3, 0x30, 0xa1, 0xcd, 0xd8, 0x91,
-	0xda, 0x78, 0x85, 0xc7, 0x93, 0x21, 0x0a, 0x1e, 0xc2, 0x4a, 0x46, 0x74, 0x8a, 0x7e, 0x4d, 0xa2,
-	0xb7, 0xe6, 0x93, 0x3d, 0xce, 0x71, 0xcb, 0x3e, 0xbf, 0x24, 0x99, 0x3a, 0x50, 0xec, 0x9b, 0x23,
-	0xd3, 0xb5, 0x08, 0xd7, 0x16, 0x25, 0xfa, 0x66, 0x1e, 0x7a, 0x3b, 0x8a, 0x55, 0x88, 0x49, 0x2a,
-	0xd6, 0xa1, 0xe4, 0x31, 0x4e, 0x05, 0x65, 0x2e, 0xd7, 0x96, 0x24, 0x4e, 0x73, 0x3e, 0x95, 0x07,
-	0x2a, 0x4d, 0x41, 0xa6, 0x30, 0x98, 0xc2, 0x6b, 0x3c, 0xe8, 0x9b, 0x96, 0xc5, 0x02, 0x57, 0x18,
-	0xc2, 0x37, 0x6d, 0x62, 0xb8, 0x4c, 0x2a, 0x2d, 0x4a, 0x86, 0xb7, 0x72, 0x4f, 0x39, 0x49, 0x7d,
-	0xcc, 0x52, 0xc5, 0xab, 0x29, 0xe2, 0x93, 0x10, 0x50, 0xae, 0x71, 0xfc, 0x2d, 0x82, 0x0d, 0xf2,
-	0xd4, 0xa3, 0xfe, 0x89, 0x71, 0x18, 0x88, 0xc0, 0x27, 0x5c, 0xbd, 0x14, 0x83, 0xba, 0x87, 0xcc,
-	0xe0, 0xe1, 0xb3, 0xd6, 0x4a, 0x92, 0xf4, 0xdd, 0x3c, 0xd2, 0x8e, 0xc4, 0xd8, 0x8b, 0x20, 0xa2,
-	0x47, 0xd2, 0x75, 0x0f, 0x99, 0x2c, 0x0b, 0xa5, 0xa0, 0x4a, 0x72, 0x62, 0x30, 0x85, 0x55, 0x8f,
-	0xf8, 0x1e, 0x11, 0x81, 0x39, 0xca, 0x4a, 0xd0, 0x60, 0xf6, 0xcd, 0x1f, 0xc4, 0x89, 0x29, 0x68,
-	0x7c, 0xf3, 0xde, 0xe4, 0x12, 0xfe, 0x1a, 0x41, 0x6d, 0x82, 0xeb, 0x30, 0x70, 0x6d, 0xea, 0x0e,
-	0xd4, 0x8e, 0xcb, 0x92, 0xf4, 0xfe, 0x25, 0x48, 0xf7, 0xa2, 0xfc, 0xec, 0x86, 0xd7, 0xbd, 0xe9,
-	0x21, 0xf8, 0x27, 0x04, 0x5b, 0x13, 0xe5, 0x69, 0x70, 0x22, 0xc4, 0x88, 0x38, 0xc4, 0x15, 0x06,
-	0xb7, 0x86, 0xc4, 0x0e, 0x46, 0xc4, 0xd6, 0x96, 0xa5, 0x98, 0x07, 0x97, 0x29, 0xd9, 0x5e, 0x82,
-	0x93, 0x39, 0x8c, 0x4d, 0x7b, 0x6a, 0x54, 0x2f, 0x26, 0xc3, 0xf7, 0x41, 0xa3, 0xdc, 0x90, 0xb5,
-	0x1d, 0xb3, 0x18, 0xc4, 0x35, 0xfb, 0xa1, 0x90, 0xca, 0x06, 0xda, 0x2e, 0xea, 0xab, 0x94, 0x87,
-	0x85, 0xdc, 0x51, 0xab, 0x9d, 0x68, 0x11, 0x77, 0xa0, 0x4e, 0xb9, 0x91, 0x52, 0xf0, 0xc9, 0xfc,
-	0xeb, 0x32, 0xbf, 0x4a, 0x79, 0x2a, 0x97, 0x8f, 0xc3, 0x7c, 0x83, 0xa0, 0x3e, 0xa2, 0x5f, 0x04,
-	0xd4, 0xa6, 0xe2, 0xc4, 0x70, 0xa8, 0x1b, 0x5e, 0x4a, 0x5c, 0x0a, 0x1e, 0xa3, 0xae, 0xe0, 0xda,
-	0x8d, 0xd9, 0xef, 0x71, 0x3f, 0x86, 0x78, 0x24, 0x11, 0xde, 0x8f, 0x00, 0x0e, 0x64, 0x7e, 0xfc,
-	0x1e, 0x47, 0x39, 0x31, 0xf8, 0x4b, 0x78, 0xdd, 0x0a, 0x7c, 0x3f, 0xbc, 0x89, 0x09, 0x39, 0x96,
-	0xe9, 0x78, 0x26, 0x1d, 0xb8, 0xda, 0xff, 0x64, 0x97, 0xbf, 0x77, 0x09, 0x21, 0x1f, 0xa8, 0x54,
-	0xbd, 0xa6, 0xd0, 0xa7, 0xac, 0xe3, 0xaf, 0x10, 0x34, 0x02, 0xcf, 0x62, 0x4e, 0x48, 0x38, 0x5d,
-	0xc1, 0xcd, 0x7f, 0xaf, 0xa0, 0x1e, 0xc3, 0x4f, 0x09, 0x68, 0xfc, 0x8c, 0xa0, 0x72, 0xae, 0x65,
-	0xe3, 0x75, 0x28, 0xc5, 0xa5, 0x69, 0x4b, 0x8b, 0x2b, 0xe9, 0xc5, 0x68, 0xa2, 0x6b, 0xe3, 0x2a,
-	0x94, 0x28, 0x6f, 0x07, 0x27, 0x3d, 0x6a, 0x13, 0x6d, 0x41, 0x5e, 0x75, 0x3a, 0x81, 0xdb, 0xb0,
-	0x28, 0xbb, 0x79, 0xec, 0x40, 0x6f, 0xce, 0x32, 0x8a, 0x7d, 0xea, 0xd0, 0x88, 0x5a, 0x57, 0x99,
-	0x0f, 0x8a, 0xcf, 0x9e, 0xd7, 0x0b, 0x7f, 0x3f, 0xaf, 0x17, 0x1a, 0xbf, 0x22, 0xb8, 0x75, 0x41,
-	0xbf, 0xff, 0x2f, 0x02, 0x3f, 0x1a, 0x13, 0xf8, 0xce, 0x7c, 0xf5, 0x96, 0x2b, 0xf3, 0x7b, 0x04,
-	0x4b, 0xca, 0x38, 0xf0, 0x26, 0x54, 0x32, 0x4d, 0x3d, 0x91, 0xb7, 0x9c, 0x4e, 0x76, 0x6d, 0xbc,
-	0x02, 0xd7, 0x6c, 0xe2, 0x32, 0x47, 0xca, 0x2b, 0xe9, 0xd1, 0x07, 0x7e, 0x0f, 0x8a, 0x36, 0x91,
-	0xf6, 0x10, 0x8a, 0x43, 0xb3, 0xac, 0x6a, 0x37, 0x8a, 0xd5, 0x93, 0xa4, 0x8c, 0xa2, 0x5f, 0x10,
-	0xe0, 0x49, 0x0b, 0x9a, 0x4f, 0xdc, 0xb9, 0xc3, 0x5d, 0x18, 0x3b, 0xdc, 0x87, 0x50, 0x8c, 0x0d,
-	0x4c, 0x69, 0x7c, 0x23, 0xb7, 0x7b, 0xaa, 0x58, 0x3d, 0xc9, 0xca, 0x88, 0xfc, 0x0d, 0xc1, 0x8d,
-	0x31, 0x17, 0x9b, 0x4f, 0xe1, 0x08, 0xfe, 0x7f, 0xb1, 0x71, 0x4a, 0xb9, 0x33, 0xee, 0xb4, 0x77,
-	0x81, 0x41, 0xaa, 0x56, 0xb1, 0x72, 0x91, 0x79, 0x66, 0x04, 0xff, 0x88, 0xa0, 0x9a, 0xe7, 0x80,
-	0xf9, 0xef, 0xf2, 0x09, 0x94, 0xb3, 0x86, 0xb7, 0x30, 0xbb, 0xa4, 0xa7, 0x70, 0xe9, 0xe0, 0x24,
-	0xe3, 0xc6, 0x33, 0x04, 0xeb, 0x39, 0x1e, 0x95, 0x2f, 0x69, 0x1f, 0x96, 0x94, 0x21, 0x2a, 0x39,
-	0x3b, 0x97, 0xb7, 0x42, 0x3d, 0x86, 0x68, 0x7c, 0x87, 0xa0, 0x9a, 0xd7, 0x90, 0xb1, 0x06, 0x4b,
-	0xea, 0x78, 0x95, 0x92, 0xf8, 0x13, 0xef, 0xc1, 0xa2, 0x6a, 0xfa, 0xf2, 0xc1, 0xb5, 0x9b, 0xe1,
-	0x7d, 0xfc, 0xf1, 0xaa, 0xbe, 0x35, 0xa0, 0x62, 0x18, 0xf4, 0x9b, 0x16, 0x73, 0x5a, 0x16, 0xe3,
-	0x0e, 0xe3, 0xea, 0xe7, 0x0e, 0xb7, 0x8f, 0x5a, 0xe2, 0xc4, 0x23, 0xbc, 0xb9, 0x4b, 0x2c, 0x5d,
-	0x65, 0xa7, 0x77, 0xd5, 0x1e, 0xbe, 0x38, 0xad, 0xa1, 0x97, 0xa7, 0x35, 0xf4, 0xd7, 0x69, 0x0d,
-	0xfd, 0x70, 0x56, 0x2b, 0xbc, 0x3c, 0xab, 0x15, 0x7e, 0x3f, 0xab, 0x15, 0x3e, 0x7d, 0x9c, 0xc1,
-	0xec, 0xc6, 0xbb, 0xdd, 0x37, 0xfb, 0xbc, 0x95, 0xec, 0xfd, 0x8e, 0xc5, 0x7c, 0x92, 0xfd, 0x1c,
-	0x9a, 0xd4, 0x6d, 0x39, 0x2c, 0xf4, 0x4e, 0x9e, 0xfe, 0x8b, 0x90, 0xfc, 0xfd, 0x45, 0xf9, 0x2f,
-	0xe1, 0xde, 0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0xb4, 0x7d, 0x58, 0x0d, 0xae, 0x0c, 0x00, 0x00,
+	// 1276 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x57, 0xcd, 0x6f, 0x1b, 0xc5,
+	0x1b, 0xce, 0xf4, 0x23, 0xb1, 0xdf, 0x24, 0x4d, 0x3b, 0x4d, 0xfa, 0xdb, 0xb6, 0xf9, 0x39, 0xa9,
+	0x0b, 0x51, 0x0a, 0xd4, 0xee, 0x07, 0x55, 0x51, 0x25, 0xa0, 0x98, 0x24, 0x10, 0x11, 0x4a, 0xb4,
+	0xb6, 0x40, 0x82, 0xc3, 0x6a, 0xbd, 0x3b, 0xb6, 0x87, 0x78, 0x77, 0x56, 0x3b, 0xe3, 0xb4, 0xbd,
+	0x55, 0x1c, 0xaa, 0xde, 0x28, 0x48, 0x48, 0x1c, 0x2b, 0xc4, 0x99, 0x03, 0x7f, 0x45, 0x8f, 0x15,
+	0x27, 0xc4, 0xa1, 0x42, 0xcd, 0x85, 0x3f, 0x03, 0xed, 0xec, 0xcc, 0xee, 0xda, 0x8e, 0xd7, 0x4e,
+	0x39, 0x79, 0x77, 0xde, 0xf7, 0x7d, 0x9e, 0x67, 0xde, 0xf9, 0xd8, 0xc7, 0xb0, 0x4e, 0xfd, 0x6f,
+	0x89, 0x23, 0xe8, 0x3e, 0xa9, 0x92, 0x07, 0x4e, 0xc7, 0xf6, 0xdb, 0xa4, 0xba, 0x7f, 0xbd, 0x49,
+	0x84, 0x7d, 0xbd, 0xda, 0x26, 0x3e, 0xe1, 0x94, 0x57, 0x82, 0x90, 0x09, 0x86, 0x2f, 0x24, 0x99,
+	0x15, 0x9d, 0x59, 0x51, 0x99, 0x17, 0xae, 0xe4, 0xa0, 0x24, 0xc9, 0x12, 0xe6, 0xc2, 0x62, 0x9b,
+	0xb5, 0x99, 0x7c, 0xac, 0x46, 0x4f, 0xf1, 0x68, 0xf9, 0x8f, 0xd3, 0x30, 0xf7, 0x49, 0x4c, 0x57,
+	0x17, 0xb6, 0x20, 0xf8, 0x2e, 0x4c, 0x07, 0x76, 0x68, 0x7b, 0xdc, 0x40, 0xab, 0x68, 0x7d, 0xf6,
+	0x46, 0xb9, 0x32, 0x9a, 0xbe, 0xb2, 0x2b, 0x33, 0x6b, 0x27, 0x9e, 0xbf, 0x5c, 0x99, 0x32, 0x55,
+	0x1d, 0xde, 0x86, 0x39, 0x1e, 0x30, 0x61, 0x79, 0x76, 0xb8, 0x47, 0x04, 0x37, 0x8e, 0xad, 0x1e,
+	0x5f, 0x9f, 0xbd, 0xb1, 0x96, 0x87, 0x53, 0x0f, 0x98, 0xf8, 0x5c, 0xa6, 0x9b, 0xb3, 0x3c, 0x79,
+	0xe6, 0xf8, 0x1b, 0xc0, 0x2e, 0x09, 0xe9, 0xbe, 0x1d, 0x95, 0x25, 0x80, 0xc7, 0x25, 0xe0, 0x3b,
+	0x79, 0x80, 0x1b, 0x49, 0x95, 0x82, 0x3d, 0xe3, 0x0e, 0x8c, 0x70, 0xfc, 0x25, 0x9c, 0x92, 0x3a,
+	0x59, 0xe8, 0x92, 0xb0, 0xc9, 0xd8, 0x9e, 0x71, 0x42, 0x02, 0x5f, 0x19, 0xa7, 0xf4, 0x8b, 0xa8,
+	0xa0, 0xc6, 0xd8, 0x9e, 0x9a, 0xf8, 0x3c, 0xd7, 0x83, 0x11, 0x0a, 0xee, 0xc0, 0x62, 0x46, 0x74,
+	0x8a, 0x7e, 0x52, 0xa2, 0x57, 0x27, 0x93, 0x3d, 0xc8, 0x71, 0xd6, 0xed, 0x0f, 0x49, 0xa6, 0x4d,
+	0x28, 0x34, 0xed, 0xae, 0xed, 0x3b, 0x84, 0x1b, 0xd3, 0x12, 0xfd, 0x72, 0x1e, 0x7a, 0x2d, 0xce,
+	0x55, 0x88, 0x49, 0x29, 0x36, 0xa1, 0x18, 0x30, 0x4e, 0x05, 0x65, 0x3e, 0x37, 0x66, 0x24, 0x4e,
+	0x65, 0x32, 0x95, 0xbb, 0xaa, 0x4c, 0x41, 0xa6, 0x30, 0x98, 0xc2, 0xff, 0x78, 0xaf, 0x69, 0x3b,
+	0x0e, 0xeb, 0xf9, 0xc2, 0x12, 0xa1, 0xed, 0x12, 0xcb, 0x67, 0x52, 0x69, 0x41, 0x32, 0xbc, 0x9d,
+	0xdb, 0xe5, 0xa4, 0xf4, 0x1e, 0x4b, 0x15, 0x2f, 0xa5, 0x88, 0x8d, 0x08, 0x50, 0xc6, 0x38, 0x7e,
+	0x8c, 0x60, 0x95, 0x3c, 0x08, 0x68, 0xf8, 0xd0, 0x6a, 0xf5, 0x44, 0x2f, 0x24, 0x5c, 0xed, 0x14,
+	0x8b, 0xfa, 0x2d, 0x66, 0xf1, 0x68, 0x5b, 0x1b, 0x45, 0x49, 0xfa, 0x5e, 0x1e, 0xe9, 0xa6, 0xc4,
+	0xd8, 0x8a, 0x21, 0xe2, 0x4d, 0xb2, 0xed, 0xb7, 0x98, 0x3c, 0x16, 0x4a, 0xc1, 0x32, 0xc9, 0xc9,
+	0xc1, 0x14, 0x96, 0x02, 0x12, 0x06, 0x44, 0xf4, 0xec, 0x6e, 0x56, 0x82, 0x01, 0xe3, 0x57, 0x7e,
+	0x57, 0x17, 0xa6, 0xa0, 0x7a, 0xe5, 0x83, 0xe1, 0x10, 0xfe, 0x0e, 0x41, 0x69, 0x88, 0xab, 0xd5,
+	0xf3, 0x5d, 0xea, 0xb7, 0xd5, 0x8c, 0x67, 0x25, 0xe9, 0xed, 0x23, 0x90, 0x6e, 0xc5, 0xf5, 0xd9,
+	0x09, 0x5f, 0x0c, 0x46, 0xa7, 0xe0, 0x9f, 0x10, 0xac, 0x0d, 0x1d, 0x4f, 0x8b, 0x13, 0x21, 0xba,
+	0xc4, 0x23, 0xbe, 0xb0, 0xb8, 0xd3, 0x21, 0x6e, 0xaf, 0x4b, 0x5c, 0x63, 0x4e, 0x8a, 0xb9, 0x73,
+	0x94, 0x23, 0x5b, 0x4f, 0x70, 0x32, 0xcd, 0xb8, 0xec, 0x8e, 0xcc, 0xaa, 0x6b, 0x32, 0x7c, 0x1b,
+	0x0c, 0xca, 0x2d, 0x79, 0xb6, 0x35, 0x8b, 0x45, 0x7c, 0xbb, 0x19, 0x09, 0x99, 0x5f, 0x45, 0xeb,
+	0x05, 0x73, 0x89, 0xf2, 0xe8, 0x20, 0x6f, 0xaa, 0xe8, 0x66, 0x1c, 0xc4, 0x9b, 0xb0, 0x42, 0xb9,
+	0x95, 0x52, 0xf0, 0xe1, 0xfa, 0x53, 0xb2, 0x7e, 0x99, 0xf2, 0x54, 0x2e, 0x1f, 0x84, 0xd9, 0x87,
+	0xe5, 0x68, 0xc3, 0x47, 0x4b, 0x11, 0x92, 0xfb, 0x76, 0xe8, 0x5a, 0x8e, 0xed, 0x05, 0x36, 0x6d,
+	0xfb, 0xf1, 0x76, 0x58, 0x90, 0x17, 0xeb, 0xad, 0xbc, 0x66, 0x34, 0xe2, 0x7a, 0x53, 0x96, 0x7f,
+	0xac, 0xaa, 0xa3, 0x3e, 0x98, 0xe7, 0xc5, 0xa8, 0x10, 0x7e, 0x84, 0xe0, 0xcd, 0x01, 0xe2, 0x80,
+	0xb1, 0x6e, 0xca, 0xae, 0xd7, 0xc3, 0x38, 0x3d, 0xfe, 0x90, 0x6b, 0xe4, 0x98, 0x67, 0x97, 0xb1,
+	0xae, 0x79, 0xa9, 0x8f, 0x3a, 0x1a, 0xd2, 0x49, 0xba, 0xf7, 0xf8, 0x47, 0x04, 0x6b, 0xa3, 0xe6,
+	0xae, 0x2f, 0x83, 0x80, 0x51, 0x5f, 0x70, 0xe3, 0x8c, 0xd4, 0xf0, 0xc1, 0x91, 0xbb, 0xf0, 0x51,
+	0x0c, 0xb3, 0x2b, 0x51, 0xcc, 0xb2, 0x18, 0x9b, 0x83, 0x1d, 0x58, 0x6a, 0x11, 0x62, 0xb9, 0x94,
+	0xc7, 0x02, 0x92, 0x36, 0x60, 0xb9, 0x10, 0xb9, 0xe7, 0x72, 0x8b, 0x90, 0x0d, 0x55, 0xa7, 0x27,
+	0x69, 0x9e, 0x6d, 0x0d, 0x0f, 0xe2, 0xfb, 0xf0, 0xff, 0x3e, 0x92, 0xe4, 0xea, 0xa3, 0x24, 0xb4,
+	0x84, 0xe8, 0x1a, 0x8b, 0x72, 0xbe, 0xb7, 0x26, 0x24, 0x53, 0x33, 0x68, 0x50, 0x12, 0x36, 0x1a,
+	0x3b, 0xe6, 0xf9, 0xd6, 0xe1, 0x21, 0xd1, 0xc5, 0x4f, 0x11, 0xac, 0xf5, 0x31, 0x37, 0x7b, 0x8e,
+	0xbc, 0x0d, 0x08, 0xe1, 0x56, 0x60, 0x53, 0x57, 0x4b, 0xe1, 0xc6, 0x92, 0x94, 0xf0, 0xfe, 0x84,
+	0x12, 0x6a, 0x12, 0x67, 0x8b, 0x10, 0xbe, 0x6b, 0x53, 0x57, 0xb1, 0x72, 0xf3, 0x52, 0x6b, 0x5c,
+	0x4a, 0xf9, 0x11, 0x82, 0xf3, 0x23, 0xe7, 0x82, 0x0d, 0x98, 0x51, 0x8a, 0xa4, 0xc5, 0x28, 0x9a,
+	0xfa, 0x15, 0x6f, 0x43, 0x21, 0x69, 0xd7, 0x31, 0xb9, 0x36, 0x95, 0x09, 0xb5, 0xea, 0x3e, 0xcd,
+	0x88, 0xb8, 0x2b, 0xe5, 0xdf, 0x11, 0x5c, 0x1a, 0x3b, 0x17, 0xfc, 0x2e, 0x9c, 0x53, 0xdd, 0xe2,
+	0xc2, 0x0e, 0xa3, 0xc5, 0xf2, 0x08, 0x17, 0xb6, 0x17, 0x48, 0x65, 0xc7, 0xcd, 0xc5, 0x38, 0x5a,
+	0x8f, 0x82, 0x0d, 0x1d, 0xc3, 0x5f, 0xc1, 0x19, 0xbd, 0xba, 0x49, 0x93, 0x95, 0xcb, 0xc9, 0xfd,
+	0xaa, 0x29, 0x5a, 0xad, 0xc2, 0x5c, 0xb0, 0xfb, 0x07, 0xca, 0x0f, 0x60, 0x61, 0x20, 0x27, 0xa7,
+	0x59, 0x9f, 0x41, 0x31, 0xcb, 0x8e, 0xd6, 0x8b, 0xb5, 0x4a, 0x74, 0x47, 0xfe, 0xf5, 0x72, 0x65,
+	0xad, 0x4d, 0x45, 0xa7, 0xd7, 0xac, 0x38, 0xcc, 0xab, 0x3a, 0x8c, 0x7b, 0x8c, 0xab, 0x9f, 0xab,
+	0xdc, 0xdd, 0xab, 0x8a, 0x87, 0x01, 0xe1, 0x95, 0x0d, 0xe2, 0x98, 0x85, 0x96, 0x66, 0x7e, 0x8c,
+	0xa0, 0x3c, 0xfe, 0xb4, 0xe5, 0xa8, 0xd9, 0x82, 0x69, 0x75, 0xae, 0x5f, 0x4f, 0x8a, 0xaa, 0x2e,
+	0xff, 0x8c, 0x60, 0xbe, 0xcf, 0x63, 0xe1, 0x8b, 0x50, 0xd4, 0xdf, 0x52, 0x57, 0xb1, 0x16, 0xe2,
+	0x81, 0x6d, 0x17, 0x2f, 0x43, 0x91, 0xf2, 0x5a, 0xef, 0x61, 0x9d, 0xba, 0x44, 0x32, 0x17, 0xcc,
+	0x74, 0x00, 0xd7, 0x60, 0x5a, 0xda, 0x2f, 0x6d, 0x19, 0xdf, 0x1a, 0xe7, 0xec, 0x76, 0xa8, 0x47,
+	0x63, 0x6a, 0x53, 0x55, 0xde, 0x29, 0x3c, 0x79, 0xb6, 0x32, 0xf5, 0xcf, 0xb3, 0x95, 0xa9, 0xf2,
+	0xaf, 0x08, 0xce, 0x1e, 0x62, 0xd0, 0xfe, 0x8b, 0xc0, 0x4f, 0x07, 0x04, 0x5e, 0x9b, 0xec, 0x03,
+	0x99, 0x2b, 0xf3, 0x7b, 0x04, 0x33, 0xca, 0xe9, 0xe1, 0xcb, 0x30, 0x9f, 0x71, 0x61, 0x89, 0xbc,
+	0xb9, 0x74, 0x70, 0xdb, 0xc5, 0x8b, 0x70, 0xd2, 0x25, 0x3e, 0xf3, 0xe2, 0x95, 0x33, 0xe3, 0x17,
+	0xfc, 0x21, 0x14, 0x5c, 0x22, 0xfd, 0x5c, 0x24, 0x0e, 0x8d, 0xf3, 0x96, 0x1b, 0x71, 0xae, 0x99,
+	0x14, 0x65, 0x14, 0xfd, 0x82, 0x00, 0x0f, 0x7b, 0xc6, 0xc9, 0xc4, 0xf5, 0x35, 0xf7, 0xd8, 0x40,
+	0x73, 0xef, 0x42, 0x41, 0x3b, 0x4e, 0xa5, 0xf1, 0x8d, 0x5c, 0xbb, 0xa3, 0x72, 0xcd, 0xa4, 0x2a,
+	0x23, 0xf2, 0x37, 0x04, 0x0b, 0x03, 0xb6, 0x73, 0x32, 0x85, 0x5d, 0x38, 0x77, 0xb8, 0xd3, 0x55,
+	0x57, 0xd8, 0xb5, 0xc9, 0x8c, 0x6e, 0xea, 0x68, 0x95, 0xd5, 0x59, 0x3c, 0xcc, 0xed, 0x66, 0x04,
+	0xff, 0x80, 0x60, 0x39, 0xcf, 0xb2, 0xe6, 0xef, 0xcb, 0x06, 0xcc, 0x66, 0x1d, 0x6a, 0x2c, 0xf5,
+	0xe6, 0x6b, 0xd8, 0x63, 0x13, 0xbc, 0xe4, 0xb9, 0xfc, 0x04, 0xc1, 0xc5, 0x1c, 0x53, 0x99, 0x2f,
+	0x69, 0x07, 0x66, 0x94, 0x83, 0x55, 0x72, 0x6e, 0x1c, 0xdd, 0xbb, 0x9a, 0x1a, 0xa2, 0xd6, 0x79,
+	0xfe, 0xaa, 0x84, 0x5e, 0xbc, 0x2a, 0xa1, 0xbf, 0x5f, 0x95, 0xd0, 0xd3, 0x83, 0xd2, 0xd4, 0x8b,
+	0x83, 0xd2, 0xd4, 0x9f, 0x07, 0xa5, 0xa9, 0xaf, 0xef, 0x65, 0xae, 0xa4, 0x6d, 0x4d, 0xb0, 0x63,
+	0x37, 0x79, 0x35, 0xa1, 0xbb, 0xea, 0xb0, 0x90, 0x64, 0x5f, 0x3b, 0x36, 0xf5, 0xab, 0x1e, 0x8b,
+	0xbe, 0xf4, 0x3c, 0xfd, 0xa7, 0x2d, 0xaf, 0xaf, 0xe6, 0xb4, 0xfc, 0x27, 0x7d, 0xf3, 0xdf, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0xff, 0x87, 0x23, 0xdc, 0xd2, 0x0f, 0x00, 0x00,
 }
 
 func (m *GenesisState) Marshal() (dAtA []byte, err error) {
@@ -653,38 +850,10 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.UpcomingLiquidityMiningCampaign != nil {
-		{
-			size, err := m.UpcomingLiquidityMiningCampaign.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintGenesis(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x8a
-	}
-	if m.CurrentLiquidityMiningCampaign != nil {
-		{
-			size, err := m.CurrentLiquidityMiningCampaign.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintGenesis(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x1
-		i--
-		dAtA[i] = 0x82
-	}
-	if len(m.LiquidityMiningAccountPoints) > 0 {
-		for iNdEx := len(m.LiquidityMiningAccountPoints) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.FeeDiscountBucketFeesPaidAccounts) > 0 {
+		for iNdEx := len(m.FeeDiscountBucketFeesPaidAccounts) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.LiquidityMiningAccountPoints[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.FeeDiscountBucketFeesPaidAccounts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -692,8 +861,84 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 				i = encodeVarintGenesis(dAtA, i, uint64(size))
 			}
 			i--
-			dAtA[i] = 0x7a
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0xaa
 		}
+	}
+	if len(m.FeeDiscountAccountTierTtl) > 0 {
+		for iNdEx := len(m.FeeDiscountAccountTierTtl) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.FeeDiscountAccountTierTtl[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenesis(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0xa2
+		}
+	}
+	if m.FeeDiscountSchedule != nil {
+		{
+			size, err := m.FeeDiscountSchedule.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintGenesis(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x92
+	}
+	if len(m.TradingRewardCampaignAccountPoints) > 0 {
+		for iNdEx := len(m.TradingRewardCampaignAccountPoints) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.TradingRewardCampaignAccountPoints[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenesis(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0x8a
+		}
+	}
+	if len(m.TradingRewardPoolCampaignSchedule) > 0 {
+		for iNdEx := len(m.TradingRewardPoolCampaignSchedule) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.TradingRewardPoolCampaignSchedule[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenesis(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1
+			i--
+			dAtA[i] = 0x82
+		}
+	}
+	if m.TradingRewardCampaignInfo != nil {
+		{
+			size, err := m.TradingRewardCampaignInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintGenesis(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x7a
 	}
 	if m.IsDerivativesExchangeEnabled {
 		i--
@@ -879,6 +1124,170 @@ func (m *GenesisState) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *FeeDiscountAccountTierTTL) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FeeDiscountAccountTierTTL) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FeeDiscountAccountTierTTL) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.TierTtl != nil {
+		{
+			size, err := m.TierTtl.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintGenesis(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Account) > 0 {
+		i -= len(m.Account)
+		copy(dAtA[i:], m.Account)
+		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Account)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *FeeDiscountBucketFeesPaidAccounts) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FeeDiscountBucketFeesPaidAccounts) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FeeDiscountBucketFeesPaidAccounts) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.AccountFeesPaid) > 0 {
+		for iNdEx := len(m.AccountFeesPaid) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AccountFeesPaid[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintGenesis(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.BucketStartTimestamp != 0 {
+		i = encodeVarintGenesis(dAtA, i, uint64(m.BucketStartTimestamp))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *AccountFeesPaid) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AccountFeesPaid) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AccountFeesPaid) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.FeesPaid.Size()
+		i -= size
+		if _, err := m.FeesPaid.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintGenesis(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Account) > 0 {
+		i -= len(m.Account)
+		copy(dAtA[i:], m.Account)
+		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Account)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *TradingRewardCampaignAccountPoints) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *TradingRewardCampaignAccountPoints) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TradingRewardCampaignAccountPoints) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Points.Size()
+		i -= size
+		if _, err := m.Points.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintGenesis(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Account) > 0 {
+		i -= len(m.Account)
+		copy(dAtA[i:], m.Account)
+		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Account)))
+		i--
+		dAtA[i] = 0xa
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -1212,46 +1621,6 @@ func (m *PerpetualMarketFundingState) MarshalToSizedBuffer(dAtA []byte) (int, er
 	return len(dAtA) - i, nil
 }
 
-func (m *LiquidityMiningAccountPoints) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *LiquidityMiningAccountPoints) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *LiquidityMiningAccountPoints) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size := m.Points.Size()
-		i -= size
-		if _, err := m.Points.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
-		}
-		i = encodeVarintGenesis(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x12
-	if len(m.Account) > 0 {
-		i -= len(m.Account)
-		copy(dAtA[i:], m.Account)
-		i = encodeVarintGenesis(dAtA, i, uint64(len(m.Account)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintGenesis(dAtA []byte, offset int, v uint64) int {
 	offset -= sovGenesis(v)
 	base := offset
@@ -1343,20 +1712,103 @@ func (m *GenesisState) Size() (n int) {
 	if m.IsDerivativesExchangeEnabled {
 		n += 2
 	}
-	if len(m.LiquidityMiningAccountPoints) > 0 {
-		for _, e := range m.LiquidityMiningAccountPoints {
+	if m.TradingRewardCampaignInfo != nil {
+		l = m.TradingRewardCampaignInfo.Size()
+		n += 1 + l + sovGenesis(uint64(l))
+	}
+	if len(m.TradingRewardPoolCampaignSchedule) > 0 {
+		for _, e := range m.TradingRewardPoolCampaignSchedule {
+			l = e.Size()
+			n += 2 + l + sovGenesis(uint64(l))
+		}
+	}
+	if len(m.TradingRewardCampaignAccountPoints) > 0 {
+		for _, e := range m.TradingRewardCampaignAccountPoints {
+			l = e.Size()
+			n += 2 + l + sovGenesis(uint64(l))
+		}
+	}
+	if m.FeeDiscountSchedule != nil {
+		l = m.FeeDiscountSchedule.Size()
+		n += 2 + l + sovGenesis(uint64(l))
+	}
+	if len(m.FeeDiscountAccountTierTtl) > 0 {
+		for _, e := range m.FeeDiscountAccountTierTtl {
+			l = e.Size()
+			n += 2 + l + sovGenesis(uint64(l))
+		}
+	}
+	if len(m.FeeDiscountBucketFeesPaidAccounts) > 0 {
+		for _, e := range m.FeeDiscountBucketFeesPaidAccounts {
+			l = e.Size()
+			n += 2 + l + sovGenesis(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *FeeDiscountAccountTierTTL) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Account)
+	if l > 0 {
+		n += 1 + l + sovGenesis(uint64(l))
+	}
+	if m.TierTtl != nil {
+		l = m.TierTtl.Size()
+		n += 1 + l + sovGenesis(uint64(l))
+	}
+	return n
+}
+
+func (m *FeeDiscountBucketFeesPaidAccounts) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.BucketStartTimestamp != 0 {
+		n += 1 + sovGenesis(uint64(m.BucketStartTimestamp))
+	}
+	if len(m.AccountFeesPaid) > 0 {
+		for _, e := range m.AccountFeesPaid {
 			l = e.Size()
 			n += 1 + l + sovGenesis(uint64(l))
 		}
 	}
-	if m.CurrentLiquidityMiningCampaign != nil {
-		l = m.CurrentLiquidityMiningCampaign.Size()
-		n += 2 + l + sovGenesis(uint64(l))
+	return n
+}
+
+func (m *AccountFeesPaid) Size() (n int) {
+	if m == nil {
+		return 0
 	}
-	if m.UpcomingLiquidityMiningCampaign != nil {
-		l = m.UpcomingLiquidityMiningCampaign.Size()
-		n += 2 + l + sovGenesis(uint64(l))
+	var l int
+	_ = l
+	l = len(m.Account)
+	if l > 0 {
+		n += 1 + l + sovGenesis(uint64(l))
 	}
+	l = m.FeesPaid.Size()
+	n += 1 + l + sovGenesis(uint64(l))
+	return n
+}
+
+func (m *TradingRewardCampaignAccountPoints) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Account)
+	if l > 0 {
+		n += 1 + l + sovGenesis(uint64(l))
+	}
+	l = m.Points.Size()
+	n += 1 + l + sovGenesis(uint64(l))
 	return n
 }
 
@@ -1492,21 +1944,6 @@ func (m *PerpetualMarketFundingState) Size() (n int) {
 		l = m.Funding.Size()
 		n += 1 + l + sovGenesis(uint64(l))
 	}
-	return n
-}
-
-func (m *LiquidityMiningAccountPoints) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Account)
-	if l > 0 {
-		n += 1 + l + sovGenesis(uint64(l))
-	}
-	l = m.Points.Size()
-	n += 1 + l + sovGenesis(uint64(l))
 	return n
 }
 
@@ -1994,7 +2431,7 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			m.IsDerivativesExchangeEnabled = bool(v != 0)
 		case 15:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LiquidityMiningAccountPoints", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TradingRewardCampaignInfo", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2021,14 +2458,16 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.LiquidityMiningAccountPoints = append(m.LiquidityMiningAccountPoints, LiquidityMiningAccountPoints{})
-			if err := m.LiquidityMiningAccountPoints[len(m.LiquidityMiningAccountPoints)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if m.TradingRewardCampaignInfo == nil {
+				m.TradingRewardCampaignInfo = &TradingRewardCampaignInfo{}
+			}
+			if err := m.TradingRewardCampaignInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 16:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CurrentLiquidityMiningCampaign", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TradingRewardPoolCampaignSchedule", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2055,16 +2494,14 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.CurrentLiquidityMiningCampaign == nil {
-				m.CurrentLiquidityMiningCampaign = &LiquidityMiningCampaign{}
-			}
-			if err := m.CurrentLiquidityMiningCampaign.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.TradingRewardPoolCampaignSchedule = append(m.TradingRewardPoolCampaignSchedule, &CampaignRewardPool{})
+			if err := m.TradingRewardPoolCampaignSchedule[len(m.TradingRewardPoolCampaignSchedule)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 17:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field UpcomingLiquidityMiningCampaign", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TradingRewardCampaignAccountPoints", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2091,10 +2528,565 @@ func (m *GenesisState) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.UpcomingLiquidityMiningCampaign == nil {
-				m.UpcomingLiquidityMiningCampaign = &LiquidityMiningCampaign{}
+			m.TradingRewardCampaignAccountPoints = append(m.TradingRewardCampaignAccountPoints, &TradingRewardCampaignAccountPoints{})
+			if err := m.TradingRewardCampaignAccountPoints[len(m.TradingRewardCampaignAccountPoints)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
 			}
-			if err := m.UpcomingLiquidityMiningCampaign.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			iNdEx = postIndex
+		case 18:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeeDiscountSchedule", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.FeeDiscountSchedule == nil {
+				m.FeeDiscountSchedule = &FeeDiscountSchedule{}
+			}
+			if err := m.FeeDiscountSchedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 20:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeeDiscountAccountTierTtl", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeeDiscountAccountTierTtl = append(m.FeeDiscountAccountTierTtl, &FeeDiscountAccountTierTTL{})
+			if err := m.FeeDiscountAccountTierTtl[len(m.FeeDiscountAccountTierTtl)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 21:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeeDiscountBucketFeesPaidAccounts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FeeDiscountBucketFeesPaidAccounts = append(m.FeeDiscountBucketFeesPaidAccounts, &FeeDiscountBucketFeesPaidAccounts{})
+			if err := m.FeeDiscountBucketFeesPaidAccounts[len(m.FeeDiscountBucketFeesPaidAccounts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenesis(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FeeDiscountAccountTierTTL) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenesis
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FeeDiscountAccountTierTTL: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FeeDiscountAccountTierTTL: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Account", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Account = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TierTtl", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.TierTtl == nil {
+				m.TierTtl = &FeeDiscountTierTTL{}
+			}
+			if err := m.TierTtl.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenesis(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FeeDiscountBucketFeesPaidAccounts) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenesis
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FeeDiscountBucketFeesPaidAccounts: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FeeDiscountBucketFeesPaidAccounts: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BucketStartTimestamp", wireType)
+			}
+			m.BucketStartTimestamp = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.BucketStartTimestamp |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AccountFeesPaid", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AccountFeesPaid = append(m.AccountFeesPaid, &AccountFeesPaid{})
+			if err := m.AccountFeesPaid[len(m.AccountFeesPaid)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenesis(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AccountFeesPaid) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenesis
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AccountFeesPaid: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AccountFeesPaid: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Account", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Account = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FeesPaid", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.FeesPaid.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipGenesis(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *TradingRewardCampaignAccountPoints) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowGenesis
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: TradingRewardCampaignAccountPoints: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: TradingRewardCampaignAccountPoints: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Account", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Account = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Points", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowGenesis
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthGenesis
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Points.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -3018,122 +4010,6 @@ func (m *PerpetualMarketFundingState) Unmarshal(dAtA []byte) error {
 				m.Funding = &PerpetualMarketFunding{}
 			}
 			if err := m.Funding.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipGenesis(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *LiquidityMiningAccountPoints) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowGenesis
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: LiquidityMiningAccountPoints: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: LiquidityMiningAccountPoints: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Account", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Account = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Points", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowGenesis
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthGenesis
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Points.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
