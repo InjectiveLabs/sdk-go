@@ -1,0 +1,186 @@
+package types
+
+import (
+	"strings"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/gogo/protobuf/proto"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/sha3"
+)
+
+const FeedIDMaxLength = 20
+
+var digestPrefixCosmos = []byte("\x00\x02")
+
+func (cfg *ContractConfig) Digest() []byte {
+	data, err := proto.Marshal(cfg)
+	if err != nil {
+		panic("unmarshable")
+	}
+
+	w := sha3.NewLegacyKeccak256()
+	n, err := w.Write(data)
+	if err != nil {
+		panic(err)
+	} else if n != len(data) {
+		panic("short read")
+	}
+
+	configDigest := w.Sum(nil)
+	configDigest[0] = digestPrefixCosmos[0]
+	configDigest[1] = digestPrefixCosmos[1]
+
+	return configDigest
+}
+
+func (cfg *FeedConfig) ValidTransmitters() map[string]struct{} {
+	transmitters := make(map[string]struct{})
+	for _, transmitter := range cfg.Transmitters {
+		transmitters[transmitter] = struct{}{}
+	}
+	return transmitters
+}
+
+func (cfg *FeedConfig) TransmitterFromSigner() map[string]sdk.AccAddress {
+	transmitterFromSigner := make(map[string]sdk.AccAddress)
+	for idx, signer := range cfg.Signers {
+		addr, _ := sdk.AccAddressFromBech32(cfg.Transmitters[idx])
+		transmitterFromSigner[signer] = addr
+	}
+	return transmitterFromSigner
+}
+
+func (cfg *FeedConfig) ValidateBasic() error {
+	if err := checkConfigValid(
+		len(cfg.Signers),
+		len(cfg.Transmitters),
+		int(cfg.F),
+	); err != nil {
+		return err
+	}
+
+	if cfg.OnchainConfig == nil {
+		return sdkerrors.Wrap(ErrIncorrectConfig, "onchain config is not specified")
+	}
+
+	// TODO: determine whether this is a sensible enough limitation
+	if len(cfg.OnchainConfig.FeedId) == 0 || len(cfg.OnchainConfig.FeedId) > FeedIDMaxLength {
+		return sdkerrors.Wrap(ErrIncorrectConfig, "feed_id is missing or incorrect length")
+	}
+
+	if strings.TrimSpace(cfg.OnchainConfig.FeedId) != cfg.OnchainConfig.FeedId {
+		return sdkerrors.Wrap(ErrIncorrectConfig, "feed_id cannot have leading or trailing space characters")
+	}
+
+	if len(cfg.OnchainConfig.FeedAdmin) > 0 {
+		if _, err := sdk.AccAddressFromBech32(cfg.OnchainConfig.FeedAdmin); err != nil {
+			return err
+		}
+	}
+
+	if len(cfg.OnchainConfig.BillingAdmin) > 0 {
+		if _, err := sdk.AccAddressFromBech32(cfg.OnchainConfig.BillingAdmin); err != nil {
+			return err
+		}
+	}
+
+	if cfg.OnchainConfig.MinAnswer.IsNil() || cfg.OnchainConfig.MaxAnswer.IsNil() {
+		return sdkerrors.Wrap(ErrIncorrectConfig, "MinAnswer and MaxAnswer cannot be nil")
+	}
+
+	if cfg.OnchainConfig.LinkPerTransmission.IsNil() || !cfg.OnchainConfig.LinkPerTransmission.IsPositive() {
+		return sdkerrors.Wrap(ErrIncorrectConfig, "LinkPerTransmission must be positive")
+	}
+
+	if cfg.OnchainConfig.LinkPerObservation.IsNil() || !cfg.OnchainConfig.LinkPerObservation.IsPositive() {
+		return sdkerrors.Wrap(ErrIncorrectConfig, "LinkPerObservation must be positive")
+	}
+
+	seenTransmitters := make(map[string]struct{}, len(cfg.Transmitters))
+	for _, transmitter := range cfg.Transmitters {
+		addr, err := sdk.AccAddressFromBech32(transmitter)
+		if err != nil {
+			return err
+		}
+
+		if _, ok := seenTransmitters[addr.String()]; ok {
+			return ErrRepeatedAddress
+		} else {
+			seenTransmitters[addr.String()] = struct{}{}
+		}
+	}
+
+	seenSigners := make(map[string]struct{}, len(cfg.Signers))
+	for _, signer := range cfg.Signers {
+		addr, err := sdk.AccAddressFromBech32(signer)
+		if err != nil {
+			return err
+		}
+
+		if _, ok := seenSigners[addr.String()]; ok {
+			return ErrRepeatedAddress
+		} else {
+			seenSigners[addr.String()] = struct{}{}
+		}
+	}
+
+	if len(cfg.OnchainConfig.LinkDenom) == 0 {
+		return sdkerrors.ErrInvalidCoins
+	}
+
+	return nil
+}
+
+func checkConfigValid(
+	numSigners, numTransmitters, f int,
+) error {
+	if numSigners > MaxNumOracles {
+		return ErrTooManySigners
+	}
+
+	if f <= 0 {
+		return sdkerrors.Wrap(ErrIncorrectConfig, "f must be positive")
+	}
+
+	if numSigners != numTransmitters {
+		return sdkerrors.Wrap(ErrIncorrectConfig, "oracle addresses out of registration")
+	}
+
+	if numSigners <= 3*f {
+		return sdkerrors.Wrapf(ErrIncorrectConfig, "faulty-oracle f too high: %d", f)
+	}
+
+	return nil
+}
+
+func ReportFromBytes(buf []byte) (*ReportToSign, error) {
+	var r ReportToSign
+	if err := proto.Unmarshal(buf, &r); err != nil {
+		err = errors.Wrap(err, "failed to proto-decode ReportToSign from bytes")
+		return nil, err
+	}
+
+	return &r, nil
+}
+
+func (r *ReportToSign) Bytes() []byte {
+	data, err := proto.Marshal(r)
+	if err != nil {
+		panic("unmarshable")
+	}
+
+	return data
+}
+
+func (r *ReportToSign) Digest() []byte {
+	w := sha3.NewLegacyKeccak256()
+	w.Write(r.Bytes())
+	return w.Sum(nil)
+}
+
+type Reward struct {
+	Addr   sdk.AccAddress
+	Amount sdk.Coin
+}

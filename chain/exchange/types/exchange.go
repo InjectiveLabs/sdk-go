@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -20,6 +21,14 @@ func (m *SpotMarket) MarketID() common.Hash {
 
 func (e ExecutionType) IsMarket() bool {
 	return e == ExecutionType_Market
+}
+
+func (e ExecutionType) IsMaker() bool {
+	return !e.IsTaker()
+}
+
+func (e ExecutionType) IsTaker() bool {
+	return e == ExecutionType_Market || e == ExecutionType_LimitMatchNewOrder
 }
 
 func (m *SpotMarket) StatusSupportsOrderCancellations() bool {
@@ -45,4 +54,16 @@ func (s MarketStatus) supportsOrderCancellations() bool {
 	default:
 		return false
 	}
+}
+
+type TradingRewardAccountPoints struct {
+	Account sdk.AccAddress
+	Points  sdk.Dec
+}
+
+func (p *PointsMultiplier) GetMultiplier(e ExecutionType) sdk.Dec {
+	if e.IsMaker() {
+		return p.MakerPointsMultiplier
+	}
+	return p.TakerPointsMultiplier
 }

@@ -17,6 +17,7 @@ import (
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
+	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
@@ -49,6 +50,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	auction.RegisterInterfaces(interfaceRegistry)
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
+	ocr.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
@@ -87,6 +89,7 @@ func NewClientContext(
 	oracle.RegisterInterfaces(interfaceRegistry)
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
+	ocr.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types

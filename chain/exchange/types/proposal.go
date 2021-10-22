@@ -19,7 +19,9 @@ const (
 	ProposalTypeExpiryFuturesMarketLaunch           string = "ProposalTypeExpiryFuturesMarketLaunch"
 	ProposalTypeDerivativeMarketParamUpdate         string = "ProposalTypeDerivativeMarketParamUpdate"
 	ProposalTypeDerivativeMarketBandOraclePromotion string = "ProposalTypeDerivativeMarketBandOraclePromotion"
-	ProposalTypeLiquidityMiningCampaign             string = "ProposalTypeLiquidityMiningCampaign"
+	ProposalTypeTradingRewardCampaign               string = "ProposalTypeTradingRewardCampaign"
+	ProposalTypeTradingRewardCampaignUpdate         string = "ProposalTypeTradingRewardCampaignUpdateProposal"
+	ProposalTypeFeeDiscountProposal                 string = "ProposalTypeFeeDiscountProposal"
 )
 
 func init() {
@@ -37,8 +39,12 @@ func init() {
 	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeDerivativeMarketBandOraclePromotion)
 	gov.RegisterProposalTypeCodec(&DerivativeMarketBandOraclePromotionProposal{}, "injective/DerivativeMarketBandOraclePromotionProposal")
-	gov.RegisterProposalType(ProposalTypeLiquidityMiningCampaign)
-	gov.RegisterProposalTypeCodec(&LiquidityMiningCampaignProposal{}, "injective/LiquidityMiningCampaignProposal")
+	gov.RegisterProposalType(ProposalTypeTradingRewardCampaign)
+	gov.RegisterProposalTypeCodec(&TradingRewardCampaignLaunchProposal{}, "injective/TradingRewardCampaignLaunchProposal")
+	gov.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
+	gov.RegisterProposalTypeCodec(&TradingRewardCampaignUpdateProposal{}, "injective/TradingRewardCampaignUpdateProposal")
+	gov.RegisterProposalType(ProposalTypeFeeDiscountProposal)
+	gov.RegisterProposalTypeCodec(&FeeDiscountProposal{}, "injective/FeeDiscountProposal")
 }
 
 // Implements Proposal Interface
@@ -279,7 +285,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	}
 
 	if p.MakerFeeRate != nil {
-		if err := ValidateFee(*p.MakerFeeRate); err != nil {
+		if err := ValidateMakerFee(*p.MakerFeeRate); err != nil {
 			return err
 		}
 	}
@@ -590,25 +596,19 @@ func (p *DerivativeMarketBandOraclePromotionProposal) ValidateBasic() error {
 	return gov.ValidateAbstract(p)
 }
 
-// NewLiquidityMiningCampaignProposal returns new instance of LiquidityMiningCampaignProposal
-func NewLiquidityMiningCampaignProposal(
+// NewTradingRewardCampaignUpdateProposal returns new instance of TradingRewardCampaignLaunchProposal
+func NewTradingRewardCampaignUpdateProposal(
 	title, description string,
-	spotMarketIDs []string,
-	spotMarketWeights []sdk.Dec,
-	derivativeMarketIDs []string,
-	derivativeMarketWeights []sdk.Dec,
-	maxEpochRewards sdk.Coins,
-) *LiquidityMiningCampaignProposal {
-	p := &LiquidityMiningCampaignProposal{
-		Title:       title,
-		Description: description,
-		Campaign: &LiquidityMiningCampaign{
-			SpotMarketIds:           spotMarketIDs,
-			SpotMarketWeights:       spotMarketWeights,
-			DerivativeMarketIds:     derivativeMarketIDs,
-			DerivativeMarketWeights: derivativeMarketWeights,
-			MaxEpochRewards:         maxEpochRewards,
-		},
+	campaignInfo *TradingRewardCampaignInfo,
+	rewardPoolsAdditions []*CampaignRewardPool,
+	rewardPoolsUpdates []*CampaignRewardPool,
+) *TradingRewardCampaignUpdateProposal {
+	p := &TradingRewardCampaignUpdateProposal{
+		Title:                        title,
+		Description:                  description,
+		CampaignInfo:                 campaignInfo,
+		CampaignRewardPoolsAdditions: rewardPoolsAdditions,
+		CampaignRewardPoolsUpdates:   rewardPoolsUpdates,
 	}
 	if err := p.ValidateBasic(); err != nil {
 		panic(err)
@@ -617,105 +617,325 @@ func NewLiquidityMiningCampaignProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &LiquidityMiningCampaignProposal{}
+var _ gov.Content = &TradingRewardCampaignUpdateProposal{}
 
 // GetTitle returns the title of this proposal
-func (p *LiquidityMiningCampaignProposal) GetTitle() string {
+func (p *TradingRewardCampaignUpdateProposal) GetTitle() string {
 	return p.Title
 }
 
 // GetDescription returns the description of this proposal
-func (p *LiquidityMiningCampaignProposal) GetDescription() string {
+func (p *TradingRewardCampaignUpdateProposal) GetDescription() string {
 	return p.Description
 }
 
 // ProposalRoute returns router key of this proposal.
-func (p *LiquidityMiningCampaignProposal) ProposalRoute() string { return RouterKey }
+func (p *TradingRewardCampaignUpdateProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type of this proposal.
-func (p *LiquidityMiningCampaignProposal) ProposalType() string {
-	return ProposalTypeLiquidityMiningCampaign
+func (p *TradingRewardCampaignUpdateProposal) ProposalType() string {
+	return ProposalTypeTradingRewardCampaign
 }
 
 // ValidateBasic returns ValidateBasic result of this proposal.
-func (p *LiquidityMiningCampaignProposal) ValidateBasic() error {
-	if p.Campaign == nil {
-		return ErrInvalidLiquidityMiningCampaign
+func (p *TradingRewardCampaignUpdateProposal) ValidateBasic() error {
+	var err error
+
+	if err := p.CampaignInfo.ValidateBasic(); err != nil {
+		return err
 	}
 
-	isEndingCampaign := len(p.Campaign.MaxEpochRewards) == 0
-	hasOtherNonEmptyFields := len(p.Campaign.SpotMarketIds) != 0 || len(p.Campaign.SpotMarketWeights) != 0 ||
-		len(p.Campaign.DerivativeMarketIds) != 0 || len(p.Campaign.DerivativeMarketWeights) != 0
-
-	if isEndingCampaign && hasOtherNonEmptyFields {
-		return ErrInvalidLiquidityMiningCampaign
-	}
-
-	if isEndingCampaign {
-		return nil
-	}
-
-	if len(p.Campaign.SpotMarketWeights) != len(p.Campaign.SpotMarketIds) {
-		return ErrInvalidLiquidityMiningMarket
-	}
-
-	if len(p.Campaign.DerivativeMarketWeights) != len(p.Campaign.DerivativeMarketIds) {
-		return ErrInvalidLiquidityMiningMarket
-	}
-
-	if len(p.Campaign.SpotMarketIds) == 0 && len(p.Campaign.DerivativeMarketIds) == 0 {
-		return ErrInvalidLiquidityMiningMarket
-	}
-
-	hasDuplicatesInMarkets := HasDuplicates(p.Campaign.SpotMarketIds) || HasDuplicates(p.Campaign.DerivativeMarketIds)
-
-	if hasDuplicatesInMarkets {
-		return ErrInvalidLiquidityMiningMarket
-	}
-
-	totalWeight := sdk.ZeroDec()
-
-	for idx, weight := range p.Campaign.SpotMarketWeights {
-		if weight.IsNil() || !weight.IsPositive() {
-			return ErrInvalidLiquidityMiningMarketWeights
+	prevStartTimestamp := int64(0)
+	for _, pool := range p.CampaignRewardPoolsAdditions {
+		if pool == nil {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign reward pool addition cannot be nil")
 		}
 
-		if p.Campaign.SpotMarketIds[idx] == "" {
-			return ErrInvalidLiquidityMiningMarket
+		prevStartTimestamp, err = validateCampaignRewardPool(pool, p.CampaignInfo.CampaignDurationSeconds, prevStartTimestamp)
+		if err != nil {
+			return err
 		}
-		totalWeight = totalWeight.Add(weight)
 	}
 
-	for idx, weight := range p.Campaign.DerivativeMarketWeights {
-		if weight.IsNil() || weight.IsNegative() {
-			return ErrInvalidLiquidityMiningMarketWeights
-		}
-		if p.Campaign.DerivativeMarketIds[idx] == "" {
-			return ErrInvalidLiquidityMiningMarket
-		}
-		totalWeight = totalWeight.Add(weight)
-	}
-
-	// sum of weights must equal 1
-	if !totalWeight.Equal(sdk.OneDec()) {
-		return ErrInvalidLiquidityMiningMarketWeights
-	}
-
-	hasDuplicatesInEpochRewards := HasDuplicatesCoin(p.Campaign.MaxEpochRewards)
-
-	if hasDuplicatesInEpochRewards {
-		return ErrInvalidLiquidityMiningReward
-	}
-
-	for _, epochRewardDenom := range p.Campaign.MaxEpochRewards {
-		if !epochRewardDenom.IsValid() {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, epochRewardDenom.String())
-		}
-
-		if epochRewardDenom.Amount.IsZero() {
-			return ErrInvalidLiquidityMiningReward
+	prevStartTimestamp = int64(0)
+	for _, pool := range p.CampaignRewardPoolsUpdates {
+		prevStartTimestamp, err = validateCampaignRewardPool(pool, p.CampaignInfo.CampaignDurationSeconds, prevStartTimestamp)
+		if err != nil {
+			return err
 		}
 	}
 
 	return gov.ValidateAbstract(p)
+}
+
+// NewTradingRewardCampaignLaunchProposal returns new instance of TradingRewardCampaignLaunchProposal
+func NewTradingRewardCampaignLaunchProposal(
+	title, description string,
+	campaignInfo *TradingRewardCampaignInfo,
+	campaignRewardPools []*CampaignRewardPool,
+) *TradingRewardCampaignLaunchProposal {
+	p := &TradingRewardCampaignLaunchProposal{
+		Title:               title,
+		Description:         description,
+		CampaignInfo:        campaignInfo,
+		CampaignRewardPools: campaignRewardPools,
+	}
+	if err := p.ValidateBasic(); err != nil {
+		panic(err)
+	}
+	return p
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &TradingRewardCampaignLaunchProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *TradingRewardCampaignLaunchProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *TradingRewardCampaignLaunchProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *TradingRewardCampaignLaunchProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *TradingRewardCampaignLaunchProposal) ProposalType() string {
+	return ProposalTypeTradingRewardCampaign
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *TradingRewardCampaignLaunchProposal) ValidateBasic() error {
+	var err error
+
+	if p.CampaignInfo == nil {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign info cannot be nil")
+	}
+
+	if p.CampaignInfo.CampaignDurationSeconds <= 0 {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign duration cannot be zero")
+	}
+
+	if len(p.CampaignRewardPools) == 0 {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign reward pools cannot be nil")
+	}
+
+	if err = p.CampaignInfo.ValidateBasic(); err != nil {
+		return err
+	}
+
+	prevStartTimestamp := int64(0)
+	for _, pool := range p.CampaignRewardPools {
+		prevStartTimestamp, err = validateCampaignRewardPool(pool, p.CampaignInfo.CampaignDurationSeconds, prevStartTimestamp)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
+	if len(t.BoostedSpotMarketIds) != len(t.SpotMarketMultipliers) {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "boosted spot market ids is not matching spot market multipliers")
+	}
+
+	if len(t.BoostedDerivativeMarketIds) != len(t.DerivativeMarketMultipliers) {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
+	}
+
+	hasDuplicatesInMarkets := HasDuplicates(t.BoostedSpotMarketIds) || HasDuplicates(t.BoostedDerivativeMarketIds)
+	if hasDuplicatesInMarkets {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate boosted market ids")
+	}
+
+	for _, multiplier := range t.SpotMarketMultipliers {
+		if multiplier.MakerPointsMultiplier.IsZero() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be zero")
+		}
+
+		if multiplier.TakerPointsMultiplier.IsZero() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be zero")
+		}
+
+		if multiplier.TakerPointsMultiplier.IsNegative() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be negative")
+		}
+	}
+
+	for _, multiplier := range t.DerivativeMarketMultipliers {
+		if multiplier.MakerPointsMultiplier.IsZero() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be zero")
+		}
+
+		if multiplier.TakerPointsMultiplier.IsZero() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be zero")
+		}
+
+		if multiplier.TakerPointsMultiplier.IsNegative() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be negative")
+		}
+	}
+	return nil
+}
+
+func (c *TradingRewardCampaignInfo) ValidateBasic() error {
+	if c == nil {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign info cannot be nil")
+	}
+
+	if len(c.QuoteDenoms) == 0 {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign quote denoms cannot be nil")
+	}
+
+	hasTradingRewardBoostInfoDefined := c != nil && c.TradingRewardBoostInfo != nil
+	if hasTradingRewardBoostInfoDefined {
+		if err := c.TradingRewardBoostInfo.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+
+	hasDuplicatesInDisqualifiedMarkets := c != nil && HasDuplicates(c.DisqualifiedMarketIds)
+	if hasDuplicatesInDisqualifiedMarkets {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate disqualified market ids")
+	}
+
+	return nil
+}
+
+func validateCampaignRewardPool(pool *CampaignRewardPool, campaignDurationSeconds, prevStartTimestamp int64) (int64, error) {
+	if pool == nil {
+		return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign reward pool cannot be nil")
+	}
+
+	if pool.StartTimestamp <= prevStartTimestamp {
+		return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool start timestamps must be in ascending order")
+	}
+
+	hasValidStartTimestamp := prevStartTimestamp == 0 || pool.StartTimestamp == (prevStartTimestamp+campaignDurationSeconds)
+	if !hasValidStartTimestamp {
+		return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "start timestamps not matching campaign duration")
+	}
+
+	prevStartTimestamp = pool.StartTimestamp
+
+	hasDuplicatesInEpochRewards := HasDuplicatesCoin(pool.MaxCampaignRewards)
+	if hasDuplicatesInEpochRewards {
+		return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool campaign contains duplicate market coins")
+	}
+
+	for _, epochRewardDenom := range pool.MaxCampaignRewards {
+		if !epochRewardDenom.IsValid() {
+			return 0, sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, epochRewardDenom.String())
+		}
+
+		if epochRewardDenom.Amount.IsZero() {
+			return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool contains zero reward amount")
+		}
+	}
+
+	return prevStartTimestamp, nil
+}
+
+// NewFeeDiscountProposal returns new instance of FeeDiscountProposal
+func NewFeeDiscountProposal(title, description string, schedule *FeeDiscountSchedule) *FeeDiscountProposal {
+	return &FeeDiscountProposal{
+		Title:       title,
+		Description: description,
+		Schedule:    schedule,
+	}
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &FeeDiscountProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *FeeDiscountProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *FeeDiscountProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *FeeDiscountProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *FeeDiscountProposal) ProposalType() string {
+	return ProposalTypeFeeDiscountProposal
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *FeeDiscountProposal) ValidateBasic() error {
+	if p.Schedule == nil {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot be nil")
+	}
+
+	if p.Schedule.BucketCount < 2 {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have at least 2 buckets")
+	}
+
+	if p.Schedule.BucketDuration < 10 {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have have bucket durations of at least 10 seconds")
+	}
+
+	if HasDuplicates(p.Schedule.QuoteDenoms) {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate quote denoms")
+	}
+
+	if len(p.Schedule.TierInfos) < 1 {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have at least one discount tier")
+	}
+
+	for idx, tierInfo := range p.Schedule.TierInfos {
+		if err := tierInfo.ValidateBasic(); err != nil {
+			return err
+		}
+
+		if idx > 0 {
+			prevTierInfo := p.Schedule.TierInfos[idx-1]
+
+			if prevTierInfo.MakerDiscountRate.GT(tierInfo.MakerDiscountRate) {
+				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive MakerDiscountRates must be equal or larger than those of lower tiers")
+			}
+
+			if prevTierInfo.TakerDiscountRate.GT(tierInfo.TakerDiscountRate) {
+				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive TakerDiscountRates must be equal or larger than those of lower tiers")
+			}
+
+			if prevTierInfo.StakedAmount.GT(tierInfo.StakedAmount) {
+				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive StakedAmount must be equal or larger than those of lower tiers")
+			}
+
+			if prevTierInfo.FeePaidAmount.GT(tierInfo.FeePaidAmount) {
+				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive FeePaidAmount must be equal or larger than those of lower tiers")
+			}
+		}
+	}
+
+	return gov.ValidateAbstract(p)
+}
+
+func (t *FeeDiscountTierInfo) ValidateBasic() error {
+	if t.MakerDiscountRate.IsNil() || t.MakerDiscountRate.IsNegative() || t.MakerDiscountRate.GT(sdk.OneDec()) {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "MakerDiscountRate must be between 0 and 1")
+	}
+
+	if t.TakerDiscountRate.IsNil() || t.TakerDiscountRate.IsNegative() || t.TakerDiscountRate.GT(sdk.OneDec()) {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "TakerDiscountRate must be between 0 and 1")
+	}
+
+	if t.StakedAmount.IsNil() || t.StakedAmount.IsNegative() {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "StakedAmount must be non-negative")
+	}
+
+	if t.FeePaidAmount.IsNil() || t.FeePaidAmount.IsNegative() {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "FeePaidAmount must be non-negative")
+	}
+	return nil
 }

@@ -3,13 +3,33 @@ package types
 import (
 	"bytes"
 	"math/big"
-	"os"
+	"reflect"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/olekukonko/tablewriter"
-
 	"github.com/ethereum/go-ethereum/common"
 )
+
+func IsEqualDenoms(denoms1, denoms2 []string) bool {
+	denom1Map := make(map[string]struct{})
+	denom2Map := make(map[string]struct{})
+
+	for _, denom := range denoms1 {
+		denom1Map[denom] = struct{}{}
+	}
+	for _, denom := range denoms2 {
+		denom2Map[denom] = struct{}{}
+	}
+
+	return reflect.DeepEqual(denom1Map, denom2Map)
+}
+
+type Account [20]byte
+
+func SdkAccAddressToAccount(account sdk.AccAddress) Account {
+	var accAddr Account
+	copy(accAddr[:], account.Bytes())
+	return accAddr
+}
 
 type SpotLimitOrderDelta struct {
 	Order        *SpotLimitOrder
@@ -56,6 +76,15 @@ var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000
 
 // TempRewardsSenderAddress equals sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
 var TempRewardsSenderAddress, _ = sdk.AccAddressFromBech32("inj1zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3t5qxqh")
+
+func StringInSlice(a string, list *[]string) bool {
+	for _, b := range *list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
 
 func IsValidSubaccountID(subaccountID string) (*common.Address, bool) {
 	if len(subaccountID) != 66 {
@@ -145,48 +174,6 @@ func DecBytesToDec(bz []byte) sdk.Dec {
 		return sdk.ZeroDec()
 	}
 	return dec
-}
-
-// PrintSpotLimitOrderbookState is a helper debugger function to print a tabular view of the spot limit orderbook fill state
-func PrintSpotLimitOrderbookState(buyOrderbookState *OrderbookFills, sellOrderbookState *OrderbookFills) {
-	table := tablewriter.NewWriter(os.Stdout)
-
-	table.SetHeader([]string{"Buy Price", "Buy Quantity", "Buy Fill Quantity", "Sell Price", "Sell Quantity", "Sell Fill Quantity"})
-	maxLength := 0
-	if buyOrderbookState != nil {
-		maxLength = len(buyOrderbookState.Orders)
-	}
-	if sellOrderbookState != nil {
-		if len(sellOrderbookState.Orders) > maxLength {
-			maxLength = len(sellOrderbookState.Orders)
-		}
-	}
-	precision := 6
-
-	for idx := 0; idx < maxLength; idx++ {
-		row := make([]string, 0)
-		if buyOrderbookState == nil || idx >= len(buyOrderbookState.Orders) {
-			row = append(row, "-", "-", "-")
-		} else {
-			buyOrder := buyOrderbookState.Orders[idx]
-			fillQuantity := buyOrderbookState.FillQuantities[idx]
-			row = append(row, buyOrder.OrderInfo.Price.String()[:precision])
-			row = append(row, buyOrder.Fillable.String()[:precision])
-			row = append(row, fillQuantity.String()[:precision])
-		}
-		if sellOrderbookState == nil || idx >= len(sellOrderbookState.Orders) {
-			row = append(row, "-", "-", "-")
-		} else {
-			sellOrder := sellOrderbookState.Orders[idx]
-			fillQuantity := sellOrderbookState.FillQuantities[idx]
-			row = append(row, sellOrder.OrderInfo.Price.String()[:precision])
-			row = append(row, sellOrder.Fillable.String()[:precision])
-			row = append(row, fillQuantity.String()[:precision])
-		}
-
-		table.Append(row)
-	}
-	table.Render()
 }
 
 func HasDuplicates(slice []string) bool {

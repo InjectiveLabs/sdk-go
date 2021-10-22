@@ -116,6 +116,15 @@ func (e *ERC20Token) ValidateBasic() error {
 	if err := ValidateEthAddress(e.Contract); err != nil {
 		return sdkerrors.Wrap(err, "ethereum address")
 	}
+
+	if !e.PeggyCoin().IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, e.PeggyCoin().String())
+	}
+
+	if !e.PeggyCoin().IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, e.PeggyCoin().String())
+	}
+
 	return nil
 }
 

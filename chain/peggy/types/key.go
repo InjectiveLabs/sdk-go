@@ -35,14 +35,6 @@ var (
 	// i.e cosmos1ahx7f8wyertuus9r20284ej0asrs085case3kn
 	ValsetConfirmKey = []byte{0x3}
 
-	// OracleClaimKey Claim details by nonce and validator address
-	// i.e. cosmosvaloper1ahx7f8wyertuus9r20284ej0asrs085case3kn
-	// A claim is named more intuitively than an Attestation, it is literally
-	// a validator making a claim to have seen something happen. Claims are
-	// attached to attestations which can be thought of as 'the event' that
-	// will eventually be executed.
-	OracleClaimKey = []byte{0x4}
-
 	// OracleAttestationKey attestation details by nonce and validator address
 	// i.e. cosmosvaloper1ahx7f8wyertuus9r20284ej0asrs085case3kn
 	// An attestation can be thought of as the 'event to be executed' while
@@ -53,9 +45,6 @@ var (
 
 	// OutgoingTXPoolKey indexes the last nonce for the outgoing tx pool
 	OutgoingTXPoolKey = []byte{0x6}
-
-	// DenomiatorPrefix indexes token contract addresses from ETH on peggy
-	DenomiatorPrefix = []byte{0x8}
 
 	// SecondIndexOutgoingTXFeeKey indexes fee amounts by token contract address
 	SecondIndexOutgoingTXFeeKey = []byte{0x9}
@@ -68,9 +57,6 @@ var (
 
 	// BatchConfirmKey indexes validator confirmations by token contract address
 	BatchConfirmKey = []byte{0xe1}
-
-	// SecondIndexNonceByClaimKey indexes latest nonce for a given claim type
-	SecondIndexNonceByClaimKey = []byte{0xf}
 
 	// LastEventNonceByValidatorKey indexes lateset event nonce by validator
 	LastEventNonceByValidatorKey = []byte{0xe2}
@@ -158,30 +144,6 @@ func GetValsetKey(nonce uint64) []byte {
 // MARK finish-batches: this is where the key is created in the old (presumed working) code
 func GetValsetConfirmKey(nonce uint64, validator sdk.AccAddress) []byte {
 	return append(ValsetConfirmKey, append(UInt64Bytes(nonce), validator.Bytes()...)...)
-}
-
-// GetClaimKey returns the following key format
-// prefix type               cosmos-validator-address                       nonce                             attestation-details-hash
-// [0x0][0 0 0 1][cosmosvaloper1ahx7f8wyertuus9r20284ej0asrs085case3kn][0 0 0 0 0 0 0 1][fd1af8cec6c67fcf156f1b61fdf91ebc04d05484d007436e75342fc05bbff35a]
-// The Claim hash identifies a unique event, for example it would have a event nonce, a sender and a receiver. Or an event nonce and a batch nonce. But
-// the Claim is stored indexed with the claimer key to make sure that it is unique.
-func GetClaimKey(details EthereumClaim) []byte {
-	var detailsHash []byte
-	if details != nil {
-		detailsHash = details.ClaimHash()
-	} else {
-		panic("No claim without details!")
-	}
-	claimTypeLen := len([]byte{byte(details.GetType())})
-	nonceBz := UInt64Bytes(details.GetEventNonce())
-	key := make([]byte, len(OracleClaimKey)+claimTypeLen+common.AddressLength+len(nonceBz)+len(detailsHash))
-	copy(key[0:], OracleClaimKey)
-	copy(key[len(OracleClaimKey):], []byte{byte(details.GetType())})
-	// TODO this is the delegate address, should be stored by the valaddress
-	copy(key[len(OracleClaimKey)+claimTypeLen:], details.GetClaimer())
-	copy(key[len(OracleClaimKey)+claimTypeLen+common.AddressLength:], nonceBz)
-	copy(key[len(OracleClaimKey)+claimTypeLen+common.AddressLength+len(nonceBz):], detailsHash)
-	return key
 }
 
 // GetAttestationKey returns the following key format

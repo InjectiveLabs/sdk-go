@@ -59,6 +59,7 @@ var (
 	ErrInvalidMarketFundingParamUpdate         = sdkerrors.Register(ModuleName, 52, "Only perpetual markets can update funding parameters")
 	ErrInvalidLiquidityMiningMarket            = sdkerrors.Register(ModuleName, 53, "Invalid liquidity mining market")
 	ErrInvalidLiquidityMiningMarketWeights     = sdkerrors.Register(ModuleName, 54, "Invalid liquidity mining market weights")
-	ErrInvalidLiquidityMiningCampaign          = sdkerrors.Register(ModuleName, 55, "Invalid liquidity mining campaign")
+	ErrInvalidTradingRewardCampaign            = sdkerrors.Register(ModuleName, 55, "Invalid trading reward campaign")
 	ErrInvalidLiquidityMiningReward            = sdkerrors.Register(ModuleName, 56, "Invalid liquidity mining reward")
+	ErrInvalidFeeDiscountSchedule              = sdkerrors.Register(ModuleName, 57, "Invalid fee discount schedule")
 )

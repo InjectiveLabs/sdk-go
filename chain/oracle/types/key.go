@@ -1,6 +1,8 @@
 package types
 
 import (
+	fmt "fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -39,6 +41,9 @@ var (
 	BandIBCOracleRequestIDKey = []byte{0x34}
 	BandIBCParamsKey          = []byte{0x35}
 	LatestRequestIDKey        = []byte{0x36}
+
+	// Keys for chainlink price prefixes
+	ChainlinkPriceKey = []byte{0x41}
 )
 
 func GetBandPriceStoreKey(symbol string) []byte {
@@ -88,4 +93,17 @@ func GetCoinbasePriceStoreKey(key string, timestamp uint64) []byte {
 
 func GetCoinbasePriceStoreIterationKey(key string) []byte {
 	return append(append(CoinbasePriceKey, []byte(key)...))
+}
+
+func GetChainlinkPriceStoreKey(feedId string) []byte {
+	feedIdBz := getPaddedFeedIdBz(feedId)
+
+	buf := make([]byte, 0, len(ChainlinkPriceKey)+len(feedIdBz))
+	buf = append(buf, ChainlinkPriceKey...)
+	buf = append(buf, feedIdBz...)
+	return buf
+}
+
+func getPaddedFeedIdBz(feedId string) string {
+	return fmt.Sprintf("%20s", feedId)
 }

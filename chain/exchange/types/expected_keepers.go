@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -55,4 +56,10 @@ type AuctionKeeper interface {
 type DistributionKeeper interface {
 	GetFeePool(ctx sdk.Context) (feePool types.FeePool)
 	DistributeFromFeePool(ctx sdk.Context, amount sdk.Coins, receiveAddr sdk.AccAddress) error
+	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
+}
+
+type StakingKeeper interface {
+	GetDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) (delegations []stakingtypes.Delegation)
+	Validator(sdk.Context, sdk.ValAddress) stakingtypes.ValidatorI
 }

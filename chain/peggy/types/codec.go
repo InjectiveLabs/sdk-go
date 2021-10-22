@@ -11,7 +11,7 @@ import (
 var ModuleCdc = codec.NewLegacyAmino()
 
 func init() {
-	RegisterCodec(ModuleCdc)
+	RegisterLegacyAminoCodec(ModuleCdc)
 }
 
 // RegisterInterfaces registers the interfaces for the proto stuff
@@ -42,9 +42,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
-// RegisterCodec registers concrete types on the Amino codec
-func RegisterCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterInterface((*EthereumClaim)(nil), nil)
+// RegisterLegacyAminoCodec registers concrete types on the Amino codec
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSetOrchestratorAddresses{}, "peggy/MsgSetOrchestratorAddresses", nil)
 	cdc.RegisterConcrete(&MsgValsetConfirm{}, "peggy/MsgValsetConfirm", nil)
 	cdc.RegisterConcrete(&MsgSendToEth{}, "peggy/MsgSendToEth", nil)

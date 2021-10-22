@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 	"strings"
@@ -20,6 +21,7 @@ const (
 )
 const PriceDecimalPlaces = 18
 const DefaultQueryOrderbookLimit = 20
+const Uint64BytesLen = 8
 
 var (
 	// Keys for store prefixes
@@ -40,7 +42,7 @@ var (
 	SpotMarketParamUpdateScheduleKey = []byte{0x16} // prefix for a key to save scheduled spot market params update
 
 	DerivativeMarketPrefix                  = []byte{0x21} // prefix for each key to a derivative market by (exchange address, isEnabled, marketID)
-	DerivativeLimitOrdersPrefix             = []byte{0x22} // prefix for each key to an derivative limit order, by (marketID, direction, price level, order hash)
+	DerivativeLimitOrdersPrefix             = []byte{0x22} // prefix for each key to a derivative limit order, by (marketID, direction, price level, order hash)
 	DerivativeMarketOrdersPrefix            = []byte{0x23} // prefix for each key to a derivative order, by (marketID, direction, price level, order hash)
 	DerivativeLimitOrdersIndexPrefix        = []byte{0x24} // prefix for each key to a derivative order index, by (marketID, direction, subaccountID, order hash)
 	DerivativeLimitOrderIndicatorPrefix     = []byte{0x25} // prefix for each key to a derivative limit order indicator, by marketID and direction
@@ -54,12 +56,95 @@ var (
 	ExpiryFuturesMarketInfoPrefix            = []byte{0x33} // prefix for each key to a expiry futures market's market info
 	ExpiryFuturesMarketInfoByTimestampPrefix = []byte{0x34} // prefix for each index key to a expiry futures market's market info
 
-	LiquidityMiningMarketRewardsRateKey = []byte{0x40} // prefix for each key to a market's liquidity mining reward rate
-	LiquidityMiningAccountPointsKey     = []byte{0x41} // prefix for each key to an account's liquidity mining points
-	CurrentLiquidityMiningCampaignKey   = []byte{0x42} // key to the current liquidity mining campaign
-	UpcomingLiquidityMiningCampaignKey  = []byte{0x43} // key to the upcoming liquidity mining campaign
-	TotalLiquidityMiningPointsKey       = []byte{0x44} // key to the total liquidity mining points
+	TradingRewardCampaignInfoKey              = []byte{0x40} // key to the TradingRewardCampaignInfo
+	TradingRewardMarketQualificationPrefix    = []byte{0x41} // prefix for each key to a market's qualification/disqualification status
+	TradingRewardMarketPointsMultiplierPrefix = []byte{0x42} // prefix for each key to a market's FeePaidMultiplier
+	TradingRewardCampaignRewardPoolPrefix     = []byte{0x43} // prefix for each key to a campaign's reward pool
+	TradingRewardCurrentCampaignEndTimeKey    = []byte{0x44} // key to the current campaign's end time
+	TradingRewardCampaignTotalPointsKey       = []byte{0x45} // key to the total trading reward points for the current campaign
+	TradingRewardAccountPointsPrefix          = []byte{0x46} // prefix for each key to an account's current campaign reward points
+
+	FeeDiscountMarketQualificationPrefix                  = []byte{0x50} // prefix for each key to a market's qualification/disqualification status
+	FeeDiscountBucketCountKey                             = []byte{0x51} // key to the fee discount bucket count
+	FeeDiscountBucketDurationKey                          = []byte{0x52} // key to the fee discount bucket duration
+	FeeDiscountCurrentBucketStartTimeKey                  = []byte{0x53} // key to the current bucket start timestamp
+	FeeDiscountScheduleKey                                = []byte{0x54} // key to the fee discount schedule
+	FeeDiscountTierInfoPrefix                             = []byte{0x55} // prefix to the fee discount tier info
+	FeeDiscountAccountTierPrefix                          = []byte{0x56} // prefix to each account's fee discount tier and TTL timestamp
+	FeeDiscountBucketAccountFeesPaidPrefix                = []byte{0x57} // prefix to each account's fee paid amount for a given bucket
+	FeeDiscountAccountPastBucketTotalFeesPaidAmountPrefix = []byte{0x58} // prefix to each account's total past bucket fees paid amount FeeDiscountAccountIndicatorPrefix
+	FeeDiscountAccountOrderIndicatorPrefix                = []byte{0x59} // prefix to each account's transient indicator if the account has placed an order that block
 )
+
+// GetFeeDiscountAccountFeesPaidInBucketKey provides the key for the account's fees paid in the given bucket
+func GetFeeDiscountAccountFeesPaidInBucketKey(bucketStartTimestamp int64, account sdk.AccAddress) []byte {
+	timeBz := sdk.Uint64ToBigEndian(uint64(bucketStartTimestamp))
+	accountBz := account.Bytes()
+
+	buf := make([]byte, 0, len(FeeDiscountBucketAccountFeesPaidPrefix)+len(timeBz)+len(accountBz))
+	buf = append(buf, FeeDiscountBucketAccountFeesPaidPrefix...)
+	buf = append(buf, timeBz...)
+	buf = append(buf, accountBz...)
+	return buf
+}
+
+// GetFeeDiscountTierKey provides the key for the fee discount tier for a given tier level
+func GetFeeDiscountTierKey(tierLevel uint64) []byte {
+	return append(FeeDiscountTierInfoPrefix, sdk.Uint64ToBigEndian(tierLevel)...)
+}
+
+func ParseFeeDiscountBucketAccountFeesPaidIteratorKey(key []byte) (bucketStartTimestamp int64, account sdk.AccAddress) {
+	timeBz := key[:Uint64BytesLen]
+	accountBz := key[Uint64BytesLen:]
+	return int64(sdk.BigEndianToUint64(timeBz)), sdk.AccAddress(accountBz)
+}
+
+// GetFeeDiscountPastBucketAccountFeesPaidKey provides the key for the account's total past bucket fees paid.
+func GetFeeDiscountPastBucketAccountFeesPaidKey(account sdk.AccAddress) []byte {
+	accountBz := account.Bytes()
+	return append(FeeDiscountAccountPastBucketTotalFeesPaidAmountPrefix, accountBz...)
+}
+
+// GetFeeDiscountAccountOrderIndicatorKey provides the key for the transient indicator if the account has placed an order that block
+func GetFeeDiscountAccountOrderIndicatorKey(account sdk.AccAddress) []byte {
+	accountBz := account.Bytes()
+	return append(FeeDiscountAccountOrderIndicatorPrefix, accountBz...)
+}
+
+// GetFeeDiscountAccountTierKey provides the key for the account's fee discount tier.
+func GetFeeDiscountAccountTierKey(account sdk.AccAddress) []byte {
+	accountBz := account.Bytes()
+
+	buf := make([]byte, 0, len(FeeDiscountAccountTierPrefix)+len(accountBz))
+	buf = append(buf, FeeDiscountAccountTierPrefix...)
+	buf = append(buf, accountBz...)
+	return buf
+}
+
+// GetFeeDiscountMarketQualificationKey provides the key for the market fee discount qualification status
+func GetFeeDiscountMarketQualificationKey(marketID common.Hash) []byte {
+	return append(FeeDiscountMarketQualificationPrefix, marketID.Bytes()...)
+}
+
+// GetCampaignRewardPoolKey provides the key for a reward pool for a given start time
+func GetCampaignRewardPoolKey(startTimestamp int64) []byte {
+	return append(TradingRewardCampaignRewardPoolPrefix, sdk.Uint64ToBigEndian(uint64(startTimestamp))...)
+}
+
+// GetCampaignMarketQualificationKey provides the key for the market trading rewards qualification status
+func GetCampaignMarketQualificationKey(marketID common.Hash) []byte {
+	return append(TradingRewardMarketQualificationPrefix, marketID.Bytes()...)
+}
+
+// GetTradingRewardsMarketPointsMultiplierKey provides the key for the market trading rewards multiplier
+func GetTradingRewardsMarketPointsMultiplierKey(marketID common.Hash) []byte {
+	return append(TradingRewardMarketPointsMultiplierPrefix, marketID.Bytes()...)
+}
+
+// GetTradingRewardAccountPointsKey provides the key for the account's trading rewards points.
+func GetTradingRewardAccountPointsKey(account sdk.AccAddress) []byte {
+	return append(TradingRewardAccountPointsPrefix, account.Bytes()...)
+}
 
 // GetDepositKey provides the key to obtain a given subaccount's deposits for a given denom
 func GetDepositKey(subaccountID common.Hash, denom string) []byte {
@@ -165,10 +250,6 @@ func GetDerivativeMarketKey(isEnabled bool) []byte {
 	return append(DerivativeMarketPrefix, getBoolPrefix(isEnabled)...)
 }
 
-func GetAccountLiquidityMiningPointsKey(account sdk.AccAddress) []byte {
-	return append(LiquidityMiningAccountPointsKey, account.Bytes()...)
-}
-
 func getBoolPrefix(isEnabled bool) []byte {
 	isEnabledByte := byte(0)
 	if isEnabled {
@@ -198,6 +279,14 @@ func OrderIndexByMarketDirectionSubaccountPrefix(marketID common.Hash, subaccoun
 }
 
 const TrueByte byte = byte(1)
+const FalseByte byte = byte(0)
+
+func IsTrueByte(bz []byte) bool {
+	if bytes.Equal(bz, []byte{TrueByte}) {
+		return true
+	}
+	return false
+}
 
 // MarketDirectionPrefix allows to obtain prefix against a particular marketID, direction
 func MarketDirectionPrefix(marketID common.Hash, isLong bool) []byte {
