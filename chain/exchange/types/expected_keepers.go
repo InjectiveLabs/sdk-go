@@ -39,8 +39,8 @@ type InsuranceKeeper interface {
 	DepositIntoInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdk.Int) error
 	// WithdrawFromInsuranceFund decrements the insurance fund balance by amount and sends
 	WithdrawFromInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdk.Int) error
-	// UpdateInsuranceFundBandOracle updates the insurance fund's oracle from Band to Band IBC
-	UpdateInsuranceFundBandOracle(ctx sdk.Context, marketID common.Hash) error
+	// UpdateInsuranceFundOracleParams updates the insurance fund's oracle parameters
+	UpdateInsuranceFundOracleParams(ctx sdk.Context, marketID common.Hash, oracleParams *OracleParams) error
 }
 
 type GovKeeper interface {

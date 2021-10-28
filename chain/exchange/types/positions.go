@@ -32,7 +32,7 @@ func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 // Formula for adjustment:
 // newPayoutFromPnl = oldPayoutFromPnl * (1 - missingFundsRate)
 // => Entry price adjustment for buys
-// (newEntryPrice - settlementPrice) * quantity = (entryPrice - settlementPrice) * quantity * (1- missingFundsRate)
+// (newEntryPrice - settlementPrice) * quantity = (entryPrice - settlementPrice) * quantity * (1 - missingFundsRate)
 // newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
 // => Entry price adjustment for sells
 // (settlementPrice - newEntryPrice) * quantity = (settlementPrice - entryPrice) * quantity * (1 - missingFundsRate)

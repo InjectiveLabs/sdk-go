@@ -13,7 +13,7 @@ func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
 	stakedAmount sdk.Int,
 	tradingFeePaid sdk.Dec,
 ) (
-	discountRates *FeeDiscountRates,
+	feeDiscountRates *FeeDiscountRates,
 	tierLevel uint64,
 ) {
 	highestTierLevel := 0
@@ -29,18 +29,18 @@ func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
 	tierLevel = uint64(highestTierLevel)
 
 	if tierLevel == 0 {
-		discountRates = &FeeDiscountRates{
+		feeDiscountRates = &FeeDiscountRates{
 			MakerDiscountRate: sdk.ZeroDec(),
 			TakerDiscountRate: sdk.ZeroDec(),
 		}
 	} else {
-		discountRates = &FeeDiscountRates{
+		feeDiscountRates = &FeeDiscountRates{
 			MakerDiscountRate: s.TierInfos[highestTierLevel-1].MakerDiscountRate,
 			TakerDiscountRate: s.TierInfos[highestTierLevel-1].TakerDiscountRate,
 		}
 	}
 
-	return discountRates, tierLevel
+	return feeDiscountRates, tierLevel
 }
 
 func (s *FeeDiscountSchedule) TierOneRequirements() (

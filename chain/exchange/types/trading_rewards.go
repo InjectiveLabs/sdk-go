@@ -9,9 +9,9 @@ import (
 type TradingRewardPoints map[string]sdk.Dec
 
 func NewTradingRewardPoints() TradingRewardPoints {
-	liquidityMiningRewards := make(TradingRewardPoints)
+	tradingRewardPoints := make(TradingRewardPoints)
 
-	return liquidityMiningRewards
+	return tradingRewardPoints
 }
 
 func (l TradingRewardPoints) GetSortedAccountKeys() []string {

@@ -107,12 +107,9 @@ func IsValidOrderHash(orderHash string) bool {
 	if len(orderHash) != 66 {
 		return false
 	}
-	orderHashBytes := common.FromHex(orderHash)
 
-	if len(orderHashBytes) != common.HashLength {
-		return false
-	}
-	return true
+	orderHashBytes := common.FromHex(orderHash)
+	return len(orderHashBytes) == common.HashLength
 }
 
 func BreachesMinimumTickSize(value sdk.Dec, minTickSize sdk.Dec) bool {

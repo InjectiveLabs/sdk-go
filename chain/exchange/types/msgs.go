@@ -5,8 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	"github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 )
 
 const RouterKey = ModuleName
@@ -279,24 +277,9 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if msg.QuoteDenom == "" {
 		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
-	if msg.OracleBase == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
-	}
-	if msg.OracleQuote == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
-	}
-	if msg.OracleBase == msg.OracleQuote {
-		return ErrSameOracles
-	}
-	switch msg.OracleType {
-	case types.OracleType_Band, types.OracleType_PriceFeed, types.OracleType_Coinbase, types.OracleType_Chainlink, types.OracleType_Razor,
-		types.OracleType_Dia, types.OracleType_API3, types.OracleType_Uma, types.OracleType_Pyth, types.OracleType_BandIBC:
-
-	default:
-		return sdkerrors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
-	}
-	if msg.OracleScaleFactor > MaxOracleScaleFactor {
-		return ErrExceedsMaxOracleScaleFactor
+	oracleParams := NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
+	if err := oracleParams.ValidateBasic(); err != nil {
+		return err
 	}
 	if err := ValidateFee(msg.MakerFeeRate); err != nil {
 		return err
@@ -360,24 +343,10 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	if msg.QuoteDenom == "" {
 		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
-	if msg.OracleBase == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
-	}
-	if msg.OracleQuote == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
-	}
-	if msg.OracleBase == msg.OracleQuote {
-		return ErrSameOracles
-	}
-	switch msg.OracleType {
-	case types.OracleType_Band, types.OracleType_PriceFeed, types.OracleType_Coinbase, types.OracleType_Chainlink, types.OracleType_Razor,
-		types.OracleType_Dia, types.OracleType_API3, types.OracleType_Uma, types.OracleType_Pyth, types.OracleType_BandIBC:
 
-	default:
-		return sdkerrors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
-	}
-	if msg.OracleScaleFactor > MaxOracleScaleFactor {
-		return ErrExceedsMaxOracleScaleFactor
+	oracleParams := NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
+	if err := oracleParams.ValidateBasic(); err != nil {
+		return err
 	}
 	if msg.Expiry <= 0 {
 		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")

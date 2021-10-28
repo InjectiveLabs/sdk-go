@@ -282,10 +282,7 @@ const TrueByte byte = byte(1)
 const FalseByte byte = byte(0)
 
 func IsTrueByte(bz []byte) bool {
-	if bytes.Equal(bz, []byte{TrueByte}) {
-		return true
-	}
-	return false
+	return bytes.Equal(bz, []byte{TrueByte})
 }
 
 // MarketDirectionPrefix allows to obtain prefix against a particular marketID, direction
