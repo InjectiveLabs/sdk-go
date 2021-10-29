@@ -6,7 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-func NewMarketOrderForLiquidation(position *Position, positionSubaccountID common.Hash, liquidator sdk.Address) *DerivativeMarketOrder {
+func NewMarketOrderForLiquidation(position *Position, positionSubaccountID common.Hash, liquidator sdk.AccAddress) *DerivativeMarketOrder {
 
 	// if long position, market sell order at price 0
 	// if short position, market buy order at price infinity

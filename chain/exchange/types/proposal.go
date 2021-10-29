@@ -6,22 +6,24 @@ import (
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 // constants
 const (
-	ProposalTypeExchangeEnable              string = "ProposalTypeExchangeEnable"
-	ProposalTypeBatchExchangeModification   string = "ProposalTypeBatchExchangeModification"
-	ProposalTypeSpotMarketParamUpdate       string = "ProposalTypeSpotMarketParamUpdate"
-	ProposalTypeSpotMarketLaunch            string = "ProposalTypeSpotMarketLaunch"
-	ProposalTypePerpetualMarketLaunch       string = "ProposalTypePerpetualMarketLaunch"
-	ProposalTypeExpiryFuturesMarketLaunch   string = "ProposalTypeExpiryFuturesMarketLaunch"
-	ProposalTypeDerivativeMarketParamUpdate string = "ProposalTypeDerivativeMarketParamUpdate"
-	ProposalTypeTradingRewardCampaign       string = "ProposalTypeTradingRewardCampaign"
-	ProposalTypeTradingRewardCampaignUpdate string = "ProposalTypeTradingRewardCampaignUpdateProposal"
-	ProposalTypeFeeDiscountProposal         string = "ProposalTypeFeeDiscountProposal"
+	ProposalTypeExchangeEnable                  string = "ProposalTypeExchangeEnable"
+	ProposalTypeBatchExchangeModification       string = "ProposalTypeBatchExchangeModification"
+	ProposalTypeSpotMarketParamUpdate           string = "ProposalTypeSpotMarketParamUpdate"
+	ProposalTypeSpotMarketLaunch                string = "ProposalTypeSpotMarketLaunch"
+	ProposalTypePerpetualMarketLaunch           string = "ProposalTypePerpetualMarketLaunch"
+	ProposalTypeExpiryFuturesMarketLaunch       string = "ProposalTypeExpiryFuturesMarketLaunch"
+	ProposalTypeDerivativeMarketParamUpdate     string = "ProposalTypeDerivativeMarketParamUpdate"
+	ProposalTypeTradingRewardCampaign           string = "ProposalTypeTradingRewardCampaign"
+	ProposalTypeTradingRewardCampaignUpdate     string = "ProposalTypeTradingRewardCampaignUpdateProposal"
+	ProposalTypeFeeDiscountProposal             string = "ProposalTypeFeeDiscountProposal"
+	ProposalTypeBatchCommunityPoolSpendProposal string = "ProposalTypeBatchCommunityPoolSpendProposal"
 )
 
 func init() {
@@ -45,6 +47,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&TradingRewardCampaignUpdateProposal{}, "injective/TradingRewardCampaignUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeFeeDiscountProposal)
 	gov.RegisterProposalTypeCodec(&FeeDiscountProposal{}, "injective/FeeDiscountProposal")
+	gov.RegisterProposalType(ProposalTypeBatchCommunityPoolSpendProposal)
+	gov.RegisterProposalTypeCodec(&BatchCommunityPoolSpendProposal{}, "injective/BatchCommunityPoolSpendProposal")
 }
 
 func SafeIsPositiveInt(v sdk.Int) bool {
@@ -1049,4 +1053,44 @@ func (t *FeeDiscountTierInfo) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "FeePaidAmount must be non-negative")
 	}
 	return nil
+}
+
+// NewBatchCommunityPoolSpendProposal returns new instance of BatchCommunityPoolSpendProposal
+func NewBatchCommunityPoolSpendProposal(title, description string, proposals []*distributiontypes.CommunityPoolSpendProposal) *BatchCommunityPoolSpendProposal {
+	return &BatchCommunityPoolSpendProposal{
+		Title:       title,
+		Description: description,
+		Proposals:   proposals,
+	}
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &BatchCommunityPoolSpendProposal{}
+
+// GetTitle returns the title of this proposal.
+func (p *BatchCommunityPoolSpendProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal.
+func (p *BatchCommunityPoolSpendProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *BatchCommunityPoolSpendProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *BatchCommunityPoolSpendProposal) ProposalType() string {
+	return ProposalTypeBatchCommunityPoolSpendProposal
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *BatchCommunityPoolSpendProposal) ValidateBasic() error {
+	for _, proposal := range p.Proposals {
+		if err := proposal.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+	return gov.ValidateAbstract(p)
 }

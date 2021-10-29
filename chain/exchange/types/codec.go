@@ -42,6 +42,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&TradingRewardCampaignLaunchProposal{}, "exchange/TradingRewardCampaignLaunchProposal", nil)
 	cdc.RegisterConcrete(&TradingRewardCampaignUpdateProposal{}, "exchange/TradingRewardCampaignUpdateProposal", nil)
 	cdc.RegisterConcrete(&FeeDiscountProposal{}, "exchange/FeeDiscountProposal", nil)
+	cdc.RegisterConcrete(&BatchCommunityPoolSpendProposal{}, "exchange/BatchCommunityPoolSpendProposal", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -79,6 +80,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&TradingRewardCampaignLaunchProposal{},
 		&TradingRewardCampaignUpdateProposal{},
 		&FeeDiscountProposal{},
+		&BatchCommunityPoolSpendProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

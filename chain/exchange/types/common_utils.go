@@ -136,7 +136,7 @@ func (s *Subaccount) GetSubaccountID() (*common.Hash, error) {
 	return SdkAddressWithNonceToSubaccountID(trader, s.SubaccountNonce)
 }
 
-func SdkAddressWithNonceToSubaccountID(addr sdk.Address, nonce uint32) (*common.Hash, error) {
+func SdkAddressWithNonceToSubaccountID(addr sdk.AccAddress, nonce uint32) (*common.Hash, error) {
 	if len(addr.Bytes()) > common.AddressLength {
 		return &AuctionSubaccountID, ErrBadSubaccountID
 	}
@@ -145,15 +145,15 @@ func SdkAddressWithNonceToSubaccountID(addr sdk.Address, nonce uint32) (*common.
 	return &subaccountID, nil
 }
 
-func SdkAddressToSubaccountID(addr sdk.Address) common.Hash {
+func SdkAddressToSubaccountID(addr sdk.AccAddress) common.Hash {
 	return common.BytesToHash(common.RightPadBytes(addr.Bytes(), 32))
 }
 
-func SdkAddressToEthAddress(addr sdk.Address) common.Address {
+func SdkAddressToEthAddress(addr sdk.AccAddress) common.Address {
 	return common.BytesToAddress(addr.Bytes())
 }
 
-func SubaccountIDToSdkAddress(subaccountID common.Hash) sdk.Address {
+func SubaccountIDToSdkAddress(subaccountID common.Hash) sdk.AccAddress {
 	return sdk.AccAddress(subaccountID[:common.AddressLength])
 }
 
