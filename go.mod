@@ -12,7 +12,6 @@ require (
 	github.com/bugsnag/panicwrap v1.2.0 // indirect
 	github.com/cespare/cp v1.1.1 // indirect
 	github.com/cosmos/cosmos-sdk v0.44.3
-	github.com/cosmos/ibc-go v1.0.0
 	github.com/cosmos/ibc-go/v2 v2.0.0-rc0
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/ethereum/go-ethereum v1.9.25
