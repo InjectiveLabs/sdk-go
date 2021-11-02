@@ -34,6 +34,8 @@ type InjectiveDerivativeExchangeRPCClient interface {
 	Positions(ctx context.Context, in *PositionsRequest, opts ...grpc.CallOption) (*PositionsResponse, error)
 	// LiquidablePositions gets all the liquidable positions.
 	LiquidablePositions(ctx context.Context, in *LiquidablePositionsRequest, opts ...grpc.CallOption) (*LiquidablePositionsResponse, error)
+	// FundingPayments gets the funding payments for a trader.
+	FundingPayments(ctx context.Context, in *FundingPaymentsRequest, opts ...grpc.CallOption) (*FundingPaymentsResponse, error)
 	// StreamPositions streams derivatives position updates.
 	StreamPositions(ctx context.Context, in *StreamPositionsRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
 	// StreamOrders streams updates to individual orders of a Derivative Market.
@@ -169,6 +171,15 @@ func (c *injectiveDerivativeExchangeRPCClient) Positions(ctx context.Context, in
 func (c *injectiveDerivativeExchangeRPCClient) LiquidablePositions(ctx context.Context, in *LiquidablePositionsRequest, opts ...grpc.CallOption) (*LiquidablePositionsResponse, error) {
 	out := new(LiquidablePositionsResponse)
 	err := c.cc.Invoke(ctx, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/LiquidablePositions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveDerivativeExchangeRPCClient) FundingPayments(ctx context.Context, in *FundingPaymentsRequest, opts ...grpc.CallOption) (*FundingPaymentsResponse, error) {
+	out := new(FundingPaymentsResponse)
+	err := c.cc.Invoke(ctx, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/FundingPayments", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -318,6 +329,8 @@ type InjectiveDerivativeExchangeRPCServer interface {
 	Positions(context.Context, *PositionsRequest) (*PositionsResponse, error)
 	// LiquidablePositions gets all the liquidable positions.
 	LiquidablePositions(context.Context, *LiquidablePositionsRequest) (*LiquidablePositionsResponse, error)
+	// FundingPayments gets the funding payments for a trader.
+	FundingPayments(context.Context, *FundingPaymentsRequest) (*FundingPaymentsResponse, error)
 	// StreamPositions streams derivatives position updates.
 	StreamPositions(*StreamPositionsRequest, InjectiveDerivativeExchangeRPC_StreamPositionsServer) error
 	// StreamOrders streams updates to individual orders of a Derivative Market.
@@ -361,6 +374,9 @@ func (UnimplementedInjectiveDerivativeExchangeRPCServer) Positions(context.Conte
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) LiquidablePositions(context.Context, *LiquidablePositionsRequest) (*LiquidablePositionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LiquidablePositions not implemented")
+}
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) FundingPayments(context.Context, *FundingPaymentsRequest) (*FundingPaymentsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FundingPayments not implemented")
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) StreamPositions(*StreamPositionsRequest, InjectiveDerivativeExchangeRPC_StreamPositionsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPositions not implemented")
@@ -544,6 +560,24 @@ func _InjectiveDerivativeExchangeRPC_LiquidablePositions_Handler(srv interface{}
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveDerivativeExchangeRPC_FundingPayments_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FundingPaymentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveDerivativeExchangeRPCServer).FundingPayments(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/FundingPayments",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveDerivativeExchangeRPCServer).FundingPayments(ctx, req.(*FundingPaymentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _InjectiveDerivativeExchangeRPC_StreamPositions_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StreamPositionsRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -691,6 +725,10 @@ var InjectiveDerivativeExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LiquidablePositions",
 			Handler:    _InjectiveDerivativeExchangeRPC_LiquidablePositions_Handler,
+		},
+		{
+			MethodName: "FundingPayments",
+			Handler:    _InjectiveDerivativeExchangeRPC_FundingPayments_Handler,
 		},
 		{
 			MethodName: "Trades",

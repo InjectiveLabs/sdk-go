@@ -18,10 +18,6 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InjectiveExchangeRPCClient interface {
-	// Endpoint for checking server health.
-	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error)
-	// Returns injective-exchange version.
-	Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error)
 	// GetTx gets transaction details by hash.
 	GetTx(ctx context.Context, in *GetTxRequest, opts ...grpc.CallOption) (*GetTxResponse, error)
 	// PrepareTx generates a Web3-signable body for a Cosmos transaction
@@ -36,24 +32,6 @@ type injectiveExchangeRPCClient struct {
 
 func NewInjectiveExchangeRPCClient(cc grpc.ClientConnInterface) InjectiveExchangeRPCClient {
 	return &injectiveExchangeRPCClient{cc}
-}
-
-func (c *injectiveExchangeRPCClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResponse, error) {
-	out := new(PingResponse)
-	err := c.cc.Invoke(ctx, "/injective_exchange_rpc.InjectiveExchangeRPC/Ping", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *injectiveExchangeRPCClient) Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error) {
-	out := new(VersionResponse)
-	err := c.cc.Invoke(ctx, "/injective_exchange_rpc.InjectiveExchangeRPC/Version", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *injectiveExchangeRPCClient) GetTx(ctx context.Context, in *GetTxRequest, opts ...grpc.CallOption) (*GetTxResponse, error) {
@@ -87,10 +65,6 @@ func (c *injectiveExchangeRPCClient) BroadcastTx(ctx context.Context, in *Broadc
 // All implementations must embed UnimplementedInjectiveExchangeRPCServer
 // for forward compatibility
 type InjectiveExchangeRPCServer interface {
-	// Endpoint for checking server health.
-	Ping(context.Context, *PingRequest) (*PingResponse, error)
-	// Returns injective-exchange version.
-	Version(context.Context, *VersionRequest) (*VersionResponse, error)
 	// GetTx gets transaction details by hash.
 	GetTx(context.Context, *GetTxRequest) (*GetTxResponse, error)
 	// PrepareTx generates a Web3-signable body for a Cosmos transaction
@@ -104,12 +78,6 @@ type InjectiveExchangeRPCServer interface {
 type UnimplementedInjectiveExchangeRPCServer struct {
 }
 
-func (UnimplementedInjectiveExchangeRPCServer) Ping(context.Context, *PingRequest) (*PingResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
-}
-func (UnimplementedInjectiveExchangeRPCServer) Version(context.Context, *VersionRequest) (*VersionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
-}
 func (UnimplementedInjectiveExchangeRPCServer) GetTx(context.Context, *GetTxRequest) (*GetTxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTx not implemented")
 }
@@ -130,42 +98,6 @@ type UnsafeInjectiveExchangeRPCServer interface {
 
 func RegisterInjectiveExchangeRPCServer(s grpc.ServiceRegistrar, srv InjectiveExchangeRPCServer) {
 	s.RegisterService(&InjectiveExchangeRPC_ServiceDesc, srv)
-}
-
-func _InjectiveExchangeRPC_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PingRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InjectiveExchangeRPCServer).Ping(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective_exchange_rpc.InjectiveExchangeRPC/Ping",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InjectiveExchangeRPCServer).Ping(ctx, req.(*PingRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InjectiveExchangeRPC_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VersionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InjectiveExchangeRPCServer).Version(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective_exchange_rpc.InjectiveExchangeRPC/Version",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InjectiveExchangeRPCServer).Version(ctx, req.(*VersionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _InjectiveExchangeRPC_GetTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -229,14 +161,6 @@ var InjectiveExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "injective_exchange_rpc.InjectiveExchangeRPC",
 	HandlerType: (*InjectiveExchangeRPCServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Ping",
-			Handler:    _InjectiveExchangeRPC_Ping_Handler,
-		},
-		{
-			MethodName: "Version",
-			Handler:    _InjectiveExchangeRPC_Version_Handler,
-		},
 		{
 			MethodName: "GetTx",
 			Handler:    _InjectiveExchangeRPC_GetTx_Handler,

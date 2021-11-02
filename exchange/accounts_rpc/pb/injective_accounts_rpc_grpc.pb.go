@@ -18,6 +18,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InjectiveAccountsRPCClient interface {
+	// Provide the account's portfolio value in USD.
+	Portfolio(ctx context.Context, in *PortfolioRequest, opts ...grpc.CallOption) (*PortfolioResponse, error)
 	// List all subaccounts IDs of an account address
 	SubaccountsList(ctx context.Context, in *SubaccountsListRequest, opts ...grpc.CallOption) (*SubaccountsListResponse, error)
 	// List subaccount balances for the provided denoms.
@@ -40,6 +42,15 @@ type injectiveAccountsRPCClient struct {
 
 func NewInjectiveAccountsRPCClient(cc grpc.ClientConnInterface) InjectiveAccountsRPCClient {
 	return &injectiveAccountsRPCClient{cc}
+}
+
+func (c *injectiveAccountsRPCClient) Portfolio(ctx context.Context, in *PortfolioRequest, opts ...grpc.CallOption) (*PortfolioResponse, error) {
+	out := new(PortfolioResponse)
+	err := c.cc.Invoke(ctx, "/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *injectiveAccountsRPCClient) SubaccountsList(ctx context.Context, in *SubaccountsListRequest, opts ...grpc.CallOption) (*SubaccountsListResponse, error) {
@@ -123,6 +134,8 @@ func (c *injectiveAccountsRPCClient) SubaccountOrderSummary(ctx context.Context,
 // All implementations must embed UnimplementedInjectiveAccountsRPCServer
 // for forward compatibility
 type InjectiveAccountsRPCServer interface {
+	// Provide the account's portfolio value in USD.
+	Portfolio(context.Context, *PortfolioRequest) (*PortfolioResponse, error)
 	// List all subaccounts IDs of an account address
 	SubaccountsList(context.Context, *SubaccountsListRequest) (*SubaccountsListResponse, error)
 	// List subaccount balances for the provided denoms.
@@ -144,6 +157,9 @@ type InjectiveAccountsRPCServer interface {
 type UnimplementedInjectiveAccountsRPCServer struct {
 }
 
+func (UnimplementedInjectiveAccountsRPCServer) Portfolio(context.Context, *PortfolioRequest) (*PortfolioResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Portfolio not implemented")
+}
 func (UnimplementedInjectiveAccountsRPCServer) SubaccountsList(context.Context, *SubaccountsListRequest) (*SubaccountsListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubaccountsList not implemented")
 }
@@ -173,6 +189,24 @@ type UnsafeInjectiveAccountsRPCServer interface {
 
 func RegisterInjectiveAccountsRPCServer(s grpc.ServiceRegistrar, srv InjectiveAccountsRPCServer) {
 	s.RegisterService(&InjectiveAccountsRPC_ServiceDesc, srv)
+}
+
+func _InjectiveAccountsRPC_Portfolio_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PortfolioRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveAccountsRPCServer).Portfolio(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveAccountsRPCServer).Portfolio(ctx, req.(*PortfolioRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _InjectiveAccountsRPC_SubaccountsList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -293,6 +327,10 @@ var InjectiveAccountsRPC_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "injective_accounts_rpc.InjectiveAccountsRPC",
 	HandlerType: (*InjectiveAccountsRPCServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Portfolio",
+			Handler:    _InjectiveAccountsRPC_Portfolio_Handler,
+		},
 		{
 			MethodName: "SubaccountsList",
 			Handler:    _InjectiveAccountsRPC_SubaccountsList_Handler,

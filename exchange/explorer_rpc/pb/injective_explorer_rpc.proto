@@ -1,0 +1,246 @@
+// Code generated with goa v3.5.2, DO NOT EDIT.
+//
+// InjectiveExplorerRPC protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+
+syntax = "proto3";
+
+package injective_explorer_rpc;
+
+option go_package = "/injective_explorer_rpcpb";
+
+// ExplorerRPC defines gRPC API of explorer data for e.g. Blockchain Explorer
+service InjectiveExplorerRPC {
+	// GetAccount returns account information given an account address.
+	rpc GetAccount (GetAccountRequest) returns (GetAccountResponse);
+	// GetAccountTxs returns tranctions involving in an account based upon params.
+	rpc GetAccountTxs (GetAccountTxsRequest) returns (GetAccountTxsResponse);
+	// GetBlocks returns blocks based upon the request params
+	rpc GetBlocks (GetBlocksRequest) returns (GetBlocksResponse);
+	// GetBlock returns block based upon the height or hash
+	rpc GetBlock (GetBlockRequest) returns (GetBlockResponse);
+	// GetCoinPriceData returns price data from CoinGecko API
+	rpc GetCoinPriceData (GetCoinPriceDataRequest) returns (GetCoinPriceDataResponse);
+	// GetTxs returns transactions based upon the request params
+	rpc GetTxs (GetTxsRequest) returns (GetTxsResponse);
+	// GetTxByTxHash returns certain transaction information by its tx hash.
+	rpc GetTxByTxHash (GetTxByTxHashRequest) returns (GetTxByTxHashResponse);
+	// StreamTxs returns transactions based upon the request params
+	rpc StreamTxs (StreamTxsRequest) returns (stream StreamTxsResponse);
+	// StreamBlocks returns blocks based upon the request params
+	rpc StreamBlocks (StreamBlocksRequest) returns (stream StreamBlocksResponse);
+}
+
+message GetAccountRequest {
+	string address = 1;
+}
+
+message GetAccountResponse {
+	string address = 1;
+	bytes public_key = 2;
+	sint64 account_number = 3;
+	sint64 sequence = 4;
+	uint64 flags = 5;
+	repeated Balance balances = 6;
+}
+
+message Balance {
+	string symbol = 1;
+	string free = 2;
+	string locked = 3;
+	string frozen = 4;
+}
+
+message GetAccountTxsRequest {
+	string address = 1;
+	uint64 before = 2;
+	uint64 after = 3;
+	sint32 limit = 4;
+	uint64 skip = 5;
+}
+
+message GetAccountTxsResponse {
+	Paging paging = 1;
+	repeated TxData data = 2;
+}
+// Paging defines the structure for required params for handling pagination
+message Paging {
+	// total number of txs saved in database
+	sint64 total = 1;
+	// can be either block height or index num
+	sint32 from = 2;
+	// can be either block height or index num
+	sint32 to = 3;
+}
+// TxData wraps tx data
+message TxData {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	uint32 code = 5;
+	bytes data = 6;
+	string info = 8;
+	sint64 gas_wanted = 9;
+	sint64 gas_used = 10;
+	string codespace = 11;
+	repeated Event events = 12;
+	string tx_type = 13;
+	string messages = 14;
+	repeated Signature signatures = 15;
+	string memo = 16;
+}
+
+message Event {
+	string type = 1;
+	map<string, string> attributes = 2;
+}
+// Signature wraps tx signature
+message Signature {
+	string pubkey = 1;
+	string address = 2;
+	uint64 sequence = 3;
+	string signature = 4;
+}
+
+message GetBlocksRequest {
+	uint64 before = 1;
+	uint64 after = 2;
+	sint32 limit = 3;
+}
+
+message GetBlocksResponse {
+	Paging paging = 1;
+	repeated BlockInfo data = 2;
+}
+
+message BlockInfo {
+	uint64 height = 1;
+	string proposer = 2;
+	string moniker = 3;
+	string block_hash = 4;
+	string parent_hash = 5;
+	sint64 num_pre_commits = 6;
+	sint64 num_txs = 7;
+	sint64 total_txs = 8;
+	repeated TxData txs = 9;
+	string timestamp = 10;
+}
+
+message GetBlockRequest {
+	string id = 1;
+}
+
+message GetBlockResponse {
+	uint64 height = 1;
+	string proposer = 2;
+	string moniker = 3;
+	string block_hash = 4;
+	string parent_hash = 5;
+	sint64 num_pre_commits = 6;
+	sint64 num_txs = 7;
+	sint64 total_txs = 8;
+	repeated TxData txs = 9;
+	string timestamp = 10;
+}
+
+message GetCoinPriceDataRequest {
+	string coin_ids = 1;
+	string currency = 2;
+}
+
+message GetCoinPriceDataResponse {
+	repeated CoinGeckoMarket field = 1;
+}
+// CoinGeckoMarket defines the structure for coin markets api
+message CoinGeckoMarket {
+	string id = 1;
+	string symbol = 2;
+	string name = 3;
+	string image = 4;
+	double current_price = 5;
+	double market_cap = 6;
+	sint32 market_cap_rank = 7;
+	double total_volume = 8;
+	double high24_h = 9;
+	double low24_h = 10;
+	double price_change24_h = 11;
+	double price_change_percentage24_h = 12;
+	double market_cap_change24_h = 13;
+	double market_cap_change_percentage24_h = 14;
+	double circulating_supply = 15;
+	double total_supply = 16;
+	double max_supply = 17;
+	double ath = 18;
+	double ath_change_percentage = 19;
+	string ath_date = 20;
+	double atl = 21;
+	double atl_change_percentage = 22;
+	string atl_date = 23;
+	ROIItem roi = 24;
+	string last_updated = 25;
+}
+// ROIItem ROI Item
+message ROIItem {
+	double times = 1;
+	string currency = 2;
+	double percentage = 3;
+}
+
+message GetTxsRequest {
+	uint64 before = 1;
+	uint64 after = 2;
+	sint32 limit = 3;
+	uint64 skip = 4;
+	string type = 5;
+	string module = 6;
+}
+
+message GetTxsResponse {
+	Paging paging = 1;
+	repeated TxData data = 2;
+}
+
+message GetTxByTxHashRequest {
+	string hash = 1;
+}
+
+message GetTxByTxHashResponse {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	uint32 code = 5;
+	bytes data = 6;
+	string info = 8;
+	sint64 gas_wanted = 9;
+	sint64 gas_used = 10;
+	string codespace = 11;
+	repeated Event events = 12;
+	string tx_type = 13;
+	string messages = 14;
+	repeated Signature signatures = 15;
+	string memo = 16;
+}
+
+message StreamTxsRequest {
+	uint64 before = 1;
+	uint64 after = 2;
+	sint32 limit = 3;
+}
+
+message StreamTxsResponse {
+	repeated TxData field = 1;
+}
+
+message StreamBlocksRequest {
+	uint64 before = 1;
+	uint64 after = 2;
+	sint32 limit = 3;
+}
+
+message StreamBlocksResponse {
+	repeated BlockInfo field = 1;
+}

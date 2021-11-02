@@ -1,4 +1,4 @@
-// Code generated with goa v3.4.3, DO NOT EDIT.
+// Code generated with goa v3.5.2, DO NOT EDIT.
 //
 // InjectiveExchangeRPC protocol buffer definition
 //
@@ -27,177 +27,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type PingRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *PingRequest) Reset() {
-	*x = PingRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[0]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *PingRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PingRequest) ProtoMessage() {}
-
-func (x *PingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[0]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
-func (*PingRequest) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{0}
-}
-
-type PingResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *PingResponse) Reset() {
-	*x = PingResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *PingResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PingResponse) ProtoMessage() {}
-
-func (x *PingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PingResponse.ProtoReflect.Descriptor instead.
-func (*PingResponse) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{1}
-}
-
-type VersionRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *VersionRequest) Reset() {
-	*x = VersionRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *VersionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*VersionRequest) ProtoMessage() {}
-
-func (x *VersionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use VersionRequest.ProtoReflect.Descriptor instead.
-func (*VersionRequest) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{2}
-}
-
-type VersionResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// injective-exchange code version.
-	Version string `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
-	// Additional meta data.
-	MetaData map[string]string `protobuf:"bytes,2,rep,name=meta_data,json=metaData,proto3" json:"meta_data,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-}
-
-func (x *VersionResponse) Reset() {
-	*x = VersionResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *VersionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*VersionResponse) ProtoMessage() {}
-
-func (x *VersionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use VersionResponse.ProtoReflect.Descriptor instead.
-func (*VersionResponse) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *VersionResponse) GetVersion() string {
-	if x != nil {
-		return x.Version
-	}
-	return ""
-}
-
-func (x *VersionResponse) GetMetaData() map[string]string {
-	if x != nil {
-		return x.MetaData
-	}
-	return nil
-}
-
 type GetTxRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -210,7 +39,7 @@ type GetTxRequest struct {
 func (x *GetTxRequest) Reset() {
 	*x = GetTxRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[4]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -223,7 +52,7 @@ func (x *GetTxRequest) String() string {
 func (*GetTxRequest) ProtoMessage() {}
 
 func (x *GetTxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[4]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -236,7 +65,7 @@ func (x *GetTxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTxRequest.ProtoReflect.Descriptor instead.
 func (*GetTxRequest) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{4}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GetTxRequest) GetHash() string {
@@ -273,7 +102,7 @@ type GetTxResponse struct {
 func (x *GetTxResponse) Reset() {
 	*x = GetTxResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[5]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -286,7 +115,7 @@ func (x *GetTxResponse) String() string {
 func (*GetTxResponse) ProtoMessage() {}
 
 func (x *GetTxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[5]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -299,7 +128,7 @@ func (x *GetTxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTxResponse.ProtoReflect.Descriptor instead.
 func (*GetTxResponse) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{5}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *GetTxResponse) GetTxHash() string {
@@ -382,7 +211,7 @@ type PrepareTxRequest struct {
 func (x *PrepareTxRequest) Reset() {
 	*x = PrepareTxRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[6]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -395,7 +224,7 @@ func (x *PrepareTxRequest) String() string {
 func (*PrepareTxRequest) ProtoMessage() {}
 
 func (x *PrepareTxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[6]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -408,7 +237,7 @@ func (x *PrepareTxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrepareTxRequest.ProtoReflect.Descriptor instead.
 func (*PrepareTxRequest) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{6}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PrepareTxRequest) GetChainId() uint64 {
@@ -477,7 +306,7 @@ type CosmosTxFee struct {
 func (x *CosmosTxFee) Reset() {
 	*x = CosmosTxFee{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[7]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -490,7 +319,7 @@ func (x *CosmosTxFee) String() string {
 func (*CosmosTxFee) ProtoMessage() {}
 
 func (x *CosmosTxFee) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[7]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -503,7 +332,7 @@ func (x *CosmosTxFee) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CosmosTxFee.ProtoReflect.Descriptor instead.
 func (*CosmosTxFee) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{7}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CosmosTxFee) GetPrice() []*CosmosCoin {
@@ -541,7 +370,7 @@ type CosmosCoin struct {
 func (x *CosmosCoin) Reset() {
 	*x = CosmosCoin{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[8]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -554,7 +383,7 @@ func (x *CosmosCoin) String() string {
 func (*CosmosCoin) ProtoMessage() {}
 
 func (x *CosmosCoin) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[8]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -567,7 +396,7 @@ func (x *CosmosCoin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CosmosCoin.ProtoReflect.Descriptor instead.
 func (*CosmosCoin) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{8}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CosmosCoin) GetDenom() string {
@@ -606,7 +435,7 @@ type PrepareTxResponse struct {
 func (x *PrepareTxResponse) Reset() {
 	*x = PrepareTxResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[9]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -619,7 +448,7 @@ func (x *PrepareTxResponse) String() string {
 func (*PrepareTxResponse) ProtoMessage() {}
 
 func (x *PrepareTxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[9]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -632,7 +461,7 @@ func (x *PrepareTxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PrepareTxResponse.ProtoReflect.Descriptor instead.
 func (*PrepareTxResponse) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{9}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *PrepareTxResponse) GetData() string {
@@ -703,7 +532,7 @@ type BroadcastTxRequest struct {
 func (x *BroadcastTxRequest) Reset() {
 	*x = BroadcastTxRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[10]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -716,7 +545,7 @@ func (x *BroadcastTxRequest) String() string {
 func (*BroadcastTxRequest) ProtoMessage() {}
 
 func (x *BroadcastTxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[10]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -729,7 +558,7 @@ func (x *BroadcastTxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BroadcastTxRequest.ProtoReflect.Descriptor instead.
 func (*BroadcastTxRequest) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{10}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *BroadcastTxRequest) GetChainId() uint64 {
@@ -802,7 +631,7 @@ type CosmosPubKey struct {
 func (x *CosmosPubKey) Reset() {
 	*x = CosmosPubKey{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[11]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -815,7 +644,7 @@ func (x *CosmosPubKey) String() string {
 func (*CosmosPubKey) ProtoMessage() {}
 
 func (x *CosmosPubKey) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[11]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -828,7 +657,7 @@ func (x *CosmosPubKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CosmosPubKey.ProtoReflect.Descriptor instead.
 func (*CosmosPubKey) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{11}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CosmosPubKey) GetType() string {
@@ -872,7 +701,7 @@ type BroadcastTxResponse struct {
 func (x *BroadcastTxResponse) Reset() {
 	*x = BroadcastTxResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_injective_exchange_rpc_proto_msgTypes[12]
+		mi := &file_injective_exchange_rpc_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -885,7 +714,7 @@ func (x *BroadcastTxResponse) String() string {
 func (*BroadcastTxResponse) ProtoMessage() {}
 
 func (x *BroadcastTxResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_injective_exchange_rpc_proto_msgTypes[12]
+	mi := &file_injective_exchange_rpc_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -898,7 +727,7 @@ func (x *BroadcastTxResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BroadcastTxResponse.ProtoReflect.Descriptor instead.
 func (*BroadcastTxResponse) Descriptor() ([]byte, []int) {
-	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{12}
+	return file_injective_exchange_rpc_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *BroadcastTxResponse) GetTxHash() string {
@@ -963,22 +792,7 @@ var file_injective_exchange_rpc_proto_rawDesc = []byte{
 	0x0a, 0x1c, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68,
 	0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x16,
 	0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e,
-	0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x22, 0x0d, 0x0a, 0x0b, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x0e, 0x0a, 0x0c, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x10, 0x0a, 0x0e, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xbc, 0x01, 0x0a, 0x0f, 0x56, 0x65, 0x72, 0x73,
-	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x76,
-	0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x76, 0x65,
-	0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x52, 0x0a, 0x09, 0x6d, 0x65, 0x74, 0x61, 0x5f, 0x64, 0x61,
-	0x74, 0x61, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x35, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63,
-	0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70,
-	0x63, 0x2e, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x2e, 0x4d, 0x65, 0x74, 0x61, 0x44, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x52,
-	0x08, 0x6d, 0x65, 0x74, 0x61, 0x44, 0x61, 0x74, 0x61, 0x1a, 0x3b, 0x0a, 0x0d, 0x4d, 0x65, 0x74,
-	0x61, 0x44, 0x61, 0x74, 0x61, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x12, 0x10, 0x0a, 0x03, 0x6b, 0x65,
-	0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05,
-	0x76, 0x61, 0x6c, 0x75, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x76, 0x61, 0x6c,
-	0x75, 0x65, 0x3a, 0x02, 0x38, 0x01, 0x22, 0x22, 0x0a, 0x0c, 0x47, 0x65, 0x74, 0x54, 0x78, 0x52,
+	0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x22, 0x22, 0x0a, 0x0c, 0x47, 0x65, 0x74, 0x54, 0x78, 0x52,
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x68, 0x61, 0x73, 0x68, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x68, 0x61, 0x73, 0x68, 0x22, 0xd3, 0x01, 0x0a, 0x0d, 0x47,
 	0x65, 0x74, 0x54, 0x78, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x17, 0x0a, 0x07,
@@ -1067,39 +881,29 @@ var file_injective_exchange_rpc_proto_rawDesc = []byte{
 	0x72, 0x61, 0x77, 0x5f, 0x6c, 0x6f, 0x67, 0x18, 0x07, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x72,
 	0x61, 0x77, 0x4c, 0x6f, 0x67, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61,
 	0x6d, 0x70, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74,
-	0x61, 0x6d, 0x70, 0x32, 0xe5, 0x03, 0x0a, 0x14, 0x49, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76,
-	0x65, 0x45, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x52, 0x50, 0x43, 0x12, 0x51, 0x0a, 0x04,
-	0x50, 0x69, 0x6e, 0x67, 0x12, 0x23, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65,
-	0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x50, 0x69,
-	0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x69, 0x6e, 0x6a, 0x65,
+	0x61, 0x6d, 0x70, 0x32, 0xb6, 0x02, 0x0a, 0x14, 0x49, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76,
+	0x65, 0x45, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x52, 0x50, 0x43, 0x12, 0x54, 0x0a, 0x05,
+	0x47, 0x65, 0x74, 0x54, 0x78, 0x12, 0x24, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76,
+	0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x47,
+	0x65, 0x74, 0x54, 0x78, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x25, 0x2e, 0x69, 0x6e,
+	0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65,
+	0x5f, 0x72, 0x70, 0x63, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x78, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x12, 0x60, 0x0a, 0x09, 0x50, 0x72, 0x65, 0x70, 0x61, 0x72, 0x65, 0x54, 0x78, 0x12,
+	0x28, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68,
+	0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x50, 0x72, 0x65, 0x70, 0x61, 0x72, 0x65,
+	0x54, 0x78, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e, 0x69, 0x6e, 0x6a, 0x65,
 	0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72,
-	0x70, 0x63, 0x2e, 0x50, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x5a, 0x0a, 0x07, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x26, 0x2e, 0x69, 0x6e, 0x6a,
-	0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f,
-	0x72, 0x70, 0x63, 0x2e, 0x56, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x27, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65,
-	0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x56, 0x65, 0x72, 0x73,
-	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x54, 0x0a, 0x05, 0x47,
-	0x65, 0x74, 0x54, 0x78, 0x12, 0x24, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65,
-	0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x47, 0x65,
-	0x74, 0x54, 0x78, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x25, 0x2e, 0x69, 0x6e, 0x6a,
-	0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f,
-	0x72, 0x70, 0x63, 0x2e, 0x47, 0x65, 0x74, 0x54, 0x78, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x12, 0x60, 0x0a, 0x09, 0x50, 0x72, 0x65, 0x70, 0x61, 0x72, 0x65, 0x54, 0x78, 0x12, 0x28,
-	0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61,
-	0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x50, 0x72, 0x65, 0x70, 0x61, 0x72, 0x65, 0x54,
-	0x78, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63,
-	0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70,
-	0x63, 0x2e, 0x50, 0x72, 0x65, 0x70, 0x61, 0x72, 0x65, 0x54, 0x78, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x66, 0x0a, 0x0b, 0x42, 0x72, 0x6f, 0x61, 0x64, 0x63, 0x61, 0x73, 0x74,
-	0x54, 0x78, 0x12, 0x2a, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65,
-	0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x42, 0x72, 0x6f, 0x61,
-	0x64, 0x63, 0x61, 0x73, 0x74, 0x54, 0x78, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2b,
-	0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61,
-	0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x42, 0x72, 0x6f, 0x61, 0x64, 0x63, 0x61, 0x73,
-	0x74, 0x54, 0x78, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x1b, 0x5a, 0x19, 0x2f,
-	0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61, 0x6e,
-	0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x70, 0x63, 0x2e, 0x50, 0x72, 0x65, 0x70, 0x61, 0x72, 0x65, 0x54, 0x78, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x66, 0x0a, 0x0b, 0x42, 0x72, 0x6f, 0x61, 0x64, 0x63, 0x61, 0x73,
+	0x74, 0x54, 0x78, 0x12, 0x2a, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f,
+	0x65, 0x78, 0x63, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x42, 0x72, 0x6f,
+	0x61, 0x64, 0x63, 0x61, 0x73, 0x74, 0x54, 0x78, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x2b, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68,
+	0x61, 0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x42, 0x72, 0x6f, 0x61, 0x64, 0x63, 0x61,
+	0x73, 0x74, 0x54, 0x78, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x1b, 0x5a, 0x19,
+	0x2f, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x65, 0x78, 0x63, 0x68, 0x61,
+	0x6e, 0x67, 0x65, 0x5f, 0x72, 0x70, 0x63, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x33,
 }
 
 var (
@@ -1114,43 +918,33 @@ func file_injective_exchange_rpc_proto_rawDescGZIP() []byte {
 	return file_injective_exchange_rpc_proto_rawDescData
 }
 
-var file_injective_exchange_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_injective_exchange_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_injective_exchange_rpc_proto_goTypes = []interface{}{
-	(*PingRequest)(nil),         // 0: injective_exchange_rpc.PingRequest
-	(*PingResponse)(nil),        // 1: injective_exchange_rpc.PingResponse
-	(*VersionRequest)(nil),      // 2: injective_exchange_rpc.VersionRequest
-	(*VersionResponse)(nil),     // 3: injective_exchange_rpc.VersionResponse
-	(*GetTxRequest)(nil),        // 4: injective_exchange_rpc.GetTxRequest
-	(*GetTxResponse)(nil),       // 5: injective_exchange_rpc.GetTxResponse
-	(*PrepareTxRequest)(nil),    // 6: injective_exchange_rpc.PrepareTxRequest
-	(*CosmosTxFee)(nil),         // 7: injective_exchange_rpc.CosmosTxFee
-	(*CosmosCoin)(nil),          // 8: injective_exchange_rpc.CosmosCoin
-	(*PrepareTxResponse)(nil),   // 9: injective_exchange_rpc.PrepareTxResponse
-	(*BroadcastTxRequest)(nil),  // 10: injective_exchange_rpc.BroadcastTxRequest
-	(*CosmosPubKey)(nil),        // 11: injective_exchange_rpc.CosmosPubKey
-	(*BroadcastTxResponse)(nil), // 12: injective_exchange_rpc.BroadcastTxResponse
-	nil,                         // 13: injective_exchange_rpc.VersionResponse.MetaDataEntry
+	(*GetTxRequest)(nil),        // 0: injective_exchange_rpc.GetTxRequest
+	(*GetTxResponse)(nil),       // 1: injective_exchange_rpc.GetTxResponse
+	(*PrepareTxRequest)(nil),    // 2: injective_exchange_rpc.PrepareTxRequest
+	(*CosmosTxFee)(nil),         // 3: injective_exchange_rpc.CosmosTxFee
+	(*CosmosCoin)(nil),          // 4: injective_exchange_rpc.CosmosCoin
+	(*PrepareTxResponse)(nil),   // 5: injective_exchange_rpc.PrepareTxResponse
+	(*BroadcastTxRequest)(nil),  // 6: injective_exchange_rpc.BroadcastTxRequest
+	(*CosmosPubKey)(nil),        // 7: injective_exchange_rpc.CosmosPubKey
+	(*BroadcastTxResponse)(nil), // 8: injective_exchange_rpc.BroadcastTxResponse
 }
 var file_injective_exchange_rpc_proto_depIdxs = []int32{
-	13, // 0: injective_exchange_rpc.VersionResponse.meta_data:type_name -> injective_exchange_rpc.VersionResponse.MetaDataEntry
-	7,  // 1: injective_exchange_rpc.PrepareTxRequest.fee:type_name -> injective_exchange_rpc.CosmosTxFee
-	8,  // 2: injective_exchange_rpc.CosmosTxFee.price:type_name -> injective_exchange_rpc.CosmosCoin
-	11, // 3: injective_exchange_rpc.BroadcastTxRequest.pub_key:type_name -> injective_exchange_rpc.CosmosPubKey
-	0,  // 4: injective_exchange_rpc.InjectiveExchangeRPC.Ping:input_type -> injective_exchange_rpc.PingRequest
-	2,  // 5: injective_exchange_rpc.InjectiveExchangeRPC.Version:input_type -> injective_exchange_rpc.VersionRequest
-	4,  // 6: injective_exchange_rpc.InjectiveExchangeRPC.GetTx:input_type -> injective_exchange_rpc.GetTxRequest
-	6,  // 7: injective_exchange_rpc.InjectiveExchangeRPC.PrepareTx:input_type -> injective_exchange_rpc.PrepareTxRequest
-	10, // 8: injective_exchange_rpc.InjectiveExchangeRPC.BroadcastTx:input_type -> injective_exchange_rpc.BroadcastTxRequest
-	1,  // 9: injective_exchange_rpc.InjectiveExchangeRPC.Ping:output_type -> injective_exchange_rpc.PingResponse
-	3,  // 10: injective_exchange_rpc.InjectiveExchangeRPC.Version:output_type -> injective_exchange_rpc.VersionResponse
-	5,  // 11: injective_exchange_rpc.InjectiveExchangeRPC.GetTx:output_type -> injective_exchange_rpc.GetTxResponse
-	9,  // 12: injective_exchange_rpc.InjectiveExchangeRPC.PrepareTx:output_type -> injective_exchange_rpc.PrepareTxResponse
-	12, // 13: injective_exchange_rpc.InjectiveExchangeRPC.BroadcastTx:output_type -> injective_exchange_rpc.BroadcastTxResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	3, // 0: injective_exchange_rpc.PrepareTxRequest.fee:type_name -> injective_exchange_rpc.CosmosTxFee
+	4, // 1: injective_exchange_rpc.CosmosTxFee.price:type_name -> injective_exchange_rpc.CosmosCoin
+	7, // 2: injective_exchange_rpc.BroadcastTxRequest.pub_key:type_name -> injective_exchange_rpc.CosmosPubKey
+	0, // 3: injective_exchange_rpc.InjectiveExchangeRPC.GetTx:input_type -> injective_exchange_rpc.GetTxRequest
+	2, // 4: injective_exchange_rpc.InjectiveExchangeRPC.PrepareTx:input_type -> injective_exchange_rpc.PrepareTxRequest
+	6, // 5: injective_exchange_rpc.InjectiveExchangeRPC.BroadcastTx:input_type -> injective_exchange_rpc.BroadcastTxRequest
+	1, // 6: injective_exchange_rpc.InjectiveExchangeRPC.GetTx:output_type -> injective_exchange_rpc.GetTxResponse
+	5, // 7: injective_exchange_rpc.InjectiveExchangeRPC.PrepareTx:output_type -> injective_exchange_rpc.PrepareTxResponse
+	8, // 8: injective_exchange_rpc.InjectiveExchangeRPC.BroadcastTx:output_type -> injective_exchange_rpc.BroadcastTxResponse
+	6, // [6:9] is the sub-list for method output_type
+	3, // [3:6] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_injective_exchange_rpc_proto_init() }
@@ -1160,54 +954,6 @@ func file_injective_exchange_rpc_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_injective_exchange_rpc_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PingRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_injective_exchange_rpc_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PingResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_injective_exchange_rpc_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VersionRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_injective_exchange_rpc_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*VersionResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_injective_exchange_rpc_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetTxRequest); i {
 			case 0:
 				return &v.state
@@ -1219,7 +965,7 @@ func file_injective_exchange_rpc_proto_init() {
 				return nil
 			}
 		}
-		file_injective_exchange_rpc_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_injective_exchange_rpc_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GetTxResponse); i {
 			case 0:
 				return &v.state
@@ -1231,7 +977,7 @@ func file_injective_exchange_rpc_proto_init() {
 				return nil
 			}
 		}
-		file_injective_exchange_rpc_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_injective_exchange_rpc_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PrepareTxRequest); i {
 			case 0:
 				return &v.state
@@ -1243,7 +989,7 @@ func file_injective_exchange_rpc_proto_init() {
 				return nil
 			}
 		}
-		file_injective_exchange_rpc_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_injective_exchange_rpc_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CosmosTxFee); i {
 			case 0:
 				return &v.state
@@ -1255,7 +1001,7 @@ func file_injective_exchange_rpc_proto_init() {
 				return nil
 			}
 		}
-		file_injective_exchange_rpc_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_injective_exchange_rpc_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CosmosCoin); i {
 			case 0:
 				return &v.state
@@ -1267,7 +1013,7 @@ func file_injective_exchange_rpc_proto_init() {
 				return nil
 			}
 		}
-		file_injective_exchange_rpc_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_injective_exchange_rpc_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*PrepareTxResponse); i {
 			case 0:
 				return &v.state
@@ -1279,7 +1025,7 @@ func file_injective_exchange_rpc_proto_init() {
 				return nil
 			}
 		}
-		file_injective_exchange_rpc_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_injective_exchange_rpc_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*BroadcastTxRequest); i {
 			case 0:
 				return &v.state
@@ -1291,7 +1037,7 @@ func file_injective_exchange_rpc_proto_init() {
 				return nil
 			}
 		}
-		file_injective_exchange_rpc_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_injective_exchange_rpc_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CosmosPubKey); i {
 			case 0:
 				return &v.state
@@ -1303,7 +1049,7 @@ func file_injective_exchange_rpc_proto_init() {
 				return nil
 			}
 		}
-		file_injective_exchange_rpc_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_injective_exchange_rpc_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*BroadcastTxResponse); i {
 			case 0:
 				return &v.state
@@ -1322,7 +1068,7 @@ func file_injective_exchange_rpc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_injective_exchange_rpc_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

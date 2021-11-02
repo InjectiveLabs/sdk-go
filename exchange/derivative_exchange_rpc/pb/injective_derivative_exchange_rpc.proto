@@ -1,4 +1,4 @@
-// Code generated with goa v3.4.3, DO NOT EDIT.
+// Code generated with goa v3.5.2, DO NOT EDIT.
 //
 // InjectiveDerivativeExchangeRPC protocol buffer definition
 //
@@ -30,6 +30,8 @@ service InjectiveDerivativeExchangeRPC {
 	rpc Positions (PositionsRequest) returns (PositionsResponse);
 	// LiquidablePositions gets all the liquidable positions.
 	rpc LiquidablePositions (LiquidablePositionsRequest) returns (LiquidablePositionsResponse);
+	// FundingPayments gets the funding payments for a trader.
+	rpc FundingPayments (FundingPaymentsRequest) returns (FundingPaymentsResponse);
 	// StreamPositions streams derivatives position updates.
 	rpc StreamPositions (StreamPositionsRequest) returns (stream StreamPositionsResponse);
 	// StreamOrders streams updates to individual orders of a Derivative Market.
@@ -200,8 +202,8 @@ message PriceLevel {
 }
 
 message StreamOrderbookRequest {
-	// Market ID for orderbook updates streaming
-	string market_id = 1;
+	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
+	repeated string market_ids = 1;
 }
 
 message StreamOrderbookResponse {
@@ -211,6 +213,8 @@ message StreamOrderbookResponse {
 	string operation_type = 2;
 	// Operation timestamp in UNIX millis.
 	sint64 timestamp = 3;
+	// MarketId of the market's orderbook
+	string market_id = 4;
 }
 
 message OrdersRequest {
@@ -259,7 +263,7 @@ message DerivativeLimitOrder {
 }
 
 message PositionsRequest {
-	// SubaccountId of the trader we want to get the trades from
+	// SubaccountId of the trader we want to get the positions from
 	string subaccount_id = 1;
 	// MarketId of the position we want to fetch
 	string market_id = 2;
@@ -303,8 +307,31 @@ message LiquidablePositionsResponse {
 	repeated DerivativePosition positions = 1;
 }
 
+message FundingPaymentsRequest {
+	// SubaccountId of the trader we want to get the positions from
+	string subaccount_id = 1;
+	// MarketId of the position we want to fetch
+	string market_id = 2;
+}
+
+message FundingPaymentsResponse {
+	// List of funding payments
+	repeated FundingPayment payments = 1;
+}
+
+message FundingPayment {
+	// Derivative Market ID
+	string market_id = 1;
+	// The subaccountId that the position belongs to
+	string subaccount_id = 2;
+	// Amount of the funding payment
+	string amount = 3;
+	// Timestamp of funding payment in UNIX millis
+	sint64 timestamp = 4;
+}
+
 message StreamPositionsRequest {
-	// SubaccountId of the trader we want to get the trades from
+	// SubaccountId of the trader we want to get the positions from
 	string subaccount_id = 1;
 	// MarketId of the position we want to fetch
 	string market_id = 2;
@@ -344,6 +371,10 @@ message TradesRequest {
 	string direction = 3;
 	// SubaccountId of the trader we want to get the trades from
 	string subaccount_id = 4;
+	// Skip will skip the first n item from the result
+	uint64 skip = 5;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 6;
 }
 
 message TradesResponse {
@@ -392,6 +423,10 @@ message StreamTradesRequest {
 	string direction = 3;
 	// SubaccountId of the trader we want to get the trades from
 	string subaccount_id = 4;
+	// Skip will skip the first n item from the result
+	uint64 skip = 5;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 6;
 }
 
 message StreamTradesResponse {

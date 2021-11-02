@@ -1,4 +1,4 @@
-// Code generated with goa v3.4.3, DO NOT EDIT.
+// Code generated with goa v3.5.2, DO NOT EDIT.
 //
 // InjectiveExchangeRPC protocol buffer definition
 //
@@ -13,32 +13,12 @@ option go_package = "/injective_exchange_rpcpb";
 
 // InjectiveExchangeRPC defines gRPC API of an Injective Exchange service.
 service InjectiveExchangeRPC {
-	// Endpoint for checking server health.
-	rpc Ping (PingRequest) returns (PingResponse);
-	// Returns injective-exchange version.
-	rpc Version (VersionRequest) returns (VersionResponse);
 	// GetTx gets transaction details by hash.
 	rpc GetTx (GetTxRequest) returns (GetTxResponse);
 	// PrepareTx generates a Web3-signable body for a Cosmos transaction
 	rpc PrepareTx (PrepareTxRequest) returns (PrepareTxResponse);
 	// BroadcastTx broadcasts a signed Web3 transaction
 	rpc BroadcastTx (BroadcastTxRequest) returns (BroadcastTxResponse);
-}
-
-message PingRequest {
-}
-
-message PingResponse {
-}
-
-message VersionRequest {
-}
-
-message VersionResponse {
-	// injective-exchange code version.
-	string version = 1;
-	// Additional meta data.
-	map<string, string> meta_data = 2;
 }
 
 message GetTxRequest {

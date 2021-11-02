@@ -1,4 +1,4 @@
-// Code generated with goa v3.4.3, DO NOT EDIT.
+// Code generated with goa v3.5.2, DO NOT EDIT.
 //
 // InjectiveInsuranceRPC protocol buffer definition
 //

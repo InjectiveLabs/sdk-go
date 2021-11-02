@@ -1,4 +1,4 @@
-// Code generated with goa v3.4.3, DO NOT EDIT.
+// Code generated with goa v3.5.2, DO NOT EDIT.
 //
 // InjectiveAccountsRPC protocol buffer definition
 //
@@ -13,6 +13,8 @@ option go_package = "/injective_accounts_rpcpb";
 
 // InjectiveAccountsRPC defines gRPC API of Exchange Accounts provider.
 service InjectiveAccountsRPC {
+	// Provide the account's portfolio value in USD.
+	rpc Portfolio (PortfolioRequest) returns (PortfolioResponse);
 	// List all subaccounts IDs of an account address
 	rpc SubaccountsList (SubaccountsListRequest) returns (SubaccountsListResponse);
 	// List subaccount balances for the provided denoms.
@@ -27,6 +29,40 @@ service InjectiveAccountsRPC {
 	rpc SubaccountHistory (SubaccountHistoryRequest) returns (SubaccountHistoryResponse);
 	// Get subaccount's orders summary
 	rpc SubaccountOrderSummary (SubaccountOrderSummaryRequest) returns (SubaccountOrderSummaryResponse);
+}
+
+message PortfolioRequest {
+	// Account address
+	string account_address = 1;
+}
+
+message PortfolioResponse {
+	// The portfolio of this account
+	AccountPortfolio portfolio = 1;
+}
+
+message AccountPortfolio {
+	// The account's portfolio value in USD.
+	string portfolio_value = 1;
+	// The account's available balance value in USD.
+	string available_balance = 2;
+	// The account's locked balance value in USD.
+	string locked_balance = 3;
+	// The account's total unrealized PnL value in USD.
+	string unrealized_pnl = 4;
+	// List of all subaccounts' portfolio
+	repeated SubaccountPortfolio subaccounts = 5;
+}
+
+message SubaccountPortfolio {
+	// The ID of this subaccount
+	string subaccount_id = 1;
+	// The subaccount's available balance value in USD.
+	string available_balance = 2;
+	// The subaccount's locked balance value in USD.
+	string locked_balance = 3;
+	// The subaccount's total unrealized PnL value in USD.
+	string unrealized_pnl = 4;
 }
 
 message SubaccountsListRequest {
