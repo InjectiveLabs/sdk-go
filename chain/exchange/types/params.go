@@ -36,8 +36,8 @@ const (
 var MaxOrderPrice = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 var MaxOrderQuantity = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 
-var MinLongLiquidationPrice = sdk.ZeroDec()
-var MaxShortLiquidationPrice = MaxOrderPrice.MulInt64(100) // arbitrary large enough price
+var MaxLongLiquidationPrice = MaxOrderPrice.MulInt64(100) // arbitrary large enough price
+var MinShortLiquidationPrice = sdk.ZeroDec()
 
 var minMarginRatio = sdk.NewDecWithPrec(5, 3)
 

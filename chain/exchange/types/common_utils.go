@@ -73,9 +73,7 @@ func (d *DerivativeLimitOrderDelta) OrderHash() common.Hash {
 
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
 var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
-
-// TempRewardsSenderAddress equals sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
-var TempRewardsSenderAddress, _ = sdk.AccAddressFromBech32("inj1zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3t5qxqh")
+var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
 
 func StringInSlice(a string, list *[]string) bool {
 	for _, b := range *list {

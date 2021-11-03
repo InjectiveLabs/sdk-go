@@ -86,6 +86,10 @@ func (p *Position) CheckValidPositionToReduce(
 		return ErrInvalidReduceOnlyPositionDirection
 	}
 
+	if p.Margin.IsNegative() {
+		return ErrInvalidReduceOnlyPosition
+	}
+
 	if err := p.checkValidClosingPrice(reducePrice, tradeFeeRate, funding, orderMargin); err != nil {
 		return err
 	}
@@ -97,14 +101,14 @@ func (p *Position) checkValidClosingPrice(closingPrice sdk.Dec, tradeFeeRate sdk
 	bankruptcyPrice := p.getBankruptcyPriceWithAddedMargin(funding, orderMargin)
 
 	if p.IsLong {
-		// For long positions, Price ≥ BankruptcyPrice / (1 - TakerFeeRate) must hold
+		// For long positions, Price ≥ BankruptcyPrice / (1 - TradeFeeRate) must hold
 		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(sdk.OneDec().Sub(tradeFeeRate))
 
 		if closingPrice.LT(feeAdjustedBankruptcyPrice) {
 			return ErrPriceSurpassesBankruptcyPrice
 		}
 	} else {
-		// For short positions, Price ≤ BankruptcyPrice / (1 + TakerFeeRate) must hold
+		// For short positions, Price ≤ BankruptcyPrice / (1 + TradeFeeRate) must hold
 		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(sdk.OneDec().Add(tradeFeeRate))
 
 		if closingPrice.GT(feeAdjustedBankruptcyPrice) {
@@ -132,11 +136,11 @@ func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio sdk
 	// TODO include closing fee for reduce only ?
 
 	if adjustedUnitMargin.IsNegative() && p.IsLong {
-		return MinLongLiquidationPrice
+		return MaxLongLiquidationPrice
 	}
 
 	if adjustedUnitMargin.IsNegative() && p.IsShort() {
-		return MaxShortLiquidationPrice
+		return MinShortLiquidationPrice
 	}
 
 	var liquidationPrice sdk.Dec

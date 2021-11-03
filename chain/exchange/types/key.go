@@ -74,6 +74,7 @@ var (
 	FeeDiscountBucketAccountFeesPaidPrefix                = []byte{0x57} // prefix to each account's fee paid amount for a given bucket
 	FeeDiscountAccountPastBucketTotalFeesPaidAmountPrefix = []byte{0x58} // prefix to each account's total past bucket fees paid amount FeeDiscountAccountIndicatorPrefix
 	FeeDiscountAccountOrderIndicatorPrefix                = []byte{0x59} // prefix to each account's transient indicator if the account has placed an order that block
+	IsFirstFeeCycleFinishedKey                            = []byte{60}   // key to the fee discount is first cycle finished
 )
 
 // GetFeeDiscountAccountFeesPaidInBucketKey provides the key for the account's fees paid in the given bucket
