@@ -13,19 +13,29 @@ import (
 const FeedIDMaxLength = 20
 
 var digestPrefixCosmos = []byte("\x00\x02")
+var digestSeparator = []byte("\x00\x00")
 
-func (cfg *ContractConfig) Digest() []byte {
+func (cfg *ContractConfig) Digest(chainID, feedID string) []byte {
 	data, err := proto.Marshal(cfg)
 	if err != nil {
 		panic("unmarshable")
 	}
 
 	w := sha3.NewLegacyKeccak256()
-	n, err := w.Write(data)
-	if err != nil {
+	if _, err := w.Write(data); err != nil {
 		panic(err)
-	} else if n != len(data) {
-		panic("short read")
+	}
+	if _, err := w.Write(digestSeparator); err != nil {
+		panic(err)
+	}
+	if _, err := w.Write([]byte(chainID)); err != nil {
+		panic(err)
+	}
+	if _, err := w.Write(digestSeparator); err != nil {
+		panic(err)
+	}
+	if _, err := w.Write([]byte(feedID)); err != nil {
+		panic(err)
 	}
 
 	configDigest := w.Sum(nil)
@@ -61,40 +71,40 @@ func (cfg *FeedConfig) ValidateBasic() error {
 		return err
 	}
 
-	if cfg.OnchainConfig == nil {
+	if cfg.ModuleParams == nil {
 		return sdkerrors.Wrap(ErrIncorrectConfig, "onchain config is not specified")
 	}
 
 	// TODO: determine whether this is a sensible enough limitation
-	if len(cfg.OnchainConfig.FeedId) == 0 || len(cfg.OnchainConfig.FeedId) > FeedIDMaxLength {
+	if len(cfg.ModuleParams.FeedId) == 0 || len(cfg.ModuleParams.FeedId) > FeedIDMaxLength {
 		return sdkerrors.Wrap(ErrIncorrectConfig, "feed_id is missing or incorrect length")
 	}
 
-	if strings.TrimSpace(cfg.OnchainConfig.FeedId) != cfg.OnchainConfig.FeedId {
+	if strings.TrimSpace(cfg.ModuleParams.FeedId) != cfg.ModuleParams.FeedId {
 		return sdkerrors.Wrap(ErrIncorrectConfig, "feed_id cannot have leading or trailing space characters")
 	}
 
-	if len(cfg.OnchainConfig.FeedAdmin) > 0 {
-		if _, err := sdk.AccAddressFromBech32(cfg.OnchainConfig.FeedAdmin); err != nil {
+	if len(cfg.ModuleParams.FeedAdmin) > 0 {
+		if _, err := sdk.AccAddressFromBech32(cfg.ModuleParams.FeedAdmin); err != nil {
 			return err
 		}
 	}
 
-	if len(cfg.OnchainConfig.BillingAdmin) > 0 {
-		if _, err := sdk.AccAddressFromBech32(cfg.OnchainConfig.BillingAdmin); err != nil {
+	if len(cfg.ModuleParams.BillingAdmin) > 0 {
+		if _, err := sdk.AccAddressFromBech32(cfg.ModuleParams.BillingAdmin); err != nil {
 			return err
 		}
 	}
 
-	if cfg.OnchainConfig.MinAnswer.IsNil() || cfg.OnchainConfig.MaxAnswer.IsNil() {
+	if cfg.ModuleParams.MinAnswer.IsNil() || cfg.ModuleParams.MaxAnswer.IsNil() {
 		return sdkerrors.Wrap(ErrIncorrectConfig, "MinAnswer and MaxAnswer cannot be nil")
 	}
 
-	if cfg.OnchainConfig.LinkPerTransmission.IsNil() || !cfg.OnchainConfig.LinkPerTransmission.IsPositive() {
+	if cfg.ModuleParams.LinkPerTransmission.IsNil() || !cfg.ModuleParams.LinkPerTransmission.IsPositive() {
 		return sdkerrors.Wrap(ErrIncorrectConfig, "LinkPerTransmission must be positive")
 	}
 
-	if cfg.OnchainConfig.LinkPerObservation.IsNil() || !cfg.OnchainConfig.LinkPerObservation.IsPositive() {
+	if cfg.ModuleParams.LinkPerObservation.IsNil() || !cfg.ModuleParams.LinkPerObservation.IsPositive() {
 		return sdkerrors.Wrap(ErrIncorrectConfig, "LinkPerObservation must be positive")
 	}
 
@@ -126,7 +136,7 @@ func (cfg *FeedConfig) ValidateBasic() error {
 		}
 	}
 
-	if len(cfg.OnchainConfig.LinkDenom) == 0 {
+	if len(cfg.ModuleParams.LinkDenom) == 0 {
 		return sdkerrors.ErrInvalidCoins
 	}
 

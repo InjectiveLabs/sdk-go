@@ -78,10 +78,13 @@ func (p *SetBatchConfigProposal) ValidateBasic() error {
 
 	for _, feed := range p.FeedProperties {
 		f := FeedConfig{
-			Signers:      p.Signers,
-			Transmitters: p.Transmitters,
-			F:            feed.F,
-			OnchainConfig: &OnchainConfig{
+			Signers:               p.Signers,
+			Transmitters:          p.Transmitters,
+			F:                     feed.F,
+			OnchainConfig:         feed.OnchainConfig,
+			OffchainConfigVersion: feed.OffchainConfigVersion,
+			OffchainConfig:        feed.OffchainConfig,
+			ModuleParams: &ModuleParams{
 				FeedId:              feed.FeedId,
 				MinAnswer:           feed.MinAnswer,
 				MaxAnswer:           feed.MaxAnswer,
@@ -91,8 +94,6 @@ func (p *SetBatchConfigProposal) ValidateBasic() error {
 				UniqueReports:       feed.UniqueReports,
 				Description:         feed.Description,
 			},
-			OffchainConfigVersion: feed.OffchainConfigVersion,
-			OffchainConfig:        feed.OffchainConfig,
 		}
 
 		if err := f.ValidateBasic(); err != nil {
