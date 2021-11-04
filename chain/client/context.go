@@ -26,6 +26,7 @@ import (
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -33,6 +34,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramproposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
+	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	ibcapplicationtypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
@@ -55,6 +57,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
+	authztypes.RegisterInterfaces(interfaceRegistry)
 	vestingtypes.RegisterInterfaces(interfaceRegistry)
 	banktypes.RegisterInterfaces(interfaceRegistry)
 	crisistypes.RegisterInterfaces(interfaceRegistry)
@@ -67,6 +70,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	slashingtypes.RegisterInterfaces(interfaceRegistry)
 	stakingtypes.RegisterInterfaces(interfaceRegistry)
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
+	feegranttypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	return tx.NewTxConfig(marshaler, signModes)
@@ -94,6 +98,7 @@ func NewClientContext(
 
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
+	authztypes.RegisterInterfaces(interfaceRegistry)
 	vestingtypes.RegisterInterfaces(interfaceRegistry)
 	banktypes.RegisterInterfaces(interfaceRegistry)
 	crisistypes.RegisterInterfaces(interfaceRegistry)
