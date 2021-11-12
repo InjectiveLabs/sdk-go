@@ -48,7 +48,7 @@ func (msg MsgCreateInsuranceFund) ValidateBasic() error {
 	if !msg.InitialDeposit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
 	}
-	if !msg.InitialDeposit.IsPositive() {
+	if !msg.InitialDeposit.IsPositive() || msg.InitialDeposit.Amount.GT(MaxUnderwritingAmount) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
 	}
 	return nil
@@ -85,7 +85,7 @@ func (msg MsgUnderwrite) ValidateBasic() error {
 	if !msg.Deposit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
 	}
-	if !msg.Deposit.IsPositive() {
+	if !msg.Deposit.IsPositive() || msg.Deposit.Amount.GT(MaxUnderwritingAmount){
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
 	}
 	return nil

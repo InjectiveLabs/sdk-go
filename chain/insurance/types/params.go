@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -14,6 +15,9 @@ const (
 	// DefaultInsurancePeriodDurationSeconds represents the number of seconds in two weeks
 	DefaultInsurancePeriod = time.Hour * 24 * 14
 )
+
+// MaxUnderwritingAmount equals 1 trillion * 1e18
+var MaxUnderwritingAmount, _ = sdk.NewIntFromString("1000000000000000000000000000")
 
 // Parameter keys
 var (
