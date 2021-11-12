@@ -587,7 +587,7 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := oracleParams.ValidateBasic(); err != nil {
 		return err
 	}
-	if err := ValidateFee(p.MakerFeeRate); err != nil {
+	if err := ValidateMakerFee(p.MakerFeeRate); err != nil {
 		return err
 	}
 	if err := ValidateFee(p.TakerFeeRate); err != nil {
@@ -678,7 +678,7 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	if p.Expiry <= 0 {
 		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
 	}
-	if err := ValidateFee(p.MakerFeeRate); err != nil {
+	if err := ValidateMakerFee(p.MakerFeeRate); err != nil {
 		return err
 	}
 	if err := ValidateFee(p.TakerFeeRate); err != nil {

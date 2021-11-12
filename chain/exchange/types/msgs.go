@@ -437,6 +437,11 @@ func (msg MsgBatchCreateSpotLimitOrders) ValidateBasic() error {
 	if err != nil { // We don't need to check if sender is empty.
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
+
+	if len(msg.Orders) == 0 {
+		return sdkerrors.Wrap(ErrOrderDoesntExist, "must create at least 1 order")
+	}
+
 	for idx := range msg.Orders {
 		order := msg.Orders[idx]
 		if err := order.ValidateBasic(senderAddr); err != nil {
@@ -541,6 +546,10 @@ func (msg *MsgBatchCancelSpotOrders) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
+	if len(msg.Data) == 0 {
+		return sdkerrors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
+	}
+
 	for idx := range msg.Data {
 		if err := msg.Data[idx].ValidateBasic(senderAddr); err != nil {
 			return err
@@ -610,6 +619,10 @@ func (msg MsgBatchCreateDerivativeLimitOrders) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if len(msg.Orders) == 0 {
+		return sdkerrors.Wrap(ErrOrderDoesntExist, "must create at least 1 order")
 	}
 
 	for idx := range msg.Orders {
@@ -721,6 +734,10 @@ func (msg *MsgBatchCancelDerivativeOrders) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if len(msg.Data) == 0 {
+		return sdkerrors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
 	}
 
 	for idx := range msg.Data {

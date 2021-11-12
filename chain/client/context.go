@@ -162,6 +162,7 @@ func newContext(
 	encodingConfig EncodingConfig,
 	kb keyring.Keyring,
 	keyInfo keyring.Info,
+	
 ) client.Context {
 	clientCtx := client.Context{
 		ChainID:           chainId,
