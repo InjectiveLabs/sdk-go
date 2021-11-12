@@ -20,10 +20,8 @@ copy-chain-types:
 	rm -rf chain/exchange/types/*test.go  rm -rf chain/exchange/types/*gw.go
 	cp ../injective-core/injective-chain/modules/insurance/types/*.go chain/insurance/types
 	rm -rf chain/insurance/types/*test.go  rm -rf chain/insurance/types/*gw.go
-	cp ../injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types
-	rm -rf chain/ocr/types/*test.go  rm -rf chain/ocr/types/*gw.go
 	cp ../injective-core/injective-chain/modules/ocr/types/*.go chain/ocr/types
-	rm -rf chain/exchange/types/*test.go  rm -rf chain/exchange/types/*gw.go
+	rm -rf chain/ocr/types/*test.go  rm -rf chain/ocr/types/*gw.go
 	cp ../injective-core/injective-chain/modules/oracle/types/*.go chain/oracle/types
 	rm -rf chain/oracle/types/*test.go  rm -rf chain/oracle/types/*gw.go
 	cp ../injective-core/injective-chain/modules/peggy/types/*.go chain/peggy/types
