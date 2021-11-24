@@ -1,0 +1,78 @@
+syntax = "proto3";
+package injective.insurance.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
+
+message Params {
+  option (gogoproto.equal) = true;
+
+  // default_redemption_notice_period_duration defines the default minimum notice period duration that must pass after an underwriter sends
+  // a redemption request before the underwriter can claim his tokens
+  google.protobuf.Duration default_redemption_notice_period_duration = 1
+  [(gogoproto.stdduration) = true, (gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"default_redemption_notice_period_duration\""];
+}
+
+message InsuranceFund {
+  // deposit denomination for the given insurance fund
+  string deposit_denom = 1;
+  // insurance fund pool token denomination for the given insurance fund
+  string insurance_pool_token_denom = 2;
+  // redemption_notice_period_duration defines the minimum notice period duration that must pass after an underwriter sends
+  // a redemption request before the underwriter can claim his tokens
+  google.protobuf.Duration redemption_notice_period_duration = 3
+  [(gogoproto.stdduration) = true, (gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"redemption_notice_period_duration\""];
+  // balance of fund
+  string balance = 4 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  // total share tokens minted
+  string total_share = 5 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+  // marketID of the derivative market
+  string market_id = 6;
+  // ticker of the derivative market
+  string market_ticker = 7;
+  // Oracle base currency of the derivative market
+  string oracle_base = 8;
+  // Oracle quote currency of the derivative market
+  string oracle_quote = 9;
+  // Oracle type of the derivative market
+  injective.oracle.v1beta1.OracleType oracle_type = 10;
+  // Expiration time of the derivative market. Should be -1 for perpetual markets.
+  int64 expiry = 11;
+}
+
+message RedemptionSchedule {
+  // id of redemption schedule
+  uint64 id = 1;
+  // marketId of insurance fund for the redemption
+  string marketId = 2;
+  // address of the redeemer
+  string redeemer = 3;
+  // the time after which the redemption can be claimed
+  google.protobuf.Timestamp claimable_redemption_time = 4
+  [(gogoproto.stdtime) = true, (gogoproto.nullable) = false, (gogoproto.moretags) = "yaml:\"claimable_redemption_time\""];
+
+  // the insurance_pool_token amount to redeem
+  cosmos.base.v1beta1.Coin redemption_amount = 5 [(gogoproto.nullable) = false];
+}
+
+message EventInsuranceFundUpdate {
+  InsuranceFund fund = 1;
+}
+
+message EventRequestRedemption {
+  RedemptionSchedule schedule = 1;
+}
+
+message EventWithdrawRedemption {
+  // redemption schedule triggered withdraw
+  RedemptionSchedule schedule = 1;
+  // redeem coin amount in base_currency
+  cosmos.base.v1beta1.Coin redeem_coin = 2 [(gogoproto.nullable) = false];
+}
+

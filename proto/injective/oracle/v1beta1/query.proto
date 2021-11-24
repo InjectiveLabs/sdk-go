@@ -1,0 +1,110 @@
+syntax = "proto3";
+package injective.oracle.v1beta1;
+
+import "google/api/annotations.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+import "injective/oracle/v1beta1/genesis.proto";
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
+
+// Query defines the gRPC querier service.
+service Query {
+
+  // Retrieves oracle params
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/params";
+  }
+
+  // Retrieves the band relayers
+  rpc BandRelayers(QueryBandRelayersRequest) returns (QueryBandRelayersResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/band_relayers";
+  }
+
+  // Retrieves the state for all band price feeds
+  rpc BandPriceStates(QueryBandPriceStatesRequest) returns (QueryBandPriceStatesResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/band_price_states";
+  }
+
+  // Retrieves the state for all band ibc price feeds
+  rpc BandIBCPriceStates(QueryBandIBCPriceStatesRequest) returns (QueryBandIBCPriceStatesResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/band_ibc_price_states";
+  }
+
+  // Retrieves the state for all price feeds
+  rpc PriceFeedPriceStates(QueryPriceFeedPriceStatesRequest) returns (QueryPriceFeedPriceStatesResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/pricefeed_price_states";
+  }
+
+  // Retrieves the state for all coinbase price feeds
+  rpc CoinbasePriceStates(QueryCoinbasePriceStatesRequest) returns (QueryCoinbasePriceStatesResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/coinbase_price_states";
+  }
+
+  // Retrieves the entire oracle module's state
+  rpc OracleModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/module_state";
+  }
+
+}
+
+// QueryOracleParamsRequest is the request type for the Query/OracleParams RPC method.
+message QueryParamsRequest {}
+
+// QueryOracleParamsResponse is the response type for the Query/OracleParams RPC method.
+message QueryParamsResponse {
+  Params params = 1 [
+    (gogoproto.nullable) = false
+  ];
+
+}
+
+// QueryBandRelayersRequest is the request type for the Query/BandRelayers RPC method.
+message QueryBandRelayersRequest {}
+
+// QueryBandRelayersResponse is the response type for the Query/BandRelayers RPC method.
+message QueryBandRelayersResponse {
+  repeated string relayers = 1;
+}
+
+// QueryBandPriceStatesRequest is the request type for the Query/BandPriceStates RPC method.
+message QueryBandPriceStatesRequest {}
+
+// QueryBandPriceStatesResponse is the response type for the Query/BandPriceStates RPC method.
+message QueryBandPriceStatesResponse {
+  repeated BandPriceState price_states = 1;
+}
+
+// QueryBandIBCPriceStatesRequest is the request type for the Query/BandIBCPriceStates RPC method.
+message QueryBandIBCPriceStatesRequest {}
+
+// QueryBandIBCPriceStatesResponse is the response type for the Query/BandIBCPriceStates RPC method.
+message QueryBandIBCPriceStatesResponse {
+  repeated BandPriceState price_states = 1;
+}
+
+
+// QueryPriceFeedPriceStatesRequest is the request type for the Query/PriceFeedPriceStates RPC method.
+message QueryPriceFeedPriceStatesRequest {}
+
+// QueryPriceFeedPriceStatesResponse is the response type for the Query/PriceFeedPriceStates RPC method.
+message QueryPriceFeedPriceStatesResponse {
+  repeated PriceFeedState price_states = 1;
+}
+
+// QueryCoinbasePriceStatesRequest is the request type for the Query/CoinbasePriceStates RPC method.
+message QueryCoinbasePriceStatesRequest {}
+
+// QueryCoinbasePriceStatesResponse is the response type for the Query/CoinbasePriceStates RPC method.
+message QueryCoinbasePriceStatesResponse {
+  repeated CoinbasePriceState price_states = 1;
+}
+
+// QueryModuleStateRequest is the request type for the Query/OracleModuleState RPC method.
+message QueryModuleStateRequest {}
+
+// QueryModuleStateResponse is the response type for the Query/OracleModuleState RPC method.
+message QueryModuleStateResponse {
+  GenesisState state = 1;
+}
+

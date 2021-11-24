@@ -1,0 +1,75 @@
+syntax = "proto3";
+package injective.ocr.v1beta1;
+
+import "injective/ocr/v1beta1/ocr.proto";
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ocr/types";
+
+// GenesisState defines the OCR module's genesis state.
+message GenesisState {
+  // params defines all the parameters of related to OCR.
+  Params params = 1 [(gogoproto.nullable) = false];
+
+  // feed_configs stores all of the supported OCR feeds
+  repeated FeedConfig feed_configs = 2;
+
+  // latest_epoch_and_rounds stores the latest epoch and round for each feedId
+  repeated FeedEpochAndRound latest_epoch_and_rounds = 3;
+
+  // feed_transmissions stores the last transmission for each feed
+  repeated FeedTransmission feed_transmissions = 4;
+
+  // latest_aggregator_round_ids stores the latest aggregator round ID for each feedId
+  repeated FeedLatestAggregatorRoundIDs latest_aggregator_round_ids = 5;
+
+  // reward_pools stores the reward pools
+  repeated RewardPool reward_pools = 6;
+
+  // feed_observation_counts stores the feed observation counts
+  repeated FeedCounts feed_observation_counts = 7;
+
+  // feed_transmission_counts stores the feed transmission counts
+  repeated FeedCounts feed_transmission_counts = 8;
+
+  // pending_payeeships stores the pending payeeships
+  repeated PendingPayeeship pending_payeeships = 9;
+}
+
+message FeedTransmission {
+  string feed_id = 1;
+  Transmission transmission = 2;
+}
+
+message FeedEpochAndRound {
+  string feed_id = 1;
+  EpochAndRound epoch_and_round = 2;
+}
+
+message FeedLatestAggregatorRoundIDs {
+  string feed_id = 1;
+  uint64 aggregator_round_id = 2;
+}
+
+message RewardPool {
+  string feed_id = 1;
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+}
+
+message FeedCounts {
+  string feed_id = 1;
+  repeated Count counts = 2;
+}
+
+message Count {
+  string address = 1;
+  uint64 count = 2;
+}
+
+message PendingPayeeship {
+  string feed_id = 1;
+  string transmitter = 2;
+  string proposed_payee = 3;
+}
+

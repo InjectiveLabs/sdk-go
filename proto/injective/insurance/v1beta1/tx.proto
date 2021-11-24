@@ -1,0 +1,75 @@
+syntax = "proto3";
+package injective.insurance.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+import "injective/insurance/v1beta1/insurance.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
+
+// Msg defines the insurance Msg service.
+service Msg {
+
+  // CreateInsuranceFund defines a method for creating an insurance fund
+  rpc CreateInsuranceFund(MsgCreateInsuranceFund) returns (MsgCreateInsuranceFundResponse);
+
+  // Underwrite defines a method for depositing tokens to underwrite an insurance fund
+  rpc Underwrite(MsgUnderwrite) returns (MsgUnderwriteResponse);
+
+  // RequestRedemption defines a method for requesting a redemption of the sender's insurance fund tokens
+  rpc RequestRedemption(MsgRequestRedemption) returns (MsgRequestRedemptionResponse);
+}
+
+// MsgCreateInsuranceFund a message to create an insurance fund for a derivative market.
+message MsgCreateInsuranceFund {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  // Creator of the insurance fund.
+  string sender = 1;
+  // Ticker for the derivative market.
+  string ticker = 2;
+  // Coin denom to use for the market quote denom
+  string quote_denom = 3;
+  // Oracle base currency
+  string oracle_base = 4;
+  // Oracle quote currency
+  string oracle_quote = 5;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 6;
+  // Expiration time of the market. Should be -1 for perpetual markets.
+  int64 expiry = 7;
+  // Initial deposit of the insurance fund
+  cosmos.base.v1beta1.Coin initial_deposit = 8 [(gogoproto.nullable) = false];
+}
+
+message MsgCreateInsuranceFundResponse{}
+
+// MsgUnderwrite defines a message for depositing coins to underwrite an insurance fund
+message MsgUnderwrite {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  // Address of the underwriter.
+  string sender = 1;
+  // MarketID of the insurance fund.
+  string market_id = 2;
+  // Amount of quote_denom to underwrite the insurance fund.
+  cosmos.base.v1beta1.Coin deposit = 3 [(gogoproto.nullable) = false];
+}
+
+message MsgUnderwriteResponse{}
+
+// MsgRequestRedemption defines a message for requesting a redemption of the sender's insurance fund tokens
+message MsgRequestRedemption {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  // Address of the underwriter requesting a redemption.
+  string sender = 1;
+  // MarketID of the insurance fund.
+  string market_id = 2;
+  // Insurance fund share token amount to be redeemed.
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+}
+
+message MsgRequestRedemptionResponse{}
+

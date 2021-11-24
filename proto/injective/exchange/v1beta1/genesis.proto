@@ -1,0 +1,140 @@
+syntax = "proto3";
+package injective.exchange.v1beta1;
+
+import "injective/exchange/v1beta1/exchange.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
+
+// GenesisState defines the evm module's genesis state.
+message GenesisState {
+  // params defines all the parameters of related to exchange.
+  Params params = 1 [(gogoproto.nullable) = false];
+
+  // accounts is an array containing the genesis trade pairs
+  repeated SpotMarket spot_markets = 2;
+
+  // accounts is an array containing the genesis derivative markets
+  repeated DerivativeMarket derivative_markets = 3;
+
+  // spot_orderbook defines the spot exchange limit orderbook active at genesis.
+  repeated SpotOrderBook spot_orderbook = 4 [(gogoproto.nullable) = false];
+
+  // derivative_orderbook defines the derivative exchange limit orderbook active at genesis.
+  repeated DerivativeOrderBook derivative_orderbook = 5 [(gogoproto.nullable) = false];
+
+  // balances defines the exchange users balances active at genesis.
+  repeated Balance balances = 6 [(gogoproto.nullable) = false];
+
+  // positions defines the exchange derivative positions at genesis
+  repeated DerivativePosition positions = 7 [(gogoproto.nullable) = false];
+
+  // subaccount_trade_nonces defines the subaccount trade nonces for the subaccounts at genesis
+  repeated SubaccountNonce subaccount_trade_nonces = 8 [(gogoproto.nullable) = false];
+
+  // expiry_futures_market_info defines the market info for the expiry futures markets at genesis
+  repeated ExpiryFuturesMarketInfoState expiry_futures_market_info_state = 9 [(gogoproto.nullable) = false];
+
+  // perpetual_market_info defines the market info for the perpetual derivative markets at genesis
+  repeated PerpetualMarketInfo perpetual_market_info = 10 [(gogoproto.nullable) = false];
+
+  // perpetual_market_funding_state defines the funding state for the perpetual derivative markets at genesis
+  repeated PerpetualMarketFundingState perpetual_market_funding_state = 11 [(gogoproto.nullable) = false];
+
+  // derivative_market_settlement_scheduled defines the scheduled markets for settlement at genesis
+  repeated DerivativeMarketSettlementInfo derivative_market_settlement_scheduled = 12 [(gogoproto.nullable) = false];
+
+  bool is_spot_exchange_enabled = 13;
+  bool is_derivatives_exchange_enabled = 14;
+
+  TradingRewardCampaignInfo trading_reward_campaign_info = 15;
+  repeated CampaignRewardPool trading_reward_pool_campaign_schedule = 16;
+  repeated TradingRewardCampaignAccountPoints trading_reward_campaign_account_points = 17;
+
+  FeeDiscountSchedule fee_discount_schedule = 18;
+  repeated FeeDiscountAccountTierTTL fee_discount_account_tier_ttl = 19;
+  repeated FeeDiscountBucketFeesPaidAccounts fee_discount_bucket_fees_paid_accounts = 20;
+  bool is_first_fee_cycle_finished = 21;
+}
+
+message FeeDiscountAccountTierTTL {
+  string account = 1;
+  FeeDiscountTierTTL tier_ttl = 2;
+}
+
+message FeeDiscountBucketFeesPaidAccounts {
+  int64 bucket_start_timestamp = 1;
+  repeated AccountFeesPaid account_fees_paid = 2;
+}
+
+message AccountFeesPaid {
+  string account = 1;
+  string fees_paid = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message TradingRewardCampaignAccountPoints {
+  string account = 1;
+  string points = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// Spot Exchange Limit Orderbook
+message SpotOrderBook {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string market_id = 1;
+  bool isBuySide = 2;
+  repeated SpotLimitOrder orders = 3;
+}
+
+// Spot Exchange Limit Orderbook
+message DerivativeOrderBook {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string market_id = 1;
+  bool isBuySide = 2;
+  repeated DerivativeLimitOrder orders = 3;
+}
+
+message Balance {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string subaccount_id = 1;
+  string denom = 2;
+  Deposit deposits = 3;
+}
+
+message DerivativePosition {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string subaccount_id = 1;
+  string market_id = 2;
+  Position position = 3;
+}
+
+message SubaccountNonce {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string subaccount_id = 1;
+  SubaccountTradeNonce subaccount_trade_nonce = 2 [(gogoproto.nullable) = false];
+}
+
+message ExpiryFuturesMarketInfoState {
+  string market_id = 1;
+  ExpiryFuturesMarketInfo market_info = 2;
+}
+
+message PerpetualMarketFundingState {
+  string market_id = 1;
+  PerpetualMarketFunding funding = 2;
+}

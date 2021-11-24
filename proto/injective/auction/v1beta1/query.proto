@@ -1,0 +1,71 @@
+syntax = "proto3";
+package injective.auction.v1beta1;
+
+import "google/api/annotations.proto";
+import "injective/auction/v1beta1/auction.proto";
+import "injective/auction/v1beta1/genesis.proto";
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/auction/types";
+
+// Query defines the gRPC querier service.
+service Query {
+
+  // Retrieves auction params
+  rpc AuctionParams(QueryAuctionParamsRequest) returns (QueryAuctionParamsResponse) {
+    option (google.api.http).get = "/injective/auction/v1beta1/params";
+  }
+
+  // Retrieves current auction basket with current highest bid and bidder
+  rpc CurrentAuctionBasket(QueryCurrentAuctionBasketRequest) returns (QueryCurrentAuctionBasketResponse) {
+    option (google.api.http).get = "/injective/auction/v1beta1/basket";
+  };
+
+  // Retrieves the entire auction module's state
+  rpc AuctionModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+    option (google.api.http).get = "/injective/auction/v1beta1/module_state";
+  }
+
+}
+
+// QueryAuctionParamsRequest is the request type for the Query/AuctionParams RPC method.
+message QueryAuctionParamsRequest {}
+
+// QueryAuctionParamsRequest is the response type for the Query/AuctionParams RPC method.
+message QueryAuctionParamsResponse {
+  Params params = 1 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryCurrentAuctionBasketRequest is the request type for the Query/CurrentAuctionBasket RPC method.
+message QueryCurrentAuctionBasketRequest {}
+
+// QueryCurrentAuctionBasketResponse is the response type for the Query/CurrentAuctionBasket RPC method.
+message QueryCurrentAuctionBasketResponse {
+  // amount describes the amount put on auction
+  repeated cosmos.base.v1beta1.Coin amount = 1 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable) = false
+  ];
+  // auctionRound describes current auction round
+  uint64 auctionRound = 2;
+  // auctionClosingTime describes auction close time for the round
+  int64 auctionClosingTime = 3;
+  // highestBidder describes highest bidder on current round
+  string highestBidder = 4;
+  // highestBidAmount describes highest bid amount on current round
+  string highestBidAmount = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+
+// QueryModuleStateRequest is the request type for the Query/AuctionModuleState RPC method.
+message QueryModuleStateRequest {}
+
+// QueryModuleStateResponse is the response type for the Query/AuctionModuleState RPC method.
+message QueryModuleStateResponse {
+  GenesisState state = 1;
+}

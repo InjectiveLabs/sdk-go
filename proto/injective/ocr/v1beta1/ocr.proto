@@ -1,0 +1,317 @@
+syntax = "proto3";
+package injective.ocr.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ocr/types";
+
+message Params {
+  option (gogoproto.equal) = true;
+
+  // Native denom for LINK coin in the bank keeper
+  string link_denom = 1;
+  // The block number interval at which payouts are made
+  uint64 payout_block_interval = 2;
+  // The admin for the OCR module
+  string module_admin = 3;
+}
+
+message FeedConfig {
+  // signers ith element is address ith oracle uses to sign a report
+  repeated string signers = 1;
+
+  // transmitters ith element is address ith oracle uses to transmit a report via the transmit method
+  repeated string transmitters = 2;
+
+  // f maximum number of faulty/dishonest oracles the protocol can tolerate while still working correctly
+  uint32 f = 3;
+
+  // onchain_config serialized data with reporting plugin params on chain.
+  bytes onchain_config = 4;
+
+  // offchain_config_version version of the serialization format used for "offchain_config" parameter
+  uint64 offchain_config_version = 5;
+
+  // offchain_config serialized data used by oracles to configure their offchain operation
+  bytes offchain_config = 6;
+
+  // feed-specific params for the Cosmos module.
+  ModuleParams module_params = 7;
+}
+
+message FeedConfigInfo {
+  bytes latest_config_digest = 1;
+  uint32 f = 2;
+  uint32 n = 3;
+  // config_count ordinal number of this config setting among all config settings
+  uint64 config_count = 4;
+  int64 latest_config_block_number = 5;
+}
+
+message ModuleParams {
+  // feed_id is an unique ID for the target of this config
+  string feed_id = 1;
+
+  // lowest answer the median of a report is allowed to be
+  string min_answer = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // highest answer the median of a report is allowed to be
+  string max_answer = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Fixed LINK reward for each observer
+  string link_per_observation = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // Fixed LINK reward for transmitter
+  string link_per_transmission = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // Native denom for LINK coin in the bank keeper
+  string link_denom = 6;
+
+  // Enables unique reports
+  bool unique_reports = 7;
+
+  // short human-readable description of observable this feed's answers pertain to
+  string description = 8;
+
+  // feed administrator
+  string feed_admin = 9;
+
+  // feed billing administrator
+  string billing_admin = 10;
+}
+
+message ContractConfig {
+  // config_count ordinal number of this config setting among all config settings
+  uint64 config_count = 1;
+
+  // signers ith element is address ith oracle uses to sign a report
+  repeated string signers = 2;
+
+  // transmitters ith element is address ith oracle uses to transmit a report via the transmit method
+  repeated string transmitters = 3;
+
+  // f maximum number of faulty/dishonest oracles the protocol can tolerate while still working correctly
+  uint32 f = 4;
+
+  // onchain_config serialized data with reporting plugin params on chain.
+  bytes onchain_config = 5;
+
+  // offchain_config_version version of the serialization format used for "offchain_config" parameter
+  uint64 offchain_config_version = 6;
+
+  // offchain_config serialized data used by oracles to configure their offchain operation
+  bytes offchain_config = 7;
+}
+
+message SetConfigProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  FeedConfig config = 3;
+}
+
+message FeedProperties {
+  // feed_id is an unique ID for the target of this config
+  string feed_id = 1;
+
+  // f maximum number of faulty/dishonest oracles the protocol can tolerate while still working correctly
+  uint32 f = 2;
+
+  // onchain_config serialized data with reporting plugin params on chain.
+  bytes onchain_config = 3;
+
+  // offchain_config_version version of the serialization format used for "offchain_config" parameter
+  uint64 offchain_config_version = 4;
+
+  // offchain_config serialized data used by oracles to configure their offchain operation
+  bytes offchain_config = 5;
+
+  // lowest answer the median of a report is allowed to be
+  string min_answer = 6[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // highest answer the median of a report is allowed to be
+  string max_answer = 7[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Fixed LINK reward for each observer
+  string link_per_observation = 8[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // Fixed LINK reward for transmitter
+  string link_per_transmission = 9[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // Enables unique reports
+  bool unique_reports = 10;
+
+  // short human-readable description of observable this feed's answers pertain to
+  string description = 11;
+}
+
+message SetBatchConfigProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+
+  // signers ith element is address ith oracle uses to sign a report
+  repeated string signers = 3;
+
+  // transmitters ith element is address ith oracle uses to transmit a report via the transmit method
+  repeated string transmitters = 4;
+
+  // Native denom for LINK coin in the bank keeper
+  string link_denom = 5;
+
+  // feed properties
+  repeated FeedProperties feed_properties = 6;
+}
+
+message OracleObservationsCounts {
+  repeated uint32 counts = 1;
+}
+
+// LINK-INJ-denominated reimbursements for gas used by transmitters.
+message GasReimbursements {
+  repeated cosmos.base.v1beta1.Coin reimbursements = 1;
+}
+
+message Payee {
+  string transmitter_addr = 1;
+  string payment_addr = 2;
+}
+
+// Transmission records the median answer from the transmit transaction at
+// time timestamp
+message Transmission {
+  string answer = 1[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  int64 observations_timestamp = 2; // when were observations made offchain
+  int64 transmission_timestamp = 3; // when was report received onchain
+}
+
+message EpochAndRound {
+  uint64 epoch = 1;
+  uint64 round = 2;
+}
+
+message Report {
+  int64 observations_timestamp = 1;
+  bytes observers = 2; // ith element is the index of the ith observer
+  repeated string observations = 3[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ]; // ith element is the ith observation
+}
+
+message ReportToSign {
+  bytes config_digest = 1;
+  uint64 epoch = 2;
+  uint64 round = 3;
+  bytes extra_hash = 4;
+
+  // Opaque report
+  bytes report = 5;
+}
+
+message EventOraclePaid {
+  string transmitter_addr = 1;
+  string payee_addr = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventAnswerUpdated {
+  string current = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  string round_id = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  google.protobuf.Timestamp updated_at = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventNewRound {
+  string round_id = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // address of starter
+  string started_by = 2;
+
+  google.protobuf.Timestamp started_at = 3 [
+    (gogoproto.stdtime) = true,
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventTransmitted {
+  bytes config_digest = 1;
+  uint64 epoch = 2;
+}
+
+message EventNewTransmission {
+  string feed_id = 1;
+  uint32 aggregator_round_id = 2;
+  string answer = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string transmitter = 4;
+  int64 observations_timestamp = 5;
+  repeated string observations = 6[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  bytes observers = 7;
+  bytes config_digest = 8;
+  EpochAndRound epoch_and_round = 9;
+}
+
+message EventConfigSet {
+  // hash of the config
+  bytes config_digest = 1;
+  // previous_config_block_number block in which the previous config was set, to simplify historic analysis
+  int64 previous_config_block_number = 2;
+
+  FeedConfig config = 3;
+  FeedConfigInfo config_info = 4;
+}

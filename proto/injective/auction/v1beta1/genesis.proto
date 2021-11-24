@@ -1,0 +1,22 @@
+syntax = "proto3";
+package injective.auction.v1beta1;
+
+import "injective/auction/v1beta1/auction.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/auction/types";
+
+// GenesisState defines the auction module's genesis state.
+message GenesisState {
+  // params defines all the parameters of related to auction.
+  Params params = 1 [(gogoproto.nullable) = false];
+
+  // current auction round
+  uint64 auction_round = 2;
+
+  // current highest bid
+  Bid highest_bid = 3;
+
+  // auction ending timestamp
+  int64 auction_ending_timestamp = 4;
+}

@@ -1,0 +1,77 @@
+syntax = "proto3";
+package injective.oracle.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
+
+// Msg defines the oracle Msg service.
+service Msg {
+
+  // RelayPriceFeedPrice defines a method for relaying a price for a price feeder-based oracle
+  rpc RelayPriceFeedPrice(MsgRelayPriceFeedPrice) returns (MsgRelayPriceFeedPriceResponse);
+
+  // RelayBandRates defines a method for relaying rates from Band
+  rpc RelayBandRates(MsgRelayBandRates) returns (MsgRelayBandRatesResponse);
+
+  // RequestBandIBCRates defines a method for fetching rates from Band ibc
+  rpc RequestBandIBCRates(MsgRequestBandIBCRates) returns (MsgRequestBandIBCRatesResponse); 
+
+  // RelayCoinbaseMessages defines a method for relaying price messages from Coinbase API
+  rpc RelayCoinbaseMessages(MsgRelayCoinbaseMessages) returns (MsgRelayCoinbaseMessagesResponse);
+}
+
+// MsgRelayPriceFeedPrice defines a SDK message for setting a price through the pricefeed oracle.
+message MsgRelayPriceFeedPrice {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+
+  repeated string base = 2;
+  repeated string quote = 3;
+
+  // price defines the price of the oracle base and quote
+  repeated string price = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MsgRelayPriceFeedPriceResponse{}
+
+message MsgRelayBandRates {
+  string relayer = 1;
+  repeated string symbols = 2;
+  repeated uint64 rates = 3;
+  repeated uint64 resolve_times = 4;
+  repeated uint64 requestIDs = 5;
+}
+
+message MsgRelayBandRatesResponse{}
+
+// MsgRelayCoinbaseMessages defines a SDK message for relaying price messages from Coinbase API.
+message MsgRelayCoinbaseMessages {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+
+  repeated bytes messages = 2;
+  repeated bytes signatures = 3;
+}
+
+message MsgRelayCoinbaseMessagesResponse{}
+
+// MsgRequestBandIBCRates defines a SDK message for requesting data from BandChain using IBC.
+message MsgRequestBandIBCRates {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string sender = 1;
+  uint64 request_id = 2;  
+
+}
+
+// MsgRequestDataResponse defines the Msg/RequestBandIBCRates response type.
+message MsgRequestBandIBCRatesResponse {}
+

@@ -1,0 +1,417 @@
+syntax = "proto3";
+package injective.exchange.v1beta1;
+
+import "google/api/annotations.proto";
+import "injective/exchange/v1beta1/exchange.proto";
+import "injective/exchange/v1beta1/genesis.proto";
+import "gogoproto/gogo.proto";
+
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
+
+// Query defines the gRPC querier service.
+service Query {
+
+  // Retrieves exchange params
+  rpc QueryExchangeParams(QueryExchangeParamsRequest) returns (QueryExchangeParamsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchangeParams";
+  }
+
+  // Retrieves a Subaccount's Deposits
+  rpc SubaccountDeposits(QuerySubaccountDepositsRequest) returns (QuerySubaccountDepositsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/subaccountDeposits";
+  }
+
+  // Retrieves a Subaccount's Deposits
+  rpc SubaccountDeposit(QuerySubaccountDepositRequest) returns (QuerySubaccountDepositResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/subaccountDeposit";
+  }
+
+  // Retrieves all of the balances of all users on the exchange.
+  rpc ExchangeBalances(QueryExchangeBalancesRequest) returns (QueryExchangeBalancesResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/exchangeBalances";
+  }
+
+  // Retrieves a list of spot markets.
+  rpc SpotMarkets(QuerySpotMarketsRequest) returns (QuerySpotMarketsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/spot/markets";
+  }
+
+  // Retrieves a spot market by ticker
+  rpc SpotMarket(QuerySpotMarketRequest) returns (QuerySpotMarketResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/spot/markets/{market_id}";
+  }
+
+  // Retrieves a spot market's orderbook by marketID
+  rpc SpotOrderbook(QuerySpotOrderbookRequest) returns (QuerySpotOrderbookResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/spot/orderbook/{market_id}";
+  }
+
+  // Retrieves a trader's spot orders
+  rpc TraderSpotOrders(QueryTraderSpotOrdersRequest) returns (QueryTraderSpotOrdersResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/spot/orders/{market_id}/{subaccount_id}";
+  }
+
+  // Retrieves a derivative market's orderbook by marketID
+  rpc DerivativeOrderbook(QueryDerivativeOrderbookRequest) returns (QueryDerivativeOrderbookResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/orderbook/{market_id}";
+  }
+
+  // Retrieves a trader's derivative orders
+  rpc TraderDerivativeOrders(QueryTraderDerivativeOrdersRequest) returns (QueryTraderDerivativeOrdersResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/orders/{market_id}/{subaccount_id}";
+  }
+
+  // Retrieves a list of derivative markets.
+  rpc DerivativeMarkets(QueryDerivativeMarketsRequest) returns (QueryDerivativeMarketsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/markets";
+  }
+
+  // Retrieves a derivative market by ticker
+  rpc DerivativeMarket(QueryDerivativeMarketRequest) returns (QueryDerivativeMarketResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/markets/{market_id}";
+  }
+
+  // Retrieves a subaccount's trade nonce
+  rpc SubaccountTradeNonce(QuerySubaccountTradeNonceRequest) returns (QuerySubaccountTradeNonceResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/{subaccount_id}";
+  }
+
+  // Retrieves the entire exchange module's state
+  rpc ExchangeModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/module_state";
+  }
+
+  // Retrieves the entire exchange module's positions
+  rpc Positions(QueryPositionsRequest) returns (QueryPositionsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/positions";
+  }
+
+  // Retrieves subaccount's positions
+  rpc SubaccountPositions(QuerySubaccountPositionsRequest) returns (QuerySubaccountPositionsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/positions/{subaccount_id}";
+  }
+
+  // Retrieves the account and total liquidity mining points
+  rpc TradeRewardPoints(QueryTradeRewardPointsRequest) returns (QueryTradeRewardPointsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/trade_reward_points";
+  }
+
+  // Retrieves the trade reward campaign
+  rpc TradeRewardCampaign(QueryTradeRewardCampaignRequest) returns (QueryTradeRewardCampaignResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/trade_reward_campaign";
+  }
+
+  // Retrieves the account's fee discount info
+  rpc FeeDiscountAccountInfo(QueryFeeDiscountAccountInfoRequest) returns (QueryFeeDiscountAccountInfoResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/fee_discount_account_info/{account}";
+  }
+
+  // Retrieves the fee discount schedule
+  rpc FeeDiscountSchedule(QueryFeeDiscountScheduleRequest) returns (QueryFeeDiscountScheduleResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/fee_discount_schedule";
+  }
+}
+
+message Subaccount {
+  string trader = 1;
+  uint32 subaccount_nonce = 2;
+}
+
+// QueryExchangeParamsRequest is the request type for the Query/ExchangeParams RPC method.
+message QueryExchangeParamsRequest {}
+
+// QueryExchangeParamsRequest is the response type for the Query/ExchangeParams RPC method.
+message QueryExchangeParamsResponse {
+  Params params = 1 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QuerySubaccountDepositsRequest is the request type for the Query/SubaccountDeposits RPC method.
+message QuerySubaccountDepositsRequest {
+  string subaccount_id = 1;
+  Subaccount subaccount = 2[
+    (gogoproto.nullable) = true
+  ];
+}
+
+// QuerySubaccountDepositsResponse is the response type for the Query/SubaccountDeposits RPC method.
+message QuerySubaccountDepositsResponse {
+  map<string, Deposit> deposits = 1;
+}
+
+// QueryExchangeBalancesRequest is the request type for the Query/ExchangeBalances RPC method.
+message QueryExchangeBalancesRequest {}
+
+// QuerySubaccountDepositsResponse is the response type for the Query/SubaccountDeposits RPC method.
+message QueryExchangeBalancesResponse {
+  repeated Balance balances = 1 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QuerySubaccountDepositsRequest is the request type for the Query/SubaccountDeposits RPC method.
+message QuerySubaccountDepositRequest {
+  string subaccount_id = 1;
+  string denom = 2;
+}
+
+// QuerySubaccountDepositsResponse is the response type for the Query/SubaccountDeposits RPC method.
+message QuerySubaccountDepositResponse {
+  Deposit deposits = 1;
+}
+
+// QuerySpotMarketsRequest is the request type for the Query/SpotMarkets RPC method.
+message QuerySpotMarketsRequest {
+  // Status of the market, for convenience it is set to string - not enum
+  string status = 1;
+}
+
+// QuerySpotMarketsResponse is the response type for the Query/SpotMarkets RPC method.
+message QuerySpotMarketsResponse {
+  repeated SpotMarket markets = 1;
+}
+
+// QuerySpotMarketRequest is the request type for the Query/SpotMarket RPC method.
+message QuerySpotMarketRequest {
+  // Market ID for the market
+  string market_id = 1;
+}
+
+// QuerySpotMarketResponse is the response type for the Query/SpotMarket RPC method.
+message QuerySpotMarketResponse {
+  SpotMarket market = 1;
+}
+
+// QuerySpotOrderbookRequest is the request type for the Query/SpotOrderbook RPC method.
+message QuerySpotOrderbookRequest {
+  // Market ID for the market
+  string market_id = 1;
+  uint64 limit = 2;
+}
+
+// QuerySpotOrderbookResponse is the response type for the Query/SpotOrderbook RPC method.
+message QuerySpotOrderbookResponse {
+  repeated PriceLevel buys_price_level = 1;
+  repeated PriceLevel sells_price_level = 2;
+}
+
+// QueryTraderSpotOrdersRequest is the request type for the Query/TraderSpotOrders RPC method.
+message QueryTraderSpotOrdersRequest {
+  // Market ID for the market
+  string market_id = 1;
+  // SubaccountID of the trader
+  string subaccount_id = 2;
+}
+
+message TrimmedSpotLimitOrder {
+  // price of the order
+  string price = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // quantity of the order
+  string quantity = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // the amount of the quantity remaining fillable
+  string fillable = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // true if the order is a buy
+  bool isBuy = 4;
+  string order_hash = 5;
+}
+
+// QueryTraderSpotOrdersResponse is the response type for the Query/TraderSpotOrders RPC method.
+message QueryTraderSpotOrdersResponse {
+  repeated TrimmedSpotLimitOrder orders = 1;
+}
+
+
+// QueryDerivativeOrderbookRequest is the request type for the Query/DerivativeOrderbook RPC method.
+message QueryDerivativeOrderbookRequest {
+  // Market ID for the market
+  string market_id = 1;
+  uint64 limit = 2;
+}
+
+// QueryDerivativeOrderbookResponse is the response type for the Query/DerivativeOrderbook RPC method.
+message QueryDerivativeOrderbookResponse {
+  repeated PriceLevel buys_price_level = 1;
+  repeated PriceLevel sells_price_level = 2;
+}
+
+// QueryTraderDerivativeOrdersRequest is the request type for the Query/TraderDerivativeOrders RPC method.
+message QueryTraderDerivativeOrdersRequest {
+  // Market ID for the market
+  string market_id = 1;
+  // SubaccountID of the trader
+  string subaccount_id = 2;
+}
+
+message TrimmedDerivativeLimitOrder {
+  // price of the order
+  string price = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // quantity of the order
+  string quantity = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // margin of the order
+  string margin = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // the amount of the quantity remaining fillable
+  string fillable = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // true if the order is a buy
+  bool isBuy = 5;
+  string order_hash = 6;
+}
+
+// QueryTraderDerivativeOrdersResponse is the response type for the Query/TraderDerivativeOrders RPC method.
+message QueryTraderDerivativeOrdersResponse {
+  repeated TrimmedDerivativeLimitOrder orders = 1;
+}
+
+// QueryDerivativeMarketsRequest is the request type for the Query/DerivativeMarkets RPC method.
+message QueryDerivativeMarketsRequest {
+  // Status of the market, for convenience it is set to string - not enum
+  string status = 1;
+}
+
+message PriceLevel {
+  string price = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // quantity
+  string quantity = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message PerpetualMarketState {
+  PerpetualMarketInfo market_info = 1;
+  PerpetualMarketFunding funding_info = 2;
+}
+
+message FullDerivativeMarket {
+  DerivativeMarket market = 1;
+  oneof info {
+    PerpetualMarketState perpetual_info = 2;
+    ExpiryFuturesMarketInfo futures_info = 3;
+  }
+  string mark_price = 4[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryDerivativeMarketsResponse is the response type for the Query/DerivativeMarkets RPC method.
+message QueryDerivativeMarketsResponse {
+  repeated FullDerivativeMarket markets = 1;
+}
+
+// QueryDerivativeMarketRequest is the request type for the Query/DerivativeMarket RPC method.
+message QueryDerivativeMarketRequest {
+  // Market ID for the market
+  string market_id = 1;
+}
+
+// QueryDerivativeMarketResponse is the response type for the Query/DerivativeMarket RPC method.
+message QueryDerivativeMarketResponse {
+  FullDerivativeMarket market = 1;
+}
+
+// QuerySubaccountTradeNonceRequest is the request type for the Query/SubaccountTradeNonce RPC method.
+message QuerySubaccountTradeNonceRequest {
+  string subaccount_id = 1;
+}
+
+// QuerySubaccountPositionsRequest is the request type for the Query/SubaccountPositions RPC method.
+message QuerySubaccountPositionsRequest {
+  string subaccount_id = 1;
+}
+
+// QuerySubaccountPositionsResponse is the response type for the Query/SubaccountPositions RPC method.
+message QuerySubaccountPositionsResponse {
+  repeated DerivativePosition state = 1[(gogoproto.nullable) = false];
+}
+
+// QuerySubaccountTradeNonceResponse is the response type for the Query/SubaccountTradeNonce RPC method.
+message QuerySubaccountTradeNonceResponse {
+  uint32 nonce = 1;
+}
+
+// QueryModuleStateRequest is the request type for the Query/ExchangeModuleState RPC method.
+message QueryModuleStateRequest {}
+
+// QueryModuleStateResponse is the response type for the Query/ExchangeModuleState RPC method.
+message QueryModuleStateResponse {
+  GenesisState state = 1;
+}
+
+// QueryPositionsRequest is the request type for the Query/Positions RPC method.
+message QueryPositionsRequest {}
+
+// QueryPositionsResponse is the response type for the Query/Positions RPC method.
+message QueryPositionsResponse {
+  repeated DerivativePosition state = 1[(gogoproto.nullable) = false];
+}
+
+// QueryTradeRewardPointsRequest is the request type for the Query/TradeRewardPoints RPC method.
+message QueryTradeRewardPointsRequest {
+  repeated string accounts = 1;
+}
+
+// QueryTradeRewardPointsResponse is the response type for the Query/LiquidityMiningPoints RPC method.
+message QueryTradeRewardPointsResponse {
+  repeated string account_trade_reward_points = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryTradeRewardCampaignRequest is the request type for the Query/TradeRewardCampaign RPC method.
+message QueryTradeRewardCampaignRequest {}
+
+// QueryTradeRewardCampaignResponse is the response type for the Query/TradeRewardCampaign RPC method.
+message QueryTradeRewardCampaignResponse {
+  TradingRewardCampaignInfo trading_reward_campaign_info = 1;
+  repeated CampaignRewardPool trading_reward_pool_campaign_schedule = 2;
+  string total_trade_reward_points = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryFeeDiscountAccountInfoRequest is the request type for the Query/FeeDiscountAccountInfo RPC method.
+message QueryFeeDiscountAccountInfoRequest {
+  string account = 1;
+}
+
+// QueryFeeDiscountAccountInfoResponse is the response type for the Query/FeeDiscountAccountInfo RPC method.
+message QueryFeeDiscountAccountInfoResponse {
+  uint64 tier_level = 1;
+  FeeDiscountTierInfo account_info = 2;
+}
+
+// QueryFeeDiscountScheduleRequest is the request type for the Query/FeeDiscountSchedule RPC method.
+message QueryFeeDiscountScheduleRequest {}
+
+// QueryFeeDiscountScheduleResponse is the response type for the Query/FeeDiscountSchedule RPC method.
+message QueryFeeDiscountScheduleResponse {
+  FeeDiscountSchedule fee_discount_schedule = 1;
+}

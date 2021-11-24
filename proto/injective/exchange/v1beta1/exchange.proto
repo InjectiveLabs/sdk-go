@@ -1,0 +1,775 @@
+syntax = "proto3";
+package injective.exchange.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
+
+message Params {
+  option (gogoproto.equal) = true;
+
+  // spot_market_instant_listing_fee defines the expedited fee in INJ required to create a spot market by bypassing governance
+  cosmos.base.v1beta1.Coin spot_market_instant_listing_fee = 1 [
+    (gogoproto.nullable) = false
+  ];
+
+  // derivative_market_instant_listing_fee defines the expedited fee in INJ required to create a derivative market by bypassing governance
+  cosmos.base.v1beta1.Coin derivative_market_instant_listing_fee = 2 [
+    (gogoproto.nullable) = false
+  ];
+
+  // default_spot_maker_fee defines the default exchange trade fee for makers on a spot market
+  string default_spot_maker_fee_rate = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_spot_taker_fee_rate defines the default exchange trade fee rate for takers on a new spot market
+  string default_spot_taker_fee_rate = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_derivative_maker_fee defines the default exchange trade fee for makers on a new derivative market
+  string default_derivative_maker_fee_rate = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_derivative_taker_fee defines the default exchange trade fee for takers on a new derivative market
+  string default_derivative_taker_fee_rate = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_initial_margin_ratio defines the default initial margin ratio on a new derivative market
+  string default_initial_margin_ratio = 7 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_maintenance_margin_ratio defines the default maintenance margin ratio on a new derivative market
+  string default_maintenance_margin_ratio = 8 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_funding_interval defines the default funding interval on a derivative market
+  int64 default_funding_interval = 9;
+
+  // funding_multiple defines the timestamp multiple that the funding timestamp should be a multiple of
+  int64 funding_multiple = 10;
+
+  // relayer_fee_share_rate defines the trade fee share percentage that goes to relayers
+  string relayer_fee_share_rate = 11 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_hourly_funding_rate_cap defines the default maximum absolute value of the hourly funding rate
+  string default_hourly_funding_rate_cap = 12 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // hourly_interest_rate defines the hourly interest rate
+  string default_hourly_interest_rate = 13 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // max_derivative_order_side_count defines the maximum number of derivative active orders a subaccount can have for a given orderbook side
+  uint32 max_derivative_order_side_count = 14;
+}
+
+enum MarketStatus {
+  Unspecified = 0;
+  Active = 1;
+  Paused = 2;
+  Suspended = 3;
+  Demolished = 4;
+  Expired = 5;
+}
+
+// An object describing a derivative market in the Injective Futures Protocol.
+message DerivativeMarket {
+  // Ticker for the derivative contract.
+  string ticker = 1;
+  // Oracle base currency
+  string oracle_base = 2;
+  // Oracle quote currency
+  string oracle_quote = 3;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 4;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 5;
+  // Address of the quote currency denomination for the derivative contract
+  string quote_denom = 6;
+  // Unique market ID.
+  string market_id = 7;
+  // initial_margin_ratio defines the initial margin ratio of a derivative market
+  string initial_margin_ratio = 8 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // maintenance_margin_ratio defines the maintenance margin ratio of a derivative market
+  string maintenance_margin_ratio = 9 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // maker_fee_rate defines the maker fee rate of a derivative market
+  string maker_fee_rate = 10 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // taker_fee_rate defines the taker fee rate of a derivative market
+  string taker_fee_rate = 11 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // relayer_fee_share_rate defines the percentage of the transaction fee shared with the relayer in a derivative market
+  string relayer_fee_share_rate = 12 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // true if the market is a perpetual market. false if the market is an expiry futures market
+  bool isPerpetual = 13;
+  // Status of the market
+  MarketStatus status = 14;
+  // min_price_tick_size defines the minimum tick size that the price and margin required for orders in the market
+  string min_price_tick_size = 15 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity required for orders in the market
+  string min_quantity_tick_size = 16 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+}
+
+message ExpiryFuturesMarketInfo {
+  // market ID.
+  string market_id = 1;
+  // expiration_timestamp defines the expiration time for a time expiry futures market.
+  int64 expiration_timestamp = 2;
+  // expiration_twap_start_timestamp defines the start time of the TWAP calculation window
+  int64 twap_start_timestamp = 3;
+  // expiration_twap_start_price_cumulative defines the cumulative price for the start of the TWAP window
+  string expiration_twap_start_price_cumulative = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // settlement_price defines the settlement price for a time expiry futures market.
+  string settlement_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message PerpetualMarketInfo {
+  // market ID.
+  string market_id = 1;
+  // hourly_funding_rate_cap defines the maximum absolute value of the hourly funding rate
+  string hourly_funding_rate_cap = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // hourly_interest_rate defines the hourly interest rate
+  string hourly_interest_rate = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // next_funding_timestamp defines the next funding timestamp in seconds of a perpetual market
+  int64 next_funding_timestamp = 4;
+  // funding_interval defines the next funding interval in seconds of a perpetual market.
+  int64 funding_interval = 5;
+}
+
+message PerpetualMarketFunding {
+  // cumulative_funding defines the cumulative funding of a perpetual market.
+  string cumulative_funding = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // cumulative_price defines the cumulative price for the current hour up to the last timestamp
+  string cumulative_price = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  int64 last_timestamp = 3;
+}
+
+message DerivativeMarketSettlementInfo {
+  // market ID.
+  string market_id = 1;
+  // settlement_price defines the settlement price
+  string settlement_price = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // starting_deficit defines starting deficit
+  string starting_deficit = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message NextFundingTimestamp {
+  int64 next_timestamp = 1;
+}
+
+// An object describing trade pair of two assets.
+message SpotMarket {
+  // A name of the pair in format AAA/BBB, where AAA is base asset, BBB is quote asset.
+  string ticker = 1;
+  // Coin denom used for the base asset
+  string base_denom = 2;
+  // Coin used for the quote asset
+  string quote_denom = 3;
+  // maker_fee_rate defines the fee percentage makers pay when trading
+  string maker_fee_rate = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // taker_fee_rate defines the fee percentage takers pay when trading
+  string taker_fee_rate = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // relayer_fee_share_rate defines the percentage of the transaction fee shared with the relayer in a derivative market
+  string relayer_fee_share_rate = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // Unique market ID.
+  string market_id = 7;
+  // Status of the market
+  MarketStatus status = 8;
+  // min_price_tick_size defines the minimum tick size that the price required for orders in the market
+  string min_price_tick_size = 9 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity required for orders in the market
+  string min_quantity_tick_size = 10 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// A subaccount's deposit for a given base currency
+message Deposit {
+  string available_balance = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string total_balance = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message SubaccountTradeNonce {
+  uint32 nonce = 1;
+}
+
+message OrderInfo {
+  // bytes32 subaccount ID that created the order
+  string subaccount_id = 1;
+  // address fee_recipient address that will receive fees for the order
+  string fee_recipient = 2;
+  // price of the order
+  string price = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // quantity of the order
+  string quantity = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+enum OrderType {
+  UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "UNSPECIFIED"];
+  BUY = 1 [(gogoproto.enumvalue_customname) = "BUY"];
+  SELL = 2 [(gogoproto.enumvalue_customname) = "SELL"];
+  STOP_BUY = 3 [(gogoproto.enumvalue_customname) = "STOP_BUY"];
+  STOP_SELL = 4 [(gogoproto.enumvalue_customname) = "STOP_SELL"];
+  TAKE_BUY = 5 [(gogoproto.enumvalue_customname) = "TAKE_BUY"];
+  TAKE_SELL = 6 [(gogoproto.enumvalue_customname) = "TAKE_SELL"];
+}
+
+message SpotOrder {
+  // market_id represents the unique ID of the market
+  string market_id = 1;
+  // order_info contains the information of the order
+  OrderInfo order_info = 2 [(gogoproto.nullable) = false];
+  // order types
+  OrderType order_type = 3;
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+}
+
+// A valid Spot limit order with Metadata.
+message SpotLimitOrder {
+  // order_info contains the information of the order
+  OrderInfo order_info = 1 [(gogoproto.nullable) = false];
+  // order types
+  OrderType order_type = 2;
+  // the amount of the quantity remaining fillable
+  string fillable = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  bytes order_hash = 5;
+}
+
+// A valid Spot market order with Metadata.
+message SpotMarketOrder {
+  // order_info contains the information of the order
+  OrderInfo order_info = 1 [(gogoproto.nullable) = false];
+  string balance_hold = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  bytes order_hash = 3;
+}
+
+message DerivativeOrder {
+  // market_id represents the unique ID of the market
+  string market_id = 1;
+  // order_info contains the information of the order
+  OrderInfo order_info = 2 [(gogoproto.nullable) = false];
+  // order types
+  OrderType order_type = 3;
+  // margin is the margin used by the limit order
+  string margin = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+}
+
+
+message SubaccountOrderbookMetadata {
+  uint32 vanilla_limit_order_count = 1;
+  uint32 reduce_only_limit_order_count = 2;
+  // AggregateReduceOnlyQuantity is the aggregate fillable quantity of the subaccount's reduce-only limit orders in the given direction.
+  string aggregate_reduce_only_quantity = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // AggregateVanillaQuantity is the aggregate fillable quantity of the subaccount's vanilla limit orders in the given direction.
+  string aggregate_vanilla_quantity = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message SubaccountOrder {
+  // price of the order
+  string price = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // the amount of the quantity remaining fillable
+  string quantity = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  bool isReduceOnly = 3;
+}
+
+// A valid Derivative limit order with Metadata.
+message DerivativeLimitOrder {
+  // order_info contains the information of the order
+  OrderInfo order_info = 1 [(gogoproto.nullable) = false];
+  // order types
+  OrderType order_type = 2;
+  // margin is the margin used by the limit order
+  string margin = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // the amount of the quantity remaining fillable
+  string fillable = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  bytes order_hash = 6;
+}
+
+// A valid Derivative market order with Metadata.
+message DerivativeMarketOrder {
+  // order_info contains the information of the order
+  OrderInfo order_info = 1 [(gogoproto.nullable) = false];
+  // order types
+  OrderType order_type = 2;
+  string margin = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string margin_hold = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  bytes order_hash = 6;
+}
+
+message Position {
+  bool isLong = 1;
+  string quantity = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string entry_price = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string margin = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string cumulative_funding_entry = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MarketOrderIndicator {
+  // market_id represents the unique ID of the market
+  string market_id = 1;
+  bool isBuy = 2;
+}
+
+message TradeLog {
+  string quantity = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string price = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // bytes32 subaccount ID that executed the trade
+  bytes subaccount_id = 3;
+  string fee = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  bytes order_hash = 5;
+}
+
+message PositionDelta {
+  bool is_long = 1;
+  string execution_quantity = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string execution_margin = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string execution_price = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message DerivativeTradeLog {
+  bytes subaccount_id = 1;
+  PositionDelta position_delta = 2;
+  string payout = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string fee = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  bytes order_hash = 5;
+}
+
+enum ExecutionType {
+  UnspecifiedExecutionType = 0;
+  Market = 1;
+  LimitFill = 2;
+  LimitMatchRestingOrder = 3;
+  LimitMatchNewOrder = 4;
+}
+
+message EventBatchSpotExecution {
+  string market_id = 1;
+  bool is_buy = 2;
+  ExecutionType executionType = 3;
+  repeated TradeLog trades = 4;
+}
+
+message EventBatchDerivativeExecution {
+  string market_id = 1;
+  bool is_buy = 2;
+  bool is_liquidation = 3;
+  // nil for time expiry futures
+  string cumulative_funding = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  ExecutionType executionType = 5;
+  repeated DerivativeTradeLog trades = 6;
+}
+
+message SubaccountPosition {
+  Position position = 1;
+  bytes subaccount_id = 2;
+}
+
+message EventBatchDerivativePosition {
+  string market_id = 1;
+  repeated SubaccountPosition positions = 2;
+}
+
+message EventDerivativeMarketPaused {
+  string market_id = 1;
+  string settle_price = 2;
+  string total_missing_funds = 3;
+  string missing_funds_rate = 4;
+}
+
+message EventNewSpotOrders {
+  string market_id = 1;
+  repeated SpotLimitOrder buy_orders = 2;
+  repeated SpotLimitOrder sell_orders = 3;
+}
+
+message EventNewDerivativeOrders {
+  string market_id = 1;
+  repeated DerivativeLimitOrder buy_orders = 2;
+  repeated DerivativeLimitOrder sell_orders = 3;
+}
+
+message EventCancelSpotOrder {
+  string market_id = 1;
+  SpotLimitOrder order = 2 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventSpotMarketUpdate {
+  SpotMarket market = 1 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventPerpetualMarketUpdate {
+  DerivativeMarket market = 1 [
+    (gogoproto.nullable) = false
+  ];
+  PerpetualMarketInfo perpetual_market_info = 2[
+    (gogoproto.nullable) = true
+  ];
+  PerpetualMarketFunding funding = 3[
+    (gogoproto.nullable) = true
+  ];
+}
+
+message EventExpiryFuturesMarketUpdate {
+  DerivativeMarket market = 1 [
+    (gogoproto.nullable) = false
+  ];
+  ExpiryFuturesMarketInfo expiry_futures_market_info = 3[
+    (gogoproto.nullable) = true
+  ];
+}
+
+message EventPerpetualMarketFundingUpdate {
+  string market_id = 1;
+  PerpetualMarketFunding funding = 2[
+    (gogoproto.nullable) = false
+  ];
+  bool is_hourly_funding = 3;
+  string funding_rate = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  string mark_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+}
+
+message EventSubaccountDeposit {
+  string src_address = 1;
+  bytes subaccount_id = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+}
+
+message EventSubaccountWithdraw {
+  bytes subaccount_id = 1;
+  string dst_address = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+}
+
+message EventSubaccountBalanceTransfer {
+  string src_subaccount_id = 1;
+  string dst_subaccount_id = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+}
+
+message SubaccountDeposit {
+  bytes subaccount_id = 1;
+  Deposit deposit = 2;
+}
+
+message DepositUpdate {
+  string denom = 1;
+  repeated SubaccountDeposit deposits = 2;
+}
+
+message EventBatchDepositUpdate {
+  repeated DepositUpdate deposit_updates = 1;
+}
+
+message DerivativeMarketOrderCancel {
+  DerivativeMarketOrder market_order = 1 [
+    (gogoproto.nullable) = true
+  ];
+  string cancel_quantity = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventCancelDerivativeOrder {
+  string market_id = 1;
+  bool isLimitCancel = 2;
+  DerivativeLimitOrder limit_order = 3 [
+    (gogoproto.nullable) = true
+  ];
+  DerivativeMarketOrderCancel market_order_cancel = 4 [
+    (gogoproto.nullable) = true
+  ];
+}
+
+message PointsMultiplier {
+  string maker_points_multiplier = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string taker_points_multiplier = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message TradingRewardCampaignBoostInfo {
+  repeated string boosted_spot_market_ids = 1;
+  repeated PointsMultiplier spot_market_multipliers = 2 [
+    (gogoproto.nullable) = false
+  ];
+  repeated string boosted_derivative_market_ids = 3;
+  repeated PointsMultiplier derivative_market_multipliers = 4 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+message CampaignRewardPool {
+  int64 start_timestamp = 1;
+  // max_campaign_rewards are the maximum reward amounts to be disbursed at the end of the campaign
+  repeated cosmos.base.v1beta1.Coin max_campaign_rewards = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+message TradingRewardCampaignInfo {
+  // number of seconds of the duration of each campaign
+  int64 campaign_duration_seconds = 1;
+  // the trading fee quote denoms which will be counted for the rewards
+  repeated string quote_denoms = 2;
+  // the optional boost info for markets
+  TradingRewardCampaignBoostInfo trading_reward_boost_info = 3;
+  // the marketIDs which are disqualified from being rewarded
+  repeated string disqualified_market_ids = 4;
+}
+
+message FeeDiscountTierInfo {
+  string maker_discount_rate = 1[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string taker_discount_rate = 2[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string staked_amount = 3[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  string fee_paid_amount = 4[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message FeeDiscountSchedule {
+  uint64 bucket_count = 1;
+  int64 bucket_duration = 2;
+  // the trading fee quote denoms which will be counted for the fee paid contribution
+  repeated string quote_denoms = 3;
+  // the fee discount tiers
+  repeated FeeDiscountTierInfo tier_infos = 4;
+  // the marketIDs which are disqualified from contributing to the fee paid amount
+  repeated string disqualified_market_ids = 5;
+}
+
+message FeeDiscountTierTTL {
+  uint64 tier = 1;
+  int64 ttl_timestamp = 2;
+}
+
+message EventFeeDiscountSchedule {
+  FeeDiscountSchedule schedule = 1;
+}
+
+message EventTradingRewardCampaignUpdate {
+  TradingRewardCampaignInfo campaign_info = 1;
+  repeated CampaignRewardPool campaign_reward_pools = 2;
+}
+
+message AccountRewards {
+  string account = 1;
+  repeated cosmos.base.v1beta1.Coin rewards = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+message EventTradingRewardDistribution {
+  repeated AccountRewards account_rewards = 1;
+}

@@ -1,0 +1,64 @@
+syntax = "proto3";
+package injective.auction.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/auction/types";
+
+message Params {
+  option (gogoproto.equal) = true;
+
+  // auction_period_duration defines the auction period duration
+  int64 auction_period = 1;
+  // min_next_bid_increment_rate defines the minimum increment rate for new bids
+  string min_next_bid_increment_rate = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message Bid {
+  string bidder = 1 [
+    (gogoproto.jsontag) = "bidder",
+    (gogoproto.moretags) = "yaml:\"bidder\""
+  ];
+
+  string amount = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventBid {
+  // bidder describes the address of bidder
+  string bidder = 1;
+  // amount describes the amount the bidder put on the auction
+  string amount = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+  // round defines the round number of auction
+  uint64 round = 3;
+}
+
+message EventAuctionResult {
+  // winner describes the address of the winner
+  string winner = 1;
+  // amount describes the amount the winner get from the auction
+  string amount = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+  // round defines the round number of auction
+  uint64 round = 3;
+}
+
+message EventAuctionStart {
+  // round defines the round number of auction
+  uint64 round = 1;
+  // ending_timestamp describes auction end time
+  int64 ending_timestamp = 2;
+  // new_basket describes auction module balance at the time of new auction start
+  repeated cosmos.base.v1beta1.Coin new_basket = 3 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}

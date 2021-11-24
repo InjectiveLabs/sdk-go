@@ -1,0 +1,246 @@
+syntax = "proto3";
+package injective.oracle.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
+
+message Params {
+    option (gogoproto.equal) = true;    
+}
+
+enum OracleType {
+    Unspecified = 0;
+    Band = 1;
+    PriceFeed = 2;
+    Coinbase = 3;
+    Chainlink = 4;
+    Razor = 5;
+    Dia = 6;
+    API3 = 7;
+    Uma = 8;
+    Pyth = 9;
+    BandIBC = 10;
+}
+
+message ChainlinkPriceState {
+    string feed_id = 1;
+    string answer = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    uint64 timestamp = 3;
+    PriceState price_state = 4 [(gogoproto.nullable) = false];
+}
+
+message BandPriceState {
+    string symbol = 1;
+    string rate = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+    uint64 resolve_time = 3;
+    uint64 request_ID = 4;
+    PriceState price_state = 5 [(gogoproto.nullable) = false];
+}
+
+// Event type upon set ref
+message SetBandPriceEvent {
+    string relayer = 1;
+    string symbol = 2;
+    string price = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    uint64 resolve_time = 4;
+    uint64 request_id = 5;
+}
+
+message SetBandIBCPriceEvent {
+    string relayer = 1;
+    repeated string symbols = 2;
+    repeated string prices = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    uint64 resolve_time = 4;
+    uint64 request_id = 5;
+    int64 client_id = 6;
+}
+
+message EventBandIBCAckSuccess {
+    string ack_result = 1;   
+    int64 client_id = 2; 
+}
+
+message EventBandIBCAckError {
+    string ack_error = 1;    
+    int64 client_id = 2;
+}
+
+message EventBandIBCResponseTimeout {    
+    int64 client_id = 1; 
+}
+
+
+// Event type for getting reference data
+message GetReferenceData {
+    string base_quote_symbol = 1;
+    string base_quote_rate = 2;
+    string last_update_base = 3;
+    string last_update_quote = 4;
+}
+
+message GrantBandOraclePrivilegeProposal {
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string title = 1;
+    string description = 2;
+    repeated string relayers = 3;
+}
+
+message RevokeBandOraclePrivilegeProposal {
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string title = 1;
+    string description = 2;
+    repeated string relayers = 3;
+}
+
+message GrantPriceFeederPrivilegeProposal {
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string title = 1;
+    string description = 2;
+    string base = 3;
+    string quote = 4;
+    repeated string relayers = 5;
+}
+
+message RevokePriceFeederPrivilegeProposal {
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string title = 1;
+    string description = 2;
+    string base = 3;
+    string quote = 4;
+    repeated string relayers = 5;
+}
+
+message PriceFeedState {
+    string base = 1;
+    string quote = 2;
+    PriceState price_state = 3;
+    repeated string relayers = 4;
+}
+
+message PriceFeedInfo {
+    string base = 1;
+    string quote = 2;
+}
+
+message PriceFeedPrice {
+    string price = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+}
+
+message SetPriceFeedPriceEvent {
+    string relayer = 1;
+
+    string base = 2;
+    string quote = 3;
+
+    // price defines the price of the oracle base and quote
+    string price = 4 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+}
+
+message CoinbasePriceState {
+    // kind should always be "prices"
+    string kind = 1;
+    // timestamp of the when the price was signed by coinbase
+    uint64 timestamp = 2;
+    // the symbol of the price, e.g. BTC
+    string key = 3;
+    // the value of the price scaled by 1e6
+    uint64 value = 4;
+    // the price state
+    PriceState price_state = 5 [(gogoproto.nullable) = false];
+}
+
+message SetCoinbasePriceEvent {
+    string symbol = 1;
+    string price = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    uint64 timestamp = 3;
+}
+
+message PriceState {
+    string price = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+
+    string cumulative_price = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+
+    int64 timestamp = 3;
+}
+
+message AuthorizeBandOracleRequestProposal {
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string title = 1;
+    string description = 2;
+    BandOracleRequest request = 3 [(gogoproto.nullable) = false];
+}
+
+message UpdateBandOracleRequestProposal {
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string title = 1;
+    string description = 2;
+    uint64 delete_request_id = 3;
+    BandOracleRequest update_oracle_request = 4;
+}
+
+message EnableBandIBCProposal {
+    option (gogoproto.equal) = false;
+    option (gogoproto.goproto_getters) = false;
+
+    string title = 1;
+    string description = 2;
+
+    BandIBCParams band_ibc_params = 3 [(gogoproto.nullable) = false];    
+}
+
+message BandOracleRequest {   
+    // Unique Identifier for band ibc oracle request
+    uint64 request_id = 1;
+
+    // OracleScriptID is the unique identifier of the oracle script to be executed.
+    int64 oracle_script_id = 2;
+
+    // Symbols is the list of symbols to prepare in the calldata
+    repeated string symbols = 3 [(gogoproto.nullable) = false];
+
+    // AskCount is the number of validators that are requested to respond to this
+    // oracle request. Higher value means more security, at a higher gas cost.
+    uint64 ask_count = 4;
+
+    // MinCount is the minimum number of validators necessary for the request to
+    // proceed to the execution phase. Higher value means more security, at the
+    // cost of liveness.
+    uint64 min_count = 5;
+
+    // FeeLimit is the maximum tokens that will be paid to all data source providers.
+    repeated cosmos.base.v1beta1.Coin fee_limit = 6 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+    
+    // PrepareGas is amount of gas to pay to prepare raw requests
+    uint64 prepare_gas = 7;
+    // ExecuteGas is amount of gas to reserve for executing
+    uint64 execute_gas = 8;
+    
+}
+
+message BandIBCParams {
+    // true if Band IBC should be enabled
+    bool band_ibc_enabled = 1;
+    // block request interval to send Band IBC prices
+    int64 ibc_request_interval = 2;
+
+    // band IBC source channel
+    string ibc_source_channel = 3;
+    // band IBC version
+    string ibc_version = 4;
+    // band IBC portID
+    string ibc_port_id = 5;
+}
