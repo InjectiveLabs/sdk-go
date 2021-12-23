@@ -163,7 +163,7 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket, 
 func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice sdk.Dec) (err error) {
 	markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio)
 	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
-	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1+ InitialMarginRatio) * Quantity)
+	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1 + InitialMarginRatio) * Quantity)
 	if o.OrderType.IsBuy() && markPrice.LT(markPriceThreshold) {
 		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
 	} else if !o.OrderType.IsBuy() && markPrice.GT(markPriceThreshold) {

@@ -49,16 +49,25 @@ type GenesisState struct {
 	// perpetual_market_funding_state defines the funding state for the perpetual derivative markets at genesis
 	PerpetualMarketFundingState []PerpetualMarketFundingState `protobuf:"bytes,11,rep,name=perpetual_market_funding_state,json=perpetualMarketFundingState,proto3" json:"perpetual_market_funding_state"`
 	// derivative_market_settlement_scheduled defines the scheduled markets for settlement at genesis
-	DerivativeMarketSettlementScheduled []DerivativeMarketSettlementInfo      `protobuf:"bytes,12,rep,name=derivative_market_settlement_scheduled,json=derivativeMarketSettlementScheduled,proto3" json:"derivative_market_settlement_scheduled"`
-	IsSpotExchangeEnabled               bool                                  `protobuf:"varint,13,opt,name=is_spot_exchange_enabled,json=isSpotExchangeEnabled,proto3" json:"is_spot_exchange_enabled,omitempty"`
-	IsDerivativesExchangeEnabled        bool                                  `protobuf:"varint,14,opt,name=is_derivatives_exchange_enabled,json=isDerivativesExchangeEnabled,proto3" json:"is_derivatives_exchange_enabled,omitempty"`
-	TradingRewardCampaignInfo           *TradingRewardCampaignInfo            `protobuf:"bytes,15,opt,name=trading_reward_campaign_info,json=tradingRewardCampaignInfo,proto3" json:"trading_reward_campaign_info,omitempty"`
-	TradingRewardPoolCampaignSchedule   []*CampaignRewardPool                 `protobuf:"bytes,16,rep,name=trading_reward_pool_campaign_schedule,json=tradingRewardPoolCampaignSchedule,proto3" json:"trading_reward_pool_campaign_schedule,omitempty"`
-	TradingRewardCampaignAccountPoints  []*TradingRewardCampaignAccountPoints `protobuf:"bytes,17,rep,name=trading_reward_campaign_account_points,json=tradingRewardCampaignAccountPoints,proto3" json:"trading_reward_campaign_account_points,omitempty"`
-	FeeDiscountSchedule                 *FeeDiscountSchedule                  `protobuf:"bytes,18,opt,name=fee_discount_schedule,json=feeDiscountSchedule,proto3" json:"fee_discount_schedule,omitempty"`
-	FeeDiscountAccountTierTtl           []*FeeDiscountAccountTierTTL          `protobuf:"bytes,19,rep,name=fee_discount_account_tier_ttl,json=feeDiscountAccountTierTtl,proto3" json:"fee_discount_account_tier_ttl,omitempty"`
-	FeeDiscountBucketFeesPaidAccounts   []*FeeDiscountBucketFeesPaidAccounts  `protobuf:"bytes,20,rep,name=fee_discount_bucket_fees_paid_accounts,json=feeDiscountBucketFeesPaidAccounts,proto3" json:"fee_discount_bucket_fees_paid_accounts,omitempty"`
-	IsFirstFeeCycleFinished             bool                                  `protobuf:"varint,21,opt,name=is_first_fee_cycle_finished,json=isFirstFeeCycleFinished,proto3" json:"is_first_fee_cycle_finished,omitempty"`
+	DerivativeMarketSettlementScheduled []DerivativeMarketSettlementInfo `protobuf:"bytes,12,rep,name=derivative_market_settlement_scheduled,json=derivativeMarketSettlementScheduled,proto3" json:"derivative_market_settlement_scheduled"`
+	// sets spot markets as enabled
+	IsSpotExchangeEnabled bool `protobuf:"varint,13,opt,name=is_spot_exchange_enabled,json=isSpotExchangeEnabled,proto3" json:"is_spot_exchange_enabled,omitempty"`
+	// sets derivative markets as enabled
+	IsDerivativesExchangeEnabled bool `protobuf:"varint,14,opt,name=is_derivatives_exchange_enabled,json=isDerivativesExchangeEnabled,proto3" json:"is_derivatives_exchange_enabled,omitempty"`
+	// the current trading reward campaign info
+	TradingRewardCampaignInfo *TradingRewardCampaignInfo `protobuf:"bytes,15,opt,name=trading_reward_campaign_info,json=tradingRewardCampaignInfo,proto3" json:"trading_reward_campaign_info,omitempty"`
+	// the current and upcoming trading reward campaign pools
+	TradingRewardPoolCampaignSchedule []*CampaignRewardPool `protobuf:"bytes,16,rep,name=trading_reward_pool_campaign_schedule,json=tradingRewardPoolCampaignSchedule,proto3" json:"trading_reward_pool_campaign_schedule,omitempty"`
+	// the current and upcoming trading reward account points
+	TradingRewardCampaignAccountPoints []*TradingRewardCampaignAccountPoints `protobuf:"bytes,17,rep,name=trading_reward_campaign_account_points,json=tradingRewardCampaignAccountPoints,proto3" json:"trading_reward_campaign_account_points,omitempty"`
+	// the fee discount schedule
+	FeeDiscountSchedule *FeeDiscountSchedule `protobuf:"bytes,18,opt,name=fee_discount_schedule,json=feeDiscountSchedule,proto3" json:"fee_discount_schedule,omitempty"`
+	// the cached fee discount account tiers with TTL
+	FeeDiscountAccountTierTtl []*FeeDiscountAccountTierTTL `protobuf:"bytes,19,rep,name=fee_discount_account_tier_ttl,json=feeDiscountAccountTierTtl,proto3" json:"fee_discount_account_tier_ttl,omitempty"`
+	// the fee discount paid by accounts in all buckets
+	FeeDiscountBucketFeesPaidAccounts []*FeeDiscountBucketFeesPaidAccounts `protobuf:"bytes,20,rep,name=fee_discount_bucket_fees_paid_accounts,json=feeDiscountBucketFeesPaidAccounts,proto3" json:"fee_discount_bucket_fees_paid_accounts,omitempty"`
+	// sets the first fee cycle as finished
+	IsFirstFeeCycleFinished bool `protobuf:"varint,21,opt,name=is_first_fee_cycle_finished,json=isFirstFeeCycleFinished,proto3" json:"is_first_fee_cycle_finished,omitempty"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }

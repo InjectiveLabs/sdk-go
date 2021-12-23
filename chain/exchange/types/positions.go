@@ -45,26 +45,26 @@ func (p *Position) ApplyProfitHaircut(deficitAmount, totalProfits, settlementPri
 	p.EntryPrice = newEntryPrice
 }
 
-func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate sdk.Dec) (payout sdk.Dec) {
-	// there should not be positions with 0 quantity
-	if p.Quantity.IsZero() {
-		return sdk.ZeroDec()
-	}
-
+func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate sdk.Dec) (payout, closeTradingFee sdk.Dec, positionDelta *PositionDelta) {
 	closingDirection := !p.IsLong
 	fullyClosingQuantity := p.Quantity
 
-	positionDelta := &PositionDelta{
+	closeTradingFee = settlementPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
+	positionDelta = &PositionDelta{
 		IsLong:            closingDirection,
 		ExecutionQuantity: fullyClosingQuantity,
 		ExecutionMargin:   sdk.ZeroDec(),
 		ExecutionPrice:    settlementPrice,
 	}
 
-	closeTradingFee := settlementPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
+	// there should not be positions with 0 quantity
+	if fullyClosingQuantity.IsZero() {
+		return sdk.ZeroDec(), closeTradingFee, positionDelta
+	}
+
 	payout, _, _ = p.ApplyPositionDelta(positionDelta, closeTradingFee)
 
-	return payout
+	return payout, closeTradingFee, positionDelta
 }
 
 func (p *Position) GetDirectionString() string {
