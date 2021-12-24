@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 const RouterKey = ModuleName
@@ -29,6 +30,7 @@ var (
 	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
+	_ sdk.Msg = &MsgBatchUpdateOrders{}
 )
 
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -949,6 +951,114 @@ func (msg *MsgLiquidatePosition) GetSignBytes() []byte {
 }
 
 func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgBatchUpdateOrders) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgBatchUpdateOrders) Type() string { return "batchUpdateOrders" }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgBatchUpdateOrders) ValidateBasic() error {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
+	if !bytes.Equal(subaccountAddress.Bytes(), sender.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+
+	hasDuplicateSpotMarketIds := HasDuplicatesHexHash(msg.SpotMarketIdsToCancelAll)
+	if hasDuplicateSpotMarketIds {
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all spot market ids")
+	}
+
+	hasDuplicateDerivativesMarketIds := HasDuplicatesHexHash(msg.DerivativeMarketIdsToCancelAll)
+	if hasDuplicateDerivativesMarketIds {
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
+	}
+
+	hasDuplicateSpotOrderToCancel := HasDuplicatesOrder(msg.SpotOrdersToCancel)
+	if hasDuplicateSpotOrderToCancel {
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate spot order to cancel")
+	}
+
+	hasDuplicateDerivativeOrderToCancel := HasDuplicatesOrder(msg.DerivativeOrdersToCancel)
+	if hasDuplicateDerivativeOrderToCancel {
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate derivative order to cancel")
+	}
+
+	if len(msg.SpotMarketIdsToCancelAll) > 0 && len(msg.SpotOrdersToCancel) > 0 {
+		seen := make(map[common.Hash]struct{})
+		for _, marketID := range msg.SpotMarketIdsToCancelAll {
+			seen[common.HexToHash(marketID)] = struct{}{}
+		}
+
+		for idx := range msg.SpotOrdersToCancel {
+			if _, ok := seen[common.HexToHash(msg.SpotOrdersToCancel[idx].MarketId)]; ok {
+				return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a spot market that is also in cancel all")
+			}
+		}
+	}
+
+	if len(msg.DerivativeMarketIdsToCancelAll) > 0 && len(msg.DerivativeOrdersToCancel) > 0 {
+		seen := make(map[common.Hash]struct{})
+		for _, marketID := range msg.DerivativeMarketIdsToCancelAll {
+			seen[common.HexToHash(marketID)] = struct{}{}
+		}
+
+		for idx := range msg.DerivativeOrdersToCancel {
+			if _, ok := seen[common.HexToHash(msg.DerivativeOrdersToCancel[idx].MarketId)]; ok {
+				return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a derivative market that is also in cancel all")
+			}
+		}
+	}
+
+	for idx := range msg.SpotOrdersToCancel {
+		if err := msg.SpotOrdersToCancel[idx].ValidateBasic(sender); err != nil {
+			return err
+		}
+	}
+
+	for idx := range msg.DerivativeOrdersToCancel {
+		if err := msg.DerivativeOrdersToCancel[idx].ValidateBasic(sender); err != nil {
+			return err
+		}
+	}
+
+	for idx := range msg.SpotOrdersToCreate {
+		if err := msg.SpotOrdersToCreate[idx].ValidateBasic(sender); err != nil {
+			return err
+		}
+	}
+
+	for idx := range msg.DerivativeOrdersToCreate {
+		if err := msg.DerivativeOrdersToCreate[idx].ValidateBasic(sender); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgBatchUpdateOrders) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgBatchUpdateOrders) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

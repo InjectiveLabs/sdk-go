@@ -22,6 +22,7 @@ const (
 	ProposalTypeDerivativeMarketParamUpdate     string = "ProposalTypeDerivativeMarketParamUpdate"
 	ProposalTypeTradingRewardCampaign           string = "ProposalTypeTradingRewardCampaign"
 	ProposalTypeTradingRewardCampaignUpdate     string = "ProposalTypeTradingRewardCampaignUpdateProposal"
+	ProposalTypeTradingRewardPointsUpdate       string = "ProposalTypeTradingRewardPointsUpdate"
 	ProposalTypeFeeDiscountProposal             string = "ProposalTypeFeeDiscountProposal"
 	ProposalTypeBatchCommunityPoolSpendProposal string = "ProposalTypeBatchCommunityPoolSpendProposal"
 )
@@ -45,6 +46,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&TradingRewardCampaignLaunchProposal{}, "injective/TradingRewardCampaignLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
 	gov.RegisterProposalTypeCodec(&TradingRewardCampaignUpdateProposal{}, "injective/TradingRewardCampaignUpdateProposal")
+	gov.RegisterProposalType(ProposalTypeTradingRewardPointsUpdate)
+	gov.RegisterProposalTypeCodec(&TradingRewardPointsUpdateProposal{}, "injective/TradingRewardPointsUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeFeeDiscountProposal)
 	gov.RegisterProposalTypeCodec(&FeeDiscountProposal{}, "injective/FeeDiscountProposal")
 	gov.RegisterProposalType(ProposalTypeBatchCommunityPoolSpendProposal)
@@ -774,6 +777,65 @@ func (p *TradingRewardCampaignUpdateProposal) ValidateBasic() error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return gov.ValidateAbstract(p)
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &TradingRewardPointsUpdateProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *TradingRewardPointsUpdateProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *TradingRewardPointsUpdateProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *TradingRewardPointsUpdateProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *TradingRewardPointsUpdateProposal) ProposalType() string {
+	return ProposalTypeTradingRewardPointsUpdate
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *TradingRewardPointsUpdateProposal) ValidateBasic() error {
+	if len(p.RewardPointUpdates) == 0 {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points update cannot be nil")
+	}
+
+	accountAddresses := make([]string, 0)
+
+	for _, rewardPointUpdate := range p.RewardPointUpdates {
+		if rewardPointUpdate == nil {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward point update cannot be nil")
+		}
+
+		_, err := sdk.AccAddressFromBech32(rewardPointUpdate.AccountAddress)
+
+		if err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, rewardPointUpdate.AccountAddress)
+		}
+
+		accountAddresses = append(accountAddresses, rewardPointUpdate.AccountAddress)
+
+		if rewardPointUpdate.NewPoints.IsNil() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points cannot be nil")
+		}
+
+		if rewardPointUpdate.NewPoints.IsNegative() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points cannot be negative")
+		}
+	}
+
+	hasDuplicateAccountAddresses := HasDuplicates(accountAddresses)
+	if hasDuplicateAccountAddresses {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "account address cannot be duplicated")
 	}
 
 	return gov.ValidateAbstract(p)

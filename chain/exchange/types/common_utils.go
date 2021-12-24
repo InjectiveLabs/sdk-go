@@ -172,23 +172,45 @@ func DecBytesToDec(bz []byte) sdk.Dec {
 }
 
 func HasDuplicates(slice []string) bool {
-	seen := make(map[string]bool)
+	seen := make(map[string]struct{})
 	for _, item := range slice {
-		if seen[item] {
+		if _, ok := seen[item]; ok {
 			return true
 		}
-		seen[item] = true
+		seen[item] = struct{}{}
+	}
+	return false
+}
+
+func HasDuplicatesHexHash(slice []string) bool {
+	seen := make(map[common.Hash]struct{})
+	for _, item := range slice {
+		if _, ok := seen[common.HexToHash(item)]; ok {
+			return true
+		}
+		seen[common.HexToHash(item)] = struct{}{}
 	}
 	return false
 }
 
 func HasDuplicatesCoin(slice []sdk.Coin) bool {
-	seen := make(map[string]bool)
+	seen := make(map[string]struct{})
 	for _, item := range slice {
-		if seen[item.Denom] {
+		if _, ok := seen[item.Denom]; ok {
 			return true
 		}
-		seen[item.Denom] = true
+		seen[item.Denom] = struct{}{}
+	}
+	return false
+}
+
+func HasDuplicatesOrder(slice []*OrderData) bool {
+	seen := make(map[string]struct{})
+	for _, item := range slice {
+		if _, ok := seen[item.OrderHash]; ok {
+			return true
+		}
+		seen[item.OrderHash] = struct{}{}
 	}
 	return false
 }
