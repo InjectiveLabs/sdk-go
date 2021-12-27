@@ -971,22 +971,31 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
-	}
-	if !bytes.Equal(subaccountAddress.Bytes(), sender.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	hasCancelAllMarketId := len(msg.SpotMarketIdsToCancelAll) > 0 || len(msg.DerivativeMarketIdsToCancelAll) > 0
+	hasSubaccountIdForCancelAll := msg.SubaccountId != ""
+
+	if hasCancelAllMarketId && !hasSubaccountIdForCancelAll {
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains cancel all market id but no subaccount id")
 	}
 
-	hasDuplicateSpotMarketIds := HasDuplicatesHexHash(msg.SpotMarketIdsToCancelAll)
-	if hasDuplicateSpotMarketIds {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all spot market ids")
-	}
+	if hasSubaccountIdForCancelAll {
+		subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
+		if !ok {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+		}
+		if !bytes.Equal(subaccountAddress.Bytes(), sender.Bytes()) {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+		}
 
-	hasDuplicateDerivativesMarketIds := HasDuplicatesHexHash(msg.DerivativeMarketIdsToCancelAll)
-	if hasDuplicateDerivativesMarketIds {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
+		hasDuplicateSpotMarketIds := HasDuplicatesHexHash(msg.SpotMarketIdsToCancelAll)
+		if hasDuplicateSpotMarketIds {
+			return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all spot market ids")
+		}
+
+		hasDuplicateDerivativesMarketIds := HasDuplicatesHexHash(msg.DerivativeMarketIdsToCancelAll)
+		if hasDuplicateDerivativesMarketIds {
+			return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
+		}
 	}
 
 	hasDuplicateSpotOrderToCancel := HasDuplicatesOrder(msg.SpotOrdersToCancel)
