@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"math/big"
 	"reflect"
+	"regexp"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -85,29 +87,35 @@ func StringInSlice(a string, list *[]string) bool {
 }
 
 func IsValidSubaccountID(subaccountID string) (*common.Address, bool) {
-	if len(subaccountID) != 66 {
+	if !IsHexHash(subaccountID) {
 		return nil, false
 	}
 	subaccountIdBytes := common.FromHex(subaccountID)
-
-	if len(subaccountIdBytes) != common.HashLength {
-		return nil, false
-	}
 	addressBytes := subaccountIdBytes[:common.AddressLength]
-	if !common.IsHexAddress(common.Bytes2Hex(addressBytes)) {
-		return nil, false
-	}
 	address := common.BytesToAddress(addressBytes)
 	return &address, true
 }
 
 func IsValidOrderHash(orderHash string) bool {
-	if len(orderHash) != 66 {
+	return IsHexHash(orderHash)
+}
+
+// IsHexHash verifies whether a string can represent a valid hex-encoded hash or not.
+func IsHexHash(s string) bool {
+	if !isHexString(s) {
 		return false
 	}
 
-	orderHashBytes := common.FromHex(orderHash)
-	return len(orderHashBytes) == common.HashLength
+	if strings.HasPrefix(s, "0x") {
+		return len(s) == 2*common.HashLength+2
+	}
+
+	return len(s) == 2*common.HashLength
+}
+
+func isHexString(str string) bool {
+	isMatched, _ := regexp.MatchString("^(0x)?[0-9a-fA-F]+$", str)
+	return isMatched
 }
 
 func BreachesMinimumTickSize(value sdk.Dec, minTickSize sdk.Dec) bool {

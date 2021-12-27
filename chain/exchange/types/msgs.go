@@ -34,7 +34,7 @@ var (
 )
 
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
-	if o.MarketId == "" {
+	if !IsHexHash(o.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 	switch o.OrderType {
@@ -75,7 +75,7 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress) error {
 }
 
 func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
-	if o.MarketId == "" {
+	if !IsHexHash(o.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 	switch o.OrderType {
@@ -101,7 +101,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 }
 
 func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
-	if o.MarketId == "" {
+	if !IsHexHash(o.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 
@@ -878,9 +878,10 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if msg.MarketId == "" {
+	if !IsHexHash(msg.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
 	}
+
 	if !msg.Amount.IsPositive() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
@@ -928,7 +929,7 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if msg.MarketId == "" {
+	if !IsHexHash(msg.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
 	}
 
@@ -975,7 +976,11 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 	hasSubaccountIdForCancelAll := msg.SubaccountId != ""
 
 	if hasCancelAllMarketId && !hasSubaccountIdForCancelAll {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains cancel all market id but no subaccount id")
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains cancel all marketIDs but no subaccountID")
+	}
+
+	if hasSubaccountIdForCancelAll && !hasCancelAllMarketId {
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains subaccountID but no cancel all marketIDs")
 	}
 
 	if hasSubaccountIdForCancelAll {
@@ -1011,6 +1016,9 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 	if len(msg.SpotMarketIdsToCancelAll) > 0 && len(msg.SpotOrdersToCancel) > 0 {
 		seen := make(map[common.Hash]struct{})
 		for _, marketID := range msg.SpotMarketIdsToCancelAll {
+			if !IsHexHash(marketID) {
+				return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+			}
 			seen[common.HexToHash(marketID)] = struct{}{}
 		}
 
@@ -1024,6 +1032,9 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 	if len(msg.DerivativeMarketIdsToCancelAll) > 0 && len(msg.DerivativeOrdersToCancel) > 0 {
 		seen := make(map[common.Hash]struct{})
 		for _, marketID := range msg.DerivativeMarketIdsToCancelAll {
+			if !IsHexHash(marketID) {
+				return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+			}
 			seen[common.HexToHash(marketID)] = struct{}{}
 		}
 
