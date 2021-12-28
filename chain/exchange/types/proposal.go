@@ -22,7 +22,7 @@ const (
 	ProposalTypeDerivativeMarketParamUpdate     string = "ProposalTypeDerivativeMarketParamUpdate"
 	ProposalTypeTradingRewardCampaign           string = "ProposalTypeTradingRewardCampaign"
 	ProposalTypeTradingRewardCampaignUpdate     string = "ProposalTypeTradingRewardCampaignUpdateProposal"
-	ProposalTypeTradingRewardPointsUpdate       string = "ProposalTypeTradingRewardPointsUpdate"
+	ProposalTypeTradingRewardPointsUpdate       string = "ProposalTypeTradingRewardPointsUpdateProposal"
 	ProposalTypeFeeDiscountProposal             string = "ProposalTypeFeeDiscountProposal"
 	ProposalTypeBatchCommunityPoolSpendProposal string = "ProposalTypeBatchCommunityPoolSpendProposal"
 )
