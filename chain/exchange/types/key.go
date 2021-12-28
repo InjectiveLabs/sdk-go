@@ -222,19 +222,23 @@ func GetLimitOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price sdk.D
 }
 
 func GetSpotLimitOrderIndexPrefix(marketID common.Hash, isBuy bool, subaccountID common.Hash) []byte {
-	return append(SpotLimitOrdersIndexPrefix, getLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID)...)
+	return append(SpotLimitOrdersIndexPrefix, GetLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID)...)
 }
 
 func GetDerivativeLimitOrderIndexPrefix(marketID common.Hash, isBuy bool, subaccountID common.Hash) []byte {
-	return append(DerivativeLimitOrdersIndexPrefix, getLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID)...)
+	return append(DerivativeLimitOrdersIndexPrefix, GetLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID)...)
 }
 
 func GetLimitOrderIndexKey(marketID common.Hash, isBuy bool, subaccountID, orderHash common.Hash) []byte {
-	return append(getLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID), orderHash.Bytes()...)
+	return append(GetLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID), orderHash.Bytes()...)
 }
 
-// prefix containing marketID + isBuy + subaccountID
-func getLimitOrderIndexSubaccountPrefix(marketID common.Hash, isBuy bool, subaccountID common.Hash) []byte {
+func GetTransientLimitOrderIndexIteratorPrefix(marketID common.Hash, isBuy bool, subaccountID common.Hash) []byte {
+	return append(SpotLimitOrdersIndexPrefix, GetLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID)...)
+}
+
+// GetLimitOrderIndexSubaccountPrefix returns a prefix containing marketID + isBuy + subaccountID
+func GetLimitOrderIndexSubaccountPrefix(marketID common.Hash, isBuy bool, subaccountID common.Hash) []byte {
 	return append(MarketDirectionPrefix(marketID, isBuy), subaccountID.Bytes()...)
 }
 

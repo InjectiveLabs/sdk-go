@@ -22,6 +22,7 @@ const (
 	ProposalTypeDerivativeMarketParamUpdate     string = "ProposalTypeDerivativeMarketParamUpdate"
 	ProposalTypeTradingRewardCampaign           string = "ProposalTypeTradingRewardCampaign"
 	ProposalTypeTradingRewardCampaignUpdate     string = "ProposalTypeTradingRewardCampaignUpdateProposal"
+	ProposalTypeTradingRewardPointsUpdate       string = "ProposalTypeTradingRewardPointsUpdate"
 	ProposalTypeFeeDiscountProposal             string = "ProposalTypeFeeDiscountProposal"
 	ProposalTypeBatchCommunityPoolSpendProposal string = "ProposalTypeBatchCommunityPoolSpendProposal"
 )
@@ -45,6 +46,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&TradingRewardCampaignLaunchProposal{}, "injective/TradingRewardCampaignLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
 	gov.RegisterProposalTypeCodec(&TradingRewardCampaignUpdateProposal{}, "injective/TradingRewardCampaignUpdateProposal")
+	gov.RegisterProposalType(ProposalTypeTradingRewardPointsUpdate)
+	gov.RegisterProposalTypeCodec(&TradingRewardPointsUpdateProposal{}, "injective/TradingRewardPointsUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeFeeDiscountProposal)
 	gov.RegisterProposalTypeCodec(&FeeDiscountProposal{}, "injective/FeeDiscountProposal")
 	gov.RegisterProposalType(ProposalTypeBatchCommunityPoolSpendProposal)
@@ -208,7 +211,7 @@ func (p *SpotMarketParamUpdateProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
-	if p.MarketId == "" {
+	if !IsHexHash(p.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 	if p.MakerFeeRate == nil && p.TakerFeeRate == nil && p.RelayerFeeShareRate == nil && p.MinPriceTickSize == nil && p.MinQuantityTickSize == nil && p.Status == MarketStatus_Unspecified {
@@ -400,7 +403,7 @@ func (p *DerivativeMarketParamUpdateProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
-	if p.MarketId == "" {
+	if !IsHexHash(p.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 	if p.MakerFeeRate == nil &&
@@ -779,6 +782,65 @@ func (p *TradingRewardCampaignUpdateProposal) ValidateBasic() error {
 	return gov.ValidateAbstract(p)
 }
 
+// Implements Proposal Interface
+var _ gov.Content = &TradingRewardPointsUpdateProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *TradingRewardPointsUpdateProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *TradingRewardPointsUpdateProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *TradingRewardPointsUpdateProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *TradingRewardPointsUpdateProposal) ProposalType() string {
+	return ProposalTypeTradingRewardPointsUpdate
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *TradingRewardPointsUpdateProposal) ValidateBasic() error {
+	if len(p.RewardPointUpdates) == 0 {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points update cannot be nil")
+	}
+
+	accountAddresses := make([]string, 0)
+
+	for _, rewardPointUpdate := range p.RewardPointUpdates {
+		if rewardPointUpdate == nil {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward point update cannot be nil")
+		}
+
+		_, err := sdk.AccAddressFromBech32(rewardPointUpdate.AccountAddress)
+
+		if err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, rewardPointUpdate.AccountAddress)
+		}
+
+		accountAddresses = append(accountAddresses, rewardPointUpdate.AccountAddress)
+
+		if rewardPointUpdate.NewPoints.IsNil() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points cannot be nil")
+		}
+
+		if rewardPointUpdate.NewPoints.IsNegative() {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points cannot be negative")
+		}
+	}
+
+	hasDuplicateAccountAddresses := HasDuplicates(accountAddresses)
+	if hasDuplicateAccountAddresses {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "account address cannot be duplicated")
+	}
+
+	return gov.ValidateAbstract(p)
+}
+
 // NewTradingRewardCampaignLaunchProposal returns new instance of TradingRewardCampaignLaunchProposal
 func NewTradingRewardCampaignLaunchProposal(
 	title, description string,
@@ -854,6 +916,18 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "boosted spot market ids is not matching spot market multipliers")
 	}
 
+	for _, marketID := range t.BoostedSpotMarketIds {
+		if !IsHexHash(marketID) {
+			return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+		}
+	}
+
+	for _, marketID := range t.BoostedDerivativeMarketIds {
+		if !IsHexHash(marketID) {
+			return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+		}
+	}
+
 	if len(t.BoostedDerivativeMarketIds) != len(t.DerivativeMarketMultipliers) {
 		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
 	}
@@ -906,6 +980,12 @@ func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 	if hasTradingRewardBoostInfoDefined {
 		if err := c.TradingRewardBoostInfo.ValidateBasic(); err != nil {
 			return err
+		}
+	}
+
+	for _, marketID := range c.DisqualifiedMarketIds {
+		if !IsHexHash(marketID) {
+			return sdkerrors.Wrap(ErrMarketInvalid, marketID)
 		}
 	}
 
@@ -997,6 +1077,12 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 
 	if HasDuplicates(p.Schedule.QuoteDenoms) {
 		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate quote denoms")
+	}
+
+	for _, marketID := range p.Schedule.DisqualifiedMarketIds {
+		if !IsHexHash(marketID) {
+			return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+		}
 	}
 
 	if HasDuplicates(p.Schedule.DisqualifiedMarketIds) {

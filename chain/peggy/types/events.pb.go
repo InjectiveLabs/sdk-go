@@ -5,6 +5,8 @@ package types
 
 import (
 	fmt "fmt"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
@@ -150,86 +152,19 @@ func (m *EventBridgeWithdrawCanceled) GetBridgeChainId() uint64 {
 	return 0
 }
 
-type EventBridgeWithdrawalReceived struct {
-	BridgeContract string `protobuf:"bytes,1,opt,name=bridge_contract,json=bridgeContract,proto3" json:"bridge_contract,omitempty"`
-	BridgeChainId  uint64 `protobuf:"varint,2,opt,name=bridge_chain_id,json=bridgeChainId,proto3" json:"bridge_chain_id,omitempty"`
-	OutgoingTxId   uint64 `protobuf:"varint,3,opt,name=outgoing_tx_id,json=outgoingTxId,proto3" json:"outgoing_tx_id,omitempty"`
-	Nonce          uint64 `protobuf:"varint,4,opt,name=nonce,proto3" json:"nonce,omitempty"`
-}
-
-func (m *EventBridgeWithdrawalReceived) Reset()         { *m = EventBridgeWithdrawalReceived{} }
-func (m *EventBridgeWithdrawalReceived) String() string { return proto.CompactTextString(m) }
-func (*EventBridgeWithdrawalReceived) ProtoMessage()    {}
-func (*EventBridgeWithdrawalReceived) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{2}
-}
-func (m *EventBridgeWithdrawalReceived) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventBridgeWithdrawalReceived) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventBridgeWithdrawalReceived.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventBridgeWithdrawalReceived) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventBridgeWithdrawalReceived.Merge(m, src)
-}
-func (m *EventBridgeWithdrawalReceived) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventBridgeWithdrawalReceived) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventBridgeWithdrawalReceived.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventBridgeWithdrawalReceived proto.InternalMessageInfo
-
-func (m *EventBridgeWithdrawalReceived) GetBridgeContract() string {
-	if m != nil {
-		return m.BridgeContract
-	}
-	return ""
-}
-
-func (m *EventBridgeWithdrawalReceived) GetBridgeChainId() uint64 {
-	if m != nil {
-		return m.BridgeChainId
-	}
-	return 0
-}
-
-func (m *EventBridgeWithdrawalReceived) GetOutgoingTxId() uint64 {
-	if m != nil {
-		return m.OutgoingTxId
-	}
-	return 0
-}
-
-func (m *EventBridgeWithdrawalReceived) GetNonce() uint64 {
-	if m != nil {
-		return m.Nonce
-	}
-	return 0
-}
-
 type EventOutgoingBatch struct {
-	BridgeContract string `protobuf:"bytes,1,opt,name=bridge_contract,json=bridgeContract,proto3" json:"bridge_contract,omitempty"`
-	BridgeChainId  uint64 `protobuf:"varint,2,opt,name=bridge_chain_id,json=bridgeChainId,proto3" json:"bridge_chain_id,omitempty"`
-	BatchId        uint64 `protobuf:"varint,3,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
-	Nonce          uint64 `protobuf:"varint,4,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	Denom               string   `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	OrchestratorAddress string   `protobuf:"bytes,2,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
+	BatchNonce          uint64   `protobuf:"varint,3,opt,name=batch_nonce,json=batchNonce,proto3" json:"batch_nonce,omitempty"`
+	BatchTimeout        uint64   `protobuf:"varint,4,opt,name=batch_timeout,json=batchTimeout,proto3" json:"batch_timeout,omitempty"`
+	BatchTxIds          []uint64 `protobuf:"varint,5,rep,packed,name=batch_tx_ids,json=batchTxIds,proto3" json:"batch_tx_ids,omitempty"`
 }
 
 func (m *EventOutgoingBatch) Reset()         { *m = EventOutgoingBatch{} }
 func (m *EventOutgoingBatch) String() string { return proto.CompactTextString(m) }
 func (*EventOutgoingBatch) ProtoMessage()    {}
 func (*EventOutgoingBatch) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{3}
+	return fileDescriptor_95f217691d2f42c2, []int{2}
 }
 func (m *EventOutgoingBatch) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -258,32 +193,39 @@ func (m *EventOutgoingBatch) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventOutgoingBatch proto.InternalMessageInfo
 
-func (m *EventOutgoingBatch) GetBridgeContract() string {
+func (m *EventOutgoingBatch) GetDenom() string {
 	if m != nil {
-		return m.BridgeContract
+		return m.Denom
 	}
 	return ""
 }
 
-func (m *EventOutgoingBatch) GetBridgeChainId() uint64 {
+func (m *EventOutgoingBatch) GetOrchestratorAddress() string {
 	if m != nil {
-		return m.BridgeChainId
+		return m.OrchestratorAddress
+	}
+	return ""
+}
+
+func (m *EventOutgoingBatch) GetBatchNonce() uint64 {
+	if m != nil {
+		return m.BatchNonce
 	}
 	return 0
 }
 
-func (m *EventOutgoingBatch) GetBatchId() uint64 {
+func (m *EventOutgoingBatch) GetBatchTimeout() uint64 {
 	if m != nil {
-		return m.BatchId
+		return m.BatchTimeout
 	}
 	return 0
 }
 
-func (m *EventOutgoingBatch) GetNonce() uint64 {
+func (m *EventOutgoingBatch) GetBatchTxIds() []uint64 {
 	if m != nil {
-		return m.Nonce
+		return m.BatchTxIds
 	}
-	return 0
+	return nil
 }
 
 type EventOutgoingBatchCanceled struct {
@@ -297,7 +239,7 @@ func (m *EventOutgoingBatchCanceled) Reset()         { *m = EventOutgoingBatchCa
 func (m *EventOutgoingBatchCanceled) String() string { return proto.CompactTextString(m) }
 func (*EventOutgoingBatchCanceled) ProtoMessage()    {}
 func (*EventOutgoingBatchCanceled) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{4}
+	return fileDescriptor_95f217691d2f42c2, []int{3}
 }
 func (m *EventOutgoingBatchCanceled) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -354,25 +296,26 @@ func (m *EventOutgoingBatchCanceled) GetNonce() uint64 {
 	return 0
 }
 
-type EventMultisigUpdateRequest struct {
-	BridgeContract string `protobuf:"bytes,1,opt,name=bridge_contract,json=bridgeContract,proto3" json:"bridge_contract,omitempty"`
-	BridgeChainId  uint64 `protobuf:"varint,2,opt,name=bridge_chain_id,json=bridgeChainId,proto3" json:"bridge_chain_id,omitempty"`
-	MultisigId     uint64 `protobuf:"varint,3,opt,name=multisig_id,json=multisigId,proto3" json:"multisig_id,omitempty"`
-	Nonce          uint64 `protobuf:"varint,4,opt,name=nonce,proto3" json:"nonce,omitempty"`
+type EventValsetUpdateRequest struct {
+	ValsetNonce   uint64                                 `protobuf:"varint,1,opt,name=valset_nonce,json=valsetNonce,proto3" json:"valset_nonce,omitempty"`
+	ValsetHeight  uint64                                 `protobuf:"varint,2,opt,name=valset_height,json=valsetHeight,proto3" json:"valset_height,omitempty"`
+	ValsetMembers []*BridgeValidator                     `protobuf:"bytes,3,rep,name=valset_members,json=valsetMembers,proto3" json:"valset_members,omitempty"`
+	RewardAmount  github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,4,opt,name=reward_amount,json=rewardAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"reward_amount"`
+	RewardToken   string                                 `protobuf:"bytes,5,opt,name=reward_token,json=rewardToken,proto3" json:"reward_token,omitempty"`
 }
 
-func (m *EventMultisigUpdateRequest) Reset()         { *m = EventMultisigUpdateRequest{} }
-func (m *EventMultisigUpdateRequest) String() string { return proto.CompactTextString(m) }
-func (*EventMultisigUpdateRequest) ProtoMessage()    {}
-func (*EventMultisigUpdateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{5}
+func (m *EventValsetUpdateRequest) Reset()         { *m = EventValsetUpdateRequest{} }
+func (m *EventValsetUpdateRequest) String() string { return proto.CompactTextString(m) }
+func (*EventValsetUpdateRequest) ProtoMessage()    {}
+func (*EventValsetUpdateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_95f217691d2f42c2, []int{4}
 }
-func (m *EventMultisigUpdateRequest) XXX_Unmarshal(b []byte) error {
+func (m *EventValsetUpdateRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventMultisigUpdateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventValsetUpdateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventMultisigUpdateRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventValsetUpdateRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -382,55 +325,57 @@ func (m *EventMultisigUpdateRequest) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-func (m *EventMultisigUpdateRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventMultisigUpdateRequest.Merge(m, src)
+func (m *EventValsetUpdateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventValsetUpdateRequest.Merge(m, src)
 }
-func (m *EventMultisigUpdateRequest) XXX_Size() int {
+func (m *EventValsetUpdateRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventMultisigUpdateRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventMultisigUpdateRequest.DiscardUnknown(m)
+func (m *EventValsetUpdateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventValsetUpdateRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventMultisigUpdateRequest proto.InternalMessageInfo
+var xxx_messageInfo_EventValsetUpdateRequest proto.InternalMessageInfo
 
-func (m *EventMultisigUpdateRequest) GetBridgeContract() string {
+func (m *EventValsetUpdateRequest) GetValsetNonce() uint64 {
 	if m != nil {
-		return m.BridgeContract
+		return m.ValsetNonce
+	}
+	return 0
+}
+
+func (m *EventValsetUpdateRequest) GetValsetHeight() uint64 {
+	if m != nil {
+		return m.ValsetHeight
+	}
+	return 0
+}
+
+func (m *EventValsetUpdateRequest) GetValsetMembers() []*BridgeValidator {
+	if m != nil {
+		return m.ValsetMembers
+	}
+	return nil
+}
+
+func (m *EventValsetUpdateRequest) GetRewardToken() string {
+	if m != nil {
+		return m.RewardToken
 	}
 	return ""
 }
 
-func (m *EventMultisigUpdateRequest) GetBridgeChainId() uint64 {
-	if m != nil {
-		return m.BridgeChainId
-	}
-	return 0
-}
-
-func (m *EventMultisigUpdateRequest) GetMultisigId() uint64 {
-	if m != nil {
-		return m.MultisigId
-	}
-	return 0
-}
-
-func (m *EventMultisigUpdateRequest) GetNonce() uint64 {
-	if m != nil {
-		return m.Nonce
-	}
-	return 0
-}
-
 type EventSetOrchestratorAddresses struct {
-	SetOperatorAddress []byte `protobuf:"bytes,1,opt,name=set_operator_address,json=setOperatorAddress,proto3" json:"set_operator_address,omitempty"`
+	ValidatorAddress    string `protobuf:"bytes,1,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	OrchestratorAddress string `protobuf:"bytes,2,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
+	OperatorEthAddress  string `protobuf:"bytes,3,opt,name=operator_eth_address,json=operatorEthAddress,proto3" json:"operator_eth_address,omitempty"`
 }
 
 func (m *EventSetOrchestratorAddresses) Reset()         { *m = EventSetOrchestratorAddresses{} }
 func (m *EventSetOrchestratorAddresses) String() string { return proto.CompactTextString(m) }
 func (*EventSetOrchestratorAddresses) ProtoMessage()    {}
 func (*EventSetOrchestratorAddresses) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{6}
+	return fileDescriptor_95f217691d2f42c2, []int{5}
 }
 func (m *EventSetOrchestratorAddresses) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -459,22 +404,37 @@ func (m *EventSetOrchestratorAddresses) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventSetOrchestratorAddresses proto.InternalMessageInfo
 
-func (m *EventSetOrchestratorAddresses) GetSetOperatorAddress() []byte {
+func (m *EventSetOrchestratorAddresses) GetValidatorAddress() string {
 	if m != nil {
-		return m.SetOperatorAddress
+		return m.ValidatorAddress
 	}
-	return nil
+	return ""
+}
+
+func (m *EventSetOrchestratorAddresses) GetOrchestratorAddress() string {
+	if m != nil {
+		return m.OrchestratorAddress
+	}
+	return ""
+}
+
+func (m *EventSetOrchestratorAddresses) GetOperatorEthAddress() string {
+	if m != nil {
+		return m.OperatorEthAddress
+	}
+	return ""
 }
 
 type EventValsetConfirm struct {
-	ValsetConfirmKey []byte `protobuf:"bytes,1,opt,name=valset_confirm_key,json=valsetConfirmKey,proto3" json:"valset_confirm_key,omitempty"`
+	ValsetNonce         uint64 `protobuf:"varint,1,opt,name=valset_nonce,json=valsetNonce,proto3" json:"valset_nonce,omitempty"`
+	OrchestratorAddress string `protobuf:"bytes,2,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 }
 
 func (m *EventValsetConfirm) Reset()         { *m = EventValsetConfirm{} }
 func (m *EventValsetConfirm) String() string { return proto.CompactTextString(m) }
 func (*EventValsetConfirm) ProtoMessage()    {}
 func (*EventValsetConfirm) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{7}
+	return fileDescriptor_95f217691d2f42c2, []int{6}
 }
 func (m *EventValsetConfirm) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -503,22 +463,33 @@ func (m *EventValsetConfirm) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventValsetConfirm proto.InternalMessageInfo
 
-func (m *EventValsetConfirm) GetValsetConfirmKey() []byte {
+func (m *EventValsetConfirm) GetValsetNonce() uint64 {
 	if m != nil {
-		return m.ValsetConfirmKey
+		return m.ValsetNonce
 	}
-	return nil
+	return 0
+}
+
+func (m *EventValsetConfirm) GetOrchestratorAddress() string {
+	if m != nil {
+		return m.OrchestratorAddress
+	}
+	return ""
 }
 
 type EventSendToEth struct {
-	OutgoingTxId uint64 `protobuf:"varint,1,opt,name=outgoing_tx_id,json=outgoingTxId,proto3" json:"outgoing_tx_id,omitempty"`
+	OutgoingTxId uint64                                  `protobuf:"varint,1,opt,name=outgoing_tx_id,json=outgoingTxId,proto3" json:"outgoing_tx_id,omitempty"`
+	Sender       string                                  `protobuf:"bytes,2,opt,name=sender,proto3" json:"sender,omitempty"`
+	Receiver     string                                  `protobuf:"bytes,3,opt,name=receiver,proto3" json:"receiver,omitempty"`
+	Amount       github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,4,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"amount"`
+	BridgeFee    github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,5,opt,name=bridge_fee,json=bridgeFee,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"bridge_fee"`
 }
 
 func (m *EventSendToEth) Reset()         { *m = EventSendToEth{} }
 func (m *EventSendToEth) String() string { return proto.CompactTextString(m) }
 func (*EventSendToEth) ProtoMessage()    {}
 func (*EventSendToEth) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{8}
+	return fileDescriptor_95f217691d2f42c2, []int{7}
 }
 func (m *EventSendToEth) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -554,59 +525,30 @@ func (m *EventSendToEth) GetOutgoingTxId() uint64 {
 	return 0
 }
 
-type EventRequestBatch struct {
-	BatchNonce uint64 `protobuf:"varint,1,opt,name=batch_nonce,json=batchNonce,proto3" json:"batch_nonce,omitempty"`
-}
-
-func (m *EventRequestBatch) Reset()         { *m = EventRequestBatch{} }
-func (m *EventRequestBatch) String() string { return proto.CompactTextString(m) }
-func (*EventRequestBatch) ProtoMessage()    {}
-func (*EventRequestBatch) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{9}
-}
-func (m *EventRequestBatch) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *EventRequestBatch) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_EventRequestBatch.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *EventRequestBatch) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventRequestBatch.Merge(m, src)
-}
-func (m *EventRequestBatch) XXX_Size() int {
-	return m.Size()
-}
-func (m *EventRequestBatch) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventRequestBatch.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_EventRequestBatch proto.InternalMessageInfo
-
-func (m *EventRequestBatch) GetBatchNonce() uint64 {
+func (m *EventSendToEth) GetSender() string {
 	if m != nil {
-		return m.BatchNonce
+		return m.Sender
 	}
-	return 0
+	return ""
+}
+
+func (m *EventSendToEth) GetReceiver() string {
+	if m != nil {
+		return m.Receiver
+	}
+	return ""
 }
 
 type EventConfirmBatch struct {
-	BatchConfirmKey []byte `protobuf:"bytes,1,opt,name=batch_confirm_key,json=batchConfirmKey,proto3" json:"batch_confirm_key,omitempty"`
+	BatchNonce          uint64 `protobuf:"varint,1,opt,name=batch_nonce,json=batchNonce,proto3" json:"batch_nonce,omitempty"`
+	OrchestratorAddress string `protobuf:"bytes,2,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 }
 
 func (m *EventConfirmBatch) Reset()         { *m = EventConfirmBatch{} }
 func (m *EventConfirmBatch) String() string { return proto.CompactTextString(m) }
 func (*EventConfirmBatch) ProtoMessage()    {}
 func (*EventConfirmBatch) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{10}
+	return fileDescriptor_95f217691d2f42c2, []int{8}
 }
 func (m *EventConfirmBatch) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -635,22 +577,96 @@ func (m *EventConfirmBatch) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventConfirmBatch proto.InternalMessageInfo
 
-func (m *EventConfirmBatch) GetBatchConfirmKey() []byte {
+func (m *EventConfirmBatch) GetBatchNonce() uint64 {
 	if m != nil {
-		return m.BatchConfirmKey
+		return m.BatchNonce
+	}
+	return 0
+}
+
+func (m *EventConfirmBatch) GetOrchestratorAddress() string {
+	if m != nil {
+		return m.OrchestratorAddress
+	}
+	return ""
+}
+
+type EventAttestationVote struct {
+	EventNonce    uint64 `protobuf:"varint,1,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
+	AttestationId []byte `protobuf:"bytes,2,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	Voter         string `protobuf:"bytes,3,opt,name=voter,proto3" json:"voter,omitempty"`
+}
+
+func (m *EventAttestationVote) Reset()         { *m = EventAttestationVote{} }
+func (m *EventAttestationVote) String() string { return proto.CompactTextString(m) }
+func (*EventAttestationVote) ProtoMessage()    {}
+func (*EventAttestationVote) Descriptor() ([]byte, []int) {
+	return fileDescriptor_95f217691d2f42c2, []int{9}
+}
+func (m *EventAttestationVote) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventAttestationVote) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventAttestationVote.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventAttestationVote) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventAttestationVote.Merge(m, src)
+}
+func (m *EventAttestationVote) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventAttestationVote) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventAttestationVote.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventAttestationVote proto.InternalMessageInfo
+
+func (m *EventAttestationVote) GetEventNonce() uint64 {
+	if m != nil {
+		return m.EventNonce
+	}
+	return 0
+}
+
+func (m *EventAttestationVote) GetAttestationId() []byte {
+	if m != nil {
+		return m.AttestationId
 	}
 	return nil
 }
 
+func (m *EventAttestationVote) GetVoter() string {
+	if m != nil {
+		return m.Voter
+	}
+	return ""
+}
+
 type EventDepositClaim struct {
-	AttestationId []byte `protobuf:"bytes,1,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	EventNonce          uint64                                 `protobuf:"varint,1,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
+	EventHeight         uint64                                 `protobuf:"varint,2,opt,name=event_height,json=eventHeight,proto3" json:"event_height,omitempty"`
+	AttestationId       []byte                                 `protobuf:"bytes,3,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	EthereumSender      string                                 `protobuf:"bytes,4,opt,name=ethereum_sender,json=ethereumSender,proto3" json:"ethereum_sender,omitempty"`
+	CosmosReceiver      string                                 `protobuf:"bytes,5,opt,name=cosmos_receiver,json=cosmosReceiver,proto3" json:"cosmos_receiver,omitempty"`
+	TokenContract       string                                 `protobuf:"bytes,6,opt,name=token_contract,json=tokenContract,proto3" json:"token_contract,omitempty"`
+	Amount              github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,7,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
+	OrchestratorAddress string                                 `protobuf:"bytes,8,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 }
 
 func (m *EventDepositClaim) Reset()         { *m = EventDepositClaim{} }
 func (m *EventDepositClaim) String() string { return proto.CompactTextString(m) }
 func (*EventDepositClaim) ProtoMessage()    {}
 func (*EventDepositClaim) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{11}
+	return fileDescriptor_95f217691d2f42c2, []int{10}
 }
 func (m *EventDepositClaim) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -679,6 +695,20 @@ func (m *EventDepositClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventDepositClaim proto.InternalMessageInfo
 
+func (m *EventDepositClaim) GetEventNonce() uint64 {
+	if m != nil {
+		return m.EventNonce
+	}
+	return 0
+}
+
+func (m *EventDepositClaim) GetEventHeight() uint64 {
+	if m != nil {
+		return m.EventHeight
+	}
+	return 0
+}
+
 func (m *EventDepositClaim) GetAttestationId() []byte {
 	if m != nil {
 		return m.AttestationId
@@ -686,15 +716,48 @@ func (m *EventDepositClaim) GetAttestationId() []byte {
 	return nil
 }
 
+func (m *EventDepositClaim) GetEthereumSender() string {
+	if m != nil {
+		return m.EthereumSender
+	}
+	return ""
+}
+
+func (m *EventDepositClaim) GetCosmosReceiver() string {
+	if m != nil {
+		return m.CosmosReceiver
+	}
+	return ""
+}
+
+func (m *EventDepositClaim) GetTokenContract() string {
+	if m != nil {
+		return m.TokenContract
+	}
+	return ""
+}
+
+func (m *EventDepositClaim) GetOrchestratorAddress() string {
+	if m != nil {
+		return m.OrchestratorAddress
+	}
+	return ""
+}
+
 type EventWithdrawClaim struct {
-	AttestationId []byte `protobuf:"bytes,1,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	EventNonce          uint64 `protobuf:"varint,1,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
+	EventHeight         uint64 `protobuf:"varint,2,opt,name=event_height,json=eventHeight,proto3" json:"event_height,omitempty"`
+	AttestationId       []byte `protobuf:"bytes,3,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	BatchNonce          uint64 `protobuf:"varint,4,opt,name=batch_nonce,json=batchNonce,proto3" json:"batch_nonce,omitempty"`
+	TokenContract       string `protobuf:"bytes,5,opt,name=token_contract,json=tokenContract,proto3" json:"token_contract,omitempty"`
+	OrchestratorAddress string `protobuf:"bytes,6,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 }
 
 func (m *EventWithdrawClaim) Reset()         { *m = EventWithdrawClaim{} }
 func (m *EventWithdrawClaim) String() string { return proto.CompactTextString(m) }
 func (*EventWithdrawClaim) ProtoMessage()    {}
 func (*EventWithdrawClaim) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{12}
+	return fileDescriptor_95f217691d2f42c2, []int{11}
 }
 func (m *EventWithdrawClaim) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -723,6 +786,20 @@ func (m *EventWithdrawClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventWithdrawClaim proto.InternalMessageInfo
 
+func (m *EventWithdrawClaim) GetEventNonce() uint64 {
+	if m != nil {
+		return m.EventNonce
+	}
+	return 0
+}
+
+func (m *EventWithdrawClaim) GetEventHeight() uint64 {
+	if m != nil {
+		return m.EventHeight
+	}
+	return 0
+}
+
 func (m *EventWithdrawClaim) GetAttestationId() []byte {
 	if m != nil {
 		return m.AttestationId
@@ -730,15 +807,44 @@ func (m *EventWithdrawClaim) GetAttestationId() []byte {
 	return nil
 }
 
+func (m *EventWithdrawClaim) GetBatchNonce() uint64 {
+	if m != nil {
+		return m.BatchNonce
+	}
+	return 0
+}
+
+func (m *EventWithdrawClaim) GetTokenContract() string {
+	if m != nil {
+		return m.TokenContract
+	}
+	return ""
+}
+
+func (m *EventWithdrawClaim) GetOrchestratorAddress() string {
+	if m != nil {
+		return m.OrchestratorAddress
+	}
+	return ""
+}
+
 type EventERC20DeployedClaim struct {
-	AttestationId []byte `protobuf:"bytes,1,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	EventNonce          uint64 `protobuf:"varint,1,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
+	EventHeight         uint64 `protobuf:"varint,2,opt,name=event_height,json=eventHeight,proto3" json:"event_height,omitempty"`
+	AttestationId       []byte `protobuf:"bytes,3,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	CosmosDenom         string `protobuf:"bytes,4,opt,name=cosmos_denom,json=cosmosDenom,proto3" json:"cosmos_denom,omitempty"`
+	TokenContract       string `protobuf:"bytes,5,opt,name=token_contract,json=tokenContract,proto3" json:"token_contract,omitempty"`
+	Name                string `protobuf:"bytes,6,opt,name=name,proto3" json:"name,omitempty"`
+	Symbol              string `protobuf:"bytes,7,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Decimals            uint64 `protobuf:"varint,8,opt,name=decimals,proto3" json:"decimals,omitempty"`
+	OrchestratorAddress string `protobuf:"bytes,9,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 }
 
 func (m *EventERC20DeployedClaim) Reset()         { *m = EventERC20DeployedClaim{} }
 func (m *EventERC20DeployedClaim) String() string { return proto.CompactTextString(m) }
 func (*EventERC20DeployedClaim) ProtoMessage()    {}
 func (*EventERC20DeployedClaim) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{13}
+	return fileDescriptor_95f217691d2f42c2, []int{12}
 }
 func (m *EventERC20DeployedClaim) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -767,6 +873,20 @@ func (m *EventERC20DeployedClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventERC20DeployedClaim proto.InternalMessageInfo
 
+func (m *EventERC20DeployedClaim) GetEventNonce() uint64 {
+	if m != nil {
+		return m.EventNonce
+	}
+	return 0
+}
+
+func (m *EventERC20DeployedClaim) GetEventHeight() uint64 {
+	if m != nil {
+		return m.EventHeight
+	}
+	return 0
+}
+
 func (m *EventERC20DeployedClaim) GetAttestationId() []byte {
 	if m != nil {
 		return m.AttestationId
@@ -774,15 +894,64 @@ func (m *EventERC20DeployedClaim) GetAttestationId() []byte {
 	return nil
 }
 
+func (m *EventERC20DeployedClaim) GetCosmosDenom() string {
+	if m != nil {
+		return m.CosmosDenom
+	}
+	return ""
+}
+
+func (m *EventERC20DeployedClaim) GetTokenContract() string {
+	if m != nil {
+		return m.TokenContract
+	}
+	return ""
+}
+
+func (m *EventERC20DeployedClaim) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *EventERC20DeployedClaim) GetSymbol() string {
+	if m != nil {
+		return m.Symbol
+	}
+	return ""
+}
+
+func (m *EventERC20DeployedClaim) GetDecimals() uint64 {
+	if m != nil {
+		return m.Decimals
+	}
+	return 0
+}
+
+func (m *EventERC20DeployedClaim) GetOrchestratorAddress() string {
+	if m != nil {
+		return m.OrchestratorAddress
+	}
+	return ""
+}
+
 type EventValsetUpdateClaim struct {
-	AttestationId []byte `protobuf:"bytes,1,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	EventNonce          uint64                                 `protobuf:"varint,1,opt,name=event_nonce,json=eventNonce,proto3" json:"event_nonce,omitempty"`
+	EventHeight         uint64                                 `protobuf:"varint,2,opt,name=event_height,json=eventHeight,proto3" json:"event_height,omitempty"`
+	AttestationId       []byte                                 `protobuf:"bytes,3,opt,name=attestation_id,json=attestationId,proto3" json:"attestation_id,omitempty"`
+	ValsetNonce         uint64                                 `protobuf:"varint,4,opt,name=valset_nonce,json=valsetNonce,proto3" json:"valset_nonce,omitempty"`
+	ValsetMembers       []*BridgeValidator                     `protobuf:"bytes,5,rep,name=valset_members,json=valsetMembers,proto3" json:"valset_members,omitempty"`
+	RewardAmount        github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,6,opt,name=reward_amount,json=rewardAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"reward_amount"`
+	RewardToken         string                                 `protobuf:"bytes,7,opt,name=reward_token,json=rewardToken,proto3" json:"reward_token,omitempty"`
+	OrchestratorAddress string                                 `protobuf:"bytes,8,opt,name=orchestrator_address,json=orchestratorAddress,proto3" json:"orchestrator_address,omitempty"`
 }
 
 func (m *EventValsetUpdateClaim) Reset()         { *m = EventValsetUpdateClaim{} }
 func (m *EventValsetUpdateClaim) String() string { return proto.CompactTextString(m) }
 func (*EventValsetUpdateClaim) ProtoMessage()    {}
 func (*EventValsetUpdateClaim) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{14}
+	return fileDescriptor_95f217691d2f42c2, []int{13}
 }
 func (m *EventValsetUpdateClaim) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -811,11 +980,53 @@ func (m *EventValsetUpdateClaim) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_EventValsetUpdateClaim proto.InternalMessageInfo
 
+func (m *EventValsetUpdateClaim) GetEventNonce() uint64 {
+	if m != nil {
+		return m.EventNonce
+	}
+	return 0
+}
+
+func (m *EventValsetUpdateClaim) GetEventHeight() uint64 {
+	if m != nil {
+		return m.EventHeight
+	}
+	return 0
+}
+
 func (m *EventValsetUpdateClaim) GetAttestationId() []byte {
 	if m != nil {
 		return m.AttestationId
 	}
 	return nil
+}
+
+func (m *EventValsetUpdateClaim) GetValsetNonce() uint64 {
+	if m != nil {
+		return m.ValsetNonce
+	}
+	return 0
+}
+
+func (m *EventValsetUpdateClaim) GetValsetMembers() []*BridgeValidator {
+	if m != nil {
+		return m.ValsetMembers
+	}
+	return nil
+}
+
+func (m *EventValsetUpdateClaim) GetRewardToken() string {
+	if m != nil {
+		return m.RewardToken
+	}
+	return ""
+}
+
+func (m *EventValsetUpdateClaim) GetOrchestratorAddress() string {
+	if m != nil {
+		return m.OrchestratorAddress
+	}
+	return ""
 }
 
 type EventCancelSendToEth struct {
@@ -826,7 +1037,7 @@ func (m *EventCancelSendToEth) Reset()         { *m = EventCancelSendToEth{} }
 func (m *EventCancelSendToEth) String() string { return proto.CompactTextString(m) }
 func (*EventCancelSendToEth) ProtoMessage()    {}
 func (*EventCancelSendToEth) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{15}
+	return fileDescriptor_95f217691d2f42c2, []int{14}
 }
 func (m *EventCancelSendToEth) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -871,7 +1082,7 @@ func (m *EventSubmitBadSignatureEvidence) Reset()         { *m = EventSubmitBadS
 func (m *EventSubmitBadSignatureEvidence) String() string { return proto.CompactTextString(m) }
 func (*EventSubmitBadSignatureEvidence) ProtoMessage()    {}
 func (*EventSubmitBadSignatureEvidence) Descriptor() ([]byte, []int) {
-	return fileDescriptor_95f217691d2f42c2, []int{16}
+	return fileDescriptor_95f217691d2f42c2, []int{15}
 }
 func (m *EventSubmitBadSignatureEvidence) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -917,15 +1128,14 @@ func (m *EventSubmitBadSignatureEvidence) GetBadEthSignatureSubject() string {
 func init() {
 	proto.RegisterType((*EventAttestationObserved)(nil), "injective.peggy.v1.EventAttestationObserved")
 	proto.RegisterType((*EventBridgeWithdrawCanceled)(nil), "injective.peggy.v1.EventBridgeWithdrawCanceled")
-	proto.RegisterType((*EventBridgeWithdrawalReceived)(nil), "injective.peggy.v1.EventBridgeWithdrawalReceived")
 	proto.RegisterType((*EventOutgoingBatch)(nil), "injective.peggy.v1.EventOutgoingBatch")
 	proto.RegisterType((*EventOutgoingBatchCanceled)(nil), "injective.peggy.v1.EventOutgoingBatchCanceled")
-	proto.RegisterType((*EventMultisigUpdateRequest)(nil), "injective.peggy.v1.EventMultisigUpdateRequest")
+	proto.RegisterType((*EventValsetUpdateRequest)(nil), "injective.peggy.v1.EventValsetUpdateRequest")
 	proto.RegisterType((*EventSetOrchestratorAddresses)(nil), "injective.peggy.v1.EventSetOrchestratorAddresses")
 	proto.RegisterType((*EventValsetConfirm)(nil), "injective.peggy.v1.EventValsetConfirm")
 	proto.RegisterType((*EventSendToEth)(nil), "injective.peggy.v1.EventSendToEth")
-	proto.RegisterType((*EventRequestBatch)(nil), "injective.peggy.v1.EventRequestBatch")
 	proto.RegisterType((*EventConfirmBatch)(nil), "injective.peggy.v1.EventConfirmBatch")
+	proto.RegisterType((*EventAttestationVote)(nil), "injective.peggy.v1.EventAttestationVote")
 	proto.RegisterType((*EventDepositClaim)(nil), "injective.peggy.v1.EventDepositClaim")
 	proto.RegisterType((*EventWithdrawClaim)(nil), "injective.peggy.v1.EventWithdrawClaim")
 	proto.RegisterType((*EventERC20DeployedClaim)(nil), "injective.peggy.v1.EventERC20DeployedClaim")
@@ -937,53 +1147,81 @@ func init() {
 func init() { proto.RegisterFile("injective/peggy/v1/events.proto", fileDescriptor_95f217691d2f42c2) }
 
 var fileDescriptor_95f217691d2f42c2 = []byte{
-	// 733 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0x4f, 0x6f, 0xd3, 0x4a,
-	0x10, 0xef, 0xf6, 0xb5, 0xef, 0xcf, 0xb6, 0x4d, 0x5a, 0xab, 0xea, 0x4b, 0xfb, 0xd4, 0x24, 0x8a,
-	0xfa, 0x20, 0x42, 0x90, 0xb4, 0x05, 0x21, 0xf1, 0x47, 0x2a, 0x4d, 0x1a, 0x89, 0xaa, 0x40, 0x84,
-	0x5b, 0x40, 0xe2, 0x62, 0xad, 0xbd, 0x83, 0xbd, 0x90, 0x78, 0x8d, 0x77, 0x6d, 0x9a, 0x6f, 0xc0,
-	0x91, 0x13, 0x47, 0x4e, 0x1c, 0xf9, 0x20, 0x1c, 0x7b, 0xe4, 0x88, 0xda, 0x6f, 0xc0, 0x27, 0x40,
-	0x5e, 0x6f, 0x12, 0x8b, 0xa4, 0x12, 0x91, 0xda, 0xe3, 0xfe, 0x66, 0x7e, 0xb3, 0xbf, 0x9d, 0x99,
-	0x9d, 0xc1, 0x25, 0xe6, 0xbf, 0x06, 0x47, 0xb2, 0x18, 0xea, 0x01, 0xb8, 0x6e, 0xaf, 0x1e, 0x6f,
-	0xd5, 0x21, 0x06, 0x5f, 0x8a, 0x5a, 0x10, 0x72, 0xc9, 0x0d, 0x63, 0xe0, 0x50, 0x53, 0x0e, 0xb5,
-	0x78, 0x6b, 0x6d, 0x63, 0x0c, 0x89, 0x48, 0x09, 0x42, 0x12, 0xc9, 0xb8, 0x9f, 0x32, 0x2b, 0x3f,
-	0x10, 0x2e, 0xb4, 0x92, 0x50, 0xbb, 0x43, 0x53, 0xdb, 0x16, 0x10, 0xc6, 0x40, 0x8d, 0x87, 0x78,
-	0x31, 0xc3, 0xb0, 0x64, 0x2f, 0x80, 0x02, 0x2a, 0xa3, 0x6a, 0x6e, 0x7b, 0xbd, 0x36, 0x7a, 0x63,
-	0xad, 0xd9, 0x21, 0xac, 0x7b, 0xd4, 0x0b, 0xc0, 0xcc, 0x67, 0x68, 0x09, 0x60, 0x5c, 0xc5, 0x79,
-	0x3b, 0x64, 0xd4, 0x05, 0xcb, 0xe1, 0xbe, 0x0c, 0x89, 0x23, 0x0b, 0xd3, 0x65, 0x54, 0xfd, 0xc7,
-	0xcc, 0xa5, 0x70, 0x53, 0xa3, 0xc6, 0x95, 0xa1, 0xa3, 0x47, 0x98, 0x6f, 0x31, 0x5a, 0xf8, 0xa3,
-	0x8c, 0xaa, 0x33, 0xe6, 0x82, 0x76, 0x4c, 0xd0, 0x7d, 0x6a, 0xfc, 0x8f, 0x73, 0x59, 0x69, 0x8c,
-	0x16, 0x66, 0xca, 0xa8, 0x3a, 0x6f, 0x2e, 0x64, 0xd0, 0x7d, 0x6a, 0x2c, 0xe3, 0x59, 0x9f, 0xfb,
-	0x0e, 0x14, 0x66, 0x55, 0x90, 0xf4, 0x50, 0xf1, 0xf1, 0x7f, 0xea, 0xcd, 0x0d, 0x15, 0xf2, 0x05,
-	0x93, 0x1e, 0x0d, 0xc9, 0xbb, 0x26, 0xf1, 0x1d, 0xe8, 0x00, 0x1d, 0x27, 0x16, 0xfd, 0xae, 0xd8,
-	0xe9, 0x31, 0x62, 0x2b, 0x5f, 0x10, 0x5e, 0x1f, 0x73, 0x21, 0xe9, 0x98, 0xe0, 0x00, 0x8b, 0x2f,
-	0xe1, 0x4a, 0x63, 0x03, 0xe7, 0x78, 0x24, 0x5d, 0xce, 0x7c, 0xd7, 0x92, 0xc7, 0xc3, 0x34, 0xce,
-	0xf7, 0xd1, 0xa3, 0xe3, 0x6c, 0x7a, 0x66, 0xb2, 0xe9, 0xf9, 0x88, 0xb0, 0xa1, 0xe4, 0xb6, 0xb5,
-	0x6f, 0x83, 0x48, 0xc7, 0xbb, 0x78, 0x8d, 0xab, 0xf8, 0x6f, 0x3b, 0x89, 0x3c, 0x54, 0xf7, 0x97,
-	0x3a, 0x9f, 0x2b, 0xec, 0x13, 0xc2, 0x6b, 0xa3, 0xc2, 0x2e, 0xad, 0x6e, 0x93, 0x0b, 0xfc, 0xdc,
-	0x17, 0xf8, 0x38, 0xea, 0x48, 0x26, 0x98, 0xfb, 0x2c, 0xa0, 0x44, 0x82, 0x09, 0x6f, 0x23, 0x10,
-	0xf2, 0xe2, 0x05, 0x96, 0xf0, 0x5c, 0x57, 0xdf, 0x34, 0xd4, 0x88, 0xfb, 0xd0, 0xb9, 0x32, 0x9f,
-	0xea, 0x76, 0x3c, 0x04, 0xd9, 0x0e, 0x1d, 0x0f, 0x84, 0x0c, 0x89, 0xe4, 0xe1, 0x2e, 0xa5, 0x21,
-	0x08, 0x01, 0xc2, 0xd8, 0xc4, 0xcb, 0x02, 0xa4, 0xc5, 0x03, 0x50, 0x06, 0x8b, 0xa4, 0x16, 0xa5,
-	0x76, 0xde, 0x34, 0x04, 0xc8, 0xb6, 0x36, 0x69, 0x4e, 0xa5, 0xa1, 0x5b, 0xe6, 0x39, 0xe9, 0x08,
-	0x90, 0x4d, 0xee, 0xbf, 0x62, 0x61, 0xd7, 0xb8, 0x8e, 0x8d, 0x58, 0x01, 0xc9, 0x83, 0x13, 0xc4,
-	0x7a, 0x03, 0x3d, 0x1d, 0x65, 0x31, 0xce, 0xba, 0x1e, 0x40, 0xaf, 0x72, 0x1b, 0xe7, 0xb4, 0x2c,
-	0x9f, 0x1e, 0xf1, 0x96, 0xf4, 0xc6, 0x74, 0x31, 0x1a, 0xed, 0xe2, 0xca, 0x2d, 0xbc, 0xa4, 0x78,
-	0x3a, 0xcd, 0x69, 0xb7, 0x96, 0xf0, 0x5c, 0x5a, 0xbb, 0xf4, 0xfd, 0x29, 0x0f, 0x2b, 0xe8, 0x89,
-	0x4a, 0xc2, 0x8e, 0x66, 0x69, 0x01, 0x29, 0xeb, 0x1a, 0x5e, 0x4a, 0x59, 0xa3, 0x7a, 0xf3, 0xca,
-	0x90, 0x91, 0x7b, 0x57, 0x07, 0xd8, 0x83, 0x80, 0x0b, 0x26, 0xd5, 0xf4, 0x1b, 0x33, 0x97, 0xd0,
-	0x98, 0xb9, 0x54, 0xb9, 0xa7, 0xd3, 0x35, 0x98, 0x3d, 0x93, 0x90, 0x1f, 0xe0, 0x7f, 0x15, 0xb9,
-	0x65, 0x36, 0xb7, 0x37, 0xf7, 0x20, 0xe8, 0xf0, 0x1e, 0xd0, 0x89, 0x22, 0xec, 0xe0, 0x95, 0x4c,
-	0xb5, 0xd2, 0x26, 0x9d, 0x28, 0xc0, 0x7d, 0xbc, 0x9c, 0x26, 0x4f, 0xfd, 0xbd, 0x49, 0x0b, 0xf6,
-	0x1e, 0xe1, 0x52, 0x5a, 0xe9, 0xc8, 0xee, 0x32, 0xd9, 0x20, 0xf4, 0x90, 0xb9, 0x3e, 0x91, 0x51,
-	0x08, 0xad, 0x98, 0x51, 0xf0, 0x1d, 0x48, 0x2b, 0x41, 0x2d, 0x90, 0x9e, 0x25, 0xfa, 0x46, 0xfd,
-	0x5b, 0xf2, 0x36, 0xa1, 0x2d, 0xe9, 0x0d, 0x38, 0xc6, 0x1d, 0xbc, 0x3a, 0xe2, 0x6b, 0x89, 0xc8,
-	0x4e, 0x36, 0x94, 0xde, 0x33, 0x2b, 0xbf, 0x70, 0x0e, 0x53, 0x6b, 0x03, 0xbe, 0x9e, 0x16, 0xd1,
-	0xc9, 0x69, 0x11, 0x7d, 0x3f, 0x2d, 0xa2, 0x0f, 0x67, 0xc5, 0xa9, 0x93, 0xb3, 0xe2, 0xd4, 0xb7,
-	0xb3, 0xe2, 0xd4, 0xcb, 0x03, 0x97, 0x49, 0x2f, 0xb2, 0x6b, 0x0e, 0xef, 0xd6, 0xf7, 0xfb, 0xcb,
-	0xee, 0x11, 0xb1, 0x45, 0x7d, 0xb0, 0xfa, 0x6e, 0x38, 0x3c, 0x84, 0xec, 0x31, 0xf9, 0x96, 0xf5,
-	0x2e, 0xa7, 0x51, 0x07, 0x84, 0xde, 0xba, 0xc9, 0xd2, 0x14, 0xf6, 0x9f, 0x6a, 0xdb, 0xde, 0xfc,
-	0x19, 0x00, 0x00, 0xff, 0xff, 0x4e, 0x5c, 0x20, 0x6b, 0xca, 0x07, 0x00, 0x00,
+	// 1171 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x57, 0xcd, 0x6e, 0x1b, 0x37,
+	0x10, 0xf6, 0x4a, 0x6b, 0x25, 0xa6, 0x65, 0x39, 0x66, 0x0d, 0x57, 0x71, 0x11, 0x59, 0x56, 0x12,
+	0x5b, 0x68, 0x11, 0x29, 0x76, 0x4f, 0x05, 0x7a, 0xb1, 0x64, 0xa5, 0x71, 0x7f, 0x62, 0x60, 0xed,
+	0xba, 0x40, 0x2f, 0x02, 0x77, 0x39, 0xd9, 0x65, 0xa2, 0x5d, 0xaa, 0x4b, 0x4a, 0x89, 0xcf, 0xbd,
+	0xf4, 0xd8, 0x17, 0x68, 0x8f, 0xbd, 0xf7, 0x2d, 0x52, 0xf4, 0x92, 0x63, 0xd1, 0x43, 0x50, 0xd8,
+	0x6f, 0x90, 0x63, 0x4f, 0xc5, 0x92, 0xd4, 0x5a, 0xf6, 0x4a, 0xa8, 0x63, 0x34, 0xe9, 0x49, 0xe2,
+	0x70, 0x66, 0x38, 0xfc, 0xe6, 0xe3, 0xcc, 0x2c, 0x5a, 0x63, 0xd1, 0x13, 0xf0, 0x24, 0x1b, 0x42,
+	0xb3, 0x0f, 0xbe, 0x7f, 0xdc, 0x1c, 0x6e, 0x35, 0x61, 0x08, 0x91, 0x14, 0x8d, 0x7e, 0xcc, 0x25,
+	0xc7, 0x38, 0x55, 0x68, 0x28, 0x85, 0xc6, 0x70, 0x6b, 0x75, 0xd9, 0xe7, 0x3e, 0x57, 0xdb, 0xcd,
+	0xe4, 0x9f, 0xd6, 0x5c, 0xbd, 0x33, 0xc1, 0x15, 0x91, 0x12, 0x84, 0x24, 0x92, 0xf1, 0xc8, 0x68,
+	0x55, 0x26, 0x68, 0xc9, 0xe3, 0x3e, 0x98, 0xf3, 0x6a, 0xaf, 0x2d, 0x54, 0xee, 0x24, 0x01, 0xec,
+	0x9c, 0x99, 0xee, 0xbb, 0x02, 0xe2, 0x21, 0x50, 0xfc, 0x10, 0xdd, 0x18, 0xf3, 0xd8, 0x4d, 0xec,
+	0xca, 0x56, 0xd5, 0xaa, 0x97, 0xb6, 0x6f, 0x35, 0xb2, 0x71, 0x36, 0xda, 0x3d, 0xc2, 0xc2, 0xc3,
+	0xe3, 0x3e, 0x38, 0x8b, 0x63, 0x66, 0x89, 0x00, 0x6f, 0xa2, 0x45, 0x37, 0x66, 0xd4, 0x87, 0xae,
+	0xc7, 0x23, 0x19, 0x13, 0x4f, 0x96, 0x73, 0x55, 0xab, 0x3e, 0xe7, 0x94, 0xb4, 0xb8, 0x6d, 0xa4,
+	0x78, 0xe3, 0x4c, 0x31, 0x20, 0x2c, 0xea, 0x32, 0x5a, 0xce, 0x57, 0xad, 0xba, 0xed, 0x2c, 0x18,
+	0xc5, 0x44, 0xba, 0x47, 0xf1, 0x5d, 0x54, 0x1a, 0x0f, 0x8d, 0xd1, 0xb2, 0x5d, 0xb5, 0xea, 0x45,
+	0x67, 0x61, 0x4c, 0xba, 0x47, 0xf1, 0x32, 0x9a, 0x8d, 0x78, 0xe4, 0x41, 0x79, 0x56, 0x39, 0xd1,
+	0x8b, 0x5a, 0x84, 0x3e, 0x50, 0x77, 0x6e, 0x29, 0x97, 0xdf, 0x30, 0x19, 0xd0, 0x98, 0x3c, 0x6b,
+	0x93, 0xc8, 0x83, 0x1e, 0xd0, 0x49, 0xc1, 0x5a, 0x97, 0x0d, 0x36, 0x37, 0x21, 0xd8, 0xda, 0xef,
+	0x16, 0xc2, 0xea, 0xc0, 0xfd, 0x81, 0xf4, 0x39, 0x8b, 0xfc, 0x16, 0x91, 0x5e, 0x90, 0x04, 0x47,
+	0x21, 0xe2, 0xa1, 0xf1, 0xae, 0x17, 0x78, 0x0b, 0x2d, 0xf3, 0xd8, 0x0b, 0x40, 0xc8, 0x98, 0x48,
+	0x1e, 0x77, 0x09, 0xa5, 0x31, 0x08, 0x61, 0xf0, 0x7a, 0x6f, 0x7c, 0x6f, 0x47, 0x6f, 0xe1, 0x35,
+	0x34, 0xef, 0x26, 0x1e, 0xbb, 0xfa, 0xae, 0x1a, 0x30, 0xa4, 0x44, 0x8f, 0x12, 0x09, 0xbe, 0x8d,
+	0x16, 0xb4, 0x82, 0x64, 0x21, 0xf0, 0x81, 0x54, 0x60, 0xd9, 0x4e, 0x51, 0x09, 0x0f, 0xb5, 0x0c,
+	0x6f, 0xa0, 0xa2, 0x51, 0x7a, 0xde, 0x65, 0x54, 0x94, 0x67, 0xab, 0xf9, 0xba, 0xdd, 0xb2, 0x5f,
+	0xbc, 0x5a, 0x9b, 0x31, 0xce, 0x0e, 0x9f, 0xef, 0x51, 0x51, 0xfb, 0xd9, 0x42, 0xab, 0xd9, 0xdb,
+	0xbc, 0x35, 0xf4, 0xf0, 0x4d, 0x74, 0x5d, 0xc7, 0x95, 0x72, 0xe1, 0x9a, 0x5a, 0x8f, 0xa7, 0xd7,
+	0x1e, 0x4f, 0xef, 0x2f, 0x39, 0xc3, 0xe9, 0x23, 0xd2, 0x13, 0x20, 0xbf, 0xee, 0x53, 0x22, 0xc1,
+	0x81, 0xef, 0x06, 0x20, 0x24, 0x5e, 0x47, 0xc5, 0xa1, 0x12, 0x1b, 0xb0, 0x2c, 0x65, 0x39, 0xaf,
+	0x65, 0x29, 0x5a, 0x46, 0x25, 0x00, 0xe6, 0x07, 0xd2, 0x84, 0x65, 0xec, 0x1e, 0x2a, 0x19, 0xfe,
+	0x1c, 0x95, 0x8c, 0x52, 0x08, 0xa1, 0x0b, 0xb1, 0x28, 0xe7, 0xab, 0xf9, 0xfa, 0xfc, 0xf6, 0xed,
+	0x49, 0x2f, 0x43, 0x13, 0xed, 0x88, 0xf4, 0x18, 0x4d, 0xf2, 0xe6, 0x18, 0xff, 0x5f, 0x69, 0x4b,
+	0x7c, 0x80, 0x16, 0x62, 0x78, 0x46, 0x62, 0xda, 0x25, 0x21, 0x1f, 0x44, 0x3a, 0x3d, 0x73, 0xad,
+	0x46, 0x02, 0xfd, 0x9f, 0xaf, 0xd6, 0x36, 0x7c, 0x26, 0x83, 0x81, 0xdb, 0xf0, 0x78, 0xd8, 0xf4,
+	0xb8, 0x08, 0xb9, 0x30, 0x3f, 0xf7, 0x04, 0x7d, 0x6a, 0x5e, 0xf3, 0x5e, 0x24, 0x9d, 0xa2, 0x76,
+	0xb2, 0xa3, 0x7c, 0x24, 0x17, 0x35, 0x4e, 0x25, 0x7f, 0x0a, 0x91, 0x7a, 0x01, 0x73, 0xce, 0xbc,
+	0x96, 0x1d, 0x26, 0xa2, 0xda, 0xaf, 0x16, 0xba, 0xa5, 0x80, 0x3a, 0x00, 0xb9, 0x9f, 0xe5, 0x15,
+	0x08, 0xfc, 0x11, 0x5a, 0x1a, 0x8e, 0xa2, 0x4e, 0x99, 0xa8, 0xd3, 0x79, 0x23, 0xdd, 0x18, 0xd1,
+	0xf0, 0x0a, 0xcc, 0xbd, 0x8f, 0x96, 0x79, 0x1f, 0xb4, 0x3a, 0xc8, 0x20, 0x35, 0xc9, 0x2b, 0x13,
+	0x3c, 0xda, 0xeb, 0xc8, 0xc0, 0x58, 0xd4, 0x9e, 0x98, 0xa7, 0xa4, 0x73, 0xdb, 0xe6, 0xd1, 0x63,
+	0x16, 0x87, 0x97, 0xc9, 0xea, 0x9b, 0x47, 0x57, 0xfb, 0x3e, 0x87, 0x4a, 0x06, 0x9f, 0x88, 0x1e,
+	0xf2, 0x8e, 0x0c, 0xf0, 0x1d, 0x54, 0xe2, 0x86, 0xf6, 0xfa, 0x9d, 0x98, 0xa3, 0x8a, 0x23, 0x69,
+	0xf2, 0x46, 0xf0, 0x0a, 0x2a, 0x08, 0x88, 0x28, 0xc4, 0xc6, 0xbb, 0x59, 0xe1, 0x55, 0x74, 0x3d,
+	0x06, 0x0f, 0xd8, 0x10, 0x62, 0x73, 0xc5, 0x74, 0x8d, 0x3f, 0x43, 0x85, 0x73, 0xd9, 0x6f, 0x9a,
+	0xec, 0x6f, 0x5e, 0x22, 0xfb, 0x6d, 0xce, 0x22, 0xc7, 0x98, 0xe3, 0x47, 0x08, 0x99, 0x77, 0xf5,
+	0x18, 0x74, 0xe1, 0xbb, 0x82, 0xb3, 0x39, 0xed, 0xe2, 0x01, 0x40, 0xcd, 0x47, 0x4b, 0x0a, 0x04,
+	0x83, 0xb5, 0xae, 0x5d, 0x17, 0x4a, 0x8e, 0x95, 0x29, 0x39, 0x57, 0x80, 0x5b, 0xa2, 0xe5, 0x8b,
+	0xad, 0xe8, 0x88, 0x4b, 0x48, 0xce, 0x52, 0x3d, 0xf2, 0xfc, 0x59, 0x4a, 0xa4, 0xcf, 0xca, 0x36,
+	0x83, 0xdc, 0x94, 0x66, 0x30, 0xe4, 0x32, 0x85, 0x5e, 0x2f, 0x6a, 0xaf, 0x73, 0xe6, 0x7e, 0xbb,
+	0xd0, 0xe7, 0x82, 0x49, 0xd5, 0xc5, 0xfe, 0xfd, 0xcc, 0x75, 0x54, 0xd4, 0x0a, 0xe7, 0x6a, 0x84,
+	0x36, 0x32, 0x25, 0x22, 0x1b, 0x56, 0x7e, 0x52, 0x58, 0x9b, 0x68, 0x11, 0x64, 0x00, 0x31, 0x0c,
+	0xc2, 0xae, 0x61, 0x8d, 0xad, 0x0b, 0xe6, 0x48, 0x7c, 0xa0, 0xd9, 0xb3, 0x89, 0x16, 0x75, 0xb2,
+	0xba, 0x29, 0x89, 0xf4, 0xa3, 0x2e, 0x69, 0xb1, 0x33, 0xa2, 0xd2, 0x5d, 0x54, 0x52, 0x6f, 0xfe,
+	0xac, 0x02, 0x17, 0x94, 0xde, 0x82, 0x92, 0xa6, 0x05, 0xf8, 0x41, 0xca, 0xb8, 0x6b, 0x57, 0xaa,
+	0x37, 0x23, 0xc2, 0x4d, 0x4b, 0xf5, 0xf5, 0xe9, 0xa9, 0xfe, 0x7b, 0xd4, 0x11, 0xd3, 0xe6, 0xfb,
+	0xae, 0x51, 0xbf, 0x40, 0x60, 0x3b, 0x43, 0xe0, 0x2c, 0x88, 0xb3, 0x93, 0x40, 0x9c, 0x76, 0xf9,
+	0xc2, 0xf4, 0xcb, 0xff, 0x96, 0x43, 0xef, 0xab, 0xcb, 0x77, 0x9c, 0xf6, 0xf6, 0xfd, 0x5d, 0xe8,
+	0xf7, 0xf8, 0x31, 0xd0, 0x77, 0x8e, 0xc0, 0x3a, 0x2a, 0x1a, 0x3a, 0xe9, 0x29, 0x44, 0x93, 0x6e,
+	0x5e, 0xcb, 0x76, 0xd5, 0x2c, 0x72, 0x49, 0x0c, 0x30, 0xb2, 0x23, 0x12, 0x82, 0xb9, 0xb3, 0xfa,
+	0xaf, 0x4a, 0xe0, 0x71, 0xe8, 0xf2, 0x9e, 0x26, 0x97, 0x63, 0x56, 0x49, 0x09, 0xa4, 0xe0, 0xb1,
+	0x90, 0xf4, 0x34, 0x41, 0x6c, 0x27, 0x5d, 0x4f, 0xc5, 0x72, 0x6e, 0x3a, 0x96, 0x3f, 0xe5, 0xd1,
+	0x4a, 0xa6, 0xd7, 0xff, 0x1f, 0x50, 0x9e, 0x6b, 0x3f, 0x76, 0xb6, 0xfd, 0x64, 0xe7, 0x85, 0xd9,
+	0xff, 0x6e, 0x5e, 0x28, 0xbc, 0x85, 0x79, 0xe1, 0x5a, 0x66, 0x5e, 0xb8, 0xca, 0x43, 0xff, 0xd4,
+	0xd4, 0x74, 0x3d, 0x1e, 0xbe, 0x61, 0x1f, 0xad, 0xfd, 0x60, 0xa1, 0x35, 0xdd, 0x80, 0x07, 0x6e,
+	0xc8, 0x64, 0x8b, 0xd0, 0x03, 0xe6, 0x47, 0x44, 0x0e, 0x62, 0xe8, 0x0c, 0x19, 0x85, 0x04, 0xd8,
+	0x0f, 0xd1, 0x92, 0x4b, 0xa8, 0x9a, 0x1e, 0xc4, 0x68, 0xd3, 0x8c, 0x28, 0x8b, 0x2e, 0xa1, 0x1d,
+	0x19, 0xa4, 0x36, 0xf8, 0x13, 0x74, 0x33, 0xa3, 0xdb, 0x15, 0x03, 0x37, 0x49, 0x80, 0xe9, 0x4c,
+	0x2b, 0x17, 0x6c, 0x0e, 0xf4, 0x6e, 0x0b, 0x5e, 0x9c, 0x54, 0xac, 0x97, 0x27, 0x15, 0xeb, 0xaf,
+	0x93, 0x8a, 0xf5, 0xe3, 0x69, 0x65, 0xe6, 0xe5, 0x69, 0x65, 0xe6, 0x8f, 0xd3, 0xca, 0xcc, 0xb7,
+	0x5f, 0x8c, 0xc1, 0xbd, 0x37, 0xca, 0xe5, 0x97, 0xc4, 0x15, 0xcd, 0x34, 0xb3, 0xf7, 0x3c, 0x1e,
+	0xc3, 0xf8, 0x32, 0x19, 0x6d, 0x9b, 0x21, 0xa7, 0x83, 0x1e, 0x08, 0xf3, 0x61, 0xa6, 0xf2, 0xe2,
+	0x16, 0xd4, 0x67, 0xd9, 0xc7, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0xb7, 0x0e, 0xed, 0x47, 0x29,
+	0x0e, 0x00, 0x00,
 }
 
 func (m *EventAttestationObserved) Marshal() (dAtA []byte, err error) {
@@ -1073,51 +1311,6 @@ func (m *EventBridgeWithdrawCanceled) MarshalToSizedBuffer(dAtA []byte) (int, er
 	return len(dAtA) - i, nil
 }
 
-func (m *EventBridgeWithdrawalReceived) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventBridgeWithdrawalReceived) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventBridgeWithdrawalReceived) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Nonce != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.Nonce))
-		i--
-		dAtA[i] = 0x20
-	}
-	if m.OutgoingTxId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.OutgoingTxId))
-		i--
-		dAtA[i] = 0x18
-	}
-	if m.BridgeChainId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.BridgeChainId))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.BridgeContract) > 0 {
-		i -= len(m.BridgeContract)
-		copy(dAtA[i:], m.BridgeContract)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.BridgeContract)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *EventOutgoingBatch) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1138,25 +1331,45 @@ func (m *EventOutgoingBatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.Nonce != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.Nonce))
+	if len(m.BatchTxIds) > 0 {
+		dAtA2 := make([]byte, len(m.BatchTxIds)*10)
+		var j1 int
+		for _, num := range m.BatchTxIds {
+			for num >= 1<<7 {
+				dAtA2[j1] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j1++
+			}
+			dAtA2[j1] = uint8(num)
+			j1++
+		}
+		i -= j1
+		copy(dAtA[i:], dAtA2[:j1])
+		i = encodeVarintEvents(dAtA, i, uint64(j1))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.BatchTimeout != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.BatchTimeout))
 		i--
 		dAtA[i] = 0x20
 	}
-	if m.BatchId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.BatchId))
+	if m.BatchNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.BatchNonce))
 		i--
 		dAtA[i] = 0x18
 	}
-	if m.BridgeChainId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.BridgeChainId))
+	if len(m.OrchestratorAddress) > 0 {
+		i -= len(m.OrchestratorAddress)
+		copy(dAtA[i:], m.OrchestratorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OrchestratorAddress)))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x12
 	}
-	if len(m.BridgeContract) > 0 {
-		i -= len(m.BridgeContract)
-		copy(dAtA[i:], m.BridgeContract)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.BridgeContract)))
+	if len(m.Denom) > 0 {
+		i -= len(m.Denom)
+		copy(dAtA[i:], m.Denom)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Denom)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1208,7 +1421,7 @@ func (m *EventOutgoingBatchCanceled) MarshalToSizedBuffer(dAtA []byte) (int, err
 	return len(dAtA) - i, nil
 }
 
-func (m *EventMultisigUpdateRequest) Marshal() (dAtA []byte, err error) {
+func (m *EventValsetUpdateRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1218,37 +1431,56 @@ func (m *EventMultisigUpdateRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventMultisigUpdateRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventValsetUpdateRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventMultisigUpdateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventValsetUpdateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Nonce != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.Nonce))
+	if len(m.RewardToken) > 0 {
+		i -= len(m.RewardToken)
+		copy(dAtA[i:], m.RewardToken)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.RewardToken)))
 		i--
-		dAtA[i] = 0x20
+		dAtA[i] = 0x2a
 	}
-	if m.MultisigId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.MultisigId))
-		i--
-		dAtA[i] = 0x18
+	{
+		size := m.RewardAmount.Size()
+		i -= size
+		if _, err := m.RewardAmount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
 	}
-	if m.BridgeChainId != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.BridgeChainId))
+	i--
+	dAtA[i] = 0x22
+	if len(m.ValsetMembers) > 0 {
+		for iNdEx := len(m.ValsetMembers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ValsetMembers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintEvents(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if m.ValsetHeight != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.ValsetHeight))
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.BridgeContract) > 0 {
-		i -= len(m.BridgeContract)
-		copy(dAtA[i:], m.BridgeContract)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.BridgeContract)))
+	if m.ValsetNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.ValsetNonce))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1273,10 +1505,24 @@ func (m *EventSetOrchestratorAddresses) MarshalToSizedBuffer(dAtA []byte) (int, 
 	_ = i
 	var l int
 	_ = l
-	if len(m.SetOperatorAddress) > 0 {
-		i -= len(m.SetOperatorAddress)
-		copy(dAtA[i:], m.SetOperatorAddress)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.SetOperatorAddress)))
+	if len(m.OperatorEthAddress) > 0 {
+		i -= len(m.OperatorEthAddress)
+		copy(dAtA[i:], m.OperatorEthAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OperatorEthAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.OrchestratorAddress) > 0 {
+		i -= len(m.OrchestratorAddress)
+		copy(dAtA[i:], m.OrchestratorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OrchestratorAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ValidatorAddress) > 0 {
+		i -= len(m.ValidatorAddress)
+		copy(dAtA[i:], m.ValidatorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.ValidatorAddress)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1303,12 +1549,17 @@ func (m *EventValsetConfirm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.ValsetConfirmKey) > 0 {
-		i -= len(m.ValsetConfirmKey)
-		copy(dAtA[i:], m.ValsetConfirmKey)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.ValsetConfirmKey)))
+	if len(m.OrchestratorAddress) > 0 {
+		i -= len(m.OrchestratorAddress)
+		copy(dAtA[i:], m.OrchestratorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OrchestratorAddress)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x12
+	}
+	if m.ValsetNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.ValsetNonce))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1333,36 +1584,42 @@ func (m *EventSendToEth) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	{
+		size := m.BridgeFee.Size()
+		i -= size
+		if _, err := m.BridgeFee.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if len(m.Receiver) > 0 {
+		i -= len(m.Receiver)
+		copy(dAtA[i:], m.Receiver)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Receiver)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Sender) > 0 {
+		i -= len(m.Sender)
+		copy(dAtA[i:], m.Sender)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Sender)))
+		i--
+		dAtA[i] = 0x12
+	}
 	if m.OutgoingTxId != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.OutgoingTxId))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *EventRequestBatch) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *EventRequestBatch) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *EventRequestBatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.BatchNonce != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.BatchNonce))
 		i--
 		dAtA[i] = 0x8
 	}
@@ -1389,12 +1646,59 @@ func (m *EventConfirmBatch) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.BatchConfirmKey) > 0 {
-		i -= len(m.BatchConfirmKey)
-		copy(dAtA[i:], m.BatchConfirmKey)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.BatchConfirmKey)))
+	if len(m.OrchestratorAddress) > 0 {
+		i -= len(m.OrchestratorAddress)
+		copy(dAtA[i:], m.OrchestratorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OrchestratorAddress)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x12
+	}
+	if m.BatchNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.BatchNonce))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventAttestationVote) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventAttestationVote) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventAttestationVote) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Voter) > 0 {
+		i -= len(m.Voter)
+		copy(dAtA[i:], m.Voter)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Voter)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.AttestationId) > 0 {
+		i -= len(m.AttestationId)
+		copy(dAtA[i:], m.AttestationId)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.AttestationId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.EventNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventNonce))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1419,12 +1723,60 @@ func (m *EventDepositClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.OrchestratorAddress) > 0 {
+		i -= len(m.OrchestratorAddress)
+		copy(dAtA[i:], m.OrchestratorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OrchestratorAddress)))
+		i--
+		dAtA[i] = 0x42
+	}
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x3a
+	if len(m.TokenContract) > 0 {
+		i -= len(m.TokenContract)
+		copy(dAtA[i:], m.TokenContract)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.TokenContract)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.CosmosReceiver) > 0 {
+		i -= len(m.CosmosReceiver)
+		copy(dAtA[i:], m.CosmosReceiver)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.CosmosReceiver)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.EthereumSender) > 0 {
+		i -= len(m.EthereumSender)
+		copy(dAtA[i:], m.EthereumSender)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.EthereumSender)))
+		i--
+		dAtA[i] = 0x22
+	}
 	if len(m.AttestationId) > 0 {
 		i -= len(m.AttestationId)
 		copy(dAtA[i:], m.AttestationId)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.AttestationId)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x1a
+	}
+	if m.EventHeight != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventHeight))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.EventNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventNonce))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1449,12 +1801,41 @@ func (m *EventWithdrawClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.OrchestratorAddress) > 0 {
+		i -= len(m.OrchestratorAddress)
+		copy(dAtA[i:], m.OrchestratorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OrchestratorAddress)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.TokenContract) > 0 {
+		i -= len(m.TokenContract)
+		copy(dAtA[i:], m.TokenContract)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.TokenContract)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.BatchNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.BatchNonce))
+		i--
+		dAtA[i] = 0x20
+	}
 	if len(m.AttestationId) > 0 {
 		i -= len(m.AttestationId)
 		copy(dAtA[i:], m.AttestationId)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.AttestationId)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x1a
+	}
+	if m.EventHeight != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventHeight))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.EventNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventNonce))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1479,12 +1860,62 @@ func (m *EventERC20DeployedClaim) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	_ = i
 	var l int
 	_ = l
+	if len(m.OrchestratorAddress) > 0 {
+		i -= len(m.OrchestratorAddress)
+		copy(dAtA[i:], m.OrchestratorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OrchestratorAddress)))
+		i--
+		dAtA[i] = 0x4a
+	}
+	if m.Decimals != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.Decimals))
+		i--
+		dAtA[i] = 0x40
+	}
+	if len(m.Symbol) > 0 {
+		i -= len(m.Symbol)
+		copy(dAtA[i:], m.Symbol)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Symbol)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.TokenContract) > 0 {
+		i -= len(m.TokenContract)
+		copy(dAtA[i:], m.TokenContract)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.TokenContract)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.CosmosDenom) > 0 {
+		i -= len(m.CosmosDenom)
+		copy(dAtA[i:], m.CosmosDenom)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.CosmosDenom)))
+		i--
+		dAtA[i] = 0x22
+	}
 	if len(m.AttestationId) > 0 {
 		i -= len(m.AttestationId)
 		copy(dAtA[i:], m.AttestationId)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.AttestationId)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x1a
+	}
+	if m.EventHeight != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventHeight))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.EventNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventNonce))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1509,12 +1940,65 @@ func (m *EventValsetUpdateClaim) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	_ = i
 	var l int
 	_ = l
+	if len(m.OrchestratorAddress) > 0 {
+		i -= len(m.OrchestratorAddress)
+		copy(dAtA[i:], m.OrchestratorAddress)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.OrchestratorAddress)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if len(m.RewardToken) > 0 {
+		i -= len(m.RewardToken)
+		copy(dAtA[i:], m.RewardToken)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.RewardToken)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	{
+		size := m.RewardAmount.Size()
+		i -= size
+		if _, err := m.RewardAmount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x32
+	if len(m.ValsetMembers) > 0 {
+		for iNdEx := len(m.ValsetMembers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ValsetMembers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintEvents(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if m.ValsetNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.ValsetNonce))
+		i--
+		dAtA[i] = 0x20
+	}
 	if len(m.AttestationId) > 0 {
 		i -= len(m.AttestationId)
 		copy(dAtA[i:], m.AttestationId)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.AttestationId)))
 		i--
-		dAtA[i] = 0xa
+		dAtA[i] = 0x1a
+	}
+	if m.EventHeight != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventHeight))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.EventNonce != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.EventNonce))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1637,46 +2121,32 @@ func (m *EventBridgeWithdrawCanceled) Size() (n int) {
 	return n
 }
 
-func (m *EventBridgeWithdrawalReceived) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.BridgeContract)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	if m.BridgeChainId != 0 {
-		n += 1 + sovEvents(uint64(m.BridgeChainId))
-	}
-	if m.OutgoingTxId != 0 {
-		n += 1 + sovEvents(uint64(m.OutgoingTxId))
-	}
-	if m.Nonce != 0 {
-		n += 1 + sovEvents(uint64(m.Nonce))
-	}
-	return n
-}
-
 func (m *EventOutgoingBatch) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.BridgeContract)
+	l = len(m.Denom)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
-	if m.BridgeChainId != 0 {
-		n += 1 + sovEvents(uint64(m.BridgeChainId))
+	l = len(m.OrchestratorAddress)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
 	}
-	if m.BatchId != 0 {
-		n += 1 + sovEvents(uint64(m.BatchId))
+	if m.BatchNonce != 0 {
+		n += 1 + sovEvents(uint64(m.BatchNonce))
 	}
-	if m.Nonce != 0 {
-		n += 1 + sovEvents(uint64(m.Nonce))
+	if m.BatchTimeout != 0 {
+		n += 1 + sovEvents(uint64(m.BatchTimeout))
+	}
+	if len(m.BatchTxIds) > 0 {
+		l = 0
+		for _, e := range m.BatchTxIds {
+			l += sovEvents(uint64(e))
+		}
+		n += 1 + sovEvents(uint64(l)) + l
 	}
 	return n
 }
@@ -1703,24 +2173,29 @@ func (m *EventOutgoingBatchCanceled) Size() (n int) {
 	return n
 }
 
-func (m *EventMultisigUpdateRequest) Size() (n int) {
+func (m *EventValsetUpdateRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.BridgeContract)
+	if m.ValsetNonce != 0 {
+		n += 1 + sovEvents(uint64(m.ValsetNonce))
+	}
+	if m.ValsetHeight != 0 {
+		n += 1 + sovEvents(uint64(m.ValsetHeight))
+	}
+	if len(m.ValsetMembers) > 0 {
+		for _, e := range m.ValsetMembers {
+			l = e.Size()
+			n += 1 + l + sovEvents(uint64(l))
+		}
+	}
+	l = m.RewardAmount.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = len(m.RewardToken)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
-	}
-	if m.BridgeChainId != 0 {
-		n += 1 + sovEvents(uint64(m.BridgeChainId))
-	}
-	if m.MultisigId != 0 {
-		n += 1 + sovEvents(uint64(m.MultisigId))
-	}
-	if m.Nonce != 0 {
-		n += 1 + sovEvents(uint64(m.Nonce))
 	}
 	return n
 }
@@ -1731,7 +2206,15 @@ func (m *EventSetOrchestratorAddresses) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.SetOperatorAddress)
+	l = len(m.ValidatorAddress)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.OrchestratorAddress)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.OperatorEthAddress)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
@@ -1744,7 +2227,10 @@ func (m *EventValsetConfirm) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.ValsetConfirmKey)
+	if m.ValsetNonce != 0 {
+		n += 1 + sovEvents(uint64(m.ValsetNonce))
+	}
+	l = len(m.OrchestratorAddress)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
@@ -1760,18 +2246,18 @@ func (m *EventSendToEth) Size() (n int) {
 	if m.OutgoingTxId != 0 {
 		n += 1 + sovEvents(uint64(m.OutgoingTxId))
 	}
-	return n
-}
-
-func (m *EventRequestBatch) Size() (n int) {
-	if m == nil {
-		return 0
+	l = len(m.Sender)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
 	}
-	var l int
-	_ = l
-	if m.BatchNonce != 0 {
-		n += 1 + sovEvents(uint64(m.BatchNonce))
+	l = len(m.Receiver)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
 	}
+	l = m.Amount.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.BridgeFee.Size()
+	n += 1 + l + sovEvents(uint64(l))
 	return n
 }
 
@@ -1781,7 +2267,30 @@ func (m *EventConfirmBatch) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.BatchConfirmKey)
+	if m.BatchNonce != 0 {
+		n += 1 + sovEvents(uint64(m.BatchNonce))
+	}
+	l = len(m.OrchestratorAddress)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	return n
+}
+
+func (m *EventAttestationVote) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.EventNonce != 0 {
+		n += 1 + sovEvents(uint64(m.EventNonce))
+	}
+	l = len(m.AttestationId)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.Voter)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
@@ -1794,7 +2303,31 @@ func (m *EventDepositClaim) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.EventNonce != 0 {
+		n += 1 + sovEvents(uint64(m.EventNonce))
+	}
+	if m.EventHeight != 0 {
+		n += 1 + sovEvents(uint64(m.EventHeight))
+	}
 	l = len(m.AttestationId)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.EthereumSender)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.CosmosReceiver)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.TokenContract)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = len(m.OrchestratorAddress)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
@@ -1807,7 +2340,24 @@ func (m *EventWithdrawClaim) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.EventNonce != 0 {
+		n += 1 + sovEvents(uint64(m.EventNonce))
+	}
+	if m.EventHeight != 0 {
+		n += 1 + sovEvents(uint64(m.EventHeight))
+	}
 	l = len(m.AttestationId)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	if m.BatchNonce != 0 {
+		n += 1 + sovEvents(uint64(m.BatchNonce))
+	}
+	l = len(m.TokenContract)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.OrchestratorAddress)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
@@ -1820,7 +2370,36 @@ func (m *EventERC20DeployedClaim) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.EventNonce != 0 {
+		n += 1 + sovEvents(uint64(m.EventNonce))
+	}
+	if m.EventHeight != 0 {
+		n += 1 + sovEvents(uint64(m.EventHeight))
+	}
 	l = len(m.AttestationId)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.CosmosDenom)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.TokenContract)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.Symbol)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	if m.Decimals != 0 {
+		n += 1 + sovEvents(uint64(m.Decimals))
+	}
+	l = len(m.OrchestratorAddress)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
@@ -1833,7 +2412,32 @@ func (m *EventValsetUpdateClaim) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.EventNonce != 0 {
+		n += 1 + sovEvents(uint64(m.EventNonce))
+	}
+	if m.EventHeight != 0 {
+		n += 1 + sovEvents(uint64(m.EventHeight))
+	}
 	l = len(m.AttestationId)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	if m.ValsetNonce != 0 {
+		n += 1 + sovEvents(uint64(m.ValsetNonce))
+	}
+	if len(m.ValsetMembers) > 0 {
+		for _, e := range m.ValsetMembers {
+			l = e.Size()
+			n += 1 + l + sovEvents(uint64(l))
+		}
+	}
+	l = m.RewardAmount.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = len(m.RewardToken)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.OrchestratorAddress)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
@@ -2149,145 +2753,6 @@ func (m *EventBridgeWithdrawCanceled) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventBridgeWithdrawalReceived) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventBridgeWithdrawalReceived: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventBridgeWithdrawalReceived: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BridgeContract", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.BridgeContract = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BridgeChainId", wireType)
-			}
-			m.BridgeChainId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.BridgeChainId |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OutgoingTxId", wireType)
-			}
-			m.OutgoingTxId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.OutgoingTxId |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
-			}
-			m.Nonce = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Nonce |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *EventOutgoingBatch) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2319,7 +2784,7 @@ func (m *EventOutgoingBatch) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BridgeContract", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2347,13 +2812,13 @@ func (m *EventOutgoingBatch) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BridgeContract = string(dAtA[iNdEx:postIndex])
+			m.Denom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BridgeChainId", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrchestratorAddress", wireType)
 			}
-			m.BridgeChainId = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -2363,16 +2828,29 @@ func (m *EventOutgoingBatch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BridgeChainId |= uint64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrchestratorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		case 3:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BatchId", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BatchNonce", wireType)
 			}
-			m.BatchId = 0
+			m.BatchNonce = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -2382,16 +2860,16 @@ func (m *EventOutgoingBatch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BatchId |= uint64(b&0x7F) << shift
+				m.BatchNonce |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 4:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field BatchTimeout", wireType)
 			}
-			m.Nonce = 0
+			m.BatchTimeout = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -2401,10 +2879,86 @@ func (m *EventOutgoingBatch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Nonce |= uint64(b&0x7F) << shift
+				m.BatchTimeout |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
+			}
+		case 5:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowEvents
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.BatchTxIds = append(m.BatchTxIds, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowEvents
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthEvents
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthEvents
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.BatchTxIds) == 0 {
+					m.BatchTxIds = make([]uint64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowEvents
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.BatchTxIds = append(m.BatchTxIds, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field BatchTxIds", wireType)
 			}
 		default:
 			iNdEx = preIndex
@@ -2566,7 +3120,7 @@ func (m *EventOutgoingBatchCanceled) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventMultisigUpdateRequest) Unmarshal(dAtA []byte) error {
+func (m *EventValsetUpdateRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2589,15 +3143,87 @@ func (m *EventMultisigUpdateRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventMultisigUpdateRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventValsetUpdateRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventMultisigUpdateRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventValsetUpdateRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValsetNonce", wireType)
+			}
+			m.ValsetNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ValsetNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValsetHeight", wireType)
+			}
+			m.ValsetHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ValsetHeight |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BridgeContract", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ValsetMembers", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValsetMembers = append(m.ValsetMembers, &BridgeValidator{})
+			if err := m.ValsetMembers[len(m.ValsetMembers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardAmount", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2625,13 +3251,15 @@ func (m *EventMultisigUpdateRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BridgeContract = string(dAtA[iNdEx:postIndex])
+			if err := m.RewardAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BridgeChainId", wireType)
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardToken", wireType)
 			}
-			m.BridgeChainId = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -2641,49 +3269,24 @@ func (m *EventMultisigUpdateRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BridgeChainId |= uint64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MultisigId", wireType)
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
 			}
-			m.MultisigId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.MultisigId |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
 			}
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
 			}
-			m.Nonce = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Nonce |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
+			m.RewardToken = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipEvents(dAtA[iNdEx:])
@@ -2736,9 +3339,9 @@ func (m *EventSetOrchestratorAddresses) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SetOperatorAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
 			}
-			var byteLen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -2748,25 +3351,87 @@ func (m *EventSetOrchestratorAddresses) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthEvents
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthEvents
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SetOperatorAddress = append(m.SetOperatorAddress[:0], dAtA[iNdEx:postIndex]...)
-			if m.SetOperatorAddress == nil {
-				m.SetOperatorAddress = []byte{}
+			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrchestratorAddress", wireType)
 			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrchestratorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OperatorEthAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OperatorEthAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2819,10 +3484,10 @@ func (m *EventValsetConfirm) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ValsetConfirmKey", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValsetNonce", wireType)
 			}
-			var byteLen int
+			m.ValsetNonce = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -2832,25 +3497,42 @@ func (m *EventValsetConfirm) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				byteLen |= int(b&0x7F) << shift
+				m.ValsetNonce |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if byteLen < 0 {
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrchestratorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthEvents
 			}
-			postIndex := iNdEx + byteLen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthEvents
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ValsetConfirmKey = append(m.ValsetConfirmKey[:0], dAtA[iNdEx:postIndex]...)
-			if m.ValsetConfirmKey == nil {
-				m.ValsetConfirmKey = []byte{}
-			}
+			m.OrchestratorAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -2921,61 +3603,11 @@ func (m *EventSendToEth) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
 			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *EventRequestBatch) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventRequestBatch: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventRequestBatch: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BatchNonce", wireType)
-			}
-			m.BatchNonce = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -2985,11 +3617,124 @@ func (m *EventRequestBatch) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BatchNonce |= uint64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Sender = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Receiver", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Receiver = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BridgeFee", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.BridgeFee.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipEvents(dAtA[iNdEx:])
@@ -3041,8 +3786,128 @@ func (m *EventConfirmBatch) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BatchNonce", wireType)
+			}
+			m.BatchNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.BatchNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BatchConfirmKey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field OrchestratorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrchestratorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventAttestationVote) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventAttestationVote: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventAttestationVote: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
+			}
+			m.EventNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AttestationId", wireType)
 			}
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
@@ -3069,10 +3934,42 @@ func (m *EventConfirmBatch) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BatchConfirmKey = append(m.BatchConfirmKey[:0], dAtA[iNdEx:postIndex]...)
-			if m.BatchConfirmKey == nil {
-				m.BatchConfirmKey = []byte{}
+			m.AttestationId = append(m.AttestationId[:0], dAtA[iNdEx:postIndex]...)
+			if m.AttestationId == nil {
+				m.AttestationId = []byte{}
 			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Voter", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Voter = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -3125,6 +4022,44 @@ func (m *EventDepositClaim) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
+			}
+			m.EventNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventHeight", wireType)
+			}
+			m.EventHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventHeight |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AttestationId", wireType)
 			}
@@ -3157,6 +4092,168 @@ func (m *EventDepositClaim) Unmarshal(dAtA []byte) error {
 			if m.AttestationId == nil {
 				m.AttestationId = []byte{}
 			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EthereumSender", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EthereumSender = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CosmosReceiver", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CosmosReceiver = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TokenContract", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TokenContract = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrchestratorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrchestratorAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -3209,6 +4306,44 @@ func (m *EventWithdrawClaim) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
+			}
+			m.EventNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventHeight", wireType)
+			}
+			m.EventHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventHeight |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AttestationId", wireType)
 			}
@@ -3241,6 +4376,89 @@ func (m *EventWithdrawClaim) Unmarshal(dAtA []byte) error {
 			if m.AttestationId == nil {
 				m.AttestationId = []byte{}
 			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BatchNonce", wireType)
+			}
+			m.BatchNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.BatchNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TokenContract", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TokenContract = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrchestratorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrchestratorAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -3293,6 +4511,44 @@ func (m *EventERC20DeployedClaim) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
+			}
+			m.EventNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventHeight", wireType)
+			}
+			m.EventHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventHeight |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AttestationId", wireType)
 			}
@@ -3325,6 +4581,185 @@ func (m *EventERC20DeployedClaim) Unmarshal(dAtA []byte) error {
 			if m.AttestationId == nil {
 				m.AttestationId = []byte{}
 			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CosmosDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CosmosDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TokenContract", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TokenContract = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Symbol", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Symbol = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 8:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Decimals", wireType)
+			}
+			m.Decimals = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Decimals |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrchestratorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrchestratorAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -3377,6 +4812,44 @@ func (m *EventValsetUpdateClaim) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventNonce", wireType)
+			}
+			m.EventNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EventHeight", wireType)
+			}
+			m.EventHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EventHeight |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AttestationId", wireType)
 			}
@@ -3409,6 +4882,157 @@ func (m *EventValsetUpdateClaim) Unmarshal(dAtA []byte) error {
 			if m.AttestationId == nil {
 				m.AttestationId = []byte{}
 			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValsetNonce", wireType)
+			}
+			m.ValsetNonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ValsetNonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValsetMembers", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValsetMembers = append(m.ValsetMembers, &BridgeValidator{})
+			if err := m.ValsetMembers[len(m.ValsetMembers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardAmount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.RewardAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardToken", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RewardToken = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrchestratorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrchestratorAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
