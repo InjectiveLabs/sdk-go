@@ -135,14 +135,6 @@ func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio sdk
 
 	// TODO include closing fee for reduce only ?
 
-	if adjustedUnitMargin.IsNegative() && p.IsLong {
-		return MaxLongLiquidationPrice
-	}
-
-	if adjustedUnitMargin.IsNegative() && p.IsShort() {
-		return MinShortLiquidationPrice
-	}
-
 	var liquidationPrice sdk.Dec
 	if p.IsLong {
 		// liquidation price = (entry price - unit margin) / (1 - maintenanceMarginRatio)

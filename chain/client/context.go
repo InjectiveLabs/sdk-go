@@ -22,6 +22,7 @@ import (
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -71,6 +72,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	stakingtypes.RegisterInterfaces(interfaceRegistry)
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
 	feegranttypes.RegisterInterfaces(interfaceRegistry)
+	wasmtypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	return tx.NewTxConfig(marshaler, signModes)
@@ -111,6 +113,8 @@ func NewClientContext(
 	slashingtypes.RegisterInterfaces(interfaceRegistry)
 	stakingtypes.RegisterInterfaces(interfaceRegistry)
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
+	wasmtypes.RegisterInterfaces(interfaceRegistry)
+
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{

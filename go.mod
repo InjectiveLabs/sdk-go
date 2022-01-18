@@ -3,6 +3,7 @@ module github.com/InjectiveLabs/sdk-go
 go 1.16
 
 require (
+	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20201012165903-2cb20defcd66 // indirect
 	github.com/bandprotocol/bandchain-packet v0.0.2
@@ -31,12 +32,12 @@ require (
 	github.com/shopspring/decimal v1.2.0
 	github.com/spf13/cobra v1.2.1
 	github.com/status-im/keycard-go v0.0.0-20200402102358-957c09536969 // indirect
-	github.com/tendermint/tendermint v0.34.14
+	github.com/tendermint/tendermint v0.34.15
 	github.com/tyler-smith/go-bip39 v1.0.2
 	github.com/xlab/suplog v1.3.1
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
-	google.golang.org/genproto v0.0.0-20210828152312-66f60bf46e71
-	google.golang.org/grpc v1.42.0
+	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
+	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa
+	google.golang.org/grpc v1.43.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -46,3 +47,5 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
 
 replace github.com/btcsuite/btcutil => github.com/btcsuite/btcutil v1.0.2
+
+replace github.com/CosmWasm/wasmd => github.com/cosmoscontracts/wasmd v1.0.0-juno6

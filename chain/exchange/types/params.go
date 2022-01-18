@@ -36,9 +36,6 @@ const (
 var MaxOrderPrice = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 var MaxOrderQuantity = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 
-var MaxLongLiquidationPrice = MaxOrderPrice.MulInt64(100) // arbitrary large enough price
-var MinShortLiquidationPrice = sdk.ZeroDec()
-
 var minMarginRatio = sdk.NewDecWithPrec(5, 3)
 
 // Parameter keys
@@ -58,6 +55,7 @@ var (
 	KeyDefaultHourlyInterestRate           = []byte("DefaultHourlyInterestRate")
 	KeyMaxDerivativeOrderSideCount         = []byte("MaxDerivativeOrderSideCount")
 	KeyInjRewardStakedRequirementThreshold = []byte("KeyInjRewardStakedRequirementThreshold")
+	KeyTradingRewardsVestingDuration       = []byte("TradingRewardsVestingDuration")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -118,6 +116,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyDefaultHourlyInterestRate, &p.DefaultHourlyInterestRate, ValidateFee),
 		paramtypes.NewParamSetPair(KeyMaxDerivativeOrderSideCount, &p.MaxDerivativeOrderSideCount, validateDerivativeOrderSideCount),
 		paramtypes.NewParamSetPair(KeyInjRewardStakedRequirementThreshold, &p.InjRewardStakedRequirementThreshold, validateInjRewardStakedRequirementThreshold),
+		paramtypes.NewParamSetPair(KeyTradingRewardsVestingDuration, &p.TradingRewardsVestingDuration, validateTradingRewardsVestingDuration),
 	}
 }
 
@@ -139,6 +138,7 @@ func DefaultParams() Params {
 		DefaultHourlyInterestRate:           sdk.NewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
 		MaxDerivativeOrderSideCount:         MaxDerivativeOrderSideCount,
 		InjRewardStakedRequirementThreshold: sdk.NewIntWithDecimal(100, 18), // 100 INJ
+		TradingRewardsVestingDuration:       604800,                         // 7 days
 	}
 }
 
@@ -371,7 +371,7 @@ func validateFundingInterval(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == 0 {
+	if v <= 0 {
 		return fmt.Errorf("fundingInterval must be positive: %d", v)
 	}
 
@@ -384,7 +384,7 @@ func validateFundingMultiple(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == 0 {
+	if v <= 0 {
 		return fmt.Errorf("fundingMultiple must be positive: %d", v)
 	}
 
@@ -416,6 +416,19 @@ func validateInjRewardStakedRequirementThreshold(i interface{}) error {
 
 	if v.IsNegative() {
 		return fmt.Errorf("InjRewardStakedRequirementThreshold cannot be negative: %d", v)
+	}
+
+	return nil
+}
+
+func validateTradingRewardsVestingDuration(i interface{}) error {
+	v, ok := i.(int64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v < 0 {
+		return fmt.Errorf("trading rewards vesting duration must be non-negative: %d", v)
 	}
 
 	return nil

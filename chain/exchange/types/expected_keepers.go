@@ -10,6 +10,8 @@ import (
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 )
@@ -62,4 +64,12 @@ type DistributionKeeper interface {
 type StakingKeeper interface {
 	GetDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) (delegations []stakingtypes.Delegation)
 	Validator(sdk.Context, sdk.ValAddress) stakingtypes.ValidatorI
+}
+
+type WasmViewKeeper interface {
+	wasmtypes.ViewKeeper
+}
+
+type WasmContractOpsKeeper interface {
+	wasmtypes.ContractOpsKeeper
 }

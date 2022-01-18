@@ -56,13 +56,16 @@ var (
 	ExpiryFuturesMarketInfoPrefix            = []byte{0x33} // prefix for each key to a expiry futures market's market info
 	ExpiryFuturesMarketInfoByTimestampPrefix = []byte{0x34} // prefix for each index key to a expiry futures market's market info
 
-	TradingRewardCampaignInfoKey              = []byte{0x40} // key to the TradingRewardCampaignInfo
-	TradingRewardMarketQualificationPrefix    = []byte{0x41} // prefix for each key to a market's qualification/disqualification status
-	TradingRewardMarketPointsMultiplierPrefix = []byte{0x42} // prefix for each key to a market's FeePaidMultiplier
-	TradingRewardCampaignRewardPoolPrefix     = []byte{0x43} // prefix for each key to a campaign's reward pool
-	TradingRewardCurrentCampaignEndTimeKey    = []byte{0x44} // key to the current campaign's end time
-	TradingRewardCampaignTotalPointsKey       = []byte{0x45} // key to the total trading reward points for the current campaign
-	TradingRewardAccountPointsPrefix          = []byte{0x46} // prefix for each key to an account's current campaign reward points
+	TradingRewardCampaignInfoKey                  = []byte{0x40} // key to the TradingRewardCampaignInfo
+	TradingRewardMarketQualificationPrefix        = []byte{0x41} // prefix for each key to a market's qualification/disqualification status
+	TradingRewardMarketPointsMultiplierPrefix     = []byte{0x42} // prefix for each key to a market's FeePaidMultiplier
+	TradingRewardCampaignRewardPoolPrefix         = []byte{0x43} // prefix for each key to a campaign's reward pool
+	TradingRewardCurrentCampaignEndTimeKey        = []byte{0x44} // key to the current campaign's end time
+	TradingRewardCampaignTotalPointsKey           = []byte{0x45} // key to the total trading reward points for the current campaign
+	TradingRewardAccountPointsPrefix              = []byte{0x46} // prefix for each key to an account's current campaign reward points
+	TradingRewardCampaignRewardPendingPoolPrefix  = []byte{0x47} // prefix for each key to a campaign's reward pending pool
+	TradingRewardAccountPendingPointsPrefix       = []byte{0x48} // prefix for each key to an account's current campaign reward points
+	TradingRewardCampaignTotalPendingPointsPrefix = []byte{0x49} // prefix to the total trading reward points for the current campaign
 
 	FeeDiscountMarketQualificationPrefix                  = []byte{0x50} // prefix for each key to a market's qualification/disqualification status
 	FeeDiscountBucketCountKey                             = []byte{0x51} // key to the fee discount bucket count
@@ -132,6 +135,11 @@ func GetCampaignRewardPoolKey(startTimestamp int64) []byte {
 	return append(TradingRewardCampaignRewardPoolPrefix, sdk.Uint64ToBigEndian(uint64(startTimestamp))...)
 }
 
+// GetCampaignRewardPendingPoolKey provides the key for a pending reward pool for a given start time
+func GetCampaignRewardPendingPoolKey(startTimestamp int64) []byte {
+	return append(TradingRewardCampaignRewardPendingPoolPrefix, sdk.Uint64ToBigEndian(uint64(startTimestamp))...)
+}
+
 // GetCampaignMarketQualificationKey provides the key for the market trading rewards qualification status
 func GetCampaignMarketQualificationKey(marketID common.Hash) []byte {
 	return append(TradingRewardMarketQualificationPrefix, marketID.Bytes()...)
@@ -145,6 +153,26 @@ func GetTradingRewardsMarketPointsMultiplierKey(marketID common.Hash) []byte {
 // GetTradingRewardAccountPointsKey provides the key for the account's trading rewards points.
 func GetTradingRewardAccountPointsKey(account sdk.AccAddress) []byte {
 	return append(TradingRewardAccountPointsPrefix, account.Bytes()...)
+}
+
+// GetTradingRewardAccountPendingPointsPrefix provides the prefix for the account's trading rewards pending points.
+func GetTradingRewardAccountPendingPointsPrefix(pendingPoolStartTimestamp int64) []byte {
+	return append(TradingRewardAccountPendingPointsPrefix, sdk.Uint64ToBigEndian(uint64(pendingPoolStartTimestamp))...)
+}
+
+// GetTradingRewardAccountPendingPointsKey provides the key for the account's trading rewards pending points.
+func GetTradingRewardAccountPendingPointsKey(account sdk.AccAddress, pendingPoolStartTimestamp int64) []byte {
+	return append(append(TradingRewardAccountPendingPointsPrefix, sdk.Uint64ToBigEndian(uint64(pendingPoolStartTimestamp))...), account.Bytes()...)
+}
+
+// GetTradingRewardTotalPendingPointsKey provides the key for the total pending trading rewards points.
+func GetTradingRewardTotalPendingPointsKey(pendingPoolStartTimestamp int64) []byte {
+	return append(TradingRewardCampaignTotalPendingPointsPrefix, sdk.Uint64ToBigEndian(uint64(pendingPoolStartTimestamp))...)
+}
+
+// GetTradingRewardAccountPendingPointsStartTimestamp provides the start timestamp of the pending points pool.
+func GetTradingRewardAccountPendingPointsStartTimestamp(pendingPoolStartTimestamp []byte) int64 {
+	return int64(sdk.BigEndianToUint64(pendingPoolStartTimestamp))
 }
 
 // GetDepositKey provides the key to obtain a given subaccount's deposits for a given denom

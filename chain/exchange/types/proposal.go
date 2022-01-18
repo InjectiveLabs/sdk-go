@@ -47,7 +47,7 @@ func init() {
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
 	gov.RegisterProposalTypeCodec(&TradingRewardCampaignUpdateProposal{}, "injective/TradingRewardCampaignUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeTradingRewardPointsUpdate)
-	gov.RegisterProposalTypeCodec(&TradingRewardPointsUpdateProposal{}, "injective/TradingRewardPointsUpdateProposal")
+	gov.RegisterProposalTypeCodec(&TradingRewardPendingPointsUpdateProposal{}, "injective/TradingRewardPendingPointsUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeFeeDiscountProposal)
 	gov.RegisterProposalTypeCodec(&FeeDiscountProposal{}, "injective/FeeDiscountProposal")
 	gov.RegisterProposalType(ProposalTypeBatchCommunityPoolSpendProposal)
@@ -783,37 +783,41 @@ func (p *TradingRewardCampaignUpdateProposal) ValidateBasic() error {
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &TradingRewardPointsUpdateProposal{}
+var _ gov.Content = &TradingRewardPendingPointsUpdateProposal{}
 
 // GetTitle returns the title of this proposal
-func (p *TradingRewardPointsUpdateProposal) GetTitle() string {
+func (p *TradingRewardPendingPointsUpdateProposal) GetTitle() string {
 	return p.Title
 }
 
 // GetDescription returns the description of this proposal
-func (p *TradingRewardPointsUpdateProposal) GetDescription() string {
+func (p *TradingRewardPendingPointsUpdateProposal) GetDescription() string {
 	return p.Description
 }
 
 // ProposalRoute returns router key of this proposal.
-func (p *TradingRewardPointsUpdateProposal) ProposalRoute() string { return RouterKey }
+func (p *TradingRewardPendingPointsUpdateProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type of this proposal.
-func (p *TradingRewardPointsUpdateProposal) ProposalType() string {
+func (p *TradingRewardPendingPointsUpdateProposal) ProposalType() string {
 	return ProposalTypeTradingRewardPointsUpdate
 }
 
 // ValidateBasic returns ValidateBasic result of this proposal.
-func (p *TradingRewardPointsUpdateProposal) ValidateBasic() error {
+func (p *TradingRewardPendingPointsUpdateProposal) ValidateBasic() error {
 	if len(p.RewardPointUpdates) == 0 {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points update cannot be nil")
+		return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points update cannot be nil")
+	}
+
+	if p.PendingPoolTimestamp <= 0 {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "pending pool timestamp cannot be zero")
 	}
 
 	accountAddresses := make([]string, 0)
 
 	for _, rewardPointUpdate := range p.RewardPointUpdates {
 		if rewardPointUpdate == nil {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward point update cannot be nil")
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending point update cannot be nil")
 		}
 
 		_, err := sdk.AccAddressFromBech32(rewardPointUpdate.AccountAddress)
@@ -825,17 +829,17 @@ func (p *TradingRewardPointsUpdateProposal) ValidateBasic() error {
 		accountAddresses = append(accountAddresses, rewardPointUpdate.AccountAddress)
 
 		if rewardPointUpdate.NewPoints.IsNil() {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points cannot be nil")
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points cannot be nil")
 		}
 
 		if rewardPointUpdate.NewPoints.IsNegative() {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "reward points cannot be negative")
+			return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points cannot be negative")
 		}
 	}
 
 	hasDuplicateAccountAddresses := HasDuplicates(accountAddresses)
 	if hasDuplicateAccountAddresses {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardsPointsUpdate, "account address cannot be duplicated")
+		return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "account address cannot have duplicates")
 	}
 
 	return gov.ValidateAbstract(p)
@@ -886,10 +890,6 @@ func (p *TradingRewardCampaignLaunchProposal) ValidateBasic() error {
 
 	if p.CampaignInfo == nil {
 		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign info cannot be nil")
-	}
-
-	if p.CampaignInfo.CampaignDurationSeconds <= 0 {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign duration cannot be zero")
 	}
 
 	if len(p.CampaignRewardPools) == 0 {
@@ -970,6 +970,10 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 	if c == nil {
 		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign info cannot be nil")
+	}
+
+	if c.CampaignDurationSeconds <= 0 {
+		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign duration cannot be zero")
 	}
 
 	if len(c.QuoteDenoms) == 0 {

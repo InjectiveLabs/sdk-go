@@ -7,17 +7,18 @@ import (
 )
 
 func NewMarketOrderForLiquidation(position *Position, positionSubaccountID common.Hash, liquidator sdk.AccAddress) *DerivativeMarketOrder {
+	var (
+		worstPrice sdk.Dec
+		orderType  OrderType
+	)
 
 	// if long position, market sell order at price 0
 	// if short position, market buy order at price infinity
-	var worstPrice sdk.Dec
-	var orderType OrderType
 	if position.IsLong {
 		worstPrice = sdk.ZeroDec()
 		orderType = OrderType_SELL
 	} else {
-		// cap the worst price to sell a position at 200x the entry price
-		worstPrice = position.EntryPrice.MulInt64(200)
+		worstPrice = MaxOrderPrice
 		orderType = OrderType_BUY
 	}
 
