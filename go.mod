@@ -3,7 +3,6 @@ module github.com/InjectiveLabs/sdk-go
 go 1.16
 
 require (
-	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20201012165903-2cb20defcd66 // indirect
 	github.com/bandprotocol/bandchain-packet v0.0.2
@@ -47,5 +46,3 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
 
 replace github.com/btcsuite/btcutil => github.com/btcsuite/btcutil v1.0.2
-
-replace github.com/CosmWasm/wasmd => github.com/cosmoscontracts/wasmd v1.0.0-juno6

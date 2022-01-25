@@ -21,8 +21,8 @@ import (
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
+	wasmtypes "github.com/InjectiveLabs/sdk-go/wasm/types"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -115,7 +115,6 @@ func NewClientContext(
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 
-
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
@@ -166,7 +165,7 @@ func newContext(
 	encodingConfig EncodingConfig,
 	kb keyring.Keyring,
 	keyInfo keyring.Info,
-	
+
 ) client.Context {
 	clientCtx := client.Context{
 		ChainID:           chainId,
