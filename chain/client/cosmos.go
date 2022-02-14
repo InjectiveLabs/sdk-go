@@ -9,12 +9,18 @@ import (
 	"sync/atomic"
 	"time"
 
+	"fmt"
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	log "github.com/xlab/suplog"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
@@ -44,9 +50,32 @@ type CosmosClient interface {
 func NewCosmosClient(
 	ctx client.Context,
 	protoAddr string,
+	serverTlsCert string,
 	options ...cosmosClientOption,
 ) (CosmosClient, error) {
-	conn, err := grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(dialerFunc))
+	var conn *grpc.ClientConn
+	var err error
+	if serverTlsCert == "" {
+		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(dialerFunc))
+	} else {
+		rootCert, err := ioutil.ReadFile(serverTlsCert)
+		if err != nil {
+			return nil, err
+		}
+		certPool := x509.NewCertPool()
+		if !certPool.AppendCertsFromPEM(rootCert) {
+			return nil, fmt.Errorf("failed to add server CA's certificate")
+		}
+
+		// get domain from tcp://domain:port
+		serverName := strings.Split(protoAddr,":")[1][2:]
+		config := &tls.Config{
+			RootCAs:      certPool,
+			ServerName:	  serverName,
+		}
+		tlsCreds := credentials.NewTLS(config)
+		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(tlsCreds), grpc.WithContextDialer(dialerFunc))
+	}
 	if err != nil {
 		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
 		return nil, err
