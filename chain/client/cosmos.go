@@ -9,9 +9,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"fmt"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -68,10 +68,10 @@ func NewCosmosClient(
 		}
 
 		// get domain from tcp://domain:port
-		serverName := strings.Split(protoAddr,":")[1][2:]
+		serverName := strings.Split(protoAddr, ":")[1][2:]
 		config := &tls.Config{
-			RootCAs:      certPool,
-			ServerName:	  serverName,
+			RootCAs:    certPool,
+			ServerName: serverName,
 		}
 		tlsCreds := credentials.NewTLS(config)
 		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(tlsCreds), grpc.WithContextDialer(dialerFunc))

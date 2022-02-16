@@ -85,7 +85,7 @@ func (msg MsgUnderwrite) ValidateBasic() error {
 	if !msg.Deposit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
 	}
-	if !msg.Deposit.IsPositive() || msg.Deposit.Amount.GT(MaxUnderwritingAmount){
+	if !msg.Deposit.IsPositive() || msg.Deposit.Amount.GT(MaxUnderwritingAmount) {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
 	}
 	return nil

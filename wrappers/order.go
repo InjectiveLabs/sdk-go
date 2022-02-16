@@ -29,4 +29,3 @@ type OrderInfo struct {
 	OrderHash                   [32]byte
 	OrderTakerAssetFilledAmount *big.Int
 }
-
