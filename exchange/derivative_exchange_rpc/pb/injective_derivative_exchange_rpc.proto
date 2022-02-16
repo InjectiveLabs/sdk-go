@@ -32,6 +32,8 @@ service InjectiveDerivativeExchangeRPC {
 	rpc LiquidablePositions (LiquidablePositionsRequest) returns (LiquidablePositionsResponse);
 	// FundingPayments gets the funding payments for a trader.
 	rpc FundingPayments (FundingPaymentsRequest) returns (FundingPaymentsResponse);
+	// FundingRates gets the historical funding rates for a market.
+	rpc FundingRates (FundingRatesRequest) returns (FundingRatesResponse);
 	// StreamPositions streams derivatives position updates.
 	rpc StreamPositions (StreamPositionsRequest) returns (stream StreamPositionsResponse);
 	// StreamOrders streams updates to individual orders of a Derivative Market.
@@ -234,7 +236,7 @@ message OrdersResponse {
 message DerivativeLimitOrder {
 	// Hash of the order
 	string order_hash = 1;
-	// The type of the order
+	// The side of the order
 	string order_side = 2;
 	// Derivative Market ID
 	string market_id = 3;
@@ -312,6 +314,10 @@ message FundingPaymentsRequest {
 	string subaccount_id = 1;
 	// MarketId of the position we want to fetch
 	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 4;
 }
 
 message FundingPaymentsResponse {
@@ -328,6 +334,29 @@ message FundingPayment {
 	string amount = 3;
 	// Timestamp of funding payment in UNIX millis
 	sint64 timestamp = 4;
+}
+
+message FundingRatesRequest {
+	// MarketId of the position we want to fetch
+	string market_id = 1;
+	// Skip will skip the first n item from the result
+	uint64 skip = 2;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 3;
+}
+
+message FundingRatesResponse {
+	// List of funding rates
+	repeated FundingRate funding_rates = 1;
+}
+
+message FundingRate {
+	// Derivative Market ID
+	string market_id = 1;
+	// Value of the funding rate
+	string rate = 2;
+	// Timestamp of funding rate in UNIX millis
+	sint64 timestamp = 3;
 }
 
 message StreamPositionsRequest {
@@ -401,6 +430,8 @@ message DerivativeTrade {
 	string fee = 8;
 	// Timestamp of trade execution in UNIX millis
 	sint64 executed_at = 9;
+	// Fee recipient address
+	string fee_recipient = 10;
 }
 
 message PositionDelta {
