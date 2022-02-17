@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/xlab/suplog"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
@@ -46,12 +47,7 @@ func NewCosmosClient(
 	protoAddr string,
 	options ...cosmosClientOption,
 ) (CosmosClient, error) {
-	conn, err := grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(dialerFunc))
-	if err != nil {
-		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
-		return nil, err
-	}
-
+	// process options
 	opts := defaultCosmosClientOptions()
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
@@ -65,6 +61,19 @@ func NewCosmosClient(
 		txFactory = txFactory.WithGasPrices(opts.GasPrices)
 	}
 
+	var conn *grpc.ClientConn
+	var err error
+	if opts.TLSCert != nil {
+		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(dialerFunc))
+	} else {
+		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(dialerFunc))
+	}
+	if err != nil {
+		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
+		return nil, err
+	}
+
+	// build client
 	cc := &cosmosClient{
 		ctx:  ctx,
 		opts: opts,
@@ -99,6 +108,7 @@ func NewCosmosClient(
 
 type cosmosClientOptions struct {
 	GasPrices string
+	TLSCert   credentials.TransportCredentials
 }
 
 func defaultCosmosClientOptions() *cosmosClientOptions {
@@ -116,6 +126,18 @@ func OptionGasPrices(gasPrices string) cosmosClientOption {
 		}
 
 		opts.GasPrices = gasPrices
+		return nil
+	}
+}
+
+func OptionTLSCert(tlsCert credentials.TransportCredentials) cosmosClientOption {
+	return func(opts *cosmosClientOptions) error {
+		if tlsCert == nil {
+			log.Infoln("Client does not use grpc secure transport")
+		} else {
+			log.Infoln("Succesfully load server TLS cert")
+		}
+		opts.TLSCert = tlsCert
 		return nil
 	}
 }
