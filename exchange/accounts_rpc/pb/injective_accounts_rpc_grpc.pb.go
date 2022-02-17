@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type InjectiveAccountsRPCClient interface {
 	// Provide the account's portfolio value in USD.
 	Portfolio(ctx context.Context, in *PortfolioRequest, opts ...grpc.CallOption) (*PortfolioResponse, error)
+	// List order states by order hashes
+	OrderStates(ctx context.Context, in *OrderStatesRequest, opts ...grpc.CallOption) (*OrderStatesResponse, error)
 	// List all subaccounts IDs of an account address
 	SubaccountsList(ctx context.Context, in *SubaccountsListRequest, opts ...grpc.CallOption) (*SubaccountsListResponse, error)
 	// List subaccount balances for the provided denoms.
@@ -34,6 +36,8 @@ type InjectiveAccountsRPCClient interface {
 	SubaccountHistory(ctx context.Context, in *SubaccountHistoryRequest, opts ...grpc.CallOption) (*SubaccountHistoryResponse, error)
 	// Get subaccount's orders summary
 	SubaccountOrderSummary(ctx context.Context, in *SubaccountOrderSummaryRequest, opts ...grpc.CallOption) (*SubaccountOrderSummaryResponse, error)
+	// Provide historical trading rewards
+	Rewards(ctx context.Context, in *RewardsRequest, opts ...grpc.CallOption) (*RewardsResponse, error)
 }
 
 type injectiveAccountsRPCClient struct {
@@ -47,6 +51,15 @@ func NewInjectiveAccountsRPCClient(cc grpc.ClientConnInterface) InjectiveAccount
 func (c *injectiveAccountsRPCClient) Portfolio(ctx context.Context, in *PortfolioRequest, opts ...grpc.CallOption) (*PortfolioResponse, error) {
 	out := new(PortfolioResponse)
 	err := c.cc.Invoke(ctx, "/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveAccountsRPCClient) OrderStates(ctx context.Context, in *OrderStatesRequest, opts ...grpc.CallOption) (*OrderStatesResponse, error) {
+	out := new(OrderStatesResponse)
+	err := c.cc.Invoke(ctx, "/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -130,12 +143,23 @@ func (c *injectiveAccountsRPCClient) SubaccountOrderSummary(ctx context.Context,
 	return out, nil
 }
 
+func (c *injectiveAccountsRPCClient) Rewards(ctx context.Context, in *RewardsRequest, opts ...grpc.CallOption) (*RewardsResponse, error) {
+	out := new(RewardsResponse)
+	err := c.cc.Invoke(ctx, "/injective_accounts_rpc.InjectiveAccountsRPC/Rewards", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InjectiveAccountsRPCServer is the server API for InjectiveAccountsRPC service.
 // All implementations must embed UnimplementedInjectiveAccountsRPCServer
 // for forward compatibility
 type InjectiveAccountsRPCServer interface {
 	// Provide the account's portfolio value in USD.
 	Portfolio(context.Context, *PortfolioRequest) (*PortfolioResponse, error)
+	// List order states by order hashes
+	OrderStates(context.Context, *OrderStatesRequest) (*OrderStatesResponse, error)
 	// List all subaccounts IDs of an account address
 	SubaccountsList(context.Context, *SubaccountsListRequest) (*SubaccountsListResponse, error)
 	// List subaccount balances for the provided denoms.
@@ -150,6 +174,8 @@ type InjectiveAccountsRPCServer interface {
 	SubaccountHistory(context.Context, *SubaccountHistoryRequest) (*SubaccountHistoryResponse, error)
 	// Get subaccount's orders summary
 	SubaccountOrderSummary(context.Context, *SubaccountOrderSummaryRequest) (*SubaccountOrderSummaryResponse, error)
+	// Provide historical trading rewards
+	Rewards(context.Context, *RewardsRequest) (*RewardsResponse, error)
 	mustEmbedUnimplementedInjectiveAccountsRPCServer()
 }
 
@@ -159,6 +185,9 @@ type UnimplementedInjectiveAccountsRPCServer struct {
 
 func (UnimplementedInjectiveAccountsRPCServer) Portfolio(context.Context, *PortfolioRequest) (*PortfolioResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Portfolio not implemented")
+}
+func (UnimplementedInjectiveAccountsRPCServer) OrderStates(context.Context, *OrderStatesRequest) (*OrderStatesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderStates not implemented")
 }
 func (UnimplementedInjectiveAccountsRPCServer) SubaccountsList(context.Context, *SubaccountsListRequest) (*SubaccountsListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubaccountsList not implemented")
@@ -177,6 +206,9 @@ func (UnimplementedInjectiveAccountsRPCServer) SubaccountHistory(context.Context
 }
 func (UnimplementedInjectiveAccountsRPCServer) SubaccountOrderSummary(context.Context, *SubaccountOrderSummaryRequest) (*SubaccountOrderSummaryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubaccountOrderSummary not implemented")
+}
+func (UnimplementedInjectiveAccountsRPCServer) Rewards(context.Context, *RewardsRequest) (*RewardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Rewards not implemented")
 }
 func (UnimplementedInjectiveAccountsRPCServer) mustEmbedUnimplementedInjectiveAccountsRPCServer() {}
 
@@ -205,6 +237,24 @@ func _InjectiveAccountsRPC_Portfolio_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveAccountsRPCServer).Portfolio(ctx, req.(*PortfolioRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveAccountsRPC_OrderStates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrderStatesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveAccountsRPCServer).OrderStates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveAccountsRPCServer).OrderStates(ctx, req.(*OrderStatesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -320,6 +370,24 @@ func _InjectiveAccountsRPC_SubaccountOrderSummary_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveAccountsRPC_Rewards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RewardsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveAccountsRPCServer).Rewards(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_accounts_rpc.InjectiveAccountsRPC/Rewards",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveAccountsRPCServer).Rewards(ctx, req.(*RewardsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InjectiveAccountsRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveAccountsRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -330,6 +398,10 @@ var InjectiveAccountsRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Portfolio",
 			Handler:    _InjectiveAccountsRPC_Portfolio_Handler,
+		},
+		{
+			MethodName: "OrderStates",
+			Handler:    _InjectiveAccountsRPC_OrderStates_Handler,
 		},
 		{
 			MethodName: "SubaccountsList",
@@ -350,6 +422,10 @@ var InjectiveAccountsRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubaccountOrderSummary",
 			Handler:    _InjectiveAccountsRPC_SubaccountOrderSummary_Handler,
+		},
+		{
+			MethodName: "Rewards",
+			Handler:    _InjectiveAccountsRPC_Rewards_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

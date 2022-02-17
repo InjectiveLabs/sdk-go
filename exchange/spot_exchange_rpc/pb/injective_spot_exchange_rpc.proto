@@ -177,7 +177,7 @@ message OrdersResponse {
 message SpotLimitOrder {
 	// Hash of the order
 	string order_hash = 1;
-	// The type of the order
+	// The side of the order
 	string order_side = 2;
 	// Spot Market ID is keccak265(baseDenom + quoteDenom)
 	string market_id = 3;
@@ -233,6 +233,10 @@ message TradesRequest {
 	uint64 skip = 5;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 6;
+	// The start timestamp of the trades in millisecond
+	sint64 start_time = 7;
+	// The end timestamp of the trades in millisecond
+	sint64 end_time = 8;
 }
 
 message TradesResponse {
@@ -257,6 +261,8 @@ message SpotTrade {
 	string fee = 7;
 	// Timestamp of trade execution in UNIX millis
 	sint64 executed_at = 8;
+	// Fee recipient address
+	string fee_recipient = 9;
 }
 
 message StreamTradesRequest {
@@ -272,6 +278,10 @@ message StreamTradesRequest {
 	uint64 skip = 5;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 6;
+	// The start timestamp of the trades in millisecond
+	sint64 start_time = 7;
+	// The end timestamp of the trades in millisecond
+	sint64 end_time = 8;
 }
 
 message StreamTradesResponse {

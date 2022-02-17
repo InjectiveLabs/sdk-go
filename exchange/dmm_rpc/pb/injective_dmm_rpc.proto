@@ -1,0 +1,153 @@
+// Code generated with goa v3.5.2, DO NOT EDIT.
+//
+// InjectiveDmmRPC protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+
+syntax = "proto3";
+
+package injective_dmm_rpc;
+
+option go_package = "/injective_dmm_rpcpb";
+
+// InjectiveDmmRPC defines gRPC API of DMM Dashboard.
+service InjectiveDmmRPC {
+	// Get all passed epochs and the current or next incoming epoch
+	rpc GetEpochs (GetEpochsRequest) returns (GetEpochsResponse);
+	// Get epoch summary by epoch id
+	rpc GetEpochSummary (GetEpochSummaryRequest) returns (GetEpochSummaryResponse);
+	// Get all epoch result records for one dmm
+	rpc GetDMMRecords (GetDMMRecordsRequest) returns (GetDMMRecordsResponse);
+}
+
+message GetEpochsRequest {
+}
+
+message GetEpochsResponse {
+	// Meta of all passed epochs and the current or next incoming epoch, order by
+// Epoch start/end time desc
+	repeated EpochMeta epochs = 1;
+}
+
+message EpochMeta {
+	// The ID of this epoch.
+	string id = 1;
+	// The start time of this epoch formatted in RFC3339.
+	string start_time = 2;
+	// The end time of this epoch formatted in RFC3339.
+	string end_time = 3;
+	// The total reward inj amount of this epoch.
+	string reward_inj_num = 4;
+	// The reward fraction of the LCS ranking pool of this epoch.
+	string lcs_reward_fraction = 6;
+	// The reward fraction of the VCS ranking pool of this epoch.
+	string vcs_reward_fraction = 7;
+	// Markets configuration
+	map<string, MarketConfig> markets = 8;
+	// All DMMs' addresses
+	map<string, ArrayOfString> dmm_addresses = 9;
+}
+
+message MarketConfig {
+	// Market adjust factor for LCS
+	string lcs_adjust_factor = 1;
+	// Market adjust factor for VCS
+	string vcs_adjust_factor = 2;
+	// Order value multipliers
+	repeated OrderValueMultiplier order_value_multipliers = 3;
+}
+
+message OrderValueMultiplier {
+	// The threshold of the bias between market price and order price
+	string order_price_bias_threshold = 1;
+	// The order value multiplier for orders matching this bucket
+	string multiplier = 2;
+}
+
+message ArrayOfString {
+	repeated string field = 1;
+}
+
+message GetEpochSummaryRequest {
+	// The ID of the epoch, if empty, will return records of the latest epoch
+	string epoch_id = 1;
+}
+
+message GetEpochSummaryResponse {
+	// The latest epoch
+	Epoch epoch = 1;
+}
+
+message Epoch {
+	// The metadata of this epoch.
+	EpochMeta meta = 1;
+	// The latest result record of this epoch.
+	EpochResultRecord result = 2;
+}
+
+message EpochResultRecord {
+	// All DMMs' final LCS.
+	LCSResultRecord lcs = 1;
+	// All DMMs' final VCS.
+	VCSResultRecord vcs = 2;
+	// The timestamp which this result record is updated at
+	string created_at = 3;
+}
+
+message LCSResultRecord {
+	// Summary LCS of each DMM in this epoch
+	map<string, DMMLCS> summary = 1;
+	// LCS of each DMM in each market
+	map<string, MapOfStringDMMLCS> by_markets = 2;
+}
+
+message DMMLCS {
+	// LCS
+	string lcs = 1;
+	// Sum of normalized buy order value of all snapshots
+	string norm_buy = 2;
+	// Sum of normalized sell order value of all snapshots
+	string norm_sell = 3;
+}
+
+message MapOfStringDMMLCS {
+	map<string, DMMLCS> field = 1;
+}
+
+message VCSResultRecord {
+	// Summary VCS of each DMM in this epoch
+	map<string, DMMVCS> summary = 1;
+	// VCS of each DMM in each market
+	map<string, MapOfStringDMMVCS> by_markets = 2;
+	// VCS of each DMM in each day
+	map<sint32, MapOfStringDMMVCS> by_date = 3;
+}
+
+message DMMVCS {
+	// VCS
+	string vcs = 1;
+	// Total trade volume
+	string volume = 2;
+}
+
+message MapOfStringDMMVCS {
+	map<string, DMMVCS> field = 1;
+}
+
+message GetDMMRecordsRequest {
+	// Account address
+	string account_address = 1;
+	// The name of this dmm
+	string dmm_name = 2;
+	// The ID of the epoch, if empty, will return records of the latest epoch
+	string epoch_id = 3;
+}
+
+message GetDMMRecordsResponse {
+	// The metadata of this epoch.
+	EpochMeta meta = 1;
+	// List of records, same structure as the whole epoch's result with only one
+// dmm's info
+	repeated EpochResultRecord records = 2;
+}

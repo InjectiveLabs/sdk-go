@@ -15,6 +15,8 @@ option go_package = "/injective_accounts_rpcpb";
 service InjectiveAccountsRPC {
 	// Provide the account's portfolio value in USD.
 	rpc Portfolio (PortfolioRequest) returns (PortfolioResponse);
+	// List order states by order hashes
+	rpc OrderStates (OrderStatesRequest) returns (OrderStatesResponse);
 	// List all subaccounts IDs of an account address
 	rpc SubaccountsList (SubaccountsListRequest) returns (SubaccountsListResponse);
 	// List subaccount balances for the provided denoms.
@@ -29,6 +31,8 @@ service InjectiveAccountsRPC {
 	rpc SubaccountHistory (SubaccountHistoryRequest) returns (SubaccountHistoryResponse);
 	// Get subaccount's orders summary
 	rpc SubaccountOrderSummary (SubaccountOrderSummaryRequest) returns (SubaccountOrderSummaryResponse);
+	// Provide historical trading rewards
+	rpc Rewards (RewardsRequest) returns (RewardsResponse);
 }
 
 message PortfolioRequest {
@@ -63,6 +67,41 @@ message SubaccountPortfolio {
 	string locked_balance = 3;
 	// The subaccount's total unrealized PnL value in USD.
 	string unrealized_pnl = 4;
+}
+
+message OrderStatesRequest {
+	repeated string spot_order_hashes = 1;
+	repeated string derivative_order_hashes = 2;
+}
+
+message OrderStatesResponse {
+	// List of the spot order state records
+	repeated OrderStateRecord spot_order_states = 1;
+	// List of the derivative order state records
+	repeated OrderStateRecord derivative_order_states = 2;
+}
+
+message OrderStateRecord {
+	// Hash of the order
+	string order_hash = 1;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 2;
+	// The Market ID of the order
+	string market_id = 3;
+	// The type of the order
+	string order_type = 4;
+	// The side of the order
+	string order_side = 5;
+	// The state (status) of the order
+	string state = 6;
+	// The filled quantity of the order
+	string quantity_filled = 7;
+	// The filled quantity of the order
+	string quantity_remaining = 8;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 9;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 10;
 }
 
 message SubaccountsListRequest {
@@ -181,4 +220,31 @@ message SubaccountOrderSummaryResponse {
 	sint64 spot_orders_total = 1;
 	// Total count of subaccount's derivative orders in given market and direction
 	sint64 derivative_orders_total = 2;
+}
+
+message RewardsRequest {
+	// The distribution epoch sequence number. -1 for latest.
+	sint64 epoch = 1;
+	// Account address for the rewards distribution
+	string account_address = 2;
+}
+
+message RewardsResponse {
+	// The trading rewards distributed
+	repeated Reward rewards = 1;
+}
+
+message Reward {
+	// Account address
+	string account_address = 1;
+	// Reward coins distributed
+	repeated Coin rewards = 2;
+	// Rewards distribution timestamp in UNIX millis.
+	sint64 distributed_at = 3;
+}
+
+message Coin {
+	// Denom of the coin
+	string denom = 1;
+	string amount = 2;
 }
