@@ -15,14 +15,13 @@ func main() {
 		fmt.Println(err)
 	}
 
-	// keyring will be used if pk not provided
 	senderAddress, cosmosKeyring, err := client.InitCosmosKeyring(
 		"/Users/nam/.injectived",
 		"injectived",
 		"file",
 		"inj-user",
 		"12345678",
-		"5d386fbdbf11f1141010f81a46b40f94887367562bd33b452bbaa6ce1cd1381e",
+		"5d386fbdbf11f1141010f81a46b40f94887367562bd33b452bbaa6ce1cd1381e", // keyring will be used if pk not provided
 		false,
 	)
 
@@ -56,13 +55,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	fmt.Println(res)
-
-
-
-	//ctx := context.Background()
-	//res, err := chainClient.GetBankBalances(ctx, sender)
 
 	fmt.Println(res)
 }

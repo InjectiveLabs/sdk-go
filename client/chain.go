@@ -17,19 +17,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/xlab/suplog"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-
-	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
-
-func init() {
-	// set the address prefixes
-	config := sdk.GetConfig()
-
-	// This is specific to Injective chain
-	ctypes.SetBech32Prefixes(config)
-	ctypes.SetBip44CoinType(config)
-}
 
 type ChainClient interface {
 	CanSignTransactions() bool
@@ -50,10 +38,10 @@ type ChainClient interface {
 func NewChainClient(
 	ctx client.Context,
 	protoAddr string,
-	options ...cosmosClientOption,
+	options ...clientOption,
 ) (ChainClient, error) {
 	// process options
-	opts := defaultCosmosClientOptions()
+	opts := defaultClientOptions()
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
 			err = errors.Wrap(err, "error in a cosmos client option")
@@ -114,42 +102,6 @@ func NewChainClient(
 	return cc, nil
 }
 
-type cosmosClientOptions struct {
-	GasPrices string
-	TLSCert   credentials.TransportCredentials
-}
-
-func defaultCosmosClientOptions() *cosmosClientOptions {
-	return &cosmosClientOptions{}
-}
-
-type cosmosClientOption func(opts *cosmosClientOptions) error
-
-func OptionGasPrices(gasPrices string) cosmosClientOption {
-	return func(opts *cosmosClientOptions) error {
-		_, err := sdk.ParseDecCoins(gasPrices)
-		if err != nil {
-			err = errors.Wrapf(err, "failed to ParseDecCoins %s", gasPrices)
-			return err
-		}
-
-		opts.GasPrices = gasPrices
-		return nil
-	}
-}
-
-func OptionTLSCert(tlsCert credentials.TransportCredentials) cosmosClientOption {
-	return func(opts *cosmosClientOptions) error {
-		if tlsCert == nil {
-			log.Infoln("Client does not use grpc secure transport")
-		} else {
-			log.Infoln("Succesfully load server TLS cert")
-		}
-		opts.TLSCert = tlsCert
-		return nil
-	}
-}
-
 func (c *chainClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
 	if err != nil {
@@ -167,7 +119,7 @@ func (c *chainClient) syncNonce() {
 
 type chainClient struct {
 	ctx       client.Context
-	opts      *cosmosClientOptions
+	opts      *clientOptions
 	logger    log.Logger
 	conn      *grpc.ClientConn
 	txFactory tx.Factory

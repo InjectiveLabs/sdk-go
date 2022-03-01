@@ -11,23 +11,10 @@ import (
 	oraclePB "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	log "github.com/xlab/suplog"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-
-	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
-
-func init() {
-	// set the address prefixes
-	config := sdk.GetConfig()
-
-	// This is specific to Injective chain
-	ctypes.SetBech32Prefixes(config)
-	ctypes.SetBip44CoinType(config)
-}
 
 type ExchangeClient interface {
 	GetOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error)
@@ -39,11 +26,11 @@ type ExchangeClient interface {
 // protoAddr must be in form "tcp://127.0.0.1:8080" or "unix:///tmp/test.sock", protocol is required.
 func NewExchangeClient(
 	protoAddr string,
-	options ...exchangeClientOption,
+	options ...clientOption,
 ) (ExchangeClient, error) {
 
 	// process options
-	opts := defaultExchangeClientOptions()
+	opts := defaultClientOptions()
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
 			err = errors.Wrap(err, "error in a exchange client option")
@@ -86,30 +73,8 @@ func NewExchangeClient(
 	return cc, nil
 }
 
-type exchangeClientOptions struct {
-	TLSCert credentials.TransportCredentials
-}
-
-func defaultExchangeClientOptions() *exchangeClientOptions {
-	return &exchangeClientOptions{}
-}
-
-type exchangeClientOption func(opts *exchangeClientOptions) error
-
-func OptionExchangeTLSCert(tlsCert credentials.TransportCredentials) exchangeClientOption {
-	return func(opts *exchangeClientOptions) error {
-		if tlsCert == nil {
-			log.Infoln("Client does not use grpc secure transport")
-		} else {
-			log.Infoln("Succesfully load server TLS cert")
-		}
-		opts.TLSCert = tlsCert
-		return nil
-	}
-}
-
 type exchangeClient struct {
-	opts   *exchangeClientOptions
+	opts   *clientOptions
 	conn   *grpc.ClientConn
 	logger log.Logger
 	client *grpc.ClientConn

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	network := client.LoadNetwork("mainnet", "lb")
-	exchangeClient, err := client.NewExchangeClient(network.ExchangeGrpcEndpoint, client.OptionExchangeTLSCert(network.ExchangeTlsCert))
+	exchangeClient, err := client.NewExchangeClient(network.ExchangeGrpcEndpoint, client.OptionTLSCert(network.ExchangeTlsCert))
 	if err != nil {
 		fmt.Println(err)
 	}
