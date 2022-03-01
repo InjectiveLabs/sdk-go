@@ -10,6 +10,7 @@ import (
 	metaPB "github.com/InjectiveLabs/sdk-go/exchange/meta_rpc/pb"
 	oraclePB "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+	"google.golang.org/grpc/metadata"
 
 	"github.com/pkg/errors"
 	log "github.com/xlab/suplog"
@@ -79,6 +80,8 @@ type exchangeClient struct {
 	logger log.Logger
 	client *grpc.ClientConn
 
+	sessionCookie			string
+
 	metaClient               metaPB.InjectiveMetaRPCClient
 	accountClient            accountPB.InjectiveAccountsRPCClient
 	auctionClient            auctionPB.InjectiveAuctionRPCClient
@@ -90,16 +93,30 @@ type exchangeClient struct {
 	closed int64
 }
 
+func (c *exchangeClient) setCookie(metadata metadata.MD) {
+	md := metadata.Get("set-cookie")
+	if len(md) > 0 {
+		c.sessionCookie = md[0]
+	}
+}
+
+func (c *exchangeClient) getCookie(ctx context.Context) context.Context {
+	return metadata.AppendToOutgoingContext(ctx,"cookie", c.sessionCookie)
+}
+
 func (c *exchangeClient) GetOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error) {
 	req := derivativeExchangePB.OrderbookRequest{
 		MarketId: marketId,
 	}
 
-	res, err := c.derivativeExchangeClient.Orderbook(ctx, &req)
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.derivativeExchangeClient.Orderbook(ctx, &req, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
 		return derivativeExchangePB.OrderbookResponse{}, err
 	}
+	c.setCookie(header)
 
 	return *res, nil
 }
@@ -109,13 +126,20 @@ func (c *exchangeClient) StreamOrderbook(ctx context.Context, marketIds []string
 		MarketIds: marketIds,
 	}
 
-	res, err := c.derivativeExchangeClient.StreamOrderbook(ctx, &req)
+	ctx = c.getCookie(ctx)
+	stream, err := c.derivativeExchangeClient.StreamOrderbook(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
 
-	return res, nil
+	return stream, nil
 }
 
 func (c *exchangeClient) Close() {
