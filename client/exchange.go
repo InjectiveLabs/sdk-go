@@ -23,18 +23,12 @@ type ExchangeClient interface {
 	Close()
 }
 
-// NewExchangeClient creates a new gRPC client that communicates with gRPC server at protoAddr.
-// protoAddr must be in form "tcp://127.0.0.1:8080" or "unix:///tmp/test.sock", protocol is required.
-func NewExchangeClient(
-	protoAddr string,
-	options ...clientOption,
-) (ExchangeClient, error) {
-
+func NewExchangeClient(protoAddr string, options ...clientOption) (ExchangeClient, error) {
 	// process options
 	opts := defaultClientOptions()
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
-			err = errors.Wrap(err, "error in a exchange client option")
+			err = errors.Wrap(err, "error in client option")
 			return nil, err
 		}
 	}
@@ -67,7 +61,7 @@ func NewExchangeClient(
 
 		logger: log.WithFields(log.Fields{
 			"module": "sdk-go",
-			"svc":    "cosmosClient",
+			"svc":    "exchangeClient",
 		}),
 	}
 
@@ -80,7 +74,7 @@ type exchangeClient struct {
 	logger log.Logger
 	client *grpc.ClientConn
 
-	sessionCookie			string
+	sessionCookie string
 
 	metaClient               metaPB.InjectiveMetaRPCClient
 	accountClient            accountPB.InjectiveAccountsRPCClient
@@ -101,7 +95,7 @@ func (c *exchangeClient) setCookie(metadata metadata.MD) {
 }
 
 func (c *exchangeClient) getCookie(ctx context.Context) context.Context {
-	return metadata.AppendToOutgoingContext(ctx,"cookie", c.sessionCookie)
+	return metadata.AppendToOutgoingContext(ctx, "cookie", c.sessionCookie)
 }
 
 func (c *exchangeClient) GetOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error) {

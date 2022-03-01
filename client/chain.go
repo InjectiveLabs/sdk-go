@@ -44,7 +44,7 @@ func NewChainClient(
 	opts := defaultClientOptions()
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
-			err = errors.Wrap(err, "error in a cosmos client option")
+			err = errors.Wrap(err, "error in client option")
 			return nil, err
 		}
 	}
@@ -73,7 +73,7 @@ func NewChainClient(
 
 		logger: log.WithFields(log.Fields{
 			"module": "sdk-go",
-			"svc":    "cosmosClient",
+			"svc":    "chainClient",
 		}),
 
 		conn:      conn,

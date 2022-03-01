@@ -1,11 +1,21 @@
 package client
 
 import (
+	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	log "github.com/xlab/suplog"
 	"google.golang.org/grpc/credentials"
 )
+
+func init() {
+	// set the address prefixes
+	config := sdk.GetConfig()
+
+	// This is specific to Injective chain
+	ctypes.SetBech32Prefixes(config)
+	ctypes.SetBip44CoinType(config)
+}
 
 type clientOptions struct {
 	GasPrices string
