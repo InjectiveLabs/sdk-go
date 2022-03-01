@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -29,7 +31,7 @@ func init() {
 	ctypes.SetBip44CoinType(config)
 }
 
-type CosmosClient interface {
+type ChainClient interface {
 	CanSignTransactions() bool
 	FromAddress() sdk.AccAddress
 	QueryClient() *grpc.ClientConn
@@ -37,16 +39,19 @@ type CosmosClient interface {
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 	ClientContext() client.Context
+
+	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
+
 	Close()
 }
 
 // NewCosmosClient creates a new gRPC client that communicates with gRPC server at protoAddr.
 // protoAddr must be in form "tcp://127.0.0.1:8080" or "unix:///tmp/test.sock", protocol is required.
-func NewCosmosClient(
+func NewChainClient(
 	ctx client.Context,
 	protoAddr string,
 	options ...cosmosClientOption,
-) (CosmosClient, error) {
+) (ChainClient, error) {
 	// process options
 	opts := defaultCosmosClientOptions()
 	for _, opt := range options {
@@ -74,7 +79,7 @@ func NewCosmosClient(
 	}
 
 	// build client
-	cc := &cosmosClient{
+	cc := &chainClient{
 		ctx:  ctx,
 		opts: opts,
 
@@ -89,6 +94,9 @@ func NewCosmosClient(
 		syncMux:   new(sync.Mutex),
 		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
 		doneC:     make(chan bool, 1),
+
+		chainQueryClient: chaintypes.NewQueryClient(conn),
+		bankQueryClient:  banktypes.NewQueryClient(conn),
 	}
 
 	if cc.canSign {
@@ -142,7 +150,7 @@ func OptionTLSCert(tlsCert credentials.TransportCredentials) cosmosClientOption 
 	}
 }
 
-func (c *cosmosClient) syncNonce() {
+func (c *chainClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
 	if err != nil {
 		c.logger.WithError(err).Errorln("failed to get account seq")
@@ -157,7 +165,7 @@ func (c *cosmosClient) syncNonce() {
 	c.accSeq = seq
 }
 
-type cosmosClient struct {
+type chainClient struct {
 	ctx       client.Context
 	opts      *cosmosClientOptions
 	logger    log.Logger
@@ -172,23 +180,26 @@ type cosmosClient struct {
 	accNum uint64
 	accSeq uint64
 
+	chainQueryClient chaintypes.QueryClient
+	bankQueryClient  banktypes.QueryClient
+
 	closed  int64
 	canSign bool
 }
 
-func (c *cosmosClient) QueryClient() *grpc.ClientConn {
+func (c *chainClient) QueryClient() *grpc.ClientConn {
 	return c.conn
 }
 
-func (c *cosmosClient) ClientContext() client.Context {
+func (c *chainClient) ClientContext() client.Context {
 	return c.ctx
 }
 
-func (c *cosmosClient) CanSignTransactions() bool {
+func (c *chainClient) CanSignTransactions() bool {
 	return c.canSign
 }
 
-func (c *cosmosClient) FromAddress() sdk.AccAddress {
+func (c *chainClient) FromAddress() sdk.AccAddress {
 	if !c.canSign {
 		return sdk.AccAddress{}
 	}
@@ -203,13 +214,15 @@ var (
 )
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
-func (c *cosmosClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error) {
+func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error) {
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
 
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+
 	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
+
 	if err != nil {
 		if strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
@@ -233,7 +246,7 @@ func (c *cosmosClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error
 // AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
 // cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
 // external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
-func (c *cosmosClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error) {
+func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error) {
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
 
@@ -265,7 +278,7 @@ const (
 	defaultBroadcastTimeout    = 40 * time.Second
 )
 
-func (c *cosmosClient) broadcastTx(
+func (c *chainClient) broadcastTx(
 	clientCtx client.Context,
 	txf tx.Factory,
 	await bool,
@@ -289,6 +302,7 @@ func (c *cosmosClient) broadcastTx(
 	}
 
 	txn, err := tx.BuildUnsignedTx(txf, msgs...)
+
 	if err != nil {
 		err = errors.Wrap(err, "failed to BuildUnsignedTx")
 		return nil, err
@@ -353,7 +367,7 @@ var ErrTimedOut = errors.New("tx timed out")
 // if the account number and/or the account sequence number are zero (not set),
 // they will be queried for and set on the provided Factory. A new Factory with
 // the updated fields will be returned.
-func (c *cosmosClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+func (c *chainClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
 	from := clientCtx.GetFromAddress()
 
 	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
@@ -381,7 +395,7 @@ func (c *cosmosClient) prepareFactory(clientCtx client.Context, txf tx.Factory) 
 
 // QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
 // and grouped into Txns in chunks. Use this method to mass broadcast Txns with efficiency.
-func (c *cosmosClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
+func (c *chainClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
 	if !c.canSign {
 		return ErrReadOnly
 	} else if atomic.LoadInt64(&c.closed) == 1 {
@@ -401,7 +415,7 @@ func (c *cosmosClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
 	return nil
 }
 
-func (c *cosmosClient) Close() {
+func (c *chainClient) Close() {
 	if !c.canSign {
 		return
 	}
@@ -422,7 +436,7 @@ const (
 	msgCommitBatchTimeLimit = 500 * time.Millisecond
 )
 
-func (c *cosmosClient) runBatchBroadcast() {
+func (c *chainClient) runBatchBroadcast() {
 	expirationTimer := time.NewTimer(msgCommitBatchTimeLimit)
 	msgBatch := make([]sdk.Msg, 0, msgCommitBatchSizeLimit)
 
@@ -494,4 +508,11 @@ func (c *cosmosClient) runBatchBroadcast() {
 			}
 		}
 	}
+}
+
+func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
+	req := &banktypes.QueryAllBalancesRequest{
+		Address: address,
+	}
+	return c.bankQueryClient.AllBalances(ctx, req)
 }
