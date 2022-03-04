@@ -47,14 +47,11 @@ func main() {
 		client.OptionTLSCert(network.ChainTlsCert),
 		client.OptionGasPrices("500000000inj"),
 	)
+
+	res, err := chainClient.SyncBroadcastTx(msg)
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	res, err := chainClient.SyncBroadcastMsg(msg)
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	fmt.Println(res)
+
 }
