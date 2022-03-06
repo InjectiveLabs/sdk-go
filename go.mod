@@ -3,6 +3,7 @@ module github.com/InjectiveLabs/sdk-go
 go 1.16
 
 require (
+	github.com/CosmWasm/wasmd v0.23.0
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20201012165903-2cb20defcd66 // indirect
 	github.com/bandprotocol/bandchain-packet v0.0.2
@@ -11,7 +12,7 @@ require (
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
 	github.com/bugsnag/panicwrap v1.2.0 // indirect
 	github.com/cespare/cp v1.1.1 // indirect
-	github.com/cosmos/cosmos-sdk v0.44.5
+	github.com/cosmos/cosmos-sdk v0.45.0
 	github.com/cosmos/ibc-go/v2 v2.0.2
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/ethereum/go-ethereum v1.9.25
@@ -46,3 +47,5 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
 
 replace github.com/btcsuite/btcutil => github.com/btcsuite/btcutil v1.0.2
+
+replace github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.23.0-injective
