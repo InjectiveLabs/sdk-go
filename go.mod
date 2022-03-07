@@ -25,6 +25,8 @@ require (
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
 	github.com/karalabe/usb v0.0.0-20191104083709-911d15fe12a9 // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
+	github.com/onsi/ginkgo v1.16.4
+	github.com/onsi/gomega v1.13.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/tsdb v0.10.0 // indirect
 	github.com/regen-network/cosmos-proto v0.3.1
