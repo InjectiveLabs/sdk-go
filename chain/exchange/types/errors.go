@@ -61,6 +61,7 @@ var (
 	ErrInvalidFeeDiscountSchedule               = sdkerrors.Register(ModuleName, 54, "Invalid fee discount schedule")
 	ErrInvalidReduceOnlyPosition                = sdkerrors.Register(ModuleName, 55, "Invalid position to reduce")
 	ErrTradingRewardCampaignDistributionError   = sdkerrors.Register(ModuleName, 56, "Unknown error happened for campaign distributions")
-	ErrInvalidTradingRewardsPendingPointsUpdate = sdkerrors.Register(ModuleName, 57, "Invalid trading reward pending points update")
+	ErrInvalidTradingRewardsPendingPointsUpdate = sdkerrors.Register(ModuleName, 57, "Invalid trading reward points update")
 	ErrInvalidBatchMsgUpdate                    = sdkerrors.Register(ModuleName, 58, "Invalid batch msg update")
+	ErrInvalidMarginRatio                       = sdkerrors.Register(ModuleName, 59, "invalid margin ratio")
 )

@@ -32,6 +32,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgIncreasePositionMargin{}, "exchange/MsgIncreasePositionMargin", nil)
 	cdc.RegisterConcrete(&MsgLiquidatePosition{}, "exchange/MsgLiquidatePosition", nil)
 	cdc.RegisterConcrete(&MsgBatchUpdateOrders{}, "exchange/MsgBatchUpdateOrders", nil)
+	cdc.RegisterConcrete(&MsgSubscribeToMarketMakingPool{}, "exchange/MsgSubscribeToMarketMakingPool", nil)
+	cdc.RegisterConcrete(&MsgRedeemFromMarketMakingPool{}, "exchange/MsgRedeemFromMarketMakingPool", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/BatchExchangeModificationProposal", nil)
@@ -69,6 +71,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgIncreasePositionMargin{},
 		&MsgLiquidatePosition{},
 		&MsgBatchUpdateOrders{},
+		&MsgSubscribeToMarketMakingPool{},
+		&MsgRedeemFromMarketMakingPool{},
 	)
 
 	registry.RegisterImplementations(
