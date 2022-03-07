@@ -31,6 +31,8 @@ var (
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
+	_ sdk.Msg = &MsgSubscribeToMarketMakingPool{}
+	_ sdk.Msg = &MsgRedeemFromMarketMakingPool{}
 )
 
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -907,6 +909,106 @@ func (msg *MsgIncreasePositionMargin) GetSignBytes() []byte {
 }
 
 func (msg *MsgIncreasePositionMargin) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgSubscribeToMarketMakingPool) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgSubscribeToMarketMakingPool) Type() string {
+	return "subscribeToMarketMakingPool"
+}
+
+func (msg *MsgSubscribeToMarketMakingPool) ValidateBasic() error {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !IsHexHash(msg.MarketId) {
+		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
+	}
+
+	if !msg.FundsAmount.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FundsAmount.String())
+	}
+
+	_, ok := IsValidSubaccountID(msg.PoolSubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.PoolSubaccountId)
+	}
+
+	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SubscriberSubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubscriberSubaccountId)
+	}
+	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+
+	return nil
+}
+
+func (msg *MsgSubscribeToMarketMakingPool) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgSubscribeToMarketMakingPool) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgRedeemFromMarketMakingPool) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgRedeemFromMarketMakingPool) Type() string {
+	return "redeemFromMarketMakingPool"
+}
+
+func (msg *MsgRedeemFromMarketMakingPool) ValidateBasic() error {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !IsHexHash(msg.MarketId) {
+		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
+	}
+
+	if !msg.LpTokenBurnAmount.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.LpTokenBurnAmount.String())
+	}
+
+	_, ok := IsValidSubaccountID(msg.PoolSubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.PoolSubaccountId)
+	}
+
+	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.RedeemerSubaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.RedeemerSubaccountId)
+	}
+	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+
+	return nil
+}
+
+func (msg *MsgRedeemFromMarketMakingPool) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgRedeemFromMarketMakingPool) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
