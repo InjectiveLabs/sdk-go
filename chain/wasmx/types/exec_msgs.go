@@ -1,5 +1,12 @@
 package types
 
+import (
+	"encoding/json"
+	fmt "fmt"
+)
+
+const DefaultGasLimitContractRegistration = uint64(8987600)
+
 type CWRegisterExecMsg struct {
 	Register *RegisterMsg `json:"register,omitempty"`
 }
@@ -14,6 +21,41 @@ type CWBeginBlockerExecMsg struct {
 }
 
 type BeginBlockerMsg struct {
+}
+
+func BeginBlockerExecMsg() ([]byte, error) {
+	// Construct Exec message
+	beginBlocker := CWBeginBlockerExecMsg{BeginBlockerMsg: &BeginBlockerMsg{}}
+
+	// execMsg := []byte("{\"begin_blocker\":{}}")
+	execMsg, err := json.Marshal(beginBlocker)
+	if err != nil {
+		fmt.Println("Register marshal failed")
+		return nil, err
+	}
+
+	return execMsg, nil
+}
+
+type CWGetContractsQueryMsg struct {
+	QueryContractsMsg *QueryContractsMsg `json:"get_contracts,omitempty"`
+}
+
+type QueryContractsMsg struct {
+}
+
+func ContractsQueryMsg() ([]byte, error) {
+	// Construct Exec message
+	contractQuery := CWGetContractsQueryMsg{QueryContractsMsg: &QueryContractsMsg{}}
+
+	// queryData := []byte("{\"get_contracts\": {}}")
+	queryMsg, err := json.Marshal(contractQuery)
+	if err != nil {
+		fmt.Println("Register marshal failed")
+		return nil, err
+	}
+
+	return queryMsg, nil
 }
 
 type Contract struct {
