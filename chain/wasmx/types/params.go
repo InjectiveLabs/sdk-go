@@ -11,17 +11,19 @@ var _ paramtypes.ParamSet = &Params{}
 
 // Wasmx params default values
 var (
-	// DefaultWasmxPeriod represents the number of seconds in 1 week
-	DefaultWasmxPeriod int64 = 60 * 60 * 24 * 7
-	// DefaultMinNextBidIncrementRate represents default min increment rate 0.25%
-	DefaultMinNextBidIncrementRate = sdk.NewDecWithPrec(25, 4)
+	DefaultGasPriceBeginBlock = "0.002inj"
+	DefaultIsExecutionEnabled = false
+	DefaultMaxGasBeginBlock   = int64(8987600)
+	DefaultMinNumContracts    = int64(20)
 )
 
 // Parameter keys
 var (
 	KeyRegistryContractAddress = []byte("RegistryContractAddress")
-	KeyWasmxPeriod             = []byte("WasmxPeriod")
-	KeyMinNextBidIncrementRate = []byte("MinNextBidIncrementRate")
+	KeyGasPriceBeginBlock      = []byte("GasPriceBeginBlock")
+	KeyIsExecutionEnabled      = []byte("IsExecutionEnabled")
+	KeyMaxGasBeginBlock        = []byte("MaxGasBeginBlock")
+	KeyMinNumOfContracts       = []byte("MinNumOfContracts")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -41,28 +43,96 @@ func NewParams(
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyRegistryContractAddress, &p.RegistryContractAddress, validateRegistryContractAddress),
-		//paramtypes.NewParamSetPair(KeyWasmxPeriod, &p.WasmxPeriod, validateWasmxPeriodDuration),
-		//paramtypes.NewParamSetPair(KeyMinNextBidIncrementRate, &p.MinNextBidIncrementRate, validateMinNextBidIncrementRate),
+		paramtypes.NewParamSetPair(KeyGasPriceBeginBlock, &p.GasPriceBeginBlock, validateGasPriceBeginBlock),
+		paramtypes.NewParamSetPair(KeyIsExecutionEnabled, &p.IsExecutionEnabled, validateIsExecutionEnabled),
+		paramtypes.NewParamSetPair(KeyMaxGasBeginBlock, &p.MaxGasBeginBlock, validateMaxGasBeginBlock),
+		paramtypes.NewParamSetPair(KeyMinNumOfContracts, &p.MinNumOfContracts, validateMinNumOfContracts),
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		//WasmxPeriod:           DefaultWasmxPeriod,
-		//MinNextBidIncrementRate: DefaultMinNextBidIncrementRate,
+		GasPriceBeginBlock: DefaultGasPriceBeginBlock,
+		IsExecutionEnabled: DefaultIsExecutionEnabled,
+		MaxGasBeginBlock:   DefaultMaxGasBeginBlock,
+		MinNumOfContracts:  DefaultMinNumContracts,
 	}
 }
 
 // Validate performs basic validation on wasmx parameters.
 func (p Params) Validate() error {
-	//if err := validateWasmxPeriodDuration(p.WasmxPeriod); err != nil {
-	//	return err
-	//}
-	//
-	//if err := validateMinNextBidIncrementRate(p.MinNextBidIncrementRate); err != nil {
-	//	return err
-	//}
+	if err := validateMaxGasBeginBlock(p.MaxGasBeginBlock); err != nil {
+		return err
+	}
+
+	if err := validateMinNumOfContracts(p.MinNumOfContracts); err != nil {
+		return err
+	}
+
+	if err := validateIsExecutionEnabled(p.IsExecutionEnabled); err != nil {
+		return err
+	}
+
+	if err := validateGasPriceBeginBlock(p.GasPriceBeginBlock); err != nil {
+		return err
+	}
+
+	if err := validateRegistryContractAddress(p.RegistryContractAddress); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateMaxGasBeginBlock(i interface{}) error {
+	v, ok := i.(int64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == 0 {
+		return fmt.Errorf("MaxGasBeginBlock must be positive: %d", v)
+	}
+
+	return nil
+}
+
+func validateMinNumOfContracts(i interface{}) error {
+	v, ok := i.(int64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == 0 {
+		return fmt.Errorf("MinNumOfContracts must be positive: %d", v)
+	}
+
+	return nil
+}
+
+func validateIsExecutionEnabled(i interface{}) error {
+	_, ok := i.(bool)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return nil
+}
+
+func validateGasPriceBeginBlock(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == "" {
+		return nil
+	}
+
+	if _, err := sdk.ParseDecCoins(v); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -79,40 +149,6 @@ func validateRegistryContractAddress(i interface{}) error {
 
 	if _, err := sdk.AccAddressFromBech32(v); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func validateWasmxPeriodDuration(i interface{}) error {
-	v, ok := i.(int64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v == 0 {
-		return fmt.Errorf("WasmxPeriodDuration must be positive: %d", v)
-	}
-
-	return nil
-}
-
-func validateMinNextBidIncrementRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.IsNil() {
-		return fmt.Errorf("MinNextBidIncrementRate cannot be nil")
-	}
-
-	if v.Equal(sdk.ZeroDec()) {
-		return fmt.Errorf("MinNextBidIncrementRate must be positive: %s", v.String())
-	}
-
-	if v.GT(sdk.NewDecWithPrec(2, 1)) { // > 20%
-		return fmt.Errorf("MinNextBidIncrementRate must be equal or less than 20 percent: %s", v.String())
 	}
 
 	return nil
