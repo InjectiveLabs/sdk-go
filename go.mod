@@ -3,7 +3,6 @@ module github.com/InjectiveLabs/sdk-go
 go 1.16
 
 require (
-	github.com/CosmWasm/wasmvm v0.16.3
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20201012165903-2cb20defcd66 // indirect
 	github.com/bandprotocol/bandchain-packet v0.0.2
