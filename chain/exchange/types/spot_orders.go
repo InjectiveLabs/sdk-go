@@ -82,9 +82,17 @@ func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (sdk.Dec, s
 	var denom string
 	var balanceHold sdk.Dec
 	if m.IsBuy() {
-		// for a limit buy in the ETH/USDT market, denom is USDT and balanceHold is (1 + takerFee)*(price * quantity)
 		denom = market.QuoteDenom
-		balanceHold = m.OrderInfo.GetNotional().Add(m.OrderInfo.GetFeeAmount(market.TakerFeeRate))
+		if m.OrderType.IsPostOnly() {
+			// for a PO limit buy in the ETH/USDT market, denom is USDT and balanceHold is (1 + makerFee)*(price * quantity)
+			balanceHold = m.OrderInfo.GetNotional()
+			if market.MakerFeeRate.IsPositive() {
+				balanceHold = balanceHold.Add(m.OrderInfo.GetFeeAmount(market.MakerFeeRate))
+			}
+		} else {
+			// for a normal limit buy in the ETH/USDT market, denom is USDT and balanceHold is (1 + takerFee)*(price * quantity)
+			balanceHold = m.OrderInfo.GetNotional().Add(m.OrderInfo.GetFeeAmount(market.TakerFeeRate))
+		}
 	} else {
 		// for a limit sell in the ETH/USDT market, denom is ETH and balanceHold is just quantity
 		denom = market.BaseDenom

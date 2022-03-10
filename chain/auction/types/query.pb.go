@@ -152,11 +152,16 @@ var xxx_messageInfo_QueryCurrentAuctionBasketRequest proto.InternalMessageInfo
 
 // QueryCurrentAuctionBasketResponse is the response type for the Query/CurrentAuctionBasket RPC method.
 type QueryCurrentAuctionBasketResponse struct {
-	Amount             github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
-	AuctionRound       uint64                                   `protobuf:"varint,2,opt,name=auctionRound,proto3" json:"auctionRound,omitempty"`
-	AuctionClosingTime int64                                    `protobuf:"varint,3,opt,name=auctionClosingTime,proto3" json:"auctionClosingTime,omitempty"`
-	HighestBidder      string                                   `protobuf:"bytes,4,opt,name=highestBidder,proto3" json:"highestBidder,omitempty"`
-	HighestBidAmount   github_com_cosmos_cosmos_sdk_types.Int   `protobuf:"bytes,5,opt,name=highestBidAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"highestBidAmount"`
+	// amount describes the amount put on auction
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+	// auctionRound describes current auction round
+	AuctionRound uint64 `protobuf:"varint,2,opt,name=auctionRound,proto3" json:"auctionRound,omitempty"`
+	// auctionClosingTime describes auction close time for the round
+	AuctionClosingTime int64 `protobuf:"varint,3,opt,name=auctionClosingTime,proto3" json:"auctionClosingTime,omitempty"`
+	// highestBidder describes highest bidder on current round
+	HighestBidder string `protobuf:"bytes,4,opt,name=highestBidder,proto3" json:"highestBidder,omitempty"`
+	// highestBidAmount describes highest bid amount on current round
+	HighestBidAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=highestBidAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"highestBidAmount"`
 }
 
 func (m *QueryCurrentAuctionBasketResponse) Reset()         { *m = QueryCurrentAuctionBasketResponse{} }

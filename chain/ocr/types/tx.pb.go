@@ -755,13 +755,21 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	// CreateFeed defines a method for creating feed by module admin
 	CreateFeed(ctx context.Context, in *MsgCreateFeed, opts ...grpc.CallOption) (*MsgCreateFeedResponse, error)
+	// CreateFeed defines a method for creating feed by feed admin or feed billing admin
 	UpdateFeed(ctx context.Context, in *MsgUpdateFeed, opts ...grpc.CallOption) (*MsgUpdateFeedResponse, error)
+	// Transmit defines a method for transmitting the feed info by transmitter
 	Transmit(ctx context.Context, in *MsgTransmit, opts ...grpc.CallOption) (*MsgTransmitResponse, error)
+	// FundFeedRewardPool defines a method to put funds into feed reward pool
 	FundFeedRewardPool(ctx context.Context, in *MsgFundFeedRewardPool, opts ...grpc.CallOption) (*MsgFundFeedRewardPoolResponse, error)
+	// WithdrawFeedRewardPool defines a method to witdhraw feed reward by feed admin or billing admin
 	WithdrawFeedRewardPool(ctx context.Context, in *MsgWithdrawFeedRewardPool, opts ...grpc.CallOption) (*MsgWithdrawFeedRewardPoolResponse, error)
+	// SetPayees defines a method to set payees for transmitters (batch action)
 	SetPayees(ctx context.Context, in *MsgSetPayees, opts ...grpc.CallOption) (*MsgSetPayeesResponse, error)
+	// TransferPayeeship defines a method for a payee to transfer reward receive ownership
 	TransferPayeeship(ctx context.Context, in *MsgTransferPayeeship, opts ...grpc.CallOption) (*MsgTransferPayeeshipResponse, error)
+	// AcceptPayeeship defines a method for a new payee to accept reward receive ownership
 	AcceptPayeeship(ctx context.Context, in *MsgAcceptPayeeship, opts ...grpc.CallOption) (*MsgAcceptPayeeshipResponse, error)
 }
 
@@ -847,13 +855,21 @@ func (c *msgClient) AcceptPayeeship(ctx context.Context, in *MsgAcceptPayeeship,
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	// CreateFeed defines a method for creating feed by module admin
 	CreateFeed(context.Context, *MsgCreateFeed) (*MsgCreateFeedResponse, error)
+	// CreateFeed defines a method for creating feed by feed admin or feed billing admin
 	UpdateFeed(context.Context, *MsgUpdateFeed) (*MsgUpdateFeedResponse, error)
+	// Transmit defines a method for transmitting the feed info by transmitter
 	Transmit(context.Context, *MsgTransmit) (*MsgTransmitResponse, error)
+	// FundFeedRewardPool defines a method to put funds into feed reward pool
 	FundFeedRewardPool(context.Context, *MsgFundFeedRewardPool) (*MsgFundFeedRewardPoolResponse, error)
+	// WithdrawFeedRewardPool defines a method to witdhraw feed reward by feed admin or billing admin
 	WithdrawFeedRewardPool(context.Context, *MsgWithdrawFeedRewardPool) (*MsgWithdrawFeedRewardPoolResponse, error)
+	// SetPayees defines a method to set payees for transmitters (batch action)
 	SetPayees(context.Context, *MsgSetPayees) (*MsgSetPayeesResponse, error)
+	// TransferPayeeship defines a method for a payee to transfer reward receive ownership
 	TransferPayeeship(context.Context, *MsgTransferPayeeship) (*MsgTransferPayeeshipResponse, error)
+	// AcceptPayeeship defines a method for a new payee to accept reward receive ownership
 	AcceptPayeeship(context.Context, *MsgAcceptPayeeship) (*MsgAcceptPayeeshipResponse, error)
 }
 

@@ -646,9 +646,13 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Retrieves insurance params
 	InsuranceParams(ctx context.Context, in *QueryInsuranceParamsRequest, opts ...grpc.CallOption) (*QueryInsuranceParamsResponse, error)
+	// Retrieves individual insurance fund information from market id
 	InsuranceFund(ctx context.Context, in *QueryInsuranceFundRequest, opts ...grpc.CallOption) (*QueryInsuranceFundResponse, error)
+	// Retrieves all insurance funds
 	InsuranceFunds(ctx context.Context, in *QueryInsuranceFundsRequest, opts ...grpc.CallOption) (*QueryInsuranceFundsResponse, error)
+	// Retrives the value of insurance fund share token at current price (not pending redemption)
 	EstimatedRedemptions(ctx context.Context, in *QueryEstimatedRedemptionsRequest, opts ...grpc.CallOption) (*QueryEstimatedRedemptionsResponse, error)
+	// Retrieves pending redemptions' share token at current price
 	PendingRedemptions(ctx context.Context, in *QueryPendingRedemptionsRequest, opts ...grpc.CallOption) (*QueryPendingRedemptionsResponse, error)
 	// Retrieves the entire insurance module's state
 	InsuranceModuleState(ctx context.Context, in *QueryModuleStateRequest, opts ...grpc.CallOption) (*QueryModuleStateResponse, error)
@@ -720,9 +724,13 @@ func (c *queryClient) InsuranceModuleState(ctx context.Context, in *QueryModuleS
 type QueryServer interface {
 	// Retrieves insurance params
 	InsuranceParams(context.Context, *QueryInsuranceParamsRequest) (*QueryInsuranceParamsResponse, error)
+	// Retrieves individual insurance fund information from market id
 	InsuranceFund(context.Context, *QueryInsuranceFundRequest) (*QueryInsuranceFundResponse, error)
+	// Retrieves all insurance funds
 	InsuranceFunds(context.Context, *QueryInsuranceFundsRequest) (*QueryInsuranceFundsResponse, error)
+	// Retrives the value of insurance fund share token at current price (not pending redemption)
 	EstimatedRedemptions(context.Context, *QueryEstimatedRedemptionsRequest) (*QueryEstimatedRedemptionsResponse, error)
+	// Retrieves pending redemptions' share token at current price
 	PendingRedemptions(context.Context, *QueryPendingRedemptionsRequest) (*QueryPendingRedemptionsResponse, error)
 	// Retrieves the entire insurance module's state
 	InsuranceModuleState(context.Context, *QueryModuleStateRequest) (*QueryModuleStateResponse, error)

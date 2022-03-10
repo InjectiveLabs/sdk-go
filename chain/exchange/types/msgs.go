@@ -38,7 +38,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL:
+	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO:
 		// do nothing
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
@@ -79,7 +79,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL:
+	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO:
 		// do nothing
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))

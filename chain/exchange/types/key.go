@@ -56,6 +56,8 @@ var (
 	ExpiryFuturesMarketInfoPrefix            = []byte{0x33} // prefix for each key to a expiry futures market's market info
 	ExpiryFuturesMarketInfoByTimestampPrefix = []byte{0x34} // prefix for each index key to a expiry futures market's market info
 
+	IsFirstFeeCycleFinishedKey = []byte{0x3c} // key to the fee discount is first cycle finished
+
 	TradingRewardCampaignInfoKey                  = []byte{0x40} // key to the TradingRewardCampaignInfo
 	TradingRewardMarketQualificationPrefix        = []byte{0x41} // prefix for each key to a market's qualification/disqualification status
 	TradingRewardMarketPointsMultiplierPrefix     = []byte{0x42} // prefix for each key to a market's FeePaidMultiplier
@@ -77,7 +79,6 @@ var (
 	FeeDiscountBucketAccountFeesPaidPrefix                = []byte{0x57} // prefix to each account's fee paid amount for a given bucket
 	FeeDiscountAccountPastBucketTotalFeesPaidAmountPrefix = []byte{0x58} // prefix to each account's total past bucket fees paid amount FeeDiscountAccountIndicatorPrefix
 	FeeDiscountAccountOrderIndicatorPrefix                = []byte{0x59} // prefix to each account's transient indicator if the account has placed an order that block
-	IsFirstFeeCycleFinishedKey                            = []byte{60}   // key to the fee discount is first cycle finished
 )
 
 // GetFeeDiscountAccountFeesPaidInBucketKey provides the key for the account's fees paid in the given bucket
@@ -98,6 +99,12 @@ func GetFeeDiscountTierKey(tierLevel uint64) []byte {
 }
 
 func ParseFeeDiscountBucketAccountFeesPaidIteratorKey(key []byte) (bucketStartTimestamp int64, account sdk.AccAddress) {
+	timeBz := key[:Uint64BytesLen]
+	accountBz := key[Uint64BytesLen:]
+	return int64(sdk.BigEndianToUint64(timeBz)), sdk.AccAddress(accountBz)
+}
+
+func ParseTradingRewardAccountPendingPointsKey(key []byte) (bucketStartTimestamp int64, account sdk.AccAddress) {
 	timeBz := key[:Uint64BytesLen]
 	accountBz := key[Uint64BytesLen:]
 	return int64(sdk.BigEndianToUint64(timeBz)), sdk.AccAddress(accountBz)

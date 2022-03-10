@@ -30,7 +30,8 @@ type GenesisState struct {
 	// current auction round
 	AuctionRound uint64 `protobuf:"varint,2,opt,name=auction_round,json=auctionRound,proto3" json:"auction_round,omitempty"`
 	// current highest bid
-	HighestBid             *Bid  `protobuf:"bytes,3,opt,name=highest_bid,json=highestBid,proto3" json:"highest_bid,omitempty"`
+	HighestBid *Bid `protobuf:"bytes,3,opt,name=highest_bid,json=highestBid,proto3" json:"highest_bid,omitempty"`
+	// auction ending timestamp
 	AuctionEndingTimestamp int64 `protobuf:"varint,4,opt,name=auction_ending_timestamp,json=auctionEndingTimestamp,proto3" json:"auction_ending_timestamp,omitempty"`
 }
 

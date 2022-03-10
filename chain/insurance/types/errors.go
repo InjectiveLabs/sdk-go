@@ -16,4 +16,5 @@ var (
 	ErrInvalidOracle              = sdkerrors.Register(ModuleName, 9, "invalid oracle")
 	ErrInvalidExpirationTime      = sdkerrors.Register(ModuleName, 10, "invalid expiration time")
 	ErrInvalidMarketID            = sdkerrors.Register(ModuleName, 11, "invalid marketID")
+	ErrInvalidShareDenom          = sdkerrors.Register(ModuleName, 12, "invalid share denom")
 )
