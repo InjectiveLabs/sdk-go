@@ -2,12 +2,15 @@ package client
 
 import (
 	"context"
+	"encoding/hex"
+	"encoding/json"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -39,13 +42,9 @@ type ChainClient interface {
 	QueryClient() *grpc.ClientConn
 	ClientContext() client.Context
 
-	//SyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error)
-	//AsyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error)
-	//QueueBroadcastMsg(msgs ...sdk.Msg) error
-
-	AsyncBroadcastTx(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
-	SyncBroadcastTx(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
-	BlockBroadcastTx(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
 
@@ -143,7 +142,7 @@ func NewChainClient(
 			return nil, err
 		}
 
-		//go cc.runBatchBroadcast()
+		go cc.runBatchBroadcast()
 	}
 
 	return cc, nil
@@ -214,68 +213,6 @@ func (c *chainClient) getCookie(ctx context.Context) context.Context {
 	//return metadata.AppendToOutgoingContext(ctx, "cookie", c.sessionCookie)
 }
 
-func (c *chainClient) broadcastTx(mode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
-	txf, err := c.prepareFactory(c.ctx, c.txFactory)
-	if err != nil {
-		err = errors.Wrap(err, "failed to prepareFactory")
-		return nil, err
-	}
-
-	// simple single-threaded nonce mgmt
-	txf = txf.WithSequence(c.getAccSeq())
-
-	// attempt to load cookie
-	ctx := context.Background()
-
-	// use our own tx client to get & set cookie upon simulation
-	if txf.SimulateAndExecute() || c.ctx.Simulate {
-		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
-
-		ctx = c.getCookie(ctx)
-		var header metadata.MD
-		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
-		if err != nil {
-			err = errors.Wrap(err, "failed to CalculateGas")
-			return nil, err
-		}
-		c.setCookie(header)
-
-		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
-		txf = txf.WithGas(adjustedGas)
-	}
-
-	txn, err := tx.BuildUnsignedTx(txf, msgs...)
-	if err != nil {
-		err = errors.Wrap(err, "failed to BuildUnsignedTx")
-		return nil, err
-	}
-
-	txn.SetFeeGranter(c.ctx.GetFeeGranterAddress())
-	err = tx.Sign(txf, c.ctx.GetFromName(), txn, true)
-	if err != nil {
-		err = errors.Wrap(err, "failed to Sign Tx")
-		return nil, err
-	}
-
-	txBytes, err := c.ctx.TxConfig.TxEncoder()(txn.GetTx())
-	req := txtypes.BroadcastTxRequest{
-		txBytes,
-		mode,
-	}
-
-	// use our own client to broadcast tx
-	var header metadata.MD
-	ctx = c.getCookie(ctx)
-	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		err = errors.Wrap(err, "failed to broadcast Tx")
-		return nil, err
-	}
-	c.setCookie(header)
-
-	return res, nil
-}
-
 func (c *chainClient) QueryClient() *grpc.ClientConn {
 	return c.conn
 }
@@ -309,18 +246,6 @@ func (c *chainClient) Close() {
 	}
 }
 
-func (c *chainClient) BlockBroadcastTx(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
-	return c.broadcastTx(txtypes.BroadcastMode_BROADCAST_MODE_BLOCK, msgs...)
-}
-
-func (c *chainClient) SyncBroadcastTx(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
-	return c.broadcastTx(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msgs...)
-}
-
-func (c *chainClient) AsyncBroadcastTx(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
-	return c.broadcastTx(txtypes.BroadcastMode_BROADCAST_MODE_ASYNC, msgs...)
-}
-
 func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
 	req := &banktypes.QueryAllBalancesRequest{
 		Address: address,
@@ -329,241 +254,261 @@ func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*ban
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
-//func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error) {
-//	c.syncMux.Lock()
-//	defer c.syncMux.Unlock()
-//
-//	c.txFactory = c.txFactory.WithSequence(c.accSeq)
-//	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-//
-//	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
-//
-//	if err != nil {
-//		if strings.Contains(err.Error(), "account sequence mismatch") {
-//			c.syncNonce()
-//			c.txFactory = c.txFactory.WithSequence(c.accSeq)
-//			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-//			log.Debugln("retrying broadcastTx with nonce", c.accSeq)
-//			res, err = c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
-//		}
-//		if err != nil {
-//			resJSON, _ := json.MarshalIndent(res, "", "\t")
-//			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
-//			return nil, err
-//		}
-//	}
-//
-//	c.accSeq++
-//
-//	return res, nil
-//}
+func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	c.syncMux.Lock()
+	defer c.syncMux.Unlock()
 
-// AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
-// cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
-// external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
-//func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error) {
-//	c.syncMux.Lock()
-//	defer c.syncMux.Unlock()
-//
-//	c.txFactory = c.txFactory.WithSequence(c.accSeq)
-//	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-//	res, err := c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
-//	if err != nil {
-//		if strings.Contains(err.Error(), "account sequence mismatch") {
-//			c.syncNonce()
-//			c.txFactory = c.txFactory.WithSequence(c.accSeq)
-//			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-//			log.Debugln("retrying broadcastTx with nonce", c.accSeq)
-//			res, err = c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
-//		}
-//		if err != nil {
-//			resJSON, _ := json.MarshalIndent(res, "", "\t")
-//			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
-//			return nil, err
-//		}
-//	}
-//
-//	c.accSeq++
-//
-//	return res, nil
-//}
+	c.txFactory = c.txFactory.WithSequence(c.accSeq)
+	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 
-//func (c *chainClient) broadcastTx(
-//	clientCtx client.Context,
-//	txf tx.Factory,
-//	await bool,
-//	msgs ...sdk.Msg,
-//) (*sdk.TxResponse, error) {
-//
-//	txf, err := c.prepareFactory(clientCtx, txf)
-//	if err != nil {
-//		err = errors.Wrap(err, "failed to prepareFactory")
-//		return nil, err
-//	}
-//
-//	if txf.SimulateAndExecute() || clientCtx.Simulate {
-//		_, adjusted, err := tx.CalculateGas(clientCtx, txf, msgs...)
-//		if err != nil {
-//			err = errors.Wrap(err, "failed to CalculateGas")
-//			return nil, err
-//		}
-//
-//		txf = txf.WithGas(adjusted)
-//	}
-//
-//	txn, err := tx.BuildUnsignedTx(txf, msgs...)
-//
-//	if err != nil {
-//		err = errors.Wrap(err, "failed to BuildUnsignedTx")
-//		return nil, err
-//	}
-//
-//	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-//	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
-//	if err != nil {
-//		err = errors.Wrap(err, "failed to Sign Tx")
-//		return nil, err
-//	}
-//
-//	txBytes, err := clientCtx.TxConfig.TxEncoder()(txn.GetTx())
-//	if err != nil {
-//		err = errors.Wrap(err, "failed TxEncoder to encode Tx")
-//		return nil, err
-//	}
-//
-//	res, err := clientCtx.BroadcastTxSync(txBytes)
-//	if !await || err != nil {
-//		return res, err
-//	}
-//
-//	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
-//	defer cancelFn()
-//
-//	txHash, _ := hex.DecodeString(res.TxHash)
-//	t := time.NewTimer(defaultBroadcastStatusPoll)
-//
-//	for {
-//		select {
-//		case <-awaitCtx.Done():
-//			err := errors.Wrapf(ErrTimedOut, "%s", res.TxHash)
-//			t.Stop()
-//			return nil, err
-//		case <-t.C:
-//			resultTx, err := clientCtx.Client.Tx(awaitCtx, txHash, false)
-//			if err != nil {
-//				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
-//					return errRes, err
-//				}
-//
-//				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
-//
-//				t.Reset(defaultBroadcastStatusPoll)
-//				continue
-//
-//			} else if resultTx.Height > 0 {
-//				res = sdk.NewResponseResultTx(resultTx, res.Tx, res.Timestamp)
-//				t.Stop()
-//				return res, err
-//			}
-//
-//			t.Reset(defaultBroadcastStatusPoll)
-//		}
-//	}
-//}
+	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 
-// QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
-// and grouped into Txns in chunks. Use this method to mass broadcast Txns with efficiency.
-//func (c *chainClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
-//	if !c.canSign {
-//		return ErrReadOnly
-//	} else if atomic.LoadInt64(&c.closed) == 1 {
-//		return ErrQueueClosed
-//	}
-//
-//	t := time.NewTimer(10 * time.Second)
-//	for _, msg := range msgs {
-//		select {
-//		case <-t.C:
-//			return ErrEnqueueTimeout
-//		case c.msgC <- msg:
-//		}
-//	}
-//	t.Stop()
-//
-//	return nil
-//}
+	if err != nil {
+		if strings.Contains(err.Error(), "account sequence mismatch") {
+			c.syncNonce()
+			c.txFactory = c.txFactory.WithSequence(c.accSeq)
+			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+			log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+			res, err = c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
+		}
+		if err != nil {
+			resJSON, _ := json.MarshalIndent(res, "", "\t")
+			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+			return nil, err
+		}
+	}
 
-//
-//func (c *chainClient) runBatchBroadcast() {
-//	expirationTimer := time.NewTimer(msgCommitBatchTimeLimit)
-//	msgBatch := make([]sdk.Msg, 0, msgCommitBatchSizeLimit)
-//
-//	submitBatch := func(toSubmit []sdk.Msg) {
-//		c.syncMux.Lock()
-//		defer c.syncMux.Unlock()
-//
-//		c.txFactory = c.txFactory.WithSequence(c.accSeq)
-//		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-//		log.Debugln("broadcastTx with nonce", c.accSeq)
-//		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
-//		if err != nil {
-//			if strings.Contains(err.Error(), "account sequence mismatch") {
-//				c.syncNonce()
-//				c.txFactory = c.txFactory.WithSequence(c.accSeq)
-//				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-//				log.Debugln("retrying broadcastTx with nonce", c.accSeq)
-//				res, err = c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
-//			}
-//			if err != nil {
-//				resJSON, _ := json.MarshalIndent(res, "", "\t")
-//				c.logger.WithField("size", len(toSubmit)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
-//				return
-//			}
-//		}
-//
-//		if res.Code != 0 {
-//			err = errors.Errorf("error %d (%s): %s", res.Code, res.Codespace, res.RawLog)
-//			log.WithField("txHash", res.TxHash).WithError(err).Errorln("failed to commit msg batch")
-//		} else {
-//			log.WithField("txHash", res.TxHash).Debugln("msg batch committed successfully")
-//		}
-//
-//		c.accSeq++
-//		log.Debugln("nonce incremented to", c.accSeq)
-//	}
-//
-//	for {
-//		select {
-//		case msg, ok := <-c.msgC:
-//			if !ok {
-//				// exit required
-//				if len(msgBatch) > 0 {
-//					submitBatch(msgBatch)
-//				}
-//
-//				close(c.doneC)
-//				return
-//			}
-//
-//			msgBatch = append(msgBatch, msg)
-//
-//			if len(msgBatch) >= msgCommitBatchSizeLimit {
-//				toSubmit := msgBatch
-//				msgBatch = msgBatch[:0]
-//				expirationTimer.Reset(msgCommitBatchTimeLimit)
-//
-//				submitBatch(toSubmit)
-//			}
-//		case <-expirationTimer.C:
-//			if len(msgBatch) > 0 {
-//				toSubmit := msgBatch
-//				msgBatch = msgBatch[:0]
-//				expirationTimer.Reset(msgCommitBatchTimeLimit)
-//
-//				submitBatch(toSubmit)
-//			} else {
-//				expirationTimer.Reset(msgCommitBatchTimeLimit)
-//			}
-//		}
-//	}
-//}
+	c.accSeq++
+
+	return res, nil
+}
+
+//AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
+//cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
+//external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
+func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	c.syncMux.Lock()
+	defer c.syncMux.Unlock()
+
+	c.txFactory = c.txFactory.WithSequence(c.accSeq)
+	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+	res, err := c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
+	if err != nil {
+		if strings.Contains(err.Error(), "account sequence mismatch") {
+			c.syncNonce()
+			c.txFactory = c.txFactory.WithSequence(c.accSeq)
+			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+			log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+			res, err = c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
+		}
+		if err != nil {
+			resJSON, _ := json.MarshalIndent(res, "", "\t")
+			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+			return nil, err
+		}
+	}
+
+	c.accSeq++
+
+	return res, nil
+}
+
+func (c *chainClient) broadcastTx(
+	clientCtx client.Context,
+	txf tx.Factory,
+	await bool,
+	msgs ...sdk.Msg,
+) (*txtypes.BroadcastTxResponse, error) {
+
+	txf, err := c.prepareFactory(clientCtx, txf)
+	if err != nil {
+		err = errors.Wrap(err, "failed to prepareFactory")
+		return nil, err
+	}
+
+	// attempt to load cookie
+	ctx := context.Background()
+
+	if txf.SimulateAndExecute() || clientCtx.Simulate {
+		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
+		if err != nil {
+			err = errors.Wrap(err, "failed to build sim tx bytes")
+			return nil, err
+		}
+
+		ctx := c.getCookie(ctx)
+		var header metadata.MD
+		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+		if err != nil {
+			err = errors.Wrap(err, "failed to CalculateGas")
+			return nil, err
+		}
+		c.setCookie(header)
+
+		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
+		txf = txf.WithGas(adjustedGas)
+	}
+
+	txn, err := tx.BuildUnsignedTx(txf, msgs...)
+
+	if err != nil {
+		err = errors.Wrap(err, "failed to BuildUnsignedTx")
+		return nil, err
+	}
+
+	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
+	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
+	if err != nil {
+		err = errors.Wrap(err, "failed to Sign Tx")
+		return nil, err
+	}
+
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txn.GetTx())
+	if err != nil {
+		err = errors.Wrap(err, "failed TxEncoder to encode Tx")
+		return nil, err
+	}
+
+	req := txtypes.BroadcastTxRequest{
+		txBytes,
+		txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+	}
+	// use our own client to broadcast tx
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
+	if !await || err != nil {
+		return res, err
+	}
+	c.setCookie(header)
+
+	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
+	defer cancelFn()
+
+	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
+	t := time.NewTimer(defaultBroadcastStatusPoll)
+
+	for {
+		select {
+		case <-awaitCtx.Done():
+			err := errors.Wrapf(ErrTimedOut, "%s", res.TxResponse.TxHash)
+			t.Stop()
+			return nil, err
+		case <-t.C:
+			resultTx, err := clientCtx.Client.Tx(awaitCtx, txHash, false)
+			if err != nil {
+				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
+					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
+				}
+
+				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
+
+				t.Reset(defaultBroadcastStatusPoll)
+				continue
+
+			} else if resultTx.Height > 0 {
+				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
+				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
+				t.Stop()
+				return res, err
+			}
+
+			t.Reset(defaultBroadcastStatusPoll)
+		}
+	}
+}
+
+//QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
+//and grouped into Txns in chunks. Use this method to mass broadcast Txns with efficiency.
+func (c *chainClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
+	if !c.canSign {
+		return ErrReadOnly
+	} else if atomic.LoadInt64(&c.closed) == 1 {
+		return ErrQueueClosed
+	}
+
+	t := time.NewTimer(10 * time.Second)
+	for _, msg := range msgs {
+		select {
+		case <-t.C:
+			return ErrEnqueueTimeout
+		case c.msgC <- msg:
+		}
+	}
+	t.Stop()
+
+	return nil
+}
+
+func (c *chainClient) runBatchBroadcast() {
+	expirationTimer := time.NewTimer(msgCommitBatchTimeLimit)
+	msgBatch := make([]sdk.Msg, 0, msgCommitBatchSizeLimit)
+
+	submitBatch := func(toSubmit []sdk.Msg) {
+		c.syncMux.Lock()
+		defer c.syncMux.Unlock()
+
+		c.txFactory = c.txFactory.WithSequence(c.accSeq)
+		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+		log.Debugln("broadcastTx with nonce", c.accSeq)
+		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
+		if err != nil {
+			if strings.Contains(err.Error(), "account sequence mismatch") {
+				c.syncNonce()
+				c.txFactory = c.txFactory.WithSequence(c.accSeq)
+				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+				log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+				res, err = c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
+			}
+			if err != nil {
+				resJSON, _ := json.MarshalIndent(res, "", "\t")
+				c.logger.WithField("size", len(toSubmit)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+				return
+			}
+		}
+
+		if res.TxResponse.Code != 0 {
+			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to commit msg batch")
+		} else {
+			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch committed successfully")
+		}
+
+		c.accSeq++
+		log.Debugln("nonce incremented to", c.accSeq)
+	}
+
+	for {
+		select {
+		case msg, ok := <-c.msgC:
+			if !ok {
+				// exit required
+				if len(msgBatch) > 0 {
+					submitBatch(msgBatch)
+				}
+
+				close(c.doneC)
+				return
+			}
+
+			msgBatch = append(msgBatch, msg)
+
+			if len(msgBatch) >= msgCommitBatchSizeLimit {
+				toSubmit := msgBatch
+				msgBatch = msgBatch[:0]
+				expirationTimer.Reset(msgCommitBatchTimeLimit)
+
+				submitBatch(toSubmit)
+			}
+		case <-expirationTimer.C:
+			if len(msgBatch) > 0 {
+				toSubmit := msgBatch
+				msgBatch = msgBatch[:0]
+				expirationTimer.Reset(msgCommitBatchTimeLimit)
+				submitBatch(toSubmit)
+			} else {
+				expirationTimer.Reset(msgCommitBatchTimeLimit)
+			}
+		}
+	}
+}
