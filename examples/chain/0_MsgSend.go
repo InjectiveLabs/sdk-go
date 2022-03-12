@@ -6,6 +6,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	"time"
 )
 
 func main() {
@@ -48,10 +49,19 @@ func main() {
 		client.OptionGasPrices("500000000inj"),
 	)
 
-	res, err := chainClient.SyncBroadcastTx(msg)
-	if err != nil {
-		fmt.Println(err)
+	for i:=0; i<2; i++ {
+		err := chainClient.QueueBroadcastMsg(msg)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
-	fmt.Println(res)
+	time.Sleep(time.Second * 2)
+	for i:=0; i<2; i++ {
+		err := chainClient.QueueBroadcastMsg(msg)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 
+	for true {}
 }
