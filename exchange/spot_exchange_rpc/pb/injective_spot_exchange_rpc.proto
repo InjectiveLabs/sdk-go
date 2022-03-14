@@ -233,9 +233,11 @@ message TradesRequest {
 	uint64 skip = 5;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 6;
-	// The start timestamp of the trades in millisecond
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
 	sint64 start_time = 7;
-	// The end timestamp of the trades in millisecond
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
 	sint64 end_time = 8;
 }
 
@@ -278,9 +280,11 @@ message StreamTradesRequest {
 	uint64 skip = 5;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 6;
-	// The start timestamp of the trades in millisecond
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
 	sint64 start_time = 7;
-	// The end timestamp of the trades in millisecond
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
 	sint64 end_time = 8;
 }
 
