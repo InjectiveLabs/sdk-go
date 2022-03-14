@@ -4,6 +4,12 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -14,44 +20,75 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	log "github.com/xlab/suplog"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-
-	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
-func init() {
-	// set the address prefixes
-	config := sdk.GetConfig()
+const (
+	msgCommitBatchSizeLimit = 1024
+	msgCommitBatchTimeLimit = 500 * time.Millisecond
+	defaultBroadcastStatusPoll = 100 * time.Millisecond
+	defaultBroadcastTimeout    = 40 * time.Second
+)
 
-	// This is specific to Injective chain
-	ctypes.SetBech32Prefixes(config)
-	ctypes.SetBip44CoinType(config)
-}
+var (
+	ErrTimedOut = errors.New("tx timed out")
+	ErrQueueClosed    = errors.New("queue is closed")
+	ErrEnqueueTimeout = errors.New("enqueue timeout")
+	ErrReadOnly       = errors.New("client is in read-only mode")
+)
 
-type CosmosClient interface {
+type ChainClient interface {
 	CanSignTransactions() bool
 	FromAddress() sdk.AccAddress
 	QueryClient() *grpc.ClientConn
-	SyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error)
-	AsyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error)
-	QueueBroadcastMsg(msgs ...sdk.Msg) error
 	ClientContext() client.Context
+
+	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	QueueBroadcastMsg(msgs ...sdk.Msg) error
+
+	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
+
 	Close()
+}
+
+type chainClient struct {
+	ctx       client.Context
+	opts      *clientOptions
+	logger    log.Logger
+	conn      *grpc.ClientConn
+	txFactory tx.Factory
+
+	fromAddress sdk.AccAddress
+	doneC       chan bool
+	msgC        chan sdk.Msg
+	syncMux     *sync.Mutex
+
+	accNum uint64
+	accSeq uint64
+
+	sessionCookie string
+
+	txClient txtypes.ServiceClient
+	authQueryClient authtypes.QueryClient
+	chainQueryClient chaintypes.QueryClient
+	bankQueryClient  banktypes.QueryClient
+
+	closed  int64
+	canSign bool
 }
 
 // NewCosmosClient creates a new gRPC client that communicates with gRPC server at protoAddr.
 // protoAddr must be in form "tcp://127.0.0.1:8080" or "unix:///tmp/test.sock", protocol is required.
-func NewCosmosClient(
+func NewChainClient(
 	ctx client.Context,
 	protoAddr string,
-	options ...cosmosClientOption,
-) (CosmosClient, error) {
+	options ...clientOption,
+) (ChainClient, error) {
 	// process options
-	opts := defaultCosmosClientOptions()
+	opts := defaultClientOptions()
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
-			err = errors.Wrap(err, "error in a cosmos client option")
+			err = errors.Wrap(err, "error in client option")
 			return nil, err
 		}
 	}
@@ -74,13 +111,13 @@ func NewCosmosClient(
 	}
 
 	// build client
-	cc := &cosmosClient{
+	cc := &chainClient{
 		ctx:  ctx,
 		opts: opts,
 
 		logger: log.WithFields(log.Fields{
 			"module": "sdk-go",
-			"svc":    "cosmosClient",
+			"svc":    "chainClient",
 		}),
 
 		conn:      conn,
@@ -89,6 +126,11 @@ func NewCosmosClient(
 		syncMux:   new(sync.Mutex),
 		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
 		doneC:     make(chan bool, 1),
+
+		txClient: txtypes.NewServiceClient(conn),
+		authQueryClient: authtypes.NewQueryClient(conn),
+		chainQueryClient: chaintypes.NewQueryClient(conn),
+		bankQueryClient:  banktypes.NewQueryClient(conn),
 	}
 
 	if cc.canSign {
@@ -106,43 +148,7 @@ func NewCosmosClient(
 	return cc, nil
 }
 
-type cosmosClientOptions struct {
-	GasPrices string
-	TLSCert   credentials.TransportCredentials
-}
-
-func defaultCosmosClientOptions() *cosmosClientOptions {
-	return &cosmosClientOptions{}
-}
-
-type cosmosClientOption func(opts *cosmosClientOptions) error
-
-func OptionGasPrices(gasPrices string) cosmosClientOption {
-	return func(opts *cosmosClientOptions) error {
-		_, err := sdk.ParseDecCoins(gasPrices)
-		if err != nil {
-			err = errors.Wrapf(err, "failed to ParseDecCoins %s", gasPrices)
-			return err
-		}
-
-		opts.GasPrices = gasPrices
-		return nil
-	}
-}
-
-func OptionTLSCert(tlsCert credentials.TransportCredentials) cosmosClientOption {
-	return func(opts *cosmosClientOptions) error {
-		if tlsCert == nil {
-			log.Infoln("Client does not use grpc secure transport")
-		} else {
-			log.Infoln("Succesfully load server TLS cert")
-		}
-		opts.TLSCert = tlsCert
-		return nil
-	}
-}
-
-func (c *cosmosClient) syncNonce() {
+func (c *chainClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
 	if err != nil {
 		c.logger.WithError(err).Errorln("failed to get account seq")
@@ -157,38 +163,69 @@ func (c *cosmosClient) syncNonce() {
 	c.accSeq = seq
 }
 
-type cosmosClient struct {
-	ctx       client.Context
-	opts      *cosmosClientOptions
-	logger    log.Logger
-	conn      *grpc.ClientConn
-	txFactory tx.Factory
+// prepareFactory ensures the account defined by ctx.GetFromAddress() exists and
+// if the account number and/or the account sequence number are zero (not set),
+// they will be queried for and set on the provided Factory. A new Factory with
+// the updated fields will be returned.
+func (c *chainClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+	from := clientCtx.GetFromAddress()
 
-	fromAddress sdk.AccAddress
-	doneC       chan bool
-	msgC        chan sdk.Msg
-	syncMux     *sync.Mutex
+	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
+		return txf, err
+	}
 
-	accNum uint64
-	accSeq uint64
+	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
+	if initNum == 0 || initSeq == 0 {
+		num, seq, err := txf.AccountRetriever().GetAccountNumberSequence(clientCtx, from)
+		if err != nil {
+			return txf, err
+		}
 
-	closed  int64
-	canSign bool
+		if initNum == 0 {
+			txf = txf.WithAccountNumber(num)
+		}
+
+		if initSeq == 0 {
+			txf = txf.WithSequence(seq)
+		}
+	}
+
+	return txf, nil
 }
 
-func (c *cosmosClient) QueryClient() *grpc.ClientConn {
+func (c *chainClient) getAccSeq() uint64 {
+	defer func() {
+		c.accSeq += 1
+	}()
+	return c.accSeq
+}
+
+func (c *chainClient) setCookie(metadata metadata.MD) {
+	md := metadata.Get("set-cookie")
+	if len(md) > 0 {
+		c.sessionCookie = md[0]
+	}
+}
+
+func (c *chainClient) getCookie(ctx context.Context) context.Context {
+	md := metadata.Pairs("cookie",c.sessionCookie)
+	return metadata.NewOutgoingContext(ctx, md)
+	//return metadata.AppendToOutgoingContext(ctx, "cookie", c.sessionCookie)
+}
+
+func (c *chainClient) QueryClient() *grpc.ClientConn {
 	return c.conn
 }
 
-func (c *cosmosClient) ClientContext() client.Context {
+func (c *chainClient) ClientContext() client.Context {
 	return c.ctx
 }
 
-func (c *cosmosClient) CanSignTransactions() bool {
+func (c *chainClient) CanSignTransactions() bool {
 	return c.canSign
 }
 
-func (c *cosmosClient) FromAddress() sdk.AccAddress {
+func (c *chainClient) FromAddress() sdk.AccAddress {
 	if !c.canSign {
 		return sdk.AccAddress{}
 	}
@@ -196,20 +233,36 @@ func (c *cosmosClient) FromAddress() sdk.AccAddress {
 	return c.ctx.FromAddress
 }
 
-var (
-	ErrQueueClosed    = errors.New("queue is closed")
-	ErrEnqueueTimeout = errors.New("enqueue timeout")
-	ErrReadOnly       = errors.New("client is in read-only mode")
-)
+func (c *chainClient) Close() {
+	if !c.canSign {
+		return
+	}
+	if atomic.CompareAndSwapInt64(&c.closed, 0, 1) {
+		close(c.msgC)
+	}
+	<-c.doneC
+	if c.conn != nil {
+		c.conn.Close()
+	}
+}
+
+func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
+	req := &banktypes.QueryAllBalancesRequest{
+		Address: address,
+	}
+	return c.bankQueryClient.AllBalances(ctx, req)
+}
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
-func (c *cosmosClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error) {
+func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
 
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+
 	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
+
 	if err != nil {
 		if strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
@@ -230,10 +283,10 @@ func (c *cosmosClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error
 	return res, nil
 }
 
-// AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
-// cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
-// external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
-func (c *cosmosClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, error) {
+//AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
+//cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
+//external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
+func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
 
@@ -260,17 +313,12 @@ func (c *cosmosClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*sdk.TxResponse, erro
 	return res, nil
 }
 
-const (
-	defaultBroadcastStatusPoll = 100 * time.Millisecond
-	defaultBroadcastTimeout    = 40 * time.Second
-)
-
-func (c *cosmosClient) broadcastTx(
+func (c *chainClient) broadcastTx(
 	clientCtx client.Context,
 	txf tx.Factory,
 	await bool,
 	msgs ...sdk.Msg,
-) (*sdk.TxResponse, error) {
+) (*txtypes.BroadcastTxResponse, error) {
 
 	txf, err := c.prepareFactory(clientCtx, txf)
 	if err != nil {
@@ -278,17 +326,31 @@ func (c *cosmosClient) broadcastTx(
 		return nil, err
 	}
 
+	// attempt to load cookie
+	ctx := context.Background()
+
 	if txf.SimulateAndExecute() || clientCtx.Simulate {
-		_, adjusted, err := tx.CalculateGas(clientCtx, txf, msgs...)
+		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
+		if err != nil {
+			err = errors.Wrap(err, "failed to build sim tx bytes")
+			return nil, err
+		}
+
+		ctx := c.getCookie(ctx)
+		var header metadata.MD
+		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
 		if err != nil {
 			err = errors.Wrap(err, "failed to CalculateGas")
 			return nil, err
 		}
+		c.setCookie(header)
 
-		txf = txf.WithGas(adjusted)
+		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
+		txf = txf.WithGas(adjustedGas)
 	}
 
 	txn, err := tx.BuildUnsignedTx(txf, msgs...)
+
 	if err != nil {
 		err = errors.Wrap(err, "failed to BuildUnsignedTx")
 		return nil, err
@@ -307,28 +369,36 @@ func (c *cosmosClient) broadcastTx(
 		return nil, err
 	}
 
-	res, err := clientCtx.BroadcastTxSync(txBytes)
+	req := txtypes.BroadcastTxRequest{
+		txBytes,
+		txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+	}
+	// use our own client to broadcast tx
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
 	if !await || err != nil {
 		return res, err
 	}
+	c.setCookie(header)
 
 	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
 	defer cancelFn()
 
-	txHash, _ := hex.DecodeString(res.TxHash)
+	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
 	t := time.NewTimer(defaultBroadcastStatusPoll)
 
 	for {
 		select {
 		case <-awaitCtx.Done():
-			err := errors.Wrapf(ErrTimedOut, "%s", res.TxHash)
+			err := errors.Wrapf(ErrTimedOut, "%s", res.TxResponse.TxHash)
 			t.Stop()
 			return nil, err
 		case <-t.C:
 			resultTx, err := clientCtx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
 				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
-					return errRes, err
+					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
 				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
@@ -337,7 +407,8 @@ func (c *cosmosClient) broadcastTx(
 				continue
 
 			} else if resultTx.Height > 0 {
-				res = sdk.NewResponseResultTx(resultTx, res.Tx, res.Timestamp)
+				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
+				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 				t.Stop()
 				return res, err
 			}
@@ -347,41 +418,9 @@ func (c *cosmosClient) broadcastTx(
 	}
 }
 
-var ErrTimedOut = errors.New("tx timed out")
-
-// prepareFactory ensures the account defined by ctx.GetFromAddress() exists and
-// if the account number and/or the account sequence number are zero (not set),
-// they will be queried for and set on the provided Factory. A new Factory with
-// the updated fields will be returned.
-func (c *cosmosClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
-	from := clientCtx.GetFromAddress()
-
-	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
-		return txf, err
-	}
-
-	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
-	if initNum == 0 || initSeq == 0 {
-		num, seq, err := txf.AccountRetriever().GetAccountNumberSequence(clientCtx, from)
-		if err != nil {
-			return txf, err
-		}
-
-		if initNum == 0 {
-			txf = txf.WithAccountNumber(num)
-		}
-
-		if initSeq == 0 {
-			txf = txf.WithSequence(seq)
-		}
-	}
-
-	return txf, nil
-}
-
-// QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
-// and grouped into Txns in chunks. Use this method to mass broadcast Txns with efficiency.
-func (c *cosmosClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
+//QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
+//and grouped into Txns in chunks. Use this method to mass broadcast Txns with efficiency.
+func (c *chainClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
 	if !c.canSign {
 		return ErrReadOnly
 	} else if atomic.LoadInt64(&c.closed) == 1 {
@@ -401,28 +440,7 @@ func (c *cosmosClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
 	return nil
 }
 
-func (c *cosmosClient) Close() {
-	if !c.canSign {
-		return
-	}
-
-	if atomic.CompareAndSwapInt64(&c.closed, 0, 1) {
-		close(c.msgC)
-	}
-
-	<-c.doneC
-
-	if c.conn != nil {
-		c.conn.Close()
-	}
-}
-
-const (
-	msgCommitBatchSizeLimit = 1024
-	msgCommitBatchTimeLimit = 500 * time.Millisecond
-)
-
-func (c *cosmosClient) runBatchBroadcast() {
+func (c *chainClient) runBatchBroadcast() {
 	expirationTimer := time.NewTimer(msgCommitBatchTimeLimit)
 	msgBatch := make([]sdk.Msg, 0, msgCommitBatchSizeLimit)
 
@@ -449,11 +467,11 @@ func (c *cosmosClient) runBatchBroadcast() {
 			}
 		}
 
-		if res.Code != 0 {
-			err = errors.Errorf("error %d (%s): %s", res.Code, res.Codespace, res.RawLog)
-			log.WithField("txHash", res.TxHash).WithError(err).Errorln("failed to commit msg batch")
+		if res.TxResponse.Code != 0 {
+			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to commit msg batch")
 		} else {
-			log.WithField("txHash", res.TxHash).Debugln("msg batch committed successfully")
+			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch committed successfully")
 		}
 
 		c.accSeq++
@@ -487,7 +505,6 @@ func (c *cosmosClient) runBatchBroadcast() {
 				toSubmit := msgBatch
 				msgBatch = msgBatch[:0]
 				expirationTimer.Reset(msgCommitBatchTimeLimit)
-
 				submitBatch(toSubmit)
 			} else {
 				expirationTimer.Reset(msgCommitBatchTimeLimit)

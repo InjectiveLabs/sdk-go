@@ -362,8 +362,10 @@ message FundingRate {
 message StreamPositionsRequest {
 	// SubaccountId of the trader we want to get the positions from
 	string subaccount_id = 1;
-	// MarketId of the position we want to fetch
+	// Backward compat single market ID of position we want to stream
 	string market_id = 2;
+	// List of market IDs of the positions we want to stream
+	repeated string market_ids = 3;
 }
 
 message StreamPositionsResponse {
