@@ -18,6 +18,8 @@ import (
 )
 
 type ExchangeClient interface {
+	QueryClient() *grpc.ClientConn
+
 	GetOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error)
 	StreamOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error)
 	Close()
@@ -96,6 +98,10 @@ func (c *exchangeClient) setCookie(metadata metadata.MD) {
 
 func (c *exchangeClient) getCookie(ctx context.Context) context.Context {
 	return metadata.AppendToOutgoingContext(ctx, "cookie", c.sessionCookie)
+}
+
+func (c *exchangeClient) QueryClient() *grpc.ClientConn {
+	return c.conn
 }
 
 func (c *exchangeClient) GetOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error) {
