@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/InjectiveLabs/sdk-go/client"
+	"github.com/InjectiveLabs/sdk-go/client/common"
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
@@ -10,13 +11,13 @@ import (
 )
 
 func main() {
-	network := client.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	senderAddress, cosmosKeyring, err := client.InitCosmosKeyring(
+	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		"/Users/nam/.injectived",
 		"injectived",
 		"file",
@@ -26,7 +27,7 @@ func main() {
 		false,
 	)
 
-	clientCtx, err := client.NewClientContext(
+	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),
 		cosmosKeyring,
@@ -42,11 +43,11 @@ func main() {
 		},
 	}
 
-	chainClient, err := client.NewChainClient(
+	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network.ChainGrpcEndpoint,
-		client.OptionTLSCert(network.ChainTlsCert),
-		client.OptionGasPrices("500000000inj"),
+		common.OptionTLSCert(network.ChainTlsCert),
+		common.OptionGasPrices("500000000inj"),
 	)
 
 	for i:=0; i<2; i++ {

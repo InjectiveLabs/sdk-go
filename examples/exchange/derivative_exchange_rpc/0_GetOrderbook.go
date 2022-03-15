@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/InjectiveLabs/sdk-go/client"
+	"github.com/InjectiveLabs/sdk-go/client/common"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
 func main() {
-	network := client.LoadNetwork("mainnet", "lb")
-	exchangeClient, err := client.NewExchangeClient(network.ExchangeGrpcEndpoint, client.OptionTLSCert(network.ExchangeTlsCert))
+	network := common.LoadNetwork("mainnet", "lb")
+	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
 	if err != nil {
 		fmt.Println(err)
 	}
