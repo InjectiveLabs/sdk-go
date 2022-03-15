@@ -1,8 +1,9 @@
-package client
+package exchange
 
 import (
 	"context"
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	accountPB "github.com/InjectiveLabs/sdk-go/exchange/accounts_rpc/pb"
 	auctionPB "github.com/InjectiveLabs/sdk-go/exchange/auction_rpc/pb"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
@@ -25,9 +26,9 @@ type ExchangeClient interface {
 	Close()
 }
 
-func NewExchangeClient(protoAddr string, options ...clientOption) (ExchangeClient, error) {
+func NewExchangeClient(protoAddr string, options ...common.ClientOption) (ExchangeClient, error) {
 	// process options
-	opts := defaultClientOptions()
+	opts := common.DefaultClientOptions()
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
 			err = errors.Wrap(err, "error in client option")
@@ -39,9 +40,9 @@ func NewExchangeClient(protoAddr string, options ...clientOption) (ExchangeClien
 	var conn *grpc.ClientConn
 	var err error
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(dialerFunc))
+		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(dialerFunc))
+		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {
 		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
@@ -71,7 +72,7 @@ func NewExchangeClient(protoAddr string, options ...clientOption) (ExchangeClien
 }
 
 type exchangeClient struct {
-	opts   *clientOptions
+	opts   *common.ClientOptions
 	conn   *grpc.ClientConn
 	logger log.Logger
 	client *grpc.ClientConn
