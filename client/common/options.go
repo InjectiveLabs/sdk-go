@@ -1,4 +1,4 @@
-package client
+package common
 
 import (
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
@@ -17,19 +17,19 @@ func init() {
 	ctypes.SetBip44CoinType(config)
 }
 
-type clientOptions struct {
+type ClientOptions struct {
 	GasPrices string
 	TLSCert   credentials.TransportCredentials
 }
 
-type clientOption func(opts *clientOptions) error
+type ClientOption func(opts *ClientOptions) error
 
-func defaultClientOptions() *clientOptions {
-	return &clientOptions{}
+func DefaultClientOptions() *ClientOptions {
+	return &ClientOptions{}
 }
 
-func OptionGasPrices(gasPrices string) clientOption {
-	return func(opts *clientOptions) error {
+func OptionGasPrices(gasPrices string) ClientOption {
+	return func(opts *ClientOptions) error {
 		_, err := sdk.ParseDecCoins(gasPrices)
 		if err != nil {
 			err = errors.Wrapf(err, "failed to ParseDecCoins %s", gasPrices)
@@ -41,8 +41,8 @@ func OptionGasPrices(gasPrices string) clientOption {
 	}
 }
 
-func OptionTLSCert(tlsCert credentials.TransportCredentials) clientOption {
-	return func(opts *clientOptions) error {
+func OptionTLSCert(tlsCert credentials.TransportCredentials) ClientOption {
+	return func(opts *ClientOptions) error {
 		if tlsCert == nil {
 			log.Infoln("Client does not use grpc secure transport")
 		} else {

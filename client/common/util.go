@@ -1,4 +1,4 @@
-package client
+package common
 
 import (
 	"crypto/tls"
@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func hexToBytes(str string) ([]byte, error) {
+func HexToBytes(str string) ([]byte, error) {
 	if strings.HasPrefix(str, "0x") {
 		str = str[2:]
 	}

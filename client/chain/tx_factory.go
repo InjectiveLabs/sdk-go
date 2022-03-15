@@ -1,4 +1,4 @@
-package client
+package chain
 
 import (
 	"github.com/cosmos/cosmos-sdk/client"

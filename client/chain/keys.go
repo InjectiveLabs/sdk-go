@@ -1,4 +1,4 @@
-package client
+package chain
 
 import (
 	"bytes"
@@ -14,6 +14,7 @@ import (
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/hd"
 )
@@ -38,7 +39,7 @@ func InitCosmosKeyring(
 			return emptyCosmosAddress, nil, err
 		}
 
-		pkBytes, err := hexToBytes(cosmosPrivKey)
+		pkBytes, err := common.HexToBytes(cosmosPrivKey)
 		if err != nil {
 			err = errors.Wrap(err, "failed to hex-decode cosmos account privkey")
 			return emptyCosmosAddress, nil, err

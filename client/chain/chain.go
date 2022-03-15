@@ -1,9 +1,10 @@
-package client
+package chain
 
 import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	common "github.com/InjectiveLabs/sdk-go/client/common"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -53,7 +54,7 @@ type ChainClient interface {
 
 type chainClient struct {
 	ctx       client.Context
-	opts      *clientOptions
+	opts      *common.ClientOptions
 	logger    log.Logger
 	conn      *grpc.ClientConn
 	txFactory tx.Factory
@@ -82,10 +83,10 @@ type chainClient struct {
 func NewChainClient(
 	ctx client.Context,
 	protoAddr string,
-	options ...clientOption,
+	options ...common.ClientOption,
 ) (ChainClient, error) {
 	// process options
-	opts := defaultClientOptions()
+	opts := common.DefaultClientOptions()
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
 			err = errors.Wrap(err, "error in client option")
@@ -101,9 +102,9 @@ func NewChainClient(
 	var conn *grpc.ClientConn
 	var err error
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(dialerFunc))
+		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(dialerFunc))
+		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {
 		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
