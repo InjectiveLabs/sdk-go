@@ -48,15 +48,10 @@ func (p *ContractRegistrationRequestProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *ContractRegistrationRequestProposal) ValidateBasic() error {
-	// 	TODO
-	// Add validation to check
-	// - if code id exist
-	// - if contract address is valid and exist
-	// - if caller address is valid and exist
-	// - if gasLimit is not zero
-	// if p.ContractRegistrationRequest.GasLimit.IsZero() {
-	// 	return fmt.Errorf("invalid parameter type: %T", i)
-	// }
+	// The gas price should be parsed to dec coin
+	if _, err := sdk.ParseDecCoin(p.ContractRegistrationRequest.GasPrice); err != nil {
+		return err
+	}
 
 	return gov.ValidateAbstract(p)
 }
