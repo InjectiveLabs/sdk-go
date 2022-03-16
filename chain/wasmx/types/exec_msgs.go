@@ -14,6 +14,7 @@ type CWRegisterExecMsg struct {
 type RegisterMsg struct {
 	GasLimit        uint64 `json:"gas_limit"`
 	ContractAddress string `json:"contract_address"`
+	GasPrice        string `json:"gas_price"`
 }
 
 type CWBeginBlockerExecMsg struct {
@@ -61,4 +62,5 @@ func ContractsQueryMsg() ([]byte, error) {
 type Contract struct {
 	Address  string `json:"address"`
 	GasLimit uint64 `json:"gas_limit"`
+	GasPrice string `json:"gas_price"`
 }
