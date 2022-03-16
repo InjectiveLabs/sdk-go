@@ -930,17 +930,8 @@ func (msg *MsgSubscribeToMarketMakingPool) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if !IsHexHash(msg.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
-	}
-
 	if !msg.FundsAmount.IsPositive() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FundsAmount.String())
-	}
-
-	_, ok := IsValidSubaccountID(msg.PoolSubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.PoolSubaccountId)
 	}
 
 	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SubscriberSubaccountId)
@@ -980,17 +971,8 @@ func (msg *MsgRedeemFromMarketMakingPool) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if !IsHexHash(msg.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
-	}
-
 	if !msg.LpTokenBurnAmount.IsPositive() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.LpTokenBurnAmount.String())
-	}
-
-	_, ok := IsValidSubaccountID(msg.PoolSubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.PoolSubaccountId)
 	}
 
 	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.RedeemerSubaccountId)

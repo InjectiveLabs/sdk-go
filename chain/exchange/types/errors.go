@@ -63,5 +63,7 @@ var (
 	ErrTradingRewardCampaignDistributionError   = sdkerrors.Register(ModuleName, 56, "Unknown error happened for campaign distributions")
 	ErrInvalidTradingRewardsPendingPointsUpdate = sdkerrors.Register(ModuleName, 57, "Invalid trading reward points update")
 	ErrInvalidBatchMsgUpdate                    = sdkerrors.Register(ModuleName, 58, "Invalid batch msg update")
-	ErrInvalidMarginRatio                       = sdkerrors.Register(ModuleName, 59, "invalid margin ratio")
+	ErrInvalidMarginRatio                       = sdkerrors.Register(ModuleName, 59, "Invalid margin ratio")
+	ErrBelowMinimalContribution                 = sdkerrors.Register(ModuleName, 61, "Provided funds are below minimum")
+	ErrLowPositionMargin                        = sdkerrors.Register(ModuleName, 62, "Position is below initial margin requirement")
 )
