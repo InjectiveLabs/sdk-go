@@ -74,7 +74,7 @@ func LoadNetwork(name string, node string) network {
 		var chainTlsCert, exchangeTlsCert credentials.TransportCredentials
 		if node == "lb" {
 			lcdEndpoint = "https://lb.mainnet.lcd.injective.network"
-			lcdEndpoint = fmt.Sprintf("https://lb.mainnet.tm.injective.network:443", node)
+			tmEndpoint = "https://lb.mainnet.tm.injective.network:443"
 			chainGrpcEndpoint = "tcp://lb.mainnet.chain.grpc.injective.network:443"
 			chainTlsCert = LoadTlsCert("client/cert/mainnet.crt", chainGrpcEndpoint)
 			exchangeGrpcEndpoint = "tcp://lb.mainnet.exchange.grpc.injective.network:443"
