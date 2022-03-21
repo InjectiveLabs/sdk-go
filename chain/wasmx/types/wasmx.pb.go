@@ -6,6 +6,7 @@ package types
 import (
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-sdk/types"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
@@ -27,15 +28,14 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type Params struct {
 	// Set the status to active to indicate that the contract is to be executed in begin blocker.
 	IsExecutionEnabled bool `protobuf:"varint,1,opt,name=is_execution_enabled,json=isExecutionEnabled,proto3" json:"is_execution_enabled,omitempty"`
-	// registry_contract_address is the address of the contract that will be used to register the contract executed in begin blocker.
-	RegistryContractAddress string `protobuf:"bytes,2,opt,name=registry_contract_address,json=registryContractAddress,proto3" json:"registry_contract_address,omitempty"`
-	// min_gas_price_begin_block defines the minimum gas price in INJ the contracts has to pay to be executed in begin blocker.
-	MinGasPriceBeginBlock string `protobuf:"bytes,3,opt,name=min_gas_price_begin_block,json=minGasPriceBeginBlock,proto3" json:"min_gas_price_begin_block,omitempty"`
-	// Maximum gas to be used for the contract execution in begin blocker.
-	// Should always be less than max block gas
-	MaxGasBeginBlock int64 `protobuf:"varint,4,opt,name=max_gas_begin_block,json=maxGasBeginBlock,proto3" json:"max_gas_begin_block,omitempty"`
-	//  It should be possible for begin blocker to execute atleast min_num_contracts.
-	MinNumOfContracts int64 `protobuf:"varint,5,opt,name=min_num_of_contracts,json=minNumOfContracts,proto3" json:"min_num_of_contracts,omitempty"`
+	// registry_contract is the address of the registry contract that will be used to register contract executions in begin blocker.
+	RegistryContract string `protobuf:"bytes,2,opt,name=registry_contract,json=registryContract,proto3" json:"registry_contract,omitempty"`
+	// Maximum aggregate total gas to be used for the contract executions in the BeginBlocker.
+	MaxBeginBlockTotalGas uint64 `protobuf:"varint,3,opt,name=max_begin_block_total_gas,json=maxBeginBlockTotalGas,proto3" json:"max_begin_block_total_gas,omitempty"`
+	// the maximum gas limit each individual contract can consume in the BeginBlocker.
+	MaxContractGasLimit uint64 `protobuf:"varint,4,opt,name=max_contract_gas_limit,json=maxContractGasLimit,proto3" json:"max_contract_gas_limit,omitempty"`
+	// min_gas_price defines the minimum gas price the contracts must pay to be executed in the BeginBlocker.
+	MinGasPrice github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=min_gas_price,json=minGasPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"min_gas_price"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -78,30 +78,23 @@ func (m *Params) GetIsExecutionEnabled() bool {
 	return false
 }
 
-func (m *Params) GetRegistryContractAddress() string {
+func (m *Params) GetRegistryContract() string {
 	if m != nil {
-		return m.RegistryContractAddress
+		return m.RegistryContract
 	}
 	return ""
 }
 
-func (m *Params) GetMinGasPriceBeginBlock() string {
+func (m *Params) GetMaxBeginBlockTotalGas() uint64 {
 	if m != nil {
-		return m.MinGasPriceBeginBlock
-	}
-	return ""
-}
-
-func (m *Params) GetMaxGasBeginBlock() int64 {
-	if m != nil {
-		return m.MaxGasBeginBlock
+		return m.MaxBeginBlockTotalGas
 	}
 	return 0
 }
 
-func (m *Params) GetMinNumOfContracts() int64 {
+func (m *Params) GetMaxContractGasLimit() uint64 {
 	if m != nil {
-		return m.MinNumOfContracts
+		return m.MaxContractGasLimit
 	}
 	return 0
 }
@@ -145,20 +138,61 @@ func (m *ContractRegistrationRequestProposal) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ContractRegistrationRequestProposal proto.InternalMessageInfo
 
+type BatchContractRegistrationRequestProposal struct {
+	Title                        string                        `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description                  string                        `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	ContractRegistrationRequests []ContractRegistrationRequest `protobuf:"bytes,3,rep,name=contract_registration_requests,json=contractRegistrationRequests,proto3" json:"contract_registration_requests"`
+}
+
+func (m *BatchContractRegistrationRequestProposal) Reset() {
+	*m = BatchContractRegistrationRequestProposal{}
+}
+func (m *BatchContractRegistrationRequestProposal) String() string { return proto.CompactTextString(m) }
+func (*BatchContractRegistrationRequestProposal) ProtoMessage()    {}
+func (*BatchContractRegistrationRequestProposal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6818ff331f2cddc4, []int{2}
+}
+func (m *BatchContractRegistrationRequestProposal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *BatchContractRegistrationRequestProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_BatchContractRegistrationRequestProposal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *BatchContractRegistrationRequestProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BatchContractRegistrationRequestProposal.Merge(m, src)
+}
+func (m *BatchContractRegistrationRequestProposal) XXX_Size() int {
+	return m.Size()
+}
+func (m *BatchContractRegistrationRequestProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_BatchContractRegistrationRequestProposal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BatchContractRegistrationRequestProposal proto.InternalMessageInfo
+
 type ContractRegistrationRequest struct {
 	// Unique Identifier for contract instance to be registered.
 	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
 	// Maximum gas to be used for the smart contract execution.
 	GasLimit uint64 `protobuf:"varint,2,opt,name=gas_limit,json=gasLimit,proto3" json:"gas_limit,omitempty"`
 	// gas price to be used for the smart contract execution.
-	GasPrice string `protobuf:"bytes,3,opt,name=gas_price,json=gasPrice,proto3" json:"gas_price,omitempty"`
+	GasPrice github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=gas_price,json=gasPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"gas_price"`
 }
 
 func (m *ContractRegistrationRequest) Reset()         { *m = ContractRegistrationRequest{} }
 func (m *ContractRegistrationRequest) String() string { return proto.CompactTextString(m) }
 func (*ContractRegistrationRequest) ProtoMessage()    {}
 func (*ContractRegistrationRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6818ff331f2cddc4, []int{2}
+	return fileDescriptor_6818ff331f2cddc4, []int{3}
 }
 func (m *ContractRegistrationRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -201,55 +235,53 @@ func (m *ContractRegistrationRequest) GetGasLimit() uint64 {
 	return 0
 }
 
-func (m *ContractRegistrationRequest) GetGasPrice() string {
-	if m != nil {
-		return m.GasPrice
-	}
-	return ""
-}
-
 func init() {
 	proto.RegisterType((*Params)(nil), "injective.wasmx.v1.Params")
 	proto.RegisterType((*ContractRegistrationRequestProposal)(nil), "injective.wasmx.v1.ContractRegistrationRequestProposal")
+	proto.RegisterType((*BatchContractRegistrationRequestProposal)(nil), "injective.wasmx.v1.BatchContractRegistrationRequestProposal")
 	proto.RegisterType((*ContractRegistrationRequest)(nil), "injective.wasmx.v1.ContractRegistrationRequest")
 }
 
 func init() { proto.RegisterFile("injective/wasmx/v1/wasmx.proto", fileDescriptor_6818ff331f2cddc4) }
 
 var fileDescriptor_6818ff331f2cddc4 = []byte{
-	// 511 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x93, 0x31, 0x6f, 0x13, 0x31,
-	0x14, 0xc7, 0xef, 0xda, 0xb4, 0x4a, 0xdc, 0x81, 0x62, 0x82, 0x48, 0x1b, 0x71, 0x89, 0xc2, 0x12,
-	0x86, 0xc6, 0x04, 0x16, 0x94, 0x8d, 0xa0, 0xaa, 0x42, 0x54, 0x10, 0xdd, 0xc8, 0x72, 0xf2, 0x39,
-	0xee, 0xd5, 0x70, 0xb6, 0x83, 0x9f, 0x2f, 0x24, 0x2b, 0x13, 0x23, 0x13, 0x73, 0x3e, 0x4e, 0xc7,
-	0x8e, 0x4c, 0x08, 0x25, 0x4b, 0x3f, 0x06, 0xba, 0x73, 0x2e, 0x8a, 0xa8, 0xda, 0xcd, 0xef, 0xfd,
-	0xde, 0xb3, 0xdf, 0xfb, 0xff, 0xef, 0x50, 0x20, 0xd4, 0x67, 0xce, 0xac, 0x98, 0x72, 0xf2, 0x8d,
-	0x82, 0x9c, 0x91, 0x69, 0xdf, 0x1d, 0x7a, 0x13, 0xa3, 0xad, 0xc6, 0x78, 0xc3, 0x7b, 0x2e, 0x3d,
-	0xed, 0x1f, 0xd7, 0x13, 0x9d, 0xe8, 0x02, 0x93, 0xfc, 0xe4, 0x2a, 0x8f, 0x03, 0xa6, 0x41, 0x6a,
-	0x20, 0x31, 0x05, 0x4e, 0xa6, 0xfd, 0x98, 0x5b, 0xda, 0x27, 0x4c, 0x0b, 0xe5, 0x78, 0xe7, 0xd7,
-	0x0e, 0xda, 0x1f, 0x51, 0x43, 0x25, 0xe0, 0x17, 0xa8, 0x2e, 0x20, 0xe2, 0x33, 0xce, 0x32, 0x2b,
-	0xb4, 0x8a, 0xb8, 0xa2, 0x71, 0xca, 0xc7, 0x0d, 0xbf, 0xed, 0x77, 0xab, 0x21, 0x16, 0x70, 0x5a,
-	0xa2, 0x53, 0x47, 0xf0, 0x00, 0x1d, 0x19, 0x9e, 0x08, 0xb0, 0x66, 0x1e, 0x31, 0xad, 0xac, 0xa1,
-	0xcc, 0x46, 0x74, 0x3c, 0x36, 0x1c, 0xa0, 0xb1, 0xd3, 0xf6, 0xbb, 0xb5, 0xf0, 0x49, 0x59, 0xf0,
-	0x76, 0xcd, 0xdf, 0x38, 0x8c, 0x5f, 0xa3, 0x23, 0x29, 0x54, 0x94, 0x50, 0x88, 0x26, 0x46, 0x30,
-	0x1e, 0xc5, 0x3c, 0x11, 0x2a, 0x8a, 0x53, 0xcd, 0xbe, 0x34, 0x76, 0x8b, 0xde, 0xc7, 0x52, 0xa8,
-	0x33, 0x0a, 0xa3, 0x1c, 0x0f, 0x73, 0x3a, 0xcc, 0x21, 0x3e, 0x41, 0x8f, 0x24, 0x9d, 0x15, 0x9d,
-	0xdb, 0x3d, 0x95, 0xb6, 0xdf, 0xdd, 0x0d, 0x0f, 0x25, 0x9d, 0x9d, 0x51, 0xd8, 0x2a, 0x27, 0xa8,
-	0x9e, 0x3f, 0xa4, 0x32, 0x19, 0xe9, 0x8b, 0xcd, 0x98, 0xd0, 0xd8, 0x2b, 0xea, 0x1f, 0x4a, 0xa1,
-	0x3e, 0x64, 0xf2, 0xe3, 0x45, 0x39, 0x1f, 0x0c, 0x2a, 0x37, 0x8b, 0x96, 0xdf, 0x59, 0xfa, 0xe8,
-	0x59, 0x99, 0x0b, 0xdd, 0x0e, 0x34, 0xdf, 0x3d, 0xe4, 0x5f, 0x33, 0x0e, 0x76, 0x64, 0xf4, 0x44,
-	0x03, 0x4d, 0x71, 0x1d, 0xed, 0x59, 0x61, 0x53, 0x5e, 0xc8, 0x54, 0x0b, 0x5d, 0x80, 0xdb, 0xe8,
-	0x60, 0xcc, 0x81, 0x19, 0x31, 0xc9, 0x7b, 0xd6, 0x5a, 0x6c, 0xa7, 0xf0, 0x1c, 0x3d, 0xdd, 0x48,
-	0x66, 0xb6, 0xee, 0x8f, 0x8c, 0x7b, 0xa0, 0xd0, 0xe0, 0xe0, 0x25, 0xe9, 0xdd, 0xb6, 0xba, 0x77,
-	0xcf, 0x5c, 0xc3, 0xca, 0xd5, 0x9f, 0x96, 0x17, 0x36, 0xd9, 0xdd, 0x25, 0x83, 0xea, 0x8f, 0x45,
-	0xcb, 0xbb, 0x59, 0xb4, 0xbc, 0xce, 0x77, 0x1f, 0x35, 0xef, 0xb9, 0x0c, 0x3f, 0x47, 0x87, 0xb7,
-	0x7c, 0x75, 0x7b, 0x3e, 0x60, 0xff, 0xf9, 0xd9, 0x44, 0xb5, 0xdc, 0x91, 0x54, 0x48, 0x61, 0x8b,
-	0x7d, 0x2b, 0x61, 0x35, 0xa1, 0x70, 0x9e, 0xc7, 0x25, 0x2c, 0x8c, 0x5e, 0x9b, 0x9b, 0xc3, 0xb5,
-	0xb3, 0x57, 0xcb, 0xc0, 0xbf, 0x5e, 0x06, 0xfe, 0xdf, 0x65, 0xe0, 0xff, 0x5c, 0x05, 0xde, 0xf5,
-	0x2a, 0xf0, 0x7e, 0xaf, 0x02, 0xef, 0xd3, 0xfb, 0x44, 0xd8, 0xcb, 0x2c, 0xee, 0x31, 0x2d, 0xc9,
-	0xbb, 0x52, 0x86, 0x73, 0x1a, 0x03, 0xd9, 0x88, 0x72, 0xc2, 0xb4, 0xe1, 0xdb, 0xe1, 0x25, 0x15,
-	0x8a, 0x48, 0x3d, 0xce, 0x52, 0x0e, 0xeb, 0x9f, 0xc7, 0xce, 0x27, 0x1c, 0xe2, 0xfd, 0xe2, 0x83,
-	0x7f, 0xf5, 0x2f, 0x00, 0x00, 0xff, 0xff, 0x3f, 0x30, 0xbe, 0x15, 0x5c, 0x03, 0x00, 0x00,
+	// 572 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4f, 0x6b, 0x13, 0x4d,
+	0x1c, 0xde, 0x6d, 0xd2, 0x92, 0x4c, 0x78, 0x79, 0xeb, 0x18, 0x25, 0x36, 0xba, 0x09, 0x11, 0x24,
+	0x22, 0xdd, 0x35, 0xf6, 0x22, 0xbd, 0xb9, 0x52, 0x42, 0x69, 0x0f, 0x61, 0xf1, 0xe4, 0x65, 0x99,
+	0x9d, 0x1d, 0x36, 0x63, 0x77, 0x76, 0xe2, 0xcc, 0x24, 0x26, 0xf8, 0x05, 0x3c, 0xfa, 0x11, 0xf2,
+	0x11, 0xc4, 0x4f, 0xd1, 0x63, 0x8f, 0xe2, 0xa1, 0x48, 0x72, 0xa9, 0xdf, 0x42, 0x66, 0x27, 0x1b,
+	0x03, 0x62, 0x0e, 0x05, 0x4f, 0x33, 0xf3, 0x7b, 0x7e, 0xff, 0x9e, 0x87, 0x87, 0x01, 0x0e, 0xcd,
+	0xde, 0x11, 0xac, 0xe8, 0x84, 0x78, 0x1f, 0x90, 0x64, 0x53, 0x6f, 0xd2, 0x33, 0x17, 0x77, 0x24,
+	0xb8, 0xe2, 0x10, 0xae, 0x71, 0xd7, 0x84, 0x27, 0xbd, 0x83, 0x7a, 0xc2, 0x13, 0x9e, 0xc3, 0x9e,
+	0xbe, 0x99, 0xcc, 0x03, 0x07, 0x73, 0xc9, 0xb8, 0xf4, 0x22, 0x24, 0x89, 0x37, 0xe9, 0x45, 0x44,
+	0xa1, 0x9e, 0x87, 0x39, 0xcd, 0x0c, 0xde, 0xf9, 0xb2, 0x03, 0xf6, 0x06, 0x48, 0x20, 0x26, 0xe1,
+	0x73, 0x50, 0xa7, 0x32, 0x24, 0x53, 0x82, 0xc7, 0x8a, 0xf2, 0x2c, 0x24, 0x19, 0x8a, 0x52, 0x12,
+	0x37, 0xec, 0xb6, 0xdd, 0xad, 0x04, 0x90, 0xca, 0x93, 0x02, 0x3a, 0x31, 0x08, 0x7c, 0x06, 0xee,
+	0x08, 0x92, 0x50, 0xa9, 0xc4, 0x2c, 0xc4, 0x3c, 0x53, 0x02, 0x61, 0xd5, 0xd8, 0x69, 0xdb, 0xdd,
+	0x6a, 0xb0, 0x5f, 0x00, 0xaf, 0x57, 0x71, 0xf8, 0x12, 0x3c, 0x60, 0x68, 0x1a, 0x46, 0x24, 0xa1,
+	0x59, 0x18, 0xa5, 0x1c, 0x5f, 0x84, 0x8a, 0x2b, 0x94, 0x86, 0x09, 0x92, 0x8d, 0x52, 0xdb, 0xee,
+	0x96, 0x83, 0x7b, 0x0c, 0x4d, 0x7d, 0x8d, 0xfb, 0x1a, 0x7e, 0xa3, 0xd1, 0x3e, 0x92, 0xf0, 0x08,
+	0xdc, 0xd7, 0x95, 0xc5, 0x04, 0x5d, 0x10, 0xa6, 0x94, 0x51, 0xd5, 0x28, 0xe7, 0x65, 0x77, 0x19,
+	0x9a, 0x16, 0x63, 0xfa, 0x48, 0x9e, 0x6b, 0x08, 0x06, 0xe0, 0x3f, 0x46, 0xb3, 0x3c, 0x77, 0x24,
+	0x28, 0x26, 0x8d, 0x5d, 0xbd, 0x97, 0xef, 0x5e, 0x5e, 0xb7, 0xac, 0xef, 0xd7, 0xad, 0x27, 0x09,
+	0x55, 0xc3, 0x71, 0xe4, 0x62, 0xce, 0xbc, 0x95, 0x44, 0xe6, 0x38, 0x94, 0xf1, 0x85, 0xa7, 0x66,
+	0x23, 0x22, 0xdd, 0xd3, 0x4c, 0x05, 0x35, 0x46, 0xb3, 0x3e, 0x92, 0x03, 0xdd, 0xe2, 0xb8, 0x7c,
+	0x33, 0x6f, 0xd9, 0x9d, 0x85, 0x0d, 0x1e, 0x17, 0xe3, 0x02, 0xc3, 0x12, 0x69, 0x55, 0x02, 0xf2,
+	0x7e, 0x4c, 0xa4, 0x1a, 0x08, 0x3e, 0xe2, 0x12, 0xa5, 0xb0, 0x0e, 0x76, 0x15, 0x55, 0x29, 0xc9,
+	0x05, 0xac, 0x06, 0xe6, 0x01, 0xdb, 0xa0, 0x16, 0x13, 0x89, 0x05, 0x1d, 0xe9, 0x9a, 0x95, 0x5a,
+	0x9b, 0x21, 0x38, 0x03, 0x8f, 0xd6, 0x54, 0xc5, 0x46, 0xff, 0x50, 0x98, 0x01, 0xb9, 0x58, 0xb5,
+	0x17, 0x9e, 0xfb, 0xa7, 0x09, 0xdc, 0x2d, 0x7b, 0xf9, 0x65, 0x4d, 0x3d, 0x68, 0xe2, 0xbf, 0xa7,
+	0x1c, 0x57, 0x3e, 0xcd, 0x5b, 0xd6, 0xcd, 0xbc, 0x65, 0x75, 0x7e, 0xda, 0xa0, 0xeb, 0x23, 0x85,
+	0x87, 0xff, 0x92, 0xe9, 0x47, 0xe0, 0x6c, 0x65, 0xaa, 0x7d, 0x51, 0xba, 0x3d, 0xd5, 0x87, 0x5b,
+	0xa8, 0xca, 0x0d, 0xae, 0x5f, 0x6d, 0xd0, 0xdc, 0xd2, 0x0d, 0x3e, 0x05, 0xfb, 0xeb, 0x35, 0x51,
+	0x1c, 0x0b, 0x22, 0xe5, 0x8a, 0xe9, 0xff, 0x45, 0xfc, 0x95, 0x09, 0xc3, 0x26, 0xa8, 0xfe, 0x76,
+	0xe7, 0x4e, 0xee, 0xce, 0x4a, 0x52, 0x58, 0xf2, 0xcc, 0x80, 0xc6, 0x8e, 0xa5, 0x5b, 0xd9, 0x51,
+	0x37, 0xcb, 0xbd, 0xe8, 0x93, 0xcb, 0x85, 0x63, 0x5f, 0x2d, 0x1c, 0xfb, 0xc7, 0xc2, 0xb1, 0x3f,
+	0x2f, 0x1d, 0xeb, 0x6a, 0xe9, 0x58, 0xdf, 0x96, 0x8e, 0xf5, 0xf6, 0x6c, 0xa3, 0xd7, 0x69, 0xa1,
+	0xdb, 0x39, 0x8a, 0xa4, 0xb7, 0x56, 0xf1, 0x10, 0x73, 0x41, 0x36, 0x9f, 0x43, 0x44, 0x33, 0x8f,
+	0xf1, 0x78, 0x9c, 0x12, 0xb9, 0xfa, 0x72, 0xf2, 0xa1, 0xd1, 0x5e, 0xfe, 0x4d, 0x1c, 0xfd, 0x0a,
+	0x00, 0x00, 0xff, 0xff, 0x0e, 0x81, 0x16, 0x50, 0x92, 0x04, 0x00, 0x00,
 }
 
 func (this *Params) Equal(that interface{}) bool {
@@ -274,16 +306,16 @@ func (this *Params) Equal(that interface{}) bool {
 	if this.IsExecutionEnabled != that1.IsExecutionEnabled {
 		return false
 	}
-	if this.RegistryContractAddress != that1.RegistryContractAddress {
+	if this.RegistryContract != that1.RegistryContract {
 		return false
 	}
-	if this.MinGasPriceBeginBlock != that1.MinGasPriceBeginBlock {
+	if this.MaxBeginBlockTotalGas != that1.MaxBeginBlockTotalGas {
 		return false
 	}
-	if this.MaxGasBeginBlock != that1.MaxGasBeginBlock {
+	if this.MaxContractGasLimit != that1.MaxContractGasLimit {
 		return false
 	}
-	if this.MinNumOfContracts != that1.MinNumOfContracts {
+	if !this.MinGasPrice.Equal(that1.MinGasPrice) {
 		return false
 	}
 	return true
@@ -308,27 +340,30 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.MinNumOfContracts != 0 {
-		i = encodeVarintWasmx(dAtA, i, uint64(m.MinNumOfContracts))
-		i--
-		dAtA[i] = 0x28
+	{
+		size := m.MinGasPrice.Size()
+		i -= size
+		if _, err := m.MinGasPrice.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintWasmx(dAtA, i, uint64(size))
 	}
-	if m.MaxGasBeginBlock != 0 {
-		i = encodeVarintWasmx(dAtA, i, uint64(m.MaxGasBeginBlock))
+	i--
+	dAtA[i] = 0x2a
+	if m.MaxContractGasLimit != 0 {
+		i = encodeVarintWasmx(dAtA, i, uint64(m.MaxContractGasLimit))
 		i--
 		dAtA[i] = 0x20
 	}
-	if len(m.MinGasPriceBeginBlock) > 0 {
-		i -= len(m.MinGasPriceBeginBlock)
-		copy(dAtA[i:], m.MinGasPriceBeginBlock)
-		i = encodeVarintWasmx(dAtA, i, uint64(len(m.MinGasPriceBeginBlock)))
+	if m.MaxBeginBlockTotalGas != 0 {
+		i = encodeVarintWasmx(dAtA, i, uint64(m.MaxBeginBlockTotalGas))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x18
 	}
-	if len(m.RegistryContractAddress) > 0 {
-		i -= len(m.RegistryContractAddress)
-		copy(dAtA[i:], m.RegistryContractAddress)
-		i = encodeVarintWasmx(dAtA, i, uint64(len(m.RegistryContractAddress)))
+	if len(m.RegistryContract) > 0 {
+		i -= len(m.RegistryContract)
+		copy(dAtA[i:], m.RegistryContract)
+		i = encodeVarintWasmx(dAtA, i, uint64(len(m.RegistryContract)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -392,6 +427,57 @@ func (m *ContractRegistrationRequestProposal) MarshalToSizedBuffer(dAtA []byte) 
 	return len(dAtA) - i, nil
 }
 
+func (m *BatchContractRegistrationRequestProposal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *BatchContractRegistrationRequestProposal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *BatchContractRegistrationRequestProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ContractRegistrationRequests) > 0 {
+		for iNdEx := len(m.ContractRegistrationRequests) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ContractRegistrationRequests[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintWasmx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintWasmx(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintWasmx(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *ContractRegistrationRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -412,13 +498,16 @@ func (m *ContractRegistrationRequest) MarshalToSizedBuffer(dAtA []byte) (int, er
 	_ = i
 	var l int
 	_ = l
-	if len(m.GasPrice) > 0 {
-		i -= len(m.GasPrice)
-		copy(dAtA[i:], m.GasPrice)
-		i = encodeVarintWasmx(dAtA, i, uint64(len(m.GasPrice)))
-		i--
-		dAtA[i] = 0x1a
+	{
+		size := m.GasPrice.Size()
+		i -= size
+		if _, err := m.GasPrice.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintWasmx(dAtA, i, uint64(size))
 	}
+	i--
+	dAtA[i] = 0x1a
 	if m.GasLimit != 0 {
 		i = encodeVarintWasmx(dAtA, i, uint64(m.GasLimit))
 		i--
@@ -454,20 +543,18 @@ func (m *Params) Size() (n int) {
 	if m.IsExecutionEnabled {
 		n += 2
 	}
-	l = len(m.RegistryContractAddress)
+	l = len(m.RegistryContract)
 	if l > 0 {
 		n += 1 + l + sovWasmx(uint64(l))
 	}
-	l = len(m.MinGasPriceBeginBlock)
-	if l > 0 {
-		n += 1 + l + sovWasmx(uint64(l))
+	if m.MaxBeginBlockTotalGas != 0 {
+		n += 1 + sovWasmx(uint64(m.MaxBeginBlockTotalGas))
 	}
-	if m.MaxGasBeginBlock != 0 {
-		n += 1 + sovWasmx(uint64(m.MaxGasBeginBlock))
+	if m.MaxContractGasLimit != 0 {
+		n += 1 + sovWasmx(uint64(m.MaxContractGasLimit))
 	}
-	if m.MinNumOfContracts != 0 {
-		n += 1 + sovWasmx(uint64(m.MinNumOfContracts))
-	}
+	l = m.MinGasPrice.Size()
+	n += 1 + l + sovWasmx(uint64(l))
 	return n
 }
 
@@ -490,6 +577,29 @@ func (m *ContractRegistrationRequestProposal) Size() (n int) {
 	return n
 }
 
+func (m *BatchContractRegistrationRequestProposal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Title)
+	if l > 0 {
+		n += 1 + l + sovWasmx(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovWasmx(uint64(l))
+	}
+	if len(m.ContractRegistrationRequests) > 0 {
+		for _, e := range m.ContractRegistrationRequests {
+			l = e.Size()
+			n += 1 + l + sovWasmx(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *ContractRegistrationRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -503,10 +613,8 @@ func (m *ContractRegistrationRequest) Size() (n int) {
 	if m.GasLimit != 0 {
 		n += 1 + sovWasmx(uint64(m.GasLimit))
 	}
-	l = len(m.GasPrice)
-	if l > 0 {
-		n += 1 + l + sovWasmx(uint64(l))
-	}
+	l = m.GasPrice.Size()
+	n += 1 + l + sovWasmx(uint64(l))
 	return n
 }
 
@@ -567,7 +675,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			m.IsExecutionEnabled = bool(v != 0)
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RegistryContractAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RegistryContract", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -595,13 +703,13 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RegistryContractAddress = string(dAtA[iNdEx:postIndex])
+			m.RegistryContract = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MinGasPriceBeginBlock", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxBeginBlockTotalGas", wireType)
 			}
-			var stringLen uint64
+			m.MaxBeginBlockTotalGas = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowWasmx
@@ -611,29 +719,16 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.MaxBeginBlockTotalGas |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthWasmx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthWasmx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.MinGasPriceBeginBlock = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 4:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxGasBeginBlock", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxContractGasLimit", wireType)
 			}
-			m.MaxGasBeginBlock = 0
+			m.MaxContractGasLimit = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowWasmx
@@ -643,16 +738,16 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxGasBeginBlock |= int64(b&0x7F) << shift
+				m.MaxContractGasLimit |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MinNumOfContracts", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinGasPrice", wireType)
 			}
-			m.MinNumOfContracts = 0
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowWasmx
@@ -662,11 +757,26 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MinNumOfContracts |= int64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinGasPrice.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipWasmx(dAtA[iNdEx:])
@@ -835,6 +945,154 @@ func (m *ContractRegistrationRequestProposal) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *BatchContractRegistrationRequestProposal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowWasmx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: BatchContractRegistrationRequestProposal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: BatchContractRegistrationRequestProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWasmx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWasmx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractRegistrationRequests", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowWasmx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractRegistrationRequests = append(m.ContractRegistrationRequests, ContractRegistrationRequest{})
+			if err := m.ContractRegistrationRequests[len(m.ContractRegistrationRequests)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipWasmx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthWasmx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *ContractRegistrationRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -945,7 +1203,9 @@ func (m *ContractRegistrationRequest) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.GasPrice = string(dAtA[iNdEx:postIndex])
+			if err := m.GasPrice.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

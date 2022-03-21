@@ -11,19 +11,19 @@ var _ paramtypes.ParamSet = &Params{}
 
 // Wasmx params default values
 var (
-	DefaultMinGasPriceBeginBlock = "0.002inj"
-	DefaultIsExecutionEnabled    = false
-	DefaultMaxGasBeginBlock      = int64(8987600)
-	DefaultMinNumContracts       = int64(20)
+	DefaultIsExecutionEnabled            = false
+	DefaultMaxBeginBlockTotalGas uint64  = 42_000_000                        // 42M
+	DefaultMaxContractGasLimit   uint64  = DefaultMaxBeginBlockTotalGas / 12 // 3.5M
+	DefaultMinGasPrice           sdk.Int = sdk.NewInt(1_000_000_000)         // 1B
 )
 
 // Parameter keys
 var (
-	KeyRegistryContractAddress = []byte("RegistryContractAddress")
-	KeyMinGasPriceBeginBlock   = []byte("MinGasPriceBeginBlock")
-	KeyIsExecutionEnabled      = []byte("IsExecutionEnabled")
-	KeyMaxGasBeginBlock        = []byte("MaxGasBeginBlock")
-	KeyMinNumOfContracts       = []byte("MinNumOfContracts")
+	KeyIsExecutionEnabled    = []byte("IsExecutionEnabled")
+	KeyRegistryContract      = []byte("RegistryContract")
+	KeyMaxBeginBlockTotalGas = []byte("MaxBeginBlockTotalGas")
+	KeyMaxContractGasLimit   = []byte("MaxContractGasLimit")
+	KeyMinGasPrice           = []byte("MinGasPrice")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -33,81 +33,90 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new Params instance
 func NewParams(
-	wasmxPeriod int64,
-	minNextBidIncrementRate sdk.Dec,
+	isExecutionEnabled bool,
+	registryContract string,
+	maxBeginBlockTotalGas uint64,
+	maxContractGasLimit uint64,
+	minGasPrice sdk.Int,
 ) Params {
-	return Params{}
+	return Params{
+		IsExecutionEnabled:    isExecutionEnabled,
+		RegistryContract:      registryContract,
+		MaxBeginBlockTotalGas: maxBeginBlockTotalGas,
+		MaxContractGasLimit:   maxContractGasLimit,
+		MinGasPrice:           minGasPrice,
+	}
 }
 
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyRegistryContractAddress, &p.RegistryContractAddress, validateRegistryContractAddress),
-		paramtypes.NewParamSetPair(KeyMinGasPriceBeginBlock, &p.MinGasPriceBeginBlock, validateMinGasPriceBeginBlock),
+		paramtypes.NewParamSetPair(KeyRegistryContract, &p.RegistryContract, validateRegistryContract),
+		paramtypes.NewParamSetPair(KeyMinGasPrice, &p.MinGasPrice, validateMinGasPrice),
 		paramtypes.NewParamSetPair(KeyIsExecutionEnabled, &p.IsExecutionEnabled, validateIsExecutionEnabled),
-		paramtypes.NewParamSetPair(KeyMaxGasBeginBlock, &p.MaxGasBeginBlock, validateMaxGasBeginBlock),
-		paramtypes.NewParamSetPair(KeyMinNumOfContracts, &p.MinNumOfContracts, validateMinNumOfContracts),
+		paramtypes.NewParamSetPair(KeyMaxBeginBlockTotalGas, &p.MaxBeginBlockTotalGas, validateMaxBeginBlockTotalGas),
+		paramtypes.NewParamSetPair(KeyMaxContractGasLimit, &p.MaxContractGasLimit, validateMaxContractGasLimit),
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		MinGasPriceBeginBlock: DefaultMinGasPriceBeginBlock,
 		IsExecutionEnabled:    DefaultIsExecutionEnabled,
-		MaxGasBeginBlock:      DefaultMaxGasBeginBlock,
-		MinNumOfContracts:     DefaultMinNumContracts,
+		RegistryContract:      "",
+		MaxBeginBlockTotalGas: DefaultMaxBeginBlockTotalGas,
+		MaxContractGasLimit:   DefaultMaxContractGasLimit,
+		MinGasPrice:           DefaultMinGasPrice,
 	}
 }
 
 // Validate performs basic validation on wasmx parameters.
 func (p Params) Validate() error {
-	if err := validateMaxGasBeginBlock(p.MaxGasBeginBlock); err != nil {
-		return err
-	}
-
-	if err := validateMinNumOfContracts(p.MinNumOfContracts); err != nil {
-		return err
-	}
-
 	if err := validateIsExecutionEnabled(p.IsExecutionEnabled); err != nil {
 		return err
 	}
 
-	if err := validateMinGasPriceBeginBlock(p.MinGasPriceBeginBlock); err != nil {
+	if err := validateRegistryContract(p.RegistryContract); err != nil {
 		return err
 	}
 
-	if err := validateRegistryContractAddress(p.RegistryContractAddress); err != nil {
+	if err := validateMaxBeginBlockTotalGas(p.MaxBeginBlockTotalGas); err != nil {
+		return err
+	}
+
+	if err := validateMaxContractGasLimit(p.MaxContractGasLimit); err != nil {
+		return err
+	}
+
+	if err := validateMinGasPrice(p.MinGasPrice); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func validateMaxGasBeginBlock(i interface{}) error {
-	v, ok := i.(int64)
+func validateMaxBeginBlockTotalGas(i interface{}) error {
+	v, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	if v == 0 {
-		return fmt.Errorf("MaxGasBeginBlock must be positive: %d", v)
+		return fmt.Errorf("MaxBeginBlockTotalGas must be positive: %d", v)
 	}
 
 	return nil
 }
 
-func validateMinNumOfContracts(i interface{}) error {
-	v, ok := i.(int64)
+func validateMaxContractGasLimit(i interface{}) error {
+	v, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	if v == 0 {
-		return fmt.Errorf("MinNumOfContracts must be positive: %d", v)
+		return fmt.Errorf("MaxContractGasLimit must be positive: %d", v)
 	}
-
 	return nil
 }
 
@@ -120,24 +129,19 @@ func validateIsExecutionEnabled(i interface{}) error {
 	return nil
 }
 
-func validateMinGasPriceBeginBlock(i interface{}) error {
-	v, ok := i.(string)
+func validateMinGasPrice(i interface{}) error {
+	v, ok := i.(sdk.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == "" {
-		return nil
+	if v.IsNil() || !v.IsPositive() {
+		return fmt.Errorf("MinGasPrice must be positive: %s", v.String())
 	}
-
-	if _, err := sdk.ParseDecCoins(v); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func validateRegistryContractAddress(i interface{}) error {
+func validateRegistryContract(i interface{}) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
