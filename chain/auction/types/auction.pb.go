@@ -118,9 +118,12 @@ func (m *Bid) GetBidder() string {
 }
 
 type EventBid struct {
-	Bidder string                                  `protobuf:"bytes,1,opt,name=bidder,proto3" json:"bidder,omitempty"`
+	// bidder describes the address of bidder
+	Bidder string `protobuf:"bytes,1,opt,name=bidder,proto3" json:"bidder,omitempty"`
+	// amount describes the amount the bidder put on the auction
 	Amount github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"amount"`
-	Round  uint64                                  `protobuf:"varint,3,opt,name=round,proto3" json:"round,omitempty"`
+	// round defines the round number of auction
+	Round uint64 `protobuf:"varint,3,opt,name=round,proto3" json:"round,omitempty"`
 }
 
 func (m *EventBid) Reset()         { *m = EventBid{} }
@@ -171,9 +174,12 @@ func (m *EventBid) GetRound() uint64 {
 }
 
 type EventAuctionResult struct {
-	Winner string                                  `protobuf:"bytes,1,opt,name=winner,proto3" json:"winner,omitempty"`
+	// winner describes the address of the winner
+	Winner string `protobuf:"bytes,1,opt,name=winner,proto3" json:"winner,omitempty"`
+	// amount describes the amount the winner get from the auction
 	Amount github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"amount"`
-	Round  uint64                                  `protobuf:"varint,3,opt,name=round,proto3" json:"round,omitempty"`
+	// round defines the round number of auction
+	Round uint64 `protobuf:"varint,3,opt,name=round,proto3" json:"round,omitempty"`
 }
 
 func (m *EventAuctionResult) Reset()         { *m = EventAuctionResult{} }
@@ -224,9 +230,12 @@ func (m *EventAuctionResult) GetRound() uint64 {
 }
 
 type EventAuctionStart struct {
-	Round           uint64                                   `protobuf:"varint,1,opt,name=round,proto3" json:"round,omitempty"`
-	EndingTimestamp int64                                    `protobuf:"varint,2,opt,name=ending_timestamp,json=endingTimestamp,proto3" json:"ending_timestamp,omitempty"`
-	NewBasket       github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=new_basket,json=newBasket,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"new_basket"`
+	// round defines the round number of auction
+	Round uint64 `protobuf:"varint,1,opt,name=round,proto3" json:"round,omitempty"`
+	// ending_timestamp describes auction end time
+	EndingTimestamp int64 `protobuf:"varint,2,opt,name=ending_timestamp,json=endingTimestamp,proto3" json:"ending_timestamp,omitempty"`
+	// new_basket describes auction module balance at the time of new auction start
+	NewBasket github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=new_basket,json=newBasket,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"new_basket"`
 }
 
 func (m *EventAuctionStart) Reset()         { *m = EventAuctionStart{} }

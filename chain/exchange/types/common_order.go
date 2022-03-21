@@ -13,12 +13,21 @@ import (
 
 func (t OrderType) IsBuy() bool {
 	switch t {
-	case OrderType_BUY, OrderType_STOP_BUY, OrderType_TAKE_BUY:
+	case OrderType_BUY, OrderType_STOP_BUY, OrderType_TAKE_BUY, OrderType_BUY_PO:
 		return true
-	case OrderType_SELL, OrderType_STOP_SELL, OrderType_TAKE_SELL:
+	case OrderType_SELL, OrderType_STOP_SELL, OrderType_TAKE_SELL, OrderType_SELL_PO:
 		return false
 	}
 	return false
+}
+
+func (t OrderType) IsPostOnly() bool {
+	switch t {
+	case OrderType_BUY_PO, OrderType_SELL_PO:
+		return true
+	default:
+		return false
+	}
 }
 
 func (m *OrderInfo) GetNotional() sdk.Dec {

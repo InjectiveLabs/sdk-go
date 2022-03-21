@@ -40,12 +40,12 @@ func (fund InsuranceFund) ShareDenom() string {
 	return fund.InsurancePoolTokenDenom
 }
 
-func (fund *InsuranceFund) AddTotalShare(amt sdk.Int) {
-	fund.TotalShare = fund.TotalShare.Add(amt)
+func (fund *InsuranceFund) AddTotalShare(shares sdk.Int) {
+	fund.TotalShare = fund.TotalShare.Add(shares)
 }
 
-func (fund *InsuranceFund) SubTotalShare(amt sdk.Int) {
-	fund.TotalShare = fund.TotalShare.Sub(amt)
+func (fund *InsuranceFund) SubTotalShare(shares sdk.Int) {
+	fund.TotalShare = fund.TotalShare.Sub(shares)
 }
 
 func ShareDenomFromId(id uint64) string {

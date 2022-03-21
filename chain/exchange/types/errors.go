@@ -63,4 +63,6 @@ var (
 	ErrTradingRewardCampaignDistributionError   = sdkerrors.Register(ModuleName, 56, "Unknown error happened for campaign distributions")
 	ErrInvalidTradingRewardsPendingPointsUpdate = sdkerrors.Register(ModuleName, 57, "Invalid trading reward pending points update")
 	ErrInvalidBatchMsgUpdate                    = sdkerrors.Register(ModuleName, 58, "Invalid batch msg update")
+	ErrExceedsTopOfBookPrice                    = sdkerrors.Register(ModuleName, 59, "Post-only order exceeds top of book price")
+	ErrInvalidOrderTypeForMessage               = sdkerrors.Register(ModuleName, 60, "Order type not supported for given message")
 )

@@ -9,13 +9,13 @@ import (
 
 const (
 	// ModuleName is the name of the module
-	ModuleName = "ocr"
+	ModuleName = "chainlink"
 
 	// StoreKey to be used when creating the KVStore
 	StoreKey = ModuleName
 
 	// TStoreKey to be used when creating the Transient KVStore
-	TStoreKey = "transient_ocr"
+	TStoreKey = "transient_chainlink"
 
 	// RouterKey to be used for routing msgs
 	RouterKey = ModuleName
