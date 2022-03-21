@@ -619,7 +619,8 @@ type SetBatchConfigProposal struct {
 	// transmitters ith element is address ith oracle uses to transmit a report via the transmit method
 	Transmitters []string `protobuf:"bytes,4,rep,name=transmitters,proto3" json:"transmitters,omitempty"`
 	// Native denom for LINK coin in the bank keeper
-	LinkDenom      string            `protobuf:"bytes,5,opt,name=link_denom,json=linkDenom,proto3" json:"link_denom,omitempty"`
+	LinkDenom string `protobuf:"bytes,5,opt,name=link_denom,json=linkDenom,proto3" json:"link_denom,omitempty"`
+	// feed properties
 	FeedProperties []*FeedProperties `protobuf:"bytes,6,rep,name=feed_properties,json=feedProperties,proto3" json:"feed_properties,omitempty"`
 }
 

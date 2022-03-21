@@ -26,11 +26,17 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // GenesisState defines the insurance module's genesis state.
 type GenesisState struct {
 	// params defines all the parameters of related to insurance.
-	Params                   Params               `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	InsuranceFunds           []InsuranceFund      `protobuf:"bytes,2,rep,name=insurance_funds,json=insuranceFunds,proto3" json:"insurance_funds"`
-	RedemptionSchedule       []RedemptionSchedule `protobuf:"bytes,3,rep,name=redemption_schedule,json=redemptionSchedule,proto3" json:"redemption_schedule"`
-	NextShareDenomId         uint64               `protobuf:"varint,4,opt,name=next_share_denom_id,json=nextShareDenomId,proto3" json:"next_share_denom_id,omitempty"`
-	NextRedemptionScheduleId uint64               `protobuf:"varint,5,opt,name=next_redemption_schedule_id,json=nextRedemptionScheduleId,proto3" json:"next_redemption_schedule_id,omitempty"`
+	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+	// insurance_funds describes the insurance funds available for derivative markets
+	InsuranceFunds []InsuranceFund `protobuf:"bytes,2,rep,name=insurance_funds,json=insuranceFunds,proto3" json:"insurance_funds"`
+	// redemption_schedule describes the redemption requests pending
+	RedemptionSchedule []RedemptionSchedule `protobuf:"bytes,3,rep,name=redemption_schedule,json=redemptionSchedule,proto3" json:"redemption_schedule"`
+	// next_share_denom_id describes the next share denom id to be used for newly creating insurance fund
+	// incremented by 1 per insurance fund creation
+	NextShareDenomId uint64 `protobuf:"varint,4,opt,name=next_share_denom_id,json=nextShareDenomId,proto3" json:"next_share_denom_id,omitempty"`
+	// next_redemption_schedule_id describes next redemption schedule id to be used for next schedule
+	// incremented by 1 per redemption request
+	NextRedemptionScheduleId uint64 `protobuf:"varint,5,opt,name=next_redemption_schedule_id,json=nextRedemptionScheduleId,proto3" json:"next_redemption_schedule_id,omitempty"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }

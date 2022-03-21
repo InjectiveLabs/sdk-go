@@ -79,6 +79,7 @@ func (d *Deposit) HasTransientOrRestingVanillaLimitOrders() bool {
 	return d.AvailableBalance.LT(d.TotalBalance)
 }
 
+
 func GetSortedBalanceKeys(p map[string]*Deposit) []string {
 	denoms := make([]string, 0)
 	for k := range p {

@@ -68,7 +68,7 @@ func ParseCoinbaseMessage(message []byte) (*CoinbasePriceState, error) {
 // TODO: refactor to shared common dir, copy pasted below code from Peggy
 func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress common.Address) error {
 
-	// convert malformed coinbase sig in oracle response to 65-byte signature
+	// convert malformed coinbase sig in oracle response to 65-byte signature 
 	trimmedSig := make([]byte, 65)
 	trimmedSig = signature[:65]
 	trimmedSig[64] = signature[95]

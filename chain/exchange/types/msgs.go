@@ -40,7 +40,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL:
+	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO:
 		// do nothing
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
@@ -81,7 +81,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL:
+	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO:
 		// do nothing
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
@@ -481,6 +481,11 @@ func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
+
+	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
+		return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Spot market order can't be a post only order")
+	}
+
 	if err := msg.Order.ValidateBasic(senderAddr); err != nil {
 		return err
 	}
@@ -664,6 +669,11 @@ func (msg MsgCreateDerivativeMarketOrder) ValidateBasic() error {
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
+
+	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
+		return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative market order can't be a post only order")
+	}
+
 	if err := msg.Order.ValidateBasic(senderAddr); err != nil {
 		return err
 	}
