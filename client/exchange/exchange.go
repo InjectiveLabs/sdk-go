@@ -22,7 +22,7 @@ type ExchangeClient interface {
 	QueryClient() *grpc.ClientConn
 	GetMarket(ctx context.Context, marketId string) (derivativeExchangePB.MarketResponse, error)
 	GetOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error)
-	GetOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error)
+	//GetOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error)
 	StreamOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error)
 	StreamMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
 	GetOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error)
@@ -42,6 +42,15 @@ type ExchangeClient interface {
 	GetAuction(ctx context.Context, round int64) (auctionPB.AuctionResponse, error)
 	GetAuctions(ctx context.Context) (auctionPB.AuctionsResponse, error)
 	StreamBids(ctx context.Context) (auctionPB.InjectiveAuctionRPC_StreamBidsClient, error)
+	GetSubaccountsList(ctx context.Context, accountAddress string) (accountPB.SubaccountsListResponse, error)
+	GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceResponse, error)
+	StreamSubaccountBalance(ctx context.Context, subaccountId string) (accountPB.InjectiveAccountsRPC_StreamSubaccountBalanceClient, error)
+	GetSubaccountBalancesList(ctx context.Context, subaccountId string) (accountPB.SubaccountBalancesListResponse, error)
+	GetSubaccountHistory(ctx context.Context, req accountPB.SubaccountHistoryRequest) (accountPB.SubaccountHistoryResponse, error)
+	GetSubaccountOrderSummary(ctx context.Context, req accountPB.SubaccountOrderSummaryRequest) (accountPB.SubaccountOrderSummaryResponse, error)
+	GetOrderStates(ctx context.Context, req accountPB.OrderStatesRequest) (accountPB.OrderStatesResponse, error)
+	GetPortfolio(ctx context.Context, accountAddress string) (accountPB.PortfolioResponse, error)
+	GetRewards(ctx context.Context, req accountPB.RewardsRequest) (accountPB.RewardsResponse, error)
 	Close()
 }
 
@@ -169,22 +178,22 @@ func (c *exchangeClient) GetOrderbook(ctx context.Context, marketId string) (der
 	return *res, nil
 }
 
-func (c *exchangeClient) GetOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error) {
-	req := derivativeExchangePB.OrderbooksRequest{
-		MarketIds: marketIds,
-	}
-
-	var header metadata.MD
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Orderbooks(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		fmt.Println(err)
-		return derivativeExchangePB.OrderbooksResponse{}, err
-	}
-	c.setCookie(header)
-
-	return *res, nil
-}
+//func (c *exchangeClient) GetOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error) {
+//	req := derivativeExchangePB.OrderbooksRequest{
+//		MarketIds: marketIds,
+//	}
+//
+//	var header metadata.MD
+//	ctx = c.getCookie(ctx)
+//	res, err := c.derivativeExchangeClient.Orderbooks(ctx, &req, grpc.Header(&header))
+//	if err != nil {
+//		fmt.Println(err)
+//		return derivativeExchangePB.OrderbooksResponse{}, err
+//	}
+//	c.setCookie(header)
+//
+//	return *res, nil
+//}
 
 func (c *exchangeClient) StreamOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error) {
 	req := derivativeExchangePB.StreamOrderbookRequest{
@@ -486,6 +495,157 @@ func (c *exchangeClient) StreamBids(ctx context.Context) (auctionPB.InjectiveAuc
 
 	return stream, nil
 }
+
+// Accounts RPC
+
+func (c *exchangeClient) GetSubaccountsList(ctx context.Context, accountAddress string) (accountPB.SubaccountsListResponse, error) {
+	req := accountPB.SubaccountsListRequest{
+		AccountAddress: accountAddress,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.accountClient.SubaccountsList(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return accountPB.SubaccountsListResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceResponse, error) {
+	req := accountPB.SubaccountBalanceRequest{
+		SubaccountId: subaccountId,
+		Denom: denom,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.accountClient.SubaccountBalanceEndpoint(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return accountPB.SubaccountBalanceResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+
+func (c *exchangeClient) StreamSubaccountBalance(ctx context.Context, subaccountId string) (accountPB.InjectiveAccountsRPC_StreamSubaccountBalanceClient, error) {
+	req := accountPB.StreamSubaccountBalanceRequest{
+		SubaccountId:  subaccountId,
+	}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.accountClient.StreamSubaccountBalance(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+
+func (c *exchangeClient) GetSubaccountBalancesList(ctx context.Context, subaccountId string) (accountPB.SubaccountBalancesListResponse, error) {
+	req := accountPB.SubaccountBalancesListRequest{
+		SubaccountId: subaccountId,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.accountClient.SubaccountBalancesList(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return accountPB.SubaccountBalancesListResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+
+func (c *exchangeClient) GetSubaccountHistory(ctx context.Context, req accountPB.SubaccountHistoryRequest) (accountPB.SubaccountHistoryResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.accountClient.SubaccountHistory(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return accountPB.SubaccountHistoryResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+
+func (c *exchangeClient) GetSubaccountOrderSummary(ctx context.Context, req accountPB.SubaccountOrderSummaryRequest) (accountPB.SubaccountOrderSummaryResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.accountClient.SubaccountOrderSummary(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return accountPB.SubaccountOrderSummaryResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+
+func (c *exchangeClient) GetOrderStates(ctx context.Context, req accountPB.OrderStatesRequest) (accountPB.OrderStatesResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.accountClient.OrderStates(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return accountPB.OrderStatesResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetPortfolio(ctx context.Context, accountAddress string) (accountPB.PortfolioResponse, error) {
+	req := accountPB.PortfolioRequest{
+		AccountAddress: accountAddress,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.accountClient.Portfolio(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return accountPB.PortfolioResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+
+func (c *exchangeClient) GetRewards(ctx context.Context, req accountPB.RewardsRequest) (accountPB.RewardsResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.accountClient.Rewards(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return accountPB.RewardsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
 
 func (c *exchangeClient) Close() {
 	c.Close()
