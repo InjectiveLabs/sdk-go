@@ -68,4 +68,6 @@ var (
 	ErrInvalidMarginRatio                       = sdkerrors.Register(ModuleName, 61, "Invalid margin ratio")
 	ErrBelowMinimalContribution                 = sdkerrors.Register(ModuleName, 62, "Provided funds are below minimum")
 	ErrLowPositionMargin                        = sdkerrors.Register(ModuleName, 63, "Position is below initial margin requirement")
+	ErrInvalidTotalSupply                       = sdkerrors.Register(ModuleName, 64, "Pool has non-positive total lp token supply")
+	ErrInvalidLpTokenBurnAmount                 = sdkerrors.Register(ModuleName, 65, "Passed lp token burn amount is greater than total lp token supply")
 )

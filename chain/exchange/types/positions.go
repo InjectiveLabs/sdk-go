@@ -265,9 +265,9 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 			ExecutionMargin:   remainingExecutionMargin,
 			ExecutionPrice:    delta.ExecutionPrice,
 		}
+
 		// recurse
 		_, _, collateralizationMargin = p.ApplyPositionDelta(newPositionDelta, tradingFeeForReduceOnly)
-
 	}
 
 	return payout, closeExecutionMargin, collateralizationMargin

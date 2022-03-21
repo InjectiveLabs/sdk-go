@@ -940,7 +940,7 @@ func (msg *MsgSubscribeToMarketMakingPool) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if !msg.FundsAmount.IsPositive() {
+	if msg.FundsAmount.IsNil() || !msg.FundsAmount.IsPositive() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FundsAmount.String())
 	}
 
@@ -950,6 +950,15 @@ func (msg *MsgSubscribeToMarketMakingPool) ValidateBasic() error {
 	}
 	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddressMaker); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddressMaker)
+	}
+
+	// TODO: why is this prohibited? What if the pool has margin ratio GT 1?
+	if msg.SubscriberMarginRatio.GT(sdk.OneDec()) {
+		return sdkerrors.Wrapf(ErrInvalidMarginRatio, "Subscriber position margin ratio %s is above one", msg.SubscriberMarginRatio.String())
 	}
 
 	return nil
@@ -981,7 +990,7 @@ func (msg *MsgRedeemFromMarketMakingPool) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if !msg.LpTokenBurnAmount.IsPositive() {
+	if msg.LpTokenBurnAmount.IsNil() || !msg.LpTokenBurnAmount.IsPositive() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.LpTokenBurnAmount.String())
 	}
 
@@ -991,6 +1000,10 @@ func (msg *MsgRedeemFromMarketMakingPool) ValidateBasic() error {
 	}
 	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddressMaker); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddressMaker)
 	}
 
 	return nil
