@@ -24,7 +24,7 @@ func main() {
 		SubaccountId: subaccountId,
 	}
 
-	res, err := exchangeClient.GetPositions(ctx, req)
+	res, err := exchangeClient.GetDerivativePositions(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

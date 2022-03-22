@@ -24,7 +24,7 @@ func main() {
 		QuoteDenom:   quoteDenom,
 	}
 
-	res, err := exchangeClient.GetMarkets(ctx, req)
+	res, err := exchangeClient.GetDerivativeMarkets(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

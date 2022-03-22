@@ -25,7 +25,7 @@ func main() {
 		SubaccountId: subaccountId,
 		OrderSide:    orderSide,
 	}
-	stream, err := exchangeClient.StreamOrders(ctx, req)
+	stream, err := exchangeClient.StreamDerivativeOrders(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

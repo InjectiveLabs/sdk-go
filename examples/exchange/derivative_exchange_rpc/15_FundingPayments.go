@@ -24,7 +24,7 @@ func main() {
 		SubaccountId: subaccountId,
 	}
 
-	res, err := exchangeClient.GetFundingPayments(ctx, req)
+	res, err := exchangeClient.GetDerivativeFundingPayments(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -22,7 +22,7 @@ func main() {
 		MarketId: marketId,
 	}
 
-	res, err := exchangeClient.GetOrders(ctx, req)
+	res, err := exchangeClient.GetDerivativeOrders(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

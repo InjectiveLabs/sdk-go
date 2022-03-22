@@ -20,22 +20,22 @@ import (
 
 type ExchangeClient interface {
 	QueryClient() *grpc.ClientConn
-	GetMarket(ctx context.Context, marketId string) (derivativeExchangePB.MarketResponse, error)
-	GetOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error)
+	GetDerivativeMarket(ctx context.Context, marketId string) (derivativeExchangePB.MarketResponse, error)
+	GetDerivativeOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error)
 	//GetOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error)
-	StreamOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error)
-	StreamMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
-	GetOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error)
-	GetMarkets(ctx context.Context, req derivativeExchangePB.MarketsRequest) (derivativeExchangePB.MarketsResponse, error)
-	GetPositions(ctx context.Context, req derivativeExchangePB.PositionsRequest) (derivativeExchangePB.PositionsResponse, error)
-	StreamPositions(ctx context.Context, req derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
-	StreamOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error)
-	GetTrades(ctx context.Context, req derivativeExchangePB.TradesRequest) (derivativeExchangePB.TradesResponse, error)
-	StreamTrades(ctx context.Context, req derivativeExchangePB.StreamTradesRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesClient, error)
-	GetSubaccountOrdersList(ctx context.Context, req derivativeExchangePB.SubaccountOrdersListRequest) (derivativeExchangePB.SubaccountOrdersListResponse, error)
-	GetSubaccountTradesList(ctx context.Context, req derivativeExchangePB.SubaccountTradesListRequest) (derivativeExchangePB.SubaccountTradesListResponse, error)
-	GetFundingPayments(ctx context.Context, req derivativeExchangePB.FundingPaymentsRequest) (derivativeExchangePB.FundingPaymentsResponse, error)
-	GetFundingRates(ctx context.Context, req derivativeExchangePB.FundingRatesRequest) (derivativeExchangePB.FundingRatesResponse, error)
+	StreamDerivativeOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error)
+	StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
+	GetDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error)
+	GetDerivativeMarkets(ctx context.Context, req derivativeExchangePB.MarketsRequest) (derivativeExchangePB.MarketsResponse, error)
+	GetDerivativePositions(ctx context.Context, req derivativeExchangePB.PositionsRequest) (derivativeExchangePB.PositionsResponse, error)
+	StreamDerivativePositions(ctx context.Context, req derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
+	StreamDerivativeOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error)
+	GetDerivativeTrades(ctx context.Context, req derivativeExchangePB.TradesRequest) (derivativeExchangePB.TradesResponse, error)
+	StreamDerivativeTrades(ctx context.Context, req derivativeExchangePB.StreamTradesRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesClient, error)
+	GetSubaccountDerivativeOrdersList(ctx context.Context, req derivativeExchangePB.SubaccountOrdersListRequest) (derivativeExchangePB.SubaccountOrdersListResponse, error)
+	GetSubaccountDerivativeTradesList(ctx context.Context, req derivativeExchangePB.SubaccountTradesListRequest) (derivativeExchangePB.SubaccountTradesListResponse, error)
+	GetDerivativeFundingPayments(ctx context.Context, req derivativeExchangePB.FundingPaymentsRequest) (derivativeExchangePB.FundingPaymentsResponse, error)
+	GetDerivativeFundingRates(ctx context.Context, req derivativeExchangePB.FundingRatesRequest) (derivativeExchangePB.FundingRatesResponse, error)
 	GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (oraclePB.PriceResponse, error)
 	GetOracleList(ctx context.Context) (oraclePB.OracleListResponse, error)
 	StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error)
@@ -135,7 +135,7 @@ func (c *exchangeClient) QueryClient() *grpc.ClientConn {
 
 // Derivatives RPC
 
-func (c *exchangeClient) GetOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error) {
+func (c *exchangeClient) GetDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.Orders(ctx, &req, grpc.Header(&header))
@@ -148,7 +148,7 @@ func (c *exchangeClient) GetOrders(ctx context.Context, req derivativeExchangePB
 	return *res, nil
 }
 
-func (c *exchangeClient) GetPositions(ctx context.Context, req derivativeExchangePB.PositionsRequest) (derivativeExchangePB.PositionsResponse, error) {
+func (c *exchangeClient) GetDerivativePositions(ctx context.Context, req derivativeExchangePB.PositionsRequest) (derivativeExchangePB.PositionsResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.Positions(ctx, &req, grpc.Header(&header))
@@ -161,7 +161,7 @@ func (c *exchangeClient) GetPositions(ctx context.Context, req derivativeExchang
 	return *res, nil
 }
 
-func (c *exchangeClient) GetOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error) {
+func (c *exchangeClient) GetDerivativeOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error) {
 	req := derivativeExchangePB.OrderbookRequest{
 		MarketId: marketId,
 	}
@@ -178,7 +178,7 @@ func (c *exchangeClient) GetOrderbook(ctx context.Context, marketId string) (der
 	return *res, nil
 }
 
-//func (c *exchangeClient) GetOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error) {
+//func (c *exchangeClient) GetDerivativeOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error) {
 //	req := derivativeExchangePB.OrderbooksRequest{
 //		MarketIds: marketIds,
 //	}
@@ -195,7 +195,7 @@ func (c *exchangeClient) GetOrderbook(ctx context.Context, marketId string) (der
 //	return *res, nil
 //}
 
-func (c *exchangeClient) StreamOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error) {
+func (c *exchangeClient) StreamDerivativeOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error) {
 	req := derivativeExchangePB.StreamOrderbookRequest{
 		MarketIds: marketIds,
 	}
@@ -216,7 +216,7 @@ func (c *exchangeClient) StreamOrderbook(ctx context.Context, marketIds []string
 	return stream, nil
 }
 
-func (c *exchangeClient) GetMarkets(ctx context.Context, req derivativeExchangePB.MarketsRequest) (derivativeExchangePB.MarketsResponse, error) {
+func (c *exchangeClient) GetDerivativeMarkets(ctx context.Context, req derivativeExchangePB.MarketsRequest) (derivativeExchangePB.MarketsResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.Markets(ctx, &req, grpc.Header(&header))
@@ -229,7 +229,7 @@ func (c *exchangeClient) GetMarkets(ctx context.Context, req derivativeExchangeP
 	return *res, nil
 }
 
-func (c *exchangeClient) GetMarket(ctx context.Context, marketId string) (derivativeExchangePB.MarketResponse, error) {
+func (c *exchangeClient) GetDerivativeMarket(ctx context.Context, marketId string) (derivativeExchangePB.MarketResponse, error) {
 	req := derivativeExchangePB.MarketRequest{
 		MarketId: marketId,
 	}
@@ -246,7 +246,7 @@ func (c *exchangeClient) GetMarket(ctx context.Context, marketId string) (deriva
 	return *res, nil
 }
 
-func (c *exchangeClient) StreamMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error) {
+func (c *exchangeClient) StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error) {
 	req := derivativeExchangePB.StreamMarketRequest{
 		MarketIds: marketIds,
 	}
@@ -267,7 +267,7 @@ func (c *exchangeClient) StreamMarket(ctx context.Context, marketIds []string) (
 	return stream, nil
 }
 
-func (c *exchangeClient) StreamPositions(ctx context.Context, req derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error) {
+func (c *exchangeClient) StreamDerivativePositions(ctx context.Context, req derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error) {
 	ctx = c.getCookie(ctx)
 	stream, err := c.derivativeExchangeClient.StreamPositions(ctx, &req)
 	if err != nil {
@@ -284,7 +284,7 @@ func (c *exchangeClient) StreamPositions(ctx context.Context, req derivativeExch
 	return stream, nil
 }
 
-func (c *exchangeClient) StreamOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error) {
+func (c *exchangeClient) StreamDerivativeOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error) {
 	ctx = c.getCookie(ctx)
 	stream, err := c.derivativeExchangeClient.StreamOrders(ctx, &req)
 	if err != nil {
@@ -301,7 +301,7 @@ func (c *exchangeClient) StreamOrders(ctx context.Context, req derivativeExchang
 	return stream, nil
 }
 
-func (c *exchangeClient) GetTrades(ctx context.Context, req derivativeExchangePB.TradesRequest) (derivativeExchangePB.TradesResponse, error) {
+func (c *exchangeClient) GetDerivativeTrades(ctx context.Context, req derivativeExchangePB.TradesRequest) (derivativeExchangePB.TradesResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.Trades(ctx, &req, grpc.Header(&header))
@@ -314,7 +314,7 @@ func (c *exchangeClient) GetTrades(ctx context.Context, req derivativeExchangePB
 	return *res, nil
 }
 
-func (c *exchangeClient) StreamTrades(ctx context.Context, req derivativeExchangePB.StreamTradesRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesClient, error) {
+func (c *exchangeClient) StreamDerivativeTrades(ctx context.Context, req derivativeExchangePB.StreamTradesRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesClient, error) {
 	ctx = c.getCookie(ctx)
 	stream, err := c.derivativeExchangeClient.StreamTrades(ctx, &req)
 	if err != nil {
@@ -331,7 +331,7 @@ func (c *exchangeClient) StreamTrades(ctx context.Context, req derivativeExchang
 	return stream, nil
 }
 
-func (c *exchangeClient) GetSubaccountOrdersList(ctx context.Context, req derivativeExchangePB.SubaccountOrdersListRequest) (derivativeExchangePB.SubaccountOrdersListResponse, error) {
+func (c *exchangeClient) GetSubaccountDerivativeOrdersList(ctx context.Context, req derivativeExchangePB.SubaccountOrdersListRequest) (derivativeExchangePB.SubaccountOrdersListResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.SubaccountOrdersList(ctx, &req, grpc.Header(&header))
@@ -344,7 +344,7 @@ func (c *exchangeClient) GetSubaccountOrdersList(ctx context.Context, req deriva
 	return *res, nil
 }
 
-func (c *exchangeClient) GetSubaccountTradesList(ctx context.Context, req derivativeExchangePB.SubaccountTradesListRequest) (derivativeExchangePB.SubaccountTradesListResponse, error) {
+func (c *exchangeClient) GetSubaccountDerivativeTradesList(ctx context.Context, req derivativeExchangePB.SubaccountTradesListRequest) (derivativeExchangePB.SubaccountTradesListResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.SubaccountTradesList(ctx, &req, grpc.Header(&header))
@@ -357,7 +357,7 @@ func (c *exchangeClient) GetSubaccountTradesList(ctx context.Context, req deriva
 	return *res, nil
 }
 
-func (c *exchangeClient) GetFundingPayments(ctx context.Context, req derivativeExchangePB.FundingPaymentsRequest) (derivativeExchangePB.FundingPaymentsResponse, error) {
+func (c *exchangeClient) GetDerivativeFundingPayments(ctx context.Context, req derivativeExchangePB.FundingPaymentsRequest) (derivativeExchangePB.FundingPaymentsResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.FundingPayments(ctx, &req, grpc.Header(&header))
@@ -370,7 +370,7 @@ func (c *exchangeClient) GetFundingPayments(ctx context.Context, req derivativeE
 	return *res, nil
 }
 
-func (c *exchangeClient) GetFundingRates(ctx context.Context, req derivativeExchangePB.FundingRatesRequest) (derivativeExchangePB.FundingRatesResponse, error) {
+func (c *exchangeClient) GetDerivativeFundingRates(ctx context.Context, req derivativeExchangePB.FundingRatesRequest) (derivativeExchangePB.FundingRatesResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.FundingRates(ctx, &req, grpc.Header(&header))
@@ -645,6 +645,26 @@ func (c *exchangeClient) GetRewards(ctx context.Context, req accountPB.RewardsRe
 
 	return *res, nil
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 func (c *exchangeClient) Close() {

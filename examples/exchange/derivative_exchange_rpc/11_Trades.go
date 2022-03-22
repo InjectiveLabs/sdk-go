@@ -24,7 +24,7 @@ func main() {
 		SubaccountId: subaccountId,
 	}
 
-	res, err := exchangeClient.GetTrades(ctx, req)
+	res, err := exchangeClient.GetDerivativeTrades(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

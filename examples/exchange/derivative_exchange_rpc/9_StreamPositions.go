@@ -23,7 +23,7 @@ func main() {
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
 	}
-	stream, err := exchangeClient.StreamPositions(ctx, req)
+	stream, err := exchangeClient.StreamDerivativePositions(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}
