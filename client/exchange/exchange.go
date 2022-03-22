@@ -65,6 +65,10 @@ type ExchangeClient interface {
 	GetSubaccountSpotTradesList(ctx context.Context, req spotExchangePB.SubaccountTradesListRequest) (spotExchangePB.SubaccountTradesListResponse, error)
 	GetInsuranceFunds(ctx context.Context, req insurancePB.FundsRequest) (insurancePB.FundsResponse, error)
 	GetRedemptions(ctx context.Context, req insurancePB.RedemptionsRequest) (insurancePB.RedemptionsResponse, error)
+	StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error)
+	GetInfo(ctx context.Context, req metaPB.InfoRequest) (metaPB.InfoResponse, error)
+	GetVersion(ctx context.Context, req metaPB.VersionRequest) (metaPB.VersionResponse, error)
+	Ping(ctx context.Context, req metaPB.PingRequest) (metaPB.PingResponse, error)
 	Close()
 }
 
@@ -882,19 +886,64 @@ func (c *exchangeClient) GetRedemptions(ctx context.Context, req insurancePB.Red
 }
 
 
+func (c *exchangeClient) Ping(ctx context.Context, req metaPB.PingRequest) (metaPB.PingResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.metaClient.Ping(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return metaPB.PingResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetVersion(ctx context.Context, req metaPB.VersionRequest) (metaPB.VersionResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.metaClient.Version(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return metaPB.VersionResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetInfo(ctx context.Context, req metaPB.InfoRequest) (metaPB.InfoResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.metaClient.Info(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return metaPB.InfoResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
 
 
+func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error) {
+	req := metaPB.StreamKeepaliveRequest{}
 
+	ctx = c.getCookie(ctx)
+	stream, err := c.metaClient.StreamKeepalive(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
 
-
-
-
-
-
-
-
-
-
+	return stream, nil
+}
 
 
 func (c *exchangeClient) Close() {
