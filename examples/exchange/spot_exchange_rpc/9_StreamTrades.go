@@ -17,17 +17,28 @@ func main() {
 
 	ctx := context.Background()
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
-	subaccountId := "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000"
+	subaccountId := "0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000000"
 
-	req := spotExchangePB.TradesRequest{
+	req := spotExchangePB.StreamTradesRequest{
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
 	}
-
-	res, err := exchangeClient.GetSpotTrades(ctx, req)
+	stream, err := exchangeClient.StreamSpotTrades(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(res)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			res, err := stream.Recv()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			fmt.Println(res)
+		}
+	}
 }

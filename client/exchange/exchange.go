@@ -51,6 +51,18 @@ type ExchangeClient interface {
 	GetOrderStates(ctx context.Context, req accountPB.OrderStatesRequest) (accountPB.OrderStatesResponse, error)
 	GetPortfolio(ctx context.Context, accountAddress string) (accountPB.PortfolioResponse, error)
 	GetRewards(ctx context.Context, req accountPB.RewardsRequest) (accountPB.RewardsResponse, error)
+	GetSpotOrders(ctx context.Context, req spotExchangePB.OrdersRequest) (spotExchangePB.OrdersResponse, error)
+	GetSpotOrderbook(ctx context.Context, marketId string) (spotExchangePB.OrderbookResponse, error)
+	//GetSpotOrderbooks(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksResponse, error)
+	StreamSpotOrderbook(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookClient, error)
+	GetSpotMarkets(ctx context.Context, req spotExchangePB.MarketsRequest) (spotExchangePB.MarketsResponse, error)
+	GetSpotMarket(ctx context.Context, marketId string) (spotExchangePB.MarketResponse, error)
+	StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error)
+	StreamSpotOrders(ctx context.Context, req spotExchangePB.StreamOrdersRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrdersClient, error)
+	GetSpotTrades(ctx context.Context, req spotExchangePB.TradesRequest) (spotExchangePB.TradesResponse, error)
+	StreamSpotTrades(ctx context.Context, req spotExchangePB.StreamTradesRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesClient, error)
+	GetSubaccountSpotOrdersList(ctx context.Context, req spotExchangePB.SubaccountOrdersListRequest) (spotExchangePB.SubaccountOrdersListResponse, error)
+	GetSubaccountSpotTradesList(ctx context.Context, req spotExchangePB.SubaccountTradesListRequest) (spotExchangePB.SubaccountTradesListResponse, error)
 	Close()
 }
 
@@ -647,7 +659,199 @@ func (c *exchangeClient) GetRewards(ctx context.Context, req accountPB.RewardsRe
 }
 
 
+// Spot RPC
 
+func (c *exchangeClient) GetSpotOrders(ctx context.Context, req spotExchangePB.OrdersRequest) (spotExchangePB.OrdersResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.Orders(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.OrdersResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetSpotOrderbook(ctx context.Context, marketId string) (spotExchangePB.OrderbookResponse, error) {
+	req := spotExchangePB.OrderbookRequest{
+		MarketId: marketId,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.Orderbook(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.OrderbookResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+//func (c *exchangeClient) GetSpotOrderbooks(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksResponse, error) {
+//	req := spotExchangePB.OrderbooksRequest{
+//		MarketIds: marketIds,
+//	}
+//
+//	var header metadata.MD
+//	ctx = c.getCookie(ctx)
+//	res, err := c.spotExchangeClient.Orderbooks(ctx, &req, grpc.Header(&header))
+//	if err != nil {
+//		fmt.Println(err)
+//		return spotExchangePB.OrderbooksResponse{}, err
+//	}
+//	c.setCookie(header)
+//
+//	return *res, nil
+//}
+
+func (c *exchangeClient) StreamSpotOrderbook(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookClient, error) {
+	req := spotExchangePB.StreamOrderbookRequest{
+		MarketIds: marketIds,
+	}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.spotExchangeClient.StreamOrderbook(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+func (c *exchangeClient) GetSpotMarkets(ctx context.Context, req spotExchangePB.MarketsRequest) (spotExchangePB.MarketsResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.Markets(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.MarketsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetSpotMarket(ctx context.Context, marketId string) (spotExchangePB.MarketResponse, error) {
+	req := spotExchangePB.MarketRequest{
+		MarketId: marketId,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.Market(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.MarketResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error) {
+	req := spotExchangePB.StreamMarketsRequest{
+		MarketIds: marketIds,
+	}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.spotExchangeClient.StreamMarkets(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamSpotOrders(ctx context.Context, req spotExchangePB.StreamOrdersRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrdersClient, error) {
+	ctx = c.getCookie(ctx)
+	stream, err := c.spotExchangeClient.StreamOrders(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+func (c *exchangeClient) GetSpotTrades(ctx context.Context, req spotExchangePB.TradesRequest) (spotExchangePB.TradesResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.Trades(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.TradesResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) StreamSpotTrades(ctx context.Context, req spotExchangePB.StreamTradesRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesClient, error) {
+	ctx = c.getCookie(ctx)
+	stream, err := c.spotExchangeClient.StreamTrades(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+func (c *exchangeClient) GetSubaccountSpotOrdersList(ctx context.Context, req spotExchangePB.SubaccountOrdersListRequest) (spotExchangePB.SubaccountOrdersListResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.SubaccountOrdersList(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.SubaccountOrdersListResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetSubaccountSpotTradesList(ctx context.Context, req spotExchangePB.SubaccountTradesListRequest) (spotExchangePB.SubaccountTradesListResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.SubaccountTradesList(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.SubaccountTradesListResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
 
 
 

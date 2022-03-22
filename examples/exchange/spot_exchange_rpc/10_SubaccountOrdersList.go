@@ -17,14 +17,14 @@ func main() {
 
 	ctx := context.Background()
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
-	subaccountId := "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000"
+	subaccountId := "0x0b46e339708ea4d87bd2fcc61614e109ac374bbe000000000000000000000000"
 
-	req := spotExchangePB.TradesRequest{
+	req := spotExchangePB.SubaccountOrdersListRequest{
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
 	}
 
-	res, err := exchangeClient.GetSpotTrades(ctx, req)
+	res, err := exchangeClient.GetSubaccountSpotOrdersList(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

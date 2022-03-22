@@ -16,15 +16,15 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
-	subaccountId := "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000"
+	marketStatus := "active"
+	quoteDenom := "peggy0xdAC17F958D2ee523a2206206994597C13D831ec7"
 
-	req := spotExchangePB.TradesRequest{
-		MarketId:     marketId,
-		SubaccountId: subaccountId,
+	req := spotExchangePB.MarketsRequest{
+		MarketStatus: marketStatus,
+		QuoteDenom:   quoteDenom,
 	}
 
-	res, err := exchangeClient.GetSpotTrades(ctx, req)
+	res, err := exchangeClient.GetSpotMarkets(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}
