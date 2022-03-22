@@ -63,6 +63,8 @@ type ExchangeClient interface {
 	StreamSpotTrades(ctx context.Context, req spotExchangePB.StreamTradesRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesClient, error)
 	GetSubaccountSpotOrdersList(ctx context.Context, req spotExchangePB.SubaccountOrdersListRequest) (spotExchangePB.SubaccountOrdersListResponse, error)
 	GetSubaccountSpotTradesList(ctx context.Context, req spotExchangePB.SubaccountTradesListRequest) (spotExchangePB.SubaccountTradesListResponse, error)
+	GetInsuranceFunds(ctx context.Context, req insurancePB.FundsRequest) (insurancePB.FundsResponse, error)
+	GetRedemptions(ctx context.Context, req insurancePB.RedemptionsRequest) (insurancePB.RedemptionsResponse, error)
 	Close()
 }
 
@@ -853,7 +855,31 @@ func (c *exchangeClient) GetSubaccountSpotTradesList(ctx context.Context, req sp
 	return *res, nil
 }
 
+func (c *exchangeClient) GetInsuranceFunds(ctx context.Context, req insurancePB.FundsRequest) (insurancePB.FundsResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.insuranceClient.Funds(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return insurancePB.FundsResponse{}, err
+	}
+	c.setCookie(header)
 
+	return *res, nil
+}
+
+func (c *exchangeClient) GetRedemptions(ctx context.Context, req insurancePB.RedemptionsRequest) (insurancePB.RedemptionsResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.insuranceClient.Redemptions(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return insurancePB.RedemptionsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
 
 
 
