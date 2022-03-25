@@ -4,13 +4,18 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"math/big"
 	common "github.com/InjectiveLabs/sdk-go/client/common"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	eth "github.com/ethereum/go-ethereum/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"github.com/shopspring/decimal"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -48,6 +53,15 @@ type ChainClient interface {
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
+
+	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
+	GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec)
+	GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec)
+	GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec
+
+	SpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData) *exchangetypes.SpotOrder
+	DerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
+	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
 	Close()
 }
@@ -512,4 +526,98 @@ func (c *chainClient) runBatchBroadcast() {
 			}
 		}
 	}
+}
+
+func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
+	return eth.BytesToHash(eth.RightPadBytes(acc.Bytes(), 32))
+}
+
+
+func (c *chainClient) GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec) {
+	mid, _ := cosmtypes.NewDecFromStr(value.String())
+	bStr := decimal.New(1, int32(baseDecimals)).String()
+	baseDec, _ := cosmtypes.NewDecFromStr(bStr)
+	scale := baseDec.Quo(minTickSize)
+	midScaledInt := mid.Mul(scale).TruncateDec()
+	qty = minTickSize.Mul(midScaledInt)
+	return qty
+}
+
+func (c *chainClient) GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec) {
+	mid := cosmtypes.MustNewDecFromStr(value.StringFixed(18))
+	baseDec := cosmtypes.OneDec()
+	scale := baseDec.Quo(minTickSize)
+	midScaledInt := mid.Mul(scale).TruncateDec()
+	qty = minTickSize.Mul(midScaledInt)
+	return qty
+}
+
+func (c *chainClient) GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
+	residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
+	formattedValue := new(big.Int).Sub(value.BigInt(), residue)
+	p := decimal.NewFromBigInt(formattedValue, -18).String()
+	realValue, _ := cosmtypes.NewDecFromStr(p)
+	return realValue
+}
+
+
+func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData) *exchangetypes.SpotOrder {
+	return &exchangetypes.SpotOrder{
+		MarketId:  d.MarketId,
+		OrderType: d.OrderType,
+		OrderInfo: exchangetypes.OrderInfo{
+			SubaccountId: defaultSubaccountID.Hex(),
+			FeeRecipient: d.FeeRecipient,
+			Price:        d.Price,
+			Quantity:     d.Quantity,
+		},
+	}
+}
+
+func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
+	return &exchangetypes.DerivativeOrder{
+		MarketId:  d.MarketId,
+		OrderType: d.OrderType,
+		Margin: d.Margin,
+		OrderInfo: exchangetypes.OrderInfo{
+			SubaccountId: defaultSubaccountID.Hex(),
+			FeeRecipient: d.FeeRecipient,
+			Price:        d.Price,
+			Quantity:     d.Quantity,
+		},
+	}
+}
+
+
+func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData {
+	return &exchangetypes.OrderData{
+		MarketId:  d.MarketId,
+		OrderHash: d.OrderHash,
+		SubaccountId: defaultSubaccountID.Hex(),
+	}
+}
+
+
+type DerivativeOrderData struct {
+	OrderType    exchangetypes.OrderType
+	Price        cosmtypes.Dec
+	Margin     	 cosmtypes.Dec
+	Quantity     cosmtypes.Dec
+	Leverage	 cosmtypes.Dec
+	FeeRecipient string
+	MarketId string
+}
+
+
+type SpotOrderData struct {
+	OrderType    exchangetypes.OrderType
+	Price        cosmtypes.Dec
+	Quantity     cosmtypes.Dec
+	FeeRecipient string
+	MarketId string
+}
+
+type OrderCancelData struct {
+	MarketId string
+	OrderHash string
 }

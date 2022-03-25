@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"time"
 )
 
@@ -18,7 +18,7 @@ func main() {
 	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
-		"/Users/nam/.injectived",
+		"/Users/akalantzis/.injectived",
 		"injectived",
 		"file",
 		"inj-user",
@@ -35,14 +35,6 @@ func main() {
 	clientCtx.WithNodeURI(network.TmEndpoint)
 	clientCtx = clientCtx.WithClient(tmRPC)
 
-	msg := &banktypes.MsgSend{
-		FromAddress: senderAddress.String(),
-		ToAddress:   "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
-		Amount: []sdktypes.Coin{
-			{Denom: "inj", Amount: sdktypes.NewInt(1)},
-		},
-	}
-
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network.ChainGrpcEndpoint,
@@ -50,19 +42,26 @@ func main() {
 		common.OptionGasPrices("500000000inj"),
 	)
 
-	for i:=0; i<2; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	time.Sleep(time.Second * 2)
-	for i:=0; i<2; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
+	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
-	for true {}
+	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
+	orderHash := "0x7b35e8d3c6e5d1210a83615a935a74349c2c8c5e73a591015729adad3c70af2d"
+
+	order := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
+		MarketId:  marketId,
+		OrderHash: orderHash,
+	})
+
+	msg := new(exchangetypes.MsgBatchCancelDerivativeOrders)
+	msg.Sender = senderAddress.String()
+	msg.Data = []exchangetypes.OrderData{*order}
+	CosMsgs := []cosmtypes.Msg{msg}
+	for i:=0; i<1; i++ {
+		err := chainClient.QueueBroadcastMsg(CosMsgs...)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	time.Sleep(time.Second * 5)
+
 }
