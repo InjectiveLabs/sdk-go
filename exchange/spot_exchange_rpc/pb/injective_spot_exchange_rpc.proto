@@ -21,6 +21,8 @@ service InjectiveSpotExchangeRPC {
 	rpc StreamMarkets (StreamMarketsRequest) returns (stream StreamMarketsResponse);
 	// Orderbook of a Spot Market
 	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
+	// Orderbook of Spot Markets
+	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
 	// Stream live updates of selected spot market orderbook
 	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
 	// Orders of a Spot Market
@@ -144,6 +146,22 @@ message PriceLevel {
 	sint64 timestamp = 3;
 }
 
+message OrderbooksRequest {
+	// MarketIds of the markets
+	repeated string market_ids = 1;
+}
+
+message OrderbooksResponse {
+	repeated SingleSpotLimitOrderbook orderbooks = 1;
+}
+
+message SingleSpotLimitOrderbook {
+	// market's ID
+	string market_id = 1;
+	// Orderbook of the market
+	SpotLimitOrderbook orderbook = 2;
+}
+
 message StreamOrderbookRequest {
 	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
 	repeated string market_ids = 1;
@@ -239,6 +257,10 @@ message TradesRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 8;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 9;
+	// Subaccount ids of traders we want to get trades
+	repeated string subaccount_ids = 10;
 }
 
 message TradesResponse {
@@ -286,6 +308,10 @@ message StreamTradesRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 8;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 9;
+	// Subaccount ids of traders we want to get trades
+	repeated string subaccount_ids = 10;
 }
 
 message StreamTradesResponse {

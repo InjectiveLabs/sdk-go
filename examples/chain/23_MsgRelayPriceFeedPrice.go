@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"time"
 )
 
@@ -18,7 +19,7 @@ func main() {
 	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
-		"/Users/nam/.injectived",
+		os.Getenv("HOME") + "/.injectived",
 		"injectived",
 		"file",
 		"inj-user",
@@ -27,20 +28,32 @@ func main() {
 		false,
 	)
 
+	if err != nil {
+		panic(err)
+	}
+
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),
 		cosmosKeyring,
 	)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	clientCtx.WithNodeURI(network.TmEndpoint)
 	clientCtx = clientCtx.WithClient(tmRPC)
 
-	msg := &banktypes.MsgSend{
-		FromAddress: senderAddress.String(),
-		ToAddress:   "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
-		Amount: []sdktypes.Coin{
-			{Denom: "inj", Amount: sdktypes.NewInt(1)},
-		},
+	price := []cosmtypes.Dec{cosmtypes.MustNewDecFromStr("100")}
+	base := []string{"BAYC"}
+	quote := []string{"WETH"}
+
+	msg := &oracletypes.MsgRelayPriceFeedPrice{
+		Sender: senderAddress.String(),
+		Price: price,
+		Base: base,
+		Quote: quote,
 	}
 
 	chainClient, err := chainclient.NewChainClient(
@@ -50,19 +63,15 @@ func main() {
 		common.OptionGasPrices("500000000inj"),
 	)
 
-	for i:=0; i<2; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	time.Sleep(time.Second * 2)
-	for i:=0; i<2; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	for true {}
+	for i:=0; i<1; i++ {
+		err := chainClient.QueueBroadcastMsg(msg)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	time.Sleep(time.Second * 5)
 }

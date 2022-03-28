@@ -45,6 +45,7 @@ service InjectiveExplorerRPC {
 }
 
 message GetAccountTxsRequest {
+	// Address of account
 	string address = 1;
 	uint64 before = 2;
 	uint64 after = 3;

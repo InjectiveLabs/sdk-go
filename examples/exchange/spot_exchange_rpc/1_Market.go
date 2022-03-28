@@ -8,15 +8,15 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("mainnet", "lb")
+	network := common.LoadNetwork("testnet", "k8s")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	ctx := context.Background()
-	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
-	res, err := exchangeClient.GetOrderbook(ctx, marketId)
+	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
+	res, err := exchangeClient.GetSpotMarket(ctx, marketId)
 	if err != nil {
 		fmt.Println(err)
 	}
