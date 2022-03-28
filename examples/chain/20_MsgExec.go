@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
@@ -21,7 +22,7 @@ func main() {
 	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
-		"/Users/akalantzis/.injectived",
+		os.Getenv("HOME") + "/.injectived",
 		"injectived",
 		"file",
 		"inj-user",

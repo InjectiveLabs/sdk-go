@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
@@ -19,7 +20,7 @@ func main() {
 	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
-		"/Users/akalantzis/.injectived",
+		os.Getenv("HOME") + "/.injectived",
 		"injectived",
 		"file",
 		"inj-user",
@@ -49,7 +50,7 @@ func main() {
 	samount := decimal.NewFromFloat(2)
 	sprice := decimal.NewFromFloat(22.5)
 	sorderSize := chainClient.GetSpotQuantity(samount, cosmtypes.MustNewDecFromStr("10000"), 6)
-	sorderPrice := chainClient.GetSpotPrice(price, 6, 6, cosmtypes.MustNewDecFromStr("0.01"))
+	sorderPrice := chainClient.GetSpotPrice(sprice, 6, 6, cosmtypes.MustNewDecFromStr("0.01"))
 	smarketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
 
 	spot_order := chainClient.SpotOrder(defaultSubaccountID, &chainclient.SpotOrderData{
