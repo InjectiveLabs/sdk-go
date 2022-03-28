@@ -52,6 +52,10 @@ func main() {
 		common.OptionGasPrices("500000000inj"),
 	)
 
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"

@@ -61,6 +61,10 @@ func main() {
 		common.OptionGasPrices("500000000inj"),
 	)
 
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	for i:=0; i<1; i++ {
 		err := chainClient.QueueBroadcastMsg(msg)
 		if err != nil {
