@@ -18,9 +18,9 @@ import (
 	"github.com/shopspring/decimal"
 	"strings"
 	"sync"
+	"fmt"
 	"sync/atomic"
 	"time"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -56,6 +56,7 @@ type ChainClient interface {
 
 	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
 	GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec)
+	GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec
 	GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec)
 	GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec
 
@@ -533,6 +534,15 @@ func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
 }
 
 
+func formatPriceToTickSize(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
+    residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
+    formattedValue := new(big.Int).Sub(value.BigInt(), residue)
+    p := decimal.NewFromBigInt(formattedValue, -18).StringFixed(18)
+    realValue, _ := cosmtypes.NewDecFromStr(p)
+    return realValue
+}
+
+
 func (c *chainClient) GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec) {
 	mid, _ := cosmtypes.NewDecFromStr(value.String())
 	bStr := decimal.New(1, int32(baseDecimals)).String()
@@ -541,6 +551,19 @@ func (c *chainClient) GetSpotQuantity(value decimal.Decimal, minTickSize cosmtyp
 	midScaledInt := mid.Mul(scale).TruncateDec()
 	qty = minTickSize.Mul(midScaledInt)
 	return qty
+}
+
+func (c *chainClient) GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec {
+    scale := decimal.New(1, int32(quoteDecimals-baseDecimals))
+    priceStr := scale.Mul(price).StringFixed(18)
+    decPrice, err := cosmtypes.NewDecFromStr(priceStr)
+    if err != nil {
+        fmt.Println(err.Error())
+        fmt.Println(priceStr, scale.String(), price.String())
+        fmt.Println(decPrice.String())
+    }
+    realPrice := formatPriceToTickSize(decPrice, minPriceTickSize)
+    return realPrice
 }
 
 func (c *chainClient) GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec) {
@@ -616,6 +639,7 @@ type SpotOrderData struct {
 	FeeRecipient string
 	MarketId string
 }
+
 
 type OrderCancelData struct {
 	MarketId string

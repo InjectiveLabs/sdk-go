@@ -47,14 +47,15 @@ func main() {
 
 	smarketId := "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa"
 	samount := decimal.NewFromFloat(2)
-	sprice := cosmtypes.MustNewDecFromStr("22")
+	sprice := decimal.NewFromFloat(22.5)
 	sorderSize := chainClient.GetSpotQuantity(samount, cosmtypes.MustNewDecFromStr("10000"), 6)
+	sorderPrice := chainClient.GetSpotPrice(price, 6, 6, cosmtypes.MustNewDecFromStr("0.01"))
 	smarketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
 
 	spot_order := chainClient.SpotOrder(defaultSubaccountID, &chainclient.SpotOrderData{
 		OrderType:    2,
 		Quantity:     sorderSize,
-		Price:        sprice,
+		Price:        sorderPrice,
 		FeeRecipient: senderAddress.String(),
 		MarketId: smarketId,
 	})
