@@ -28,11 +28,20 @@ func main() {
 		false,
 	)
 
+	if err != nil {
+		panic(err)
+	}
+
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),
 		cosmosKeyring,
 	)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	clientCtx.WithNodeURI(network.TmEndpoint)
 	clientCtx = clientCtx.WithClient(tmRPC)
 
