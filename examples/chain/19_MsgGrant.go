@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
-	authz "github.com/cosmos/cosmos-sdk/api/cosmos/authz"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	"os"
 	"time"
 )
 
@@ -45,16 +45,18 @@ func main() {
 	clientCtx.WithNodeURI(network.TmEndpoint)
 	clientCtx = clientCtx.WithClient(tmRPC)
 
+	// build generic authz msg
 	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
-	msgType := "/injective.exchange.v1beta1.MsgCreateSpotLimitOrder"
-	expireIn := 31536000
+	auth := authztypes.NewGenericAuthorization("/injective.exchange.v1beta1.MsgCreateSpotLimitOrder")
+	authAny := codectypes.UnsafePackAny(auth)
+	expireIn := time.Now().AddDate(1, 0, 0)
 
 	msg := &authztypes.MsgGrant{
 		Granter: senderAddress.String(),
 		Grantee: grantee,
-		authz.Grant: {
-			MsgType: msgType,
-			ExpireIn: expireIn,
+		Grant: authztypes.Grant{
+			Authorization: authAny,
+			Expiration: expireIn,
 		},
 	}
 
