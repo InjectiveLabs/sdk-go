@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"math/big"
 	"reflect"
+	"runtime/debug"
 	"strings"
+	"time"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
@@ -352,6 +354,7 @@ var (
 	bigIntType    = reflect.TypeOf(big.Int{})
 	cosmIntType   = reflect.TypeOf(cosmtypes.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
+	timeType      = reflect.TypeOf(time.Time{})
 )
 
 // typToEth supports only basic types and arrays of basic types.
@@ -394,6 +397,7 @@ func typToEth(typ reflect.Type) string {
 		}
 	case reflect.Ptr:
 		if typ.Elem().ConvertibleTo(bigIntType) ||
+			typ.Elem().ConvertibleTo(timeType) ||
 			typ.Elem().ConvertibleTo(cosmIntType) {
 			return "string"
 		}
@@ -401,6 +405,7 @@ func typToEth(typ reflect.Type) string {
 		if typ.ConvertibleTo(hashType) ||
 			typ.ConvertibleTo(addressType) ||
 			typ.ConvertibleTo(bigIntType) ||
+			typ.ConvertibleTo(timeType) ||
 			typ.ConvertibleTo(cosmIntType) {
 			return "string"
 		}
@@ -411,6 +416,8 @@ func typToEth(typ reflect.Type) string {
 
 func doRecover(err *error) {
 	if r := recover(); r != nil {
+		debug.PrintStack()
+
 		if e, ok := r.(error); ok {
 			e = errors.Wrap(e, "panicked with error")
 			*err = e
