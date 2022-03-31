@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type network struct {
+type Network struct {
 	LcdEndpoint          string
 	TmEndpoint           string
 	ChainGrpcEndpoint    string
@@ -20,9 +20,9 @@ type network struct {
 	Name                 string
 }
 
-func LoadNetwork(name string, node string) network {
+func LoadNetwork(name string, node string) Network {
 	if name == "devnet" {
-		return network{
+		return Network{
 			LcdEndpoint:          "https://devnet.lcd.injective.dev",
 			TmEndpoint:           "https://devnet.tm.injective.dev:443",
 			ChainGrpcEndpoint:    "tcp://devnet.injective.dev:9900",
@@ -53,7 +53,7 @@ func LoadNetwork(name string, node string) network {
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.dev:9910", node)
 		}
 
-		return network{
+		return Network{
 			LcdEndpoint:          lcdEndpoint,
 			TmEndpoint:           tmEndpoint,
 			ChainGrpcEndpoint:    chainGrpcEndpoint,
@@ -86,7 +86,7 @@ func LoadNetwork(name string, node string) network {
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9910", node)
 		}
 
-		return network{
+		return Network{
 			LcdEndpoint:          lcdEndpoint,
 			TmEndpoint:           tmEndpoint,
 			ChainGrpcEndpoint:    chainGrpcEndpoint,
@@ -99,7 +99,7 @@ func LoadNetwork(name string, node string) network {
 		}
 	}
 
-	return network{}
+	return Network{}
 }
 
 func contains(s []string, e string) bool {
