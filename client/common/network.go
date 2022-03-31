@@ -65,19 +65,18 @@ func LoadNetwork(name string, node string) Network {
 			Name:                 "testnet",
 		}
 	} else if name == "mainnet" {
-		validNodes := []string{"lb", "sentry0", "sentry1", "sentry2", "sentry3"}
+		validNodes := []string{"k8s", "lb", "sentry0", "sentry1", "sentry2", "sentry3"}
 		if !contains(validNodes, node) {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
-
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, exchangeGrpcEndpoint string
 		var chainTlsCert, exchangeTlsCert credentials.TransportCredentials
-		if node == "lb" {
-			lcdEndpoint = "https://lb.mainnet.lcd.injective.network"
-			tmEndpoint = "https://lb.mainnet.tm.injective.network:443"
-			chainGrpcEndpoint = "tcp://lb.mainnet.chain.grpc.injective.network:443"
+		if node == "k8s" || node == "lb" {
+			lcdEndpoint = fmt.Sprintf("https://%s.mainnet.lcd.injective.network",node)
+			tmEndpoint = fmt.Sprintf("https://%s.mainnet.tm.injective.network:443",node)
+			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.mainnet.chain.grpc.injective.network:443",node)
 			chainTlsCert = LoadTlsCert("client/cert/mainnet.crt", chainGrpcEndpoint)
-			exchangeGrpcEndpoint = "tcp://lb.mainnet.exchange.grpc.injective.network:443"
+			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.mainnet.exchange.grpc.injective.network:443",node)
 			exchangeTlsCert = LoadTlsCert("client/cert/mainnet.crt", exchangeGrpcEndpoint)
 		} else {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.network:10337", node)
