@@ -62,15 +62,14 @@ func main() {
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
 	marketId := "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa"
+
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(22.53)
-	orderSize := chainClient.GetSpotQuantity(amount, cosmtypes.MustNewDecFromStr("10000"), 6)
-	orderPrice := chainClient.GetSpotPrice(price, 6, 6, cosmtypes.MustNewDecFromStr("0.01"))
 
-	order := chainClient.SpotOrder(defaultSubaccountID, &chainclient.SpotOrderData{
+	order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
-		Quantity:     orderSize,
-		Price:        orderPrice,
+		Quantity:     amount,
+		Price:        price,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     marketId,
 	})

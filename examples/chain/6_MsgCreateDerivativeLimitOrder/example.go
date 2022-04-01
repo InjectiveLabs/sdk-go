@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "sentry0")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		fmt.Println(err)
@@ -65,17 +65,13 @@ func main() {
 	amount := decimal.NewFromFloat(2)
 	price := cosmtypes.MustNewDecFromStr("31000000000") //31,000
 	leverage := cosmtypes.MustNewDecFromStr("2.5")
-	margin := cosmtypes.MustNewDecFromStr(fmt.Sprint(amount)).Mul(price).Quo(leverage)
 
-	orderSize := chainClient.GetDerivativeQuantity(amount, cosmtypes.MustNewDecFromStr("0.0001"))
-	orderPrice := chainClient.GetDerivativePrice(price, cosmtypes.MustNewDecFromStr("1000"))
-	orderMargin := chainClient.GetDerivativePrice(margin, cosmtypes.MustNewDecFromStr("1000"))
 
-	order := chainClient.DerivativeOrder(defaultSubaccountID, &chainclient.DerivativeOrderData{
+	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
-		Quantity:     orderSize,
-		Price:        orderPrice,
-		Margin:       orderMargin,
+		Quantity:     amount,
+		Price:        price,
+		Leverage:     leverage,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     marketId,
 	})

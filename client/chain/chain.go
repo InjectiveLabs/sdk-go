@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"math/big"
+	"strconv"
 	common "github.com/InjectiveLabs/sdk-go/client/common"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
@@ -55,13 +56,9 @@ type ChainClient interface {
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
 
 	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
-	GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec)
-	GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec
-	GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec)
-	GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec
 
-	SpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData) *exchangetypes.SpotOrder
-	DerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
+	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
+	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
 	Close()
@@ -543,7 +540,7 @@ func formatPriceToTickSize(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
 }
 
 
-func (c *chainClient) GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec) {
+func GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec) {
 	mid, _ := cosmtypes.NewDecFromStr(value.String())
 	bStr := decimal.New(1, int32(baseDecimals)).String()
 	baseDec, _ := cosmtypes.NewDecFromStr(bStr)
@@ -553,7 +550,7 @@ func (c *chainClient) GetSpotQuantity(value decimal.Decimal, minTickSize cosmtyp
 	return qty
 }
 
-func (c *chainClient) GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec {
+func GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec {
     scale := decimal.New(1, int32(quoteDecimals-baseDecimals))
     priceStr := scale.Mul(price).StringFixed(18)
     decPrice, err := cosmtypes.NewDecFromStr(priceStr)
@@ -566,7 +563,7 @@ func (c *chainClient) GetSpotPrice(price decimal.Decimal, baseDecimals int, quot
     return realPrice
 }
 
-func (c *chainClient) GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec) {
+func GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec) {
 	mid := cosmtypes.MustNewDecFromStr(value.StringFixed(18))
 	baseDec := cosmtypes.OneDec()
 	scale := baseDec.Quo(minTickSize)
@@ -575,7 +572,7 @@ func (c *chainClient) GetDerivativeQuantity(value decimal.Decimal, minTickSize c
 	return qty
 }
 
-func (c *chainClient) GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
+func GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
 	residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
 	formattedValue := new(big.Int).Sub(value.BigInt(), residue)
 	p := decimal.NewFromBigInt(formattedValue, -18).String()
@@ -584,29 +581,47 @@ func (c *chainClient) GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtype
 }
 
 
-func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData) *exchangetypes.SpotOrder {
+func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
+
+	baseDecimals := common.LoadMetadata(network, d.MarketId).Base
+	quoteDecimals := common.LoadMetadata(network, d.MarketId).Quote
+	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
+	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
+
+	orderSize := GetSpotQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)), baseDecimals)
+	orderPrice := GetSpotPrice(d.Price, baseDecimals, quoteDecimals, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+
 	return &exchangetypes.SpotOrder{
 		MarketId:  d.MarketId,
 		OrderType: d.OrderType,
 		OrderInfo: exchangetypes.OrderInfo{
 			SubaccountId: defaultSubaccountID.Hex(),
 			FeeRecipient: d.FeeRecipient,
-			Price:        d.Price,
-			Quantity:     d.Quantity,
+			Price:        orderPrice,
+			Quantity:     orderSize,
 		},
 	}
 }
 
-func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
+func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
+
+	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
+	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
+
+	margin := cosmtypes.MustNewDecFromStr(fmt.Sprint(d.Quantity)).Mul(d.Price).Quo(d.Leverage)
+	orderSize := GetDerivativeQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)))
+	orderPrice := GetDerivativePrice(d.Price, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+	orderMargin := GetDerivativePrice(margin, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+
 	return &exchangetypes.DerivativeOrder{
 		MarketId:  d.MarketId,
 		OrderType: d.OrderType,
-		Margin: d.Margin,
+		Margin: orderMargin,
 		OrderInfo: exchangetypes.OrderInfo{
 			SubaccountId: defaultSubaccountID.Hex(),
 			FeeRecipient: d.FeeRecipient,
-			Price:        d.Price,
-			Quantity:     d.Quantity,
+			Price:        orderPrice,
+			Quantity:     orderSize,
 		},
 	}
 }
@@ -624,8 +639,7 @@ func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelDa
 type DerivativeOrderData struct {
 	OrderType    exchangetypes.OrderType
 	Price        cosmtypes.Dec
-	Margin     	 cosmtypes.Dec
-	Quantity     cosmtypes.Dec
+	Quantity     decimal.Decimal
 	Leverage	 cosmtypes.Dec
 	FeeRecipient string
 	MarketId string
@@ -634,8 +648,8 @@ type DerivativeOrderData struct {
 
 type SpotOrderData struct {
 	OrderType    exchangetypes.OrderType
-	Price        cosmtypes.Dec
-	Quantity     cosmtypes.Dec
+	Price        decimal.Decimal
+	Quantity     decimal.Decimal
 	FeeRecipient string
 	MarketId string
 }
