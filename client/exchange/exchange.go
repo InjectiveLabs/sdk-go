@@ -970,5 +970,5 @@ func (c *exchangeClient) GetTxByTxHash(ctx context.Context, hash string) (explor
 
 
 func (c *exchangeClient) Close() {
-	c.Close()
+	c.conn.Close()
 }
