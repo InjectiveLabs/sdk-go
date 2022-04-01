@@ -144,7 +144,7 @@ func FetchDenom(network common.Network) {
 func main() {
 	devnet := common.LoadNetwork("devnet","")
 	testnet := common.LoadNetwork("testnet","k8s")
-	mainnet := common.LoadNetwork("mainnet","sentry0")
+	mainnet := common.LoadNetwork("mainnet","k8s")
 	FetchDenom(devnet)
 	FetchDenom(testnet)
 	FetchDenom(mainnet)
