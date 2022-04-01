@@ -14,6 +14,7 @@ import (
 )
 
 func main() {
+	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
