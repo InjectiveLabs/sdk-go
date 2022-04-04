@@ -65,4 +65,6 @@ var (
 	ErrInvalidBatchMsgUpdate                    = sdkerrors.Register(ModuleName, 58, "Invalid batch msg update")
 	ErrExceedsTopOfBookPrice                    = sdkerrors.Register(ModuleName, 59, "Post-only order exceeds top of book price")
 	ErrInvalidOrderTypeForMessage               = sdkerrors.Register(ModuleName, 60, "Order type not supported for given message")
+	ErrInvalidDMMSender                         = sdkerrors.Register(ModuleName, 61, "Sender must match dmm account")
+	ErrDMMAlreadyRegistered                     = sdkerrors.Register(ModuleName, 62, "DMM is already registered")
 )
