@@ -931,7 +931,7 @@ func (msg *MsgRegisterAsDMM) Route() string {
 }
 
 func (msg *MsgRegisterAsDMM) Type() string {
-	return "redeemFromMarketMakingPool"
+	return "registerAsDMM"
 }
 
 func (msg *MsgRegisterAsDMM) ValidateBasic() error {
