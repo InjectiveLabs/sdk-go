@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"math/big"
 	"strconv"
-	common "github.com/InjectiveLabs/sdk-go/client/common"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -34,6 +34,7 @@ const (
 	msgCommitBatchTimeLimit = 500 * time.Millisecond
 	defaultBroadcastStatusPoll = 100 * time.Millisecond
 	defaultBroadcastTimeout    = 40 * time.Second
+	defaultTimeoutHeight = 20
 )
 
 var (
@@ -156,6 +157,7 @@ func NewChainClient(
 		}
 
 		go cc.runBatchBroadcast()
+		go cc.syncHeight()
 	}
 
 	return cc, nil
@@ -174,6 +176,19 @@ func (c *chainClient) syncNonce() {
 	}
 
 	c.accSeq = seq
+}
+
+func (c *chainClient) syncHeight() {
+	for {
+		ctx := context.Background()
+		block, err := c.ctx.Client.Block(ctx, nil)
+		if err != nil {
+			c.logger.WithError(err).Errorln("failed to get current block")
+			return
+		}
+		c.txFactory.WithTimeoutHeight(uint64(block.Block.Height)+defaultTimeoutHeight)
+		time.Sleep(time.Second*10)
+	}
 }
 
 // prepareFactory ensures the account defined by ctx.GetFromAddress() exists and
@@ -273,7 +288,6 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-
 	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 
 	if err != nil {
@@ -338,7 +352,6 @@ func (c *chainClient) broadcastTx(
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, err
 	}
-
 	// attempt to load cookie
 	ctx := context.Background()
 
@@ -460,7 +473,6 @@ func (c *chainClient) runBatchBroadcast() {
 	submitBatch := func(toSubmit []sdk.Msg) {
 		c.syncMux.Lock()
 		defer c.syncMux.Unlock()
-
 		c.txFactory = c.txFactory.WithSequence(c.accSeq)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 		log.Debugln("broadcastTx with nonce", c.accSeq)
@@ -484,7 +496,7 @@ func (c *chainClient) runBatchBroadcast() {
 			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
 			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to commit msg batch")
 		} else {
-			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch committed successfully")
+			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch committed successfully at height",res.TxResponse.Height)
 		}
 
 		c.accSeq++
