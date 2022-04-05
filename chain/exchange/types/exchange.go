@@ -61,28 +61,10 @@ type TradingRewardAccountPoints struct {
 	Points  sdk.Dec
 }
 
-func (p *PointsMultiplier) GetEffectiveMultiplier(e ExecutionType, isRegisteredDMMCache map[string]bool, account sdk.AccAddress) sdk.Dec {
-	if isRegisteredDMMCache[account.String()] {
-		return sdk.ZeroDec()
-	}
-
+func (p *PointsMultiplier) GetMultiplier(e ExecutionType) sdk.Dec {
 	if e.IsMaker() {
 		return p.MakerPointsMultiplier
 	}
 
 	return p.TakerPointsMultiplier
-}
-
-func (p *PointsMultiplier) GetEffectiveMultipliers(isRegisteredDMMCache map[string]bool, account sdk.AccAddress) PointsMultiplier {
-	if isRegisteredDMMCache[account.String()] {
-		return PointsMultiplier{
-			MakerPointsMultiplier: sdk.ZeroDec(),
-			TakerPointsMultiplier: sdk.ZeroDec(),
-		}
-	}
-
-	return PointsMultiplier{
-		MakerPointsMultiplier: p.MakerPointsMultiplier,
-		TakerPointsMultiplier: p.TakerPointsMultiplier,
-	}
 }

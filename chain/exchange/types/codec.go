@@ -69,6 +69,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgIncreasePositionMargin{},
 		&MsgLiquidatePosition{},
 		&MsgBatchUpdateOrders{},
+		&MsgRegisterAsDMM{},
 	)
 
 	registry.RegisterImplementations(
