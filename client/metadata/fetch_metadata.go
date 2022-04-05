@@ -1,12 +1,12 @@
 package main
 
 import (
-	"os"
-	"fmt"
 	"context"
+	"fmt"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
+	"os"
 
 	//derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
@@ -134,7 +134,7 @@ func FetchDenom(network common.Network) {
 		metadataOutput += symbol
 	}
 
-	fileName := fmt.Sprintf("client/common/metadata/%s.ini",network.Name)
+	fileName := fmt.Sprintf("client/metadata/assets/%s.ini",network.Name)
 	err = os.WriteFile(fileName, []byte(metadataOutput), 0644)
 	if err != nil {
 		panic(err)

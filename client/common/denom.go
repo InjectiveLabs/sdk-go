@@ -14,7 +14,7 @@ type Denom struct {
 }
 
 func LoadMetadata(network Network, marketId string) Denom {
-	fileName := fmt.Sprintf("client/common/metadata/%s.ini", network.Name)
+	fileName := fmt.Sprintf("client/metadata/assets/%s.ini", network.Name)
 	cfg, err := ini.Load(fileName)
 	if err != nil {
 		panic(err)
