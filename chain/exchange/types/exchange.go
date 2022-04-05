@@ -65,5 +65,6 @@ func (p *PointsMultiplier) GetMultiplier(e ExecutionType) sdk.Dec {
 	if e.IsMaker() {
 		return p.MakerPointsMultiplier
 	}
+
 	return p.TakerPointsMultiplier
 }

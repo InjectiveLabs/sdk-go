@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -31,6 +32,7 @@ var (
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
+	_ sdk.Msg = &MsgRegisterAsDMM{}
 )
 
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -917,6 +919,34 @@ func (msg *MsgIncreasePositionMargin) GetSignBytes() []byte {
 }
 
 func (msg *MsgIncreasePositionMargin) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgRegisterAsDMM) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgRegisterAsDMM) Type() string {
+	return "registerAsDMM"
+}
+
+func (msg *MsgRegisterAsDMM) ValidateBasic() error {
+	if msg.Sender != msg.DmmAccount {
+		return sdkerrors.Wrap(ErrInvalidDMMSender, fmt.Sprintf("Sender: %s doesn't match dmm account: %s", msg.Sender, msg.DmmAccount))
+	}
+
+	return nil
+}
+
+func (msg *MsgRegisterAsDMM) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgRegisterAsDMM) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

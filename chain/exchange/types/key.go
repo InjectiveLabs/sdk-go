@@ -78,7 +78,9 @@ var (
 	FeeDiscountAccountTierPrefix                          = []byte{0x56} // prefix to each account's fee discount tier and TTL timestamp
 	FeeDiscountBucketAccountFeesPaidPrefix                = []byte{0x57} // prefix to each account's fee paid amount for a given bucket
 	FeeDiscountAccountPastBucketTotalFeesPaidAmountPrefix = []byte{0x58} // prefix to each account's total past bucket fees paid amount FeeDiscountAccountIndicatorPrefix
-	FeeDiscountAccountOrderIndicatorPrefix                = []byte{0x59} // prefix to each account's transient indicator if the account has placed an order that block
+	FeeDiscountAccountOrderIndicatorPrefix                = []byte{0x59} // prefix to each account's transient indicator if the account has placed an order that block that is relevant for fee discounts
+
+	IsRegisteredDMMPrefix = []byte{0x60} // prefix to each account's is registered DMM address key
 )
 
 // GetFeeDiscountAccountFeesPaidInBucketKey provides the key for the account's fees paid in the given bucket
@@ -128,6 +130,16 @@ func GetFeeDiscountAccountTierKey(account sdk.AccAddress) []byte {
 
 	buf := make([]byte, 0, len(FeeDiscountAccountTierPrefix)+len(accountBz))
 	buf = append(buf, FeeDiscountAccountTierPrefix...)
+	buf = append(buf, accountBz...)
+	return buf
+}
+
+// GetIsRegisteredDMMKey provides the key for the registered DMM address
+func GetIsRegisteredDMMKey(account sdk.AccAddress) []byte {
+	accountBz := account.Bytes()
+
+	buf := make([]byte, 0, len(IsRegisteredDMMPrefix)+len(accountBz))
+	buf = append(buf, IsRegisteredDMMPrefix...)
 	buf = append(buf, accountBz...)
 	return buf
 }
