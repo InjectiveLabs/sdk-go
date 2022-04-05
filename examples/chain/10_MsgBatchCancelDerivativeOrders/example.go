@@ -73,12 +73,12 @@ func main() {
 	msg.Sender = senderAddress.String()
 	msg.Data = []exchangetypes.OrderData{*order}
 	CosMsgs := []cosmtypes.Msg{msg}
-	for i := 0; i < 1; i++ {
-		err := chainClient.QueueBroadcastMsg(CosMsgs...)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	time.Sleep(time.Second * 5)
 
+	err = chainClient.QueueBroadcastMsg(CosMsgs...)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	time.Sleep(time.Second * 5)
 }

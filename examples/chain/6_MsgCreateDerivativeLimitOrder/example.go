@@ -67,7 +67,6 @@ func main() {
 	price := cosmtypes.MustNewDecFromStr("31000000000") //31,000
 	leverage := cosmtypes.MustNewDecFromStr("2.5")
 
-
 	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
 		Quantity:     amount,
@@ -81,12 +80,12 @@ func main() {
 	msg.Sender = senderAddress.String()
 	msg.Order = exchangetypes.DerivativeOrder(*order)
 	CosMsgs := []cosmtypes.Msg{msg}
-	for i := 0; i < 1; i++ {
-		err := chainClient.QueueBroadcastMsg(CosMsgs...)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	time.Sleep(time.Second * 5)
 
+	err = chainClient.QueueBroadcastMsg(CosMsgs...)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	time.Sleep(time.Second * 5)
 }

@@ -48,7 +48,7 @@ func main() {
 	clientCtx = clientCtx.WithClient(tmRPC)
 
 	msg := &exchangetypes.MsgRegisterAsDMM{
-		Sender: senderAddress.String(),
+		Sender:     senderAddress.String(),
 		DmmAccount: senderAddress.String(),
 	}
 
@@ -63,11 +63,11 @@ func main() {
 		fmt.Println(err)
 	}
 
-	for i := 0; i < 1; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
+	err = chainClient.QueueBroadcastMsg(msg)
+
+	if err != nil {
+		fmt.Println(err)
 	}
+
 	time.Sleep(time.Second * 5)
 }

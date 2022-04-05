@@ -74,11 +74,11 @@ func main() {
 		fmt.Println(err)
 	}
 
-	for i := 0; i < 1; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
+	err = chainClient.QueueBroadcastMsg(msg)
+
+	if err != nil {
+		fmt.Println(err)
 	}
+
 	time.Sleep(time.Second * 5)
 }
