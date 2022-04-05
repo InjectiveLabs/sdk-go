@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -48,6 +47,11 @@ func main() {
 	clientCtx.WithNodeURI(network.TmEndpoint)
 	clientCtx = clientCtx.WithClient(tmRPC)
 
+	msg := &exchangetypes.MsgRegisterAsDMM{
+		Sender:     senderAddress.String(),
+		DmmAccount: senderAddress.String(),
+	}
+
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network.ChainGrpcEndpoint,
@@ -59,22 +63,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
-
-	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
-	orderHash := "0x17196096ffc32ad088ef959ad95b4cc247a87c7c9d45a2500b81ab8f5a71da5a"
-
-	order := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
-		MarketId:  marketId,
-		OrderHash: orderHash,
-	})
-
-	msg := new(exchangetypes.MsgBatchCancelSpotOrders)
-	msg.Sender = senderAddress.String()
-	msg.Data = []exchangetypes.OrderData{*order}
-	CosMsgs := []cosmtypes.Msg{msg}
-
-	err = chainClient.QueueBroadcastMsg(CosMsgs...)
+	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
 		fmt.Println(err)

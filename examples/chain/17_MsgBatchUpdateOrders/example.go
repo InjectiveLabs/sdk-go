@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
@@ -64,14 +65,12 @@ func main() {
 	smarketId := "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa"
 	samount := decimal.NewFromFloat(2)
 	sprice := decimal.NewFromFloat(22.5)
-	sorderSize := chainClient.GetSpotQuantity(samount, cosmtypes.MustNewDecFromStr("10000"), 6)
-	sorderPrice := chainClient.GetSpotPrice(sprice, 6, 6, cosmtypes.MustNewDecFromStr("0.01"))
 	smarketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
 
-	spot_order := chainClient.SpotOrder(defaultSubaccountID, &chainclient.SpotOrderData{
-		OrderType:    2,
-		Quantity:     sorderSize,
-		Price:        sorderPrice,
+	spot_order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
+		OrderType:    exchangetypes.OrderType_BUY,
+		Quantity:     samount,
+		Price:        sprice,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     smarketId,
 	})
@@ -80,19 +79,13 @@ func main() {
 	damount := decimal.NewFromFloat(2)
 	dprice := cosmtypes.MustNewDecFromStr("31000000000") //31,000
 	dleverage := cosmtypes.MustNewDecFromStr("2.5")
-	dmargin := cosmtypes.MustNewDecFromStr(fmt.Sprint(damount)).Mul(dprice).Quo(dleverage)
-
 	dmarketIds := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
 
-	dorderSize := chainClient.GetDerivativeQuantity(damount, cosmtypes.MustNewDecFromStr("0.0001"))
-	dorderPrice := chainClient.GetDerivativePrice(dprice, cosmtypes.MustNewDecFromStr("1000"))
-	dorderMargin := chainClient.GetDerivativePrice(dmargin, cosmtypes.MustNewDecFromStr("1000"))
-
-	derivative_order := chainClient.DerivativeOrder(defaultSubaccountID, &chainclient.DerivativeOrderData{
+	derivative_order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
-		Quantity:     dorderSize,
-		Price:        dorderPrice,
-		Margin:       dorderMargin,
+		Quantity:     damount,
+		Price:        dprice,
+		Leverage:     dleverage,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     dmarketId,
 	})
@@ -106,12 +99,12 @@ func main() {
 	msg.DerivativeMarketIdsToCancelAll = dmarketIds
 
 	CosMsgs := []cosmtypes.Msg{msg}
-	for i := 0; i < 1; i++ {
-		err := chainClient.QueueBroadcastMsg(CosMsgs...)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	time.Sleep(time.Second * 5)
 
+	err = chainClient.QueueBroadcastMsg(CosMsgs...)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	time.Sleep(time.Second * 5)
 }

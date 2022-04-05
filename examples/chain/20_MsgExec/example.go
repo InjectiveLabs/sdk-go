@@ -18,6 +18,7 @@ import (
 )
 
 func main() {
+	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
@@ -95,11 +96,11 @@ func main() {
 		Msgs:    []*codectypes.Any{msg0Any},
 	}
 
-	for i := 0; i < 1; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
+	err = chainClient.QueueBroadcastMsg(msg)
+
+	if err != nil {
+		fmt.Println(err)
 	}
+
 	time.Sleep(time.Second * 5)
 }
