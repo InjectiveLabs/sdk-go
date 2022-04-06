@@ -9,7 +9,7 @@ import (
 )
 
 const QuoteUSD = "USD"
-const TwapWindow = int64(5 * 60) // 5 minute TWAP window
+const TwapWindow = int64(5 * 60)              // 5 minute TWAP window
 const BandPriceMultiplier uint64 = 1000000000 // 1e9
 
 func GetOracleType(oracleTypeStr string) (OracleType, error) {

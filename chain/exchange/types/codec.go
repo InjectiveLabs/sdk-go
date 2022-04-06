@@ -6,6 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
@@ -45,6 +46,17 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&TradingRewardPendingPointsUpdateProposal{}, "exchange/TradingRewardPendingPointsUpdateProposal", nil)
 	cdc.RegisterConcrete(&FeeDiscountProposal{}, "exchange/FeeDiscountProposal", nil)
 	cdc.RegisterConcrete(&BatchCommunityPoolSpendProposal{}, "exchange/BatchCommunityPoolSpendProposal", nil)
+	cdc.RegisterConcrete(&CreateSpotLimitOrderAuthz{}, "exchange/CreateSpotLimitOrderAuthz", nil)
+	cdc.RegisterConcrete(&CreateSpotMarketOrderAuthz{}, "exchange/CreateSpotMarketOrderAuthz", nil)
+	cdc.RegisterConcrete(&BatchCreateSpotLimitOrdersAuthz{}, "exchange/BatchCreateSpotLimitOrdersAuthz", nil)
+	cdc.RegisterConcrete(&CancelSpotOrderAuthz{}, "exchange/CancelSpotOrderAuthz", nil)
+	cdc.RegisterConcrete(&BatchCancelSpotOrdersAuthz{}, "exchange/BatchCancelSpotOrdersAuthz", nil)
+	cdc.RegisterConcrete(&CreateDerivativeLimitOrderAuthz{}, "exchange/CreateDerivativeLimitOrderAuthz", nil)
+	cdc.RegisterConcrete(&CreateDerivativeMarketOrderAuthz{}, "exchange/CreateDerivativeMarketOrderAuthz", nil)
+	cdc.RegisterConcrete(&BatchCreateDerivativeLimitOrdersAuthz{}, "exchange/BatchCreateDerivativeLimitOrdersAuthz", nil)
+	cdc.RegisterConcrete(&CancelDerivativeOrderAuthz{}, "exchange/CancelDerivativeOrderAuthz", nil)
+	cdc.RegisterConcrete(&BatchCancelDerivativeOrdersAuthz{}, "exchange/BatchCancelDerivativeOrdersAuthz", nil)
+	cdc.RegisterConcrete(&BatchUpdateOrdersAuthz{}, "exchange/BatchUpdateOrdersAuthz", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -86,6 +98,24 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&TradingRewardPendingPointsUpdateProposal{},
 		&FeeDiscountProposal{},
 		&BatchCommunityPoolSpendProposal{},
+	)
+
+	registry.RegisterImplementations(
+		(*authz.Authorization)(nil),
+		// spot authz
+		&CreateSpotLimitOrderAuthz{},
+		&CreateSpotMarketOrderAuthz{},
+		&BatchCreateSpotLimitOrdersAuthz{},
+		&CancelSpotOrderAuthz{},
+		&BatchCancelSpotOrdersAuthz{},
+		// derivative authz
+		&CreateDerivativeLimitOrderAuthz{},
+		&CreateDerivativeMarketOrderAuthz{},
+		&BatchCreateDerivativeLimitOrdersAuthz{},
+		&CancelDerivativeOrderAuthz{},
+		&BatchCancelDerivativeOrdersAuthz{},
+		// common spot, derivative authz
+		&BatchUpdateOrdersAuthz{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
