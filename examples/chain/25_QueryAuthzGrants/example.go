@@ -52,6 +52,10 @@ func main() {
 		common.OptionGasPrices("500000000inj"),
 	)
 
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	ctx := context.Background()
 
 	granter := "inj14au322k9munkmx5wrchz9q30juf5wjgz2cfqku"
