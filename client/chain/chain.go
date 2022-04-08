@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"net/http"
 	"math/big"
 	"strconv"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -35,6 +36,9 @@ const (
 	defaultBroadcastStatusPoll = 100 * time.Millisecond
 	defaultBroadcastTimeout    = 40 * time.Second
 	defaultTimeoutHeight = 20
+	defaultTimeoutHeightSyncInterval = 10 * time.Second
+	defaultSessionRenewalOffset = 120
+	defaultBlockTime = 3 * time.Second
 )
 
 var (
@@ -157,7 +161,7 @@ func NewChainClient(
 		}
 
 		go cc.runBatchBroadcast()
-		go cc.syncHeight()
+		go cc.syncTimeoutHeight()
 	}
 
 	return cc, nil
@@ -178,7 +182,7 @@ func (c *chainClient) syncNonce() {
 	c.accSeq = seq
 }
 
-func (c *chainClient) syncHeight() {
+func (c *chainClient) syncTimeoutHeight() {
 	for {
 		ctx := context.Background()
 		block, err := c.ctx.Client.Block(ctx, nil)
@@ -187,7 +191,7 @@ func (c *chainClient) syncHeight() {
 			return
 		}
 		c.txFactory.WithTimeoutHeight(uint64(block.Block.Height)+defaultTimeoutHeight)
-		time.Sleep(time.Second*10)
+		time.Sleep(defaultTimeoutHeightSyncInterval)
 	}
 }
 
@@ -237,8 +241,38 @@ func (c *chainClient) setCookie(metadata metadata.MD) {
 
 func (c *chainClient) getCookie(ctx context.Context) context.Context {
 	md := metadata.Pairs("cookie",c.sessionCookie)
+
+	// borrow http request to parse cookie
+	header := http.Header{}
+	header.Add("Cookie", c.sessionCookie)
+	request := http.Request{Header: header}
+	cookies := request.Cookies()
+
+	if len(cookies) > 0 {
+		// format cookie date into RFC1123 standard
+		expiresAt := strings.Replace(cookies[1].Value, "-", " ", -1)
+		yyyy := fmt.Sprintf("20%s",expiresAt[12:14])
+		expiresAt = expiresAt[:12] + yyyy + expiresAt[14:]
+
+		// parse expire field into unix timestamp
+		expiresTimestamp, err := time.Parse(time.RFC1123, expiresAt)
+		if err != nil {
+			panic(err)
+		}
+
+		// renew session if timestamp diff < offset
+		timestampDiff := expiresTimestamp.Unix() - time.Now().Unix()
+		if timestampDiff < defaultSessionRenewalOffset {
+			var header metadata.MD
+			c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
+			c.setCookie(header)
+			time.Sleep(defaultBlockTime)
+			// build new ctx
+			return metadata.NewOutgoingContext(ctx, metadata.Pairs("cookie",c.sessionCookie))
+		}
+	}
+
 	return metadata.NewOutgoingContext(ctx, md)
-	//return metadata.AppendToOutgoingContext(ctx, "cookie", c.sessionCookie)
 }
 
 func (c *chainClient) QueryClient() *grpc.ClientConn {
@@ -352,7 +386,6 @@ func (c *chainClient) broadcastTx(
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, err
 	}
-	// attempt to load cookie
 	ctx := context.Background()
 
 	if txf.SimulateAndExecute() || clientCtx.Simulate {
