@@ -11,7 +11,7 @@ import (
 
 func main() {
 	//network := common.LoadNetwork("mainnet", "k8s")
- 	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "k8s")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
 	if err != nil {
 		panic(err)
@@ -33,5 +33,6 @@ func main() {
 		fmt.Println(err)
 	}
 
-	fmt.Println(res)
+	fmt.Println("spot orders:", res.SpotOrdersTotal)
+	fmt.Println("derivative orders:", res.DerivativeOrdersTotal)
 }
