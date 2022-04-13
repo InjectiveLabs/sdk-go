@@ -54,8 +54,9 @@ type ChainClient interface {
 	QueryClient() *grpc.ClientConn
 	ClientContext() client.Context
 
-	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
@@ -163,7 +164,6 @@ func NewChainClient(
 		go cc.runBatchBroadcast()
 		go cc.syncTimeoutHeight()
 	}
-
 	return cc, nil
 }
 
@@ -344,6 +344,35 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 	return res, nil
 }
 
+func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
+	c.txFactory = c.txFactory.WithSequence(c.accSeq)
+	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+	txf, err := c.prepareFactory(clientCtx, c.txFactory)
+	if err != nil {
+		err = errors.Wrap(err, "failed to prepareFactory")
+		return nil, err
+	}
+
+	simTxBytes, err := tx.BuildSimTx(txf, msgs...)
+	if err != nil {
+		err = errors.Wrap(err, "failed to build sim tx bytes")
+		return nil, err
+	}
+
+	ctx := context.Background()
+	ctx = c.getCookie(ctx)
+	var header metadata.MD
+	simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+	if err != nil {
+		err = errors.Wrap(err, "failed to CalculateGas")
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return simRes, nil
+}
+
+
 //AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
 //cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
 //external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
@@ -387,14 +416,12 @@ func (c *chainClient) broadcastTx(
 		return nil, err
 	}
 	ctx := context.Background()
-
-	if txf.SimulateAndExecute() || clientCtx.Simulate {
+	if clientCtx.Simulate {
 		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
 		if err != nil {
 			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, err
 		}
-
 		ctx := c.getCookie(ctx)
 		var header metadata.MD
 		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
