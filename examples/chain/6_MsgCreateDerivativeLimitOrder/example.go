@@ -16,7 +16,7 @@ import (
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("testnet", "sentry0")
+	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		fmt.Println(err)
@@ -46,7 +46,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC).WithSimulation(true)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
@@ -75,16 +75,26 @@ func main() {
 		MarketId:     marketId,
 	})
 
-	msg := new(exchangetypes.MsgCreateDerivativeLimitOrder)
+	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
 	msg.Sender = senderAddress.String()
 	msg.Order = exchangetypes.DerivativeOrder(*order)
-	CosMsgs := []cosmtypes.Msg{msg}
-
-	err = chainClient.QueueBroadcastMsg(CosMsgs...)
+	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	time.Sleep(time.Second * 5)
+}
+sgs[0].Data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
+	
+	err = chainClient.QueueBroadcastMsg(msg)
+	if err != nil {
+		fmt.Println(err)
+	}
 	time.Sleep(time.Second * 5)
 }

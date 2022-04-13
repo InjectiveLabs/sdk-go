@@ -46,7 +46,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC).WithSimulation(true)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
@@ -75,16 +75,26 @@ func main() {
 		MarketId:     marketId,
 	})
 
-	msg := new(exchangetypes.MsgBatchCreateDerivativeLimitOrders)
+	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
 	msg.Sender = senderAddress.String()
-	msg.Orders = []exchangetypes.DerivativeOrder{*order}
-	CosMsgs := []cosmtypes.Msg{msg}
-
-	err = chainClient.QueueBroadcastMsg(CosMsgs...)
+	msg.Order = exchangetypes.DerivativeOrder(*order)
+	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	time.Sleep(time.Second * 5)
+}
+sgs[0].Data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
+	
+	err = chainClient.QueueBroadcastMsg(msg)
+	if err != nil {
+		fmt.Println(err)
+	}
 	time.Sleep(time.Second * 5)
 }

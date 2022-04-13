@@ -5,7 +5,8 @@ import (
 	"os"
 	"time"
 
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/shopspring/decimal"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -45,15 +46,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC).WithSimulation(true)
-
-	msg := &exchangetypes.MsgDeposit{
-		Sender:       senderAddress.String(),
-		SubaccountId: "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000",
-		Amount: sdktypes.Coin{
-			Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000), // 1 INJ
-		},
-	}
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
@@ -66,11 +59,42 @@ func main() {
 		fmt.Println(err)
 	}
 
+	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
+
+	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
+	amount := decimal.NewFromFloat(2)
+	price := cosmtypes.MustNewDecFromStr("31000000000") //31,000
+	leverage := cosmtypes.MustNewDecFromStr("2.5")
+
+	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
+		OrderType:    exchangetypes.OrderType_BUY,
+		Quantity:     amount,
+		Price:        price,
+		Leverage:     leverage,
+		FeeRecipient: senderAddress.String(),
+		MarketId:     marketId,
+	})
+
+	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
+	msg.Sender = senderAddress.String()
+	msg.Order = exchangetypes.DerivativeOrder(*order)
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	time.Sleep(time.Second * 5)
+}
+sgs[0].Data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
+	
+	err = chainClient.QueueBroadcastMsg(msg)
+	if err != nil {
+		fmt.Println(err)
+	}
 	time.Sleep(time.Second * 5)
 }
