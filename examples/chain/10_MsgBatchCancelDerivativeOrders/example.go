@@ -6,7 +6,6 @@ import (
 	"time"
 
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/shopspring/decimal"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -62,39 +61,23 @@ func main() {
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
 	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
-	amount := decimal.NewFromFloat(2)
-	price := cosmtypes.MustNewDecFromStr("31000000000") //31,000
-	leverage := cosmtypes.MustNewDecFromStr("2.5")
+	orderHash := "0x7b35e8d3c6e5d1210a83615a935a74349c2c8c5e73a591015729adad3c70af2d"
 
-	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
-		OrderType:    exchangetypes.OrderType_BUY,
-		Quantity:     amount,
-		Price:        price,
-		Leverage:     leverage,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     marketId,
+	order := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
+		MarketId:  marketId,
+		OrderHash: orderHash,
 	})
 
-	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
+	msg := new(exchangetypes.MsgBatchCancelDerivativeOrders)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.DerivativeOrder(*order)
-	err = chainClient.QueueBroadcastMsg(msg)
+	msg.Data = []exchangetypes.OrderData{*order}
+	CosMsgs := []cosmtypes.Msg{msg}
+
+	err = chainClient.QueueBroadcastMsg(CosMsgs...)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	time.Sleep(time.Second * 5)
-}
-sgs[0].Data)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
-	
-	err = chainClient.QueueBroadcastMsg(msg)
-	if err != nil {
-		fmt.Println(err)
-	}
 	time.Sleep(time.Second * 5)
 }

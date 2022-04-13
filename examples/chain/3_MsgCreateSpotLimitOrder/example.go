@@ -63,7 +63,7 @@ func main() {
 	marketId := "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa"
 
 	amount := decimal.NewFromFloat(2)
-	price := decimal.NewFromFloat(22.53)
+	price := decimal.NewFromFloat(22.55)
 
 	order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
@@ -88,7 +88,7 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
-	
+
 	err = chainClient.QueueBroadcastMsg(msg)
 	if err != nil {
 		fmt.Println(err)

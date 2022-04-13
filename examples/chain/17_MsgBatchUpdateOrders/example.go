@@ -61,37 +61,60 @@ func main() {
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
-	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
-	amount := decimal.NewFromFloat(2)
-	price := cosmtypes.MustNewDecFromStr("31000000000") //31,000
-	leverage := cosmtypes.MustNewDecFromStr("2.5")
+	smarketId := "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa"
+	samount := decimal.NewFromFloat(2)
+	sprice := decimal.NewFromFloat(22.5)
+	smarketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
 
-	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
+	spot_order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
-		Quantity:     amount,
-		Price:        price,
-		Leverage:     leverage,
+		Quantity:     samount,
+		Price:        sprice,
 		FeeRecipient: senderAddress.String(),
-		MarketId:     marketId,
+		MarketId:     smarketId,
 	})
 
-	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
+	dmarketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
+	damount := decimal.NewFromFloat(0.01)
+	dprice := cosmtypes.MustNewDecFromStr("31000000000") //31,000
+	dleverage := cosmtypes.MustNewDecFromStr("2")
+	dmarketIds := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
+
+	derivative_order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
+		OrderType:    exchangetypes.OrderType_BUY,
+		Quantity:     damount,
+		Price:        dprice,
+		Leverage:     dleverage,
+		FeeRecipient: senderAddress.String(),
+		MarketId:     dmarketId,
+	})
+
+	msg := new(exchangetypes.MsgBatchUpdateOrders)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.DerivativeOrder(*order)
-	err = chainClient.QueueBroadcastMsg(msg)
+	msg.SubaccountId = defaultSubaccountID.Hex()
+	msg.SpotOrdersToCreate = []*exchangetypes.SpotOrder{spot_order}
+	msg.DerivativeOrdersToCreate = []*exchangetypes.DerivativeOrder{derivative_order}
+	msg.SpotMarketIdsToCancelAll = smarketIds
+	msg.DerivativeMarketIdsToCancelAll = dmarketIds
 
+	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	time.Sleep(time.Second * 5)
-}
-sgs[0].Data)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
-	
+	simResMsgs := common.MsgResponse(simRes.Result.Data)
+	msgBatchCreateDerivativeLimitOrdersResponse := exchangetypes.MsgBatchCreateDerivativeLimitOrdersResponse{}
+	msgBatchCreateDerivativeLimitOrdersResponse.Unmarshal(simResMsgs[0].Data)
+
+	fmt.Println("msgs", simResMsgs)
+
+	fmt.Println("simulated derivative order hashes", msgBatchCreateDerivativeLimitOrdersResponse.OrderHashes)
+
+	msgBatchCreateSpotLimitOrdersResponse := exchangetypes.MsgBatchCreateSpotLimitOrdersResponse{}
+	msgBatchCreateSpotLimitOrdersResponse.Unmarshal(simResMsgs[0].Data)
+
+	fmt.Println("simulated spot order hashes", msgBatchCreateSpotLimitOrdersResponse.OrderHashes)
+
 	err = chainClient.QueueBroadcastMsg(msg)
 	if err != nil {
 		fmt.Println(err)
