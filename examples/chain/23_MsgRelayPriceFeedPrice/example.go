@@ -45,8 +45,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint)
-	clientCtx = clientCtx.WithClient(tmRPC)
+	clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC).WithSimulation(true)
 
 	price := []cosmtypes.Dec{cosmtypes.MustNewDecFromStr("100")}
 	base := []string{"BAYC"}

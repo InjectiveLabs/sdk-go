@@ -45,8 +45,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint)
-	clientCtx = clientCtx.WithClient(tmRPC)
+	clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC).WithSimulation(true)
 
 	ethDest := "0xaf79152ac5df276d9a8e1e2e22822f9713474902"
 

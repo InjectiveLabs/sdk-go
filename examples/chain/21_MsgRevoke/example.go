@@ -44,8 +44,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint)
-	clientCtx = clientCtx.WithClient(tmRPC)
+	clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC).WithSimulation(true)
 
 	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
 	msgType := "/injective.exchange.v1beta1.MsgCreateSpotLimitOrder"

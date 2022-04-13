@@ -44,8 +44,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint)
-	clientCtx = clientCtx.WithClient(tmRPC)
+	clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC).WithSimulation(true)
 
 	msg := &exchangetypes.MsgRegisterAsDMM{
 		Sender:     senderAddress.String(),

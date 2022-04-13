@@ -45,8 +45,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint)
-	clientCtx = clientCtx.WithClient(tmRPC)
+	clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC).WithSimulation(true)
 
 	// build generic authz msg
 	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
