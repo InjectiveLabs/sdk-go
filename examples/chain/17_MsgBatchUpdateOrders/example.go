@@ -103,17 +103,10 @@ func main() {
 	}
 
 	simResMsgs := common.MsgResponse(simRes.Result.Data)
-	msgBatchCreateDerivativeLimitOrdersResponse := exchangetypes.MsgBatchCreateDerivativeLimitOrdersResponse{}
-	msgBatchCreateDerivativeLimitOrdersResponse.Unmarshal(simResMsgs[0].Data)
+	MsgBatchUpdateOrdersResponse := exchangetypes.MsgBatchUpdateOrdersResponse{}
+	MsgBatchUpdateOrdersResponse.Unmarshal(simResMsgs[0].Data)
 
-	fmt.Println("msgs", simResMsgs)
-
-	fmt.Println("simulated derivative order hashes", msgBatchCreateDerivativeLimitOrdersResponse.OrderHashes)
-
-	msgBatchCreateSpotLimitOrdersResponse := exchangetypes.MsgBatchCreateSpotLimitOrdersResponse{}
-	msgBatchCreateSpotLimitOrdersResponse.Unmarshal(simResMsgs[0].Data)
-
-	fmt.Println("simulated spot order hashes", msgBatchCreateSpotLimitOrdersResponse.OrderHashes)
+	fmt.Println("simulated order hashes", MsgBatchUpdateOrdersResponse.OrderHashes)
 
 	err = chainClient.QueueBroadcastMsg(msg)
 	if err != nil {
