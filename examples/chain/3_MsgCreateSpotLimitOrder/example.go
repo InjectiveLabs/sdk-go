@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/shopspring/decimal"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
@@ -61,32 +60,30 @@ func main() {
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
-	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
-	amount := decimal.NewFromFloat(2)
-	price := cosmtypes.MustNewDecFromStr("31000000000") //31,000
-	leverage := cosmtypes.MustNewDecFromStr("2.5")
+	marketId := "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa"
 
-	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
+	amount := decimal.NewFromFloat(2)
+	price := decimal.NewFromFloat(22.53)
+
+	order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
 		Quantity:     amount,
 		Price:        price,
-		Leverage:     leverage,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     marketId,
 	})
 
-	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
+	msg := new(exchangetypes.MsgCreateSpotLimitOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.DerivativeOrder(*order)
-	err = chainClient.QueueBroadcastMsg(msg)
+	msg.Order = exchangetypes.SpotOrder(*order)
 
+	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	time.Sleep(time.Second * 5)
-}
-sgs[0].Data)
+	simResMsgs := common.MsgResponse(simRes.Result.Data)
+	msgCreateSpotLimitOrderResponse := exchangetypes.MsgCreateSpotLimitOrderResponse{}
+	msgCreateSpotLimitOrderResponse.Unmarshal(simResMsgs[0].Data)
 	if err != nil {
 		fmt.Println(err)
 	}
