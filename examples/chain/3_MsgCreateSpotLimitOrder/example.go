@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"time"
-
 	"github.com/shopspring/decimal"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	"os"
+	"time"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -82,13 +81,19 @@ func main() {
 		fmt.Println(err)
 	}
 	simResMsgs := common.MsgResponse(simRes.Result.Data)
-	msgCreateSpotLimitOrderResponse := exchangetypes.MsgCreateSpotLimitOrderResponse{}
-	msgCreateSpotLimitOrderResponse.Unmarshal(simResMsgs[0].Data)
+	msgRes := exchangetypes.MsgCreateSpotLimitOrderResponse{}
+	msgRes.Unmarshal(simResMsgs[0].Data)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
-	
+	fmt.Println("simulated order hash", msgRes.OrderHash)
+
+	localOrderHashes, err := chainClient.ComputeSpotOrderHash([]exchangetypes.SpotOrder{msg.Order})
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("computed order hash", localOrderHashes)
+
 	err = chainClient.QueueBroadcastMsg(msg)
 	if err != nil {
 		fmt.Println(err)

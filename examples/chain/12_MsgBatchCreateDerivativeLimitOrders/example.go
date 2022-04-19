@@ -75,23 +75,28 @@ func main() {
 		MarketId:     marketId,
 	})
 
-	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
+	msg := new(exchangetypes.MsgBatchCreateDerivativeLimitOrders)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.DerivativeOrder(*order)
-	err = chainClient.QueueBroadcastMsg(msg)
+	msg.Orders = []exchangetypes.DerivativeOrder{*order, *order}
 
+	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	time.Sleep(time.Second * 5)
-}
-sgs[0].Data)
+	simResMsgs := common.MsgResponse(simRes.Result.Data)
+	msgRes := exchangetypes.MsgBatchCreateDerivativeLimitOrdersResponse{}
+	msgRes.Unmarshal(simResMsgs[0].Data)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
-	
+	fmt.Println("simulated order hash", msgRes.OrderHashes)
+
+	localOrderHashes, err := chainClient.ComputeDerivativeOrderHash(msg.Orders)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("computed order hashes", localOrderHashes)
+
 	err = chainClient.QueueBroadcastMsg(msg)
 	if err != nil {
 		fmt.Println(err)
