@@ -86,15 +86,3 @@ func main() {
 
 	time.Sleep(time.Second * 5)
 }
-sgs[0].Data)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
-	
-	err = chainClient.QueueBroadcastMsg(msg)
-	if err != nil {
-		fmt.Println(err)
-	}
-	time.Sleep(time.Second * 5)
-}
