@@ -13,6 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	eth "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
@@ -59,6 +60,7 @@ type ChainClient interface {
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
+	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
 
 	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
 
@@ -94,6 +96,7 @@ type chainClient struct {
 	authQueryClient     authtypes.QueryClient
 	exchangeQueryClient exchangetypes.QueryClient
 	bankQueryClient     banktypes.QueryClient
+	authzQueryClient    authztypes.QueryClient
 
 	closed  int64
 	canSign bool
@@ -153,6 +156,7 @@ func NewChainClient(
 		authQueryClient:     authtypes.NewQueryClient(conn),
 		exchangeQueryClient: exchangetypes.NewQueryClient(conn),
 		bankQueryClient:     banktypes.NewQueryClient(conn),
+		authzQueryClient:    authztypes.NewQueryClient(conn),
 	}
 
 	if cc.canSign {
@@ -681,10 +685,15 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 
 func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
 
+	margin := cosmtypes.MustNewDecFromStr(fmt.Sprint(d.Quantity)).Mul(d.Price).Quo(d.Leverage)
+
+	if d.IsReduceOnly == true {
+		margin = cosmtypes.MustNewDecFromStr("0")
+	}
+
 	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
 	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
 
-	margin := cosmtypes.MustNewDecFromStr(fmt.Sprint(d.Quantity)).Mul(d.Price).Quo(d.Leverage)
 	orderSize := GetDerivativeQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)))
 	orderPrice := GetDerivativePrice(d.Price, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
 	orderMargin := GetDerivativePrice(margin, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
@@ -710,6 +719,10 @@ func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelDa
 	}
 }
 
+func (c *chainClient) GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error) {
+	return c.authzQueryClient.Grants(ctx, &req)
+}
+
 type DerivativeOrderData struct {
 	OrderType    exchangetypes.OrderType
 	Price        cosmtypes.Dec
@@ -717,6 +730,7 @@ type DerivativeOrderData struct {
 	Leverage     cosmtypes.Dec
 	FeeRecipient string
 	MarketId     string
+	IsReduceOnly bool
 }
 
 type SpotOrderData struct {

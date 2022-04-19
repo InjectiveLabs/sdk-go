@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/shopspring/decimal"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	"os"
 	"time"
+
+	"github.com/shopspring/decimal"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -62,10 +63,10 @@ func main() {
 	marketId := "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa"
 
 	amount := decimal.NewFromFloat(2)
-	price := decimal.NewFromFloat(22.53)
+	price := decimal.NewFromFloat(22.55)
 
 	order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
-		OrderType:    exchangetypes.OrderType_BUY,
+		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 		Quantity:     amount,
 		Price:        price,
 		FeeRecipient: senderAddress.String(),
@@ -81,18 +82,12 @@ func main() {
 		fmt.Println(err)
 	}
 	simResMsgs := common.MsgResponse(simRes.Result.Data)
-	msgRes := exchangetypes.MsgCreateSpotLimitOrderResponse{}
-	msgRes.Unmarshal(simResMsgs[0].Data)
+	msgCreateSpotLimitOrderResponse := exchangetypes.MsgCreateSpotLimitOrderResponse{}
+	msgCreateSpotLimitOrderResponse.Unmarshal(simResMsgs[0].Data)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println("simulated order hash", msgRes.OrderHash)
-
-	localOrderHashes, err := chainClient.ComputeSpotOrderHash([]exchangetypes.SpotOrder{msg.Order})
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println("computed order hash", localOrderHashes)
+	fmt.Println("simulated order hash", msgCreateSpotLimitOrderResponse.OrderHash)
 
 	err = chainClient.QueueBroadcastMsg(msg)
 	if err != nil {

@@ -1,16 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"os"
-	"time"
-
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	"os"
 )
 
 func main() {
@@ -45,7 +42,8 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
+	clientCtx.WithNodeURI(network.TmEndpoint)
+	clientCtx = clientCtx.WithClient(tmRPC)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
@@ -58,26 +56,23 @@ func main() {
 		fmt.Println(err)
 	}
 
-	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
+	ctx := context.Background()
 
-	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
-	orderHash := "0x7b35e8d3c6e5d1210a83615a935a74349c2c8c5e73a591015729adad3c70af2d"
+	granter := "inj14au322k9munkmx5wrchz9q30juf5wjgz2cfqku"
+	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
+	msg_type_url := "/injective.exchange.v1beta1.MsgCreateSpotLimitOrder"
 
-	order := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
-		MarketId:  marketId,
-		OrderHash: orderHash,
-	})
+	req := authztypes.QueryGrantsRequest{
+		Granter:    granter,
+		Grantee:    grantee,
+		MsgTypeUrl: msg_type_url,
+	}
 
-	msg := new(exchangetypes.MsgBatchCancelDerivativeOrders)
-	msg.Sender = senderAddress.String()
-	msg.Data = []exchangetypes.OrderData{*order}
-	CosMsgs := []cosmtypes.Msg{msg}
-
-	err = chainClient.QueueBroadcastMsg(CosMsgs...)
-
+	res, err := chainClient.GetAuthzGrants(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	time.Sleep(time.Second * 5)
+	fmt.Println(res)
+
 }
