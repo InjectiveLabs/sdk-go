@@ -87,7 +87,7 @@ func main() {
 		Leverage:     dleverage,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     dmarketId,
-		IsReduceOnly: true,
+		IsReduceOnly: false,
 	})
 
 	msg := new(exchangetypes.MsgBatchUpdateOrders)
@@ -107,7 +107,9 @@ func main() {
 	MsgBatchUpdateOrdersResponse := exchangetypes.MsgBatchUpdateOrdersResponse{}
 	MsgBatchUpdateOrdersResponse.Unmarshal(simResMsgs[0].Data)
 
-	fmt.Println("simulated order hashes", MsgBatchUpdateOrdersResponse.OrderHashes)
+	fmt.Println("simulated spot order hashes", MsgBatchUpdateOrdersResponse.SpotOrderHashes)
+
+	fmt.Println("simulated derivative order hashes", MsgBatchUpdateOrdersResponse.DerivativeOrderHashes)
 
 	err = chainClient.QueueBroadcastMsg(msg)
 	if err != nil {
