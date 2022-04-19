@@ -7,11 +7,11 @@ import (
 	accountPB "github.com/InjectiveLabs/sdk-go/exchange/accounts_rpc/pb"
 	auctionPB "github.com/InjectiveLabs/sdk-go/exchange/auction_rpc/pb"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
+	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
 	insurancePB "github.com/InjectiveLabs/sdk-go/exchange/insurance_rpc/pb"
 	metaPB "github.com/InjectiveLabs/sdk-go/exchange/meta_rpc/pb"
 	oraclePB "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
-	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pkg/errors"
@@ -540,7 +540,7 @@ func (c *exchangeClient) GetSubaccountsList(ctx context.Context, accountAddress 
 func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceResponse, error) {
 	req := accountPB.SubaccountBalanceRequest{
 		SubaccountId: subaccountId,
-		Denom: denom,
+		Denom:        denom,
 	}
 
 	var header metadata.MD
@@ -555,10 +555,9 @@ func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId 
 	return *res, nil
 }
 
-
 func (c *exchangeClient) StreamSubaccountBalance(ctx context.Context, subaccountId string) (accountPB.InjectiveAccountsRPC_StreamSubaccountBalanceClient, error) {
 	req := accountPB.StreamSubaccountBalanceRequest{
-		SubaccountId:  subaccountId,
+		SubaccountId: subaccountId,
 	}
 
 	ctx = c.getCookie(ctx)
@@ -577,7 +576,6 @@ func (c *exchangeClient) StreamSubaccountBalance(ctx context.Context, subaccount
 	return stream, nil
 }
 
-
 func (c *exchangeClient) GetSubaccountBalancesList(ctx context.Context, subaccountId string) (accountPB.SubaccountBalancesListResponse, error) {
 	req := accountPB.SubaccountBalancesListRequest{
 		SubaccountId: subaccountId,
@@ -595,7 +593,6 @@ func (c *exchangeClient) GetSubaccountBalancesList(ctx context.Context, subaccou
 	return *res, nil
 }
 
-
 func (c *exchangeClient) GetSubaccountHistory(ctx context.Context, req accountPB.SubaccountHistoryRequest) (accountPB.SubaccountHistoryResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
@@ -609,7 +606,6 @@ func (c *exchangeClient) GetSubaccountHistory(ctx context.Context, req accountPB
 	return *res, nil
 }
 
-
 func (c *exchangeClient) GetSubaccountOrderSummary(ctx context.Context, req accountPB.SubaccountOrderSummaryRequest) (accountPB.SubaccountOrderSummaryResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
@@ -622,7 +618,6 @@ func (c *exchangeClient) GetSubaccountOrderSummary(ctx context.Context, req acco
 
 	return *res, nil
 }
-
 
 func (c *exchangeClient) GetOrderStates(ctx context.Context, req accountPB.OrderStatesRequest) (accountPB.OrderStatesResponse, error) {
 	var header metadata.MD
@@ -654,7 +649,6 @@ func (c *exchangeClient) GetPortfolio(ctx context.Context, accountAddress string
 	return *res, nil
 }
 
-
 func (c *exchangeClient) GetRewards(ctx context.Context, req accountPB.RewardsRequest) (accountPB.RewardsResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
@@ -667,7 +661,6 @@ func (c *exchangeClient) GetRewards(ctx context.Context, req accountPB.RewardsRe
 
 	return *res, nil
 }
-
 
 // Spot RPC
 
@@ -889,7 +882,6 @@ func (c *exchangeClient) GetRedemptions(ctx context.Context, req insurancePB.Red
 	return *res, nil
 }
 
-
 func (c *exchangeClient) Ping(ctx context.Context, req metaPB.PingRequest) (metaPB.PingResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
@@ -929,7 +921,6 @@ func (c *exchangeClient) GetInfo(ctx context.Context, req metaPB.InfoRequest) (m
 	return *res, nil
 }
 
-
 func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error) {
 	req := metaPB.StreamKeepaliveRequest{}
 
@@ -967,7 +958,6 @@ func (c *exchangeClient) GetTxByTxHash(ctx context.Context, hash string) (explor
 
 	return *res, nil
 }
-
 
 func (c *exchangeClient) Close() {
 	c.conn.Close()

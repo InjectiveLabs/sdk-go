@@ -60,8 +60,8 @@ func FetchDenom(network common.Network) {
 			continue
 		}
 		// append symbols to map
-		symbols[m.BaseTokenMeta.Symbol] = []string{m.BaseDenom, fmt.Sprintf("%d",m.BaseTokenMeta.Decimals)}
-		symbols[m.QuoteTokenMeta.Symbol] = []string{m.BaseDenom, fmt.Sprintf("%d",m.QuoteTokenMeta.Decimals)}
+		symbols[m.BaseTokenMeta.Symbol] = []string{m.BaseDenom, fmt.Sprintf("%d", m.BaseTokenMeta.Decimals)}
+		symbols[m.QuoteTokenMeta.Symbol] = []string{m.BaseDenom, fmt.Sprintf("%d", m.QuoteTokenMeta.Decimals)}
 
 		// format market metadata into ini entry
 		minPriceTickSize, err := strconv.ParseFloat(m.MinPriceTickSize, 64)
@@ -134,7 +134,7 @@ func FetchDenom(network common.Network) {
 		metadataOutput += symbol
 	}
 
-	fileName := fmt.Sprintf("client/metadata/assets/%s.ini",network.Name)
+	fileName := fmt.Sprintf("client/metadata/assets/%s.ini", network.Name)
 	err = os.WriteFile(fileName, []byte(metadataOutput), 0644)
 	if err != nil {
 		panic(err)
@@ -142,9 +142,9 @@ func FetchDenom(network common.Network) {
 }
 
 func main() {
-	devnet := common.LoadNetwork("devnet","")
-	testnet := common.LoadNetwork("testnet","k8s")
-	mainnet := common.LoadNetwork("mainnet","k8s")
+	devnet := common.LoadNetwork("devnet", "")
+	testnet := common.LoadNetwork("testnet", "k8s")
+	mainnet := common.LoadNetwork("mainnet", "k8s")
 	FetchDenom(devnet)
 	FetchDenom(testnet)
 	FetchDenom(mainnet)
