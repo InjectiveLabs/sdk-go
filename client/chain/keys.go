@@ -14,9 +14,9 @@ import (
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/hd"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 const defaultKeyringKeyName = "validator"

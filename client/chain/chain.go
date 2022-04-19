@@ -4,45 +4,44 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
-	"net/http"
-	"math/big"
-	"strconv"
+	"fmt"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	chaintypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	eth "github.com/ethereum/go-ethereum/common"
+	"github.com/pkg/errors"
+	"github.com/shopspring/decimal"
+	log "github.com/xlab/suplog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"github.com/shopspring/decimal"
+	"math/big"
+	"net/http"
+	"strconv"
 	"strings"
 	"sync"
-	"fmt"
 	"sync/atomic"
 	"time"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/tx"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/pkg/errors"
-	log "github.com/xlab/suplog"
 )
 
 const (
-	msgCommitBatchSizeLimit = 1024
-	msgCommitBatchTimeLimit = 500 * time.Millisecond
-	defaultBroadcastStatusPoll = 100 * time.Millisecond
-	defaultBroadcastTimeout    = 40 * time.Second
-	defaultTimeoutHeight = 20
+	msgCommitBatchSizeLimit          = 1024
+	msgCommitBatchTimeLimit          = 500 * time.Millisecond
+	defaultBroadcastStatusPoll       = 100 * time.Millisecond
+	defaultBroadcastTimeout          = 40 * time.Second
+	defaultTimeoutHeight             = 20
 	defaultTimeoutHeightSyncInterval = 10 * time.Second
-	defaultSessionRenewalOffset = 120
-	defaultBlockTime = 3 * time.Second
+	defaultSessionRenewalOffset      = 120
+	defaultBlockTime                 = 3 * time.Second
 )
 
 var (
-	ErrTimedOut = errors.New("tx timed out")
+	ErrTimedOut       = errors.New("tx timed out")
 	ErrQueueClosed    = errors.New("queue is closed")
 	ErrEnqueueTimeout = errors.New("enqueue timeout")
 	ErrReadOnly       = errors.New("client is in read-only mode")
@@ -62,6 +61,10 @@ type ChainClient interface {
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
 
 	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
+
+	GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
+	ComputeSpotOrderHash(orders []exchangetypes.SpotOrder) ([]eth.Hash, error)
+	ComputeDerivativeOrderHash(orders []exchangetypes.DerivativeOrder) ([]eth.Hash, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
@@ -87,10 +90,10 @@ type chainClient struct {
 
 	sessionCookie string
 
-	txClient txtypes.ServiceClient
-	authQueryClient authtypes.QueryClient
-	chainQueryClient chaintypes.QueryClient
-	bankQueryClient  banktypes.QueryClient
+	txClient            txtypes.ServiceClient
+	authQueryClient     authtypes.QueryClient
+	exchangeQueryClient exchangetypes.QueryClient
+	bankQueryClient     banktypes.QueryClient
 
 	closed  int64
 	canSign bool
@@ -146,10 +149,10 @@ func NewChainClient(
 		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
 		doneC:     make(chan bool, 1),
 
-		txClient: txtypes.NewServiceClient(conn),
-		authQueryClient: authtypes.NewQueryClient(conn),
-		chainQueryClient: chaintypes.NewQueryClient(conn),
-		bankQueryClient:  banktypes.NewQueryClient(conn),
+		txClient:            txtypes.NewServiceClient(conn),
+		authQueryClient:     authtypes.NewQueryClient(conn),
+		exchangeQueryClient: exchangetypes.NewQueryClient(conn),
+		bankQueryClient:     banktypes.NewQueryClient(conn),
 	}
 
 	if cc.canSign {
@@ -190,7 +193,7 @@ func (c *chainClient) syncTimeoutHeight() {
 			c.logger.WithError(err).Errorln("failed to get current block")
 			return
 		}
-		c.txFactory.WithTimeoutHeight(uint64(block.Block.Height)+defaultTimeoutHeight)
+		c.txFactory.WithTimeoutHeight(uint64(block.Block.Height) + defaultTimeoutHeight)
 		time.Sleep(defaultTimeoutHeightSyncInterval)
 	}
 }
@@ -240,7 +243,7 @@ func (c *chainClient) setCookie(metadata metadata.MD) {
 }
 
 func (c *chainClient) getCookie(ctx context.Context) context.Context {
-	md := metadata.Pairs("cookie",c.sessionCookie)
+	md := metadata.Pairs("cookie", c.sessionCookie)
 
 	// borrow http request to parse cookie
 	header := http.Header{}
@@ -251,7 +254,7 @@ func (c *chainClient) getCookie(ctx context.Context) context.Context {
 	if len(cookies) > 0 {
 		// format cookie date into RFC1123 standard
 		expiresAt := strings.Replace(cookies[1].Value, "-", " ", -1)
-		yyyy := fmt.Sprintf("20%s",expiresAt[12:14])
+		yyyy := fmt.Sprintf("20%s", expiresAt[12:14])
 		expiresAt = expiresAt[:12] + yyyy + expiresAt[14:]
 
 		// parse expire field into unix timestamp
@@ -268,7 +271,7 @@ func (c *chainClient) getCookie(ctx context.Context) context.Context {
 			c.setCookie(header)
 			time.Sleep(defaultBlockTime)
 			// build new ctx
-			return metadata.NewOutgoingContext(ctx, metadata.Pairs("cookie",c.sessionCookie))
+			return metadata.NewOutgoingContext(ctx, metadata.Pairs("cookie", c.sessionCookie))
 		}
 	}
 
@@ -371,7 +374,6 @@ func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*t
 
 	return simRes, nil
 }
-
 
 //AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
 //cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
@@ -556,7 +558,7 @@ func (c *chainClient) runBatchBroadcast() {
 			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
 			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to commit msg batch")
 		} else {
-			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch committed successfully at height",res.TxResponse.Height)
+			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch committed successfully at height", res.TxResponse.Height)
 		}
 
 		c.accSeq++
@@ -602,15 +604,18 @@ func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
 	return eth.BytesToHash(eth.RightPadBytes(acc.Bytes(), 32))
 }
 
-
-func formatPriceToTickSize(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
-    residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
-    formattedValue := new(big.Int).Sub(value.BigInt(), residue)
-    p := decimal.NewFromBigInt(formattedValue, -18).StringFixed(18)
-    realValue, _ := cosmtypes.NewDecFromStr(p)
-    return realValue
+func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
+	req := &exchangetypes.QuerySubaccountTradeNonceRequest{SubaccountId: subaccountId.String()}
+	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
 }
 
+func formatPriceToTickSize(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
+	residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
+	formattedValue := new(big.Int).Sub(value.BigInt(), residue)
+	p := decimal.NewFromBigInt(formattedValue, -18).StringFixed(18)
+	realValue, _ := cosmtypes.NewDecFromStr(p)
+	return realValue
+}
 
 func GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec) {
 	mid, _ := cosmtypes.NewDecFromStr(value.String())
@@ -623,16 +628,16 @@ func GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecim
 }
 
 func GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec {
-    scale := decimal.New(1, int32(quoteDecimals-baseDecimals))
-    priceStr := scale.Mul(price).StringFixed(18)
-    decPrice, err := cosmtypes.NewDecFromStr(priceStr)
-    if err != nil {
-        fmt.Println(err.Error())
-        fmt.Println(priceStr, scale.String(), price.String())
-        fmt.Println(decPrice.String())
-    }
-    realPrice := formatPriceToTickSize(decPrice, minPriceTickSize)
-    return realPrice
+	scale := decimal.New(1, int32(quoteDecimals-baseDecimals))
+	priceStr := scale.Mul(price).StringFixed(18)
+	decPrice, err := cosmtypes.NewDecFromStr(priceStr)
+	if err != nil {
+		fmt.Println(err.Error())
+		fmt.Println(priceStr, scale.String(), price.String())
+		fmt.Println(decPrice.String())
+	}
+	realPrice := formatPriceToTickSize(decPrice, minPriceTickSize)
+	return realPrice
 }
 
 func GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec) {
@@ -651,7 +656,6 @@ func GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
 	realValue, _ := cosmtypes.NewDecFromStr(p)
 	return realValue
 }
-
 
 func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
 
@@ -688,7 +692,7 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 	return &exchangetypes.DerivativeOrder{
 		MarketId:  d.MarketId,
 		OrderType: d.OrderType,
-		Margin: orderMargin,
+		Margin:    orderMargin,
 		OrderInfo: exchangetypes.OrderInfo{
 			SubaccountId: defaultSubaccountID.Hex(),
 			FeeRecipient: d.FeeRecipient,
@@ -698,36 +702,32 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 	}
 }
 
-
 func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData {
 	return &exchangetypes.OrderData{
-		MarketId:  d.MarketId,
-		OrderHash: d.OrderHash,
+		MarketId:     d.MarketId,
+		OrderHash:    d.OrderHash,
 		SubaccountId: defaultSubaccountID.Hex(),
 	}
 }
-
 
 type DerivativeOrderData struct {
 	OrderType    exchangetypes.OrderType
 	Price        cosmtypes.Dec
 	Quantity     decimal.Decimal
-	Leverage	 cosmtypes.Dec
+	Leverage     cosmtypes.Dec
 	FeeRecipient string
-	MarketId string
+	MarketId     string
 }
-
 
 type SpotOrderData struct {
 	OrderType    exchangetypes.OrderType
 	Price        decimal.Decimal
 	Quantity     decimal.Decimal
 	FeeRecipient string
-	MarketId string
+	MarketId     string
 }
 
-
 type OrderCancelData struct {
-	MarketId string
+	MarketId  string
 	OrderHash string
 }

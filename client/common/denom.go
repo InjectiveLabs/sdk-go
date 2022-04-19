@@ -6,10 +6,10 @@ import (
 )
 
 type Denom struct {
-	Description string
-	Base int
-	Quote int
-	MinPriceTickSize float64
+	Description         string
+	Base                int
+	Quote               int
+	MinPriceTickSize    float64
 	MinQuantityTickSize float64
 }
 
@@ -20,10 +20,10 @@ func LoadMetadata(network Network, marketId string) Denom {
 		panic(err)
 	}
 	return Denom{
-		Description: cfg.Section(marketId).Key("description").String(),
-		Base: cfg.Section(marketId).Key("base").MustInt(),
-		Quote: cfg.Section(marketId).Key("quote").MustInt(),
-		MinPriceTickSize: cfg.Section(marketId).Key("min_price_tick_size").MustFloat64(),
+		Description:         cfg.Section(marketId).Key("description").String(),
+		Base:                cfg.Section(marketId).Key("base").MustInt(),
+		Quote:               cfg.Section(marketId).Key("quote").MustInt(),
+		MinPriceTickSize:    cfg.Section(marketId).Key("min_price_tick_size").MustFloat64(),
 		MinQuantityTickSize: cfg.Section(marketId).Key("min_quantity_tick_size").MustFloat64(),
 	}
 }
