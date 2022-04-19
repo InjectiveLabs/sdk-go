@@ -62,27 +62,39 @@ func main() {
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
 	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
-	amount := decimal.NewFromFloat(2)
+	amount := decimal.NewFromFloat(0.001)
 	price := cosmtypes.MustNewDecFromStr("31000000000") //31,000
 	leverage := cosmtypes.MustNewDecFromStr("2.5")
 
 	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
-		OrderType:    exchangetypes.OrderType_BUY,
+		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 		Quantity:     amount,
 		Price:        price,
 		Leverage:     leverage,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     marketId,
+		IsReduceOnly: true,
 	})
 
-	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
+	msg := new(exchangetypes.MsgCreateDerivativeLimitOrder)
 	msg.Sender = senderAddress.String()
 	msg.Order = exchangetypes.DerivativeOrder(*order)
-	err = chainClient.QueueBroadcastMsg(msg)
 
+	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 	if err != nil {
 		fmt.Println(err)
 	}
+	simResMsgs := common.MsgResponse(simRes.Result.Data)
+	msgCreateDerivativeLimitOrderResponse := exchangetypes.MsgCreateDerivativeLimitOrderResponse{}
+	msgCreateDerivativeLimitOrderResponse.Unmarshal(simResMsgs[0].Data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("simulated order hash", msgCreateDerivativeLimitOrderResponse.OrderHash)
 
+	err = chainClient.QueueBroadcastMsg(msg)
+	if err != nil {
+		fmt.Println(err)
+	}
 	time.Sleep(time.Second * 5)
 }
