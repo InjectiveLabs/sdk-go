@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -54,6 +55,7 @@ func main() {
 
 	// build orders
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
+
 	spotOrder := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
 		Quantity:     decimal.NewFromFloat(2),
@@ -61,7 +63,6 @@ func main() {
 		FeeRecipient: senderAddress.String(),
 		MarketId:     "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa",
 	})
-	spotOrders := []exchangetypes.SpotOrder{*spotOrder}
 
 	derivativeOrder := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
@@ -71,33 +72,25 @@ func main() {
 		FeeRecipient: senderAddress.String(),
 		MarketId:     "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce",
 	})
-	derivativeOrders := []exchangetypes.DerivativeOrder{*derivativeOrder, *derivativeOrder}
 
-	orderHashes, err := chainClient.ComputeOrderHashes(spotOrders, derivativeOrders)
+	msg := new(exchangetypes.MsgBatchCreateSpotLimitOrders)
+	msg.Sender = senderAddress.String()
+	msg.Orders = []exchangetypes.SpotOrder{*spotOrder}
+
+	msg1 := new(exchangetypes.MsgBatchCreateDerivativeLimitOrders)
+	msg1.Sender = senderAddress.String()
+	msg1.Orders = []exchangetypes.DerivativeOrder{*derivativeOrder, *derivativeOrder}
+
+	orderHashes, err := chainClient.ComputeOrderHashes(msg.Orders, msg1.Orders)
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println("computed spot order hashes", orderHashes.Spot)
 	fmt.Println("computed derivative order hashes", orderHashes.Derivative)
 
-	// simulate to compare with local order hashes
-	msg1 := exchangetypes.MsgBatchCreateSpotLimitOrders{
-		Sender: senderAddress.String(),
-		Orders: spotOrders,
-	}
-	msg2 := exchangetypes.MsgBatchCreateDerivativeLimitOrders{
-		Sender: senderAddress.String(),
-		Orders: derivativeOrders,
-	}
-	simRes, err := chainClient.SimulateMsg(clientCtx, &msg1, &msg2)
+	err = chainClient.QueueBroadcastMsg(msg, msg1)
 	if err != nil {
 		fmt.Println(err)
 	}
-	simResMsgs := common.MsgResponse(simRes.Result.Data)
-	spotResponse := exchangetypes.MsgBatchCreateSpotLimitOrdersResponse{}
-	derivativeResponse := exchangetypes.MsgBatchCreateDerivativeLimitOrdersResponse{}
-	spotResponse.Unmarshal(simResMsgs[0].Data)
-	derivativeResponse.Unmarshal(simResMsgs[1].Data)
-	fmt.Println("simulated spot order hashes", spotResponse.OrderHashes)
-	fmt.Println("simulated derivative order hashes", derivativeResponse.OrderHashes)
+	time.Sleep(time.Second * 5)
 }
