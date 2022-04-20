@@ -65,8 +65,7 @@ type ChainClient interface {
 	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
 
 	GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
-	ComputeSpotOrderHash(orders []exchangetypes.SpotOrder) ([]eth.Hash, error)
-	ComputeDerivativeOrderHash(orders []exchangetypes.DerivativeOrder) ([]eth.Hash, error)
+	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder

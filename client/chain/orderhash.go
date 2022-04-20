@@ -43,6 +43,11 @@ var eip712OrderTypes = gethsigner.Types{
 	},
 }
 
+type OrderHashes struct {
+	Spot []common.Hash
+	Derivative []common.Hash
+}
+
 var domain = gethsigner.TypedDataDomain{
 	Name:              "Injective Protocol",
 	Version:           "2.0.0",
@@ -51,26 +56,25 @@ var domain = gethsigner.TypedDataDomain{
 	Salt:              "0x0000000000000000000000000000000000000000000000000000000000000000",
 }
 
-func (c *chainClient) ComputeSpotOrderHash(orders []exchangetypes.SpotOrder) ([]common.Hash, error) {
-	if len(orders) == 0 {
-		return nil, nil
+func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error) {
+	if len(spotOrders)+len(derivativeOrders) == 0 {
+		return OrderHashes{}, nil
 	}
 
-	orderHashes := []common.Hash{}
+	orderHashes := OrderHashes{}
 
 	// get nonce
-	res, err := c.GetSubAccountNonce(context.Background(), orders[0].SubaccountID())
+	res, err := c.GetSubAccountNonce(context.Background(), spotOrders[0].SubaccountID())
 	if err != nil {
-		return nil, err
+		return OrderHashes{}, err
 	}
 	nonce := res.Nonce + 1
 
-	for _, o := range orders {
+	for _, o := range spotOrders {
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
 		}
-
 		message := map[string]interface{}{
 			"MarketId": o.MarketId,
 			"OrderInfo": map[string]interface{}{
@@ -83,21 +87,19 @@ func (c *chainClient) ComputeSpotOrderHash(orders []exchangetypes.SpotOrder) ([]
 			"OrderType":    string(o.OrderType),
 			"TriggerPrice": triggerPrice,
 		}
-
 		typedData := gethsigner.TypedData{
 			Types:       eip712OrderTypes,
 			PrimaryType: "SpotOrder",
 			Domain:      domain,
 			Message:     message,
 		}
-
 		domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
 		if err != nil {
-			return nil, err
+			return OrderHashes{}, err
 		}
 		typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 		if err != nil {
-			return nil, err
+			return OrderHashes{}, err
 		}
 
 		w := sha3.NewLegacyKeccak256()
@@ -106,34 +108,15 @@ func (c *chainClient) ComputeSpotOrderHash(orders []exchangetypes.SpotOrder) ([]
 		w.Write([]byte(typedDataHash))
 
 		hash := common.BytesToHash(w.Sum(nil))
-		orderHashes = append(orderHashes, hash)
-
+		orderHashes.Spot = append(orderHashes.Spot, hash)
 		nonce += 1
 	}
 
-	return orderHashes, nil
-}
-
-func (c *chainClient) ComputeDerivativeOrderHash(orders []exchangetypes.DerivativeOrder) ([]common.Hash, error) {
-	if len(orders) == 0 {
-		return nil, nil
-	}
-
-	orderHashes := []common.Hash{}
-
-	// get nonce
-	res, err := c.GetSubAccountNonce(context.Background(), orders[0].SubaccountID())
-	if err != nil {
-		return nil, err
-	}
-	nonce := res.Nonce + 1
-
-	for _, o := range orders {
+	for _, o := range derivativeOrders {
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
 		}
-
 		message := map[string]interface{}{
 			"MarketId": o.MarketId,
 			"OrderInfo": map[string]interface{}{
@@ -147,21 +130,19 @@ func (c *chainClient) ComputeDerivativeOrderHash(orders []exchangetypes.Derivati
 			"TriggerPrice": triggerPrice,
 			"Salt":         strconv.Itoa(int(nonce)),
 		}
-
 		typedData := gethsigner.TypedData{
 			Types:       eip712OrderTypes,
 			PrimaryType: "DerivativeOrder",
 			Domain:      domain,
 			Message:     message,
 		}
-
 		domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
 		if err != nil {
-			return nil, err
+			return OrderHashes{}, err
 		}
 		typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 		if err != nil {
-			return nil, err
+			return OrderHashes{}, err
 		}
 
 		w := sha3.NewLegacyKeccak256()
@@ -170,8 +151,7 @@ func (c *chainClient) ComputeDerivativeOrderHash(orders []exchangetypes.Derivati
 		w.Write([]byte(typedDataHash))
 
 		hash := common.BytesToHash(w.Sum(nil))
-		orderHashes = append(orderHashes, hash)
-
+		orderHashes.Derivative = append(orderHashes.Derivative, hash)
 		nonce += 1
 	}
 
