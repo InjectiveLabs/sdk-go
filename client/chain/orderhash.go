@@ -64,7 +64,8 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 	orderHashes := OrderHashes{}
 
 	// get nonce
-	res, err := c.GetSubAccountNonce(context.Background(), spotOrders[0].SubaccountID())
+	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
+	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
 	if err != nil {
 		return OrderHashes{}, err
 	}
