@@ -90,6 +90,7 @@ type chainClient struct {
 	accSeq uint64
 
 	sessionCookie string
+	sessionEnabled bool
 
 	txClient            txtypes.ServiceClient
 	authQueryClient     authtypes.QueryClient
@@ -124,10 +125,12 @@ func NewChainClient(
 
 	var conn *grpc.ClientConn
 	var err error
+	stickySessionEnabled := true
 	if opts.TLSCert != nil {
 		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
 		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
+		stickySessionEnabled = false
 	}
 	if err != nil {
 		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
@@ -150,6 +153,8 @@ func NewChainClient(
 		syncMux:   new(sync.Mutex),
 		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
 		doneC:     make(chan bool, 1),
+
+		sessionEnabled: stickySessionEnabled,
 
 		txClient:            txtypes.NewServiceClient(conn),
 		authQueryClient:     authtypes.NewQueryClient(conn),
@@ -239,6 +244,9 @@ func (c *chainClient) getAccSeq() uint64 {
 }
 
 func (c *chainClient) setCookie(metadata metadata.MD) {
+	if !c.sessionEnabled {
+		return
+	}
 	md := metadata.Get("set-cookie")
 	if len(md) > 0 {
 		c.sessionCookie = md[0]
@@ -247,6 +255,9 @@ func (c *chainClient) setCookie(metadata metadata.MD) {
 
 func (c *chainClient) getCookie(ctx context.Context) context.Context {
 	md := metadata.Pairs("cookie", c.sessionCookie)
+	if !c.sessionEnabled {
+		return metadata.NewOutgoingContext(ctx, md)
+	}
 
 	// borrow http request to parse cookie
 	header := http.Header{}
