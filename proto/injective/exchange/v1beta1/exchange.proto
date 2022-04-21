@@ -82,6 +82,15 @@ message Params {
 
   // max_derivative_order_side_count defines the maximum number of derivative active orders a subaccount can have for a given orderbook side
   uint32 max_derivative_order_side_count = 14;
+
+  // inj_reward_staked_requirement_threshold defines the threshold on INJ rewards after which one also needs staked INJ to receive more
+  string inj_reward_staked_requirement_threshold = 15 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // the trading_rewards_vesting_duration defines the vesting times for trading rewards
+  int64 trading_rewards_vesting_duration = 16;
 }
 
 enum MarketStatus {
@@ -302,6 +311,8 @@ enum OrderType {
   STOP_SELL = 4 [(gogoproto.enumvalue_customname) = "STOP_SELL"];
   TAKE_BUY = 5 [(gogoproto.enumvalue_customname) = "TAKE_BUY"];
   TAKE_SELL = 6 [(gogoproto.enumvalue_customname) = "TAKE_SELL"];
+  BUY_PO = 7 [(gogoproto.enumvalue_customname) = "BUY_PO"];
+  SELL_PO = 8 [(gogoproto.enumvalue_customname) = "SELL_PO"];
 }
 
 message SpotOrder {
@@ -366,7 +377,6 @@ message DerivativeOrder {
     (gogoproto.nullable) = true
   ];
 }
-
 
 message SubaccountOrderbookMetadata {
   uint32 vanilla_limit_order_count = 1;
@@ -485,6 +495,9 @@ message TradeLog {
     (gogoproto.nullable) = false
   ];
   bytes order_hash = 5;
+  bytes fee_recipient_address = 6 [
+    (gogoproto.nullable) = true
+  ];
 }
 
 message PositionDelta {
@@ -515,6 +528,9 @@ message DerivativeTradeLog {
     (gogoproto.nullable) = false
   ];
   bytes order_hash = 5;
+  bytes fee_recipient_address = 6 [
+    (gogoproto.nullable) = true
+  ];
 }
 
 enum ExecutionType {
@@ -523,6 +539,8 @@ enum ExecutionType {
   LimitFill = 2;
   LimitMatchRestingOrder = 3;
   LimitMatchNewOrder = 4;
+  MarketLiquidation = 5;
+  ExpiryMarketSettlement = 6;
 }
 
 message EventBatchSpotExecution {
@@ -543,6 +561,19 @@ message EventBatchDerivativeExecution {
   ];
   ExecutionType executionType = 5;
   repeated DerivativeTradeLog trades = 6;
+}
+
+message EventLostFundsFromLiquidation {
+  string market_id = 1;
+  bytes subaccount_id = 2;
+  string lost_funds_from_available_during_payout = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string lost_funds_from_order_cancels = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message SubaccountPosition {

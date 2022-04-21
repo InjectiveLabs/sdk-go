@@ -6,7 +6,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 
 // BridgeValidator represents a validator's ETH address and its power
 message BridgeValidator {
-  uint64 power            = 1;
+  uint64 power = 1;
   string ethereum_address = 2;
 }
 
@@ -14,15 +14,15 @@ message BridgeValidator {
 // maintains an ETH key to sign messages, these are used to check signatures on
 // ETH because of the significant gas savings
 message Valset {
-  uint64                   nonce   = 1;
+  uint64                   nonce = 1;
   repeated BridgeValidator members = 2;
-  uint64                   height  = 3;
-  string reward_amount         = 4 [
+  uint64                   height = 3;
+  string reward_amount = 4 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable)   = false
+    (gogoproto.nullable) = false
   ];
   // the reward token in it's Ethereum hex address representation
-  string reward_token               = 5;
+  string reward_token = 5;
 }
 
 // LastObservedEthereumBlockHeight stores the last observed

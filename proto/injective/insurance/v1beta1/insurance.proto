@@ -76,3 +76,14 @@ message EventWithdrawRedemption {
   cosmos.base.v1beta1.Coin redeem_coin = 2 [(gogoproto.nullable) = false];
 }
 
+message EventUnderwrite {
+  // address of the underwriter
+  string underwriter = 1;
+  // marketId of insurance fund for the redemption
+  string marketId = 2;
+  // deposit coin amount
+  cosmos.base.v1beta1.Coin deposit = 3 [(gogoproto.nullable) = false];
+  // share coin amount
+  cosmos.base.v1beta1.Coin shares = 4 [(gogoproto.nullable) = false];
+}
+

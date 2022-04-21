@@ -42,6 +42,8 @@ service Msg {
   // BatchCancelSpotOrders defines a method for cancelling a batch of spot orders in a given market.
   rpc BatchCancelSpotOrders(MsgBatchCancelSpotOrders) returns (MsgBatchCancelSpotOrdersResponse);
 
+  rpc BatchUpdateOrders(MsgBatchUpdateOrders) returns (MsgBatchUpdateOrdersResponse);
+
   // CreateDerivativeLimitOrder defines a method for creating a new derivative limit order.
   rpc CreateDerivativeLimitOrder(MsgCreateDerivativeLimitOrder) returns (MsgCreateDerivativeLimitOrderResponse);
 
@@ -68,6 +70,9 @@ service Msg {
 
   // IncreasePositionMargin defines a method for increasing margin of a position
   rpc IncreasePositionMargin(MsgIncreasePositionMargin) returns (MsgIncreasePositionMarginResponse);
+  
+  // RegisterAsDMM defines a method for registering as a DMM
+  rpc RegisterAsDMM(MsgRegisterAsDMM) returns (MsgRegisterAsDMMResponse);
 }
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's bank balance into the subaccount's exchange deposits
@@ -333,6 +338,31 @@ message MsgBatchCancelSpotOrdersResponse {
   option (gogoproto.goproto_getters) = false;
 
   repeated bool success = 1;
+}
+
+// MsgBatchUpdateOrders defines the Msg/BatchUpdateOrders response type.
+message MsgBatchUpdateOrders {
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+  // subaccount_id only used for the spot_market_ids_to_cancel_all and derivative_market_ids_to_cancel_all.
+  string subaccount_id = 2;
+  repeated string spot_market_ids_to_cancel_all = 3;
+  repeated string derivative_market_ids_to_cancel_all = 4;
+  repeated OrderData spot_orders_to_cancel = 5 [(gogoproto.nullable) = true];
+  repeated OrderData derivative_orders_to_cancel = 6 [(gogoproto.nullable) = true];
+  repeated SpotOrder spot_orders_to_create = 7 [(gogoproto.nullable) = true];
+  repeated DerivativeOrder derivative_orders_to_create = 8 [(gogoproto.nullable) = true];
+}
+
+// MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
+message MsgBatchUpdateOrdersResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated bool spot_cancel_success = 1;
+  repeated bool derivative_cancel_success = 2;
+  repeated string spot_order_hashes = 3;
+  repeated string derivative_order_hashes = 4;
 }
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder
@@ -711,7 +741,6 @@ message DerivativeMarketParamUpdateProposal {
   MarketStatus status = 13;
 
   OracleParams oracle_params = 14;
-
 }
 
 message OracleParams {
@@ -744,6 +773,25 @@ message TradingRewardCampaignUpdateProposal {
   repeated CampaignRewardPool campaign_reward_pools_updates = 5;
 }
 
+
+message RewardPointUpdate {
+  string account_address = 1;
+  // new_points overwrites the current trading reward points for the account
+  string new_points = 12 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message TradingRewardPendingPointsUpdateProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string title = 1;
+  string description = 2;
+  int64 pending_pool_timestamp = 3;
+  repeated RewardPointUpdate reward_point_updates = 4;
+}
+
 message FeeDiscountProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -762,3 +810,11 @@ message BatchCommunityPoolSpendProposal {
   repeated cosmos.distribution.v1beta1.CommunityPoolSpendProposal proposals = 3;
 }
 
+// A Cosmos-SDK MsgRegisterAsDMM
+message MsgRegisterAsDMM {
+  string sender = 1;
+  string dmm_account = 2;
+}
+
+// MsgRegisterAsDMMResponse defines the Msg/RegisterAsDMM response type.
+message MsgRegisterAsDMMResponse {}

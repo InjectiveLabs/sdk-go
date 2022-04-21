@@ -72,6 +72,11 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/derivative/markets/{market_id}";
   }
 
+  // Retrieves a derivative market's corresponding address for fees that contribute to the market's insurance fund
+  rpc DerivativeMarketAddress(QueryDerivativeMarketAddressRequest) returns (QueryDerivativeMarketAddressResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/market_address/{market_id}";
+  }
+
   // Retrieves a subaccount's trade nonce
   rpc SubaccountTradeNonce(QuerySubaccountTradeNonceRequest) returns (QuerySubaccountTradeNonceResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/exchange/{subaccount_id}";
@@ -92,9 +97,19 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/positions/{subaccount_id}";
   }
 
-  // Retrieves the account and total liquidity mining points
+  // Retrieves subaccount's order metadata
+  rpc SubaccountOrderMetadata(QuerySubaccountOrderMetadataRequest) returns (QuerySubaccountOrderMetadataResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/order_metadata/{subaccount_id}";
+  }
+
+  // Retrieves the account and total trade rewards points
   rpc TradeRewardPoints(QueryTradeRewardPointsRequest) returns (QueryTradeRewardPointsResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/trade_reward_points";
+  }
+
+  // Retrieves the pending account and total trade rewards points
+  rpc PendingTradeRewardPoints(QueryTradeRewardPointsRequest) returns (QueryTradeRewardPointsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/pending_trade_reward_points";
   }
 
   // Retrieves the trade reward campaign
@@ -111,11 +126,42 @@ service Query {
   rpc FeeDiscountSchedule(QueryFeeDiscountScheduleRequest) returns (QueryFeeDiscountScheduleResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/fee_discount_schedule";
   }
+
+  // Retrieves mismatches between available vs. total balance
+  rpc BalanceMismatches(QueryBalanceMismatchesRequest) returns (QueryBalanceMismatchesResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/balance_mismatches/{dust_factor}";
+  }
+
+  // Retrieves available and total balances with balance holds
+  rpc BalanceWithBalanceHolds(QueryBalanceWithBalanceHoldsRequest) returns (QueryBalanceWithBalanceHoldsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/balances_with_balance_holds";
+  }
+
+  // Retrieves fee discount tier stats
+  rpc FeeDiscountTierStatistics(QueryFeeDiscountTierStatisticsRequest) returns (QueryFeeDiscountTierStatisticsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/fee_discount_tier_stats";
+  }
+
+  // Retrieves if the account is a registered DMM
+  rpc IsRegisteredDMM(QueryIsRegisteredDMMRequest) returns (QueryIsRegisteredDMMResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/is_registered_dmm/{account}";
+  }
+
+  // Retrieves all registered DMMs
+  rpc RegisteredDMMs(QueryRegisteredDMMsRequest) returns (QueryRegisteredDMMsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/registered_dmms";
+  }
 }
 
 message Subaccount {
   string trader = 1;
   uint32 subaccount_nonce = 2;
+}
+
+message SubaccountOrderbookMetadataWithMarket {
+  SubaccountOrderbookMetadata metadata = 1;
+  string market_id = 2;
+  bool isBuy = 3;
 }
 
 // QueryExchangeParamsRequest is the request type for the Query/ExchangeParams RPC method.
@@ -335,6 +381,20 @@ message QueryDerivativeMarketResponse {
   FullDerivativeMarket market = 1;
 }
 
+// QueryDerivativeMarketAddressRequest is the request type for the Query/DerivativeMarketAddress RPC method.
+message QueryDerivativeMarketAddressRequest {
+  // Market ID for the market
+  string market_id = 1;
+}
+
+// QueryDerivativeMarketAddressResponse is the response type for the Query/DerivativeMarketAddress RPC method.
+message QueryDerivativeMarketAddressResponse {
+  // address for the market
+  string address = 1;
+  // subaccountID for the market
+  string subaccount_id = 2;
+}
+
 // QuerySubaccountTradeNonceRequest is the request type for the Query/SubaccountTradeNonce RPC method.
 message QuerySubaccountTradeNonceRequest {
   string subaccount_id = 1;
@@ -345,9 +405,19 @@ message QuerySubaccountPositionsRequest {
   string subaccount_id = 1;
 }
 
+// QuerySubaccountOrderMetadataRequest is the request type for the Query/SubaccountOrderMetadata RPC method.
+message QuerySubaccountOrderMetadataRequest {
+  string subaccount_id = 1;
+}
+
 // QuerySubaccountPositionsResponse is the response type for the Query/SubaccountPositions RPC method.
 message QuerySubaccountPositionsResponse {
   repeated DerivativePosition state = 1[(gogoproto.nullable) = false];
+}
+
+// QuerySubaccountOrderMetadataResponse is the response type for the Query/SubaccountOrderMetadata RPC method.
+message QuerySubaccountOrderMetadataResponse {
+  repeated SubaccountOrderbookMetadataWithMarket metadata = 1[(gogoproto.nullable) = false];
 }
 
 // QuerySubaccountTradeNonceResponse is the response type for the Query/SubaccountTradeNonce RPC method.
@@ -374,9 +444,10 @@ message QueryPositionsResponse {
 // QueryTradeRewardPointsRequest is the request type for the Query/TradeRewardPoints RPC method.
 message QueryTradeRewardPointsRequest {
   repeated string accounts = 1;
+  int64 pending_pool_timestamp = 2;
 }
 
-// QueryTradeRewardPointsResponse is the response type for the Query/LiquidityMiningPoints RPC method.
+// QueryTradeRewardPointsResponse is the response type for the Query/TradeRewardPoints RPC method.
 message QueryTradeRewardPointsResponse {
   repeated string account_trade_reward_points = 1 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
@@ -395,6 +466,30 @@ message QueryTradeRewardCampaignResponse {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+  repeated CampaignRewardPool pending_trading_reward_pool_campaign_schedule = 4;
+  repeated string pending_total_trade_reward_points = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryIsRegisteredDMMRequest is the request type for the Query/IsRegisteredDMM RPC method.
+message QueryIsRegisteredDMMRequest {
+  string account = 1;
+}
+
+// QueryIsRegisteredDMMResponse is the response type for the Query/IsRegisteredDMM RPC method.
+message QueryIsRegisteredDMMResponse {
+  bool is_registered_dmm = 1;
+}
+
+// QueryRegisteredDMMsRequest is the request type for the Query/RegisteredDMMs RPC method.
+message QueryRegisteredDMMsRequest {
+}
+
+// QueryRegisteredDMMsResponse is the response type for the Query/RegisteredDMMs RPC method.
+message QueryRegisteredDMMsResponse {
+  repeated string registered_dmms = 1;
 }
 
 // QueryFeeDiscountAccountInfoRequest is the request type for the Query/FeeDiscountAccountInfo RPC method.
@@ -406,6 +501,7 @@ message QueryFeeDiscountAccountInfoRequest {
 message QueryFeeDiscountAccountInfoResponse {
   uint64 tier_level = 1;
   FeeDiscountTierInfo account_info = 2;
+  FeeDiscountTierTTL account_ttl = 3;
 }
 
 // QueryFeeDiscountScheduleRequest is the request type for the Query/FeeDiscountSchedule RPC method.
@@ -414,4 +510,77 @@ message QueryFeeDiscountScheduleRequest {}
 // QueryFeeDiscountScheduleResponse is the response type for the Query/FeeDiscountSchedule RPC method.
 message QueryFeeDiscountScheduleResponse {
   FeeDiscountSchedule fee_discount_schedule = 1;
+}
+
+// QueryBalanceMismatchesRequest is the request type for the Query/QueryBalanceMismatches RPC method.
+message QueryBalanceMismatchesRequest {
+  int64 dust_factor = 1;
+}
+
+message BalanceMismatch {
+  string subaccountId = 1;
+  string denom = 2;
+  string available = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string total = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string balance_hold = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string expected_total = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string difference = 7 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryBalanceMismatchesResponse is the response type for the Query/QueryBalanceMismatches RPC method.
+message QueryBalanceMismatchesResponse {
+  repeated BalanceMismatch balance_mismatches = 1;
+}
+
+// QueryBalanceWithBalanceHoldsRequest is the request type for the Query/QueryBalanceWithBalanceHolds RPC method.
+message QueryBalanceWithBalanceHoldsRequest {}
+
+message BalanceWithMarginHold {
+  string subaccountId = 1;
+  string denom = 2;
+  string available = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string total = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string balance_hold = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryBalanceWithBalanceHoldsResponse is the response type for the Query/QueryBalanceWithBalanceHolds RPC method.
+message QueryBalanceWithBalanceHoldsResponse {
+  repeated BalanceWithMarginHold balance_with_balance_holds = 1;
+}
+
+// QueryFeeDiscountTierStatisticsRequest is the request type for the Query/QueryFeeDiscountTierStatistics RPC method.
+message QueryFeeDiscountTierStatisticsRequest {}
+
+message TierStatistic {
+  uint64 tier = 1;
+  uint64 count = 2;
+}
+
+// QueryFeeDiscountTierStatisticsResponse is the response type for the Query/QueryFeeDiscountTierStatistics RPC method.
+message QueryFeeDiscountTierStatisticsResponse {
+  repeated TierStatistic statistics = 1;
 }

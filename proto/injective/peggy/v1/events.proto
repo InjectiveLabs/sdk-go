@@ -1,90 +1,144 @@
 syntax = "proto3";
 package injective.peggy.v1;
 
-import "injective/peggy/v1/attestation.proto"; 
+import "gogoproto/gogo.proto";
+import "injective/peggy/v1/attestation.proto";
+import "injective/peggy/v1/types.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
 
 message EventAttestationObserved {
-    ClaimType attestation_type =1;
-    string bridge_contract = 2;
-    uint64 bridge_chain_id =3;
-    bytes attestation_id =4;
-    uint64 nonce = 5;
+  ClaimType attestation_type = 1;
+  string bridge_contract = 2;
+  uint64 bridge_chain_id = 3;
+  bytes attestation_id = 4;
+  uint64 nonce = 5;
 }
 
 message EventBridgeWithdrawCanceled {
-    string bridge_contract = 1;
-    uint64 bridge_chain_id =2;
-}
-message  EventBridgeWithdrawalReceived {
-    string bridge_contract = 1;
-    uint64 bridge_chain_id =2;
-    uint64 outgoing_tx_id =3;
-    uint64 nonce = 4;
+  string bridge_contract = 1;
+  uint64 bridge_chain_id = 2;
 }
 
 message EventOutgoingBatch {
-    string bridge_contract = 1;
-    uint64 bridge_chain_id =2;
-    uint64 batch_id =3;
-    uint64 nonce = 4;		
+  string denom = 1;
+  string orchestrator_address = 2;
+  uint64 batch_nonce = 3;
+  uint64 batch_timeout = 4;
+  repeated uint64 batch_tx_ids = 5 [(gogoproto.nullable) = false];
 }
 
 message EventOutgoingBatchCanceled {
-    string bridge_contract = 1;
-    uint64 bridge_chain_id =2;
-    uint64 batch_id =3;
-    uint64 nonce = 4;    
+  string bridge_contract = 1;
+  uint64 bridge_chain_id = 2;
+  uint64 batch_id = 3;
+  uint64 nonce = 4;
 }
 
-message EventMultisigUpdateRequest {
-    string bridge_contract = 1;
-    uint64 bridge_chain_id =2;
-    uint64 multisig_id =3;
-    uint64 nonce = 4;    
+message EventValsetUpdateRequest {
+  uint64 valset_nonce = 1;
+  uint64 valset_height = 2;
+  repeated BridgeValidator valset_members = 3;
+  string reward_amount = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  string reward_token = 5;
+
+
 }
 message EventSetOrchestratorAddresses {
-    bytes set_operator_address = 1;
+  string validator_address = 1;
+  string orchestrator_address = 2;
+  string operator_eth_address = 3;
 }
 
 message EventValsetConfirm {
-    bytes valset_confirm_key = 1;
+  uint64 valset_nonce = 1;
+  string orchestrator_address = 2;
 }
 
 message EventSendToEth {
-    uint64 outgoing_tx_id =1;
-}
+  uint64 outgoing_tx_id = 1;
+  string sender = 2;
+  string receiver = 3;
+  string amount = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
 
-message EventRequestBatch {
-    uint64 batch_nonce = 1;
+  string bridge_fee = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message EventConfirmBatch {
-    bytes batch_confirm_key = 1;
+  uint64 batch_nonce = 1;
+  string orchestrator_address = 2;
+}
+
+
+message EventAttestationVote {
+  uint64 event_nonce = 1;
+  bytes attestation_id = 2;
+  string voter = 3;
 }
 
 message EventDepositClaim {
-    bytes attestation_id = 1;
+  uint64 event_nonce = 1;
+  uint64 event_height = 2;
+  bytes attestation_id = 3;
+  string ethereum_sender = 4;
+  string cosmos_receiver = 5;
+  string token_contract = 6;
+  string amount = 7 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  string orchestrator_address = 8;
 }
 
 message EventWithdrawClaim {
-    bytes attestation_id = 1;
+  uint64 event_nonce = 1;
+  uint64 event_height = 2;
+  bytes attestation_id = 3;
+  uint64 batch_nonce = 4;
+  string token_contract = 5;
+  string orchestrator_address = 6;
 }
 
 message EventERC20DeployedClaim {
-    bytes attestation_id = 1;
+  uint64 event_nonce = 1;
+  uint64 event_height = 2;
+  bytes attestation_id = 3;
+  string cosmos_denom = 4;
+  string token_contract = 5;
+  string name = 6;
+  string symbol = 7;
+  uint64 decimals = 8;
+  string orchestrator_address = 9;
 }
 
 message EventValsetUpdateClaim {
-    bytes attestation_id = 1;
+  uint64 event_nonce = 1;
+  uint64 event_height = 2;
+  bytes attestation_id = 3;
+  uint64 valset_nonce = 4;
+  repeated BridgeValidator valset_members = 5;
+  string reward_amount = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable) = false
+  ];
+  string reward_token = 7;
+  string orchestrator_address = 8;
 }
 
 message EventCancelSendToEth {
-    uint64 outgoing_tx_id = 1;
+  uint64 outgoing_tx_id = 1;
 }
 
 message EventSubmitBadSignatureEvidence {
-    string bad_eth_signature =1;
-    string bad_eth_signature_subject = 2;
+  string bad_eth_signature = 1;
+  string bad_eth_signature_subject = 2;
 }
