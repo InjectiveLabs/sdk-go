@@ -9,6 +9,7 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
@@ -16,6 +17,7 @@ import (
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	eth "github.com/ethereum/go-ethereum/common"
+	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	log "github.com/xlab/suplog"
@@ -62,6 +64,9 @@ type ChainClient interface {
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
 	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
 
+	BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant
+	BuildTypedAuthz(granter string, grantee string, subaccountId string, authzmsg string, markets []string, expireIn time.Time) *authztypes.MsgGrant
+
 	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
 
 	GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
@@ -89,7 +94,7 @@ type chainClient struct {
 	accNum uint64
 	accSeq uint64
 
-	sessionCookie string
+	sessionCookie  string
 	sessionEnabled bool
 
 	txClient            txtypes.ServiceClient
@@ -731,6 +736,39 @@ func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelDa
 
 func (c *chainClient) GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error) {
 	return c.authzQueryClient.Grants(ctx, &req)
+}
+
+func (c *chainClient) BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant {
+	authz := authztypes.NewGenericAuthorization(msgtype)
+	authzAny := codectypes.UnsafePackAny(authz)
+	return &authztypes.MsgGrant{
+		Granter: granter,
+		Grantee: grantee,
+		Grant: authztypes.Grant{
+			Authorization: authzAny,
+			Expiration:    expireIn,
+		},
+	}
+}
+
+func (c *chainClient) BuildTypedAuthz(granter string, grantee string, subaccountId string, authzmsg string, markets []string, expireIn time.Time) *authztypes.MsgGrant {
+	typedAuthz := exchangetypes.CreateSpotLimitOrderAuthz{
+		SubaccountId: subaccountId,
+		MarketIds:    markets,
+	}
+	typedAuthzBytes, _ := typedAuthz.Marshal()
+	typedAuthzAny := &codectypes.Any{
+		TypeUrl: "/" + proto.MessageName(&typedAuthz),
+		Value:   typedAuthzBytes,
+	}
+	return &authztypes.MsgGrant{
+		Granter: granter,
+		Grantee: grantee,
+		Grant: authztypes.Grant{
+			Authorization: typedAuthzAny,
+			Expiration:    expireIn,
+		},
+	}
 }
 
 type DerivativeOrderData struct {
