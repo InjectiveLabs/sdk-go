@@ -54,19 +54,27 @@ func main() {
 
 	granter := senderAddress.String()
 	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
-	expireIn := time.Now().AddDate(1, 0, 0) //years months days
+	expireIn := time.Now().AddDate(1, 0, 0) // years months days
 
 	// GENERIC AUTHZ
 	//msgtype := "/injective.exchange.v1beta1.MsgCreateSpotLimitOrder"
 	//msg := chainClient.BuildGenericAuthz(granter, grantee, msgtype, expireIn)
 
-	//TYPED AUTHZ
-	authzmsg := "CreateSpotLimitOrderAuthz"
-	msg := chainClient.BuildTypedAuthz(
+	// TYPED AUTHZ
+	//msg := chainClient.BuildExchangeBatchUpdateOrdersAuthz(
+	//	granter,
+	//	grantee,
+	//	chainClient.DefaultSubaccount(senderAddress).String(),
+	//	[]string{"0xe0dc13205fb8b23111d8555a6402681965223135d368eeeb964681f9ff12eb2a"},
+	//	[]string{"0xe0dc13205fb8b23111d8555a6402681965223135d368eeeb964681f9ff12eb2a"},
+	//	expireIn,
+	//)
+
+	msg := chainClient.BuildExchangeAuthz(
 		granter,
 		grantee,
+		chainclient.CreateSpotLimitOrderAuthz,
 		chainClient.DefaultSubaccount(senderAddress).String(),
-		authzmsg,
 		[]string{"0xe0dc13205fb8b23111d8555a6402681965223135d368eeeb964681f9ff12eb2a"},
 		expireIn,
 	)
