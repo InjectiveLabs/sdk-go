@@ -99,8 +99,9 @@ type chainClient struct {
 	msgC        chan sdk.Msg
 	syncMux     *sync.Mutex
 
-	accNum uint64
-	accSeq uint64
+	accNum    uint64
+	accSeq    uint64
+	gasWanted uint64
 
 	sessionCookie  string
 	sessionEnabled bool
@@ -462,6 +463,8 @@ func (c *chainClient) broadcastTx(
 
 		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
 		txf = txf.WithGas(adjustedGas)
+
+		c.gasWanted = adjustedGas
 	}
 
 	txn, err := tx.BuildUnsignedTx(txf, msgs...)
@@ -590,6 +593,7 @@ func (c *chainClient) runBatchBroadcast() {
 
 		c.accSeq++
 		log.Debugln("nonce incremented to", c.accSeq)
+		log.Debugln("gas wanted: ", c.gasWanted)
 	}
 
 	for {
@@ -760,18 +764,19 @@ func (c *chainClient) BuildGenericAuthz(granter string, grantee string, msgtype 
 }
 
 type ExchangeAuthz string
-var (
-	CreateSpotLimitOrderAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateSpotLimitOrderAuthz{}))
-	CreateSpotMarketOrderAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateSpotMarketOrderAuthz{}))
-	BatchCreateSpotLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCreateSpotLimitOrdersAuthz{}))
-	CancelSpotOrderAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CancelSpotOrderAuthz{}))
-	BatchCancelSpotOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCancelSpotOrdersAuthz{}))
 
-	CreateDerivativeLimitOrderAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateDerivativeLimitOrderAuthz{}))
-	CreateDerivativeMarketOrderAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateDerivativeMarketOrderAuthz{}))
+var (
+	CreateSpotLimitOrderAuthz       = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateSpotLimitOrderAuthz{}))
+	CreateSpotMarketOrderAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateSpotMarketOrderAuthz{}))
+	BatchCreateSpotLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCreateSpotLimitOrdersAuthz{}))
+	CancelSpotOrderAuthz            = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CancelSpotOrderAuthz{}))
+	BatchCancelSpotOrdersAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCancelSpotOrdersAuthz{}))
+
+	CreateDerivativeLimitOrderAuthz       = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateDerivativeLimitOrderAuthz{}))
+	CreateDerivativeMarketOrderAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateDerivativeMarketOrderAuthz{}))
 	BatchCreateDerivativeLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCreateDerivativeLimitOrdersAuthz{}))
-	CancelDerivativeOrderAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CancelDerivativeOrderAuthz{}))
-	BatchCancelDerivativeOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCancelDerivativeOrdersAuthz{}))
+	CancelDerivativeOrderAuthz            = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CancelDerivativeOrderAuthz{}))
+	BatchCancelDerivativeOrdersAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCancelDerivativeOrdersAuthz{}))
 
 	BatchUpdateOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchUpdateOrdersAuthz{}))
 )
@@ -870,14 +875,14 @@ func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 	subaccountId string,
 	spotMarkets []string,
 	derivativeMarkets []string,
-expireIn time.Time,
+	expireIn time.Time,
 ) *authztypes.MsgGrant {
 	typedAuthz := &exchangetypes.BatchUpdateOrdersAuthz{
-		SubaccountId: subaccountId,
-		SpotMarkets: spotMarkets,
+		SubaccountId:      subaccountId,
+		SpotMarkets:       spotMarkets,
 		DerivativeMarkets: derivativeMarkets,
 	}
-	typedAuthzBytes, _:= typedAuthz.Marshal()
+	typedAuthzBytes, _ := typedAuthz.Marshal()
 	typedAuthzAny := codectypes.Any{
 		TypeUrl: string(BatchUpdateOrdersAuthz),
 		Value:   typedAuthzBytes,
