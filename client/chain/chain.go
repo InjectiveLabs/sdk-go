@@ -25,6 +25,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"math/big"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -41,6 +42,7 @@ const (
 	defaultTimeoutHeightSyncInterval = 10 * time.Second
 	defaultSessionRenewalOffset      = 120
 	defaultBlockTime                 = 3 * time.Second
+	defaultChainCookieName           = ".chain_cookie"
 )
 
 var (
@@ -189,6 +191,19 @@ func NewChainClient(
 		go cc.runBatchBroadcast()
 		go cc.syncTimeoutHeight()
 	}
+
+	// create file if not exist
+	os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
+
+	// attempt to load from disk
+	data, err := os.ReadFile(defaultChainCookieName)
+	if err != nil {
+		cc.logger.Errorln(err)
+	} else {
+		cc.sessionCookie = string(data)
+		cc.logger.Infoln("chain session cookie loaded from disk")
+	}
+
 	return cc, nil
 }
 
@@ -263,8 +278,24 @@ func (c *chainClient) setCookie(metadata metadata.MD) {
 	}
 	md := metadata.Get("set-cookie")
 	if len(md) > 0 {
+		// write to client instance
 		c.sessionCookie = md[0]
+		// write to disk
+		err := os.WriteFile(defaultChainCookieName, []byte(md[0]), 0644)
+		if err != nil {
+			c.logger.Errorln(err)
+			return
+		}
+		c.logger.Infoln("chain session cookie saved to disk")
 	}
+}
+
+func (c *chainClient) fetchCookie(ctx context.Context) context.Context {
+	var header metadata.MD
+	c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
+	c.setCookie(header)
+	time.Sleep(defaultBlockTime)
+	return metadata.NewOutgoingContext(ctx, metadata.Pairs("cookie", c.sessionCookie))
 }
 
 func (c *chainClient) getCookie(ctx context.Context) context.Context {
@@ -294,13 +325,10 @@ func (c *chainClient) getCookie(ctx context.Context) context.Context {
 		// renew session if timestamp diff < offset
 		timestampDiff := expiresTimestamp.Unix() - time.Now().Unix()
 		if timestampDiff < defaultSessionRenewalOffset {
-			var header metadata.MD
-			c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
-			c.setCookie(header)
-			time.Sleep(defaultBlockTime)
-			// build new ctx
-			return metadata.NewOutgoingContext(ctx, metadata.Pairs("cookie", c.sessionCookie))
+			return c.fetchCookie(ctx)
 		}
+	} else {
+		return c.fetchCookie(ctx)
 	}
 
 	return metadata.NewOutgoingContext(ctx, md)
@@ -398,7 +426,6 @@ func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*t
 		err = errors.Wrap(err, "failed to CalculateGas")
 		return nil, err
 	}
-	c.setCookie(header)
 
 	return simRes, nil
 }
@@ -459,7 +486,6 @@ func (c *chainClient) broadcastTx(
 			err = errors.Wrap(err, "failed to CalculateGas")
 			return nil, err
 		}
-		c.setCookie(header)
 
 		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
 		txf = txf.WithGas(adjustedGas)
@@ -498,7 +524,6 @@ func (c *chainClient) broadcastTx(
 	if !await || err != nil {
 		return res, err
 	}
-	c.setCookie(header)
 
 	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
 	defer cancelFn()

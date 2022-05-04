@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -10,6 +9,7 @@ import (
 	"github.com/shopspring/decimal"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	"os"
+	"time"
 )
 
 func main() {

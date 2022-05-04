@@ -44,7 +44,7 @@ var eip712OrderTypes = gethsigner.Types{
 }
 
 type OrderHashes struct {
-	Spot []common.Hash
+	Spot       []common.Hash
 	Derivative []common.Hash
 }
 
