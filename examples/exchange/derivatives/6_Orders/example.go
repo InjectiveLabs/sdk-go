@@ -19,9 +19,13 @@ func main() {
 
 	ctx := context.Background()
 	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
+	skip := uint64(0)
+	limit := int32(10)
 
 	req := derivativeExchangePB.OrdersRequest{
 		MarketId: marketId,
+		Skip:     skip,
+		Limit:    limit,
 	}
 
 	res, err := exchangeClient.GetDerivativeOrders(ctx, req)

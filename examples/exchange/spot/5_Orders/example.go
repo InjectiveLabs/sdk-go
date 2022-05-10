@@ -19,9 +19,13 @@ func main() {
 
 	ctx := context.Background()
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
+	skip := uint64(0)
+	limit := int32(10)
 
 	req := spotExchangePB.OrdersRequest{
 		MarketId: marketId,
+		Skip:     skip,
+		Limit:    limit,
 	}
 
 	res, err := exchangeClient.GetSpotOrders(ctx, req)
