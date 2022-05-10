@@ -244,6 +244,10 @@ message OrdersRequest {
 	string order_side = 2;
 	// Look for specific subaccountId of an order
 	string subaccount_id = 3;
+	// Skip will skip the first n item from the result
+	uint64 skip = 4;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 5;
 }
 
 message OrdersResponse {
@@ -287,6 +291,10 @@ message PositionsRequest {
 	string subaccount_id = 1;
 	// MarketId of the position we want to fetch
 	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 4;
 }
 
 message PositionsResponse {
@@ -320,6 +328,10 @@ message DerivativePosition {
 message LiquidablePositionsRequest {
 	// Market ID to filter orders for specific market
 	string market_id = 1;
+	// Skip will skip the first n item from the result
+	uint64 skip = 2;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 3;
 }
 
 message LiquidablePositionsResponse {
@@ -402,6 +414,10 @@ message StreamOrdersRequest {
 	string order_side = 2;
 	// Look for specific subaccountId of an order
 	string subaccount_id = 3;
+	// Skip will skip the first n item from the result
+	uint64 skip = 4;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 5;
 }
 
 message StreamOrdersResponse {
@@ -516,6 +532,10 @@ message SubaccountOrdersListRequest {
 	string subaccount_id = 1;
 	// Market ID to filter orders for specific market
 	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 4;
 }
 
 message SubaccountOrdersListResponse {
@@ -532,6 +552,10 @@ message SubaccountTradesListRequest {
 	string execution_type = 3;
 	// Filter by direction trades
 	string direction = 4;
+	// Skip will skip the first n item from the result
+	uint64 skip = 5;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 6;
 }
 
 message SubaccountTradesListResponse {
