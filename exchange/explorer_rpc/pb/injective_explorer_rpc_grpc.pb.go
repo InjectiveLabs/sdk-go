@@ -32,8 +32,6 @@ type InjectiveExplorerRPCClient interface {
 	GetValidator(ctx context.Context, in *GetValidatorRequest, opts ...grpc.CallOption) (*GetValidatorResponse, error)
 	// GetValidatorUptime returns validator uptime information on the active chain
 	GetValidatorUptime(ctx context.Context, in *GetValidatorUptimeRequest, opts ...grpc.CallOption) (*GetValidatorUptimeResponse, error)
-	// GetCoinPriceData returns price data from CoinGecko API
-	GetCoinPriceData(ctx context.Context, in *GetCoinPriceDataRequest, opts ...grpc.CallOption) (*GetCoinPriceDataResponse, error)
 	// GetTxs returns transactions based upon the request params
 	GetTxs(ctx context.Context, in *GetTxsRequest, opts ...grpc.CallOption) (*GetTxsResponse, error)
 	// GetTxByTxHash returns certain transaction information by its tx hash.
@@ -100,15 +98,6 @@ func (c *injectiveExplorerRPCClient) GetValidator(ctx context.Context, in *GetVa
 func (c *injectiveExplorerRPCClient) GetValidatorUptime(ctx context.Context, in *GetValidatorUptimeRequest, opts ...grpc.CallOption) (*GetValidatorUptimeResponse, error) {
 	out := new(GetValidatorUptimeResponse)
 	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetValidatorUptime", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *injectiveExplorerRPCClient) GetCoinPriceData(ctx context.Context, in *GetCoinPriceDataRequest, opts ...grpc.CallOption) (*GetCoinPriceDataResponse, error) {
-	out := new(GetCoinPriceDataResponse)
-	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetCoinPriceData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -238,8 +227,6 @@ type InjectiveExplorerRPCServer interface {
 	GetValidator(context.Context, *GetValidatorRequest) (*GetValidatorResponse, error)
 	// GetValidatorUptime returns validator uptime information on the active chain
 	GetValidatorUptime(context.Context, *GetValidatorUptimeRequest) (*GetValidatorUptimeResponse, error)
-	// GetCoinPriceData returns price data from CoinGecko API
-	GetCoinPriceData(context.Context, *GetCoinPriceDataRequest) (*GetCoinPriceDataResponse, error)
 	// GetTxs returns transactions based upon the request params
 	GetTxs(context.Context, *GetTxsRequest) (*GetTxsResponse, error)
 	// GetTxByTxHash returns certain transaction information by its tx hash.
@@ -278,9 +265,6 @@ func (UnimplementedInjectiveExplorerRPCServer) GetValidator(context.Context, *Ge
 }
 func (UnimplementedInjectiveExplorerRPCServer) GetValidatorUptime(context.Context, *GetValidatorUptimeRequest) (*GetValidatorUptimeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValidatorUptime not implemented")
-}
-func (UnimplementedInjectiveExplorerRPCServer) GetCoinPriceData(context.Context, *GetCoinPriceDataRequest) (*GetCoinPriceDataResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetCoinPriceData not implemented")
 }
 func (UnimplementedInjectiveExplorerRPCServer) GetTxs(context.Context, *GetTxsRequest) (*GetTxsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxs not implemented")
@@ -402,24 +386,6 @@ func _InjectiveExplorerRPC_GetValidatorUptime_Handler(srv interface{}, ctx conte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveExplorerRPCServer).GetValidatorUptime(ctx, req.(*GetValidatorUptimeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InjectiveExplorerRPC_GetCoinPriceData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCoinPriceDataRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InjectiveExplorerRPCServer).GetCoinPriceData(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetCoinPriceData",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InjectiveExplorerRPCServer).GetCoinPriceData(ctx, req.(*GetCoinPriceDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -582,10 +548,6 @@ var InjectiveExplorerRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetValidatorUptime",
 			Handler:    _InjectiveExplorerRPC_GetValidatorUptime_Handler,
-		},
-		{
-			MethodName: "GetCoinPriceData",
-			Handler:    _InjectiveExplorerRPC_GetCoinPriceData_Handler,
 		},
 		{
 			MethodName: "GetTxs",

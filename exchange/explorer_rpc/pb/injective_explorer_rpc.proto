@@ -23,8 +23,6 @@ service InjectiveExplorerRPC {
 	rpc GetValidator (GetValidatorRequest) returns (GetValidatorResponse);
 	// GetValidatorUptime returns validator uptime information on the active chain
 	rpc GetValidatorUptime (GetValidatorUptimeRequest) returns (GetValidatorUptimeResponse);
-	// GetCoinPriceData returns price data from CoinGecko API
-	rpc GetCoinPriceData (GetCoinPriceDataRequest) returns (GetCoinPriceDataResponse);
 	// GetTxs returns transactions based upon the request params
 	rpc GetTxs (GetTxsRequest) returns (GetTxsResponse);
 	// GetTxByTxHash returns certain transaction information by its tx hash.
@@ -179,6 +177,8 @@ message GetValidatorResponse {
 	string timestamp = 19;
 	repeated ValidatorUptime uptimes = 20;
 	repeated SlashingEvent slashing_events = 21;
+	// uptime percentage base on latest 10k block
+	double uptime_percentage = 22;
 }
 
 message ValidatorDescription {
@@ -210,49 +210,6 @@ message GetValidatorUptimeRequest {
 
 message GetValidatorUptimeResponse {
 	repeated ValidatorUptime field = 1;
-}
-
-message GetCoinPriceDataRequest {
-	string coin_ids = 1;
-	string currency = 2;
-}
-
-message GetCoinPriceDataResponse {
-	repeated CoinGeckoMarket field = 1;
-}
-// CoinGeckoMarket defines the structure for coin markets api
-message CoinGeckoMarket {
-	string id = 1;
-	string symbol = 2;
-	string name = 3;
-	string image = 4;
-	double current_price = 5;
-	double market_cap = 6;
-	sint32 market_cap_rank = 7;
-	double total_volume = 8;
-	double high24_h = 9;
-	double low24_h = 10;
-	double price_change24_h = 11;
-	double price_change_percentage24_h = 12;
-	double market_cap_change24_h = 13;
-	double market_cap_change_percentage24_h = 14;
-	double circulating_supply = 15;
-	double total_supply = 16;
-	double max_supply = 17;
-	double ath = 18;
-	double ath_change_percentage = 19;
-	string ath_date = 20;
-	double atl = 21;
-	double atl_change_percentage = 22;
-	string atl_date = 23;
-	ROIItem roi = 24;
-	string last_updated = 25;
-}
-// ROIItem ROI Item
-message ROIItem {
-	double times = 1;
-	string currency = 2;
-	double percentage = 3;
 }
 
 message GetTxsRequest {

@@ -21,11 +21,15 @@ func main() {
 	denom := "inj"
 	subaccountId := "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000"
 	transferTypes := []string{"deposit"}
+	skip := uint64(0)
+	limit := int32(10)
 
 	req := accountPB.SubaccountHistoryRequest{
 		Denom:         denom,
 		SubaccountId:  subaccountId,
 		TransferTypes: transferTypes,
+		Skip:          skip,
+		Limit:         limit,
 	}
 
 	res, err := exchangeClient.GetSubaccountHistory(ctx, req)

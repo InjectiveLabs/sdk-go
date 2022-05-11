@@ -20,10 +20,14 @@ func main() {
 	ctx := context.Background()
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
 	subaccountId := "0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000000"
+	skip := uint64(0)
+	limit := int32(10)
 
 	req := spotExchangePB.SubaccountTradesListRequest{
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
+		Skip:         skip,
+		Limit:        limit,
 	}
 
 	res, err := exchangeClient.GetSubaccountSpotTradesList(ctx, req)
