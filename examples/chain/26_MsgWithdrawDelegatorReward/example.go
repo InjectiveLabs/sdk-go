@@ -16,7 +16,7 @@ func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
-	
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -62,7 +62,7 @@ func main() {
 	msg.DelegatorAddress = senderAddress.String()
 	msg.ValidatorAddress = "injvaloper14gy4acwjm96wd20awm9ar6j54lev5p7espy9ug"
 
-	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
@@ -71,5 +71,12 @@ func main() {
 
 	time.Sleep(time.Second * 5)
 
-	chainClient.GetGasFee()
+	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee: ", gasFee+" "+"INJ")
 }

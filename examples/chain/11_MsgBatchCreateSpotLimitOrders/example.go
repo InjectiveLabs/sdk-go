@@ -92,14 +92,21 @@ func main() {
 
 	fmt.Println("simulated order hashes", msgBatchCreateSpotLimitOrdersResponse.OrderHashes)
 
-	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
 		fmt.Println(err)
 	}
-	
+
 	time.Sleep(time.Second * 5)
 
-	chainClient.GetGasFee()
+	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee: ", gasFee+" "+"INJ")
 }

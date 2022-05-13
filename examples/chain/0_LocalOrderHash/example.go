@@ -107,5 +107,12 @@ func main() {
 
 	time.Sleep(time.Second * 5)
 
-	chainClient.GetGasFee()
+	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee: ", gasFee+" "+"INJ")
 }
