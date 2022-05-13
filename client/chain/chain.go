@@ -87,8 +87,7 @@ type ChainClient interface {
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
-	GetGasFee() (string, error)
-
+	GetGasFee() string
 	Close()
 }
 
@@ -660,7 +659,7 @@ func (c *chainClient) runBatchBroadcast() {
 	}
 }
 
-func (c *chainClient) GetGasFee() (string, error) {
+func (c *chainClient) GetGasFee() string {
 	gasPrices := strings.Trim(c.opts.GasPrices, "inj")
 
 	gas, _ := strconv.ParseFloat(gasPrices, 18)
@@ -670,7 +669,7 @@ func (c *chainClient) GetGasFee() (string, error) {
 	c.gasFee = gasFeeFormatted
 	log.Debugln("gas fee: ", c.gasFee+" "+"INJ")
 
-	return c.gasFee, nil
+	return c.gasFee
 }
 
 func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
