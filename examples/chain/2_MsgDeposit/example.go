@@ -5,12 +5,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/InjectiveLabs/sdk-go/client/common"
+
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -66,6 +67,7 @@ func main() {
 		fmt.Println(err)
 	}
 
+	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
@@ -73,4 +75,13 @@ func main() {
 	}
 
 	time.Sleep(time.Second * 5)
+
+	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee:", gasFee, "INJ")
 }

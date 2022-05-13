@@ -5,17 +5,18 @@ import (
 	"os"
 	"time"
 
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -61,9 +62,21 @@ func main() {
 	msg.DelegatorAddress = senderAddress.String()
 	msg.ValidatorAddress = "injvaloper14gy4acwjm96wd20awm9ar6j54lev5p7espy9ug"
 
+	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
+
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	time.Sleep(time.Second * 5)
+
+	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee:", gasFee, "INJ")
 }

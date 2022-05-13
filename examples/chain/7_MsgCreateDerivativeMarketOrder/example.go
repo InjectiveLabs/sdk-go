@@ -5,19 +5,20 @@ import (
 	"os"
 	"time"
 
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	"github.com/InjectiveLabs/sdk-go/client/common"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -81,20 +82,36 @@ func main() {
 	msg.Order = exchangetypes.DerivativeOrder(*order)
 
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
+
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	simResMsgs := common.MsgResponse(simRes.Result.Data)
 	msgCreateDerivativeMarketOrderResponse := exchangetypes.MsgCreateDerivativeMarketOrderResponse{}
 	msgCreateDerivativeMarketOrderResponse.Unmarshal(simResMsgs[0].Data)
+
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	fmt.Println("simulated order hash", msgCreateDerivativeMarketOrderResponse.OrderHash)
 
+	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
+
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	time.Sleep(time.Second * 5)
+
+	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee:", gasFee, "INJ")
 }

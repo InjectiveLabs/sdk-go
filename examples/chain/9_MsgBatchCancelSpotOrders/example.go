@@ -5,18 +5,19 @@ import (
 	"os"
 	"time"
 
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	"github.com/InjectiveLabs/sdk-go/client/common"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -73,6 +74,7 @@ func main() {
 	msg.Data = []exchangetypes.OrderData{*order}
 	CosMsgs := []cosmtypes.Msg{msg}
 
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(CosMsgs...)
 
 	if err != nil {
@@ -80,4 +82,13 @@ func main() {
 	}
 
 	time.Sleep(time.Second * 5)
+
+	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee:", gasFee, "INJ")
 }
