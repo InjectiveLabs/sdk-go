@@ -81,5 +81,5 @@ func main() {
 		return
 	}
 
-	fmt.Println("gas fee: ", gasFee+" "+"INJ")
+	fmt.Println("gas fee:", gasFee, "INJ")
 }
