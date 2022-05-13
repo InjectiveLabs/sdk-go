@@ -5,18 +5,19 @@ import (
 	"os"
 	"time"
 
+	"github.com/InjectiveLabs/sdk-go/client/common"
+
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-
-	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -35,6 +36,8 @@ func main() {
 		panic(err)
 	}
 
+	// initialize grpc client
+
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),
@@ -46,6 +49,8 @@ func main() {
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
+
+	// prepare tx msg
 
 	msg := &banktypes.MsgSend{
 		FromAddress: senderAddress.String(),
@@ -66,6 +71,7 @@ func main() {
 		fmt.Println(err)
 	}
 
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
@@ -73,4 +79,6 @@ func main() {
 	}
 
 	time.Sleep(time.Second * 5)
+
+	chainClient.GetGasFee()
 }

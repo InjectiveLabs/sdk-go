@@ -5,21 +5,22 @@ import (
 	"os"
 	"time"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	"github.com/InjectiveLabs/sdk-go/client/common"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -33,6 +34,7 @@ func main() {
 		"5d386fbdbf11f1141010f81a46b40f94887367562bd33b452bbaa6ce1cd1381e", // keyring will be used if pk not provided
 		false,
 	)
+
 	if err != nil {
 		panic(err)
 	}
@@ -46,6 +48,7 @@ func main() {
 		"f9db9bf330e23cb7839039e944adef6e9df447b90b503d5b4464c90bea9022f3", // keyring will be used if pk not provided
 		false,
 	)
+
 	if err != nil {
 		panic(err)
 	}
@@ -69,6 +72,7 @@ func main() {
 		common.OptionTLSCert(network.ChainTlsCert),
 		common.OptionGasPrices("500000000inj"),
 	)
+
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -105,9 +109,14 @@ func main() {
 		Msgs:    []*codectypes.Any{msg0Any},
 	}
 
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
+
 	if err != nil {
 		fmt.Println(err)
 	}
+	
 	time.Sleep(time.Second * 5)
+
+	chainClient.GetGasFee()
 }

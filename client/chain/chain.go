@@ -23,6 +23,7 @@ import (
 	log "github.com/xlab/suplog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"math"
 	"math/big"
 	"net/http"
 	"os"
@@ -86,6 +87,8 @@ type ChainClient interface {
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
+	GetGasFee() (string, error)
+
 	Close()
 }
 
@@ -104,6 +107,7 @@ type chainClient struct {
 	accNum    uint64
 	accSeq    uint64
 	gasWanted uint64
+	gasFee    string
 
 	sessionCookie  string
 	sessionEnabled bool
@@ -654,6 +658,19 @@ func (c *chainClient) runBatchBroadcast() {
 			}
 		}
 	}
+}
+
+func (c *chainClient) GetGasFee() (string, error) {
+	gasPrices := strings.Trim(c.opts.GasPrices, "inj")
+
+	gas, _ := strconv.ParseFloat(gasPrices, 18)
+
+	gasFeeAdjusted := gas * float64(c.gasWanted) / math.Pow(10, 18)
+	gasFeeFormatted := strconv.FormatFloat(gasFeeAdjusted, 'f', -1, 64)
+	c.gasFee = gasFeeFormatted
+	log.Debugln("gas fee: ", c.gasFee+" "+"INJ")
+
+	return c.gasFee, nil
 }
 
 func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
