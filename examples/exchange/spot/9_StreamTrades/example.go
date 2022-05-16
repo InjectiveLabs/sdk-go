@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -40,7 +41,8 @@ func main() {
 				fmt.Println(err)
 				return
 			}
-			fmt.Println(res)
+			str, _ := json.MarshalIndent(res, "", " ")
+			fmt.Print(string(str))
 		}
 	}
 }
