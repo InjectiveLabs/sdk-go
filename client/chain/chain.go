@@ -20,7 +20,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
-	log "github.com/xlab/suplog"
+	log "github.com/InjectiveLabs/suplog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"math"

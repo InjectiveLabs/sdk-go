@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	"github.com/pkg/errors"
-	log "github.com/xlab/suplog"
+	log "github.com/InjectiveLabs/suplog"
 	"google.golang.org/grpc"
 )
 

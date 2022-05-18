@@ -3,6 +3,7 @@ module github.com/InjectiveLabs/sdk-go
 go 1.16
 
 require (
+	github.com/InjectiveLabs/suplog v1.3.3
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/aristanetworks/goarista v0.0.0-20201012165903-2cb20defcd66 // indirect
 	github.com/bandprotocol/bandchain-packet v0.0.2
@@ -34,7 +35,6 @@ require (
 	github.com/status-im/keycard-go v0.0.0-20200402102358-957c09536969 // indirect
 	github.com/tendermint/tendermint v0.34.16
 	github.com/tyler-smith/go-bip39 v1.0.2
-	github.com/xlab/suplog v1.3.1
 	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 	google.golang.org/genproto v0.0.0-20220118154757-00ab72f36ad5
 	google.golang.org/grpc v1.44.0

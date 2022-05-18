@@ -4,7 +4,7 @@ import (
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
-	log "github.com/xlab/suplog"
+	log "github.com/InjectiveLabs/suplog"
 	"google.golang.org/grpc/credentials"
 )
 
