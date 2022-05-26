@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/shopspring/decimal"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	"os"
-	"time"
 )
 
 func main() {

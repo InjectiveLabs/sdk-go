@@ -3,12 +3,19 @@ package types
 import (
 	"strconv"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 )
+
+type DerivativeMarketInfo struct {
+	Market    *DerivativeMarket
+	MarkPrice sdk.Dec
+	Funding   *PerpetualMarketFunding
+}
 
 func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {
 	basePeggyDenom, err := peggytypes.NewPeggyDenomFromString(baseDenom)

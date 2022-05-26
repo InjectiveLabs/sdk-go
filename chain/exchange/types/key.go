@@ -33,6 +33,7 @@ var (
 	SubaccountLimitOrderIndicatorPrefix  = []byte{0x06} // prefix for each key to a Subaccount limit order indicator
 	SpotExchangeEnabledKey               = []byte{0x07} // key for whether spot exchange is enabled
 	DerivativeExchangeEnabledKey         = []byte{0x08} // key for whether derivative exchange is enabled
+	MarketHistoricalTradeRecordsPrefix   = []byte{0x09} // prefix for each key to a market's historical trade records
 
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
 	SpotLimitOrdersPrefix            = []byte{0x12} // prefix for each key to a spot order, by (marketID, direction, price level, order hash)
@@ -389,4 +390,8 @@ func GetSubaccountIDFromPositionKey(key []byte) (subaccountID common.Hash) {
 
 func GetExpiryFuturesMarketInfoByTimestampKey(timestamp int64, marketID common.Hash) []byte {
 	return append(ExpiryFuturesMarketInfoByTimestampPrefix, append(sdk.Uint64ToBigEndian(uint64(timestamp)), marketID.Bytes()...)...)
+}
+
+func GetMarketHistoricalTradeRecordsKey(marketID common.Hash) []byte {
+	return append(MarketHistoricalTradeRecordsPrefix, marketID.Bytes()...)
 }

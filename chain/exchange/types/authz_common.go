@@ -100,7 +100,7 @@ func (a BatchUpdateOrdersAuthz) ValidateBasic() error {
 	spotMarketsSet := reduceToSet(a.SpotMarkets)
 	derivativeMarketsSet := reduceToSet(a.DerivativeMarkets)
 	if len(a.SpotMarkets) != len(spotMarketsSet) || len(a.DerivativeMarkets) != len(derivativeMarketsSet) {
-		return sdkerrors.ErrLogic.Wrapf("Cannot have duplicate markets")
+		return sdkerrors.ErrLogic.Wrapf("cannot have duplicate markets")
 	}
 	for _, m := range a.SpotMarkets {
 		if !IsHexHash(m) {

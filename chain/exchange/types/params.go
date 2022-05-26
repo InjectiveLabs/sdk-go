@@ -30,6 +30,9 @@ const (
 	MaxDerivativeOrderSideCount uint32 = 20
 
 	MaxOracleScaleFactor uint32 = 18
+
+	// MaxHistoricalTradeRecordAge is the maximum age of trade records to track.
+	MaxHistoricalTradeRecordAge = 60 * 5
 )
 
 // MaxOrderPrice equals 10^32

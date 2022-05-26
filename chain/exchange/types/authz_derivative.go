@@ -44,7 +44,7 @@ func (a CreateDerivativeLimitOrderAuthz) ValidateBasic() error {
 	}
 	marketsSet := reduceToSet(a.MarketIds)
 	if len(a.MarketIds) != len(marketsSet) {
-		return sdkerrors.ErrLogic.Wrapf("Cannot have duplicate markets")
+		return sdkerrors.ErrLogic.Wrapf("cannot have duplicate markets")
 	}
 	for _, m := range a.MarketIds {
 		if !IsHexHash(m) {

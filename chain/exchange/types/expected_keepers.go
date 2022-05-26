@@ -10,10 +10,11 @@ import (
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	wasmtypes "github.com/InjectiveLabs/sdk-go/wasm/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
 // BankKeeper defines the expected bank keeper methods.
@@ -27,8 +28,10 @@ type BankKeeper interface {
 // OracleKeeper defines the expected oracle keeper methods.
 type OracleKeeper interface {
 	GetPrice(ctx sdk.Context, oracletype oracletypes.OracleType, base string, quote string) *sdk.Dec
-
 	GetCumulativePrice(ctx sdk.Context, oracleType oracletypes.OracleType, base string, quote string) *sdk.Dec
+	GetHistoricalPriceRecords(ctx sdk.Context, oracleType oracletypes.OracleType, symbol string, from int64) (entry *oracletypes.PriceRecords, omitted bool)
+	GetMixedHistoricalPriceRecords(ctx sdk.Context, baseOracleType, quoteOracleType oracletypes.OracleType, baseSymbol, quoteSymbol string, from int64) (mixed *oracletypes.PriceRecords, ok bool)
+	GetStandardDeviationForPriceRecords(priceRecords []*oracletypes.PriceRecord) *sdk.Dec
 }
 
 // InsuranceKeeper defines the expected insurance keeper methods.
@@ -50,11 +53,6 @@ type GovKeeper interface {
 	GetVotingParams(ctx sdk.Context) govtypes.VotingParams
 }
 
-type AuctionKeeper interface {
-	GetEndingTimeStamp(ctx sdk.Context) int64
-	GetNextEndingTimeStamp(ctx sdk.Context) int64
-}
-
 type DistributionKeeper interface {
 	GetFeePool(ctx sdk.Context) (feePool types.FeePool)
 	DistributeFromFeePool(ctx sdk.Context, amount sdk.Coins, receiveAddr sdk.AccAddress) error
@@ -72,4 +70,8 @@ type WasmViewKeeper interface {
 
 type WasmContractOpsKeeper interface {
 	wasmtypes.ContractOpsKeeper
+}
+
+type WasmxExecutionKeeper interface {
+	InjectiveExec(ctx sdk.Context, contractAddress sdk.AccAddress, funds sdk.Coins, msg *wasmxtypes.InjectiveExecMsg) ([]byte, error)
 }
