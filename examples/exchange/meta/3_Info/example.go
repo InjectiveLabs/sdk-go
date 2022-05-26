@@ -2,36 +2,31 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	metaPB "github.com/InjectiveLabs/sdk-go/exchange/meta_rpc/pb"
 )
 
 func main() {
-	network := common.LoadNetwork("mainnet", "lb")
+	//network := common.LoadNetwork("mainnet", "k8s")
+	network := common.LoadNetwork("testnet", "k8s")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	ctx := context.Background()
-	marketIds := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
-	stream, err := exchangeClient.StreamOrderbook(ctx, marketIds)
+
+	req := metaPB.InfoRequest{}
+
+	res, err := exchangeClient.GetInfo(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			res, err := stream.Recv()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			fmt.Println(res)
-		}
-	}
+	str, _ := json.MarshalIndent(res, "", " ")
+	fmt.Print(string(str))
 }

@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	"google.golang.org/grpc/credentials"
 	"io/ioutil"
 	"strings"
@@ -46,4 +47,13 @@ func LoadTlsCert(path string, serverName string) credentials.TransportCredential
 		ServerName: domain,
 	}
 	return credentials.NewTLS(config)
+}
+
+func MsgResponse(data []byte) []*chaintypes.TxResponseGenericMessage {
+	response := chaintypes.TxResponseData{}
+	err := response.Unmarshal(data)
+	if err != nil {
+		panic(err)
+	}
+	return response.Messages
 }

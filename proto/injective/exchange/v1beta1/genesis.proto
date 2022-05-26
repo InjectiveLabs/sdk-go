@@ -44,17 +44,41 @@ message GenesisState {
   // derivative_market_settlement_scheduled defines the scheduled markets for settlement at genesis
   repeated DerivativeMarketSettlementInfo derivative_market_settlement_scheduled = 12 [(gogoproto.nullable) = false];
 
+  // sets spot markets as enabled
   bool is_spot_exchange_enabled = 13;
+
+  // sets derivative markets as enabled
   bool is_derivatives_exchange_enabled = 14;
 
+  // the current trading reward campaign info
   TradingRewardCampaignInfo trading_reward_campaign_info = 15;
+
+  // the current and upcoming trading reward campaign pools
   repeated CampaignRewardPool trading_reward_pool_campaign_schedule = 16;
+
+  // the current trading reward account points
   repeated TradingRewardCampaignAccountPoints trading_reward_campaign_account_points = 17;
 
+  // the fee discount schedule
   FeeDiscountSchedule fee_discount_schedule = 18;
+
+  // the cached fee discount account tiers with TTL
   repeated FeeDiscountAccountTierTTL fee_discount_account_tier_ttl = 19;
+
+  // the fee discount paid by accounts in all buckets
   repeated FeeDiscountBucketFeesPaidAccounts fee_discount_bucket_fees_paid_accounts = 20;
+
+  // sets the first fee cycle as finished
   bool is_first_fee_cycle_finished = 21;
+
+  // the current and upcoming trading reward campaign pending pools
+  repeated CampaignRewardPool pending_trading_reward_pool_campaign_schedule = 22;
+
+  // the pending trading reward account points
+  repeated TradingRewardCampaignAccountPendingPoints pending_trading_reward_campaign_account_points = 23;
+
+  // the registered dmm accounts
+  repeated string registered_dmms = 24;
 }
 
 message FeeDiscountAccountTierTTL {
@@ -81,6 +105,11 @@ message TradingRewardCampaignAccountPoints {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+}
+
+message TradingRewardCampaignAccountPendingPoints {
+  int64 reward_pool_start_timestamp = 1;
+  repeated TradingRewardCampaignAccountPoints account_points = 2;
 }
 
 // Spot Exchange Limit Orderbook

@@ -2,23 +2,28 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
+
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	"time"
 )
 
 func main() {
+	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
+
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
-		"/Users/nam/.injectived",
+		os.Getenv("HOME")+"/.injectived",
 		"injectived",
 		"file",
 		"inj-user",
@@ -27,21 +32,21 @@ func main() {
 		false,
 	)
 
+	if err != nil {
+		panic(err)
+	}
+
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),
 		cosmosKeyring,
 	)
-	clientCtx.WithNodeURI(network.TmEndpoint)
-	clientCtx = clientCtx.WithClient(tmRPC)
 
-	msg := &banktypes.MsgSend{
-		FromAddress: senderAddress.String(),
-		ToAddress:   "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
-		Amount: []sdktypes.Coin{
-			{Denom: "inj", Amount: sdktypes.NewInt(1)},
-		},
+	if err != nil {
+		fmt.Println(err)
 	}
+
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
@@ -50,19 +55,32 @@ func main() {
 		common.OptionGasPrices("500000000inj"),
 	)
 
-	for i:=0; i<2; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	time.Sleep(time.Second * 2)
-	for i:=0; i<2; i++ {
-		err := chainClient.QueueBroadcastMsg(msg)
-		if err != nil {
-			fmt.Println(err)
-		}
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	for true {}
+	msg := new(stakingtypes.MsgDelegate)
+	msg.DelegatorAddress = senderAddress.String()
+	msg.ValidatorAddress = "injvaloper14gy4acwjm96wd20awm9ar6j54lev5p7espy9ug"
+	msg.Amount = sdktypes.Coin{
+		Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000), // 1 INJ
+	}
+
+	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	err = chainClient.QueueBroadcastMsg(msg)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	time.Sleep(time.Second * 5)
+
+	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee:", gasFee, "INJ")
 }

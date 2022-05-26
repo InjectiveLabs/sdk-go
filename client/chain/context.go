@@ -179,7 +179,7 @@ func newContext(
 		OutputFormat:      "json",
 		BroadcastMode:     "block",
 		UseLedger:         false,
-		Simulate:          false,
+		Simulate:          true,
 		GenerateOnly:      false,
 		Offline:           false,
 		SkipConfirm:       true,

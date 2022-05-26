@@ -4,7 +4,7 @@ import (
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
-	log "github.com/xlab/suplog"
+	log "github.com/InjectiveLabs/suplog"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -44,9 +44,9 @@ func OptionGasPrices(gasPrices string) ClientOption {
 func OptionTLSCert(tlsCert credentials.TransportCredentials) ClientOption {
 	return func(opts *ClientOptions) error {
 		if tlsCert == nil {
-			log.Infoln("Client does not use grpc secure transport")
+			log.Infoln("client does not use grpc secure transport")
 		} else {
-			log.Infoln("Succesfully load server TLS cert")
+			log.Infoln("succesfully load server TLS cert")
 		}
 		opts.TLSCert = tlsCert
 		return nil

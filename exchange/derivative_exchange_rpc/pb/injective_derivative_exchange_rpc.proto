@@ -22,6 +22,8 @@ service InjectiveDerivativeExchangeRPC {
 	rpc StreamMarket (StreamMarketRequest) returns (stream StreamMarketResponse);
 	// Orderbook gets the Orderbook of a Derivative Market
 	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
+	// Orderbooks gets the Orderbooks of requested derivative markets
+	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
 	// StreamOrderbook streams live updates of selected derivative market orderbook.
 	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
 	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
@@ -203,6 +205,22 @@ message PriceLevel {
 	sint64 timestamp = 3;
 }
 
+message OrderbooksRequest {
+	// MarketIds of the markets
+	repeated string market_ids = 1;
+}
+
+message OrderbooksResponse {
+	repeated SingleDerivativeLimitOrderbook orderbooks = 1;
+}
+
+message SingleDerivativeLimitOrderbook {
+	// market's ID
+	string market_id = 1;
+	// Orderbook of the market
+	DerivativeLimitOrderbook orderbook = 2;
+}
+
 message StreamOrderbookRequest {
 	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
 	repeated string market_ids = 1;
@@ -226,6 +244,10 @@ message OrdersRequest {
 	string order_side = 2;
 	// Look for specific subaccountId of an order
 	string subaccount_id = 3;
+	// Skip will skip the first n item from the result
+	uint64 skip = 4;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 5;
 }
 
 message OrdersResponse {
@@ -269,6 +291,10 @@ message PositionsRequest {
 	string subaccount_id = 1;
 	// MarketId of the position we want to fetch
 	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 4;
 }
 
 message PositionsResponse {
@@ -302,6 +328,10 @@ message DerivativePosition {
 message LiquidablePositionsRequest {
 	// Market ID to filter orders for specific market
 	string market_id = 1;
+	// Skip will skip the first n item from the result
+	uint64 skip = 2;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 3;
 }
 
 message LiquidablePositionsResponse {
@@ -366,6 +396,8 @@ message StreamPositionsRequest {
 	string market_id = 2;
 	// List of market IDs of the positions we want to stream
 	repeated string market_ids = 3;
+	// Subaccount ids of traders we want to get positions
+	repeated string subaccount_ids = 4;
 }
 
 message StreamPositionsResponse {
@@ -382,6 +414,10 @@ message StreamOrdersRequest {
 	string order_side = 2;
 	// Look for specific subaccountId of an order
 	string subaccount_id = 3;
+	// Skip will skip the first n item from the result
+	uint64 skip = 4;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 5;
 }
 
 message StreamOrdersResponse {
@@ -412,6 +448,10 @@ message TradesRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 8;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 9;
+	// Subaccount ids of traders we want to get trades
+	repeated string subaccount_ids = 10;
 }
 
 message TradesResponse {
@@ -472,6 +512,10 @@ message StreamTradesRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 8;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 9;
+	// Subaccount ids of traders we want to get trades
+	repeated string subaccount_ids = 10;
 }
 
 message StreamTradesResponse {
@@ -488,6 +532,10 @@ message SubaccountOrdersListRequest {
 	string subaccount_id = 1;
 	// Market ID to filter orders for specific market
 	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 4;
 }
 
 message SubaccountOrdersListResponse {
@@ -504,6 +552,10 @@ message SubaccountTradesListRequest {
 	string execution_type = 3;
 	// Filter by direction trades
 	string direction = 4;
+	// Skip will skip the first n item from the result
+	uint64 skip = 5;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 6;
 }
 
 message SubaccountTradesListResponse {

@@ -2,10 +2,14 @@ package types
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+
+	wasmxtypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types"
 )
 
 const RouterKey = ModuleName
@@ -31,8 +35,8 @@ var (
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
-	_ sdk.Msg = &MsgSubscribeToMarketMakingPool{}
-	_ sdk.Msg = &MsgRedeemFromMarketMakingPool{}
+	_ sdk.Msg = &MsgExec{}
+	_ sdk.Msg = &MsgRegisterAsDMM{}
 )
 
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -926,49 +930,60 @@ func (msg *MsgIncreasePositionMargin) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-func (msg *MsgSubscribeToMarketMakingPool) Route() string {
+func (msg *MsgExec) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgSubscribeToMarketMakingPool) Type() string {
-	return "subscribeToMarketMakingPool"
+func (msg *MsgExec) Type() string {
+	return "exec"
 }
 
-func (msg *MsgSubscribeToMarketMakingPool) ValidateBasic() error {
+func (msg *MsgExec) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if msg.FundsAmount.IsNil() || !msg.FundsAmount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.FundsAmount.String())
+	if !msg.BankFunds.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.BankFunds.String())
 	}
 
-	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SubscriberSubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubscriberSubaccountId)
-	}
-	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
-	}
-
-	if _, err := sdk.AccAddressFromBech32(msg.ContractAddressMaker); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddressMaker)
+	if msg.DepositsSubaccountId != "" {
+		if addr, ok := IsValidSubaccountID(msg.DepositsSubaccountId); !ok {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.DepositsSubaccountId)
+		} else if !bytes.Equal(addr.Bytes(), senderAddr.Bytes()) {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.DepositsSubaccountId)
+		}
 	}
 
-	// TODO: why is this prohibited? What if the pool has margin ratio GT 1?
-	if msg.SubscriberMarginRatio.GT(sdk.OneDec()) {
-		return sdkerrors.Wrapf(ErrInvalidMarginRatio, "Subscriber position margin ratio %s is above one", msg.SubscriberMarginRatio.String())
+	if !msg.DepositFunds.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.DepositFunds.String())
+	}
+
+	_, err = sdk.AccAddressFromBech32(msg.ContractAddress)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+	}
+
+	var e wasmxtypes.ExecutionData
+	if err := json.Unmarshal([]byte(msg.Data), &e); err != nil {
+		return sdkerrors.Wrap(err, msg.Data)
+	}
+
+	if e.Name == "" {
+		return sdkerrors.Wrap(ErrBadField, "name should not be empty")
+	} else if e.Origin != "" && e.Origin != msg.Sender {
+		return sdkerrors.Wrap(ErrBadField, "origin must match sender or be empty")
 	}
 
 	return nil
 }
 
-func (msg *MsgSubscribeToMarketMakingPool) GetSignBytes() []byte {
+func (msg *MsgExec) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func (msg *MsgSubscribeToMarketMakingPool) GetSigners() []sdk.AccAddress {
+func (msg *MsgExec) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -976,44 +991,27 @@ func (msg *MsgSubscribeToMarketMakingPool) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-func (msg *MsgRedeemFromMarketMakingPool) Route() string {
+func (msg *MsgRegisterAsDMM) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgRedeemFromMarketMakingPool) Type() string {
-	return "redeemFromMarketMakingPool"
+func (msg *MsgRegisterAsDMM) Type() string {
+	return "registerAsDMM"
 }
 
-func (msg *MsgRedeemFromMarketMakingPool) ValidateBasic() error {
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if msg.LpTokenBurnAmount.IsNil() || !msg.LpTokenBurnAmount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.LpTokenBurnAmount.String())
-	}
-
-	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.RedeemerSubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.RedeemerSubaccountId)
-	}
-	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
-	}
-
-	if _, err := sdk.AccAddressFromBech32(msg.ContractAddressMaker); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddressMaker)
+func (msg *MsgRegisterAsDMM) ValidateBasic() error {
+	if msg.Sender != msg.DmmAccount {
+		return sdkerrors.Wrap(ErrInvalidDMMSender, fmt.Sprintf("Sender: %s doesn't match dmm account: %s", msg.Sender, msg.DmmAccount))
 	}
 
 	return nil
 }
 
-func (msg *MsgRedeemFromMarketMakingPool) GetSignBytes() []byte {
+func (msg *MsgRegisterAsDMM) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func (msg *MsgRedeemFromMarketMakingPool) GetSigners() []sdk.AccAddress {
+func (msg *MsgRegisterAsDMM) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -1108,6 +1106,10 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		if hasDuplicateDerivativesMarketIds {
 			return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
 		}
+	}
+
+	if !hasSubaccountIdForCancelAll && len(msg.DerivativeOrdersToCancel) == 0 && len(msg.SpotOrdersToCancel) == 0 && len(msg.DerivativeOrdersToCreate) == 0 && len(msg.SpotOrdersToCreate) == 0 {
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg is empty")
 	}
 
 	hasDuplicateSpotOrderToCancel := HasDuplicatesOrder(msg.SpotOrdersToCancel)

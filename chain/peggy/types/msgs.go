@@ -335,7 +335,7 @@ const (
 // note that the Orchestrator is the only field excluded from this hash, this is because that value is used higher up in the store
 // structure for who has made what claim and is verified by the msg ante-handler for signatures
 func (msg *MsgDepositClaim) ClaimHash() []byte {
-	path := fmt.Sprintf("%d/%d/%s/%s/%s/%s", msg.EventNonce, msg.BlockHeight, msg.TokenContract, msg.Amount.String(), string(msg.EthereumSender), msg.CosmosReceiver)
+	path := fmt.Sprintf("%d/%d/%s/%s/%s/%s/%s", msg.EventNonce, msg.BlockHeight, msg.TokenContract, msg.Amount.String(), string(msg.EthereumSender), msg.CosmosReceiver, msg.Data)
 	return tmhash.Sum([]byte(path))
 }
 

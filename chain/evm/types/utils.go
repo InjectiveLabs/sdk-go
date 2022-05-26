@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
-	log "github.com/xlab/suplog"
+	log "github.com/InjectiveLabs/suplog"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"

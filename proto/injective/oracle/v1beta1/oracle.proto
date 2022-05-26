@@ -31,6 +31,12 @@ message ChainlinkPriceState {
     PriceState price_state = 4 [(gogoproto.nullable) = false];
 }
 
+message SetChainlinkPriceEvent {
+    string feed_id = 1;
+    string answer = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+    uint64 timestamp = 3;
+}
+
 message BandPriceState {
     string symbol = 1;
     string rate = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];

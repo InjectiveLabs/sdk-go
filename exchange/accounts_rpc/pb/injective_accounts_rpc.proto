@@ -175,6 +175,10 @@ message SubaccountHistoryRequest {
 	string denom = 2;
 	// Filter history by transfer type
 	repeated string transfer_types = 3;
+	// Skip will skip the first n item from the result
+	uint64 skip = 4;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 5;
 }
 
 message SubaccountHistoryResponse {
