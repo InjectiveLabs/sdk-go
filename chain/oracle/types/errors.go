@@ -30,4 +30,5 @@ var (
 	ErrBadRequestInterval          = sdkerrors.Register(ModuleName, 23, "invalid Band IBC request interval")
 	ErrInvalidBandIBCUpdateRequest = sdkerrors.Register(ModuleName, 24, "Invalid Band IBC Update Request Proposal")
 	ErrBandIBCRequestNotFound      = sdkerrors.Register(ModuleName, 25, "Band IBC Oracle Request not found")
+	ErrEmptyBaseInfo               = sdkerrors.Register(ModuleName, 26, "Base Info is empty")
 )

@@ -44,6 +44,9 @@ var (
 
 	// Keys for chainlink price prefixes
 	ChainlinkPriceKey = []byte{0x41}
+
+	SymbolHistoricalPriceRecordsPrefix = []byte{0x51} // prefix for each key to a symbols's historical price records
+	SymbolsMapLastPriceTimestampsKey   = []byte{0x52} // key for symbols map with latest price update timestamps
 )
 
 func GetBandPriceStoreKey(symbol string) []byte {
@@ -106,4 +109,8 @@ func GetChainlinkPriceStoreKey(feedId string) []byte {
 
 func getPaddedFeedIdBz(feedId string) string {
 	return fmt.Sprintf("%20s", feedId)
+}
+
+func GetSymbolHistoricalPriceRecordsKey(oracleType OracleType, symbol string) []byte {
+	return append(SymbolHistoricalPriceRecordsPrefix, []byte(fmt.Sprintf("%s_%s", oracleType.String(), symbol))...)
 }
