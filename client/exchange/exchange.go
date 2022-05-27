@@ -14,8 +14,8 @@ import (
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/pkg/errors"
 	log "github.com/InjectiveLabs/suplog"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
 
@@ -71,6 +71,12 @@ type ExchangeClient interface {
 	GetVersion(ctx context.Context, req metaPB.VersionRequest) (metaPB.VersionResponse, error)
 	Ping(ctx context.Context, req metaPB.PingRequest) (metaPB.PingResponse, error)
 	GetTxByTxHash(ctx context.Context, hash string) (explorerPB.GetTxByTxHashResponse, error)
+	GetTxs(ctx context.Context) (explorerPB.GetTxsResponse, error)
+	GetBlock(ctx context.Context, blockHeight string) (explorerPB.GetBlockResponse, error)
+	GetBlocks(ctx context.Context) (explorerPB.GetBlocksResponse, error)
+	GetAccountTxs(ctx context.Context, address string) (explorerPB.GetAccountTxsResponse, error)
+	StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error)
+	StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error)
 	Close()
 }
 
@@ -957,6 +963,108 @@ func (c *exchangeClient) GetTxByTxHash(ctx context.Context, hash string) (explor
 	c.setCookie(header)
 
 	return *res, nil
+}
+
+func (c *exchangeClient) GetAccountTxs(ctx context.Context, address string) (explorerPB.GetAccountTxsResponse, error) {
+	req := explorerPB.GetAccountTxsRequest{
+		Address: address,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetAccountTxs(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetAccountTxsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetBlocks(ctx context.Context) (explorerPB.GetBlocksResponse, error) {
+	req := explorerPB.GetBlocksRequest{}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetBlocks(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetBlocksResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetBlock(ctx context.Context, blockHeight string) (explorerPB.GetBlockResponse, error) {
+	req := explorerPB.GetBlockRequest{
+		Id: blockHeight,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetBlock(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetBlockResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetTxs(ctx context.Context) (explorerPB.GetTxsResponse, error) {
+	req := explorerPB.GetTxsRequest{}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetTxs(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetTxsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error) {
+	req := explorerPB.StreamTxsRequest{}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.explorerClient.StreamTxs(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error) {
+	req := explorerPB.StreamBlocksRequest{}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.explorerClient.StreamBlocks(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
 }
 
 func (c *exchangeClient) Close() {
