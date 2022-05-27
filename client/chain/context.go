@@ -39,8 +39,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibcapplicationtypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
-	ibccoretypes "github.com/cosmos/ibc-go/v2/modules/core/types"
+	ibcapplicationtypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibccoretypes "github.com/cosmos/ibc-go/v3/modules/core/types"
 )
 
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
