@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -13,6 +15,7 @@ const (
 	TypeMsgRelayBandRates        = "relayBandRates"
 	TypeMsgRelayCoinbaseMessages = "relayCoinbaseMessages"
 	TypeMsgRequestBandIBCRates   = "requestBandIBCRates"
+	TypeMsgRelayProviderPrices   = "relayProviderPrices"
 )
 
 var (
@@ -20,6 +23,7 @@ var (
 	_ sdk.Msg = &MsgRelayBandRates{}
 	_ sdk.Msg = &MsgRelayCoinbaseMessages{}
 	_ sdk.Msg = &MsgRequestBandIBCRates{}
+	_ sdk.Msg = &MsgRelayProviderPrices{}
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -188,4 +192,59 @@ func (msg MsgRequestBandIBCRates) GetSigners() []sdk.AccAddress {
 func (msg MsgRequestBandIBCRates) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(bz)
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgRelayProviderPrices) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgRelayProviderPrices) Type() string { return TypeMsgRelayProviderPrices }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgRelayProviderPrices) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return err
+	}
+
+	if msg.Provider == "" {
+		return ErrEmptyProvider
+	}
+
+	if len(msg.Symbols) != len(msg.Prices) || len(msg.Prices) == 0 {
+		return ErrBadRatesCount
+	}
+
+	for _, symbol := range msg.Symbols {
+		if strings.Contains(symbol, providerDelimiter) {
+			return ErrInvalidSymbol
+		}
+	}
+
+	for _, price := range msg.Prices {
+		// zero prices are allowed for provider oracles
+		if price.IsNegative() {
+			return ErrBadPrice
+		}
+		if price.GT(LargestDecPrice) {
+			return ErrPriceTooLarge
+		}
+	}
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgRelayProviderPrices) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgRelayProviderPrices) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
 }

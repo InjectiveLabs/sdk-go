@@ -30,6 +30,9 @@ const (
 	MaxDerivativeOrderSideCount uint32 = 20
 
 	MaxOracleScaleFactor uint32 = 18
+
+	// MaxHistoricalTradeRecordAge is the maximum age of trade records to track.
+	MaxHistoricalTradeRecordAge = 60 * 5
 )
 
 // MaxOrderPrice equals 10^32
@@ -56,6 +59,7 @@ var (
 	KeyMaxDerivativeOrderSideCount         = []byte("MaxDerivativeOrderSideCount")
 	KeyInjRewardStakedRequirementThreshold = []byte("KeyInjRewardStakedRequirementThreshold")
 	KeyTradingRewardsVestingDuration       = []byte("TradingRewardsVestingDuration")
+	KeyLiquidatorRewardShareRate           = []byte("LiquidatorRewardShareRate")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -79,22 +83,28 @@ func NewParams(
 	defaultHourlyFundingRateCap sdk.Dec,
 	defaultHourlyInterestRate sdk.Dec,
 	maxDerivativeSideOrderCount uint32,
+	injRewardStakedRequirementThreshold sdk.Int,
+	tradingRewardsVestingDuration int64,
+	liquidatorRewardShareRate sdk.Dec,
 ) Params {
 	return Params{
-		SpotMarketInstantListingFee:       SpotMarketInstantListingFee,
-		DerivativeMarketInstantListingFee: derivativeMarketInstantListingFee,
-		DefaultSpotMakerFeeRate:           defaultSpotMakerFee,
-		DefaultSpotTakerFeeRate:           defaultSpotTakerFee,
-		DefaultDerivativeMakerFeeRate:     defaultDerivativeMakerFee,
-		DefaultDerivativeTakerFeeRate:     defaultDerivativeTakerFee,
-		DefaultInitialMarginRatio:         defaultInitialMarginRatio,
-		DefaultMaintenanceMarginRatio:     defaultMaintenanceMarginRatio,
-		DefaultFundingInterval:            defaultFundingInterval,
-		FundingMultiple:                   fundingMultiple,
-		RelayerFeeShareRate:               relayerFeeShare,
-		DefaultHourlyFundingRateCap:       defaultHourlyFundingRateCap,
-		DefaultHourlyInterestRate:         defaultHourlyInterestRate,
-		MaxDerivativeOrderSideCount:       maxDerivativeSideOrderCount,
+		SpotMarketInstantListingFee:         SpotMarketInstantListingFee,
+		DerivativeMarketInstantListingFee:   derivativeMarketInstantListingFee,
+		DefaultSpotMakerFeeRate:             defaultSpotMakerFee,
+		DefaultSpotTakerFeeRate:             defaultSpotTakerFee,
+		DefaultDerivativeMakerFeeRate:       defaultDerivativeMakerFee,
+		DefaultDerivativeTakerFeeRate:       defaultDerivativeTakerFee,
+		DefaultInitialMarginRatio:           defaultInitialMarginRatio,
+		DefaultMaintenanceMarginRatio:       defaultMaintenanceMarginRatio,
+		DefaultFundingInterval:              defaultFundingInterval,
+		FundingMultiple:                     fundingMultiple,
+		RelayerFeeShareRate:                 relayerFeeShare,
+		DefaultHourlyFundingRateCap:         defaultHourlyFundingRateCap,
+		DefaultHourlyInterestRate:           defaultHourlyInterestRate,
+		MaxDerivativeOrderSideCount:         maxDerivativeSideOrderCount,
+		InjRewardStakedRequirementThreshold: injRewardStakedRequirementThreshold,
+		TradingRewardsVestingDuration:       tradingRewardsVestingDuration,
+		LiquidatorRewardShareRate:           liquidatorRewardShareRate,
 	}
 }
 
@@ -117,6 +127,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxDerivativeOrderSideCount, &p.MaxDerivativeOrderSideCount, validateDerivativeOrderSideCount),
 		paramtypes.NewParamSetPair(KeyInjRewardStakedRequirementThreshold, &p.InjRewardStakedRequirementThreshold, validateInjRewardStakedRequirementThreshold),
 		paramtypes.NewParamSetPair(KeyTradingRewardsVestingDuration, &p.TradingRewardsVestingDuration, validateTradingRewardsVestingDuration),
+		paramtypes.NewParamSetPair(KeyLiquidatorRewardShareRate, &p.LiquidatorRewardShareRate, validateLiquidatorRewardShareRate),
 	}
 }
 
@@ -139,6 +150,7 @@ func DefaultParams() Params {
 		MaxDerivativeOrderSideCount:         MaxDerivativeOrderSideCount,
 		InjRewardStakedRequirementThreshold: sdk.NewIntWithDecimal(100, 18), // 100 INJ
 		TradingRewardsVestingDuration:       604800,                         // 7 days
+		LiquidatorRewardShareRate:           sdk.NewDecWithPrec(5, 2),       // 5% liquidator reward
 	}
 }
 
@@ -187,6 +199,9 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateInjRewardStakedRequirementThreshold(p.InjRewardStakedRequirementThreshold); err != nil {
+		return err
+	}
+	if err := validateLiquidatorRewardShareRate(p.LiquidatorRewardShareRate); err != nil {
 		return err
 	}
 
@@ -429,6 +444,25 @@ func validateTradingRewardsVestingDuration(i interface{}) error {
 
 	if v < 0 {
 		return fmt.Errorf("trading rewards vesting duration must be non-negative: %d", v)
+	}
+
+	return nil
+}
+
+func validateLiquidatorRewardShareRate(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("reward ratio cannot be nil: %s", v)
+	}
+	if v.IsNegative() {
+		return fmt.Errorf("reward ratio cannot be negative: %s", v)
+	}
+	if v.GT(sdk.OneDec()) {
+		return fmt.Errorf("reward ratio cannot be greater than 1: %s", v)
 	}
 
 	return nil

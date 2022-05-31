@@ -2,11 +2,14 @@ package types
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+
+	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
 const RouterKey = ModuleName
@@ -32,6 +35,7 @@ var (
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
+	_ sdk.Msg = &MsgExec{}
 	_ sdk.Msg = &MsgRegisterAsDMM{}
 )
 
@@ -926,6 +930,67 @@ func (msg *MsgIncreasePositionMargin) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
+func (msg *MsgExec) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgExec) Type() string {
+	return "exec"
+}
+
+func (msg *MsgExec) ValidateBasic() error {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !msg.BankFunds.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.BankFunds.String())
+	}
+
+	if msg.DepositsSubaccountId != "" {
+		if addr, ok := IsValidSubaccountID(msg.DepositsSubaccountId); !ok {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.DepositsSubaccountId)
+		} else if !bytes.Equal(addr.Bytes(), senderAddr.Bytes()) {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.DepositsSubaccountId)
+		}
+	}
+
+	if !msg.DepositFunds.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.DepositFunds.String())
+	}
+
+	_, err = sdk.AccAddressFromBech32(msg.ContractAddress)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+	}
+
+	var e wasmxtypes.ExecutionData
+	if err := json.Unmarshal([]byte(msg.Data), &e); err != nil {
+		return sdkerrors.Wrap(err, msg.Data)
+	}
+
+	if e.Name == "" {
+		return sdkerrors.Wrap(ErrBadField, "name should not be empty")
+	} else if e.Origin != "" && e.Origin != msg.Sender {
+		return sdkerrors.Wrap(ErrBadField, "origin must match sender or be empty")
+	}
+
+	return nil
+}
+
+func (msg *MsgExec) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgExec) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
 func (msg *MsgRegisterAsDMM) Route() string {
 	return RouterKey
 }
@@ -1041,6 +1106,10 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		if hasDuplicateDerivativesMarketIds {
 			return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
 		}
+	}
+
+	if !hasSubaccountIdForCancelAll && len(msg.DerivativeOrdersToCancel) == 0 && len(msg.SpotOrdersToCancel) == 0 && len(msg.DerivativeOrdersToCreate) == 0 && len(msg.SpotOrdersToCreate) == 0 {
+		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg is empty")
 	}
 
 	hasDuplicateSpotOrderToCancel := HasDuplicatesOrder(msg.SpotOrdersToCancel)

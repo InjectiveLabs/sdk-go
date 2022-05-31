@@ -28,6 +28,14 @@ func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 	return position
 }
 
+// GetEffectiveMarginRatio returns the effective margin ratio of the position, based on the input mark price.
+// CONTRACT: position must already be funding-adjusted (if perpetual) and have positive quantity.
+func (p *Position) GetEffectiveMarginRatio(markPrice sdk.Dec) (marginRatio sdk.Dec) {
+	// marginRatio = (margin + quantity * PnlPerContract) / (markPrice * quantity)
+	effectiveMargin := p.Margin.Add(p.GetPayoutFromPnl(markPrice, p.Quantity))
+	return effectiveMargin.Quo(markPrice.Mul(p.Quantity))
+}
+
 // ApplyProfitHaircut results in reducing the payout (pnl * quantity) by the given rate (e.g. 0.1=10%) by modifying the entry price.
 // Formula for adjustment:
 // newPayoutFromPnl = oldPayoutFromPnl * (1 - missingFundsRate)
@@ -131,7 +139,7 @@ func (p *Position) GetLiquidationPrice(maintenanceMarginRatio sdk.Dec, funding *
 }
 
 func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio sdk.Dec, funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
-	adjustedUnitMargin := p.getFundingAdjustedUnitMargin(funding, addedMargin)
+	adjustedUnitMargin := p.getFundingAdjustedUnitMarginWithAddedMargin(funding, addedMargin)
 
 	// TODO include closing fee for reduce only ?
 
@@ -146,7 +154,29 @@ func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio sdk
 	return liquidationPrice
 }
 
-func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
+func (p *Position) GetEffectiveMargin(funding *PerpetualMarketFunding, closingPrice sdk.Dec) sdk.Dec {
+	fundingAdjustedMargin := p.getFundingAdjustedMargin(funding)
+	pnlNotional := p.GetPayoutFromPnl(closingPrice, p.Quantity)
+	effectiveMargin := fundingAdjustedMargin.Add(pnlNotional)
+
+	return effectiveMargin
+}
+
+// ApplyFunding updates the position to account for any funding payment.
+func (p *Position) ApplyFunding(funding *PerpetualMarketFunding) {
+	if funding != nil {
+		p.Margin = p.getFundingAdjustedMargin(funding)
+
+		// update the cumulative funding entry to current
+		p.CumulativeFundingEntry = funding.CumulativeFunding
+	}
+}
+
+func (p *Position) getFundingAdjustedMargin(funding *PerpetualMarketFunding) sdk.Dec {
+	return p.getFundingAdjustedMarginWithAddedMargin(funding, sdk.ZeroDec())
+}
+
+func (p *Position) getFundingAdjustedMarginWithAddedMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
 	adjustedMargin := p.Margin.Add(addedMargin)
 
 	// Compute the adjusted position margin for positions in perpetual markets
@@ -161,6 +191,12 @@ func (p *Position) getFundingAdjustedUnitMargin(funding *PerpetualMarketFunding,
 			adjustedMargin = adjustedMargin.Add(unrealizedFundingPayment)
 		}
 	}
+
+	return adjustedMargin
+}
+
+func (p *Position) getFundingAdjustedUnitMarginWithAddedMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
+	adjustedMargin := p.getFundingAdjustedMarginWithAddedMargin(funding, addedMargin)
 
 	// Unit Margin = PositionMargin / PositionQuantity
 	fundingAdjustedUnitMargin := adjustedMargin.Quo(p.Quantity)
@@ -265,9 +301,9 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 			ExecutionMargin:   remainingExecutionMargin,
 			ExecutionPrice:    delta.ExecutionPrice,
 		}
+
 		// recurse
 		_, _, collateralizationMargin = p.ApplyPositionDelta(newPositionDelta, tradingFeeForReduceOnly)
-
 	}
 
 	return payout, closeExecutionMargin, collateralizationMargin

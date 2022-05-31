@@ -6,7 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/cosmos/cosmos-sdk/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
@@ -30,6 +29,83 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// MsgRelayProviderPrice defines a SDK message for setting a price through the provider oracle.
+type MsgRelayProviderPrices struct {
+	Sender   string                                   `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	Provider string                                   `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider,omitempty"`
+	Symbols  []string                                 `protobuf:"bytes,3,rep,name=symbols,proto3" json:"symbols,omitempty"`
+	Prices   []github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,rep,name=prices,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"prices"`
+}
+
+func (m *MsgRelayProviderPrices) Reset()         { *m = MsgRelayProviderPrices{} }
+func (m *MsgRelayProviderPrices) String() string { return proto.CompactTextString(m) }
+func (*MsgRelayProviderPrices) ProtoMessage()    {}
+func (*MsgRelayProviderPrices) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5fdf1c490eba4310, []int{0}
+}
+func (m *MsgRelayProviderPrices) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRelayProviderPrices) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRelayProviderPrices.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRelayProviderPrices) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRelayProviderPrices.Merge(m, src)
+}
+func (m *MsgRelayProviderPrices) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRelayProviderPrices) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRelayProviderPrices.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRelayProviderPrices proto.InternalMessageInfo
+
+type MsgRelayProviderPricesResponse struct {
+}
+
+func (m *MsgRelayProviderPricesResponse) Reset()         { *m = MsgRelayProviderPricesResponse{} }
+func (m *MsgRelayProviderPricesResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgRelayProviderPricesResponse) ProtoMessage()    {}
+func (*MsgRelayProviderPricesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5fdf1c490eba4310, []int{1}
+}
+func (m *MsgRelayProviderPricesResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgRelayProviderPricesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgRelayProviderPricesResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgRelayProviderPricesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgRelayProviderPricesResponse.Merge(m, src)
+}
+func (m *MsgRelayProviderPricesResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgRelayProviderPricesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgRelayProviderPricesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgRelayProviderPricesResponse proto.InternalMessageInfo
+
 // MsgRelayPriceFeedPrice defines a SDK message for setting a price through the pricefeed oracle.
 type MsgRelayPriceFeedPrice struct {
 	Sender string   `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
@@ -43,7 +119,7 @@ func (m *MsgRelayPriceFeedPrice) Reset()         { *m = MsgRelayPriceFeedPrice{}
 func (m *MsgRelayPriceFeedPrice) String() string { return proto.CompactTextString(m) }
 func (*MsgRelayPriceFeedPrice) ProtoMessage()    {}
 func (*MsgRelayPriceFeedPrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5fdf1c490eba4310, []int{0}
+	return fileDescriptor_5fdf1c490eba4310, []int{2}
 }
 func (m *MsgRelayPriceFeedPrice) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -79,7 +155,7 @@ func (m *MsgRelayPriceFeedPriceResponse) Reset()         { *m = MsgRelayPriceFee
 func (m *MsgRelayPriceFeedPriceResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgRelayPriceFeedPriceResponse) ProtoMessage()    {}
 func (*MsgRelayPriceFeedPriceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5fdf1c490eba4310, []int{1}
+	return fileDescriptor_5fdf1c490eba4310, []int{3}
 }
 func (m *MsgRelayPriceFeedPriceResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -120,7 +196,7 @@ func (m *MsgRelayBandRates) Reset()         { *m = MsgRelayBandRates{} }
 func (m *MsgRelayBandRates) String() string { return proto.CompactTextString(m) }
 func (*MsgRelayBandRates) ProtoMessage()    {}
 func (*MsgRelayBandRates) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5fdf1c490eba4310, []int{2}
+	return fileDescriptor_5fdf1c490eba4310, []int{4}
 }
 func (m *MsgRelayBandRates) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -191,7 +267,7 @@ func (m *MsgRelayBandRatesResponse) Reset()         { *m = MsgRelayBandRatesResp
 func (m *MsgRelayBandRatesResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgRelayBandRatesResponse) ProtoMessage()    {}
 func (*MsgRelayBandRatesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5fdf1c490eba4310, []int{3}
+	return fileDescriptor_5fdf1c490eba4310, []int{5}
 }
 func (m *MsgRelayBandRatesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -231,7 +307,7 @@ func (m *MsgRelayCoinbaseMessages) Reset()         { *m = MsgRelayCoinbaseMessag
 func (m *MsgRelayCoinbaseMessages) String() string { return proto.CompactTextString(m) }
 func (*MsgRelayCoinbaseMessages) ProtoMessage()    {}
 func (*MsgRelayCoinbaseMessages) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5fdf1c490eba4310, []int{4}
+	return fileDescriptor_5fdf1c490eba4310, []int{6}
 }
 func (m *MsgRelayCoinbaseMessages) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -267,7 +343,7 @@ func (m *MsgRelayCoinbaseMessagesResponse) Reset()         { *m = MsgRelayCoinba
 func (m *MsgRelayCoinbaseMessagesResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgRelayCoinbaseMessagesResponse) ProtoMessage()    {}
 func (*MsgRelayCoinbaseMessagesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5fdf1c490eba4310, []int{5}
+	return fileDescriptor_5fdf1c490eba4310, []int{7}
 }
 func (m *MsgRelayCoinbaseMessagesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -306,7 +382,7 @@ func (m *MsgRequestBandIBCRates) Reset()         { *m = MsgRequestBandIBCRates{}
 func (m *MsgRequestBandIBCRates) String() string { return proto.CompactTextString(m) }
 func (*MsgRequestBandIBCRates) ProtoMessage()    {}
 func (*MsgRequestBandIBCRates) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5fdf1c490eba4310, []int{6}
+	return fileDescriptor_5fdf1c490eba4310, []int{8}
 }
 func (m *MsgRequestBandIBCRates) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -343,7 +419,7 @@ func (m *MsgRequestBandIBCRatesResponse) Reset()         { *m = MsgRequestBandIB
 func (m *MsgRequestBandIBCRatesResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgRequestBandIBCRatesResponse) ProtoMessage()    {}
 func (*MsgRequestBandIBCRatesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_5fdf1c490eba4310, []int{7}
+	return fileDescriptor_5fdf1c490eba4310, []int{9}
 }
 func (m *MsgRequestBandIBCRatesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -373,6 +449,8 @@ func (m *MsgRequestBandIBCRatesResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgRequestBandIBCRatesResponse proto.InternalMessageInfo
 
 func init() {
+	proto.RegisterType((*MsgRelayProviderPrices)(nil), "injective.oracle.v1beta1.MsgRelayProviderPrices")
+	proto.RegisterType((*MsgRelayProviderPricesResponse)(nil), "injective.oracle.v1beta1.MsgRelayProviderPricesResponse")
 	proto.RegisterType((*MsgRelayPriceFeedPrice)(nil), "injective.oracle.v1beta1.MsgRelayPriceFeedPrice")
 	proto.RegisterType((*MsgRelayPriceFeedPriceResponse)(nil), "injective.oracle.v1beta1.MsgRelayPriceFeedPriceResponse")
 	proto.RegisterType((*MsgRelayBandRates)(nil), "injective.oracle.v1beta1.MsgRelayBandRates")
@@ -386,45 +464,47 @@ func init() {
 func init() { proto.RegisterFile("injective/oracle/v1beta1/tx.proto", fileDescriptor_5fdf1c490eba4310) }
 
 var fileDescriptor_5fdf1c490eba4310 = []byte{
-	// 593 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0xcd, 0x6e, 0xd3, 0x40,
-	0x10, 0xb6, 0x1b, 0xa7, 0x34, 0xab, 0x80, 0xc4, 0x52, 0x2a, 0x63, 0x84, 0x13, 0x82, 0x40, 0x91,
-	0x50, 0x6d, 0xda, 0x5e, 0x50, 0x8f, 0x69, 0x84, 0x14, 0xa9, 0x91, 0x90, 0xc5, 0x05, 0x2e, 0x95,
-	0x7f, 0x06, 0xd7, 0x10, 0x7b, 0x53, 0x8f, 0x13, 0x35, 0x47, 0x4e, 0x20, 0x71, 0xe1, 0x11, 0x2a,
-	0x8e, 0x3c, 0x49, 0x8f, 0x3d, 0x22, 0x0e, 0x15, 0x4a, 0x2e, 0x3c, 0x06, 0xda, 0xf5, 0x4f, 0xa3,
-	0x26, 0x56, 0x94, 0x93, 0x77, 0x66, 0xbf, 0x99, 0xf9, 0xbe, 0xd9, 0xf1, 0x90, 0xa7, 0x41, 0xf4,
-	0x09, 0xdc, 0x24, 0x18, 0x83, 0xc9, 0x62, 0xdb, 0x1d, 0x80, 0x39, 0xde, 0x73, 0x20, 0xb1, 0xf7,
-	0xcc, 0xe4, 0xdc, 0x18, 0xc6, 0x2c, 0x61, 0x54, 0x2d, 0x20, 0x46, 0x0a, 0x31, 0x32, 0x88, 0xb6,
-	0xed, 0x33, 0x9f, 0x09, 0x90, 0xc9, 0x4f, 0x29, 0x5e, 0xd3, 0x5d, 0x86, 0x21, 0x43, 0xd3, 0xb1,
-	0xf1, 0x26, 0x9b, 0xcb, 0x82, 0x28, 0xbb, 0x7f, 0x5e, 0x5a, 0x32, 0x4b, 0x2f, 0x60, 0xad, 0x5f,
-	0x32, 0xd9, 0xe9, 0xa3, 0x6f, 0xc1, 0xc0, 0x9e, 0xbc, 0x8d, 0x03, 0x17, 0xde, 0x00, 0x78, 0xe2,
-	0x40, 0x77, 0xc8, 0x26, 0x42, 0xe4, 0x41, 0xac, 0xca, 0x4d, 0xb9, 0x5d, 0xb3, 0x32, 0x8b, 0x52,
-	0xa2, 0xf0, 0xa2, 0xea, 0x46, 0xb3, 0xd2, 0xae, 0x59, 0xe2, 0x4c, 0xb7, 0x49, 0xf5, 0x6c, 0xc4,
-	0x12, 0x50, 0x2b, 0xc2, 0x99, 0x1a, 0xb4, 0x4b, 0xaa, 0x43, 0x9e, 0x4a, 0x55, 0xb8, 0xb7, 0x63,
-	0x5c, 0x5e, 0x37, 0xa4, 0x3f, 0xd7, 0x8d, 0x17, 0x7e, 0x90, 0x9c, 0x8e, 0x1c, 0xc3, 0x65, 0xa1,
-	0x99, 0xa9, 0x48, 0x3f, 0xbb, 0xe8, 0x7d, 0x36, 0x93, 0xc9, 0x10, 0xd0, 0xe8, 0x82, 0x6b, 0xa5,
-	0xc1, 0x87, 0x5b, 0xdf, 0x2e, 0x1a, 0xd2, 0xbf, 0x8b, 0x86, 0xd4, 0x6a, 0x12, 0x7d, 0x39, 0x57,
-	0x0b, 0x70, 0xc8, 0x22, 0x84, 0xd6, 0x4f, 0x99, 0xdc, 0xcf, 0x21, 0x1d, 0x3b, 0xf2, 0x2c, 0x3b,
-	0x01, 0xa4, 0x2a, 0xb9, 0x13, 0x73, 0x4f, 0x21, 0x25, 0x37, 0xf9, 0x0d, 0x4e, 0x42, 0x87, 0x0d,
-	0x30, 0x93, 0x93, 0x9b, 0x5c, 0x51, 0xcc, 0x83, 0x85, 0x22, 0xc5, 0x4a, 0x0d, 0xfa, 0x8c, 0xdc,
-	0x8d, 0x01, 0xd9, 0x60, 0x0c, 0x27, 0x49, 0x10, 0x02, 0x0a, 0x65, 0x8a, 0x55, 0xcf, 0x9c, 0xef,
-	0xb8, 0x8f, 0xea, 0x84, 0xc4, 0x70, 0x36, 0x02, 0x4c, 0x7a, 0x5d, 0x54, 0xab, 0x02, 0x31, 0xe7,
-	0x69, 0x3d, 0x26, 0x8f, 0x16, 0x38, 0x16, 0x0a, 0xce, 0x89, 0x9a, 0x5f, 0x1e, 0xb1, 0x20, 0xe2,
-	0xdd, 0xed, 0x03, 0xa2, 0xed, 0x03, 0x96, 0xbe, 0x88, 0x46, 0xb6, 0xc2, 0x0c, 0x23, 0x64, 0xd4,
-	0xad, 0xc2, 0xe6, 0x64, 0x30, 0xf0, 0x23, 0x3b, 0x19, 0xc5, 0x99, 0x98, 0xba, 0x35, 0xe7, 0x99,
-	0xeb, 0x6e, 0x8b, 0x34, 0xcb, 0x2a, 0x17, 0xec, 0xde, 0x67, 0xd3, 0x22, 0xb4, 0x70, 0xf2, 0xbd,
-	0xce, 0x51, 0xda, 0xe3, 0x32, 0x6e, 0x4f, 0x8a, 0x66, 0x9c, 0x04, 0x9e, 0xba, 0xd1, 0x94, 0xdb,
-	0x8a, 0x55, 0xcb, 0x9b, 0xe1, 0x2d, 0x79, 0xdc, 0x85, 0xd4, 0x79, 0xf1, 0xfd, 0xef, 0x0a, 0xa9,
-	0xf4, 0xd1, 0xa7, 0x5f, 0x64, 0xf2, 0x60, 0xd9, 0xc0, 0xbe, 0x32, 0xca, 0xfe, 0x21, 0x63, 0xf9,
-	0xd8, 0x68, 0xaf, 0xd7, 0x8d, 0xc8, 0xb9, 0xd0, 0x98, 0xdc, 0xbb, 0x35, 0x64, 0x2f, 0x57, 0xe7,
-	0x2a, 0xc0, 0xda, 0xc1, 0x1a, 0xe0, 0xa2, 0x66, 0xaa, 0x7b, 0xb1, 0xf5, 0xab, 0x74, 0x2f, 0x44,
-	0xac, 0xd4, 0x5d, 0xfa, 0x06, 0xf4, 0xab, 0x4c, 0x1e, 0x2e, 0x1f, 0xce, 0xfd, 0xd5, 0x92, 0x6e,
-	0xc7, 0x68, 0x87, 0xeb, 0xc7, 0xe4, 0x4c, 0x3a, 0x1f, 0x2f, 0xa7, 0xba, 0x7c, 0x35, 0xd5, 0xe5,
-	0xbf, 0x53, 0x5d, 0xfe, 0x31, 0xd3, 0xa5, 0xab, 0x99, 0x2e, 0xfd, 0x9e, 0xe9, 0xd2, 0x87, 0xe3,
-	0xb9, 0xfd, 0xd2, 0xcb, 0xf3, 0x1f, 0xdb, 0x0e, 0x9a, 0x45, 0xb5, 0x5d, 0x97, 0xc5, 0x30, 0x6f,
-	0x9e, 0xda, 0x41, 0x64, 0x86, 0xcc, 0x1b, 0x0d, 0x00, 0xf3, 0x85, 0x29, 0x36, 0x91, 0xb3, 0x29,
-	0x16, 0xe5, 0xc1, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xdb, 0xf4, 0x29, 0xdf, 0xc4, 0x05, 0x00,
-	0x00,
+	// 630 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x55, 0xcd, 0x6e, 0xd3, 0x40,
+	0x10, 0xb6, 0xdb, 0xa4, 0x34, 0xab, 0x80, 0xc4, 0x12, 0x2a, 0x13, 0x84, 0x13, 0x82, 0x84, 0x2a,
+	0xa1, 0xda, 0xb4, 0xbd, 0xa0, 0x1e, 0xd3, 0xa8, 0x52, 0xa4, 0x46, 0xaa, 0x2c, 0x2e, 0x70, 0xa9,
+	0xfc, 0x33, 0xb8, 0x86, 0xd8, 0x9b, 0xee, 0x3a, 0x51, 0x73, 0xe4, 0x04, 0x37, 0x78, 0x84, 0x8a,
+	0x23, 0x4f, 0xc0, 0x23, 0xf4, 0xd8, 0x23, 0xe2, 0x50, 0xa1, 0xe4, 0xc2, 0x63, 0x20, 0xaf, 0xd7,
+	0x96, 0x93, 0xd8, 0xa4, 0xe1, 0xe4, 0x9d, 0xd9, 0x6f, 0x76, 0xbf, 0x6f, 0x7e, 0xbc, 0xe8, 0xa9,
+	0x17, 0xbc, 0x07, 0x3b, 0xf4, 0x46, 0xa0, 0x13, 0x6a, 0xda, 0x7d, 0xd0, 0x47, 0xbb, 0x16, 0x84,
+	0xe6, 0xae, 0x1e, 0x5e, 0x68, 0x03, 0x4a, 0x42, 0x82, 0x95, 0x14, 0xa2, 0xc5, 0x10, 0x4d, 0x40,
+	0xea, 0x35, 0x97, 0xb8, 0x84, 0x83, 0xf4, 0x68, 0x15, 0xe3, 0x5b, 0x3f, 0x64, 0xb4, 0xd5, 0x63,
+	0xae, 0x01, 0x7d, 0x73, 0x7c, 0x42, 0xc9, 0xc8, 0x73, 0x80, 0x9e, 0x50, 0xcf, 0x06, 0x86, 0xb7,
+	0xd0, 0x06, 0x83, 0xc0, 0x01, 0xaa, 0xc8, 0x4d, 0x79, 0xbb, 0x62, 0x08, 0x0b, 0xd7, 0xd1, 0xe6,
+	0x40, 0x20, 0x95, 0x35, 0xbe, 0x93, 0xda, 0x58, 0x41, 0x77, 0xd8, 0xd8, 0xb7, 0x48, 0x9f, 0x29,
+	0xeb, 0xcd, 0xf5, 0xed, 0x8a, 0x91, 0x98, 0xf8, 0x08, 0x6d, 0x0c, 0xf8, 0xb9, 0x4a, 0x29, 0xda,
+	0x68, 0x6b, 0x57, 0x37, 0x0d, 0xe9, 0xd7, 0x4d, 0xe3, 0xb9, 0xeb, 0x85, 0x67, 0x43, 0x4b, 0xb3,
+	0x89, 0xaf, 0xdb, 0x84, 0xf9, 0x84, 0x89, 0xcf, 0x0e, 0x73, 0x3e, 0xe8, 0xe1, 0x78, 0x00, 0x4c,
+	0xeb, 0x80, 0x6d, 0x88, 0xe8, 0x83, 0xcd, 0xcf, 0x97, 0x0d, 0xe9, 0xcf, 0x65, 0x43, 0x6a, 0x35,
+	0x91, 0x9a, 0xcf, 0xdc, 0x00, 0x36, 0x20, 0x01, 0x83, 0xd6, 0xf7, 0x19, 0x71, 0x9e, 0x0d, 0x47,
+	0x00, 0x0e, 0x5f, 0x14, 0x8a, 0xc3, 0xa8, 0x64, 0x99, 0x0c, 0x94, 0x35, 0xce, 0x9e, 0xaf, 0x71,
+	0x0d, 0x95, 0xcf, 0x87, 0x24, 0x04, 0x21, 0x29, 0x36, 0x70, 0x07, 0x95, 0x39, 0xa5, 0xff, 0xd4,
+	0x13, 0x07, 0x17, 0xc9, 0xc9, 0x72, 0x4d, 0xe5, 0x7c, 0x93, 0xd1, 0xfd, 0x04, 0xd2, 0x36, 0x03,
+	0xc7, 0x30, 0x43, 0x60, 0x51, 0xca, 0x69, 0xe4, 0x49, 0xa5, 0x24, 0x66, 0xb6, 0x18, 0x6b, 0xb3,
+	0xc5, 0xa8, 0xa1, 0x32, 0x8d, 0x82, 0xb9, 0xa2, 0x92, 0x11, 0x1b, 0xf8, 0x19, 0xba, 0x4b, 0x81,
+	0x91, 0xfe, 0x08, 0x4e, 0x43, 0xcf, 0x17, 0x95, 0x2a, 0x19, 0x55, 0xe1, 0x7c, 0x1d, 0xf9, 0xb0,
+	0x8a, 0x10, 0x85, 0xf3, 0x21, 0xb0, 0xb0, 0xdb, 0x61, 0x4a, 0x99, 0x23, 0x32, 0x9e, 0xd6, 0x63,
+	0xf4, 0x68, 0x81, 0x63, 0xaa, 0xe0, 0x02, 0x29, 0xc9, 0xe6, 0x21, 0xf1, 0x82, 0x28, 0xbb, 0x3d,
+	0x60, 0xcc, 0x74, 0xff, 0xdd, 0x6e, 0xbe, 0xc0, 0x70, 0x19, 0x55, 0x23, 0xb5, 0x23, 0x32, 0xcc,
+	0x73, 0x03, 0x33, 0x1c, 0x52, 0x21, 0xa6, 0x6a, 0x64, 0x3c, 0x99, 0xec, 0xb6, 0x50, 0xb3, 0xe8,
+	0xe6, 0x94, 0xdd, 0x1b, 0xd1, 0x2d, 0x5c, 0x4b, 0x44, 0xbe, 0xdb, 0x3e, 0x8c, 0x73, 0x5c, 0xc4,
+	0xed, 0x49, 0x9a, 0x8c, 0x53, 0xcf, 0xe1, 0xc3, 0x50, 0x32, 0x2a, 0x49, 0x32, 0x9c, 0x9c, 0xe2,
+	0x2e, 0x1c, 0x9d, 0x5c, 0xbe, 0xf7, 0xa5, 0x8c, 0xd6, 0x7b, 0xcc, 0xc5, 0x1f, 0x65, 0xf4, 0x20,
+	0x6f, 0x1a, 0x5f, 0x6a, 0x45, 0x93, 0xad, 0xe5, 0x4f, 0x41, 0xfd, 0xd5, 0xaa, 0x11, 0x09, 0x97,
+	0x2c, 0x87, 0x99, 0xa1, 0xb9, 0x15, 0x87, 0x6c, 0xc4, 0xed, 0x38, 0xe4, 0x35, 0x3b, 0xa6, 0xe8,
+	0xde, 0x5c, 0xa3, 0xbf, 0x58, 0x7e, 0x56, 0x0a, 0xae, 0xef, 0xaf, 0x00, 0x9e, 0xd3, 0xbd, 0x58,
+	0xfe, 0x65, 0xba, 0x17, 0x22, 0x96, 0xea, 0x2e, 0xec, 0x03, 0xfc, 0x49, 0x46, 0x0f, 0xf3, 0x07,
+	0x64, 0x6f, 0xb9, 0xa4, 0xf9, 0x98, 0xfa, 0xc1, 0xea, 0x31, 0x09, 0x93, 0xf6, 0xbb, 0xab, 0x89,
+	0x2a, 0x5f, 0x4f, 0x54, 0xf9, 0xf7, 0x44, 0x95, 0xbf, 0x4e, 0x55, 0xe9, 0x7a, 0xaa, 0x4a, 0x3f,
+	0xa7, 0xaa, 0xf4, 0xf6, 0x38, 0xf3, 0x8f, 0xeb, 0x26, 0xe7, 0x1f, 0x9b, 0x16, 0xd3, 0xd3, 0xdb,
+	0x76, 0x6c, 0x42, 0x21, 0x6b, 0x9e, 0x99, 0x5e, 0xa0, 0xfb, 0xc4, 0x19, 0xf6, 0x81, 0x25, 0xaf,
+	0x17, 0xff, 0x1b, 0x5a, 0x1b, 0xfc, 0x25, 0xda, 0xff, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x79, 0x1a,
+	0x64, 0x55, 0xde, 0x06, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -439,6 +519,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
+	// RelayProviderPrice defines a method for relaying a price for a provider-based oracle
+	RelayProviderPrices(ctx context.Context, in *MsgRelayProviderPrices, opts ...grpc.CallOption) (*MsgRelayProviderPricesResponse, error)
 	// RelayPriceFeedPrice defines a method for relaying a price for a price feeder-based oracle
 	RelayPriceFeedPrice(ctx context.Context, in *MsgRelayPriceFeedPrice, opts ...grpc.CallOption) (*MsgRelayPriceFeedPriceResponse, error)
 	// RelayBandRates defines a method for relaying rates from Band
@@ -455,6 +537,15 @@ type msgClient struct {
 
 func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
+}
+
+func (c *msgClient) RelayProviderPrices(ctx context.Context, in *MsgRelayProviderPrices, opts ...grpc.CallOption) (*MsgRelayProviderPricesResponse, error) {
+	out := new(MsgRelayProviderPricesResponse)
+	err := c.cc.Invoke(ctx, "/injective.oracle.v1beta1.Msg/RelayProviderPrices", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *msgClient) RelayPriceFeedPrice(ctx context.Context, in *MsgRelayPriceFeedPrice, opts ...grpc.CallOption) (*MsgRelayPriceFeedPriceResponse, error) {
@@ -495,6 +586,8 @@ func (c *msgClient) RelayCoinbaseMessages(ctx context.Context, in *MsgRelayCoinb
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
+	// RelayProviderPrice defines a method for relaying a price for a provider-based oracle
+	RelayProviderPrices(context.Context, *MsgRelayProviderPrices) (*MsgRelayProviderPricesResponse, error)
 	// RelayPriceFeedPrice defines a method for relaying a price for a price feeder-based oracle
 	RelayPriceFeedPrice(context.Context, *MsgRelayPriceFeedPrice) (*MsgRelayPriceFeedPriceResponse, error)
 	// RelayBandRates defines a method for relaying rates from Band
@@ -509,6 +602,9 @@ type MsgServer interface {
 type UnimplementedMsgServer struct {
 }
 
+func (*UnimplementedMsgServer) RelayProviderPrices(ctx context.Context, req *MsgRelayProviderPrices) (*MsgRelayProviderPricesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RelayProviderPrices not implemented")
+}
 func (*UnimplementedMsgServer) RelayPriceFeedPrice(ctx context.Context, req *MsgRelayPriceFeedPrice) (*MsgRelayPriceFeedPriceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RelayPriceFeedPrice not implemented")
 }
@@ -524,6 +620,24 @@ func (*UnimplementedMsgServer) RelayCoinbaseMessages(ctx context.Context, req *M
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
+}
+
+func _Msg_RelayProviderPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgRelayProviderPrices)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).RelayProviderPrices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.oracle.v1beta1.Msg/RelayProviderPrices",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).RelayProviderPrices(ctx, req.(*MsgRelayProviderPrices))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Msg_RelayPriceFeedPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -603,6 +717,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "RelayProviderPrices",
+			Handler:    _Msg_RelayProviderPrices_Handler,
+		},
+		{
 			MethodName: "RelayPriceFeedPrice",
 			Handler:    _Msg_RelayPriceFeedPrice_Handler,
 		},
@@ -621,6 +739,89 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "injective/oracle/v1beta1/tx.proto",
+}
+
+func (m *MsgRelayProviderPrices) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRelayProviderPrices) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRelayProviderPrices) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Prices) > 0 {
+		for iNdEx := len(m.Prices) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size := m.Prices[iNdEx].Size()
+				i -= size
+				if _, err := m.Prices[iNdEx].MarshalTo(dAtA[i:]); err != nil {
+					return 0, err
+				}
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if len(m.Symbols) > 0 {
+		for iNdEx := len(m.Symbols) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Symbols[iNdEx])
+			copy(dAtA[i:], m.Symbols[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.Symbols[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Provider) > 0 {
+		i -= len(m.Provider)
+		copy(dAtA[i:], m.Provider)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Provider)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Sender) > 0 {
+		i -= len(m.Sender)
+		copy(dAtA[i:], m.Sender)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Sender)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgRelayProviderPricesResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgRelayProviderPricesResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgRelayProviderPricesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
 }
 
 func (m *MsgRelayPriceFeedPrice) Marshal() (dAtA []byte, err error) {
@@ -964,6 +1165,44 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *MsgRelayProviderPrices) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Sender)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Provider)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.Symbols) > 0 {
+		for _, s := range m.Symbols {
+			l = len(s)
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	if len(m.Prices) > 0 {
+		for _, e := range m.Prices {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgRelayProviderPricesResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
 func (m *MsgRelayPriceFeedPrice) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1117,6 +1356,238 @@ func sovTx(x uint64) (n int) {
 }
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *MsgRelayProviderPrices) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRelayProviderPrices: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRelayProviderPrices: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Sender = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Provider", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Provider = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Symbols", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Symbols = append(m.Symbols, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Prices", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			var v github_com_cosmos_cosmos_sdk_types.Dec
+			m.Prices = append(m.Prices, v)
+			if err := m.Prices[len(m.Prices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgRelayProviderPricesResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgRelayProviderPricesResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgRelayProviderPricesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *MsgRelayPriceFeedPrice) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)

@@ -519,7 +519,7 @@ func (p *OracleParams) ValidateBasic() error {
 	}
 	switch p.OracleType {
 	case oracletypes.OracleType_Band, oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor,
-		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC:
+		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC, oracletypes.OracleType_Provider:
 
 	default:
 		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
@@ -1117,8 +1117,8 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive StakedAmount must be equal or larger than those of lower tiers")
 			}
 
-			if prevTierInfo.FeePaidAmount.GT(tierInfo.FeePaidAmount) {
-				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive FeePaidAmount must be equal or larger than those of lower tiers")
+			if prevTierInfo.Volume.GT(tierInfo.Volume) {
+				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive Volume must be equal or larger than those of lower tiers")
 			}
 		}
 	}
@@ -1139,8 +1139,8 @@ func (t *FeeDiscountTierInfo) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "StakedAmount must be non-negative")
 	}
 
-	if !SafeIsPositiveDec(t.FeePaidAmount) {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "FeePaidAmount must be non-negative")
+	if !SafeIsPositiveDec(t.Volume) {
+		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "Volume must be non-negative")
 	}
 	return nil
 }

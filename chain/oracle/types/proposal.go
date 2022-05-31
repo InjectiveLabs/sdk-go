@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -19,6 +21,8 @@ const (
 	ProposalAuthorizeBandOracleRequest           string = "ProposalTypeAuthorizeBandOracleRequest"
 	ProposalUpdateBandOracleRequest              string = "ProposalUpdateBandOracleRequest"
 	ProposalEnableBandIBC                        string = "ProposalTypeEnableBandIBC"
+	ProposalTypeGrantProviderPrivilege           string = "ProposalTypeGrantProviderPrivilege"
+	ProposalTypeRevokeProviderPrivilege          string = "ProposalTypeRevokeProviderPrivilege"
 )
 
 func init() {
@@ -36,6 +40,10 @@ func init() {
 	gov.RegisterProposalTypeCodec(&EnableBandIBCProposal{}, "injective/EnableBandIBCProposal")
 	gov.RegisterProposalType(ProposalUpdateBandOracleRequest)
 	gov.RegisterProposalTypeCodec(&UpdateBandOracleRequestProposal{}, "injective/UpdateBandOracleRequestProposal")
+	gov.RegisterProposalType(ProposalTypeGrantProviderPrivilege)
+	gov.RegisterProposalTypeCodec(&GrantProviderPrivilegeProposal{}, "injective/GrantProviderPrivilegeProposal")
+	gov.RegisterProposalType(ProposalTypeRevokeProviderPrivilege)
+	gov.RegisterProposalTypeCodec(&RevokeProviderPrivilegeProposal{}, "injective/RevokeProviderPrivilegeProposal")
 }
 
 // Implements Proposal Interface
@@ -46,6 +54,8 @@ var _ gov.Content = &RevokePriceFeederPrivilegeProposal{}
 var _ gov.Content = &AuthorizeBandOracleRequestProposal{}
 var _ gov.Content = &UpdateBandOracleRequestProposal{}
 var _ gov.Content = &EnableBandIBCProposal{}
+var _ gov.Content = &GrantProviderPrivilegeProposal{}
+var _ gov.Content = &RevokeProviderPrivilegeProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *GrantBandOraclePrivilegeProposal) GetTitle() string {
@@ -124,8 +134,12 @@ func (p *GrantPriceFeederPrivilegeProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *GrantPriceFeederPrivilegeProposal) ValidateBasic() error {
 	for _, relayer := range p.Relayers {
-		if _, err := sdk.AccAddressFromBech32(relayer); err != nil {
+		r, err := sdk.AccAddressFromBech32(relayer)
+		if err != nil {
 			return err
+		}
+		if r.Empty() {
+			return ErrEmptyRelayerAddr
 		}
 	}
 	return gov.ValidateAbstract(p)
@@ -153,8 +167,93 @@ func (p *RevokePriceFeederPrivilegeProposal) ProposalType() string {
 func (p *RevokePriceFeederPrivilegeProposal) ValidateBasic() error {
 
 	for _, relayer := range p.Relayers {
-		if _, err := sdk.AccAddressFromBech32(relayer); err != nil {
+		r, err := sdk.AccAddressFromBech32(relayer)
+		if err != nil {
 			return err
+		}
+		if r.Empty() {
+			return ErrEmptyRelayerAddr
+		}
+	}
+	return gov.ValidateAbstract(p)
+}
+
+// GetTitle returns the title of this proposal.
+func (p *GrantProviderPrivilegeProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal.
+func (p *GrantProviderPrivilegeProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *GrantProviderPrivilegeProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *GrantProviderPrivilegeProposal) ProposalType() string {
+	return ProposalTypeGrantProviderPrivilege
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *GrantProviderPrivilegeProposal) ValidateBasic() error {
+
+	if p.Provider == "" {
+		return ErrEmptyProvider
+	}
+
+	for _, relayer := range p.Relayers {
+		r, err := sdk.AccAddressFromBech32(relayer)
+		if err != nil {
+			return err
+		}
+		if r.Empty() {
+			return ErrEmptyRelayerAddr
+		}
+	}
+	return gov.ValidateAbstract(p)
+}
+
+// GetTitle returns the title of this proposal.
+func (p *RevokeProviderPrivilegeProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal.
+func (p *RevokeProviderPrivilegeProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *RevokeProviderPrivilegeProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *RevokeProviderPrivilegeProposal) ProposalType() string {
+	return ProposalTypeRevokeProviderPrivilege
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *RevokeProviderPrivilegeProposal) ValidateBasic() error {
+	if p.Provider == "" {
+		return ErrEmptyProvider
+	}
+
+	if strings.Contains(p.Provider, providerDelimiter) {
+		return ErrInvalidProvider
+	}
+
+	if len(p.Relayers) == 0 {
+		return ErrEmptyRelayerAddr
+	}
+
+	for _, relayer := range p.Relayers {
+		r, err := sdk.AccAddressFromBech32(relayer)
+		if err != nil {
+			return err
+		}
+		if r.Empty() {
+			return ErrEmptyRelayerAddr
 		}
 	}
 	return gov.ValidateAbstract(p)

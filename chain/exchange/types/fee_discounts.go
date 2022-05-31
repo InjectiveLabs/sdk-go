@@ -11,7 +11,7 @@ type FeeDiscountRates struct {
 
 func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
 	stakedAmount sdk.Int,
-	tradingFeePaid sdk.Dec,
+	tradingVolume sdk.Dec,
 ) (
 	feeDiscountRates *FeeDiscountRates,
 	tierLevel uint64,
@@ -20,7 +20,7 @@ func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
 	// O(N) but probably the most efficient way nonetheless since we just have 10 tiers and most will be on low tiers
 	for idx, tier := range s.TierInfos {
 		// both tier conditions must be satisfied to reach a tier level
-		if stakedAmount.LT(tier.StakedAmount) || tradingFeePaid.LT(tier.FeePaidAmount) {
+		if stakedAmount.LT(tier.StakedAmount) || tradingVolume.LT(tier.Volume) {
 			break
 		}
 		highestTierLevel = idx + 1
@@ -48,7 +48,7 @@ func (s *FeeDiscountSchedule) TierOneRequirements() (
 	minTradingFeePaid sdk.Dec,
 ) {
 	// s.TierInfos[0] is tier one, since tier 0 is implicit
-	return s.TierInfos[0].StakedAmount, s.TierInfos[0].FeePaidAmount
+	return s.TierInfos[0].StakedAmount, s.TierInfos[0].Volume
 }
 
 type FeeDiscountRatesMap map[uint64]*FeeDiscountRates
