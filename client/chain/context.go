@@ -13,6 +13,7 @@ import (
 
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -21,7 +22,6 @@ import (
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
-	wasmtypes "github.com/InjectiveLabs/sdk-go/wasm/types"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -38,8 +38,8 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ibcapplicationtypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
-	ibccoretypes "github.com/cosmos/ibc-go/v2/modules/core/types"
+	ibcapplicationtypes "github.com/cosmos/ibc-go/v3/modules/apps/transfer/types"
+	ibccoretypes "github.com/cosmos/ibc-go/v3/modules/core/types"
 )
 
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
