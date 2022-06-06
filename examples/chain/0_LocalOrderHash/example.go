@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -63,6 +64,12 @@ func main() {
 	// prepare tx msg
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
+	// fetch subaccount nonce on-chain
+	_, err = chainClient.GetSubAccountNonce(context.Background(), defaultSubaccountID)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	spotOrder := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
 		Quantity:     decimal.NewFromFloat(2),
@@ -88,7 +95,7 @@ func main() {
 	msg1.Sender = senderAddress.String()
 	msg1.Orders = []exchangetypes.DerivativeOrder{*derivativeOrder, *derivativeOrder}
 
-	// compute local order hashes
+	// compute local order hashes for tx A
 	orderHashes, err := chainClient.ComputeOrderHashes(msg.Orders, msg1.Orders)
 
 	if err != nil {
@@ -108,6 +115,34 @@ func main() {
 	time.Sleep(time.Second * 5)
 
 	gasFee, err := chainClient.GetGasFee()
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println("gas fee:", gasFee, "INJ")
+
+	// compute local order hashes for tx B
+	orderHashes, err = chainClient.ComputeOrderHashes(msg.Orders, msg1.Orders)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println("computed spot order hashes: ", orderHashes.Spot)
+	fmt.Println("computed derivative order hashes: ", orderHashes.Derivative)
+
+	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	err = chainClient.QueueBroadcastMsg(msg, msg1)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	time.Sleep(time.Second * 5)
+
+	gasFee, err = chainClient.GetGasFee()
 
 	if err != nil {
 		fmt.Println(err)

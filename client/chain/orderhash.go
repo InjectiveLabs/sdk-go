@@ -1,7 +1,6 @@
 package chain
 
 import (
-	"context"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
@@ -63,14 +62,6 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 	orderHashes := OrderHashes{}
 
-	// get nonce
-	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
-	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
-	if err != nil {
-		return OrderHashes{}, err
-	}
-	nonce := res.Nonce + 1
-
 	for _, o := range spotOrders {
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
@@ -84,7 +75,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 				"Price":        o.OrderInfo.Price.String(),
 				"Quantity":     o.OrderInfo.Quantity.String(),
 			},
-			"Salt":         strconv.Itoa(int(nonce)),
+			"Salt":         strconv.Itoa(int(c.nonce)),
 			"OrderType":    string(o.OrderType),
 			"TriggerPrice": triggerPrice,
 		}
@@ -110,7 +101,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 		hash := common.BytesToHash(w.Sum(nil))
 		orderHashes.Spot = append(orderHashes.Spot, hash)
-		nonce += 1
+		c.nonce += 1
 	}
 
 	for _, o := range derivativeOrders {
@@ -129,7 +120,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 			"Margin":       o.Margin.String(),
 			"OrderType":    string(o.OrderType),
 			"TriggerPrice": triggerPrice,
-			"Salt":         strconv.Itoa(int(nonce)),
+			"Salt":         strconv.Itoa(int(c.nonce)),
 		}
 		typedData := gethsigner.TypedData{
 			Types:       eip712OrderTypes,
@@ -153,7 +144,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 		hash := common.BytesToHash(w.Sum(nil))
 		orderHashes.Derivative = append(orderHashes.Derivative, hash)
-		nonce += 1
+		c.nonce += 1
 	}
 
 	return orderHashes, nil

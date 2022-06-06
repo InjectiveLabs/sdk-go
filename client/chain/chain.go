@@ -7,6 +7,7 @@ import (
 	"fmt"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	log "github.com/InjectiveLabs/suplog"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -20,7 +21,6 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
-	log "github.com/InjectiveLabs/suplog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"math"
@@ -107,6 +107,7 @@ type chainClient struct {
 	accSeq    uint64
 	gasWanted uint64
 	gasFee    string
+	nonce     uint32
 
 	sessionCookie  string
 	sessionEnabled bool
@@ -681,7 +682,9 @@ func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
 
 func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
 	req := &exchangetypes.QuerySubaccountTradeNonceRequest{SubaccountId: subaccountId.String()}
-	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
+	resp, _ := c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
+	c.nonce = resp.Nonce + 1
+	return resp, nil
 }
 
 func formatPriceToTickSize(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
