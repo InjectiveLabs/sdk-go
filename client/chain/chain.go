@@ -7,6 +7,7 @@ import (
 	"fmt"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	log "github.com/InjectiveLabs/suplog"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -20,7 +21,6 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
-	log "github.com/InjectiveLabs/suplog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"math"
@@ -375,6 +375,14 @@ func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*ban
 		Address: address,
 	}
 	return c.bankQueryClient.AllBalances(ctx, req)
+}
+
+func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
+	req := &banktypes.QueryBalanceRequest{
+		Address: address,
+		Denom:   denom,
+	}
+	return c.bankQueryClient.Balance(ctx, req)
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
