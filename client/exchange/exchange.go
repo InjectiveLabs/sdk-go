@@ -75,6 +75,9 @@ type ExchangeClient interface {
 	GetBlock(ctx context.Context, blockHeight string) (explorerPB.GetBlockResponse, error)
 	GetBlocks(ctx context.Context) (explorerPB.GetBlocksResponse, error)
 	GetAccountTxs(ctx context.Context, address string) (explorerPB.GetAccountTxsResponse, error)
+	GetPeggyDeposits(ctx context.Context, req explorerPB.GetPeggyDepositTxsRequest) (explorerPB.GetPeggyDepositTxsResponse, error)
+	GetPeggyWithdrawals(ctx context.Context, req explorerPB.GetPeggyWithdrawalTxsRequest) (explorerPB.GetPeggyWithdrawalTxsResponse, error)
+	GetIBCTransfers(ctx context.Context, req explorerPB.GetIBCTransferTxsRequest) (explorerPB.GetIBCTransferTxsResponse, error)
 	StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error)
 	StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error)
 	Close()
@@ -1023,6 +1026,45 @@ func (c *exchangeClient) GetTxs(ctx context.Context) (explorerPB.GetTxsResponse,
 	if err != nil {
 		fmt.Println(err)
 		return explorerPB.GetTxsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetPeggyDeposits(ctx context.Context, req explorerPB.GetPeggyDepositTxsRequest) (explorerPB.GetPeggyDepositTxsResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetPeggyDepositTxs(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetPeggyDepositTxsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetPeggyWithdrawals(ctx context.Context, req explorerPB.GetPeggyWithdrawalTxsRequest) (explorerPB.GetPeggyWithdrawalTxsResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetPeggyWithdrawalTxs(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetPeggyWithdrawalTxsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetIBCTransfers(ctx context.Context, req explorerPB.GetIBCTransferTxsRequest) (explorerPB.GetIBCTransferTxsResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetIBCTransferTxs(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetIBCTransferTxsResponse{}, err
 	}
 	c.setCookie(header)
 
