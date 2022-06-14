@@ -28,6 +28,8 @@ func GetOracleType(oracleTypeStr string) (OracleType, error) {
 		oracleType = OracleType_PriceFeed
 	case "coinbase":
 		oracleType = OracleType_Coinbase
+	case "provider":
+		oracleType = OracleType_Provider
 	default:
 		return OracleType_Band, sdkerrors.Wrapf(ErrUnsupportedOracleType, "%s", oracleTypeStr)
 	}
@@ -53,6 +55,13 @@ func NewPriceState(price sdk.Dec, timestamp int64) *PriceState {
 		Price:           price,
 		CumulativePrice: sdk.ZeroDec(),
 		Timestamp:       timestamp,
+	}
+}
+
+func NewProviderPriceState(symbol string, price sdk.Dec, timestamp int64) *ProviderPriceState {
+	return &ProviderPriceState{
+		Symbol: symbol,
+		State:  NewPriceState(price, timestamp),
 	}
 }
 

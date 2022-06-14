@@ -37,5 +37,8 @@ copy-chain-types:
 	rm -rf chain/oracle/types/*test.go  rm -rf chain/oracle/types/*gw.go
 	cp ../injective-core/injective-chain/modules/peggy/types/*.go chain/peggy/types
 	rm -rf chain/peggy/types/*test.go  rm -rf chain/peggy/types/*gw.go
+	cp ../injective-core/injective-chain/modules/wasmx/types/*.go chain/wasmx/types
+	rm -rf chain/wasmx/types/*test.go  rm -rf chain/wasmx/types/*gw.go
+
 	echo "👉 Replace injective-core/injective-chain/modules with sdk-go/chain"
 	echo "👉 Replace injective-core/injective-chain/types with sdk-go/chain/types"

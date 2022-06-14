@@ -13,6 +13,7 @@ import (
 
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -21,8 +22,6 @@ import (
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
-	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
-	wasmtypes "github.com/InjectiveLabs/sdk-go/wasm/types"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"

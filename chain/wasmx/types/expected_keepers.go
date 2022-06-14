@@ -1,7 +1,7 @@
 package types
 
 import (
-	wasmtypes "github.com/InjectiveLabs/sdk-go/wasm/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

@@ -66,6 +66,7 @@ type ChainClient interface {
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
+	GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error)
 	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
 
 	BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant
@@ -376,6 +377,14 @@ func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*ban
 		Address: address,
 	}
 	return c.bankQueryClient.AllBalances(ctx, req)
+}
+
+func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
+	req := &banktypes.QueryBalanceRequest{
+		Address: address,
+		Denom:   denom,
+	}
+	return c.bankQueryClient.Balance(ctx, req)
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.

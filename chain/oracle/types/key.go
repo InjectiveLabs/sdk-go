@@ -1,7 +1,7 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -42,11 +42,18 @@ var (
 	BandIBCParamsKey          = []byte{0x35}
 	LatestRequestIDKey        = []byte{0x36}
 
-	// Keys for chainlink price prefixes
+	// Prefixes for chainlink keys
 	ChainlinkPriceKey = []byte{0x41}
 
 	SymbolHistoricalPriceRecordsPrefix = []byte{0x51} // prefix for each key to a symbols's historical price records
 	SymbolsMapLastPriceTimestampsKey   = []byte{0x52} // key for symbols map with latest price update timestamps
+
+	// ProviderInfoPrefix is the prefix for the Provider => ProviderInfo store.
+	ProviderInfoPrefix = []byte{0x61}
+	// ProviderIndexPrefix is the prefix for the ProviderAddress => Provider index store.
+	ProviderIndexPrefix = []byte{0x62}
+	// ProviderPricePrefix is the prefix for the Provider + symbol => PriceState store.
+	ProviderPricePrefix = []byte{0x63}
 )
 
 func GetBandPriceStoreKey(symbol string) []byte {
@@ -113,4 +120,36 @@ func getPaddedFeedIdBz(feedId string) string {
 
 func GetSymbolHistoricalPriceRecordsKey(oracleType OracleType, symbol string) []byte {
 	return append(SymbolHistoricalPriceRecordsPrefix, []byte(fmt.Sprintf("%s_%s", oracleType.String(), symbol))...)
+}
+
+// providerDelimiter is the delimiter used to enforce uniqueness in the provider symbol.
+const providerDelimiter = "@@@"
+
+func GetDelimitedProvider(provider string) string {
+	return fmt.Sprintf("%s%s", provider, providerDelimiter)
+}
+
+func GetProviderInfoKey(provider string) []byte {
+	return append(ProviderInfoPrefix, []byte(GetDelimitedProvider(provider))...)
+}
+
+func GetProviderIndexKey(providerAddress sdk.AccAddress) []byte {
+	return append(ProviderIndexPrefix, providerAddress.Bytes()...)
+}
+
+func GetProviderPricePrefix(provider string) []byte {
+	p := GetDelimitedProvider(provider)
+	buf := make([]byte, 0, len(provider))
+	buf = append(buf, ProviderPricePrefix...)
+	buf = append(buf, []byte(p)...)
+	return buf
+}
+
+func GetProviderPriceKey(provider, symbol string) []byte {
+	p := GetDelimitedProvider(provider)
+	buf := make([]byte, 0, len(p)+len(symbol))
+	buf = append(buf, ProviderPricePrefix...)
+	buf = append(buf, []byte(p)...)
+	buf = append(buf, []byte(symbol)...)
+	return buf
 }

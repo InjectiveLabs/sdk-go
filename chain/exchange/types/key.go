@@ -61,7 +61,7 @@ var (
 
 	TradingRewardCampaignInfoKey                  = []byte{0x40} // key to the TradingRewardCampaignInfo
 	TradingRewardMarketQualificationPrefix        = []byte{0x41} // prefix for each key to a market's qualification/disqualification status
-	TradingRewardMarketPointsMultiplierPrefix     = []byte{0x42} // prefix for each key to a market's FeePaidMultiplier
+	TradingRewardMarketPointsMultiplierPrefix     = []byte{0x42} // prefix for each key to a market's Volume Multiplier
 	TradingRewardCampaignRewardPoolPrefix         = []byte{0x43} // prefix for each key to a campaign's reward pool
 	TradingRewardCurrentCampaignEndTimeKey        = []byte{0x44} // key to the current campaign's end time
 	TradingRewardCampaignTotalPointsKey           = []byte{0x45} // key to the total trading reward points for the current campaign
@@ -70,38 +70,33 @@ var (
 	TradingRewardAccountPendingPointsPrefix       = []byte{0x48} // prefix for each key to an account's current campaign reward points
 	TradingRewardCampaignTotalPendingPointsPrefix = []byte{0x49} // prefix to the total trading reward points for the current campaign
 
-	FeeDiscountMarketQualificationPrefix                  = []byte{0x50} // prefix for each key to a market's qualification/disqualification status
-	FeeDiscountBucketCountKey                             = []byte{0x51} // key to the fee discount bucket count
-	FeeDiscountBucketDurationKey                          = []byte{0x52} // key to the fee discount bucket duration
-	FeeDiscountCurrentBucketStartTimeKey                  = []byte{0x53} // key to the current bucket start timestamp
-	FeeDiscountScheduleKey                                = []byte{0x54} // key to the fee discount schedule
-	FeeDiscountTierInfoPrefix                             = []byte{0x55} // prefix to the fee discount tier info
-	FeeDiscountAccountTierPrefix                          = []byte{0x56} // prefix to each account's fee discount tier and TTL timestamp
-	FeeDiscountBucketAccountFeesPaidPrefix                = []byte{0x57} // prefix to each account's fee paid amount for a given bucket
-	FeeDiscountAccountPastBucketTotalFeesPaidAmountPrefix = []byte{0x58} // prefix to each account's total past bucket fees paid amount FeeDiscountAccountIndicatorPrefix
-	FeeDiscountAccountOrderIndicatorPrefix                = []byte{0x59} // prefix to each account's transient indicator if the account has placed an order that block that is relevant for fee discounts
+	FeeDiscountMarketQualificationPrefix = []byte{0x50} // prefix for each key to a market's qualification/disqualification status
+	FeeDiscountBucketCountKey            = []byte{0x51} // key to the fee discount bucket count
+	FeeDiscountBucketDurationKey         = []byte{0x52} // key to the fee discount bucket duration
+	FeeDiscountCurrentBucketStartTimeKey = []byte{0x53} // key to the current bucket start timestamp
+	FeeDiscountScheduleKey               = []byte{0x54} // key to the fee discount schedule
+
+	FeeDiscountAccountTierPrefix                  = []byte{0x56} // prefix to each account's fee discount tier and TTL timestamp
+	FeeDiscountBucketAccountVolumePrefix          = []byte{0x57} // prefix to each account's volume for a given bucket
+	FeeDiscountAccountPastBucketTotalVolumePrefix = []byte{0x58} // prefix to each account's total past bucket volume amount FeeDiscountAccountIndicatorPrefix
+	FeeDiscountAccountOrderIndicatorPrefix        = []byte{0x59} // prefix to each account's transient indicator if the account has placed an order that block that is relevant for fee discounts
 
 	IsRegisteredDMMPrefix = []byte{0x60} // prefix to each account's is registered DMM address key
 )
 
-// GetFeeDiscountAccountFeesPaidInBucketKey provides the key for the account's fees paid in the given bucket
-func GetFeeDiscountAccountFeesPaidInBucketKey(bucketStartTimestamp int64, account sdk.AccAddress) []byte {
+// GetFeeDiscountAccountVolumeInBucketKey provides the key for the account's volume in the given bucket
+func GetFeeDiscountAccountVolumeInBucketKey(bucketStartTimestamp int64, account sdk.AccAddress) []byte {
 	timeBz := sdk.Uint64ToBigEndian(uint64(bucketStartTimestamp))
 	accountBz := account.Bytes()
 
-	buf := make([]byte, 0, len(FeeDiscountBucketAccountFeesPaidPrefix)+len(timeBz)+len(accountBz))
-	buf = append(buf, FeeDiscountBucketAccountFeesPaidPrefix...)
+	buf := make([]byte, 0, len(FeeDiscountBucketAccountVolumePrefix)+len(timeBz)+len(accountBz))
+	buf = append(buf, FeeDiscountBucketAccountVolumePrefix...)
 	buf = append(buf, timeBz...)
 	buf = append(buf, accountBz...)
 	return buf
 }
 
-// GetFeeDiscountTierKey provides the key for the fee discount tier for a given tier level
-func GetFeeDiscountTierKey(tierLevel uint64) []byte {
-	return append(FeeDiscountTierInfoPrefix, sdk.Uint64ToBigEndian(tierLevel)...)
-}
-
-func ParseFeeDiscountBucketAccountFeesPaidIteratorKey(key []byte) (bucketStartTimestamp int64, account sdk.AccAddress) {
+func ParseFeeDiscountBucketAccountVolumeIteratorKey(key []byte) (bucketStartTimestamp int64, account sdk.AccAddress) {
 	timeBz := key[:Uint64BytesLen]
 	accountBz := key[Uint64BytesLen:]
 	return int64(sdk.BigEndianToUint64(timeBz)), sdk.AccAddress(accountBz)
@@ -113,10 +108,10 @@ func ParseTradingRewardAccountPendingPointsKey(key []byte) (bucketStartTimestamp
 	return int64(sdk.BigEndianToUint64(timeBz)), sdk.AccAddress(accountBz)
 }
 
-// GetFeeDiscountPastBucketAccountFeesPaidKey provides the key for the account's total past bucket fees paid.
-func GetFeeDiscountPastBucketAccountFeesPaidKey(account sdk.AccAddress) []byte {
+// GetFeeDiscountPastBucketAccountVolumeKey provides the key for the account's total past bucket volume.
+func GetFeeDiscountPastBucketAccountVolumeKey(account sdk.AccAddress) []byte {
 	accountBz := account.Bytes()
-	return append(FeeDiscountAccountPastBucketTotalFeesPaidAmountPrefix, accountBz...)
+	return append(FeeDiscountAccountPastBucketTotalVolumePrefix, accountBz...)
 }
 
 // GetFeeDiscountAccountOrderIndicatorKey provides the key for the transient indicator if the account has placed an order that block

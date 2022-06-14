@@ -31,4 +31,8 @@ var (
 	ErrInvalidBandIBCUpdateRequest = sdkerrors.Register(ModuleName, 24, "Invalid Band IBC Update Request Proposal")
 	ErrBandIBCRequestNotFound      = sdkerrors.Register(ModuleName, 25, "Band IBC Oracle Request not found")
 	ErrEmptyBaseInfo               = sdkerrors.Register(ModuleName, 26, "Base Info is empty")
+	ErrEmptyProvider               = sdkerrors.Register(ModuleName, 27, "provider is empty")
+	ErrInvalidProvider             = sdkerrors.Register(ModuleName, 28, "invalid provider name")
+	ErrInvalidSymbol               = sdkerrors.Register(ModuleName, 29, "invalid symbol")
+	ErrRelayerAlreadyExists        = sdkerrors.Register(ModuleName, 30, "relayer already exists")
 )
