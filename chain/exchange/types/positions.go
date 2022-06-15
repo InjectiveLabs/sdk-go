@@ -75,6 +75,10 @@ func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate 
 	return payout, closeTradingFee, positionDelta
 }
 
+func (p *Position) ClosePositionByRefunding(closingFeeRate sdk.Dec) (payout, closeTradingFee sdk.Dec, positionDelta *PositionDelta) {
+	return p.ClosePositionWithSettlePrice(p.EntryPrice, closingFeeRate)
+}
+
 func (p *Position) GetDirectionString() string {
 	directionStr := "Long"
 	if p.IsShort() {
@@ -84,6 +88,7 @@ func (p *Position) GetDirectionString() string {
 }
 
 func (p *Position) CheckValidPositionToReduce(
+	marketType MarketType,
 	reducePrice sdk.Dec,
 	isBuyOrder bool,
 	tradeFeeRate sdk.Dec,
@@ -96,6 +101,10 @@ func (p *Position) CheckValidPositionToReduce(
 
 	if p.Margin.IsNegative() {
 		return ErrInvalidReduceOnlyPosition
+	}
+
+	if marketType == MarketType_BinaryOption {
+		return nil
 	}
 
 	if err := p.checkValidClosingPrice(reducePrice, tradeFeeRate, funding, orderMargin); err != nil {
@@ -155,10 +164,15 @@ func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio sdk
 }
 
 func (p *Position) GetEffectiveMargin(funding *PerpetualMarketFunding, closingPrice sdk.Dec) sdk.Dec {
-	fundingAdjustedMargin := p.getFundingAdjustedMargin(funding)
-	pnlNotional := p.GetPayoutFromPnl(closingPrice, p.Quantity)
+	fundingAdjustedMargin := p.Margin
+	if funding != nil {
+		fundingAdjustedMargin = p.getFundingAdjustedMargin(funding)
+	}
+	pnlNotional := sdk.ZeroDec()
+	if !closingPrice.IsNil() {
+		pnlNotional = p.GetPayoutFromPnl(closingPrice, p.Quantity)
+	}
 	effectiveMargin := fundingAdjustedMargin.Add(pnlNotional)
-
 	return effectiveMargin
 }
 

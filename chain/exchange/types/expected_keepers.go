@@ -32,6 +32,9 @@ type OracleKeeper interface {
 	GetHistoricalPriceRecords(ctx sdk.Context, oracleType oracletypes.OracleType, symbol string, from int64) (entry *oracletypes.PriceRecords, omitted bool)
 	GetMixedHistoricalPriceRecords(ctx sdk.Context, baseOracleType, quoteOracleType oracletypes.OracleType, baseSymbol, quoteSymbol string, from int64) (mixed *oracletypes.PriceRecords, ok bool)
 	GetStandardDeviationForPriceRecords(priceRecords []*oracletypes.PriceRecord) *sdk.Dec
+	GetProviderInfo(ctx sdk.Context, provider string) *oracletypes.ProviderInfo
+	GetProviderPrice(ctx sdk.Context, provider, symbol string) *sdk.Dec
+	GetProviderPriceState(ctx sdk.Context, provider, symbol string) *oracletypes.ProviderPriceState
 }
 
 // InsuranceKeeper defines the expected insurance keeper methods.

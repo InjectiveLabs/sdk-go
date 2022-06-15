@@ -35,6 +35,11 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgBatchUpdateOrders{}, "exchange/MsgBatchUpdateOrders", nil)
 	cdc.RegisterConcrete(&MsgExec{}, "exchange/MsgExec", nil)
 	cdc.RegisterConcrete(&MsgRegisterAsDMM{}, "exchange/MsgRegisterAsDMM", nil)
+	cdc.RegisterConcrete(&MsgInstantBinaryOptionsMarketLaunch{}, "exchange/MsgInstantBinaryOptionsMarketLaunch", nil)
+	cdc.RegisterConcrete(&MsgCreateBinaryOptionsLimitOrder{}, "exchange/MsgCreateBinaryOptionsLimitOrder", nil)
+	cdc.RegisterConcrete(&MsgCreateBinaryOptionsMarketOrder{}, "exchange/MsgCreateBinaryOptionsMarketOrder", nil)
+	cdc.RegisterConcrete(&MsgCancelBinaryOptionsOrder{}, "exchange/MsgCancelBinaryOptionsOrder", nil)
+	cdc.RegisterConcrete(&MsgAdminUpdateBinaryOptionsMarket{}, "exchange/MsgAdminUpdateBinaryOptionsMarket", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/BatchExchangeModificationProposal", nil)
@@ -48,6 +53,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&TradingRewardPendingPointsUpdateProposal{}, "exchange/TradingRewardPendingPointsUpdateProposal", nil)
 	cdc.RegisterConcrete(&FeeDiscountProposal{}, "exchange/FeeDiscountProposal", nil)
 	cdc.RegisterConcrete(&BatchCommunityPoolSpendProposal{}, "exchange/BatchCommunityPoolSpendProposal", nil)
+	cdc.RegisterConcrete(&BinaryOptionsMarketParamUpdateProposal{}, "exchange/BinaryOptionsMarketParamUpdateProposal", nil)
+	cdc.RegisterConcrete(&BinaryOptionsMarketLaunchProposal{}, "exchange/BinaryOptionsMarketLaunchProposal", nil)
+
 	cdc.RegisterConcrete(&CreateSpotLimitOrderAuthz{}, "exchange/CreateSpotLimitOrderAuthz", nil)
 	cdc.RegisterConcrete(&CreateSpotMarketOrderAuthz{}, "exchange/CreateSpotMarketOrderAuthz", nil)
 	cdc.RegisterConcrete(&BatchCreateSpotLimitOrdersAuthz{}, "exchange/BatchCreateSpotLimitOrdersAuthz", nil)
@@ -85,6 +93,11 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgBatchUpdateOrders{},
 		&MsgExec{},
 		&MsgRegisterAsDMM{},
+		&MsgInstantBinaryOptionsMarketLaunch{},
+		&MsgCreateBinaryOptionsLimitOrder{},
+		&MsgCreateBinaryOptionsMarketOrder{},
+		&MsgCancelBinaryOptionsOrder{},
+		&MsgAdminUpdateBinaryOptionsMarket{},
 	)
 
 	registry.RegisterImplementations(
@@ -101,6 +114,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&TradingRewardPendingPointsUpdateProposal{},
 		&FeeDiscountProposal{},
 		&BatchCommunityPoolSpendProposal{},
+		&BinaryOptionsMarketParamUpdateProposal{},
+		&BinaryOptionsMarketLaunchProposal{},
 	)
 
 	registry.RegisterImplementations(
