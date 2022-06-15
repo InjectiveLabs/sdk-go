@@ -47,6 +47,8 @@ require (
 	github.com/bugsnag/bugsnag-go v1.5.3 // indirect
 	github.com/bugsnag/panicwrap v1.2.0 // indirect
 	github.com/cespare/cp v1.1.1 // indirect
+	github.com/cosmos/cosmos-sdk v0.45.2
+	github.com/cosmos/ibc-go/v3 v3.0.0
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/confio/ics23/go v0.7.0 // indirect
