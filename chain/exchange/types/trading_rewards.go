@@ -24,6 +24,9 @@ func (l TradingRewardPoints) GetSortedAccountKeys() []string {
 }
 
 func (l TradingRewardPoints) AddPointsForAddress(addr string, newPoints sdk.Dec) {
+	if !newPoints.IsPositive() {
+		return
+	}
 	v, found := l[addr]
 	if !found {
 		l[addr] = newPoints

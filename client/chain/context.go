@@ -14,6 +14,7 @@ import (
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -22,6 +23,7 @@ import (
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
+	wasmx "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -54,6 +56,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	ocr.RegisterInterfaces(interfaceRegistry)
+	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
@@ -73,7 +76,6 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
 	feegranttypes.RegisterInterfaces(interfaceRegistry)
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
-	wasmxtypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	return tx.NewTxConfig(marshaler, signModes)
@@ -97,6 +99,7 @@ func NewClientContext(
 	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	ocr.RegisterInterfaces(interfaceRegistry)
+	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
@@ -115,7 +118,6 @@ func NewClientContext(
 	stakingtypes.RegisterInterfaces(interfaceRegistry)
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
-	wasmxtypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{

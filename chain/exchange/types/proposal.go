@@ -25,6 +25,8 @@ const (
 	ProposalTypeTradingRewardPointsUpdate       string = "ProposalTypeTradingRewardPointsUpdateProposal"
 	ProposalTypeFeeDiscountProposal             string = "ProposalTypeFeeDiscountProposal"
 	ProposalTypeBatchCommunityPoolSpendProposal string = "ProposalTypeBatchCommunityPoolSpendProposal"
+	ProposalTypeBinaryOptionsMarketLaunch       string = "ProposalTypeBinaryOptionsMarketLaunch"
+	ProposalTypeBinaryOptionsMarketParamUpdate  string = "ProposalTypeBinaryOptionsMarketParamUpdate"
 )
 
 func init() {
@@ -52,6 +54,10 @@ func init() {
 	gov.RegisterProposalTypeCodec(&FeeDiscountProposal{}, "injective/FeeDiscountProposal")
 	gov.RegisterProposalType(ProposalTypeBatchCommunityPoolSpendProposal)
 	gov.RegisterProposalTypeCodec(&BatchCommunityPoolSpendProposal{}, "injective/BatchCommunityPoolSpendProposal")
+	gov.RegisterProposalType(ProposalTypeBinaryOptionsMarketLaunch)
+	gov.RegisterProposalTypeCodec(&BinaryOptionsMarketLaunchProposal{}, "injective/BinaryOptionsMarketLaunchProposal")
+	gov.RegisterProposalType(ProposalTypeBinaryOptionsMarketParamUpdate)
+	gov.RegisterProposalTypeCodec(&BinaryOptionsMarketParamUpdateProposal{}, "injective/BinaryOptionsMarketParamUpdateProposal")
 }
 
 func SafeIsPositiveInt(v sdk.Int) bool {
@@ -250,7 +256,6 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 		MarketStatus_Unspecified,
 		MarketStatus_Active,
 		MarketStatus_Paused,
-		MarketStatus_Suspended,
 		MarketStatus_Demolished,
 		MarketStatus_Expired:
 
@@ -309,8 +314,8 @@ func (p *SpotMarketLaunchProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SpotMarketLaunchProposal) ValidateBasic() error {
-	if p.Ticker == "" {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
+	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if p.BaseDenom == "" {
 		return sdkerrors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
@@ -476,7 +481,6 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		MarketStatus_Unspecified,
 		MarketStatus_Active,
 		MarketStatus_Paused,
-		MarketStatus_Suspended,
 		MarketStatus_Demolished,
 		MarketStatus_Expired:
 
@@ -522,6 +526,39 @@ func (p *OracleParams) ValidateBasic() error {
 		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC, oracletypes.OracleType_Provider:
 
 	default:
+		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+	}
+
+	if p.OracleScaleFactor > MaxOracleScaleFactor {
+		return ErrExceedsMaxOracleScaleFactor
+	}
+
+	return nil
+}
+
+func NewProviderOracleParams(
+	symbol string,
+	oracleProvider string,
+	oracleScaleFactor uint32,
+	oracleType oracletypes.OracleType,
+) *ProviderOracleParams {
+	return &ProviderOracleParams{
+		Symbol:            symbol,
+		Provider:          oracleProvider,
+		OracleScaleFactor: oracleScaleFactor,
+		OracleType:        oracleType,
+	}
+}
+
+func (p *ProviderOracleParams) ValidateBasic() error {
+	if p.Symbol == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
+	}
+	if p.Provider == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
+	}
+
+	if p.OracleType != oracletypes.OracleType_Provider {
 		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
 	}
 
@@ -579,8 +616,8 @@ func (p *PerpetualMarketLaunchProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
-	if p.Ticker == "" {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
+	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if p.QuoteDenom == "" {
 		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
@@ -667,8 +704,8 @@ func (p *ExpiryFuturesMarketLaunchProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
-	if p.Ticker == "" {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty")
+	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if p.QuoteDenom == "" {
 		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
@@ -1182,5 +1219,248 @@ func (p *BatchCommunityPoolSpendProposal) ValidateBasic() error {
 			return err
 		}
 	}
+	return gov.ValidateAbstract(p)
+}
+
+// NewBinaryOptionsMarketLaunchProposal returns new instance of BinaryOptionsMarketLaunchProposal
+func NewBinaryOptionsMarketLaunchProposal(
+	title, description, ticker, oracleSymbol, oracleProvider string,
+	oracleType oracletypes.OracleType, oracleScaleFactor uint32,
+	expirationTimestamp, settlementTimestamp int64,
+	admin, quoteDenom string,
+	makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize sdk.Dec,
+
+) *BinaryOptionsMarketLaunchProposal {
+	return &BinaryOptionsMarketLaunchProposal{
+		Title:               title,
+		Description:         description,
+		Ticker:              ticker,
+		OracleSymbol:        oracleSymbol,
+		OracleProvider:      oracleProvider,
+		OracleType:          oracleType,
+		OracleScaleFactor:   oracleScaleFactor,
+		ExpirationTimestamp: expirationTimestamp,
+		SettlementTimestamp: settlementTimestamp,
+		Admin:               admin,
+		QuoteDenom:          quoteDenom,
+		MakerFeeRate:        makerFeeRate,
+		TakerFeeRate:        takerFeeRate,
+		MinPriceTickSize:    minPriceTickSize,
+		MinQuantityTickSize: minQuantityTickSize,
+	}
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &BinaryOptionsMarketLaunchProposal{}
+
+// GetTitle returns the title of this proposal.
+func (p *BinaryOptionsMarketLaunchProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal.
+func (p *BinaryOptionsMarketLaunchProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *BinaryOptionsMarketLaunchProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *BinaryOptionsMarketLaunchProposal) ProposalType() string {
+	return ProposalTypeBinaryOptionsMarketLaunch
+}
+
+// ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
+func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
+	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
+		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+	}
+	if p.OracleSymbol == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
+	}
+	if p.OracleProvider == "" {
+		return sdkerrors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
+	}
+	if p.OracleType != oracletypes.OracleType_Provider {
+		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+	}
+	if p.OracleScaleFactor > MaxOracleScaleFactor {
+		return ErrExceedsMaxOracleScaleFactor
+	}
+
+	if p.ExpirationTimestamp >= p.SettlementTimestamp || p.ExpirationTimestamp < 0 || p.SettlementTimestamp < 0 {
+		return ErrInvalidExpiry
+	}
+
+	if p.Admin != "" {
+		_, err := sdk.AccAddressFromBech32(p.Admin)
+		if err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, p.Admin)
+		}
+	}
+	if p.QuoteDenom == "" {
+		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if err := ValidateMakerFee(p.MakerFeeRate); err != nil {
+		return err
+	}
+	if err := ValidateFee(p.TakerFeeRate); err != nil {
+		return err
+	}
+
+	if p.MakerFeeRate.GT(p.TakerFeeRate) {
+		return ErrFeeRatesRelation
+	}
+
+	if err := ValidateTickSize(p.MinPriceTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+	}
+	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
+		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+	}
+
+	return gov.ValidateAbstract(p)
+}
+
+// NewBinaryOptionsMarketParamUpdateProposal returns new instance of BinaryOptionsMarketParamUpdateProposal
+func NewBinaryOptionsMarketParamUpdateProposal(
+	title, description string, marketID string,
+	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec,
+	expirationTimestamp, settlementTimestamp int64,
+	admin string,
+	status MarketStatus, oracleParams *ProviderOracleParams,
+) *BinaryOptionsMarketParamUpdateProposal {
+	return &BinaryOptionsMarketParamUpdateProposal{
+		Title:               title,
+		Description:         description,
+		MarketId:            marketID,
+		MakerFeeRate:        makerFeeRate,
+		TakerFeeRate:        takerFeeRate,
+		RelayerFeeShareRate: relayerFeeShareRate,
+		MinPriceTickSize:    minPriceTickSize,
+		MinQuantityTickSize: minQuantityTickSize,
+		ExpirationTimestamp: expirationTimestamp,
+		SettlementTimestamp: settlementTimestamp,
+		Admin:               admin,
+		Status:              status,
+		OracleParams:        oracleParams,
+	}
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &BinaryOptionsMarketParamUpdateProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *BinaryOptionsMarketParamUpdateProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *BinaryOptionsMarketParamUpdateProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *BinaryOptionsMarketParamUpdateProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *BinaryOptionsMarketParamUpdateProposal) ProposalType() string {
+	return ProposalTypeBinaryOptionsMarketParamUpdate
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
+	if !IsHexHash(p.MarketId) {
+		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+	}
+	if p.MakerFeeRate == nil &&
+		p.TakerFeeRate == nil &&
+		p.RelayerFeeShareRate == nil &&
+		p.MinPriceTickSize == nil &&
+		p.MinQuantityTickSize == nil &&
+		p.Status == MarketStatus_Unspecified &&
+		p.ExpirationTimestamp == 0 &&
+		p.SettlementTimestamp == 0 &&
+		p.SettlementPrice == nil &&
+		p.Admin == "" &&
+		p.OracleParams == nil {
+		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+	}
+
+	if p.MakerFeeRate != nil {
+		if err := ValidateMakerFee(*p.MakerFeeRate); err != nil {
+			return err
+		}
+	}
+	if p.TakerFeeRate != nil {
+		if err := ValidateFee(*p.TakerFeeRate); err != nil {
+			return err
+		}
+	}
+
+	if p.RelayerFeeShareRate != nil {
+		if err := ValidateFee(*p.RelayerFeeShareRate); err != nil {
+			return err
+		}
+	}
+
+	if p.MinPriceTickSize != nil {
+		if err := ValidateTickSize(*p.MinPriceTickSize); err != nil {
+			return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		}
+	}
+
+	if p.MinQuantityTickSize != nil {
+		if err := ValidateTickSize(*p.MinQuantityTickSize); err != nil {
+			return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		}
+	}
+
+	if p.ExpirationTimestamp != 0 && p.SettlementTimestamp != 0 {
+		if p.ExpirationTimestamp >= p.SettlementTimestamp || p.ExpirationTimestamp < 0 || p.SettlementTimestamp < 0 {
+			return ErrInvalidExpiry
+		}
+	}
+
+	if p.SettlementTimestamp < 0 {
+		return ErrInvalidSettlement
+	}
+
+	if p.Admin != "" {
+		if _, err := sdk.AccAddressFromBech32(p.Admin); err != nil {
+			return err
+		}
+	}
+
+	// price is either nil (not set), -1 (demolish with refund) or [0..1] (demolish with settle)
+	switch {
+	case p.SettlementPrice == nil,
+		p.SettlementPrice.IsNil():
+		// ok
+	case p.SettlementPrice.Equal(BinaryOptionsMarketRefundFlagPrice),
+		p.SettlementPrice.GTE(sdk.ZeroDec()) && p.SettlementPrice.LTE(MaxBinaryOptionsOrderPrice):
+		if p.Status != MarketStatus_Demolished {
+			return sdkerrors.Wrapf(ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", p.Status.String())
+		}
+		// ok
+	default:
+		return sdkerrors.Wrap(ErrInvalidPrice, p.SettlementPrice.String())
+	}
+
+	switch p.Status {
+	case
+		MarketStatus_Unspecified,
+		MarketStatus_Demolished:
+	default:
+		return sdkerrors.Wrap(ErrInvalidMarketStatus, p.Status.String())
+	}
+
+	if p.OracleParams != nil {
+		if err := p.OracleParams.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+
 	return gov.ValidateAbstract(p)
 }

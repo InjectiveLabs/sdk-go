@@ -145,20 +145,44 @@ func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sd
 	return nil
 }
 
-func (o *DerivativeOrder) CheckMarginAndGetMarginHold(market *DerivativeMarket, markPrice, feeRate sdk.Dec) (marginHold sdk.Dec, err error) {
+func GetScaledPrice(price sdk.Dec, scaleFactor uint32) sdk.Dec {
+	return price.Mul(sdk.NewDec(10).Power(uint64(scaleFactor)))
+}
+
+func (o *DerivativeOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) sdk.Dec {
+	// Margin = Price * Quantity for buys
+	if o.IsBuy() {
+		notional := o.Price().Mul(o.OrderInfo.Quantity)
+		return notional
+	}
+	// Margin = (scaled(1) - Price) * Quantity for sells
+	return o.OrderInfo.Quantity.Mul(GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(o.Price()))
+}
+
+func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, markPrice, feeRate sdk.Dec, marketType MarketType, oracleScaleFactor uint32) (marginHold sdk.Dec, err error) {
 	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
 	feeAmount := notional.Mul(feeRate)
 
-	// Margin ≥ InitialMarginRatio * Price * Quantity
-	if o.Margin.LT(market.InitialMarginRatio.Mul(notional)) {
-		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", market.InitialMarginRatio.Mul(notional).String(), o.Margin.String())
+	marginHold = o.Margin.Add(feeAmount)
+	if marketType == MarketType_BinaryOption {
+		requiredMargin := o.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
+		if !o.Margin.Equal(requiredMargin) {
+			return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "margin check: need %s but got %s", notional.String(), o.Margin.String())
+		}
+		return marginHold, nil
 	}
 
-	if err = o.CheckInitialMarginRequirementMarkPriceThreshold(market.InitialMarginRatio, markPrice); err != nil {
+	// For perpetual and expiry futures margins
+	// Enforce that Margin ≥ InitialMarginRatio * Price * Quantity
+	if o.Margin.LT(initialMarginRatio.Mul(notional)) {
+		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", initialMarginRatio.Mul(notional).String(), o.Margin.String())
+	}
+
+	if err = o.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice); err != nil {
 		return sdk.Dec{}, err
 	}
 
-	return o.Margin.Add(feeAmount), nil
+	return marginHold, nil
 }
 
 func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice sdk.Dec) (err error) {

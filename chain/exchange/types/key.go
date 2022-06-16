@@ -42,7 +42,7 @@ var (
 	SpotMarketOrderIndicatorPrefix   = []byte{0x15} // prefix for each key to a spot market order indicator, by marketID and direction
 	SpotMarketParamUpdateScheduleKey = []byte{0x16} // prefix for a key to save scheduled spot market params update
 
-	DerivativeMarketPrefix                  = []byte{0x21} // prefix for each key to a derivative market by (exchange address, isEnabled, marketID)
+	DerivativeMarketPrefix                  = []byte{0x21} // prefix for each key to a derivative market by (isEnabled, marketID)
 	DerivativeLimitOrdersPrefix             = []byte{0x22} // prefix for each key to a derivative limit order, by (marketID, direction, price level, order hash)
 	DerivativeMarketOrdersPrefix            = []byte{0x23} // prefix for each key to a derivative order, by (marketID, direction, price level, order hash)
 	DerivativeLimitOrdersIndexPrefix        = []byte{0x24} // prefix for each key to a derivative order index, by (marketID, direction, subaccountID, order hash)
@@ -82,6 +82,12 @@ var (
 	FeeDiscountAccountOrderIndicatorPrefix        = []byte{0x59} // prefix to each account's transient indicator if the account has placed an order that block that is relevant for fee discounts
 
 	IsRegisteredDMMPrefix = []byte{0x60} // prefix to each account's is registered DMM address key
+
+	BinaryOptionsMarketPrefix                    = []byte{0x61} // prefix for each key to a binary options market by (isEnabled, marketID)
+	BinaryOptionsMarketExpiryTimestampPrefix     = []byte{0x62} // prefix for each key to a binary options marketID by expiration timestamp
+	BinaryOptionsMarketSettlementTimestampPrefix = []byte{0x63} // prefix for each key to a binary options marketID by settlement timestamp
+	BinaryOptionsMarketSettlementSchedulePrefix  = []byte{0x64} // prefix for a key to save scheduled binary options marketID for settlement
+	BinaryOptionsMarketParamUpdateSchedulePrefix = []byte{0x65} // prefix for a key to save scheduled binary options market params update
 )
 
 // GetFeeDiscountAccountVolumeInBucketKey provides the key for the account's volume in the given bucket
@@ -294,8 +300,16 @@ func SpotMarketDirectionPriceHashPrefix(marketID common.Hash, isBuy bool, price 
 	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(getPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
-func GetDerivativeMarketKey(isEnabled bool) []byte {
+func GetDerivativeMarketPrefix(isEnabled bool) []byte {
 	return append(DerivativeMarketPrefix, getBoolPrefix(isEnabled)...)
+}
+
+func GetBinaryOptionsMarketPrefix(isEnabled bool) []byte {
+	return append(BinaryOptionsMarketPrefix, getBoolPrefix(isEnabled)...)
+}
+
+func GetBinaryOptionsMarketKey(isEnabled bool, marketID common.Hash) []byte {
+	return append(GetBinaryOptionsMarketPrefix(isEnabled), marketID.Bytes()...)
 }
 
 func getBoolPrefix(isEnabled bool) []byte {
@@ -385,6 +399,14 @@ func GetSubaccountIDFromPositionKey(key []byte) (subaccountID common.Hash) {
 
 func GetExpiryFuturesMarketInfoByTimestampKey(timestamp int64, marketID common.Hash) []byte {
 	return append(ExpiryFuturesMarketInfoByTimestampPrefix, append(sdk.Uint64ToBigEndian(uint64(timestamp)), marketID.Bytes()...)...)
+}
+
+func GetBinaryOptionsMarketExpiryTimestampKey(timestamp int64, marketID common.Hash) []byte {
+	return append(BinaryOptionsMarketExpiryTimestampPrefix, append(sdk.Uint64ToBigEndian(uint64(timestamp)), marketID.Bytes()...)...)
+}
+
+func GetBinaryOptionsMarketSettlementTimestampKey(timestamp int64, marketID common.Hash) []byte {
+	return append(BinaryOptionsMarketSettlementTimestampPrefix, append(sdk.Uint64ToBigEndian(uint64(timestamp)), marketID.Bytes()...)...)
 }
 
 func GetMarketHistoricalTradeRecordsKey(marketID common.Hash) []byte {

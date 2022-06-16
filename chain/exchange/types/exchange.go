@@ -11,14 +11,6 @@ type MatchedMarketDirection struct {
 	SellsExists bool
 }
 
-func (m *DerivativeMarket) MarketID() common.Hash {
-	return common.HexToHash(m.MarketId)
-}
-
-func (m *SpotMarket) MarketID() common.Hash {
-	return common.HexToHash(m.MarketId)
-}
-
 func (e ExecutionType) IsMarket() bool {
 	return e == ExecutionType_Market
 }
@@ -31,23 +23,9 @@ func (e ExecutionType) IsTaker() bool {
 	return e == ExecutionType_Market || e == ExecutionType_LimitMatchNewOrder
 }
 
-func (m *SpotMarket) StatusSupportsOrderCancellations() bool {
-	if m == nil {
-		return false
-	}
-	return m.Status.supportsOrderCancellations()
-}
-
-func (m *DerivativeMarket) StatusSupportsOrderCancellations() bool {
-	if m == nil {
-		return false
-	}
-	return m.Status.supportsOrderCancellations()
-}
-
-func (s MarketStatus) supportsOrderCancellations() bool {
+func (s MarketStatus) SupportsOrderCancellations() bool {
 	switch s {
-	case MarketStatus_Active, MarketStatus_Suspended, MarketStatus_Demolished, MarketStatus_Expired:
+	case MarketStatus_Active, MarketStatus_Demolished, MarketStatus_Expired:
 		return true
 	case MarketStatus_Paused:
 		return false
