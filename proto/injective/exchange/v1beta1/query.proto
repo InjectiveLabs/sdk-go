@@ -4,6 +4,7 @@ package injective.exchange.v1beta1;
 import "google/api/annotations.proto";
 import "injective/exchange/v1beta1/exchange.proto";
 import "injective/exchange/v1beta1/genesis.proto";
+import "injective/oracle/v1beta1/oracle.proto";
 import "gogoproto/gogo.proto";
 
 
@@ -52,6 +53,16 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/spot/orders/{market_id}/{subaccount_id}";
   }
 
+  // Retrieves a spot market's mid-price
+  rpc SpotMidPriceAndTOB(QuerySpotMidPriceAndTOBRequest) returns (QuerySpotMidPriceAndTOBResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/spot/mid_price_and_tob/{market_id}";
+  }
+
+  // Retrieves a derivative market's mid-price
+  rpc DerivativeMidPriceAndTOB(QueryDerivativeMidPriceAndTOBRequest) returns (QueryDerivativeMidPriceAndTOBResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/mid_price_and_tob/{market_id}";
+  }
+
   // Retrieves a derivative market's orderbook by marketID
   rpc DerivativeOrderbook(QueryDerivativeOrderbookRequest) returns (QueryDerivativeOrderbookResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/derivative/orderbook/{market_id}";
@@ -60,6 +71,11 @@ service Query {
   // Retrieves a trader's derivative orders
   rpc TraderDerivativeOrders(QueryTraderDerivativeOrdersRequest) returns (QueryTraderDerivativeOrdersResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/derivative/orders/{market_id}/{subaccount_id}";
+  }
+
+  // Retrieves a trader's transient derivative orders
+  rpc TraderDerivativeTransientOrders(QueryTraderDerivativeOrdersRequest) returns (QueryTraderDerivativeOrdersResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/transient_orders/{market_id}/{subaccount_id}";
   }
 
   // Retrieves a list of derivative markets.
@@ -95,6 +111,31 @@ service Query {
   // Retrieves subaccount's positions
   rpc SubaccountPositions(QuerySubaccountPositionsRequest) returns (QuerySubaccountPositionsResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/positions/{subaccount_id}";
+  }
+
+  // Retrieves subaccount's position in market
+  rpc SubaccountPositionInMarket(QuerySubaccountPositionInMarketRequest) returns (QuerySubaccountPositionInMarketResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/positions/{subaccount_id}/{market_id}";
+  }
+
+  // Retrieves subaccount's position in market
+  rpc SubaccountEffectivePositionInMarket(QuerySubaccountEffectivePositionInMarketRequest) returns (QuerySubaccountEffectivePositionInMarketResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/effective_positions/{subaccount_id}/{market_id}";
+  }
+
+  // Retrieves perpetual market info
+  rpc PerpetualMarketInfo(QueryPerpetualMarketInfoRequest) returns (QueryPerpetualMarketInfoResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/perpetual_market_info/{market_id}";
+  }
+
+  // Retrieves expiry market info
+  rpc ExpiryFuturesMarketInfo(QueryExpiryFuturesMarketInfoRequest) returns (QueryExpiryFuturesMarketInfoResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/expiry_market_info/{market_id}";
+  }
+
+  // Retrieves perpetual market funding
+  rpc PerpetualMarketFunding(QueryPerpetualMarketFundingRequest) returns (QueryPerpetualMarketFundingResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/perpetual_market_funding/{market_id}";
   }
 
   // Retrieves subaccount's order metadata
@@ -142,6 +183,21 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/fee_discount_tier_stats";
   }
 
+  // Retrieves market making pool info
+  rpc NinjaVaultInfos(NinjaVaultInfosRequest) returns (NinjaVaultInfosResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/ninja_vault_infos";
+  }
+
+  // QueryMarketIDFromVault returns the market ID for a given vault subaccount ID
+  rpc QueryMarketIDFromVault(QueryMarketIDFromVaultRequest) returns (QueryMarketIDFromVaultResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/vault_market_id/{vault_subaccount_id}";
+  }
+
+  // Retrieves historical trade records for a given market ID
+  rpc HistoricalTradeRecords(QueryHistoricalTradeRecordsRequest) returns (QueryHistoricalTradeRecordsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/historical_trade_records";
+  }
+
   // Retrieves if the account is a registered DMM
   rpc IsRegisteredDMM(QueryIsRegisteredDMMRequest) returns (QueryIsRegisteredDMMResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/is_registered_dmm/{account}";
@@ -150,6 +206,16 @@ service Query {
   // Retrieves all registered DMMs
   rpc RegisteredDMMs(QueryRegisteredDMMsRequest) returns (QueryRegisteredDMMsResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/registered_dmms";
+  }
+
+  // MarketVolatility computes the volatility for spot and derivative markets trading history.
+  rpc MarketVolatility(QueryMarketVolatilityRequest) returns (QueryMarketVolatilityResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/market_volatility/{market_id}";
+  }
+
+  // Retrieves a spot market's orderbook by marketID
+  rpc BinaryOptionsMarkets(QueryBinaryMarketsRequest) returns (QueryBinaryMarketsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/binary_options/markets";
   }
 }
 
@@ -277,6 +343,55 @@ message QueryTraderSpotOrdersResponse {
   repeated TrimmedSpotLimitOrder orders = 1;
 }
 
+// QuerySpotMidPriceAndTOBRequest is the request type for the Query/SpotMidPriceAndTOB RPC method.
+message QuerySpotMidPriceAndTOBRequest {
+  // Market ID for the market
+  string market_id = 1;
+}
+
+// QuerySpotMidPriceAndTOBResponse is the response type for the Query/SpotMidPriceAndTOB RPC method.
+message QuerySpotMidPriceAndTOBResponse {
+  // mid price of the market
+  string mid_price = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  // best buy price of the market
+  string best_buy_price = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  // best sell price of the market
+  string best_sell_price = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+}
+
+// QueryDerivativeMidPriceAndTOBRequest is the request type for the Query/GetDerivativeMidPriceAndTOB RPC method.
+message QueryDerivativeMidPriceAndTOBRequest {
+  // Market ID for the market
+  string market_id = 1;
+}
+
+// QueryDerivativeMidPriceAndTOBResponse is the response type for the Query/GetDerivativeMidPriceAndTOB RPC method.
+message QueryDerivativeMidPriceAndTOBResponse {
+  // mid price of the market
+  string mid_price = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  // best buy price of the market
+  string best_buy_price = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  // best sell price of the market
+  string best_sell_price = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+}
 
 // QueryDerivativeOrderbookRequest is the request type for the Query/DerivativeOrderbook RPC method.
 message QueryDerivativeOrderbookRequest {
@@ -321,7 +436,7 @@ message TrimmedDerivativeLimitOrder {
     (gogoproto.nullable) = false
   ];
   // true if the order is a buy
-  bool isBuy = 5;
+  bool isBuy = 5[(gogoproto.jsontag) = "isBuy"]; // ensure omitempty is not in jsontag
   string order_hash = 6;
 }
 
@@ -405,6 +520,18 @@ message QuerySubaccountPositionsRequest {
   string subaccount_id = 1;
 }
 
+// QuerySubaccountPositionInMarketRequest is the request type for the Query/SubaccountPositionInMarket RPC method.
+message QuerySubaccountPositionInMarketRequest {
+  string subaccount_id = 1;
+  string market_id = 2;
+}
+
+// QuerySubaccountEffectivePositionInMarketRequest is the request type for the Query/SubaccountEffectivePositionInMarket RPC method.
+message QuerySubaccountEffectivePositionInMarketRequest {
+  string subaccount_id = 1;
+  string market_id = 2;
+}
+
 // QuerySubaccountOrderMetadataRequest is the request type for the Query/SubaccountOrderMetadata RPC method.
 message QuerySubaccountOrderMetadataRequest {
   string subaccount_id = 1;
@@ -413,6 +540,62 @@ message QuerySubaccountOrderMetadataRequest {
 // QuerySubaccountPositionsResponse is the response type for the Query/SubaccountPositions RPC method.
 message QuerySubaccountPositionsResponse {
   repeated DerivativePosition state = 1[(gogoproto.nullable) = false];
+}
+
+// QuerySubaccountPositionInMarketResponse is the response type for the Query/SubaccountPositionInMarket RPC method.
+message QuerySubaccountPositionInMarketResponse {
+  Position state = 1[(gogoproto.nullable) = true];
+}
+
+message EffectivePosition {
+  bool is_long = 1;
+  string quantity = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string entry_price = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string effective_margin = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QuerySubaccountEffectivePositionInMarketResponse is the response type for the Query/SubaccountEffectivePositionInMarket RPC method.
+message QuerySubaccountEffectivePositionInMarketResponse {
+  EffectivePosition state = 1[(gogoproto.nullable) = true];
+}
+
+// QueryPerpetualMarketInfoRequest is the request type for the Query/PerpetualMarketInfo RPC method.
+message QueryPerpetualMarketInfoRequest {
+  string market_id = 1;
+}
+
+// QueryPerpetualMarketInfoResponse is the response type for the Query/PerpetualMarketInfo RPC method.
+message QueryPerpetualMarketInfoResponse {
+  PerpetualMarketInfo info = 1[(gogoproto.nullable) = false];
+}
+
+// QueryExpiryFuturesMarketInfoRequest is the request type for the Query/ ExpiryFuturesMarketInfo RPC method.
+message QueryExpiryFuturesMarketInfoRequest {
+  string market_id = 1;
+}
+
+// QueryExpiryFuturesMarketInfoResponse is the response type for the Query/ ExpiryFuturesMarketInfo RPC method.
+message QueryExpiryFuturesMarketInfoResponse {
+  ExpiryFuturesMarketInfo info = 1[(gogoproto.nullable) = false];
+}
+
+// QueryPerpetualMarketFundingRequest is the request type for the Query/PerpetualMarketFunding RPC method.
+message QueryPerpetualMarketFundingRequest {
+  string market_id = 1;
+}
+
+// QueryPerpetualMarketFundingResponse is the response type for the Query/PerpetualMarketFunding RPC method.
+message QueryPerpetualMarketFundingResponse {
+  PerpetualMarketFunding state = 1[(gogoproto.nullable) = false];
 }
 
 // QuerySubaccountOrderMetadataResponse is the response type for the Query/SubaccountOrderMetadata RPC method.
@@ -583,4 +766,71 @@ message TierStatistic {
 // QueryFeeDiscountTierStatisticsResponse is the response type for the Query/QueryFeeDiscountTierStatistics RPC method.
 message QueryFeeDiscountTierStatisticsResponse {
   repeated TierStatistic statistics = 1;
+}
+
+// NinjaVaultInfosRequest is the request type for the Query/NinjaVaultInfos RPC method.
+message NinjaVaultInfosRequest {
+}
+
+// NinjaVaultInfosResponse is the response type for the Query/NinjaVaultInfos RPC method.
+message NinjaVaultInfosResponse {
+  repeated string master_addresses = 1;
+  repeated string derivative_addresses = 2;
+  repeated string spot_addresses = 3;
+  repeated string cw20_addresses = 4;
+}
+
+// QueryMarketIDFromVaultRequest is the request type for the Query/QueryMarketIDFromVault RPC method.
+message QueryMarketIDFromVaultRequest {
+  string vault_subaccount_id = 1;
+}
+
+// QueryMarketIDFromVaultResponse is the response type for the Query/QueryMarketIDFromVault RPC method.
+message QueryMarketIDFromVaultResponse {
+  string market_id = 1;
+}
+
+message QueryHistoricalTradeRecordsRequest {
+  string market_id = 1;
+}
+
+message QueryHistoricalTradeRecordsResponse {
+  repeated TradeRecords trade_records = 1;
+}
+
+// TradeHistoryOptions are the optional params for Query/MarketVolatility RPC method.
+message TradeHistoryOptions {
+  // TradeGroupingSec of 0 means use the chain's default grouping
+  uint64 trade_grouping_sec = 1;
+  // MaxAge restricts the trade records oldest age in seconds from the current block time to consider. 
+  // A value of 0 means use all the records present on the chain. 
+  uint64 max_age = 2;
+  // If IncludeRawHistory is true, the raw underlying data used for the computation is included in the response
+  bool include_raw_history = 4;
+  // If IncludeMetadata is true, metadata on the computation is included in the response
+  bool include_metadata = 5;
+}
+
+// QueryMarketVolatilityRequest are the request params for the Query/MarketVolatility RPC method.
+message QueryMarketVolatilityRequest {
+  string market_id = 1;
+  TradeHistoryOptions trade_history_options = 2;
+}
+
+// QueryMarketVolatilityResponse is the response type for the Query/MarketVolatility RPC method.
+message QueryMarketVolatilityResponse {
+  string volatility = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
+  injective.oracle.v1beta1.MetadataStatistics history_metadata = 2;
+  repeated TradeRecord raw_history = 3;
+}
+
+// QuerBinaryMarketsRequest is the request type for the Query/BinaryMarkets RPC method.
+message QueryBinaryMarketsRequest {
+  // Status of the market, for convenience it is set to string - not enum
+  string status = 1;
+}
+
+// QueryBinaryMarketsResponse is the response type for the Query/BinaryMarkets RPC method.
+message QueryBinaryMarketsResponse {
+  repeated BinaryOptionsMarket markets = 1;
 }

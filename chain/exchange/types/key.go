@@ -41,6 +41,7 @@ var (
 	SpotLimitOrdersIndexPrefix       = []byte{0x14} // prefix for each key to a spot order index, by (marketID, direction, subaccountID, order hash)
 	SpotMarketOrderIndicatorPrefix   = []byte{0x15} // prefix for each key to a spot market order indicator, by marketID and direction
 	SpotMarketParamUpdateScheduleKey = []byte{0x16} // prefix for a key to save scheduled spot market params update
+	SpotMarketForceCloseInfoKey      = []byte{0x17} // prefix for a key to save scheduled spot market closures
 
 	DerivativeMarketPrefix                  = []byte{0x21} // prefix for each key to a derivative market by (isEnabled, marketID)
 	DerivativeLimitOrdersPrefix             = []byte{0x22} // prefix for each key to a derivative limit order, by (marketID, direction, price level, order hash)

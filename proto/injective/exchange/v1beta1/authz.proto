@@ -1,10 +1,7 @@
 syntax = "proto3";
 package injective.exchange.v1beta1;
 
-import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "injective/exchange/v1beta1/exchange.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 

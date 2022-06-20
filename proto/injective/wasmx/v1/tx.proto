@@ -1,0 +1,8 @@
+syntax = "proto3";
+package injective.wasmx.v1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
+
+// Msg defines the wasmx Msg service.
+service Msg {
+}

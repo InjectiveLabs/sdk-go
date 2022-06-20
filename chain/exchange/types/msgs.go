@@ -44,6 +44,7 @@ var (
 	_ sdk.Msg = &MsgCreateBinaryOptionsMarketOrder{}
 	_ sdk.Msg = &MsgCancelBinaryOptionsOrder{}
 	_ sdk.Msg = &MsgAdminUpdateBinaryOptionsMarket{}
+	_ sdk.Msg = &MsgBatchCancelBinaryOptionsOrders{}
 )
 
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -968,6 +969,45 @@ func (msg *MsgBatchCancelDerivativeOrders) Route() string {
 	return RouterKey
 }
 
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg *MsgBatchCancelDerivativeOrders) Type() string {
+	return "batchCancelDerivativeOrder"
+}
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg *MsgBatchCancelDerivativeOrders) ValidateBasic() error {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if len(msg.Data) == 0 {
+		return sdkerrors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
+	}
+
+	for idx := range msg.Data {
+		if err := msg.Data[idx].ValidateBasic(senderAddr); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgBatchCancelDerivativeOrders) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg *MsgBatchCancelDerivativeOrders) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
 // Route implements the sdk.Msg interface. It should return the name of the module
 func (msg *MsgCancelBinaryOptionsOrder) Route() string {
 	return RouterKey
@@ -1008,12 +1048,12 @@ func (msg *MsgCancelBinaryOptionsOrder) GetSigners() []sdk.AccAddress {
 }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg *MsgBatchCancelDerivativeOrders) Type() string {
-	return "batchCancelDerivativeOrder"
+func (msg *MsgBatchCancelBinaryOptionsOrders) Type() string {
+	return "batchCancelBinaryOptionsOrders"
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg *MsgBatchCancelDerivativeOrders) ValidateBasic() error {
+func (msg *MsgBatchCancelBinaryOptionsOrders) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
@@ -1033,12 +1073,12 @@ func (msg *MsgBatchCancelDerivativeOrders) ValidateBasic() error {
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgBatchCancelDerivativeOrders) GetSignBytes() []byte {
+func (msg *MsgBatchCancelBinaryOptionsOrders) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg *MsgBatchCancelDerivativeOrders) GetSigners() []sdk.AccAddress {
+func (msg *MsgBatchCancelBinaryOptionsOrders) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

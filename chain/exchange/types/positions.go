@@ -99,10 +99,6 @@ func (p *Position) CheckValidPositionToReduce(
 		return ErrInvalidReduceOnlyPositionDirection
 	}
 
-	if p.Margin.IsNegative() {
-		return ErrInvalidReduceOnlyPosition
-	}
-
 	if marketType == MarketType_BinaryOption {
 		return nil
 	}

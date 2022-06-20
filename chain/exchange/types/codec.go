@@ -48,6 +48,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&PerpetualMarketLaunchProposal{}, "exchange/PerpetualMarketLaunchProposal", nil)
 	cdc.RegisterConcrete(&ExpiryFuturesMarketLaunchProposal{}, "exchange/ExpiryFuturesMarketLaunchProposal", nil)
 	cdc.RegisterConcrete(&DerivativeMarketParamUpdateProposal{}, "exchange/DerivativeMarketParamUpdateProposal", nil)
+	cdc.RegisterConcrete(&MarketForcedSettlementProposal{}, "exchange/MarketForcedSettlementProposal", nil)
 	cdc.RegisterConcrete(&TradingRewardCampaignLaunchProposal{}, "exchange/TradingRewardCampaignLaunchProposal", nil)
 	cdc.RegisterConcrete(&TradingRewardCampaignUpdateProposal{}, "exchange/TradingRewardCampaignUpdateProposal", nil)
 	cdc.RegisterConcrete(&TradingRewardPendingPointsUpdateProposal{}, "exchange/TradingRewardPendingPointsUpdateProposal", nil)
@@ -109,6 +110,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&PerpetualMarketLaunchProposal{},
 		&ExpiryFuturesMarketLaunchProposal{},
 		&DerivativeMarketParamUpdateProposal{},
+		&MarketForcedSettlementProposal{},
 		&TradingRewardCampaignLaunchProposal{},
 		&TradingRewardCampaignUpdateProposal{},
 		&TradingRewardPendingPointsUpdateProposal{},

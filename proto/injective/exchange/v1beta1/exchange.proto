@@ -91,19 +91,30 @@ message Params {
 
   // the trading_rewards_vesting_duration defines the vesting times for trading rewards
   int64 trading_rewards_vesting_duration = 16;
+
+  // liquidator_reward_share_rate defines the ratio of the split of the surplus collateral that goes to the liquidator
+  string liquidator_reward_share_rate = 17 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // binary_options_market_instant_listing_fee defines the expedited fee in INJ required to create a derivative market by bypassing governance
+  cosmos.base.v1beta1.Coin binary_options_market_instant_listing_fee = 18 [
+    (gogoproto.nullable) = false
+  ];
 }
 
 enum MarketStatus {
   Unspecified = 0;
   Active = 1;
   Paused = 2;
-  Suspended = 3;
-  Demolished = 4;
-  Expired = 5;
+  Demolished = 3;
+  Expired = 4;
 }
 
 // An object describing a derivative market in the Injective Futures Protocol.
 message DerivativeMarket {
+  option (gogoproto.goproto_getters) = false;
+
   // Ticker for the derivative contract.
   string ticker = 1;
   // Oracle base currency
@@ -158,6 +169,63 @@ message DerivativeMarket {
     (gogoproto.nullable) = false
   ];
 
+}
+// An object describing a binary options market in Injective Protocol.
+message BinaryOptionsMarket {
+  option (gogoproto.goproto_getters) = false;
+
+  // Ticker for the derivative contract.
+  string ticker = 1;
+  // Oracle symbol
+  string oracle_symbol = 2;
+  // Oracle Provider
+  string oracle_provider = 3;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 4;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 5;
+  // expiration timestamp
+  int64 expiration_timestamp = 6;
+  // expiration timestamp
+  int64 settlement_timestamp = 7;
+  // admin of the market
+  string admin = 8;
+  // Address of the quote currency denomination for the binary options contract
+  string quote_denom = 9;
+  // Unique market ID.
+  string market_id = 10;
+  // maker_fee_rate defines the maker fee rate of a binary options market
+  string maker_fee_rate = 11 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // taker_fee_rate defines the taker fee rate of a derivative market
+  string taker_fee_rate = 12 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // relayer_fee_share_rate defines the percentage of the transaction fee shared with the relayer in a derivative market
+  string relayer_fee_share_rate = 13 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // Status of the market
+  MarketStatus status = 14;
+  // min_price_tick_size defines the minimum tick size that the price and margin required for orders in the market
+  string min_price_tick_size = 15 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity required for orders in the market
+  string min_quantity_tick_size = 16 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  string settlement_price = 17 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message ExpiryFuturesMarketInfo {
@@ -268,6 +336,14 @@ message SpotMarket {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+}
+
+// MM Wasm pool
+message MMPool {
+  string maker_contract_address = 1;
+  string cw20_contract_address = 2;
+  string market_id = 3;
+  string pool_subaccount_id = 4;
 }
 
 // A subaccount's deposit for a given base currency
@@ -593,6 +669,12 @@ message EventDerivativeMarketPaused {
   string missing_funds_rate = 4;
 }
 
+message EventBinaryOptionsMarketUpdate {
+  BinaryOptionsMarket market = 1 [
+    (gogoproto.nullable) = false
+  ];
+}
+
 message EventNewSpotOrders {
   string market_id = 1;
   repeated SpotLimitOrder buy_orders = 2;
@@ -763,7 +845,7 @@ message FeeDiscountTierInfo {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = false
   ];
-  string fee_paid_amount = 4[
+  string volume = 4[
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
@@ -801,6 +883,26 @@ message AccountRewards {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
 }
+
 message EventTradingRewardDistribution {
   repeated AccountRewards account_rewards = 1;
+}
+
+message TradeRecords {
+  string market_id = 1;
+  repeated TradeRecord latest_trade_records = 2;
+}
+
+message TradeRecord {
+  int64 timestamp = 1;
+
+  string price = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  string quantity = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }

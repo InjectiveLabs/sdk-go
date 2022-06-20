@@ -5,7 +5,6 @@ import "google/api/annotations.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 import "injective/oracle/v1beta1/genesis.proto";
 import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
 // Query defines the gRPC querier service.
@@ -41,12 +40,41 @@ service Query {
     option (google.api.http).get = "/injective/oracle/v1beta1/coinbase_price_states";
   }
 
+  // Retrieves the state for all provider price feeds
+  rpc ProviderPriceStates(QueryProviderPriceStatesRequest) returns (QueryProviderPriceStatesResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/provider_price_states";
+  }
+
+  // Retrieves the state for all provider price feeds
+  rpc ProviderPriceState(QueryProviderPriceStateRequest) returns (QueryProviderPriceStateResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/provider_price_state/{provider}/{symbol}";
+  }
+
   // Retrieves the entire oracle module's state
   rpc OracleModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/module_state";
   }
 
+  // Retrieves historical price records for a given OracleType and Symbol
+  rpc HistoricalPriceRecords(QueryHistoricalPriceRecordsRequest) returns (QueryHistoricalPriceRecordsResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/historical_price_records";
+  }
+
+  // Retrieves mixed volatility value for the specified pair of base/quote
+  rpc OracleVolatility(QueryOracleVolatilityRequest) returns (QueryOracleVolatilityResponse){
+    option (google.api.http).get = "/injective/oracle/v1beta1/volatility";
+  }
+
+  rpc OracleProvidersInfo(QueryOracleProvidersInfoRequest) returns (QueryOracleProvidersInfoResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/providers";
+  }
+
+  rpc OracleProviderPrices(QueryOracleProviderPricesRequest) returns (QueryOracleProviderPricesResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/provider_prices";
+  }
 }
+
+
 
 // QueryOracleParamsRequest is the request type for the Query/OracleParams RPC method.
 message QueryParamsRequest {}
@@ -100,6 +128,25 @@ message QueryCoinbasePriceStatesResponse {
   repeated CoinbasePriceState price_states = 1;
 }
 
+// QueryProviderPriceStatesRequest is the request type for the Query/ProviderPriceStates RPC method.
+message QueryProviderPriceStatesRequest {}
+
+// QueryProviderPriceStatesResponse is the response type for the Query/ProviderPriceStates RPC method.
+message QueryProviderPriceStatesResponse {
+  repeated ProviderPriceState price_states = 1;
+}
+
+// QueryProviderPriceStateRequest is the request type for the Query/ProviderPriceState RPC method.
+message QueryProviderPriceStateRequest {
+  string provider = 1;
+  string symbol = 2;
+}
+
+// QueryProviderPriceStatesResponse is the response type for the Query/ProviderPriceStates RPC method.
+message QueryProviderPriceStateResponse {
+  PriceState price_state = 1;
+}
+
 // QueryModuleStateRequest is the request type for the Query/OracleModuleState RPC method.
 message QueryModuleStateRequest {}
 
@@ -108,3 +155,49 @@ message QueryModuleStateResponse {
   GenesisState state = 1;
 }
 
+message QueryHistoricalPriceRecordsRequest {
+  OracleType oracle = 1;
+  string symbol_id = 2;
+}
+
+message QueryHistoricalPriceRecordsResponse {
+  repeated PriceRecords price_records = 1;
+}
+
+message OracleHistoryOptions {
+  // MaxAge restricts the oracle price records oldest age in seconds from the current block time to consider.
+  // A value of 0 means use all the records present on the chain.
+  uint64 max_age = 1;
+  // If IncludeRawHistory is true, the raw underlying data used for the computation is included in the response
+  bool include_raw_history = 2;
+  // If IncludeMetadata is true, metadata on the computation is included in the response
+  bool include_metadata = 3;
+}
+
+// QueryOracleVolatilityRequest is the request type for Query/OracleVolatility RPC method.
+message QueryOracleVolatilityRequest {
+  OracleInfo base_info = 1;
+  OracleInfo quote_info = 2;
+  OracleHistoryOptions oracle_history_options = 3;
+}
+
+// QueryOracleVolatilityResponse is the response type for Query/OracleVolatility RPC method.
+message QueryOracleVolatilityResponse {
+  string volatility = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
+  MetadataStatistics history_metadata = 2;
+  repeated PriceRecord raw_history = 3;
+}
+
+message QueryOracleProvidersInfoRequest {}
+
+message QueryOracleProvidersInfoResponse {
+  repeated ProviderInfo providers = 1;
+}
+
+message QueryOracleProviderPricesRequest {
+  string provider = 1;
+}
+
+message QueryOracleProviderPricesResponse {
+    repeated ProviderState providerState = 1;
+}
