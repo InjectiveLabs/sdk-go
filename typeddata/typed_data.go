@@ -111,9 +111,9 @@ func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
 	return crypto.Keccak256([]byte(msg)), msg
 }
 
-// ComputeTypedDataMetamaskHash computes keccak hash of typed data for signing according to Metamask buggy implementation.
+// ComputeTypedDataHash computes keccak hash of typed data for signing according to Metamask buggy implementation.
 // see https://github.com/MetaMask/eth-sig-util/issues/106
-func ComputeTypedDataMetamaskHash(typedData TypedData) ([]byte, error) {
+func ComputeTypedDataHash(typedData TypedData) ([]byte, error) {
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map(), true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
@@ -130,8 +130,8 @@ func ComputeTypedDataMetamaskHash(typedData TypedData) ([]byte, error) {
 	return crypto.Keccak256(rawData), nil
 }
 
-// ComputeTypedDataHash computes keccak hash of typed data for signing according to proper EIP-712 spec.
-func ComputeTypedDataHash(typedData TypedData) ([]byte, error) {
+// ComputeTypedDataCorrectHash computes keccak hash of typed data for signing according to proper EIP-712 spec.
+func ComputeTypedDataCorrectHash(typedData TypedData) ([]byte, error) {
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map(), false)
 	if err != nil {
 		err = errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
