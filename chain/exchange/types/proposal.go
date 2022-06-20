@@ -20,6 +20,7 @@ const (
 	ProposalTypePerpetualMarketLaunch           string = "ProposalTypePerpetualMarketLaunch"
 	ProposalTypeExpiryFuturesMarketLaunch       string = "ProposalTypeExpiryFuturesMarketLaunch"
 	ProposalTypeDerivativeMarketParamUpdate     string = "ProposalTypeDerivativeMarketParamUpdate"
+	ProposalTypeMarketForcedSettlement          string = "ProposalTypeMarketForcedSettlement"
 	ProposalTypeTradingRewardCampaign           string = "ProposalTypeTradingRewardCampaign"
 	ProposalTypeTradingRewardCampaignUpdate     string = "ProposalTypeTradingRewardCampaignUpdateProposal"
 	ProposalTypeTradingRewardPointsUpdate       string = "ProposalTypeTradingRewardPointsUpdateProposal"
@@ -44,6 +45,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&ExpiryFuturesMarketLaunchProposal{}, "injective/ExpiryFuturesMarketLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
 	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
+	gov.RegisterProposalType(ProposalTypeMarketForcedSettlement)
+	gov.RegisterProposalTypeCodec(&MarketForcedSettlementProposal{}, "injective/MarketForcedSettlementProposal")
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaign)
 	gov.RegisterProposalTypeCodec(&TradingRewardCampaignLaunchProposal{}, "injective/TradingRewardCampaignLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
@@ -492,6 +495,53 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		if err := p.OracleParams.ValidateBasic(); err != nil {
 			return err
 		}
+	}
+
+	return gov.ValidateAbstract(p)
+}
+
+// NewMarketForcedSettlementProposal returns new instance of MarketForcedSettlementProposal
+func NewMarketForcedSettlementProposal(
+	title, description string, marketID string,
+	settlementPrice *sdk.Dec,
+) *MarketForcedSettlementProposal {
+	return &MarketForcedSettlementProposal{
+		Title:           title,
+		Description:     description,
+		MarketId:        marketID,
+		SettlementPrice: settlementPrice,
+	}
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &MarketForcedSettlementProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *MarketForcedSettlementProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *MarketForcedSettlementProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *MarketForcedSettlementProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *MarketForcedSettlementProposal) ProposalType() string {
+	return ProposalTypeMarketForcedSettlement
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *MarketForcedSettlementProposal) ValidateBasic() error {
+	if !IsHexHash(p.MarketId) {
+		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+	}
+
+	if p.SettlementPrice != nil && !SafeIsPositiveDec(*p.SettlementPrice) {
+		return sdkerrors.Wrap(ErrInvalidSettlement, "settlement price must be positive for derivatives and nil for spot")
 	}
 
 	return gov.ValidateAbstract(p)
