@@ -111,15 +111,34 @@ func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
 	return crypto.Keccak256([]byte(msg)), msg
 }
 
-// ComputeTypedDataHash computes keccak hash of typed data for signing.
-func ComputeTypedDataHash(typedData TypedData) ([]byte, error) {
-	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
+// ComputeTypedDataMetamaskHash computes keccak hash of typed data for signing according to Metamask buggy implementation.
+// see https://github.com/MetaMask/eth-sig-util/issues/106
+func ComputeTypedDataMetamaskHash(typedData TypedData) ([]byte, error) {
+	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map(), true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
 		return nil, err
 	}
 
-	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
+	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message, true)
+	if err != nil {
+		err = errors.Wrap(err, "failed to pack and hash typedData primary type")
+		return nil, err
+	}
+
+	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
+	return crypto.Keccak256(rawData), nil
+}
+
+// ComputeTypedDataHash computes keccak hash of typed data for signing according to proper EIP-712 spec.
+func ComputeTypedDataHash(typedData TypedData) ([]byte, error) {
+	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map(), false)
+	if err != nil {
+		err = errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
+		return nil, err
+	}
+
+	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message, false)
 	if err != nil {
 		err = errors.Wrap(err, "failed to pack and hash typedData primary type")
 		return nil, err
@@ -147,8 +166,8 @@ func cliqueHeaderHashAndRlp(header *types.Header) (hash, rlp []byte, err error) 
 }
 
 // HashStruct generates a keccak256 hash of the encoding of the provided data
-func (typedData *TypedData) HashStruct(primaryType string, data TypedDataMessage) (hexutil.Bytes, error) {
-	encodedData, err := typedData.EncodeData(primaryType, data, 1)
+func (typedData *TypedData) HashStruct(primaryType string, data TypedDataMessage, useMetamaskImpl bool) (hexutil.Bytes, error) {
+	encodedData, err := typedData.EncodeData(primaryType, data, 1, useMetamaskImpl)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +251,7 @@ func toh(b []byte) string {
 // `enc(value₁) ‖ enc(value₂) ‖ … ‖ enc(valueₙ)`
 //
 // each encoded member is 32-byte long
-func (typedData *TypedData) EncodeData(primaryType string, data map[string]interface{}, depth int) (hexutil.Bytes, error) {
+func (typedData *TypedData) EncodeData(primaryType string, data map[string]interface{}, depth int, useMetamaskImpl bool) (hexutil.Bytes, error) {
 	if err := typedData.validate(); err != nil {
 		return nil, err
 	}
@@ -265,7 +284,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 					if !ok {
 						return nil, dataMismatchError(parsedType, item)
 					}
-					encodedData, err := typedData.EncodeData(parsedType, mapValue, depth+1)
+					encodedData, err := typedData.EncodeData(parsedType, mapValue, depth+1, useMetamaskImpl)
 					if err != nil {
 						return nil, err
 					}
@@ -279,7 +298,11 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 					// And https://github.com/MetaMask/eth-sig-util/pull/107/files
 					//
 					// N.B.: Can be reverted to original, once the fix is rolled for everyone
-					arrayBuffer.Write(crypto.Keccak256(encodedData))
+					if useMetamaskImpl {
+						arrayBuffer.Write(crypto.Keccak256(encodedData))
+					} else {
+						arrayBuffer.Write(encodedData)
+					}
 				} else {
 					bytesValue, err := typedData.EncodePrimitiveValue(parsedType, item, depth)
 					if err != nil {
@@ -295,7 +318,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 			if !ok {
 				return nil, dataMismatchError(encType, encValue)
 			}
-			encodedData, err := typedData.EncodeData(field.Type, mapValue, depth+1)
+			encodedData, err := typedData.EncodeData(field.Type, mapValue, depth+1, useMetamaskImpl)
 			if err != nil {
 				return nil, err
 			}
