@@ -28,6 +28,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateDerivativeMarketOrder{}, "exchange/MsgCreateDerivativeMarketOrder", nil)
 	cdc.RegisterConcrete(&MsgCancelDerivativeOrder{}, "exchange/MsgCancelDerivativeOrder", nil)
 	cdc.RegisterConcrete(&MsgBatchCancelDerivativeOrders{}, "exchange/MsgBatchCancelDerivativeOrders", nil)
+	cdc.RegisterConcrete(&MsgBatchCancelBinaryOptionsOrders{}, "exchange/MsgBatchCancelBinaryOptionsOrders", nil)
 	cdc.RegisterConcrete(&MsgSubaccountTransfer{}, "exchange/MsgSubaccountTransfer", nil)
 	cdc.RegisterConcrete(&MsgExternalTransfer{}, "exchange/MsgExternalTransfer", nil)
 	cdc.RegisterConcrete(&MsgIncreasePositionMargin{}, "exchange/MsgIncreasePositionMargin", nil)
@@ -87,6 +88,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCreateDerivativeMarketOrder{},
 		&MsgCancelDerivativeOrder{},
 		&MsgBatchCancelDerivativeOrders{},
+		&MsgBatchCancelBinaryOptionsOrders{},
 		&MsgSubaccountTransfer{},
 		&MsgExternalTransfer{},
 		&MsgIncreasePositionMargin{},
