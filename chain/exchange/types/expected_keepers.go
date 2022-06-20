@@ -10,7 +10,7 @@ import (
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	wasmtypes "github.com/InjectiveLabs/sdk-go/wasm/types"
 
 	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
