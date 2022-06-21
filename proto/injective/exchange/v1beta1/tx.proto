@@ -42,7 +42,11 @@ service Msg {
   // BatchCancelSpotOrders defines a method for cancelling a batch of spot orders in a given market.
   rpc BatchCancelSpotOrders(MsgBatchCancelSpotOrders) returns (MsgBatchCancelSpotOrdersResponse);
 
+  // BatchUpdateOrders defines a method for updating a batch of orders.
   rpc BatchUpdateOrders(MsgBatchUpdateOrders) returns (MsgBatchUpdateOrdersResponse);
+
+  // Exec defines a method for executing a Cosmwasm contract from the exchange module with privileged capabilities.
+  rpc Exec(MsgExec) returns (MsgExecResponse);
 
   // CreateDerivativeLimitOrder defines a method for creating a new derivative limit order.
   rpc CreateDerivativeLimitOrder(MsgCreateDerivativeLimitOrder) returns (MsgCreateDerivativeLimitOrderResponse);
@@ -59,6 +63,21 @@ service Msg {
   // MsgBatchCancelDerivativeOrders defines a method for cancelling a batch of derivative limit orders.
   rpc BatchCancelDerivativeOrders(MsgBatchCancelDerivativeOrders) returns (MsgBatchCancelDerivativeOrdersResponse);
 
+  // InstantBinaryOptionsMarketLaunch defines method for creating a binary options market by paying listing fee without governance
+  rpc InstantBinaryOptionsMarketLaunch(MsgInstantBinaryOptionsMarketLaunch) returns (MsgInstantBinaryOptionsMarketLaunchResponse);
+
+  // CreateBinaryOptionsLimitOrder defines a method for creating a new binary options limit order.
+  rpc CreateBinaryOptionsLimitOrder(MsgCreateBinaryOptionsLimitOrder) returns (MsgCreateBinaryOptionsLimitOrderResponse);
+
+  // CreateBinaryOptionsMarketOrder defines a method for creating a new binary options market order.
+  rpc CreateBinaryOptionsMarketOrder(MsgCreateBinaryOptionsMarketOrder) returns (MsgCreateBinaryOptionsMarketOrderResponse);
+
+  // MsgCancelBinaryOptionsOrder defines a method for cancelling a binary options order.
+  rpc CancelBinaryOptionsOrder(MsgCancelBinaryOptionsOrder) returns (MsgCancelBinaryOptionsOrderResponse);
+
+  // BatchCancelBinaryOptionsOrders defines a method for cancelling a batch of binary options limit orders.
+  rpc BatchCancelBinaryOptionsOrders(MsgBatchCancelBinaryOptionsOrders) returns (MsgBatchCancelBinaryOptionsOrdersResponse);
+
   // SubaccountTransfer defines a method for transfer between subaccounts
   rpc SubaccountTransfer(MsgSubaccountTransfer) returns (MsgSubaccountTransferResponse);
 
@@ -70,9 +89,12 @@ service Msg {
 
   // IncreasePositionMargin defines a method for increasing margin of a position
   rpc IncreasePositionMargin(MsgIncreasePositionMargin) returns (MsgIncreasePositionMarginResponse);
-  
+
   // RegisterAsDMM defines a method for registering as a DMM
   rpc RegisterAsDMM(MsgRegisterAsDMM) returns (MsgRegisterAsDMMResponse);
+
+  // AdminUpdateBinaryOptionsMarket defines method for updating a binary options market by admin
+  rpc AdminUpdateBinaryOptionsMarket(MsgAdminUpdateBinaryOptionsMarket) returns (MsgAdminUpdateBinaryOptionsMarketResponse);
 }
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's bank balance into the subaccount's exchange deposits
@@ -213,6 +235,55 @@ message MsgInstantPerpetualMarketLaunch {
 // MsgInstantPerpetualMarketLaunchResponse defines the Msg/InstantPerpetualMarketLaunchResponse response type.
 message MsgInstantPerpetualMarketLaunchResponse {}
 
+// MsgInstantBinaryOptionsMarketLaunch defines a SDK message for creating a new perpetual futures market by paying listing fee without governance
+message MsgInstantBinaryOptionsMarketLaunch {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+  // Ticker for the derivative contract.
+  string ticker = 2;
+  // Oracle symbol
+  string oracle_symbol = 3;
+  // Oracle Provider
+  string oracle_provider = 4;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 5;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 6;
+  // maker_fee_rate defines the trade fee rate for makers on the perpetual market
+  string maker_fee_rate = 7 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // taker_fee_rate defines the trade fee rate for takers on the perpetual market
+  string taker_fee_rate = 8 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // expiration timestamp
+  int64 expiration_timestamp = 9;
+  // expiration timestamp
+  int64 settlement_timestamp = 10;
+  // admin of the market
+  string admin = 11;
+  // Address of the quote currency denomination for the binary options contract
+  string quote_denom = 12;
+  // min_price_tick_size defines the minimum tick size that the price and margin required for orders in the market
+  string min_price_tick_size = 13 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity required for orders in the market
+  string min_quantity_tick_size = 14 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgInstantBinaryOptionsMarketLaunchResponse defines the Msg/InstantBinaryOptionsMarketLaunchResponse response type.
+message MsgInstantBinaryOptionsMarketLaunchResponse {}
+
 // MsgInstantExpiryFuturesMarketLaunch defines a SDK message for creating a new expiry futures market by paying listing fee without governance
 message MsgInstantExpiryFuturesMarketLaunch {
   option (gogoproto.equal) = false;
@@ -298,6 +369,21 @@ message MsgCreateDerivativeLimitOrderResponse {
   string order_hash = 1;
 }
 
+// A Cosmos-SDK MsgCreateBinaryOptionsLimitOrder
+message MsgCreateBinaryOptionsLimitOrder {
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+  DerivativeOrder order = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgCreateBinaryOptionsLimitOrderResponse defines the Msg/CreateBinaryOptionsLimitOrder response type.
+message MsgCreateBinaryOptionsLimitOrderResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string order_hash = 1;
+}
+
 // A Cosmos-SDK MsgBatchCreateDerivativeLimitOrders
 message MsgBatchCreateDerivativeLimitOrders {
   option (gogoproto.goproto_getters) = false;
@@ -340,6 +426,21 @@ message MsgBatchCancelSpotOrdersResponse {
   repeated bool success = 1;
 }
 
+// MsgBatchCancelBinaryOptionsOrders defines the Msg/BatchCancelBinaryOptionsOrders response type.
+message MsgBatchCancelBinaryOptionsOrders {
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+  repeated OrderData data = 2 [(gogoproto.nullable) = false];
+}
+
+// BatchCancelBinaryOptionsOrdersResponse defines the Msg/BatchCancelBinaryOptionsOrders response type.
+message MsgBatchCancelBinaryOptionsOrdersResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated bool success = 1;
+}
+
 // MsgBatchUpdateOrders defines the Msg/BatchUpdateOrders response type.
 message MsgBatchUpdateOrders {
   option (gogoproto.goproto_getters) = false;
@@ -352,6 +453,9 @@ message MsgBatchUpdateOrders {
   repeated OrderData derivative_orders_to_cancel = 6 [(gogoproto.nullable) = true];
   repeated SpotOrder spot_orders_to_create = 7 [(gogoproto.nullable) = true];
   repeated DerivativeOrder derivative_orders_to_create = 8 [(gogoproto.nullable) = true];
+  repeated OrderData binary_options_orders_to_cancel = 9 [(gogoproto.nullable) = true];
+  repeated string binary_options_market_ids_to_cancel_all = 10;
+  repeated DerivativeOrder binary_options_orders_to_create = 11 [(gogoproto.nullable) = true];
 }
 
 // MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
@@ -363,6 +467,8 @@ message MsgBatchUpdateOrdersResponse {
   repeated bool derivative_cancel_success = 2;
   repeated string spot_order_hashes = 3;
   repeated string derivative_order_hashes = 4;
+  repeated bool binary_options_cancel_success = 5;
+  repeated string binary_options_order_hashes = 6;
 }
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder
@@ -380,6 +486,21 @@ message MsgCreateDerivativeMarketOrderResponse {
   string order_hash = 1;
 }
 
+// A Cosmos-SDK MsgCreateBinaryOptionsMarketOrder
+message MsgCreateBinaryOptionsMarketOrder {
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+  DerivativeOrder order = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgCreateBinaryOptionsMarketOrderResponse defines the Msg/CreateBinaryOptionsMarketOrder response type.
+message MsgCreateBinaryOptionsMarketOrderResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string order_hash = 1;
+}
+
 // MsgCancelDerivativeOrder defines the Msg/CancelDerivativeOrder response type.
 message MsgCancelDerivativeOrder {
   option (gogoproto.goproto_getters) = false;
@@ -391,6 +512,18 @@ message MsgCancelDerivativeOrder {
 
 // MsgCancelDerivativeOrderResponse defines the Msg/CancelDerivativeOrderResponse response type.
 message MsgCancelDerivativeOrderResponse {}
+
+// MsgCancelBinaryOptionsOrder defines the Msg/CancelBinaryOptionsOrder response type.
+message MsgCancelBinaryOptionsOrder {
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+  string market_id = 2;
+  string subaccount_id = 3;
+  string order_hash = 4;
+}
+
+// MsgCancelBinaryOptionsOrderResponse defines the Msg/CancelBinaryOptionsOrderResponse response type.
+message MsgCancelBinaryOptionsOrderResponse {}
 
 message OrderData {
   string market_id = 1;
@@ -464,13 +597,36 @@ message MsgIncreasePositionMargin {
 // MsgIncreasePositionMarginResponse defines the Msg/IncreasePositionMargin response type.
 message MsgIncreasePositionMarginResponse {}
 
+// MsgExec defines the Msg/Exec message type
+message MsgExec {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+  // bank_funds defines the user's coins used to fund the execution
+  repeated cosmos.base.v1beta1.Coin bank_funds = 2 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+
+  // deposits_subaccount_id defines the user's subaccountID to fund the execution
+  string deposits_subaccount_id = 3;
+
+  // deposit_funds defines the fund amounts to fund the execution
+  repeated cosmos.base.v1beta1.Coin deposit_funds = 4 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+
+  // contract_address defines the contract address to execute
+  string contract_address = 5;
+
+  // data defines the call data used when executing the contract
+  string data = 6;
+}
+
+// MsgExecResponse defines the Msg/Exec response type.
+message MsgExecResponse {}
+
 message SpotMarketParamUpdateProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
   string title = 1;
   string description = 2;
-
   string market_id = 3;
 
   // maker_fee_rate defines the trade fee rate for makers on the spot market
@@ -624,6 +780,51 @@ message PerpetualMarketLaunchProposal {
   ];
 }
 
+message BinaryOptionsMarketLaunchProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string title = 1;
+  string description = 2;
+  // Ticker for the derivative contract.
+  string ticker = 3;
+  // Oracle symbol
+  string oracle_symbol = 4;
+  // Oracle Provider
+  string oracle_provider = 5;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 6;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 7;
+  // expiration timestamp
+  int64 expiration_timestamp = 8;
+  // expiration timestamp
+  int64 settlement_timestamp = 9;
+  // admin of the market
+  string admin = 10;
+  // Address of the quote currency denomination for the binary options contract
+  string quote_denom = 11;
+  // maker_fee_rate defines the maker fee rate of a binary options market
+  string maker_fee_rate = 12 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // taker_fee_rate defines the taker fee rate of a derivative market
+  string taker_fee_rate = 13 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // min_price_tick_size defines the minimum tick size that the price and margin required for orders in the market
+  string min_price_tick_size = 14 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity required for orders in the market
+  string min_quantity_tick_size = 15 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
 // ExpiryFuturesMarketLaunchProposal defines a SDK message for proposing a new expiry futures market through governance
 message ExpiryFuturesMarketLaunchProposal {
   option (gogoproto.equal) = false;
@@ -743,6 +944,82 @@ message DerivativeMarketParamUpdateProposal {
   OracleParams oracle_params = 14;
 }
 
+message MarketForcedSettlementProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  string market_id = 3;
+  string settlement_price = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+}
+
+message BinaryOptionsMarketParamUpdateProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  string market_id = 3;
+
+  // maker_fee_rate defines the exchange trade fee for makers for the derivative market
+  string maker_fee_rate = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+
+  // taker_fee_rate defines the exchange trade fee for takers for the derivative market
+  string taker_fee_rate = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+
+  // relayer_fee_share_rate defines the relayer fee share rate for the derivative market
+  string relayer_fee_share_rate = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+
+  // min_price_tick_size defines the minimum tick size of the order's price and margin
+  string min_price_tick_size = 7 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the order's quantity
+  string min_quantity_tick_size = 8 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+
+  // expiration timestamp
+  int64 expiration_timestamp = 9;
+  // expiration timestamp
+  int64 settlement_timestamp = 10;
+  // new price at which market will be settled
+  string settlement_price = 11 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  // admin of the market
+  string admin = 12;
+  MarketStatus status = 13;
+  ProviderOracleParams oracle_params = 14;
+}
+
+message ProviderOracleParams {
+  // Oracle base currency
+  string symbol = 1;
+  // Oracle quote currency
+  string provider = 2;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 3;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 4;
+}
+
 message OracleParams {
   // Oracle base currency
   string oracle_base = 1;
@@ -818,3 +1095,23 @@ message MsgRegisterAsDMM {
 
 // MsgRegisterAsDMMResponse defines the Msg/RegisterAsDMM response type.
 message MsgRegisterAsDMMResponse {}
+
+// MsgAdminUpdateBinaryOptionsMarket is used by the market Admin to operate the market
+message MsgAdminUpdateBinaryOptionsMarket {
+  string sender = 1;
+  string market_id = 2;
+  // new price at which market will be settled
+  string settlement_price = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+  // expiration timestamp
+  int64 expiration_timestamp = 4;
+  // expiration timestamp
+  int64 settlement_timestamp = 5;
+  // Status of the market
+  MarketStatus status = 6;
+}
+
+// MsgAdminUpdateBinaryOptionsMarketResponse is the response for AdminUpdateBinaryOptionsMarket rpc method
+message MsgAdminUpdateBinaryOptionsMarketResponse {}

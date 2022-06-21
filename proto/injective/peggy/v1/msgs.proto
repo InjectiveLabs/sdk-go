@@ -164,6 +164,7 @@ message MsgDepositClaim {
   string ethereum_sender = 5;
   string cosmos_receiver = 6;
   string orchestrator = 7;
+  string data = 8;
 }
 
 message MsgDepositClaimResponse {}

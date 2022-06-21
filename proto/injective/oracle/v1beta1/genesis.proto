@@ -18,11 +18,11 @@ message GenesisState {
   repeated PriceFeedState price_feed_price_states = 4;
 
   repeated CoinbasePriceState coinbase_price_states = 5;
-  
+
   repeated BandPriceState band_ibc_price_states = 6;
 
   repeated BandOracleRequest band_ibc_oracle_requests = 7;
-  
+
   BandIBCParams band_ibc_params = 8 [(gogoproto.nullable) = false];
 
   uint64 band_ibc_latest_client_id = 9;
@@ -32,6 +32,10 @@ message GenesisState {
   uint64 band_ibc_latest_request_id = 11;
 
   repeated ChainlinkPriceState chainlink_price_states = 12;
+
+  repeated PriceRecords historical_price_records = 13;
+
+  repeated ProviderState provider_states = 14;
 }
 
 message CalldataRecord {

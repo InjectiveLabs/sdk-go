@@ -161,7 +161,8 @@ func (o *DerivativeOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint3
 
 func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, markPrice, feeRate sdk.Dec, marketType MarketType, oracleScaleFactor uint32) (marginHold sdk.Dec, err error) {
 	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-	feeAmount := notional.Mul(feeRate)
+	positiveFeeRatePart := sdk.MaxDec(feeRate, sdk.ZeroDec())
+	feeAmount := notional.Mul(positiveFeeRatePart)
 
 	marginHold = o.Margin.Add(feeAmount)
 	if marketType == MarketType_BinaryOption {

@@ -2,12 +2,13 @@ syntax = "proto3";
 package injective.oracle.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
-import "injective/oracle/v1beta1/oracle.proto";
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
 // Msg defines the oracle Msg service.
 service Msg {
+
+  // RelayProviderPrice defines a method for relaying a price for a provider-based oracle
+  rpc RelayProviderPrices(MsgRelayProviderPrices) returns (MsgRelayProviderPricesResponse);
 
   // RelayPriceFeedPrice defines a method for relaying a price for a price feeder-based oracle
   rpc RelayPriceFeedPrice(MsgRelayPriceFeedPrice) returns (MsgRelayPriceFeedPriceResponse);
@@ -16,11 +17,26 @@ service Msg {
   rpc RelayBandRates(MsgRelayBandRates) returns (MsgRelayBandRatesResponse);
 
   // RequestBandIBCRates defines a method for fetching rates from Band ibc
-  rpc RequestBandIBCRates(MsgRequestBandIBCRates) returns (MsgRequestBandIBCRatesResponse); 
+  rpc RequestBandIBCRates(MsgRequestBandIBCRates) returns (MsgRequestBandIBCRatesResponse);
 
   // RelayCoinbaseMessages defines a method for relaying price messages from Coinbase API
   rpc RelayCoinbaseMessages(MsgRelayCoinbaseMessages) returns (MsgRelayCoinbaseMessagesResponse);
 }
+
+// MsgRelayProviderPrice defines a SDK message for setting a price through the provider oracle.
+message MsgRelayProviderPrices {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+  string provider = 2;
+  repeated string symbols = 3;
+  repeated string prices = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MsgRelayProviderPricesResponse{}
 
 // MsgRelayPriceFeedPrice defines a SDK message for setting a price through the pricefeed oracle.
 message MsgRelayPriceFeedPrice {
@@ -68,7 +84,7 @@ message MsgRequestBandIBCRates {
   option (gogoproto.goproto_getters) = false;
 
   string sender = 1;
-  uint64 request_id = 2;  
+  uint64 request_id = 2;
 
 }
 

@@ -25,7 +25,7 @@ message EventOutgoingBatch {
   string orchestrator_address = 2;
   uint64 batch_nonce = 3;
   uint64 batch_timeout = 4;
-  repeated uint64 batch_tx_ids = 5 [(gogoproto.nullable) = false];
+  repeated uint64 batch_tx_ids = 5;
 }
 
 message EventOutgoingBatchCanceled {
@@ -97,6 +97,7 @@ message EventDepositClaim {
     (gogoproto.nullable) = false
   ];
   string orchestrator_address = 8;
+  string data = 9;
 }
 
 message EventWithdrawClaim {

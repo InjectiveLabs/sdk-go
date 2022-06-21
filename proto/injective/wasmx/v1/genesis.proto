@@ -1,0 +1,14 @@
+syntax = "proto3";
+package injective.wasmx.v1;
+
+import "injective/wasmx/v1/wasmx.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
+
+// GenesisState defines the wasmx module's genesis state.
+message GenesisState {
+  // params defines all the parameters of related to wasmx.
+  Params params = 1 [(gogoproto.nullable) = false];
+
+}

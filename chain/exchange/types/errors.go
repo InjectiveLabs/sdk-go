@@ -79,4 +79,6 @@ var (
 	ErrInvalidSettlement                        = sdkerrors.Register(ModuleName, 72, "invalid settlement")
 	ErrAccountDoesntExist                       = sdkerrors.Register(ModuleName, 73, "account doesnt exist")
 	ErrSenderIsNotAnAdmin                       = sdkerrors.Register(ModuleName, 74, "sender should be a market admin")
+	ErrMarketAlreadyScheduledToSettle           = sdkerrors.Register(ModuleName, 75, "market is already scheduled to settle")
+	ErrGenericMarketNotFound                    = sdkerrors.Register(ModuleName, 76, "market not found")
 )

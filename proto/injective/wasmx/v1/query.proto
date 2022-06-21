@@ -1,0 +1,41 @@
+syntax = "proto3";
+package injective.wasmx.v1;
+
+import "google/api/annotations.proto";
+import "injective/wasmx/v1/wasmx.proto";
+import "injective/wasmx/v1/genesis.proto";
+import "gogoproto/gogo.proto";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
+
+// Query defines the gRPC querier service.
+service Query {
+
+  // Retrieves wasmx params
+  rpc WasmxParams(QueryWasmxParamsRequest) returns (QueryWasmxParamsResponse) {
+    option (google.api.http).get = "/injective/wasmx/v1/params";
+  }
+  
+  // Retrieves the entire wasmx module's state
+  rpc WasmxModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+    option (google.api.http).get = "/injective/wasmx/v1/module_state";
+  }
+
+}
+
+// QueryWasmxParamsRequest is the request type for the Query/WasmxParams RPC method.
+message QueryWasmxParamsRequest {}
+
+// QueryWasmxParamsRequest is the response type for the Query/WasmxParams RPC method.
+message QueryWasmxParamsResponse {
+  Params params = 1 [
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryModuleStateRequest is the request type for the Query/WasmxModuleState RPC method.
+message QueryModuleStateRequest {}
+
+// QueryModuleStateResponse is the response type for the Query/WasmxModuleState RPC method.
+message QueryModuleStateResponse {
+  GenesisState state = 1;
+}
