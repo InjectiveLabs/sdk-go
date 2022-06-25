@@ -81,4 +81,5 @@ var (
 	ErrSenderIsNotAnAdmin                       = sdkerrors.Register(ModuleName, 74, "sender should be a market admin")
 	ErrMarketAlreadyScheduledToSettle           = sdkerrors.Register(ModuleName, 75, "market is already scheduled to settle")
 	ErrGenericMarketNotFound                    = sdkerrors.Register(ModuleName, 76, "market not found")
+	ErrInvalidDenomDecimal                      = sdkerrors.Register(ModuleName, 77, "denom decimal cannot be below 1 or above max scale factor")
 )

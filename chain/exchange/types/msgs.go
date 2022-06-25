@@ -381,7 +381,7 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	if err := ValidateFee(msg.TakerFeeRate); err != nil {
 		return err
 	}
-	if msg.ExpirationTimestamp > msg.SettlementTimestamp || msg.ExpirationTimestamp < 0 || msg.SettlementTimestamp < 0 {
+	if msg.ExpirationTimestamp >= msg.SettlementTimestamp || msg.ExpirationTimestamp < 0 || msg.SettlementTimestamp < 0 {
 		return ErrInvalidExpiry
 	}
 	if msg.Admin != "" {
@@ -1045,6 +1045,10 @@ func (msg *MsgCancelBinaryOptionsOrder) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgBatchCancelBinaryOptionsOrders) Route() string {
+	return RouterKey
 }
 
 // Type implements the sdk.Msg interface. It should return the action.

@@ -34,6 +34,7 @@ var (
 	SpotExchangeEnabledKey               = []byte{0x07} // key for whether spot exchange is enabled
 	DerivativeExchangeEnabledKey         = []byte{0x08} // key for whether derivative exchange is enabled
 	MarketHistoricalTradeRecordsPrefix   = []byte{0x09} // prefix for each key to a market's historical trade records
+	DenomDecimalsPrefix                  = []byte{0x10} // prefix for denom decimals
 
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
 	SpotLimitOrdersPrefix            = []byte{0x12} // prefix for each key to a spot order, by (marketID, direction, price level, order hash)
@@ -412,4 +413,8 @@ func GetBinaryOptionsMarketSettlementTimestampKey(timestamp int64, marketID comm
 
 func GetMarketHistoricalTradeRecordsKey(marketID common.Hash) []byte {
 	return append(MarketHistoricalTradeRecordsPrefix, marketID.Bytes()...)
+}
+
+func GetDenomDecimalsKey(denom string) []byte {
+	return append(DenomDecimalsPrefix, []byte(denom)...)
 }
