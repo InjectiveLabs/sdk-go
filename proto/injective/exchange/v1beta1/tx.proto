@@ -957,6 +957,20 @@ message MarketForcedSettlementProposal {
   ];
 }
 
+message UpdateDenomDecimalsProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  repeated DenomDecimals denom_decimals = 3;
+}
+
+message DenomDecimals {
+  string denom = 1;
+  uint64 decimals = 2;
+}
+
 message BinaryOptionsMarketParamUpdateProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;

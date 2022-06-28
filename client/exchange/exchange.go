@@ -71,7 +71,7 @@ type ExchangeClient interface {
 	GetVersion(ctx context.Context, req metaPB.VersionRequest) (metaPB.VersionResponse, error)
 	Ping(ctx context.Context, req metaPB.PingRequest) (metaPB.PingResponse, error)
 	GetTxByTxHash(ctx context.Context, hash string) (explorerPB.GetTxByTxHashResponse, error)
-	GetTxs(ctx context.Context) (explorerPB.GetTxsResponse, error)
+	GetTxs(ctx context.Context, req explorerPB.GetTxsRequest) (explorerPB.GetTxsResponse, error)
 	GetBlock(ctx context.Context, blockHeight string) (explorerPB.GetBlockResponse, error)
 	GetBlocks(ctx context.Context) (explorerPB.GetBlocksResponse, error)
 	GetAccountTxs(ctx context.Context, address string) (explorerPB.GetAccountTxsResponse, error)
@@ -1017,9 +1017,7 @@ func (c *exchangeClient) GetBlock(ctx context.Context, blockHeight string) (expl
 	return *res, nil
 }
 
-func (c *exchangeClient) GetTxs(ctx context.Context) (explorerPB.GetTxsResponse, error) {
-	req := explorerPB.GetTxsRequest{}
-
+func (c *exchangeClient) GetTxs(ctx context.Context, req explorerPB.GetTxsRequest) (explorerPB.GetTxsResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.explorerClient.GetTxs(ctx, &req, grpc.Header(&header))

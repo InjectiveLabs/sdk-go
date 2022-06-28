@@ -21,6 +21,7 @@ const (
 	ProposalTypeExpiryFuturesMarketLaunch       string = "ProposalTypeExpiryFuturesMarketLaunch"
 	ProposalTypeDerivativeMarketParamUpdate     string = "ProposalTypeDerivativeMarketParamUpdate"
 	ProposalTypeMarketForcedSettlement          string = "ProposalTypeMarketForcedSettlement"
+	ProposalUpdateDenomDecimals                 string = "ProposalUpdateDenomDecimals"
 	ProposalTypeTradingRewardCampaign           string = "ProposalTypeTradingRewardCampaign"
 	ProposalTypeTradingRewardCampaignUpdate     string = "ProposalTypeTradingRewardCampaignUpdateProposal"
 	ProposalTypeTradingRewardPointsUpdate       string = "ProposalTypeTradingRewardPointsUpdateProposal"
@@ -47,6 +48,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
 	gov.RegisterProposalType(ProposalTypeMarketForcedSettlement)
 	gov.RegisterProposalTypeCodec(&MarketForcedSettlementProposal{}, "injective/MarketForcedSettlementProposal")
+	gov.RegisterProposalType(ProposalUpdateDenomDecimals)
+	gov.RegisterProposalTypeCodec(&UpdateDenomDecimalsProposal{}, "injective/UpdateDenomDecimalsProposal")
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaign)
 	gov.RegisterProposalTypeCodec(&TradingRewardCampaignLaunchProposal{}, "injective/TradingRewardCampaignLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
@@ -545,6 +548,60 @@ func (p *MarketForcedSettlementProposal) ValidateBasic() error {
 	}
 
 	return gov.ValidateAbstract(p)
+}
+
+// NewUpdateDenomDecimalsProposal returns new instance of UpdateDenomDecimalsProposal
+func NewUpdateDenomDecimalsProposal(
+	title, description string,
+	denomDecimals []*DenomDecimals,
+) *UpdateDenomDecimalsProposal {
+	return &UpdateDenomDecimalsProposal{
+		Title:         title,
+		Description:   description,
+		DenomDecimals: denomDecimals,
+	}
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &UpdateDenomDecimalsProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *UpdateDenomDecimalsProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *UpdateDenomDecimalsProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *UpdateDenomDecimalsProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *UpdateDenomDecimalsProposal) ProposalType() string {
+	return ProposalUpdateDenomDecimals
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *UpdateDenomDecimalsProposal) ValidateBasic() error {
+	for _, d := range p.DenomDecimals {
+		if err := d.Validate(); err != nil {
+			return err
+		}
+	}
+	return gov.ValidateAbstract(p)
+}
+
+func (d *DenomDecimals) Validate() error {
+	if d.Denom == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, d.Denom)
+	}
+
+	if d.Decimals <= 0 || d.Decimals > uint64(MaxOracleScaleFactor) {
+		return sdkerrors.Wrapf(ErrInvalidDenomDecimal, "invalid decimals passed: %d", d.Decimals)
+	}
+	return nil
 }
 
 func NewOracleParams(

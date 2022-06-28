@@ -29,7 +29,17 @@ func getFileAbsPath(relativePath string) string {
 }
 
 func LoadNetwork(name string, node string) Network {
-	if name == "devnet" {
+	if name == "devnet-1" {
+		return Network{
+			LcdEndpoint:          "https://devnet-1.lcd.injective.dev",
+			TmEndpoint:           "https://devnet-1.tm.injective.dev:443",
+			ChainGrpcEndpoint:    "tcp://devnet-1.grpc.injective.dev:9900",
+			ExchangeGrpcEndpoint: "tcp://devnet-1.api.injective.dev:9910",
+			ChainId:              "injective-777",
+			Fee_denom:            "inj",
+			Name:                 "devnet-1",
+		}
+	} else if name == "devnet" {
 		return Network{
 			LcdEndpoint:          "https://devnet.lcd.injective.dev",
 			TmEndpoint:           "https://devnet.tm.injective.dev:443",
