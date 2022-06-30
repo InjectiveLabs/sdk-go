@@ -168,7 +168,7 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, markPr
 	if marketType == MarketType_BinaryOption {
 		requiredMargin := o.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
 		if !o.Margin.Equal(requiredMargin) {
-			return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "margin check: need %s but got %s", notional.String(), o.Margin.String())
+			return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "margin check: need %s but got %s", requiredMargin.String(), o.Margin.String())
 		}
 		return marginHold, nil
 	}

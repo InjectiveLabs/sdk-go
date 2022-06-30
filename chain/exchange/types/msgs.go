@@ -304,7 +304,7 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if err := oracleParams.ValidateBasic(); err != nil {
 		return err
 	}
-	if err := ValidateFee(msg.MakerFeeRate); err != nil {
+	if err := ValidateMakerFee(msg.MakerFeeRate); err != nil {
 		return err
 	}
 	if err := ValidateFee(msg.TakerFeeRate); err != nil {
@@ -375,11 +375,14 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	if msg.OracleScaleFactor > MaxOracleScaleFactor {
 		return ErrExceedsMaxOracleScaleFactor
 	}
-	if err := ValidateFee(msg.MakerFeeRate); err != nil {
+	if err := ValidateMakerFee(msg.MakerFeeRate); err != nil {
 		return err
 	}
 	if err := ValidateFee(msg.TakerFeeRate); err != nil {
 		return err
+	}
+	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
+		return ErrFeeRatesRelation
 	}
 	if msg.ExpirationTimestamp >= msg.SettlementTimestamp || msg.ExpirationTimestamp < 0 || msg.SettlementTimestamp < 0 {
 		return ErrInvalidExpiry
@@ -445,7 +448,7 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	if msg.Expiry <= 0 {
 		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
 	}
-	if err := ValidateFee(msg.MakerFeeRate); err != nil {
+	if err := ValidateMakerFee(msg.MakerFeeRate); err != nil {
 		return err
 	}
 	if err := ValidateFee(msg.TakerFeeRate); err != nil {
@@ -714,15 +717,7 @@ func NewMsgCreateBinaryOptionsLimitOrder(
 	orderType OrderType,
 	isReduceOnly bool,
 ) *MsgCreateBinaryOptionsLimitOrder {
-	margin := sdk.ZeroDec()
-
-	if !isReduceOnly {
-		if orderType == OrderType_BUY {
-			margin = price.Mul(quantity)
-		} else {
-			margin = GetScaledPrice(sdk.OneDec(), market.OracleScaleFactor).Sub(price).Mul(quantity)
-		}
-	}
+	margin := GetRequiredBinaryOptionsOrderMargin(price, quantity, market.OracleScaleFactor, orderType, isReduceOnly)
 
 	return &MsgCreateBinaryOptionsLimitOrder{
 		Sender: sender.String(),
@@ -862,14 +857,7 @@ func NewMsgCreateBinaryOptionsMarketOrder(
 	orderType OrderType,
 	isReduceOnly bool,
 ) *MsgCreateBinaryOptionsMarketOrder {
-	margin := sdk.ZeroDec()
-	if !isReduceOnly {
-		if orderType == OrderType_BUY {
-			margin = price.Mul(quantity)
-		} else {
-			margin = GetScaledPrice(sdk.OneDec(), market.OracleScaleFactor).Sub(price).Mul(quantity)
-		}
-	}
+	margin := GetRequiredBinaryOptionsOrderMargin(price, quantity, market.OracleScaleFactor, orderType, isReduceOnly)
 
 	return &MsgCreateBinaryOptionsMarketOrder{
 		Sender: sender.String(),

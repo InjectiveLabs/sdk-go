@@ -691,6 +691,9 @@ message BatchExchangeModificationProposal {
   repeated PerpetualMarketLaunchProposal perpetual_market_launch_proposals = 6;
   repeated ExpiryFuturesMarketLaunchProposal expiry_futures_market_launch_proposals = 7;
   TradingRewardCampaignUpdateProposal trading_reward_campaign_update_proposal = 8;
+  repeated BinaryOptionsMarketLaunchProposal binary_options_market_launch_proposals = 9;
+  repeated BinaryOptionsMarketParamUpdateProposal binary_options_param_update_proposals = 10;
+  UpdateDenomDecimalsProposal denom_decimals_update_proposal = 11;
 }
 
 // SpotMarketLaunchProposal defines a SDK message for proposing a new spot market through governance
