@@ -41,11 +41,6 @@ service Query {
   }
 
   // Retrieves the state for all provider price feeds
-  rpc ProviderPriceStates(QueryProviderPriceStatesRequest) returns (QueryProviderPriceStatesResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/provider_price_states";
-  }
-
-  // Retrieves the state for all provider price feeds
   rpc ProviderPriceState(QueryProviderPriceStateRequest) returns (QueryProviderPriceStateResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/provider_price_state/{provider}/{symbol}";
   }
@@ -126,14 +121,6 @@ message QueryCoinbasePriceStatesRequest {}
 // QueryCoinbasePriceStatesResponse is the response type for the Query/CoinbasePriceStates RPC method.
 message QueryCoinbasePriceStatesResponse {
   repeated CoinbasePriceState price_states = 1;
-}
-
-// QueryProviderPriceStatesRequest is the request type for the Query/ProviderPriceStates RPC method.
-message QueryProviderPriceStatesRequest {}
-
-// QueryProviderPriceStatesResponse is the response type for the Query/ProviderPriceStates RPC method.
-message QueryProviderPriceStatesResponse {
-  repeated ProviderPriceState price_states = 1;
 }
 
 // QueryProviderPriceStateRequest is the request type for the Query/ProviderPriceState RPC method.

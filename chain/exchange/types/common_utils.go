@@ -25,6 +25,14 @@ func IsEqualDenoms(denoms1, denoms2 []string) bool {
 	return reflect.DeepEqual(denom1Map, denom2Map)
 }
 
+func IsPeggyToken(denom string) bool {
+	return strings.HasPrefix(denom, "peggy0x")
+}
+
+func IsIBCDenom(denom string) bool {
+	return strings.HasPrefix(denom, "ibc/")
+}
+
 type Account [20]byte
 
 func SdkAccAddressToAccount(account sdk.AccAddress) Account {

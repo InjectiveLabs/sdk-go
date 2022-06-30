@@ -2,6 +2,7 @@ syntax = "proto3";
 package injective.exchange.v1beta1;
 
 import "injective/exchange/v1beta1/exchange.proto";
+import "injective/exchange/v1beta1/tx.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
@@ -90,6 +91,9 @@ message GenesisState {
 
   // spot_market_ids_scheduled_to_force_close defines the scheduled markets for forced closings at genesis
   repeated string spot_market_ids_scheduled_to_force_close = 28 [(gogoproto.nullable) = false];
+
+  // denom_decimals defines the denom decimals for the exchange.
+  repeated DenomDecimals denom_decimals = 29 [(gogoproto.nullable) = false];
 }
 
 message FeeDiscountAccountTierTTL {

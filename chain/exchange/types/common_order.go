@@ -1,15 +1,33 @@
 package types
 
 import (
+	"strconv"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	gethsigner "github.com/ethereum/go-ethereum/signer/core"
 	"github.com/gogo/protobuf/proto"
 	"golang.org/x/crypto/sha3"
-
-	"strconv"
 )
+
+// GetRequiredBinaryOptionsOrderMargin returns the required margin for a binary options trade (or order) at a given price
+func GetRequiredBinaryOptionsOrderMargin(
+	price sdk.Dec,
+	quantity sdk.Dec,
+	oracleScaleFactor uint32,
+	orderType OrderType,
+	isReduceOnly bool,
+) sdk.Dec {
+	if isReduceOnly {
+		return sdk.ZeroDec()
+	}
+
+	if orderType.IsBuy() {
+		return price.Mul(quantity)
+	}
+	return GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(price).Mul(quantity)
+}
 
 func (t OrderType) IsBuy() bool {
 	switch t {

@@ -181,6 +181,24 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 		}
 	}
 
+	for _, proposal := range p.BinaryOptionsMarketLaunchProposals {
+		if err := proposal.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+
+	for _, proposal := range p.BinaryOptionsParamUpdateProposals {
+		if err := proposal.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+
+	if p.DenomDecimalsUpdateProposal != nil {
+		if err := p.DenomDecimalsUpdateProposal.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+
 	return gov.ValidateAbstract(p)
 }
 

@@ -125,7 +125,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyDerivativeMarketInstantListingFee, &p.DerivativeMarketInstantListingFee, validateDerivativeMarketInstantListingFee),
 		paramtypes.NewParamSetPair(KeyDefaultSpotMakerFeeRate, &p.DefaultSpotMakerFeeRate, ValidateMakerFee),
 		paramtypes.NewParamSetPair(KeyDefaultSpotTakerFeeRate, &p.DefaultSpotTakerFeeRate, ValidateFee),
-		paramtypes.NewParamSetPair(KeyDefaultDerivativeMakerFeeRate, &p.DefaultDerivativeMakerFeeRate, ValidateFee),
+		paramtypes.NewParamSetPair(KeyDefaultDerivativeMakerFeeRate, &p.DefaultDerivativeMakerFeeRate, ValidateMakerFee),
 		paramtypes.NewParamSetPair(KeyDefaultDerivativeTakerFeeRate, &p.DefaultDerivativeTakerFeeRate, ValidateFee),
 		paramtypes.NewParamSetPair(KeyDefaultInitialMarginRatio, &p.DefaultInitialMarginRatio, ValidateMarginRatio),
 		paramtypes.NewParamSetPair(KeyDefaultMaintenanceMarginRatio, &p.DefaultMaintenanceMarginRatio, ValidateMarginRatio),
@@ -147,12 +147,12 @@ func DefaultParams() Params {
 	return Params{
 		SpotMarketInstantListingFee:          sdk.NewCoin("inj", sdk.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
 		DerivativeMarketInstantListingFee:    sdk.NewCoin("inj", sdk.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
-		DefaultSpotMakerFeeRate:              sdk.NewDecWithPrec(1, 3), // default 0.1% maker fees
-		DefaultSpotTakerFeeRate:              sdk.NewDecWithPrec(2, 3), // default 0.2% taker fees
-		DefaultDerivativeMakerFeeRate:        sdk.NewDecWithPrec(1, 3), // default 0.1% maker fees
-		DefaultDerivativeTakerFeeRate:        sdk.NewDecWithPrec(2, 3), // default 0.2% taker fees
-		DefaultInitialMarginRatio:            sdk.NewDecWithPrec(5, 2), // default 5% initial margin ratio
-		DefaultMaintenanceMarginRatio:        sdk.NewDecWithPrec(2, 2), // default 2% maintenance margin ratio
+		DefaultSpotMakerFeeRate:              sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
+		DefaultSpotTakerFeeRate:              sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
+		DefaultDerivativeMakerFeeRate:        sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
+		DefaultDerivativeTakerFeeRate:        sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
+		DefaultInitialMarginRatio:            sdk.NewDecWithPrec(5, 2),  // default 5% initial margin ratio
+		DefaultMaintenanceMarginRatio:        sdk.NewDecWithPrec(2, 2),  // default 2% maintenance margin ratio
 		DefaultFundingInterval:               DefaultFundingIntervalSeconds,
 		FundingMultiple:                      DefaultFundingMultipleSeconds,
 		RelayerFeeShareRate:                  sdk.NewDecWithPrec(40, 2),      // default 40% relayer fee share
@@ -293,6 +293,10 @@ func ValidateMakerFee(i interface{}) error {
 
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("exchange fee cannot be greater than 1: %s", v)
+	}
+
+	if v.LT(sdk.OneDec().Neg()) {
+		return fmt.Errorf("exchange fee cannot be less than -1: %s", v)
 	}
 
 	return nil
