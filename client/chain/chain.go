@@ -15,6 +15,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
@@ -90,6 +91,17 @@ type ChainClient interface {
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
+	SmartContractState(
+		ctx context.Context,
+		contractAddress string,
+		queryData []byte,
+	) (*wasmtypes.QuerySmartContractStateResponse, error)
+	RawContractState(
+		ctx context.Context,
+		contractAddress string,
+		queryData []byte,
+	) (*wasmtypes.QueryRawContractStateResponse, error)
+
 	GetGasFee() (string, error)
 	Close()
 }
@@ -119,6 +131,7 @@ type chainClient struct {
 	exchangeQueryClient exchangetypes.QueryClient
 	bankQueryClient     banktypes.QueryClient
 	authzQueryClient    authztypes.QueryClient
+	wasmQueryClient     wasmtypes.QueryClient
 
 	closed  int64
 	canSign bool
@@ -183,6 +196,7 @@ func NewChainClient(
 		exchangeQueryClient: exchangetypes.NewQueryClient(conn),
 		bankQueryClient:     banktypes.NewQueryClient(conn),
 		authzQueryClient:    authztypes.NewQueryClient(conn),
+		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
 	}
 
 	if cc.canSign {
@@ -929,6 +943,34 @@ func (c *chainClient) BuildExchangeAuthz(granter string, grantee string, authzTy
 			Expiration:    expireIn,
 		},
 	}
+}
+
+func (c *chainClient) SmartContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QuerySmartContractStateResponse, error) {
+	return c.wasmQueryClient.SmartContractState(
+		ctx,
+		&wasmtypes.QuerySmartContractStateRequest{
+			Address:   contractAddress,
+			QueryData: queryData,
+		},
+	)
+}
+
+func (c *chainClient) RawContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QueryRawContractStateResponse, error) {
+	return c.wasmQueryClient.RawContractState(
+		ctx,
+		&wasmtypes.QueryRawContractStateRequest{
+			Address:   contractAddress,
+			QueryData: queryData,
+		},
+	)
 }
 
 func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
