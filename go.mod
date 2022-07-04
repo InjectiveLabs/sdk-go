@@ -3,12 +3,12 @@ module github.com/InjectiveLabs/sdk-go
 go 1.17
 
 require (
-	github.com/CosmWasm/wasmd v0.0.0-00010101000000-000000000000
+	github.com/CosmWasm/wasmd v0.27.0
 	github.com/InjectiveLabs/suplog v1.3.3
 	github.com/bandprotocol/bandchain-packet v0.0.2
 	github.com/btcsuite/btcd v0.22.0-beta
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
-	github.com/cosmos/cosmos-sdk v0.45.4
+	github.com/cosmos/cosmos-sdk v0.45.5
 	github.com/cosmos/ibc-go/v3 v3.0.0
 	github.com/ethereum/go-ethereum v1.9.25
 	github.com/gogo/protobuf v1.3.3
@@ -156,6 +156,6 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
 
 replace github.com/btcsuite/btcutil => github.com/btcsuite/btcutil v1.0.2
 
-replace github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.45.4-inj
+replace github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.45.5-inj
 
 replace github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.27.0-inj
