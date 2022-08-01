@@ -53,6 +53,16 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/spot/orders/{market_id}/{subaccount_id}";
   }
 
+  // Retrieves subaccount's orders
+  rpc SubaccountOrders(QuerySubaccountOrdersRequest) returns (QuerySubaccountOrdersResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/orders/{subaccount_id}";
+  }
+
+  // Retrieves a trader's transient spot orders
+  rpc TraderSpotTransientOrders(QueryTraderSpotOrdersRequest) returns (QueryTraderSpotOrdersResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/spot/transient_orders/{market_id}/{subaccount_id}";
+  }
+
   // Retrieves a spot market's mid-price
   rpc SpotMidPriceAndTOB(QuerySpotMidPriceAndTOBRequest) returns (QuerySpotMidPriceAndTOBResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/spot/mid_price_and_tob/{market_id}";
@@ -222,6 +232,16 @@ service Query {
 message Subaccount {
   string trader = 1;
   uint32 subaccount_nonce = 2;
+}
+
+message QuerySubaccountOrdersRequest {
+  string subaccount_id = 1;
+  string market_id = 2;
+}
+
+message QuerySubaccountOrdersResponse {
+  repeated SubaccountOrderData buy_orders = 1;
+  repeated SubaccountOrderData sell_orders = 2;
 }
 
 message SubaccountOrderbookMetadataWithMarket {
@@ -404,6 +424,63 @@ message QueryDerivativeOrderbookRequest {
 message QueryDerivativeOrderbookResponse {
   repeated PriceLevel buys_price_level = 1;
   repeated PriceLevel sells_price_level = 2;
+}
+
+// CancellationStrategy is the list of cancellation strategies.
+enum CancellationStrategy {
+  // just cancelling in random order in most efficient way
+  UnspecifiedOrder = 0;
+  // e.g. for buy orders from lowest to highest price
+  FromWorstToBest = 1;
+  // e.g. for buy orders from higest to lowest price
+  FromBestToWorst = 2;
+
+  // more strategies could be imagined like cancel buy first or cancel sell first
+}
+
+// QueryTraderSpotOrdersToCancelUpToAmountRequest is the request type for the Query/TraderSpotOrdersToCancelUpToAmountRequest RPC method.
+message QueryTraderSpotOrdersToCancelUpToAmountRequest {
+  // Market ID for the market
+  string market_id = 1;
+  // SubaccountID of the trader
+  string subaccount_id = 2;
+  // the base amount to cancel (free up)
+  string base_amount = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // the quote amount to cancel (free up)
+  string quote_amount = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // The cancellation strategy
+  CancellationStrategy strategy = 5;
+  // The reference price for the cancellation strategy, e.g. mid price or mark price
+  string reference_price = 6 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
+}
+
+// QueryTraderDerivativeOrdersToCancelUpToAmountRequest is the request type for the Query/TraderDerivativeOrdersToCancelUpToAmountRequest RPC method.
+message QueryTraderDerivativeOrdersToCancelUpToAmountRequest {
+  // Market ID for the market
+  string market_id = 1;
+  // SubaccountID of the trader
+  string subaccount_id = 2;
+  // the quote amount to cancel (free up)
+  string quote_amount = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // The cancellation strategy
+  CancellationStrategy strategy = 4;
+  // The reference price for the cancellation strategy, e.g. mid price or mark price
+  string reference_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 // QueryTraderDerivativeOrdersRequest is the request type for the Query/TraderDerivativeOrders RPC method.

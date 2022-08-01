@@ -82,6 +82,14 @@ func SafeIsPositiveDec(v sdk.Dec) bool {
 	return v.IsPositive()
 }
 
+func SafeIsNonNegativeDec(v sdk.Dec) bool {
+	if v.IsNil() {
+		return false
+	}
+
+	return !v.IsNegative()
+}
+
 func IsZeroOrNilInt(v sdk.Int) bool {
 	return v.IsNil() || v.IsZero()
 }
@@ -1105,11 +1113,15 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 		}
 
 		if IsZeroOrNilDec(multiplier.TakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be zero or nil")
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market taker multiplier cannot be zero or nil")
+		}
+
+		if !SafeIsPositiveDec(multiplier.MakerPointsMultiplier) {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be negative")
 		}
 
 		if !SafeIsPositiveDec(multiplier.TakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be negative")
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market taker multiplier cannot be negative")
 		}
 	}
 
@@ -1119,11 +1131,15 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 		}
 
 		if IsZeroOrNilDec(multiplier.TakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be zero or nil")
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market taker multiplier cannot be zero or nil")
+		}
+
+		if !SafeIsPositiveDec(multiplier.MakerPointsMultiplier) {
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be negative")
 		}
 
 		if !SafeIsPositiveDec(multiplier.TakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be negative")
+			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market taker multiplier cannot be negative")
 		}
 	}
 	return nil
@@ -1289,11 +1305,11 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 }
 
 func (t *FeeDiscountTierInfo) ValidateBasic() error {
-	if !SafeIsPositiveDec(t.MakerDiscountRate) || t.MakerDiscountRate.GT(sdk.OneDec()) {
+	if !SafeIsNonNegativeDec(t.MakerDiscountRate) || t.MakerDiscountRate.GT(sdk.OneDec()) {
 		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "MakerDiscountRate must be between 0 and 1")
 	}
 
-	if !SafeIsPositiveDec(t.TakerDiscountRate) || t.TakerDiscountRate.GT(sdk.OneDec()) {
+	if !SafeIsNonNegativeDec(t.TakerDiscountRate) || t.TakerDiscountRate.GT(sdk.OneDec()) {
 		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "TakerDiscountRate must be between 0 and 1")
 	}
 

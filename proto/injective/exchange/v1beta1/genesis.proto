@@ -7,7 +7,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
-// GenesisState defines the evm module's genesis state.
+// GenesisState defines the exchange module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to exchange.
   Params params = 1 [(gogoproto.nullable) = false];
@@ -90,7 +90,7 @@ message GenesisState {
   repeated string binary_options_market_ids_scheduled_for_settlement = 27;
 
   // spot_market_ids_scheduled_to_force_close defines the scheduled markets for forced closings at genesis
-  repeated string spot_market_ids_scheduled_to_force_close = 28 [(gogoproto.nullable) = false];
+  repeated string spot_market_ids_scheduled_to_force_close = 28;
 
   // denom_decimals defines the denom decimals for the exchange.
   repeated DenomDecimals denom_decimals = 29 [(gogoproto.nullable) = false];

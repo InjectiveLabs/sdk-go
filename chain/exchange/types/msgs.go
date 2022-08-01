@@ -1341,6 +1341,10 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 	}
 
 	if msg.Order != nil {
+		// cannot liquidate own position with an order
+		if msg.Order.OrderInfo.SubaccountId == msg.SubaccountId {
+			return ErrInvalidLiquidationOrder
+		}
 		if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
 			return err
 		}

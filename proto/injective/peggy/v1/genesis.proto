@@ -87,6 +87,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // the token you are using for validator set rewards valset updates will fail and the bridge
 // will be vulnerable to highjacking. For these paramaters the zero values are special and indicate
 // not to attempt any reward. This is the default for bootstrapping.
+
 message Params {
   option (gogoproto.stringer) = false;
 
@@ -129,6 +130,7 @@ message Params {
   cosmos.base.v1beta1.Coin valset_reward = 21 [
     (gogoproto.nullable) = false
   ];
+
 }
 
 
@@ -150,4 +152,5 @@ message GenesisState {
   Valset last_observed_valset = 14[
     (gogoproto.nullable) = false
   ];
+  repeated string ethereum_blacklist = 15;
 }

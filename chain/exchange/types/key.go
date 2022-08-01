@@ -245,6 +245,10 @@ func GetSubaccountOrderKey(marketID, subaccountID common.Hash, isBuy bool, price
 	return append(append(GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy), []byte(getPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
+func GetSubaccountOrderIterationKey(price sdk.Dec, orderHash common.Hash) []byte {
+	return append([]byte(getPaddedPrice(price)), orderHash.Bytes()...)
+}
+
 func GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID common.Hash, isBuy bool) []byte {
 	return append(SubaccountOrderPrefix, append(MarketSubaccountInfix(marketID, subaccountID), getBoolPrefix(isBuy)...)...)
 }

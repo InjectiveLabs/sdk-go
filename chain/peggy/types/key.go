@@ -108,7 +108,13 @@ var (
 
 	// PastEthSignatureCheckpointKey indexes eth signature checkpoints that have existed
 	PastEthSignatureCheckpointKey = []byte{0x1b}
+
+	EthereumBlacklistKey = []byte{0x1c}
 )
+
+func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
+	return append(EthereumBlacklistKey, addr.Bytes()...)
+}
 
 // GetOrchestratorAddressKey returns the following key format
 // prefix

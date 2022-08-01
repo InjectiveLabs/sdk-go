@@ -46,3 +46,103 @@ func (p *PointsMultiplier) GetMultiplier(e ExecutionType) sdk.Dec {
 
 	return p.TakerPointsMultiplier
 }
+
+type IOrder interface {
+	GetPrice() sdk.Dec
+	GetQuantity() sdk.Dec
+	IsBuy() bool
+}
+
+// IDerivativeOrder proto interface for wrapping all different variations of representations of derivative orders. Methods can be added as needed (make sure to add to every implementor)
+type IDerivativeOrder interface {
+	IOrder
+	GetMargin() sdk.Dec
+	IsReduceOnly() bool
+	IsVanilla() bool
+}
+
+type IMutableDerivativeOrder interface {
+	IDerivativeOrder
+	SetPrice(sdk.Dec)
+	SetQuantity(sdk.Dec)
+	SetMargin(sdk.Dec)
+}
+
+// DerivativeOrder - IMutableDerivativeOrder implementation
+
+func (o *DerivativeOrder) GetPrice() sdk.Dec {
+	return o.OrderInfo.Price
+}
+
+func (o *DerivativeOrder) GetQuantity() sdk.Dec {
+	return o.OrderInfo.Quantity
+}
+
+func (o *DerivativeOrder) GetMargin() sdk.Dec {
+	return o.Margin
+}
+
+func (o *DerivativeOrder) SetPrice(price sdk.Dec) {
+	o.OrderInfo.Price = price
+}
+
+func (o *DerivativeOrder) SetQuantity(quantity sdk.Dec) {
+	o.OrderInfo.Quantity = quantity
+}
+
+func (o *DerivativeOrder) SetMargin(margin sdk.Dec) {
+	o.Margin = margin
+}
+
+// DerivativeLimitOrder - IMutableDerivativeOrder implementation
+
+func (o *DerivativeLimitOrder) GetPrice() sdk.Dec {
+	return o.OrderInfo.Price
+}
+
+func (o *DerivativeLimitOrder) GetQuantity() sdk.Dec {
+	return o.OrderInfo.Quantity
+}
+
+func (o *DerivativeLimitOrder) GetMargin() sdk.Dec {
+	return o.Margin
+}
+
+func (o *DerivativeLimitOrder) SetPrice(price sdk.Dec) {
+	o.OrderInfo.Price = price
+}
+
+func (o *DerivativeLimitOrder) SetQuantity(quantity sdk.Dec) {
+	o.OrderInfo.Quantity = quantity
+	o.Fillable = quantity
+}
+
+func (o *DerivativeLimitOrder) SetMargin(margin sdk.Dec) {
+	o.Margin = margin
+}
+
+// DerivativeMarketOrder - IMutableDerivativeOrder implementation
+
+func (o *DerivativeMarketOrder) GetPrice() sdk.Dec {
+	return o.OrderInfo.Price
+}
+
+func (o *DerivativeMarketOrder) GetQuantity() sdk.Dec {
+	return o.OrderInfo.Quantity
+}
+
+func (o *DerivativeMarketOrder) GetMargin() sdk.Dec {
+	return o.Margin
+}
+
+func (o *DerivativeMarketOrder) SetPrice(price sdk.Dec) {
+	o.OrderInfo.Price = price
+}
+
+func (o *DerivativeMarketOrder) SetQuantity(quantity sdk.Dec) {
+	o.OrderInfo.Quantity = quantity
+}
+
+func (o *DerivativeMarketOrder) SetMargin(margin sdk.Dec) {
+	o.Margin = margin
+}

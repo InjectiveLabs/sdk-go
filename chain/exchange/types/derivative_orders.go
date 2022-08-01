@@ -45,7 +45,7 @@ func (m *DerivativeLimitOrder) ToTrimmed() *TrimmedDerivativeLimitOrder {
 		Margin:    m.Margin,
 		Fillable:  m.Fillable,
 		IsBuy:     m.IsBuy(),
-		OrderHash: common.Bytes2Hex(m.OrderHash),
+		OrderHash: common.BytesToHash(m.OrderHash).Hex(),
 	}
 }
 
@@ -116,6 +116,81 @@ func (o *DerivativeMarketOrder) ToDerivativeOrder(marketID string) *DerivativeOr
 	}
 }
 
+func (o *DerivativeLimitOrder) HasEqualOrWorsePrice(price sdk.Dec) bool {
+	// the buy order has a worse price than the input price if it's less than
+	if o.IsBuy() {
+		return o.Price().LTE(price)
+	}
+	return o.Price().GTE(price)
+}
+
+func (o *DerivativeMarketOrder) HasEqualOrWorsePrice(price sdk.Dec) bool {
+	// the buy order has a worse price than the input price if it's less than
+	if o.IsBuy() {
+		return o.Price().LTE(price)
+	}
+	return o.Price().GTE(price)
+}
+
+func ResizeReduceOnlyOrder(o IMutableDerivativeOrder, newQuantity sdk.Dec) IMutableDerivativeOrder {
+	if o.IsVanilla() {
+		panic(ErrOrderInvalid.Wrap("ResizeReduceOnlyOrder should only be used for reduce only orders!"))
+	}
+
+	quantityDecrement := o.GetQuantity().Sub(newQuantity)
+
+	// No-op if increasing quantity or order is a vanilla order
+	if !quantityDecrement.IsPositive() {
+		return nil
+	}
+
+	o.SetQuantity(newQuantity)
+	return o
+}
+
+func (o *DerivativeMarketOrder) ResizeReduceOnlyOrder(
+	newQuantity sdk.Dec,
+	oracleScaleFactor uint32,
+	isBinaryOptionsOrder bool,
+) {
+	quantityDecrement := o.OrderInfo.Quantity.Sub(newQuantity)
+
+	// No-op if increasing quantity or order is a vanilla order
+	if !quantityDecrement.IsPositive() || o.IsVanilla() {
+		return
+	}
+
+	if isBinaryOptionsOrder {
+		o.OrderInfo.Quantity = newQuantity
+		if o.IsVanilla() {
+			o.Margin = o.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
+		}
+	} else {
+		o.Margin = o.Margin.Mul(newQuantity).Quo(o.OrderInfo.Quantity)
+		o.OrderInfo.Quantity = newQuantity
+	}
+}
+
+func (o *DerivativeLimitOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) sdk.Dec {
+	// Margin = Price * Quantity for buys
+	if o.IsBuy() {
+		notional := o.Price().Mul(o.OrderInfo.Quantity)
+		return notional
+	}
+	// Margin = (scaled(1) - Price) * Quantity for sells
+	return o.OrderInfo.Quantity.Mul(GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(o.Price()))
+}
+
+func (o *DerivativeMarketOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) sdk.Dec {
+	// Margin = Price * Quantity for buys
+	if o.IsBuy() {
+		notional := o.Price().Mul(o.OrderInfo.Quantity)
+		return notional
+	}
+	// Margin = (scaled(1) - Price) * Quantity for sells
+	return o.OrderInfo.Quantity.Mul(GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(o.Price()))
+}
+
 func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate sdk.Dec) *DepositDelta {
 	// negative fees are only accounted for upon matching
 	positiveFeePart := sdk.MaxDec(sdk.ZeroDec(), feeRate)
@@ -139,7 +214,7 @@ func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sd
 	}
 	if !o.Margin.IsZero() {
 		if BreachesMinimumTickSize(o.Margin, minQuantityTickSize) {
-			return sdkerrors.Wrapf(ErrInvalidMargin, "margin %s must be a multiple of the minimum price tick size %s", o.Margin.String(), minPriceTickSize.String())
+			return sdkerrors.Wrapf(ErrInvalidMargin, "margin %s must be a multiple of the minimum quantity tick size %s", o.Margin.String(), minPriceTickSize.String())
 		}
 	}
 	return nil
@@ -179,7 +254,7 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, markPr
 		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", initialMarginRatio.Mul(notional).String(), o.Margin.String())
 	}
 
-	if err = o.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice); err != nil {
+	if err := o.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice); err != nil {
 		return sdk.Dec{}, err
 	}
 
@@ -341,4 +416,8 @@ func (o *DerivativeLimitOrder) SdkAccAddress() sdk.AccAddress {
 
 func (o *DerivativeMarketOrder) SdkAccAddress() sdk.AccAddress {
 	return sdk.AccAddress(o.SubaccountID().Bytes()[:common.AddressLength])
+}
+
+func (o *TrimmedDerivativeLimitOrder) IsReduceOnly() bool {
+	return o.Margin.IsZero()
 }

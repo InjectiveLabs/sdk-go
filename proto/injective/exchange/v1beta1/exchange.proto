@@ -338,14 +338,6 @@ message SpotMarket {
   ];
 }
 
-// MM Wasm pool
-message MMPool {
-  string maker_contract_address = 1;
-  string cw20_contract_address = 2;
-  string market_id = 3;
-  string pool_subaccount_id = 4;
-}
-
 // A subaccount's deposit for a given base currency
 message Deposit {
   string available_balance = 1 [
@@ -481,6 +473,11 @@ message SubaccountOrder {
     (gogoproto.nullable) = false
   ];
   bool isReduceOnly = 3;
+}
+
+message SubaccountOrderData {
+  SubaccountOrder order = 1;
+  bytes order_hash = 2;
 }
 
 // A valid Derivative limit order with Metadata.
@@ -619,140 +616,9 @@ enum ExecutionType {
   ExpiryMarketSettlement = 6;
 }
 
-message EventBatchSpotExecution {
-  string market_id = 1;
-  bool is_buy = 2;
-  ExecutionType executionType = 3;
-  repeated TradeLog trades = 4;
-}
-
-message EventBatchDerivativeExecution {
-  string market_id = 1;
-  bool is_buy = 2;
-  bool is_liquidation = 3;
-  // nil for time expiry futures
-  string cumulative_funding = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = true
-  ];
-  ExecutionType executionType = 5;
-  repeated DerivativeTradeLog trades = 6;
-}
-
-message EventLostFundsFromLiquidation {
-  string market_id = 1;
-  bytes subaccount_id = 2;
-  string lost_funds_from_available_during_payout = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  string lost_funds_from_order_cancels = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-}
-
 message SubaccountPosition {
   Position position = 1;
   bytes subaccount_id = 2;
-}
-
-message EventBatchDerivativePosition {
-  string market_id = 1;
-  repeated SubaccountPosition positions = 2;
-}
-
-message EventDerivativeMarketPaused {
-  string market_id = 1;
-  string settle_price = 2;
-  string total_missing_funds = 3;
-  string missing_funds_rate = 4;
-}
-
-message EventBinaryOptionsMarketUpdate {
-  BinaryOptionsMarket market = 1 [
-    (gogoproto.nullable) = false
-  ];
-}
-
-message EventNewSpotOrders {
-  string market_id = 1;
-  repeated SpotLimitOrder buy_orders = 2;
-  repeated SpotLimitOrder sell_orders = 3;
-}
-
-message EventNewDerivativeOrders {
-  string market_id = 1;
-  repeated DerivativeLimitOrder buy_orders = 2;
-  repeated DerivativeLimitOrder sell_orders = 3;
-}
-
-message EventCancelSpotOrder {
-  string market_id = 1;
-  SpotLimitOrder order = 2 [
-    (gogoproto.nullable) = false
-  ];
-}
-
-message EventSpotMarketUpdate {
-  SpotMarket market = 1 [
-    (gogoproto.nullable) = false
-  ];
-}
-
-message EventPerpetualMarketUpdate {
-  DerivativeMarket market = 1 [
-    (gogoproto.nullable) = false
-  ];
-  PerpetualMarketInfo perpetual_market_info = 2[
-    (gogoproto.nullable) = true
-  ];
-  PerpetualMarketFunding funding = 3[
-    (gogoproto.nullable) = true
-  ];
-}
-
-message EventExpiryFuturesMarketUpdate {
-  DerivativeMarket market = 1 [
-    (gogoproto.nullable) = false
-  ];
-  ExpiryFuturesMarketInfo expiry_futures_market_info = 3[
-    (gogoproto.nullable) = true
-  ];
-}
-
-message EventPerpetualMarketFundingUpdate {
-  string market_id = 1;
-  PerpetualMarketFunding funding = 2[
-    (gogoproto.nullable) = false
-  ];
-  bool is_hourly_funding = 3;
-  string funding_rate = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = true
-  ];
-  string mark_price = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = true
-  ];
-}
-
-message EventSubaccountDeposit {
-  string src_address = 1;
-  bytes subaccount_id = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
-}
-
-message EventSubaccountWithdraw {
-  bytes subaccount_id = 1;
-  string dst_address = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
-}
-
-message EventSubaccountBalanceTransfer {
-  string src_subaccount_id = 1;
-  string dst_subaccount_id = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
 }
 
 message SubaccountDeposit {
@@ -763,31 +629,6 @@ message SubaccountDeposit {
 message DepositUpdate {
   string denom = 1;
   repeated SubaccountDeposit deposits = 2;
-}
-
-message EventBatchDepositUpdate {
-  repeated DepositUpdate deposit_updates = 1;
-}
-
-message DerivativeMarketOrderCancel {
-  DerivativeMarketOrder market_order = 1 [
-    (gogoproto.nullable) = true
-  ];
-  string cancel_quantity = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-}
-
-message EventCancelDerivativeOrder {
-  string market_id = 1;
-  bool isLimitCancel = 2;
-  DerivativeLimitOrder limit_order = 3 [
-    (gogoproto.nullable) = true
-  ];
-  DerivativeMarketOrderCancel market_order_cancel = 4 [
-    (gogoproto.nullable) = true
-  ];
 }
 
 message PointsMultiplier {
@@ -867,25 +708,12 @@ message FeeDiscountTierTTL {
   int64 ttl_timestamp = 2;
 }
 
-message EventFeeDiscountSchedule {
-  FeeDiscountSchedule schedule = 1;
-}
-
-message EventTradingRewardCampaignUpdate {
-  TradingRewardCampaignInfo campaign_info = 1;
-  repeated CampaignRewardPool campaign_reward_pools = 2;
-}
-
 message AccountRewards {
   string account = 1;
   repeated cosmos.base.v1beta1.Coin rewards = 2 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-}
-
-message EventTradingRewardDistribution {
-  repeated AccountRewards account_rewards = 1;
 }
 
 message TradeRecords {

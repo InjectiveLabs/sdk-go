@@ -168,7 +168,7 @@ func (m *SpotLimitOrder) ToTrimmed() *TrimmedSpotLimitOrder {
 		Quantity:  m.OrderInfo.Quantity,
 		Fillable:  m.Fillable,
 		IsBuy:     m.IsBuy(),
-		OrderHash: common.Bytes2Hex(m.OrderHash),
+		OrderHash: common.BytesToHash(m.OrderHash).Hex(),
 	}
 }
 

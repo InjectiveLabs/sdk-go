@@ -53,10 +53,10 @@ type BeginBlockerMsg struct {
 
 func NewRegistryDeactivateMsg(contractAddress string) ([]byte, error) {
 	// Construct Exec message
-	deActivateMsg := RegistryDeActivateMsg{RegistryDeActivate: &RegistryDeActivate{ContractAddress: contractAddress}}
+	deactivateMsg := RegistryDeactivateMsg{RegistryDeactivate: &RegistryDeactivate{ContractAddress: contractAddress}}
 
-	//execMsg := []byte('{"de_activate":{"contract_address":"inj1nc5tatafv6eyq7llkr2gv50ff9e22mnfhg8yh3"}}')
-	execMsg, err := json.Marshal(deActivateMsg)
+	//execMsg := []byte('{"deactivate":{"contract_address":"inj1nc5tatafv6eyq7llkr2gv50ff9e22mnfhg8yh3"}}')
+	execMsg, err := json.Marshal(deactivateMsg)
 	if err != nil {
 		fmt.Println("Register marshal failed")
 		return nil, err
@@ -65,15 +65,15 @@ func NewRegistryDeactivateMsg(contractAddress string) ([]byte, error) {
 	return execMsg, nil
 }
 
-type RegistryDeActivateMsg struct {
-	RegistryDeActivate *RegistryDeActivate `json:"de_activate,omitempty"`
+type RegistryDeactivateMsg struct {
+	RegistryDeactivate *RegistryDeactivate `json:"deactivate,omitempty"`
 }
 
-type RegistryDeActivate struct {
+type RegistryDeactivate struct {
 	ContractAddress string `json:"contract_address"`
 }
 
-// NewRegistryContractQuery constructs the registyr Exec message
+// NewRegistryContractQuery constructs the registry Exec message
 func NewRegistryContractQuery() ([]byte, error) {
 	contractQuery := RegistryContractQueryMsg{QueryContractsMsg: &QueryContractsMsg{}}
 

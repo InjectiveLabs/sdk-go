@@ -1,0 +1,25 @@
+syntax = "proto3";
+package injective.peggy.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
+
+
+message BlacklistEthereumAddressesProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  repeated string blacklist_addresses = 3;
+}
+
+message RevokeEthereumBlacklistProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  repeated string blacklist_addresses = 3;
+}
