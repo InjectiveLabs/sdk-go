@@ -28,6 +28,10 @@ type InjectiveDerivativeExchangeRPCClient interface {
 	Market(ctx context.Context, in *MarketRequest, opts ...grpc.CallOption) (*MarketResponse, error)
 	// StreamMarket streams live updates of selected derivative markets
 	StreamMarket(ctx context.Context, in *StreamMarketRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
+	// BinaryOptionsMarkets gets a list of Binary Options Markets
+	BinaryOptionsMarkets(ctx context.Context, in *BinaryOptionsMarketsRequest, opts ...grpc.CallOption) (*BinaryOptionsMarketsResponse, error)
+	// BinaryOptionMarket gets details of a single binary options market
+	BinaryOptionsMarket(ctx context.Context, in *BinaryOptionsMarketRequest, opts ...grpc.CallOption) (*BinaryOptionsMarketResponse, error)
 	// Orderbook gets the Orderbook of a Derivative Market
 	Orderbook(ctx context.Context, in *OrderbookRequest, opts ...grpc.CallOption) (*OrderbookResponse, error)
 	// Orderbooks gets the Orderbooks of requested derivative markets
@@ -115,6 +119,24 @@ func (x *injectiveDerivativeExchangeRPCStreamMarketClient) Recv() (*StreamMarket
 		return nil, err
 	}
 	return m, nil
+}
+
+func (c *injectiveDerivativeExchangeRPCClient) BinaryOptionsMarkets(ctx context.Context, in *BinaryOptionsMarketsRequest, opts ...grpc.CallOption) (*BinaryOptionsMarketsResponse, error) {
+	out := new(BinaryOptionsMarketsResponse)
+	err := c.cc.Invoke(ctx, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarkets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveDerivativeExchangeRPCClient) BinaryOptionsMarket(ctx context.Context, in *BinaryOptionsMarketRequest, opts ...grpc.CallOption) (*BinaryOptionsMarketResponse, error) {
+	out := new(BinaryOptionsMarketResponse)
+	err := c.cc.Invoke(ctx, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarket", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *injectiveDerivativeExchangeRPCClient) Orderbook(ctx context.Context, in *OrderbookRequest, opts ...grpc.CallOption) (*OrderbookResponse, error) {
@@ -345,6 +367,10 @@ type InjectiveDerivativeExchangeRPCServer interface {
 	Market(context.Context, *MarketRequest) (*MarketResponse, error)
 	// StreamMarket streams live updates of selected derivative markets
 	StreamMarket(*StreamMarketRequest, InjectiveDerivativeExchangeRPC_StreamMarketServer) error
+	// BinaryOptionsMarkets gets a list of Binary Options Markets
+	BinaryOptionsMarkets(context.Context, *BinaryOptionsMarketsRequest) (*BinaryOptionsMarketsResponse, error)
+	// BinaryOptionMarket gets details of a single binary options market
+	BinaryOptionsMarket(context.Context, *BinaryOptionsMarketRequest) (*BinaryOptionsMarketResponse, error)
 	// Orderbook gets the Orderbook of a Derivative Market
 	Orderbook(context.Context, *OrderbookRequest) (*OrderbookResponse, error)
 	// Orderbooks gets the Orderbooks of requested derivative markets
@@ -389,6 +415,12 @@ func (UnimplementedInjectiveDerivativeExchangeRPCServer) Market(context.Context,
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) StreamMarket(*StreamMarketRequest, InjectiveDerivativeExchangeRPC_StreamMarketServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamMarket not implemented")
+}
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) BinaryOptionsMarkets(context.Context, *BinaryOptionsMarketsRequest) (*BinaryOptionsMarketsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BinaryOptionsMarkets not implemented")
+}
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) BinaryOptionsMarket(context.Context, *BinaryOptionsMarketRequest) (*BinaryOptionsMarketResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BinaryOptionsMarket not implemented")
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) Orderbook(context.Context, *OrderbookRequest) (*OrderbookResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Orderbook not implemented")
@@ -501,6 +533,42 @@ type injectiveDerivativeExchangeRPCStreamMarketServer struct {
 
 func (x *injectiveDerivativeExchangeRPCStreamMarketServer) Send(m *StreamMarketResponse) error {
 	return x.ServerStream.SendMsg(m)
+}
+
+func _InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BinaryOptionsMarketsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveDerivativeExchangeRPCServer).BinaryOptionsMarkets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarkets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveDerivativeExchangeRPCServer).BinaryOptionsMarkets(ctx, req.(*BinaryOptionsMarketsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BinaryOptionsMarketRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveDerivativeExchangeRPCServer).BinaryOptionsMarket(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarket",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveDerivativeExchangeRPCServer).BinaryOptionsMarket(ctx, req.(*BinaryOptionsMarketRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _InjectiveDerivativeExchangeRPC_Orderbook_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -781,6 +849,14 @@ var InjectiveDerivativeExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Market",
 			Handler:    _InjectiveDerivativeExchangeRPC_Market_Handler,
+		},
+		{
+			MethodName: "BinaryOptionsMarkets",
+			Handler:    _InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_Handler,
+		},
+		{
+			MethodName: "BinaryOptionsMarket",
+			Handler:    _InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_Handler,
 		},
 		{
 			MethodName: "Orderbook",

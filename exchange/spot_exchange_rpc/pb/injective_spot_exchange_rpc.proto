@@ -265,15 +265,19 @@ message TradesRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 8;
-	// MarketIds of the markets of which we want to get trades
-	repeated string market_ids = 9;
+	// Filter by market ids
+	repeated string market_ids = 12;
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
+	// Filter by execution type of trades
+	string execution_type = 11;
 }
 
 message TradesResponse {
 	// Trades of a Spot Market
 	repeated SpotTrade trades = 1;
+	// Paging indicates pages response is on
+	Paging paging = 2;
 }
 
 message SpotTrade {
@@ -295,6 +299,17 @@ message SpotTrade {
 	sint64 executed_at = 8;
 	// Fee recipient address
 	string fee_recipient = 9;
+	// A unique string that helps differentiate between trades
+	string trade_id = 10;
+}
+// Paging defines the structure for required params for handling pagination
+message Paging {
+	// total number of txs saved in database
+	sint64 total = 1;
+	// can be either block height or index num
+	sint32 from = 2;
+	// can be either block height or index num
+	sint32 to = 3;
 }
 
 message StreamTradesRequest {
@@ -316,10 +331,12 @@ message StreamTradesRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 8;
-	// MarketIds of the markets of which we want to get trades
-	repeated string market_ids = 9;
+	// Filter by market ids
+	repeated string market_ids = 12;
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
+	// Filter by execution type of trades
+	string execution_type = 11;
 }
 
 message StreamTradesResponse {

@@ -179,11 +179,15 @@ message SubaccountHistoryRequest {
 	uint64 skip = 4;
 	// Limit is used to specify the maximum number of items to be returned
 	sint32 limit = 5;
+	// Upper bound of history executedAt
+	uint64 end_time = 6;
 }
 
 message SubaccountHistoryResponse {
 	// List of subaccount transfers
 	repeated SubaccountBalanceTransfer transfers = 1;
+	// Paging indicates pages response is on
+	Paging paging = 2;
 }
 
 message SubaccountBalanceTransfer {
@@ -208,6 +212,15 @@ message CosmosCoin {
 	string denom = 1;
 	// Coin amount (big int)
 	string amount = 2;
+}
+// Paging defines the structure for required params for handling pagination
+message Paging {
+	// total number of txs saved in database
+	sint64 total = 1;
+	// can be either block height or index num
+	sint32 from = 2;
+	// can be either block height or index num
+	sint32 to = 3;
 }
 
 message SubaccountOrderSummaryRequest {

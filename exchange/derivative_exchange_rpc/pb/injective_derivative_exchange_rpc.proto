@@ -20,6 +20,10 @@ service InjectiveDerivativeExchangeRPC {
 	rpc Market (MarketRequest) returns (MarketResponse);
 	// StreamMarket streams live updates of selected derivative markets
 	rpc StreamMarket (StreamMarketRequest) returns (stream StreamMarketResponse);
+	// BinaryOptionsMarkets gets a list of Binary Options Markets
+	rpc BinaryOptionsMarkets (BinaryOptionsMarketsRequest) returns (BinaryOptionsMarketsResponse);
+	// BinaryOptionMarket gets details of a single binary options market
+	rpc BinaryOptionsMarket (BinaryOptionsMarketRequest) returns (BinaryOptionsMarketResponse);
 	// Orderbook gets the Orderbook of a Derivative Market
 	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
 	// Orderbooks gets the Orderbooks of requested derivative markets
@@ -177,6 +181,66 @@ message StreamMarketResponse {
 	string operation_type = 2;
 	// Operation timestamp in UNIX millis.
 	sint64 timestamp = 3;
+}
+
+message BinaryOptionsMarketsRequest {
+	// Filter by market status
+	string market_status = 1;
+	// Filter by the Coin denomination of the quote currency
+	string quote_denom = 2;
+}
+
+message BinaryOptionsMarketsResponse {
+	// Binary Options Markets list
+	repeated BinaryOptionsMarketInfo markets = 1;
+}
+
+message BinaryOptionsMarketInfo {
+	// Binary Options Market ID is crypto.Keccak256Hash([]byte((oracleType.String()
+// + ticker + quoteDenom + oracleSymbol + oracleProvider)))
+	string market_id = 1;
+	// The status of the market
+	string market_status = 2;
+	// A name of the binary options market.
+	string ticker = 3;
+	// Oracle symbol
+	string oracle_symbol = 4;
+	// Oracle provider
+	string oracle_provider = 5;
+	// Oracle Type
+	string oracle_type = 6;
+	// OracleScaleFactor
+	uint32 oracle_scale_factor = 7;
+	// Defines the expiration time for the market in UNIX seconds.
+	sint64 expiration_timestamp = 8;
+	// Defines the settlement time for the market in UNIX seconds.
+	sint64 settlement_timestamp = 9;
+	// Coin denom used for the quote asset.
+	string quote_denom = 10;
+	// Token metadata for quote asset, only for Ethereum-based assets
+	TokenMeta quote_token_meta = 11;
+	// Defines the fee percentage makers pay when trading (in quote asset)
+	string maker_fee_rate = 12;
+	// Defines the fee percentage takers pay when trading (in quote asset)
+	string taker_fee_rate = 13;
+	// Percentage of the transaction fee shared with the service provider
+	string service_provider_fee = 14;
+	// Defines the minimum required tick size for the order's price
+	string min_price_tick_size = 15;
+	// Defines the minimum required tick size for the order's quantity
+	string min_quantity_tick_size = 16;
+	// Defines the settlement price of the market
+	string settlement_price = 17;
+}
+
+message BinaryOptionsMarketRequest {
+	// MarketId of the market we want to fetch
+	string market_id = 1;
+}
+
+message BinaryOptionsMarketResponse {
+	// Info about particular derivative market
+	BinaryOptionsMarketInfo market = 1;
 }
 
 message OrderbookRequest {
@@ -348,11 +412,17 @@ message FundingPaymentsRequest {
 	uint64 skip = 3;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 4;
+	// Upper bound of funding payment updatedAt
+	uint64 end_time = 5;
+	// Filter by market ids
+	repeated string market_ids = 6;
 }
 
 message FundingPaymentsResponse {
 	// List of funding payments
 	repeated FundingPayment payments = 1;
+	// Paging indicates pages response is on
+	Paging paging = 2;
 }
 
 message FundingPayment {
@@ -364,6 +434,15 @@ message FundingPayment {
 	string amount = 3;
 	// Timestamp of funding payment in UNIX millis
 	sint64 timestamp = 4;
+}
+// Paging defines the structure for required params for handling pagination
+message Paging {
+	// total number of txs saved in database
+	sint64 total = 1;
+	// can be either block height or index num
+	sint32 from = 2;
+	// can be either block height or index num
+	sint32 to = 3;
 }
 
 message FundingRatesRequest {
@@ -448,15 +527,19 @@ message TradesRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 8;
-	// MarketIds of the markets of which we want to get trades
-	repeated string market_ids = 9;
+	// Filter by market ids
+	repeated string market_ids = 12;
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
+	// Filter by execution type of trades
+	string execution_type = 11;
 }
 
 message TradesResponse {
 	// Trades of a Derivative Market
 	repeated DerivativeTrade trades = 1;
+	// Paging indicates pages response is on
+	Paging paging = 2;
 }
 
 message DerivativeTrade {
@@ -480,6 +563,8 @@ message DerivativeTrade {
 	sint64 executed_at = 9;
 	// Fee recipient address
 	string fee_recipient = 10;
+	// A unique string that helps differentiate between trades
+	string trade_id = 11;
 }
 
 message PositionDelta {
@@ -512,10 +597,12 @@ message StreamTradesRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 8;
-	// MarketIds of the markets of which we want to get trades
-	repeated string market_ids = 9;
+	// Filter by market ids
+	repeated string market_ids = 12;
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
+	// Filter by execution type of trades
+	string execution_type = 11;
 }
 
 message StreamTradesResponse {

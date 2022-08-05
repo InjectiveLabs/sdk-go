@@ -55,7 +55,7 @@ type BridgeValidators []*BridgeValidator
 
 // Sort sorts the validators by power
 func (b BridgeValidators) Sort() {
-	sort.Slice(b, func(i, j int) bool {
+	sort.SliceStable(b, func(i, j int) bool {
 		if b[i].Power == b[j].Power {
 			// Secondary sort on eth address in case powers are equal
 			return EthAddrLessThan(b[i].EthereumAddress, b[j].EthereumAddress)

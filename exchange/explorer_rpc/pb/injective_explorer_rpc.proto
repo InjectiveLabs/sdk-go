@@ -84,6 +84,11 @@ message TxData {
 	string messages = 15;
 	repeated Signature signatures = 16;
 	string memo = 17;
+	uint64 tx_number = 18;
+	// Block timestamp in unix milli
+	uint64 block_unix_timestamp = 19;
+	// Transaction log indicating errors
+	string error_log = 20;
 }
 
 message GasFee {
@@ -247,6 +252,11 @@ message GetTxByTxHashResponse {
 	string messages = 15;
 	repeated Signature signatures = 16;
 	string memo = 17;
+	uint64 tx_number = 18;
+	// Block timestamp in unix milli
+	uint64 block_unix_timestamp = 19;
+	// Transaction log indicating errors
+	string error_log = 20;
 }
 
 message StreamTxsRequest {
@@ -269,6 +279,11 @@ message StreamTxsResponse {
 	string messages = 15;
 	repeated Signature signatures = 16;
 	string memo = 17;
+	uint64 tx_number = 18;
+	// Block timestamp in unix milli
+	uint64 block_unix_timestamp = 19;
+	// Transaction log indicating errors
+	string error_log = 20;
 }
 
 message StreamBlocksRequest {
