@@ -6,7 +6,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v3/modules/core/04-channel/types"
 	ibcexported "github.com/cosmos/ibc-go/v3/modules/core/exported"
 
-	ocrtypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/ocr/types"
+	ocrtypes "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
 )
 
 // BankKeeper defines the expected bank keeper methods

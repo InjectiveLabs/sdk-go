@@ -9,9 +9,9 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
-	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 
-	wasmxtypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types"
+	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
 const RouterKey = ModuleName
@@ -37,9 +37,6 @@ var (
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
-	_ sdk.Msg = &MsgLowInputLowComputation{}
-	_ sdk.Msg = &MsgHighInputLowComputation{}
-	_ sdk.Msg = &MsgLowInputHighComputation{}
 	_ sdk.Msg = &MsgExec{}
 	_ sdk.Msg = &MsgRegisterAsDMM{}
 	_ sdk.Msg = &MsgInstantBinaryOptionsMarketLaunch{}
@@ -1534,104 +1531,6 @@ func (msg *MsgBatchUpdateOrders) GetSignBytes() []byte {
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
 func (msg MsgBatchUpdateOrders) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgLowInputLowComputation) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgLowInputLowComputation) Type() string { return "lowInputLowComputation" }
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgLowInputLowComputation) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgLowInputLowComputation) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgLowInputLowComputation) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgHighInputLowComputation) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgHighInputLowComputation) Type() string { return "highInputLowComputation" }
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgHighInputLowComputation) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgHighInputLowComputation) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgHighInputLowComputation) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgLowInputHighComputation) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgLowInputHighComputation) Type() string { return "lowInputHighComputation" }
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgLowInputHighComputation) ValidateBasic() error {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
-	}
-	if !bytes.Equal(subaccountAddress.Bytes(), sender.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgLowInputHighComputation) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgLowInputHighComputation) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

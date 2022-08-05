@@ -132,18 +132,20 @@ func (o *DerivativeMarketOrder) HasEqualOrWorsePrice(price sdk.Dec) bool {
 	return o.Price().GTE(price)
 }
 
-func ResizeReduceOnlyOrder(o IMutableDerivativeOrder, newQuantity sdk.Dec) error {
+func ResizeReduceOnlyOrder(o IMutableDerivativeOrder, newQuantity sdk.Dec) IMutableDerivativeOrder {
 	if o.IsVanilla() {
-		return ErrOrderInvalid.Wrap("ResizeReduceOnlyOrder should only be used for reduce only orders!")
+		panic(ErrOrderInvalid.Wrap("ResizeReduceOnlyOrder should only be used for reduce only orders!"))
 	}
 
 	quantityDecrement := o.GetQuantity().Sub(newQuantity)
+
+	// No-op if increasing quantity or order is a vanilla order
 	if !quantityDecrement.IsPositive() {
 		return nil
 	}
 
 	o.SetQuantity(newQuantity)
-	return nil
+	return o
 }
 
 func (o *DerivativeMarketOrder) ResizeReduceOnlyOrder(
