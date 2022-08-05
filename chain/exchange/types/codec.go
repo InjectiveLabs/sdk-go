@@ -34,6 +34,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgIncreasePositionMargin{}, "exchange/MsgIncreasePositionMargin", nil)
 	cdc.RegisterConcrete(&MsgLiquidatePosition{}, "exchange/MsgLiquidatePosition", nil)
 	cdc.RegisterConcrete(&MsgBatchUpdateOrders{}, "exchange/MsgBatchUpdateOrders", nil)
+	cdc.RegisterConcrete(&MsgLowInputLowComputation{}, "exchange/MsgLowInputLowComputation", nil)
+	cdc.RegisterConcrete(&MsgHighInputLowComputation{}, "exchange/MsgHighInputLowComputation", nil)
+	cdc.RegisterConcrete(&MsgLowInputHighComputation{}, "exchange/MsgLowInputHighComputation", nil)
 	cdc.RegisterConcrete(&MsgExec{}, "exchange/MsgExec", nil)
 	cdc.RegisterConcrete(&MsgRegisterAsDMM{}, "exchange/MsgRegisterAsDMM", nil)
 	cdc.RegisterConcrete(&MsgInstantBinaryOptionsMarketLaunch{}, "exchange/MsgInstantBinaryOptionsMarketLaunch", nil)
@@ -95,6 +98,9 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgIncreasePositionMargin{},
 		&MsgLiquidatePosition{},
 		&MsgBatchUpdateOrders{},
+		&MsgLowInputLowComputation{},
+		&MsgHighInputLowComputation{},
+		&MsgLowInputHighComputation{},
 		&MsgExec{},
 		&MsgRegisterAsDMM{},
 		&MsgInstantBinaryOptionsMarketLaunch{},

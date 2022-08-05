@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -145,4 +146,8 @@ func (o *DerivativeMarketOrder) SetQuantity(quantity sdk.Dec) {
 
 func (o *DerivativeMarketOrder) SetMargin(margin sdk.Dec) {
 	o.Margin = margin
+}
+
+func (o *DerivativeMarketOrder) DebugString() string {
+	return fmt.Sprintf("(q:%v, p:%v, m:%v, isLong: %v)", o.Quantity(), o.Price(), o.Margin, o.IsBuy())
 }

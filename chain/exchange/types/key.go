@@ -34,8 +34,8 @@ var (
 	SpotExchangeEnabledKey               = []byte{0x07} // key for whether spot exchange is enabled
 	DerivativeExchangeEnabledKey         = []byte{0x08} // key for whether derivative exchange is enabled
 	MarketHistoricalTradeRecordsPrefix   = []byte{0x09} // prefix for each key to a market's historical trade records
-	DenomDecimalsPrefix                  = []byte{0x10} // prefix for denom decimals
 
+	DenomDecimalsPrefix              = []byte{0x10} // prefix for denom decimals
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
 	SpotLimitOrdersPrefix            = []byte{0x12} // prefix for each key to a spot order, by (marketID, direction, price level, order hash)
 	SpotMarketOrdersPrefix           = []byte{0x13} // prefix for each key to a spot order, by (marketID, direction, price level, order hash)
@@ -44,15 +44,16 @@ var (
 	SpotMarketParamUpdateScheduleKey = []byte{0x16} // prefix for a key to save scheduled spot market params update
 	SpotMarketForceCloseInfoKey      = []byte{0x17} // prefix for a key to save scheduled spot market closures
 
-	DerivativeMarketPrefix                  = []byte{0x21} // prefix for each key to a derivative market by (isEnabled, marketID)
-	DerivativeLimitOrdersPrefix             = []byte{0x22} // prefix for each key to a derivative limit order, by (marketID, direction, price level, order hash)
-	DerivativeMarketOrdersPrefix            = []byte{0x23} // prefix for each key to a derivative order, by (marketID, direction, price level, order hash)
-	DerivativeLimitOrdersIndexPrefix        = []byte{0x24} // prefix for each key to a derivative order index, by (marketID, direction, subaccountID, order hash)
-	DerivativeLimitOrderIndicatorPrefix     = []byte{0x25} // prefix for each key to a derivative limit order indicator, by marketID and direction
-	DerivativeMarketOrderIndicatorPrefix    = []byte{0x26} // prefix for each key to a derivative market order indicator, by marketID and direction
-	DerivativePositionsPrefix               = []byte{0x27} // prefix for each key to a Position
-	DerivativeMarketParamUpdateScheduleKey  = []byte{0x28} // prefix for a key to save scheduled derivative market params update
-	DerivativeMarketScheduledSettlementInfo = []byte{0x29} // prefix for a key to save scheduled derivative market settlements
+	DerivativeMarketPrefix                     = []byte{0x21} // prefix for each key to a derivative market by (isEnabled, marketID)
+	DerivativeLimitOrdersPrefix                = []byte{0x22} // prefix for each key to a derivative limit order, by (marketID, direction, price level, order hash)
+	DerivativeMarketOrdersPrefix               = []byte{0x23} // prefix for each key to a derivative order, by (marketID, direction, price level, order hash)
+	DerivativeLimitOrdersIndexPrefix           = []byte{0x24} // prefix for each key to a derivative order index, by (marketID, direction, subaccountID, order hash)
+	DerivativeLimitOrderIndicatorPrefix        = []byte{0x25} // prefix for each key to a derivative limit order indicator, by marketID and direction
+	DerivativeMarketOrderIndicatorPrefix       = []byte{0x26} // prefix for each key to a derivative market order indicator, by marketID and direction
+	DerivativePositionsPrefix                  = []byte{0x27} // prefix for each key to a Position
+	DerivativeMarketParamUpdateScheduleKey     = []byte{0x28} // prefix for a key to save scheduled derivative market params update
+	DerivativeMarketScheduledSettlementInfo    = []byte{0x29} // prefix for a key to save scheduled derivative market settlements
+	DerivativePositionModifiedSubaccountPrefix = []byte{0x2a} // prefix for a key to save a list of subaccountIDs by marketID
 
 	PerpetualMarketFundingPrefix             = []byte{0x31} // prefix for each key to a perpetual market's funding state
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
