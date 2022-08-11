@@ -69,6 +69,7 @@ type ChainClient interface {
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
 	GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error)
 	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
+	GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error)
 
 	BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant
 	BuildExchangeAuthz(granter string, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant
@@ -392,6 +393,13 @@ func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*ban
 		Address: address,
 	}
 	return c.bankQueryClient.AllBalances(ctx, req)
+}
+
+func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error) {
+	req := &authtypes.QueryAccountRequest{
+		Address: address,
+	}
+	return c.authQueryClient.Account(ctx, req)
 }
 
 func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
