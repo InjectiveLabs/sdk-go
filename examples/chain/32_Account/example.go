@@ -58,6 +58,9 @@ func main() {
 	res, err := queryClient.Account(ctx, &authtypes.QueryAccountRequest{
 		Address: address,
 	})
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	var account types.EthAccount
 
