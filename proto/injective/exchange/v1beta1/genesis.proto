@@ -78,8 +78,8 @@ message GenesisState {
   // the pending trading reward account points
   repeated TradingRewardCampaignAccountPendingPoints pending_trading_reward_campaign_account_points = 23;
 
-  // the registered dmm accounts
-  repeated string registered_dmms = 24;
+  // the addresses opting out of trading rewards
+  repeated string rewards_opt_out_addresses = 24;
 
   repeated TradeRecords historical_trade_records = 25;
 

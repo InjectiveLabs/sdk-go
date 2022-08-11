@@ -110,7 +110,7 @@ func (p *Position) CheckValidPositionToReduce(
 	return nil
 }
 
-func (p *Position) checkValidClosingPrice(closingPrice sdk.Dec, tradeFeeRate sdk.Dec, funding *PerpetualMarketFunding, orderMargin sdk.Dec) error {
+func (p *Position) checkValidClosingPrice(closingPrice, tradeFeeRate sdk.Dec, funding *PerpetualMarketFunding, orderMargin sdk.Dec) error {
 	bankruptcyPrice := p.getBankruptcyPriceWithAddedMargin(funding, orderMargin)
 
 	if p.IsLong {
