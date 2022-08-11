@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+
+	"github.com/InjectiveLabs/sdk-go/chain/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	"os"
 )
 
 func main() {
@@ -45,29 +48,21 @@ func main() {
 	clientCtx.WithNodeURI(network.TmEndpoint)
 	clientCtx = clientCtx.WithClient(tmRPC)
 
-	chainClient, err := chainclient.NewChainClient(
-		clientCtx,
-		network.ChainGrpcEndpoint,
-		common.OptionTLSCert(network.ChainTlsCert),
-		common.OptionGasPrices("500000000inj"),
-	)
+	queryClient := authtypes.NewQueryClient(clientCtx)
 
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	ctx := context.Background()
+	ctx, cancelFn := context.WithCancel(context.Background())
+	defer cancelFn()
 
 	address := "inj1akxycslq8cjt0uffw4rjmfm3echchptu52a2dq"
 
-	res, err := chainClient.GetAccount(ctx, address)
-	if err != nil {
-		fmt.Println(err)
-	}
+	res, err := queryClient.Account(ctx, &authtypes.QueryAccountRequest{
+		Address: address,
+	})
 
-	data, err := codectypes.NewAnyWithValue(res)
-	ddd := data.XXX_Unmarshal(data.Value)
-	fmt.Println(ddd)
-	fmt.Println(data.String())
+	var account types.EthAccount
+
+	clientCtx.Codec.MustUnmarshal(res.GetAccount().GetValue(), &account)
+
+	fmt.Println(account.String())
 
 }
