@@ -17,6 +17,10 @@ func (p *PositionTransfer) ValidateBasic() error {
 		return ErrInvalidQuantity
 	}
 
+	if p.SourceSubaccountID == p.DestinationSubaccountID {
+		return ErrBadSubaccountID
+	}
+
 	return nil
 }
 
@@ -26,6 +30,10 @@ type SyntheticTradeAction struct {
 }
 
 func (a *SyntheticTradeAction) ValidateBasic() error {
+	if len(a.UserTrades) == 0 || len(a.ContractTrades) == 0 {
+		return ErrInvalidTrade
+	}
+
 	for _, t := range a.UserTrades {
 		if err := t.Validate(); err != nil {
 			return err

@@ -721,6 +721,10 @@ message TradeRecords {
   repeated TradeRecord latest_trade_records = 2;
 }
 
+message SubaccountIDs {
+  repeated bytes subaccount_ids = 1;
+}
+
 message TradeRecord {
   int64 timestamp = 1;
 

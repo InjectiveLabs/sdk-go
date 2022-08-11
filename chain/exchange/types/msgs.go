@@ -3,7 +3,6 @@ package types
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -38,7 +37,7 @@ var (
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
 	_ sdk.Msg = &MsgExec{}
-	_ sdk.Msg = &MsgRegisterAsDMM{}
+	_ sdk.Msg = &MsgRewardsOptOut{}
 	_ sdk.Msg = &MsgInstantBinaryOptionsMarketLaunch{}
 	_ sdk.Msg = &MsgCreateBinaryOptionsLimitOrder{}
 	_ sdk.Msg = &MsgCreateBinaryOptionsMarketOrder{}
@@ -1288,27 +1287,24 @@ func (msg *MsgExec) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-func (msg *MsgRegisterAsDMM) Route() string {
+func (msg *MsgRewardsOptOut) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgRegisterAsDMM) Type() string {
-	return "registerAsDMM"
+func (msg *MsgRewardsOptOut) Type() string {
+	return "rewardsOptOut"
 }
 
-func (msg *MsgRegisterAsDMM) ValidateBasic() error {
-	if msg.Sender != msg.DmmAccount {
-		return sdkerrors.Wrap(ErrInvalidDMMSender, fmt.Sprintf("Sender: %s doesn't match dmm account: %s", msg.Sender, msg.DmmAccount))
-	}
+func (msg *MsgRewardsOptOut) ValidateBasic() error {
 
 	return nil
 }
 
-func (msg *MsgRegisterAsDMM) GetSignBytes() []byte {
+func (msg *MsgRewardsOptOut) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func (msg *MsgRegisterAsDMM) GetSigners() []sdk.AccAddress {
+func (msg *MsgRewardsOptOut) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

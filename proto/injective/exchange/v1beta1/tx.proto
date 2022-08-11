@@ -90,8 +90,8 @@ service Msg {
   // IncreasePositionMargin defines a method for increasing margin of a position
   rpc IncreasePositionMargin(MsgIncreasePositionMargin) returns (MsgIncreasePositionMarginResponse);
 
-  // RegisterAsDMM defines a method for registering as a DMM
-  rpc RegisterAsDMM(MsgRegisterAsDMM) returns (MsgRegisterAsDMMResponse);
+  // RewardsOptOut defines a method for opting out of rewards
+  rpc RewardsOptOut(MsgRewardsOptOut) returns (MsgRewardsOptOutResponse);
 
   // AdminUpdateBinaryOptionsMarket defines method for updating a binary options market by admin
   rpc AdminUpdateBinaryOptionsMarket(MsgAdminUpdateBinaryOptionsMarket) returns (MsgAdminUpdateBinaryOptionsMarketResponse);
@@ -1104,14 +1104,13 @@ message BatchCommunityPoolSpendProposal {
   repeated cosmos.distribution.v1beta1.CommunityPoolSpendProposal proposals = 3;
 }
 
-// A Cosmos-SDK MsgRegisterAsDMM
-message MsgRegisterAsDMM {
+// A Cosmos-SDK MsgRewardsOptOut
+message MsgRewardsOptOut {
   string sender = 1;
-  string dmm_account = 2;
 }
 
-// MsgRegisterAsDMMResponse defines the Msg/RegisterAsDMM response type.
-message MsgRegisterAsDMMResponse {}
+// MsgRewardsOptOutResponse defines the Msg/RewardsOptOut response type.
+message MsgRewardsOptOutResponse {}
 
 // MsgAdminUpdateBinaryOptionsMarket is used by the market Admin to operate the market
 message MsgAdminUpdateBinaryOptionsMarket {

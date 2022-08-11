@@ -208,14 +208,14 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/historical_trade_records";
   }
 
-  // Retrieves if the account is a registered DMM
-  rpc IsRegisteredDMM(QueryIsRegisteredDMMRequest) returns (QueryIsRegisteredDMMResponse) {
-    option (google.api.http).get = "/injective/exchange/v1beta1/is_registered_dmm/{account}";
+  // Retrieves if the account is opted out of rewards
+  rpc IsOptedOutOfRewards(QueryIsOptedOutOfRewardsRequest) returns (QueryIsOptedOutOfRewardsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/is_opted_out_of_rewards/{account}";
   }
 
-  // Retrieves all registered DMMs
-  rpc RegisteredDMMs(QueryRegisteredDMMsRequest) returns (QueryRegisteredDMMsResponse) {
-    option (google.api.http).get = "/injective/exchange/v1beta1/registered_dmms";
+  // Retrieves all accounts opted out of rewards
+  rpc OptedOutOfRewardsAccounts(QueryOptedOutOfRewardsAccountsRequest) returns (QueryOptedOutOfRewardsAccountsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/opted_out_of_rewards_accounts";
   }
 
   // MarketVolatility computes the volatility for spot and derivative markets trading history.
@@ -734,22 +734,22 @@ message QueryTradeRewardCampaignResponse {
 }
 
 // QueryIsRegisteredDMMRequest is the request type for the Query/IsRegisteredDMM RPC method.
-message QueryIsRegisteredDMMRequest {
+message QueryIsOptedOutOfRewardsRequest {
   string account = 1;
 }
 
 // QueryIsRegisteredDMMResponse is the response type for the Query/IsRegisteredDMM RPC method.
-message QueryIsRegisteredDMMResponse {
-  bool is_registered_dmm = 1;
+message QueryIsOptedOutOfRewardsResponse {
+  bool is_opted_out = 1;
 }
 
 // QueryRegisteredDMMsRequest is the request type for the Query/RegisteredDMMs RPC method.
-message QueryRegisteredDMMsRequest {
+message QueryOptedOutOfRewardsAccountsRequest {
 }
 
 // QueryRegisteredDMMsResponse is the response type for the Query/RegisteredDMMs RPC method.
-message QueryRegisteredDMMsResponse {
-  repeated string registered_dmms = 1;
+message QueryOptedOutOfRewardsAccountsResponse {
+  repeated string accounts = 1;
 }
 
 // QueryFeeDiscountAccountInfoRequest is the request type for the Query/FeeDiscountAccountInfo RPC method.
