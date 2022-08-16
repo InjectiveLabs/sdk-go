@@ -74,7 +74,7 @@ type ExchangeClient interface {
 	GetTxs(ctx context.Context, req explorerPB.GetTxsRequest) (explorerPB.GetTxsResponse, error)
 	GetBlock(ctx context.Context, blockHeight string) (explorerPB.GetBlockResponse, error)
 	GetBlocks(ctx context.Context) (explorerPB.GetBlocksResponse, error)
-	GetAccountTxs(ctx context.Context, address string) (explorerPB.GetAccountTxsResponse, error)
+	GetAccountTxs(ctx context.Context, req explorerPB.GetAccountTxsRequest) (explorerPB.GetAccountTxsResponse, error)
 	GetPeggyDeposits(ctx context.Context, req explorerPB.GetPeggyDepositTxsRequest) (explorerPB.GetPeggyDepositTxsResponse, error)
 	GetPeggyWithdrawals(ctx context.Context, req explorerPB.GetPeggyWithdrawalTxsRequest) (explorerPB.GetPeggyWithdrawalTxsResponse, error)
 	GetIBCTransfers(ctx context.Context, req explorerPB.GetIBCTransferTxsRequest) (explorerPB.GetIBCTransferTxsResponse, error)
@@ -968,11 +968,7 @@ func (c *exchangeClient) GetTxByTxHash(ctx context.Context, hash string) (explor
 	return *res, nil
 }
 
-func (c *exchangeClient) GetAccountTxs(ctx context.Context, address string) (explorerPB.GetAccountTxsResponse, error) {
-	req := explorerPB.GetAccountTxsRequest{
-		Address: address,
-	}
-
+func (c *exchangeClient) GetAccountTxs(ctx context.Context, req explorerPB.GetAccountTxsRequest) (explorerPB.GetAccountTxsResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	res, err := c.explorerClient.GetAccountTxs(ctx, &req, grpc.Header(&header))
