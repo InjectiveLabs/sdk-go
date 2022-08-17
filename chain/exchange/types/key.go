@@ -268,12 +268,16 @@ func GetSpotMarketKey(isEnabled bool) []byte {
 	return append(SpotMarketsPrefix, getBoolPrefix(isEnabled)...)
 }
 
-func GetSpotMarketTransientMarketsKeyPrefix(marketID common.Hash, isBuy bool) []byte {
+func GetSpotMarketTransientMarketsKey(marketID common.Hash, isBuy bool) []byte {
 	return append(SpotMarketsPrefix, MarketDirectionPrefix(marketID, isBuy)...)
 }
 
-func GetDerivativeMarketTransientMarketsKeyPrefix(marketID common.Hash, isBuy bool) []byte {
+func GetDerivativeLimitTransientMarketsKeyPrefix(marketID common.Hash, isBuy bool) []byte {
 	return append(DerivativeLimitOrderIndicatorPrefix, MarketDirectionPrefix(marketID, isBuy)...)
+}
+
+func GetDerivativeMarketTransientMarketsKey(marketID common.Hash, isBuy bool) []byte {
+	return append(DerivativeMarketOrderIndicatorPrefix, MarketDirectionPrefix(marketID, isBuy)...)
 }
 
 func GetPaddedPrice(price sdk.Dec) string {
@@ -386,10 +390,9 @@ func MarketDirectionPrefix(marketID common.Hash, isLong bool) []byte {
 }
 
 // GetMarketIdDirectionFromTransientKey parses the marketID and direction from a transient Key.
-// NOTE: this will not work for a normal key.
-func GetMarketIdDirectionFromTransientKey(prefix, key []byte) (marketID common.Hash, isBuy bool) {
-	marketID = common.BytesToHash(key[len(prefix) : common.HashLength+len(prefix)])
-	isBuyByte := key[common.HashLength+len(prefix)]
+func GetMarketIdDirectionFromTransientKey(key []byte) (marketID common.Hash, isBuy bool) {
+	marketID = common.BytesToHash(key[:common.HashLength])
+	isBuyByte := key[common.HashLength]
 	return marketID, isBuyByte == TrueByte
 }
 
