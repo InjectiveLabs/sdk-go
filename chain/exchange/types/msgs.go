@@ -56,8 +56,10 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
 	}
-	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.LT(sdk.ZeroDec()) || o.TriggerPrice.GT(MaxOrderPrice)) {
-		return sdkerrors.Wrap(ErrInvalidTriggerPrice, o.TriggerPrice.String())
+
+	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
+	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.IsNegative() || o.TriggerPrice.GT(MaxOrderPrice)) {
+		return ErrInvalidTriggerPrice
 	}
 
 	_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
@@ -98,8 +100,9 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 	if !IsHexHash(o.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
+
 	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO:
+	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_STOP_BUY, OrderType_STOP_SELL, OrderType_TAKE_BUY, OrderType_TAKE_SELL:
 		// do nothing
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
@@ -108,8 +111,15 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) || o.Margin.GT(MaxOrderPrice) {
 		return sdkerrors.Wrap(ErrInsufficientOrderMargin, o.Margin.String())
 	}
-	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.LT(sdk.ZeroDec()) || o.TriggerPrice.GT(MaxOrderPrice)) {
-		return sdkerrors.Wrap(ErrInvalidTriggerPrice, o.TriggerPrice.String())
+
+	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
+	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.IsNegative() || o.TriggerPrice.GT(MaxOrderPrice)) {
+		return ErrInvalidTriggerPrice
+	}
+
+	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.IsZero()) { /*||
+		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
+		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
 
 	_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)

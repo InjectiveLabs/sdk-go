@@ -94,6 +94,9 @@ message GenesisState {
 
   // denom_decimals defines the denom decimals for the exchange.
   repeated DenomDecimals denom_decimals = 29 [(gogoproto.nullable) = false];
+
+  // conditional_derivative_orderbook contains conditional orderbooks for all markets (both lmit and market conditional orders)
+  repeated ConditionalDerivativeOrderBook conditional_derivative_orderbooks = 30;
 }
 
 message FeeDiscountAccountTierTTL {
@@ -145,6 +148,16 @@ message DerivativeOrderBook {
   string market_id = 1;
   bool isBuySide = 2;
   repeated DerivativeLimitOrder orders = 3;
+}
+
+// Orderbook containing limit & market conditional orders
+message ConditionalDerivativeOrderBook {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string market_id = 1;
+  repeated DerivativeLimitOrder limit_orders = 2;
+  repeated DerivativeMarketOrder market_orders = 3;
 }
 
 message Balance {

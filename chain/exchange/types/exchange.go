@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -10,6 +11,14 @@ type MatchedMarketDirection struct {
 	MarketId    common.Hash
 	BuysExists  bool
 	SellsExists bool
+}
+
+type TriggeredOrdersInMarket struct {
+	Market             *DerivativeMarket
+	MarketOrders       []*DerivativeMarketOrder
+	LimitOrders        []*DerivativeLimitOrder
+	HasLimitBuyOrders  bool
+	HasLimitSellOrders bool
 }
 
 func (e ExecutionType) IsMarket() bool {
@@ -150,4 +159,30 @@ func (o *DerivativeMarketOrder) SetMargin(margin sdk.Dec) {
 
 func (o *DerivativeMarketOrder) DebugString() string {
 	return fmt.Sprintf("(q:%v, p:%v, m:%v, isLong: %v)", o.Quantity(), o.Price(), o.Margin, o.IsBuy())
+}
+
+// spot orders
+
+func (o *SpotOrder) GetPrice() sdk.Dec {
+	return o.OrderInfo.Price
+}
+func (o *SpotLimitOrder) GetPrice() sdk.Dec {
+	return o.OrderInfo.Price
+}
+func (o *SpotMarketOrder) GetPrice() sdk.Dec {
+	return o.OrderInfo.Price
+}
+
+func (o *SpotOrder) GetQuantity() sdk.Dec {
+	return o.OrderInfo.Quantity
+}
+func (o *SpotLimitOrder) GetQuantity() sdk.Dec {
+	return o.OrderInfo.Quantity
+}
+
+func (o *SpotMarketOrder) GetQuantity() sdk.Dec {
+	return o.OrderInfo.Quantity
+}
+func (o *SpotMarketOrder) IsBuy() bool {
+	return o.OrderType.IsBuy()
 }

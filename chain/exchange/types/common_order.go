@@ -48,6 +48,17 @@ func (t OrderType) IsPostOnly() bool {
 	}
 }
 
+func (t OrderType) IsConditional() bool {
+	switch t {
+	case OrderType_STOP_BUY,
+		OrderType_STOP_SELL,
+		OrderType_TAKE_BUY,
+		OrderType_TAKE_SELL:
+		return true
+	}
+	return false
+}
+
 func (m *OrderInfo) GetNotional() sdk.Dec {
 	return m.Quantity.Mul(m.Price)
 }

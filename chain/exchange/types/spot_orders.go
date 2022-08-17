@@ -71,6 +71,22 @@ func (m *SpotLimitOrder) Hash() common.Hash {
 	return common.BytesToHash(m.OrderHash)
 }
 
+func (m *SpotMarketOrder) Hash() common.Hash {
+	return common.BytesToHash(m.OrderHash)
+}
+
+func (o *SpotOrder) IsConditional() bool {
+	return o.OrderType.IsConditional()
+}
+
+func (o *SpotLimitOrder) IsConditional() bool {
+	return o.OrderType.IsConditional()
+}
+
+func (o *SpotMarketOrder) IsConditional() bool {
+	return o.OrderType.IsConditional()
+}
+
 func (m *SpotLimitOrder) GetUnfilledNotional() sdk.Dec {
 	return m.Fillable.Mul(m.OrderInfo.Price)
 }

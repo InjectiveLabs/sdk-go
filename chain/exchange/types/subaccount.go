@@ -8,15 +8,17 @@ import (
 
 func NewSubaccountOrderbookMetadata() *SubaccountOrderbookMetadata {
 	return &SubaccountOrderbookMetadata{
-		VanillaLimitOrderCount:      0,
-		ReduceOnlyLimitOrderCount:   0,
-		AggregateReduceOnlyQuantity: sdk.ZeroDec(),
-		AggregateVanillaQuantity:    sdk.ZeroDec(),
+		VanillaLimitOrderCount:          0,
+		ReduceOnlyLimitOrderCount:       0,
+		AggregateReduceOnlyQuantity:     sdk.ZeroDec(),
+		AggregateVanillaQuantity:        sdk.ZeroDec(),
+		VanillaConditionalOrderCount:    0,
+		ReduceOnlyConditionalOrderCount: 0,
 	}
 }
 
 func (m *SubaccountOrderbookMetadata) GetOrderSideCount() uint32 {
-	return m.VanillaLimitOrderCount + m.ReduceOnlyLimitOrderCount
+	return m.VanillaLimitOrderCount + m.ReduceOnlyLimitOrderCount + m.VanillaConditionalOrderCount + m.ReduceOnlyConditionalOrderCount
 }
 
 func NewSubaccountOrder(o *DerivativeLimitOrder) *SubaccountOrder {
