@@ -272,6 +272,38 @@ func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initia
 	return nil
 }
 
+// CheckValidConditionalPrice checks that conditional order type (STOP or TAKE) actually valid for current relation between triggerPrice and markPrice
+func (o *DerivativeOrder) CheckValidConditionalPrice(markPrice sdk.Dec) (err error) {
+	if !o.IsConditional() {
+		return nil
+	}
+
+	ok := true
+	switch o.OrderType {
+	case OrderType_STOP_BUY, OrderType_TAKE_SELL: // higher
+		ok = o.TriggerPrice.GT(markPrice)
+	case OrderType_STOP_SELL, OrderType_TAKE_BUY: // lower
+		ok = o.TriggerPrice.LT(markPrice)
+	}
+	if !ok {
+		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "order type %s incompatible with trigger price %s and markPrice %s", o.OrderType.String(), o.TriggerPrice.String(), markPrice.String())
+	}
+	return nil
+}
+
+// CheckBinaryOptionsPricesWithinBounds checks that binary options order prices don't exceed 1 (scaled)
+func (o *DerivativeOrder) CheckBinaryOptionsPricesWithinBounds(oracleScaleFactor uint32) (err error) {
+	maxScaledPrice := GetScaledPrice(sdk.OneDec(), oracleScaleFactor)
+	if o.Price().GTE(maxScaledPrice) {
+		return sdkerrors.Wrapf(ErrInvalidPrice, "price must be less than %s", maxScaledPrice.String())
+	}
+
+	if o.IsConditional() && o.TriggerPrice.GTE(maxScaledPrice) {
+		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "trigger price must be less than %s", maxScaledPrice.String())
+	}
+	return nil
+}
+
 func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio sdk.Dec) sdk.Dec {
 	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
 	var numerator, denominator sdk.Dec
@@ -381,6 +413,18 @@ func (m *DerivativeLimitOrder) Price() sdk.Dec {
 
 func (m *DerivativeOrder) Price() sdk.Dec {
 	return m.OrderInfo.Price
+}
+
+func (o *DerivativeOrder) IsConditional() bool {
+	return o.OrderType.IsConditional()
+}
+
+func (o *DerivativeMarketOrder) IsConditional() bool {
+	return o.OrderType.IsConditional()
+}
+
+func (o *DerivativeLimitOrder) IsConditional() bool {
+	return o.OrderType.IsConditional()
 }
 
 func (o *DerivativeOrder) SubaccountID() common.Hash {

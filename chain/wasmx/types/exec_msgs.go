@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -37,7 +36,6 @@ func NewBeginBlockerExecMsg() ([]byte, error) {
 	//execMsg := []byte(`{"begin_blocker":{}}`)
 	execMsg, err := json.Marshal(beginBlocker)
 	if err != nil {
-		fmt.Println("Register marshal failed")
 		return nil, err
 	}
 
@@ -58,7 +56,6 @@ func NewRegistryDeactivateMsg(contractAddress string) ([]byte, error) {
 	//execMsg := []byte('{"deactivate":{"contract_address":"inj1nc5tatafv6eyq7llkr2gv50ff9e22mnfhg8yh3"}}')
 	execMsg, err := json.Marshal(deactivateMsg)
 	if err != nil {
-		fmt.Println("Register marshal failed")
 		return nil, err
 	}
 
@@ -79,7 +76,6 @@ func NewRegistryContractQuery() ([]byte, error) {
 
 	queryMsg, err := json.Marshal(contractQuery)
 	if err != nil {
-		fmt.Println("Register marshal failed")
 		return nil, err
 	}
 
@@ -100,7 +96,6 @@ func NewRegistryActiveContractQuery() ([]byte, error) {
 	// queryData := []byte("{\"get_active_contracts\": {}}")
 	queryMsg, err := json.Marshal(contractQuery)
 	if err != nil {
-		fmt.Println("Register marshal failed")
 		return nil, err
 	}
 

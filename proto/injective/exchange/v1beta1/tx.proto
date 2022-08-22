@@ -508,6 +508,7 @@ message MsgCancelDerivativeOrder {
   string market_id = 2;
   string subaccount_id = 3;
   string order_hash = 4;
+  int32 order_mask = 5; // bitwise combination of OrderMask enum values
 }
 
 // MsgCancelDerivativeOrderResponse defines the Msg/CancelDerivativeOrderResponse response type.
@@ -520,6 +521,7 @@ message MsgCancelBinaryOptionsOrder {
   string market_id = 2;
   string subaccount_id = 3;
   string order_hash = 4;
+  int32 order_mask = 5; // bitwise combination of OrderMask enum values
 }
 
 // MsgCancelBinaryOptionsOrderResponse defines the Msg/CancelBinaryOptionsOrderResponse response type.
@@ -529,6 +531,7 @@ message OrderData {
   string market_id = 1;
   string subaccount_id = 2;
   string order_hash = 3;
+  int32 order_mask = 5; // bitwise combination of OrderMask enum values
 }
 // MsgBatchCancelDerivativeOrders defines the Msg/CancelDerivativeOrders response type.
 message MsgBatchCancelDerivativeOrders {

@@ -171,6 +171,10 @@ func SubaccountIDToSdkAddress(subaccountID common.Hash) sdk.AccAddress {
 	return sdk.AccAddress(subaccountID[:common.AddressLength])
 }
 
+func SubaccountIDToEthAddress(subaccountID common.Hash) common.Address {
+	return common.BytesToAddress(subaccountID[:common.AddressLength])
+}
+
 func EthAddressToSubaccountID(addr common.Address) common.Hash {
 	return common.BytesToHash(common.RightPadBytes(addr.Bytes(), 32))
 }

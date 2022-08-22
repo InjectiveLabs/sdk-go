@@ -425,6 +425,13 @@ message SpotMarketOrder {
     (gogoproto.nullable) = false
   ];
   bytes order_hash = 3;
+  // order types
+  OrderType order_type = 4;
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message DerivativeOrder {
@@ -459,6 +466,9 @@ message SubaccountOrderbookMetadata {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+
+  uint32 vanilla_conditional_order_count = 5;
+  uint32 reduce_only_conditional_order_count = 6;
 }
 
 message SubaccountOrder {
@@ -737,4 +747,14 @@ message TradeRecord {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+}
+
+enum OrderMask {
+  ANY = 0 [(gogoproto.enumvalue_customname) = "ANY"];
+  REGULAR = 1 [(gogoproto.enumvalue_customname) = "REGULAR"];
+  CONDITIONAL = 2 [(gogoproto.enumvalue_customname) = "CONDITIONAL"];
+  DIRECTION_BUY_OR_HIGHER = 4 [(gogoproto.enumvalue_customname) = "BUY_OR_HIGHER"]; // for conditional orders means HIGHER
+  DIRECTION_SELL_OR_LOWER = 8 [(gogoproto.enumvalue_customname) = "SELL_OR_LOWER"]; // for conditional orders means LOWER
+  TYPE_MARKET = 16 [(gogoproto.enumvalue_customname) = "MARKET"];
+  TYPE_LIMIT = 32 [(gogoproto.enumvalue_customname) = "LIMIT"];
 }

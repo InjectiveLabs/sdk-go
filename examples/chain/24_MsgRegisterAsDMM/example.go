@@ -7,9 +7,10 @@ import (
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func main() {
@@ -47,9 +48,8 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
 
-	msg := &exchangetypes.MsgRegisterAsDMM{
-		Sender:     senderAddress.String(),
-		DmmAccount: senderAddress.String(),
+	msg := &exchangetypes.MsgRewardsOptOut{
+		Sender: senderAddress.String(),
 	}
 
 	chainClient, err := chainclient.NewChainClient(
