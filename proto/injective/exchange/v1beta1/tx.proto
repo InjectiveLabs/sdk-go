@@ -531,7 +531,7 @@ message OrderData {
   string market_id = 1;
   string subaccount_id = 2;
   string order_hash = 3;
-  int32 order_mask = 5; // bitwise combination of OrderMask enum values
+  int32 order_mask = 4; // bitwise combination of OrderMask enum values
 }
 // MsgBatchCancelDerivativeOrders defines the Msg/CancelDerivativeOrders response type.
 message MsgBatchCancelDerivativeOrders {

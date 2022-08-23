@@ -232,7 +232,7 @@ func (o *DerivativeOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint3
 	return o.OrderInfo.Quantity.Mul(GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(o.Price()))
 }
 
-func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, markPrice, feeRate sdk.Dec, marketType MarketType, oracleScaleFactor uint32) (marginHold sdk.Dec, err error) {
+func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, executionMarkPrice, feeRate sdk.Dec, marketType MarketType, oracleScaleFactor uint32) (marginHold sdk.Dec, err error) {
 	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
 	positiveFeeRatePart := sdk.MaxDec(feeRate, sdk.ZeroDec())
 	feeAmount := notional.Mul(positiveFeeRatePart)
@@ -252,7 +252,7 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, markPr
 		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", initialMarginRatio.Mul(notional).String(), o.Margin.String())
 	}
 
-	if err := o.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice); err != nil {
+	if err := o.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, executionMarkPrice); err != nil {
 		return sdk.Dec{}, err
 	}
 
@@ -264,9 +264,9 @@ func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initia
 	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
 	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1 + InitialMarginRatio) * Quantity)
 	if o.OrderType.IsBuy() && markPrice.LT(markPriceThreshold) {
-		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
+		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
 	} else if !o.OrderType.IsBuy() && markPrice.GT(markPriceThreshold) {
-		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
+		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
 	}
 
 	return nil
