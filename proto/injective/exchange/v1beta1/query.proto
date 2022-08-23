@@ -227,11 +227,6 @@ service Query {
   rpc BinaryOptionsMarkets(QueryBinaryMarketsRequest) returns (QueryBinaryMarketsResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/binary_options/markets";
   }
-
-  // Retrieves a trader's derivative conditional orders
-  rpc TraderDerivativeConditionalOrders(QueryTraderDerivativeConditionalOrdersRequest) returns (QueryTraderDerivativeConditionalOrdersResponse) {
-    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/orders/conditional/{market_id}/{subaccount_id}";
-  }
 }
 
 message Subaccount {
@@ -915,42 +910,4 @@ message QueryBinaryMarketsRequest {
 // QueryBinaryMarketsResponse is the response type for the Query/BinaryMarkets RPC method.
 message QueryBinaryMarketsResponse {
   repeated BinaryOptionsMarket markets = 1;
-}
-
-// QueryConditionalOrdersRequest is the request type for the Query/ConditionalOrders RPC method.
-message QueryTraderDerivativeConditionalOrdersRequest {
-  string subaccount_id = 1;
-  string market_id = 2;
-}
-
-message TrimmedDerivativeConditionalOrder {
-  // price of the order
-  string price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // quantity of the order
-  string quantity = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // margin of the order
-  string margin = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // price to trigger the order
-  string triggerPrice = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // true if the order is a buy
-  bool isBuy = 5[(gogoproto.jsontag) = "isBuy"]; // ensure omitempty is not in jsontag
-  bool isLimit = 6[(gogoproto.jsontag) = "isLimit"];
-  string order_hash = 7;
-}
-
-// QueryTraderDerivativeOrdersResponse is the response type for the Query/TraderDerivativeOrders RPC method.
-message QueryTraderDerivativeConditionalOrdersResponse {
-  repeated TrimmedDerivativeConditionalOrder orders = 1;
 }
