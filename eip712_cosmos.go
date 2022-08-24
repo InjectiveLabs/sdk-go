@@ -232,8 +232,24 @@ func traverseFields(
 
 		var isCollection bool
 		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
+			// incase this is not nullable, we should keep empty array anyway
 			if field.Len() == 0 {
-				// skip empty collections from type mapping
+				// add field and continue
+				ethTyp := typToEth(fieldType)
+				if len(ethTyp) > 0 {
+					if prefix == typeDefPrefix {
+						typeMap[rootType] = append(typeMap[rootType], typeddata.Type{
+							Name: fieldName,
+							Type: ethTyp,
+						})
+					} else {
+						typeDef := sanitizeTypedef(prefix)
+						typeMap[typeDef] = append(typeMap[typeDef], typeddata.Type{
+							Name: fieldName,
+							Type: ethTyp,
+						})
+					}
+				}
 				continue
 			}
 
