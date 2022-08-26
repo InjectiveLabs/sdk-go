@@ -134,6 +134,22 @@ const (
 	MarketType_BinaryOption
 )
 
+func (m MarketType) IsSpot() bool {
+	return m == MarketType_Spot
+}
+
+func (m MarketType) IsPerpetual() bool {
+	return m == MarketType_Perpetual
+}
+
+func (m MarketType) IsExpiry() bool {
+	return m == MarketType_Expiry
+}
+
+func (m MarketType) IsBinaryOptions() bool {
+	return m == MarketType_BinaryOption
+}
+
 func (m *DerivativeMarket) GetMarketType() MarketType {
 	if m.IsPerpetual {
 		return MarketType_Perpetual
@@ -176,6 +192,10 @@ func (m *DerivativeMarket) GetIsPerpetual() bool {
 
 func (m *DerivativeMarket) GetOracleScaleFactor() uint32 {
 	return m.OracleScaleFactor
+}
+
+func (m *DerivativeMarket) GetMarketStatus() MarketStatus {
+	return m.Status
 }
 
 /// Binary Options Markets
@@ -241,4 +261,8 @@ func (m *BinaryOptionsMarket) StatusSupportsOrderCancellations() bool {
 
 func (m *BinaryOptionsMarket) GetOracleScaleFactor() uint32 {
 	return m.OracleScaleFactor
+}
+
+func (m *BinaryOptionsMarket) GetMarketStatus() MarketStatus {
+	return m.Status
 }

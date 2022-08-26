@@ -177,3 +177,33 @@ message EventTradingRewardCampaignUpdate {
 message EventTradingRewardDistribution {
   repeated AccountRewards account_rewards = 1;
 }
+
+message EventNewConditionalDerivativeOrder {
+  string market_id = 1;
+  DerivativeOrder order = 2;
+  bytes hash = 3;
+}
+
+message EventCancelConditionalDerivativeOrder {
+  string market_id = 1;
+  bool isLimitCancel = 2;
+  DerivativeLimitOrder limit_order = 3 [
+    (gogoproto.nullable) = true
+  ];
+  DerivativeMarketOrder market_order = 4 [
+    (gogoproto.nullable) = true
+  ];
+}
+
+message EventConditionalDerivativeOrderTrigger {
+  bytes market_id = 1;
+  bool isLimitTrigger = 2;
+  bytes triggered_order_hash = 3;
+  bytes placed_order_hash = 4;
+}
+
+message EventOrderFail {
+  bytes account = 1;
+  repeated bytes hashes = 2;
+  repeated uint32 flags = 3;
+}

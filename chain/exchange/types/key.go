@@ -91,6 +91,16 @@ var (
 	BinaryOptionsMarketSettlementTimestampPrefix = []byte{0x63} // prefix for each key to a binary options marketID by settlement timestamp
 	BinaryOptionsMarketSettlementSchedulePrefix  = []byte{0x64} // prefix for a key to save scheduled binary options marketID for settlement
 	BinaryOptionsMarketParamUpdateSchedulePrefix = []byte{0x65} // prefix for a key to save scheduled binary options market params update
+
+	SpotConditionalMarketOrdersPrefix            = []byte{0x70} // prefix for a key to save conditional spot market orders: marketID + direction + triggerPrice + orderHash ⇒ spotMarketOrder
+	SpotConditionalMarketOrdersIndexPrefix       = []byte{0x71} // prefix for a key to save conditional spot market orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
+	SpotConditionalLimitOrdersPrefix             = []byte{0x72} // prefix for a key to save conditional spot limit orders: marketID + direction + triggerPrice + orderHash ⇒ spotLimitOrder
+	SpotConditionalLimitOrdersIndexPrefix        = []byte{0x73} // prefix for a key to save conditional spot limit orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
+	DerivativeConditionalMarketOrdersPrefix      = []byte{0x74} // prefix for a key to save conditional derivative market orders: marketID + direction + triggerPrice + orderHash ⇒ derivativeMarketOrder
+	DerivativeConditionalMarketOrdersIndexPrefix = []byte{0x75} // prefix for a key to save conditional derivative market orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
+	DerivativeConditionalLimitOrdersPrefix       = []byte{0x76} // prefix for a key to save conditional derivative limit orders: marketID + direction + triggerPrice + orderHash ⇒ derivativeLimitOrder
+	DerivativeConditionalLimitOrdersIndexPrefix  = []byte{0x77} // prefix for a key to save conditional derivative limit orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
+	ConditionalOrderInvalidationFlagPrefix       = []byte{0x78} // prefix for a key to save flags to invalidate conditional orders
 )
 
 // GetFeeDiscountAccountVolumeInBucketKey provides the key for the account's volume in the given bucket
@@ -226,7 +236,7 @@ func GetSubaccountTradeNonceKey(subaccountID common.Hash) []byte {
 }
 
 func GetSubaccountOrderbookMetadataKey(marketID, subaccountID common.Hash, isBuy bool) []byte {
-	return append(SubaccountOrderbookMetadataPrefix, getSubaccountOrderSuffix(marketID, subaccountID, isBuy)...)
+	return append(SubaccountOrderbookMetadataPrefix, GetSubaccountOrderSuffix(marketID, subaccountID, isBuy)...)
 }
 
 func GetSubaccountMarketOrderIndicatorKey(marketID, subaccountID common.Hash) []byte {
@@ -237,17 +247,17 @@ func GetSubaccountLimitOrderIndicatorKey(marketID, subaccountID common.Hash) []b
 	return append(SubaccountLimitOrderIndicatorPrefix, MarketSubaccountInfix(marketID, subaccountID)...)
 }
 
-func getSubaccountOrderSuffix(marketID, subaccountID common.Hash, isBuy bool) []byte {
+func GetSubaccountOrderSuffix(marketID, subaccountID common.Hash, isBuy bool) []byte {
 	return append(MarketSubaccountInfix(marketID, subaccountID), getBoolPrefix(isBuy)...)
 }
 
 func GetSubaccountOrderKey(marketID, subaccountID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
 	// TODO use copy for greater efficiency
-	return append(append(GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy), []byte(getPaddedPrice(price))...), orderHash.Bytes()...)
+	return append(append(GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
 func GetSubaccountOrderIterationKey(price sdk.Dec, orderHash common.Hash) []byte {
-	return append([]byte(getPaddedPrice(price)), orderHash.Bytes()...)
+	return append([]byte(GetPaddedPrice(price)), orderHash.Bytes()...)
 }
 
 func GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID common.Hash, isBuy bool) []byte {
@@ -258,17 +268,25 @@ func GetSpotMarketKey(isEnabled bool) []byte {
 	return append(SpotMarketsPrefix, getBoolPrefix(isEnabled)...)
 }
 
-func GetSpotMarketTransientMarketsKeyPrefix(marketID common.Hash, isBuy bool) []byte {
+func GetSpotMarketTransientMarketsKey(marketID common.Hash, isBuy bool) []byte {
 	return append(SpotMarketsPrefix, MarketDirectionPrefix(marketID, isBuy)...)
 }
 
-func GetDerivativeMarketTransientMarketsKeyPrefix(marketID common.Hash, isBuy bool) []byte {
+func GetDerivativeLimitTransientMarketsKeyPrefix(marketID common.Hash, isBuy bool) []byte {
 	return append(DerivativeLimitOrderIndicatorPrefix, MarketDirectionPrefix(marketID, isBuy)...)
 }
 
-func getPaddedPrice(price sdk.Dec) string {
+func GetDerivativeMarketTransientMarketsKey(marketID common.Hash, isBuy bool) []byte {
+	return append(DerivativeMarketOrderIndicatorPrefix, MarketDirectionPrefix(marketID, isBuy)...)
+}
+
+func GetPaddedPrice(price sdk.Dec) string {
 	dec := decimal.NewFromBigInt(price.BigInt(), -18).StringFixed(PriceDecimalPlaces)
-	components := strings.Split(dec, ".")
+	return getPaddedPriceFromString(dec)
+}
+
+func getPaddedPriceFromString(price string) string {
+	components := strings.Split(price, ".")
 	naturalPart, decimalPart := components[0], components[1]
 	return fmt.Sprintf("%032s.%s", naturalPart, decimalPart)
 }
@@ -299,12 +317,20 @@ func GetLimitOrderIndexSubaccountPrefix(marketID common.Hash, isBuy bool, subacc
 }
 
 func GetOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
-	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(getPaddedPrice(price))...), orderHash.Bytes()...)
+	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
+}
+
+func GetOrderByStringPriceKeyPrefix(marketID common.Hash, isBuy bool, price string, orderHash common.Hash) []byte {
+	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(getPaddedPriceFromString(price))...), orderHash.Bytes()...)
+}
+
+func GetConditionalOrderByTriggerPriceKeyPrefix(marketID common.Hash, isHigher bool, triggerPrice sdk.Dec, orderHash common.Hash) []byte {
+	return append(append(MarketDirectionPrefix(marketID, isHigher), []byte(GetPaddedPrice(triggerPrice))...), orderHash.Bytes()...)
 }
 
 // SpotMarketDirectionPriceHashPrefix turns a marketID + direction + price + order hash to prefix used to get a spot order from the store.
 func SpotMarketDirectionPriceHashPrefix(marketID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
-	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(getPaddedPrice(price))...), orderHash.Bytes()...)
+	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
 func GetDerivativeMarketPrefix(isEnabled bool) []byte {
@@ -364,10 +390,9 @@ func MarketDirectionPrefix(marketID common.Hash, isLong bool) []byte {
 }
 
 // GetMarketIdDirectionFromTransientKey parses the marketID and direction from a transient Key.
-// NOTE: this will not work for a normal key.
-func GetMarketIdDirectionFromTransientKey(prefix, key []byte) (marketID common.Hash, isBuy bool) {
-	marketID = common.BytesToHash(key[len(prefix) : common.HashLength+len(prefix)])
-	isBuyByte := key[common.HashLength+len(prefix)]
+func GetMarketIdDirectionFromTransientKey(key []byte) (marketID common.Hash, isBuy bool) {
+	marketID = common.BytesToHash(key[:common.HashLength])
+	isBuyByte := key[common.HashLength]
 	return marketID, isBuyByte == TrueByte
 }
 
@@ -387,6 +412,14 @@ func ParsePositionTransientStoreKey(key []byte) (marketID, subaccountID common.H
 	marketID = common.BytesToHash(key[prefixLen:marketIDEndIdx])
 	subaccountID = common.BytesToHash(key[marketIDEndIdx : marketIDEndIdx+common.HashLength])
 	return marketID, subaccountID
+}
+
+func ParseMarketIDSubaccountIDDirectionSuffix(keySuffix []byte) (marketID, subaccountID common.Hash, isBuy bool) {
+	marketIDEndIdx := common.HashLength
+	marketID = common.BytesToHash(keySuffix[:marketIDEndIdx])
+	subaccountID = common.BytesToHash(keySuffix[marketIDEndIdx : marketIDEndIdx+common.HashLength])
+	isBuy = keySuffix[len(keySuffix)-1] == 1
+	return marketID, subaccountID, isBuy
 }
 
 func GetSubaccountAndMarketIDFromPositionKey(key []byte) (subaccountID, marketID common.Hash) {
