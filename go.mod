@@ -159,4 +159,4 @@ replace github.com/btcsuite/btcutil => github.com/btcsuite/btcutil v1.0.2
 
 replace github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.45.7-inj
 
-replace github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.28.0-inj
+replace github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.28.0-inj-1

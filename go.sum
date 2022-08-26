@@ -108,8 +108,8 @@ github.com/InjectiveLabs/cosmos-sdk v0.45.7-inj h1:70gPVolIklBExIHFLUupI6HUH1WjF
 github.com/InjectiveLabs/cosmos-sdk v0.45.7-inj/go.mod h1:l8DURPoMMkIEe/Gw59g9KIMDjlYyTsKOWdc3iSSBXvw=
 github.com/InjectiveLabs/suplog v1.3.3 h1:ARIR3lWD9BxcrmqTwgcGBt8t7e10gwOqllUAXa/MfxI=
 github.com/InjectiveLabs/suplog v1.3.3/go.mod h1:+I9WRgUhzmo1V/n7IkW24kFBFB9ZTPAiXXXCogWxmTM=
-github.com/InjectiveLabs/wasmd v0.28.0-inj h1:AbSFOEg9RIF4yYj3ANCdSBKcQUM5ransq5nrsi3LxMk=
-github.com/InjectiveLabs/wasmd v0.28.0-inj/go.mod h1:+YFMYloXHkrMKYoIGKMzmbEtH0is99ZWl2xgh/U2Dic=
+github.com/InjectiveLabs/wasmd v0.28.0-inj-1 h1:vgHEHxUcqemsPPrPFil2H2zufCv58XLh3ls690vyOi0=
+github.com/InjectiveLabs/wasmd v0.28.0-inj-1/go.mod h1:W4jV5FKwFyGcniKL2vn4ZcP7xN4gOEhZ/b6HxrzdnyA=
 github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible/go.mod h1:r7JcOSlj0wfOMncg0iLm8Leh48TZaKVeNIfJntJ2wa0=
 github.com/Masterminds/goutils v1.1.0/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
@@ -1193,7 +1193,6 @@ github.com/rs/xhandler v0.0.0-20160618193221-ed27b6fd6521/go.mod h1:RvLn4FgxWubr
 github.com/rs/xid v1.2.1/go.mod h1:+uKXf+4Djp6Md1KODXJxgGQPKngRmWyn10oCKFzNHOQ=
 github.com/rs/xid v1.3.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/rs/zerolog v1.23.0/go.mod h1:6c7hFfxPOy7TacJc4Fcdi24/J0NKYGzjG8FWRI916Qo=
-github.com/rs/zerolog v1.26.0/go.mod h1:yBiM87lvSqX8h0Ww4sdzNSkVYZ8dL2xjZJG1lAuGZEo=
 github.com/rs/zerolog v1.27.0 h1:1T7qCieN22GVc8S4Q2yuexzBb1EqjbgjSH9RohbMjKs=
 github.com/rs/zerolog v1.27.0/go.mod h1:7frBqO0oezxmnO7GF86FY++uy8I0Tk/If5ni1G9Qc0U=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
