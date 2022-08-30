@@ -182,6 +182,7 @@ message EventNewConditionalDerivativeOrder {
   string market_id = 1;
   DerivativeOrder order = 2;
   bytes hash = 3;
+  bool is_market = 4;
 }
 
 message EventCancelConditionalDerivativeOrder {

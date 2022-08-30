@@ -53,6 +53,11 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/spot/orders/{market_id}/{subaccount_id}";
   }
 
+  // Retrieves spot orders corresponding to specified order hashes for a given subaccountID and marketID
+  rpc SpotOrdersByHashes(QuerySpotOrdersByHashesRequest) returns (QuerySpotOrdersByHashesResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/spot/orders_by_hashes/{market_id}/{subaccount_id}";
+  }
+
   // Retrieves subaccount's orders
   rpc SubaccountOrders(QuerySubaccountOrdersRequest) returns (QuerySubaccountOrdersResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/orders/{subaccount_id}";
@@ -81,6 +86,11 @@ service Query {
   // Retrieves a trader's derivative orders
   rpc TraderDerivativeOrders(QueryTraderDerivativeOrdersRequest) returns (QueryTraderDerivativeOrdersResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/derivative/orders/{market_id}/{subaccount_id}";
+  }
+
+  // Retrieves a trader's derivative orders
+  rpc DerivativeOrdersByHashes(QueryDerivativeOrdersByHashesRequest) returns (QueryDerivativeOrdersByHashesResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/derivative/orders_by_hashes/{market_id}/{subaccount_id}";
   }
 
   // Retrieves a trader's transient derivative orders
@@ -335,6 +345,21 @@ message QuerySpotOrderbookResponse {
 }
 
 // QueryTraderSpotOrdersRequest is the request type for the Query/TraderSpotOrders RPC method.
+message QuerySpotOrdersByHashesRequest {
+  // Market ID for the market
+  string market_id = 1;
+  // SubaccountID of the trader
+  string subaccount_id = 2;
+  // the order hashes
+  repeated string order_hashes = 3;
+}
+
+// QuerySpotOrdersByHashesResponse is the response type for the Query/SpotOrdersByHashes RPC method.
+message QuerySpotOrdersByHashesResponse {
+  repeated TrimmedSpotLimitOrder orders = 1;
+}
+
+// QueryTraderSpotOrdersRequest is the request type for the Query/TraderSpotOrders RPC method.
 message QueryTraderSpotOrdersRequest {
   // Market ID for the market
   string market_id = 1;
@@ -367,6 +392,7 @@ message TrimmedSpotLimitOrder {
 message QueryTraderSpotOrdersResponse {
   repeated TrimmedSpotLimitOrder orders = 1;
 }
+
 
 // QuerySpotMidPriceAndTOBRequest is the request type for the Query/SpotMidPriceAndTOB RPC method.
 message QuerySpotMidPriceAndTOBRequest {
@@ -524,6 +550,21 @@ message TrimmedDerivativeLimitOrder {
 
 // QueryTraderDerivativeOrdersResponse is the response type for the Query/TraderDerivativeOrders RPC method.
 message QueryTraderDerivativeOrdersResponse {
+  repeated TrimmedDerivativeLimitOrder orders = 1;
+}
+
+// QueryTraderDerivativeOrdersRequest is the request type for the Query/TraderDerivativeOrders RPC method.
+message QueryDerivativeOrdersByHashesRequest {
+  // Market ID for the market
+  string market_id = 1;
+  // SubaccountID of the trader
+  string subaccount_id = 2;
+  // the order hashes
+  repeated string order_hashes = 3;
+}
+
+// QueryDerivativeOrdersByHashesResponse is the response type for the Query/DerivativeOrdersByHashes RPC method.
+message QueryDerivativeOrdersByHashesResponse {
   repeated TrimmedDerivativeLimitOrder orders = 1;
 }
 
