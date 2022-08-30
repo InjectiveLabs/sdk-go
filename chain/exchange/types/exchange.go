@@ -15,6 +15,7 @@ type MatchedMarketDirection struct {
 
 type TriggeredOrdersInMarket struct {
 	Market             *DerivativeMarket
+	MarkPrice          sdk.Dec
 	MarketOrders       []*DerivativeMarketOrder
 	LimitOrders        []*DerivativeLimitOrder
 	HasLimitBuyOrders  bool
