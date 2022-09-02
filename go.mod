@@ -157,6 +157,6 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.33.2
 
 replace github.com/btcsuite/btcutil => github.com/btcsuite/btcutil v1.0.2
 
-replace github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.45.7-inj
+replace github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.45.5-inj
 
-replace github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.28.0-inj-1
+replace github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.28.0-inj
