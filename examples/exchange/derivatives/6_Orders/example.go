@@ -12,8 +12,9 @@ import (
 
 func main() {
 	//network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("testnet", "k8s")
-	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	network := common.LoadNetwork("mainnet", "lb")
+	fmt.Println("exchange ep:", network.ExchangeGrpcEndpoint)
+	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint)
 	if err != nil {
 		panic(err)
 	}
