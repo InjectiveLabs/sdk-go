@@ -60,6 +60,8 @@ type ChainClient interface {
 	FromAddress() sdk.AccAddress
 	QueryClient() *grpc.ClientConn
 	ClientContext() client.Context
+	SetAccSeq(seq uint64)
+	SetAccNum(num uint64)
 
 	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
@@ -697,6 +699,14 @@ func (c *chainClient) runBatchBroadcast() {
 			}
 		}
 	}
+}
+
+func (c *chainClient) SetAccSeq(seq uint64) {
+	c.accSeq = seq
+}
+
+func (c *chainClient) SetAccNum(num uint64) {
+	c.accNum = num
 }
 
 func (c *chainClient) GetGasFee() (string, error) {
