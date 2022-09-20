@@ -17,7 +17,6 @@ func init() {
 	amino = codec.NewLegacyAmino()
 	RegisterCrypto(amino)
 	codec.RegisterEvidences(amino)
-	amino.Seal()
 }
 
 var (
