@@ -64,6 +64,11 @@ type ChainClient interface {
 	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+
+	// Build signed tx with given accNum and accSeq, useful for offline siging
+	BuildSignedTx(clientCtx client.Context, accNum, accSeq uint64, msg ...sdk.Msg) ([]byte, error)
+	SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error)
+	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
@@ -503,13 +508,125 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	return res, nil
 }
 
+func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq uint64, msgs ...sdk.Msg) ([]byte, error) {
+	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum)
+
+	txf, err := c.prepareFactory(clientCtx, txf)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to prepareFactory")
+	}
+
+	ctx := context.Background()
+	if clientCtx.Simulate {
+		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
+		if err != nil {
+			err = errors.Wrap(err, "failed to build sim tx bytes")
+			return nil, err
+		}
+		ctx := c.getCookie(ctx)
+		var header metadata.MD
+		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+		if err != nil {
+			err = errors.Wrap(err, "failed to CalculateGas")
+			return nil, err
+		}
+
+		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
+		txf = txf.WithGas(adjustedGas)
+
+		c.gasWanted = adjustedGas
+	}
+
+	txn, err := tx.BuildUnsignedTx(txf, msgs...)
+	if err != nil {
+		err = errors.Wrap(err, "failed to BuildUnsignedTx")
+		return nil, err
+	}
+
+	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
+	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
+	if err != nil {
+		err = errors.Wrap(err, "failed to Sign Tx")
+		return nil, err
+	}
+
+	return clientCtx.TxConfig.TxEncoder()(txn.GetTx())
+}
+
+func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+	req := txtypes.BroadcastTxRequest{
+		TxBytes: txBytes,
+		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+	}
+
+	ctx := context.Background()
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		return res, err
+	}
+
+	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
+	defer cancelFn()
+
+	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
+	t := time.NewTimer(defaultBroadcastStatusPoll)
+
+	for {
+		select {
+		case <-awaitCtx.Done():
+			err := errors.Wrapf(ErrTimedOut, "%s", res.TxResponse.TxHash)
+			t.Stop()
+			return nil, err
+		case <-t.C:
+			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
+			if err != nil {
+				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
+					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
+				}
+
+				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
+
+				t.Reset(defaultBroadcastStatusPoll)
+				continue
+
+			} else if resultTx.Height > 0 {
+				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
+				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
+				t.Stop()
+				return res, err
+			}
+
+			t.Reset(defaultBroadcastStatusPoll)
+		}
+	}
+}
+
+func (c *chainClient) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+	req := txtypes.BroadcastTxRequest{
+		TxBytes: txBytes,
+		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+	}
+
+	ctx := context.Background()
+	// use our own client to broadcast tx
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (c *chainClient) broadcastTx(
 	clientCtx client.Context,
 	txf tx.Factory,
 	await bool,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxResponse, error) {
-
 	txf, err := c.prepareFactory(clientCtx, txf)
 	if err != nil {
 		err = errors.Wrap(err, "failed to prepareFactory")
