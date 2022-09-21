@@ -68,7 +68,8 @@ type ChainClient interface {
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 
 	// Build signed tx with given accNum and accSeq, useful for offline siging
-	BuildSignedTx(clientCtx client.Context, accNum, accSeq, gas uint64, msg ...sdk.Msg) ([]byte, error)
+	// If simulate is set to false, initialGas will be used
+	BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msg ...sdk.Msg) ([]byte, error)
 	SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
@@ -514,8 +515,8 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	return res, nil
 }
 
-func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, gas uint64, msgs ...sdk.Msg) ([]byte, error) {
-	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(gas)
+func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
+	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
 
 	if clientCtx.Simulate {
 		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
