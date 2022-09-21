@@ -68,7 +68,7 @@ type ChainClient interface {
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 
 	// Build signed tx with given accNum and accSeq, useful for offline siging
-	BuildSignedTx(clientCtx client.Context, accNum, accSeq uint64, msg ...sdk.Msg) ([]byte, error)
+	BuildSignedTx(clientCtx client.Context, accNum, accSeq, gas uint64, msg ...sdk.Msg) ([]byte, error)
 	SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
@@ -514,22 +514,16 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	return res, nil
 }
 
-func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq uint64, msgs ...sdk.Msg) ([]byte, error) {
-	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum)
+func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, gas uint64, msgs ...sdk.Msg) ([]byte, error) {
+	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(gas)
 
-	txf, err := c.prepareFactory(clientCtx, txf)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to prepareFactory")
-	}
-
-	ctx := context.Background()
 	if clientCtx.Simulate {
 		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
 		if err != nil {
 			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, err
 		}
-		ctx := c.getCookie(ctx)
+		ctx := c.getCookie(context.Background())
 		var header metadata.MD
 		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
 		if err != nil {
@@ -541,6 +535,11 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq uin
 		txf = txf.WithGas(adjustedGas)
 
 		c.gasWanted = adjustedGas
+	}
+
+	txf, err := c.prepareFactory(clientCtx, txf)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to prepareFactory")
 	}
 
 	txn, err := tx.BuildUnsignedTx(txf, msgs...)

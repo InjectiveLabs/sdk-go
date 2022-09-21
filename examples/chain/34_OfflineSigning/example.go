@@ -24,8 +24,7 @@ func LoadTxFromFile(fileName string) ([]byte, error) {
 		return nil, err
 	}
 
-	txBytes, err := ioutil.ReadAll(f)
-	return txBytes, nil
+	return ioutil.ReadAll(f)
 }
 
 func main() {
@@ -57,7 +56,7 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
@@ -70,13 +69,11 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
-
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
-
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(1.02)
 
@@ -93,7 +90,7 @@ func main() {
 	msg.Order = exchangetypes.SpotOrder(*order)
 
 	accNum, accSeq := chainClient.GetAccNonce()
-	signedTx, err := chainClient.BuildSignedTx(clientCtx, accNum, accSeq, msg)
+	signedTx, err := chainClient.BuildSignedTx(clientCtx, accNum, accSeq, 20000, msg)
 	if err != nil {
 		panic(err)
 	}
