@@ -60,6 +60,8 @@ type ChainClient interface {
 	FromAddress() sdk.AccAddress
 	QueryClient() *grpc.ClientConn
 	ClientContext() client.Context
+	// return account number and sequence without increasing sequence
+	GetAccNonce() (accNum uint64, accSeq uint64)
 
 	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
@@ -358,6 +360,10 @@ func (c *chainClient) getCookie(ctx context.Context) context.Context {
 	}
 
 	return metadata.NewOutgoingContext(ctx, md)
+}
+
+func (c *chainClient) GetAccNonce() (accNum uint64, accSeq uint64) {
+	return c.accNum, c.accSeq
 }
 
 func (c *chainClient) QueryClient() *grpc.ClientConn {
