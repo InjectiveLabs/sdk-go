@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net"
 	"path"
@@ -101,13 +102,12 @@ func LoadNetwork(name string, node string) Network {
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.mainnet.exchange.grpc.injective.network:443", node)
 			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
 		} else if node == "lb" {
-			certPath := getFileAbsPath("../cert/testnet.crt")
 			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
-			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network:443"
+			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network"
 			chainGrpcEndpoint = "k8s.global.mainnet.chain.grpc.injective.network:443"
 			exchangeGrpcEndpoint = "k8s.global.mainnet.exchange.grpc.injective.network:443"
-			chainTlsCert = LoadTlsCert(certPath, chainGrpcEndpoint)
-			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
+			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 		} else {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.network:10337", node)
 			tmEndpoint = fmt.Sprintf("http://%s.injective.network:26657", node)
