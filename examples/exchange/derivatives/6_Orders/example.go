@@ -13,7 +13,6 @@ import (
 func main() {
 	//network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("mainnet", "lb")
-	fmt.Println("exchange ep:", network.ExchangeGrpcEndpoint)
 	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint)
 	if err != nil {
 		panic(err)

@@ -153,7 +153,6 @@ type exchangeClient struct {
 
 func (c *exchangeClient) setCookie(metadata metadata.MD) {
 	md := metadata.Get("set-cookie")
-	fmt.Println("md:", md)
 	if len(md) > 0 {
 		c.sessionCookie = md[0]
 	}
