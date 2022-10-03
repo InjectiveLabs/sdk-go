@@ -34,17 +34,4 @@ func main() {
 
 	str, _ := json.MarshalIndent(res, "", " ")
 	fmt.Print(string(str))
-
-	req = derivativeExchangePB.MarketsRequest{
-		MarketStatus: marketStatus,
-		QuoteDenom:   quoteDenom,
-	}
-
-	res, err = exchangeClient.GetDerivativeMarkets(ctx, req)
-	if err != nil {
-		panic(err)
-	}
-
-	str, _ = json.MarshalIndent(res, "", " ")
-	fmt.Print(string(str))
 }

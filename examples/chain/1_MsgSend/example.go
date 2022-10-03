@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("mainnet", "lb")
+	network := common.LoadNetwork("testnet", "k8s")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 
 	if err != nil {
@@ -56,7 +56,7 @@ func main() {
 		FromAddress: senderAddress.String(),
 		ToAddress:   "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
 		Amount: []sdktypes.Coin{{
-			Denom: "inj", Amount: sdktypes.NewInt(10000000000000000)}, // 1 INJ
+			Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000)}, // 1 INJ
 		},
 	}
 

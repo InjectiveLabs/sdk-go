@@ -253,7 +253,6 @@ func (c *exchangeClient) StreamDerivativeOrderbook(ctx context.Context, marketId
 func (c *exchangeClient) GetDerivativeMarkets(ctx context.Context, req derivativeExchangePB.MarketsRequest) (derivativeExchangePB.MarketsResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
-	fmt.Println("session cookie:", c.sessionCookie)
 	res, err := c.derivativeExchangeClient.Markets(ctx, &req, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
@@ -271,7 +270,6 @@ func (c *exchangeClient) GetDerivativeMarket(ctx context.Context, marketId strin
 
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
-	fmt.Println("")
 	res, err := c.derivativeExchangeClient.Market(ctx, &req, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)

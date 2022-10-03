@@ -124,7 +124,6 @@ type chainClient struct {
 	gasWanted uint64
 	gasFee    string
 
-	useGlobalLB    bool
 	sessionCookie  string
 	sessionEnabled bool
 
