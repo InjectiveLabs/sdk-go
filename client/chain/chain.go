@@ -327,6 +327,31 @@ func (c *chainClient) fetchCookie(ctx context.Context) context.Context {
 	return metadata.NewOutgoingContext(ctx, metadata.Pairs("cookie", c.sessionCookie))
 }
 
+func cookieByName(cookies []*http.Cookie, key string) *http.Cookie {
+	for _, c := range cookies {
+		if c.Name == key {
+			return c
+		}
+	}
+	return nil
+}
+
+func (c *chainClient) getCookieExpirationTime(cookies []*http.Cookie) (time.Time, error) {
+	var expiresAt string
+	if cookieByName(cookies, "GCLB") != nil {
+		// parse global load balance cookie timestamp
+		cookie := cookieByName(cookies, "expires")
+		expiresAt = strings.Replace(cookie.Value, "-", " ", -1)
+	} else {
+		cookie := cookieByName(cookies, "Expires")
+		expiresAt = strings.Replace(cookie.Value, "-", " ", -1)
+		yyyy := fmt.Sprintf("20%s", expiresAt[12:14])
+		expiresAt = expiresAt[:12] + yyyy + expiresAt[14:]
+	}
+
+	return time.Parse(time.RFC1123, expiresAt)
+}
+
 func (c *chainClient) getCookie(ctx context.Context) context.Context {
 	md := metadata.Pairs("cookie", c.sessionCookie)
 	if !c.sessionEnabled {
@@ -340,13 +365,8 @@ func (c *chainClient) getCookie(ctx context.Context) context.Context {
 	cookies := request.Cookies()
 
 	if len(cookies) > 0 {
-		// format cookie date into RFC1123 standard
-		expiresAt := strings.Replace(cookies[1].Value, "-", " ", -1)
-		yyyy := fmt.Sprintf("20%s", expiresAt[12:14])
-		expiresAt = expiresAt[:12] + yyyy + expiresAt[14:]
-
 		// parse expire field into unix timestamp
-		expiresTimestamp, err := time.Parse(time.RFC1123, expiresAt)
+		expiresTimestamp, err := c.getCookieExpirationTime(cookies)
 		if err != nil {
 			panic(err)
 		}

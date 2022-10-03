@@ -3,6 +3,7 @@ package exchange
 import (
 	"context"
 	"fmt"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	accountPB "github.com/InjectiveLabs/sdk-go/exchange/accounts_rpc/pb"
 	auctionPB "github.com/InjectiveLabs/sdk-go/exchange/auction_rpc/pb"
@@ -99,6 +100,7 @@ func NewExchangeClient(protoAddr string, options ...common.ClientOption) (Exchan
 	if opts.TLSCert != nil {
 		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
+
 		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {
