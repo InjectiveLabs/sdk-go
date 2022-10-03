@@ -103,7 +103,7 @@ func LoadNetwork(name string, node string) Network {
 			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
 		} else if node == "lb" {
 			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
-			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network"
+			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network:443"
 			chainGrpcEndpoint = "k8s.global.mainnet.chain.grpc.injective.network:443"
 			exchangeGrpcEndpoint = "k8s.global.mainnet.exchange.grpc.injective.network:443"
 			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
