@@ -3,7 +3,7 @@ package injective.wasmx.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/wasmx/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message Params {
   option (gogoproto.equal) = true;

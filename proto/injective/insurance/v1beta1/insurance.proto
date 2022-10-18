@@ -8,7 +8,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/insurance/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
 
 message Params {
   option (gogoproto.equal) = true;

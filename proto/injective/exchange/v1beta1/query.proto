@@ -8,7 +8,7 @@ import "injective/oracle/v1beta1/oracle.proto";
 import "gogoproto/gogo.proto";
 
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/exchange/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
 // Query defines the gRPC querier service.
 service Query {

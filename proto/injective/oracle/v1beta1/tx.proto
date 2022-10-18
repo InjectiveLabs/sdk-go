@@ -2,7 +2,7 @@ syntax = "proto3";
 package injective.oracle.v1beta1;
 
 import "gogoproto/gogo.proto";
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/oracle/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
 // Msg defines the oracle Msg service.
 service Msg {

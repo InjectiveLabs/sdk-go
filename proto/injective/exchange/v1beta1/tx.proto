@@ -7,7 +7,7 @@ import "injective/exchange/v1beta1/exchange.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/distribution/v1beta1/distribution.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/exchange/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
 // Msg defines the staking Msg service.
 service Msg {
