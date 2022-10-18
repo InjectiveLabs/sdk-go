@@ -225,3 +225,15 @@ func (o *SpotMarketOrder) GetSubaccountID() common.Hash {
 func (o *SpotLimitOrder) GetSubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
+
+func (al AtomicMarketOrderAccessLevel) IsValid() bool {
+	switch al {
+	case AtomicMarketOrderAccessLevel_Nobody,
+		AtomicMarketOrderAccessLevel_SmartContractsOnly,
+		AtomicMarketOrderAccessLevel_BeginBlockerSmartContractsOnly,
+		AtomicMarketOrderAccessLevel_Everyone:
+		return true
+	default:
+		return false
+	}
+}

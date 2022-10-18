@@ -12,7 +12,7 @@ func NewRegistryRegisterMsg(req *ContractRegistrationRequest) RegistryRegisterMs
 		Register: &RegisterMsg{
 			GasLimit:        req.GasLimit,
 			ContractAddress: req.ContractAddress,
-			GasPrice:        req.GasPrice.String(),
+			GasPrice:        req.GasPrice,
 			IsExecutable:    true,
 		},
 	}
@@ -25,7 +25,7 @@ type RegistryRegisterMsg struct {
 type RegisterMsg struct {
 	GasLimit        uint64 `json:"gas_limit"`
 	ContractAddress string `json:"contract_address"`
-	GasPrice        string `json:"gas_price"`
+	GasPrice        uint64 `json:"gas_price"`
 	IsExecutable    bool   `json:"is_executable"`
 }
 
@@ -33,7 +33,8 @@ func NewBeginBlockerExecMsg() ([]byte, error) {
 	// Construct Exec message
 	beginBlocker := CWBeginBlockerExecMsg{BeginBlockerMsg: &BeginBlockerMsg{}}
 
-	//execMsg := []byte(`{"begin_blocker":{}}`)
+	//nolint:all
+	// execMsg := []byte(`{"begin_blocker":{}}`)
 	execMsg, err := json.Marshal(beginBlocker)
 	if err != nil {
 		return nil, err
@@ -53,7 +54,8 @@ func NewRegistryDeactivateMsg(contractAddress string) ([]byte, error) {
 	// Construct Exec message
 	deactivateMsg := RegistryDeactivateMsg{RegistryDeactivate: &RegistryDeactivate{ContractAddress: contractAddress}}
 
-	//execMsg := []byte('{"deactivate":{"contract_address":"inj1nc5tatafv6eyq7llkr2gv50ff9e22mnfhg8yh3"}}')
+	//nolint:all
+	// execMsg := []byte('{"deactivate":{"contract_address":"inj1nc5tatafv6eyq7llkr2gv50ff9e22mnfhg8yh3"}}')
 	execMsg, err := json.Marshal(deactivateMsg)
 	if err != nil {
 		return nil, err
@@ -92,7 +94,7 @@ type QueryContractsMsg struct {
 // NewRegistryActiveContractQuery constructs the registry active contracts query message
 func NewRegistryActiveContractQuery() ([]byte, error) {
 	contractQuery := RegistryActiveContractQueryMsg{QueryActiveContractsMsg: &QueryActiveContractsMsg{}}
-
+	//nolint:all
 	// queryData := []byte("{\"get_active_contracts\": {}}")
 	queryMsg, err := json.Marshal(contractQuery)
 	if err != nil {
@@ -112,7 +114,7 @@ type QueryActiveContractsMsg struct {
 type RawContractExecutionParams struct {
 	Address      string `json:"address"`
 	GasLimit     uint64 `json:"gas_limit"`
-	GasPrice     string `json:"gas_price"`
+	GasPrice     uint64 `json:"gas_price"`
 	IsExecutable bool   `json:"is_executable"`
 }
 
@@ -122,22 +124,18 @@ func (r *RawContractExecutionParams) ToContractExecutionParams() (p *ContractExe
 		return nil, err
 	}
 
-	gasPrice, ok := sdk.NewIntFromString(r.GasPrice)
-	if !ok {
-		return nil, ErrInvalidGasPrice
-	}
 
 	return &ContractExecutionParams{
 		Address:  addr,
 		GasLimit: r.GasLimit,
-		GasPrice: gasPrice,
+		GasPrice: r.GasPrice,
 	}, nil
 }
 
 type ContractExecutionParams struct {
 	Address      sdk.AccAddress
 	GasLimit     uint64
-	GasPrice     sdk.Int
+	GasPrice     uint64
 	IsExecutable bool
 }
 
@@ -153,7 +151,7 @@ func GetSortedContractExecutionParams(contractExecutionList []RawContractExecuti
 	}
 
 	sort.SliceStable(paramList, func(i, j int) bool {
-		return paramList[i].GasPrice.GT(paramList[j].GasPrice)
+		return paramList[i].GasPrice < paramList[j].GasPrice
 	})
 
 	return paramList, nil

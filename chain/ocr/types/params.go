@@ -71,7 +71,7 @@ func validateLinkDenom(i interface{}) error {
 		return errors.Errorf("invalid parameter type: %T", i)
 	}
 
-	if len(v) == 0 {
+	if v == "" {
 		return errors.Errorf("linkDenom param cannot be empty: %v", v)
 	}
 

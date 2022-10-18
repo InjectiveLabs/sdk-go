@@ -16,10 +16,10 @@ const (
 	MemStoreKey = "mem_capability"
 
 	//// Version defines the current version the IBC module supports
-	//Version = "bandchain-1"
+	// Version = "bandchain-1"
 	//
 	//// PortID is the default port id that module binds to
-	//PortID = "oracle"
+	// PortID = "oracle"
 )
 
 var (
@@ -102,7 +102,7 @@ func GetCoinbasePriceStoreKey(key string, timestamp uint64) []byte {
 }
 
 func GetCoinbasePriceStoreIterationKey(key string) []byte {
-	return append(append(CoinbasePriceKey, []byte(key)...))
+	return append(CoinbasePriceKey, []byte(key)...)
 }
 
 func GetChainlinkPriceStoreKey(feedId string) []byte {

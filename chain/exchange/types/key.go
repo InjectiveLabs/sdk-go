@@ -43,6 +43,7 @@ var (
 	SpotMarketOrderIndicatorPrefix   = []byte{0x15} // prefix for each key to a spot market order indicator, by marketID and direction
 	SpotMarketParamUpdateScheduleKey = []byte{0x16} // prefix for a key to save scheduled spot market params update
 	SpotMarketForceCloseInfoKey      = []byte{0x17} // prefix for a key to save scheduled spot market closures
+	SpotOrderbookLevelsPrefix        = []byte{0x18} // prefix for each key to the spot orderbook for a given marketID and direction
 
 	DerivativeMarketPrefix                     = []byte{0x21} // prefix for each key to a derivative market by (isEnabled, marketID)
 	DerivativeLimitOrdersPrefix                = []byte{0x22} // prefix for each key to a derivative limit order, by (marketID, direction, price level, order hash)
@@ -54,6 +55,7 @@ var (
 	DerivativeMarketParamUpdateScheduleKey     = []byte{0x28} // prefix for a key to save scheduled derivative market params update
 	DerivativeMarketScheduledSettlementInfo    = []byte{0x29} // prefix for a key to save scheduled derivative market settlements
 	DerivativePositionModifiedSubaccountPrefix = []byte{0x2a} // prefix for a key to save a list of subaccountIDs by marketID
+	DerivativeOrderbookLevelsPrefix            = []byte{0x2b} // prefix for each key to the derivative orderbook for a given marketID and direction
 
 	PerpetualMarketFundingPrefix             = []byte{0x31} // prefix for each key to a perpetual market's funding state
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
@@ -101,6 +103,8 @@ var (
 	DerivativeConditionalLimitOrdersPrefix       = []byte{0x76} // prefix for a key to save conditional derivative limit orders: marketID + direction + triggerPrice + orderHash ⇒ derivativeLimitOrder
 	DerivativeConditionalLimitOrdersIndexPrefix  = []byte{0x77} // prefix for a key to save conditional derivative limit orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
 	ConditionalOrderInvalidationFlagPrefix       = []byte{0x78} // prefix for a key to save flags to invalidate conditional orders
+
+	AtomicMarketOrderTakerFeeMultiplierKey = []byte{0x79} // key to store individual market atomic take fee multiplier
 )
 
 // GetFeeDiscountAccountVolumeInBucketKey provides the key for the account's volume in the given bucket
@@ -149,7 +153,7 @@ func GetFeeDiscountAccountTierKey(account sdk.AccAddress) []byte {
 	return buf
 }
 
-// GetIsOptedOutOfRewardsKey provides the key for the opted out rewards addres
+// GetIsOptedOutOfRewardsKey provides the key for the opted out rewards address
 func GetIsOptedOutOfRewardsKey(account sdk.AccAddress) []byte {
 	accountBz := account.Bytes()
 
@@ -291,6 +295,17 @@ func getPaddedPriceFromString(price string) string {
 	return fmt.Sprintf("%032s.%s", naturalPart, decimalPart)
 }
 
+func GetPriceFromPaddedPrice(paddedPrice string) sdk.Dec {
+	priceString := strings.Trim(paddedPrice, "0")
+	// remove the "." if there's no decimal component
+	priceString = strings.TrimSuffix(priceString, ".")
+	// edge case when no natural component, prepend 0
+	if strings.HasPrefix(priceString, ".") {
+		priceString = "0" + priceString
+	}
+	return sdk.MustNewDecFromStr(priceString)
+}
+
 func GetLimitOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
 	return GetOrderByPriceKeyPrefix(marketID, isBuy, price, orderHash)
 }
@@ -354,7 +369,7 @@ func getBoolPrefix(isEnabled bool) []byte {
 }
 
 // OrdersByMarketDirectionPriceOrderHashPrefix turns a marketID + direction + price + order hash to prefix used to get an order from the store.
-func OrdersByMarketDirectionPriceOrderHashPrefix(marketID common.Hash, orderHash common.Hash, price *big.Int, isLong bool) []byte {
+func OrdersByMarketDirectionPriceOrderHashPrefix(marketID, orderHash common.Hash, price *big.Int, isLong bool) []byte {
 	return append(ordersByMarketDirectionPricePrefix(marketID, price, isLong), orderHash.Bytes()...)
 }
 
@@ -364,12 +379,12 @@ func ordersByMarketDirectionPricePrefix(marketID common.Hash, price *big.Int, is
 }
 
 // OrderIndexByMarketDirectionSubaccountOrderHashPrefix turns a marketID + direction + subaccountID + order hash to prefix used to get an order from the store.
-func OrderIndexByMarketDirectionSubaccountOrderHashPrefix(marketID common.Hash, isLong bool, subaccountID common.Hash, orderHash common.Hash) []byte {
+func OrderIndexByMarketDirectionSubaccountOrderHashPrefix(marketID common.Hash, isLong bool, subaccountID, orderHash common.Hash) []byte {
 	return append(OrderIndexByMarketDirectionSubaccountPrefix(marketID, subaccountID, isLong), orderHash.Bytes()...)
 }
 
 // OrderIndexByMarketDirectionSubaccountPrefix allows to obtain prefix of exchange against a particular marketID, subaccountID and direction
-func OrderIndexByMarketDirectionSubaccountPrefix(marketID common.Hash, subaccountID common.Hash, isLong bool) []byte {
+func OrderIndexByMarketDirectionSubaccountPrefix(marketID, subaccountID common.Hash, isLong bool) []byte {
 	return append(MarketDirectionPrefix(marketID, isLong), subaccountID.Bytes()...)
 }
 
@@ -455,4 +470,17 @@ func GetMarketHistoricalTradeRecordsKey(marketID common.Hash) []byte {
 
 func GetDenomDecimalsKey(denom string) []byte {
 	return append(DenomDecimalsPrefix, []byte(denom)...)
+}
+
+func GetSpotOrderbookLevelsKey(marketID common.Hash, isBuy bool) []byte {
+	return append(SpotOrderbookLevelsPrefix, MarketDirectionPrefix(marketID, isBuy)...)
+}
+func GetSpotOrderbookLevelsForPriceKey(marketID common.Hash, isBuy bool, price sdk.Dec) []byte {
+	return append(GetSpotOrderbookLevelsKey(marketID, isBuy), GetPaddedPrice(price)...)
+}
+func GetDerivativeOrderbookLevelsKey(marketID common.Hash, isBuy bool) []byte {
+	return append(DerivativeOrderbookLevelsPrefix, MarketDirectionPrefix(marketID, isBuy)...)
+}
+func GetDerivativeOrderbookLevelsForPriceKey(marketID common.Hash, isBuy bool, price sdk.Dec) []byte {
+	return append(GetDerivativeOrderbookLevelsKey(marketID, isBuy), GetPaddedPrice(price)...)
 }

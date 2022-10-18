@@ -126,7 +126,7 @@ func isHexString(str string) bool {
 	return isMatched
 }
 
-func BreachesMinimumTickSize(value sdk.Dec, minTickSize sdk.Dec) bool {
+func BreachesMinimumTickSize(value, minTickSize sdk.Dec) bool {
 	// obviously breached if the value less than the minTickSize
 	if value.LT(minTickSize) {
 		return true

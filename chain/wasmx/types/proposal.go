@@ -21,11 +21,11 @@ func init() {
 }
 
 // NewContractRegistrationRequestProposal returns new instance of ContractRegistrationRequestProposal
-func NewContractRegistrationRequestProposal(title, description string, ContractRegistrationRequest ContractRegistrationRequest) *ContractRegistrationRequestProposal {
+func NewContractRegistrationRequestProposal(title, description string, contractRegistrationRequest ContractRegistrationRequest) *ContractRegistrationRequestProposal {
 	return &ContractRegistrationRequestProposal{
 		Title:                       title,
 		Description:                 description,
-		ContractRegistrationRequest: ContractRegistrationRequest,
+		ContractRegistrationRequest: contractRegistrationRequest,
 	}
 }
 
@@ -88,5 +88,21 @@ func (p *BatchContractRegistrationRequestProposal) ValidateBasic() error {
 		}
 	}
 
+	if hasDuplicatesContractRegistrationRequest(p.ContractRegistrationRequests) {
+		return sdkerrors.Wrapf(ErrDuplicateContractRegistrationRequest, "BatchContractRegistrationRequestProposal: Duplicate contract registration requests")
+	}
+
 	return gov.ValidateAbstract(p)
+}
+
+func hasDuplicatesContractRegistrationRequest(slice []ContractRegistrationRequest) bool {
+	seen := make(map[string]struct{})
+	for _, item := range slice {
+		addr := sdk.MustAccAddressFromBech32(item.ContractAddress).String()
+		if _, ok := seen[addr]; ok {
+			return true
+		}
+		seen[addr] = struct{}{}
+	}
+	return false
 }

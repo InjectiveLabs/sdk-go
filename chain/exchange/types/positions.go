@@ -28,12 +28,13 @@ func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 	return position
 }
 
-// GetEffectiveMarginRatio returns the effective margin ratio of the position, based on the input mark price.
+// GetEffectiveMarginRatio returns the effective margin ratio of the position, based on the input closing price.
 // CONTRACT: position must already be funding-adjusted (if perpetual) and have positive quantity.
-func (p *Position) GetEffectiveMarginRatio(markPrice sdk.Dec) (marginRatio sdk.Dec) {
-	// marginRatio = (margin + quantity * PnlPerContract) / (markPrice * quantity)
-	effectiveMargin := p.Margin.Add(p.GetPayoutFromPnl(markPrice, p.Quantity))
-	return effectiveMargin.Quo(markPrice.Mul(p.Quantity))
+func (p *Position) GetEffectiveMarginRatio(closingPrice, closingFee sdk.Dec) (marginRatio sdk.Dec) {
+	//nolint:all
+	// marginRatio = (margin + quantity * PnlPerContract) / (closingPrice * quantity)
+	effectiveMargin := p.Margin.Add(p.GetPayoutFromPnl(closingPrice, p.Quantity)).Sub(closingFee)
+	return effectiveMargin.Quo(closingPrice.Mul(p.Quantity))
 }
 
 // ApplyProfitHaircut results in reducing the payout (pnl * quantity) by the given rate (e.g. 0.1=10%) by modifying the entry price.
@@ -111,7 +112,7 @@ func (p *Position) CheckValidPositionToReduce(
 }
 
 func (p *Position) checkValidClosingPrice(closingPrice, tradeFeeRate sdk.Dec, funding *PerpetualMarketFunding, orderMargin sdk.Dec) error {
-	bankruptcyPrice := p.getBankruptcyPriceWithAddedMargin(funding, orderMargin)
+	bankruptcyPrice := p.GetBankruptcyPriceWithAddedMargin(funding, orderMargin)
 
 	if p.IsLong {
 		// For long positions, Price ≥ BankruptcyPrice / (1 - TradeFeeRate) must hold
@@ -135,7 +136,7 @@ func (p *Position) GetBankruptcyPrice(funding *PerpetualMarketFunding) (bankrupt
 	return p.GetLiquidationPrice(sdk.ZeroDec(), funding)
 }
 
-func (p *Position) getBankruptcyPriceWithAddedMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) (bankruptcyPrice sdk.Dec) {
+func (p *Position) GetBankruptcyPriceWithAddedMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) (bankruptcyPrice sdk.Dec) {
 	return p.getLiquidationPriceWithAddedMargin(sdk.ZeroDec(), funding, addedMargin)
 }
 
@@ -242,9 +243,11 @@ func (p *Position) GetPayoutFromPnl(closingPrice, closingQuantity sdk.Dec) sdk.D
 	var pnlNotional sdk.Dec
 
 	if p.IsLong {
+		//nolint:all
 		// pnl = closingQuantity * (executionPrice - entryPrice)
 		pnlNotional = closingQuantity.Mul(closingPrice.Sub(p.EntryPrice))
 	} else {
+		//nolint:all
 		// pnl = -closingQuantity * (executionPrice - entryPrice)
 		pnlNotional = closingQuantity.Mul(closingPrice.Sub(p.EntryPrice)).Neg()
 	}

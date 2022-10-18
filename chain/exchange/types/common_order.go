@@ -31,9 +31,9 @@ func GetRequiredBinaryOptionsOrderMargin(
 
 func (t OrderType) IsBuy() bool {
 	switch t {
-	case OrderType_BUY, OrderType_STOP_BUY, OrderType_TAKE_BUY, OrderType_BUY_PO:
+	case OrderType_BUY, OrderType_STOP_BUY, OrderType_TAKE_BUY, OrderType_BUY_PO, OrderType_BUY_ATOMIC:
 		return true
-	case OrderType_SELL, OrderType_STOP_SELL, OrderType_TAKE_SELL, OrderType_SELL_PO:
+	case OrderType_SELL, OrderType_STOP_SELL, OrderType_TAKE_SELL, OrderType_SELL_PO, OrderType_SELL_ATOMIC:
 		return false
 	}
 	return false
@@ -54,6 +54,15 @@ func (t OrderType) IsConditional() bool {
 		OrderType_STOP_SELL,
 		OrderType_TAKE_BUY,
 		OrderType_TAKE_SELL:
+		return true
+	}
+	return false
+}
+
+func (t OrderType) IsAtomic() bool {
+	switch t {
+	case OrderType_BUY_ATOMIC,
+		OrderType_SELL_ATOMIC:
 		return true
 	}
 	return false

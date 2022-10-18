@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
 )
 
 const RouterKey = ModuleName

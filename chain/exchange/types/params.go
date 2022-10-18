@@ -45,29 +45,34 @@ var MaxBinaryOptionsOrderPrice = sdk.OneDec()
 // MaxOrderPrice equals 10^32
 var MaxOrderPrice = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 var MaxOrderQuantity = sdk.MustNewDecFromStr("100000000000000000000000000000000")
+var MaxFeeMultiplier = sdk.MustNewDecFromStr("100")
 
 var minMarginRatio = sdk.NewDecWithPrec(5, 3)
 
 // Parameter keys
 var (
-	KeySpotMarketInstantListingFee          = []byte("SpotMarketInstantListingFee")
-	KeyDerivativeMarketInstantListingFee    = []byte("DerivativeMarketInstantListingFee")
-	KeyDefaultSpotMakerFeeRate              = []byte("DefaultSpotMakerFeeRate")
-	KeyDefaultSpotTakerFeeRate              = []byte("DefaultSpotTakerFeeRate")
-	KeyDefaultDerivativeMakerFeeRate        = []byte("DefaultDerivativeMakerFeeRate")
-	KeyDefaultDerivativeTakerFeeRate        = []byte("DefaultDerivativeTakerFeeRate")
-	KeyDefaultInitialMarginRatio            = []byte("DefaultInitialMarginRatio")
-	KeyDefaultMaintenanceMarginRatio        = []byte("DefaultMaintenanceMarginRatio")
-	KeyDefaultFundingInterval               = []byte("DefaultFundingInterval")
-	KeyFundingMultiple                      = []byte("FundingMultiple")
-	KeyRelayerFeeShareRate                  = []byte("RelayerFeeShareRate")
-	KeyDefaultHourlyFundingRateCap          = []byte("DefaultHourlyFundingRateCap")
-	KeyDefaultHourlyInterestRate            = []byte("DefaultHourlyInterestRate")
-	KeyMaxDerivativeOrderSideCount          = []byte("MaxDerivativeOrderSideCount")
-	KeyInjRewardStakedRequirementThreshold  = []byte("KeyInjRewardStakedRequirementThreshold")
-	KeyTradingRewardsVestingDuration        = []byte("TradingRewardsVestingDuration")
-	KeyLiquidatorRewardShareRate            = []byte("LiquidatorRewardShareRate")
-	KeyBinaryOptionsMarketInstantListingFee = []byte("BinaryOptionsMarketInstantListingFee")
+	KeySpotMarketInstantListingFee                 = []byte("SpotMarketInstantListingFee")
+	KeyDerivativeMarketInstantListingFee           = []byte("DerivativeMarketInstantListingFee")
+	KeyDefaultSpotMakerFeeRate                     = []byte("DefaultSpotMakerFeeRate")
+	KeyDefaultSpotTakerFeeRate                     = []byte("DefaultSpotTakerFeeRate")
+	KeyDefaultDerivativeMakerFeeRate               = []byte("DefaultDerivativeMakerFeeRate")
+	KeyDefaultDerivativeTakerFeeRate               = []byte("DefaultDerivativeTakerFeeRate")
+	KeyDefaultInitialMarginRatio                   = []byte("DefaultInitialMarginRatio")
+	KeyDefaultMaintenanceMarginRatio               = []byte("DefaultMaintenanceMarginRatio")
+	KeyDefaultFundingInterval                      = []byte("DefaultFundingInterval")
+	KeyFundingMultiple                             = []byte("FundingMultiple")
+	KeyRelayerFeeShareRate                         = []byte("RelayerFeeShareRate")
+	KeyDefaultHourlyFundingRateCap                 = []byte("DefaultHourlyFundingRateCap")
+	KeyDefaultHourlyInterestRate                   = []byte("DefaultHourlyInterestRate")
+	KeyMaxDerivativeOrderSideCount                 = []byte("MaxDerivativeOrderSideCount")
+	KeyInjRewardStakedRequirementThreshold         = []byte("KeyInjRewardStakedRequirementThreshold")
+	KeyTradingRewardsVestingDuration               = []byte("TradingRewardsVestingDuration")
+	KeyLiquidatorRewardShareRate                   = []byte("LiquidatorRewardShareRate")
+	KeyBinaryOptionsMarketInstantListingFee        = []byte("BinaryOptionsMarketInstantListingFee")
+	KeyAtomicMarketOrderAccessLevel                = []byte("AtomicMarketOrderAccessLevel")
+	KeySpotAtomicMarketOrderFeeMultiplier          = []byte("SpotAtomicMarketOrderFeeMultiplier")
+	KeyDerivativeAtomicMarketOrderFeeMultiplier    = []byte("DerivativeAtomicMarketOrderFeeMultiplier")
+	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -77,7 +82,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 
 // NewParams creates a new Params instance
 func NewParams(
-	SpotMarketInstantListingFee sdk.Coin,
+	spotMarketInstantListingFee sdk.Coin,
 	derivativeMarketInstantListingFee sdk.Coin,
 	defaultSpotMakerFee sdk.Dec,
 	defaultSpotTakerFee sdk.Dec,
@@ -95,26 +100,34 @@ func NewParams(
 	tradingRewardsVestingDuration int64,
 	liquidatorRewardShareRate sdk.Dec,
 	binaryOptionsMarketInstantListingFee sdk.Coin,
+	atomicMarketOrderAccessLevel AtomicMarketOrderAccessLevel,
+	spotAtomicMarketOrderFeeMultiplier sdk.Dec,
+	derivativeAtomicMarketOrderFeeMultiplier sdk.Dec,
+	binaryOptionsAtomicMarketOrderFeeMultiplier sdk.Dec,
 ) Params {
 	return Params{
-		SpotMarketInstantListingFee:          SpotMarketInstantListingFee,
-		DerivativeMarketInstantListingFee:    derivativeMarketInstantListingFee,
-		DefaultSpotMakerFeeRate:              defaultSpotMakerFee,
-		DefaultSpotTakerFeeRate:              defaultSpotTakerFee,
-		DefaultDerivativeMakerFeeRate:        defaultDerivativeMakerFee,
-		DefaultDerivativeTakerFeeRate:        defaultDerivativeTakerFee,
-		DefaultInitialMarginRatio:            defaultInitialMarginRatio,
-		DefaultMaintenanceMarginRatio:        defaultMaintenanceMarginRatio,
-		DefaultFundingInterval:               defaultFundingInterval,
-		FundingMultiple:                      fundingMultiple,
-		RelayerFeeShareRate:                  relayerFeeShare,
-		DefaultHourlyFundingRateCap:          defaultHourlyFundingRateCap,
-		DefaultHourlyInterestRate:            defaultHourlyInterestRate,
-		MaxDerivativeOrderSideCount:          maxDerivativeSideOrderCount,
-		InjRewardStakedRequirementThreshold:  injRewardStakedRequirementThreshold,
-		TradingRewardsVestingDuration:        tradingRewardsVestingDuration,
-		LiquidatorRewardShareRate:            liquidatorRewardShareRate,
-		BinaryOptionsMarketInstantListingFee: binaryOptionsMarketInstantListingFee,
+		SpotMarketInstantListingFee:                 spotMarketInstantListingFee,
+		DerivativeMarketInstantListingFee:           derivativeMarketInstantListingFee,
+		DefaultSpotMakerFeeRate:                     defaultSpotMakerFee,
+		DefaultSpotTakerFeeRate:                     defaultSpotTakerFee,
+		DefaultDerivativeMakerFeeRate:               defaultDerivativeMakerFee,
+		DefaultDerivativeTakerFeeRate:               defaultDerivativeTakerFee,
+		DefaultInitialMarginRatio:                   defaultInitialMarginRatio,
+		DefaultMaintenanceMarginRatio:               defaultMaintenanceMarginRatio,
+		DefaultFundingInterval:                      defaultFundingInterval,
+		FundingMultiple:                             fundingMultiple,
+		RelayerFeeShareRate:                         relayerFeeShare,
+		DefaultHourlyFundingRateCap:                 defaultHourlyFundingRateCap,
+		DefaultHourlyInterestRate:                   defaultHourlyInterestRate,
+		MaxDerivativeOrderSideCount:                 maxDerivativeSideOrderCount,
+		InjRewardStakedRequirementThreshold:         injRewardStakedRequirementThreshold,
+		TradingRewardsVestingDuration:               tradingRewardsVestingDuration,
+		LiquidatorRewardShareRate:                   liquidatorRewardShareRate,
+		BinaryOptionsMarketInstantListingFee:        binaryOptionsMarketInstantListingFee,
+		AtomicMarketOrderAccessLevel:                atomicMarketOrderAccessLevel,
+		SpotAtomicMarketOrderFeeMultiplier:          spotAtomicMarketOrderFeeMultiplier,
+		DerivativeAtomicMarketOrderFeeMultiplier:    derivativeAtomicMarketOrderFeeMultiplier,
+		BinaryOptionsAtomicMarketOrderFeeMultiplier: binaryOptionsAtomicMarketOrderFeeMultiplier,
 	}
 }
 
@@ -139,30 +152,38 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyTradingRewardsVestingDuration, &p.TradingRewardsVestingDuration, validateTradingRewardsVestingDuration),
 		paramtypes.NewParamSetPair(KeyLiquidatorRewardShareRate, &p.LiquidatorRewardShareRate, validateLiquidatorRewardShareRate),
 		paramtypes.NewParamSetPair(KeyBinaryOptionsMarketInstantListingFee, &p.BinaryOptionsMarketInstantListingFee, validateBinaryOptionsMarketInstantListingFee),
+		paramtypes.NewParamSetPair(KeyAtomicMarketOrderAccessLevel, &p.AtomicMarketOrderAccessLevel, validateAtomicMarketOrderAccessLevel),
+		paramtypes.NewParamSetPair(KeySpotAtomicMarketOrderFeeMultiplier, &p.SpotAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
+		paramtypes.NewParamSetPair(KeyDerivativeAtomicMarketOrderFeeMultiplier, &p.DerivativeAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
+		paramtypes.NewParamSetPair(KeyBinaryOptionsAtomicMarketOrderFeeMultiplier, &p.BinaryOptionsAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		SpotMarketInstantListingFee:          sdk.NewCoin("inj", sdk.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
-		DerivativeMarketInstantListingFee:    sdk.NewCoin("inj", sdk.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
-		DefaultSpotMakerFeeRate:              sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
-		DefaultSpotTakerFeeRate:              sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
-		DefaultDerivativeMakerFeeRate:        sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
-		DefaultDerivativeTakerFeeRate:        sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
-		DefaultInitialMarginRatio:            sdk.NewDecWithPrec(5, 2),  // default 5% initial margin ratio
-		DefaultMaintenanceMarginRatio:        sdk.NewDecWithPrec(2, 2),  // default 2% maintenance margin ratio
-		DefaultFundingInterval:               DefaultFundingIntervalSeconds,
-		FundingMultiple:                      DefaultFundingMultipleSeconds,
-		RelayerFeeShareRate:                  sdk.NewDecWithPrec(40, 2),      // default 40% relayer fee share
-		DefaultHourlyFundingRateCap:          sdk.NewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
-		DefaultHourlyInterestRate:            sdk.NewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
-		MaxDerivativeOrderSideCount:          MaxDerivativeOrderSideCount,
-		InjRewardStakedRequirementThreshold:  sdk.NewIntWithDecimal(100, 18), // 100 INJ
-		TradingRewardsVestingDuration:        604800,                         // 7 days
-		LiquidatorRewardShareRate:            sdk.NewDecWithPrec(5, 2),       // 5% liquidator reward
-		BinaryOptionsMarketInstantListingFee: sdk.NewCoin("inj", sdk.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
+		SpotMarketInstantListingFee:                 sdk.NewCoin("inj", sdk.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
+		DerivativeMarketInstantListingFee:           sdk.NewCoin("inj", sdk.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
+		DefaultSpotMakerFeeRate:                     sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
+		DefaultSpotTakerFeeRate:                     sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
+		DefaultDerivativeMakerFeeRate:               sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
+		DefaultDerivativeTakerFeeRate:               sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
+		DefaultInitialMarginRatio:                   sdk.NewDecWithPrec(5, 2),  // default 5% initial margin ratio
+		DefaultMaintenanceMarginRatio:               sdk.NewDecWithPrec(2, 2),  // default 2% maintenance margin ratio
+		DefaultFundingInterval:                      DefaultFundingIntervalSeconds,
+		FundingMultiple:                             DefaultFundingMultipleSeconds,
+		RelayerFeeShareRate:                         sdk.NewDecWithPrec(40, 2),      // default 40% relayer fee share
+		DefaultHourlyFundingRateCap:                 sdk.NewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
+		DefaultHourlyInterestRate:                   sdk.NewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
+		MaxDerivativeOrderSideCount:                 MaxDerivativeOrderSideCount,
+		InjRewardStakedRequirementThreshold:         sdk.NewIntWithDecimal(100, 18), // 100 INJ
+		TradingRewardsVestingDuration:               604800,                         // 7 days
+		LiquidatorRewardShareRate:                   sdk.NewDecWithPrec(5, 2),       // 5% liquidator reward
+		BinaryOptionsMarketInstantListingFee:        sdk.NewCoin("inj", sdk.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
+		AtomicMarketOrderAccessLevel:                AtomicMarketOrderAccessLevel_SmartContractsOnly,
+		SpotAtomicMarketOrderFeeMultiplier:          sdk.NewDecWithPrec(25, 1), // default 2.5 multiplier
+		DerivativeAtomicMarketOrderFeeMultiplier:    sdk.NewDecWithPrec(25, 1), // default 2.5 multiplier
+		BinaryOptionsAtomicMarketOrderFeeMultiplier: sdk.NewDecWithPrec(25, 1), // default 2.5 multiplier
 	}
 }
 
@@ -218,6 +239,18 @@ func (p Params) Validate() error {
 	}
 	if err := validateBinaryOptionsMarketInstantListingFee(p.BinaryOptionsMarketInstantListingFee); err != nil {
 		return err
+	}
+	if err := validateAtomicMarketOrderAccessLevel(p.AtomicMarketOrderAccessLevel); err != nil {
+		return err
+	}
+	if err := validateAtomicMarketOrderFeeMultiplier(p.SpotAtomicMarketOrderFeeMultiplier); err != nil {
+		return fmt.Errorf("spot_atomic_market_order_fee_multiplier is incorrect: %w", err)
+	}
+	if err := validateAtomicMarketOrderFeeMultiplier(p.DerivativeAtomicMarketOrderFeeMultiplier); err != nil {
+		return fmt.Errorf("derivative_atomic_market_order_fee_multiplier is incorrect: %w", err)
+	}
+	if err := validateAtomicMarketOrderFeeMultiplier(p.BinaryOptionsAtomicMarketOrderFeeMultiplier); err != nil {
+		return fmt.Errorf("binary_options_atomic_market_order_fee_multiplier is incorrect: %w", err)
 	}
 	return nil
 }
@@ -496,5 +529,34 @@ func validateLiquidatorRewardShareRate(i interface{}) error {
 		return fmt.Errorf("reward ratio cannot be greater than 1: %s", v)
 	}
 
+	return nil
+}
+
+func validateAtomicMarketOrderAccessLevel(i interface{}) error {
+	v, ok := i.(AtomicMarketOrderAccessLevel)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if !v.IsValid() {
+		return fmt.Errorf("invalid AtomicMarketOrderAccessLevel value: %v", v)
+	}
+	return nil
+}
+
+func validateAtomicMarketOrderFeeMultiplier(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be nil: %s", v)
+	}
+	if v.LT(sdk.OneDec()) {
+		return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be less than one: %s", v)
+	}
+	if v.GT(MaxFeeMultiplier) {
+		return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be bigger than %v: %v", v, MaxFeeMultiplier)
+	}
 	return nil
 }

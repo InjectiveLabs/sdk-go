@@ -46,9 +46,9 @@ func (l *TradingRewardPoints) GetAllAccountAddresses() []string {
 }
 
 func MergeTradingRewardPoints(m1, m2 TradingRewardPoints) TradingRewardPoints {
-	if m1 == nil || len(m1) == 0 {
+	if len(m1) == 0 {
 		return m2
-	} else if m2 == nil || len(m2) == 0 {
+	} else if len(m2) == 0 {
 		return m1
 	}
 

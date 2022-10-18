@@ -159,15 +159,16 @@ func (msg MsgTransmit) Type() string { return TypeMsgTransmit }
 
 // ValidateBasic implements the sdk.Msg interface for MsgTransmit.
 func (msg MsgTransmit) ValidateBasic() error {
-	if len(msg.Transmitter) == 0 {
+	if msg.Transmitter == "" {
 		return ErrNoTransmitter
 	}
 
-	if len(msg.ConfigDigest) == 0 {
+	switch {
+	case len(msg.ConfigDigest) == 0:
 		return sdkerrors.Wrap(ErrIncorrectTransmissionData, "missing config digest")
-	} else if len(msg.FeedId) == 0 {
+	case msg.FeedId == "":
 		return sdkerrors.Wrap(ErrIncorrectTransmissionData, "missing feed hash")
-	} else if msg.Report == nil {
+	case msg.Report == nil:
 		return sdkerrors.Wrap(ErrIncorrectTransmissionData, "missing report")
 	}
 

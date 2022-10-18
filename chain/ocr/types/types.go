@@ -76,7 +76,7 @@ func (cfg *FeedConfig) ValidateBasic() error {
 	}
 
 	// TODO: determine whether this is a sensible enough limitation
-	if len(cfg.ModuleParams.FeedId) == 0 || len(cfg.ModuleParams.FeedId) > FeedIDMaxLength {
+	if cfg.ModuleParams.FeedId == "" || len(cfg.ModuleParams.FeedId) > FeedIDMaxLength {
 		return sdkerrors.Wrap(ErrIncorrectConfig, "feed_id is missing or incorrect length")
 	}
 
@@ -136,7 +136,7 @@ func (cfg *FeedConfig) ValidateBasic() error {
 		}
 	}
 
-	if len(cfg.ModuleParams.LinkDenom) == 0 {
+	if cfg.ModuleParams.LinkDenom == "" {
 		return sdkerrors.ErrInvalidCoins
 	}
 

@@ -7,7 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/common"
 	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 )
@@ -31,16 +30,16 @@ const (
 
 // EthAddrLessThan migrates the Ethereum address less than function
 func EthAddrLessThan(e, o string) bool {
-	return bytes.Compare([]byte(e)[:], []byte(o)[:]) == -1
+	return bytes.Compare([]byte(e), []byte(o)) == -1
 }
 
 // Returns a new EthAddress with 0x0000000000000000000000000000000000000000 as the wrapped address
-func ZeroAddress() common.Address {
+func ZeroAddress() gethcommon.Address {
 	return gethcommon.HexToAddress(ZeroAddressString)
 }
 
 // Creates a new EthAddress from a string, performing validation and returning any validation errors
-func NewEthAddress(address string) (*common.Address, error) {
+func NewEthAddress(address string) (*gethcommon.Address, error) {
 	if err := ValidateEthAddress(address); err != nil {
 		return nil, sdkerrors.Wrap(err, "invalid input address")
 	}
@@ -54,24 +53,24 @@ func ValidateEthAddress(address string) error {
 	if address == "" {
 		return fmt.Errorf("empty")
 	}
-	if !common.IsHexAddress(address) {
+	if !gethcommon.IsHexAddress(address) {
 		return fmt.Errorf("%s is not a valid ETH address", address)
 	}
 	return nil
 }
 
 // NewERC20Token returns a new instance of an ERC20
-func NewERC20Token(amount uint64, contract common.Address) *ERC20Token {
+func NewERC20Token(amount uint64, contract gethcommon.Address) *ERC20Token {
 	return &ERC20Token{Amount: sdk.NewIntFromUint64(amount), Contract: contract.Hex()}
 }
 
-func NewSDKIntERC20Token(amount sdk.Int, contract common.Address) *ERC20Token {
+func NewSDKIntERC20Token(amount sdk.Int, contract gethcommon.Address) *ERC20Token {
 	return &ERC20Token{Amount: amount, Contract: contract.Hex()}
 }
 
 // PeggyCoin returns the peggy representation of an ERC20 token
 func (e *ERC20Token) PeggyCoin() sdk.Coin {
-	return sdk.NewCoin(PeggyDenomString(common.HexToAddress(e.Contract)), e.Amount)
+	return sdk.NewCoin(PeggyDenomString(gethcommon.HexToAddress(e.Contract)), e.Amount)
 }
 
 type PeggyDenom []byte
@@ -86,23 +85,23 @@ func (p PeggyDenom) String() string {
 	return PeggyDenomString(contractAddress)
 }
 
-func (p PeggyDenom) TokenContract() (common.Address, error) {
+func (p PeggyDenom) TokenContract() (gethcommon.Address, error) {
 	fullPrefix := []byte(PeggyDenomPrefix + PeggyDenomSeparator)
 	if !bytes.HasPrefix(p, fullPrefix) {
 		err := errors.Errorf("denom '%x' byte prefix not equal to expected '%x'", []byte(p), fullPrefix)
-		return common.Address{}, err
+		return gethcommon.Address{}, err
 	}
 
 	addressBytes := bytes.TrimPrefix(p, fullPrefix)
 	if len(addressBytes) != ETHContractAddressLen {
 		err := errors.Errorf("failed to validate Ethereum address bytes: %x", addressBytes)
-		return common.Address{}, err
+		return gethcommon.Address{}, err
 	}
 
-	return common.BytesToAddress(addressBytes), nil
+	return gethcommon.BytesToAddress(addressBytes), nil
 }
 
-func NewPeggyDenom(tokenContract common.Address) PeggyDenom {
+func NewPeggyDenom(tokenContract gethcommon.Address) PeggyDenom {
 	buf := make([]byte, 0, PeggyDenomLen)
 	buf = append(buf, PeggyDenomPrefix+PeggyDenomSeparator...)
 	buf = append(buf, tokenContract.Bytes()...)
@@ -122,11 +121,11 @@ func NewPeggyDenomFromString(denom string) (PeggyDenom, error) {
 		return nil, err
 	}
 
-	peggyDenom := NewPeggyDenom(common.HexToAddress(addressHex))
+	peggyDenom := NewPeggyDenom(gethcommon.HexToAddress(addressHex))
 	return peggyDenom, nil
 }
 
-func PeggyDenomString(tokenContract common.Address) string {
+func PeggyDenomString(tokenContract gethcommon.Address) string {
 	return fmt.Sprintf("%s%s%s", PeggyDenomPrefix, PeggyDenomSeparator, tokenContract.Hex())
 }
 
@@ -149,7 +148,7 @@ func (e *ERC20Token) ValidateBasic() error {
 
 // Add adds one ERC20 to another
 func (e *ERC20Token) Add(o *ERC20Token) (*ERC20Token, error) {
-	if string(e.Contract) != string(o.Contract) {
+	if e.Contract != o.Contract {
 		return nil, errors.New("invalid contract address")
 	}
 
@@ -158,5 +157,5 @@ func (e *ERC20Token) Add(o *ERC20Token) (*ERC20Token, error) {
 		return nil, errors.New("invalid amount")
 	}
 
-	return NewERC20Token(sum.Uint64(), common.HexToAddress(e.Contract)), nil
+	return NewERC20Token(sum.Uint64(), gethcommon.HexToAddress(e.Contract)), nil
 }
