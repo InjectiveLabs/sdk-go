@@ -3,7 +3,7 @@ package injective.peggy.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/peggy/types";
 
 
 // IDSet represents a set of IDs
