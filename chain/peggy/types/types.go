@@ -12,7 +12,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/common"
 	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -147,17 +146,17 @@ func (b BridgeValidators) ValidateBasic() error {
 }
 
 // NewValset returns a new valset
-func NewValset(nonce, height uint64, members BridgeValidators, rewardAmount sdk.Int, rewardToken common.Address) *Valset {
+func NewValset(nonce, height uint64, members BridgeValidators, rewardAmount sdk.Int, rewardToken gethcommon.Address) *Valset {
 	members.Sort()
 	mem := make([]*BridgeValidator, 0)
 	for _, val := range members {
 		mem = append(mem, val)
 	}
-	return &Valset{Nonce: uint64(nonce), Members: mem, Height: height, RewardAmount: rewardAmount, RewardToken: rewardToken.Hex()}
+	return &Valset{Nonce: nonce, Members: mem, Height: height, RewardAmount: rewardAmount, RewardToken: rewardToken.Hex()}
 }
 
 // GetCheckpoint returns the checkpoint hash
-func (v Valset) GetCheckpoint(peggyIDstring string) common.Hash {
+func (v Valset) GetCheckpoint(peggyIDstring string) gethcommon.Hash {
 	// error case here should not occur outside of testing since the above is a constant
 	contractAbi, abiErr := abi.JSON(strings.NewReader(ValsetCheckpointABIJSON))
 	if abiErr != nil {
@@ -187,7 +186,7 @@ func (v Valset) GetCheckpoint(peggyIDstring string) common.Hash {
 
 	checkpointBytes := []uint8("checkpoint")
 	var checkpoint [32]uint8
-	copy(checkpoint[:], checkpointBytes[:])
+	copy(checkpoint[:], checkpointBytes)
 
 	memberAddresses := make([]gethcommon.Address, len(v.Members))
 	convertedPowers := make([]*big.Int, len(v.Members))
@@ -216,7 +215,7 @@ func (v Valset) GetCheckpoint(peggyIDstring string) common.Hash {
 // to create transactions on Ethereum that are signed by validators.
 // The naming here could be improved.
 type EthereumSigned interface {
-	GetCheckpoint(peggyIDstring string) common.Hash
+	GetCheckpoint(peggyIDstring string) gethcommon.Hash
 }
 
 // WithoutEmptyMembers returns a new Valset without member that have 0 power or an empty Ethereum address.

@@ -9,12 +9,19 @@ import (
 
 var _ paramtypes.ParamSet = &Params{}
 
+const (
+	GasForFeeDeduction     uint64 = 13419
+	GasForFeeRefund        uint64 = 13419
+	DefaultGasContractCall uint64 = 63558
+	MinExecutionGasLimit          = GasForFeeDeduction + GasForFeeRefund + DefaultGasContractCall
+)
+
 // Wasmx params default values
 var (
-	DefaultIsExecutionEnabled            = false
-	DefaultMaxBeginBlockTotalGas uint64  = 42_000_000                        // 42M
-	DefaultMaxContractGasLimit   uint64  = DefaultMaxBeginBlockTotalGas / 12 // 3.5M
-	DefaultMinGasPrice           sdk.Int = sdk.NewInt(1_000_000_000)         // 1B
+	DefaultIsExecutionEnabled           = false
+	DefaultMaxBeginBlockTotalGas uint64 = 42_000_000                        // 42M
+	DefaultMaxContractGasLimit   uint64 = DefaultMaxBeginBlockTotalGas / 12 // 3.5M
+	DefaultMinGasPrice           uint64 = 1_000_000_000                     // 1B
 )
 
 // Parameter keys
@@ -37,7 +44,7 @@ func NewParams(
 	registryContract string,
 	maxBeginBlockTotalGas uint64,
 	maxContractGasLimit uint64,
-	minGasPrice sdk.Int,
+	minGasPrice uint64,
 ) Params {
 	return Params{
 		IsExecutionEnabled:    isExecutionEnabled,
@@ -114,8 +121,8 @@ func validateMaxContractGasLimit(i interface{}) error {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v == 0 {
-		return fmt.Errorf("MaxContractGasLimit must be positive: %d", v)
+	if v < MinExecutionGasLimit {
+		return fmt.Errorf("MaxContractGasLimit %d must be greater than the MinExecutionGasLimit: %d", v, MinExecutionGasLimit)
 	}
 	return nil
 }
@@ -130,13 +137,13 @@ func validateIsExecutionEnabled(i interface{}) error {
 }
 
 func validateMinGasPrice(i interface{}) error {
-	v, ok := i.(sdk.Int)
+	v, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
-	if v.IsNil() || !v.IsPositive() {
-		return fmt.Errorf("MinGasPrice must be positive: %s", v.String())
+	if v == 0 {
+		return fmt.Errorf("MinGasPrice must be positive: %d", v)
 	}
 	return nil
 }

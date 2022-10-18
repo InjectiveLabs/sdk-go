@@ -24,7 +24,8 @@ var (
 
 // GetRedemptionScheduleKey provides the key to store a single pending redemption
 func GetRedemptionScheduleKey(redemptionID uint64, claimTime time.Time) []byte {
-	key := append(RedemptionSchedulePrefixKey, sdk.FormatTimeBytes(claimTime)...)
+	key := RedemptionSchedulePrefixKey
+	key = append(key, sdk.FormatTimeBytes(claimTime)...)
 	key = append(key, sdk.Uint64ToBigEndian(redemptionID)...)
 	return key
 }

@@ -3,7 +3,6 @@ package types
 import (
 	"bytes"
 	"sort"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -85,7 +84,7 @@ func GetSortedBalanceKeys(p map[string]*Deposit) []string {
 		denoms = append(denoms, k)
 	}
 	sort.SliceStable(denoms, func(i, j int) bool {
-		return strings.Compare(denoms[i], denoms[j]) < 0
+		return denoms[i] < denoms[j]
 	})
 	return denoms
 }

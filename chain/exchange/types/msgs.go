@@ -51,7 +51,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO:
+	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_BUY_ATOMIC, OrderType_SELL_ATOMIC:
 		// do nothing
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
@@ -102,7 +102,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 	}
 
 	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_STOP_BUY, OrderType_STOP_SELL, OrderType_TAKE_BUY, OrderType_TAKE_SELL:
+	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_STOP_BUY, OrderType_STOP_SELL, OrderType_TAKE_BUY, OrderType_TAKE_SELL, OrderType_BUY_ATOMIC, OrderType_SELL_ATOMIC:
 		// do nothing
 	default:
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
@@ -173,7 +173,7 @@ func (msg MsgDeposit) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	if len(msg.SubaccountId) == 0 {
+	if msg.SubaccountId == "" {
 		return nil
 	} else if _, ok := IsValidSubaccountID(msg.SubaccountId); !ok {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
@@ -695,6 +695,9 @@ func (msg MsgCreateDerivativeLimitOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if msg.Order.OrderType == OrderType_BUY_ATOMIC || msg.Order.OrderType == OrderType_SELL_ATOMIC {
+		return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative limit orders can't be atomic orders")
 	}
 	if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
 		return err
@@ -1519,17 +1522,26 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		if err := msg.SpotOrdersToCreate[idx].ValidateBasic(sender); err != nil {
 			return err
 		}
+		if msg.SpotOrdersToCreate[idx].OrderType.IsAtomic() { // must be checked separately as type is SpotOrder, so it won't check for atomic orders properly
+			return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Spot limit orders can't be atomic orders")
+		}
 	}
 
 	for idx := range msg.DerivativeOrdersToCreate {
 		if err := msg.DerivativeOrdersToCreate[idx].ValidateBasic(sender, false); err != nil {
 			return err
 		}
+		if msg.DerivativeOrdersToCreate[idx].OrderType.IsAtomic() {
+			return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative limit orders can't be atomic orders")
+		}
 	}
 
 	for idx := range msg.BinaryOptionsOrdersToCreate {
 		if err := msg.BinaryOptionsOrdersToCreate[idx].ValidateBasic(sender, true); err != nil {
 			return err
+		}
+		if msg.BinaryOptionsOrdersToCreate[idx].OrderType.IsAtomic() {
+			return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Binary limit orders can't be atomic orders")
 		}
 	}
 

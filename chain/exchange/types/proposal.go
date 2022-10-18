@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
@@ -13,22 +15,23 @@ import (
 
 // constants
 const (
-	ProposalTypeExchangeEnable                  string = "ProposalTypeExchangeEnable"
-	ProposalTypeBatchExchangeModification       string = "ProposalTypeBatchExchangeModification"
-	ProposalTypeSpotMarketParamUpdate           string = "ProposalTypeSpotMarketParamUpdate"
-	ProposalTypeSpotMarketLaunch                string = "ProposalTypeSpotMarketLaunch"
-	ProposalTypePerpetualMarketLaunch           string = "ProposalTypePerpetualMarketLaunch"
-	ProposalTypeExpiryFuturesMarketLaunch       string = "ProposalTypeExpiryFuturesMarketLaunch"
-	ProposalTypeDerivativeMarketParamUpdate     string = "ProposalTypeDerivativeMarketParamUpdate"
-	ProposalTypeMarketForcedSettlement          string = "ProposalTypeMarketForcedSettlement"
-	ProposalUpdateDenomDecimals                 string = "ProposalUpdateDenomDecimals"
-	ProposalTypeTradingRewardCampaign           string = "ProposalTypeTradingRewardCampaign"
-	ProposalTypeTradingRewardCampaignUpdate     string = "ProposalTypeTradingRewardCampaignUpdateProposal"
-	ProposalTypeTradingRewardPointsUpdate       string = "ProposalTypeTradingRewardPointsUpdateProposal"
-	ProposalTypeFeeDiscountProposal             string = "ProposalTypeFeeDiscountProposal"
-	ProposalTypeBatchCommunityPoolSpendProposal string = "ProposalTypeBatchCommunityPoolSpendProposal"
-	ProposalTypeBinaryOptionsMarketLaunch       string = "ProposalTypeBinaryOptionsMarketLaunch"
-	ProposalTypeBinaryOptionsMarketParamUpdate  string = "ProposalTypeBinaryOptionsMarketParamUpdate"
+	ProposalTypeExchangeEnable                     string = "ProposalTypeExchangeEnable"
+	ProposalTypeBatchExchangeModification          string = "ProposalTypeBatchExchangeModification"
+	ProposalTypeSpotMarketParamUpdate              string = "ProposalTypeSpotMarketParamUpdate"
+	ProposalTypeSpotMarketLaunch                   string = "ProposalTypeSpotMarketLaunch"
+	ProposalTypePerpetualMarketLaunch              string = "ProposalTypePerpetualMarketLaunch"
+	ProposalTypeExpiryFuturesMarketLaunch          string = "ProposalTypeExpiryFuturesMarketLaunch"
+	ProposalTypeDerivativeMarketParamUpdate        string = "ProposalTypeDerivativeMarketParamUpdate"
+	ProposalTypeMarketForcedSettlement             string = "ProposalTypeMarketForcedSettlement"
+	ProposalUpdateDenomDecimals                    string = "ProposalUpdateDenomDecimals"
+	ProposalTypeTradingRewardCampaign              string = "ProposalTypeTradingRewardCampaign"
+	ProposalTypeTradingRewardCampaignUpdate        string = "ProposalTypeTradingRewardCampaignUpdateProposal"
+	ProposalTypeTradingRewardPointsUpdate          string = "ProposalTypeTradingRewardPointsUpdateProposal"
+	ProposalTypeFeeDiscountProposal                string = "ProposalTypeFeeDiscountProposal"
+	ProposalTypeBatchCommunityPoolSpendProposal    string = "ProposalTypeBatchCommunityPoolSpendProposal"
+	ProposalTypeBinaryOptionsMarketLaunch          string = "ProposalTypeBinaryOptionsMarketLaunch"
+	ProposalTypeBinaryOptionsMarketParamUpdate     string = "ProposalTypeBinaryOptionsMarketParamUpdate"
+	ProposalAtomicMarketOrderFeeMultiplierSchedule string = "ProposalAtomicMarketOrderFeeMultiplierSchedule"
 )
 
 func init() {
@@ -64,6 +67,8 @@ func init() {
 	gov.RegisterProposalTypeCodec(&BinaryOptionsMarketLaunchProposal{}, "injective/BinaryOptionsMarketLaunchProposal")
 	gov.RegisterProposalType(ProposalTypeBinaryOptionsMarketParamUpdate)
 	gov.RegisterProposalTypeCodec(&BinaryOptionsMarketParamUpdateProposal{}, "injective/BinaryOptionsMarketParamUpdateProposal")
+	gov.RegisterProposalType(ProposalAtomicMarketOrderFeeMultiplierSchedule)
+	gov.RegisterProposalTypeCodec(&AtomicMarketOrderFeeMultiplierScheduleProposal{}, "injective/AtomicMarketOrderFeeMultiplierScheduleProposal")
 }
 
 func SafeIsPositiveInt(v sdk.Int) bool {
@@ -1066,7 +1071,8 @@ func (p *TradingRewardCampaignLaunchProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign reward pools cannot be nil")
 	}
 
-	if err = p.CampaignInfo.ValidateBasic(); err != nil {
+	err = p.CampaignInfo.ValidateBasic()
+	if err != nil {
 		return err
 	}
 
@@ -1603,5 +1609,50 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
+	return gov.ValidateAbstract(p)
+}
+
+// Implements Proposal Interface
+var _ gov.Content = &AtomicMarketOrderFeeMultiplierScheduleProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ProposalType() string {
+	return ProposalAtomicMarketOrderFeeMultiplierSchedule
+}
+
+func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ValidateBasic() error {
+	if len(p.MarketFeeMultipliers) == 0 {
+		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one fee multiplier should be provided")
+	}
+	for _, m := range p.MarketFeeMultipliers {
+		if !IsHexHash(m.MarketId) {
+			return sdkerrors.Wrap(ErrMarketInvalid, m.MarketId)
+		}
+		multiplier := m.FeeMultiplier
+		if multiplier.IsNil() {
+			return fmt.Errorf("atomic taker fee multiplier cannot be nil: %v", multiplier)
+		}
+
+		if multiplier.LT(sdk.OneDec()) {
+			return fmt.Errorf("atomic taker fee multiplier cannot be less than 1: %v", multiplier)
+		}
+
+		if multiplier.GT(MaxFeeMultiplier) {
+			return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be bigger than %v: %v", multiplier, MaxFeeMultiplier)
+		}
+	}
 	return gov.ValidateAbstract(p)
 }

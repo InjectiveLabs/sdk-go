@@ -86,4 +86,7 @@ var (
 	ErrTransientOrdersUpToCancelNotSupported    = sdkerrors.Register(ModuleName, 79, "transient orders up to cancellation not supported")
 	ErrInvalidTrade                             = sdkerrors.Register(ModuleName, 80, "invalid trade")
 	ErrNoMarginLocked                           = sdkerrors.Register(ModuleName, 81, "no margin locked in subaccount")
+	ErrInvalidAccessLevel                       = sdkerrors.Register(ModuleName, 82, "Invalid access level to perform action")
+	ErrInvalidAddress                           = sdkerrors.Register(ModuleName, 83, "Invalid address")
+	ErrInvalidArgument                          = sdkerrors.Register(ModuleName, 84, "Invalid argument")
 )

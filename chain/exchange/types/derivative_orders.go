@@ -195,6 +195,7 @@ func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate sdk.Dec) *DepositDe
 
 	depositDelta := NewDepositDelta()
 	if o.IsVanilla() {
+		//nolint:all
 		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
 		notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
 		marginHoldRefund := o.Fillable.Mul(o.Margin.Add(notional.Mul(positiveFeePart))).Quo(o.OrderInfo.Quantity)
@@ -462,4 +463,14 @@ func (o *DerivativeMarketOrder) SdkAccAddress() sdk.AccAddress {
 
 func (o *TrimmedDerivativeLimitOrder) IsReduceOnly() bool {
 	return o.Margin.IsZero()
+}
+
+func EmptyDerivativeMarketOrderResults() *DerivativeMarketOrderResults {
+	return &DerivativeMarketOrderResults{
+		Quantity:      sdk.ZeroDec(),
+		Price:         sdk.ZeroDec(),
+		Fee:           sdk.ZeroDec(),
+		PositionDelta: PositionDelta{},
+		Payout:        sdk.ZeroDec(),
+	}
 }

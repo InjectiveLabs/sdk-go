@@ -5,7 +5,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
+	accountsabi "github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -13,7 +13,7 @@ import (
 // GetCheckpoint gets the checkpoint signature from the given outgoing tx batch
 func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) common.Hash {
 
-	abi, err := abi.JSON(strings.NewReader(OutgoingBatchTxCheckpointABIJSON))
+	abi, err := accountsabi.JSON(strings.NewReader(OutgoingBatchTxCheckpointABIJSON))
 	if err != nil {
 		panic("Bad ABI constant!")
 	}
@@ -30,7 +30,7 @@ func (b OutgoingTxBatch) GetCheckpoint(peggyIDstring string) common.Hash {
 	// Create the methodName argument which salts the signature
 	methodNameBytes := []uint8("transactionBatch")
 	var batchMethodName [32]uint8
-	copy(batchMethodName[:], methodNameBytes[:])
+	copy(batchMethodName[:], methodNameBytes)
 
 	// Run through the elements of the batch and serialize them
 	txAmounts := make([]*big.Int, len(b.Transactions))

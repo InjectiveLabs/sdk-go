@@ -15,7 +15,7 @@ const (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file.
 	DefaultBandIBCEnabled         = false
-	DefaultBandIbcRequestInterval = int64(7) //every 7 blocks
+	DefaultBandIbcRequestInterval = int64(7) // every 7 blocks
 	DefaultBandIBCVersion         = "bandchain-1"
 	DefaultBandIBCPortID          = "oracle"
 )

@@ -156,13 +156,13 @@ func (m *SpotOrder) GetMarginDenom(market *SpotMarket) string {
 
 // Calculate the balance hold for the market order.
 // availableBalance should be in the margin denom
-func (m *SpotOrder) CheckMarketOrderBalanceHold(market *SpotMarket, availableBalance, bestPrice sdk.Dec) (sdk.Dec, error) {
+func (m *SpotOrder) CheckMarketOrderBalanceHold(feeRate, availableBalance, bestPrice sdk.Dec) (sdk.Dec, error) {
 	var balanceHold sdk.Dec
 
 	if m.IsBuy() {
-		// required margin for best sell price = bestPrice * quantity * (1 + takerFeeRate)
-		requiredMarginForBestPrice := bestPrice.Mul(m.OrderInfo.Quantity).Mul(sdk.OneDec().Add(market.TakerFeeRate))
-		requiredMarginForWorstPrice := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity).Mul(sdk.OneDec().Add(market.TakerFeeRate))
+		// required margin for best sell price = bestPrice * quantity * (1 + feeRate)
+		requiredMarginForBestPrice := bestPrice.Mul(m.OrderInfo.Quantity).Mul(sdk.OneDec().Add(feeRate))
+		requiredMarginForWorstPrice := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity).Mul(sdk.OneDec().Add(feeRate))
 		requiredMargin := sdk.MaxDec(requiredMarginForBestPrice, requiredMarginForWorstPrice)
 		if requiredMargin.GT(availableBalance) {
 			return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientDeposit, "Required Margin %s exceeds availableBalance %s", requiredMargin.String(), availableBalance.String())

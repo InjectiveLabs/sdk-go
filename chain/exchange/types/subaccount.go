@@ -61,5 +61,4 @@ func (m *SubaccountOrderbookMetadata) ApplyDelta(d *SubaccountOrderbookMetadata)
 	}
 	m.VanillaLimitOrderCount += d.VanillaLimitOrderCount
 	m.ReduceOnlyLimitOrderCount += d.ReduceOnlyLimitOrderCount
-	//m.AssertValid()
 }

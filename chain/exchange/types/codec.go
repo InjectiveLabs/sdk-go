@@ -58,6 +58,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&BatchCommunityPoolSpendProposal{}, "exchange/BatchCommunityPoolSpendProposal", nil)
 	cdc.RegisterConcrete(&BinaryOptionsMarketParamUpdateProposal{}, "exchange/BinaryOptionsMarketParamUpdateProposal", nil)
 	cdc.RegisterConcrete(&BinaryOptionsMarketLaunchProposal{}, "exchange/BinaryOptionsMarketLaunchProposal", nil)
+	cdc.RegisterConcrete(&AtomicMarketOrderFeeMultiplierScheduleProposal{}, "exchange/AtomicMarketOrderFeeMultiplierScheduleProposal", nil)
 
 	cdc.RegisterConcrete(&CreateSpotLimitOrderAuthz{}, "exchange/CreateSpotLimitOrderAuthz", nil)
 	cdc.RegisterConcrete(&CreateSpotMarketOrderAuthz{}, "exchange/CreateSpotMarketOrderAuthz", nil)
@@ -122,6 +123,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&BatchCommunityPoolSpendProposal{},
 		&BinaryOptionsMarketParamUpdateProposal{},
 		&BinaryOptionsMarketLaunchProposal{},
+		&AtomicMarketOrderFeeMultiplierScheduleProposal{},
 	)
 
 	registry.RegisterImplementations(

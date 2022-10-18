@@ -69,8 +69,7 @@ func ParseCoinbaseMessage(message []byte) (*CoinbasePriceState, error) {
 func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress common.Address) error {
 
 	// convert malformed coinbase sig in oracle response to 65-byte signature
-	trimmedSig := make([]byte, 65)
-	trimmedSig = signature[:65]
+	trimmedSig := signature[:65]
 	trimmedSig[64] = signature[95]
 
 	if len(trimmedSig) < 65 {
@@ -84,7 +83,7 @@ func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress co
 
 	// manually build the hash with ethereum prefix
 	preamblePrefix := []byte(preamblePrefix)
-	preambleMessage := append(preamblePrefix, hash.Bytes()...)
+	preambleMessage := append(preamblePrefix, hash.Bytes()...) //nolint:gocritic
 	preambleHash := crypto.Keccak256Hash(preambleMessage)
 
 	// verify signature
