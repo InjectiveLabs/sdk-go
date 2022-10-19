@@ -89,4 +89,5 @@ var (
 	ErrInvalidAccessLevel                       = sdkerrors.Register(ModuleName, 82, "Invalid access level to perform action")
 	ErrInvalidAddress                           = sdkerrors.Register(ModuleName, 83, "Invalid address")
 	ErrInvalidArgument                          = sdkerrors.Register(ModuleName, 84, "Invalid argument")
+	ErrInvalidFundsDirection                    = sdkerrors.Register(ModuleName, 85, "Invalid funds direction")
 )

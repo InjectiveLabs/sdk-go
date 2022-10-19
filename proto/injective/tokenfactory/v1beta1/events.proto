@@ -1,0 +1,34 @@
+syntax = "proto3";
+package injective.tokenfactory.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/bank/v1beta1/bank.proto";
+import "injective/tokenfactory/v1beta1/authorityMetadata.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/tokenfactory/types";
+
+message EventCreateTFDenom {
+  string account = 1;
+  string denom = 2;
+}
+
+message EventMintTFDenom {
+  string recipient_address = 1;
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+}
+
+message EventBurnTFDenom {
+  string burner_address = 1;
+  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+}
+
+message EventChangeTFAdmin {
+  string denom = 1;
+  string new_admin_address = 2;
+}
+
+message EventSetTFDenomMetadata {
+  string denom = 1;
+  cosmos.bank.v1beta1.Metadata metadata = 2[(gogoproto.nullable) = false];
+}

@@ -1,0 +1,47 @@
+syntax = "proto3";
+package injective.wasmx.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmwasm/wasm/v1/proposal.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
+
+message ContractRegistrationRequestProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  ContractRegistrationRequest contract_registration_request = 3 [(gogoproto.nullable) = false];
+}
+
+message BatchContractRegistrationRequestProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  repeated ContractRegistrationRequest contract_registration_requests = 3 [(gogoproto.nullable) = false];
+}
+
+message ContractRegistrationRequest {
+  // Unique Identifier for contract instance to be registered.
+  string contract_address = 1;
+
+  // Maximum gas to be used for the smart contract execution.
+  uint64 gas_limit = 2;
+
+  // gas price to be used for the smart contract execution.
+  uint64 gas_price = 3;
+
+  bool pin_contract = 4;
+}
+
+message BatchStoreCodeProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  repeated cosmwasm.wasm.v1.StoreCodeProposal proposals = 3 [(gogoproto.nullable) = false];
+}

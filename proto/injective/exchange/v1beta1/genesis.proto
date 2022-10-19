@@ -97,6 +97,9 @@ message GenesisState {
 
   // conditional_derivative_orderbook contains conditional orderbooks for all markets (both lmit and market conditional orders)
   repeated ConditionalDerivativeOrderBook conditional_derivative_orderbooks = 30;
+
+  // market_fee_multipliers contains any non-default atomic order fee multipliers
+  repeated MarketFeeMultiplier market_fee_multipliers = 31;
 }
 
 message FeeDiscountAccountTierTTL {
