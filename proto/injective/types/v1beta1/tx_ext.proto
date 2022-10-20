@@ -3,7 +3,7 @@ package injective.types.v1beta1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/types";
 
 message ExtensionOptionsWeb3Tx {
   option (gogoproto.goproto_getters) = false;
