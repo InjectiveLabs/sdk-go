@@ -18,6 +18,9 @@ service Msg {
   // and then executing a Msg.
   rpc TransferAndExecute(MsgTransferAndExecute) returns (MsgTransferAndExecuteResponse);
 
+  // MultiExecute defines a method for executing multiple Msgs.
+  rpc MultiExecute(MsgMultiExecute) returns (MsgMultiExecuteResponse);
+
   // Deposit defines a method for transferring coins from the sender's bank balance into the subaccount's exchange deposits
   rpc Deposit(MsgDeposit) returns (MsgDepositResponse);
 
@@ -125,6 +128,19 @@ enum FundsDirection {
   BANK_TO_SUBACCOUNT = 1 [(gogoproto.enumvalue_customname) = "BANK_TO_SUBACCOUNT"];
   SUBACCOUNT_TO_BANK = 2 [(gogoproto.enumvalue_customname) = "SUBACCOUNT_TO_BANK"];
 }
+
+// MsgMultiExecute defines a SDK message for executing multiple Msgs.
+message MsgMultiExecute {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+
+  repeated google.protobuf.Any msgs = 2 [(cosmos_proto.accepts_interface) = "sdk.Msg"];
+}
+
+// MsgTransferAndExecuteResponse defines the Msg/TransferAndExecuteResponse response type.
+message MsgMultiExecuteResponse {}
+
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's bank balance into the subaccount's exchange deposits
 message MsgDeposit {

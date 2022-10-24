@@ -24,6 +24,15 @@ message BatchContractRegistrationRequestProposal {
   repeated ContractRegistrationRequest contract_registration_requests = 3 [(gogoproto.nullable) = false];
 }
 
+message BatchContractDeregistrationProposal {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string title = 1;
+  string description = 2;
+  repeated string contracts = 3 [(gogoproto.nullable) = false];
+}
+
 message ContractRegistrationRequest {
   // Unique Identifier for contract instance to be registered.
   string contract_address = 1;

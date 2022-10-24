@@ -132,6 +132,11 @@ message Params {
     (gogoproto.nullable) = false
   ];
 
+  // minimal_protocol_fee_rate defines the minimal protocol fee rate
+  string minimal_protocol_fee_rate = 23 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 enum MarketStatus {

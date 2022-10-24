@@ -73,6 +73,7 @@ var (
 	KeySpotAtomicMarketOrderFeeMultiplier          = []byte("SpotAtomicMarketOrderFeeMultiplier")
 	KeyDerivativeAtomicMarketOrderFeeMultiplier    = []byte("DerivativeAtomicMarketOrderFeeMultiplier")
 	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
+	KeyMinimalProtocolFeeRate                      = []byte("MinimalProtocolFeeRate")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -104,6 +105,7 @@ func NewParams(
 	spotAtomicMarketOrderFeeMultiplier sdk.Dec,
 	derivativeAtomicMarketOrderFeeMultiplier sdk.Dec,
 	binaryOptionsAtomicMarketOrderFeeMultiplier sdk.Dec,
+	minimalProtocolFeeRate sdk.Dec,
 ) Params {
 	return Params{
 		SpotMarketInstantListingFee:                 spotMarketInstantListingFee,
@@ -128,6 +130,7 @@ func NewParams(
 		SpotAtomicMarketOrderFeeMultiplier:          spotAtomicMarketOrderFeeMultiplier,
 		DerivativeAtomicMarketOrderFeeMultiplier:    derivativeAtomicMarketOrderFeeMultiplier,
 		BinaryOptionsAtomicMarketOrderFeeMultiplier: binaryOptionsAtomicMarketOrderFeeMultiplier,
+		MinimalProtocolFeeRate:                      minimalProtocolFeeRate,
 	}
 }
 
@@ -156,6 +159,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeySpotAtomicMarketOrderFeeMultiplier, &p.SpotAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
 		paramtypes.NewParamSetPair(KeyDerivativeAtomicMarketOrderFeeMultiplier, &p.DerivativeAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
 		paramtypes.NewParamSetPair(KeyBinaryOptionsAtomicMarketOrderFeeMultiplier, &p.BinaryOptionsAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
+		paramtypes.NewParamSetPair(KeyMinimalProtocolFeeRate, &p.MinimalProtocolFeeRate, ValidateFee),
 	}
 }
 
@@ -181,67 +185,68 @@ func DefaultParams() Params {
 		LiquidatorRewardShareRate:                   sdk.NewDecWithPrec(5, 2),       // 5% liquidator reward
 		BinaryOptionsMarketInstantListingFee:        sdk.NewCoin("inj", sdk.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
 		AtomicMarketOrderAccessLevel:                AtomicMarketOrderAccessLevel_SmartContractsOnly,
-		SpotAtomicMarketOrderFeeMultiplier:          sdk.NewDecWithPrec(25, 1), // default 2.5 multiplier
-		DerivativeAtomicMarketOrderFeeMultiplier:    sdk.NewDecWithPrec(25, 1), // default 2.5 multiplier
-		BinaryOptionsAtomicMarketOrderFeeMultiplier: sdk.NewDecWithPrec(25, 1), // default 2.5 multiplier
+		SpotAtomicMarketOrderFeeMultiplier:          sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
+		DerivativeAtomicMarketOrderFeeMultiplier:    sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
+		BinaryOptionsAtomicMarketOrderFeeMultiplier: sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
+		MinimalProtocolFeeRate:                      sdk.MustNewDecFromStr("0.00005"), // default 0.005% minimal fee rate
 	}
 }
 
 // Validate performs basic validation on exchange parameters.
 func (p Params) Validate() error {
 	if err := validateSpotMarketInstantListingFee(p.SpotMarketInstantListingFee); err != nil {
-		return err
+		return fmt.Errorf("spot_market_instant_listing_fee is incorrect: %w", err)
 	}
 	if err := validateDerivativeMarketInstantListingFee(p.DerivativeMarketInstantListingFee); err != nil {
-		return err
+		return fmt.Errorf("derivative_market_instant_listing_fee is incorrect: %w", err)
 	}
 	if err := ValidateMakerFee(p.DefaultSpotMakerFeeRate); err != nil {
-		return err
+		return fmt.Errorf("default_spot_maker_fee_rate is incorrect: %w", err)
 	}
 	if err := ValidateFee(p.DefaultSpotTakerFeeRate); err != nil {
-		return err
+		return fmt.Errorf("default_spot_taker_fee_rate is incorrect: %w", err)
 	}
 	if err := ValidateMakerFee(p.DefaultDerivativeMakerFeeRate); err != nil {
-		return err
+		return fmt.Errorf("default_derivative_maker_fee_rate is incorrect: %w", err)
 	}
 	if err := ValidateFee(p.DefaultDerivativeTakerFeeRate); err != nil {
-		return err
+		return fmt.Errorf("default_derivative_taker_fee_rate is incorrect: %w", err)
 	}
 	if err := ValidateMarginRatio(p.DefaultInitialMarginRatio); err != nil {
-		return err
+		return fmt.Errorf("default_initial_margin_ratio is incorrect: %w", err)
 	}
 	if err := ValidateMarginRatio(p.DefaultMaintenanceMarginRatio); err != nil {
-		return err
+		return fmt.Errorf("default_maintenance_margin_ratio is incorrect: %w", err)
 	}
 	if err := validateFundingInterval(p.DefaultFundingInterval); err != nil {
-		return err
+		return fmt.Errorf("default_funding_interval is incorrect: %w", err)
 	}
 	if err := validateFundingMultiple(p.FundingMultiple); err != nil {
-		return err
+		return fmt.Errorf("funding_multiple is incorrect: %w", err)
 	}
 	if err := ValidateFee(p.RelayerFeeShareRate); err != nil {
-		return err
+		return fmt.Errorf("relayer_fee_share_rate is incorrect: %w", err)
 	}
 	if err := ValidateFee(p.DefaultHourlyFundingRateCap); err != nil {
-		return err
+		return fmt.Errorf("default_hourly_funding_rate_cap is incorrect: %w", err)
 	}
 	if err := ValidateFee(p.DefaultHourlyInterestRate); err != nil {
-		return err
+		return fmt.Errorf("default_hourly_interest_rate is incorrect: %w", err)
 	}
 	if err := validateDerivativeOrderSideCount(p.MaxDerivativeOrderSideCount); err != nil {
-		return err
+		return fmt.Errorf("max_derivative_order_side_count is incorrect: %w", err)
 	}
 	if err := validateInjRewardStakedRequirementThreshold(p.InjRewardStakedRequirementThreshold); err != nil {
-		return err
+		return fmt.Errorf("inj_reward_staked_requirement_threshold is incorrect: %w", err)
 	}
 	if err := validateLiquidatorRewardShareRate(p.LiquidatorRewardShareRate); err != nil {
-		return err
+		return fmt.Errorf("liquidator_reward_share_rate is incorrect: %w", err)
 	}
 	if err := validateBinaryOptionsMarketInstantListingFee(p.BinaryOptionsMarketInstantListingFee); err != nil {
-		return err
+		return fmt.Errorf("binary_options_market_instant_listing_fee is incorrect: %w", err)
 	}
 	if err := validateAtomicMarketOrderAccessLevel(p.AtomicMarketOrderAccessLevel); err != nil {
-		return err
+		return fmt.Errorf("atomic_market_order_access_level is incorrect: %w", err)
 	}
 	if err := validateAtomicMarketOrderFeeMultiplier(p.SpotAtomicMarketOrderFeeMultiplier); err != nil {
 		return fmt.Errorf("spot_atomic_market_order_fee_multiplier is incorrect: %w", err)
@@ -251,6 +256,9 @@ func (p Params) Validate() error {
 	}
 	if err := validateAtomicMarketOrderFeeMultiplier(p.BinaryOptionsAtomicMarketOrderFeeMultiplier); err != nil {
 		return fmt.Errorf("binary_options_atomic_market_order_fee_multiplier is incorrect: %w", err)
+	}
+	if err := ValidateFee(p.MinimalProtocolFeeRate); err != nil {
+		return fmt.Errorf("minimal_protocol_fee_rate is incorrect: %w", err)
 	}
 	return nil
 }

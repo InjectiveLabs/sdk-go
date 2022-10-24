@@ -29,6 +29,22 @@ type RegisterMsg struct {
 	IsExecutable    bool   `json:"is_executable"`
 }
 
+func NewRegistryDeregisterMsg(contract sdk.AccAddress) RegistryDeregisterMsg {
+	return RegistryDeregisterMsg{
+		Deregister: &DeregisterMsg{
+			ContractAddress: contract.String(),
+		},
+	}
+}
+
+type RegistryDeregisterMsg struct {
+	Deregister *DeregisterMsg `json:"deregister,omitempty"`
+}
+
+type DeregisterMsg struct {
+	ContractAddress string `json:"contract_address"`
+}
+
 func NewBeginBlockerExecMsg() ([]byte, error) {
 	// Construct Exec message
 	beginBlocker := CWBeginBlockerExecMsg{BeginBlockerMsg: &BeginBlockerMsg{}}
@@ -123,7 +139,6 @@ func (r *RawContractExecutionParams) ToContractExecutionParams() (p *ContractExe
 	if err != nil {
 		return nil, err
 	}
-
 
 	return &ContractExecutionParams{
 		Address:  addr,

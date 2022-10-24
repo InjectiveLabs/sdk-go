@@ -13,6 +13,7 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&ContractRegistrationRequestProposal{}, "wasmx/ContractRegistrationRequestProposal", nil)
 	cdc.RegisterConcrete(&BatchContractRegistrationRequestProposal{}, "wasmx/BatchContractRegistrationRequestProposal", nil)
+	cdc.RegisterConcrete(&BatchContractDeregistrationProposal{}, "wasmx/BatchContractDeregistrationProposal", nil)
 	cdc.RegisterConcrete(&BatchStoreCodeProposal{}, "wasmx/BatchStoreCodeProposal", nil)
 
 }
@@ -22,6 +23,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		(*govtypes.Content)(nil),
 		&ContractRegistrationRequestProposal{},
 		&BatchContractRegistrationRequestProposal{},
+		&BatchContractDeregistrationProposal{},
 		&BatchStoreCodeProposal{},
 	)
 
