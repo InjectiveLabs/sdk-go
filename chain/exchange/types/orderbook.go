@@ -69,14 +69,12 @@ func (o *Orderbook) PrintDisplay() {
 	for idx := 0; idx < maxLength; idx++ {
 		row := make([]string, 0)
 		if idx < len(o.BuyLevels) {
-			row = append(row, getReadableDec(o.BuyLevels[idx].P))
-			row = append(row, getReadableDec(o.BuyLevels[idx].Q))
+			row = append(row, getReadableDec(o.BuyLevels[idx].P), getReadableDec(o.BuyLevels[idx].Q))
 		} else {
 			row = append(row, "-", "-")
 		}
 		if idx < len(o.SellLevels) {
-			row = append(row, getReadableDec(o.SellLevels[idx].P))
-			row = append(row, getReadableDec(o.SellLevels[idx].Q))
+			row = append(row, getReadableDec(o.SellLevels[idx].P), getReadableDec(o.SellLevels[idx].Q))
 		} else {
 			row = append(row, "-", "-")
 		}
@@ -101,7 +99,7 @@ func getReadableDec(d sdk.Dec) string {
 	return dec
 }
 
-func NewLevel(price sdk.Dec, quantity sdk.Dec) *Level {
+func NewLevel(price, quantity sdk.Dec) *Level {
 	return &Level{
 		P: price,
 		Q: quantity,

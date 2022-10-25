@@ -9,13 +9,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-
 	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
 const RouterKey = ModuleName
 
 var (
+	_ sdk.Msg = &MsgTransferAndExecute{}
+	_ sdk.Msg = &MsgMultiExecute{}
 	_ sdk.Msg = &MsgDeposit{}
 	_ sdk.Msg = &MsgWithdraw{}
 	_ sdk.Msg = &MsgCreateSpotLimitOrder{}
@@ -45,6 +46,144 @@ var (
 	_ sdk.Msg = &MsgAdminUpdateBinaryOptionsMarket{}
 	_ sdk.Msg = &MsgBatchCancelBinaryOptionsOrders{}
 )
+
+// exchange message types
+const (
+	TypeMsgTransferAndExecute = "msgTransferAndExecute"
+	TypeMsgMultiExecute       = "msgMultiExecute"
+	TypeMsgDeposit            = "msgDeposit"
+	// TODO: add the others for each msg
+)
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgTransferAndExecute) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgTransferAndExecute) Type() string { return TypeMsgTransferAndExecute }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgTransferAndExecute) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !msg.Funds.IsValid() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Funds.String())
+	}
+
+	if msg.Funds.Empty() {
+		return sdkerrors.Wrap(ErrNoFundsProvided, msg.Funds.String())
+	}
+
+	switch msg.FundsDirection {
+	case FundsDirection_BANK_TO_SUBACCOUNT, FundsDirection_SUBACCOUNT_TO_BANK:
+	default:
+		return sdkerrors.Wrap(ErrInvalidFundsDirection, string(msg.FundsDirection))
+	}
+
+	if msg.Msg == nil {
+		return ErrNoMsgProvided
+	}
+
+	wrappedMsg, ok := msg.Msg.GetCachedValue().(sdk.Msg)
+	if !ok {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "message contains %T which is not a sdk.MsgRequest", wrappedMsg)
+	}
+
+	if err := wrappedMsg.ValidateBasic(); err != nil {
+		return err
+	}
+
+	wrappedMsgSigners := wrappedMsg.GetSigners()
+	if len(wrappedMsgSigners) != 1 {
+		return sdkerrors.ErrInvalidRequest.Wrap("MsgTransferAndExecute can only be executed to msg for messages with one signer")
+	}
+
+	wrappedMsgSigner := wrappedMsgSigners[0]
+	msgSigner := msg.GetSigners()[0]
+
+	if !wrappedMsgSigner.Equals(msgSigner) {
+		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "wrapped message signer %s does not match msg signer %s", wrappedMsgSigner.String(), msgSigner.String())
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgTransferAndExecute) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgTransferAndExecute) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgMultiExecute) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgMultiExecute) Type() string { return TypeMsgMultiExecute }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgMultiExecute) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	msgSigner := msg.GetSigners()[0]
+
+	if len(msg.Msgs) == 0 {
+		return ErrNoMsgsProvided
+	}
+
+	for idx := range msg.Msgs {
+		message := msg.Msgs[idx]
+		wrappedMsg, ok := message.GetCachedValue().(sdk.Msg)
+		if !ok {
+			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "message contains %T which is not a sdk.MsgRequest", wrappedMsg)
+		}
+
+		if err := wrappedMsg.ValidateBasic(); err != nil {
+			return err
+		}
+
+		wrappedMsgSigners := wrappedMsg.GetSigners()
+		if len(wrappedMsgSigners) != 1 {
+			return sdkerrors.ErrInvalidRequest.Wrap("MsgMultiExecute can only be executed to msg for messages with one signer")
+		}
+
+		wrappedMsgSigner := wrappedMsgSigners[0]
+
+		if !wrappedMsgSigner.Equals(msgSigner) {
+			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "wrapped message signer %s does not match msg signer %s", wrappedMsgSigner.String(), msgSigner.String())
+		}
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgMultiExecute) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgMultiExecute) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
 
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	if !IsHexHash(o.MarketId) {
@@ -155,7 +294,7 @@ func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
 func (msg MsgDeposit) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgDeposit) Type() string { return "msgDeposit" }
+func (msg MsgDeposit) Type() string { return TypeMsgDeposit }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgDeposit) ValidateBasic() error {
