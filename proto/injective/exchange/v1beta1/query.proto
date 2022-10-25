@@ -242,6 +242,10 @@ service Query {
   rpc TraderDerivativeConditionalOrders(QueryTraderDerivativeConditionalOrdersRequest) returns (QueryTraderDerivativeConditionalOrdersResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/derivative/orders/conditional/{market_id}/{subaccount_id}";
   }
+
+  rpc MarketAtomicExecutionFeeMultiplier(QueryMarketAtomicExecutionFeeMultiplierRequest) returns (QueryMarketAtomicExecutionFeeMultiplierResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/atomic_order_fee_multiplier";
+  }
 }
 
 message Subaccount {
@@ -994,4 +998,15 @@ message TrimmedDerivativeConditionalOrder {
 // QueryTraderDerivativeOrdersResponse is the response type for the Query/TraderDerivativeOrders RPC method.
 message QueryTraderDerivativeConditionalOrdersResponse {
   repeated TrimmedDerivativeConditionalOrder orders = 1;
+}
+
+message QueryMarketAtomicExecutionFeeMultiplierRequest {
+  string market_id = 1;
+}
+
+message QueryMarketAtomicExecutionFeeMultiplierResponse {
+  string multiplier = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }

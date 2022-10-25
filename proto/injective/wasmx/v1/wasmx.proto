@@ -21,43 +21,6 @@ message Params {
   uint64 max_contract_gas_limit = 4;
 
   // min_gas_price defines the minimum gas price the contracts must pay to be executed in the BeginBlocker.
-  string min_gas_price = 5[
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
-  ];
+  uint64 min_gas_price = 5;
 
-}
-
-message ContractRegistrationRequestProposal {
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-
-  string title = 1;
-  string description = 2;
-  ContractRegistrationRequest contract_registration_request = 3 [(gogoproto.nullable) = false];
-}
-
-message BatchContractRegistrationRequestProposal {
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-
-  string title = 1;
-  string description = 2;
-  repeated ContractRegistrationRequest contract_registration_requests = 3 [(gogoproto.nullable) = false];
-}
-
-message ContractRegistrationRequest {
-  // Unique Identifier for contract instance to be registered.
-  string contract_address = 1;
-
-  // Maximum gas to be used for the smart contract execution.
-  uint64 gas_limit = 2;
-
-  // gas price to be used for the smart contract execution.
-  string gas_price = 3[
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable) = false
-  ];
-
-  bool pin_contract = 4;
 }

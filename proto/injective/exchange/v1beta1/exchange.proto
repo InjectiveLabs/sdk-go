@@ -7,6 +7,16 @@ import "injective/oracle/v1beta1/oracle.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
+
+enum AtomicMarketOrderAccessLevel {
+  Nobody = 0;
+  // currently unsupported
+  BeginBlockerSmartContractsOnly = 1;
+  SmartContractsOnly = 2;
+  Everyone = 3;
+}
+
+
 message Params {
   option (gogoproto.equal) = true;
 
@@ -101,6 +111,32 @@ message Params {
   cosmos.base.v1beta1.Coin binary_options_market_instant_listing_fee = 18 [
     (gogoproto.nullable) = false
   ];
+  // atomic_market_order_access_level defines the required access permissions for executing atomic market orders
+  AtomicMarketOrderAccessLevel atomic_market_order_access_level = 19;
+
+  // spot_atomic_market_order_fee_multiplier defines the default multiplier for executing atomic market orders in spot markets
+  string spot_atomic_market_order_fee_multiplier = 20 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // derivative_atomic_market_order_fee_multiplier defines the default multiplier for executing atomic market orders in derivative markets
+  string derivative_atomic_market_order_fee_multiplier = 21 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // binary_options_atomic_market_order_fee_multiplier defines the default multiplier for executing atomic market orders in binary markets
+  string binary_options_atomic_market_order_fee_multiplier = 22 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+
+  // minimal_protocol_fee_rate defines the minimal protocol fee rate
+  string minimal_protocol_fee_rate = 23 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 enum MarketStatus {
@@ -109,6 +145,17 @@ enum MarketStatus {
   Paused = 2;
   Demolished = 3;
   Expired = 4;
+}
+
+message MarketFeeMultiplier {
+  option (gogoproto.goproto_getters) = false;
+
+  string market_id = 1;
+
+  string fee_multiplier = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // An object describing a derivative market in the Injective Futures Protocol.
@@ -381,6 +428,8 @@ enum OrderType {
   TAKE_SELL = 6 [(gogoproto.enumvalue_customname) = "TAKE_SELL"];
   BUY_PO = 7 [(gogoproto.enumvalue_customname) = "BUY_PO"];
   SELL_PO = 8 [(gogoproto.enumvalue_customname) = "SELL_PO"];
+  BUY_ATOMIC = 9  [(gogoproto.enumvalue_customname) = "BUY_ATOMIC"];
+  SELL_ATOMIC = 10  [(gogoproto.enumvalue_customname) = "SELL_ATOMIC"];
 }
 
 message SpotOrder {
