@@ -263,7 +263,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 				if typedData.Types[parsedType] != nil {
 					mapValue, ok := item.(map[string]interface{})
 					if !ok {
-						return nil, dataMismatchError(parsedType, item)
+						return nil, errors.Wrapf(dataMismatchError(parsedType, item),"field name: %s", field.Name)
 					}
 					encodedData, err := typedData.EncodeData(parsedType, mapValue, depth+1)
 					if err != nil {
@@ -283,7 +283,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 				} else {
 					bytesValue, err := typedData.EncodePrimitiveValue(parsedType, item, depth)
 					if err != nil {
-						return nil, err
+						return nil, errors.Wrapf(err, "field name: %s", field.Name)
 					}
 					arrayBuffer.Write(bytesValue)
 				}
@@ -293,7 +293,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 		} else if typedData.Types[field.Type] != nil {
 			mapValue, ok := encValue.(map[string]interface{})
 			if !ok {
-				return nil, dataMismatchError(encType, encValue)
+				return nil, errors.Wrapf(dataMismatchError(encType, encValue),"field name: %s", field.Name)
 			}
 			encodedData, err := typedData.EncodeData(field.Type, mapValue, depth+1)
 			if err != nil {
@@ -303,7 +303,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 		} else {
 			byteValue, err := typedData.EncodePrimitiveValue(encType, encValue, depth)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrapf(err, "field name: %s", field.Name)
 			}
 			buffer.Write(byteValue)
 		}
