@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -34,6 +35,15 @@ import (
 	"github.com/shopspring/decimal"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	ethcommon "github.com/ethereum/go-ethereum/common"
+)
+
+type OrderbookType string
+
+const (
+	SpotOrderbook       = "injective.exchange.v1beta1.EventOrderbookUpdate.spot_orderbooks"
+	DerivativeOrderbook = "injective.exchange.v1beta1.EventOrderbookUpdate.derivative_orderbooks"
 )
 
 const (
@@ -112,6 +122,10 @@ type ChainClient interface {
 	) (*wasmtypes.QueryRawContractStateResponse, error)
 
 	GetGasFee() (string, error)
+
+	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
+	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
+
 	Close()
 }
 
@@ -162,11 +176,13 @@ func NewChainClient(
 		}
 	}
 
+	// init tx factory
 	txFactory := NewTxFactory(ctx)
 	if len(opts.GasPrices) > 0 {
 		txFactory = txFactory.WithGasPrices(opts.GasPrices)
 	}
 
+	// init grpc connection
 	var conn *grpc.ClientConn
 	var err error
 	stickySessionEnabled := true
@@ -177,7 +193,13 @@ func NewChainClient(
 		stickySessionEnabled = false
 	}
 	if err != nil {
-		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
+		err = errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
+		return nil, err
+	}
+
+	// init tm websocket
+	err = ctx.Client.Start()
+	if err != nil {
 		return nil, err
 	}
 
@@ -505,9 +527,9 @@ func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*t
 	return simRes, nil
 }
 
-//AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
-//cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
-//external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
+// AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
+// cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
+// external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
 func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
@@ -747,8 +769,8 @@ func (c *chainClient) broadcastTx(
 	}
 }
 
-//QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
-//and grouped into Txns in chunks. Use this method to mass broadcast Txns with efficiency.
+// QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
+// and grouped into Txns in chunks. Use this method to mass broadcast Txns with efficiency.
 func (c *chainClient) QueueBroadcastMsg(msgs ...sdk.Msg) error {
 	if !c.canSign {
 		return ErrReadOnly
@@ -1149,6 +1171,90 @@ func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 			Authorization: &typedAuthzAny,
 			Expiration:    expireIn,
 		},
+	}
+}
+
+func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[string]uint) {
+	filter := fmt.Sprintf("tm.event='Tx' AND message.sender='%s' AND message.action='/injective.exchange.v1beta1.MsgBatchUpdateOrders' AND injective.exchange.v1beta1.EventOrderFail.flags EXISTS", sender)
+	eventCh, err := c.ctx.Client.Subscribe(context.Background(), "OrderFail", filter, 10000)
+	if err != nil {
+		panic(err)
+	}
+
+	// stream and extract fail events
+	for {
+		e := <-eventCh
+
+		var failedOrderHashes []string
+		err = json.Unmarshal([]byte(e.Events["injective.exchange.v1beta1.EventOrderFail.hashes"][0]), &failedOrderHashes)
+		if err != nil {
+			panic(err)
+		}
+
+		var failedOrderCodes []uint
+		err = json.Unmarshal([]byte(e.Events["injective.exchange.v1beta1.EventOrderFail.flags"][0]), &failedOrderCodes)
+		if err != nil {
+			panic(err)
+		}
+
+		results := map[string]uint{}
+		for i, hash := range failedOrderHashes {
+			orderHashBytes, _ := base64.StdEncoding.DecodeString(hash)
+			orderHash := ethcommon.BytesToHash(orderHashBytes).String()
+			results[orderHash] = failedOrderCodes[i]
+		}
+
+		failEventCh <- results
+	}
+}
+
+func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook) {
+	filter := fmt.Sprintf("tm.event='NewBlock' AND %s EXISTS", orderbookType)
+	eventCh, err := c.ctx.Client.Subscribe(context.Background(), "OrderbookUpdate", filter, 10000)
+	if err != nil {
+		panic(err)
+	}
+
+	// turn array into map for convenient lookup
+	marketIdsMap := map[string]bool{}
+	for _, id := range marketIds {
+		marketIdsMap[id] = true
+	}
+
+	filteredOrderbookUpdateCh := make(chan exchangetypes.Orderbook, 10000)
+
+	// stream and filter orderbooks
+	go func() {
+		for {
+			e := <-eventCh
+
+			var allOrderbookUpdates []exchangetypes.Orderbook
+			err = json.Unmarshal([]byte(e.Events[string(orderbookType)][0]), &allOrderbookUpdates)
+			if err != nil {
+				panic(err)
+			}
+
+			for _, ob := range allOrderbookUpdates {
+				id := ethcommon.BytesToHash(ob.MarketId).String()
+				if marketIdsMap[id] {
+					filteredOrderbookUpdateCh <- ob
+				}
+			}
+		}
+	}()
+
+	// fetch the orderbooks
+
+	// consume from filtered orderbooks channel
+	for {
+		ob := <-filteredOrderbookUpdateCh
+
+		// skip update id until it's good to consume
+
+		// construct up-to-date orderbook
+
+		// send results to channel
+		orderbookCh <- ob
 	}
 }
 
