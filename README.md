@@ -32,7 +32,7 @@ go run examples/exchange/derivative_exchange_rpc/0_GetOrderbook.go
 $ make copy-exchange-client
 ```
 
-(you have to clone [this repo](https://github.com/InjectiveLabs/injective-exchange) into `../injective-exchange`)
+(you have to clone [this repo](https://github.com/InjectiveLabs/injective-indexer) into `../injective-indexer`)
 
 ---
 
@@ -51,9 +51,18 @@ $ git push origin master --tags
 
 Reach out to us at one of the following places!
 
-- Website at <a href="https://injectiveprotocol.com" target="_blank">`injectiveprotocol.com`</a>
+- Website at <a href="https://injective.com" target="_blank">`injective.com`</a>
 - Twitter at <a href="https://twitter.com/InjectiveLabs" target="_blank">`@InjectiveLabs`</a>
 
 ---
 
-## 🔐 License
+## License
+
+Copyright © 2021 - 2022 Injective Labs Inc. (https://injectivelabs.org/)
+
+<a href="https://drive.google.com/uc?export=view&id=1ntpioUcVM9SOLpSkgNwtASkpdRhisFrJ"><img src="https://drive.google.com/uc?export=view&id=1ntpioUcVM9SOLpSkgNwtASkpdRhisFrJ" style="width: 100px; max-width: 100%; height: auto" />
+
+Originally released by Injective Labs Inc. under: <br />
+Apache License <br />
+Version 2.0, January 2004 <br />
+http://www.apache.org/licenses/ 
