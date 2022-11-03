@@ -58,7 +58,7 @@ Reach out to us at one of the following places!
 
 ## License
 
-Copyright © 2021 - 2022 Injective Labs Inc. (https://injectivelabs.org/)
+Copyright © 2020 - 2022 Injective Labs Inc. (https://injectivelabs.org/)
 
 <a href="https://drive.google.com/uc?export=view&id=1ntpioUcVM9SOLpSkgNwtASkpdRhisFrJ"><img src="https://drive.google.com/uc?export=view&id=1ntpioUcVM9SOLpSkgNwtASkpdRhisFrJ" style="width: 100px; max-width: 100%; height: auto" />
 
