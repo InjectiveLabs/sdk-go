@@ -83,7 +83,7 @@ func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress co
 
 	// manually build the hash with ethereum prefix
 	preamblePrefix := []byte(preamblePrefix)
-	preambleMessage := append(preamblePrefix, hash.Bytes()...) //nolint:gocritic
+	preambleMessage := append(preamblePrefix, hash.Bytes()...) // nolint:gocritic
 	preambleHash := crypto.Keccak256Hash(preambleMessage)
 
 	// verify signature

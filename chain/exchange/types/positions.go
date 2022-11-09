@@ -31,7 +31,7 @@ func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 // GetEffectiveMarginRatio returns the effective margin ratio of the position, based on the input closing price.
 // CONTRACT: position must already be funding-adjusted (if perpetual) and have positive quantity.
 func (p *Position) GetEffectiveMarginRatio(closingPrice, closingFee sdk.Dec) (marginRatio sdk.Dec) {
-	//nolint:all
+	// nolint:all
 	// marginRatio = (margin + quantity * PnlPerContract) / (closingPrice * quantity)
 	effectiveMargin := p.Margin.Add(p.GetPayoutFromPnl(closingPrice, p.Quantity)).Sub(closingFee)
 	return effectiveMargin.Quo(closingPrice.Mul(p.Quantity))
@@ -243,11 +243,11 @@ func (p *Position) GetPayoutFromPnl(closingPrice, closingQuantity sdk.Dec) sdk.D
 	var pnlNotional sdk.Dec
 
 	if p.IsLong {
-		//nolint:all
+		// nolint:all
 		// pnl = closingQuantity * (executionPrice - entryPrice)
 		pnlNotional = closingQuantity.Mul(closingPrice.Sub(p.EntryPrice))
 	} else {
-		//nolint:all
+		// nolint:all
 		// pnl = -closingQuantity * (executionPrice - entryPrice)
 		pnlNotional = closingQuantity.Mul(closingPrice.Sub(p.EntryPrice)).Neg()
 	}

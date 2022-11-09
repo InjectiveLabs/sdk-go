@@ -127,7 +127,7 @@ func (m *DerivativeMarket) GetMinQuantityTickSize() sdk.Dec {
 
 type MarketType byte
 
-//nolint:all
+// nolint:all
 const (
 	MarketType_Spot MarketType = iota
 	MarketType_Perpetual

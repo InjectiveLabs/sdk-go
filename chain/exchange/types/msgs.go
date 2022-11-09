@@ -49,10 +49,36 @@ var (
 
 // exchange message types
 const (
-	TypeMsgTransferAndExecute = "msgTransferAndExecute"
-	TypeMsgMultiExecute       = "msgMultiExecute"
-	TypeMsgDeposit            = "msgDeposit"
-	// TODO: add the others for each msg
+	TypeMsgTransferAndExecute               = "msgTransferAndExecute"
+	TypeMsgMultiExecute                     = "msgMultiExecute"
+	TypeMsgDeposit                          = "msgDeposit"
+	TypeMsgWithdraw                         = "msgWithdraw"
+	TypeMsgCreateSpotLimitOrder             = "createSpotLimitOrder"
+	TypeMsgBatchCreateSpotLimitOrders       = "batchCreateSpotLimitOrders"
+	TypeMsgCreateSpotMarketOrder            = "createSpotMarketOrder"
+	TypeMsgCancelSpotOrder                  = "cancelSpotOrder"
+	TypeMsgBatchCancelSpotOrders            = "batchCancelSpotOrders"
+	TypeMsgCreateDerivativeLimitOrder       = "createDerivativeLimitOrder"
+	TypeMsgBatchCreateDerivativeLimitOrders = "batchCreateDerivativeLimitOrder"
+	TypeMsgCreateDerivativeMarketOrder      = "createDerivativeMarketOrder"
+	TypeMsgCancelDerivativeOrder            = "cancelDerivativeOrder"
+	TypeMsgBatchCancelDerivativeOrders      = "batchCancelDerivativeOrder"
+	TypeMsgSubaccountTransfer               = "subaccountTransfer"
+	TypeMsgExternalTransfer                 = "externalTransfer"
+	TypeMsgIncreasePositionMargin           = "increasePositionMargin"
+	TypeMsgLiquidatePosition                = "liquidatePosition"
+	TypeMsgInstantSpotMarketLaunch          = "instantSpotMarketLaunch"
+	TypeMsgInstantPerpetualMarketLaunch     = "instantPerpetualMarketLaunch"
+	TypeMsgInstantExpiryFuturesMarketLaunch = "instantExpiryFuturesMarketLaunch"
+	TypeMsgBatchUpdateOrders                = "batchUpdateOrders"
+	TypeMsgExec                             = "exec"
+	TypeMsgRewardsOptOut                    = "rewardsOptOut"
+	TypeMsgInstantBinaryOptionsMarketLaunch = "instantBinaryOptionsMarketLaunch"
+	TypeMsgCreateBinaryOptionsLimitOrder    = "createBinaryOptionsLimitOrder"
+	TypeMsgCreateBinaryOptionsMarketOrder   = "createBinaryOptionsMarketOrder"
+	TypeMsgCancelBinaryOptionsOrder         = "cancelBinaryOptionsOrder"
+	TypeMsgAdminUpdateBinaryOptionsMarket   = "adminUpdateBinaryOptionsMarket"
+	TypeMsgBatchCancelBinaryOptionsOrders   = "batchCancelBinaryOptionsOrders"
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -339,7 +365,7 @@ func (msg MsgDeposit) GetSigners() []sdk.AccAddress {
 func (msg MsgWithdraw) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgWithdraw) Type() string { return "msgWithdraw" }
+func (msg MsgWithdraw) Type() string { return TypeMsgWithdraw }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgWithdraw) ValidateBasic() error {
@@ -385,7 +411,7 @@ func (msg MsgWithdraw) GetSigners() []sdk.AccAddress {
 func (msg MsgInstantSpotMarketLaunch) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgInstantSpotMarketLaunch) Type() string { return "instantSpotMarketLaunch" }
+func (msg MsgInstantSpotMarketLaunch) Type() string { return TypeMsgInstantSpotMarketLaunch }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
@@ -434,7 +460,7 @@ func (msg MsgInstantSpotMarketLaunch) GetSigners() []sdk.AccAddress {
 func (msg MsgInstantPerpetualMarketLaunch) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgInstantPerpetualMarketLaunch) Type() string { return "instantPerpetualMarketLaunch" }
+func (msg MsgInstantPerpetualMarketLaunch) Type() string { return TypeMsgInstantPerpetualMarketLaunch }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
@@ -499,7 +525,7 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) Route() string { return RouterKey
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg MsgInstantBinaryOptionsMarketLaunch) Type() string {
-	return "instantBinaryOptionsMarketLaunch"
+	return TypeMsgInstantBinaryOptionsMarketLaunch
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -573,7 +599,7 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) Route() string { return RouterKey
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg MsgInstantExpiryFuturesMarketLaunch) Type() string {
-	return "instantExpiryFuturesMarketLaunch"
+	return TypeMsgInstantExpiryFuturesMarketLaunch
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -642,7 +668,7 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) GetSigners() []sdk.AccAddress {
 func (msg MsgCreateSpotLimitOrder) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgCreateSpotLimitOrder) Type() string { return "createSpotLimitOrder" }
+func (msg MsgCreateSpotLimitOrder) Type() string { return TypeMsgCreateSpotLimitOrder }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
@@ -674,7 +700,7 @@ func (msg MsgCreateSpotLimitOrder) GetSigners() []sdk.AccAddress {
 func (msg MsgBatchCreateSpotLimitOrders) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgBatchCreateSpotLimitOrders) Type() string { return "batchCreateSpotLimitOrders" }
+func (msg MsgBatchCreateSpotLimitOrders) Type() string { return TypeMsgBatchCreateSpotLimitOrders }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgBatchCreateSpotLimitOrders) ValidateBasic() error {
@@ -714,7 +740,7 @@ func (msg MsgBatchCreateSpotLimitOrders) GetSigners() []sdk.AccAddress {
 func (msg MsgCreateSpotMarketOrder) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgCreateSpotMarketOrder) Type() string { return "createSpotMarketOrder" }
+func (msg MsgCreateSpotMarketOrder) Type() string { return TypeMsgCreateSpotMarketOrder }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
@@ -752,7 +778,7 @@ func (msg MsgCreateSpotMarketOrder) GetSigners() []sdk.AccAddress {
 func (msg *MsgCancelSpotOrder) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg *MsgCancelSpotOrder) Type() string { return "cancelSpotOrder" }
+func (msg *MsgCancelSpotOrder) Type() string { return TypeMsgCancelSpotOrder }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg *MsgCancelSpotOrder) ValidateBasic() error {
@@ -787,7 +813,7 @@ func (msg *MsgCancelSpotOrder) GetSigners() []sdk.AccAddress {
 func (msg *MsgBatchCancelSpotOrders) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg *MsgBatchCancelSpotOrders) Type() string { return "batchCancelSpotOrders" }
+func (msg *MsgBatchCancelSpotOrders) Type() string { return TypeMsgBatchCancelSpotOrders }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg *MsgBatchCancelSpotOrders) ValidateBasic() error {
@@ -827,7 +853,7 @@ func (msg *MsgBatchCancelSpotOrders) GetSigners() []sdk.AccAddress {
 func (msg MsgCreateDerivativeLimitOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateDerivativeLimitOrder) Type() string { return "createDerivativeLimitOrder" }
+func (msg MsgCreateDerivativeLimitOrder) Type() string { return TypeMsgCreateDerivativeLimitOrder }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateDerivativeLimitOrder) ValidateBasic() error {
@@ -891,7 +917,9 @@ func NewMsgCreateBinaryOptionsLimitOrder(
 func (msg MsgCreateBinaryOptionsLimitOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateBinaryOptionsLimitOrder) Type() string { return "createBinaryOptionsLimitOrder" }
+func (msg MsgCreateBinaryOptionsLimitOrder) Type() string {
+	return TypeMsgCreateBinaryOptionsLimitOrder
+}
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateBinaryOptionsLimitOrder) ValidateBasic() error {
@@ -928,7 +956,7 @@ func (msg MsgBatchCreateDerivativeLimitOrders) Route() string { return RouterKey
 
 // Type should return the action
 func (msg MsgBatchCreateDerivativeLimitOrders) Type() string {
-	return "batchCreateDerivativeLimitOrder"
+	return TypeMsgBatchCreateDerivativeLimitOrders
 }
 
 // ValidateBasic runs stateless checks on the message
@@ -969,7 +997,7 @@ func (msg MsgBatchCreateDerivativeLimitOrders) GetSigners() []sdk.AccAddress {
 func (msg MsgCreateDerivativeMarketOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateDerivativeMarketOrder) Type() string { return "createDerivativeMarketOrder" }
+func (msg MsgCreateDerivativeMarketOrder) Type() string { return TypeMsgCreateDerivativeMarketOrder }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateDerivativeMarketOrder) ValidateBasic() error {
@@ -1034,7 +1062,9 @@ func NewMsgCreateBinaryOptionsMarketOrder(
 func (msg MsgCreateBinaryOptionsMarketOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateBinaryOptionsMarketOrder) Type() string { return "createBinaryOptionsMarketOrder" }
+func (msg MsgCreateBinaryOptionsMarketOrder) Type() string {
+	return TypeMsgCreateBinaryOptionsMarketOrder
+}
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateBinaryOptionsMarketOrder) ValidateBasic() error {
@@ -1077,7 +1107,7 @@ func (msg *MsgCancelDerivativeOrder) Route() string {
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg *MsgCancelDerivativeOrder) Type() string {
-	return "cancelDerivativeOrder"
+	return TypeMsgCancelDerivativeOrder
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -1116,7 +1146,7 @@ func (msg *MsgBatchCancelDerivativeOrders) Route() string {
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg *MsgBatchCancelDerivativeOrders) Type() string {
-	return "batchCancelDerivativeOrder"
+	return TypeMsgBatchCancelDerivativeOrders
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -1160,7 +1190,7 @@ func (msg *MsgCancelBinaryOptionsOrder) Route() string {
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg *MsgCancelBinaryOptionsOrder) Type() string {
-	return "cancelBinaryOptionsOrder"
+	return TypeMsgCancelBinaryOptionsOrder
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -1198,7 +1228,7 @@ func (msg *MsgBatchCancelBinaryOptionsOrders) Route() string {
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg *MsgBatchCancelBinaryOptionsOrders) Type() string {
-	return "batchCancelBinaryOptionsOrders"
+	return TypeMsgBatchCancelBinaryOptionsOrders
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -1240,7 +1270,7 @@ func (msg *MsgSubaccountTransfer) Route() string {
 }
 
 func (msg *MsgSubaccountTransfer) Type() string {
-	return "subaccountTransfer"
+	return TypeMsgSubaccountTransfer
 }
 
 func (msg *MsgSubaccountTransfer) ValidateBasic() error {
@@ -1290,7 +1320,7 @@ func (msg *MsgExternalTransfer) Route() string {
 }
 
 func (msg *MsgExternalTransfer) Type() string {
-	return "externalTransfer"
+	return TypeMsgExternalTransfer
 }
 
 func (msg *MsgExternalTransfer) ValidateBasic() error {
@@ -1339,7 +1369,7 @@ func (msg *MsgIncreasePositionMargin) Route() string {
 }
 
 func (msg *MsgIncreasePositionMargin) Type() string {
-	return "increasePositionMargin"
+	return TypeMsgIncreasePositionMargin
 }
 
 func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
@@ -1389,7 +1419,7 @@ func (msg *MsgExec) Route() string {
 }
 
 func (msg *MsgExec) Type() string {
-	return "exec"
+	return TypeMsgExec
 }
 
 func (msg *MsgExec) ValidateBasic() error {
@@ -1450,7 +1480,7 @@ func (msg *MsgRewardsOptOut) Route() string {
 }
 
 func (msg *MsgRewardsOptOut) Type() string {
-	return "rewardsOptOut"
+	return TypeMsgRewardsOptOut
 }
 
 func (msg *MsgRewardsOptOut) ValidateBasic() error {
@@ -1475,7 +1505,7 @@ func (msg *MsgLiquidatePosition) Route() string {
 }
 
 func (msg *MsgLiquidatePosition) Type() string {
-	return "liquidatePosition"
+	return TypeMsgLiquidatePosition
 }
 
 func (msg *MsgLiquidatePosition) ValidateBasic() error {
@@ -1523,7 +1553,7 @@ func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
 func (msg MsgBatchUpdateOrders) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgBatchUpdateOrders) Type() string { return "batchUpdateOrders" }
+func (msg MsgBatchUpdateOrders) Type() string { return TypeMsgBatchUpdateOrders }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgBatchUpdateOrders) ValidateBasic() error {
@@ -1706,7 +1736,7 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) Route() string {
 }
 
 func (msg *MsgAdminUpdateBinaryOptionsMarket) Type() string {
-	return "adminUpdateBinaryOptionsMarket"
+	return TypeMsgAdminUpdateBinaryOptionsMarket
 }
 
 func (msg *MsgAdminUpdateBinaryOptionsMarket) ValidateBasic() error {

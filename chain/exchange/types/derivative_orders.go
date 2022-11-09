@@ -195,7 +195,7 @@ func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate sdk.Dec) *DepositDe
 
 	depositDelta := NewDepositDelta()
 	if o.IsVanilla() {
-		//nolint:all
+		// nolint:all
 		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
 		notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
 		marginHoldRefund := o.Fillable.Mul(o.Margin.Add(notional.Mul(positiveFeePart))).Quo(o.OrderInfo.Quantity)

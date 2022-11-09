@@ -3,7 +3,7 @@
 // InjectiveMetaRPC protocol buffer definition
 //
 // Command:
-// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+// $ goa gen github.com/InjectiveLabs/injective-indexer/api/design -o ../
 
 syntax = "proto3";
 

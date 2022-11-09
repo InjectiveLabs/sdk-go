@@ -3,7 +3,7 @@
 // InjectiveDerivativeExchangeRPC protocol buffer definition
 //
 // Command:
-// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+// $ goa gen github.com/InjectiveLabs/injective-indexer/api/design -o ../
 
 syntax = "proto3";
 
@@ -20,6 +20,10 @@ service InjectiveDerivativeExchangeRPC {
 	rpc Market (MarketRequest) returns (MarketResponse);
 	// StreamMarket streams live updates of selected derivative markets
 	rpc StreamMarket (StreamMarketRequest) returns (stream StreamMarketResponse);
+	// BinaryOptionsMarkets gets a list of Binary Options Markets
+	rpc BinaryOptionsMarkets (BinaryOptionsMarketsRequest) returns (BinaryOptionsMarketsResponse);
+	// BinaryOptionMarket gets details of a single binary options market
+	rpc BinaryOptionsMarket (BinaryOptionsMarketRequest) returns (BinaryOptionsMarketResponse);
 	// Orderbook gets the Orderbook of a Derivative Market
 	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
 	// Orderbooks gets the Orderbooks of requested derivative markets
@@ -49,6 +53,10 @@ service InjectiveDerivativeExchangeRPC {
 	// SubaccountTradesList gets a list of derivatives trades executed by this
 // subaccount.
 	rpc SubaccountTradesList (SubaccountTradesListRequest) returns (SubaccountTradesListResponse);
+	// Lists history orders posted from a subaccount
+	rpc OrdersHistory (OrdersHistoryRequest) returns (OrdersHistoryResponse);
+	// Stream updates to historical orders of a spot Market
+	rpc StreamOrdersHistory (StreamOrdersHistoryRequest) returns (stream StreamOrdersHistoryResponse);
 }
 
 message MarketsRequest {
@@ -179,6 +187,82 @@ message StreamMarketResponse {
 	sint64 timestamp = 3;
 }
 
+message BinaryOptionsMarketsRequest {
+	// Filter by market status
+	string market_status = 1;
+	// Filter by the Coin denomination of the quote currency
+	string quote_denom = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 4;
+}
+
+message BinaryOptionsMarketsResponse {
+	// Binary Options Markets list
+	repeated BinaryOptionsMarketInfo markets = 1;
+	Paging paging = 2;
+}
+
+message BinaryOptionsMarketInfo {
+	// Binary Options Market ID is crypto.Keccak256Hash([]byte((oracleType.String()
+// + ticker + quoteDenom + oracleSymbol + oracleProvider)))
+	string market_id = 1;
+	// The status of the market
+	string market_status = 2;
+	// A name of the binary options market.
+	string ticker = 3;
+	// Oracle symbol
+	string oracle_symbol = 4;
+	// Oracle provider
+	string oracle_provider = 5;
+	// Oracle Type
+	string oracle_type = 6;
+	// OracleScaleFactor
+	uint32 oracle_scale_factor = 7;
+	// Defines the expiration time for the market in UNIX seconds.
+	sint64 expiration_timestamp = 8;
+	// Defines the settlement time for the market in UNIX seconds.
+	sint64 settlement_timestamp = 9;
+	// Coin denom used for the quote asset.
+	string quote_denom = 10;
+	// Token metadata for quote asset, only for Ethereum-based assets
+	TokenMeta quote_token_meta = 11;
+	// Defines the fee percentage makers pay when trading (in quote asset)
+	string maker_fee_rate = 12;
+	// Defines the fee percentage takers pay when trading (in quote asset)
+	string taker_fee_rate = 13;
+	// Percentage of the transaction fee shared with the service provider
+	string service_provider_fee = 14;
+	// Defines the minimum required tick size for the order's price
+	string min_price_tick_size = 15;
+	// Defines the minimum required tick size for the order's quantity
+	string min_quantity_tick_size = 16;
+	// Defines the settlement price of the market
+	string settlement_price = 17;
+}
+// Paging defines the structure for required params for handling pagination
+message Paging {
+	// total number of txs saved in database
+	sint64 total = 1;
+	// can be either block height or index num
+	sint32 from = 2;
+	// can be either block height or index num
+	sint32 to = 3;
+	// count entries by subaccount, serving some places on helix
+	sint64 count_by_subaccount = 4;
+}
+
+message BinaryOptionsMarketRequest {
+	// MarketId of the market we want to fetch
+	string market_id = 1;
+}
+
+message BinaryOptionsMarketResponse {
+	// Info about particular derivative market
+	BinaryOptionsMarketInfo market = 1;
+}
+
 message OrderbookRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
@@ -190,10 +274,12 @@ message OrderbookResponse {
 }
 
 message DerivativeLimitOrderbook {
+	// market orderbook sequence
+	uint64 sequence = 1;
 	// Array of price levels for buys
-	repeated PriceLevel buys = 1;
+	repeated PriceLevel buys = 2;
 	// Array of price levels for sells
-	repeated PriceLevel sells = 2;
+	repeated PriceLevel sells = 3;
 }
 
 message PriceLevel {
@@ -227,14 +313,31 @@ message StreamOrderbookRequest {
 }
 
 message StreamOrderbookResponse {
-	// Orderbook of a Derivative Market
-	DerivativeLimitOrderbook orderbook = 1;
+	// Orderbook level of a Derivative Market
+	OrderbookLevel orderbook_level = 1;
 	// Order update type
 	string operation_type = 2;
 	// Operation timestamp in UNIX millis.
 	sint64 timestamp = 3;
 	// MarketId of the market's orderbook
 	string market_id = 4;
+}
+
+message OrderbookLevel {
+	// market's ID
+	string market_id = 1;
+	// orderbook update sequence
+	uint64 sequence = 2;
+	// level side
+	bool is_buy = 3;
+	// level price
+	string price = 4;
+	// level quantity
+	string quantity = 5;
+	// level status
+	bool is_active = 6;
+	// level timestamp
+	sint64 updated_at = 7;
 }
 
 message OrdersRequest {
@@ -248,11 +351,27 @@ message OrdersRequest {
 	uint64 skip = 4;
 	// Limit is used to specify the maximum number of items to be returned
 	sint32 limit = 5;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 6;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 7;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 8;
+	// Only search for conditional/non-conditional orders
+	string is_conditional = 9;
+	// Search for specific order type
+	string order_type = 10;
+	// Should include inactive orders
+	bool include_inactive = 11;
+	// Choose to return subaccount total orders
+	bool subaccount_total_orders = 12;
 }
 
 message OrdersResponse {
-	// List of derivative market orders
 	repeated DerivativeLimitOrder orders = 1;
+	Paging paging = 2;
 }
 
 message DerivativeLimitOrder {
@@ -284,6 +403,18 @@ message DerivativeLimitOrder {
 	sint64 created_at = 13;
 	// Order updated timestamp in UNIX millis.
 	sint64 updated_at = 14;
+	// Order number of subaccount
+	sint64 order_number = 15;
+	// Order type
+	string order_type = 16;
+	// Order type
+	bool is_conditional = 17;
+	// Trigger timestamp, only exists for conditional orders
+	uint64 trigger_at = 18;
+	// OrderHash of order that is triggered by this conditional order
+	string placed_order_hash = 19;
+	// Execution type of conditional order
+	string execution_type = 20;
 }
 
 message PositionsRequest {
@@ -295,11 +426,23 @@ message PositionsRequest {
 	uint64 skip = 3;
 	// Limit is used to specify the maximum number of items to be returned
 	sint32 limit = 4;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 5;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 6;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 7;
+	// filter by direction of the position
+	string direction = 8;
+	// Choose to return subaccount total positions
+	bool subaccount_total_positions = 9;
 }
 
 message PositionsResponse {
-	// List of derivative positions
 	repeated DerivativePosition positions = 1;
+	Paging paging = 2;
 }
 
 message DerivativePosition {
@@ -323,6 +466,10 @@ message DerivativePosition {
 	string mark_price = 9;
 	// Aggregate Quantity of the Reduce Only orders associated with the position
 	string aggregate_reduce_only_quantity = 11;
+	// Position updated timestamp in UNIX millis.
+	sint64 updated_at = 12;
+	// Position created timestamp in UNIX millis.
+	sint64 created_at = 13;
 }
 
 message LiquidablePositionsRequest {
@@ -348,11 +495,16 @@ message FundingPaymentsRequest {
 	uint64 skip = 3;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 4;
+	// Upper bound of funding payment updatedAt
+	sint64 end_time = 5;
+	// Filter by market ids
+	repeated string market_ids = 6;
 }
 
 message FundingPaymentsResponse {
 	// List of funding payments
 	repeated FundingPayment payments = 1;
+	Paging paging = 2;
 }
 
 message FundingPayment {
@@ -373,11 +525,14 @@ message FundingRatesRequest {
 	uint64 skip = 2;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 3;
+	// Upper bound of funding timestamp
+	sint64 end_time = 4;
 }
 
 message FundingRatesResponse {
 	// List of funding rates
 	repeated FundingRate funding_rates = 1;
+	Paging paging = 2;
 }
 
 message FundingRate {
@@ -418,6 +573,22 @@ message StreamOrdersRequest {
 	uint64 skip = 4;
 	// Limit is used to specify the maximum number of items to be returned
 	sint32 limit = 5;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 6;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 7;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 8;
+	// Only search for conditional/non-conditional orders
+	string is_conditional = 9;
+	// Search for specific order type
+	string order_type = 10;
+	// Should include inactive orders
+	bool include_inactive = 11;
+	// Choose to return subaccount total orders
+	bool subaccount_total_orders = 12;
 }
 
 message StreamOrdersResponse {
@@ -452,11 +623,13 @@ message TradesRequest {
 	repeated string market_ids = 9;
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
+	repeated string execution_types = 11;
 }
 
 message TradesResponse {
 	// Trades of a Derivative Market
 	repeated DerivativeTrade trades = 1;
+	Paging paging = 2;
 }
 
 message DerivativeTrade {
@@ -480,6 +653,10 @@ message DerivativeTrade {
 	sint64 executed_at = 9;
 	// Fee recipient address
 	string fee_recipient = 10;
+	// A unique string that helps differentiate between trades
+	string trade_id = 11;
+	// Trade's execution side, marker/taker
+	string execution_side = 12;
 }
 
 message PositionDelta {
@@ -516,6 +693,7 @@ message StreamTradesRequest {
 	repeated string market_ids = 9;
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
+	repeated string execution_types = 11;
 }
 
 message StreamTradesResponse {
@@ -541,6 +719,7 @@ message SubaccountOrdersListRequest {
 message SubaccountOrdersListResponse {
 	// List of derivative orders
 	repeated DerivativeLimitOrder orders = 1;
+	Paging paging = 2;
 }
 
 message SubaccountTradesListRequest {
@@ -561,4 +740,100 @@ message SubaccountTradesListRequest {
 message SubaccountTradesListResponse {
 	// List of derivative market trades
 	repeated DerivativeTrade trades = 1;
+}
+
+message OrdersHistoryRequest {
+	// subaccount ID to filter orders for specific subaccount
+	string subaccount_id = 1;
+	// Market ID to filter orders for specific market
+	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 4;
+	// filter by order types
+	repeated string order_types = 5;
+	// order side filter
+	string direction = 6;
+	// Search for orders which createdAt >= startTime, time in millisecond
+	sint64 start_time = 7;
+	// Search for orders which createdAt <= endTime, time in millisecond
+	sint64 end_time = 8;
+	// Only search for conditional/non-conditional orders
+	string is_conditional = 9;
+	// filter by order type
+	string order_type = 10;
+	// Filter by order state
+	string state = 11;
+	repeated string execution_types = 12;
+}
+
+message OrdersHistoryResponse {
+	// List of historical derivative orders
+	repeated DerivativeOrderHistory orders = 1;
+	Paging paging = 2;
+}
+
+message DerivativeOrderHistory {
+	// Hash of the order
+	string order_hash = 1;
+	// Spot Market ID is keccak265(baseDenom + quoteDenom)
+	string market_id = 2;
+	// active state of the order
+	bool is_active = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// The execution type
+	string execution_type = 5;
+	// The side of the order
+	string order_type = 6;
+	// Price of the order
+	string price = 7;
+	// Trigger price
+	string trigger_price = 8;
+	// Quantity of the order
+	string quantity = 9;
+	// Filled amount
+	string filled_quantity = 10;
+	// Order state
+	string state = 11;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 12;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 13;
+	// True if an order is reduce only
+	bool is_reduce_only = 14;
+	// Order direction (order side)
+	string direction = 15;
+	// True if this is conditional order, otherwise false
+	bool is_conditional = 16;
+	// Trigger timestamp in unix milli
+	uint64 trigger_at = 17;
+	// Order hash placed when this triggers
+	string placed_order_hash = 18;
+	// Order's margin
+	string margin = 19;
+}
+
+message StreamOrdersHistoryRequest {
+	// subaccount ID to filter orders for specific subaccount
+	string subaccount_id = 1;
+	// Market ID to filter orders for specific market
+	string market_id = 2;
+	// filter by order types
+	repeated string order_types = 3;
+	// order side filter
+	string direction = 4;
+	// Filter by order state
+	string state = 5;
+	repeated string execution_types = 6;
+}
+
+message StreamOrdersHistoryResponse {
+	// Updated order
+	DerivativeOrderHistory order = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
 }

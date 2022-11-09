@@ -24,10 +24,14 @@ const _ = grpc.SupportPackageIsVersion7
 type InjectiveExplorerRPCClient interface {
 	// GetAccountTxs returns tranctions involving in an account based upon params.
 	GetAccountTxs(ctx context.Context, in *GetAccountTxsRequest, opts ...grpc.CallOption) (*GetAccountTxsResponse, error)
+	// GetContractTxs returns contract-related transactions
+	GetContractTxs(ctx context.Context, in *GetContractTxsRequest, opts ...grpc.CallOption) (*GetContractTxsResponse, error)
 	// GetBlocks returns blocks based upon the request params
 	GetBlocks(ctx context.Context, in *GetBlocksRequest, opts ...grpc.CallOption) (*GetBlocksResponse, error)
 	// GetBlock returns block based upon the height or hash
 	GetBlock(ctx context.Context, in *GetBlockRequest, opts ...grpc.CallOption) (*GetBlockResponse, error)
+	// GetValidators returns validators on the active chain
+	GetValidators(ctx context.Context, in *GetValidatorsRequest, opts ...grpc.CallOption) (*GetValidatorsResponse, error)
 	// GetValidator returns validator information on the active chain
 	GetValidator(ctx context.Context, in *GetValidatorRequest, opts ...grpc.CallOption) (*GetValidatorResponse, error)
 	// GetValidatorUptime returns validator uptime information on the active chain
@@ -36,10 +40,6 @@ type InjectiveExplorerRPCClient interface {
 	GetTxs(ctx context.Context, in *GetTxsRequest, opts ...grpc.CallOption) (*GetTxsResponse, error)
 	// GetTxByTxHash returns certain transaction information by its tx hash.
 	GetTxByTxHash(ctx context.Context, in *GetTxByTxHashRequest, opts ...grpc.CallOption) (*GetTxByTxHashResponse, error)
-	// StreamTxs returns transactions based upon the request params
-	StreamTxs(ctx context.Context, in *StreamTxsRequest, opts ...grpc.CallOption) (InjectiveExplorerRPC_StreamTxsClient, error)
-	// StreamBlocks returns the latest blocks
-	StreamBlocks(ctx context.Context, in *StreamBlocksRequest, opts ...grpc.CallOption) (InjectiveExplorerRPC_StreamBlocksClient, error)
 	// GetPeggyDepositTxs returns the peggy deposit transactions based upon the
 	// request params
 	GetPeggyDepositTxs(ctx context.Context, in *GetPeggyDepositTxsRequest, opts ...grpc.CallOption) (*GetPeggyDepositTxsResponse, error)
@@ -49,6 +49,23 @@ type InjectiveExplorerRPCClient interface {
 	// GetIBCTransferTxs returns the ibc transfer transactions based upon the
 	// request params
 	GetIBCTransferTxs(ctx context.Context, in *GetIBCTransferTxsRequest, opts ...grpc.CallOption) (*GetIBCTransferTxsResponse, error)
+	// GetWasmCodes lists all stored code
+	GetWasmCodes(ctx context.Context, in *GetWasmCodesRequest, opts ...grpc.CallOption) (*GetWasmCodesResponse, error)
+	// GetWasmCodeById list cosmwasm code infor by ID
+	GetWasmCodeByID(ctx context.Context, in *GetWasmCodeByIDRequest, opts ...grpc.CallOption) (*GetWasmCodeByIDResponse, error)
+	// GetWasmContracts lists all contracts
+	GetWasmContracts(ctx context.Context, in *GetWasmContractsRequest, opts ...grpc.CallOption) (*GetWasmContractsResponse, error)
+	// GetWasmContractByAddress list cosmwasm contract infor by its address
+	GetWasmContractByAddress(ctx context.Context, in *GetWasmContractByAddressRequest, opts ...grpc.CallOption) (*GetWasmContractByAddressResponse, error)
+	// GetCw20Balance lists all cw20 balances of an injective account
+	GetCw20Balance(ctx context.Context, in *GetCw20BalanceRequest, opts ...grpc.CallOption) (*GetCw20BalanceResponse, error)
+	// Request relayers infos by marketIDs. If no ids are provided, all market with
+	// associated relayers are returned
+	Relayers(ctx context.Context, in *RelayersRequest, opts ...grpc.CallOption) (*RelayersResponse, error)
+	// StreamTxs returns transactions based upon the request params
+	StreamTxs(ctx context.Context, in *StreamTxsRequest, opts ...grpc.CallOption) (InjectiveExplorerRPC_StreamTxsClient, error)
+	// StreamBlocks returns the latest blocks
+	StreamBlocks(ctx context.Context, in *StreamBlocksRequest, opts ...grpc.CallOption) (InjectiveExplorerRPC_StreamBlocksClient, error)
 }
 
 type injectiveExplorerRPCClient struct {
@@ -68,6 +85,15 @@ func (c *injectiveExplorerRPCClient) GetAccountTxs(ctx context.Context, in *GetA
 	return out, nil
 }
 
+func (c *injectiveExplorerRPCClient) GetContractTxs(ctx context.Context, in *GetContractTxsRequest, opts ...grpc.CallOption) (*GetContractTxsResponse, error) {
+	out := new(GetContractTxsResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetContractTxs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *injectiveExplorerRPCClient) GetBlocks(ctx context.Context, in *GetBlocksRequest, opts ...grpc.CallOption) (*GetBlocksResponse, error) {
 	out := new(GetBlocksResponse)
 	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetBlocks", in, out, opts...)
@@ -80,6 +106,15 @@ func (c *injectiveExplorerRPCClient) GetBlocks(ctx context.Context, in *GetBlock
 func (c *injectiveExplorerRPCClient) GetBlock(ctx context.Context, in *GetBlockRequest, opts ...grpc.CallOption) (*GetBlockResponse, error) {
 	out := new(GetBlockResponse)
 	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetBlock", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetValidators(ctx context.Context, in *GetValidatorsRequest, opts ...grpc.CallOption) (*GetValidatorsResponse, error) {
+	out := new(GetValidatorsResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetValidators", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,6 +151,87 @@ func (c *injectiveExplorerRPCClient) GetTxs(ctx context.Context, in *GetTxsReque
 func (c *injectiveExplorerRPCClient) GetTxByTxHash(ctx context.Context, in *GetTxByTxHashRequest, opts ...grpc.CallOption) (*GetTxByTxHashResponse, error) {
 	out := new(GetTxByTxHashResponse)
 	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetTxByTxHash", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetPeggyDepositTxs(ctx context.Context, in *GetPeggyDepositTxsRequest, opts ...grpc.CallOption) (*GetPeggyDepositTxsResponse, error) {
+	out := new(GetPeggyDepositTxsResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetPeggyDepositTxs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetPeggyWithdrawalTxs(ctx context.Context, in *GetPeggyWithdrawalTxsRequest, opts ...grpc.CallOption) (*GetPeggyWithdrawalTxsResponse, error) {
+	out := new(GetPeggyWithdrawalTxsResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetPeggyWithdrawalTxs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetIBCTransferTxs(ctx context.Context, in *GetIBCTransferTxsRequest, opts ...grpc.CallOption) (*GetIBCTransferTxsResponse, error) {
+	out := new(GetIBCTransferTxsResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetIBCTransferTxs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetWasmCodes(ctx context.Context, in *GetWasmCodesRequest, opts ...grpc.CallOption) (*GetWasmCodesResponse, error) {
+	out := new(GetWasmCodesResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetWasmCodeByID(ctx context.Context, in *GetWasmCodeByIDRequest, opts ...grpc.CallOption) (*GetWasmCodeByIDResponse, error) {
+	out := new(GetWasmCodeByIDResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodeByID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetWasmContracts(ctx context.Context, in *GetWasmContractsRequest, opts ...grpc.CallOption) (*GetWasmContractsResponse, error) {
+	out := new(GetWasmContractsResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContracts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetWasmContractByAddress(ctx context.Context, in *GetWasmContractByAddressRequest, opts ...grpc.CallOption) (*GetWasmContractByAddressResponse, error) {
+	out := new(GetWasmContractByAddressResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContractByAddress", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetCw20Balance(ctx context.Context, in *GetCw20BalanceRequest, opts ...grpc.CallOption) (*GetCw20BalanceResponse, error) {
+	out := new(GetCw20BalanceResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetCw20Balance", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) Relayers(ctx context.Context, in *RelayersRequest, opts ...grpc.CallOption) (*RelayersResponse, error) {
+	out := new(RelayersResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/Relayers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -186,43 +302,20 @@ func (x *injectiveExplorerRPCStreamBlocksClient) Recv() (*StreamBlocksResponse, 
 	return m, nil
 }
 
-func (c *injectiveExplorerRPCClient) GetPeggyDepositTxs(ctx context.Context, in *GetPeggyDepositTxsRequest, opts ...grpc.CallOption) (*GetPeggyDepositTxsResponse, error) {
-	out := new(GetPeggyDepositTxsResponse)
-	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetPeggyDepositTxs", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *injectiveExplorerRPCClient) GetPeggyWithdrawalTxs(ctx context.Context, in *GetPeggyWithdrawalTxsRequest, opts ...grpc.CallOption) (*GetPeggyWithdrawalTxsResponse, error) {
-	out := new(GetPeggyWithdrawalTxsResponse)
-	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetPeggyWithdrawalTxs", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *injectiveExplorerRPCClient) GetIBCTransferTxs(ctx context.Context, in *GetIBCTransferTxsRequest, opts ...grpc.CallOption) (*GetIBCTransferTxsResponse, error) {
-	out := new(GetIBCTransferTxsResponse)
-	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetIBCTransferTxs", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // InjectiveExplorerRPCServer is the server API for InjectiveExplorerRPC service.
 // All implementations must embed UnimplementedInjectiveExplorerRPCServer
 // for forward compatibility
 type InjectiveExplorerRPCServer interface {
 	// GetAccountTxs returns tranctions involving in an account based upon params.
 	GetAccountTxs(context.Context, *GetAccountTxsRequest) (*GetAccountTxsResponse, error)
+	// GetContractTxs returns contract-related transactions
+	GetContractTxs(context.Context, *GetContractTxsRequest) (*GetContractTxsResponse, error)
 	// GetBlocks returns blocks based upon the request params
 	GetBlocks(context.Context, *GetBlocksRequest) (*GetBlocksResponse, error)
 	// GetBlock returns block based upon the height or hash
 	GetBlock(context.Context, *GetBlockRequest) (*GetBlockResponse, error)
+	// GetValidators returns validators on the active chain
+	GetValidators(context.Context, *GetValidatorsRequest) (*GetValidatorsResponse, error)
 	// GetValidator returns validator information on the active chain
 	GetValidator(context.Context, *GetValidatorRequest) (*GetValidatorResponse, error)
 	// GetValidatorUptime returns validator uptime information on the active chain
@@ -231,10 +324,6 @@ type InjectiveExplorerRPCServer interface {
 	GetTxs(context.Context, *GetTxsRequest) (*GetTxsResponse, error)
 	// GetTxByTxHash returns certain transaction information by its tx hash.
 	GetTxByTxHash(context.Context, *GetTxByTxHashRequest) (*GetTxByTxHashResponse, error)
-	// StreamTxs returns transactions based upon the request params
-	StreamTxs(*StreamTxsRequest, InjectiveExplorerRPC_StreamTxsServer) error
-	// StreamBlocks returns the latest blocks
-	StreamBlocks(*StreamBlocksRequest, InjectiveExplorerRPC_StreamBlocksServer) error
 	// GetPeggyDepositTxs returns the peggy deposit transactions based upon the
 	// request params
 	GetPeggyDepositTxs(context.Context, *GetPeggyDepositTxsRequest) (*GetPeggyDepositTxsResponse, error)
@@ -244,6 +333,23 @@ type InjectiveExplorerRPCServer interface {
 	// GetIBCTransferTxs returns the ibc transfer transactions based upon the
 	// request params
 	GetIBCTransferTxs(context.Context, *GetIBCTransferTxsRequest) (*GetIBCTransferTxsResponse, error)
+	// GetWasmCodes lists all stored code
+	GetWasmCodes(context.Context, *GetWasmCodesRequest) (*GetWasmCodesResponse, error)
+	// GetWasmCodeById list cosmwasm code infor by ID
+	GetWasmCodeByID(context.Context, *GetWasmCodeByIDRequest) (*GetWasmCodeByIDResponse, error)
+	// GetWasmContracts lists all contracts
+	GetWasmContracts(context.Context, *GetWasmContractsRequest) (*GetWasmContractsResponse, error)
+	// GetWasmContractByAddress list cosmwasm contract infor by its address
+	GetWasmContractByAddress(context.Context, *GetWasmContractByAddressRequest) (*GetWasmContractByAddressResponse, error)
+	// GetCw20Balance lists all cw20 balances of an injective account
+	GetCw20Balance(context.Context, *GetCw20BalanceRequest) (*GetCw20BalanceResponse, error)
+	// Request relayers infos by marketIDs. If no ids are provided, all market with
+	// associated relayers are returned
+	Relayers(context.Context, *RelayersRequest) (*RelayersResponse, error)
+	// StreamTxs returns transactions based upon the request params
+	StreamTxs(*StreamTxsRequest, InjectiveExplorerRPC_StreamTxsServer) error
+	// StreamBlocks returns the latest blocks
+	StreamBlocks(*StreamBlocksRequest, InjectiveExplorerRPC_StreamBlocksServer) error
 	mustEmbedUnimplementedInjectiveExplorerRPCServer()
 }
 
@@ -254,11 +360,17 @@ type UnimplementedInjectiveExplorerRPCServer struct {
 func (UnimplementedInjectiveExplorerRPCServer) GetAccountTxs(context.Context, *GetAccountTxsRequest) (*GetAccountTxsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccountTxs not implemented")
 }
+func (UnimplementedInjectiveExplorerRPCServer) GetContractTxs(context.Context, *GetContractTxsRequest) (*GetContractTxsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetContractTxs not implemented")
+}
 func (UnimplementedInjectiveExplorerRPCServer) GetBlocks(context.Context, *GetBlocksRequest) (*GetBlocksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlocks not implemented")
 }
 func (UnimplementedInjectiveExplorerRPCServer) GetBlock(context.Context, *GetBlockRequest) (*GetBlockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlock not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetValidators(context.Context, *GetValidatorsRequest) (*GetValidatorsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetValidators not implemented")
 }
 func (UnimplementedInjectiveExplorerRPCServer) GetValidator(context.Context, *GetValidatorRequest) (*GetValidatorResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetValidator not implemented")
@@ -272,12 +384,6 @@ func (UnimplementedInjectiveExplorerRPCServer) GetTxs(context.Context, *GetTxsRe
 func (UnimplementedInjectiveExplorerRPCServer) GetTxByTxHash(context.Context, *GetTxByTxHashRequest) (*GetTxByTxHashResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxByTxHash not implemented")
 }
-func (UnimplementedInjectiveExplorerRPCServer) StreamTxs(*StreamTxsRequest, InjectiveExplorerRPC_StreamTxsServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamTxs not implemented")
-}
-func (UnimplementedInjectiveExplorerRPCServer) StreamBlocks(*StreamBlocksRequest, InjectiveExplorerRPC_StreamBlocksServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamBlocks not implemented")
-}
 func (UnimplementedInjectiveExplorerRPCServer) GetPeggyDepositTxs(context.Context, *GetPeggyDepositTxsRequest) (*GetPeggyDepositTxsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPeggyDepositTxs not implemented")
 }
@@ -286,6 +392,30 @@ func (UnimplementedInjectiveExplorerRPCServer) GetPeggyWithdrawalTxs(context.Con
 }
 func (UnimplementedInjectiveExplorerRPCServer) GetIBCTransferTxs(context.Context, *GetIBCTransferTxsRequest) (*GetIBCTransferTxsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetIBCTransferTxs not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetWasmCodes(context.Context, *GetWasmCodesRequest) (*GetWasmCodesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWasmCodes not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetWasmCodeByID(context.Context, *GetWasmCodeByIDRequest) (*GetWasmCodeByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWasmCodeByID not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetWasmContracts(context.Context, *GetWasmContractsRequest) (*GetWasmContractsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWasmContracts not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetWasmContractByAddress(context.Context, *GetWasmContractByAddressRequest) (*GetWasmContractByAddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWasmContractByAddress not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetCw20Balance(context.Context, *GetCw20BalanceRequest) (*GetCw20BalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCw20Balance not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) Relayers(context.Context, *RelayersRequest) (*RelayersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Relayers not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) StreamTxs(*StreamTxsRequest, InjectiveExplorerRPC_StreamTxsServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamTxs not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) StreamBlocks(*StreamBlocksRequest, InjectiveExplorerRPC_StreamBlocksServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamBlocks not implemented")
 }
 func (UnimplementedInjectiveExplorerRPCServer) mustEmbedUnimplementedInjectiveExplorerRPCServer() {}
 
@@ -314,6 +444,24 @@ func _InjectiveExplorerRPC_GetAccountTxs_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveExplorerRPCServer).GetAccountTxs(ctx, req.(*GetAccountTxsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_GetContractTxs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetContractTxsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetContractTxs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetContractTxs",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetContractTxs(ctx, req.(*GetContractTxsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -350,6 +498,24 @@ func _InjectiveExplorerRPC_GetBlock_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveExplorerRPCServer).GetBlock(ctx, req.(*GetBlockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_GetValidators_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetValidatorsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetValidators(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetValidators",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetValidators(ctx, req.(*GetValidatorsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -426,48 +592,6 @@ func _InjectiveExplorerRPC_GetTxByTxHash_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InjectiveExplorerRPC_StreamTxs_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamTxsRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(InjectiveExplorerRPCServer).StreamTxs(m, &injectiveExplorerRPCStreamTxsServer{stream})
-}
-
-type InjectiveExplorerRPC_StreamTxsServer interface {
-	Send(*StreamTxsResponse) error
-	grpc.ServerStream
-}
-
-type injectiveExplorerRPCStreamTxsServer struct {
-	grpc.ServerStream
-}
-
-func (x *injectiveExplorerRPCStreamTxsServer) Send(m *StreamTxsResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _InjectiveExplorerRPC_StreamBlocks_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamBlocksRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(InjectiveExplorerRPCServer).StreamBlocks(m, &injectiveExplorerRPCStreamBlocksServer{stream})
-}
-
-type InjectiveExplorerRPC_StreamBlocksServer interface {
-	Send(*StreamBlocksResponse) error
-	grpc.ServerStream
-}
-
-type injectiveExplorerRPCStreamBlocksServer struct {
-	grpc.ServerStream
-}
-
-func (x *injectiveExplorerRPCStreamBlocksServer) Send(m *StreamBlocksResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
 func _InjectiveExplorerRPC_GetPeggyDepositTxs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPeggyDepositTxsRequest)
 	if err := dec(in); err != nil {
@@ -522,6 +646,156 @@ func _InjectiveExplorerRPC_GetIBCTransferTxs_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveExplorerRPC_GetWasmCodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWasmCodesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetWasmCodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetWasmCodes(ctx, req.(*GetWasmCodesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_GetWasmCodeByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWasmCodeByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetWasmCodeByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodeByID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetWasmCodeByID(ctx, req.(*GetWasmCodeByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_GetWasmContracts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWasmContractsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetWasmContracts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContracts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetWasmContracts(ctx, req.(*GetWasmContractsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_GetWasmContractByAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWasmContractByAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetWasmContractByAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContractByAddress",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetWasmContractByAddress(ctx, req.(*GetWasmContractByAddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_GetCw20Balance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCw20BalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetCw20Balance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetCw20Balance",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetCw20Balance(ctx, req.(*GetCw20BalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_Relayers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RelayersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).Relayers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/Relayers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).Relayers(ctx, req.(*RelayersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_StreamTxs_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamTxsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveExplorerRPCServer).StreamTxs(m, &injectiveExplorerRPCStreamTxsServer{stream})
+}
+
+type InjectiveExplorerRPC_StreamTxsServer interface {
+	Send(*StreamTxsResponse) error
+	grpc.ServerStream
+}
+
+type injectiveExplorerRPCStreamTxsServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveExplorerRPCStreamTxsServer) Send(m *StreamTxsResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _InjectiveExplorerRPC_StreamBlocks_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamBlocksRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveExplorerRPCServer).StreamBlocks(m, &injectiveExplorerRPCStreamBlocksServer{stream})
+}
+
+type InjectiveExplorerRPC_StreamBlocksServer interface {
+	Send(*StreamBlocksResponse) error
+	grpc.ServerStream
+}
+
+type injectiveExplorerRPCStreamBlocksServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveExplorerRPCStreamBlocksServer) Send(m *StreamBlocksResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // InjectiveExplorerRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveExplorerRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -534,12 +808,20 @@ var InjectiveExplorerRPC_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _InjectiveExplorerRPC_GetAccountTxs_Handler,
 		},
 		{
+			MethodName: "GetContractTxs",
+			Handler:    _InjectiveExplorerRPC_GetContractTxs_Handler,
+		},
+		{
 			MethodName: "GetBlocks",
 			Handler:    _InjectiveExplorerRPC_GetBlocks_Handler,
 		},
 		{
 			MethodName: "GetBlock",
 			Handler:    _InjectiveExplorerRPC_GetBlock_Handler,
+		},
+		{
+			MethodName: "GetValidators",
+			Handler:    _InjectiveExplorerRPC_GetValidators_Handler,
 		},
 		{
 			MethodName: "GetValidator",
@@ -568,6 +850,30 @@ var InjectiveExplorerRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetIBCTransferTxs",
 			Handler:    _InjectiveExplorerRPC_GetIBCTransferTxs_Handler,
+		},
+		{
+			MethodName: "GetWasmCodes",
+			Handler:    _InjectiveExplorerRPC_GetWasmCodes_Handler,
+		},
+		{
+			MethodName: "GetWasmCodeByID",
+			Handler:    _InjectiveExplorerRPC_GetWasmCodeByID_Handler,
+		},
+		{
+			MethodName: "GetWasmContracts",
+			Handler:    _InjectiveExplorerRPC_GetWasmContracts_Handler,
+		},
+		{
+			MethodName: "GetWasmContractByAddress",
+			Handler:    _InjectiveExplorerRPC_GetWasmContractByAddress_Handler,
+		},
+		{
+			MethodName: "GetCw20Balance",
+			Handler:    _InjectiveExplorerRPC_GetCw20Balance_Handler,
+		},
+		{
+			MethodName: "Relayers",
+			Handler:    _InjectiveExplorerRPC_Relayers_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

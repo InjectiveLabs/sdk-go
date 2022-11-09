@@ -46,7 +46,7 @@ func (o *OracleType) UnmarshalJSON(data []byte) error {
 }
 
 func (c *CoinbasePriceState) GetDecPrice() sdk.Dec {
-	//nolint:all
+	// nolint:all
 	// price = price/10^6
 	return sdk.NewDec(int64(c.Value)).QuoTruncate(sdk.NewDec(10).Power(6))
 }

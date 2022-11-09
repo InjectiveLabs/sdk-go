@@ -65,6 +65,40 @@ func local_request_InjectiveExplorerRPC_GetAccountTxs_0(ctx context.Context, mar
 
 }
 
+func request_InjectiveExplorerRPC_GetContractTxs_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetContractTxsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetContractTxs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExplorerRPC_GetContractTxs_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExplorerRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetContractTxsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetContractTxs(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_InjectiveExplorerRPC_GetBlocks_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetBlocksRequest
 	var metadata runtime.ServerMetadata
@@ -129,6 +163,40 @@ func local_request_InjectiveExplorerRPC_GetBlock_0(ctx context.Context, marshale
 	}
 
 	msg, err := server.GetBlock(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExplorerRPC_GetValidators_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetValidatorsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetValidators(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExplorerRPC_GetValidators_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExplorerRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetValidatorsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetValidators(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -269,56 +337,6 @@ func local_request_InjectiveExplorerRPC_GetTxByTxHash_0(ctx context.Context, mar
 
 }
 
-func request_InjectiveExplorerRPC_StreamTxs_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (InjectiveExplorerRPC_StreamTxsClient, runtime.ServerMetadata, error) {
-	var protoReq StreamTxsRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	stream, err := client.StreamTxs(ctx, &protoReq)
-	if err != nil {
-		return nil, metadata, err
-	}
-	header, err := stream.Header()
-	if err != nil {
-		return nil, metadata, err
-	}
-	metadata.HeaderMD = header
-	return stream, metadata, nil
-
-}
-
-func request_InjectiveExplorerRPC_StreamBlocks_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (InjectiveExplorerRPC_StreamBlocksClient, runtime.ServerMetadata, error) {
-	var protoReq StreamBlocksRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	stream, err := client.StreamBlocks(ctx, &protoReq)
-	if err != nil {
-		return nil, metadata, err
-	}
-	header, err := stream.Header()
-	if err != nil {
-		return nil, metadata, err
-	}
-	metadata.HeaderMD = header
-	return stream, metadata, nil
-
-}
-
 func request_InjectiveExplorerRPC_GetPeggyDepositTxs_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetPeggyDepositTxsRequest
 	var metadata runtime.ServerMetadata
@@ -421,6 +439,260 @@ func local_request_InjectiveExplorerRPC_GetIBCTransferTxs_0(ctx context.Context,
 
 }
 
+func request_InjectiveExplorerRPC_GetWasmCodes_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetWasmCodesRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetWasmCodes(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExplorerRPC_GetWasmCodes_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExplorerRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetWasmCodesRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetWasmCodes(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExplorerRPC_GetWasmCodeByID_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetWasmCodeByIDRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetWasmCodeByID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExplorerRPC_GetWasmCodeByID_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExplorerRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetWasmCodeByIDRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetWasmCodeByID(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExplorerRPC_GetWasmContracts_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetWasmContractsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetWasmContracts(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExplorerRPC_GetWasmContracts_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExplorerRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetWasmContractsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetWasmContracts(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExplorerRPC_GetWasmContractByAddress_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetWasmContractByAddressRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetWasmContractByAddress(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExplorerRPC_GetWasmContractByAddress_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExplorerRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetWasmContractByAddressRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetWasmContractByAddress(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExplorerRPC_GetCw20Balance_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetCw20BalanceRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetCw20Balance(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExplorerRPC_GetCw20Balance_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExplorerRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetCw20BalanceRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetCw20Balance(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExplorerRPC_Relayers_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RelayersRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.Relayers(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExplorerRPC_Relayers_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExplorerRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RelayersRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.Relayers(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExplorerRPC_StreamTxs_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (InjectiveExplorerRPC_StreamTxsClient, runtime.ServerMetadata, error) {
+	var protoReq StreamTxsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	stream, err := client.StreamTxs(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
+func request_InjectiveExplorerRPC_StreamBlocks_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExplorerRPCClient, req *http.Request, pathParams map[string]string) (InjectiveExplorerRPC_StreamBlocksClient, runtime.ServerMetadata, error) {
+	var protoReq StreamBlocksRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	stream, err := client.StreamBlocks(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
 // RegisterInjectiveExplorerRPCHandlerServer registers the http handlers for service InjectiveExplorerRPC to "mux".
 // UnaryRPC     :call InjectiveExplorerRPCServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -447,6 +719,29 @@ func RegisterInjectiveExplorerRPCHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_InjectiveExplorerRPC_GetAccountTxs_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetContractTxs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetContractTxs", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetContractTxs"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExplorerRPC_GetContractTxs_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetContractTxs_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -493,6 +788,29 @@ func RegisterInjectiveExplorerRPCHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_InjectiveExplorerRPC_GetBlock_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetValidators_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetValidators", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetValidators"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExplorerRPC_GetValidators_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetValidators_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -588,20 +906,6 @@ func RegisterInjectiveExplorerRPCHandlerServer(ctx context.Context, mux *runtime
 
 	})
 
-	mux.Handle("POST", pattern_InjectiveExplorerRPC_StreamTxs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
-		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-		return
-	})
-
-	mux.Handle("POST", pattern_InjectiveExplorerRPC_StreamBlocks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
-		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-		return
-	})
-
 	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetPeggyDepositTxs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -671,6 +975,158 @@ func RegisterInjectiveExplorerRPCHandlerServer(ctx context.Context, mux *runtime
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetWasmCodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodes", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodes"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExplorerRPC_GetWasmCodes_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetWasmCodes_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetWasmCodeByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodeByID", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodeByID"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExplorerRPC_GetWasmCodeByID_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetWasmCodeByID_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetWasmContracts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContracts", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContracts"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExplorerRPC_GetWasmContracts_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetWasmContracts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetWasmContractByAddress_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContractByAddress", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContractByAddress"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExplorerRPC_GetWasmContractByAddress_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetWasmContractByAddress_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetCw20Balance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetCw20Balance", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetCw20Balance"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExplorerRPC_GetCw20Balance_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetCw20Balance_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_Relayers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/Relayers", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/Relayers"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExplorerRPC_Relayers_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_Relayers_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_StreamTxs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_StreamBlocks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
+	})
+
 	return nil
 }
 
@@ -732,6 +1188,26 @@ func RegisterInjectiveExplorerRPCHandlerClient(ctx context.Context, mux *runtime
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetContractTxs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetContractTxs", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetContractTxs"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_GetContractTxs_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetContractTxs_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetBlocks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -769,6 +1245,26 @@ func RegisterInjectiveExplorerRPCHandlerClient(ctx context.Context, mux *runtime
 		}
 
 		forward_InjectiveExplorerRPC_GetBlock_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetValidators_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetValidators", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetValidators"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_GetValidators_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetValidators_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -852,46 +1348,6 @@ func RegisterInjectiveExplorerRPCHandlerClient(ctx context.Context, mux *runtime
 
 	})
 
-	mux.Handle("POST", pattern_InjectiveExplorerRPC_StreamTxs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/StreamTxs", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/StreamTxs"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_InjectiveExplorerRPC_StreamTxs_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_InjectiveExplorerRPC_StreamTxs_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("POST", pattern_InjectiveExplorerRPC_StreamBlocks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/StreamBlocks", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/StreamBlocks"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_InjectiveExplorerRPC_StreamBlocks_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_InjectiveExplorerRPC_StreamBlocks_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
-
-	})
-
 	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetPeggyDepositTxs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -952,15 +1408,179 @@ func RegisterInjectiveExplorerRPCHandlerClient(ctx context.Context, mux *runtime
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetWasmCodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodes", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodes"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_GetWasmCodes_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetWasmCodes_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetWasmCodeByID_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodeByID", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmCodeByID"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_GetWasmCodeByID_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetWasmCodeByID_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetWasmContracts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContracts", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContracts"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_GetWasmContracts_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetWasmContracts_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetWasmContractByAddress_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContractByAddress", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetWasmContractByAddress"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_GetWasmContractByAddress_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetWasmContractByAddress_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_GetCw20Balance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/GetCw20Balance", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/GetCw20Balance"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_GetCw20Balance_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_GetCw20Balance_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_Relayers_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/Relayers", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/Relayers"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_Relayers_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_Relayers_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_StreamTxs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/StreamTxs", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/StreamTxs"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_StreamTxs_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_StreamTxs_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExplorerRPC_StreamBlocks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_explorer_rpc.InjectiveExplorerRPC/StreamBlocks", runtime.WithHTTPPathPattern("/injective_explorer_rpc.InjectiveExplorerRPC/StreamBlocks"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExplorerRPC_StreamBlocks_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExplorerRPC_StreamBlocks_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
 var (
 	pattern_InjectiveExplorerRPC_GetAccountTxs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetAccountTxs"}, ""))
 
+	pattern_InjectiveExplorerRPC_GetContractTxs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetContractTxs"}, ""))
+
 	pattern_InjectiveExplorerRPC_GetBlocks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetBlocks"}, ""))
 
 	pattern_InjectiveExplorerRPC_GetBlock_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetBlock"}, ""))
+
+	pattern_InjectiveExplorerRPC_GetValidators_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetValidators"}, ""))
 
 	pattern_InjectiveExplorerRPC_GetValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetValidator"}, ""))
 
@@ -970,23 +1590,39 @@ var (
 
 	pattern_InjectiveExplorerRPC_GetTxByTxHash_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetTxByTxHash"}, ""))
 
-	pattern_InjectiveExplorerRPC_StreamTxs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "StreamTxs"}, ""))
-
-	pattern_InjectiveExplorerRPC_StreamBlocks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "StreamBlocks"}, ""))
-
 	pattern_InjectiveExplorerRPC_GetPeggyDepositTxs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetPeggyDepositTxs"}, ""))
 
 	pattern_InjectiveExplorerRPC_GetPeggyWithdrawalTxs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetPeggyWithdrawalTxs"}, ""))
 
 	pattern_InjectiveExplorerRPC_GetIBCTransferTxs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetIBCTransferTxs"}, ""))
+
+	pattern_InjectiveExplorerRPC_GetWasmCodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetWasmCodes"}, ""))
+
+	pattern_InjectiveExplorerRPC_GetWasmCodeByID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetWasmCodeByID"}, ""))
+
+	pattern_InjectiveExplorerRPC_GetWasmContracts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetWasmContracts"}, ""))
+
+	pattern_InjectiveExplorerRPC_GetWasmContractByAddress_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetWasmContractByAddress"}, ""))
+
+	pattern_InjectiveExplorerRPC_GetCw20Balance_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "GetCw20Balance"}, ""))
+
+	pattern_InjectiveExplorerRPC_Relayers_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "Relayers"}, ""))
+
+	pattern_InjectiveExplorerRPC_StreamTxs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "StreamTxs"}, ""))
+
+	pattern_InjectiveExplorerRPC_StreamBlocks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_explorer_rpc.InjectiveExplorerRPC", "StreamBlocks"}, ""))
 )
 
 var (
 	forward_InjectiveExplorerRPC_GetAccountTxs_0 = runtime.ForwardResponseMessage
 
+	forward_InjectiveExplorerRPC_GetContractTxs_0 = runtime.ForwardResponseMessage
+
 	forward_InjectiveExplorerRPC_GetBlocks_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveExplorerRPC_GetBlock_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExplorerRPC_GetValidators_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveExplorerRPC_GetValidator_0 = runtime.ForwardResponseMessage
 
@@ -996,13 +1632,25 @@ var (
 
 	forward_InjectiveExplorerRPC_GetTxByTxHash_0 = runtime.ForwardResponseMessage
 
-	forward_InjectiveExplorerRPC_StreamTxs_0 = runtime.ForwardResponseStream
-
-	forward_InjectiveExplorerRPC_StreamBlocks_0 = runtime.ForwardResponseStream
-
 	forward_InjectiveExplorerRPC_GetPeggyDepositTxs_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveExplorerRPC_GetPeggyWithdrawalTxs_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveExplorerRPC_GetIBCTransferTxs_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExplorerRPC_GetWasmCodes_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExplorerRPC_GetWasmCodeByID_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExplorerRPC_GetWasmContracts_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExplorerRPC_GetWasmContractByAddress_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExplorerRPC_GetCw20Balance_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExplorerRPC_Relayers_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExplorerRPC_StreamTxs_0 = runtime.ForwardResponseStream
+
+	forward_InjectiveExplorerRPC_StreamBlocks_0 = runtime.ForwardResponseStream
 )

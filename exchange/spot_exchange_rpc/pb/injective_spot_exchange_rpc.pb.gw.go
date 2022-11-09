@@ -192,8 +192,8 @@ func local_request_InjectiveSpotExchangeRPC_Orderbooks_0(ctx context.Context, ma
 
 }
 
-func request_InjectiveSpotExchangeRPC_StreamOrderbook_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveSpotExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveSpotExchangeRPC_StreamOrderbookClient, runtime.ServerMetadata, error) {
-	var protoReq StreamOrderbookRequest
+func request_InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveSpotExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient, runtime.ServerMetadata, error) {
+	var protoReq StreamOrderbookSnapshotRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -204,7 +204,32 @@ func request_InjectiveSpotExchangeRPC_StreamOrderbook_0(ctx context.Context, mar
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	stream, err := client.StreamOrderbook(ctx, &protoReq)
+	stream, err := client.StreamOrderbookSnapshot(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
+func request_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveSpotExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, runtime.ServerMetadata, error) {
+	var protoReq StreamOrderbookUpdateRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	stream, err := client.StreamOrderbookUpdate(ctx, &protoReq)
 	if err != nil {
 		return nil, metadata, err
 	}
@@ -403,6 +428,65 @@ func local_request_InjectiveSpotExchangeRPC_SubaccountTradesList_0(ctx context.C
 
 }
 
+func request_InjectiveSpotExchangeRPC_OrdersHistory_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveSpotExchangeRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq OrdersHistoryRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.OrdersHistory(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveSpotExchangeRPC_OrdersHistory_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveSpotExchangeRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq OrdersHistoryRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.OrdersHistory(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveSpotExchangeRPC_StreamOrdersHistory_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveSpotExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveSpotExchangeRPC_StreamOrdersHistoryClient, runtime.ServerMetadata, error) {
+	var protoReq StreamOrdersHistoryRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	stream, err := client.StreamOrdersHistory(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
 // RegisterInjectiveSpotExchangeRPCHandlerServer registers the http handlers for service InjectiveSpotExchangeRPC to "mux".
 // UnaryRPC     :call InjectiveSpotExchangeRPCServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -508,7 +592,14 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 
 	})
 
-	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_StreamOrderbook_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
+	})
+
+	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -619,6 +710,36 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 
 		forward_InjectiveSpotExchangeRPC_SubaccountTradesList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
+	})
+
+	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_OrdersHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_OrdersHistory_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveSpotExchangeRPC_OrdersHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_StreamOrdersHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
 	})
 
 	return nil
@@ -762,23 +883,43 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 
 	})
 
-	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_StreamOrderbook_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbook", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbook"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookSnapshot", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookSnapshot"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrderbook_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_StreamOrderbook_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -902,6 +1043,46 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_OrdersHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveSpotExchangeRPC_OrdersHistory_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveSpotExchangeRPC_OrdersHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveSpotExchangeRPC_StreamOrdersHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrdersHistory_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveSpotExchangeRPC_StreamOrdersHistory_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -916,7 +1097,9 @@ var (
 
 	pattern_InjectiveSpotExchangeRPC_Orderbooks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "Orderbooks"}, ""))
 
-	pattern_InjectiveSpotExchangeRPC_StreamOrderbook_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "StreamOrderbook"}, ""))
+	pattern_InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "StreamOrderbookSnapshot"}, ""))
+
+	pattern_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "StreamOrderbookUpdate"}, ""))
 
 	pattern_InjectiveSpotExchangeRPC_Orders_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "Orders"}, ""))
 
@@ -929,6 +1112,10 @@ var (
 	pattern_InjectiveSpotExchangeRPC_SubaccountOrdersList_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "SubaccountOrdersList"}, ""))
 
 	pattern_InjectiveSpotExchangeRPC_SubaccountTradesList_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "SubaccountTradesList"}, ""))
+
+	pattern_InjectiveSpotExchangeRPC_OrdersHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "OrdersHistory"}, ""))
+
+	pattern_InjectiveSpotExchangeRPC_StreamOrdersHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_spot_exchange_rpc.InjectiveSpotExchangeRPC", "StreamOrdersHistory"}, ""))
 )
 
 var (
@@ -942,7 +1129,9 @@ var (
 
 	forward_InjectiveSpotExchangeRPC_Orderbooks_0 = runtime.ForwardResponseMessage
 
-	forward_InjectiveSpotExchangeRPC_StreamOrderbook_0 = runtime.ForwardResponseStream
+	forward_InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_0 = runtime.ForwardResponseStream
+
+	forward_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0 = runtime.ForwardResponseStream
 
 	forward_InjectiveSpotExchangeRPC_Orders_0 = runtime.ForwardResponseMessage
 
@@ -955,4 +1144,8 @@ var (
 	forward_InjectiveSpotExchangeRPC_SubaccountOrdersList_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveSpotExchangeRPC_SubaccountTradesList_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveSpotExchangeRPC_OrdersHistory_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveSpotExchangeRPC_StreamOrdersHistory_0 = runtime.ForwardResponseStream
 )
