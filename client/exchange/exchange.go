@@ -56,7 +56,8 @@ type ExchangeClient interface {
 	GetSpotOrders(ctx context.Context, req spotExchangePB.OrdersRequest) (spotExchangePB.OrdersResponse, error)
 	GetSpotOrderbook(ctx context.Context, marketId string) (spotExchangePB.OrderbookResponse, error)
 	GetSpotOrderbooks(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksResponse, error)
-	StreamSpotOrderbook(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookClient, error)
+	StreamSpotOrderbookSnapshot(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient, error)
+	StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
 	GetSpotMarkets(ctx context.Context, req spotExchangePB.MarketsRequest) (spotExchangePB.MarketsResponse, error)
 	GetSpotMarket(ctx context.Context, marketId string) (spotExchangePB.MarketResponse, error)
 	StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error)
@@ -722,13 +723,34 @@ func (c *exchangeClient) GetSpotOrderbooks(ctx context.Context, marketIds []stri
 	return *res, nil
 }
 
-func (c *exchangeClient) StreamSpotOrderbook(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookClient, error) {
-	req := spotExchangePB.StreamOrderbookRequest{
+func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
+	req := spotExchangePB.StreamOrderbookUpdateRequest{
 		MarketIds: marketIds,
 	}
 
 	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamOrderbook(ctx, &req)
+	stream, err := c.spotExchangeClient.StreamOrderbookUpdate(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamSpotOrderbookSnapshot(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient, error) {
+	req := spotExchangePB.StreamOrderbookSnapshotRequest{
+		MarketIds: marketIds,
+	}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.spotExchangeClient.StreamOrderbookSnapshot(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
