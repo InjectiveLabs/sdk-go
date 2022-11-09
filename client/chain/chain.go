@@ -198,9 +198,11 @@ func NewChainClient(
 	}
 
 	// init tm websocket
-	err = ctx.Client.Start()
-	if err != nil {
-		return nil, err
+	if ctx.Client != nil {
+		err = ctx.Client.Start()
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// build client
