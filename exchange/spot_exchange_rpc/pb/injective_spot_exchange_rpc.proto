@@ -24,6 +24,8 @@ service InjectiveSpotExchangeRPC {
 	// Orderbook of Spot Markets
 	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
 	// Stream live snapshot updates of selected spot market orderbook
+	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
+	// Stream live snapshot updates of selected spot market orderbook
 	rpc StreamOrderbookSnapshot (StreamOrderbookSnapshotRequest) returns (stream StreamOrderbookSnapshotResponse);
 	// Stream live level updates of selected spot market orderbook
 	rpc StreamOrderbookUpdate (StreamOrderbookUpdateRequest) returns (stream StreamOrderbookUpdateResponse);
@@ -137,12 +139,12 @@ message OrderbookResponse {
 }
 
 message SpotLimitOrderbook {
-	// market orderbook sequence
-	uint64 sequence = 1;
 	// Array of price levels for buys
-	repeated PriceLevel buys = 2;
+	repeated PriceLevel buys = 1;
 	// Array of price levels for sells
-	repeated PriceLevel sells = 3;
+	repeated PriceLevel sells = 2;
+	// market orderbook sequence
+	uint64 sequence = 3;
 }
 
 message PriceLevel {
@@ -170,6 +172,22 @@ message SingleSpotLimitOrderbook {
 	SpotLimitOrderbook orderbook = 2;
 }
 
+message StreamOrderbookRequest {
+	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
+	repeated string market_ids = 1;
+}
+
+message StreamOrderbookResponse {
+	// Orderbook of a Spot Market
+	SpotLimitOrderbook orderbook = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+	// MarketId of the market's orderbook
+	string market_id = 4;
+}
+
 message StreamOrderbookSnapshotRequest {
 	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
 	repeated string market_ids = 1;
@@ -192,8 +210,8 @@ message StreamOrderbookUpdateRequest {
 }
 
 message StreamOrderbookUpdateResponse {
-	// Orderbook level of a Spot Market
-	OrderbookLevel orderbook_level = 1;
+	// Orderbook level updates of a Spot Market
+	OrderbookLevelUpdates orderbook_level_updates = 1;
 	// Order update type
 	string operation_type = 2;
 	// Operation timestamp in UNIX millis.
@@ -202,21 +220,28 @@ message StreamOrderbookUpdateResponse {
 	string market_id = 4;
 }
 
-message OrderbookLevel {
+message OrderbookLevelUpdates {
 	// market's ID
 	string market_id = 1;
 	// orderbook update sequence
 	uint64 sequence = 2;
-	// level side
-	bool is_buy = 3;
-	// level price
-	string price = 4;
-	// level quantity
-	string quantity = 5;
-	// level status
-	bool is_active = 6;
-	// level timestamp
-	sint64 updated_at = 7;
+	// buy levels
+	repeated PriceLevelUpdate buys = 3;
+	// sell levels
+	repeated PriceLevelUpdate sells = 4;
+	// updates timestamp
+	sint64 updated_at = 5;
+}
+
+message PriceLevelUpdate {
+	// Price number of the price level.
+	string price = 1;
+	// Quantity of the price level.
+	string quantity = 2;
+	// Price level status.
+	bool is_active = 3;
+	// Price level last updated timestamp in UNIX millis.
+	sint64 timestamp = 4;
 }
 
 message OrdersRequest {
