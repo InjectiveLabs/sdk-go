@@ -3,10 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
+	"os"
+	"sort"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
-	"sort"
+	"github.com/shopspring/decimal"
 )
 
 type MapOrderbook struct {
@@ -30,7 +34,7 @@ func main() {
 		panic(err)
 	}
 
-	levelCh := make(chan *spotExchangePB.OrderbookLevel, 100000)
+	updatesCh := make(chan *spotExchangePB.OrderbookLevelUpdates, 100000)
 	receiving := make(chan struct{})
 	var receivingClosed bool
 
@@ -42,20 +46,26 @@ func main() {
 				return
 			default:
 				res, err := stream.Recv()
-				if err != nil {
-					fmt.Println(err)
-					return
+				if err == io.EOF {
+					fmt.Println("change stream needs to be restarted")
+					os.Exit(0)
 				}
-				levelCh <- res.OrderbookLevel
+				if err != nil {
+					panic(err) // rester on errors
+				}
+				u := res.OrderbookLevelUpdates
 				if !receivingClosed {
+					fmt.Println("receiving updates from stream")
 					close(receiving)
 					receivingClosed = true
 				}
+				updatesCh <- u
 			}
 		}
 	}()
 
-	// ensure we are receiving updates before getting orderbook
+	// ensure we are receiving updates before getting the orderbook snapshot,
+	// we will skip past updates later.
 	fmt.Println("waiting for streaming updates")
 	<-receiving
 
@@ -89,40 +99,48 @@ func main() {
 	// continuously consume level updates and maintain orderbook
 	skippedPastEvents := false
 	for {
-		level := <-levelCh
+		updates := <-updatesCh
 
 		// validate orderbook
-		orderbook, ok := orderbooks[level.MarketId]
+		orderbook, ok := orderbooks[updates.MarketId]
 		if !ok {
-			panic("level update doesn't belong to any orderbooks")
+			fmt.Println("updates channel closed, must restart")
+			return // closed
 		}
 
 		// skip if update sequence <= orderbook sequence until it's ready to consume
 		if !skippedPastEvents {
-			if orderbook.Sequence >= level.Sequence {
+			if orderbook.Sequence >= updates.Sequence {
 				continue
 			}
 			skippedPastEvents = true
 		}
 
 		// panic if update sequence > orderbook sequence + 1
-		if level.Sequence > orderbook.Sequence+1 {
-			fmt.Println("skipping", level.Sequence, orderbook.Sequence)
+		if updates.Sequence > orderbook.Sequence+1 {
+			fmt.Printf("skipping levels: update sequence %d vs orderbook sequence %d\n", updates.Sequence, orderbook.Sequence)
 			panic("missing orderbook update events from stream, must restart")
 		}
 
 		// update orderbook map
-		orderbook.Sequence = level.Sequence
-		if level.IsActive {
-			// upsert
-			orderbook.Levels[level.IsBuy][level.Price] = &spotExchangePB.PriceLevel{
-				Price:     level.Price,
-				Quantity:  level.Quantity,
-				Timestamp: level.UpdatedAt,
+		orderbook.Sequence = updates.Sequence
+		for isBuy, update := range map[bool][]*spotExchangePB.PriceLevelUpdate{
+			true:  updates.Buys,
+			false: updates.Sells,
+		} {
+			for _, level := range update {
+				if level.IsActive {
+					// upsert
+					orderbook.Levels[isBuy][level.Price] = &spotExchangePB.PriceLevel{
+						Price:     level.Price,
+						Quantity:  level.Quantity,
+						Timestamp: level.Timestamp,
+					}
+				} else {
+					// remove inactive level
+					delete(orderbook.Levels[isBuy], level.Price)
+				}
 			}
-		} else {
-			// remove inactive level
-			delete(orderbook.Levels[level.IsBuy], level.Price)
 		}
 
 		// construct orderbook arrays
@@ -131,9 +149,10 @@ func main() {
 
 		if len(sells) > 0 && len(buys) > 0 {
 			// assert orderbook
-			if sellPrice, buyPrice := sells[0].Price, buys[0].Price; sellPrice <= buyPrice {
-				fmt.Println(sells[0], buys[0])
-				panic(fmt.Errorf("crossed orderbook, must restart: buy %s > %s sell", buyPrice, sellPrice))
+			topBuyPrice := decimal.RequireFromString(buys[0].Price)
+			topSellPrice := decimal.RequireFromString(sells[0].Price)
+			if topBuyPrice.GreaterThanOrEqual(topSellPrice) {
+				panic(fmt.Errorf("crossed orderbook, must restart: buy %s >= %s buy", topBuyPrice, topSellPrice))
 			}
 		}
 
@@ -141,10 +160,11 @@ func main() {
 		fmt.Println("query", res.Orderbooks[0].Orderbook.Sequence, len(res.Orderbooks[0].Orderbook.Sells), len(res.Orderbooks[0].Orderbook.Buys))
 
 		// print orderbook
+		fmt.Println(" [SELLS] ========")
 		for _, s := range sells {
 			fmt.Println(s)
 		}
-		fmt.Println("========")
+		fmt.Println(" [BUYS] ========")
 		for _, b := range buys {
 			fmt.Println(b)
 		}
@@ -161,10 +181,11 @@ func maintainOrderbook(orderbook map[bool]map[string]*spotExchangePB.PriceLevel)
 	}
 
 	sort.Slice(sells, func(i, j int) bool {
-		return sells[i].Price > sells[j].Price
+		return decimal.RequireFromString(sells[i].Price).LessThan(decimal.RequireFromString(sells[j].Price))
 	})
+
 	sort.Slice(buys, func(i, j int) bool {
-		return buys[i].Price > buys[j].Price
+		return decimal.RequireFromString(buys[i].Price).GreaterThan(decimal.RequireFromString(buys[j].Price))
 	})
 
 	return sells, buys
