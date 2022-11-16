@@ -28,8 +28,10 @@ service InjectiveDerivativeExchangeRPC {
 	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
 	// Orderbooks gets the Orderbooks of requested derivative markets
 	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
-	// StreamOrderbook streams live updates of selected derivative market orderbook.
-	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
+	// Stream live snapshot updates of selected derivative market orderbook
+	rpc StreamOrderbookSnapshot (StreamOrderbookSnapshotRequest) returns (stream StreamOrderbookSnapshotResponse);
+	// Stream live level updates of selected derivative market orderbook
+	rpc StreamOrderbookUpdate (StreamOrderbookUpdateRequest) returns (stream StreamOrderbookUpdateResponse);
 	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
 	rpc Orders (OrdersRequest) returns (OrdersResponse);
 	// Positions gets the positions for a trader.
@@ -55,7 +57,7 @@ service InjectiveDerivativeExchangeRPC {
 	rpc SubaccountTradesList (SubaccountTradesListRequest) returns (SubaccountTradesListResponse);
 	// Lists history orders posted from a subaccount
 	rpc OrdersHistory (OrdersHistoryRequest) returns (OrdersHistoryResponse);
-	// Stream updates to historical orders of a spot Market
+	// Stream updates to historical orders of a derivative Market
 	rpc StreamOrdersHistory (StreamOrdersHistoryRequest) returns (stream StreamOrdersHistoryResponse);
 }
 
@@ -307,12 +309,30 @@ message SingleDerivativeLimitOrderbook {
 	DerivativeLimitOrderbook orderbook = 2;
 }
 
-message StreamOrderbookRequest {
-	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
+message StreamOrderbookSnapshotRequest {
+	// List of market IDs for orderbook streaming, empty means 'ALL' derivative
+// markets
 	repeated string market_ids = 1;
 }
 
-message StreamOrderbookResponse {
+message StreamOrderbookSnapshotResponse {
+	// Orderbook of a Derivative Market
+	DerivativeLimitOrderbook orderbook = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+	// MarketId of the market's orderbook
+	string market_id = 4;
+}
+
+message StreamOrderbookUpdateRequest {
+	// List of market IDs for orderbook streaming, empty means 'ALL' derivative
+// markets
+	repeated string market_ids = 1;
+}
+
+message StreamOrderbookUpdateResponse {
 	// Orderbook level of a Derivative Market
 	OrderbookLevel orderbook_level = 1;
 	// Order update type
