@@ -36,13 +36,14 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgIncreasePositionMargin{}, "exchange/MsgIncreasePositionMargin", nil)
 	cdc.RegisterConcrete(&MsgLiquidatePosition{}, "exchange/MsgLiquidatePosition", nil)
 	cdc.RegisterConcrete(&MsgBatchUpdateOrders{}, "exchange/MsgBatchUpdateOrders", nil)
-	cdc.RegisterConcrete(&MsgExec{}, "exchange/MsgExec", nil)
+	cdc.RegisterConcrete(&MsgPrivilegedExecuteContract{}, "exchange/MsgPrivilegedExecuteContract", nil)
 	cdc.RegisterConcrete(&MsgRewardsOptOut{}, "exchange/MsgRewardsOptOut", nil)
 	cdc.RegisterConcrete(&MsgInstantBinaryOptionsMarketLaunch{}, "exchange/MsgInstantBinaryOptionsMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgCreateBinaryOptionsLimitOrder{}, "exchange/MsgCreateBinaryOptionsLimitOrder", nil)
 	cdc.RegisterConcrete(&MsgCreateBinaryOptionsMarketOrder{}, "exchange/MsgCreateBinaryOptionsMarketOrder", nil)
 	cdc.RegisterConcrete(&MsgCancelBinaryOptionsOrder{}, "exchange/MsgCancelBinaryOptionsOrder", nil)
 	cdc.RegisterConcrete(&MsgAdminUpdateBinaryOptionsMarket{}, "exchange/MsgAdminUpdateBinaryOptionsMarket", nil)
+	cdc.RegisterConcrete(&MsgReclaimLockedFunds{}, "exchange/MsgReclaimLockedFunds", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/BatchExchangeModificationProposal", nil)
@@ -100,13 +101,14 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgIncreasePositionMargin{},
 		&MsgLiquidatePosition{},
 		&MsgBatchUpdateOrders{},
-		&MsgExec{},
+		&MsgPrivilegedExecuteContract{},
 		&MsgRewardsOptOut{},
 		&MsgInstantBinaryOptionsMarketLaunch{},
 		&MsgCreateBinaryOptionsLimitOrder{},
 		&MsgCreateBinaryOptionsMarketOrder{},
 		&MsgCancelBinaryOptionsOrder{},
 		&MsgAdminUpdateBinaryOptionsMarket{},
+		&MsgReclaimLockedFunds{},
 	)
 
 	registry.RegisterImplementations(

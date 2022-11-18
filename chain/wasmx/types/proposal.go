@@ -124,11 +124,11 @@ func (p *BatchContractDeregistrationProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *BatchContractDeregistrationProposal) ValidateBasic() error {
-	found := make(map[string]struct{})
-
 	if len(p.Contracts) == 0 {
 		return sdkerrors.Wrapf(ErrNoContractAddresses, "BatchContractDeregistrationProposal: Contract list was empty")
 	}
+
+	found := make(map[string]struct{})
 
 	for _, contract := range p.Contracts {
 		// Check if contract address is valid
@@ -184,6 +184,17 @@ func (p *BatchStoreCodeProposal) ValidateBasic() error {
 	}
 
 	return gov.ValidateAbstract(p)
+}
+
+func HasDuplicates(slice []string) bool {
+	seen := make(map[string]struct{})
+	for _, item := range slice {
+		if _, ok := seen[item]; ok {
+			return true
+		}
+		seen[item] = struct{}{}
+	}
+	return false
 }
 
 func hasDuplicatesContractRegistrationRequest(slice []ContractRegistrationRequest) bool {

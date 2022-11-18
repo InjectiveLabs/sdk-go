@@ -39,6 +39,8 @@ copy-chain-types:
 	rm -rf chain/peggy/types/*test.go  rm -rf chain/peggy/types/*gw.go
 	cp ../injective-core/injective-chain/modules/wasmx/types/*.go chain/wasmx/types
 	rm -rf chain/wasmx/types/*test.go  rm -rf chain/wasmx/types/*gw.go
+	cp ../injective-core/injective-chain/modules/tokenfactory/types/*.go chain/tokenfactory/types
+	rm -rf chain/tokenfactory/types/*test.go  rm -rf chain/tokenfactory/*gw.go
 
 	echo "👉 Replace injective-core/injective-chain/modules with sdk-go/chain"
 	echo "👉 Replace injective-core/injective-chain/types with sdk-go/chain/types"

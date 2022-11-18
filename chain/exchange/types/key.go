@@ -34,6 +34,7 @@ var (
 	SpotExchangeEnabledKey               = []byte{0x07} // key for whether spot exchange is enabled
 	DerivativeExchangeEnabledKey         = []byte{0x08} // key for whether derivative exchange is enabled
 	MarketHistoricalTradeRecordsPrefix   = []byte{0x09} // prefix for each key to a market's historical trade records
+	OrderbookSequencePrefix              = []byte{0x0a} // prefix for each key to a market's orderbook sequence
 
 	DenomDecimalsPrefix              = []byte{0x10} // prefix for denom decimals
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
