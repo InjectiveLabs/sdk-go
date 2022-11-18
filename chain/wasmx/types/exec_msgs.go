@@ -49,7 +49,7 @@ func NewBeginBlockerExecMsg() ([]byte, error) {
 	// Construct Exec message
 	beginBlocker := CWBeginBlockerExecMsg{BeginBlockerMsg: &BeginBlockerMsg{}}
 
-	//nolint:all
+	// nolint:all
 	// execMsg := []byte(`{"begin_blocker":{}}`)
 	execMsg, err := json.Marshal(beginBlocker)
 	if err != nil {
@@ -70,7 +70,7 @@ func NewRegistryDeactivateMsg(contractAddress string) ([]byte, error) {
 	// Construct Exec message
 	deactivateMsg := RegistryDeactivateMsg{RegistryDeactivate: &RegistryDeactivate{ContractAddress: contractAddress}}
 
-	//nolint:all
+	// nolint:all
 	// execMsg := []byte('{"deactivate":{"contract_address":"inj1nc5tatafv6eyq7llkr2gv50ff9e22mnfhg8yh3"}}')
 	execMsg, err := json.Marshal(deactivateMsg)
 	if err != nil {
@@ -110,7 +110,7 @@ type QueryContractsMsg struct {
 // NewRegistryActiveContractQuery constructs the registry active contracts query message
 func NewRegistryActiveContractQuery() ([]byte, error) {
 	contractQuery := RegistryActiveContractQueryMsg{QueryActiveContractsMsg: &QueryActiveContractsMsg{}}
-	//nolint:all
+	// nolint:all
 	// queryData := []byte("{\"get_active_contracts\": {}}")
 	queryMsg, err := json.Marshal(contractQuery)
 	if err != nil {

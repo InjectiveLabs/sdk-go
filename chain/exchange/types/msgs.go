@@ -4,10 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 
+	sdksecp256k1 "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/cosmos/cosmos-sdk/x/auth/legacy/legacytx"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 
+	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
@@ -37,7 +42,7 @@ var (
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
-	_ sdk.Msg = &MsgExec{}
+	_ sdk.Msg = &MsgPrivilegedExecuteContract{}
 	_ sdk.Msg = &MsgRewardsOptOut{}
 	_ sdk.Msg = &MsgInstantBinaryOptionsMarketLaunch{}
 	_ sdk.Msg = &MsgCreateBinaryOptionsLimitOrder{}
@@ -45,14 +50,42 @@ var (
 	_ sdk.Msg = &MsgCancelBinaryOptionsOrder{}
 	_ sdk.Msg = &MsgAdminUpdateBinaryOptionsMarket{}
 	_ sdk.Msg = &MsgBatchCancelBinaryOptionsOrders{}
+	_ sdk.Msg = &MsgReclaimLockedFunds{}
 )
 
 // exchange message types
 const (
-	TypeMsgTransferAndExecute = "msgTransferAndExecute"
-	TypeMsgMultiExecute       = "msgMultiExecute"
-	TypeMsgDeposit            = "msgDeposit"
-	// TODO: add the others for each msg
+	TypeMsgTransferAndExecute               = "msgTransferAndExecute"
+	TypeMsgMultiExecute                     = "msgMultiExecute"
+	TypeMsgDeposit                          = "msgDeposit"
+	TypeMsgWithdraw                         = "msgWithdraw"
+	TypeMsgCreateSpotLimitOrder             = "createSpotLimitOrder"
+	TypeMsgBatchCreateSpotLimitOrders       = "batchCreateSpotLimitOrders"
+	TypeMsgCreateSpotMarketOrder            = "createSpotMarketOrder"
+	TypeMsgCancelSpotOrder                  = "cancelSpotOrder"
+	TypeMsgBatchCancelSpotOrders            = "batchCancelSpotOrders"
+	TypeMsgCreateDerivativeLimitOrder       = "createDerivativeLimitOrder"
+	TypeMsgBatchCreateDerivativeLimitOrders = "batchCreateDerivativeLimitOrder"
+	TypeMsgCreateDerivativeMarketOrder      = "createDerivativeMarketOrder"
+	TypeMsgCancelDerivativeOrder            = "cancelDerivativeOrder"
+	TypeMsgBatchCancelDerivativeOrders      = "batchCancelDerivativeOrder"
+	TypeMsgSubaccountTransfer               = "subaccountTransfer"
+	TypeMsgExternalTransfer                 = "externalTransfer"
+	TypeMsgIncreasePositionMargin           = "increasePositionMargin"
+	TypeMsgLiquidatePosition                = "liquidatePosition"
+	TypeMsgInstantSpotMarketLaunch          = "instantSpotMarketLaunch"
+	TypeMsgInstantPerpetualMarketLaunch     = "instantPerpetualMarketLaunch"
+	TypeMsgInstantExpiryFuturesMarketLaunch = "instantExpiryFuturesMarketLaunch"
+	TypeMsgBatchUpdateOrders                = "batchUpdateOrders"
+	TypeMsgPrivilegedExecuteContract        = "privilegedExecuteContract"
+	TypeMsgRewardsOptOut                    = "rewardsOptOut"
+	TypeMsgInstantBinaryOptionsMarketLaunch = "instantBinaryOptionsMarketLaunch"
+	TypeMsgCreateBinaryOptionsLimitOrder    = "createBinaryOptionsLimitOrder"
+	TypeMsgCreateBinaryOptionsMarketOrder   = "createBinaryOptionsMarketOrder"
+	TypeMsgCancelBinaryOptionsOrder         = "cancelBinaryOptionsOrder"
+	TypeMsgAdminUpdateBinaryOptionsMarket   = "adminUpdateBinaryOptionsMarket"
+	TypeMsgBatchCancelBinaryOptionsOrders   = "batchCancelBinaryOptionsOrders"
+	TypeMsgReclaimLockedFunds               = "reclaimLockedFunds"
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -339,7 +372,7 @@ func (msg MsgDeposit) GetSigners() []sdk.AccAddress {
 func (msg MsgWithdraw) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgWithdraw) Type() string { return "msgWithdraw" }
+func (msg MsgWithdraw) Type() string { return TypeMsgWithdraw }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgWithdraw) ValidateBasic() error {
@@ -385,7 +418,7 @@ func (msg MsgWithdraw) GetSigners() []sdk.AccAddress {
 func (msg MsgInstantSpotMarketLaunch) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgInstantSpotMarketLaunch) Type() string { return "instantSpotMarketLaunch" }
+func (msg MsgInstantSpotMarketLaunch) Type() string { return TypeMsgInstantSpotMarketLaunch }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
@@ -434,7 +467,7 @@ func (msg MsgInstantSpotMarketLaunch) GetSigners() []sdk.AccAddress {
 func (msg MsgInstantPerpetualMarketLaunch) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgInstantPerpetualMarketLaunch) Type() string { return "instantPerpetualMarketLaunch" }
+func (msg MsgInstantPerpetualMarketLaunch) Type() string { return TypeMsgInstantPerpetualMarketLaunch }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
@@ -499,7 +532,7 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) Route() string { return RouterKey
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg MsgInstantBinaryOptionsMarketLaunch) Type() string {
-	return "instantBinaryOptionsMarketLaunch"
+	return TypeMsgInstantBinaryOptionsMarketLaunch
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -573,7 +606,7 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) Route() string { return RouterKey
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg MsgInstantExpiryFuturesMarketLaunch) Type() string {
-	return "instantExpiryFuturesMarketLaunch"
+	return TypeMsgInstantExpiryFuturesMarketLaunch
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -642,7 +675,7 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) GetSigners() []sdk.AccAddress {
 func (msg MsgCreateSpotLimitOrder) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgCreateSpotLimitOrder) Type() string { return "createSpotLimitOrder" }
+func (msg MsgCreateSpotLimitOrder) Type() string { return TypeMsgCreateSpotLimitOrder }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
@@ -674,7 +707,7 @@ func (msg MsgCreateSpotLimitOrder) GetSigners() []sdk.AccAddress {
 func (msg MsgBatchCreateSpotLimitOrders) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgBatchCreateSpotLimitOrders) Type() string { return "batchCreateSpotLimitOrders" }
+func (msg MsgBatchCreateSpotLimitOrders) Type() string { return TypeMsgBatchCreateSpotLimitOrders }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgBatchCreateSpotLimitOrders) ValidateBasic() error {
@@ -714,7 +747,7 @@ func (msg MsgBatchCreateSpotLimitOrders) GetSigners() []sdk.AccAddress {
 func (msg MsgCreateSpotMarketOrder) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgCreateSpotMarketOrder) Type() string { return "createSpotMarketOrder" }
+func (msg MsgCreateSpotMarketOrder) Type() string { return TypeMsgCreateSpotMarketOrder }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
@@ -752,7 +785,7 @@ func (msg MsgCreateSpotMarketOrder) GetSigners() []sdk.AccAddress {
 func (msg *MsgCancelSpotOrder) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg *MsgCancelSpotOrder) Type() string { return "cancelSpotOrder" }
+func (msg *MsgCancelSpotOrder) Type() string { return TypeMsgCancelSpotOrder }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg *MsgCancelSpotOrder) ValidateBasic() error {
@@ -787,7 +820,7 @@ func (msg *MsgCancelSpotOrder) GetSigners() []sdk.AccAddress {
 func (msg *MsgBatchCancelSpotOrders) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg *MsgBatchCancelSpotOrders) Type() string { return "batchCancelSpotOrders" }
+func (msg *MsgBatchCancelSpotOrders) Type() string { return TypeMsgBatchCancelSpotOrders }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg *MsgBatchCancelSpotOrders) ValidateBasic() error {
@@ -827,7 +860,7 @@ func (msg *MsgBatchCancelSpotOrders) GetSigners() []sdk.AccAddress {
 func (msg MsgCreateDerivativeLimitOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateDerivativeLimitOrder) Type() string { return "createDerivativeLimitOrder" }
+func (msg MsgCreateDerivativeLimitOrder) Type() string { return TypeMsgCreateDerivativeLimitOrder }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateDerivativeLimitOrder) ValidateBasic() error {
@@ -891,7 +924,9 @@ func NewMsgCreateBinaryOptionsLimitOrder(
 func (msg MsgCreateBinaryOptionsLimitOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateBinaryOptionsLimitOrder) Type() string { return "createBinaryOptionsLimitOrder" }
+func (msg MsgCreateBinaryOptionsLimitOrder) Type() string {
+	return TypeMsgCreateBinaryOptionsLimitOrder
+}
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateBinaryOptionsLimitOrder) ValidateBasic() error {
@@ -928,7 +963,7 @@ func (msg MsgBatchCreateDerivativeLimitOrders) Route() string { return RouterKey
 
 // Type should return the action
 func (msg MsgBatchCreateDerivativeLimitOrders) Type() string {
-	return "batchCreateDerivativeLimitOrder"
+	return TypeMsgBatchCreateDerivativeLimitOrders
 }
 
 // ValidateBasic runs stateless checks on the message
@@ -969,7 +1004,7 @@ func (msg MsgBatchCreateDerivativeLimitOrders) GetSigners() []sdk.AccAddress {
 func (msg MsgCreateDerivativeMarketOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateDerivativeMarketOrder) Type() string { return "createDerivativeMarketOrder" }
+func (msg MsgCreateDerivativeMarketOrder) Type() string { return TypeMsgCreateDerivativeMarketOrder }
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateDerivativeMarketOrder) ValidateBasic() error {
@@ -1034,7 +1069,9 @@ func NewMsgCreateBinaryOptionsMarketOrder(
 func (msg MsgCreateBinaryOptionsMarketOrder) Route() string { return RouterKey }
 
 // Type should return the action
-func (msg MsgCreateBinaryOptionsMarketOrder) Type() string { return "createBinaryOptionsMarketOrder" }
+func (msg MsgCreateBinaryOptionsMarketOrder) Type() string {
+	return TypeMsgCreateBinaryOptionsMarketOrder
+}
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateBinaryOptionsMarketOrder) ValidateBasic() error {
@@ -1077,7 +1114,7 @@ func (msg *MsgCancelDerivativeOrder) Route() string {
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg *MsgCancelDerivativeOrder) Type() string {
-	return "cancelDerivativeOrder"
+	return TypeMsgCancelDerivativeOrder
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -1116,7 +1153,7 @@ func (msg *MsgBatchCancelDerivativeOrders) Route() string {
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg *MsgBatchCancelDerivativeOrders) Type() string {
-	return "batchCancelDerivativeOrder"
+	return TypeMsgBatchCancelDerivativeOrders
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -1160,7 +1197,7 @@ func (msg *MsgCancelBinaryOptionsOrder) Route() string {
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg *MsgCancelBinaryOptionsOrder) Type() string {
-	return "cancelBinaryOptionsOrder"
+	return TypeMsgCancelBinaryOptionsOrder
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -1198,7 +1235,7 @@ func (msg *MsgBatchCancelBinaryOptionsOrders) Route() string {
 
 // Type implements the sdk.Msg interface. It should return the action.
 func (msg *MsgBatchCancelBinaryOptionsOrders) Type() string {
-	return "batchCancelBinaryOptionsOrders"
+	return TypeMsgBatchCancelBinaryOptionsOrders
 }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
@@ -1240,7 +1277,7 @@ func (msg *MsgSubaccountTransfer) Route() string {
 }
 
 func (msg *MsgSubaccountTransfer) Type() string {
-	return "subaccountTransfer"
+	return TypeMsgSubaccountTransfer
 }
 
 func (msg *MsgSubaccountTransfer) ValidateBasic() error {
@@ -1290,7 +1327,7 @@ func (msg *MsgExternalTransfer) Route() string {
 }
 
 func (msg *MsgExternalTransfer) Type() string {
-	return "externalTransfer"
+	return TypeMsgExternalTransfer
 }
 
 func (msg *MsgExternalTransfer) ValidateBasic() error {
@@ -1339,7 +1376,7 @@ func (msg *MsgIncreasePositionMargin) Route() string {
 }
 
 func (msg *MsgIncreasePositionMargin) Type() string {
-	return "increasePositionMargin"
+	return TypeMsgIncreasePositionMargin
 }
 
 func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
@@ -1384,34 +1421,25 @@ func (msg *MsgIncreasePositionMargin) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-func (msg *MsgExec) Route() string {
+func (msg *MsgPrivilegedExecuteContract) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgExec) Type() string {
-	return "exec"
+func (msg *MsgPrivilegedExecuteContract) Type() string {
+	return TypeMsgPrivilegedExecuteContract
 }
 
-func (msg *MsgExec) ValidateBasic() error {
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+func (msg *MsgPrivilegedExecuteContract) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if !msg.BankFunds.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.BankFunds.String())
-	}
-
-	if msg.DepositsSubaccountId != "" {
-		if addr, ok := IsValidSubaccountID(msg.DepositsSubaccountId); !ok {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.DepositsSubaccountId)
-		} else if !bytes.Equal(addr.Bytes(), senderAddr.Bytes()) {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.DepositsSubaccountId)
+	// funds must either be "empty" or a valid funds coins string
+	if !msg.HasEmptyFunds() {
+		if coins, err := sdk.ParseDecCoins(msg.Funds); err != nil || !coins.IsAllPositive() {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Funds)
 		}
-	}
-
-	if !msg.DepositFunds.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.DepositFunds.String())
 	}
 
 	_, err = sdk.AccAddressFromBech32(msg.ContractAddress)
@@ -1433,11 +1461,15 @@ func (msg *MsgExec) ValidateBasic() error {
 	return nil
 }
 
-func (msg *MsgExec) GetSignBytes() []byte {
+func (msg *MsgPrivilegedExecuteContract) HasEmptyFunds() bool {
+	return msg.Funds == "" || msg.Funds == "0" || msg.Funds == "0inj"
+}
+
+func (msg *MsgPrivilegedExecuteContract) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func (msg *MsgExec) GetSigners() []sdk.AccAddress {
+func (msg *MsgPrivilegedExecuteContract) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -1450,7 +1482,7 @@ func (msg *MsgRewardsOptOut) Route() string {
 }
 
 func (msg *MsgRewardsOptOut) Type() string {
-	return "rewardsOptOut"
+	return TypeMsgRewardsOptOut
 }
 
 func (msg *MsgRewardsOptOut) ValidateBasic() error {
@@ -1475,7 +1507,7 @@ func (msg *MsgLiquidatePosition) Route() string {
 }
 
 func (msg *MsgLiquidatePosition) Type() string {
-	return "liquidatePosition"
+	return TypeMsgLiquidatePosition
 }
 
 func (msg *MsgLiquidatePosition) ValidateBasic() error {
@@ -1523,7 +1555,7 @@ func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
 func (msg MsgBatchUpdateOrders) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgBatchUpdateOrders) Type() string { return "batchUpdateOrders" }
+func (msg MsgBatchUpdateOrders) Type() string { return TypeMsgBatchUpdateOrders }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgBatchUpdateOrders) ValidateBasic() error {
@@ -1706,7 +1738,7 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) Route() string {
 }
 
 func (msg *MsgAdminUpdateBinaryOptionsMarket) Type() string {
-	return "adminUpdateBinaryOptionsMarket"
+	return TypeMsgAdminUpdateBinaryOptionsMarket
 }
 
 func (msg *MsgAdminUpdateBinaryOptionsMarket) ValidateBasic() error {
@@ -1763,4 +1795,154 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgReclaimLockedFunds) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgReclaimLockedFunds) Type() string {
+	return TypeMsgReclaimLockedFunds
+}
+
+func (msg *MsgReclaimLockedFunds) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	// TODO: restrict the msg.Sender to be a specific EOA?
+	// Placeholder for now obviously, if we decide so, change this check to the actual address
+	// if !senderAddr.Equals(senderAddr) {
+	//	return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	// }
+
+	lockedPubKey := sdksecp256k1.PubKey{
+		Key: msg.LockedAccountPubKey,
+	}
+	correctPubKey := ethsecp256k1.PubKey{
+		Key: msg.LockedAccountPubKey,
+	}
+	lockedAddress := sdk.AccAddress(lockedPubKey.Address())
+	recipientAddress := sdk.AccAddress(correctPubKey.Address())
+
+	data := ConstructFundsReclaimMessage(
+		recipientAddress,
+		lockedAddress,
+	)
+
+	msgSignData := MsgSignData{
+		Signer: lockedAddress.Bytes(),
+		Data:   data,
+	}
+
+	if err := msgSignData.ValidateBasic(); err != nil {
+		return nil
+	}
+
+	tx := legacytx.NewStdTx(
+		[]sdk.Msg{&MsgSignDoc{
+			SignType: "sign/MsgSignData",
+			Value:    msgSignData,
+		}},
+		legacytx.StdFee{
+			Amount: sdk.Coins{},
+			Gas:    0,
+		},
+		//nolint:staticcheck // we know it's deprecated and we think it's okay
+		[]legacytx.StdSignature{
+			{
+				PubKey:    &lockedPubKey,
+				Signature: msg.Signature,
+			},
+		},
+		"",
+	)
+
+	if err := tx.ValidateBasic(); err != nil {
+		return err
+	}
+
+	aminoJSONHandler := legacytx.NewStdTxSignModeHandler()
+
+	signingData := signing.SignerData{
+		ChainID:       "",
+		AccountNumber: 0,
+		Sequence:      0,
+	}
+
+	signBz, err := aminoJSONHandler.GetSignBytes(signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON, signingData, tx)
+	if err != nil {
+		return err
+	}
+
+	if !lockedPubKey.VerifySignature(signBz, tx.GetSignatures()[0]) {
+		return sdkerrors.Wrapf(ErrBadField, "signature verification failed with signature %s on signBz %s, msg.Signature is %s", common.Bytes2Hex(tx.GetSignatures()[0]), string(signBz), common.Bytes2Hex(msg.Signature))
+	}
+
+	return nil
+}
+
+func (msg *MsgReclaimLockedFunds) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgReclaimLockedFunds) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// / Skeleton sdk.Msg interface implementation
+var _ sdk.Msg = &MsgSignData{}
+var _ legacytx.LegacyMsg = &MsgSignData{}
+
+func (msg *MsgSignData) ValidateBasic() error {
+	if msg.Signer.Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Signer.String())
+	}
+
+	return nil
+}
+
+func (msg *MsgSignData) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Signer}
+}
+
+func (m *MsgSignData) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+}
+
+func (m *MsgSignData) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSignData) Type() string {
+	return "signData"
+}
+
+// / Skeleton sdk.Msg interface implementation
+var _ sdk.Msg = &MsgSignDoc{}
+var _ legacytx.LegacyMsg = &MsgSignDoc{}
+
+func (msg *MsgSignDoc) ValidateBasic() error {
+	return nil
+}
+
+func (msg *MsgSignDoc) GetSigners() []sdk.AccAddress {
+	return msg.Value.GetSigners()
+}
+
+func (m *MsgSignDoc) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+}
+
+func (m *MsgSignDoc) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSignDoc) Type() string {
+	return "signDoc"
 }

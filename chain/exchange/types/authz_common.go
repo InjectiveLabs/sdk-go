@@ -45,25 +45,30 @@ func (a BatchUpdateOrdersAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.Acce
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
 	}
 
-	// check authorized subaccount
-	if ordersToUpdate.SubaccountId != a.SubaccountId {
-		return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
-	}
-
 	// check authorized spot markets
 	for _, o := range ordersToUpdate.SpotOrdersToCreate {
 		if !find(a.SpotMarkets, o.MarketId) {
 			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested spot market to create orders is unauthorized")
+		}
+		if o.OrderInfo.SubaccountId != a.SubaccountId {
+			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
 		}
 	}
 	for _, o := range ordersToUpdate.SpotOrdersToCancel {
 		if !find(a.SpotMarkets, o.MarketId) {
 			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested spot market to cancel orders is unauthorized")
 		}
+		if o.SubaccountId != a.SubaccountId {
+			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
+		}
 	}
 	for _, id := range ordersToUpdate.SpotMarketIdsToCancelAll {
 		if !find(a.SpotMarkets, id) {
 			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested spot market to cancel all orders is unauthorized")
+		}
+
+		if ordersToUpdate.SubaccountId != a.SubaccountId {
+			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
 		}
 	}
 
@@ -72,17 +77,29 @@ func (a BatchUpdateOrdersAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.Acce
 		if !find(a.DerivativeMarkets, o.MarketId) {
 			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested derivative market to create orders is unauthorized")
 		}
+		if o.OrderInfo.SubaccountId != a.SubaccountId {
+			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
+		}
 	}
 	for _, o := range ordersToUpdate.DerivativeOrdersToCancel {
 		if !find(a.DerivativeMarkets, o.MarketId) {
 			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested derivative market to cancel orders is unauthorized")
+		}
+		if o.SubaccountId != a.SubaccountId {
+			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
 		}
 	}
 	for _, id := range ordersToUpdate.DerivativeMarketIdsToCancelAll {
 		if !find(a.DerivativeMarkets, id) {
 			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested derivative market to cancel all orders is unauthorized")
 		}
+
+		if ordersToUpdate.SubaccountId != a.SubaccountId {
+			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
+		}
 	}
+
+	// TODO add check for BO markets?
 
 	return authz.AcceptResponse{Accept: true, Delete: false, Updated: nil}, nil
 }
