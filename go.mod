@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/CosmWasm/wasmd v0.28.0
-	github.com/InjectiveLabs/injective-core v1.7.1
 	github.com/InjectiveLabs/suplog v1.3.3
 	github.com/bandprotocol/bandchain-packet v0.0.2
 	github.com/btcsuite/btcd v0.22.1
