@@ -6,7 +6,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/bank/v1beta1/bank.proto";
 import "injective/tokenfactory/v1beta1/authorityMetadata.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/tokenfactory/types";
 
 message EventCreateTFDenom {
   string account = 1;

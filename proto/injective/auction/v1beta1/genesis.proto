@@ -4,7 +4,7 @@ package injective.auction.v1beta1;
 import "injective/auction/v1beta1/auction.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/auction/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/auction/types";
 
 // GenesisState defines the auction module's genesis state.
 message GenesisState {
