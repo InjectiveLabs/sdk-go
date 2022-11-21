@@ -105,6 +105,7 @@ func NewClientContext(
 	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
+	tokenfactory.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
