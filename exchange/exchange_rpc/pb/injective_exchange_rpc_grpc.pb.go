@@ -28,6 +28,12 @@ type InjectiveExchangeRPCClient interface {
 	PrepareTx(ctx context.Context, in *PrepareTxRequest, opts ...grpc.CallOption) (*PrepareTxResponse, error)
 	// BroadcastTx broadcasts a signed Web3 transaction
 	BroadcastTx(ctx context.Context, in *BroadcastTxRequest, opts ...grpc.CallOption) (*BroadcastTxResponse, error)
+	// PrepareCosmosTx generates a Web3-signable body for a Cosmos transaction
+	PrepareCosmosTx(ctx context.Context, in *PrepareCosmosTxRequest, opts ...grpc.CallOption) (*PrepareCosmosTxResponse, error)
+	// BroadcastCosmosTx broadcasts a signed Web3 transaction
+	BroadcastCosmosTx(ctx context.Context, in *BroadcastCosmosTxRequest, opts ...grpc.CallOption) (*BroadcastCosmosTxResponse, error)
+	// Return fee payer information's
+	GetFeePayer(ctx context.Context, in *GetFeePayerRequest, opts ...grpc.CallOption) (*GetFeePayerResponse, error)
 }
 
 type injectiveExchangeRPCClient struct {
@@ -65,6 +71,33 @@ func (c *injectiveExchangeRPCClient) BroadcastTx(ctx context.Context, in *Broadc
 	return out, nil
 }
 
+func (c *injectiveExchangeRPCClient) PrepareCosmosTx(ctx context.Context, in *PrepareCosmosTxRequest, opts ...grpc.CallOption) (*PrepareCosmosTxResponse, error) {
+	out := new(PrepareCosmosTxResponse)
+	err := c.cc.Invoke(ctx, "/injective_exchange_rpc.InjectiveExchangeRPC/PrepareCosmosTx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExchangeRPCClient) BroadcastCosmosTx(ctx context.Context, in *BroadcastCosmosTxRequest, opts ...grpc.CallOption) (*BroadcastCosmosTxResponse, error) {
+	out := new(BroadcastCosmosTxResponse)
+	err := c.cc.Invoke(ctx, "/injective_exchange_rpc.InjectiveExchangeRPC/BroadcastCosmosTx", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExchangeRPCClient) GetFeePayer(ctx context.Context, in *GetFeePayerRequest, opts ...grpc.CallOption) (*GetFeePayerResponse, error) {
+	out := new(GetFeePayerResponse)
+	err := c.cc.Invoke(ctx, "/injective_exchange_rpc.InjectiveExchangeRPC/GetFeePayer", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InjectiveExchangeRPCServer is the server API for InjectiveExchangeRPC service.
 // All implementations must embed UnimplementedInjectiveExchangeRPCServer
 // for forward compatibility
@@ -75,6 +108,12 @@ type InjectiveExchangeRPCServer interface {
 	PrepareTx(context.Context, *PrepareTxRequest) (*PrepareTxResponse, error)
 	// BroadcastTx broadcasts a signed Web3 transaction
 	BroadcastTx(context.Context, *BroadcastTxRequest) (*BroadcastTxResponse, error)
+	// PrepareCosmosTx generates a Web3-signable body for a Cosmos transaction
+	PrepareCosmosTx(context.Context, *PrepareCosmosTxRequest) (*PrepareCosmosTxResponse, error)
+	// BroadcastCosmosTx broadcasts a signed Web3 transaction
+	BroadcastCosmosTx(context.Context, *BroadcastCosmosTxRequest) (*BroadcastCosmosTxResponse, error)
+	// Return fee payer information's
+	GetFeePayer(context.Context, *GetFeePayerRequest) (*GetFeePayerResponse, error)
 	mustEmbedUnimplementedInjectiveExchangeRPCServer()
 }
 
@@ -90,6 +129,15 @@ func (UnimplementedInjectiveExchangeRPCServer) PrepareTx(context.Context, *Prepa
 }
 func (UnimplementedInjectiveExchangeRPCServer) BroadcastTx(context.Context, *BroadcastTxRequest) (*BroadcastTxResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BroadcastTx not implemented")
+}
+func (UnimplementedInjectiveExchangeRPCServer) PrepareCosmosTx(context.Context, *PrepareCosmosTxRequest) (*PrepareCosmosTxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PrepareCosmosTx not implemented")
+}
+func (UnimplementedInjectiveExchangeRPCServer) BroadcastCosmosTx(context.Context, *BroadcastCosmosTxRequest) (*BroadcastCosmosTxResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BroadcastCosmosTx not implemented")
+}
+func (UnimplementedInjectiveExchangeRPCServer) GetFeePayer(context.Context, *GetFeePayerRequest) (*GetFeePayerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFeePayer not implemented")
 }
 func (UnimplementedInjectiveExchangeRPCServer) mustEmbedUnimplementedInjectiveExchangeRPCServer() {}
 
@@ -158,6 +206,60 @@ func _InjectiveExchangeRPC_BroadcastTx_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveExchangeRPC_PrepareCosmosTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PrepareCosmosTxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExchangeRPCServer).PrepareCosmosTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_exchange_rpc.InjectiveExchangeRPC/PrepareCosmosTx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExchangeRPCServer).PrepareCosmosTx(ctx, req.(*PrepareCosmosTxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExchangeRPC_BroadcastCosmosTx_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BroadcastCosmosTxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExchangeRPCServer).BroadcastCosmosTx(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_exchange_rpc.InjectiveExchangeRPC/BroadcastCosmosTx",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExchangeRPCServer).BroadcastCosmosTx(ctx, req.(*BroadcastCosmosTxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExchangeRPC_GetFeePayer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFeePayerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExchangeRPCServer).GetFeePayer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_exchange_rpc.InjectiveExchangeRPC/GetFeePayer",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExchangeRPCServer).GetFeePayer(ctx, req.(*GetFeePayerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InjectiveExchangeRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveExchangeRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +278,18 @@ var InjectiveExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BroadcastTx",
 			Handler:    _InjectiveExchangeRPC_BroadcastTx_Handler,
+		},
+		{
+			MethodName: "PrepareCosmosTx",
+			Handler:    _InjectiveExchangeRPC_PrepareCosmosTx_Handler,
+		},
+		{
+			MethodName: "BroadcastCosmosTx",
+			Handler:    _InjectiveExchangeRPC_BroadcastCosmosTx_Handler,
+		},
+		{
+			MethodName: "GetFeePayer",
+			Handler:    _InjectiveExchangeRPC_GetFeePayer_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

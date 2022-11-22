@@ -19,6 +19,12 @@ service InjectiveExchangeRPC {
 	rpc PrepareTx (PrepareTxRequest) returns (PrepareTxResponse);
 	// BroadcastTx broadcasts a signed Web3 transaction
 	rpc BroadcastTx (BroadcastTxRequest) returns (BroadcastTxResponse);
+	// PrepareCosmosTx generates a Web3-signable body for a Cosmos transaction
+	rpc PrepareCosmosTx (PrepareCosmosTxRequest) returns (PrepareCosmosTxResponse);
+	// BroadcastCosmosTx broadcasts a signed Web3 transaction
+	rpc BroadcastCosmosTx (BroadcastCosmosTxRequest) returns (BroadcastCosmosTxResponse);
+	// Return fee payer information's
+	rpc GetFeePayer (GetFeePayerRequest) returns (GetFeePayerResponse);
 }
 
 message GetTxRequest {
@@ -139,4 +145,75 @@ message BroadcastTxResponse {
 	string raw_log = 7;
 	// Time of the previous block.
 	string timestamp = 8;
+}
+
+message PrepareCosmosTxRequest {
+	// Specify chainID for the target tx
+	uint64 chain_id = 1;
+	// sender address provided
+	string sender_address = 2;
+	// Textual memo information to attach with tx
+	string memo = 3;
+	// Block height until which the transaction is valid.
+	uint64 timeout_height = 4;
+	// Transaction fee details.
+	CosmosTxFee fee = 5;
+	// List of Cosmos proto3-encoded Msgs to include in a single tx
+	repeated bytes msgs = 6;
+}
+
+message PrepareCosmosTxResponse {
+	// proto encoded tx
+	bytes tx = 1;
+	// Sign mode for the resulting tx
+	string sign_mode = 2;
+	// Specify proto-URL of a public key, which defines the signature format
+	string pub_key_type = 3;
+	// Fee payer address provided by service
+	string fee_payer = 4;
+	// Hex-encoded ethsecp256k1 signature bytes from fee payer
+	string fee_payer_sig = 5;
+	// ethsecp256k1 feePayer pubkey
+	CosmosPubKey fee_payer_pub_key = 6;
+}
+
+message BroadcastCosmosTxRequest {
+	// proto encoded tx
+	bytes tx = 1;
+	// Specify ethsecp256k1 sender pubkey
+	CosmosPubKey pub_key = 2;
+	// Hex-encoded ethsecp256k1 sender signature bytes
+	string signature = 3;
+	// sender address
+	string sender_address = 4;
+}
+
+message BroadcastCosmosTxResponse {
+	// Hex-encoded Tendermint transaction hash
+	string tx_hash = 1;
+	// The block height
+	sint64 height = 2;
+	// Tx index in the block
+	uint32 index = 3;
+	// Namespace for the resp code
+	string codespace = 4;
+	// Response code
+	uint32 code = 5;
+	// Result bytes, if any
+	bytes data = 6;
+	// The output of the application's logger (raw string). May be
+// non-deterministic.
+	string raw_log = 7;
+	// Time of the previous block.
+	string timestamp = 8;
+}
+
+message GetFeePayerRequest {
+}
+
+message GetFeePayerResponse {
+	// Fee payer address provided by service
+	string fee_payer = 1;
+	// ethsecp256k1 feePayer pubkey
+	CosmosPubKey fee_payer_pub_key = 2;
 }
