@@ -4,10 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 
+	sdksecp256k1 "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/cosmos/cosmos-sdk/x/auth/legacy/legacytx"
+	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 
+	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
@@ -37,7 +42,7 @@ var (
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
-	_ sdk.Msg = &MsgExec{}
+	_ sdk.Msg = &MsgPrivilegedExecuteContract{}
 	_ sdk.Msg = &MsgRewardsOptOut{}
 	_ sdk.Msg = &MsgInstantBinaryOptionsMarketLaunch{}
 	_ sdk.Msg = &MsgCreateBinaryOptionsLimitOrder{}
@@ -45,6 +50,7 @@ var (
 	_ sdk.Msg = &MsgCancelBinaryOptionsOrder{}
 	_ sdk.Msg = &MsgAdminUpdateBinaryOptionsMarket{}
 	_ sdk.Msg = &MsgBatchCancelBinaryOptionsOrders{}
+	_ sdk.Msg = &MsgReclaimLockedFunds{}
 )
 
 // exchange message types
@@ -71,7 +77,7 @@ const (
 	TypeMsgInstantPerpetualMarketLaunch     = "instantPerpetualMarketLaunch"
 	TypeMsgInstantExpiryFuturesMarketLaunch = "instantExpiryFuturesMarketLaunch"
 	TypeMsgBatchUpdateOrders                = "batchUpdateOrders"
-	TypeMsgExec                             = "exec"
+	TypeMsgPrivilegedExecuteContract        = "privilegedExecuteContract"
 	TypeMsgRewardsOptOut                    = "rewardsOptOut"
 	TypeMsgInstantBinaryOptionsMarketLaunch = "instantBinaryOptionsMarketLaunch"
 	TypeMsgCreateBinaryOptionsLimitOrder    = "createBinaryOptionsLimitOrder"
@@ -79,6 +85,7 @@ const (
 	TypeMsgCancelBinaryOptionsOrder         = "cancelBinaryOptionsOrder"
 	TypeMsgAdminUpdateBinaryOptionsMarket   = "adminUpdateBinaryOptionsMarket"
 	TypeMsgBatchCancelBinaryOptionsOrders   = "batchCancelBinaryOptionsOrders"
+	TypeMsgReclaimLockedFunds               = "reclaimLockedFunds"
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -1414,34 +1421,25 @@ func (msg *MsgIncreasePositionMargin) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
-func (msg *MsgExec) Route() string {
+func (msg *MsgPrivilegedExecuteContract) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgExec) Type() string {
-	return TypeMsgExec
+func (msg *MsgPrivilegedExecuteContract) Type() string {
+	return TypeMsgPrivilegedExecuteContract
 }
 
-func (msg *MsgExec) ValidateBasic() error {
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+func (msg *MsgPrivilegedExecuteContract) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if !msg.BankFunds.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.BankFunds.String())
-	}
-
-	if msg.DepositsSubaccountId != "" {
-		if addr, ok := IsValidSubaccountID(msg.DepositsSubaccountId); !ok {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.DepositsSubaccountId)
-		} else if !bytes.Equal(addr.Bytes(), senderAddr.Bytes()) {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.DepositsSubaccountId)
+	// funds must either be "empty" or a valid funds coins string
+	if !msg.HasEmptyFunds() {
+		if coins, err := sdk.ParseDecCoins(msg.Funds); err != nil || !coins.IsAllPositive() {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Funds)
 		}
-	}
-
-	if !msg.DepositFunds.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.DepositFunds.String())
 	}
 
 	_, err = sdk.AccAddressFromBech32(msg.ContractAddress)
@@ -1463,11 +1461,15 @@ func (msg *MsgExec) ValidateBasic() error {
 	return nil
 }
 
-func (msg *MsgExec) GetSignBytes() []byte {
+func (msg *MsgPrivilegedExecuteContract) HasEmptyFunds() bool {
+	return msg.Funds == "" || msg.Funds == "0" || msg.Funds == "0inj"
+}
+
+func (msg *MsgPrivilegedExecuteContract) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
 }
 
-func (msg *MsgExec) GetSigners() []sdk.AccAddress {
+func (msg *MsgPrivilegedExecuteContract) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -1793,4 +1795,154 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgReclaimLockedFunds) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgReclaimLockedFunds) Type() string {
+	return TypeMsgReclaimLockedFunds
+}
+
+func (msg *MsgReclaimLockedFunds) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	// TODO: restrict the msg.Sender to be a specific EOA?
+	// Placeholder for now obviously, if we decide so, change this check to the actual address
+	// if !senderAddr.Equals(senderAddr) {
+	//	return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	// }
+
+	lockedPubKey := sdksecp256k1.PubKey{
+		Key: msg.LockedAccountPubKey,
+	}
+	correctPubKey := ethsecp256k1.PubKey{
+		Key: msg.LockedAccountPubKey,
+	}
+	lockedAddress := sdk.AccAddress(lockedPubKey.Address())
+	recipientAddress := sdk.AccAddress(correctPubKey.Address())
+
+	data := ConstructFundsReclaimMessage(
+		recipientAddress,
+		lockedAddress,
+	)
+
+	msgSignData := MsgSignData{
+		Signer: lockedAddress.Bytes(),
+		Data:   data,
+	}
+
+	if err := msgSignData.ValidateBasic(); err != nil {
+		return nil
+	}
+
+	tx := legacytx.NewStdTx(
+		[]sdk.Msg{&MsgSignDoc{
+			SignType: "sign/MsgSignData",
+			Value:    msgSignData,
+		}},
+		legacytx.StdFee{
+			Amount: sdk.Coins{},
+			Gas:    0,
+		},
+		//nolint:staticcheck // we know it's deprecated and we think it's okay
+		[]legacytx.StdSignature{
+			{
+				PubKey:    &lockedPubKey,
+				Signature: msg.Signature,
+			},
+		},
+		"",
+	)
+
+	if err := tx.ValidateBasic(); err != nil {
+		return err
+	}
+
+	aminoJSONHandler := legacytx.NewStdTxSignModeHandler()
+
+	signingData := signing.SignerData{
+		ChainID:       "",
+		AccountNumber: 0,
+		Sequence:      0,
+	}
+
+	signBz, err := aminoJSONHandler.GetSignBytes(signingtypes.SignMode_SIGN_MODE_LEGACY_AMINO_JSON, signingData, tx)
+	if err != nil {
+		return err
+	}
+
+	if !lockedPubKey.VerifySignature(signBz, tx.GetSignatures()[0]) {
+		return sdkerrors.Wrapf(ErrBadField, "signature verification failed with signature %s on signBz %s, msg.Signature is %s", common.Bytes2Hex(tx.GetSignatures()[0]), string(signBz), common.Bytes2Hex(msg.Signature))
+	}
+
+	return nil
+}
+
+func (msg *MsgReclaimLockedFunds) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgReclaimLockedFunds) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// / Skeleton sdk.Msg interface implementation
+var _ sdk.Msg = &MsgSignData{}
+var _ legacytx.LegacyMsg = &MsgSignData{}
+
+func (msg *MsgSignData) ValidateBasic() error {
+	if msg.Signer.Empty() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Signer.String())
+	}
+
+	return nil
+}
+
+func (msg *MsgSignData) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.Signer}
+}
+
+func (m *MsgSignData) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+}
+
+func (m *MsgSignData) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSignData) Type() string {
+	return "signData"
+}
+
+// / Skeleton sdk.Msg interface implementation
+var _ sdk.Msg = &MsgSignDoc{}
+var _ legacytx.LegacyMsg = &MsgSignDoc{}
+
+func (msg *MsgSignDoc) ValidateBasic() error {
+	return nil
+}
+
+func (msg *MsgSignDoc) GetSigners() []sdk.AccAddress {
+	return msg.Value.GetSigners()
+}
+
+func (m *MsgSignDoc) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(m))
+}
+
+func (m *MsgSignDoc) Route() string {
+	return RouterKey
+}
+
+func (m *MsgSignDoc) Type() string {
+	return "signDoc"
 }

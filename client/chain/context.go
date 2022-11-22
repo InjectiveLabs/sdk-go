@@ -22,6 +22,7 @@ import (
 	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
+	tokenfactory "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	wasmx "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 
@@ -59,6 +60,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
+	tokenfactory.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
@@ -103,6 +105,7 @@ func NewClientContext(
 	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
+	tokenfactory.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
