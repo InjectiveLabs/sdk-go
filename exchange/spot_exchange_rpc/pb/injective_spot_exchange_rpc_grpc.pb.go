@@ -32,8 +32,10 @@ type InjectiveSpotExchangeRPCClient interface {
 	Orderbook(ctx context.Context, in *OrderbookRequest, opts ...grpc.CallOption) (*OrderbookResponse, error)
 	// Orderbook of Spot Markets
 	Orderbooks(ctx context.Context, in *OrderbooksRequest, opts ...grpc.CallOption) (*OrderbooksResponse, error)
-	// Stream live updates of selected spot market orderbook
-	StreamOrderbook(ctx context.Context, in *StreamOrderbookRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookClient, error)
+	// Stream live snapshot updates of selected spot market orderbook
+	StreamOrderbookSnapshot(ctx context.Context, in *StreamOrderbookSnapshotRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient, error)
+	// Stream live level updates of selected spot market orderbook
+	StreamOrderbookUpdate(ctx context.Context, in *StreamOrderbookUpdateRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
 	// Orders of a Spot Market
 	Orders(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*OrdersResponse, error)
 	// Stream updates to individual orders of a Spot Market
@@ -46,6 +48,10 @@ type InjectiveSpotExchangeRPCClient interface {
 	SubaccountOrdersList(ctx context.Context, in *SubaccountOrdersListRequest, opts ...grpc.CallOption) (*SubaccountOrdersListResponse, error)
 	// List trades executed by this subaccount
 	SubaccountTradesList(ctx context.Context, in *SubaccountTradesListRequest, opts ...grpc.CallOption) (*SubaccountTradesListResponse, error)
+	// Lists history orders posted from this subaccount
+	OrdersHistory(ctx context.Context, in *OrdersHistoryRequest, opts ...grpc.CallOption) (*OrdersHistoryResponse, error)
+	// Stream updates to historical orders of a spot Market
+	StreamOrdersHistory(ctx context.Context, in *StreamOrdersHistoryRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrdersHistoryClient, error)
 }
 
 type injectiveSpotExchangeRPCClient struct {
@@ -124,12 +130,12 @@ func (c *injectiveSpotExchangeRPCClient) Orderbooks(ctx context.Context, in *Ord
 	return out, nil
 }
 
-func (c *injectiveSpotExchangeRPCClient) StreamOrderbook(ctx context.Context, in *StreamOrderbookRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[1], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbook", opts...)
+func (c *injectiveSpotExchangeRPCClient) StreamOrderbookSnapshot(ctx context.Context, in *StreamOrderbookSnapshotRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[1], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookSnapshot", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &injectiveSpotExchangeRPCStreamOrderbookClient{stream}
+	x := &injectiveSpotExchangeRPCStreamOrderbookSnapshotClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -139,17 +145,49 @@ func (c *injectiveSpotExchangeRPCClient) StreamOrderbook(ctx context.Context, in
 	return x, nil
 }
 
-type InjectiveSpotExchangeRPC_StreamOrderbookClient interface {
-	Recv() (*StreamOrderbookResponse, error)
+type InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient interface {
+	Recv() (*StreamOrderbookSnapshotResponse, error)
 	grpc.ClientStream
 }
 
-type injectiveSpotExchangeRPCStreamOrderbookClient struct {
+type injectiveSpotExchangeRPCStreamOrderbookSnapshotClient struct {
 	grpc.ClientStream
 }
 
-func (x *injectiveSpotExchangeRPCStreamOrderbookClient) Recv() (*StreamOrderbookResponse, error) {
-	m := new(StreamOrderbookResponse)
+func (x *injectiveSpotExchangeRPCStreamOrderbookSnapshotClient) Recv() (*StreamOrderbookSnapshotResponse, error) {
+	m := new(StreamOrderbookSnapshotResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *injectiveSpotExchangeRPCClient) StreamOrderbookUpdate(ctx context.Context, in *StreamOrderbookUpdateRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[2], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &injectiveSpotExchangeRPCStreamOrderbookUpdateClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient interface {
+	Recv() (*StreamOrderbookUpdateResponse, error)
+	grpc.ClientStream
+}
+
+type injectiveSpotExchangeRPCStreamOrderbookUpdateClient struct {
+	grpc.ClientStream
+}
+
+func (x *injectiveSpotExchangeRPCStreamOrderbookUpdateClient) Recv() (*StreamOrderbookUpdateResponse, error) {
+	m := new(StreamOrderbookUpdateResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -166,7 +204,7 @@ func (c *injectiveSpotExchangeRPCClient) Orders(ctx context.Context, in *OrdersR
 }
 
 func (c *injectiveSpotExchangeRPCClient) StreamOrders(ctx context.Context, in *StreamOrdersRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrdersClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[2], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrders", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[3], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrders", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +245,7 @@ func (c *injectiveSpotExchangeRPCClient) Trades(ctx context.Context, in *TradesR
 }
 
 func (c *injectiveSpotExchangeRPCClient) StreamTrades(ctx context.Context, in *StreamTradesRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamTradesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[3], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTrades", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[4], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTrades", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -256,6 +294,47 @@ func (c *injectiveSpotExchangeRPCClient) SubaccountTradesList(ctx context.Contex
 	return out, nil
 }
 
+func (c *injectiveSpotExchangeRPCClient) OrdersHistory(ctx context.Context, in *OrdersHistoryRequest, opts ...grpc.CallOption) (*OrdersHistoryResponse, error) {
+	out := new(OrdersHistoryResponse)
+	err := c.cc.Invoke(ctx, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveSpotExchangeRPCClient) StreamOrdersHistory(ctx context.Context, in *StreamOrdersHistoryRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrdersHistoryClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[5], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &injectiveSpotExchangeRPCStreamOrdersHistoryClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type InjectiveSpotExchangeRPC_StreamOrdersHistoryClient interface {
+	Recv() (*StreamOrdersHistoryResponse, error)
+	grpc.ClientStream
+}
+
+type injectiveSpotExchangeRPCStreamOrdersHistoryClient struct {
+	grpc.ClientStream
+}
+
+func (x *injectiveSpotExchangeRPCStreamOrdersHistoryClient) Recv() (*StreamOrdersHistoryResponse, error) {
+	m := new(StreamOrdersHistoryResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // InjectiveSpotExchangeRPCServer is the server API for InjectiveSpotExchangeRPC service.
 // All implementations must embed UnimplementedInjectiveSpotExchangeRPCServer
 // for forward compatibility
@@ -270,8 +349,10 @@ type InjectiveSpotExchangeRPCServer interface {
 	Orderbook(context.Context, *OrderbookRequest) (*OrderbookResponse, error)
 	// Orderbook of Spot Markets
 	Orderbooks(context.Context, *OrderbooksRequest) (*OrderbooksResponse, error)
-	// Stream live updates of selected spot market orderbook
-	StreamOrderbook(*StreamOrderbookRequest, InjectiveSpotExchangeRPC_StreamOrderbookServer) error
+	// Stream live snapshot updates of selected spot market orderbook
+	StreamOrderbookSnapshot(*StreamOrderbookSnapshotRequest, InjectiveSpotExchangeRPC_StreamOrderbookSnapshotServer) error
+	// Stream live level updates of selected spot market orderbook
+	StreamOrderbookUpdate(*StreamOrderbookUpdateRequest, InjectiveSpotExchangeRPC_StreamOrderbookUpdateServer) error
 	// Orders of a Spot Market
 	Orders(context.Context, *OrdersRequest) (*OrdersResponse, error)
 	// Stream updates to individual orders of a Spot Market
@@ -284,6 +365,10 @@ type InjectiveSpotExchangeRPCServer interface {
 	SubaccountOrdersList(context.Context, *SubaccountOrdersListRequest) (*SubaccountOrdersListResponse, error)
 	// List trades executed by this subaccount
 	SubaccountTradesList(context.Context, *SubaccountTradesListRequest) (*SubaccountTradesListResponse, error)
+	// Lists history orders posted from this subaccount
+	OrdersHistory(context.Context, *OrdersHistoryRequest) (*OrdersHistoryResponse, error)
+	// Stream updates to historical orders of a spot Market
+	StreamOrdersHistory(*StreamOrdersHistoryRequest, InjectiveSpotExchangeRPC_StreamOrdersHistoryServer) error
 	mustEmbedUnimplementedInjectiveSpotExchangeRPCServer()
 }
 
@@ -306,8 +391,11 @@ func (UnimplementedInjectiveSpotExchangeRPCServer) Orderbook(context.Context, *O
 func (UnimplementedInjectiveSpotExchangeRPCServer) Orderbooks(context.Context, *OrderbooksRequest) (*OrderbooksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Orderbooks not implemented")
 }
-func (UnimplementedInjectiveSpotExchangeRPCServer) StreamOrderbook(*StreamOrderbookRequest, InjectiveSpotExchangeRPC_StreamOrderbookServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamOrderbook not implemented")
+func (UnimplementedInjectiveSpotExchangeRPCServer) StreamOrderbookSnapshot(*StreamOrderbookSnapshotRequest, InjectiveSpotExchangeRPC_StreamOrderbookSnapshotServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamOrderbookSnapshot not implemented")
+}
+func (UnimplementedInjectiveSpotExchangeRPCServer) StreamOrderbookUpdate(*StreamOrderbookUpdateRequest, InjectiveSpotExchangeRPC_StreamOrderbookUpdateServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamOrderbookUpdate not implemented")
 }
 func (UnimplementedInjectiveSpotExchangeRPCServer) Orders(context.Context, *OrdersRequest) (*OrdersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Orders not implemented")
@@ -326,6 +414,12 @@ func (UnimplementedInjectiveSpotExchangeRPCServer) SubaccountOrdersList(context.
 }
 func (UnimplementedInjectiveSpotExchangeRPCServer) SubaccountTradesList(context.Context, *SubaccountTradesListRequest) (*SubaccountTradesListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubaccountTradesList not implemented")
+}
+func (UnimplementedInjectiveSpotExchangeRPCServer) OrdersHistory(context.Context, *OrdersHistoryRequest) (*OrdersHistoryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrdersHistory not implemented")
+}
+func (UnimplementedInjectiveSpotExchangeRPCServer) StreamOrdersHistory(*StreamOrdersHistoryRequest, InjectiveSpotExchangeRPC_StreamOrdersHistoryServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamOrdersHistory not implemented")
 }
 func (UnimplementedInjectiveSpotExchangeRPCServer) mustEmbedUnimplementedInjectiveSpotExchangeRPCServer() {
 }
@@ -434,24 +528,45 @@ func _InjectiveSpotExchangeRPC_Orderbooks_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InjectiveSpotExchangeRPC_StreamOrderbook_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamOrderbookRequest)
+func _InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamOrderbookSnapshotRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(InjectiveSpotExchangeRPCServer).StreamOrderbook(m, &injectiveSpotExchangeRPCStreamOrderbookServer{stream})
+	return srv.(InjectiveSpotExchangeRPCServer).StreamOrderbookSnapshot(m, &injectiveSpotExchangeRPCStreamOrderbookSnapshotServer{stream})
 }
 
-type InjectiveSpotExchangeRPC_StreamOrderbookServer interface {
-	Send(*StreamOrderbookResponse) error
+type InjectiveSpotExchangeRPC_StreamOrderbookSnapshotServer interface {
+	Send(*StreamOrderbookSnapshotResponse) error
 	grpc.ServerStream
 }
 
-type injectiveSpotExchangeRPCStreamOrderbookServer struct {
+type injectiveSpotExchangeRPCStreamOrderbookSnapshotServer struct {
 	grpc.ServerStream
 }
 
-func (x *injectiveSpotExchangeRPCStreamOrderbookServer) Send(m *StreamOrderbookResponse) error {
+func (x *injectiveSpotExchangeRPCStreamOrderbookSnapshotServer) Send(m *StreamOrderbookSnapshotResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _InjectiveSpotExchangeRPC_StreamOrderbookUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamOrderbookUpdateRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveSpotExchangeRPCServer).StreamOrderbookUpdate(m, &injectiveSpotExchangeRPCStreamOrderbookUpdateServer{stream})
+}
+
+type InjectiveSpotExchangeRPC_StreamOrderbookUpdateServer interface {
+	Send(*StreamOrderbookUpdateResponse) error
+	grpc.ServerStream
+}
+
+type injectiveSpotExchangeRPCStreamOrderbookUpdateServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveSpotExchangeRPCStreamOrderbookUpdateServer) Send(m *StreamOrderbookUpdateResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -569,6 +684,45 @@ func _InjectiveSpotExchangeRPC_SubaccountTradesList_Handler(srv interface{}, ctx
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveSpotExchangeRPC_OrdersHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrdersHistoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveSpotExchangeRPCServer).OrdersHistory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveSpotExchangeRPCServer).OrdersHistory(ctx, req.(*OrdersHistoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveSpotExchangeRPC_StreamOrdersHistory_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamOrdersHistoryRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveSpotExchangeRPCServer).StreamOrdersHistory(m, &injectiveSpotExchangeRPCStreamOrdersHistoryServer{stream})
+}
+
+type InjectiveSpotExchangeRPC_StreamOrdersHistoryServer interface {
+	Send(*StreamOrdersHistoryResponse) error
+	grpc.ServerStream
+}
+
+type injectiveSpotExchangeRPCStreamOrdersHistoryServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveSpotExchangeRPCStreamOrdersHistoryServer) Send(m *StreamOrdersHistoryResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // InjectiveSpotExchangeRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveSpotExchangeRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -608,6 +762,10 @@ var InjectiveSpotExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SubaccountTradesList",
 			Handler:    _InjectiveSpotExchangeRPC_SubaccountTradesList_Handler,
 		},
+		{
+			MethodName: "OrdersHistory",
+			Handler:    _InjectiveSpotExchangeRPC_OrdersHistory_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
@@ -616,8 +774,13 @@ var InjectiveSpotExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 		{
-			StreamName:    "StreamOrderbook",
-			Handler:       _InjectiveSpotExchangeRPC_StreamOrderbook_Handler,
+			StreamName:    "StreamOrderbookSnapshot",
+			Handler:       _InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamOrderbookUpdate",
+			Handler:       _InjectiveSpotExchangeRPC_StreamOrderbookUpdate_Handler,
 			ServerStreams: true,
 		},
 		{
@@ -628,6 +791,11 @@ var InjectiveSpotExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamTrades",
 			Handler:       _InjectiveSpotExchangeRPC_StreamTrades_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamOrdersHistory",
+			Handler:       _InjectiveSpotExchangeRPC_StreamOrdersHistory_Handler,
 			ServerStreams: true,
 		},
 	},

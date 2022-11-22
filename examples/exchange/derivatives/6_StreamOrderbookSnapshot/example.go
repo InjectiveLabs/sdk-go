@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -10,18 +9,17 @@ import (
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("devnet-1", "")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	ctx := context.Background()
 	marketIds := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
-	stream, err := exchangeClient.StreamDerivativeOrderbook(ctx, marketIds)
+	stream, err := exchangeClient.StreamDerivativeOrderbookSnapshot(ctx, marketIds)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	for {
@@ -31,11 +29,10 @@ func main() {
 		default:
 			res, err := stream.Recv()
 			if err != nil {
-				panic(err)
+				fmt.Println(err)
 				return
 			}
-			str, _ := json.MarshalIndent(res, "", " ")
-			fmt.Print(string(str))
+			fmt.Println(res.MarketId, res.Orderbook.Sequence, len(res.Orderbook.Sells), len(res.Orderbook.Buys))
 		}
 	}
 }

@@ -124,6 +124,74 @@ func request_InjectiveDerivativeExchangeRPC_StreamMarket_0(ctx context.Context, 
 
 }
 
+func request_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq BinaryOptionsMarketsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.BinaryOptionsMarkets(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveDerivativeExchangeRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq BinaryOptionsMarketsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.BinaryOptionsMarkets(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq BinaryOptionsMarketRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.BinaryOptionsMarket(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveDerivativeExchangeRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq BinaryOptionsMarketRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.BinaryOptionsMarket(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_InjectiveDerivativeExchangeRPC_Orderbook_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq OrderbookRequest
 	var metadata runtime.ServerMetadata
@@ -192,8 +260,8 @@ func local_request_InjectiveDerivativeExchangeRPC_Orderbooks_0(ctx context.Conte
 
 }
 
-func request_InjectiveDerivativeExchangeRPC_StreamOrderbook_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveDerivativeExchangeRPC_StreamOrderbookClient, runtime.ServerMetadata, error) {
-	var protoReq StreamOrderbookRequest
+func request_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotClient, runtime.ServerMetadata, error) {
+	var protoReq StreamOrderbookSnapshotRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -204,7 +272,32 @@ func request_InjectiveDerivativeExchangeRPC_StreamOrderbook_0(ctx context.Contex
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	stream, err := client.StreamOrderbook(ctx, &protoReq)
+	stream, err := client.StreamOrderbookSnapshot(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
+func request_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, runtime.ServerMetadata, error) {
+	var protoReq StreamOrderbookUpdateRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	stream, err := client.StreamOrderbookUpdate(ctx, &protoReq)
 	if err != nil {
 		return nil, metadata, err
 	}
@@ -564,6 +657,65 @@ func local_request_InjectiveDerivativeExchangeRPC_SubaccountTradesList_0(ctx con
 
 }
 
+func request_InjectiveDerivativeExchangeRPC_OrdersHistory_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq OrdersHistoryRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.OrdersHistory(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveDerivativeExchangeRPC_OrdersHistory_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveDerivativeExchangeRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq OrdersHistoryRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.OrdersHistory(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveDerivativeExchangeRPC_StreamOrdersHistory_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveDerivativeExchangeRPC_StreamOrdersHistoryClient, runtime.ServerMetadata, error) {
+	var protoReq StreamOrdersHistoryRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	stream, err := client.StreamOrdersHistory(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
 // RegisterInjectiveDerivativeExchangeRPCHandlerServer registers the http handlers for service InjectiveDerivativeExchangeRPC to "mux".
 // UnaryRPC     :call InjectiveDerivativeExchangeRPCServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -623,6 +775,52 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerServer(ctx context.Context, mu
 		return
 	})
 
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarkets", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarkets"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarket", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarket"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_Orderbook_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -669,7 +867,14 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerServer(ctx context.Context, mu
 
 	})
 
-	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbook_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
+	})
+
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -881,6 +1086,36 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerServer(ctx context.Context, mu
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_OrdersHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/OrdersHistory", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/OrdersHistory"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveDerivativeExchangeRPC_OrdersHistory_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveDerivativeExchangeRPC_OrdersHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrdersHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
+	})
+
 	return nil
 }
 
@@ -982,6 +1217,46 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerClient(ctx context.Context, mu
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarkets", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarkets"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarket", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/BinaryOptionsMarket"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_Orderbook_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1022,23 +1297,43 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerClient(ctx context.Context, mu
 
 	})
 
-	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbook_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbook", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbook"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbookSnapshot", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbookSnapshot"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveDerivativeExchangeRPC_StreamOrderbook_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveDerivativeExchangeRPC_StreamOrderbook_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbookUpdate", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbookUpdate"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1262,6 +1557,46 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerClient(ctx context.Context, mu
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_OrdersHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/OrdersHistory", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/OrdersHistory"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveDerivativeExchangeRPC_OrdersHistory_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveDerivativeExchangeRPC_OrdersHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrdersHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrdersHistory", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrdersHistory"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveDerivativeExchangeRPC_StreamOrdersHistory_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveDerivativeExchangeRPC_StreamOrdersHistory_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -1272,11 +1607,17 @@ var (
 
 	pattern_InjectiveDerivativeExchangeRPC_StreamMarket_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "StreamMarket"}, ""))
 
+	pattern_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "BinaryOptionsMarkets"}, ""))
+
+	pattern_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "BinaryOptionsMarket"}, ""))
+
 	pattern_InjectiveDerivativeExchangeRPC_Orderbook_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "Orderbook"}, ""))
 
 	pattern_InjectiveDerivativeExchangeRPC_Orderbooks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "Orderbooks"}, ""))
 
-	pattern_InjectiveDerivativeExchangeRPC_StreamOrderbook_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "StreamOrderbook"}, ""))
+	pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "StreamOrderbookSnapshot"}, ""))
+
+	pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "StreamOrderbookUpdate"}, ""))
 
 	pattern_InjectiveDerivativeExchangeRPC_Orders_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "Orders"}, ""))
 
@@ -1299,6 +1640,10 @@ var (
 	pattern_InjectiveDerivativeExchangeRPC_SubaccountOrdersList_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "SubaccountOrdersList"}, ""))
 
 	pattern_InjectiveDerivativeExchangeRPC_SubaccountTradesList_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "SubaccountTradesList"}, ""))
+
+	pattern_InjectiveDerivativeExchangeRPC_OrdersHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "OrdersHistory"}, ""))
+
+	pattern_InjectiveDerivativeExchangeRPC_StreamOrdersHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "StreamOrdersHistory"}, ""))
 )
 
 var (
@@ -1308,11 +1653,17 @@ var (
 
 	forward_InjectiveDerivativeExchangeRPC_StreamMarket_0 = runtime.ForwardResponseStream
 
+	forward_InjectiveDerivativeExchangeRPC_BinaryOptionsMarkets_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveDerivativeExchangeRPC_BinaryOptionsMarket_0 = runtime.ForwardResponseMessage
+
 	forward_InjectiveDerivativeExchangeRPC_Orderbook_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveDerivativeExchangeRPC_Orderbooks_0 = runtime.ForwardResponseMessage
 
-	forward_InjectiveDerivativeExchangeRPC_StreamOrderbook_0 = runtime.ForwardResponseStream
+	forward_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0 = runtime.ForwardResponseStream
+
+	forward_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0 = runtime.ForwardResponseStream
 
 	forward_InjectiveDerivativeExchangeRPC_Orders_0 = runtime.ForwardResponseMessage
 
@@ -1335,4 +1686,8 @@ var (
 	forward_InjectiveDerivativeExchangeRPC_SubaccountOrdersList_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveDerivativeExchangeRPC_SubaccountTradesList_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveDerivativeExchangeRPC_OrdersHistory_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveDerivativeExchangeRPC_StreamOrdersHistory_0 = runtime.ForwardResponseStream
 )

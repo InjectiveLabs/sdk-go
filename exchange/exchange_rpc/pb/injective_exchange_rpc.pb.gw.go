@@ -133,6 +133,108 @@ func local_request_InjectiveExchangeRPC_BroadcastTx_0(ctx context.Context, marsh
 
 }
 
+func request_InjectiveExchangeRPC_PrepareCosmosTx_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExchangeRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PrepareCosmosTxRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.PrepareCosmosTx(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExchangeRPC_PrepareCosmosTx_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExchangeRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq PrepareCosmosTxRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.PrepareCosmosTx(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExchangeRPC_BroadcastCosmosTx_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExchangeRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq BroadcastCosmosTxRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.BroadcastCosmosTx(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExchangeRPC_BroadcastCosmosTx_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExchangeRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq BroadcastCosmosTxRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.BroadcastCosmosTx(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_InjectiveExchangeRPC_GetFeePayer_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveExchangeRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetFeePayerRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetFeePayer(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveExchangeRPC_GetFeePayer_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveExchangeRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetFeePayerRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetFeePayer(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 // RegisterInjectiveExchangeRPCHandlerServer registers the http handlers for service InjectiveExchangeRPC to "mux".
 // UnaryRPC     :call InjectiveExchangeRPCServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -205,6 +307,75 @@ func RegisterInjectiveExchangeRPCHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_InjectiveExchangeRPC_BroadcastTx_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExchangeRPC_PrepareCosmosTx_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_exchange_rpc.InjectiveExchangeRPC/PrepareCosmosTx", runtime.WithHTTPPathPattern("/injective_exchange_rpc.InjectiveExchangeRPC/PrepareCosmosTx"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExchangeRPC_PrepareCosmosTx_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExchangeRPC_PrepareCosmosTx_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExchangeRPC_BroadcastCosmosTx_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_exchange_rpc.InjectiveExchangeRPC/BroadcastCosmosTx", runtime.WithHTTPPathPattern("/injective_exchange_rpc.InjectiveExchangeRPC/BroadcastCosmosTx"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExchangeRPC_BroadcastCosmosTx_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExchangeRPC_BroadcastCosmosTx_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExchangeRPC_GetFeePayer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_exchange_rpc.InjectiveExchangeRPC/GetFeePayer", runtime.WithHTTPPathPattern("/injective_exchange_rpc.InjectiveExchangeRPC/GetFeePayer"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveExchangeRPC_GetFeePayer_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExchangeRPC_GetFeePayer_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -309,6 +480,66 @@ func RegisterInjectiveExchangeRPCHandlerClient(ctx context.Context, mux *runtime
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveExchangeRPC_PrepareCosmosTx_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_exchange_rpc.InjectiveExchangeRPC/PrepareCosmosTx", runtime.WithHTTPPathPattern("/injective_exchange_rpc.InjectiveExchangeRPC/PrepareCosmosTx"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExchangeRPC_PrepareCosmosTx_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExchangeRPC_PrepareCosmosTx_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExchangeRPC_BroadcastCosmosTx_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_exchange_rpc.InjectiveExchangeRPC/BroadcastCosmosTx", runtime.WithHTTPPathPattern("/injective_exchange_rpc.InjectiveExchangeRPC/BroadcastCosmosTx"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExchangeRPC_BroadcastCosmosTx_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExchangeRPC_BroadcastCosmosTx_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveExchangeRPC_GetFeePayer_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_exchange_rpc.InjectiveExchangeRPC/GetFeePayer", runtime.WithHTTPPathPattern("/injective_exchange_rpc.InjectiveExchangeRPC/GetFeePayer"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveExchangeRPC_GetFeePayer_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveExchangeRPC_GetFeePayer_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	return nil
 }
 
@@ -318,6 +549,12 @@ var (
 	pattern_InjectiveExchangeRPC_PrepareTx_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_exchange_rpc.InjectiveExchangeRPC", "PrepareTx"}, ""))
 
 	pattern_InjectiveExchangeRPC_BroadcastTx_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_exchange_rpc.InjectiveExchangeRPC", "BroadcastTx"}, ""))
+
+	pattern_InjectiveExchangeRPC_PrepareCosmosTx_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_exchange_rpc.InjectiveExchangeRPC", "PrepareCosmosTx"}, ""))
+
+	pattern_InjectiveExchangeRPC_BroadcastCosmosTx_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_exchange_rpc.InjectiveExchangeRPC", "BroadcastCosmosTx"}, ""))
+
+	pattern_InjectiveExchangeRPC_GetFeePayer_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_exchange_rpc.InjectiveExchangeRPC", "GetFeePayer"}, ""))
 )
 
 var (
@@ -326,4 +563,10 @@ var (
 	forward_InjectiveExchangeRPC_PrepareTx_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveExchangeRPC_BroadcastTx_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExchangeRPC_PrepareCosmosTx_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExchangeRPC_BroadcastCosmosTx_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveExchangeRPC_GetFeePayer_0 = runtime.ForwardResponseMessage
 )

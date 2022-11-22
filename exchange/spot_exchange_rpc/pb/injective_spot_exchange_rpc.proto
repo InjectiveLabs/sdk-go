@@ -3,7 +3,7 @@
 // InjectiveSpotExchangeRPC protocol buffer definition
 //
 // Command:
-// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+// $ goa gen github.com/InjectiveLabs/injective-indexer/api/design -o ../
 
 syntax = "proto3";
 
@@ -23,8 +23,10 @@ service InjectiveSpotExchangeRPC {
 	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
 	// Orderbook of Spot Markets
 	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
-	// Stream live updates of selected spot market orderbook
-	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
+	// Stream live snapshot updates of selected spot market orderbook
+	rpc StreamOrderbookSnapshot (StreamOrderbookSnapshotRequest) returns (stream StreamOrderbookSnapshotResponse);
+	// Stream live level updates of selected spot market orderbook
+	rpc StreamOrderbookUpdate (StreamOrderbookUpdateRequest) returns (stream StreamOrderbookUpdateResponse);
 	// Orders of a Spot Market
 	rpc Orders (OrdersRequest) returns (OrdersResponse);
 	// Stream updates to individual orders of a Spot Market
@@ -37,6 +39,10 @@ service InjectiveSpotExchangeRPC {
 	rpc SubaccountOrdersList (SubaccountOrdersListRequest) returns (SubaccountOrdersListResponse);
 	// List trades executed by this subaccount
 	rpc SubaccountTradesList (SubaccountTradesListRequest) returns (SubaccountTradesListResponse);
+	// Lists history orders posted from this subaccount
+	rpc OrdersHistory (OrdersHistoryRequest) returns (OrdersHistoryResponse);
+	// Stream updates to historical orders of a spot Market
+	rpc StreamOrdersHistory (StreamOrdersHistoryRequest) returns (stream StreamOrdersHistoryResponse);
 }
 
 message MarketsRequest {
@@ -131,10 +137,12 @@ message OrderbookResponse {
 }
 
 message SpotLimitOrderbook {
+	// market orderbook sequence
+	uint64 sequence = 1;
 	// Array of price levels for buys
-	repeated PriceLevel buys = 1;
+	repeated PriceLevel buys = 2;
 	// Array of price levels for sells
-	repeated PriceLevel sells = 2;
+	repeated PriceLevel sells = 3;
 }
 
 message PriceLevel {
@@ -162,12 +170,12 @@ message SingleSpotLimitOrderbook {
 	SpotLimitOrderbook orderbook = 2;
 }
 
-message StreamOrderbookRequest {
+message StreamOrderbookSnapshotRequest {
 	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
 	repeated string market_ids = 1;
 }
 
-message StreamOrderbookResponse {
+message StreamOrderbookSnapshotResponse {
 	// Orderbook of a Spot Market
 	SpotLimitOrderbook orderbook = 1;
 	// Order update type
@@ -176,6 +184,39 @@ message StreamOrderbookResponse {
 	sint64 timestamp = 3;
 	// MarketId of the market's orderbook
 	string market_id = 4;
+}
+
+message StreamOrderbookUpdateRequest {
+	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
+	repeated string market_ids = 1;
+}
+
+message StreamOrderbookUpdateResponse {
+	// Orderbook level of a Spot Market
+	OrderbookLevel orderbook_level = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+	// MarketId of the market's orderbook
+	string market_id = 4;
+}
+
+message OrderbookLevel {
+	// market's ID
+	string market_id = 1;
+	// orderbook update sequence
+	uint64 sequence = 2;
+	// level side
+	bool is_buy = 3;
+	// level price
+	string price = 4;
+	// level quantity
+	string quantity = 5;
+	// level status
+	bool is_active = 6;
+	// level timestamp
+	sint64 updated_at = 7;
 }
 
 message OrdersRequest {
@@ -189,11 +230,23 @@ message OrdersRequest {
 	uint64 skip = 4;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 5;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 6;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 7;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 8;
+	// Should include inactive orders
+	bool include_inactive = 9;
+	// Choose to return subaccount total orders
+	bool subaccount_total_orders = 10;
 }
 
 message OrdersResponse {
-	// List of spot market orders
 	repeated SpotLimitOrder orders = 1;
+	Paging paging = 2;
 }
 
 message SpotLimitOrder {
@@ -223,6 +276,17 @@ message SpotLimitOrder {
 	// Order updated timestamp in UNIX millis.
 	sint64 updated_at = 12;
 }
+// Paging defines the structure for required params for handling pagination
+message Paging {
+	// total number of txs saved in database
+	sint64 total = 1;
+	// can be either block height or index num
+	sint32 from = 2;
+	// can be either block height or index num
+	sint32 to = 3;
+	// count entries by subaccount, serving some places on helix
+	sint64 count_by_subaccount = 4;
+}
 
 message StreamOrdersRequest {
 	// MarketId of the market's orderbook we want to fetch
@@ -235,6 +299,18 @@ message StreamOrdersRequest {
 	uint64 skip = 4;
 	// Limit is used to specify the maximum number of items to be returned.
 	sint32 limit = 5;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 6;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 7;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 8;
+	// Should include inactive orders
+	bool include_inactive = 9;
+	// Choose to return subaccount total orders
+	bool subaccount_total_orders = 10;
 }
 
 message StreamOrdersResponse {
@@ -269,11 +345,14 @@ message TradesRequest {
 	repeated string market_ids = 9;
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
+	repeated string execution_types = 11;
 }
 
 message TradesResponse {
 	// Trades of a Spot Market
 	repeated SpotTrade trades = 1;
+	// Paging indicates pages response is on
+	Paging paging = 2;
 }
 
 message SpotTrade {
@@ -295,6 +374,10 @@ message SpotTrade {
 	sint64 executed_at = 8;
 	// Fee recipient address
 	string fee_recipient = 9;
+	// A unique string that helps differentiate between trades
+	string trade_id = 10;
+	// Trade's execution side, marker/taker
+	string execution_side = 11;
 }
 
 message StreamTradesRequest {
@@ -320,6 +403,7 @@ message StreamTradesRequest {
 	repeated string market_ids = 9;
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
+	repeated string execution_types = 11;
 }
 
 message StreamTradesResponse {
@@ -343,8 +427,8 @@ message SubaccountOrdersListRequest {
 }
 
 message SubaccountOrdersListResponse {
-	// List of spot orders
 	repeated SpotLimitOrder orders = 1;
+	Paging paging = 2;
 }
 
 message SubaccountTradesListRequest {
@@ -365,4 +449,86 @@ message SubaccountTradesListRequest {
 message SubaccountTradesListResponse {
 	// List of spot market trades
 	repeated SpotTrade trades = 1;
+}
+
+message OrdersHistoryRequest {
+	// subaccount ID to filter orders for specific subaccount
+	string subaccount_id = 1;
+	// Market ID to filter orders for specific market
+	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 4;
+	// filter by order types
+	repeated string order_types = 5;
+	// order side filter
+	string direction = 6;
+	// Search for orders which createdAt >= startTime, time in millisecond
+	sint64 start_time = 7;
+	// Search for orders which createdAt <= endTime, time in millisecond
+	sint64 end_time = 8;
+	// Filter by order state
+	string state = 9;
+	repeated string execution_types = 10;
+}
+
+message OrdersHistoryResponse {
+	// List of history spot orders
+	repeated SpotOrderHistory orders = 1;
+	Paging paging = 2;
+}
+
+message SpotOrderHistory {
+	// Hash of the order
+	string order_hash = 1;
+	// Spot Market ID is keccak265(baseDenom + quoteDenom)
+	string market_id = 2;
+	// active state of the order
+	bool is_active = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// The execution type
+	string execution_type = 5;
+	// The side of the order
+	string order_type = 6;
+	// Price of the order
+	string price = 7;
+	// Trigger price
+	string trigger_price = 8;
+	// Quantity of the order
+	string quantity = 9;
+	// Filled amount
+	string filled_quantity = 10;
+	// Order state
+	string state = 11;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 12;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 13;
+	// Order direction (order side)
+	string direction = 14;
+}
+
+message StreamOrdersHistoryRequest {
+	// subaccount ID to filter orders for specific subaccount
+	string subaccount_id = 1;
+	// Market ID to filter orders for specific market
+	string market_id = 2;
+	// filter by order types
+	repeated string order_types = 3;
+	// order side filter
+	string direction = 4;
+	// Filter by order state
+	string state = 5;
+	repeated string execution_types = 6;
+}
+
+message StreamOrdersHistoryResponse {
+	// Updated order
+	SpotOrderHistory order = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
 }

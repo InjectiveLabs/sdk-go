@@ -3,7 +3,7 @@
 // InjectiveExplorerRPC protocol buffer definition
 //
 // Command:
-// $ goa gen github.com/InjectiveLabs/injective-exchange/api/design -o ../
+// $ goa gen github.com/InjectiveLabs/injective-indexer/api/design -o ../
 
 syntax = "proto3";
 
@@ -11,14 +11,18 @@ package injective_explorer_rpc;
 
 option go_package = "/injective_explorer_rpcpb";
 
-// ExplorerRPC defines gRPC API of explorer data for e.g. Blockchain Explorer
+// ExplorerAPI implements explorer data API for e.g. Blockchain Explorer
 service InjectiveExplorerRPC {
 	// GetAccountTxs returns tranctions involving in an account based upon params.
 	rpc GetAccountTxs (GetAccountTxsRequest) returns (GetAccountTxsResponse);
+	// GetContractTxs returns contract-related transactions
+	rpc GetContractTxs (GetContractTxsRequest) returns (GetContractTxsResponse);
 	// GetBlocks returns blocks based upon the request params
 	rpc GetBlocks (GetBlocksRequest) returns (GetBlocksResponse);
 	// GetBlock returns block based upon the height or hash
 	rpc GetBlock (GetBlockRequest) returns (GetBlockResponse);
+	// GetValidators returns validators on the active chain
+	rpc GetValidators (GetValidatorsRequest) returns (GetValidatorsResponse);
 	// GetValidator returns validator information on the active chain
 	rpc GetValidator (GetValidatorRequest) returns (GetValidatorResponse);
 	// GetValidatorUptime returns validator uptime information on the active chain
@@ -27,10 +31,6 @@ service InjectiveExplorerRPC {
 	rpc GetTxs (GetTxsRequest) returns (GetTxsResponse);
 	// GetTxByTxHash returns certain transaction information by its tx hash.
 	rpc GetTxByTxHash (GetTxByTxHashRequest) returns (GetTxByTxHashResponse);
-	// StreamTxs returns transactions based upon the request params
-	rpc StreamTxs (StreamTxsRequest) returns (stream StreamTxsResponse);
-	// StreamBlocks returns the latest blocks
-	rpc StreamBlocks (StreamBlocksRequest) returns (stream StreamBlocksResponse);
 	// GetPeggyDepositTxs returns the peggy deposit transactions based upon the
 // request params
 	rpc GetPeggyDepositTxs (GetPeggyDepositTxsRequest) returns (GetPeggyDepositTxsResponse);
@@ -40,6 +40,23 @@ service InjectiveExplorerRPC {
 	// GetIBCTransferTxs returns the ibc transfer transactions based upon the
 // request params
 	rpc GetIBCTransferTxs (GetIBCTransferTxsRequest) returns (GetIBCTransferTxsResponse);
+	// GetWasmCodes lists all stored code
+	rpc GetWasmCodes (GetWasmCodesRequest) returns (GetWasmCodesResponse);
+	// GetWasmCodeById list cosmwasm code infor by ID
+	rpc GetWasmCodeByID (GetWasmCodeByIDRequest) returns (GetWasmCodeByIDResponse);
+	// GetWasmContracts lists all contracts
+	rpc GetWasmContracts (GetWasmContractsRequest) returns (GetWasmContractsResponse);
+	// GetWasmContractByAddress list cosmwasm contract infor by its address
+	rpc GetWasmContractByAddress (GetWasmContractByAddressRequest) returns (GetWasmContractByAddressResponse);
+	// GetCw20Balance lists all cw20 balances of an injective account
+	rpc GetCw20Balance (GetCw20BalanceRequest) returns (GetCw20BalanceResponse);
+	// Request relayers infos by marketIDs. If no ids are provided, all market with
+// associated relayers are returned
+	rpc Relayers (RelayersRequest) returns (RelayersResponse);
+	// StreamTxs returns transactions based upon the request params
+	rpc StreamTxs (StreamTxsRequest) returns (stream StreamTxsResponse);
+	// StreamBlocks returns the latest blocks
+	rpc StreamBlocks (StreamBlocksRequest) returns (stream StreamBlocksResponse);
 }
 
 message GetAccountTxsRequest {
@@ -51,11 +68,13 @@ message GetAccountTxsRequest {
 	uint64 skip = 5;
 	string type = 6;
 	string module = 7;
+	sint64 from_number = 8;
+	sint64 to_number = 9;
 }
 
 message GetAccountTxsResponse {
 	Paging paging = 1;
-	repeated TxData data = 2;
+	repeated TxDetailData data = 2;
 }
 // Paging defines the structure for required params for handling pagination
 message Paging {
@@ -65,9 +84,11 @@ message Paging {
 	sint32 from = 2;
 	// can be either block height or index num
 	sint32 to = 3;
+	// count entries by subaccount, serving some places on helix
+	sint64 count_by_subaccount = 4;
 }
-// TxData wraps tx data
-message TxData {
+// TxDetailData wraps tx data includes details information
+message TxDetailData {
 	string id = 1;
 	uint64 block_number = 2;
 	string block_timestamp = 3;
@@ -81,9 +102,14 @@ message TxData {
 	string codespace = 12;
 	repeated Event events = 13;
 	string tx_type = 14;
-	string messages = 15;
+	bytes messages = 15;
 	repeated Signature signatures = 16;
 	string memo = 17;
+	uint64 tx_number = 18;
+	// Block timestamp in unix milli
+	uint64 block_unix_timestamp = 19;
+	// Transaction log indicating errors
+	string error_log = 20;
 }
 
 message GasFee {
@@ -112,6 +138,20 @@ message Signature {
 	string signature = 4;
 }
 
+message GetContractTxsRequest {
+	// Address of contract
+	string address = 1;
+	sint32 limit = 2;
+	uint64 skip = 3;
+	sint64 from_number = 4;
+	sint64 to_number = 5;
+}
+
+message GetContractTxsResponse {
+	Paging paging = 1;
+	repeated TxDetailData data = 2;
+}
+
 message GetBlocksRequest {
 	uint64 before = 1;
 	uint64 after = 2;
@@ -131,8 +171,21 @@ message BlockInfo {
 	string parent_hash = 5;
 	sint64 num_pre_commits = 6;
 	sint64 num_txs = 7;
-	repeated TxData txs = 8;
+	repeated TxDataRPC txs = 8;
 	string timestamp = 9;
+}
+// TxData wraps tx data
+message TxDataRPC {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	string codespace = 5;
+	string messages = 6;
+	uint64 tx_number = 7;
+	// Transaction log indicating errors
+	string error_log = 8;
+	uint32 code = 9;
 }
 
 message GetBlockRequest {
@@ -140,6 +193,14 @@ message GetBlockRequest {
 }
 
 message GetBlockResponse {
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	BlockDetailInfo data = 3;
+}
+
+message BlockDetailInfo {
 	uint64 height = 1;
 	string proposer = 2;
 	string moniker = 3;
@@ -147,15 +208,36 @@ message GetBlockResponse {
 	string parent_hash = 5;
 	sint64 num_pre_commits = 6;
 	sint64 num_txs = 7;
-	repeated TxData txs = 8;
-	string timestamp = 9;
+	sint64 total_txs = 8;
+	repeated TxData txs = 9;
+	string timestamp = 10;
+}
+// TxData wraps tx data
+message TxData {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	string codespace = 5;
+	bytes messages = 6;
+	uint64 tx_number = 7;
+	// Transaction log indicating errors
+	string error_log = 8;
+	uint32 code = 9;
 }
 
-message GetValidatorRequest {
-	string address = 1;
+message GetValidatorsRequest {
 }
 
-message GetValidatorResponse {
+message GetValidatorsResponse {
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	repeated Validator data = 3;
+}
+// Validator defines the structure for validator information.
+message Validator {
 	string id = 1;
 	string moniker = 2;
 	string operator_address = 3;
@@ -204,12 +286,28 @@ message SlashingEvent {
 	uint64 missed_blocks = 7;
 }
 
+message GetValidatorRequest {
+	string address = 1;
+}
+
+message GetValidatorResponse {
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	Validator data = 3;
+}
+
 message GetValidatorUptimeRequest {
 	string address = 1;
 }
 
 message GetValidatorUptimeResponse {
-	repeated ValidatorUptime field = 1;
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	repeated ValidatorUptime data = 3;
 }
 
 message GetTxsRequest {
@@ -219,6 +317,8 @@ message GetTxsRequest {
 	uint64 skip = 4;
 	string type = 5;
 	string module = 6;
+	sint64 from_number = 7;
+	sint64 to_number = 8;
 }
 
 message GetTxsResponse {
@@ -231,59 +331,11 @@ message GetTxByTxHashRequest {
 }
 
 message GetTxByTxHashResponse {
-	string id = 1;
-	uint64 block_number = 2;
-	string block_timestamp = 3;
-	string hash = 4;
-	uint32 code = 5;
-	bytes data = 6;
-	string info = 8;
-	sint64 gas_wanted = 9;
-	sint64 gas_used = 10;
-	GasFee gas_fee = 11;
-	string codespace = 12;
-	repeated Event events = 13;
-	string tx_type = 14;
-	string messages = 15;
-	repeated Signature signatures = 16;
-	string memo = 17;
-}
-
-message StreamTxsRequest {
-}
-
-message StreamTxsResponse {
-	string id = 1;
-	uint64 block_number = 2;
-	string block_timestamp = 3;
-	string hash = 4;
-	uint32 code = 5;
-	bytes data = 6;
-	string info = 8;
-	sint64 gas_wanted = 9;
-	sint64 gas_used = 10;
-	GasFee gas_fee = 11;
-	string codespace = 12;
-	repeated Event events = 13;
-	string tx_type = 14;
-	string messages = 15;
-	repeated Signature signatures = 16;
-	string memo = 17;
-}
-
-message StreamBlocksRequest {
-}
-
-message StreamBlocksResponse {
-	uint64 height = 1;
-	string proposer = 2;
-	string moniker = 3;
-	string block_hash = 4;
-	string parent_hash = 5;
-	sint64 num_pre_commits = 6;
-	sint64 num_txs = 7;
-	repeated TxData txs = 8;
-	string timestamp = 9;
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	TxDetailData data = 3;
 }
 
 message GetPeggyDepositTxsRequest {
@@ -419,4 +471,291 @@ message IBCTransferTx {
 	repeated string tx_hashes = 14;
 	string created_at = 15;
 	string updated_at = 16;
+}
+
+message GetWasmCodesRequest {
+	sint32 limit = 1;
+	sint64 from_number = 2;
+	sint64 to_number = 3;
+}
+
+message GetWasmCodesResponse {
+	Paging paging = 1;
+	repeated WasmCode data = 2;
+}
+// Detail of cosmwasm stored code
+message WasmCode {
+	// ID of stored wasmcode, sorted in descending order
+	uint64 code_id = 1;
+	// Tx hash of store code transaction
+	string tx_hash = 2;
+	// Checksum of the cosmwasm code
+	Checksum checksum = 3;
+	// Block time when the code is stored, in millisecond
+	uint64 created_at = 4;
+	// Contract type of the wasm code
+	string contract_type = 5;
+	// version string of the wasm code
+	string version = 6;
+	// describe instantiate permission
+	ContractPermission permission = 7;
+	// code schema preview
+	string code_schema = 8;
+	// code repo preview, may contain schema folder
+	string code_view = 9;
+	// count number of contract instantiation from this code
+	uint64 instantiates = 10;
+	// creator of this code
+	string creator = 11;
+	// monotonic order of the code stored
+	sint64 code_number = 12;
+	// id of the proposal that store this code
+	sint64 proposal_id = 13;
+}
+
+message Checksum {
+	// Algorithm of hash function
+	string algorithm = 1;
+	// Hash if apply algorithm to the cosmwasm bytecode
+	string hash = 2;
+}
+
+message ContractPermission {
+	// Access type of instantiation
+	sint32 access_type = 1;
+	// Account address
+	string address = 2;
+}
+
+message GetWasmCodeByIDRequest {
+	// Code ID of the code
+	sint64 code_id = 1;
+}
+
+message GetWasmCodeByIDResponse {
+	// ID of stored wasmcode, sorted in descending order
+	uint64 code_id = 1;
+	// Tx hash of store code transaction
+	string tx_hash = 2;
+	// Checksum of the cosmwasm code
+	Checksum checksum = 3;
+	// Block time when the code is stored, in millisecond
+	uint64 created_at = 4;
+	// Contract type of the wasm code
+	string contract_type = 5;
+	// version string of the wasm code
+	string version = 6;
+	// describe instantiate permission
+	ContractPermission permission = 7;
+	// code schema preview
+	string code_schema = 8;
+	// code repo preview, may contain schema folder
+	string code_view = 9;
+	// count number of contract instantiation from this code
+	uint64 instantiates = 10;
+	// creator of this code
+	string creator = 11;
+	// monotonic order of the code stored
+	sint64 code_number = 12;
+	// id of the proposal that store this code
+	sint64 proposal_id = 13;
+}
+
+message GetWasmContractsRequest {
+	sint32 limit = 1;
+	string code_id = 2;
+	sint64 from_number = 3;
+	sint64 to_number = 4;
+}
+
+message GetWasmContractsResponse {
+	Paging paging = 1;
+	repeated WasmContract data = 2;
+}
+// Detail of cosmwasm instantiated contract
+message WasmContract {
+	// General name of the contract
+	string label = 1;
+	// Address of the contract
+	string address = 2;
+	// hash of the instantiate transaction
+	string tx_hash = 3;
+	// Address of the contract creator
+	string creator = 4;
+	// Number of times call to execute contract
+	uint64 executes = 5;
+	// Block timestamp that contract was instantiated, in millisecond
+	uint64 instantiated_at = 6;
+	// init message when this contract was instantiated
+	string init_message = 7;
+	// Block timestamp that contract was called, in millisecond
+	uint64 last_executed_at = 8;
+	// Contract funds
+	repeated ContractFund funds = 9;
+	// Code id of the contract
+	uint64 code_id = 10;
+	// Admin of the contract
+	string admin = 11;
+	// Latest migrate message of the contract
+	string current_migrate_message = 12;
+	// Monotonic contract number in database
+	sint64 contract_number = 13;
+	// Contract version string
+	string version = 14;
+	// Contract type
+	string type = 15;
+	Cw20Metadata cw20_metadata = 16;
+	// id of the proposal that instantiate this contract
+	sint64 proposal_id = 17;
+}
+
+message ContractFund {
+	// Denominator
+	string denom = 1;
+	// Amount of denom
+	string amount = 2;
+}
+// General cw20 metadata
+message Cw20Metadata {
+	Cw20TokenInfo token_info = 1;
+	Cw20MarketingInfo marketing_info = 2;
+}
+// Token name, symbol, decimal and so on
+message Cw20TokenInfo {
+	// General name of the token
+	string name = 1;
+	// Symbol of then token
+	string symbol = 2;
+	// Decimal places of token
+	sint64 decimals = 3;
+	// Token's total supply
+	string total_supply = 4;
+}
+// Marketing info
+message Cw20MarketingInfo {
+	// Project information
+	string project = 1;
+	// Token's description
+	string description = 2;
+	// logo (url/embedded)
+	string logo = 3;
+	// A random field for additional marketing info
+	bytes marketing = 4;
+}
+
+message GetWasmContractByAddressRequest {
+	// Contract address
+	string contract_address = 1;
+}
+
+message GetWasmContractByAddressResponse {
+	// General name of the contract
+	string label = 1;
+	// Address of the contract
+	string address = 2;
+	// hash of the instantiate transaction
+	string tx_hash = 3;
+	// Address of the contract creator
+	string creator = 4;
+	// Number of times call to execute contract
+	uint64 executes = 5;
+	// Block timestamp that contract was instantiated, in millisecond
+	uint64 instantiated_at = 6;
+	// init message when this contract was instantiated
+	string init_message = 7;
+	// Block timestamp that contract was called, in millisecond
+	uint64 last_executed_at = 8;
+	// Contract funds
+	repeated ContractFund funds = 9;
+	// Code id of the contract
+	uint64 code_id = 10;
+	// Admin of the contract
+	string admin = 11;
+	// Latest migrate message of the contract
+	string current_migrate_message = 12;
+	// Monotonic contract number in database
+	sint64 contract_number = 13;
+	// Contract version string
+	string version = 14;
+	// Contract type
+	string type = 15;
+	Cw20Metadata cw20_metadata = 16;
+	// id of the proposal that instantiate this contract
+	sint64 proposal_id = 17;
+}
+
+message GetCw20BalanceRequest {
+	// address to list balance of
+	string address = 1;
+	sint32 limit = 2;
+}
+
+message GetCw20BalanceResponse {
+	repeated WasmCw20Balance field = 1;
+}
+
+message WasmCw20Balance {
+	// Address of CW20 contract
+	string contract_address = 1;
+	// Account address
+	string account = 2;
+	// Account balance
+	string balance = 3;
+	// update timestamp in milisecond
+	sint64 updated_at = 4;
+	Cw20Metadata cw20_metadata = 5;
+}
+
+message RelayersRequest {
+	// Specify multiple marketIDs to search.
+	repeated string market_i_ds = 1;
+}
+
+message RelayersResponse {
+	repeated RelayerMarkets field = 1;
+}
+
+message RelayerMarkets {
+	// Market ID of the market
+	string market_id = 1;
+	// Relayers list for specified market
+	repeated Relayer relayers = 2;
+}
+
+message Relayer {
+	// Relayer identifier
+	string name = 1;
+	// Call to action. A link to the relayer
+	string cta = 2;
+}
+
+message StreamTxsRequest {
+}
+
+message StreamTxsResponse {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	string codespace = 5;
+	string messages = 6;
+	uint64 tx_number = 7;
+	// Transaction log indicating errors
+	string error_log = 8;
+	uint32 code = 9;
+}
+
+message StreamBlocksRequest {
+}
+
+message StreamBlocksResponse {
+	uint64 height = 1;
+	string proposer = 2;
+	string moniker = 3;
+	string block_hash = 4;
+	string parent_hash = 5;
+	sint64 num_pre_commits = 6;
+	sint64 num_txs = 7;
+	repeated TxDataRPC txs = 8;
+	string timestamp = 9;
 }
