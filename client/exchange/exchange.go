@@ -25,7 +25,8 @@ type ExchangeClient interface {
 	GetDerivativeMarket(ctx context.Context, marketId string) (derivativeExchangePB.MarketResponse, error)
 	GetDerivativeOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error)
 	GetDerivativeOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error)
-	StreamDerivativeOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error)
+	StreamDerivativeOrderbookSnapshot(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotClient, error)
+	StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
 	StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
 	GetDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error)
 	GetDerivativeMarkets(ctx context.Context, req derivativeExchangePB.MarketsRequest) (derivativeExchangePB.MarketsResponse, error)
@@ -229,13 +230,33 @@ func (c *exchangeClient) GetDerivativeOrderbooks(ctx context.Context, marketIds 
 	return *res, nil
 }
 
-func (c *exchangeClient) StreamDerivativeOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error) {
-	req := derivativeExchangePB.StreamOrderbookRequest{
+func (c *exchangeClient) StreamDerivativeOrderbookSnapshot(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotClient, error) {
+	req := derivativeExchangePB.StreamOrderbookSnapshotRequest{
 		MarketIds: marketIds,
 	}
 
 	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamOrderbook(ctx, &req)
+	stream, err := c.derivativeExchangeClient.StreamOrderbookSnapshot(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
+	req := derivativeExchangePB.StreamOrderbookUpdateRequest{
+		MarketIds: marketIds,
+	}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.derivativeExchangeClient.StreamOrderbookUpdate(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

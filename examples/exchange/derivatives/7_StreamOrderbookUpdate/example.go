@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 	"sort"
 )
 
 type MapOrderbook struct {
 	Sequence uint64
-	Levels   map[bool]map[string]*spotExchangePB.PriceLevel
+	Levels   map[bool]map[string]*derivativeExchangePB.PriceLevel
 }
 
 func main() {
@@ -23,19 +23,20 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
-	stream, err := exchangeClient.StreamSpotOrderbookUpdate(ctx, marketIds)
+	marketIds := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
+	stream, err := exchangeClient.StreamDerivativeOrderbookUpdate(ctx, marketIds)
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
 
-	levelCh := make(chan *spotExchangePB.OrderbookLevel, 100000)
+	levelCh := make(chan *derivativeExchangePB.OrderbookLevel, 100000)
 	receiving := make(chan struct{})
 	var receivingClosed bool
 
 	// stream orderbook price levels
 	go func() {
+		defer close(levelCh)
 		for {
 			select {
 			case <-ctx.Done():
@@ -61,7 +62,7 @@ func main() {
 
 	// prepare orderbooks map
 	orderbooks := map[string]*MapOrderbook{}
-	res, err := exchangeClient.GetSpotOrderbooks(ctx, marketIds)
+	res, err := exchangeClient.GetDerivativeOrderbooks(ctx, marketIds)
 	if err != nil {
 		panic(err)
 	}
@@ -71,10 +72,10 @@ func main() {
 		if !ok {
 			orderbook := &MapOrderbook{
 				Sequence: ob.Orderbook.Sequence,
-				Levels:   map[bool]map[string]*spotExchangePB.PriceLevel{},
+				Levels:   make(map[bool]map[string]*derivativeExchangePB.PriceLevel),
 			}
-			orderbook.Levels[true] = map[string]*spotExchangePB.PriceLevel{}
-			orderbook.Levels[false] = map[string]*spotExchangePB.PriceLevel{}
+			orderbook.Levels[true] = make(map[string]*derivativeExchangePB.PriceLevel)
+			orderbook.Levels[false] = make(map[string]*derivativeExchangePB.PriceLevel)
 			orderbooks[ob.MarketId] = orderbook
 		}
 
@@ -89,7 +90,11 @@ func main() {
 	// continuously consume level updates and maintain orderbook
 	skippedPastEvents := false
 	for {
-		level := <-levelCh
+		level, ok := <-levelCh
+		if !ok {
+			fmt.Println("updates channel closed")
+			return // closed
+		}
 
 		// validate orderbook
 		orderbook, ok := orderbooks[level.MarketId]
@@ -115,7 +120,7 @@ func main() {
 		orderbook.Sequence = level.Sequence
 		if level.IsActive {
 			// upsert
-			orderbook.Levels[level.IsBuy][level.Price] = &spotExchangePB.PriceLevel{
+			orderbook.Levels[level.IsBuy][level.Price] = &derivativeExchangePB.PriceLevel{
 				Price:     level.Price,
 				Quantity:  level.Quantity,
 				Timestamp: level.UpdatedAt,
@@ -132,12 +137,11 @@ func main() {
 		if len(sells) > 0 && len(buys) > 0 {
 			// assert orderbook
 			if sellPrice, buyPrice := sells[0].Price, buys[0].Price; sellPrice <= buyPrice {
-				fmt.Println(sells[0], buys[0])
 				panic(fmt.Errorf("crossed orderbook, must restart: buy %s > %s sell", buyPrice, sellPrice))
 			}
 		}
 
-		res, _ = exchangeClient.GetSpotOrderbooks(ctx, marketIds)
+		res, _ = exchangeClient.GetDerivativeOrderbooks(ctx, marketIds)
 		fmt.Println("query", res.Orderbooks[0].Orderbook.Sequence, len(res.Orderbooks[0].Orderbook.Sells), len(res.Orderbooks[0].Orderbook.Buys))
 
 		// print orderbook
@@ -152,7 +156,7 @@ func main() {
 	}
 }
 
-func maintainOrderbook(orderbook map[bool]map[string]*spotExchangePB.PriceLevel) (buys, sells []*spotExchangePB.PriceLevel) {
+func maintainOrderbook(orderbook map[bool]map[string]*derivativeExchangePB.PriceLevel) (buys, sells []*derivativeExchangePB.PriceLevel) {
 	for _, v := range orderbook[false] {
 		sells = append(sells, v)
 	}

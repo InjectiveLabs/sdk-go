@@ -36,8 +36,10 @@ type InjectiveDerivativeExchangeRPCClient interface {
 	Orderbook(ctx context.Context, in *OrderbookRequest, opts ...grpc.CallOption) (*OrderbookResponse, error)
 	// Orderbooks gets the Orderbooks of requested derivative markets
 	Orderbooks(ctx context.Context, in *OrderbooksRequest, opts ...grpc.CallOption) (*OrderbooksResponse, error)
-	// StreamOrderbook streams live updates of selected derivative market orderbook.
-	StreamOrderbook(ctx context.Context, in *StreamOrderbookRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error)
+	// Stream live snapshot updates of selected derivative market orderbook
+	StreamOrderbookSnapshot(ctx context.Context, in *StreamOrderbookSnapshotRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotClient, error)
+	// Stream live level updates of selected derivative market orderbook
+	StreamOrderbookUpdate(ctx context.Context, in *StreamOrderbookUpdateRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
 	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
 	Orders(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*OrdersResponse, error)
 	// Positions gets the positions for a trader.
@@ -63,7 +65,7 @@ type InjectiveDerivativeExchangeRPCClient interface {
 	SubaccountTradesList(ctx context.Context, in *SubaccountTradesListRequest, opts ...grpc.CallOption) (*SubaccountTradesListResponse, error)
 	// Lists history orders posted from a subaccount
 	OrdersHistory(ctx context.Context, in *OrdersHistoryRequest, opts ...grpc.CallOption) (*OrdersHistoryResponse, error)
-	// Stream updates to historical orders of a spot Market
+	// Stream updates to historical orders of a derivative Market
 	StreamOrdersHistory(ctx context.Context, in *StreamOrdersHistoryRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrdersHistoryClient, error)
 }
 
@@ -161,12 +163,12 @@ func (c *injectiveDerivativeExchangeRPCClient) Orderbooks(ctx context.Context, i
 	return out, nil
 }
 
-func (c *injectiveDerivativeExchangeRPCClient) StreamOrderbook(ctx context.Context, in *StreamOrderbookRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[1], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbook", opts...)
+func (c *injectiveDerivativeExchangeRPCClient) StreamOrderbookSnapshot(ctx context.Context, in *StreamOrderbookSnapshotRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[1], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbookSnapshot", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &injectiveDerivativeExchangeRPCStreamOrderbookClient{stream}
+	x := &injectiveDerivativeExchangeRPCStreamOrderbookSnapshotClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -176,17 +178,49 @@ func (c *injectiveDerivativeExchangeRPCClient) StreamOrderbook(ctx context.Conte
 	return x, nil
 }
 
-type InjectiveDerivativeExchangeRPC_StreamOrderbookClient interface {
-	Recv() (*StreamOrderbookResponse, error)
+type InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotClient interface {
+	Recv() (*StreamOrderbookSnapshotResponse, error)
 	grpc.ClientStream
 }
 
-type injectiveDerivativeExchangeRPCStreamOrderbookClient struct {
+type injectiveDerivativeExchangeRPCStreamOrderbookSnapshotClient struct {
 	grpc.ClientStream
 }
 
-func (x *injectiveDerivativeExchangeRPCStreamOrderbookClient) Recv() (*StreamOrderbookResponse, error) {
-	m := new(StreamOrderbookResponse)
+func (x *injectiveDerivativeExchangeRPCStreamOrderbookSnapshotClient) Recv() (*StreamOrderbookSnapshotResponse, error) {
+	m := new(StreamOrderbookSnapshotResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *injectiveDerivativeExchangeRPCClient) StreamOrderbookUpdate(ctx context.Context, in *StreamOrderbookUpdateRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[2], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbookUpdate", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &injectiveDerivativeExchangeRPCStreamOrderbookUpdateClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient interface {
+	Recv() (*StreamOrderbookUpdateResponse, error)
+	grpc.ClientStream
+}
+
+type injectiveDerivativeExchangeRPCStreamOrderbookUpdateClient struct {
+	grpc.ClientStream
+}
+
+func (x *injectiveDerivativeExchangeRPCStreamOrderbookUpdateClient) Recv() (*StreamOrderbookUpdateResponse, error) {
+	m := new(StreamOrderbookUpdateResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -239,7 +273,7 @@ func (c *injectiveDerivativeExchangeRPCClient) FundingRates(ctx context.Context,
 }
 
 func (c *injectiveDerivativeExchangeRPCClient) StreamPositions(ctx context.Context, in *StreamPositionsRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamPositionsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[2], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamPositions", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[3], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamPositions", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +305,7 @@ func (x *injectiveDerivativeExchangeRPCStreamPositionsClient) Recv() (*StreamPos
 }
 
 func (c *injectiveDerivativeExchangeRPCClient) StreamOrders(ctx context.Context, in *StreamOrdersRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrdersClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[3], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrders", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[4], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrders", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -312,7 +346,7 @@ func (c *injectiveDerivativeExchangeRPCClient) Trades(ctx context.Context, in *T
 }
 
 func (c *injectiveDerivativeExchangeRPCClient) StreamTrades(ctx context.Context, in *StreamTradesRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamTradesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[4], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamTrades", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[5], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamTrades", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -371,7 +405,7 @@ func (c *injectiveDerivativeExchangeRPCClient) OrdersHistory(ctx context.Context
 }
 
 func (c *injectiveDerivativeExchangeRPCClient) StreamOrdersHistory(ctx context.Context, in *StreamOrdersHistoryRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrdersHistoryClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[5], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrdersHistory", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveDerivativeExchangeRPC_ServiceDesc.Streams[6], "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrdersHistory", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -420,8 +454,10 @@ type InjectiveDerivativeExchangeRPCServer interface {
 	Orderbook(context.Context, *OrderbookRequest) (*OrderbookResponse, error)
 	// Orderbooks gets the Orderbooks of requested derivative markets
 	Orderbooks(context.Context, *OrderbooksRequest) (*OrderbooksResponse, error)
-	// StreamOrderbook streams live updates of selected derivative market orderbook.
-	StreamOrderbook(*StreamOrderbookRequest, InjectiveDerivativeExchangeRPC_StreamOrderbookServer) error
+	// Stream live snapshot updates of selected derivative market orderbook
+	StreamOrderbookSnapshot(*StreamOrderbookSnapshotRequest, InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotServer) error
+	// Stream live level updates of selected derivative market orderbook
+	StreamOrderbookUpdate(*StreamOrderbookUpdateRequest, InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateServer) error
 	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
 	Orders(context.Context, *OrdersRequest) (*OrdersResponse, error)
 	// Positions gets the positions for a trader.
@@ -447,7 +483,7 @@ type InjectiveDerivativeExchangeRPCServer interface {
 	SubaccountTradesList(context.Context, *SubaccountTradesListRequest) (*SubaccountTradesListResponse, error)
 	// Lists history orders posted from a subaccount
 	OrdersHistory(context.Context, *OrdersHistoryRequest) (*OrdersHistoryResponse, error)
-	// Stream updates to historical orders of a spot Market
+	// Stream updates to historical orders of a derivative Market
 	StreamOrdersHistory(*StreamOrdersHistoryRequest, InjectiveDerivativeExchangeRPC_StreamOrdersHistoryServer) error
 	mustEmbedUnimplementedInjectiveDerivativeExchangeRPCServer()
 }
@@ -477,8 +513,11 @@ func (UnimplementedInjectiveDerivativeExchangeRPCServer) Orderbook(context.Conte
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) Orderbooks(context.Context, *OrderbooksRequest) (*OrderbooksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Orderbooks not implemented")
 }
-func (UnimplementedInjectiveDerivativeExchangeRPCServer) StreamOrderbook(*StreamOrderbookRequest, InjectiveDerivativeExchangeRPC_StreamOrderbookServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamOrderbook not implemented")
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) StreamOrderbookSnapshot(*StreamOrderbookSnapshotRequest, InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamOrderbookSnapshot not implemented")
+}
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) StreamOrderbookUpdate(*StreamOrderbookUpdateRequest, InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamOrderbookUpdate not implemented")
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) Orders(context.Context, *OrdersRequest) (*OrdersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Orders not implemented")
@@ -662,24 +701,45 @@ func _InjectiveDerivativeExchangeRPC_Orderbooks_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _InjectiveDerivativeExchangeRPC_StreamOrderbook_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamOrderbookRequest)
+func _InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamOrderbookSnapshotRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(InjectiveDerivativeExchangeRPCServer).StreamOrderbook(m, &injectiveDerivativeExchangeRPCStreamOrderbookServer{stream})
+	return srv.(InjectiveDerivativeExchangeRPCServer).StreamOrderbookSnapshot(m, &injectiveDerivativeExchangeRPCStreamOrderbookSnapshotServer{stream})
 }
 
-type InjectiveDerivativeExchangeRPC_StreamOrderbookServer interface {
-	Send(*StreamOrderbookResponse) error
+type InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotServer interface {
+	Send(*StreamOrderbookSnapshotResponse) error
 	grpc.ServerStream
 }
 
-type injectiveDerivativeExchangeRPCStreamOrderbookServer struct {
+type injectiveDerivativeExchangeRPCStreamOrderbookSnapshotServer struct {
 	grpc.ServerStream
 }
 
-func (x *injectiveDerivativeExchangeRPCStreamOrderbookServer) Send(m *StreamOrderbookResponse) error {
+func (x *injectiveDerivativeExchangeRPCStreamOrderbookSnapshotServer) Send(m *StreamOrderbookSnapshotResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamOrderbookUpdateRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveDerivativeExchangeRPCServer).StreamOrderbookUpdate(m, &injectiveDerivativeExchangeRPCStreamOrderbookUpdateServer{stream})
+}
+
+type InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateServer interface {
+	Send(*StreamOrderbookUpdateResponse) error
+	grpc.ServerStream
+}
+
+type injectiveDerivativeExchangeRPCStreamOrderbookUpdateServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveDerivativeExchangeRPCStreamOrderbookUpdateServer) Send(m *StreamOrderbookUpdateResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -1004,8 +1064,13 @@ var InjectiveDerivativeExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 		{
-			StreamName:    "StreamOrderbook",
-			Handler:       _InjectiveDerivativeExchangeRPC_StreamOrderbook_Handler,
+			StreamName:    "StreamOrderbookSnapshot",
+			Handler:       _InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamOrderbookUpdate",
+			Handler:       _InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_Handler,
 			ServerStreams: true,
 		},
 		{
