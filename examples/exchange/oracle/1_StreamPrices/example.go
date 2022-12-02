@@ -19,7 +19,7 @@ func main() {
 	ctx := context.Background()
 	baseSymbol := "BTC"
 	quoteSymbol := "USDT"
-	oracleType := "BandIBC"
+	oracleType := "bandibc"
 	stream, err := exchangeClient.StreamPrices(ctx, baseSymbol, quoteSymbol, oracleType)
 	if err != nil {
 		fmt.Println(err)
