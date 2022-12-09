@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"math"
 	"math/big"
 	"net/http"
@@ -126,6 +128,8 @@ type ChainClient interface {
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
 	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
 
+	InsuranceFunds(ctx context.Context) ([]insurancetypes.InsuranceFund, error)
+	TotalSupply(ctx context.Context, in query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error)
 	Close()
 }
 
@@ -155,6 +159,7 @@ type chainClient struct {
 	bankQueryClient     banktypes.QueryClient
 	authzQueryClient    authztypes.QueryClient
 	wasmQueryClient     wasmtypes.QueryClient
+	insuranceClient     insurancetypes.QueryClient
 
 	closed  int64
 	canSign bool
@@ -230,6 +235,7 @@ func NewChainClient(
 		bankQueryClient:     banktypes.NewQueryClient(conn),
 		authzQueryClient:    authztypes.NewQueryClient(conn),
 		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
+		insuranceClient:     insurancetypes.NewQueryClient(conn),
 	}
 
 	if cc.canSign {
@@ -1258,6 +1264,21 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 		// send results to channel
 		orderbookCh <- ob
 	}
+}
+
+func (c *chainClient) InsuranceFunds(ctx context.Context) ([]insurancetypes.InsuranceFund, error) {
+	req := &insurancetypes.QueryInsuranceFundsRequest{}
+	resp, err := c.insuranceClient.InsuranceFunds(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Funds, nil
+}
+
+func (c *chainClient) TotalSupply(ctx context.Context, in query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error) {
+	return c.bankQueryClient.TotalSupply(ctx, &banktypes.QueryTotalSupplyRequest{
+		Pagination: &in,
+	})
 }
 
 type DerivativeOrderData struct {
