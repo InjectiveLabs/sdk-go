@@ -563,7 +563,7 @@ message GetWasmCodeByIDResponse {
 
 message GetWasmContractsRequest {
 	sint32 limit = 1;
-	string code_id = 2;
+	sint64 code_id = 2;
 	sint64 from_number = 3;
 	sint64 to_number = 4;
 }
