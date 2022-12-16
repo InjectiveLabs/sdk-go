@@ -34,6 +34,9 @@ func WrapTxToEIP712(
 		return typeddata.TypedData{}, err
 	}
 
+	// remove all arrays with len = 0 to conform EIP712 standard
+	txData = trimEmptyArrays(reflect.ValueOf(txData)).Interface().(map[string]interface{})
+
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
@@ -267,9 +270,13 @@ func traverseFields(
 		}
 
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
-
 		ethTyp := typToEth(fieldType)
 		if len(ethTyp) > 0 {
+			// explicitly convert []uint8 to string as EIP712 doesn't support []uint8
+			if ethTyp == "uint8" && isCollection {
+				ethTyp = "string"
+			}
+
 			if prefix == typeDefPrefix {
 				typeMap[rootType] = append(typeMap[rootType], typeddata.Type{
 					Name: fieldName,
@@ -426,4 +433,34 @@ func doRecover(err *error) {
 
 		*err = errors.Errorf("%v", r)
 	}
+}
+
+func trimEmptyArrays(obj reflect.Value) reflect.Value {
+	for _, k := range obj.MapKeys() {
+		// if current level is object
+		if mapObj, ok := obj.Interface().(map[string]interface{}); ok {
+			// and its field is array
+			if arr, ok := obj.MapIndex(k).Interface().([]interface{}); ok {
+				// and array length is 0 then delete and move to next element
+				if len(arr) == 0 {
+					delete(mapObj, k.String())
+					continue
+				}
+			}
+		}
+
+		switch childObj := obj.MapIndex(k).Interface().(type) {
+		case []interface{}:
+			// scan child arrays
+			for _, arr := range childObj {
+				// continue scan
+				trimEmptyArrays(reflect.ValueOf(arr))
+			}
+		case map[string]interface{}:
+			// scan child maps
+			trimEmptyArrays(reflect.ValueOf(childObj))
+		}
+	}
+
+	return obj
 }
