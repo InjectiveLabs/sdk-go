@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"math/big"
 	"reflect"
 	"runtime/debug"
@@ -17,6 +19,12 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/InjectiveLabs/sdk-go/typeddata"
+)
+
+const (
+	CosmwasmPrefix         = "Cosmwasm"
+	CosmwasmInnerMsgMarker = CosmwasmPrefix + "InnerMsgMarker"
+	CosmwasmExecType       = "wasm/MsgExecuteContract"
 )
 
 // WrapTxToEIP712 is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
@@ -60,6 +68,20 @@ func WrapTxToEIP712(
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "gas", Type: "string"},
 		}
+	}
+
+	// parse cosmwasm inner msg
+	cosmwasmEIP712Types := typeddata.Types{}
+	for _, m := range txData["msgs"].([]interface{}) {
+		msgObj := m.(map[string]interface{})
+		if msgObj["type"] == CosmwasmExecType {
+			innerMsg := msgObj["value"].(map[string]interface{})["msg"]
+			cosmwasmEIP712Types = parseCosmwasmInnerMsg(innerMsg, cosmwasmEIP712Types)
+			fmt.Println(cosmwasmEIP712Types)
+		}
+	}
+	for k, v := range cosmwasmEIP712Types {
+		msgTypes[k] = v
 	}
 
 	var typedData = typeddata.TypedData{
@@ -141,14 +163,11 @@ func walkFields(cdc codectypes.AnyUnpacker, typeMap typeddata.Types, rootType st
 	v := reflect.ValueOf(in)
 
 	for {
-		if t.Kind() == reflect.Ptr ||
-			t.Kind() == reflect.Interface {
+		if t.Kind() == reflect.Ptr || t.Kind() == reflect.Interface {
 			t = t.Elem()
 			v = v.Elem()
-
 			continue
 		}
-
 		break
 	}
 
@@ -272,9 +291,9 @@ func traverseFields(
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 		ethTyp := typToEth(fieldType)
 		if len(ethTyp) > 0 {
-			// explicitly convert []uint8 to string as EIP712 doesn't support []uint8
+			// special case to parse type for for cosmwasm inner msg
 			if ethTyp == "uint8" && isCollection {
-				ethTyp = "string"
+				ethTyp = CosmwasmInnerMsgMarker
 			}
 
 			if prefix == typeDefPrefix {
@@ -463,4 +482,66 @@ func trimEmptyArrays(obj reflect.Value) reflect.Value {
 	}
 
 	return obj
+}
+
+func parseCosmwasmInnerMsg(msg interface{}, EIP712Types typeddata.Types) typeddata.Types {
+	var methodName string
+	var methodArgs interface{}
+
+	// this top-level map should only have kv pair
+	for k, v := range msg.(map[string]interface{}) {
+		// top key will me contract method marker
+		methodBodyType := CosmwasmPrefix + cases.Title(language.English).String(k)
+		EIP712Types[CosmwasmInnerMsgMarker] = []typeddata.Type{{Name: k, Type: methodBodyType}}
+
+		// get method name and args
+		methodName = CosmwasmPrefix + cases.Title(language.English).String(k)
+		methodArgs = v
+
+		break
+	}
+
+	// these will be contract method args
+	// TODO: remove assumption that cosmwasm fields will always be string
+	for mk, _ := range methodArgs.(map[string]interface{}) {
+		arg := typeddata.Type{Name: mk, Type: "string"}
+		EIP712Types[methodName] = append(EIP712Types[methodName], arg)
+	}
+
+	return EIP712Types
+
+	//// handle message cases
+	//switch m := msg.(type) {
+	//case map[string]interface{}:
+	//	// walk map
+	//	for k, v := range m {
+	//		switch v.(type) {
+	//		// walk nested interfaces
+	//		case map[string]interface{}, []interface{}:
+	//			EIP712Types[k] = append(
+	//				EIP712Types[k],
+	//				typeddata.Type{
+	//					Name: k,
+	//					Type: CosmwasmPrefix + cases.Title(language.English).String(k),
+	//				},
+	//			)
+	//			parseCosmwasmInnerMsg(v, EIP712Types)
+	//		// append to types
+	//		default:
+	//			EIP712Types[k] = append(
+	//				EIP712Types[k],
+	//				typeddata.Type{
+	//					Name: k,
+	//					Type: "string",
+	//				},
+	//			)
+	//		}
+	//	}
+	//case []interface{}:
+	//	// TODO: support contract array arguments
+	//	// walk array
+	//	for i, v := range m {
+	//		fmt.Println(i, v)
+	//	}
+	//}
 }
