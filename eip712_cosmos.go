@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"math/big"
 	"reflect"
 	"runtime/debug"
@@ -76,8 +74,7 @@ func WrapTxToEIP712(
 		msgObj := m.(map[string]interface{})
 		if msgObj["type"] == CosmwasmExecType {
 			innerMsg := msgObj["value"].(map[string]interface{})["msg"]
-			cosmwasmEIP712Types = parseCosmwasmInnerMsg(innerMsg, cosmwasmEIP712Types)
-			fmt.Println(cosmwasmEIP712Types)
+			cosmwasmEIP712Types = ExtractCosmwasmTypes(CosmwasmInnerMsgMarker, cosmwasmEIP712Types, reflect.ValueOf(innerMsg))
 		}
 	}
 	for k, v := range cosmwasmEIP712Types {
@@ -352,7 +349,6 @@ func jsonNameFromTag(tag reflect.StructTag) string {
 }
 
 // _.foo_bar.baz -> TypeFooBarBaz
-//
 // this is needed for Geth's own signing code which doesn't
 // tolerate complex type names
 func sanitizeTypedef(str string) string {
@@ -484,64 +480,48 @@ func trimEmptyArrays(obj reflect.Value) reflect.Value {
 	return obj
 }
 
-func parseCosmwasmInnerMsg(msg interface{}, EIP712Types typeddata.Types) typeddata.Types {
-	var methodName string
-	var methodArgs interface{}
+func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj reflect.Value) typeddata.Types {
+	for _, k := range obj.MapKeys() {
+		switch field := obj.MapIndex(k).Interface().(type) {
+		// field is array
+		case []interface{}:
+			// ignore empty arrays
+			if len(field) == 0 {
+				continue
+			}
+			switch field[0].(type) {
+			// if element is struct then register new type and walk through child struct
+			case map[string]interface{}:
+				n := k.String()
+				t := n + "_value[]"
+				rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
+				ExtractCosmwasmTypes(t, rootTypes, reflect.ValueOf(field[0]))
 
-	// this top-level map should only have kv pair
-	for k, v := range msg.(map[string]interface{}) {
-		// top key will me contract method marker
-		methodBodyType := CosmwasmPrefix + cases.Title(language.English).String(k)
-		EIP712Types[CosmwasmInnerMsgMarker] = []typeddata.Type{{Name: k, Type: methodBodyType}}
+			// if element is primary type then register new type
+			default:
+				n := k.String()
+				t := reflect.TypeOf(field[0]).String() + "[]"
+				rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
+			}
 
-		// get method name and args
-		methodName = CosmwasmPrefix + cases.Title(language.English).String(k)
-		methodArgs = v
+		// field is map
+		case map[string]interface{}:
+			// register new type and walk through child struct
+			n := k.String()
+			t := n + "_value"
+			rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
+			ExtractCosmwasmTypes(t, rootTypes, reflect.ValueOf(field))
 
-		break
+		// field is primary type then register normally
+		default:
+			n := k.String()
+			t := typeddata.Type{
+				Name: n,
+				Type: reflect.TypeOf(field).String(),
+			}
+			rootTypes[parentType] = append(rootTypes[parentType], t)
+		}
 	}
 
-	// these will be contract method args
-	// TODO: remove assumption that cosmwasm fields will always be string
-	for mk, _ := range methodArgs.(map[string]interface{}) {
-		arg := typeddata.Type{Name: mk, Type: "string"}
-		EIP712Types[methodName] = append(EIP712Types[methodName], arg)
-	}
-
-	return EIP712Types
-
-	//// handle message cases
-	//switch m := msg.(type) {
-	//case map[string]interface{}:
-	//	// walk map
-	//	for k, v := range m {
-	//		switch v.(type) {
-	//		// walk nested interfaces
-	//		case map[string]interface{}, []interface{}:
-	//			EIP712Types[k] = append(
-	//				EIP712Types[k],
-	//				typeddata.Type{
-	//					Name: k,
-	//					Type: CosmwasmPrefix + cases.Title(language.English).String(k),
-	//				},
-	//			)
-	//			parseCosmwasmInnerMsg(v, EIP712Types)
-	//		// append to types
-	//		default:
-	//			EIP712Types[k] = append(
-	//				EIP712Types[k],
-	//				typeddata.Type{
-	//					Name: k,
-	//					Type: "string",
-	//				},
-	//			)
-	//		}
-	//	}
-	//case []interface{}:
-	//	// TODO: support contract array arguments
-	//	// walk array
-	//	for i, v := range m {
-	//		fmt.Println(i, v)
-	//	}
-	//}
+	return rootTypes
 }
