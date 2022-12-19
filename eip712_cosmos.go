@@ -493,7 +493,7 @@ func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj refl
 			// if element is struct then register new type and walk through child struct
 			case map[string]interface{}:
 				n := k.String()
-				t := n + "_value[]"
+				t := sanitizeTypedef(n + "Value[]")
 				rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
 				ExtractCosmwasmTypes(t, rootTypes, reflect.ValueOf(field[0]))
 
@@ -508,18 +508,15 @@ func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj refl
 		case map[string]interface{}:
 			// register new type and walk through child struct
 			n := k.String()
-			t := n + "_value"
+			t := sanitizeTypedef(n + "Value")
 			rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
 			ExtractCosmwasmTypes(t, rootTypes, reflect.ValueOf(field))
 
 		// field is primary type then register normally
 		default:
 			n := k.String()
-			t := typeddata.Type{
-				Name: n,
-				Type: reflect.TypeOf(field).String(),
-			}
-			rootTypes[parentType] = append(rootTypes[parentType], t)
+			t := reflect.TypeOf(field).String()
+			rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
 		}
 	}
 
