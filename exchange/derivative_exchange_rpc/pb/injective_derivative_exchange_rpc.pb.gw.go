@@ -285,31 +285,6 @@ func request_InjectiveDerivativeExchangeRPC_StreamOrderbook_0(ctx context.Contex
 
 }
 
-func request_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshotClient, runtime.ServerMetadata, error) {
-	var protoReq StreamOrderbookSnapshotRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	stream, err := client.StreamOrderbookSnapshot(ctx, &protoReq)
-	if err != nil {
-		return nil, metadata, err
-	}
-	header, err := stream.Header()
-	if err != nil {
-		return nil, metadata, err
-	}
-	metadata.HeaderMD = header
-	return stream, metadata, nil
-
-}
-
 func request_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveDerivativeExchangeRPCClient, req *http.Request, pathParams map[string]string) (InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, runtime.ServerMetadata, error) {
 	var protoReq StreamOrderbookUpdateRequest
 	var metadata runtime.ServerMetadata
@@ -911,13 +886,6 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerServer(ctx context.Context, mu
 		return
 	})
 
-	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
-		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-		return
-	})
-
 	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -1395,28 +1363,6 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerClient(ctx context.Context, mu
 
 	})
 
-	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbookSnapshot", runtime.WithHTTPPathPattern("/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/StreamOrderbookSnapshot"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
-
-	})
-
 	mux.Handle("POST", pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1745,8 +1691,6 @@ var (
 
 	pattern_InjectiveDerivativeExchangeRPC_StreamOrderbook_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "StreamOrderbook"}, ""))
 
-	pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "StreamOrderbookSnapshot"}, ""))
-
 	pattern_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "StreamOrderbookUpdate"}, ""))
 
 	pattern_InjectiveDerivativeExchangeRPC_Orders_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC", "Orders"}, ""))
@@ -1792,8 +1736,6 @@ var (
 	forward_InjectiveDerivativeExchangeRPC_Orderbooks_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveDerivativeExchangeRPC_StreamOrderbook_0 = runtime.ForwardResponseStream
-
-	forward_InjectiveDerivativeExchangeRPC_StreamOrderbookSnapshot_0 = runtime.ForwardResponseStream
 
 	forward_InjectiveDerivativeExchangeRPC_StreamOrderbookUpdate_0 = runtime.ForwardResponseStream
 

@@ -30,8 +30,6 @@ service InjectiveDerivativeExchangeRPC {
 	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
 	// Stream live snapshot updates of selected derivative market orderbook
 	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
-	// Stream live snapshot updates of selected derivative market orderbook
-	rpc StreamOrderbookSnapshot (StreamOrderbookSnapshotRequest) returns (stream StreamOrderbookSnapshotResponse);
 	// Stream live level updates of selected derivative market orderbook
 	rpc StreamOrderbookUpdate (StreamOrderbookUpdateRequest) returns (stream StreamOrderbookUpdateResponse);
 	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
@@ -318,23 +316,6 @@ message StreamOrderbookRequest {
 }
 
 message StreamOrderbookResponse {
-	// Orderbook of a Derivative Market
-	DerivativeLimitOrderbook orderbook = 1;
-	// Order update type
-	string operation_type = 2;
-	// Operation timestamp in UNIX millis.
-	sint64 timestamp = 3;
-	// MarketId of the market's orderbook
-	string market_id = 4;
-}
-
-message StreamOrderbookSnapshotRequest {
-	// List of market IDs for orderbook streaming, empty means 'ALL' derivative
-// markets
-	repeated string market_ids = 1;
-}
-
-message StreamOrderbookSnapshotResponse {
 	// Orderbook of a Derivative Market
 	DerivativeLimitOrderbook orderbook = 1;
 	// Order update type

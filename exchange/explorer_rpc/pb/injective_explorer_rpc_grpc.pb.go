@@ -55,7 +55,7 @@ type InjectiveExplorerRPCClient interface {
 	GetWasmCodeByID(ctx context.Context, in *GetWasmCodeByIDRequest, opts ...grpc.CallOption) (*GetWasmCodeByIDResponse, error)
 	// GetWasmContracts lists all contracts
 	GetWasmContracts(ctx context.Context, in *GetWasmContractsRequest, opts ...grpc.CallOption) (*GetWasmContractsResponse, error)
-	// GetWasmContractByAddress list cosmwasm contract infor by its address
+	// GetWasmContractByAddress list cosmwasm contract info by its address
 	GetWasmContractByAddress(ctx context.Context, in *GetWasmContractByAddressRequest, opts ...grpc.CallOption) (*GetWasmContractByAddressResponse, error)
 	// GetCw20Balance lists all cw20 balances of an injective account
 	GetCw20Balance(ctx context.Context, in *GetCw20BalanceRequest, opts ...grpc.CallOption) (*GetCw20BalanceResponse, error)
@@ -339,7 +339,7 @@ type InjectiveExplorerRPCServer interface {
 	GetWasmCodeByID(context.Context, *GetWasmCodeByIDRequest) (*GetWasmCodeByIDResponse, error)
 	// GetWasmContracts lists all contracts
 	GetWasmContracts(context.Context, *GetWasmContractsRequest) (*GetWasmContractsResponse, error)
-	// GetWasmContractByAddress list cosmwasm contract infor by its address
+	// GetWasmContractByAddress list cosmwasm contract info by its address
 	GetWasmContractByAddress(context.Context, *GetWasmContractByAddressRequest) (*GetWasmContractByAddressResponse, error)
 	// GetCw20Balance lists all cw20 balances of an injective account
 	GetCw20Balance(context.Context, *GetCw20BalanceRequest) (*GetCw20BalanceResponse, error)

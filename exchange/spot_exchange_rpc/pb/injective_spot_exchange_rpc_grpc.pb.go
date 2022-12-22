@@ -34,8 +34,6 @@ type InjectiveSpotExchangeRPCClient interface {
 	Orderbooks(ctx context.Context, in *OrderbooksRequest, opts ...grpc.CallOption) (*OrderbooksResponse, error)
 	// Stream live snapshot updates of selected spot market orderbook
 	StreamOrderbook(ctx context.Context, in *StreamOrderbookRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookClient, error)
-	// Stream live snapshot updates of selected spot market orderbook
-	StreamOrderbookSnapshot(ctx context.Context, in *StreamOrderbookSnapshotRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient, error)
 	// Stream live level updates of selected spot market orderbook
 	StreamOrderbookUpdate(ctx context.Context, in *StreamOrderbookUpdateRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
 	// Orders of a Spot Market
@@ -164,40 +162,8 @@ func (x *injectiveSpotExchangeRPCStreamOrderbookClient) Recv() (*StreamOrderbook
 	return m, nil
 }
 
-func (c *injectiveSpotExchangeRPCClient) StreamOrderbookSnapshot(ctx context.Context, in *StreamOrderbookSnapshotRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[2], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookSnapshot", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &injectiveSpotExchangeRPCStreamOrderbookSnapshotClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type InjectiveSpotExchangeRPC_StreamOrderbookSnapshotClient interface {
-	Recv() (*StreamOrderbookSnapshotResponse, error)
-	grpc.ClientStream
-}
-
-type injectiveSpotExchangeRPCStreamOrderbookSnapshotClient struct {
-	grpc.ClientStream
-}
-
-func (x *injectiveSpotExchangeRPCStreamOrderbookSnapshotClient) Recv() (*StreamOrderbookSnapshotResponse, error) {
-	m := new(StreamOrderbookSnapshotResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
 func (c *injectiveSpotExchangeRPCClient) StreamOrderbookUpdate(ctx context.Context, in *StreamOrderbookUpdateRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[3], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[2], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +204,7 @@ func (c *injectiveSpotExchangeRPCClient) Orders(ctx context.Context, in *OrdersR
 }
 
 func (c *injectiveSpotExchangeRPCClient) StreamOrders(ctx context.Context, in *StreamOrdersRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrdersClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[4], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrders", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[3], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrders", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -279,7 +245,7 @@ func (c *injectiveSpotExchangeRPCClient) Trades(ctx context.Context, in *TradesR
 }
 
 func (c *injectiveSpotExchangeRPCClient) StreamTrades(ctx context.Context, in *StreamTradesRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamTradesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[5], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTrades", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[4], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTrades", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +304,7 @@ func (c *injectiveSpotExchangeRPCClient) OrdersHistory(ctx context.Context, in *
 }
 
 func (c *injectiveSpotExchangeRPCClient) StreamOrdersHistory(ctx context.Context, in *StreamOrdersHistoryRequest, opts ...grpc.CallOption) (InjectiveSpotExchangeRPC_StreamOrdersHistoryClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[6], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveSpotExchangeRPC_ServiceDesc.Streams[5], "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -385,8 +351,6 @@ type InjectiveSpotExchangeRPCServer interface {
 	Orderbooks(context.Context, *OrderbooksRequest) (*OrderbooksResponse, error)
 	// Stream live snapshot updates of selected spot market orderbook
 	StreamOrderbook(*StreamOrderbookRequest, InjectiveSpotExchangeRPC_StreamOrderbookServer) error
-	// Stream live snapshot updates of selected spot market orderbook
-	StreamOrderbookSnapshot(*StreamOrderbookSnapshotRequest, InjectiveSpotExchangeRPC_StreamOrderbookSnapshotServer) error
 	// Stream live level updates of selected spot market orderbook
 	StreamOrderbookUpdate(*StreamOrderbookUpdateRequest, InjectiveSpotExchangeRPC_StreamOrderbookUpdateServer) error
 	// Orders of a Spot Market
@@ -429,9 +393,6 @@ func (UnimplementedInjectiveSpotExchangeRPCServer) Orderbooks(context.Context, *
 }
 func (UnimplementedInjectiveSpotExchangeRPCServer) StreamOrderbook(*StreamOrderbookRequest, InjectiveSpotExchangeRPC_StreamOrderbookServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamOrderbook not implemented")
-}
-func (UnimplementedInjectiveSpotExchangeRPCServer) StreamOrderbookSnapshot(*StreamOrderbookSnapshotRequest, InjectiveSpotExchangeRPC_StreamOrderbookSnapshotServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamOrderbookSnapshot not implemented")
 }
 func (UnimplementedInjectiveSpotExchangeRPCServer) StreamOrderbookUpdate(*StreamOrderbookUpdateRequest, InjectiveSpotExchangeRPC_StreamOrderbookUpdateServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamOrderbookUpdate not implemented")
@@ -585,27 +546,6 @@ type injectiveSpotExchangeRPCStreamOrderbookServer struct {
 }
 
 func (x *injectiveSpotExchangeRPCStreamOrderbookServer) Send(m *StreamOrderbookResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamOrderbookSnapshotRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(InjectiveSpotExchangeRPCServer).StreamOrderbookSnapshot(m, &injectiveSpotExchangeRPCStreamOrderbookSnapshotServer{stream})
-}
-
-type InjectiveSpotExchangeRPC_StreamOrderbookSnapshotServer interface {
-	Send(*StreamOrderbookSnapshotResponse) error
-	grpc.ServerStream
-}
-
-type injectiveSpotExchangeRPCStreamOrderbookSnapshotServer struct {
-	grpc.ServerStream
-}
-
-func (x *injectiveSpotExchangeRPCStreamOrderbookSnapshotServer) Send(m *StreamOrderbookSnapshotResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -836,11 +776,6 @@ var InjectiveSpotExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamOrderbook",
 			Handler:       _InjectiveSpotExchangeRPC_StreamOrderbook_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "StreamOrderbookSnapshot",
-			Handler:       _InjectiveSpotExchangeRPC_StreamOrderbookSnapshot_Handler,
 			ServerStreams: true,
 		},
 		{
