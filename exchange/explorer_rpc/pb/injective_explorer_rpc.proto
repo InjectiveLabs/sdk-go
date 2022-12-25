@@ -46,7 +46,7 @@ service InjectiveExplorerRPC {
 	rpc GetWasmCodeByID (GetWasmCodeByIDRequest) returns (GetWasmCodeByIDResponse);
 	// GetWasmContracts lists all contracts
 	rpc GetWasmContracts (GetWasmContractsRequest) returns (GetWasmContractsResponse);
-	// GetWasmContractByAddress list cosmwasm contract infor by its address
+	// GetWasmContractByAddress list cosmwasm contract info by its address
 	rpc GetWasmContractByAddress (GetWasmContractByAddressRequest) returns (GetWasmContractByAddressResponse);
 	// GetCw20Balance lists all cw20 balances of an injective account
 	rpc GetCw20Balance (GetCw20BalanceRequest) returns (GetCw20BalanceResponse);
@@ -566,6 +566,8 @@ message GetWasmContractsRequest {
 	sint64 code_id = 2;
 	sint64 from_number = 3;
 	sint64 to_number = 4;
+	bool assets_only = 5;
+	sint64 skip = 6;
 }
 
 message GetWasmContractsResponse {

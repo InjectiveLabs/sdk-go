@@ -150,9 +150,9 @@ func main() {
 		if len(sells) > 0 && len(buys) > 0 {
 			// assert orderbook
 			topBuyPrice := decimal.RequireFromString(buys[0].Price)
-			topSellPrice := decimal.RequireFromString(sells[0].Price)
-			if topBuyPrice.GreaterThanOrEqual(topSellPrice) {
-				panic(fmt.Errorf("crossed orderbook, must restart: buy %s >= %s buy", topBuyPrice, topSellPrice))
+			lowestSellPrice := decimal.RequireFromString(sells[0].Price)
+			if topBuyPrice.GreaterThanOrEqual(lowestSellPrice) {
+				panic(fmt.Errorf("crossed orderbook, must restart: buy %s >= %s sell", topBuyPrice, lowestSellPrice))
 			}
 		}
 
