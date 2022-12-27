@@ -21,10 +21,16 @@ service InjectiveSpotExchangeRPC {
 	rpc StreamMarkets (StreamMarketsRequest) returns (stream StreamMarketsResponse);
 	// Orderbook of a Spot Market
 	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
+	// Orderbook of a Spot Market
+	rpc OrderbookV2 (OrderbookV2Request) returns (OrderbookV2Response);
 	// Orderbook of Spot Markets
 	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
+	// Orderbook of Spot Markets
+	rpc OrderbooksV2 (OrderbooksV2Request) returns (OrderbooksV2Response);
 	// Stream live snapshot updates of selected spot market orderbook
 	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
+	// Stream live snapshot updates of selected spot market orderbook
+	rpc StreamOrderbookV2 (StreamOrderbookV2Request) returns (stream StreamOrderbookV2Response);
 	// Stream live level updates of selected spot market orderbook
 	rpc StreamOrderbookUpdate (StreamOrderbookUpdateRequest) returns (stream StreamOrderbookUpdateResponse);
 	// Orders of a Spot Market
@@ -154,6 +160,16 @@ message PriceLevel {
 	sint64 timestamp = 3;
 }
 
+message OrderbookV2Request {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+}
+
+message OrderbookV2Response {
+	// Orderbook of a particular spot market
+	SpotLimitOrderbook orderbook = 1;
+}
+
 message OrderbooksRequest {
 	// MarketIds of the markets
 	repeated string market_ids = 1;
@@ -170,12 +186,37 @@ message SingleSpotLimitOrderbook {
 	SpotLimitOrderbook orderbook = 2;
 }
 
+message OrderbooksV2Request {
+	// MarketIds of the markets
+	repeated string market_ids = 1;
+}
+
+message OrderbooksV2Response {
+	repeated SingleSpotLimitOrderbook orderbooks = 1;
+}
+
 message StreamOrderbookRequest {
 	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
 	repeated string market_ids = 1;
 }
 
 message StreamOrderbookResponse {
+	// Orderbook of a Spot Market
+	SpotLimitOrderbook orderbook = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+	// MarketId of the market's orderbook
+	string market_id = 4;
+}
+
+message StreamOrderbookV2Request {
+	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
+	repeated string market_ids = 1;
+}
+
+message StreamOrderbookV2Response {
 	// Orderbook of a Spot Market
 	SpotLimitOrderbook orderbook = 1;
 	// Order update type
