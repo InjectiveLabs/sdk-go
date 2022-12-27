@@ -71,7 +71,7 @@ func main() {
 
 	// prepare orderbooks map
 	orderbooks := map[string]*MapOrderbook{}
-	res, err := exchangeClient.GetSpotOrderbooks(ctx, marketIds)
+	res, err := exchangeClient.GetSpotOrderbooksV2(ctx, marketIds)
 	if err != nil {
 		panic(err)
 	}
@@ -156,7 +156,7 @@ func main() {
 			}
 		}
 
-		res, _ = exchangeClient.GetSpotOrderbooks(ctx, marketIds)
+		res, _ = exchangeClient.GetSpotOrderbooksV2(ctx, marketIds)
 		fmt.Println("query", res.Orderbooks[0].Orderbook.Sequence, len(res.Orderbooks[0].Orderbook.Sells), len(res.Orderbooks[0].Orderbook.Buys))
 
 		// print orderbook
