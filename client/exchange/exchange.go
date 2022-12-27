@@ -25,8 +25,11 @@ type ExchangeClient interface {
 	GetDerivativeMarket(ctx context.Context, marketId string) (derivativeExchangePB.MarketResponse, error)
 	GetDerivativeOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error)
 	GetDerivativeOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error)
+	GetDerivativeOrderbookV2(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookV2Response, error)
+	GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksV2Response, error)
 	// StreamDerivativeOrderbook deprecated API
 	StreamDerivativeOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error)
+	StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error)
 	StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
 	StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
 	GetDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error)
@@ -58,8 +61,11 @@ type ExchangeClient interface {
 	GetSpotOrders(ctx context.Context, req spotExchangePB.OrdersRequest) (spotExchangePB.OrdersResponse, error)
 	GetSpotOrderbook(ctx context.Context, marketId string) (spotExchangePB.OrderbookResponse, error)
 	GetSpotOrderbooks(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksResponse, error)
+	GetSpotOrderbookV2(ctx context.Context, marketId string) (spotExchangePB.OrderbookV2Response, error)
+	GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksV2Response, error)
 	// StreamSpotOrderbook deprecated API
 	StreamSpotOrderbook(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookClient, error)
+	StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error)
 	StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
 	GetSpotMarkets(ctx context.Context, req spotExchangePB.MarketsRequest) (spotExchangePB.MarketsResponse, error)
 	GetSpotMarket(ctx context.Context, marketId string) (spotExchangePB.MarketResponse, error)
@@ -232,6 +238,40 @@ func (c *exchangeClient) GetDerivativeOrderbooks(ctx context.Context, marketIds 
 	return *res, nil
 }
 
+func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookV2Response, error) {
+	req := derivativeExchangePB.OrderbookV2Request{
+		MarketId: marketId,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.derivativeExchangeClient.OrderbookV2(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return derivativeExchangePB.OrderbookV2Response{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksV2Response, error) {
+	req := derivativeExchangePB.OrderbooksV2Request{
+		MarketIds: marketIds,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.derivativeExchangeClient.OrderbooksV2(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return derivativeExchangePB.OrderbooksV2Response{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
 func (c *exchangeClient) StreamDerivativeOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error) {
 	req := derivativeExchangePB.StreamOrderbookRequest{
 		MarketIds: marketIds,
@@ -252,6 +292,28 @@ func (c *exchangeClient) StreamDerivativeOrderbook(ctx context.Context, marketId
 
 	return stream, nil
 }
+
+func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
+	req := derivativeExchangePB.StreamOrderbookV2Request{
+		MarketIds: marketIds,
+	}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.derivativeExchangeClient.StreamOrderbookV2(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
 func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
 	req := derivativeExchangePB.StreamOrderbookUpdateRequest{
 		MarketIds: marketIds,
@@ -729,6 +791,23 @@ func (c *exchangeClient) GetSpotOrderbook(ctx context.Context, marketId string) 
 	return *res, nil
 }
 
+func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string) (spotExchangePB.OrderbookV2Response, error) {
+	req := spotExchangePB.OrderbookV2Request{
+		MarketId: marketId,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.OrderbookV2(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.OrderbookV2Response{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
 func (c *exchangeClient) GetSpotOrderbooks(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksResponse, error) {
 	req := spotExchangePB.OrderbooksRequest{
 		MarketIds: marketIds,
@@ -740,6 +819,23 @@ func (c *exchangeClient) GetSpotOrderbooks(ctx context.Context, marketIds []stri
 	if err != nil {
 		fmt.Println(err)
 		return spotExchangePB.OrderbooksResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksV2Response, error) {
+	req := spotExchangePB.OrderbooksV2Request{
+		MarketIds: marketIds,
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.OrderbooksV2(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.OrderbooksV2Response{}, err
 	}
 	c.setCookie(header)
 
@@ -774,6 +870,27 @@ func (c *exchangeClient) StreamSpotOrderbook(ctx context.Context, marketIds []st
 
 	ctx = c.getCookie(ctx)
 	stream, err := c.spotExchangeClient.StreamOrderbook(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
+	req := spotExchangePB.StreamOrderbookV2Request{
+		MarketIds: marketIds,
+	}
+
+	ctx = c.getCookie(ctx)
+	stream, err := c.spotExchangeClient.StreamOrderbookV2(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
