@@ -286,8 +286,6 @@ message DerivativeLimitOrderbook {
 	repeated PriceLevel buys = 1;
 	// Array of price levels for sells
 	repeated PriceLevel sells = 2;
-	// market orderbook sequence
-	uint64 sequence = 3;
 }
 
 message PriceLevel {
@@ -306,7 +304,16 @@ message OrderbookV2Request {
 
 message OrderbookV2Response {
 	// Orderbook of a particular derivative market
-	DerivativeLimitOrderbook orderbook = 1;
+	DerivativeLimitOrderbookV2 orderbook = 1;
+}
+
+message DerivativeLimitOrderbookV2 {
+	// Array of price levels for buys
+	repeated PriceLevel buys = 1;
+	// Array of price levels for sells
+	repeated PriceLevel sells = 2;
+	// market orderbook sequence
+	uint64 sequence = 3;
 }
 
 message OrderbooksRequest {
@@ -331,7 +338,14 @@ message OrderbooksV2Request {
 }
 
 message OrderbooksV2Response {
-	repeated SingleDerivativeLimitOrderbook orderbooks = 1;
+	repeated SingleDerivativeLimitOrderbookV2 orderbooks = 1;
+}
+
+message SingleDerivativeLimitOrderbookV2 {
+	// market's ID
+	string market_id = 1;
+	// Orderbook of the market
+	DerivativeLimitOrderbookV2 orderbook = 2;
 }
 
 message StreamOrderbookRequest {
@@ -359,7 +373,7 @@ message StreamOrderbookV2Request {
 
 message StreamOrderbookV2Response {
 	// Orderbook of a Derivative Market
-	DerivativeLimitOrderbook orderbook = 1;
+	DerivativeLimitOrderbookV2 orderbook = 1;
 	// Order update type
 	string operation_type = 2;
 	// Operation timestamp in UNIX millis.

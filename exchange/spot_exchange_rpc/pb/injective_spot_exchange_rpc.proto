@@ -147,8 +147,6 @@ message SpotLimitOrderbook {
 	repeated PriceLevel buys = 1;
 	// Array of price levels for sells
 	repeated PriceLevel sells = 2;
-	// market orderbook sequence
-	uint64 sequence = 3;
 }
 
 message PriceLevel {
@@ -167,7 +165,16 @@ message OrderbookV2Request {
 
 message OrderbookV2Response {
 	// Orderbook of a particular spot market
-	SpotLimitOrderbook orderbook = 1;
+	SpotLimitOrderbookV2 orderbook = 1;
+}
+
+message SpotLimitOrderbookV2 {
+	// Array of price levels for buys
+	repeated PriceLevel buys = 1;
+	// Array of price levels for sells
+	repeated PriceLevel sells = 2;
+	// market orderbook sequence
+	uint64 sequence = 3;
 }
 
 message OrderbooksRequest {
@@ -192,7 +199,14 @@ message OrderbooksV2Request {
 }
 
 message OrderbooksV2Response {
-	repeated SingleSpotLimitOrderbook orderbooks = 1;
+	repeated SingleSpotLimitOrderbookV2 orderbooks = 1;
+}
+
+message SingleSpotLimitOrderbookV2 {
+	// market's ID
+	string market_id = 1;
+	// Orderbook of the market
+	SpotLimitOrderbookV2 orderbook = 2;
 }
 
 message StreamOrderbookRequest {
@@ -218,7 +232,7 @@ message StreamOrderbookV2Request {
 
 message StreamOrderbookV2Response {
 	// Orderbook of a Spot Market
-	SpotLimitOrderbook orderbook = 1;
+	SpotLimitOrderbookV2 orderbook = 1;
 	// Order update type
 	string operation_type = 2;
 	// Operation timestamp in UNIX millis.
