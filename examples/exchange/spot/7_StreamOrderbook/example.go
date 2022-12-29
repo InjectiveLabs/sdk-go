@@ -32,7 +32,7 @@ func main() {
 				fmt.Println(err)
 				return
 			}
-			fmt.Println(res.MarketId, res.Orderbook.Sequence, len(res.Orderbook.Sells), len(res.Orderbook.Buys))
+			fmt.Println(res.MarketId, len(res.Orderbook.Sells), len(res.Orderbook.Buys))
 		}
 	}
 }
