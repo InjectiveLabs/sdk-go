@@ -19,6 +19,12 @@ import (
 	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
+const (
+	CosmwasmPrefix         = "Cosmwasm"
+	CosmwasmInnerMsgMarker = CosmwasmPrefix + "InnerMsgMarker"
+	CosmwasmExecType       = "wasm/MsgExecuteContract"
+)
+
 // WrapTxToEIP712 is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible request. All messages must be of the same type.
 func WrapTxToEIP712(
@@ -33,6 +39,9 @@ func WrapTxToEIP712(
 		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
 		return typeddata.TypedData{}, err
 	}
+
+	// remove all arrays with len = 0 to conform EIP712 standard
+	txData = trimEmptyArrays(reflect.ValueOf(txData)).Interface().(map[string]interface{})
 
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
@@ -57,6 +66,19 @@ func WrapTxToEIP712(
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "gas", Type: "string"},
 		}
+	}
+
+	// parse cosmwasm inner msg
+	cosmwasmEIP712Types := typeddata.Types{}
+	for _, m := range txData["msgs"].([]interface{}) {
+		msgObj := m.(map[string]interface{})
+		if msgObj["type"] == CosmwasmExecType {
+			innerMsg := msgObj["value"].(map[string]interface{})["msg"]
+			cosmwasmEIP712Types = ExtractCosmwasmTypes(CosmwasmInnerMsgMarker, cosmwasmEIP712Types, reflect.ValueOf(innerMsg))
+		}
+	}
+	for k, v := range cosmwasmEIP712Types {
+		msgTypes[k] = v
 	}
 
 	var typedData = typeddata.TypedData{
@@ -138,14 +160,11 @@ func walkFields(cdc codectypes.AnyUnpacker, typeMap typeddata.Types, rootType st
 	v := reflect.ValueOf(in)
 
 	for {
-		if t.Kind() == reflect.Ptr ||
-			t.Kind() == reflect.Interface {
+		if t.Kind() == reflect.Ptr || t.Kind() == reflect.Interface {
 			t = t.Elem()
 			v = v.Elem()
-
 			continue
 		}
-
 		break
 	}
 
@@ -267,9 +286,13 @@ func traverseFields(
 		}
 
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
-
 		ethTyp := typToEth(fieldType)
 		if len(ethTyp) > 0 {
+			// special case to parse type for for cosmwasm inner msg
+			if ethTyp == "uint8" && isCollection {
+				ethTyp = CosmwasmInnerMsgMarker
+			}
+
 			if prefix == typeDefPrefix {
 				typeMap[rootType] = append(typeMap[rootType], typeddata.Type{
 					Name: fieldName,
@@ -326,7 +349,6 @@ func jsonNameFromTag(tag reflect.StructTag) string {
 }
 
 // _.foo_bar.baz -> TypeFooBarBaz
-//
 // this is needed for Geth's own signing code which doesn't
 // tolerate complex type names
 func sanitizeTypedef(str string) string {
@@ -426,4 +448,77 @@ func doRecover(err *error) {
 
 		*err = errors.Errorf("%v", r)
 	}
+}
+
+func trimEmptyArrays(obj reflect.Value) reflect.Value {
+	for _, k := range obj.MapKeys() {
+		// if current level is object
+		if mapObj, ok := obj.Interface().(map[string]interface{}); ok {
+			// and its field is array
+			if arr, ok := obj.MapIndex(k).Interface().([]interface{}); ok {
+				// and array length is 0 then delete and move to next element
+				if len(arr) == 0 {
+					delete(mapObj, k.String())
+					continue
+				}
+			}
+		}
+
+		switch childObj := obj.MapIndex(k).Interface().(type) {
+		case []interface{}:
+			// scan child arrays
+			for _, arr := range childObj {
+				// continue scan
+				trimEmptyArrays(reflect.ValueOf(arr))
+			}
+		case map[string]interface{}:
+			// scan child maps
+			trimEmptyArrays(reflect.ValueOf(childObj))
+		}
+	}
+
+	return obj
+}
+
+func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj reflect.Value) typeddata.Types {
+	for _, k := range obj.MapKeys() {
+		switch field := obj.MapIndex(k).Interface().(type) {
+		// field is array
+		case []interface{}:
+			// ignore empty arrays
+			if len(field) == 0 {
+				continue
+			}
+			switch field[0].(type) {
+			// if element is struct then register new type and walk through child struct
+			case map[string]interface{}:
+				n := k.String()
+				t := sanitizeTypedef(n + "Value[]")
+				rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
+				ExtractCosmwasmTypes(t, rootTypes, reflect.ValueOf(field[0]))
+
+			// if element is primary type then register new type
+			default:
+				n := k.String()
+				t := reflect.TypeOf(field[0]).String() + "[]"
+				rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
+			}
+
+		// field is map
+		case map[string]interface{}:
+			// register new type and walk through child struct
+			n := k.String()
+			t := sanitizeTypedef(n + "Value")
+			rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
+			ExtractCosmwasmTypes(t, rootTypes, reflect.ValueOf(field))
+
+		// field is primary type then register normally
+		default:
+			n := k.String()
+			t := reflect.TypeOf(field).String()
+			rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
+		}
+	}
+
+	return rootTypes
 }
