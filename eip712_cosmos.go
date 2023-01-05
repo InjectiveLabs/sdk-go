@@ -525,7 +525,7 @@ func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj refl
 }
 
 func SortedMapKeys(keys []reflect.Value) []reflect.Value {
-	sort.Slice(keys, func(i, j int) bool {
+	sort.SliceStable(keys, func(i, j int) bool {
 		return keys[i].String() < keys[j].String()
 	})
 	return keys
