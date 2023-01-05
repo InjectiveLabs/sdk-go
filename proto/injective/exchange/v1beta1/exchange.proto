@@ -808,3 +808,17 @@ enum OrderMask {
   TYPE_MARKET = 32 [(gogoproto.enumvalue_customname) = "MARKET"];
   TYPE_LIMIT = 64 [(gogoproto.enumvalue_customname) = "LIMIT"];
 }
+
+
+message Level {
+  // price
+  string p = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  // quantity
+  string q = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}

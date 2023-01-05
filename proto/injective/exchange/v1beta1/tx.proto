@@ -11,7 +11,7 @@ import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
-// Msg defines the staking Msg service.
+// Msg defines the exchange Msg service.
 service Msg {
 
   // TransferAndExecute defines a method for transferring coins to/from either the bank or default subaccount balances
@@ -55,7 +55,7 @@ service Msg {
   rpc BatchUpdateOrders(MsgBatchUpdateOrders) returns (MsgBatchUpdateOrdersResponse);
 
   // Exec defines a method for executing a Cosmwasm contract from the exchange module with privileged capabilities.
-  rpc Exec(MsgExec) returns (MsgExecResponse);
+  rpc Exec(MsgPrivilegedExecuteContract) returns (MsgPrivilegedExecuteContractResponse);
 
   // CreateDerivativeLimitOrder defines a method for creating a new derivative limit order.
   rpc CreateDerivativeLimitOrder(MsgCreateDerivativeLimitOrder) returns (MsgCreateDerivativeLimitOrderResponse);
@@ -104,6 +104,9 @@ service Msg {
 
   // AdminUpdateBinaryOptionsMarket defines method for updating a binary options market by admin
   rpc AdminUpdateBinaryOptionsMarket(MsgAdminUpdateBinaryOptionsMarket) returns (MsgAdminUpdateBinaryOptionsMarketResponse);
+
+  //
+  rpc ReclaimLockedFunds(MsgReclaimLockedFunds) returns (MsgReclaimLockedFundsResponse);
 }
 
 // MsgTransferAndExecute defines a SDK message for transferring coins to/from either the bank or default subaccount balances
@@ -702,29 +705,33 @@ message MsgIncreasePositionMargin {
 // MsgIncreasePositionMarginResponse defines the Msg/IncreasePositionMargin response type.
 message MsgIncreasePositionMarginResponse {}
 
-// MsgExec defines the Msg/Exec message type
-message MsgExec {
+// MsgPrivilegedExecuteContract defines the Msg/Exec message type
+message MsgPrivilegedExecuteContract {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   string sender = 1;
-  // bank_funds defines the user's coins used to fund the execution
-  repeated cosmos.base.v1beta1.Coin bank_funds = 2 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 
-  // deposits_subaccount_id defines the user's subaccountID to fund the execution
-  string deposits_subaccount_id = 3[(gogoproto.nullable) = true];
-
-  // deposit_funds defines the fund amounts to fund the execution
-  repeated cosmos.base.v1beta1.Coin deposit_funds = 4 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // funds defines the user's bank coins used to fund the execution (e.g. 100inj).
+  string funds = 2;
 
   // contract_address defines the contract address to execute
-  string contract_address = 5;
+  string contract_address = 3;
 
   // data defines the call data used when executing the contract
-  string data = 6;
+  string data = 4;
 }
 
-// MsgExecResponse defines the Msg/Exec response type.
-message MsgExecResponse {}
+
+// MsgPrivilegedExecuteContractResponse defines the Msg/Exec response type.
+message MsgPrivilegedExecuteContractResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated cosmos.base.v1beta1.Coin funds_diff = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
 
 message SpotMarketParamUpdateProposal {
   option (gogoproto.equal) = false;
@@ -1217,6 +1224,30 @@ message MsgRewardsOptOut {
 // MsgRewardsOptOutResponse defines the Msg/RewardsOptOut response type.
 message MsgRewardsOptOutResponse {}
 
+// A Cosmos-SDK MsgReclaimLockedFunds
+message MsgReclaimLockedFunds {
+  string sender = 1;
+  bytes lockedAccountPubKey = 2;
+  bytes signature = 3;
+}
+
+// MsgReclaimLockedFundsResponse defines the Msg/ReclaimLockedFunds response type.
+message MsgReclaimLockedFundsResponse {}
+
+// MsgSignData defines an arbitrary, general-purpose, off-chain message
+message MsgSignData {
+  // Signer is the sdk.AccAddress of the message signer
+  bytes Signer = 1 [(gogoproto.jsontag) = "signer", (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  // Data represents the raw bytes of the content that is signed (text, json, etc)
+  bytes Data = 2 [(gogoproto.jsontag) = "data"];
+}
+
+// MsgSignDoc defines an arbitrary, general-purpose, off-chain message
+message MsgSignDoc {
+  string sign_type = 1[(gogoproto.jsontag) = "type"];
+  MsgSignData value = 2[(gogoproto.nullable) = false];
+}
+
 // MsgAdminUpdateBinaryOptionsMarket is used by the market Admin to operate the market
 message MsgAdminUpdateBinaryOptionsMarket {
   string sender = 1;
@@ -1246,3 +1277,4 @@ message AtomicMarketOrderFeeMultiplierScheduleProposal {
 
   repeated MarketFeeMultiplier market_fee_multipliers = 3;
 }
+

@@ -177,8 +177,8 @@ func (p *BatchStoreCodeProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *BatchStoreCodeProposal) ValidateBasic() error {
-	for _, proposal := range p.Proposals {
-		if err := proposal.ValidateBasic(); err != nil {
+	for idx := range p.Proposals {
+		if err := p.Proposals[idx].ValidateBasic(); err != nil {
 			return err
 		}
 	}

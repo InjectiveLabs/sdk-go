@@ -67,9 +67,11 @@ service Query {
   rpc OracleProviderPrices(QueryOracleProviderPricesRequest) returns (QueryOracleProviderPricesResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/provider_prices";
   }
+
+  rpc OraclePrice(QueryOraclePriceRequest) returns (QueryOraclePriceResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/price";
+  }
 }
-
-
 
 // QueryOracleParamsRequest is the request type for the Query/OracleParams RPC method.
 message QueryParamsRequest {}
@@ -105,7 +107,6 @@ message QueryBandIBCPriceStatesRequest {}
 message QueryBandIBCPriceStatesResponse {
   repeated BandPriceState price_states = 1;
 }
-
 
 // QueryPriceFeedPriceStatesRequest is the request type for the Query/PriceFeedPriceStates RPC method.
 message QueryPriceFeedPriceStatesRequest {}
@@ -187,4 +188,28 @@ message QueryOracleProviderPricesRequest {
 
 message QueryOracleProviderPricesResponse {
     repeated ProviderState providerState = 1;
+}
+
+// QueryOraclePriceRequest is the request type for the Query/OraclePrice RPC method.
+message QueryOraclePriceRequest {
+  OracleType oracle_type = 1;
+  string base = 2;
+  string quote = 3;
+}
+
+message PricePairState {
+  string pair_price = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string base_price = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string quote_price = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+
+  string base_cumulative_price = 4 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string quote_cumulative_price = 5 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+
+  int64 base_timestamp = 6;
+  int64 quote_timestamp = 7;
+}
+
+// QueryOraclePriceResponse is the response type for the Query/OraclePrice RPC method.
+message QueryOraclePriceResponse {
+  PricePairState price_pair_state = 1;
 }

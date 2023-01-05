@@ -344,8 +344,8 @@ message QuerySpotOrderbookRequest {
 
 // QuerySpotOrderbookResponse is the response type for the Query/SpotOrderbook RPC method.
 message QuerySpotOrderbookResponse {
-  repeated PriceLevel buys_price_level = 1;
-  repeated PriceLevel sells_price_level = 2;
+  repeated Level buys_price_level = 1;
+  repeated Level sells_price_level = 2;
 }
 
 // QueryTraderSpotOrdersRequest is the request type for the Query/TraderSpotOrders RPC method.
@@ -457,8 +457,8 @@ message QueryDerivativeOrderbookRequest {
 
 // QueryDerivativeOrderbookResponse is the response type for the Query/DerivativeOrderbook RPC method.
 message QueryDerivativeOrderbookResponse {
-  repeated PriceLevel buys_price_level = 1;
-  repeated PriceLevel sells_price_level = 2;
+  repeated Level buys_price_level = 1;
+  repeated Level sells_price_level = 2;
 }
 
 // CancellationStrategy is the list of cancellation strategies.

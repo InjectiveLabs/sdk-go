@@ -210,29 +210,21 @@ message EventOrderFail {
 }
 
 message EventAtomicMarketOrderFeeMultipliersUpdated {
-  repeated MarketFeeMultiplier market_fee_multipliers = 1;  
+  repeated MarketFeeMultiplier market_fee_multipliers = 1;
 }
 
 message EventOrderbookUpdate {
-  repeated Orderbook spot_orderbooks = 1;
-  repeated Orderbook derivative_orderbooks = 2;
+  repeated OrderbookUpdate spot_updates = 1;
+  repeated OrderbookUpdate derivative_updates = 2;
+}
+
+message OrderbookUpdate {
+  uint64 seq = 1;
+  Orderbook orderbook = 2;
 }
 
 message Orderbook {
   bytes market_id = 1;
   repeated Level buy_levels = 2;
   repeated Level sell_levels = 3;
-}
-
-message Level {
-  // price
-  string p = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // quantity
-  string q = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
 }
