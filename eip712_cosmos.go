@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"reflect"
 	"runtime/debug"
+	"sort"
 	"strings"
 	"time"
 
@@ -451,7 +452,7 @@ func doRecover(err *error) {
 }
 
 func trimEmptyArrays(obj reflect.Value) reflect.Value {
-	for _, k := range obj.MapKeys() {
+	for _, k := range SortedMapKeys(obj.MapKeys()) {
 		// if current level is object
 		if mapObj, ok := obj.Interface().(map[string]interface{}); ok {
 			// and its field is array
@@ -481,7 +482,7 @@ func trimEmptyArrays(obj reflect.Value) reflect.Value {
 }
 
 func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj reflect.Value) typeddata.Types {
-	for _, k := range obj.MapKeys() {
+	for _, k := range SortedMapKeys(obj.MapKeys()) {
 		switch field := obj.MapIndex(k).Interface().(type) {
 		// field is array
 		case []interface{}:
@@ -521,4 +522,11 @@ func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj refl
 	}
 
 	return rootTypes
+}
+
+func SortedMapKeys(keys []reflect.Value) []reflect.Value {
+	sort.SliceStable(keys, func(i, j int) bool {
+		return keys[i].String() < keys[j].String()
+	})
+	return keys
 }
