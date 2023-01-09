@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"runtime/debug"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -501,7 +502,7 @@ func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj refl
 			// if element is primary type then register new type
 			default:
 				n := k.String()
-				t := reflect.TypeOf(field[0]).String() + "[]"
+				t := parseFieldType(field) + "[]"
 				rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
 			}
 
@@ -516,12 +517,30 @@ func ExtractCosmwasmTypes(parentType string, rootTypes typeddata.Types, obj refl
 		// field is primary type then register normally
 		default:
 			n := k.String()
-			t := reflect.TypeOf(field).String()
+			t := parseFieldType(field)
 			rootTypes[parentType] = append(rootTypes[parentType], typeddata.Type{Name: n, Type: t})
 		}
 	}
 
 	return rootTypes
+}
+
+func parseFieldType(field interface{}) string {
+	t := reflect.TypeOf(field).String()
+	if t == "float64" {
+		// prec = -1 means printing fewest possible trailing 0
+		s := strconv.FormatFloat(field.(float64), 'f', -1, 64)
+		// then attempt to convert to uint64, int64
+		_, err := strconv.ParseUint(s, 10, 64)
+		if err == nil {
+			return "uint64"
+		}
+		_, err = strconv.ParseInt(s, 10, 64)
+		if err == nil {
+			return "int64"
+		}
+	}
+	return t
 }
 
 func SortedMapKeys(keys []reflect.Value) []reflect.Value {
