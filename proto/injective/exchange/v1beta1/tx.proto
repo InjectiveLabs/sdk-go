@@ -54,8 +54,8 @@ service Msg {
   // BatchUpdateOrders defines a method for updating a batch of orders.
   rpc BatchUpdateOrders(MsgBatchUpdateOrders) returns (MsgBatchUpdateOrdersResponse);
 
-  // Exec defines a method for executing a Cosmwasm contract from the exchange module with privileged capabilities.
-  rpc Exec(MsgPrivilegedExecuteContract) returns (MsgPrivilegedExecuteContractResponse);
+  // PrivilegedExecuteContract defines a method for executing a Cosmwasm contract from the exchange module with privileged capabilities.
+  rpc PrivilegedExecuteContract(MsgPrivilegedExecuteContract) returns (MsgPrivilegedExecuteContractResponse);
 
   // CreateDerivativeLimitOrder defines a method for creating a new derivative limit order.
   rpc CreateDerivativeLimitOrder(MsgCreateDerivativeLimitOrder) returns (MsgCreateDerivativeLimitOrderResponse);

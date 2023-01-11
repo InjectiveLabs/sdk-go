@@ -3,7 +3,6 @@ package types
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const RouterKey = ModuleName
@@ -13,24 +12,19 @@ func (msg MsgExecuteContractCompat) Route() string {
 }
 
 func (msg MsgExecuteContractCompat) Type() string {
-	return "executeCompat"
+	return "executeContractCompat"
 }
 
 func (msg MsgExecuteContractCompat) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return sdkerrors.Wrap(err, "sender")
-	}
-	if _, err := sdk.AccAddressFromBech32(msg.Contract); err != nil {
-		return sdkerrors.Wrap(err, "contract")
-	}
-
-	if !msg.Funds.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "sentFunds")
+	oMsg := &wasmtypes.MsgExecuteContract{
+		Sender:   msg.Sender,
+		Contract: msg.Contract,
+		Msg:      []byte(msg.Msg),
+		Funds:    msg.Funds,
 	}
 
-	rawMsg := wasmtypes.RawContractMessage(msg.Msg)
-	if err := rawMsg.ValidateBasic(); err != nil {
-		return sdkerrors.Wrap(err, "payload msg")
+	if err := oMsg.ValidateBasic(); err != nil {
+		return err
 	}
 	return nil
 }
