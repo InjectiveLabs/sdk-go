@@ -17,12 +17,15 @@ func (msg MsgExecuteContractCompat) Type() string {
 }
 
 func (msg MsgExecuteContractCompat) ValidateBasic() error {
-	funds := make(sdk.Coins, len(msg.Funds))
-	var err error
-	for i, f := range strings.Split(msg.Funds, ",") {
-		funds[i], err = sdk.ParseCoinNormalized(f)
-		if err != nil {
-			return err
+	funds := sdk.Coins{}
+	if len(msg.Funds) > 0 {
+		fundArr := strings.Split(msg.Funds, ",")
+		for _, f := range fundArr {
+			coin, err := sdk.ParseCoinNormalized(f)
+			if err != nil {
+				return err
+			}
+			funds = append(funds, coin)
 		}
 	}
 
