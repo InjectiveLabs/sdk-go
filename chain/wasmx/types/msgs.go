@@ -3,6 +3,7 @@ package types
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"strings"
 )
 
 const RouterKey = ModuleName
@@ -16,11 +17,20 @@ func (msg MsgExecuteContractCompat) Type() string {
 }
 
 func (msg MsgExecuteContractCompat) ValidateBasic() error {
+	funds := make(sdk.Coins, len(msg.Funds))
+	var err error
+	for i, f := range strings.Split(msg.Funds, ",") {
+		funds[i], err = sdk.ParseCoinNormalized(f)
+		if err != nil {
+			return err
+		}
+	}
+
 	oMsg := &wasmtypes.MsgExecuteContract{
 		Sender:   msg.Sender,
 		Contract: msg.Contract,
 		Msg:      []byte(msg.Msg),
-		Funds:    msg.Funds,
+		Funds:    funds,
 	}
 
 	if err := oMsg.ValidateBasic(); err != nil {
