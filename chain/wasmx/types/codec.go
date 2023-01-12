@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
@@ -15,7 +16,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&BatchContractRegistrationRequestProposal{}, "wasmx/BatchContractRegistrationRequestProposal", nil)
 	cdc.RegisterConcrete(&BatchContractDeregistrationProposal{}, "wasmx/BatchContractDeregistrationProposal", nil)
 	cdc.RegisterConcrete(&BatchStoreCodeProposal{}, "wasmx/BatchStoreCodeProposal", nil)
-
+	cdc.RegisterConcrete(&MsgExecuteContractCompat{}, "wasmx/MsgExecuteContractCompat", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -25,6 +26,11 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&BatchContractRegistrationRequestProposal{},
 		&BatchContractDeregistrationProposal{},
 		&BatchStoreCodeProposal{},
+	)
+
+	registry.RegisterImplementations(
+		(*sdk.Msg)(nil),
+		&MsgExecuteContractCompat{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
