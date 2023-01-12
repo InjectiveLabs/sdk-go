@@ -16,11 +16,16 @@ func (msg MsgExecuteContractCompat) Type() string {
 }
 
 func (msg MsgExecuteContractCompat) ValidateBasic() error {
+	funds, err := sdk.ParseCoinsNormalized(msg.Funds)
+	if err != nil {
+		return err
+	}
+
 	oMsg := &wasmtypes.MsgExecuteContract{
 		Sender:   msg.Sender,
 		Contract: msg.Contract,
 		Msg:      []byte(msg.Msg),
-		Funds:    msg.Funds,
+		Funds:    funds,
 	}
 
 	if err := oMsg.ValidateBasic(); err != nil {

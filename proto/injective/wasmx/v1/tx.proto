@@ -1,7 +1,6 @@
 syntax = "proto3";
 package injective.wasmx.v1;
 
-import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
@@ -20,10 +19,7 @@ message MsgExecuteContractCompat {
   // Msg json encoded message to be passed to the contract
   string msg = 3;
   // Funds coins that are transferred to the contract on execution
-  repeated cosmos.base.v1beta1.Coin funds = 5 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
+  string funds = 4;
 }
 
 
