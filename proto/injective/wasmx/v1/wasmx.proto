@@ -8,19 +8,35 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 message Params {
   option (gogoproto.equal) = true;
 
-  // Set the status to active to indicate that the contract is to be executed in begin blocker.
+  // Set the status to active to indicate that contracts can be executed in begin blocker.
   bool is_execution_enabled = 1;
 
-  // registry_contract is the address of the registry contract that will be used to register contract executions in begin blocker.
-  string registry_contract = 2;
-
   // Maximum aggregate total gas to be used for the contract executions in the BeginBlocker.
-  uint64 max_begin_block_total_gas = 3;
+  uint64 max_begin_block_total_gas = 2;
 
   // the maximum gas limit each individual contract can consume in the BeginBlocker.
-  uint64 max_contract_gas_limit = 4;
+  uint64 max_contract_gas_limit = 3;
 
   // min_gas_price defines the minimum gas price the contracts must pay to be executed in the BeginBlocker.
-  uint64 min_gas_price = 5;
+  uint64 min_gas_price = 4;
+}
 
+
+message RegisteredContract {
+  option (gogoproto.equal) = true;
+
+  // limit of gas per BB execution
+  uint64 gas_limit = 1;
+
+  // gas price that contract is willing to pay for execution in BeginBlocker
+  uint64  gas_price = 2;
+
+  // is contract currently active
+  bool is_executable  = 3;
+
+  // code_id that is allowed to be executed (to prevent malicious updates) - if nil/0 any code_id can be executed
+  uint64 code_id = 4  [(gogoproto.nullable) = true];
+
+  // optional - admin addr that is allowed to update contract data
+  string admin_address  = 5 [(gogoproto.nullable) = true];
 }

@@ -204,8 +204,8 @@ service Query {
   }
 
   // Retrieves market making pool info
-  rpc NinjaVaultInfos(NinjaVaultInfosRequest) returns (NinjaVaultInfosResponse) {
-    option (google.api.http).get = "/injective/exchange/v1beta1/ninja_vault_infos";
+  rpc MitoVaultInfos(MitoVaultInfosRequest) returns (MitoVaultInfosResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/mito_vault_infos";
   }
 
   // QueryMarketIDFromVault returns the market ID for a given vault subaccount ID
@@ -895,12 +895,12 @@ message QueryFeeDiscountTierStatisticsResponse {
   repeated TierStatistic statistics = 1;
 }
 
-// NinjaVaultInfosRequest is the request type for the Query/NinjaVaultInfos RPC method.
-message NinjaVaultInfosRequest {
+// MitoVaultInfosRequest is the request type for the Query/MitoVaultInfos RPC method.
+message MitoVaultInfosRequest {
 }
 
-// NinjaVaultInfosResponse is the response type for the Query/NinjaVaultInfos RPC method.
-message NinjaVaultInfosResponse {
+// MitoVaultInfosResponse is the response type for the Query/MitoVaultInfos RPC method.
+message MitoVaultInfosResponse {
   repeated string master_addresses = 1;
   repeated string derivative_addresses = 2;
   repeated string spot_addresses = 3;

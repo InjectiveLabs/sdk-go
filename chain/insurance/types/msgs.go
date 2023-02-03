@@ -45,6 +45,10 @@ func (msg MsgCreateInsuranceFund) ValidateBasic() error {
 		return sdkerrors.Wrapf(ErrInvalidDepositDenom, "oracle quote denom %s does not match deposit denom %s", msg.QuoteDenom, msg.InitialDeposit.Denom)
 	}
 
+	if msg.OracleType == oracletypes.OracleType_Provider && msg.Expiry != BinaryOptionsExpiryFlag {
+		return sdkerrors.Wrap(ErrInvalidExpirationTime, "oracle expiration time should be -2 for binary options markets")
+	}
+
 	if !msg.InitialDeposit.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
 	}

@@ -16,7 +16,10 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&BatchContractRegistrationRequestProposal{}, "wasmx/BatchContractRegistrationRequestProposal", nil)
 	cdc.RegisterConcrete(&BatchContractDeregistrationProposal{}, "wasmx/BatchContractDeregistrationProposal", nil)
 	cdc.RegisterConcrete(&BatchStoreCodeProposal{}, "wasmx/BatchStoreCodeProposal", nil)
-	cdc.RegisterConcrete(&MsgExecuteContractCompat{}, "wasmx/MsgExecuteContractCompat", nil)
+	cdc.RegisterConcrete(&MsgUpdateContract{}, "wasmx/MsgUpdateContract", nil)
+	cdc.RegisterConcrete(&MsgActivateContract{}, "wasmx/MsgActivateContract", nil)
+	cdc.RegisterConcrete(&MsgDeactivateContract{}, "wasmx/MsgDeactivateContract", nil)
+	cdc.RegisterConcrete(&MsgTransfer{}, "wasmx/MsgTransfer", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -28,9 +31,11 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&BatchStoreCodeProposal{},
 	)
 
-	registry.RegisterImplementations(
-		(*sdk.Msg)(nil),
-		&MsgExecuteContractCompat{},
+	registry.RegisterImplementations((*sdk.Msg)(nil),
+		&MsgUpdateContract{},
+		&MsgActivateContract{},
+		&MsgActivateContract{},
+		&MsgTransfer{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

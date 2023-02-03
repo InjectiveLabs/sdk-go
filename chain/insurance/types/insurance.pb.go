@@ -93,13 +93,13 @@ type InsuranceFund struct {
 	MarketId string `protobuf:"bytes,6,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// ticker of the derivative market
 	MarketTicker string `protobuf:"bytes,7,opt,name=market_ticker,json=marketTicker,proto3" json:"market_ticker,omitempty"`
-	// Oracle base currency of the derivative market
+	// Oracle base currency of the derivative market OR the oracle symbol for the binary options market.
 	OracleBase string `protobuf:"bytes,8,opt,name=oracle_base,json=oracleBase,proto3" json:"oracle_base,omitempty"`
-	// Oracle quote currency of the derivative market
+	// Oracle quote currency of the derivative market OR the oracle provider for the binary options market.
 	OracleQuote string `protobuf:"bytes,9,opt,name=oracle_quote,json=oracleQuote,proto3" json:"oracle_quote,omitempty"`
-	// Oracle type of the derivative market
+	// Oracle type of the binary options or derivative market
 	OracleType types.OracleType `protobuf:"varint,10,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
-	// Expiration time of the derivative market. Should be -1 for perpetual markets.
+	// Expiration time of the derivative market. Should be -1 for perpetual or -2 for binary options markets.
 	Expiry int64 `protobuf:"varint,11,opt,name=expiry,proto3" json:"expiry,omitempty"`
 }
 

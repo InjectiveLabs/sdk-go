@@ -11,6 +11,16 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
+func (o *SpotOrder) ToSpotMarketOrder(balanceHold sdk.Dec, orderHash common.Hash) *SpotMarketOrder {
+	return &SpotMarketOrder{
+		OrderInfo:    o.OrderInfo,
+		BalanceHold:  balanceHold,
+		OrderHash:    orderHash.Bytes(),
+		OrderType:    o.OrderType,
+		TriggerPrice: o.TriggerPrice,
+	}
+}
+
 func (o *SpotOrder) GetNewSpotLimitOrder(orderHash common.Hash) *SpotLimitOrder {
 	return &SpotLimitOrder{
 		OrderInfo:    o.OrderInfo,
@@ -25,12 +35,24 @@ func (o *SpotOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
 
+func (o *SpotOrder) IsFromDefaultSubaccount() bool {
+	return o.OrderInfo.IsFromDefaultSubaccount()
+}
+
+func (o *SpotLimitOrder) IsFromDefaultSubaccount() bool {
+	return o.OrderInfo.IsFromDefaultSubaccount()
+}
+
 func (o *SpotLimitOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
 
 func (o *SpotMarketOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
+}
+
+func (o *SpotMarketOrder) IsFromDefaultSubaccount() bool {
+	return o.OrderInfo.IsFromDefaultSubaccount()
 }
 
 func (o *SpotMarketOrder) SdkAccAddress() sdk.AccAddress {
@@ -154,9 +176,8 @@ func (m *SpotOrder) GetMarginDenom(market *SpotMarket) string {
 	return denom
 }
 
-// Calculate the balance hold for the market order.
-// availableBalance should be in the margin denom
-func (m *SpotOrder) CheckMarketOrderBalanceHold(feeRate, availableBalance, bestPrice sdk.Dec) (sdk.Dec, error) {
+// GetMarketOrderBalanceHold calculates the balance hold for the market order.
+func (m *SpotOrder) GetMarketOrderBalanceHold(feeRate, bestPrice sdk.Dec) sdk.Dec {
 	var balanceHold sdk.Dec
 
 	if m.IsBuy() {
@@ -164,18 +185,12 @@ func (m *SpotOrder) CheckMarketOrderBalanceHold(feeRate, availableBalance, bestP
 		requiredMarginForBestPrice := bestPrice.Mul(m.OrderInfo.Quantity).Mul(sdk.OneDec().Add(feeRate))
 		requiredMarginForWorstPrice := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity).Mul(sdk.OneDec().Add(feeRate))
 		requiredMargin := sdk.MaxDec(requiredMarginForBestPrice, requiredMarginForWorstPrice)
-		if requiredMargin.GT(availableBalance) {
-			return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientDeposit, "Required Margin %s exceeds availableBalance %s", requiredMargin.String(), availableBalance.String())
-		}
 		balanceHold = requiredMargin
 	} else {
 		// required margin for market sells just equals the quantity being sold
-		if availableBalance.LT(m.OrderInfo.Quantity) {
-			return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientDeposit, "Required Sell Quantity %s exceeds availableBalance %s", m.OrderInfo.Quantity.String(), availableBalance.String())
-		}
 		balanceHold = m.OrderInfo.Quantity
 	}
-	return balanceHold, nil
+	return balanceHold
 }
 
 func (m *SpotLimitOrder) ToTrimmed() *TrimmedSpotLimitOrder {

@@ -37,4 +37,5 @@ var (
 	ErrRelayerAlreadyExists        = sdkerrors.Register(ModuleName, 30, "relayer already exists")
 	ErrProviderPriceNotFound       = sdkerrors.Register(ModuleName, 31, "provider price not found")
 	ErrInvalidOracleRequest        = sdkerrors.Register(ModuleName, 32, "invalid oracle request")
+	ErrOraclePriceNotFound         = sdkerrors.Register(ModuleName, 33, "no price for oracle was found")
 )

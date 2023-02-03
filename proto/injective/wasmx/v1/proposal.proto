@@ -43,7 +43,16 @@ message ContractRegistrationRequest {
   // gas price to be used for the smart contract execution.
   uint64 gas_price = 3;
 
-  bool pin_contract = 4;
+  bool should_pin_contract = 4;
+
+  // if true contract owner can update it, if false only current code_id will be allowed to be executed
+  bool is_migration_allowed = 5;
+
+  // code_id of the contract being registered - will be verified upon every execution but only if is_migration_allowed is false
+  uint64 code_id = 6;
+
+  // Optional address of admin account (that will be allowed to pause or update contract params)
+  string admin_address = 7;
 }
 
 message BatchStoreCodeProposal {

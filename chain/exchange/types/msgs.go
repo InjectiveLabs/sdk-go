@@ -239,10 +239,10 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
 	}
 
-	return o.OrderInfo.ValidateBasic(senderAddr, false)
+	return o.OrderInfo.ValidateBasic(senderAddr, false, false)
 }
 
-func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand bool) error {
+func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand, isDerivative bool) error {
 	subaccountAddress, ok := IsValidSubaccountID(o.SubaccountId)
 	if !ok {
 		return sdkerrors.Wrap(ErrBadSubaccountID, o.SubaccountId)
@@ -256,6 +256,9 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand 
 	}
 
 	if hasBinaryPriceBand {
+		// o.Price.GT(MaxOrderPrice) is correct (as opposed to o.Price.GT(sdk.OneDec())), because the price here is scaled
+		// and we have no idea what the scale factor of the market is here when we execute ValidateBasic(), and thus we allow
+		// very high ceiling price to cover all cases
 		if o.Price.IsNil() || o.Price.LT(sdk.ZeroDec()) || o.Price.GT(MaxOrderPrice) {
 			return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
 		}
@@ -263,6 +266,10 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand 
 		if o.Price.IsNil() || o.Price.LTE(sdk.ZeroDec()) || o.Price.GT(MaxOrderPrice) {
 			return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
 		}
+	}
+
+	if isDerivative && !hasBinaryPriceBand && o.Price.LT(MinDerivativeOrderPrice) {
+		return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
 	}
 
 	return nil
@@ -280,8 +287,12 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
 	}
 
-	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) || o.Margin.GT(MaxOrderPrice) {
+	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(ErrInsufficientOrderMargin, o.Margin.String())
+	}
+
+	if o.Margin.GT(MaxOrderMargin) {
+		return sdkerrors.Wrap(ErrTooMuchOrderMargin, o.Margin.String())
 	}
 
 	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
@@ -289,7 +300,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 		return ErrInvalidTriggerPrice
 	}
 
-	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.IsZero()) { /*||
+	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
 		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
@@ -299,7 +310,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
 	}
 
-	return o.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand)
+	return o.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand, !hasBinaryPriceBand)
 }
 
 func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -346,8 +357,11 @@ func (msg MsgDeposit) ValidateBasic() error {
 	}
 
 	if msg.SubaccountId == "" {
-		return nil
-	} else if _, ok := IsValidSubaccountID(msg.SubaccountId); !ok {
+		return ErrBadSubaccountID
+	}
+
+	_, ok := IsValidSubaccountID(msg.SubaccountId)
+	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.SubaccountId)) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 	}
 
@@ -1294,13 +1308,15 @@ func (msg *MsgSubaccountTransfer) ValidateBasic() error {
 	}
 
 	subaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)
-	if !ok {
+	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.SourceSubaccountId)) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
+
 	destSubaccountAddress, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
-	if !ok {
+	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.DestinationSubaccountId)) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
+
 	if !bytes.Equal(subaccountAddress.Bytes(), destSubaccountAddress.Bytes()) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
@@ -1345,12 +1361,12 @@ func (msg *MsgExternalTransfer) ValidateBasic() error {
 	}
 
 	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)
-	if !ok {
+	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.SourceSubaccountId)) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
 
 	_, ok = IsValidSubaccountID(msg.DestinationSubaccountId)
-	if !ok {
+	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.DestinationSubaccountId)) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
@@ -1391,6 +1407,10 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 
 	if !msg.Amount.IsPositive() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+	}
+
+	if msg.Amount.GT(MaxOrderMargin) {
+		return sdkerrors.Wrap(ErrTooMuchOrderMargin, msg.Amount.String())
 	}
 
 	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)

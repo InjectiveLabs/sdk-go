@@ -24,7 +24,6 @@ func init() {
 	gov.RegisterProposalTypeCodec(&BatchContractDeregistrationProposal{}, "injective/BatchContractDeregistrationProposal")
 	gov.RegisterProposalType(ProposalBatchStoreCode)
 	gov.RegisterProposalTypeCodec(&BatchStoreCodeProposal{}, "injective/BatchStoreCodeProposal")
-
 }
 
 // Implements Proposal Interface

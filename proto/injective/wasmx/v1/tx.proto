@@ -1,30 +1,80 @@
 syntax = "proto3";
-package injective.wasmx.v1;
+package injective.wasmx.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "google/protobuf/any.proto";
+import "cosmos_proto/cosmos.proto";
+import "ibc/core/client/v1/client.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 // Msg defines the wasmx Msg service.
 service Msg {
-  rpc ExecuteContractCompat(MsgExecuteContractCompat) returns (MsgExecuteContractCompatResponse);
+  rpc UpdateRegistryContractParams(MsgUpdateContract) returns (MsgUpdateContractResponse);
+  rpc ActivateRegistryContract(MsgActivateContract) returns (MsgActivateContractResponse);
+  rpc DeactivateRegistryContract(MsgDeactivateContract) returns (MsgDeactivateContractResponse);
+
+  // Transfer defines a rpc handler method for MsgTransfer.
+  rpc Transfer(MsgTransfer) returns (MsgTransferResponse);
 }
 
-// MsgExecuteContractCompat submits the given message data to a smart contract, compatible with EIP712
-message MsgExecuteContractCompat {
-  // Sender is the that actor that signed the messages
+
+message MsgUpdateContract {
   string sender = 1;
-  // Contract is the address of the smart contract
-  string contract = 2;
-  // Msg json encoded message to be passed to the contract
-  string msg = 3;
-  // Funds coins that are transferred to the contract on execution
-  string funds = 4;
+  // Unique Identifier for contract instance to be registered.
+  string contract_address = 2;
+  // Maximum gas to be used for the smart contract execution.
+  uint64 gas_limit = 3;
+  // gas price to be used for the smart contract execution.
+  uint64 gas_price = 4;
+  // optional - admin account that will be allowed to perform any changes
+  string admin_address  = 5 [(gogoproto.nullable) = true];
 }
 
+message MsgUpdateContractResponse {}
 
-// MsgExecuteContractCompatResponse returns execution result data.
-message MsgExecuteContractCompatResponse {
-  // Data contains bytes to returned from the contract
-  bytes data = 1;
+message MsgActivateContract {
+  string sender = 1;
+  // Unique Identifier for contract instance to be activated.
+  string contract_address = 2;
 }
+
+message MsgActivateContractResponse {}
+
+message MsgDeactivateContract {
+  string sender = 1;
+  // Unique Identifier for contract instance to be deactivated.
+  string contract_address = 2;
+}
+
+message MsgDeactivateContractResponse {}
+
+// MsgTransfer defines a msg to transfer fungible tokens (i.e Coins) between
+// ICS20 enabled chains. See ICS Spec here:
+// https://github.com/cosmos/ibc/tree/master/spec/app/ics-020-fungible-token-transfer#data-structures
+message MsgTransfer {
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // the port on which the packet will be sent
+  string source_port = 1 [(gogoproto.moretags) = "yaml:\"source_port\""];
+  // the channel by which the packet will be sent
+  string source_channel = 2 [(gogoproto.moretags) = "yaml:\"source_channel\""];
+  // the tokens to be transferred
+  cosmos.base.v1beta1.Coin token = 3 [(gogoproto.nullable) = false];
+  // the sender address
+  string sender = 4;
+  // the recipient address on the destination chain
+  string receiver = 5;
+  // Timeout height relative to the current block height.
+  // The timeout is disabled when set to 0.
+  ibc.core.client.v1.Height timeout_height = 6
+  [(gogoproto.moretags) = "yaml:\"timeout_height\"", (gogoproto.nullable) = false];
+  // Timeout timestamp in absolute nanoseconds since unix epoch.
+  // The timeout is disabled when set to 0.
+  uint64 timeout_timestamp = 7 [(gogoproto.moretags) = "yaml:\"timeout_timestamp\""];
+}
+
+// MsgTransferResponse defines the Msg/Transfer response type.
+message MsgTransferResponse {}
