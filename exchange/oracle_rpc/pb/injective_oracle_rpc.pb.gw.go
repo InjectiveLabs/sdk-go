@@ -124,6 +124,31 @@ func request_InjectiveOracleRPC_StreamPrices_0(ctx context.Context, marshaler ru
 
 }
 
+func request_InjectiveOracleRPC_StreamPricesByMarkets_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveOracleRPCClient, req *http.Request, pathParams map[string]string) (InjectiveOracleRPC_StreamPricesByMarketsClient, runtime.ServerMetadata, error) {
+	var protoReq StreamPricesByMarketsRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	stream, err := client.StreamPricesByMarkets(ctx, &protoReq)
+	if err != nil {
+		return nil, metadata, err
+	}
+	header, err := stream.Header()
+	if err != nil {
+		return nil, metadata, err
+	}
+	metadata.HeaderMD = header
+	return stream, metadata, nil
+
+}
+
 // RegisterInjectiveOracleRPCHandlerServer registers the http handlers for service InjectiveOracleRPC to "mux".
 // UnaryRPC     :call InjectiveOracleRPCServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
@@ -136,22 +161,20 @@ func RegisterInjectiveOracleRPCHandlerServer(ctx context.Context, mux *runtime.S
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/OracleList", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/OracleList"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/OracleList", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/OracleList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveOracleRPC_OracleList_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveOracleRPC_OracleList_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveOracleRPC_OracleList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveOracleRPC_OracleList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -161,26 +184,31 @@ func RegisterInjectiveOracleRPCHandlerServer(ctx context.Context, mux *runtime.S
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/Price", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/Price"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/Price", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/Price"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveOracleRPC_Price_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveOracleRPC_Price_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveOracleRPC_Price_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveOracleRPC_Price_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	mux.Handle("POST", pattern_InjectiveOracleRPC_StreamPrices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
+		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+		return
+	})
+
+	mux.Handle("POST", pattern_InjectiveOracleRPC_StreamPricesByMarkets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		err := status.Error(codes.Unimplemented, "streaming calls are not yet supported in the in-process transport")
 		_, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -232,21 +260,19 @@ func RegisterInjectiveOracleRPCHandlerClient(ctx context.Context, mux *runtime.S
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/OracleList", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/OracleList"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/OracleList", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/OracleList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveOracleRPC_OracleList_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_InjectiveOracleRPC_OracleList_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveOracleRPC_OracleList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveOracleRPC_OracleList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -254,21 +280,19 @@ func RegisterInjectiveOracleRPCHandlerClient(ctx context.Context, mux *runtime.S
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/Price", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/Price"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/Price", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/Price"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveOracleRPC_Price_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_InjectiveOracleRPC_Price_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveOracleRPC_Price_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveOracleRPC_Price_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -276,21 +300,39 @@ func RegisterInjectiveOracleRPCHandlerClient(ctx context.Context, mux *runtime.S
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/StreamPrices", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/StreamPrices"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/StreamPrices", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/StreamPrices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveOracleRPC_StreamPrices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_InjectiveOracleRPC_StreamPrices_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveOracleRPC_StreamPrices_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveOracleRPC_StreamPrices_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveOracleRPC_StreamPricesByMarkets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_oracle_rpc.InjectiveOracleRPC/StreamPricesByMarkets", runtime.WithHTTPPathPattern("/injective_oracle_rpc.InjectiveOracleRPC/StreamPricesByMarkets"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveOracleRPC_StreamPricesByMarkets_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveOracleRPC_StreamPricesByMarkets_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -303,6 +345,8 @@ var (
 	pattern_InjectiveOracleRPC_Price_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_oracle_rpc.InjectiveOracleRPC", "Price"}, ""))
 
 	pattern_InjectiveOracleRPC_StreamPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_oracle_rpc.InjectiveOracleRPC", "StreamPrices"}, ""))
+
+	pattern_InjectiveOracleRPC_StreamPricesByMarkets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_oracle_rpc.InjectiveOracleRPC", "StreamPricesByMarkets"}, ""))
 )
 
 var (
@@ -311,4 +355,6 @@ var (
 	forward_InjectiveOracleRPC_Price_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveOracleRPC_StreamPrices_0 = runtime.ForwardResponseStream
+
+	forward_InjectiveOracleRPC_StreamPricesByMarkets_0 = runtime.ForwardResponseStream
 )

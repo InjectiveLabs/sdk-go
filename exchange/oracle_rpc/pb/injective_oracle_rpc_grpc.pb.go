@@ -29,6 +29,8 @@ type InjectiveOracleRPCClient interface {
 	// StreamPrices streams new price changes for a specified oracle. If no oracles
 	// are provided, all price changes are streamed.
 	StreamPrices(ctx context.Context, in *StreamPricesRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamPricesClient, error)
+	// StreamPrices streams new price changes markets
+	StreamPricesByMarkets(ctx context.Context, in *StreamPricesByMarketsRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamPricesByMarketsClient, error)
 }
 
 type injectiveOracleRPCClient struct {
@@ -89,6 +91,38 @@ func (x *injectiveOracleRPCStreamPricesClient) Recv() (*StreamPricesResponse, er
 	return m, nil
 }
 
+func (c *injectiveOracleRPCClient) StreamPricesByMarkets(ctx context.Context, in *StreamPricesByMarketsRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamPricesByMarketsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveOracleRPC_ServiceDesc.Streams[1], "/injective_oracle_rpc.InjectiveOracleRPC/StreamPricesByMarkets", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &injectiveOracleRPCStreamPricesByMarketsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type InjectiveOracleRPC_StreamPricesByMarketsClient interface {
+	Recv() (*StreamPricesByMarketsResponse, error)
+	grpc.ClientStream
+}
+
+type injectiveOracleRPCStreamPricesByMarketsClient struct {
+	grpc.ClientStream
+}
+
+func (x *injectiveOracleRPCStreamPricesByMarketsClient) Recv() (*StreamPricesByMarketsResponse, error) {
+	m := new(StreamPricesByMarketsResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // InjectiveOracleRPCServer is the server API for InjectiveOracleRPC service.
 // All implementations must embed UnimplementedInjectiveOracleRPCServer
 // for forward compatibility
@@ -100,6 +134,8 @@ type InjectiveOracleRPCServer interface {
 	// StreamPrices streams new price changes for a specified oracle. If no oracles
 	// are provided, all price changes are streamed.
 	StreamPrices(*StreamPricesRequest, InjectiveOracleRPC_StreamPricesServer) error
+	// StreamPrices streams new price changes markets
+	StreamPricesByMarkets(*StreamPricesByMarketsRequest, InjectiveOracleRPC_StreamPricesByMarketsServer) error
 	mustEmbedUnimplementedInjectiveOracleRPCServer()
 }
 
@@ -115,6 +151,9 @@ func (UnimplementedInjectiveOracleRPCServer) Price(context.Context, *PriceReques
 }
 func (UnimplementedInjectiveOracleRPCServer) StreamPrices(*StreamPricesRequest, InjectiveOracleRPC_StreamPricesServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPrices not implemented")
+}
+func (UnimplementedInjectiveOracleRPCServer) StreamPricesByMarkets(*StreamPricesByMarketsRequest, InjectiveOracleRPC_StreamPricesByMarketsServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamPricesByMarkets not implemented")
 }
 func (UnimplementedInjectiveOracleRPCServer) mustEmbedUnimplementedInjectiveOracleRPCServer() {}
 
@@ -186,6 +225,27 @@ func (x *injectiveOracleRPCStreamPricesServer) Send(m *StreamPricesResponse) err
 	return x.ServerStream.SendMsg(m)
 }
 
+func _InjectiveOracleRPC_StreamPricesByMarkets_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamPricesByMarketsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveOracleRPCServer).StreamPricesByMarkets(m, &injectiveOracleRPCStreamPricesByMarketsServer{stream})
+}
+
+type InjectiveOracleRPC_StreamPricesByMarketsServer interface {
+	Send(*StreamPricesByMarketsResponse) error
+	grpc.ServerStream
+}
+
+type injectiveOracleRPCStreamPricesByMarketsServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveOracleRPCStreamPricesByMarketsServer) Send(m *StreamPricesByMarketsResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // InjectiveOracleRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveOracleRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +266,11 @@ var InjectiveOracleRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamPrices",
 			Handler:       _InjectiveOracleRPC_StreamPrices_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamPricesByMarkets",
+			Handler:       _InjectiveOracleRPC_StreamPricesByMarkets_Handler,
 			ServerStreams: true,
 		},
 	},
