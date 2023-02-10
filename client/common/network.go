@@ -18,6 +18,7 @@ type Network struct {
 	ChainGrpcEndpoint    string
 	ChainTlsCert         credentials.TransportCredentials
 	ExchangeGrpcEndpoint string
+	ExplorerGrpcEndpoint string
 	ExchangeTlsCert      credentials.TransportCredentials
 	ChainId              string
 	Fee_denom            string
@@ -38,6 +39,7 @@ func LoadNetwork(name string, node string) Network {
 			TmEndpoint:           "https://devnet-1.tm.injective.dev:443",
 			ChainGrpcEndpoint:    "tcp://devnet-1.grpc.injective.dev:9900",
 			ExchangeGrpcEndpoint: "tcp://devnet-1.api.injective.dev:9910",
+			ExplorerGrpcEndpoint: "tcp://devnet-1.api.injective.dev:9911",
 			ChainId:              "injective-777",
 			Fee_denom:            "inj",
 			Name:                 "devnet-1",
@@ -48,6 +50,7 @@ func LoadNetwork(name string, node string) Network {
 			TmEndpoint:           "https://devnet.tm.injective.dev:443",
 			ChainGrpcEndpoint:    "tcp://devnet.injective.dev:9900",
 			ExchangeGrpcEndpoint: "tcp://devnet.injective.dev:9910",
+			ExplorerGrpcEndpoint: "tcp://devnet.api.injective.dev:9911",
 			ChainId:              "injective-777",
 			Fee_denom:            "inj",
 			Name:                 "devnet",
@@ -58,7 +61,7 @@ func LoadNetwork(name string, node string) Network {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
 
-		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, exchangeGrpcEndpoint string
+		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
 		var chainTlsCert, exchangeTlsCert credentials.TransportCredentials
 		if node == "k8s" {
 			certPath := getFileAbsPath("../cert/testnet.crt")
@@ -67,12 +70,14 @@ func LoadNetwork(name string, node string) Network {
 			chainGrpcEndpoint = "tcp://k8s.testnet.chain.grpc.injective.network:443"
 			chainTlsCert = LoadTlsCert(certPath, chainGrpcEndpoint)
 			exchangeGrpcEndpoint = "tcp://k8s.testnet.exchange.grpc.injective.network:443"
+			explorerGrpcEndpoint = "tcp://k8s.testnet.explorer.grpc.injective.network:443"
 			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
 		} else {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.dev:10337", node)
 			tmEndpoint = fmt.Sprintf("http://%s.injective.dev:26657", node)
 			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.dev:9900", node)
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.dev:9910", node)
+			explorerGrpcEndpoint = "tcp://testnet.api,injective.dev:9911"
 		}
 
 		return Network{
@@ -82,6 +87,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainTlsCert:         chainTlsCert,
 			ExchangeGrpcEndpoint: exchangeGrpcEndpoint,
 			ExchangeTlsCert:      exchangeTlsCert,
+			ExplorerGrpcEndpoint: explorerGrpcEndpoint,
 			ChainId:              "injective-888",
 			Fee_denom:            "inj",
 			Name:                 "testnet",
@@ -91,7 +97,7 @@ func LoadNetwork(name string, node string) Network {
 		if !contains(validNodes, node) {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
-		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, exchangeGrpcEndpoint string
+		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
 		var chainTlsCert, exchangeTlsCert credentials.TransportCredentials
 		if node == "k8s" {
 			certPath := getFileAbsPath("../cert/mainnet.crt")
@@ -101,18 +107,21 @@ func LoadNetwork(name string, node string) Network {
 			chainTlsCert = LoadTlsCert(certPath, chainGrpcEndpoint)
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.mainnet.exchange.grpc.injective.network:443", node)
 			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
+			explorerGrpcEndpoint = "k8s.mainnet.explorer.grpc.injective.network:443"
 		} else if node == "lb" {
 			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
 			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network:443"
 			chainGrpcEndpoint = "k8s.global.mainnet.chain.grpc.injective.network:443"
 			exchangeGrpcEndpoint = "k8s.global.mainnet.exchange.grpc.injective.network:443"
 			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerGrpcEndpoint = "k8s.global.mainnet.explorer.grpc.injective.network:443"
 			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 		} else {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.network:10337", node)
 			tmEndpoint = fmt.Sprintf("http://%s.injective.network:26657", node)
 			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9900", node)
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9910", node)
+			explorerGrpcEndpoint = "tcp://testnet.api,injective.dev:9911"
 		}
 
 		return Network{
@@ -122,6 +131,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainTlsCert:         chainTlsCert,
 			ExchangeGrpcEndpoint: exchangeGrpcEndpoint,
 			ExchangeTlsCert:      exchangeTlsCert,
+			ExplorerGrpcEndpoint: explorerGrpcEndpoint,
 			ChainId:              "injective-1",
 			Fee_denom:            "inj",
 			Name:                 "mainnet",
