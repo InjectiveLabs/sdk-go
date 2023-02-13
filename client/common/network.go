@@ -126,7 +126,12 @@ func LoadNetwork(name string, node string) Network {
 			tmEndpoint = fmt.Sprintf("http://%s.injective.network:26657", node)
 			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9900", node)
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9910", node)
-			explorerGrpcEndpoint = "tcp://api.injective.network:9911"
+			// only sentry2 and equinix-0 have explorer
+			if node == "sentry2" {
+				explorerGrpcEndpoint = "tcp://sentry2.injective.network:9911"
+			} else {
+				explorerGrpcEndpoint = "tcp://api.injective.network:9911"
+			}
 		}
 
 		return Network{
