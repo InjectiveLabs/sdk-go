@@ -99,7 +99,7 @@ func LoadNetwork(name string, node string) Network {
 			tmEndpoint = fmt.Sprintf("https://%s.mainnet.tm.injective.network:443", node)
 			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.mainnet.chain.grpc.injective.network:443", node)
 			chainTlsCert = LoadTlsCert(certPath, chainGrpcEndpoint)
-			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.mainnet.exchange.grpc.injective.network:443", node)
+			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.mainnet.exchange.grpc.injective.dev:443", node)
 			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
 		} else if node == "lb" {
 			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
