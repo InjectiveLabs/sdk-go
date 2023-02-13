@@ -12,11 +12,10 @@ import (
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
-	exchangeClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	explorerClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExplorerTlsCert))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
@@ -26,7 +25,7 @@ func main() {
 		Sender: sender,
 	}
 
-	res, err := exchangeClient.GetPeggyWithdrawals(ctx, req)
+	res, err := explorerClient.GetPeggyWithdrawals(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

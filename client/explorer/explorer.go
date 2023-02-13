@@ -44,7 +44,6 @@ func NewExplorerClient(protoAddr string, options ...common.ClientOption) (Explor
 	if opts.TLSCert != nil {
 		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-
 		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {

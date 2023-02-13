@@ -20,6 +20,7 @@ type Network struct {
 	ExchangeGrpcEndpoint string
 	ExplorerGrpcEndpoint string
 	ExchangeTlsCert      credentials.TransportCredentials
+	ExplorerTlsCert      credentials.TransportCredentials
 	ChainId              string
 	Fee_denom            string
 	Name                 string
@@ -62,7 +63,7 @@ func LoadNetwork(name string, node string) Network {
 		}
 
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
-		var chainTlsCert, exchangeTlsCert credentials.TransportCredentials
+		var chainTlsCert, exchangeTlsCert, explorerTlsCert credentials.TransportCredentials
 		if node == "k8s" {
 			certPath := getFileAbsPath("../cert/testnet.crt")
 			lcdEndpoint = "https://k8s.testnet.lcd.injective.network"
@@ -72,12 +73,13 @@ func LoadNetwork(name string, node string) Network {
 			exchangeGrpcEndpoint = "tcp://k8s.testnet.exchange.grpc.injective.network:443"
 			explorerGrpcEndpoint = "tcp://k8s.testnet.explorer.grpc.injective.network:443"
 			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
+			explorerTlsCert = LoadTlsCert(certPath, explorerGrpcEndpoint)
 		} else {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.dev:10337", node)
 			tmEndpoint = fmt.Sprintf("http://%s.injective.dev:26657", node)
 			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.dev:9900", node)
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.dev:9910", node)
-			explorerGrpcEndpoint = "tcp://testnet.api,injective.dev:9911"
+			explorerGrpcEndpoint = "tcp://testnet.api.injective.dev:9911"
 		}
 
 		return Network{
@@ -88,6 +90,7 @@ func LoadNetwork(name string, node string) Network {
 			ExchangeGrpcEndpoint: exchangeGrpcEndpoint,
 			ExchangeTlsCert:      exchangeTlsCert,
 			ExplorerGrpcEndpoint: explorerGrpcEndpoint,
+			ExplorerTlsCert:      explorerTlsCert,
 			ChainId:              "injective-888",
 			Fee_denom:            "inj",
 			Name:                 "testnet",
@@ -98,7 +101,7 @@ func LoadNetwork(name string, node string) Network {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
-		var chainTlsCert, exchangeTlsCert credentials.TransportCredentials
+		var chainTlsCert, exchangeTlsCert, explorerTlsCert credentials.TransportCredentials
 		if node == "k8s" {
 			certPath := getFileAbsPath("../cert/mainnet.crt")
 			lcdEndpoint = fmt.Sprintf("https://%s.mainnet.lcd.injective.network", node)
@@ -107,21 +110,23 @@ func LoadNetwork(name string, node string) Network {
 			chainTlsCert = LoadTlsCert(certPath, chainGrpcEndpoint)
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.mainnet.exchange.grpc.injective.network:443", node)
 			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
-			explorerGrpcEndpoint = "k8s.mainnet.explorer.grpc.injective.network:443"
+			explorerGrpcEndpoint = "tcp://k8s.mainnet.explorer.grpc.injective.network:443"
+			explorerTlsCert = LoadTlsCert(certPath, explorerGrpcEndpoint)
 		} else if node == "lb" {
 			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
 			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network:443"
 			chainGrpcEndpoint = "k8s.global.mainnet.chain.grpc.injective.network:443"
-			exchangeGrpcEndpoint = "k8s.global.mainnet.exchange.grpc.injective.network:443"
+			exchangeGrpcEndpoint = "tcp://k8s.global.mainnet.exchange.grpc.injective.network:443"
 			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerGrpcEndpoint = "k8s.global.mainnet.explorer.grpc.injective.network:443"
+			explorerGrpcEndpoint = "tcp://k8s.global.mainnet.explorer.grpc.injective.network:443"
 			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 		} else {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.network:10337", node)
 			tmEndpoint = fmt.Sprintf("http://%s.injective.network:26657", node)
 			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9900", node)
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9910", node)
-			explorerGrpcEndpoint = "tcp://testnet.api,injective.dev:9911"
+			explorerGrpcEndpoint = "tcp://api.injective.network:9911"
 		}
 
 		return Network{
@@ -132,6 +137,7 @@ func LoadNetwork(name string, node string) Network {
 			ExchangeGrpcEndpoint: exchangeGrpcEndpoint,
 			ExchangeTlsCert:      exchangeTlsCert,
 			ExplorerGrpcEndpoint: explorerGrpcEndpoint,
+			ExplorerTlsCert:      explorerTlsCert,
 			ChainId:              "injective-1",
 			Fee_denom:            "inj",
 			Name:                 "mainnet",

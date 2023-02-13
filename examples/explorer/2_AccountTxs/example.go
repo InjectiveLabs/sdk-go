@@ -12,11 +12,10 @@ import (
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
-	exchangeClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	explorerClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExplorerTlsCert))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	address := "inj1akxycslq8cjt0uffw4rjmfm3echchptu52a2dq"
@@ -28,7 +27,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	res, err := exchangeClient.GetAccountTxs(ctx, req)
+	res, err := explorerClient.GetAccountTxs(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

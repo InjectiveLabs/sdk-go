@@ -10,15 +10,14 @@ import (
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
-	exchangeClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	explorerClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExplorerTlsCert))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
-	stream, err := exchangeClient.StreamTxs(ctx)
+	stream, err := explorerClient.StreamBlocks(ctx)
 	if err != nil {
 		panic(err)
 	}

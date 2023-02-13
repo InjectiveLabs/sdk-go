@@ -12,22 +12,21 @@ import (
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
-	exchangeClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	explorerClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExplorerTlsCert))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
 
-	receiver := "inj14au322k9munkmx5wrchz9q30juf5wjgz2cfqku"
+	before := uint64(7158400)
 
-	req := explorerPB.GetPeggyDepositTxsRequest{
-		Receiver: receiver,
+	req := explorerPB.GetTxsRequest{
+		Before: before,
 	}
 
-	res, err := exchangeClient.GetPeggyDeposits(ctx, req)
+	res, err := explorerClient.GetTxs(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}
