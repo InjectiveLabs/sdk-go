@@ -113,14 +113,15 @@ func LoadNetwork(name string, node string) Network {
 			explorerGrpcEndpoint = "tcp://k8s.mainnet.explorer.grpc.injective.network:443"
 			explorerTlsCert = LoadTlsCert(certPath, explorerGrpcEndpoint)
 		} else if node == "lb" {
+			certPath := getFileAbsPath("../cert/mainnet.crt")
 			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
 			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network:443"
 			chainGrpcEndpoint = "k8s.global.mainnet.chain.grpc.injective.network:443"
 			exchangeGrpcEndpoint = "tcp://k8s.global.mainnet.exchange.grpc.injective.network:443"
 			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerGrpcEndpoint = "tcp://k8s.global.mainnet.explorer.grpc.injective.network:443"
+			explorerGrpcEndpoint = "tcp://k8s.mainnet.explorer.grpc.injective.network:443"
 			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTlsCert = LoadTlsCert(certPath, explorerGrpcEndpoint)
 		} else {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.network:10337", node)
 			tmEndpoint = fmt.Sprintf("http://%s.injective.network:26657", node)
