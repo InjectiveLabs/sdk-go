@@ -1,6 +1,6 @@
 module github.com/InjectiveLabs/sdk-go
 
-go 1.17
+go 1.18
 
 require (
 	github.com/CosmWasm/wasmd v0.30.0
@@ -19,6 +19,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/regen-network/cosmos-proto v0.3.1
 	github.com/shopspring/decimal v1.2.0
+	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.6.0
 	github.com/tendermint/tendermint v0.34.23
 	github.com/tyler-smith/go-bip39 v1.0.2
@@ -127,7 +128,6 @@ require (
 	github.com/rjeczalik/notify v0.9.2 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/shirou/gopsutil v2.20.5+incompatible // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

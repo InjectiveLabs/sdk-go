@@ -200,6 +200,6 @@ func randPhrase(size int) string {
 
 func orPanic(err error) {
 	if err != nil {
-		log.Panicln()
+		log.Panicln(err)
 	}
 }

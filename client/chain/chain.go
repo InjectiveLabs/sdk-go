@@ -19,7 +19,6 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	log "github.com/InjectiveLabs/suplog"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -33,6 +32,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
@@ -132,7 +132,7 @@ type ChainClient interface {
 type chainClient struct {
 	ctx       client.Context
 	opts      *common.ClientOptions
-	logger    log.Logger
+	logger    *logrus.Logger
 	conn      *grpc.ClientConn
 	txFactory tx.Factory
 
@@ -210,10 +210,7 @@ func NewChainClient(
 		ctx:  ctx,
 		opts: opts,
 
-		logger: log.WithFields(log.Fields{
-			"module": "sdk-go",
-			"svc":    "chainClient",
-		}),
+		logger: opts.Logger,
 
 		conn:      conn,
 		txFactory: txFactory,
@@ -251,10 +248,10 @@ func NewChainClient(
 	// attempt to load from disk
 	data, err := os.ReadFile(defaultChainCookieName)
 	if err != nil {
-		cc.logger.Errorln(err)
+		cc.logger.Errorf("[INJ-GO-SDK] Failed to read default chain cookie %q: %v", defaultChainCookieName, err)
 	} else {
 		cc.sessionCookie = string(data)
-		cc.logger.Infoln("chain session cookie loaded from disk")
+		cc.logger.Infoln("[INJ-GO-SDK] Chain session cookie loaded from disk")
 	}
 
 	return cc, nil
@@ -263,13 +260,10 @@ func NewChainClient(
 func (c *chainClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
 	if err != nil {
-		c.logger.WithError(err).Errorln("failed to get account seq")
+		c.logger.Errorln("[INJ-GO-SDK] Failed to get account seq: ", err)
 		return
 	} else if num != c.accNum {
-		c.logger.WithFields(log.Fields{
-			"expected": c.accNum,
-			"actual":   num,
-		}).Panic("account number changed during nonce sync")
+		c.logger.Errorf("[INJ-GO-SDK] Account number changed during nonce sync: expected: %s,actual: %s", c.accNum, num)
 	}
 
 	c.accSeq = seq
@@ -280,7 +274,7 @@ func (c *chainClient) syncTimeoutHeight() {
 		ctx := context.Background()
 		block, err := c.ctx.Client.Block(ctx, nil)
 		if err != nil {
-			c.logger.WithError(err).Errorln("failed to get current block")
+			c.logger.Errorln("[INJ-GO-SDK] Failed to get current block: ", err)
 			return
 		}
 		c.txFactory.WithTimeoutHeight(uint64(block.Block.Height) + defaultTimeoutHeight)
@@ -336,10 +330,10 @@ func (c *chainClient) setCookie(metadata metadata.MD) {
 		// write to disk
 		err := os.WriteFile(defaultChainCookieName, []byte(md[0]), 0644)
 		if err != nil {
-			c.logger.Errorln(err)
+			c.logger.Errorf("[INJ-GO-SDK] Failed to write chain cookie %q to file: %v", defaultChainCookieName, err)
 			return
 		}
-		c.logger.Infoln("chain session cookie saved to disk")
+		c.logger.Infoln("[INJ-GO-SDK] Chain session cookie saved to disk")
 	}
 }
 
@@ -480,12 +474,12 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 			c.syncNonce()
 			c.txFactory = c.txFactory.WithSequence(c.accSeq)
 			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-			log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+			c.logger.Debugln("[INJ-GO-SDK] Retrying broadcastTx with nonce: ", c.accSeq)
 			res, err = c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+			c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch: %s, size: %d: %v", string(resJSON), len(msgs), err)
 			return nil, err
 		}
 	}
@@ -544,12 +538,12 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 			c.syncNonce()
 			c.txFactory = c.txFactory.WithSequence(c.accSeq)
 			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-			log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+			c.logger.Debugln("[INJ-GO-SDK] Retrying broadcastTx with nonce: ", c.accSeq)
 			res, err = c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+			c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch: %s, size: %d: %v", string(resJSON), len(msgs), err)
 			return nil, err
 		}
 	}
@@ -802,33 +796,33 @@ func (c *chainClient) runBatchBroadcast() {
 		defer c.syncMux.Unlock()
 		c.txFactory = c.txFactory.WithSequence(c.accSeq)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-		log.Debugln("broadcastTx with nonce", c.accSeq)
+		c.logger.Debugln("[INJ-GO-SDK] BroadcastTx with nonce", c.accSeq)
 		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 		if err != nil {
 			if strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
 				c.txFactory = c.txFactory.WithSequence(c.accSeq)
 				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-				log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+				c.logger.Debugln("[INJ-GO-SDK] Retrying broadcastTx with nonce: ", c.accSeq)
 				res, err = c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 			}
 			if err != nil {
 				resJSON, _ := json.MarshalIndent(res, "", "\t")
-				c.logger.WithField("size", len(toSubmit)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+				c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch: %s, size: %d: %v", string(resJSON), len(toSubmit), err)
 				return
 			}
 		}
 
 		if res.TxResponse.Code != 0 {
 			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
-			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to commit msg batch")
+			c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
 		} else {
-			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch committed successfully at height", res.TxResponse.Height)
+			c.logger.Debugln("[INJ-GO-SDK] Msg batch committed successfully at height: ", res.TxResponse.Height)
 		}
 
 		c.accSeq++
-		log.Debugln("nonce incremented to", c.accSeq)
-		log.Debugln("gas wanted: ", c.gasWanted)
+		c.logger.Debugln("[INJ-GO-SDK] Nonce incremented to ", c.accSeq)
+		c.logger.Debugln("[INJ-GO-SDK] Gas wanted: ", c.gasWanted)
 	}
 
 	for {

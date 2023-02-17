@@ -2,9 +2,11 @@ package common
 
 import (
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
+
 	log "github.com/InjectiveLabs/suplog"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -20,6 +22,7 @@ func init() {
 type ClientOptions struct {
 	GasPrices string
 	TLSCert   credentials.TransportCredentials
+	Logger    *logrus.Logger
 }
 
 type ClientOption func(opts *ClientOptions) error
@@ -49,6 +52,16 @@ func OptionTLSCert(tlsCert credentials.TransportCredentials) ClientOption {
 			log.Infoln("succesfully load server TLS cert")
 		}
 		opts.TLSCert = tlsCert
+		return nil
+	}
+}
+
+func OptionLogger(logger *logrus.Logger) ClientOption {
+	return func(opts *ClientOptions) error {
+		if logger == nil {
+			log.Infoln("logger input is nil")
+		}
+		opts.Logger = logger
 		return nil
 	}
 }
