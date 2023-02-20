@@ -18,8 +18,9 @@ func init() {
 }
 
 type ClientOptions struct {
-	GasPrices string
-	TLSCert   credentials.TransportCredentials
+	GasPrices          string
+	GasPricesIncrement sdk.Dec
+	TLSCert            credentials.TransportCredentials
 }
 
 type ClientOption func(opts *ClientOptions) error
@@ -37,6 +38,13 @@ func OptionGasPrices(gasPrices string) ClientOption {
 		}
 
 		opts.GasPrices = gasPrices
+		return nil
+	}
+}
+
+func OptionGasPriceIncrement(percent int64) ClientOption {
+	return func(opts *ClientOptions) error {
+		opts.GasPricesIncrement = sdk.NewDecWithPrec(100+percent, 2)
 		return nil
 	}
 }

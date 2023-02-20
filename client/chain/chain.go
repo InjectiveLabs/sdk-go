@@ -141,10 +141,11 @@ type chainClient struct {
 	msgC        chan sdk.Msg
 	syncMux     *sync.Mutex
 
-	accNum    uint64
-	accSeq    uint64
-	gasWanted uint64
-	gasFee    string
+	accNum            uint64
+	accSeq            uint64
+	gasWanted         uint64
+	gasFee            string
+	gasPriceIncrement sdk.Dec
 
 	sessionCookie  string
 	sessionEnabled bool
@@ -221,6 +222,8 @@ func NewChainClient(
 		syncMux:   new(sync.Mutex),
 		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
 		doneC:     make(chan bool, 1),
+
+		gasPriceIncrement: opts.GasPricesIncrement,
 
 		sessionEnabled: stickySessionEnabled,
 
@@ -485,7 +488,14 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+			logger := c.logger.WithField("size", len(msgs))
+			if strings.Contains(err.Error(), "tx timed out") {
+				if c.gasPriceIncrement.IsPositive() {
+					logger = logger.WithField("hint", "please check your wallet inj balance, gas price, tx timeout configs")
+					c.adjustGasPrices()
+				}
+			}
+			logger.WithError(err).Errorln("failed to broadcast in sync mode:", string(resJSON))
 			return nil, err
 		}
 	}
@@ -812,11 +822,17 @@ func (c *chainClient) runBatchBroadcast() {
 				log.Debugln("retrying broadcastTx with nonce", c.accSeq)
 				res, err = c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 			}
-			if err != nil {
-				resJSON, _ := json.MarshalIndent(res, "", "\t")
-				c.logger.WithField("size", len(toSubmit)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
-				return
+
+			resJSON, _ := json.MarshalIndent(res, "", "\t")
+			logger := c.logger.WithField("size", len(toSubmit))
+			if strings.Contains(err.Error(), "tx timed out") {
+				if c.gasPriceIncrement.IsPositive() {
+					logger = logger.WithField("hint", "please check your wallet inj balance, gas price, tx timeout configs")
+					c.adjustGasPrices()
+				}
 			}
+			logger.WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+			return
 		}
 
 		if res.TxResponse.Code != 0 {
@@ -1258,6 +1274,20 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 		// send results to channel
 		orderbookCh <- ob
 	}
+}
+
+func (c *chainClient) adjustGasPrices() {
+	var adjustedPrices string
+	for _, price := range c.txFactory.GasPrices() {
+		if adjustedPrices != "" {
+			adjustedPrices += ","
+		}
+		amount := price.Amount.Mul(c.gasPriceIncrement).RoundInt().String()
+		denom := price.Denom
+		adjustedPrices += amount + denom
+	}
+	c.txFactory = c.txFactory.WithGasPrices(adjustedPrices)
+	c.logger.Infoln("gas price adjusted to", c.txFactory.GasPrices())
 }
 
 type DerivativeOrderData struct {
