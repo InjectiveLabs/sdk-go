@@ -141,11 +141,12 @@ type chainClient struct {
 	msgC        chan sdk.Msg
 	syncMux     *sync.Mutex
 
-	accNum            uint64
-	accSeq            uint64
-	gasWanted         uint64
-	gasFee            string
-	gasPriceIncrement sdk.Dec
+	accNum                uint64
+	accSeq                uint64
+	gasWanted             uint64
+	gasFee                string
+	gasPriceIncrement     sdk.Dec
+	gasPriceResetInterval *time.Ticker
 
 	sessionCookie  string
 	sessionEnabled bool
@@ -223,7 +224,8 @@ func NewChainClient(
 		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
 		doneC:     make(chan bool, 1),
 
-		gasPriceIncrement: opts.GasPricesIncrement,
+		gasPriceIncrement:     opts.GasPricesIncrement,
+		gasPriceResetInterval: opts.GasPriceResetInterval,
 
 		sessionEnabled: stickySessionEnabled,
 
@@ -246,6 +248,7 @@ func NewChainClient(
 
 		go cc.runBatchBroadcast()
 		go cc.syncTimeoutHeight()
+		go cc.resetGasPrices(opts.GasPrices, opts.GasPriceResetInterval)
 	}
 
 	// create file if not exist
@@ -1276,6 +1279,7 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 	}
 }
 
+// adjustGasPrices increases gas price to prioritize the tx for block inclusion
 func (c *chainClient) adjustGasPrices() {
 	var adjustedPrices string
 	for _, price := range c.txFactory.GasPrices() {
@@ -1288,6 +1292,17 @@ func (c *chainClient) adjustGasPrices() {
 	}
 	c.txFactory = c.txFactory.WithGasPrices(adjustedPrices)
 	c.logger.Infoln("gas price adjusted to", c.txFactory.GasPrices())
+}
+
+// resetGasPrices resets gas price to default value to avoid wasting gas when it's network is not busy
+func (c *chainClient) resetGasPrices(defaultGasPrices string, timer *time.Ticker) {
+	for {
+		select {
+		case <-timer.C:
+			c.txFactory = c.txFactory.WithGasPrices(defaultGasPrices)
+			c.logger.Infoln("gas price reset to", c.txFactory.GasPrices().String())
+		}
+	}
 }
 
 type DerivativeOrderData struct {

@@ -6,6 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/credentials"
+	"time"
 )
 
 func init() {
@@ -18,9 +19,10 @@ func init() {
 }
 
 type ClientOptions struct {
-	GasPrices          string
-	GasPricesIncrement sdk.Dec
-	TLSCert            credentials.TransportCredentials
+	GasPrices             string
+	GasPricesIncrement    sdk.Dec
+	GasPriceResetInterval *time.Ticker
+	TLSCert               credentials.TransportCredentials
 }
 
 type ClientOption func(opts *ClientOptions) error
@@ -45,6 +47,17 @@ func OptionGasPrices(gasPrices string) ClientOption {
 func OptionGasPriceIncrement(percent int64) ClientOption {
 	return func(opts *ClientOptions) error {
 		opts.GasPricesIncrement = sdk.NewDecWithPrec(100+percent, 2)
+		return nil
+	}
+}
+
+func OptionsGasPriceResetInterval(ticker *time.Ticker) ClientOption {
+	return func(opts *ClientOptions) error {
+		if ticker != nil {
+			opts.GasPriceResetInterval = ticker
+		} else {
+			opts.GasPriceResetInterval = time.NewTicker(time.Minute * 5)
+		}
 		return nil
 	}
 }
