@@ -4,29 +4,28 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	explorerclient "github.com/InjectiveLabs/sdk-go/client/explorer"
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
-	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	explorerClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExplorerTlsCert))
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
+	receiver := "inj1ddcp5ftqmntudn4m6heg2adud6hn58urnwlmkh"
 
-	receiver := "inj14au322k9munkmx5wrchz9q30juf5wjgz2cfqku"
-
-	req := explorerPB.GetPeggyDepositTxsRequest{
+	req := explorerPB.GetIBCTransferTxsRequest{
 		Receiver: receiver,
 	}
 
-	res, err := exchangeClient.GetPeggyDeposits(ctx, req)
+	res, err := explorerClient.GetIBCTransfers(ctx, req)
 	if err != nil {
 		fmt.Println(err)
 	}

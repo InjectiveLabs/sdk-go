@@ -6,19 +6,18 @@ import (
 	"fmt"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	explorerclient "github.com/InjectiveLabs/sdk-go/client/explorer"
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
-	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	explorerClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExplorerTlsCert))
 	if err != nil {
 		panic(err)
 	}
 
 	ctx := context.Background()
-	stream, err := exchangeClient.StreamBlocks(ctx)
+	stream, err := explorerClient.StreamBlocks(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -31,7 +30,6 @@ func main() {
 			res, err := stream.Recv()
 			if err != nil {
 				panic(err)
-				return
 			}
 			str, _ := json.MarshalIndent(res, "", " ")
 			fmt.Print(string(str))
