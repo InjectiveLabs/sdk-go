@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,6 +18,10 @@ func NewDeposit() *Deposit {
 
 func (d *Deposit) IsEmpty() bool {
 	return d.AvailableBalance.IsZero() && d.TotalBalance.IsZero()
+}
+
+func (d *Deposit) Display() string {
+	return fmt.Sprintf("Deposit Available: %s, Total: %s", getReadableDec(d.AvailableBalance), getReadableDec(d.TotalBalance))
 }
 
 type DepositDelta struct {
@@ -37,6 +42,15 @@ func NewDepositDelta() *DepositDelta {
 
 func (d *DepositDelta) AddAvailableBalance(amount sdk.Dec) {
 	d.AvailableBalanceDelta = d.AvailableBalanceDelta.Add(amount)
+}
+
+func (d *DepositDelta) IsEmpty() bool {
+	if d == nil {
+		return true
+	}
+	hasEmptyTotalBalanceDelta := d.TotalBalanceDelta.IsNil() || d.TotalBalanceDelta.IsZero()
+	hasEmptyAvailableBalanceDelta := d.AvailableBalanceDelta.IsNil() || d.AvailableBalanceDelta.IsZero()
+	return hasEmptyTotalBalanceDelta && hasEmptyAvailableBalanceDelta
 }
 
 type DepositDeltas map[common.Hash]*DepositDelta

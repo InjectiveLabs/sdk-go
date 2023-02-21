@@ -33,14 +33,6 @@ func IsIBCDenom(denom string) bool {
 	return strings.HasPrefix(denom, "ibc/")
 }
 
-type Account [20]byte
-
-func SdkAccAddressToAccount(account sdk.AccAddress) Account {
-	var accAddr Account
-	copy(accAddr[:], account.Bytes())
-	return accAddr
-}
-
 type SpotLimitOrderDelta struct {
 	Order        *SpotLimitOrder
 	FillQuantity sdk.Dec
@@ -83,7 +75,12 @@ func (d *DerivativeLimitOrderDelta) OrderHash() common.Hash {
 
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
 var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
-var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
+
+// inj1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49
+var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(ZeroSubaccountID.Hex()).Bytes())
+
+// inj1qqq3zyg3zyg3zyg3zyg3zyg3zyg3zyg3c9gg96
+var AuctionFeesAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
 
 func StringInSlice(a string, list *[]string) bool {
 	for _, b := range *list {
@@ -92,6 +89,12 @@ func StringInSlice(a string, list *[]string) bool {
 		}
 	}
 	return false
+}
+
+func IsDefaultSubaccountID(subaccountID common.Hash) bool {
+	// empty 12 bytes
+	emptyBytes := make([]byte, common.HashLength-common.AddressLength)
+	return bytes.Equal(subaccountID[common.AddressLength:], emptyBytes)
 }
 
 func IsValidSubaccountID(subaccountID string) (*common.Address, bool) {
@@ -150,6 +153,20 @@ func (s *Subaccount) GetSubaccountID() (*common.Hash, error) {
 	return SdkAddressWithNonceToSubaccountID(trader, s.SubaccountNonce)
 }
 
+type Account [20]byte
+
+func SdkAccAddressToAccount(account sdk.AccAddress) Account {
+	var accAddr Account
+	copy(accAddr[:], account.Bytes())
+	return accAddr
+}
+
+func SubaccountIDToAccount(subaccountID common.Hash) Account {
+	var accAddr Account
+	copy(accAddr[:], subaccountID.Bytes()[:20])
+	return accAddr
+}
+
 func SdkAddressWithNonceToSubaccountID(addr sdk.AccAddress, nonce uint32) (*common.Hash, error) {
 	if len(addr.Bytes()) > common.AddressLength {
 		return &AuctionSubaccountID, ErrBadSubaccountID
@@ -157,6 +174,15 @@ func SdkAddressWithNonceToSubaccountID(addr sdk.AccAddress, nonce uint32) (*comm
 	subaccountID := common.BytesToHash(append(addr.Bytes(), common.LeftPadBytes(big.NewInt(int64(nonce)).Bytes(), 12)...))
 
 	return &subaccountID, nil
+}
+
+func MustSdkAddressWithNonceToSubaccountID(addr sdk.AccAddress, nonce uint32) common.Hash {
+	if len(addr.Bytes()) > common.AddressLength {
+		panic(ErrBadSubaccountID)
+	}
+	subaccountID := common.BytesToHash(append(addr.Bytes(), common.LeftPadBytes(big.NewInt(int64(nonce)).Bytes(), 12)...))
+
+	return subaccountID
 }
 
 func SdkAddressToSubaccountID(addr sdk.AccAddress) common.Hash {

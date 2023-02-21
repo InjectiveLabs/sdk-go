@@ -13,15 +13,19 @@ const (
 )
 
 var (
-	// Keys for store prefixes
-	BidsKey = []byte{0x01}
-
-	// Keys for Smart contract execution
-	ContractExecutionRequestIDKey   = []byte{0x02} // key to the smart contract execution request ID
-	LatestSmartContractRequestIDKey = []byte{0x03} // key to the latest smart contract request ID
-
+	ContractsByGasPricePrefix = []byte{0x01} // key to the smart contract execution request ID
+	ContractsIndexPrefix      = []byte{0x02}
 )
 
-func GetContractExecutionRequestIDKey(requestID uint64) []byte {
-	return append(ContractExecutionRequestIDKey, sdk.Uint64ToBigEndian(requestID)...)
+func GetContractsByGasPriceKey(gasPrice uint64, address sdk.AccAddress) []byte {
+	return append(ContractsByGasPricePrefix, getGasPriceAddressInfix(gasPrice, address)...)
+}
+
+func getGasPriceAddressInfix(gasPrice uint64, address sdk.AccAddress) []byte {
+	return append(sdk.Uint64ToBigEndian(gasPrice), address.Bytes()...)
+}
+
+// GetContractsIndexKey provides the key for the contract address => gasPrice
+func GetContractsIndexKey(address sdk.AccAddress) []byte {
+	return append(ContractsIndexPrefix, address.Bytes()...)
 }

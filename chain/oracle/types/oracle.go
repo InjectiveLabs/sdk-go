@@ -30,6 +30,8 @@ func GetOracleType(oracleTypeStr string) (OracleType, error) {
 		oracleType = OracleType_Coinbase
 	case "provider":
 		oracleType = OracleType_Provider
+	case "pyth":
+		oracleType = OracleType_Pyth
 	default:
 		return OracleType_Band, sdkerrors.Wrapf(ErrUnsupportedOracleType, "%s", oracleTypeStr)
 	}
@@ -100,4 +102,9 @@ func (s SymbolPriceTimestamps) GetTimestamp(oracleType OracleType, symbol string
 	}
 
 	return -1, false
+}
+
+// CheckPriceFeedThreshold returns true if the newPrice has changed beyond 100x or less than 1% of the last price
+func CheckPriceFeedThreshold(lastPrice, newPrice sdk.Dec) bool {
+	return newPrice.GT(lastPrice.Mul(sdk.NewDec(100))) || newPrice.LT(lastPrice.Quo(sdk.NewDec(100)))
 }

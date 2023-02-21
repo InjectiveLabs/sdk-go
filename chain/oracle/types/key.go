@@ -54,6 +54,9 @@ var (
 	ProviderIndexPrefix = []byte{0x62}
 	// ProviderPricePrefix is the prefix for the Provider + symbol => PriceState store.
 	ProviderPricePrefix = []byte{0x63}
+
+	// PythPriceKey is the prefix for the priceID => PythPriceState store.
+	PythPriceKey = []byte{0x71}
 )
 
 func GetBandPriceStoreKey(symbol string) []byte {
@@ -152,4 +155,8 @@ func GetProviderPriceKey(provider, symbol string) []byte {
 	buf = append(buf, []byte(p)...)
 	buf = append(buf, []byte(symbol)...)
 	return buf
+}
+
+func GetPythPriceStoreKey(priceID common.Hash) []byte {
+	return append(PythPriceKey, priceID.Bytes()...)
 }

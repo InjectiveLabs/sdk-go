@@ -76,6 +76,10 @@ func (m *OrderInfo) GetFeeAmount(fee sdk.Dec) sdk.Dec {
 	return m.GetNotional().Mul(fee)
 }
 
+func (m *OrderInfo) IsFromDefaultSubaccount() bool {
+	return IsDefaultSubaccountID(common.HexToHash(m.SubaccountId))
+}
+
 var eip712OrderTypes = gethsigner.Types{
 	"EIP712Domain": {
 		{Name: "name", Type: "string"},

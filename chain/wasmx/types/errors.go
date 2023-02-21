@@ -9,4 +9,5 @@ var (
 	ErrAlreadyRegistered      = sdkerrors.Register(ModuleName, 4, "contract already registered")
 	ErrDuplicateContract      = sdkerrors.Register(ModuleName, 5, "duplicate contract")
 	ErrNoContractAddresses    = sdkerrors.Register(ModuleName, 6, "no contract addresses found")
+	ErrInvalidCodeId          = sdkerrors.Register(ModuleName, 7, "invalid code id")
 )

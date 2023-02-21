@@ -95,4 +95,7 @@ var (
 	ErrNoFundsToUnlock                          = sdkerrors.Register(ModuleName, 88, "no funds to unlock")
 	ErrNoMsgsProvided                           = sdkerrors.Register(ModuleName, 89, "No msgs provided")
 	ErrNoMsgProvided                            = sdkerrors.Register(ModuleName, 90, "No msg provided")
+	ErrInvalidAmount                            = sdkerrors.Register(ModuleName, 91, "Invalid amount")
+	ErrFeatureDisabled                          = sdkerrors.Register(ModuleName, 92, "The current feature has been disabled")
+	ErrTooMuchOrderMargin                       = sdkerrors.Register(ModuleName, 93, "Order has too much margin")
 )

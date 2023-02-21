@@ -13,11 +13,14 @@ var _ paramtypes.ParamSet = &Params{}
 // insurance params default values
 const (
 	// DefaultInsurancePeriodDurationSeconds represents the number of seconds in two weeks
-	DefaultInsurancePeriod = time.Hour * 24 * 14
+	DefaultInsurancePeriod              = time.Hour * 24 * 14
+	DefaultBinaryOptionsInsurancePeriod = time.Minute
 )
 
 // MaxUnderwritingAmount equals 1 trillion * 1e18
 var MaxUnderwritingAmount, _ = sdk.NewIntFromString("1000000000000000000000000000")
+var PerpetualExpiryFlag int64 = -1
+var BinaryOptionsExpiryFlag int64 = -2
 
 // Parameter keys
 var (

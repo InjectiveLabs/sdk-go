@@ -30,13 +30,13 @@ message MsgCreateInsuranceFund {
   string ticker = 2;
   // Coin denom to use for the market quote denom
   string quote_denom = 3;
-  // Oracle base currency
+  // Oracle base currency of the derivative market OR the oracle symbol for the binary options market.
   string oracle_base = 4;
-  // Oracle quote currency
+  // Oracle quote currency of the derivative market OR the oracle provider for the binary options market.
   string oracle_quote = 5;
-  // Oracle type
+  // Oracle type of the binary options or derivative market
   injective.oracle.v1beta1.OracleType oracle_type = 6;
-  // Expiration time of the market. Should be -1 for perpetual markets.
+  // Expiration time of the derivative market. Should be -1 for perpetual or -2 for binary options markets.
   int64 expiry = 7;
   // Initial deposit of the insurance fund
   cosmos.base.v1beta1.Coin initial_deposit = 8 [(gogoproto.nullable) = false];

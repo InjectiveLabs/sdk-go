@@ -38,13 +38,13 @@ type MsgCreateInsuranceFund struct {
 	Ticker string `protobuf:"bytes,2,opt,name=ticker,proto3" json:"ticker,omitempty"`
 	// Coin denom to use for the market quote denom
 	QuoteDenom string `protobuf:"bytes,3,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
-	// Oracle base currency
+	// Oracle base currency of the derivative market OR the oracle symbol for the binary options market.
 	OracleBase string `protobuf:"bytes,4,opt,name=oracle_base,json=oracleBase,proto3" json:"oracle_base,omitempty"`
-	// Oracle quote currency
+	// Oracle quote currency of the derivative market OR the oracle provider for the binary options market.
 	OracleQuote string `protobuf:"bytes,5,opt,name=oracle_quote,json=oracleQuote,proto3" json:"oracle_quote,omitempty"`
-	// Oracle type
+	// Oracle type of the binary options or derivative market
 	OracleType types.OracleType `protobuf:"varint,6,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
-	// Expiration time of the market. Should be -1 for perpetual markets.
+	// Expiration time of the derivative market. Should be -1 for perpetual or -2 for binary options markets.
 	Expiry int64 `protobuf:"varint,7,opt,name=expiry,proto3" json:"expiry,omitempty"`
 	// Initial deposit of the insurance fund
 	InitialDeposit types1.Coin `protobuf:"bytes,8,opt,name=initial_deposit,json=initialDeposit,proto3" json:"initial_deposit"`

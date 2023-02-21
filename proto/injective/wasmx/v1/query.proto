@@ -39,3 +39,12 @@ message QueryModuleStateRequest {}
 message QueryModuleStateResponse {
   GenesisState state = 1;
 }
+
+// Contract registration info
+message QueryContractRegistrationInfoRequest {
+  string contract_address = 1;
+}
+
+message QueryContractRegistrationInfoResponse {
+    RegisteredContract contract = 1;
+}

@@ -36,6 +36,8 @@ message GenesisState {
   repeated PriceRecords historical_price_records = 13;
 
   repeated ProviderState provider_states = 14;
+
+  repeated PythPriceState pyth_price_states = 15;
 }
 
 message CalldataRecord {

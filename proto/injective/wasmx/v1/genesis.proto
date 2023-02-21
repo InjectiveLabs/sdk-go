@@ -6,9 +6,17 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
+message RegisteredContractWithAddress {
+  string address = 1;
+
+  RegisteredContract registered_contract = 2;
+}
+
 // GenesisState defines the wasmx module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to wasmx.
   Params params = 1 [(gogoproto.nullable) = false];
 
+  // registered_contracts is an array containing the genesis registered contracts
+  repeated RegisteredContractWithAddress registered_contracts = 2 [(gogoproto.nullable) = false];
 }

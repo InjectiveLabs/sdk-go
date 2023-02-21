@@ -3,7 +3,6 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -27,7 +26,6 @@ var (
 // Parameter keys
 var (
 	KeyIsExecutionEnabled    = []byte("IsExecutionEnabled")
-	KeyRegistryContract      = []byte("RegistryContract")
 	KeyMaxBeginBlockTotalGas = []byte("MaxBeginBlockTotalGas")
 	KeyMaxContractGasLimit   = []byte("MaxContractGasLimit")
 	KeyMinGasPrice           = []byte("MinGasPrice")
@@ -41,14 +39,12 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new Params instance
 func NewParams(
 	isExecutionEnabled bool,
-	registryContract string,
 	maxBeginBlockTotalGas uint64,
 	maxContractGasLimit uint64,
 	minGasPrice uint64,
 ) Params {
 	return Params{
 		IsExecutionEnabled:    isExecutionEnabled,
-		RegistryContract:      registryContract,
 		MaxBeginBlockTotalGas: maxBeginBlockTotalGas,
 		MaxContractGasLimit:   maxContractGasLimit,
 		MinGasPrice:           minGasPrice,
@@ -58,7 +54,6 @@ func NewParams(
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyRegistryContract, &p.RegistryContract, validateRegistryContract),
 		paramtypes.NewParamSetPair(KeyMinGasPrice, &p.MinGasPrice, validateMinGasPrice),
 		paramtypes.NewParamSetPair(KeyIsExecutionEnabled, &p.IsExecutionEnabled, validateIsExecutionEnabled),
 		paramtypes.NewParamSetPair(KeyMaxBeginBlockTotalGas, &p.MaxBeginBlockTotalGas, validateMaxBeginBlockTotalGas),
@@ -70,7 +65,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 func DefaultParams() Params {
 	return Params{
 		IsExecutionEnabled:    DefaultIsExecutionEnabled,
-		RegistryContract:      "",
 		MaxBeginBlockTotalGas: DefaultMaxBeginBlockTotalGas,
 		MaxContractGasLimit:   DefaultMaxContractGasLimit,
 		MinGasPrice:           DefaultMinGasPrice,
@@ -80,10 +74,6 @@ func DefaultParams() Params {
 // Validate performs basic validation on wasmx parameters.
 func (p Params) Validate() error {
 	if err := validateIsExecutionEnabled(p.IsExecutionEnabled); err != nil {
-		return err
-	}
-
-	if err := validateRegistryContract(p.RegistryContract); err != nil {
 		return err
 	}
 
@@ -145,22 +135,5 @@ func validateMinGasPrice(i interface{}) error {
 	if v == 0 {
 		return fmt.Errorf("MinGasPrice must be positive: %d", v)
 	}
-	return nil
-}
-
-func validateRegistryContract(i interface{}) error {
-	v, ok := i.(string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v == "" {
-		return nil
-	}
-
-	if _, err := sdk.AccAddressFromBech32(v); err != nil {
-		return err
-	}
-
 	return nil
 }
