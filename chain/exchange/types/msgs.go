@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/InjectiveLabs/injective-core/injective-chain/crypto/ethsecp256k1"
+	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
@@ -301,7 +301,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 	}
 
 	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
-		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
+		!o.IsConditional() && o.TriggerPrice != nil */// commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
 
