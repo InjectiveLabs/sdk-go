@@ -11,7 +11,7 @@ package injective_accounts_rpc;
 
 option go_package = "/injective_accounts_rpcpb";
 
-// InjectiveAccountsRPC defines gRPC API of Exchange Accounts provider.
+// InjectiveAccountsRPC defines API of Exchange Accounts provider.
 service InjectiveAccountsRPC {
 	// Provide the account's portfolio value in USD.
 	rpc Portfolio (PortfolioRequest) returns (PortfolioResponse);
@@ -22,7 +22,7 @@ service InjectiveAccountsRPC {
 	// List subaccount balances for the provided denoms.
 	rpc SubaccountBalancesList (SubaccountBalancesListRequest) returns (SubaccountBalancesListResponse);
 	// Gets a balance for specific coin denom
-	rpc SubaccountBalanceEndpoint (SubaccountBalanceRequest) returns (SubaccountBalanceResponse);
+	rpc SubaccountBalanceEndpoint (SubaccountBalanceEndpointRequest) returns (SubaccountBalanceEndpointResponse);
 	// StreamSubaccountBalance streams new balance changes for a specified
 // subaccount and denoms. If no denoms are provided, all denom changes are
 // streamed.
@@ -141,14 +141,14 @@ message SubaccountDeposit {
 	string available_balance = 2;
 }
 
-message SubaccountBalanceRequest {
+message SubaccountBalanceEndpointRequest {
 	// SubaccountId of the trader we want to get the trades from
 	string subaccount_id = 1;
 	// Specify denom to get balance
 	string denom = 2;
 }
 
-message SubaccountBalanceResponse {
+message SubaccountBalanceEndpointResponse {
 	// Subaccount balance
 	SubaccountBalance balance = 1;
 }

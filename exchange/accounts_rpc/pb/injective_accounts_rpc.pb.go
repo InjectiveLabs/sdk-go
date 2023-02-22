@@ -853,7 +853,7 @@ func (x *SubaccountDeposit) GetAvailableBalance() string {
 	return ""
 }
 
-type SubaccountBalanceRequest struct {
+type SubaccountBalanceEndpointRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -864,8 +864,8 @@ type SubaccountBalanceRequest struct {
 	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (x *SubaccountBalanceRequest) Reset() {
-	*x = SubaccountBalanceRequest{}
+func (x *SubaccountBalanceEndpointRequest) Reset() {
+	*x = SubaccountBalanceEndpointRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_injective_accounts_rpc_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -873,13 +873,13 @@ func (x *SubaccountBalanceRequest) Reset() {
 	}
 }
 
-func (x *SubaccountBalanceRequest) String() string {
+func (x *SubaccountBalanceEndpointRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SubaccountBalanceRequest) ProtoMessage() {}
+func (*SubaccountBalanceEndpointRequest) ProtoMessage() {}
 
-func (x *SubaccountBalanceRequest) ProtoReflect() protoreflect.Message {
+func (x *SubaccountBalanceEndpointRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_injective_accounts_rpc_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -891,26 +891,26 @@ func (x *SubaccountBalanceRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SubaccountBalanceRequest.ProtoReflect.Descriptor instead.
-func (*SubaccountBalanceRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use SubaccountBalanceEndpointRequest.ProtoReflect.Descriptor instead.
+func (*SubaccountBalanceEndpointRequest) Descriptor() ([]byte, []int) {
 	return file_injective_accounts_rpc_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *SubaccountBalanceRequest) GetSubaccountId() string {
+func (x *SubaccountBalanceEndpointRequest) GetSubaccountId() string {
 	if x != nil {
 		return x.SubaccountId
 	}
 	return ""
 }
 
-func (x *SubaccountBalanceRequest) GetDenom() string {
+func (x *SubaccountBalanceEndpointRequest) GetDenom() string {
 	if x != nil {
 		return x.Denom
 	}
 	return ""
 }
 
-type SubaccountBalanceResponse struct {
+type SubaccountBalanceEndpointResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -919,8 +919,8 @@ type SubaccountBalanceResponse struct {
 	Balance *SubaccountBalance `protobuf:"bytes,1,opt,name=balance,proto3" json:"balance,omitempty"`
 }
 
-func (x *SubaccountBalanceResponse) Reset() {
-	*x = SubaccountBalanceResponse{}
+func (x *SubaccountBalanceEndpointResponse) Reset() {
+	*x = SubaccountBalanceEndpointResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_injective_accounts_rpc_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -928,13 +928,13 @@ func (x *SubaccountBalanceResponse) Reset() {
 	}
 }
 
-func (x *SubaccountBalanceResponse) String() string {
+func (x *SubaccountBalanceEndpointResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SubaccountBalanceResponse) ProtoMessage() {}
+func (*SubaccountBalanceEndpointResponse) ProtoMessage() {}
 
-func (x *SubaccountBalanceResponse) ProtoReflect() protoreflect.Message {
+func (x *SubaccountBalanceEndpointResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_injective_accounts_rpc_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -946,12 +946,12 @@ func (x *SubaccountBalanceResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SubaccountBalanceResponse.ProtoReflect.Descriptor instead.
-func (*SubaccountBalanceResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use SubaccountBalanceEndpointResponse.ProtoReflect.Descriptor instead.
+func (*SubaccountBalanceEndpointResponse) Descriptor() ([]byte, []int) {
 	return file_injective_accounts_rpc_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *SubaccountBalanceResponse) GetBalance() *SubaccountBalance {
+func (x *SubaccountBalanceEndpointResponse) GetBalance() *SubaccountBalance {
 	if x != nil {
 		return x.Balance
 	}
@@ -1932,14 +1932,15 @@ var file_injective_accounts_rpc_proto_rawDesc = []byte{
 	0x74, 0x61, 0x6c, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x12, 0x2b, 0x0a, 0x11, 0x61, 0x76,
 	0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65, 0x5f, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x18,
 	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x10, 0x61, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65,
-	0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x22, 0x55, 0x0a, 0x18, 0x53, 0x75, 0x62, 0x61, 0x63,
-	0x63, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x12, 0x23, 0x0a, 0x0d, 0x73, 0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e,
-	0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x73, 0x75, 0x62, 0x61,
-	0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x14, 0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f,
-	0x6d, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x22, 0x60,
-	0x0a, 0x19, 0x53, 0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c, 0x61,
-	0x6e, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x43, 0x0a, 0x07, 0x62,
+	0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x22, 0x5d, 0x0a, 0x20, 0x53, 0x75, 0x62, 0x61, 0x63,
+	0x63, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x45, 0x6e, 0x64, 0x70,
+	0x6f, 0x69, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x23, 0x0a, 0x0d, 0x73,
+	0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x0c, 0x73, 0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x49, 0x64,
+	0x12, 0x14, 0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x22, 0x68, 0x0a, 0x21, 0x53, 0x75, 0x62, 0x61, 0x63, 0x63,
+	0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x45, 0x6e, 0x64, 0x70, 0x6f,
+	0x69, 0x6e, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x43, 0x0a, 0x07, 0x62,
 	0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x29, 0x2e, 0x69,
 	0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74,
 	0x73, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74,
@@ -2053,7 +2054,7 @@ var file_injective_accounts_rpc_proto_rawDesc = []byte{
 	0x0a, 0x04, 0x43, 0x6f, 0x69, 0x6e, 0x12, 0x14, 0x0a, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x64, 0x65, 0x6e, 0x6f, 0x6d, 0x12, 0x16, 0x0a, 0x06,
 	0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x61, 0x6d,
-	0x6f, 0x75, 0x6e, 0x74, 0x32, 0xd0, 0x08, 0x0a, 0x14, 0x49, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69,
+	0x6f, 0x75, 0x6e, 0x74, 0x32, 0xe0, 0x08, 0x0a, 0x14, 0x49, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69,
 	0x76, 0x65, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x73, 0x52, 0x50, 0x43, 0x12, 0x60, 0x0a,
 	0x09, 0x50, 0x6f, 0x72, 0x74, 0x66, 0x6f, 0x6c, 0x69, 0x6f, 0x12, 0x28, 0x2e, 0x69, 0x6e, 0x6a,
 	0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x73, 0x5f,
@@ -2083,14 +2084,15 @@ var file_injective_accounts_rpc_proto_rawDesc = []byte{
 	0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e,
 	0x74, 0x73, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e,
 	0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x80, 0x01, 0x0a, 0x19, 0x53, 0x75, 0x62, 0x61, 0x63, 0x63,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x90, 0x01, 0x0a, 0x19, 0x53, 0x75, 0x62, 0x61, 0x63, 0x63,
 	0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x45, 0x6e, 0x64, 0x70, 0x6f,
-	0x69, 0x6e, 0x74, 0x12, 0x30, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f,
+	0x69, 0x6e, 0x74, 0x12, 0x38, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f,
 	0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x73, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x75, 0x62,
-	0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x31, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76,
-	0x65, 0x5f, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x73, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x53,
-	0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65,
+	0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x45, 0x6e,
+	0x64, 0x70, 0x6f, 0x69, 0x6e, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x39, 0x2e,
+	0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e,
+	0x74, 0x73, 0x5f, 0x72, 0x70, 0x63, 0x2e, 0x53, 0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e,
+	0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x45, 0x6e, 0x64, 0x70, 0x6f, 0x69, 0x6e, 0x74,
 	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x8c, 0x01, 0x0a, 0x17, 0x53, 0x74, 0x72,
 	0x65, 0x61, 0x6d, 0x53, 0x75, 0x62, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x42, 0x61, 0x6c,
 	0x61, 0x6e, 0x63, 0x65, 0x12, 0x36, 0x2e, 0x69, 0x6e, 0x6a, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65,
@@ -2141,34 +2143,34 @@ func file_injective_accounts_rpc_proto_rawDescGZIP() []byte {
 
 var file_injective_accounts_rpc_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_injective_accounts_rpc_proto_goTypes = []interface{}{
-	(*PortfolioRequest)(nil),                // 0: injective_accounts_rpc.PortfolioRequest
-	(*PortfolioResponse)(nil),               // 1: injective_accounts_rpc.PortfolioResponse
-	(*AccountPortfolio)(nil),                // 2: injective_accounts_rpc.AccountPortfolio
-	(*SubaccountPortfolio)(nil),             // 3: injective_accounts_rpc.SubaccountPortfolio
-	(*OrderStatesRequest)(nil),              // 4: injective_accounts_rpc.OrderStatesRequest
-	(*OrderStatesResponse)(nil),             // 5: injective_accounts_rpc.OrderStatesResponse
-	(*OrderStateRecord)(nil),                // 6: injective_accounts_rpc.OrderStateRecord
-	(*SubaccountsListRequest)(nil),          // 7: injective_accounts_rpc.SubaccountsListRequest
-	(*SubaccountsListResponse)(nil),         // 8: injective_accounts_rpc.SubaccountsListResponse
-	(*SubaccountBalancesListRequest)(nil),   // 9: injective_accounts_rpc.SubaccountBalancesListRequest
-	(*SubaccountBalancesListResponse)(nil),  // 10: injective_accounts_rpc.SubaccountBalancesListResponse
-	(*SubaccountBalance)(nil),               // 11: injective_accounts_rpc.SubaccountBalance
-	(*SubaccountDeposit)(nil),               // 12: injective_accounts_rpc.SubaccountDeposit
-	(*SubaccountBalanceRequest)(nil),        // 13: injective_accounts_rpc.SubaccountBalanceRequest
-	(*SubaccountBalanceResponse)(nil),       // 14: injective_accounts_rpc.SubaccountBalanceResponse
-	(*StreamSubaccountBalanceRequest)(nil),  // 15: injective_accounts_rpc.StreamSubaccountBalanceRequest
-	(*StreamSubaccountBalanceResponse)(nil), // 16: injective_accounts_rpc.StreamSubaccountBalanceResponse
-	(*SubaccountHistoryRequest)(nil),        // 17: injective_accounts_rpc.SubaccountHistoryRequest
-	(*SubaccountHistoryResponse)(nil),       // 18: injective_accounts_rpc.SubaccountHistoryResponse
-	(*SubaccountBalanceTransfer)(nil),       // 19: injective_accounts_rpc.SubaccountBalanceTransfer
-	(*CosmosCoin)(nil),                      // 20: injective_accounts_rpc.CosmosCoin
-	(*Paging)(nil),                          // 21: injective_accounts_rpc.Paging
-	(*SubaccountOrderSummaryRequest)(nil),   // 22: injective_accounts_rpc.SubaccountOrderSummaryRequest
-	(*SubaccountOrderSummaryResponse)(nil),  // 23: injective_accounts_rpc.SubaccountOrderSummaryResponse
-	(*RewardsRequest)(nil),                  // 24: injective_accounts_rpc.RewardsRequest
-	(*RewardsResponse)(nil),                 // 25: injective_accounts_rpc.RewardsResponse
-	(*Reward)(nil),                          // 26: injective_accounts_rpc.Reward
-	(*Coin)(nil),                            // 27: injective_accounts_rpc.Coin
+	(*PortfolioRequest)(nil),                  // 0: injective_accounts_rpc.PortfolioRequest
+	(*PortfolioResponse)(nil),                 // 1: injective_accounts_rpc.PortfolioResponse
+	(*AccountPortfolio)(nil),                  // 2: injective_accounts_rpc.AccountPortfolio
+	(*SubaccountPortfolio)(nil),               // 3: injective_accounts_rpc.SubaccountPortfolio
+	(*OrderStatesRequest)(nil),                // 4: injective_accounts_rpc.OrderStatesRequest
+	(*OrderStatesResponse)(nil),               // 5: injective_accounts_rpc.OrderStatesResponse
+	(*OrderStateRecord)(nil),                  // 6: injective_accounts_rpc.OrderStateRecord
+	(*SubaccountsListRequest)(nil),            // 7: injective_accounts_rpc.SubaccountsListRequest
+	(*SubaccountsListResponse)(nil),           // 8: injective_accounts_rpc.SubaccountsListResponse
+	(*SubaccountBalancesListRequest)(nil),     // 9: injective_accounts_rpc.SubaccountBalancesListRequest
+	(*SubaccountBalancesListResponse)(nil),    // 10: injective_accounts_rpc.SubaccountBalancesListResponse
+	(*SubaccountBalance)(nil),                 // 11: injective_accounts_rpc.SubaccountBalance
+	(*SubaccountDeposit)(nil),                 // 12: injective_accounts_rpc.SubaccountDeposit
+	(*SubaccountBalanceEndpointRequest)(nil),  // 13: injective_accounts_rpc.SubaccountBalanceEndpointRequest
+	(*SubaccountBalanceEndpointResponse)(nil), // 14: injective_accounts_rpc.SubaccountBalanceEndpointResponse
+	(*StreamSubaccountBalanceRequest)(nil),    // 15: injective_accounts_rpc.StreamSubaccountBalanceRequest
+	(*StreamSubaccountBalanceResponse)(nil),   // 16: injective_accounts_rpc.StreamSubaccountBalanceResponse
+	(*SubaccountHistoryRequest)(nil),          // 17: injective_accounts_rpc.SubaccountHistoryRequest
+	(*SubaccountHistoryResponse)(nil),         // 18: injective_accounts_rpc.SubaccountHistoryResponse
+	(*SubaccountBalanceTransfer)(nil),         // 19: injective_accounts_rpc.SubaccountBalanceTransfer
+	(*CosmosCoin)(nil),                        // 20: injective_accounts_rpc.CosmosCoin
+	(*Paging)(nil),                            // 21: injective_accounts_rpc.Paging
+	(*SubaccountOrderSummaryRequest)(nil),     // 22: injective_accounts_rpc.SubaccountOrderSummaryRequest
+	(*SubaccountOrderSummaryResponse)(nil),    // 23: injective_accounts_rpc.SubaccountOrderSummaryResponse
+	(*RewardsRequest)(nil),                    // 24: injective_accounts_rpc.RewardsRequest
+	(*RewardsResponse)(nil),                   // 25: injective_accounts_rpc.RewardsResponse
+	(*Reward)(nil),                            // 26: injective_accounts_rpc.Reward
+	(*Coin)(nil),                              // 27: injective_accounts_rpc.Coin
 }
 var file_injective_accounts_rpc_proto_depIdxs = []int32{
 	2,  // 0: injective_accounts_rpc.PortfolioResponse.portfolio:type_name -> injective_accounts_rpc.AccountPortfolio
@@ -2177,7 +2179,7 @@ var file_injective_accounts_rpc_proto_depIdxs = []int32{
 	6,  // 3: injective_accounts_rpc.OrderStatesResponse.derivative_order_states:type_name -> injective_accounts_rpc.OrderStateRecord
 	11, // 4: injective_accounts_rpc.SubaccountBalancesListResponse.balances:type_name -> injective_accounts_rpc.SubaccountBalance
 	12, // 5: injective_accounts_rpc.SubaccountBalance.deposit:type_name -> injective_accounts_rpc.SubaccountDeposit
-	11, // 6: injective_accounts_rpc.SubaccountBalanceResponse.balance:type_name -> injective_accounts_rpc.SubaccountBalance
+	11, // 6: injective_accounts_rpc.SubaccountBalanceEndpointResponse.balance:type_name -> injective_accounts_rpc.SubaccountBalance
 	11, // 7: injective_accounts_rpc.StreamSubaccountBalanceResponse.balance:type_name -> injective_accounts_rpc.SubaccountBalance
 	19, // 8: injective_accounts_rpc.SubaccountHistoryResponse.transfers:type_name -> injective_accounts_rpc.SubaccountBalanceTransfer
 	21, // 9: injective_accounts_rpc.SubaccountHistoryResponse.paging:type_name -> injective_accounts_rpc.Paging
@@ -2188,7 +2190,7 @@ var file_injective_accounts_rpc_proto_depIdxs = []int32{
 	4,  // 14: injective_accounts_rpc.InjectiveAccountsRPC.OrderStates:input_type -> injective_accounts_rpc.OrderStatesRequest
 	7,  // 15: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountsList:input_type -> injective_accounts_rpc.SubaccountsListRequest
 	9,  // 16: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountBalancesList:input_type -> injective_accounts_rpc.SubaccountBalancesListRequest
-	13, // 17: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountBalanceEndpoint:input_type -> injective_accounts_rpc.SubaccountBalanceRequest
+	13, // 17: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountBalanceEndpoint:input_type -> injective_accounts_rpc.SubaccountBalanceEndpointRequest
 	15, // 18: injective_accounts_rpc.InjectiveAccountsRPC.StreamSubaccountBalance:input_type -> injective_accounts_rpc.StreamSubaccountBalanceRequest
 	17, // 19: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountHistory:input_type -> injective_accounts_rpc.SubaccountHistoryRequest
 	22, // 20: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountOrderSummary:input_type -> injective_accounts_rpc.SubaccountOrderSummaryRequest
@@ -2197,7 +2199,7 @@ var file_injective_accounts_rpc_proto_depIdxs = []int32{
 	5,  // 23: injective_accounts_rpc.InjectiveAccountsRPC.OrderStates:output_type -> injective_accounts_rpc.OrderStatesResponse
 	8,  // 24: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountsList:output_type -> injective_accounts_rpc.SubaccountsListResponse
 	10, // 25: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountBalancesList:output_type -> injective_accounts_rpc.SubaccountBalancesListResponse
-	14, // 26: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountBalanceEndpoint:output_type -> injective_accounts_rpc.SubaccountBalanceResponse
+	14, // 26: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountBalanceEndpoint:output_type -> injective_accounts_rpc.SubaccountBalanceEndpointResponse
 	16, // 27: injective_accounts_rpc.InjectiveAccountsRPC.StreamSubaccountBalance:output_type -> injective_accounts_rpc.StreamSubaccountBalanceResponse
 	18, // 28: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountHistory:output_type -> injective_accounts_rpc.SubaccountHistoryResponse
 	23, // 29: injective_accounts_rpc.InjectiveAccountsRPC.SubaccountOrderSummary:output_type -> injective_accounts_rpc.SubaccountOrderSummaryResponse
@@ -2372,7 +2374,7 @@ func file_injective_accounts_rpc_proto_init() {
 			}
 		}
 		file_injective_accounts_rpc_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SubaccountBalanceRequest); i {
+			switch v := v.(*SubaccountBalanceEndpointRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2384,7 +2386,7 @@ func file_injective_accounts_rpc_proto_init() {
 			}
 		}
 		file_injective_accounts_rpc_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SubaccountBalanceResponse); i {
+			switch v := v.(*SubaccountBalanceEndpointResponse); i {
 			case 0:
 				return &v.state
 			case 1:

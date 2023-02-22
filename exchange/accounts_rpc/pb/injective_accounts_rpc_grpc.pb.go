@@ -31,7 +31,7 @@ type InjectiveAccountsRPCClient interface {
 	// List subaccount balances for the provided denoms.
 	SubaccountBalancesList(ctx context.Context, in *SubaccountBalancesListRequest, opts ...grpc.CallOption) (*SubaccountBalancesListResponse, error)
 	// Gets a balance for specific coin denom
-	SubaccountBalanceEndpoint(ctx context.Context, in *SubaccountBalanceRequest, opts ...grpc.CallOption) (*SubaccountBalanceResponse, error)
+	SubaccountBalanceEndpoint(ctx context.Context, in *SubaccountBalanceEndpointRequest, opts ...grpc.CallOption) (*SubaccountBalanceEndpointResponse, error)
 	// StreamSubaccountBalance streams new balance changes for a specified
 	// subaccount and denoms. If no denoms are provided, all denom changes are
 	// streamed.
@@ -88,8 +88,8 @@ func (c *injectiveAccountsRPCClient) SubaccountBalancesList(ctx context.Context,
 	return out, nil
 }
 
-func (c *injectiveAccountsRPCClient) SubaccountBalanceEndpoint(ctx context.Context, in *SubaccountBalanceRequest, opts ...grpc.CallOption) (*SubaccountBalanceResponse, error) {
-	out := new(SubaccountBalanceResponse)
+func (c *injectiveAccountsRPCClient) SubaccountBalanceEndpoint(ctx context.Context, in *SubaccountBalanceEndpointRequest, opts ...grpc.CallOption) (*SubaccountBalanceEndpointResponse, error) {
+	out := new(SubaccountBalanceEndpointResponse)
 	err := c.cc.Invoke(ctx, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -169,7 +169,7 @@ type InjectiveAccountsRPCServer interface {
 	// List subaccount balances for the provided denoms.
 	SubaccountBalancesList(context.Context, *SubaccountBalancesListRequest) (*SubaccountBalancesListResponse, error)
 	// Gets a balance for specific coin denom
-	SubaccountBalanceEndpoint(context.Context, *SubaccountBalanceRequest) (*SubaccountBalanceResponse, error)
+	SubaccountBalanceEndpoint(context.Context, *SubaccountBalanceEndpointRequest) (*SubaccountBalanceEndpointResponse, error)
 	// StreamSubaccountBalance streams new balance changes for a specified
 	// subaccount and denoms. If no denoms are provided, all denom changes are
 	// streamed.
@@ -199,7 +199,7 @@ func (UnimplementedInjectiveAccountsRPCServer) SubaccountsList(context.Context, 
 func (UnimplementedInjectiveAccountsRPCServer) SubaccountBalancesList(context.Context, *SubaccountBalancesListRequest) (*SubaccountBalancesListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubaccountBalancesList not implemented")
 }
-func (UnimplementedInjectiveAccountsRPCServer) SubaccountBalanceEndpoint(context.Context, *SubaccountBalanceRequest) (*SubaccountBalanceResponse, error) {
+func (UnimplementedInjectiveAccountsRPCServer) SubaccountBalanceEndpoint(context.Context, *SubaccountBalanceEndpointRequest) (*SubaccountBalanceEndpointResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubaccountBalanceEndpoint not implemented")
 }
 func (UnimplementedInjectiveAccountsRPCServer) StreamSubaccountBalance(*StreamSubaccountBalanceRequest, InjectiveAccountsRPC_StreamSubaccountBalanceServer) error {
@@ -300,7 +300,7 @@ func _InjectiveAccountsRPC_SubaccountBalancesList_Handler(srv interface{}, ctx c
 }
 
 func _InjectiveAccountsRPC_SubaccountBalanceEndpoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SubaccountBalanceRequest)
+	in := new(SubaccountBalanceEndpointRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -312,7 +312,7 @@ func _InjectiveAccountsRPC_SubaccountBalanceEndpoint_Handler(srv interface{}, ct
 		FullMethod: "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InjectiveAccountsRPCServer).SubaccountBalanceEndpoint(ctx, req.(*SubaccountBalanceRequest))
+		return srv.(InjectiveAccountsRPCServer).SubaccountBalanceEndpoint(ctx, req.(*SubaccountBalanceEndpointRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

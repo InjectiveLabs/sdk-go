@@ -32,7 +32,7 @@ var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
 func request_InjectiveAuctionRPC_AuctionEndpoint_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveAuctionRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AuctionRequest
+	var protoReq AuctionEndpointRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -49,7 +49,7 @@ func request_InjectiveAuctionRPC_AuctionEndpoint_0(ctx context.Context, marshale
 }
 
 func local_request_InjectiveAuctionRPC_AuctionEndpoint_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveAuctionRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AuctionRequest
+	var protoReq AuctionEndpointRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

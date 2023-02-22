@@ -46,7 +46,7 @@ type InjectiveDerivativeExchangeRPCClient interface {
 	StreamOrderbookV2(ctx context.Context, in *StreamOrderbookV2Request, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error)
 	// Stream live level updates of selected derivative market orderbook
 	StreamOrderbookUpdate(ctx context.Context, in *StreamOrderbookUpdateRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
-	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
+	// DerivativeLimitOrders gets the limit orders of a derivative Market.
 	Orders(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*OrdersResponse, error)
 	// Positions gets the positions for a trader.
 	Positions(ctx context.Context, in *PositionsRequest, opts ...grpc.CallOption) (*PositionsResponse, error)
@@ -520,7 +520,7 @@ type InjectiveDerivativeExchangeRPCServer interface {
 	StreamOrderbookV2(*StreamOrderbookV2Request, InjectiveDerivativeExchangeRPC_StreamOrderbookV2Server) error
 	// Stream live level updates of selected derivative market orderbook
 	StreamOrderbookUpdate(*StreamOrderbookUpdateRequest, InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateServer) error
-	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
+	// DerivativeLimitOrders gets the limit orders of a derivative Market.
 	Orders(context.Context, *OrdersRequest) (*OrdersResponse, error)
 	// Positions gets the positions for a trader.
 	Positions(context.Context, *PositionsRequest) (*PositionsResponse, error)
