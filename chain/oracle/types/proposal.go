@@ -287,7 +287,7 @@ func (p *AuthorizeBandOracleRequestProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrBadSymbolsCount, "AuthorizeBandOracleRequestProposal")
 	}
 
-	requestCallData := bandprice.SymbolInput{
+	requestCallData := bandprice.Input{
 		Symbols:    p.Request.Symbols,
 		Multiplier: BandPriceMultiplier,
 	}
@@ -393,7 +393,7 @@ func (p *UpdateBandOracleRequestProposal) ValidateBasic() error {
 	}
 
 	if p.UpdateOracleRequest != nil && len(p.UpdateOracleRequest.Symbols) > 0 {
-		requestCallData := bandprice.SymbolInput{
+		requestCallData := bandprice.Input{
 			Symbols:    p.UpdateOracleRequest.Symbols,
 			Multiplier: BandPriceMultiplier,
 		}

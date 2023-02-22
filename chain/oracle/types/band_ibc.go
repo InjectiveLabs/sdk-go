@@ -22,7 +22,7 @@ func NewOracleRequestPacketData(clientID string, calldata []byte, r *BandOracleR
 // GetCalldata gets the Band IBC request call data based on the symbols and multiplier.
 func (r *BandOracleRequest) GetCalldata() []byte {
 
-	requestCallData := bandprice.SymbolInput{
+	requestCallData := bandprice.Input{
 		Symbols:    r.Symbols,
 		Multiplier: BandPriceMultiplier,
 	}
