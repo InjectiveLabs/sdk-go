@@ -46,11 +46,11 @@ type ExchangeClient interface {
 	GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (oraclePB.PriceResponse, error)
 	GetOracleList(ctx context.Context) (oraclePB.OracleListResponse, error)
 	StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error)
-	GetAuction(ctx context.Context, round int64) (auctionPB.AuctionResponse, error)
+	GetAuction(ctx context.Context, round int64) (auctionPB.AuctionEndpointResponse, error)
 	GetAuctions(ctx context.Context) (auctionPB.AuctionsResponse, error)
 	StreamBids(ctx context.Context) (auctionPB.InjectiveAuctionRPC_StreamBidsClient, error)
 	GetSubaccountsList(ctx context.Context, accountAddress string) (accountPB.SubaccountsListResponse, error)
-	GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceResponse, error)
+	GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceEndpointResponse, error)
 	StreamSubaccountBalance(ctx context.Context, subaccountId string) (accountPB.InjectiveAccountsRPC_StreamSubaccountBalanceClient, error)
 	GetSubaccountBalancesList(ctx context.Context, subaccountId string) (accountPB.SubaccountBalancesListResponse, error)
 	GetSubaccountHistory(ctx context.Context, req accountPB.SubaccountHistoryRequest) (accountPB.SubaccountHistoryResponse, error)
@@ -554,8 +554,8 @@ func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol string, qu
 
 // Auction RPC
 
-func (c *exchangeClient) GetAuction(ctx context.Context, round int64) (auctionPB.AuctionResponse, error) {
-	req := auctionPB.AuctionRequest{
+func (c *exchangeClient) GetAuction(ctx context.Context, round int64) (auctionPB.AuctionEndpointResponse, error) {
+	req := auctionPB.AuctionEndpointRequest{
 		Round: round,
 	}
 
@@ -564,7 +564,7 @@ func (c *exchangeClient) GetAuction(ctx context.Context, round int64) (auctionPB
 	res, err := c.auctionClient.AuctionEndpoint(ctx, &req, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
-		return auctionPB.AuctionResponse{}, err
+		return auctionPB.AuctionEndpointResponse{}, err
 	}
 	c.setCookie(header)
 
@@ -624,8 +624,8 @@ func (c *exchangeClient) GetSubaccountsList(ctx context.Context, accountAddress 
 	return *res, nil
 }
 
-func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceResponse, error) {
-	req := accountPB.SubaccountBalanceRequest{
+func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceEndpointResponse, error) {
+	req := accountPB.SubaccountBalanceEndpointRequest{
 		SubaccountId: subaccountId,
 		Denom:        denom,
 	}
@@ -635,7 +635,7 @@ func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId 
 	res, err := c.accountClient.SubaccountBalanceEndpoint(ctx, &req, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
-		return accountPB.SubaccountBalanceResponse{}, err
+		return accountPB.SubaccountBalanceEndpointResponse{}, err
 	}
 	c.setCookie(header)
 
