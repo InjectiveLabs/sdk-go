@@ -2,12 +2,12 @@ package price
 
 import "github.com/InjectiveLabs/sdk-go/bandchain/oracle/types"
 
-type Input struct {
+type SymbolInput struct {
 	Symbols            []string `json:"symbols"`
 	MinimumSourceCount uint8    `json:"minimum_source_count"`
 }
 
-type Output struct {
+type SymbolOutput struct {
 	Responses []Response `json:"responses"`
 }
 
@@ -15,6 +15,15 @@ type Response struct {
 	Symbol       string `json:"symbol"`
 	ResponseCode uint8  `json:"response_code"`
 	Rate         uint64 `json:"rate"`
+}
+
+type Input struct {
+	Symbols    []string `json:"symbols"`
+	Multiplier uint64   `json:"multiplier"`
+}
+
+type Output struct {
+	Pxs []uint64 `json:"pxs"`
 }
 
 type Price struct {
