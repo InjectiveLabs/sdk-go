@@ -12,6 +12,7 @@ import (
 	insurancePB "github.com/InjectiveLabs/sdk-go/exchange/insurance_rpc/pb"
 	metaPB "github.com/InjectiveLabs/sdk-go/exchange/meta_rpc/pb"
 	oraclePB "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
+	portfolioExchangePB "github.com/InjectiveLabs/sdk-go/exchange/portfolio_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	"google.golang.org/grpc/metadata"
 
@@ -77,6 +78,10 @@ type ExchangeClient interface {
 	GetSubaccountSpotTradesList(ctx context.Context, req spotExchangePB.SubaccountTradesListRequest) (spotExchangePB.SubaccountTradesListResponse, error)
 	GetInsuranceFunds(ctx context.Context, req insurancePB.FundsRequest) (insurancePB.FundsResponse, error)
 	GetRedemptions(ctx context.Context, req insurancePB.RedemptionsRequest) (insurancePB.RedemptionsResponse, error)
+
+	GetAccountPortfolio(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioResponse, error)
+	GetStreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
+
 	StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error)
 	GetInfo(ctx context.Context, req metaPB.InfoRequest) (metaPB.InfoResponse, error)
 	GetVersion(ctx context.Context, req metaPB.VersionRequest) (metaPB.VersionResponse, error)
@@ -121,6 +126,7 @@ func NewExchangeClient(protoAddr string, options ...common.ClientOption) (Exchan
 		insuranceClient:          insurancePB.NewInjectiveInsuranceRPCClient(conn),
 		spotExchangeClient:       spotExchangePB.NewInjectiveSpotExchangeRPCClient(conn),
 		derivativeExchangeClient: derivativeExchangePB.NewInjectiveDerivativeExchangeRPCClient(conn),
+		portfolioExchangeClient:  portfolioExchangePB.NewInjectivePortfolioRPCClient(conn),
 
 		logger: log.WithFields(log.Fields{
 			"module": "sdk-go",
@@ -147,6 +153,7 @@ type exchangeClient struct {
 	insuranceClient          insurancePB.InjectiveInsuranceRPCClient
 	spotExchangeClient       spotExchangePB.InjectiveSpotExchangeRPCClient
 	derivativeExchangeClient derivativeExchangePB.InjectiveDerivativeExchangeRPCClient
+	portfolioExchangeClient  portfolioExchangePB.InjectivePortfolioRPCClient
 
 	closed int64
 }
@@ -1094,6 +1101,43 @@ func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveM
 		return nil, err
 	}
 	header, err := stream.Header()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return stream, nil
+}
+
+func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.portfolioExchangeClient.AccountPortfolio(ctx, &portfolioExchangePB.AccountPortfolioRequest{
+		AccountAddress: accountAddress,
+	}, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return portfolioExchangePB.AccountPortfolioResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetStreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	stream, err := c.portfolioExchangeClient.StreamAccountPortfolio(ctx, &portfolioExchangePB.StreamAccountPortfolioRequest{
+		AccountAddress: accountAddress,
+		SubaccountId:   subaccountId,
+		Type:           balanceType,
+	}, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	header, err = stream.Header()
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
