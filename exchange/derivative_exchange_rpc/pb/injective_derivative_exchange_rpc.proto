@@ -38,7 +38,7 @@ service InjectiveDerivativeExchangeRPC {
 	rpc StreamOrderbookV2 (StreamOrderbookV2Request) returns (stream StreamOrderbookV2Response);
 	// Stream live level updates of selected derivative market orderbook
 	rpc StreamOrderbookUpdate (StreamOrderbookUpdateRequest) returns (stream StreamOrderbookUpdateResponse);
-	// DerivativeLimitOrders gets the limit orders of a Derivative Market.
+	// DerivativeLimitOrders gets the limit orders of a derivative Market.
 	rpc Orders (OrdersRequest) returns (OrdersResponse);
 	// Positions gets the positions for a trader.
 	rpc Positions (PositionsRequest) returns (PositionsResponse);
@@ -286,6 +286,8 @@ message DerivativeLimitOrderbook {
 	repeated PriceLevel buys = 1;
 	// Array of price levels for sells
 	repeated PriceLevel sells = 2;
+	// Last update timestamp in UNIX millis.
+	sint64 timestamp = 4;
 }
 
 message PriceLevel {
@@ -314,6 +316,8 @@ message DerivativeLimitOrderbookV2 {
 	repeated PriceLevel sells = 2;
 	// market orderbook sequence
 	uint64 sequence = 3;
+	// Last update timestamp in UNIX millis.
+	sint64 timestamp = 4;
 }
 
 message OrderbooksRequest {
@@ -424,7 +428,8 @@ message PriceLevelUpdate {
 }
 
 message OrdersRequest {
-	// MarketId of the market's orderbook we want to fetch
+	// MarketId of market we want to fetch orders from. Using this field for one
+// single marketId
 	string market_id = 1;
 	// Look for specific order side
 	string order_side = 2;
@@ -440,7 +445,8 @@ message OrdersRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 7;
-	// MarketIds of the markets of which we want to get trades
+	// MarketIds of the markets of which we want to get order from, use this field
+// for fetching orders from multiple markets
 	repeated string market_ids = 8;
 	// Only search for conditional/non-conditional orders
 	string is_conditional = 9;
@@ -503,7 +509,8 @@ message DerivativeLimitOrder {
 message PositionsRequest {
 	// SubaccountId of the trader we want to get the positions from
 	string subaccount_id = 1;
-	// MarketId of the position we want to fetch
+	// MarketId of the position we want to fetch. Use this field for fetching from
+// single market
 	string market_id = 2;
 	// Skip will skip the first n item from the result
 	uint64 skip = 3;
@@ -515,11 +522,12 @@ message PositionsRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 6;
-	// MarketIds of the markets of which we want to get trades
+	// MarketIds of the markets we want to filter. Use this field for fetching from
+// multiple markets
 	repeated string market_ids = 7;
 	// filter by direction of the position
 	string direction = 8;
-	// Choose to return subaccount total positions
+	// set to True to return subaccount total positions
 	bool subaccount_total_positions = 9;
 }
 
@@ -572,7 +580,8 @@ message LiquidablePositionsResponse {
 message FundingPaymentsRequest {
 	// SubaccountId of the trader we want to get the positions from
 	string subaccount_id = 1;
-	// MarketId of the position we want to fetch
+	// MarketIds of the funding payment we want to fetch. Using this for only one
+// market id. This field is prioritized
 	string market_id = 2;
 	// Skip will skip the first n item from the result
 	uint64 skip = 3;
@@ -580,7 +589,8 @@ message FundingPaymentsRequest {
 	sint32 limit = 4;
 	// Upper bound of funding payment updatedAt
 	sint64 end_time = 5;
-	// Filter by market ids
+	// Filter by market ids. Using this field for fetching funding payments from
+// multiple market ids
 	repeated string market_ids = 6;
 }
 
@@ -646,7 +656,8 @@ message StreamPositionsResponse {
 }
 
 message StreamOrdersRequest {
-	// MarketId of the market's orderbook we want to fetch
+	// MarketId of market we want to fetch orders from. Using this field for one
+// single marketId
 	string market_id = 1;
 	// Look for specific order side
 	string order_side = 2;
@@ -662,7 +673,8 @@ message StreamOrdersRequest {
 	// The ending timestamp in UNIX milliseconds that the trades must be equal or
 // younger than
 	sint64 end_time = 7;
-	// MarketIds of the markets of which we want to get trades
+	// MarketIds of the markets of which we want to get order from, use this field
+// for fetching orders from multiple markets
 	repeated string market_ids = 8;
 	// Only search for conditional/non-conditional orders
 	string is_conditional = 9;
@@ -704,7 +716,8 @@ message TradesRequest {
 	sint64 end_time = 8;
 	// MarketIds of the markets of which we want to get trades
 	repeated string market_ids = 9;
-	// Subaccount ids of traders we want to get trades
+	// Subaccount ids of traders we want to get trades. Use this field for fetching
+// trades from multiple subaccounts
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
 }
@@ -774,7 +787,8 @@ message StreamTradesRequest {
 	sint64 end_time = 8;
 	// MarketIds of the markets of which we want to get trades
 	repeated string market_ids = 9;
-	// Subaccount ids of traders we want to get trades
+	// Subaccount ids of traders we want to get trades. Use this field for fetching
+// trades from multiple subaccounts
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
 }

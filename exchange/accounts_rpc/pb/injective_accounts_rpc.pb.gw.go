@@ -168,7 +168,7 @@ func local_request_InjectiveAccountsRPC_SubaccountBalancesList_0(ctx context.Con
 }
 
 func request_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveAccountsRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SubaccountBalanceRequest
+	var protoReq SubaccountBalanceEndpointRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -185,7 +185,7 @@ func request_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(ctx context.Contex
 }
 
 func local_request_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveAccountsRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SubaccountBalanceRequest
+	var protoReq SubaccountBalanceEndpointRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

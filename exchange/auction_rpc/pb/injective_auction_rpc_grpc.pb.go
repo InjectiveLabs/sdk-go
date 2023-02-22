@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type InjectiveAuctionRPCClient interface {
 	// Provide historical auction info for a given auction
-	AuctionEndpoint(ctx context.Context, in *AuctionRequest, opts ...grpc.CallOption) (*AuctionResponse, error)
+	AuctionEndpoint(ctx context.Context, in *AuctionEndpointRequest, opts ...grpc.CallOption) (*AuctionEndpointResponse, error)
 	// Provide the historical auctions info
 	Auctions(ctx context.Context, in *AuctionsRequest, opts ...grpc.CallOption) (*AuctionsResponse, error)
 	// StreamBids streams new bids of an auction.
@@ -38,8 +38,8 @@ func NewInjectiveAuctionRPCClient(cc grpc.ClientConnInterface) InjectiveAuctionR
 	return &injectiveAuctionRPCClient{cc}
 }
 
-func (c *injectiveAuctionRPCClient) AuctionEndpoint(ctx context.Context, in *AuctionRequest, opts ...grpc.CallOption) (*AuctionResponse, error) {
-	out := new(AuctionResponse)
+func (c *injectiveAuctionRPCClient) AuctionEndpoint(ctx context.Context, in *AuctionEndpointRequest, opts ...grpc.CallOption) (*AuctionEndpointResponse, error) {
+	out := new(AuctionEndpointResponse)
 	err := c.cc.Invoke(ctx, "/injective_auction_rpc.InjectiveAuctionRPC/AuctionEndpoint", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (x *injectiveAuctionRPCStreamBidsClient) Recv() (*StreamBidsResponse, error
 // for forward compatibility
 type InjectiveAuctionRPCServer interface {
 	// Provide historical auction info for a given auction
-	AuctionEndpoint(context.Context, *AuctionRequest) (*AuctionResponse, error)
+	AuctionEndpoint(context.Context, *AuctionEndpointRequest) (*AuctionEndpointResponse, error)
 	// Provide the historical auctions info
 	Auctions(context.Context, *AuctionsRequest) (*AuctionsResponse, error)
 	// StreamBids streams new bids of an auction.
@@ -105,7 +105,7 @@ type InjectiveAuctionRPCServer interface {
 type UnimplementedInjectiveAuctionRPCServer struct {
 }
 
-func (UnimplementedInjectiveAuctionRPCServer) AuctionEndpoint(context.Context, *AuctionRequest) (*AuctionResponse, error) {
+func (UnimplementedInjectiveAuctionRPCServer) AuctionEndpoint(context.Context, *AuctionEndpointRequest) (*AuctionEndpointResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AuctionEndpoint not implemented")
 }
 func (UnimplementedInjectiveAuctionRPCServer) Auctions(context.Context, *AuctionsRequest) (*AuctionsResponse, error) {
@@ -128,7 +128,7 @@ func RegisterInjectiveAuctionRPCServer(s grpc.ServiceRegistrar, srv InjectiveAuc
 }
 
 func _InjectiveAuctionRPC_AuctionEndpoint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AuctionRequest)
+	in := new(AuctionEndpointRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func _InjectiveAuctionRPC_AuctionEndpoint_Handler(srv interface{}, ctx context.C
 		FullMethod: "/injective_auction_rpc.InjectiveAuctionRPC/AuctionEndpoint",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InjectiveAuctionRPCServer).AuctionEndpoint(ctx, req.(*AuctionRequest))
+		return srv.(InjectiveAuctionRPCServer).AuctionEndpoint(ctx, req.(*AuctionEndpointRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
