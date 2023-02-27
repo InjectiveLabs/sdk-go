@@ -80,7 +80,7 @@ type ExchangeClient interface {
 	GetRedemptions(ctx context.Context, req insurancePB.RedemptionsRequest) (insurancePB.RedemptionsResponse, error)
 
 	GetAccountPortfolio(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioResponse, error)
-	GetStreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
+	StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
 
 	StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error)
 	GetInfo(ctx context.Context, req metaPB.InfoRequest) (metaPB.InfoResponse, error)
@@ -1125,7 +1125,7 @@ func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress
 	return *res, nil
 }
 
-func (c *exchangeClient) GetStreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
+func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
 	stream, err := c.portfolioExchangeClient.StreamAccountPortfolio(ctx, &portfolioExchangePB.StreamAccountPortfolioRequest{

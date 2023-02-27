@@ -19,7 +19,7 @@ func main() {
 
 	ctx := context.Background()
 
-	stream, err := exchangeClient.GetStreamAccountPortfolio(ctx, "inj1clw20s2uxeyxtam6f7m84vgae92s9eh7vygagt", "", "")
+	stream, err := exchangeClient.StreamAccountPortfolio(ctx, "inj1clw20s2uxeyxtam6f7m84vgae92s9eh7vygagt", "", "")
 	if err != nil {
 		fmt.Println(err)
 	}
