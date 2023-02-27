@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("devnet", "")
+	// select network: local, testnet, mainnet
+	network := common.LoadNetwork("testnet", "k8s")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
 	if err != nil {
 		fmt.Println(err)
@@ -19,7 +19,7 @@ func main() {
 
 	ctx := context.Background()
 
-	stream, err := exchangeClient.GetStreamAccountPortfolio(ctx, "inj1pjcw9hhx8kf462qtgu37p7l7shyqgpfr82r6em", "0x0cb0e2dee63d935d280b4723e0fbfe85c8040523000000000000000000000000", "total_balances")
+	stream, err := exchangeClient.GetStreamAccountPortfolio(ctx, "inj1clw20s2uxeyxtam6f7m84vgae92s9eh7vygagt", "0xc7dca7c15c364865f77a4fb67ab11dc95502e6fe000000000000000000000001", "total_balances")
 	if err != nil {
 		fmt.Println(err)
 	}

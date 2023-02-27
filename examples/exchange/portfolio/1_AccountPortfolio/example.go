@@ -10,15 +10,15 @@ import (
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("devnet", "")
+	// select network: local, testnet, mainnet
+	network := common.LoadNetwork("testnet", "k8s")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
 	if err != nil {
 		panic(err)
 	}
 
 	ctx := context.Background()
-	accountAddress := "inj1pjcw9hhx8kf462qtgu37p7l7shyqgpfr82r6em"
+	accountAddress := "inj1clw20s2uxeyxtam6f7m84vgae92s9eh7vygagt"
 	res, err := exchangeClient.GetAccountPortfolio(ctx, accountAddress)
 	if err != nil {
 		fmt.Println(err)
