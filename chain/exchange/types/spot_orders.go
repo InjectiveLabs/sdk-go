@@ -11,7 +11,10 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-func (o *SpotOrder) ToSpotMarketOrder(balanceHold sdk.Dec, orderHash common.Hash) *SpotMarketOrder {
+func (o *SpotOrder) ToSpotMarketOrder(sender sdk.AccAddress, balanceHold sdk.Dec, orderHash common.Hash) *SpotMarketOrder {
+	if o.OrderInfo.FeeRecipient == "" {
+		o.OrderInfo.FeeRecipient = sender.String()
+	}
 	return &SpotMarketOrder{
 		OrderInfo:    o.OrderInfo,
 		BalanceHold:  balanceHold,
@@ -21,7 +24,10 @@ func (o *SpotOrder) ToSpotMarketOrder(balanceHold sdk.Dec, orderHash common.Hash
 	}
 }
 
-func (o *SpotOrder) GetNewSpotLimitOrder(orderHash common.Hash) *SpotLimitOrder {
+func (o *SpotOrder) GetNewSpotLimitOrder(sender sdk.AccAddress, orderHash common.Hash) *SpotLimitOrder {
+	if o.OrderInfo.FeeRecipient == "" {
+		o.OrderInfo.FeeRecipient = sender.String()
+	}
 	return &SpotLimitOrder{
 		OrderInfo:    o.OrderInfo,
 		OrderType:    o.OrderType,

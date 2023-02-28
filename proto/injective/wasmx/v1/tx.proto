@@ -1,5 +1,5 @@
 syntax = "proto3";
-package injective.wasmx.v1beta1;
+package injective.wasmx.v1;
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";

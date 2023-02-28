@@ -53,6 +53,16 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/exchange/aggregateMarketVolumes";
   }
 
+  // Retrieves the denom decimals for a denom.
+  rpc DenomDecimal(QueryDenomDecimalRequest) returns (QueryDenomDecimalResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/denom_decimal/{denom}";
+  }
+
+  // Retrieves the denom decimals for multiple denoms. Returns all denom decimals if unspecified.
+  rpc DenomDecimals(QueryDenomDecimalsRequest) returns (QueryDenomDecimalsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/denom_decimals";
+  }
+
   // Retrieves a list of spot markets.
   rpc SpotMarkets(QuerySpotMarketsRequest) returns (QuerySpotMarketsResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/spot/markets";
@@ -357,6 +367,29 @@ message QueryAggregateMarketVolumeRequest {
 // QueryAggregateMarketVolumeResponse is the response type for the Query/AggregateMarketVolume RPC method.
 message QueryAggregateMarketVolumeResponse {
   VolumeRecord volume = 1[
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryDenomDecimalRequest is the request type for the Query/DenomDecimal RPC method.
+message QueryDenomDecimalRequest {
+  string denom = 1;
+}
+
+// QueryDenomDecimalResponse is the response type for the Query/DenomDecimal RPC method.
+message QueryDenomDecimalResponse {
+  uint64 decimal = 1;
+}
+
+// QueryDenomDecimalsRequest is the request type for the Query/DenomDecimals RPC method.
+message QueryDenomDecimalsRequest {
+  // denoms can be empty to query all denom decimals
+  repeated string denoms = 1;
+}
+
+// QueryDenomDecimalsRequest is the response type for the Query/DenomDecimals RPC method.
+message QueryDenomDecimalsResponse {
+  repeated DenomDecimals denom_decimals = 1[
     (gogoproto.nullable) = false
   ];
 }

@@ -38,6 +38,9 @@ const (
 
 	// MaxHistoricalTradeRecordAge is the maximum age of trade records to track.
 	MaxHistoricalTradeRecordAge = 60 * 5
+
+	// MaxSubaccountNonceLength restricts the size of a subaccount number from 0 to 999
+	MaxSubaccountNonceLength = 3
 )
 
 var MaxBinaryOptionsOrderPrice = sdk.OneDec()

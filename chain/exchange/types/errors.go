@@ -98,4 +98,5 @@ var (
 	ErrInvalidAmount                            = sdkerrors.Register(ModuleName, 91, "Invalid amount")
 	ErrFeatureDisabled                          = sdkerrors.Register(ModuleName, 92, "The current feature has been disabled")
 	ErrTooMuchOrderMargin                       = sdkerrors.Register(ModuleName, 93, "Order has too much margin")
+	ErrBadSubaccountNonce                       = sdkerrors.Register(ModuleName, 94, "Subaccount nonce is invalid")
 )

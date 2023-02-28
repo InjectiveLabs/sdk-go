@@ -101,7 +101,7 @@ message PriceState {
 }
 
 message PythPriceState {
-  bytes price_id = 1;
+  string price_id = 1;
   string ema_price = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
   string ema_conf = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
   string conf = 4 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
@@ -221,6 +221,7 @@ message MetadataStatistics {
 message PriceAttestation {
   string product_id = 1;
   bytes price_id = 2;
+  // MaxPrice refers to the largest individual raw price considered
   int64 price = 3;
   uint64 conf = 4;
   int32 expo = 5;

@@ -13,7 +13,7 @@ func NewPythPriceState(
 	blockTime int64,
 ) *PythPriceState {
 	return &PythPriceState{
-		PriceId:     priceID.Bytes(),
+		PriceId:     priceID.Hex(),
 		EmaPrice:    emaPrice,
 		EmaConf:     emaConf,
 		Conf:        conf,
@@ -24,14 +24,14 @@ func NewPythPriceState(
 
 func (p *PythPriceState) Update(
 	emaPrice, emaConf, conf sdk.Dec,
-	publishTime int64,
+	publishTime uint64,
 	price sdk.Dec,
 	blockTime int64,
 ) {
 	p.EmaPrice = emaPrice
 	p.EmaConf = emaConf
 	p.Conf = conf
-	p.PublishTime = uint64(publishTime)
+	p.PublishTime = publishTime
 	p.PriceState.UpdatePrice(price, blockTime)
 }
 
@@ -44,7 +44,7 @@ func (p *PriceAttestation) Validate() error {
 		return ErrInvalidPythPriceID
 	}
 
-	if p.Price <= 0 {
+	if !(p.Price > 0) {
 		return ErrBadPrice
 	}
 
@@ -52,7 +52,7 @@ func (p *PriceAttestation) Validate() error {
 		return ErrInvalidPythExponent
 	}
 
-	if p.PublishTime <= 0 {
+	if !(p.PublishTime > 0) {
 		return ErrInvalidPythPublishTime
 	}
 

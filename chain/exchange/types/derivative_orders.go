@@ -83,7 +83,10 @@ func (o *DerivativeMarketOrderCancel) ApplyDerivativeMarketCancellation(
 	}
 }
 
-func NewDerivativeMarketOrder(o *DerivativeOrder, orderHash common.Hash) *DerivativeMarketOrder {
+func NewDerivativeMarketOrder(o *DerivativeOrder, sender sdk.AccAddress, orderHash common.Hash) *DerivativeMarketOrder {
+	if o.OrderInfo.FeeRecipient == "" {
+		o.OrderInfo.FeeRecipient = sender.String()
+	}
 	return &DerivativeMarketOrder{
 		OrderInfo:    o.OrderInfo,
 		OrderType:    o.OrderType,
@@ -93,7 +96,11 @@ func NewDerivativeMarketOrder(o *DerivativeOrder, orderHash common.Hash) *Deriva
 		OrderHash:    orderHash.Bytes(),
 	}
 }
-func NewDerivativeLimitOrder(o *DerivativeOrder, orderHash common.Hash) *DerivativeLimitOrder {
+
+func NewDerivativeLimitOrder(o *DerivativeOrder, sender sdk.AccAddress, orderHash common.Hash) *DerivativeLimitOrder {
+	if o.OrderInfo.FeeRecipient == "" {
+		o.OrderInfo.FeeRecipient = sender.String()
+	}
 	return &DerivativeLimitOrder{
 		OrderInfo:    o.OrderInfo,
 		OrderType:    o.OrderType,

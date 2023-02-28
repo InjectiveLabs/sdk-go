@@ -19,4 +19,5 @@ var (
 	ErrSupplyOverflow          = sdkerrors.Register(ModuleName, 12, "supply cannot exceed max ERC20 value")
 	ErrInvalidEthSender        = sdkerrors.Register(ModuleName, 13, "invalid ethereum sender on claim")
 	ErrInvalidEthDestination   = sdkerrors.Register(ModuleName, 14, "invalid ethereum destination")
+	ErrNoLastClaimForValidator = sdkerrors.Register(ModuleName, 15, "missing previous claim for validator")
 )
