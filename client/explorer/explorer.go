@@ -25,6 +25,11 @@ type ExplorerClient interface {
 	GetIBCTransfers(ctx context.Context, req explorerPB.GetIBCTransferTxsRequest) (explorerPB.GetIBCTransferTxsResponse, error)
 	StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error)
 	StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error)
+	GetWasmCodes(ctx context.Context, req explorerPB.GetWasmCodesRequest) (explorerPB.GetWasmCodesResponse, error)
+	GetWasmCodeByID(ctx context.Context, req explorerPB.GetWasmCodeByIDRequest) (explorerPB.GetWasmCodeByIDResponse, error)
+	GetWasmContracts(ctx context.Context, req explorerPB.GetWasmContractsRequest) (explorerPB.GetWasmContractsResponse, error)
+	GetWasmContractByAddress(ctx context.Context, req explorerPB.GetWasmContractByAddressRequest) (explorerPB.GetWasmContractByAddressResponse, error)
+	GetCW20Balance(ctx context.Context, req explorerPB.GetCw20BalanceRequest) (explorerPB.GetCw20BalanceResponse, error)
 	Close()
 }
 
@@ -240,6 +245,71 @@ func (c *explorerClient) StreamBlocks(ctx context.Context) (explorerPB.Injective
 	c.setCookie(header)
 
 	return stream, nil
+}
+
+func (c *explorerClient) GetWasmCodes(ctx context.Context, req explorerPB.GetWasmCodesRequest) (explorerPB.GetWasmCodesResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetWasmCodes(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetWasmCodesResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *explorerClient) GetWasmCodeByID(ctx context.Context, req explorerPB.GetWasmCodeByIDRequest) (explorerPB.GetWasmCodeByIDResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetWasmCodeByID(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetWasmCodeByIDResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *explorerClient) GetWasmContracts(ctx context.Context, req explorerPB.GetWasmContractsRequest) (explorerPB.GetWasmContractsResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetWasmContracts(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetWasmContractsResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *explorerClient) GetWasmContractByAddress(ctx context.Context, req explorerPB.GetWasmContractByAddressRequest) (explorerPB.GetWasmContractByAddressResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetWasmContractByAddress(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetWasmContractByAddressResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
+}
+
+func (c *explorerClient) GetCW20Balance(ctx context.Context, req explorerPB.GetCw20BalanceRequest) (explorerPB.GetCw20BalanceResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.explorerClient.GetCw20Balance(ctx, &req, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return explorerPB.GetCw20BalanceResponse{}, err
+	}
+	c.setCookie(header)
+
+	return *res, nil
 }
 
 func (c *explorerClient) Close() {
