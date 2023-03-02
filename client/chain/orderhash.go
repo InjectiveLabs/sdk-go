@@ -65,8 +65,12 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 	orderHashes := OrderHashes{}
 
+	// protect nonce used in this function
+	c.syncMux.Lock()
+	defer c.syncMux.Unlock()
+
 	for _, o := range spotOrders {
-		nonce := c.readAndUpdateNounce()
+		c.nonce++
 
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
@@ -80,7 +84,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 				"Price":        o.OrderInfo.Price.String(),
 				"Quantity":     o.OrderInfo.Quantity.String(),
 			},
-			"Salt":         strconv.Itoa(int(nonce)),
+			"Salt":         strconv.Itoa(int(c.nonce)),
 			"OrderType":    string(o.OrderType),
 			"TriggerPrice": triggerPrice,
 		}
@@ -109,7 +113,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 	}
 
 	for _, o := range derivativeOrders {
-		nonce := c.readAndUpdateNounce()
+		c.nonce++
 
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
@@ -126,7 +130,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 			"Margin":       o.Margin.String(),
 			"OrderType":    string(o.OrderType),
 			"TriggerPrice": triggerPrice,
-			"Salt":         strconv.Itoa(int(nonce)),
+			"Salt":         strconv.Itoa(int(c.nonce)),
 		}
 		typedData := gethsigner.TypedData{
 			Types:       eip712OrderTypes,
@@ -188,12 +192,4 @@ func (c *chainClient) updateNounce() {
 
 		c.nonce = res.Nonce
 	}
-}
-
-func (c *chainClient) readAndUpdateNounce() uint32 {
-	c.syncMux.Lock()
-	defer c.syncMux.Unlock()
-
-	c.nonce++
-	return c.nonce
 }
