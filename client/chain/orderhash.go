@@ -3,6 +3,7 @@ package chain
 import (
 	"context"
 	"strconv"
+	"time"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -64,15 +65,9 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 	orderHashes := OrderHashes{}
 
-	// get nonce
-	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
-	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
-	if err != nil {
-		return OrderHashes{}, err
-	}
-	nonce := res.Nonce + 1
-
 	for _, o := range spotOrders {
+		nonce := c.readAndUpdateNounce()
+
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
@@ -111,10 +106,11 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 		hash := common.BytesToHash(w.Sum(nil))
 		orderHashes.Spot = append(orderHashes.Spot, hash)
-		nonce += 1
 	}
 
 	for _, o := range derivativeOrders {
+		nonce := c.readAndUpdateNounce()
+
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
@@ -154,8 +150,50 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 		hash := common.BytesToHash(w.Sum(nil))
 		orderHashes.Derivative = append(orderHashes.Derivative, hash)
-		nonce += 1
 	}
 
 	return orderHashes, nil
+}
+
+func (c *chainClient) RoutineUpdateNounce() context.CancelFunc {
+	c.updateNounce()
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	ticker := time.NewTicker(10 * time.Second)
+
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ticker.C:
+				c.updateNounce()
+			case <-ctx.Done():
+				return
+			}
+		}
+	}(ctx)
+
+	return cancel
+}
+
+func (c *chainClient) updateNounce() {
+	// get nonce
+	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
+	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
+	if err != nil {
+		c.logger.Errorln("[INJ-GO-SDK] Failed to get nonce: ", err)
+	} else {
+		c.syncMux.Lock()
+		defer c.syncMux.Unlock()
+
+		c.nonce = res.Nonce
+	}
+}
+
+func (c *chainClient) readAndUpdateNounce() uint32 {
+	c.syncMux.Lock()
+	defer c.syncMux.Unlock()
+
+	c.nonce++
+	return c.nonce
 }

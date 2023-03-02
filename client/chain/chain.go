@@ -146,6 +146,9 @@ type chainClient struct {
 	gasWanted uint64
 	gasFee    string
 
+	nonce                   uint32
+	closeRoutineUpdateNonce context.CancelFunc
+
 	sessionCookie  string
 	sessionEnabled bool
 
@@ -228,6 +231,10 @@ func NewChainClient(
 		authzQueryClient:    authztypes.NewQueryClient(conn),
 		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
 	}
+
+	// routine upate nonce
+	closeRoutineUpdateNonce := cc.RoutineUpdateNounce()
+	cc.closeRoutineUpdateNonce = closeRoutineUpdateNonce
 
 	if cc.canSign {
 		var err error
@@ -436,6 +443,7 @@ func (c *chainClient) Close() {
 	if c.conn != nil {
 		c.conn.Close()
 	}
+	c.closeRoutineUpdateNonce()
 }
 
 func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
@@ -538,7 +546,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 			c.syncNonce()
 			c.txFactory = c.txFactory.WithSequence(c.accSeq)
 			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-			c.logger.Debugln("[INJ-GO-SDK] Retrying broadcastTx with nonce: ", c.accSeq)
+			c.logger.Debugf("[INJ-GO-SDK] Retrying broadcastTx with nonce: %d ,err: %v", c.accSeq, err)
 			res, err = c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
 		}
 		if err != nil {
