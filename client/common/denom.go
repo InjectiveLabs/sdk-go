@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+
 	"gopkg.in/ini.v1"
 )
 
@@ -14,7 +15,7 @@ type Denom struct {
 }
 
 func LoadMetadata(network Network, marketId string) Denom {
-	fileName := fmt.Sprintf("client/metadata/assets/%s.ini", network.Name)
+	fileName := getFileAbsPath(fmt.Sprintf("../metadata/assets/%s.ini", network.Name))
 	cfg, err := ini.Load(fileName)
 	if err != nil {
 		panic(err)
