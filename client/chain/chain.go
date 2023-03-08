@@ -860,13 +860,7 @@ func (c *chainClient) PollTxResults(res *txtypes.BroadcastTxResponse, clientCtx 
 		if err != nil {
 			if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
 				return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
-			}
-
-			// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
-
-			t.Reset(defaultBroadcastStatusPoll)
-			continue
-
+			} // else continue trying to get result.
 		} else if resultTx.Height > 0 {
 			resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 			res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
@@ -887,7 +881,6 @@ func (c *chainClient) PollTxResults(res *txtypes.BroadcastTxResponse, clientCtx 
 			return nil, err
 		case <-t.C:
 			continue
-
 		}
 	}
 }
