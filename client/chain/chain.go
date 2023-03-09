@@ -568,7 +568,20 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 		return nil, err
 	}
 
-	return c.PollTxResults(res, c.ctx, txBytes)
+	res, err = c.PollTxResults(res, c.ctx, txBytes)
+
+	if res.TxResponse.Code != 0 {
+		err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+		c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
+	} else {
+		c.logger.Debugln("[INJ-GO-SDK] Msg batch committed successfully at height: ", res.TxResponse.Height)
+	}
+
+	c.accSeq++
+	c.logger.Debugln("[INJ-GO-SDK] Nonce incremented to ", c.accSeq)
+	c.logger.Debugln("[INJ-GO-SDK] Gas wanted: ", c.gasWanted)
+
+	return res, err
 }
 
 func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
@@ -869,6 +882,7 @@ func (c *chainClient) PollTxResults(res *txtypes.BroadcastTxResponse, clientCtx 
 			if res.TxResponse.Data == "" {
 				c.updateNounce()
 			}
+
 			return res, err
 		}
 
