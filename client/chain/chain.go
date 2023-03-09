@@ -560,6 +560,9 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 
 		c.accSeq++
 
+		c.logger.Debugln("[INJ-GO-SDK] Nonce incremented to ", c.accSeq)
+		c.logger.Debugln("[INJ-GO-SDK] Gas wanted: ", c.gasWanted)
+
 		return res, txBytes, nil
 	}
 
@@ -569,17 +572,16 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	}
 
 	res, err = c.PollTxResults(res, c.ctx, txBytes)
-
-	if res.TxResponse.Code != 0 {
-		err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
-		c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
-	} else {
-		c.logger.Debugln("[INJ-GO-SDK] Msg batch committed successfully at height: ", res.TxResponse.Height)
+	if err != nil {
+		return res, err
+	} else if res != nil && res.TxResponse != nil {
+		if res.TxResponse.Code != 0 {
+			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+			c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
+		} else {
+			c.logger.Debugln("[INJ-GO-SDK] Msg batch committed successfully at height: ", res.TxResponse.Height)
+		}
 	}
-
-	c.accSeq++
-	c.logger.Debugln("[INJ-GO-SDK] Nonce incremented to ", c.accSeq)
-	c.logger.Debugln("[INJ-GO-SDK] Gas wanted: ", c.gasWanted)
 
 	return res, err
 }
