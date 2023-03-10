@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"google.golang.org/grpc/metadata"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	accountPB "github.com/InjectiveLabs/sdk-go/exchange/accounts_rpc/pb"
 	auctionPB "github.com/InjectiveLabs/sdk-go/exchange/auction_rpc/pb"
@@ -14,7 +16,6 @@ import (
 	oraclePB "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
 	portfolioExchangePB "github.com/InjectiveLabs/sdk-go/exchange/portfolio_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
-	"google.golang.org/grpc/metadata"
 
 	log "github.com/InjectiveLabs/suplog"
 	"github.com/pkg/errors"
@@ -280,12 +281,6 @@ func (c *exchangeClient) StreamDerivativeOrderbook(ctx context.Context, marketId
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -301,12 +296,6 @@ func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, market
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -322,12 +311,6 @@ func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, ma
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -373,12 +356,6 @@ func (c *exchangeClient) StreamDerivativeMarket(ctx context.Context, marketIds [
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -390,12 +367,6 @@ func (c *exchangeClient) StreamDerivativePositions(ctx context.Context, req deri
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -407,12 +378,6 @@ func (c *exchangeClient) StreamDerivativeOrders(ctx context.Context, req derivat
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -437,12 +402,6 @@ func (c *exchangeClient) StreamDerivativeTrades(ctx context.Context, req derivat
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -549,12 +508,6 @@ func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol string, qu
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -602,12 +555,6 @@ func (c *exchangeClient) StreamBids(ctx context.Context) (auctionPB.InjectiveAuc
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -660,12 +607,6 @@ func (c *exchangeClient) StreamSubaccountBalance(ctx context.Context, subaccount
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -850,12 +791,6 @@ func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketId
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -871,12 +806,6 @@ func (c *exchangeClient) StreamSpotOrderbook(ctx context.Context, marketIds []st
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -892,12 +821,6 @@ func (c *exchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIds []
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -943,12 +866,6 @@ func (c *exchangeClient) StreamSpotMarket(ctx context.Context, marketIds []strin
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -960,12 +877,6 @@ func (c *exchangeClient) StreamSpotOrders(ctx context.Context, req spotExchangeP
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -990,12 +901,6 @@ func (c *exchangeClient) StreamSpotTrades(ctx context.Context, req spotExchangeP
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -1100,12 +1005,6 @@ func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveM
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
@@ -1137,12 +1036,6 @@ func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddr
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err = stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
 
 	return stream, nil
 }
