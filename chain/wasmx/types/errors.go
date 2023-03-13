@@ -10,4 +10,5 @@ var (
 	ErrDuplicateContract      = sdkerrors.Register(ModuleName, 5, "duplicate contract")
 	ErrNoContractAddresses    = sdkerrors.Register(ModuleName, 6, "no contract addresses found")
 	ErrInvalidCodeId          = sdkerrors.Register(ModuleName, 7, "invalid code id")
+	ErrDeductingGasFees       = sdkerrors.Register(ModuleName, 8, "not possible to deduct gas fees")
 )

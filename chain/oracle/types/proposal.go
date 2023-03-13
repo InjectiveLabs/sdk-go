@@ -287,11 +287,13 @@ func (p *AuthorizeBandOracleRequestProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrBadSymbolsCount, "AuthorizeBandOracleRequestProposal")
 	}
 
-	requestCallData := bandprice.Input{
-		Symbols:    p.Request.Symbols,
-		Multiplier: BandPriceMultiplier,
+	callData, err := bandobi.Encode(bandprice.SymbolInput{
+		Symbols:            p.Request.Symbols,
+		MinimumSourceCount: uint8(p.Request.MinCount),
+	})
+	if err != nil {
+		return err
 	}
-	callData := bandobi.MustEncode(requestCallData)
 
 	if len(callData) > bandoracle.MaxDataSize {
 		return bandoracle.WrapMaxError(bandoracle.ErrTooLargeCalldata, len(callData), bandoracle.MaxDataSize)
@@ -383,21 +385,23 @@ func (p *UpdateBandOracleRequestProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *UpdateBandOracleRequestProposal) ValidateBasic() error {
-
-	if p.DeleteRequestId == 0 && p.UpdateOracleRequest == nil {
+	if len(p.DeleteRequestIds) == 0 && p.UpdateOracleRequest == nil {
 		return ErrInvalidBandIBCUpdateRequest
 	}
 
-	if p.DeleteRequestId > 0 && p.UpdateOracleRequest != nil {
-		return sdkerrors.Wrapf(ErrInvalidBandIBCUpdateRequest, "cannot update requestID %T and delete reqeustID %T at same time", p.UpdateOracleRequest.RequestId, p.DeleteRequestId)
+	if len(p.DeleteRequestIds) > 0 && p.UpdateOracleRequest != nil {
+		return sdkerrors.Wrapf(ErrInvalidBandIBCUpdateRequest, "cannot update requestID %T and delete reqeustID %T at same time", p.UpdateOracleRequest.RequestId, p.DeleteRequestIds)
 	}
 
 	if p.UpdateOracleRequest != nil && len(p.UpdateOracleRequest.Symbols) > 0 {
-		requestCallData := bandprice.Input{
-			Symbols:    p.UpdateOracleRequest.Symbols,
-			Multiplier: BandPriceMultiplier,
+		callData, err := bandobi.Encode(bandprice.SymbolInput{
+			Symbols:            p.UpdateOracleRequest.Symbols,
+			MinimumSourceCount: uint8(p.UpdateOracleRequest.MinCount),
+		})
+
+		if err != nil {
+			return err
 		}
-		callData := bandobi.MustEncode(requestCallData)
 
 		if len(callData) > bandoracle.MaxDataSize {
 			return bandoracle.WrapMaxError(bandoracle.ErrTooLargeCalldata, len(callData), bandoracle.MaxDataSize)

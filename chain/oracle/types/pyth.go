@@ -35,12 +35,16 @@ func (p *PythPriceState) Update(
 	p.PriceState.UpdatePrice(price, blockTime)
 }
 
-func (p *PriceAttestation) GetPriceID() common.Hash {
-	return common.BytesToHash(p.PriceId)
+func (p *PriceAttestation) GetPriceID() string {
+	return p.PriceId
+}
+
+func (p *PriceAttestation) GetPriceIDHash() common.Hash {
+	return common.HexToHash(p.PriceId)
 }
 
 func (p *PriceAttestation) Validate() error {
-	if len(p.PriceId) != 32 {
+	if len(p.GetPriceIDHash().Bytes()) != 32 {
 		return ErrInvalidPythPriceID
 	}
 

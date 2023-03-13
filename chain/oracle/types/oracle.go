@@ -108,3 +108,13 @@ func (s SymbolPriceTimestamps) GetTimestamp(oracleType OracleType, symbol string
 func CheckPriceFeedThreshold(lastPrice, newPrice sdk.Dec) bool {
 	return newPrice.GT(lastPrice.Mul(sdk.NewDec(100))) || newPrice.LT(lastPrice.Quo(sdk.NewDec(100)))
 }
+
+func IsLegacySchemeOracleScript(scriptID int64, params BandIBCParams) bool {
+	for _, id := range params.LegacyOracleIds {
+		if id == scriptID {
+			return true
+		}
+	}
+
+	return false
+}

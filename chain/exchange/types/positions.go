@@ -70,6 +70,20 @@ func (p *Position) ApplyProfitHaircutForDerivatives(deficitAmount, totalProfits,
 	// newEntryPrice =  haircutPercentage * (settlementPrice - entryPrice) + entryPrice
 	newEntryPrice := deficitAmount.Mul(settlementPrice.Sub(p.EntryPrice)).Quo(totalProfits).Add(p.EntryPrice)
 	p.EntryPrice = newEntryPrice
+
+	// profitable position but with negative margin, we didn't account for negative margin previously,
+	// so we can safely add it if payout becomes negative from haircut
+	newPositionPayout := p.GetPayoutIfFullyClosing(settlementPrice, sdk.ZeroDec()).Payout
+	if newPositionPayout.IsNegative() {
+		p.Margin = p.Margin.Add(newPositionPayout.Abs())
+	}
+}
+
+func (p *Position) ApplyTotalPositionPayoutHaircut(deficitAmount, totalPayouts, settlementPrice sdk.Dec) {
+	p.ApplyProfitHaircutForDerivatives(deficitAmount, totalPayouts, settlementPrice)
+
+	removedMargin := p.Margin.Mul(deficitAmount).Quo(totalPayouts)
+	p.Margin = p.Margin.Sub(removedMargin)
 }
 
 func (p *Position) ApplyProfitHaircutForBinaryOptions(deficitAmount, totalAssets sdk.Dec, oracleScaleFactor uint32) {
@@ -108,6 +122,14 @@ func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate 
 	payout, _, _ = p.ApplyPositionDelta(positionDelta, closeTradingFee)
 
 	return payout, closeTradingFee, positionDelta
+}
+
+func (p *Position) ClosePositionWithoutPayouts() {
+	p.IsLong = false
+	p.EntryPrice = sdk.ZeroDec()
+	p.Quantity = sdk.ZeroDec()
+	p.Margin = sdk.ZeroDec()
+	p.CumulativeFundingEntry = sdk.ZeroDec()
 }
 
 func (p *Position) ClosePositionByRefunding(closingFeeRate sdk.Dec) (payout, closeTradingFee sdk.Dec, positionDelta *PositionDelta) {

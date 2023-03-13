@@ -135,6 +135,8 @@ message BandOracleRequest {
   uint64 prepare_gas = 7;
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 8;
+  // MinSourceCount is the minimum number of data sources that must be used by each validator
+  uint64 min_source_count = 9;
 }
 
 message BandIBCParams {
@@ -149,6 +151,8 @@ message BandIBCParams {
   string ibc_version = 4;
   // band IBC portID
   string ibc_port_id = 5;
+  //  legacy oracle scheme ids
+  repeated int64 legacy_oracle_ids = 6;
 }
 
 
@@ -219,28 +223,13 @@ message MetadataStatistics {
 
 
 message PriceAttestation {
-  string product_id = 1;
-  bytes price_id = 2;
+  string price_id = 1;
   // MaxPrice refers to the largest individual raw price considered
-  int64 price = 3;
-  uint64 conf = 4;
-  int32 expo = 5;
-  int64 ema_price = 6;
-  uint64 ema_conf = 7;
-  PythStatus status = 8;
-  uint32 num_publishers = 9;
-  uint32 max_num_publishers = 10;
-  int64 attestation_time = 11;
-  int64 publish_time = 12;
-}
-
-enum PythStatus {
-  // The price feed is not currently updating for an unknown reason.
-  Unknown = 0;
-  // The price feed is updating as expected.
-  Trading = 1;
-  // The price feed is not currently updating because trading in the product has been halted.
-  Halted = 2;
-  // The price feed is not currently updating because an auction is setting the price.
-  Auction = 3;
+  int64 price = 2;
+  uint64 conf = 3;
+  int32 expo = 4;
+  int64 ema_price = 5;
+  uint64 ema_conf = 6;
+  int32 ema_expo = 7;
+  int64 publish_time = 8;
 }

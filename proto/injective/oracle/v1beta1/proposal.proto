@@ -82,7 +82,7 @@ message UpdateBandOracleRequestProposal {
 
   string title = 1;
   string description = 2;
-  uint64 delete_request_id = 3;
+  repeated uint64 delete_request_ids = 3;
   BandOracleRequest update_oracle_request = 4;
 }
 

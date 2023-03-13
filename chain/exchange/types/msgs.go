@@ -164,7 +164,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 	}
 
 	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
-		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
+		!o.IsConditional() && o.TriggerPrice != nil */// commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
 
@@ -1246,17 +1246,26 @@ func (msg *MsgExternalTransfer) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)
-	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.SourceSubaccountId)) {
+	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SourceSubaccountId); err != nil {
+		return err
+	}
+
+	sourceSubaccountId, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SourceSubaccountId)
+	if err != nil {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
 
-	_, ok = IsValidSubaccountID(msg.DestinationSubaccountId)
+	if IsDefaultSubaccountID(common.HexToHash(msg.SourceSubaccountId)) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+	}
+
+	_, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
 	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.DestinationSubaccountId)) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
-	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+
+	if !bytes.Equal(SubaccountIDToSdkAddress(sourceSubaccountId).Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 	return nil
 }

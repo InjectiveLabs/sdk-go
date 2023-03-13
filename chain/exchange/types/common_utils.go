@@ -246,6 +246,10 @@ func GetSubaccountIDOrDeriveFromNonce(sender sdk.AccAddress, subaccountId string
 		return GetNonceDerivedSubaccountID(sender, subaccountId)
 	}
 
+	if !IsHexHash(subaccountId) {
+		return common.Hash{}, sdkerrors.Wrap(ErrBadSubaccountID, subaccountId)
+	}
+
 	return common.HexToHash(subaccountId), nil
 }
 
