@@ -14,19 +14,19 @@ option go_package = "/injective_auction_rpcpb";
 // InjectiveAuctionRPC defines gRPC API of the Auction API.
 service InjectiveAuctionRPC {
 	// Provide historical auction info for a given auction
-	rpc AuctionEndpoint (AuctionRequest) returns (AuctionResponse);
+	rpc AuctionEndpoint (AuctionEndpointRequest) returns (AuctionEndpointResponse);
 	// Provide the historical auctions info
 	rpc Auctions (AuctionsRequest) returns (AuctionsResponse);
 	// StreamBids streams new bids of an auction.
 	rpc StreamBids (StreamBidsRequest) returns (stream StreamBidsResponse);
 }
 
-message AuctionRequest {
+message AuctionEndpointRequest {
 	// The auction round number. -1 for latest.
 	sint64 round = 1;
 }
 
-message AuctionResponse {
+message AuctionEndpointResponse {
 	// The auction
 	Auction auction = 1;
 	// Bids of the auction

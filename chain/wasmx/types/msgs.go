@@ -3,22 +3,143 @@ package types
 import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const RouterKey = ModuleName
+
+const (
+	TypeMsgUpdate                = "msgUpdate"
+	TypeMsgActivate              = "msgActivate"
+	TypeMsgDeactivate            = "msgDeactivate"
+	TypeMsgExecuteContractCompat = "executeContractCompat"
+)
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgUpdateContract) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgUpdateContract) Type() string { return TypeMsgUpdate }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgUpdateContract) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+	}
+
+	if msg.AdminAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(msg.AdminAddress); err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.AdminAddress)
+		}
+	}
+
+	if msg.GasLimit == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "GasLimit must be > 0")
+	}
+
+	if msg.GasPrice == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "GasPrice must be > 0")
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgUpdateContract) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgUpdateContract) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgActivateContract) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgActivateContract) Type() string { return TypeMsgActivate }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgActivateContract) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+	}
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgActivateContract) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgActivateContract) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgDeactivateContract) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgDeactivateContract) Type() string { return TypeMsgDeactivate }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgDeactivateContract) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+	}
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgDeactivateContract) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgDeactivateContract) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
 
 func (msg MsgExecuteContractCompat) Route() string {
 	return RouterKey
 }
 
 func (msg MsgExecuteContractCompat) Type() string {
-	return "executeContractCompat"
+	return TypeMsgExecuteContractCompat
 }
 
 func (msg MsgExecuteContractCompat) ValidateBasic() error {
-	funds, err := sdk.ParseCoinsNormalized(msg.Funds)
-	if err != nil {
-		return err
+	funds := sdk.Coins{}
+	if msg.Funds != "0" {
+		var err error
+		funds, err = sdk.ParseCoinsNormalized(msg.Funds)
+		if err != nil {
+			return err
+		}
 	}
 
 	oMsg := &wasmtypes.MsgExecuteContract{

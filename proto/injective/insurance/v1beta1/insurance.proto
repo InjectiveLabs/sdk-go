@@ -36,13 +36,13 @@ message InsuranceFund {
   string market_id = 6;
   // ticker of the derivative market
   string market_ticker = 7;
-  // Oracle base currency of the derivative market
+  // Oracle base currency of the derivative market OR the oracle symbol for the binary options market.
   string oracle_base = 8;
-  // Oracle quote currency of the derivative market
+  // Oracle quote currency of the derivative market OR the oracle provider for the binary options market.
   string oracle_quote = 9;
-  // Oracle type of the derivative market
+  // Oracle type of the binary options or derivative market
   injective.oracle.v1beta1.OracleType oracle_type = 10;
-  // Expiration time of the derivative market. Should be -1 for perpetual markets.
+  // Expiration time of the derivative market. Should be -1 for perpetual or -2 for binary options markets.
   int64 expiry = 11;
 }
 

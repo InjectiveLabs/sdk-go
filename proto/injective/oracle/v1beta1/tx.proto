@@ -2,6 +2,8 @@ syntax = "proto3";
 package injective.oracle.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
 // Msg defines the oracle Msg service.
@@ -21,6 +23,10 @@ service Msg {
 
   // RelayCoinbaseMessages defines a method for relaying price messages from Coinbase API
   rpc RelayCoinbaseMessages(MsgRelayCoinbaseMessages) returns (MsgRelayCoinbaseMessagesResponse);
+
+  // RelayPythPrices defines a method for relaying rates from the Pyth contract
+  rpc RelayPythPrices(MsgRelayPythPrices) returns (MsgRelayPythPricesResponse);
+
 }
 
 // MsgRelayProviderPrice defines a SDK message for setting a price through the provider oracle.
@@ -90,4 +96,18 @@ message MsgRequestBandIBCRates {
 
 // MsgRequestDataResponse defines the Msg/RequestBandIBCRates response type.
 message MsgRequestBandIBCRatesResponse {}
+
+
+// MsgRelayPythPrices defines a SDK message for updating Pyth prices
+message MsgRelayPythPrices {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string sender = 1;
+  repeated PriceAttestation price_attestations = 2;
+}
+
+
+// MsgRelayPythPricesResponse defines the Msg/RelayPythPrices response type.
+message MsgRelayPythPricesResponse {}
 

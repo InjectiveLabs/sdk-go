@@ -20,8 +20,6 @@ import (
 const RouterKey = ModuleName
 
 var (
-	_ sdk.Msg = &MsgTransferAndExecute{}
-	_ sdk.Msg = &MsgMultiExecute{}
 	_ sdk.Msg = &MsgDeposit{}
 	_ sdk.Msg = &MsgWithdraw{}
 	_ sdk.Msg = &MsgCreateSpotLimitOrder{}
@@ -55,8 +53,6 @@ var (
 
 // exchange message types
 const (
-	TypeMsgTransferAndExecute               = "msgTransferAndExecute"
-	TypeMsgMultiExecute                     = "msgMultiExecute"
 	TypeMsgDeposit                          = "msgDeposit"
 	TypeMsgWithdraw                         = "msgWithdraw"
 	TypeMsgCreateSpotLimitOrder             = "createSpotLimitOrder"
@@ -88,136 +84,6 @@ const (
 	TypeMsgReclaimLockedFunds               = "reclaimLockedFunds"
 )
 
-// Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgTransferAndExecute) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgTransferAndExecute) Type() string { return TypeMsgTransferAndExecute }
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgTransferAndExecute) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if !msg.Funds.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Funds.String())
-	}
-
-	if msg.Funds.Empty() {
-		return sdkerrors.Wrap(ErrNoFundsProvided, msg.Funds.String())
-	}
-
-	switch msg.FundsDirection {
-	case FundsDirection_BANK_TO_SUBACCOUNT, FundsDirection_SUBACCOUNT_TO_BANK:
-	default:
-		return sdkerrors.Wrap(ErrInvalidFundsDirection, string(msg.FundsDirection))
-	}
-
-	if msg.Msg == nil {
-		return ErrNoMsgProvided
-	}
-
-	wrappedMsg, ok := msg.Msg.GetCachedValue().(sdk.Msg)
-	if !ok {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "message contains %T which is not a sdk.MsgRequest", wrappedMsg)
-	}
-
-	if err := wrappedMsg.ValidateBasic(); err != nil {
-		return err
-	}
-
-	wrappedMsgSigners := wrappedMsg.GetSigners()
-	if len(wrappedMsgSigners) != 1 {
-		return sdkerrors.ErrInvalidRequest.Wrap("MsgTransferAndExecute can only be executed to msg for messages with one signer")
-	}
-
-	wrappedMsgSigner := wrappedMsgSigners[0]
-	msgSigner := msg.GetSigners()[0]
-
-	if !wrappedMsgSigner.Equals(msgSigner) {
-		return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "wrapped message signer %s does not match msg signer %s", wrappedMsgSigner.String(), msgSigner.String())
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgTransferAndExecute) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgTransferAndExecute) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgMultiExecute) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgMultiExecute) Type() string { return TypeMsgMultiExecute }
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgMultiExecute) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	msgSigner := msg.GetSigners()[0]
-
-	if len(msg.Msgs) == 0 {
-		return ErrNoMsgsProvided
-	}
-
-	for idx := range msg.Msgs {
-		message := msg.Msgs[idx]
-		wrappedMsg, ok := message.GetCachedValue().(sdk.Msg)
-		if !ok {
-			return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "message contains %T which is not a sdk.MsgRequest", wrappedMsg)
-		}
-
-		if err := wrappedMsg.ValidateBasic(); err != nil {
-			return err
-		}
-
-		wrappedMsgSigners := wrappedMsg.GetSigners()
-		if len(wrappedMsgSigners) != 1 {
-			return sdkerrors.ErrInvalidRequest.Wrap("MsgMultiExecute can only be executed to msg for messages with one signer")
-		}
-
-		wrappedMsgSigner := wrappedMsgSigners[0]
-
-		if !wrappedMsgSigner.Equals(msgSigner) {
-			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "wrapped message signer %s does not match msg signer %s", wrappedMsgSigner.String(), msgSigner.String())
-		}
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgMultiExecute) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgMultiExecute) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	if !IsHexHash(o.MarketId) {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
@@ -234,21 +100,18 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return ErrInvalidTriggerPrice
 	}
 
-	_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
+	if o.OrderInfo.FeeRecipient != "" {
+		_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
+		if err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
+		}
 	}
-
-	return o.OrderInfo.ValidateBasic(senderAddr, false)
+	return o.OrderInfo.ValidateBasic(senderAddr, false, false)
 }
 
-func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand bool) error {
-	subaccountAddress, ok := IsValidSubaccountID(o.SubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, o.SubaccountId)
-	}
-	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, senderAddr.String())
+func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand, isDerivative bool) error {
+	if err := CheckValidSubaccountIDOrNonce(senderAddr, o.SubaccountId); err != nil {
+		return err
 	}
 
 	if o.Quantity.IsNil() || o.Quantity.LTE(sdk.ZeroDec()) || o.Quantity.GT(MaxOrderQuantity) {
@@ -256,6 +119,9 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand 
 	}
 
 	if hasBinaryPriceBand {
+		// o.Price.GT(MaxOrderPrice) is correct (as opposed to o.Price.GT(sdk.OneDec())), because the price here is scaled
+		// and we have no idea what the scale factor of the market is here when we execute ValidateBasic(), and thus we allow
+		// very high ceiling price to cover all cases
 		if o.Price.IsNil() || o.Price.LT(sdk.ZeroDec()) || o.Price.GT(MaxOrderPrice) {
 			return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
 		}
@@ -263,6 +129,10 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand 
 		if o.Price.IsNil() || o.Price.LTE(sdk.ZeroDec()) || o.Price.GT(MaxOrderPrice) {
 			return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
 		}
+	}
+
+	if isDerivative && !hasBinaryPriceBand && o.Price.LT(MinDerivativeOrderPrice) {
+		return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
 	}
 
 	return nil
@@ -280,8 +150,12 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
 	}
 
-	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) || o.Margin.GT(MaxOrderPrice) {
+	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) {
 		return sdkerrors.Wrap(ErrInsufficientOrderMargin, o.Margin.String())
+	}
+
+	if o.Margin.GT(MaxOrderMargin) {
+		return sdkerrors.Wrap(ErrTooMuchOrderMargin, o.Margin.String())
 	}
 
 	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
@@ -289,17 +163,18 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 		return ErrInvalidTriggerPrice
 	}
 
-	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.IsZero()) { /*||
-		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
+	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
+		!o.IsConditional() && o.TriggerPrice != nil */// commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
 
-	_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
-	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
+	if o.OrderInfo.FeeRecipient != "" {
+		_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
+		if err != nil {
+			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
+		}
 	}
-
-	return o.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand)
+	return o.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand, !hasBinaryPriceBand)
 }
 
 func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -307,19 +182,13 @@ func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 
-	subaccountAddress, ok := IsValidSubaccountID(o.SubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, o.SubaccountId)
+	if err := CheckValidSubaccountIDOrNonce(senderAddr, o.SubaccountId); err != nil {
+		return err
 	}
 
-	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, senderAddr.String())
-	}
-
-	if ok = IsValidOrderHash(o.OrderHash); !ok {
+	if ok := IsValidOrderHash(o.OrderHash); !ok {
 		return sdkerrors.Wrap(ErrOrderHashInvalid, o.OrderHash)
 	}
-
 	return nil
 }
 
@@ -331,7 +200,7 @@ func (msg MsgDeposit) Type() string { return TypeMsgDeposit }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgDeposit) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 
 	if err != nil {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
@@ -345,10 +214,23 @@ func (msg MsgDeposit) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	if msg.SubaccountId == "" {
-		return nil
-	} else if _, ok := IsValidSubaccountID(msg.SubaccountId); !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	if IsNonceDerivedSubaccountID(msg.SubaccountId) {
+		subaccountID, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SubaccountId)
+		if err != nil {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+		}
+		if IsDefaultSubaccountID(subaccountID) {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+		}
+	} else {
+		// deposits to externally owned subaccounts are allowed but they MUST be explicitly specified
+		_, ok := IsValidSubaccountID(msg.SubaccountId)
+		if !ok {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+		}
+		if IsDefaultSubaccountID(common.HexToHash(msg.SubaccountId)) {
+			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+		}
 	}
 
 	return nil
@@ -389,14 +271,18 @@ func (msg MsgWithdraw) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
-	}
-	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SubaccountId); err != nil {
+		return err
 	}
 
+	subaccountID, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SubaccountId)
+	if err != nil {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	if IsDefaultSubaccountID(subaccountID) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
 	return nil
 }
 
@@ -1293,20 +1179,36 @@ func (msg *MsgSubaccountTransfer) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	subaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)
-	if !ok {
+	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SourceSubaccountId); err != nil {
+		return err
+	}
+
+	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.DestinationSubaccountId); err != nil {
+		return err
+	}
+
+	sourceSubaccount, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SourceSubaccountId)
+	if err != nil {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
-	destSubaccountAddress, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
-	if !ok {
+
+	destinationSubaccount, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.DestinationSubaccountId)
+	if err != nil {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
-	if !bytes.Equal(subaccountAddress.Bytes(), destSubaccountAddress.Bytes()) {
+
+	if IsDefaultSubaccountID(sourceSubaccount) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+	}
+
+	if IsDefaultSubaccountID(destinationSubaccount) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
-	if !bytes.Equal(subaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+
+	if !bytes.Equal(SubaccountIDToSdkAddress(sourceSubaccount).Bytes(), SubaccountIDToSdkAddress(destinationSubaccount).Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
+
 	return nil
 }
 
@@ -1344,17 +1246,26 @@ func (msg *MsgExternalTransfer) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)
-	if !ok {
+	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SourceSubaccountId); err != nil {
+		return err
+	}
+
+	sourceSubaccountId, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SourceSubaccountId)
+	if err != nil {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
 
-	_, ok = IsValidSubaccountID(msg.DestinationSubaccountId)
-	if !ok {
+	if IsDefaultSubaccountID(common.HexToHash(msg.SourceSubaccountId)) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+	}
+
+	_, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
+	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.DestinationSubaccountId)) {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
-	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+
+	if !bytes.Equal(SubaccountIDToSdkAddress(sourceSubaccountId).Bytes(), senderAddr.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 	return nil
 }
@@ -1393,15 +1304,15 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
-	sourceSubaccountAddress, ok := IsValidSubaccountID(msg.SourceSubaccountId)
-	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
-	}
-	if !bytes.Equal(sourceSubaccountAddress.Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+	if msg.Amount.GT(MaxOrderMargin) {
+		return sdkerrors.Wrap(ErrTooMuchOrderMargin, msg.Amount.String())
 	}
 
-	_, ok = IsValidSubaccountID(msg.DestinationSubaccountId)
+	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SourceSubaccountId); err != nil {
+		return err
+	}
+
+	_, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
 	if !ok {
 		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
@@ -1527,10 +1438,16 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 	}
 
 	if msg.Order != nil {
+		liquidatorSubaccountID, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.Order.OrderInfo.SubaccountId)
+		if err != nil {
+			return err
+		}
+
 		// cannot liquidate own position with an order
-		if msg.Order.OrderInfo.SubaccountId == msg.SubaccountId {
+		if liquidatorSubaccountID == common.HexToHash(msg.SubaccountId) {
 			return ErrInvalidLiquidationOrder
 		}
+
 		if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
 			return err
 		}
@@ -1565,6 +1482,8 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 	}
 
 	hasCancelAllMarketId := len(msg.SpotMarketIdsToCancelAll) > 0 || len(msg.DerivativeMarketIdsToCancelAll) > 0 || len(msg.BinaryOptionsMarketIdsToCancelAll) > 0
+
+	// for MsgBatchUpdateOrders, empty subaccountIDs do not count as the default subaccount
 	hasSubaccountIdForCancelAll := msg.SubaccountId != ""
 
 	if hasCancelAllMarketId && !hasSubaccountIdForCancelAll {
@@ -1576,12 +1495,8 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 	}
 
 	if hasSubaccountIdForCancelAll {
-		subaccountAddress, ok := IsValidSubaccountID(msg.SubaccountId)
-		if !ok {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
-		}
-		if !bytes.Equal(subaccountAddress.Bytes(), sender.Bytes()) {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.Sender)
+		if err := CheckValidSubaccountIDOrNonce(sender, msg.SubaccountId); err != nil {
+			return err
 		}
 
 		hasDuplicateSpotMarketIds := HasDuplicatesHexHash(msg.SpotMarketIdsToCancelAll)

@@ -38,12 +38,22 @@ const (
 
 	// MaxHistoricalTradeRecordAge is the maximum age of trade records to track.
 	MaxHistoricalTradeRecordAge = 60 * 5
+
+	// MaxSubaccountNonceLength restricts the size of a subaccount number from 0 to 999
+	MaxSubaccountNonceLength = 3
 )
 
 var MaxBinaryOptionsOrderPrice = sdk.OneDec()
 
+// would be $0.000001 for USDT
+var MinDerivativeOrderPrice = sdk.OneDec()
+
 // MaxOrderPrice equals 10^32
 var MaxOrderPrice = sdk.MustNewDecFromStr("100000000000000000000000000000000")
+
+// MaxOrderMargin equals 10^32
+var MaxOrderMargin = sdk.MustNewDecFromStr("100000000000000000000000000000000")
+
 var MaxOrderQuantity = sdk.MustNewDecFromStr("100000000000000000000000000000000")
 var MaxFeeMultiplier = sdk.MustNewDecFromStr("100")
 
@@ -74,6 +84,7 @@ var (
 	KeyDerivativeAtomicMarketOrderFeeMultiplier    = []byte("DerivativeAtomicMarketOrderFeeMultiplier")
 	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
 	KeyMinimalProtocolFeeRate                      = []byte("MinimalProtocolFeeRate")
+	KeyIsInstantDerivativeMarketLaunchEnabled      = []byte("IsInstantDerivativeMarketLaunchEnabled")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -160,6 +171,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyDerivativeAtomicMarketOrderFeeMultiplier, &p.DerivativeAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
 		paramtypes.NewParamSetPair(KeyBinaryOptionsAtomicMarketOrderFeeMultiplier, &p.BinaryOptionsAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
 		paramtypes.NewParamSetPair(KeyMinimalProtocolFeeRate, &p.MinimalProtocolFeeRate, ValidateFee),
+		paramtypes.NewParamSetPair(KeyIsInstantDerivativeMarketLaunchEnabled, &p.IsInstantDerivativeMarketLaunchEnabled, validateBool),
 	}
 }
 
@@ -565,6 +577,14 @@ func validateAtomicMarketOrderFeeMultiplier(i interface{}) error {
 	}
 	if v.GT(MaxFeeMultiplier) {
 		return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be bigger than %v: %v", v, MaxFeeMultiplier)
+	}
+	return nil
+}
+
+func validateBool(i interface{}) error {
+	_, ok := i.(bool)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }

@@ -224,6 +224,7 @@ message TxData {
 	// Transaction log indicating errors
 	string error_log = 8;
 	uint32 code = 9;
+	bytes tx_msg_types = 10;
 }
 
 message GetValidatorsRequest {

@@ -12,6 +12,7 @@ import (
 	insurancePB "github.com/InjectiveLabs/sdk-go/exchange/insurance_rpc/pb"
 	metaPB "github.com/InjectiveLabs/sdk-go/exchange/meta_rpc/pb"
 	oraclePB "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
+	portfolioExchangePB "github.com/InjectiveLabs/sdk-go/exchange/portfolio_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/metadata"
@@ -46,11 +47,11 @@ type ExchangeClient interface {
 	GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (oraclePB.PriceResponse, error)
 	GetOracleList(ctx context.Context) (oraclePB.OracleListResponse, error)
 	StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error)
-	GetAuction(ctx context.Context, round int64) (auctionPB.AuctionResponse, error)
+	GetAuction(ctx context.Context, round int64) (auctionPB.AuctionEndpointResponse, error)
 	GetAuctions(ctx context.Context) (auctionPB.AuctionsResponse, error)
 	StreamBids(ctx context.Context) (auctionPB.InjectiveAuctionRPC_StreamBidsClient, error)
 	GetSubaccountsList(ctx context.Context, accountAddress string) (accountPB.SubaccountsListResponse, error)
-	GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceResponse, error)
+	GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceEndpointResponse, error)
 	StreamSubaccountBalance(ctx context.Context, subaccountId string) (accountPB.InjectiveAccountsRPC_StreamSubaccountBalanceClient, error)
 	GetSubaccountBalancesList(ctx context.Context, subaccountId string) (accountPB.SubaccountBalancesListResponse, error)
 	GetSubaccountHistory(ctx context.Context, req accountPB.SubaccountHistoryRequest) (accountPB.SubaccountHistoryResponse, error)
@@ -77,20 +78,14 @@ type ExchangeClient interface {
 	GetSubaccountSpotTradesList(ctx context.Context, req spotExchangePB.SubaccountTradesListRequest) (spotExchangePB.SubaccountTradesListResponse, error)
 	GetInsuranceFunds(ctx context.Context, req insurancePB.FundsRequest) (insurancePB.FundsResponse, error)
 	GetRedemptions(ctx context.Context, req insurancePB.RedemptionsRequest) (insurancePB.RedemptionsResponse, error)
+
+	GetAccountPortfolio(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioResponse, error)
+	StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
+
 	StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error)
 	GetInfo(ctx context.Context, req metaPB.InfoRequest) (metaPB.InfoResponse, error)
 	GetVersion(ctx context.Context, req metaPB.VersionRequest) (metaPB.VersionResponse, error)
 	Ping(ctx context.Context, req metaPB.PingRequest) (metaPB.PingResponse, error)
-	GetTxByTxHash(ctx context.Context, hash string) (explorerPB.GetTxByTxHashResponse, error)
-	GetTxs(ctx context.Context, req explorerPB.GetTxsRequest) (explorerPB.GetTxsResponse, error)
-	GetBlock(ctx context.Context, blockHeight string) (explorerPB.GetBlockResponse, error)
-	GetBlocks(ctx context.Context) (explorerPB.GetBlocksResponse, error)
-	GetAccountTxs(ctx context.Context, req explorerPB.GetAccountTxsRequest) (explorerPB.GetAccountTxsResponse, error)
-	GetPeggyDeposits(ctx context.Context, req explorerPB.GetPeggyDepositTxsRequest) (explorerPB.GetPeggyDepositTxsResponse, error)
-	GetPeggyWithdrawals(ctx context.Context, req explorerPB.GetPeggyWithdrawalTxsRequest) (explorerPB.GetPeggyWithdrawalTxsResponse, error)
-	GetIBCTransfers(ctx context.Context, req explorerPB.GetIBCTransferTxsRequest) (explorerPB.GetIBCTransferTxsResponse, error)
-	StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error)
-	StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error)
 	Close()
 }
 
@@ -131,6 +126,7 @@ func NewExchangeClient(protoAddr string, options ...common.ClientOption) (Exchan
 		insuranceClient:          insurancePB.NewInjectiveInsuranceRPCClient(conn),
 		spotExchangeClient:       spotExchangePB.NewInjectiveSpotExchangeRPCClient(conn),
 		derivativeExchangeClient: derivativeExchangePB.NewInjectiveDerivativeExchangeRPCClient(conn),
+		portfolioExchangeClient:  portfolioExchangePB.NewInjectivePortfolioRPCClient(conn),
 
 		logger: opts.Logger,
 	}
@@ -154,6 +150,7 @@ type exchangeClient struct {
 	insuranceClient          insurancePB.InjectiveInsuranceRPCClient
 	spotExchangeClient       spotExchangePB.InjectiveSpotExchangeRPCClient
 	derivativeExchangeClient derivativeExchangePB.InjectiveDerivativeExchangeRPCClient
+	portfolioExchangeClient  portfolioExchangePB.InjectivePortfolioRPCClient
 
 	closed int64
 }
@@ -561,8 +558,8 @@ func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol string, qu
 
 // Auction RPC
 
-func (c *exchangeClient) GetAuction(ctx context.Context, round int64) (auctionPB.AuctionResponse, error) {
-	req := auctionPB.AuctionRequest{
+func (c *exchangeClient) GetAuction(ctx context.Context, round int64) (auctionPB.AuctionEndpointResponse, error) {
+	req := auctionPB.AuctionEndpointRequest{
 		Round: round,
 	}
 
@@ -571,7 +568,7 @@ func (c *exchangeClient) GetAuction(ctx context.Context, round int64) (auctionPB
 	res, err := c.auctionClient.AuctionEndpoint(ctx, &req, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
-		return auctionPB.AuctionResponse{}, err
+		return auctionPB.AuctionEndpointResponse{}, err
 	}
 	c.setCookie(header)
 
@@ -631,8 +628,8 @@ func (c *exchangeClient) GetSubaccountsList(ctx context.Context, accountAddress 
 	return *res, nil
 }
 
-func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceResponse, error) {
-	req := accountPB.SubaccountBalanceRequest{
+func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (accountPB.SubaccountBalanceEndpointResponse, error) {
+	req := accountPB.SubaccountBalanceEndpointRequest{
 		SubaccountId: subaccountId,
 		Denom:        denom,
 	}
@@ -642,7 +639,7 @@ func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId 
 	res, err := c.accountClient.SubaccountBalanceEndpoint(ctx, &req, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
-		return accountPB.SubaccountBalanceResponse{}, err
+		return accountPB.SubaccountBalanceEndpointResponse{}, err
 	}
 	c.setCookie(header)
 
@@ -1110,151 +1107,34 @@ func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveM
 	return stream, nil
 }
 
-// Explorer RPC
-
-func (c *exchangeClient) GetTxByTxHash(ctx context.Context, hash string) (explorerPB.GetTxByTxHashResponse, error) {
-	req := explorerPB.GetTxByTxHashRequest{
-		Hash: hash,
-	}
-
+func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioResponse, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetTxByTxHash(ctx, &req, grpc.Header(&header))
+	res, err := c.portfolioExchangeClient.AccountPortfolio(ctx, &portfolioExchangePB.AccountPortfolioRequest{
+		AccountAddress: accountAddress,
+	}, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
-		return explorerPB.GetTxByTxHashResponse{}, err
+		return portfolioExchangePB.AccountPortfolioResponse{}, err
 	}
 	c.setCookie(header)
 
 	return *res, nil
 }
 
-func (c *exchangeClient) GetAccountTxs(ctx context.Context, req explorerPB.GetAccountTxsRequest) (explorerPB.GetAccountTxsResponse, error) {
+func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
 	var header metadata.MD
 	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetAccountTxs(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		fmt.Println(err)
-		return explorerPB.GetAccountTxsResponse{}, err
-	}
-	c.setCookie(header)
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetBlocks(ctx context.Context) (explorerPB.GetBlocksResponse, error) {
-	req := explorerPB.GetBlocksRequest{}
-
-	var header metadata.MD
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetBlocks(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		fmt.Println(err)
-		return explorerPB.GetBlocksResponse{}, err
-	}
-	c.setCookie(header)
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetBlock(ctx context.Context, blockHeight string) (explorerPB.GetBlockResponse, error) {
-	req := explorerPB.GetBlockRequest{
-		Id: blockHeight,
-	}
-
-	var header metadata.MD
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetBlock(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		fmt.Println(err)
-		return explorerPB.GetBlockResponse{}, err
-	}
-	c.setCookie(header)
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetTxs(ctx context.Context, req explorerPB.GetTxsRequest) (explorerPB.GetTxsResponse, error) {
-	var header metadata.MD
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetTxs(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		fmt.Println(err)
-		return explorerPB.GetTxsResponse{}, err
-	}
-	c.setCookie(header)
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetPeggyDeposits(ctx context.Context, req explorerPB.GetPeggyDepositTxsRequest) (explorerPB.GetPeggyDepositTxsResponse, error) {
-	var header metadata.MD
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetPeggyDepositTxs(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		fmt.Println(err)
-		return explorerPB.GetPeggyDepositTxsResponse{}, err
-	}
-	c.setCookie(header)
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetPeggyWithdrawals(ctx context.Context, req explorerPB.GetPeggyWithdrawalTxsRequest) (explorerPB.GetPeggyWithdrawalTxsResponse, error) {
-	var header metadata.MD
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetPeggyWithdrawalTxs(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		fmt.Println(err)
-		return explorerPB.GetPeggyWithdrawalTxsResponse{}, err
-	}
-	c.setCookie(header)
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetIBCTransfers(ctx context.Context, req explorerPB.GetIBCTransferTxsRequest) (explorerPB.GetIBCTransferTxsResponse, error) {
-	var header metadata.MD
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetIBCTransferTxs(ctx, &req, grpc.Header(&header))
-	if err != nil {
-		fmt.Println(err)
-		return explorerPB.GetIBCTransferTxsResponse{}, err
-	}
-	c.setCookie(header)
-
-	return *res, nil
-}
-
-func (c *exchangeClient) StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error) {
-	req := explorerPB.StreamTxsRequest{}
-
-	ctx = c.getCookie(ctx)
-	stream, err := c.explorerClient.StreamTxs(ctx, &req)
+	stream, err := c.portfolioExchangeClient.StreamAccountPortfolio(ctx, &portfolioExchangePB.StreamAccountPortfolioRequest{
+		AccountAddress: accountAddress,
+		SubaccountId:   subaccountId,
+		Type:           balanceType,
+	}, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
-	header, err := stream.Header()
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	c.setCookie(header)
-
-	return stream, nil
-}
-
-func (c *exchangeClient) StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error) {
-	req := explorerPB.StreamBlocksRequest{}
-
-	ctx = c.getCookie(ctx)
-	stream, err := c.explorerClient.StreamBlocks(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	header, err := stream.Header()
+	header, err = stream.Header()
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

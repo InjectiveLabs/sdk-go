@@ -62,6 +62,13 @@ func (o *DerivativeMarketOrderCancel) GetCancelDepositDelta() *DepositDelta {
 	return nil
 }
 
+func (o *DerivativeMarketOrder) GetCancelRefundAmount() sdk.Dec {
+	if o.IsVanilla() {
+		return o.MarginHold
+	}
+	return sdk.ZeroDec()
+}
+
 func (o *DerivativeMarketOrderCancel) ApplyDerivativeMarketCancellation(
 	depositDeltas DepositDeltas,
 ) {
@@ -76,7 +83,10 @@ func (o *DerivativeMarketOrderCancel) ApplyDerivativeMarketCancellation(
 	}
 }
 
-func NewDerivativeMarketOrder(o *DerivativeOrder, orderHash common.Hash) *DerivativeMarketOrder {
+func NewDerivativeMarketOrder(o *DerivativeOrder, sender sdk.AccAddress, orderHash common.Hash) *DerivativeMarketOrder {
+	if o.OrderInfo.FeeRecipient == "" {
+		o.OrderInfo.FeeRecipient = sender.String()
+	}
 	return &DerivativeMarketOrder{
 		OrderInfo:    o.OrderInfo,
 		OrderType:    o.OrderType,
@@ -86,7 +96,11 @@ func NewDerivativeMarketOrder(o *DerivativeOrder, orderHash common.Hash) *Deriva
 		OrderHash:    orderHash.Bytes(),
 	}
 }
-func NewDerivativeLimitOrder(o *DerivativeOrder, orderHash common.Hash) *DerivativeLimitOrder {
+
+func NewDerivativeLimitOrder(o *DerivativeOrder, sender sdk.AccAddress, orderHash common.Hash) *DerivativeLimitOrder {
+	if o.OrderInfo.FeeRecipient == "" {
+		o.OrderInfo.FeeRecipient = sender.String()
+	}
 	return &DerivativeLimitOrder{
 		OrderInfo:    o.OrderInfo,
 		OrderType:    o.OrderType,
@@ -190,18 +204,23 @@ func (o *DerivativeMarketOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor
 }
 
 func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate sdk.Dec) *DepositDelta {
-	// negative fees are only accounted for upon matching
-	positiveFeePart := sdk.MaxDec(sdk.ZeroDec(), feeRate)
+	return &DepositDelta{
+		AvailableBalanceDelta: o.GetCancelRefundAmount(feeRate),
+		TotalBalanceDelta:     sdk.ZeroDec(),
+	}
+}
 
-	depositDelta := NewDepositDelta()
+func (o *DerivativeLimitOrder) GetCancelRefundAmount(feeRate sdk.Dec) sdk.Dec {
+	marginHoldRefund := sdk.ZeroDec()
 	if o.IsVanilla() {
-		// nolint:all
+		// negative fees are only accounted for upon matching
+		positiveFeePart := sdk.MaxDec(sdk.ZeroDec(), feeRate)
+		//nolint:all
 		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
 		notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-		marginHoldRefund := o.Fillable.Mul(o.Margin.Add(notional.Mul(positiveFeePart))).Quo(o.OrderInfo.Quantity)
-		depositDelta.AvailableBalanceDelta = marginHoldRefund
+		marginHoldRefund = o.Fillable.Mul(o.Margin.Add(notional.Mul(positiveFeePart))).Quo(o.OrderInfo.Quantity)
 	}
-	return depositDelta
+	return marginHoldRefund
 }
 
 func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
@@ -213,7 +232,7 @@ func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sd
 	}
 	if !o.Margin.IsZero() {
 		if BreachesMinimumTickSize(o.Margin, minQuantityTickSize) {
-			return sdkerrors.Wrapf(ErrInvalidMargin, "margin %s must be a multiple of the minimum quantity tick size %s", o.Margin.String(), minPriceTickSize.String())
+			return sdkerrors.Wrapf(ErrInvalidMargin, "margin %s must be a multiple of the minimum quantity tick size %s", o.Margin.String(), minQuantityTickSize.String())
 		}
 	}
 	return nil
@@ -432,6 +451,10 @@ func (o *DerivativeOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
 
+func (o *DerivativeOrder) IsFromDefaultSubaccount() bool {
+	return o.OrderInfo.IsFromDefaultSubaccount()
+}
+
 func (o *DerivativeOrder) MarketID() common.Hash {
 	return common.HexToHash(o.MarketId)
 }
@@ -457,8 +480,16 @@ func (o *DerivativeLimitOrder) SdkAccAddress() sdk.AccAddress {
 	return sdk.AccAddress(o.SubaccountID().Bytes()[:common.AddressLength])
 }
 
+func (o *DerivativeLimitOrder) IsFromDefaultSubaccount() bool {
+	return o.OrderInfo.IsFromDefaultSubaccount()
+}
+
 func (o *DerivativeMarketOrder) SdkAccAddress() sdk.AccAddress {
 	return sdk.AccAddress(o.SubaccountID().Bytes()[:common.AddressLength])
+}
+
+func (o *DerivativeMarketOrder) IsFromDefaultSubaccount() bool {
+	return o.OrderInfo.IsFromDefaultSubaccount()
 }
 
 func (o *TrimmedDerivativeLimitOrder) IsReduceOnly() bool {

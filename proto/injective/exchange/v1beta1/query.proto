@@ -33,6 +33,36 @@ service Query {
     option (google.api.http).get = "/injective/exchange/v1beta1/exchange/exchangeBalances";
   }
 
+  // Retrieves the aggregate volumes for the specified account or subaccount
+  rpc AggregateVolume(QueryAggregateVolumeRequest) returns (QueryAggregateVolumeResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/aggregateVolume/{account}";
+  }
+
+  // Retrieves the aggregate volumes for specified accounts
+  rpc AggregateVolumes(QueryAggregateVolumesRequest) returns (QueryAggregateVolumesResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/aggregateVolumes";
+  }
+
+  // Retrieves the aggregate volume for the specified market
+  rpc AggregateMarketVolume(QueryAggregateMarketVolumeRequest) returns (QueryAggregateMarketVolumeResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/aggregateMarketVolume/{market_id}";
+  }
+
+  // Retrieves the aggregate market volumes for specified markets
+  rpc AggregateMarketVolumes(QueryAggregateMarketVolumesRequest) returns (QueryAggregateMarketVolumesResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/aggregateMarketVolumes";
+  }
+
+  // Retrieves the denom decimals for a denom.
+  rpc DenomDecimal(QueryDenomDecimalRequest) returns (QueryDenomDecimalResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/denom_decimal/{denom}";
+  }
+
+  // Retrieves the denom decimals for multiple denoms. Returns all denom decimals if unspecified.
+  rpc DenomDecimals(QueryDenomDecimalsRequest) returns (QueryDenomDecimalsResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/exchange/denom_decimals";
+  }
+
   // Retrieves a list of spot markets.
   rpc SpotMarkets(QuerySpotMarketsRequest) returns (QuerySpotMarketsResponse) {
     option (google.api.http).get = "/injective/exchange/v1beta1/spot/markets";
@@ -204,8 +234,8 @@ service Query {
   }
 
   // Retrieves market making pool info
-  rpc NinjaVaultInfos(NinjaVaultInfosRequest) returns (NinjaVaultInfosResponse) {
-    option (google.api.http).get = "/injective/exchange/v1beta1/ninja_vault_infos";
+  rpc MitoVaultInfos(MitoVaultInfosRequest) returns (MitoVaultInfosResponse) {
+    option (google.api.http).get = "/injective/exchange/v1beta1/mito_vault_infos";
   }
 
   // QueryMarketIDFromVault returns the market ID for a given vault subaccount ID
@@ -300,6 +330,79 @@ message QueryExchangeBalancesResponse {
   repeated Balance balances = 1 [
     (gogoproto.nullable) = false
   ];
+}
+
+// QueryAggregateVolumeRequest is the request type for the Query/AggregateVolume RPC method.
+message QueryAggregateVolumeRequest {
+  // can either be an address or a subaccount
+  string account = 1;
+}
+
+// QueryAggregateVolumeResponse is the response type for the Query/AggregateVolume RPC method.
+message QueryAggregateVolumeResponse {
+  // if an address is specified, then the aggregate_volumes will aggregate the volumes across all subaccounts for the address
+  repeated MarketVolume aggregate_volumes = 1;
+}
+
+// QueryAggregateVolumesRequest is the request type for the Query/AggregateVolumes RPC method.
+message QueryAggregateVolumesRequest {
+  repeated string accounts = 1;
+  repeated string market_ids = 2;
+}
+
+// QueryAggregateVolumesResponse is the response type for the Query/AggregateVolumes RPC method.
+message QueryAggregateVolumesResponse {
+  // the aggregate volume records for the accounts specified
+  repeated AggregateAccountVolumeRecord aggregate_account_volumes = 1;
+  // the aggregate volumes for the markets specified
+  repeated MarketVolume aggregate_market_volumes = 2;
+}
+
+
+// QueryAggregateMarketVolumeRequest is the request type for the Query/AggregateMarketVolume RPC method.
+message QueryAggregateMarketVolumeRequest {
+  string market_id = 1;
+}
+
+// QueryAggregateMarketVolumeResponse is the response type for the Query/AggregateMarketVolume RPC method.
+message QueryAggregateMarketVolumeResponse {
+  VolumeRecord volume = 1[
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryDenomDecimalRequest is the request type for the Query/DenomDecimal RPC method.
+message QueryDenomDecimalRequest {
+  string denom = 1;
+}
+
+// QueryDenomDecimalResponse is the response type for the Query/DenomDecimal RPC method.
+message QueryDenomDecimalResponse {
+  uint64 decimal = 1;
+}
+
+// QueryDenomDecimalsRequest is the request type for the Query/DenomDecimals RPC method.
+message QueryDenomDecimalsRequest {
+  // denoms can be empty to query all denom decimals
+  repeated string denoms = 1;
+}
+
+// QueryDenomDecimalsRequest is the response type for the Query/DenomDecimals RPC method.
+message QueryDenomDecimalsResponse {
+  repeated DenomDecimals denom_decimals = 1[
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryAggregateMarketVolumesRequest is the request type for the Query/AggregateMarketVolumes RPC method.
+message QueryAggregateMarketVolumesRequest {
+  repeated string market_ids = 1;
+}
+
+// QueryAggregateMarketVolumesResponse is the response type for the Query/AggregateMarketVolumes RPC method.
+message QueryAggregateMarketVolumesResponse {
+  // the aggregate volumes for the entire market
+  repeated MarketVolume volumes = 1;
 }
 
 // QuerySubaccountDepositsRequest is the request type for the Query/SubaccountDeposits RPC method.
@@ -895,12 +998,12 @@ message QueryFeeDiscountTierStatisticsResponse {
   repeated TierStatistic statistics = 1;
 }
 
-// NinjaVaultInfosRequest is the request type for the Query/NinjaVaultInfos RPC method.
-message NinjaVaultInfosRequest {
+// MitoVaultInfosRequest is the request type for the Query/MitoVaultInfos RPC method.
+message MitoVaultInfosRequest {
 }
 
-// NinjaVaultInfosResponse is the response type for the Query/NinjaVaultInfos RPC method.
-message NinjaVaultInfosResponse {
+// MitoVaultInfosResponse is the response type for the Query/MitoVaultInfos RPC method.
+message MitoVaultInfosResponse {
   repeated string master_addresses = 1;
   repeated string derivative_addresses = 2;
   repeated string spot_addresses = 3;

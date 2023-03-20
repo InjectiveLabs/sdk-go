@@ -54,6 +54,18 @@ message EventDerivativeMarketPaused {
   string missing_funds_rate = 4;
 }
 
+message EventMarketBeyondBankruptcy {
+  string market_id = 1;
+  string settle_price = 2;
+  string missing_market_funds = 3;
+}
+
+message EventAllPositionsHaircut {
+  string market_id = 1;
+  string settle_price = 2;
+  string missing_funds_rate = 3;
+}
+
 message EventBinaryOptionsMarketUpdate {
   BinaryOptionsMarket market = 1 [
     (gogoproto.nullable) = false

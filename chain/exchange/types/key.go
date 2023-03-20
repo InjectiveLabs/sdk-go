@@ -35,6 +35,8 @@ var (
 	DerivativeExchangeEnabledKey         = []byte{0x08} // key for whether derivative exchange is enabled
 	MarketHistoricalTradeRecordsPrefix   = []byte{0x09} // prefix for each key to a market's historical trade records
 	OrderbookSequencePrefix              = []byte{0x0a} // prefix for each key to a market's orderbook sequence
+	SubaccountMarketVolumePrefix         = []byte{0x0b} // prefix for each key to the aggregate volume for a subaccount in a market
+	MarketVolumePrefix                   = []byte{0x0c} // prefix for each key to the aggregate volume for a market
 
 	DenomDecimalsPrefix              = []byte{0x10} // prefix for denom decimals
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
@@ -269,6 +271,14 @@ func GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID 
 	return append(SubaccountOrderPrefix, append(MarketSubaccountInfix(marketID, subaccountID), getBoolPrefix(isBuy)...)...)
 }
 
+func GetSubaccountMarketVolumeKey(subaccountID, marketID common.Hash) []byte {
+	return append(SubaccountMarketVolumePrefix, SubaccountMarketInfix(subaccountID, marketID)...)
+}
+
+func GetMarketVolumeKey(marketID common.Hash) []byte {
+	return append(MarketVolumePrefix, marketID.Bytes()...)
+}
+
 func GetSpotMarketKey(isEnabled bool) []byte {
 	return append(SpotMarketsPrefix, getBoolPrefix(isEnabled)...)
 }
@@ -415,6 +425,11 @@ func GetMarketIdDirectionFromTransientKey(key []byte) (marketID common.Hash, isB
 // MarketSubaccountInfix provides the infix given a marketID and subaccountID
 func MarketSubaccountInfix(marketID, subaccountID common.Hash) []byte {
 	return append(marketID.Bytes(), subaccountID.Bytes()...)
+}
+
+// SubaccountMarketInfix provides the infix given a subaccountID and marketID
+func SubaccountMarketInfix(subaccountID, marketID common.Hash) []byte {
+	return append(subaccountID.Bytes(), marketID.Bytes()...)
 }
 
 // PositionIndexBySubaccountMarketPrefix provides the prefix key to obtain a position key for a given market and subaccount

@@ -5,9 +5,11 @@ import (
 	"math/big"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -31,14 +33,6 @@ func IsPeggyToken(denom string) bool {
 
 func IsIBCDenom(denom string) bool {
 	return strings.HasPrefix(denom, "ibc/")
-}
-
-type Account [20]byte
-
-func SdkAccAddressToAccount(account sdk.AccAddress) Account {
-	var accAddr Account
-	copy(accAddr[:], account.Bytes())
-	return accAddr
 }
 
 type SpotLimitOrderDelta struct {
@@ -83,7 +77,12 @@ func (d *DerivativeLimitOrderDelta) OrderHash() common.Hash {
 
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
 var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
-var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
+
+// inj1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49
+var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(ZeroSubaccountID.Hex()).Bytes())
+
+// inj1qqq3zyg3zyg3zyg3zyg3zyg3zyg3zyg3c9gg96
+var AuctionFeesAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
 
 func StringInSlice(a string, list *[]string) bool {
 	for _, b := range *list {
@@ -92,6 +91,37 @@ func StringInSlice(a string, list *[]string) bool {
 		}
 	}
 	return false
+}
+
+func IsDefaultSubaccountID(subaccountID common.Hash) bool {
+	// empty 12 bytes
+	emptyBytes := make([]byte, common.HashLength-common.AddressLength)
+	return bytes.Equal(subaccountID[common.AddressLength:], emptyBytes)
+}
+
+func IsNonceDerivedSubaccountID(subaccountID string) bool {
+	return len(subaccountID) <= MaxSubaccountNonceLength
+}
+
+// CheckValidSubaccountIDOrNonce checks that either 1) the subaccountId is well-formatted subaccount nonce or
+// 2) the normal subaccountId is a valid subaccount ID and the sender is the owner of the subaccount
+func CheckValidSubaccountIDOrNonce(sender sdk.AccAddress, subaccountId string) error {
+	if IsNonceDerivedSubaccountID(subaccountId) {
+		if _, err := GetNonceDerivedSubaccountID(sender, subaccountId); err != nil {
+			return sdkerrors.Wrap(ErrBadSubaccountID, subaccountId)
+		}
+		return nil
+	}
+
+	subaccountAddress, ok := IsValidSubaccountID(subaccountId)
+	if !ok {
+		return sdkerrors.Wrap(ErrBadSubaccountID, subaccountId)
+	}
+
+	if !bytes.Equal(subaccountAddress.Bytes(), sender.Bytes()) {
+		return sdkerrors.Wrap(ErrBadSubaccountID, subaccountId)
+	}
+	return nil
 }
 
 func IsValidSubaccountID(subaccountID string) (*common.Address, bool) {
@@ -150,6 +180,79 @@ func (s *Subaccount) GetSubaccountID() (*common.Hash, error) {
 	return SdkAddressWithNonceToSubaccountID(trader, s.SubaccountNonce)
 }
 
+type Account [20]byte
+
+func SdkAccAddressToAccount(account sdk.AccAddress) Account {
+	var accAddr Account
+	copy(accAddr[:], account.Bytes())
+	return accAddr
+}
+
+func SubaccountIDToAccount(subaccountID common.Hash) Account {
+	var accAddr Account
+	copy(accAddr[:], subaccountID.Bytes()[:20])
+	return accAddr
+}
+
+func GetSubaccountNonce(subaccountIdStr string) (uint32, error) {
+	// maximum of 10^3 = 1000 numeric subaccounts allowed
+	isValidLength := len(subaccountIdStr) <= MaxSubaccountNonceLength
+
+	if !isValidLength {
+		return 0, ErrBadSubaccountNonce
+	}
+
+	if subaccountIdStr == "" || subaccountIdStr == "0" {
+		return 0, nil
+	}
+
+	num, err := strconv.Atoi(subaccountIdStr)
+	if err != nil {
+		return 0, err
+	}
+
+	if num < 0 || num > 999 {
+		return 0, ErrBadSubaccountNonce
+	}
+
+	return uint32(num), nil
+}
+
+func MustGetSubaccountIDOrDeriveFromNonce(sender sdk.AccAddress, subaccountId string) common.Hash {
+	subaccountID, err := GetSubaccountIDOrDeriveFromNonce(sender, subaccountId)
+	if err != nil {
+		panic(err)
+	}
+
+	return subaccountID
+}
+
+func GetNonceDerivedSubaccountID(sender sdk.AccAddress, subaccountId string) (common.Hash, error) {
+	nonce, err := GetSubaccountNonce(subaccountId)
+	if err != nil {
+		return common.Hash{}, err
+	}
+
+	subaccountID, err := SdkAddressWithNonceToSubaccountID(sender, nonce)
+	if err != nil {
+		return common.Hash{}, err
+	}
+
+	return *subaccountID, nil
+}
+
+func GetSubaccountIDOrDeriveFromNonce(sender sdk.AccAddress, subaccountId string) (common.Hash, error) {
+	if IsNonceDerivedSubaccountID(subaccountId) {
+		return GetNonceDerivedSubaccountID(sender, subaccountId)
+	}
+
+	if !IsHexHash(subaccountId) {
+		return common.Hash{}, sdkerrors.Wrap(ErrBadSubaccountID, subaccountId)
+	}
+
+	return common.HexToHash(subaccountId), nil
+}
+
 func SdkAddressWithNonceToSubaccountID(addr sdk.AccAddress, nonce uint32) (*common.Hash, error) {
 	if len(addr.Bytes()) > common.AddressLength {
 		return &AuctionSubaccountID, ErrBadSubaccountID
@@ -157,6 +260,15 @@ func SdkAddressWithNonceToSubaccountID(addr sdk.AccAddress, nonce uint32) (*comm
 	subaccountID := common.BytesToHash(append(addr.Bytes(), common.LeftPadBytes(big.NewInt(int64(nonce)).Bytes(), 12)...))
 
 	return &subaccountID, nil
+}
+
+func MustSdkAddressWithNonceToSubaccountID(addr sdk.AccAddress, nonce uint32) common.Hash {
+	if len(addr.Bytes()) > common.AddressLength {
+		panic(ErrBadSubaccountID)
+	}
+	subaccountID := common.BytesToHash(append(addr.Bytes(), common.LeftPadBytes(big.NewInt(int64(nonce)).Bytes(), 12)...))
+
+	return subaccountID
 }
 
 func SdkAddressToSubaccountID(addr sdk.AccAddress) common.Hash {

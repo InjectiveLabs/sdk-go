@@ -6,20 +6,12 @@ import "injective/oracle/v1beta1/oracle.proto";
 import "injective/exchange/v1beta1/exchange.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/distribution/v1beta1/distribution.proto";
-import "google/protobuf/any.proto";
 import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
 // Msg defines the exchange Msg service.
 service Msg {
-
-  // TransferAndExecute defines a method for transferring coins to/from either the bank or default subaccount balances
-  // and then executing a Msg.
-  rpc TransferAndExecute(MsgTransferAndExecute) returns (MsgTransferAndExecuteResponse);
-
-  // MultiExecute defines a method for executing multiple Msgs.
-  rpc MultiExecute(MsgMultiExecute) returns (MsgMultiExecuteResponse);
 
   // Deposit defines a method for transferring coins from the sender's bank balance into the subaccount's exchange deposits
   rpc Deposit(MsgDeposit) returns (MsgDepositResponse);
@@ -108,42 +100,6 @@ service Msg {
   //
   rpc ReclaimLockedFunds(MsgReclaimLockedFunds) returns (MsgReclaimLockedFundsResponse);
 }
-
-// MsgTransferAndExecute defines a SDK message for transferring coins to/from either the bank or default subaccount balances
-// and then executing a Msg
-message MsgTransferAndExecute {
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-  string sender = 1;
-  repeated cosmos.base.v1beta1.Coin funds = 2 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-  FundsDirection funds_direction = 3;
-  google.protobuf.Any msg = 4 [(cosmos_proto.accepts_interface) = "sdk.Msg"];
-}
-
-// MsgTransferAndExecuteResponse defines the Msg/TransferAndExecuteResponse response type.
-message MsgTransferAndExecuteResponse {}
-
-enum FundsDirection {
-  UNDEFINED = 0 [(gogoproto.enumvalue_customname) = "UNDEFINED"];
-  BANK_TO_SUBACCOUNT = 1 [(gogoproto.enumvalue_customname) = "BANK_TO_SUBACCOUNT"];
-  SUBACCOUNT_TO_BANK = 2 [(gogoproto.enumvalue_customname) = "SUBACCOUNT_TO_BANK"];
-}
-
-// MsgMultiExecute defines a SDK message for executing multiple Msgs.
-message MsgMultiExecute {
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-  string sender = 1;
-
-  repeated google.protobuf.Any msgs = 2 [(cosmos_proto.accepts_interface) = "sdk.Msg"];
-}
-
-// MsgTransferAndExecuteResponse defines the Msg/TransferAndExecuteResponse response type.
-message MsgMultiExecuteResponse {}
-
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's bank balance into the subaccount's exchange deposits
 message MsgDeposit {
@@ -1079,11 +1035,6 @@ message UpdateDenomDecimalsProposal {
   string title = 1;
   string description = 2;
   repeated DenomDecimals denom_decimals = 3;
-}
-
-message DenomDecimals {
-  string denom = 1;
-  uint64 decimals = 2;
 }
 
 message BinaryOptionsMarketParamUpdateProposal {

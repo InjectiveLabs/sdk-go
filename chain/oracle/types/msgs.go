@@ -16,6 +16,7 @@ const (
 	TypeMsgRelayCoinbaseMessages = "relayCoinbaseMessages"
 	TypeMsgRequestBandIBCRates   = "requestBandIBCRates"
 	TypeMsgRelayProviderPrices   = "relayProviderPrices"
+	TypeMsgRelayPythPrices       = "relayPythPrices"
 )
 
 var (
@@ -24,6 +25,7 @@ var (
 	_ sdk.Msg = &MsgRelayCoinbaseMessages{}
 	_ sdk.Msg = &MsgRequestBandIBCRates{}
 	_ sdk.Msg = &MsgRelayProviderPrices{}
+	_ sdk.Msg = &MsgRelayPythPrices{}
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -242,6 +244,44 @@ func (msg *MsgRelayProviderPrices) GetSignBytes() []byte {
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
 func (msg MsgRelayProviderPrices) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgRelayPythPrices) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgRelayPythPrices) Type() string { return TypeMsgRelayPythPrices }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgRelayPythPrices) ValidateBasic() error {
+	if msg.Sender == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return err
+	}
+
+	if len(msg.PriceAttestations) == 0 {
+		return ErrEmptyPriceAttestations
+	}
+
+	// the ValidateBasic method intentiontally does not check the validity of the price attestations since
+	// we don't want to prevent attesting valid prices just because other price attestations are invalid
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgRelayPythPrices) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgRelayPythPrices) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

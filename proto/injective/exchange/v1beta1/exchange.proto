@@ -137,6 +137,9 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+
+  // is_instant_derivative_market_launch_enabled defines whether instant derivative market launch is enabled
+  bool is_instant_derivative_market_launch_enabled = 24;
 }
 
 enum MarketStatus {
@@ -332,11 +335,6 @@ message DerivativeMarketSettlementInfo {
   string market_id = 1;
   // settlement_price defines the settlement price
   string settlement_price = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-    (gogoproto.nullable) = false
-  ];
-  // starting_deficit defines starting deficit
-  string starting_deficit = 3 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
@@ -767,6 +765,17 @@ message FeeDiscountTierTTL {
   int64 ttl_timestamp = 2;
 }
 
+message VolumeRecord {
+  string maker_volume = 1[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string taker_volume = 2[
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+}
+
 message AccountRewards {
   string account = 1;
   repeated cosmos.base.v1beta1.Coin rewards = 2 [
@@ -821,4 +830,26 @@ message Level {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+}
+
+message AggregateSubaccountVolumeRecord {
+  string subaccount_id = 1;
+  repeated MarketVolume market_volumes = 2;
+}
+
+message AggregateAccountVolumeRecord {
+  string account = 1;
+  repeated MarketVolume market_volumes = 2;
+}
+
+message MarketVolume {
+  string market_id = 1;
+  VolumeRecord volume = 2[
+    (gogoproto.nullable) = false
+  ];
+}
+
+message DenomDecimals {
+  string denom = 1;
+  uint64 decimals = 2;
 }

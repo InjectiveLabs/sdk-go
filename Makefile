@@ -11,6 +11,7 @@ copy-exchange-client:
 	mkdir -p exchange/explorer_rpc
 	mkdir -p exchange/spot_exchange_rpc
 	mkdir -p exchange/derivative_exchange_rpc
+	mkdir -p exchange/portfolio_rpc
 
 	cp -r ../injective-indexer/api/gen/grpc/injective_meta_rpc/pb exchange/meta_rpc/pb
 	cp -r ../injective-indexer/api/gen/grpc/injective_exchange_rpc/pb exchange/exchange_rpc/pb
@@ -21,6 +22,7 @@ copy-exchange-client:
 	cp -r ../injective-indexer/api/gen/grpc/injective_explorer_rpc/pb exchange/explorer_rpc/pb
 	cp -r ../injective-indexer/api/gen/grpc/injective_spot_exchange_rpc/pb exchange/spot_exchange_rpc/pb
 	cp -r ../injective-indexer/api/gen/grpc/injective_derivative_exchange_rpc/pb exchange/derivative_exchange_rpc/pb
+	cp -r ../injective-indexer/api/gen/grpc/injective_portfolio_rpc/pb exchange/portfolio_rpc/pb
 
 .PHONY: copy-exchange-client
 

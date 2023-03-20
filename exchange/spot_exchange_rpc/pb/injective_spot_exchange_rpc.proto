@@ -147,6 +147,8 @@ message SpotLimitOrderbook {
 	repeated PriceLevel buys = 1;
 	// Array of price levels for sells
 	repeated PriceLevel sells = 2;
+	// Last update timestamp in UNIX millis.
+	sint64 timestamp = 3;
 }
 
 message PriceLevel {
@@ -175,6 +177,8 @@ message SpotLimitOrderbookV2 {
 	repeated PriceLevel sells = 2;
 	// market orderbook sequence
 	uint64 sequence = 3;
+	// Last update timestamp in UNIX millis.
+	sint64 timestamp = 4;
 }
 
 message OrderbooksRequest {

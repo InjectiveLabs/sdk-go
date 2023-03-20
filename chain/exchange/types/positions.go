@@ -10,7 +10,25 @@ type positionPayout struct {
 	IsProfitable bool
 }
 
-func (m *Position) IsShort() bool { return !m.IsLong }
+func (p *Position) IsShort() bool { return !p.IsLong }
+
+func (p *Position) Copy() *Position {
+	return &Position{
+		IsLong:                 p.IsLong,
+		Quantity:               p.Quantity,
+		EntryPrice:             p.EntryPrice,
+		Margin:                 p.Margin,
+		CumulativeFundingEntry: p.CumulativeFundingEntry,
+	}
+}
+
+func (p *DerivativePosition) Copy() *DerivativePosition {
+	return &DerivativePosition{
+		SubaccountId: p.SubaccountId,
+		MarketId:     p.MarketId,
+		Position:     p.Position.Copy(),
+	}
+}
 
 func (m *PositionDelta) IsShort() bool { return !m.IsLong }
 
@@ -37,7 +55,7 @@ func (p *Position) GetEffectiveMarginRatio(closingPrice, closingFee sdk.Dec) (ma
 	return effectiveMargin.Quo(closingPrice.Mul(p.Quantity))
 }
 
-// ApplyProfitHaircut results in reducing the payout (pnl * quantity) by the given rate (e.g. 0.1=10%) by modifying the entry price.
+// ApplyProfitHaircutForDerivatives results in reducing the payout (pnl * quantity) by the given rate (e.g. 0.1=10%) by modifying the entry price.
 // Formula for adjustment:
 // newPayoutFromPnl = oldPayoutFromPnl * (1 - missingFundsRate)
 // => Entry price adjustment for buys
@@ -46,12 +64,42 @@ func (p *Position) GetEffectiveMarginRatio(closingPrice, closingFee sdk.Dec) (ma
 // => Entry price adjustment for sells
 // (settlementPrice - newEntryPrice) * quantity = (settlementPrice - entryPrice) * quantity * (1 - missingFundsRate)
 // newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
-func (p *Position) ApplyProfitHaircut(deficitAmount, totalProfits, settlementPrice sdk.Dec) {
+func (p *Position) ApplyProfitHaircutForDerivatives(deficitAmount, totalProfits, settlementPrice sdk.Dec) {
 	// haircutPercentage = deficitAmount / totalProfits
 	// To preserve precision, the division by totalProfits is done last.
 	// newEntryPrice =  haircutPercentage * (settlementPrice - entryPrice) + entryPrice
 	newEntryPrice := deficitAmount.Mul(settlementPrice.Sub(p.EntryPrice)).Quo(totalProfits).Add(p.EntryPrice)
 	p.EntryPrice = newEntryPrice
+
+	// profitable position but with negative margin, we didn't account for negative margin previously,
+	// so we can safely add it if payout becomes negative from haircut
+	newPositionPayout := p.GetPayoutIfFullyClosing(settlementPrice, sdk.ZeroDec()).Payout
+	if newPositionPayout.IsNegative() {
+		p.Margin = p.Margin.Add(newPositionPayout.Abs())
+	}
+}
+
+func (p *Position) ApplyTotalPositionPayoutHaircut(deficitAmount, totalPayouts, settlementPrice sdk.Dec) {
+	p.ApplyProfitHaircutForDerivatives(deficitAmount, totalPayouts, settlementPrice)
+
+	removedMargin := p.Margin.Mul(deficitAmount).Quo(totalPayouts)
+	p.Margin = p.Margin.Sub(removedMargin)
+}
+
+func (p *Position) ApplyProfitHaircutForBinaryOptions(deficitAmount, totalAssets sdk.Dec, oracleScaleFactor uint32) {
+	// haircutPercentage = deficitAmount / totalAssets
+	// To preserve precision, the division by totalAssets is done last.
+	// newMargin =  p.Margin - p.Margin * haircutPercentage
+	newMargin := p.Margin.Sub(deficitAmount.Mul(p.Margin).Quo(totalAssets))
+	p.Margin = newMargin
+
+	// updating entry price just for consistency, but it has no effect since applied haircut is on margin, not on entry price during binary options refunds
+	if p.IsLong {
+		p.EntryPrice = p.Margin.Quo(p.Quantity)
+	} else {
+		scaledOne := GetScaledPrice(sdk.OneDec(), oracleScaleFactor)
+		p.EntryPrice = scaledOne.Sub(p.Margin.Quo(p.Quantity))
+	}
 }
 
 func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate sdk.Dec) (payout, closeTradingFee sdk.Dec, positionDelta *PositionDelta) {
@@ -74,6 +122,14 @@ func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate 
 	payout, _, _ = p.ApplyPositionDelta(positionDelta, closeTradingFee)
 
 	return payout, closeTradingFee, positionDelta
+}
+
+func (p *Position) ClosePositionWithoutPayouts() {
+	p.IsLong = false
+	p.EntryPrice = sdk.ZeroDec()
+	p.Quantity = sdk.ZeroDec()
+	p.Margin = sdk.ZeroDec()
+	p.CumulativeFundingEntry = sdk.ZeroDec()
 }
 
 func (p *Position) ClosePositionByRefunding(closingFeeRate sdk.Dec) (payout, closeTradingFee sdk.Dec, positionDelta *PositionDelta) {

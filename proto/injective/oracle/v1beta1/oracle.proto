@@ -8,6 +8,8 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 
 message Params {
   option (gogoproto.equal) = true;
+
+  string pyth_contract = 1;
 }
 
 enum OracleType {
@@ -98,6 +100,15 @@ message PriceState {
   int64 timestamp = 3;
 }
 
+message PythPriceState {
+  string price_id = 1;
+  string ema_price = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string ema_conf = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string conf = 4 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  uint64 publish_time = 5;
+  PriceState price_state = 6 [(gogoproto.nullable) = false];
+}
+
 message BandOracleRequest {
   // Unique Identifier for band ibc oracle request
   uint64 request_id = 1;
@@ -124,6 +135,8 @@ message BandOracleRequest {
   uint64 prepare_gas = 7;
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 8;
+  // MinSourceCount is the minimum number of data sources that must be used by each validator
+  uint64 min_source_count = 9;
 }
 
 message BandIBCParams {
@@ -138,6 +151,8 @@ message BandIBCParams {
   string ibc_version = 4;
   // band IBC portID
   string ibc_port_id = 5;
+  //  legacy oracle scheme ids
+  repeated int64 legacy_oracle_ids = 6;
 }
 
 
@@ -204,4 +219,17 @@ message MetadataStatistics {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+}
+
+
+message PriceAttestation {
+  string price_id = 1;
+  // MaxPrice refers to the largest individual raw price considered
+  int64 price = 2;
+  uint64 conf = 3;
+  int32 expo = 4;
+  int64 ema_price = 5;
+  uint64 ema_conf = 6;
+  int32 ema_expo = 7;
+  int64 publish_time = 8;
 }

@@ -40,6 +40,11 @@ service Query {
     option (google.api.http).get = "/injective/oracle/v1beta1/coinbase_price_states";
   }
 
+  // Retrieves the state for all pyth price feeds
+  rpc PythPriceStates(QueryPythPriceStatesRequest) returns (QueryPythPriceStatesResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/pyth_price_states";
+  }
+
   // Retrieves the state for all provider price feeds
   rpc ProviderPriceState(QueryProviderPriceStateRequest) returns (QueryProviderPriceStateResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/provider_price_state/{provider}/{symbol}";
@@ -71,6 +76,18 @@ service Query {
   rpc OraclePrice(QueryOraclePriceRequest) returns (QueryOraclePriceResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/price";
   }
+
+  rpc PythPrice(QueryPythPriceRequest) returns (QueryPythPriceResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/pyth_price";
+  }
+}
+
+message QueryPythPriceRequest {
+  string price_id = 1;
+}
+
+message QueryPythPriceResponse {
+  PythPriceState price_state = 1;
 }
 
 // QueryOracleParamsRequest is the request type for the Query/OracleParams RPC method.
@@ -122,6 +139,14 @@ message QueryCoinbasePriceStatesRequest {}
 // QueryCoinbasePriceStatesResponse is the response type for the Query/CoinbasePriceStates RPC method.
 message QueryCoinbasePriceStatesResponse {
   repeated CoinbasePriceState price_states = 1;
+}
+
+// QueryPythPriceStatesRequest is the request type for the Query/CoinbasePriceStates RPC method.
+message QueryPythPriceStatesRequest {}
+
+// QueryPythPriceStatesResponse is the response type for the Query/CoinbasePriceStates RPC method.
+message QueryPythPriceStatesResponse {
+  repeated PythPriceState price_states = 1;
 }
 
 // QueryProviderPriceStateRequest is the request type for the Query/ProviderPriceState RPC method.

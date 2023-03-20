@@ -102,6 +102,10 @@ message GenesisState {
   repeated MarketFeeMultiplier market_fee_multipliers = 31;
 
   repeated OrderbookSequence orderbook_sequences = 32;
+
+  repeated AggregateSubaccountVolumeRecord subaccount_volumes = 33;
+
+  repeated MarketVolume market_volumes = 34;
 }
 
 message OrderbookSequence {
