@@ -17,8 +17,6 @@ import (
 	"time"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -35,6 +33,9 @@ import (
 	"github.com/shopspring/decimal"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 )
@@ -125,6 +126,10 @@ type ChainClient interface {
 
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
 	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
+
+	SetGasWanted(gasWanted uint64)
+
+	GetTx(ctx context.Context, txHash eth.Hash) (*txtypes.GetTxResponse, error)
 
 	Close()
 }
@@ -295,9 +300,9 @@ func (c *chainClient) syncTimeoutHeight() {
 func (c *chainClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
 	from := clientCtx.GetFromAddress()
 
-	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
-		return txf, err
-	}
+	//if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
+	//	return txf, err
+	//}
 
 	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
 	if initNum == 0 || initSeq == 0 {
@@ -701,6 +706,8 @@ func (c *chainClient) broadcastTx(
 		txf = txf.WithGas(adjustedGas)
 
 		c.gasWanted = adjustedGas
+	} else {
+		txf = txf.WithGas(c.gasWanted)
 	}
 
 	txn, err := tx.BuildUnsignedTx(txf, msgs...)
@@ -1258,6 +1265,20 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 		// send results to channel
 		orderbookCh <- ob
 	}
+}
+
+func (c *chainClient) SetGasWanted(gasWanted uint64) {
+	c.gasWanted = gasWanted
+}
+
+func (c *chainClient) GetTx(ctx context.Context, txHash eth.Hash) (*txtypes.GetTxResponse, error) {
+	req := txtypes.GetTxRequest{
+		Hash: strings.TrimPrefix(txHash.Hex(), "0x"),
+	}
+
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	return c.txClient.GetTx(ctx, &req, grpc.Header(&header))
 }
 
 type DerivativeOrderData struct {
