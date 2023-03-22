@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
+	gethsigner "github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/gogo/protobuf/proto"
 	"golang.org/x/crypto/sha3"
 )

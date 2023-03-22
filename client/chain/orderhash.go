@@ -4,11 +4,12 @@ import (
 	"context"
 	"strconv"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
+	gethsigner "github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"golang.org/x/crypto/sha3"
+
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 )
 
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
