@@ -18,6 +18,7 @@ type TendermintClient interface {
 	GetTxs(ctx context.Context, block *tmctypes.ResultBlock) ([]*ctypes.ResultTx, error)
 	GetBlockResults(ctx context.Context, height int64) (*ctypes.ResultBlockResults, error)
 	GetValidatorSet(ctx context.Context, height int64) (*tmctypes.ResultValidators, error)
+	GetBlockchainInfo(ctx context.Context, minHeight int64, maxHeight int64) (*ctypes.ResultBlockchainInfo, error)
 }
 
 type tmClient struct {
@@ -83,4 +84,8 @@ func (c *tmClient) GetTxs(ctx context.Context, block *tmctypes.ResultBlock) ([]*
 // height. An error is returned if the query fails.
 func (c *tmClient) GetValidatorSet(ctx context.Context, height int64) (*tmctypes.ResultValidators, error) {
 	return c.rpcClient.Validators(ctx, &height, nil, nil)
+}
+
+func (c *tmClient) GetBlockchainInfo(ctx context.Context, minHeight int64, maxHeight int64) (*ctypes.ResultBlockchainInfo, error) {
+	return c.rpcClient.BlockchainInfo(ctx, minHeight, maxHeight)
 }
