@@ -7,7 +7,7 @@ import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "injective/insurance/v1beta1/genesis.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/insurance/types";
 
 // Query defines the gRPC querier service.
 service Query {

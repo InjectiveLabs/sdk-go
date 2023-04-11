@@ -948,7 +948,7 @@ type BandIBCParams struct {
 	IbcVersion string `protobuf:"bytes,4,opt,name=ibc_version,json=ibcVersion,proto3" json:"ibc_version,omitempty"`
 	// band IBC portID
 	IbcPortId string `protobuf:"bytes,5,opt,name=ibc_port_id,json=ibcPortId,proto3" json:"ibc_port_id,omitempty"`
-	//  legacy oracle scheme ids
+	// legacy oracle scheme ids
 	LegacyOracleIds []int64 `protobuf:"varint,6,rep,packed,name=legacy_oracle_ids,json=legacyOracleIds,proto3" json:"legacy_oracle_ids,omitempty"`
 }
 
