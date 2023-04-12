@@ -155,6 +155,7 @@ type chainClient struct {
 	bankQueryClient     banktypes.QueryClient
 	authzQueryClient    authztypes.QueryClient
 	wasmQueryClient     wasmtypes.QueryClient
+	subaccountToNonce   map[ethcommon.Hash]uint32
 
 	closed  int64
 	canSign bool
@@ -230,6 +231,7 @@ func NewChainClient(
 		bankQueryClient:     banktypes.NewQueryClient(conn),
 		authzQueryClient:    authztypes.NewQueryClient(conn),
 		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
+		subaccountToNonce:   make(map[ethcommon.Hash]uint32),
 	}
 
 	if cc.canSign {

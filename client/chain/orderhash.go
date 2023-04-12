@@ -57,22 +57,34 @@ var domain = gethsigner.TypedDataDomain{
 	Salt:              "0x0000000000000000000000000000000000000000000000000000000000000000",
 }
 
+func (c *chainClient) UpdateSubaccountNonceFromChain() error {
+	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
+	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
+	if err != nil {
+		return err
+	}
+
+	c.subaccountToNonce[subaccountId] = res.Nonce
+	return nil
+}
+
 func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error) {
 	if len(spotOrders)+len(derivativeOrders) == 0 {
 		return OrderHashes{}, nil
 	}
 
 	orderHashes := OrderHashes{}
-
 	// get nonce
 	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
-	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
-	if err != nil {
-		return OrderHashes{}, err
+	if _, exist := c.subaccountToNonce[subaccountId]; !exist {
+		if err := c.UpdateSubaccountNonceFromChain(); err != nil {
+			return OrderHashes{}, nil
+		}
 	}
-	nonce := res.Nonce + 1
 
+	nonce := c.subaccountToNonce[subaccountId]
 	for _, o := range spotOrders {
+		nonce += 1
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
@@ -111,10 +123,10 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 		hash := common.BytesToHash(w.Sum(nil))
 		orderHashes.Spot = append(orderHashes.Spot, hash)
-		nonce += 1
 	}
 
 	for _, o := range derivativeOrders {
+		nonce += 1
 		triggerPrice := ""
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
@@ -154,8 +166,9 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 		hash := common.BytesToHash(w.Sum(nil))
 		orderHashes.Derivative = append(orderHashes.Derivative, hash)
-		nonce += 1
 	}
+
+	c.subaccountToNonce[subaccountId] = nonce
 
 	return orderHashes, nil
 }
