@@ -78,7 +78,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
 	if _, exist := c.subaccountToNonce[subaccountId]; !exist {
 		if err := c.UpdateSubaccountNonceFromChain(); err != nil {
-			return OrderHashes{}, nil
+			return OrderHashes{}, err
 		}
 	}
 
