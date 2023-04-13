@@ -6,10 +6,10 @@ import (
 
 	log "github.com/InjectiveLabs/suplog"
 
-	rpcclient "github.com/tendermint/tendermint/rpc/client"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
 )
 
 type TendermintClient interface {
@@ -18,6 +18,7 @@ type TendermintClient interface {
 	GetTxs(ctx context.Context, block *tmctypes.ResultBlock) ([]*ctypes.ResultTx, error)
 	GetBlockResults(ctx context.Context, height int64) (*ctypes.ResultBlockResults, error)
 	GetValidatorSet(ctx context.Context, height int64) (*tmctypes.ResultValidators, error)
+	GetABCIInfo(ctx context.Context) (*ctypes.ResultABCIInfo, error)
 }
 
 type tmClient struct {
@@ -83,4 +84,9 @@ func (c *tmClient) GetTxs(ctx context.Context, block *tmctypes.ResultBlock) ([]*
 // height. An error is returned if the query fails.
 func (c *tmClient) GetValidatorSet(ctx context.Context, height int64) (*tmctypes.ResultValidators, error) {
 	return c.rpcClient.Validators(ctx, &height, nil, nil)
+}
+
+// GetABCIInfo returns the node abci version
+func (c *tmClient) GetABCIInfo(ctx context.Context) (*tmctypes.ResultABCIInfo, error) {
+	return c.rpcClient.ABCIInfo(ctx)
 }
