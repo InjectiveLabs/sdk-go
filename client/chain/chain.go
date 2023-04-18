@@ -104,6 +104,8 @@ type ChainClient interface {
 
 	GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
 	GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
+
+	UpdateSubaccountNonceFromChain() error
 	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
@@ -155,6 +157,7 @@ type chainClient struct {
 	bankQueryClient     banktypes.QueryClient
 	authzQueryClient    authztypes.QueryClient
 	wasmQueryClient     wasmtypes.QueryClient
+	subaccountToNonce   map[ethcommon.Hash]uint32
 
 	closed  int64
 	canSign bool
@@ -230,6 +233,7 @@ func NewChainClient(
 		bankQueryClient:     banktypes.NewQueryClient(conn),
 		authzQueryClient:    authztypes.NewQueryClient(conn),
 		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
+		subaccountToNonce:   make(map[ethcommon.Hash]uint32),
 	}
 
 	if cc.canSign {
