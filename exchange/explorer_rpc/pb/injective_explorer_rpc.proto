@@ -70,6 +70,14 @@ message GetAccountTxsRequest {
 	string module = 7;
 	sint64 from_number = 8;
 	sint64 to_number = 9;
+	// The starting timestamp in UNIX milliseconds that the txs must be equal or
+// older than
+	sint64 start_time = 10;
+	// The ending timestamp in UNIX milliseconds that the txs must be equal or
+// younger than
+	sint64 end_time = 11;
+	// The status of the txs to be returned
+	string status = 12;
 }
 
 message GetAccountTxsResponse {
@@ -324,6 +332,14 @@ message GetTxsRequest {
 	string module = 6;
 	sint64 from_number = 7;
 	sint64 to_number = 8;
+	// The starting timestamp in UNIX milliseconds that the txs must be equal or
+// older than
+	sint64 start_time = 9;
+	// The ending timestamp in UNIX milliseconds that the txs must be equal or
+// younger than
+	sint64 end_time = 10;
+	// The status of the txs to be returned
+	string status = 11;
 }
 
 message GetTxsResponse {

@@ -25,15 +25,9 @@ service InjectiveDerivativeExchangeRPC {
 	// BinaryOptionMarket gets details of a single binary options market
 	rpc BinaryOptionsMarket (BinaryOptionsMarketRequest) returns (BinaryOptionsMarketResponse);
 	// Orderbook gets the Orderbook of a Derivative Market
-	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
-	// Orderbook gets the Orderbook of a Derivative Market
 	rpc OrderbookV2 (OrderbookV2Request) returns (OrderbookV2Response);
 	// Orderbooks gets the Orderbooks of requested derivative markets
-	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
-	// Orderbooks gets the Orderbooks of requested derivative markets
 	rpc OrderbooksV2 (OrderbooksV2Request) returns (OrderbooksV2Response);
-	// Stream live snapshot updates of selected derivative market orderbook
-	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
 	// Stream live snapshot updates of selected derivative market orderbook
 	rpc StreamOrderbookV2 (StreamOrderbookV2Request) returns (stream StreamOrderbookV2Response);
 	// Stream live level updates of selected derivative market orderbook
@@ -271,34 +265,6 @@ message BinaryOptionsMarketResponse {
 	BinaryOptionsMarketInfo market = 1;
 }
 
-message OrderbookRequest {
-	// MarketId of the market's orderbook we want to fetch
-	string market_id = 1;
-}
-
-message OrderbookResponse {
-	// Orderbook of a particular derivative market
-	DerivativeLimitOrderbook orderbook = 1;
-}
-
-message DerivativeLimitOrderbook {
-	// Array of price levels for buys
-	repeated PriceLevel buys = 1;
-	// Array of price levels for sells
-	repeated PriceLevel sells = 2;
-	// Last update timestamp in UNIX millis.
-	sint64 timestamp = 4;
-}
-
-message PriceLevel {
-	// Price number of the price level.
-	string price = 1;
-	// Quantity of the price level.
-	string quantity = 2;
-	// Price level last updated timestamp in UNIX millis.
-	sint64 timestamp = 3;
-}
-
 message OrderbookV2Request {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
@@ -320,20 +286,13 @@ message DerivativeLimitOrderbookV2 {
 	sint64 timestamp = 4;
 }
 
-message OrderbooksRequest {
-	// MarketIds of the markets
-	repeated string market_ids = 1;
-}
-
-message OrderbooksResponse {
-	repeated SingleDerivativeLimitOrderbook orderbooks = 1;
-}
-
-message SingleDerivativeLimitOrderbook {
-	// market's ID
-	string market_id = 1;
-	// Orderbook of the market
-	DerivativeLimitOrderbook orderbook = 2;
+message PriceLevel {
+	// Price number of the price level.
+	string price = 1;
+	// Quantity of the price level.
+	string quantity = 2;
+	// Price level last updated timestamp in UNIX millis.
+	sint64 timestamp = 3;
 }
 
 message OrderbooksV2Request {
@@ -350,23 +309,6 @@ message SingleDerivativeLimitOrderbookV2 {
 	string market_id = 1;
 	// Orderbook of the market
 	DerivativeLimitOrderbookV2 orderbook = 2;
-}
-
-message StreamOrderbookRequest {
-	// List of market IDs for orderbook streaming, empty means 'ALL' derivative
-// markets
-	repeated string market_ids = 1;
-}
-
-message StreamOrderbookResponse {
-	// Orderbook of a Derivative Market
-	DerivativeLimitOrderbook orderbook = 1;
-	// Order update type
-	string operation_type = 2;
-	// Operation timestamp in UNIX millis.
-	sint64 timestamp = 3;
-	// MarketId of the market's orderbook
-	string market_id = 4;
 }
 
 message StreamOrderbookV2Request {
@@ -720,6 +662,10 @@ message TradesRequest {
 // trades from multiple subaccounts
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
 }
 
 message TradesResponse {
@@ -791,6 +737,10 @@ message StreamTradesRequest {
 // trades from multiple subaccounts
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
 }
 
 message StreamTradesResponse {
