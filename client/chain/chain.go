@@ -258,7 +258,7 @@ func NewChainClient(
 		cc.logger.Errorln(err)
 	} else {
 		cc.sessionCookie = string(data)
-		cc.logger.Infoln("chain session cookie loaded from disk")
+		cc.logger.Debugln("chain session cookie loaded from disk")
 	}
 
 	return cc, nil
@@ -489,7 +489,7 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed synchronously broadcast messages:", string(resJSON))
 			return nil, err
 		}
 	}
@@ -553,7 +553,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to asynchronously broadcast messagess:", string(resJSON))
 			return nil, err
 		}
 	}
@@ -639,8 +639,6 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
-
-				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
 
 				t.Reset(defaultBroadcastStatusPoll)
 				continue
@@ -728,8 +726,8 @@ func (c *chainClient) broadcastTx(
 	}
 
 	req := txtypes.BroadcastTxRequest{
-		txBytes,
-		txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+		TxBytes: txBytes,
+		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
 	}
 	// use our own client to broadcast tx
 	var header metadata.MD
@@ -757,8 +755,6 @@ func (c *chainClient) broadcastTx(
 				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
-
-				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
 
 				t.Reset(defaultBroadcastStatusPoll)
 				continue
@@ -818,16 +814,16 @@ func (c *chainClient) runBatchBroadcast() {
 			}
 			if err != nil {
 				resJSON, _ := json.MarshalIndent(res, "", "\t")
-				c.logger.WithField("size", len(toSubmit)).WithError(err).Errorln("failed to commit msg batch:", string(resJSON))
+				c.logger.WithField("size", len(toSubmit)).WithError(err).Errorln("failed to broadcast messages batch:", string(resJSON))
 				return
 			}
 		}
 
 		if res.TxResponse.Code != 0 {
 			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
-			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to commit msg batch")
+			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to broadcast messages batch")
 		} else {
-			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch committed successfully at height", res.TxResponse.Height)
+			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch broadcasted successfully at height", res.TxResponse.Height)
 		}
 
 		c.accSeq++
