@@ -457,7 +457,9 @@ func (c *chainClient) Close() {
 		close(c.msgC)
 	}
 
-	c.cancelFn()
+	if c.cancelFn != nil {
+		c.cancelFn()
+	}
 	<-c.doneC
 	if c.conn != nil {
 		c.conn.Close()
