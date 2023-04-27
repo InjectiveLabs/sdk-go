@@ -143,6 +143,9 @@ type chainClient struct {
 	msgC        chan sdk.Msg
 	syncMux     *sync.Mutex
 
+	cancelCtx context.Context
+	cancelFn  func()
+
 	accNum    uint64
 	accSeq    uint64
 	gasWanted uint64
@@ -208,6 +211,7 @@ func NewChainClient(
 		}
 	}
 
+	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client
 	cc := &chainClient{
 		ctx:  ctx,
@@ -224,6 +228,8 @@ func NewChainClient(
 		syncMux:   new(sync.Mutex),
 		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
 		doneC:     make(chan bool, 1),
+		cancelCtx: cancelCtx,
+		cancelFn:  cancelFn,
 
 		sessionEnabled: stickySessionEnabled,
 
@@ -280,15 +286,23 @@ func (c *chainClient) syncNonce() {
 }
 
 func (c *chainClient) syncTimeoutHeight() {
+	t := time.NewTicker(defaultTimeoutHeightSyncInterval)
+	defer t.Stop()
+
 	for {
-		ctx := context.Background()
-		block, err := c.ctx.Client.Block(ctx, nil)
+		block, err := c.ctx.Client.Block(c.cancelCtx, nil)
 		if err != nil {
 			c.logger.WithError(err).Errorln("failed to get current block")
 			return
 		}
 		c.txFactory.WithTimeoutHeight(uint64(block.Block.Height) + defaultTimeoutHeight)
-		time.Sleep(defaultTimeoutHeightSyncInterval)
+
+		select {
+		case <-c.cancelCtx.Done():
+			return
+		case <-t.C:
+			continue
+		}
 	}
 }
 
@@ -441,6 +455,10 @@ func (c *chainClient) Close() {
 	}
 	if atomic.CompareAndSwapInt64(&c.closed, 0, 1) {
 		close(c.msgC)
+	}
+
+	if c.cancelFn != nil {
+		c.cancelFn()
 	}
 	<-c.doneC
 	if c.conn != nil {
