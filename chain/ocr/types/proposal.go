@@ -2,7 +2,7 @@ package types
 
 import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // constants

@@ -12,8 +12,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	tmcrypto "github.com/tendermint/tendermint/crypto"
 )
 
 const (
@@ -132,13 +130,13 @@ var (
 
 // Address returns the address of the ECDSA public key.
 // The function will panic if the public key is invalid.
-func (pubKey PubKey) Address() tmcrypto.Address {
+func (pubKey PubKey) Address() cryptotypes.Address {
 	pubk, err := ethcrypto.DecompressPubkey(pubKey.Key)
 	if err != nil {
 		panic(err)
 	}
 
-	return tmcrypto.Address(ethcrypto.PubkeyToAddress(*pubk).Bytes())
+	return cryptotypes.Address(ethcrypto.PubkeyToAddress(*pubk).Bytes())
 }
 
 // Bytes returns the raw bytes of the ECDSA public key.
