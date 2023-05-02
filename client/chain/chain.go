@@ -128,6 +128,8 @@ type ChainClient interface {
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
 	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
 
+	// get tx from chain node
+	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
 	Close()
 }
 
@@ -1276,6 +1278,12 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 		// send results to channel
 		orderbookCh <- ob
 	}
+}
+
+func (c *chainClient) GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error) {
+	return c.txClient.GetTx(ctx, &txtypes.GetTxRequest{
+		Hash: txHash,
+	})
 }
 
 type DerivativeOrderData struct {
