@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdkmath "cosmossdk.io/math"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -178,8 +179,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		SpotMarketInstantListingFee:                 sdk.NewCoin("inj", sdk.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
-		DerivativeMarketInstantListingFee:           sdk.NewCoin("inj", sdk.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
+		SpotMarketInstantListingFee:                 sdk.NewCoin("inj", sdkmath.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
+		DerivativeMarketInstantListingFee:           sdk.NewCoin("inj", sdkmath.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
 		DefaultSpotMakerFeeRate:                     sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
 		DefaultSpotTakerFeeRate:                     sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
 		DefaultDerivativeMakerFeeRate:               sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
@@ -192,10 +193,10 @@ func DefaultParams() Params {
 		DefaultHourlyFundingRateCap:                 sdk.NewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
 		DefaultHourlyInterestRate:                   sdk.NewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
 		MaxDerivativeOrderSideCount:                 MaxDerivativeOrderSideCount,
-		InjRewardStakedRequirementThreshold:         sdk.NewIntWithDecimal(100, 18), // 100 INJ
-		TradingRewardsVestingDuration:               604800,                         // 7 days
-		LiquidatorRewardShareRate:                   sdk.NewDecWithPrec(5, 2),       // 5% liquidator reward
-		BinaryOptionsMarketInstantListingFee:        sdk.NewCoin("inj", sdk.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
+		InjRewardStakedRequirementThreshold:         sdkmath.NewIntWithDecimal(100, 18), // 100 INJ
+		TradingRewardsVestingDuration:               604800,                             // 7 days
+		LiquidatorRewardShareRate:                   sdk.NewDecWithPrec(5, 2),           // 5% liquidator reward
+		BinaryOptionsMarketInstantListingFee:        sdk.NewCoin("inj", sdkmath.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
 		AtomicMarketOrderAccessLevel:                AtomicMarketOrderAccessLevel_SmartContractsOnly,
 		SpotAtomicMarketOrderFeeMultiplier:          sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
 		DerivativeAtomicMarketOrderFeeMultiplier:    sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier

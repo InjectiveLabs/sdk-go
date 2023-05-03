@@ -2,8 +2,9 @@ package types
 
 import (
 	fmt "fmt"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -16,8 +17,8 @@ const (
 func init() {
 	gov.RegisterProposalType(ProposalTypeRegisterTokenMapping)
 	gov.RegisterProposalType(ProposalTypeResetHub)
-	gov.RegisterProposalTypeCodec(&RegisterTokenMappingProposal{}, "cosmos-sdk/RegisterTokenMappingProposal")
-	gov.RegisterProposalTypeCodec(&ResetHubProposal{}, "cosmos-sdk/ResetHubProposal")
+	govcdc.Amino.RegisterConcrete(&RegisterTokenMappingProposal{}, "cosmos-sdk/RegisterTokenMappingProposal", nil)
+	govcdc.Amino.RegisterConcrete(&ResetHubProposal{}, "cosmos-sdk/ResetHubProposal", nil)
 }
 
 // NewTokenMapping returns an instance of TokenMapping

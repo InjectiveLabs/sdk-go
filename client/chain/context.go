@@ -36,7 +36,7 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	paramproposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -137,7 +137,7 @@ func NewClientContext(
 		}),
 	}
 
-	var keyInfo keyring.Info
+	var keyInfo *keyring.Record
 
 	if kb != nil {
 		addr, err := cosmostypes.AccAddressFromBech32(fromSpec)
@@ -157,14 +157,12 @@ func NewClientContext(
 		}
 	}
 
-	clientCtx = newContext(
+	return newContext(
 		chainId,
 		encodingConfig,
 		kb,
 		keyInfo,
 	)
-
-	return clientCtx, nil
 }
 
 type EncodingConfig struct {
@@ -177,13 +175,13 @@ func newContext(
 	chainId string,
 	encodingConfig EncodingConfig,
 	kb keyring.Keyring,
-	keyInfo keyring.Info,
+	keyInfo *keyring.Record,
 
-) client.Context {
+) (client.Context, error) {
 	clientCtx := client.Context{
-		ChainID:           chainId,
-		Codec:             encodingConfig.Marshaler,
-		JSONCodec:         encodingConfig.Marshaler,
+		ChainID: chainId,
+		Codec:   encodingConfig.Marshaler,
+		//JSONCodec:         encodingConfig.Marshaler,
 		InterfaceRegistry: encodingConfig.InterfaceRegistry,
 		Output:            os.Stderr,
 		OutputFormat:      "json",
@@ -199,10 +197,14 @@ func newContext(
 
 	if keyInfo != nil {
 		clientCtx = clientCtx.WithKeyring(kb)
-		clientCtx = clientCtx.WithFromAddress(keyInfo.GetAddress())
-		clientCtx = clientCtx.WithFromName(keyInfo.GetName())
-		clientCtx = clientCtx.WithFrom(keyInfo.GetName())
+		addr, err := keyInfo.GetAddress()
+		if err != nil {
+			return clientCtx, err
+		}
+		clientCtx = clientCtx.WithFromAddress(addr)
+		clientCtx = clientCtx.WithFromName(keyInfo.Name)
+		clientCtx = clientCtx.WithFrom(keyInfo.Name)
 	}
 
-	return clientCtx
+	return clientCtx, nil
 }

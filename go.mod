@@ -182,3 +182,5 @@ replace github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.4
 replace github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.31.0-inj
 
 replace github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.1
+
+replace cosmossdk.io/math => github.com/InjectiveLabs/cosmos-sdk/math v0.47.0-inj-3

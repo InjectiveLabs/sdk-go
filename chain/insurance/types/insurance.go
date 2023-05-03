@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdkmath "cosmossdk.io/math"
 	"fmt"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var InsuranceFundInitialSupply = sdk.NewIntWithDecimal(1, 18)
+var InsuranceFundInitialSupply = sdkmath.NewIntWithDecimal(1, 18)
 
 func NewInsuranceFund(
 	marketID common.Hash,

@@ -9,7 +9,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
+	"github.com/cosmos/cosmos-sdk/x/gov/types"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -36,39 +39,39 @@ const (
 
 func init() {
 	gov.RegisterProposalType(ProposalTypeExchangeEnable)
-	gov.RegisterProposalTypeCodec(&ExchangeEnableProposal{}, "injective/ExchangeEnableProposal")
+	govcdc.Amino.RegisterConcrete(&ExchangeEnableProposal{}, "injective/ExchangeEnableProposal", nil)
 	gov.RegisterProposalType(ProposalTypeBatchExchangeModification)
-	gov.RegisterProposalTypeCodec(&BatchExchangeModificationProposal{}, "injective/BatchExchangeModificationProposal")
+	govcdc.Amino.RegisterConcrete(&BatchExchangeModificationProposal{}, "injective/BatchExchangeModificationProposal", nil)
 	gov.RegisterProposalType(ProposalTypeSpotMarketParamUpdate)
-	gov.RegisterProposalTypeCodec(&SpotMarketParamUpdateProposal{}, "injective/SpotMarketParamUpdateProposal")
+	govcdc.Amino.RegisterConcrete(&SpotMarketParamUpdateProposal{}, "injective/SpotMarketParamUpdateProposal", nil)
 	gov.RegisterProposalType(ProposalTypeSpotMarketLaunch)
-	gov.RegisterProposalTypeCodec(&SpotMarketLaunchProposal{}, "injective/SpotMarketLaunchProposal")
+	govcdc.Amino.RegisterConcrete(&SpotMarketLaunchProposal{}, "injective/SpotMarketLaunchProposal", nil)
 	gov.RegisterProposalType(ProposalTypePerpetualMarketLaunch)
-	gov.RegisterProposalTypeCodec(&PerpetualMarketLaunchProposal{}, "injective/PerpetualMarketLaunchProposal")
+	govcdc.Amino.RegisterConcrete(&PerpetualMarketLaunchProposal{}, "injective/PerpetualMarketLaunchProposal", nil)
 	gov.RegisterProposalType(ProposalTypeExpiryFuturesMarketLaunch)
-	gov.RegisterProposalTypeCodec(&ExpiryFuturesMarketLaunchProposal{}, "injective/ExpiryFuturesMarketLaunchProposal")
+	govcdc.Amino.RegisterConcrete(&ExpiryFuturesMarketLaunchProposal{}, "injective/ExpiryFuturesMarketLaunchProposal", nil)
 	gov.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
-	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
+	govcdc.Amino.RegisterConcrete(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal", nil)
 	gov.RegisterProposalType(ProposalTypeMarketForcedSettlement)
-	gov.RegisterProposalTypeCodec(&MarketForcedSettlementProposal{}, "injective/MarketForcedSettlementProposal")
+	govcdc.Amino.RegisterConcrete(&MarketForcedSettlementProposal{}, "injective/MarketForcedSettlementProposal", nil)
 	gov.RegisterProposalType(ProposalUpdateDenomDecimals)
-	gov.RegisterProposalTypeCodec(&UpdateDenomDecimalsProposal{}, "injective/UpdateDenomDecimalsProposal")
+	govcdc.Amino.RegisterConcrete(&UpdateDenomDecimalsProposal{}, "injective/UpdateDenomDecimalsProposal", nil)
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaign)
-	gov.RegisterProposalTypeCodec(&TradingRewardCampaignLaunchProposal{}, "injective/TradingRewardCampaignLaunchProposal")
+	govcdc.Amino.RegisterConcrete(&TradingRewardCampaignLaunchProposal{}, "injective/TradingRewardCampaignLaunchProposal", nil)
 	gov.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
-	gov.RegisterProposalTypeCodec(&TradingRewardCampaignUpdateProposal{}, "injective/TradingRewardCampaignUpdateProposal")
+	govcdc.Amino.RegisterConcrete(&TradingRewardCampaignUpdateProposal{}, "injective/TradingRewardCampaignUpdateProposal", nil)
 	gov.RegisterProposalType(ProposalTypeTradingRewardPointsUpdate)
-	gov.RegisterProposalTypeCodec(&TradingRewardPendingPointsUpdateProposal{}, "injective/TradingRewardPendingPointsUpdateProposal")
+	govcdc.Amino.RegisterConcrete(&TradingRewardPendingPointsUpdateProposal{}, "injective/TradingRewardPendingPointsUpdateProposal", nil)
 	gov.RegisterProposalType(ProposalTypeFeeDiscountProposal)
-	gov.RegisterProposalTypeCodec(&FeeDiscountProposal{}, "injective/FeeDiscountProposal")
+	govcdc.Amino.RegisterConcrete(&FeeDiscountProposal{}, "injective/FeeDiscountProposal", nil)
 	gov.RegisterProposalType(ProposalTypeBatchCommunityPoolSpendProposal)
-	gov.RegisterProposalTypeCodec(&BatchCommunityPoolSpendProposal{}, "injective/BatchCommunityPoolSpendProposal")
+	govcdc.Amino.RegisterConcrete(&BatchCommunityPoolSpendProposal{}, "injective/BatchCommunityPoolSpendProposal", nil)
 	gov.RegisterProposalType(ProposalTypeBinaryOptionsMarketLaunch)
-	gov.RegisterProposalTypeCodec(&BinaryOptionsMarketLaunchProposal{}, "injective/BinaryOptionsMarketLaunchProposal")
+	govcdc.Amino.RegisterConcrete(&BinaryOptionsMarketLaunchProposal{}, "injective/BinaryOptionsMarketLaunchProposal", nil)
 	gov.RegisterProposalType(ProposalTypeBinaryOptionsMarketParamUpdate)
-	gov.RegisterProposalTypeCodec(&BinaryOptionsMarketParamUpdateProposal{}, "injective/BinaryOptionsMarketParamUpdateProposal")
+	govcdc.Amino.RegisterConcrete(&BinaryOptionsMarketParamUpdateProposal{}, "injective/BinaryOptionsMarketParamUpdateProposal", nil)
 	gov.RegisterProposalType(ProposalAtomicMarketOrderFeeMultiplierSchedule)
-	gov.RegisterProposalTypeCodec(&AtomicMarketOrderFeeMultiplierScheduleProposal{}, "injective/AtomicMarketOrderFeeMultiplierScheduleProposal")
+	govcdc.Amino.RegisterConcrete(&AtomicMarketOrderFeeMultiplierScheduleProposal{}, "injective/AtomicMarketOrderFeeMultiplierScheduleProposal", nil)
 }
 
 func SafeIsPositiveInt(v sdk.Int) bool {
@@ -258,7 +261,7 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 	if p.MakerFeeRate == nil && p.TakerFeeRate == nil && p.RelayerFeeShareRate == nil && p.MinPriceTickSize == nil && p.MinQuantityTickSize == nil && p.Status == MarketStatus_Unspecified {
-		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+		return sdkerrors.Wrap(types.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
 	if p.MakerFeeRate != nil {
@@ -459,7 +462,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.HourlyFundingRateCap == nil &&
 		p.Status == MarketStatus_Unspecified &&
 		p.OracleParams == nil {
-		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+		return sdkerrors.Wrap(types.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
 	if p.MakerFeeRate != nil {
@@ -1532,7 +1535,7 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		p.SettlementPrice == nil &&
 		p.Admin == "" &&
 		p.OracleParams == nil {
-		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+		return sdkerrors.Wrap(types.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
 	if p.MakerFeeRate != nil {
@@ -1635,7 +1638,7 @@ func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ProposalType() string {
 
 func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ValidateBasic() error {
 	if len(p.MarketFeeMultipliers) == 0 {
-		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one fee multiplier should be provided")
+		return sdkerrors.Wrap(types.ErrInvalidProposalContent, "At least one fee multiplier should be provided")
 	}
 	for _, m := range p.MarketFeeMultipliers {
 		if !IsHexHash(m.MarketId) {

@@ -2,10 +2,10 @@ package types
 
 import (
 	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
+	sdkmath "cosmossdk.io/math"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
@@ -28,7 +28,7 @@ func NewParams(denomCreationFee sdk.Coins) Params {
 // default gamm module parameters.
 func DefaultParams() Params {
 	return Params{
-		DenomCreationFee: sdk.NewCoins(sdk.NewCoin(chaintypes.InjectiveCoin, sdk.NewIntWithDecimal(10, 18))), // 10 INJ
+		DenomCreationFee: sdk.NewCoins(sdk.NewCoin(chaintypes.InjectiveCoin, sdkmath.NewIntWithDecimal(10, 18))), // 10 INJ
 	}
 }
 
