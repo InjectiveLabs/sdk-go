@@ -1,6 +1,7 @@
 package types
 
 import (
+	govcod "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -12,9 +13,9 @@ const (
 
 func init() {
 	gov.RegisterProposalType(ProposalTypeBlacklistEthereumAddresses)
-	gov.RegisterProposalTypeCodec(&BlacklistEthereumAddressesProposal{}, "injective/BlacklistEthereumAddressesProposal")
+	govcod.Amino.RegisterConcrete(&BlacklistEthereumAddressesProposal{}, "injective/BlacklistEthereumAddressesProposal", nil)
 	gov.RegisterProposalType(ProposalTypeRevokeEthereumBlacklist)
-	gov.RegisterProposalTypeCodec(&RevokeEthereumBlacklistProposal{}, "injective/RevokeEthereumBlacklistProposal")
+	govcod.Amino.RegisterConcrete(&RevokeEthereumBlacklistProposal{}, "injective/RevokeEthereumBlacklistProposal", nil)
 }
 
 // Implements Proposal Interface

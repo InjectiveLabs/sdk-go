@@ -4,6 +4,7 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govcod "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -17,13 +18,13 @@ const (
 
 func init() {
 	gov.RegisterProposalType(ProposalContractRegistrationRequest)
-	gov.RegisterProposalTypeCodec(&ContractRegistrationRequestProposal{}, "injective/ContractRegistrationRequestProposal")
+	govcod.Amino.RegisterConcrete(&ContractRegistrationRequestProposal{}, "injective/ContractRegistrationRequestProposal", nil)
 	gov.RegisterProposalType(ProposalBatchContractRegistrationRequest)
-	gov.RegisterProposalTypeCodec(&BatchContractRegistrationRequestProposal{}, "injective/BatchContractRegistrationRequestProposal")
+	govcod.Amino.RegisterConcrete(&BatchContractRegistrationRequestProposal{}, "injective/BatchContractRegistrationRequestProposal", nil)
 	gov.RegisterProposalType(ProposalBatchContractDeregistration)
-	gov.RegisterProposalTypeCodec(&BatchContractDeregistrationProposal{}, "injective/BatchContractDeregistrationProposal")
+	govcod.Amino.RegisterConcrete(&BatchContractDeregistrationProposal{}, "injective/BatchContractDeregistrationProposal", nil)
 	gov.RegisterProposalType(ProposalBatchStoreCode)
-	gov.RegisterProposalTypeCodec(&BatchStoreCodeProposal{}, "injective/BatchStoreCodeProposal")
+	govcod.Amino.RegisterConcrete(&BatchStoreCodeProposal{}, "injective/BatchStoreCodeProposal", nil)
 }
 
 // Implements Proposal Interface

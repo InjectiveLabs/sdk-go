@@ -3,13 +3,13 @@ package types
 import (
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
-
 	bandprice "github.com/InjectiveLabs/sdk-go/bandchain/hooks/price"
 	bandoracle "github.com/InjectiveLabs/sdk-go/bandchain/oracle/types"
 	bandobi "github.com/bandprotocol/bandchain-packet/obi"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // constants
@@ -27,23 +27,23 @@ const (
 
 func init() {
 	gov.RegisterProposalType(ProposalTypeGrantBandOraclePrivilege)
-	gov.RegisterProposalTypeCodec(&GrantBandOraclePrivilegeProposal{}, "injective/GrantBandOraclePrivilegeProposal")
+	govcdc.Amino.RegisterConcrete(&GrantBandOraclePrivilegeProposal{}, "injective/GrantBandOraclePrivilegeProposal", nil)
 	gov.RegisterProposalType(ProposalTypeRevokeBandOraclePrivilege)
-	gov.RegisterProposalTypeCodec(&RevokeBandOraclePrivilegeProposal{}, "injective/RevokeBandOraclePrivilegeProposal")
+	govcdc.Amino.RegisterConcrete(&RevokeBandOraclePrivilegeProposal{}, "injective/RevokeBandOraclePrivilegeProposal", nil)
 	gov.RegisterProposalType(ProposalTypeGrantPriceFeederOraclePrivilege)
-	gov.RegisterProposalTypeCodec(&GrantPriceFeederPrivilegeProposal{}, "injective/GrantPriceFeederPrivilegeProposal")
+	govcdc.Amino.RegisterConcrete(&GrantPriceFeederPrivilegeProposal{}, "injective/GrantPriceFeederPrivilegeProposal", nil)
 	gov.RegisterProposalType(ProposalTypeRevokePriceFeederOraclePrivilege)
-	gov.RegisterProposalTypeCodec(&RevokePriceFeederPrivilegeProposal{}, "injective/RevokePriceFeederPrivilegeProposal")
+	govcdc.Amino.RegisterConcrete(&RevokePriceFeederPrivilegeProposal{}, "injective/RevokePriceFeederPrivilegeProposal", nil)
 	gov.RegisterProposalType(ProposalAuthorizeBandOracleRequest)
-	gov.RegisterProposalTypeCodec(&AuthorizeBandOracleRequestProposal{}, "injective/AuthorizeBandOracleRequestProposal")
+	govcdc.Amino.RegisterConcrete(&AuthorizeBandOracleRequestProposal{}, "injective/AuthorizeBandOracleRequestProposal", nil)
 	gov.RegisterProposalType(ProposalEnableBandIBC)
-	gov.RegisterProposalTypeCodec(&EnableBandIBCProposal{}, "injective/EnableBandIBCProposal")
+	govcdc.Amino.RegisterConcrete(&EnableBandIBCProposal{}, "injective/EnableBandIBCProposal", nil)
 	gov.RegisterProposalType(ProposalUpdateBandOracleRequest)
-	gov.RegisterProposalTypeCodec(&UpdateBandOracleRequestProposal{}, "injective/UpdateBandOracleRequestProposal")
+	govcdc.Amino.RegisterConcrete(&UpdateBandOracleRequestProposal{}, "injective/UpdateBandOracleRequestProposal", nil)
 	gov.RegisterProposalType(ProposalTypeGrantProviderPrivilege)
-	gov.RegisterProposalTypeCodec(&GrantProviderPrivilegeProposal{}, "injective/GrantProviderPrivilegeProposal")
+	govcdc.Amino.RegisterConcrete(&GrantProviderPrivilegeProposal{}, "injective/GrantProviderPrivilegeProposal", nil)
 	gov.RegisterProposalType(ProposalTypeRevokeProviderPrivilege)
-	gov.RegisterProposalTypeCodec(&RevokeProviderPrivilegeProposal{}, "injective/RevokeProviderPrivilegeProposal")
+	govcdc.Amino.RegisterConcrete(&RevokeProviderPrivilegeProposal{}, "injective/RevokeProviderPrivilegeProposal", nil)
 }
 
 // Implements Proposal Interface

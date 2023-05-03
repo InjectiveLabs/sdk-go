@@ -2,6 +2,7 @@ package types
 
 import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govcod "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -13,8 +14,8 @@ const (
 
 func init() {
 	gov.RegisterProposalType(ProposalTypeOcrSetConfig)
-	gov.RegisterProposalTypeCodec(&SetConfigProposal{}, "injective/OcrSetConfigProposal")
-	gov.RegisterProposalTypeCodec(&SetBatchConfigProposal{}, "injective/OcrSetBatchConfigProposal")
+	govcod.Amino.RegisterConcrete(&SetConfigProposal{}, "injective/OcrSetConfigProposal", nil)
+	govcod.Amino.RegisterConcrete(&SetBatchConfigProposal{}, "injective/OcrSetBatchConfigProposal", nil)
 }
 
 // Implements Proposal Interface
