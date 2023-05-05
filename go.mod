@@ -1,4 +1,4 @@
-module github.com/InjectiveLabs/sdk-go
+module github.com/ryanvin/injSdkGo
 
 go 1.17
 
