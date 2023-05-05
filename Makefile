@@ -27,6 +27,8 @@ copy-exchange-client:
 .PHONY: copy-exchange-client
 
 copy-chain-types:
+	cp ../injective-core/injective-chain/types/*.go chain/types
+	cp ../injective-core/injective-chain/crypto/ethsecp256k1/*.go chain/crypto/ethsecp256k1
 	cp ../injective-core/injective-chain/modules/auction/types/*.go chain/auction/types
 	rm -rf chain/auction/types/*test.go  rm -rf chain/auction/types/*gw.go
 	cp ../injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types
@@ -36,6 +38,7 @@ copy-chain-types:
 	cp ../injective-core/injective-chain/modules/ocr/types/*.go chain/ocr/types
 	rm -rf chain/ocr/types/*test.go  rm -rf chain/ocr/types/*gw.go
 	cp ../injective-core/injective-chain/modules/oracle/types/*.go chain/oracle/types
+	cp -r ../injective-core/injective-chain/modules/oracle/bandchain chain/oracle
 	rm -rf chain/oracle/types/*test.go  rm -rf chain/oracle/types/*gw.go
 	cp ../injective-core/injective-chain/modules/peggy/types/*.go chain/peggy/types
 	rm -rf chain/peggy/types/*test.go  rm -rf chain/peggy/types/*gw.go
