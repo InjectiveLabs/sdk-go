@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -19,15 +20,15 @@ const (
 	BaseDenomUnit = 18
 )
 
-// NewInjectiveCoin is a utility function that returns an "inj" coin with the given sdk.Int amount.
+// NewInjectiveCoin is a utility function that returns an "inj" coin with the given sdkmath.Int amount.
 // The function will panic if the provided amount is negative.
-func NewInjectiveCoin(amount sdk.Int) sdk.Coin {
+func NewInjectiveCoin(amount sdkmath.Int) sdk.Coin {
 	return sdk.NewCoin(InjectiveCoin, amount)
 }
 
-// NewInjectiveDecCoin is a utility function that returns an "inj" decimal coin with the given sdk.Int amount.
+// NewInjectiveDecCoin is a utility function that returns an "inj" decimal coin with the given sdkmath.Int amount.
 // The function will panic if the provided amount is negative.
-func NewInjectiveDecCoin(amount sdk.Int) sdk.DecCoin {
+func NewInjectiveDecCoin(amount sdkmath.Int) sdk.DecCoin {
 	return sdk.NewDecCoin(InjectiveCoin, amount)
 }
 

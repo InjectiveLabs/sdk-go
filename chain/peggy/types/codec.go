@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // ModuleCdc is the codec for the module
@@ -30,10 +30,10 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgValsetUpdatedClaim{},
 		&MsgCancelSendToEth{},
 		&MsgSubmitBadSignatureEvidence{},
+		&MsgUpdateParams{},
 	)
 
-	registry.RegisterImplementations(
-		(*govtypes.Content)(nil),
+	registry.RegisterImplementations((*govtypes.Content)(nil),
 		&BlacklistEthereumAddressesProposal{},
 		&RevokeEthereumBlacklistProposal{},
 	)
@@ -69,8 +69,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&IDSet{}, "peggy/IDSet", nil)
 	cdc.RegisterConcrete(&Attestation{}, "peggy/Attestation", nil)
 	cdc.RegisterConcrete(&MsgSubmitBadSignatureEvidence{}, "peggy/MsgSubmitBadSignatureEvidence", nil)
-
 	cdc.RegisterConcrete(&BlacklistEthereumAddressesProposal{}, "peggy/BlacklistEthereumAddressesProposal", nil)
 	cdc.RegisterConcrete(&RevokeEthereumBlacklistProposal{}, "peggy/RevokeEthereumBlacklistProposal", nil)
-
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "peggy/MsgUpdateParams", nil)
 }

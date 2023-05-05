@@ -5,8 +5,8 @@ package types
 
 import (
 	fmt "fmt"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -24,13 +24,17 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Params struct {
-	// Set the status to active to indicate that contracts can be executed in begin blocker.
+	// Set the status to active to indicate that contracts can be executed in
+	// begin blocker.
 	IsExecutionEnabled bool `protobuf:"varint,1,opt,name=is_execution_enabled,json=isExecutionEnabled,proto3" json:"is_execution_enabled,omitempty"`
-	// Maximum aggregate total gas to be used for the contract executions in the BeginBlocker.
+	// Maximum aggregate total gas to be used for the contract executions in the
+	// BeginBlocker.
 	MaxBeginBlockTotalGas uint64 `protobuf:"varint,2,opt,name=max_begin_block_total_gas,json=maxBeginBlockTotalGas,proto3" json:"max_begin_block_total_gas,omitempty"`
-	// the maximum gas limit each individual contract can consume in the BeginBlocker.
+	// the maximum gas limit each individual contract can consume in the
+	// BeginBlocker.
 	MaxContractGasLimit uint64 `protobuf:"varint,3,opt,name=max_contract_gas_limit,json=maxContractGasLimit,proto3" json:"max_contract_gas_limit,omitempty"`
-	// min_gas_price defines the minimum gas price the contracts must pay to be executed in the BeginBlocker.
+	// min_gas_price defines the minimum gas price the contracts must pay to be
+	// executed in the BeginBlocker.
 	MinGasPrice uint64 `protobuf:"varint,4,opt,name=min_gas_price,json=minGasPrice,proto3" json:"min_gas_price,omitempty"`
 }
 
@@ -102,7 +106,8 @@ type RegisteredContract struct {
 	GasPrice uint64 `protobuf:"varint,2,opt,name=gas_price,json=gasPrice,proto3" json:"gas_price,omitempty"`
 	// is contract currently active
 	IsExecutable bool `protobuf:"varint,3,opt,name=is_executable,json=isExecutable,proto3" json:"is_executable,omitempty"`
-	// code_id that is allowed to be executed (to prevent malicious updates) - if nil/0 any code_id can be executed
+	// code_id that is allowed to be executed (to prevent malicious updates) - if
+	// nil/0 any code_id can be executed
 	CodeId uint64 `protobuf:"varint,4,opt,name=code_id,json=codeId,proto3" json:"code_id,omitempty"`
 	// optional - admin addr that is allowed to update contract data
 	AdminAddress string `protobuf:"bytes,5,opt,name=admin_address,json=adminAddress,proto3" json:"admin_address,omitempty"`

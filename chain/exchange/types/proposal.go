@@ -3,12 +3,14 @@ package types
 import (
 	"fmt"
 
+	"cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -35,43 +37,26 @@ const (
 )
 
 func init() {
-	gov.RegisterProposalType(ProposalTypeExchangeEnable)
-	gov.RegisterProposalTypeCodec(&ExchangeEnableProposal{}, "injective/ExchangeEnableProposal")
-	gov.RegisterProposalType(ProposalTypeBatchExchangeModification)
-	gov.RegisterProposalTypeCodec(&BatchExchangeModificationProposal{}, "injective/BatchExchangeModificationProposal")
-	gov.RegisterProposalType(ProposalTypeSpotMarketParamUpdate)
-	gov.RegisterProposalTypeCodec(&SpotMarketParamUpdateProposal{}, "injective/SpotMarketParamUpdateProposal")
-	gov.RegisterProposalType(ProposalTypeSpotMarketLaunch)
-	gov.RegisterProposalTypeCodec(&SpotMarketLaunchProposal{}, "injective/SpotMarketLaunchProposal")
-	gov.RegisterProposalType(ProposalTypePerpetualMarketLaunch)
-	gov.RegisterProposalTypeCodec(&PerpetualMarketLaunchProposal{}, "injective/PerpetualMarketLaunchProposal")
-	gov.RegisterProposalType(ProposalTypeExpiryFuturesMarketLaunch)
-	gov.RegisterProposalTypeCodec(&ExpiryFuturesMarketLaunchProposal{}, "injective/ExpiryFuturesMarketLaunchProposal")
-	gov.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
-	gov.RegisterProposalTypeCodec(&DerivativeMarketParamUpdateProposal{}, "injective/DerivativeMarketParamUpdateProposal")
-	gov.RegisterProposalType(ProposalTypeMarketForcedSettlement)
-	gov.RegisterProposalTypeCodec(&MarketForcedSettlementProposal{}, "injective/MarketForcedSettlementProposal")
-	gov.RegisterProposalType(ProposalUpdateDenomDecimals)
-	gov.RegisterProposalTypeCodec(&UpdateDenomDecimalsProposal{}, "injective/UpdateDenomDecimalsProposal")
-	gov.RegisterProposalType(ProposalTypeTradingRewardCampaign)
-	gov.RegisterProposalTypeCodec(&TradingRewardCampaignLaunchProposal{}, "injective/TradingRewardCampaignLaunchProposal")
-	gov.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
-	gov.RegisterProposalTypeCodec(&TradingRewardCampaignUpdateProposal{}, "injective/TradingRewardCampaignUpdateProposal")
-	gov.RegisterProposalType(ProposalTypeTradingRewardPointsUpdate)
-	gov.RegisterProposalTypeCodec(&TradingRewardPendingPointsUpdateProposal{}, "injective/TradingRewardPendingPointsUpdateProposal")
-	gov.RegisterProposalType(ProposalTypeFeeDiscountProposal)
-	gov.RegisterProposalTypeCodec(&FeeDiscountProposal{}, "injective/FeeDiscountProposal")
-	gov.RegisterProposalType(ProposalTypeBatchCommunityPoolSpendProposal)
-	gov.RegisterProposalTypeCodec(&BatchCommunityPoolSpendProposal{}, "injective/BatchCommunityPoolSpendProposal")
-	gov.RegisterProposalType(ProposalTypeBinaryOptionsMarketLaunch)
-	gov.RegisterProposalTypeCodec(&BinaryOptionsMarketLaunchProposal{}, "injective/BinaryOptionsMarketLaunchProposal")
-	gov.RegisterProposalType(ProposalTypeBinaryOptionsMarketParamUpdate)
-	gov.RegisterProposalTypeCodec(&BinaryOptionsMarketParamUpdateProposal{}, "injective/BinaryOptionsMarketParamUpdateProposal")
-	gov.RegisterProposalType(ProposalAtomicMarketOrderFeeMultiplierSchedule)
-	gov.RegisterProposalTypeCodec(&AtomicMarketOrderFeeMultiplierScheduleProposal{}, "injective/AtomicMarketOrderFeeMultiplierScheduleProposal")
+	govtypes.RegisterProposalType(ProposalTypeExchangeEnable)
+	govtypes.RegisterProposalType(ProposalTypeBatchExchangeModification)
+	govtypes.RegisterProposalType(ProposalTypeSpotMarketParamUpdate)
+	govtypes.RegisterProposalType(ProposalTypeSpotMarketLaunch)
+	govtypes.RegisterProposalType(ProposalTypePerpetualMarketLaunch)
+	govtypes.RegisterProposalType(ProposalTypeExpiryFuturesMarketLaunch)
+	govtypes.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
+	govtypes.RegisterProposalType(ProposalTypeMarketForcedSettlement)
+	govtypes.RegisterProposalType(ProposalUpdateDenomDecimals)
+	govtypes.RegisterProposalType(ProposalTypeTradingRewardCampaign)
+	govtypes.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
+	govtypes.RegisterProposalType(ProposalTypeTradingRewardPointsUpdate)
+	govtypes.RegisterProposalType(ProposalTypeFeeDiscountProposal)
+	govtypes.RegisterProposalType(ProposalTypeBatchCommunityPoolSpendProposal)
+	govtypes.RegisterProposalType(ProposalTypeBinaryOptionsMarketLaunch)
+	govtypes.RegisterProposalType(ProposalTypeBinaryOptionsMarketParamUpdate)
+	govtypes.RegisterProposalType(ProposalAtomicMarketOrderFeeMultiplierSchedule)
 }
 
-func SafeIsPositiveInt(v sdk.Int) bool {
+func SafeIsPositiveInt(v sdkmath.Int) bool {
 	if v.IsNil() {
 		return false
 	}
@@ -95,7 +80,7 @@ func SafeIsNonNegativeDec(v sdk.Dec) bool {
 	return !v.IsNegative()
 }
 
-func IsZeroOrNilInt(v sdk.Int) bool {
+func IsZeroOrNilInt(v sdkmath.Int) bool {
 	return v.IsNil() || v.IsZero()
 }
 
@@ -104,7 +89,7 @@ func IsZeroOrNilDec(v sdk.Dec) bool {
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &ExchangeEnableProposal{}
+var _ govtypes.Content = &ExchangeEnableProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *ExchangeEnableProposal) GetTitle() string {
@@ -132,11 +117,11 @@ func (p *ExchangeEnableProposal) ValidateBasic() error {
 	default:
 		return ErrBadField
 	}
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &BatchExchangeModificationProposal{}
+var _ govtypes.Content = &BatchExchangeModificationProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *BatchExchangeModificationProposal) GetTitle() string {
@@ -212,7 +197,7 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 		}
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
@@ -232,7 +217,7 @@ func NewSpotMarketParamUpdateProposal(title, description string, marketID common
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &SpotMarketParamUpdateProposal{}
+var _ govtypes.Content = &SpotMarketParamUpdateProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *SpotMarketParamUpdateProposal) GetTitle() string {
@@ -255,10 +240,10 @@ func (p *SpotMarketParamUpdateProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 	if !IsHexHash(p.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+		return errors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 	if p.MakerFeeRate == nil && p.TakerFeeRate == nil && p.RelayerFeeShareRate == nil && p.MinPriceTickSize == nil && p.MinQuantityTickSize == nil && p.Status == MarketStatus_Unspecified {
-		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
 	if p.MakerFeeRate != nil {
@@ -279,12 +264,12 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 
 	if p.MinPriceTickSize != nil {
 		if err := ValidateTickSize(*p.MinPriceTickSize); err != nil {
-			return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+			return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 		}
 	}
 	if p.MinQuantityTickSize != nil {
 		if err := ValidateTickSize(*p.MinQuantityTickSize); err != nil {
-			return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+			return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 		}
 	}
 
@@ -297,10 +282,10 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 		MarketStatus_Expired:
 
 	default:
-		return sdkerrors.Wrap(ErrInvalidMarketStatus, p.Status.String())
+		return errors.Wrap(ErrInvalidMarketStatus, p.Status.String())
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewSpotMarketLaunchProposal returns new instance of SpotMarketLaunchProposal
@@ -329,7 +314,7 @@ func NewSpotMarketLaunchProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &SpotMarketLaunchProposal{}
+var _ govtypes.Content = &SpotMarketLaunchProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *SpotMarketLaunchProposal) GetTitle() string {
@@ -352,23 +337,23 @@ func (p *SpotMarketLaunchProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if p.BaseDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
+		return errors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
 	}
 	if p.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 	if p.BaseDenom == p.QuoteDenom {
 		return ErrSameDenoms
 	}
 
 	if err := ValidateTickSize(p.MinPriceTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	if p.MakerFeeRate != nil {
@@ -384,7 +369,7 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 	}
 
 	if (p.MakerFeeRate == nil && p.TakerFeeRate != nil) || (p.MakerFeeRate != nil && p.TakerFeeRate == nil) {
-		return sdkerrors.Wrap(ErrFeeRatesRelation, "maker and taker fee rate must either be both nil or both specified")
+		return errors.Wrap(ErrFeeRatesRelation, "maker and taker fee rate must either be both nil or both specified")
 	}
 
 	if p.MakerFeeRate != nil && p.TakerFeeRate != nil {
@@ -393,7 +378,7 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 		}
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewDerivativeMarketParamUpdateProposal returns new instance of DerivativeMarketParamUpdateProposal
@@ -423,7 +408,7 @@ func NewDerivativeMarketParamUpdateProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &DerivativeMarketParamUpdateProposal{}
+var _ govtypes.Content = &DerivativeMarketParamUpdateProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *DerivativeMarketParamUpdateProposal) GetTitle() string {
@@ -446,7 +431,7 @@ func (p *DerivativeMarketParamUpdateProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if !IsHexHash(p.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+		return errors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&
@@ -459,7 +444,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.HourlyFundingRateCap == nil &&
 		p.Status == MarketStatus_Unspecified &&
 		p.OracleParams == nil {
-		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
 	if p.MakerFeeRate != nil {
@@ -492,24 +477,24 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 
 	if p.MinPriceTickSize != nil {
 		if err := ValidateTickSize(*p.MinPriceTickSize); err != nil {
-			return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+			return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 		}
 	}
 	if p.MinQuantityTickSize != nil {
 		if err := ValidateTickSize(*p.MinQuantityTickSize); err != nil {
-			return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+			return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 		}
 	}
 
 	if p.HourlyInterestRate != nil {
 		if err := ValidateHourlyInterestRate(*p.HourlyInterestRate); err != nil {
-			return sdkerrors.Wrap(ErrInvalidHourlyInterestRate, err.Error())
+			return errors.Wrap(ErrInvalidHourlyInterestRate, err.Error())
 		}
 	}
 
 	if p.HourlyFundingRateCap != nil {
 		if err := ValidateHourlyFundingRateCap(*p.HourlyFundingRateCap); err != nil {
-			return sdkerrors.Wrap(ErrInvalidHourlyFundingRateCap, err.Error())
+			return errors.Wrap(ErrInvalidHourlyFundingRateCap, err.Error())
 		}
 	}
 
@@ -522,7 +507,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		MarketStatus_Expired:
 
 	default:
-		return sdkerrors.Wrap(ErrInvalidMarketStatus, p.Status.String())
+		return errors.Wrap(ErrInvalidMarketStatus, p.Status.String())
 	}
 
 	if p.OracleParams != nil {
@@ -531,7 +516,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewMarketForcedSettlementProposal returns new instance of MarketForcedSettlementProposal
@@ -548,7 +533,7 @@ func NewMarketForcedSettlementProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &MarketForcedSettlementProposal{}
+var _ govtypes.Content = &MarketForcedSettlementProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *MarketForcedSettlementProposal) GetTitle() string {
@@ -571,14 +556,14 @@ func (p *MarketForcedSettlementProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *MarketForcedSettlementProposal) ValidateBasic() error {
 	if !IsHexHash(p.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+		return errors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 
 	if p.SettlementPrice != nil && !SafeIsPositiveDec(*p.SettlementPrice) {
-		return sdkerrors.Wrap(ErrInvalidSettlement, "settlement price must be positive for derivatives and nil for spot")
+		return errors.Wrap(ErrInvalidSettlement, "settlement price must be positive for derivatives and nil for spot")
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewUpdateDenomDecimalsProposal returns new instance of UpdateDenomDecimalsProposal
@@ -594,7 +579,7 @@ func NewUpdateDenomDecimalsProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &UpdateDenomDecimalsProposal{}
+var _ govtypes.Content = &UpdateDenomDecimalsProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *UpdateDenomDecimalsProposal) GetTitle() string {
@@ -621,16 +606,16 @@ func (p *UpdateDenomDecimalsProposal) ValidateBasic() error {
 			return err
 		}
 	}
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 func (d *DenomDecimals) Validate() error {
 	if d.Denom == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, d.Denom)
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, d.Denom)
 	}
 
 	if d.Decimals <= 0 || d.Decimals > uint64(MaxOracleScaleFactor) {
-		return sdkerrors.Wrapf(ErrInvalidDenomDecimal, "invalid decimals passed: %d", d.Decimals)
+		return errors.Wrapf(ErrInvalidDenomDecimal, "invalid decimals passed: %d", d.Decimals)
 	}
 	return nil
 }
@@ -651,10 +636,10 @@ func NewOracleParams(
 
 func (p *OracleParams) ValidateBasic() error {
 	if p.OracleBase == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
 	}
 	if p.OracleQuote == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
 	}
 	if p.OracleBase == p.OracleQuote {
 		return ErrSameOracles
@@ -664,7 +649,7 @@ func (p *OracleParams) ValidateBasic() error {
 		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC, oracletypes.OracleType_Provider:
 
 	default:
-		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+		return errors.Wrap(ErrInvalidOracleType, p.OracleType.String())
 	}
 
 	if p.OracleScaleFactor > MaxOracleScaleFactor {
@@ -690,14 +675,14 @@ func NewProviderOracleParams(
 
 func (p *ProviderOracleParams) ValidateBasic() error {
 	if p.Symbol == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
 	}
 	if p.Provider == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
 	}
 
 	if p.OracleType != oracletypes.OracleType_Provider {
-		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+		return errors.Wrap(ErrInvalidOracleType, p.OracleType.String())
 	}
 
 	if p.OracleScaleFactor > MaxOracleScaleFactor {
@@ -732,7 +717,7 @@ func NewPerpetualMarketLaunchProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &PerpetualMarketLaunchProposal{}
+var _ govtypes.Content = &PerpetualMarketLaunchProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *PerpetualMarketLaunchProposal) GetTitle() string {
@@ -755,10 +740,10 @@ func (p *PerpetualMarketLaunchProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if p.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 
 	oracleParams := NewOracleParams(p.OracleBase, p.OracleQuote, p.OracleScaleFactor, p.OracleType)
@@ -785,13 +770,13 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	}
 
 	if err := ValidateTickSize(p.MinPriceTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewExpiryFuturesMarketLaunchProposal returns new instance of ExpiryFuturesMarketLaunchProposal
@@ -820,7 +805,7 @@ func NewExpiryFuturesMarketLaunchProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &ExpiryFuturesMarketLaunchProposal{}
+var _ govtypes.Content = &ExpiryFuturesMarketLaunchProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *ExpiryFuturesMarketLaunchProposal) GetTitle() string {
@@ -843,10 +828,10 @@ func (p *ExpiryFuturesMarketLaunchProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if p.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 
 	oracleParams := NewOracleParams(p.OracleBase, p.OracleQuote, p.OracleScaleFactor, p.OracleType)
@@ -854,7 +839,7 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 		return err
 	}
 	if p.Expiry <= 0 {
-		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
+		return errors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
 	}
 	if err := ValidateMakerFee(p.MakerFeeRate); err != nil {
 		return err
@@ -876,13 +861,13 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 
 	if err := ValidateTickSize(p.MinPriceTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewTradingRewardCampaignUpdateProposal returns new instance of TradingRewardCampaignLaunchProposal
@@ -906,7 +891,7 @@ func NewTradingRewardCampaignUpdateProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &TradingRewardCampaignUpdateProposal{}
+var _ govtypes.Content = &TradingRewardCampaignUpdateProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *TradingRewardCampaignUpdateProposal) GetTitle() string {
@@ -937,7 +922,7 @@ func (p *TradingRewardCampaignUpdateProposal) ValidateBasic() error {
 	prevStartTimestamp := int64(0)
 	for _, pool := range p.CampaignRewardPoolsAdditions {
 		if pool == nil {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign reward pool addition cannot be nil")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign reward pool addition cannot be nil")
 		}
 
 		prevStartTimestamp, err = validateCampaignRewardPool(pool, p.CampaignInfo.CampaignDurationSeconds, prevStartTimestamp)
@@ -954,11 +939,11 @@ func (p *TradingRewardCampaignUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &TradingRewardPendingPointsUpdateProposal{}
+var _ govtypes.Content = &TradingRewardPendingPointsUpdateProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *TradingRewardPendingPointsUpdateProposal) GetTitle() string {
@@ -981,43 +966,43 @@ func (p *TradingRewardPendingPointsUpdateProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *TradingRewardPendingPointsUpdateProposal) ValidateBasic() error {
 	if len(p.RewardPointUpdates) == 0 {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points update cannot be nil")
+		return errors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points update cannot be nil")
 	}
 
 	if p.PendingPoolTimestamp <= 0 {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "pending pool timestamp cannot be zero")
+		return errors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "pending pool timestamp cannot be zero")
 	}
 
 	accountAddresses := make([]string, 0)
 
 	for _, rewardPointUpdate := range p.RewardPointUpdates {
 		if rewardPointUpdate == nil {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending point update cannot be nil")
+			return errors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending point update cannot be nil")
 		}
 
 		_, err := sdk.AccAddressFromBech32(rewardPointUpdate.AccountAddress)
 
 		if err != nil {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, rewardPointUpdate.AccountAddress)
+			return errors.Wrap(sdkerrors.ErrInvalidAddress, rewardPointUpdate.AccountAddress)
 		}
 
 		accountAddresses = append(accountAddresses, rewardPointUpdate.AccountAddress)
 
 		if rewardPointUpdate.NewPoints.IsNil() {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points cannot be nil")
+			return errors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points cannot be nil")
 		}
 
 		if rewardPointUpdate.NewPoints.IsNegative() {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points cannot be negative")
+			return errors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "reward pending points cannot be negative")
 		}
 	}
 
 	hasDuplicateAccountAddresses := HasDuplicates(accountAddresses)
 	if hasDuplicateAccountAddresses {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "account address cannot have duplicates")
+		return errors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "account address cannot have duplicates")
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewTradingRewardCampaignLaunchProposal returns new instance of TradingRewardCampaignLaunchProposal
@@ -1039,7 +1024,7 @@ func NewTradingRewardCampaignLaunchProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &TradingRewardCampaignLaunchProposal{}
+var _ govtypes.Content = &TradingRewardCampaignLaunchProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *TradingRewardCampaignLaunchProposal) GetTitle() string {
@@ -1064,11 +1049,11 @@ func (p *TradingRewardCampaignLaunchProposal) ValidateBasic() error {
 	var err error
 
 	if p.CampaignInfo == nil {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign info cannot be nil")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign info cannot be nil")
 	}
 
 	if len(p.CampaignRewardPools) == 0 {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign reward pools cannot be nil")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign reward pools cannot be nil")
 	}
 
 	err = p.CampaignInfo.ValidateBasic()
@@ -1089,63 +1074,63 @@ func (p *TradingRewardCampaignLaunchProposal) ValidateBasic() error {
 
 func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 	if len(t.BoostedSpotMarketIds) != len(t.SpotMarketMultipliers) {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "boosted spot market ids is not matching spot market multipliers")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "boosted spot market ids is not matching spot market multipliers")
 	}
 
 	for _, marketID := range t.BoostedSpotMarketIds {
 		if !IsHexHash(marketID) {
-			return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+			return errors.Wrap(ErrMarketInvalid, marketID)
 		}
 	}
 
 	for _, marketID := range t.BoostedDerivativeMarketIds {
 		if !IsHexHash(marketID) {
-			return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+			return errors.Wrap(ErrMarketInvalid, marketID)
 		}
 	}
 
 	if len(t.BoostedDerivativeMarketIds) != len(t.DerivativeMarketMultipliers) {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
 	}
 
 	hasDuplicatesInMarkets := HasDuplicates(t.BoostedSpotMarketIds) || HasDuplicates(t.BoostedDerivativeMarketIds)
 	if hasDuplicatesInMarkets {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate boosted market ids")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate boosted market ids")
 	}
 
 	for _, multiplier := range t.SpotMarketMultipliers {
 		if IsZeroOrNilDec(multiplier.MakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be zero or nil")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be zero or nil")
 		}
 
 		if IsZeroOrNilDec(multiplier.TakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market taker multiplier cannot be zero or nil")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "spot market taker multiplier cannot be zero or nil")
 		}
 
 		if !SafeIsPositiveDec(multiplier.MakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be negative")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be negative")
 		}
 
 		if !SafeIsPositiveDec(multiplier.TakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "spot market taker multiplier cannot be negative")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "spot market taker multiplier cannot be negative")
 		}
 	}
 
 	for _, multiplier := range t.DerivativeMarketMultipliers {
 		if IsZeroOrNilDec(multiplier.MakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be zero or nil")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be zero or nil")
 		}
 
 		if IsZeroOrNilDec(multiplier.TakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market taker multiplier cannot be zero or nil")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market taker multiplier cannot be zero or nil")
 		}
 
 		if !SafeIsPositiveDec(multiplier.MakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be negative")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be negative")
 		}
 
 		if !SafeIsPositiveDec(multiplier.TakerPointsMultiplier) {
-			return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market taker multiplier cannot be negative")
+			return errors.Wrap(ErrInvalidTradingRewardCampaign, "derivative market taker multiplier cannot be negative")
 		}
 	}
 	return nil
@@ -1153,15 +1138,15 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 
 func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 	if c == nil {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign info cannot be nil")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign info cannot be nil")
 	}
 
 	if c.CampaignDurationSeconds <= 0 {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign duration cannot be zero")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign duration cannot be zero")
 	}
 
 	if len(c.QuoteDenoms) == 0 {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign quote denoms cannot be nil")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign quote denoms cannot be nil")
 	}
 
 	hasTradingRewardBoostInfoDefined := c != nil && c.TradingRewardBoostInfo != nil
@@ -1173,13 +1158,13 @@ func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 
 	for _, marketID := range c.DisqualifiedMarketIds {
 		if !IsHexHash(marketID) {
-			return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+			return errors.Wrap(ErrMarketInvalid, marketID)
 		}
 	}
 
 	hasDuplicatesInDisqualifiedMarkets := c != nil && HasDuplicates(c.DisqualifiedMarketIds)
 	if hasDuplicatesInDisqualifiedMarkets {
-		return sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate disqualified market ids")
+		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate disqualified market ids")
 	}
 
 	return nil
@@ -1187,32 +1172,32 @@ func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 
 func validateCampaignRewardPool(pool *CampaignRewardPool, campaignDurationSeconds, prevStartTimestamp int64) (int64, error) {
 	if pool == nil {
-		return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign reward pool cannot be nil")
+		return 0, errors.Wrap(ErrInvalidTradingRewardCampaign, "new campaign reward pool cannot be nil")
 	}
 
 	if pool.StartTimestamp <= prevStartTimestamp {
-		return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool start timestamps must be in ascending order")
+		return 0, errors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool start timestamps must be in ascending order")
 	}
 
 	hasValidStartTimestamp := prevStartTimestamp == 0 || pool.StartTimestamp == (prevStartTimestamp+campaignDurationSeconds)
 	if !hasValidStartTimestamp {
-		return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "start timestamps not matching campaign duration")
+		return 0, errors.Wrap(ErrInvalidTradingRewardCampaign, "start timestamps not matching campaign duration")
 	}
 
 	prevStartTimestamp = pool.StartTimestamp
 
 	hasDuplicatesInEpochRewards := HasDuplicatesCoin(pool.MaxCampaignRewards)
 	if hasDuplicatesInEpochRewards {
-		return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool campaign contains duplicate market coins")
+		return 0, errors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool campaign contains duplicate market coins")
 	}
 
 	for _, epochRewardDenom := range pool.MaxCampaignRewards {
 		if !epochRewardDenom.IsValid() {
-			return 0, sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, epochRewardDenom.String())
+			return 0, errors.Wrap(sdkerrors.ErrInvalidCoins, epochRewardDenom.String())
 		}
 
 		if IsZeroOrNilInt(epochRewardDenom.Amount) {
-			return 0, sdkerrors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool contains zero or nil reward amount")
+			return 0, errors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool contains zero or nil reward amount")
 		}
 	}
 
@@ -1229,7 +1214,7 @@ func NewFeeDiscountProposal(title, description string, schedule *FeeDiscountSche
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &FeeDiscountProposal{}
+var _ govtypes.Content = &FeeDiscountProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *FeeDiscountProposal) GetTitle() string {
@@ -1252,33 +1237,33 @@ func (p *FeeDiscountProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *FeeDiscountProposal) ValidateBasic() error {
 	if p.Schedule == nil {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot be nil")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot be nil")
 	}
 
 	if p.Schedule.BucketCount < 2 {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have at least 2 buckets")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have at least 2 buckets")
 	}
 
 	if p.Schedule.BucketDuration < 10 {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have have bucket durations of at least 10 seconds")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have have bucket durations of at least 10 seconds")
 	}
 
 	if HasDuplicates(p.Schedule.QuoteDenoms) {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate quote denoms")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate quote denoms")
 	}
 
 	for _, marketID := range p.Schedule.DisqualifiedMarketIds {
 		if !IsHexHash(marketID) {
-			return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+			return errors.Wrap(ErrMarketInvalid, marketID)
 		}
 	}
 
 	if HasDuplicates(p.Schedule.DisqualifiedMarketIds) {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate disqualified market ids")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate disqualified market ids")
 	}
 
 	if len(p.Schedule.TierInfos) < 1 {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have at least one discount tier")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have at least one discount tier")
 	}
 
 	for idx, tierInfo := range p.Schedule.TierInfos {
@@ -1290,56 +1275,47 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 			prevTierInfo := p.Schedule.TierInfos[idx-1]
 
 			if prevTierInfo.MakerDiscountRate.GT(tierInfo.MakerDiscountRate) {
-				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive MakerDiscountRates must be equal or larger than those of lower tiers")
+				return errors.Wrap(ErrInvalidFeeDiscountSchedule, "successive MakerDiscountRates must be equal or larger than those of lower tiers")
 			}
 
 			if prevTierInfo.TakerDiscountRate.GT(tierInfo.TakerDiscountRate) {
-				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive TakerDiscountRates must be equal or larger than those of lower tiers")
+				return errors.Wrap(ErrInvalidFeeDiscountSchedule, "successive TakerDiscountRates must be equal or larger than those of lower tiers")
 			}
 
 			if prevTierInfo.StakedAmount.GT(tierInfo.StakedAmount) {
-				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive StakedAmount must be equal or larger than those of lower tiers")
+				return errors.Wrap(ErrInvalidFeeDiscountSchedule, "successive StakedAmount must be equal or larger than those of lower tiers")
 			}
 
 			if prevTierInfo.Volume.GT(tierInfo.Volume) {
-				return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "successive Volume must be equal or larger than those of lower tiers")
+				return errors.Wrap(ErrInvalidFeeDiscountSchedule, "successive Volume must be equal or larger than those of lower tiers")
 			}
 		}
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 func (t *FeeDiscountTierInfo) ValidateBasic() error {
 	if !SafeIsNonNegativeDec(t.MakerDiscountRate) || t.MakerDiscountRate.GT(sdk.OneDec()) {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "MakerDiscountRate must be between 0 and 1")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "MakerDiscountRate must be between 0 and 1")
 	}
 
 	if !SafeIsNonNegativeDec(t.TakerDiscountRate) || t.TakerDiscountRate.GT(sdk.OneDec()) {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "TakerDiscountRate must be between 0 and 1")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "TakerDiscountRate must be between 0 and 1")
 	}
 
 	if !SafeIsPositiveInt(t.StakedAmount) {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "StakedAmount must be non-negative")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "StakedAmount must be non-negative")
 	}
 
 	if !SafeIsPositiveDec(t.Volume) {
-		return sdkerrors.Wrap(ErrInvalidFeeDiscountSchedule, "Volume must be non-negative")
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "Volume must be non-negative")
 	}
 	return nil
 }
 
-// NewBatchCommunityPoolSpendProposal returns new instance of BatchCommunityPoolSpendProposal
-func NewBatchCommunityPoolSpendProposal(title, description string, proposals []*distributiontypes.CommunityPoolSpendProposal) *BatchCommunityPoolSpendProposal {
-	return &BatchCommunityPoolSpendProposal{
-		Title:       title,
-		Description: description,
-		Proposals:   proposals,
-	}
-}
-
 // Implements Proposal Interface
-var _ gov.Content = &BatchCommunityPoolSpendProposal{}
+var _ govtypes.Content = &BatchCommunityPoolSpendProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *BatchCommunityPoolSpendProposal) GetTitle() string {
@@ -1366,7 +1342,7 @@ func (p *BatchCommunityPoolSpendProposal) ValidateBasic() error {
 			return err
 		}
 	}
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewBinaryOptionsMarketLaunchProposal returns new instance of BinaryOptionsMarketLaunchProposal
@@ -1398,7 +1374,7 @@ func NewBinaryOptionsMarketLaunchProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &BinaryOptionsMarketLaunchProposal{}
+var _ govtypes.Content = &BinaryOptionsMarketLaunchProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *BinaryOptionsMarketLaunchProposal) GetTitle() string {
@@ -1421,16 +1397,16 @@ func (p *BinaryOptionsMarketLaunchProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if p.OracleSymbol == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
 	}
 	if p.OracleProvider == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
 	}
 	if p.OracleType != oracletypes.OracleType_Provider {
-		return sdkerrors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+		return errors.Wrap(ErrInvalidOracleType, p.OracleType.String())
 	}
 	if p.OracleScaleFactor > MaxOracleScaleFactor {
 		return ErrExceedsMaxOracleScaleFactor
@@ -1443,11 +1419,11 @@ func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	if p.Admin != "" {
 		_, err := sdk.AccAddressFromBech32(p.Admin)
 		if err != nil {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, p.Admin)
+			return errors.Wrap(sdkerrors.ErrInvalidAddress, p.Admin)
 		}
 	}
 	if p.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 	if err := ValidateMakerFee(p.MakerFeeRate); err != nil {
 		return err
@@ -1461,13 +1437,13 @@ func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	}
 
 	if err := ValidateTickSize(p.MinPriceTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewBinaryOptionsMarketParamUpdateProposal returns new instance of BinaryOptionsMarketParamUpdateProposal
@@ -1496,7 +1472,7 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &BinaryOptionsMarketParamUpdateProposal{}
+var _ govtypes.Content = &BinaryOptionsMarketParamUpdateProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *BinaryOptionsMarketParamUpdateProposal) GetTitle() string {
@@ -1519,7 +1495,7 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 	if !IsHexHash(p.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, p.MarketId)
+		return errors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&
@@ -1532,7 +1508,7 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		p.SettlementPrice == nil &&
 		p.Admin == "" &&
 		p.OracleParams == nil {
-		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
 	if p.MakerFeeRate != nil {
@@ -1554,13 +1530,13 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 
 	if p.MinPriceTickSize != nil {
 		if err := ValidateTickSize(*p.MinPriceTickSize); err != nil {
-			return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+			return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 		}
 	}
 
 	if p.MinQuantityTickSize != nil {
 		if err := ValidateTickSize(*p.MinQuantityTickSize); err != nil {
-			return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+			return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 		}
 	}
 
@@ -1588,11 +1564,11 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 	case p.SettlementPrice.Equal(BinaryOptionsMarketRefundFlagPrice),
 		p.SettlementPrice.GTE(sdk.ZeroDec()) && p.SettlementPrice.LTE(MaxBinaryOptionsOrderPrice):
 		if p.Status != MarketStatus_Demolished {
-			return sdkerrors.Wrapf(ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", p.Status.String())
+			return errors.Wrapf(ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", p.Status.String())
 		}
 		// ok
 	default:
-		return sdkerrors.Wrap(ErrInvalidPrice, p.SettlementPrice.String())
+		return errors.Wrap(ErrInvalidPrice, p.SettlementPrice.String())
 	}
 
 	switch p.Status {
@@ -1600,7 +1576,7 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		MarketStatus_Unspecified,
 		MarketStatus_Demolished:
 	default:
-		return sdkerrors.Wrap(ErrInvalidMarketStatus, p.Status.String())
+		return errors.Wrap(ErrInvalidMarketStatus, p.Status.String())
 	}
 
 	if p.OracleParams != nil {
@@ -1609,11 +1585,11 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &AtomicMarketOrderFeeMultiplierScheduleProposal{}
+var _ govtypes.Content = &AtomicMarketOrderFeeMultiplierScheduleProposal{}
 
 // GetTitle returns the title of this proposal
 func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) GetTitle() string {
@@ -1635,11 +1611,11 @@ func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ProposalType() string {
 
 func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ValidateBasic() error {
 	if len(p.MarketFeeMultipliers) == 0 {
-		return sdkerrors.Wrap(gov.ErrInvalidProposalContent, "At least one fee multiplier should be provided")
+		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one fee multiplier should be provided")
 	}
 	for _, m := range p.MarketFeeMultipliers {
 		if !IsHexHash(m.MarketId) {
-			return sdkerrors.Wrap(ErrMarketInvalid, m.MarketId)
+			return errors.Wrap(ErrMarketInvalid, m.MarketId)
 		}
 		multiplier := m.FeeMultiplier
 		if multiplier.IsNil() {
@@ -1654,5 +1630,5 @@ func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ValidateBasic() error {
 			return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be bigger than %v: %v", multiplier, MaxFeeMultiplier)
 		}
 	}
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }

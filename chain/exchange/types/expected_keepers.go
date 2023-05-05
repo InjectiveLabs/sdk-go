@@ -3,12 +3,12 @@ package types
 import (
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -44,16 +44,16 @@ type InsuranceKeeper interface {
 	// GetInsuranceFund returns the insurance fund corresponding to the given marketID.
 	GetInsuranceFund(ctx sdk.Context, marketID common.Hash) *insurancetypes.InsuranceFund
 	// DepositIntoInsuranceFund increments the insurance fund balance by amount.
-	DepositIntoInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdk.Int) error
+	DepositIntoInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdkmath.Int) error
 	// WithdrawFromInsuranceFund decrements the insurance fund balance by amount and sends
-	WithdrawFromInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdk.Int) error
+	WithdrawFromInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdkmath.Int) error
 	// UpdateInsuranceFundOracleParams updates the insurance fund's oracle parameters
 	UpdateInsuranceFundOracleParams(ctx sdk.Context, marketID common.Hash, oracleParams *OracleParams) error
 }
 
 type GovKeeper interface {
-	IterateActiveProposalsQueue(ctx sdk.Context, endTime time.Time, cb func(proposal govtypes.Proposal) (stop bool))
-	GetVotingParams(ctx sdk.Context) govtypes.VotingParams
+	IterateActiveProposalsQueue(ctx sdk.Context, endTime time.Time, cb func(proposal v1.Proposal) (stop bool))
+	GetParams(ctx sdk.Context) v1.Params
 }
 
 type DistributionKeeper interface {

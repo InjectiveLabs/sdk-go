@@ -6,8 +6,8 @@ package types
 import (
 	fmt "fmt"
 	types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -34,7 +34,8 @@ type GenesisState struct {
 	LatestEpochAndRounds []*FeedEpochAndRound `protobuf:"bytes,3,rep,name=latest_epoch_and_rounds,json=latestEpochAndRounds,proto3" json:"latest_epoch_and_rounds,omitempty"`
 	// feed_transmissions stores the last transmission for each feed
 	FeedTransmissions []*FeedTransmission `protobuf:"bytes,4,rep,name=feed_transmissions,json=feedTransmissions,proto3" json:"feed_transmissions,omitempty"`
-	// latest_aggregator_round_ids stores the latest aggregator round ID for each feedId
+	// latest_aggregator_round_ids stores the latest aggregator round ID for each
+	// feedId
 	LatestAggregatorRoundIds []*FeedLatestAggregatorRoundIDs `protobuf:"bytes,5,rep,name=latest_aggregator_round_ids,json=latestAggregatorRoundIds,proto3" json:"latest_aggregator_round_ids,omitempty"`
 	// reward_pools stores the reward pools
 	RewardPools []*RewardPool `protobuf:"bytes,6,rep,name=reward_pools,json=rewardPools,proto3" json:"reward_pools,omitempty"`

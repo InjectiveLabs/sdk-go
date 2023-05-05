@@ -6,7 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/oracle interfaces and concrete types
@@ -18,6 +18,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRequestBandIBCRates{}, "oracle/MsgRequestBandIBCRates", nil)
 	cdc.RegisterConcrete(&MsgRelayProviderPrices{}, "oracle/MsgRelayProviderPrices", nil)
 	cdc.RegisterConcrete(&MsgRelayPythPrices{}, "oracle/MsgRelayPythPrices", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "oracle/MsgUpdateParams", nil)
 
 	cdc.RegisterConcrete(&GrantBandOraclePrivilegeProposal{}, "oracle/GrantBandOraclePrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokeBandOraclePrivilegeProposal{}, "oracle/RevokeBandOraclePrivilegeProposal", nil)
@@ -39,10 +40,10 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgRequestBandIBCRates{},
 		&MsgRelayProviderPrices{},
 		&MsgRelayPythPrices{},
+		&MsgUpdateParams{},
 	)
 
-	registry.RegisterImplementations(
-		(*govtypes.Content)(nil),
+	registry.RegisterImplementations((*govtypes.Content)(nil),
 		&GrantBandOraclePrivilegeProposal{},
 		&RevokeBandOraclePrivilegeProposal{},
 		&GrantPriceFeederPrivilegeProposal{},

@@ -3,11 +3,11 @@ package types
 import (
 	"strconv"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -79,10 +79,10 @@ func (o *SpotMarketOrder) FeeRecipient() common.Address {
 
 func (o *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
 	if BreachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
+		return errors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
 	}
 	if BreachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
+		return errors.Wrapf(ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
 	}
 	return nil
 }
@@ -212,7 +212,7 @@ func (m *SpotLimitOrder) ToTrimmed() *TrimmedSpotLimitOrder {
 // ComputeOrderHash computes the order hash for given spot limit order
 func (o *SpotOrder) ComputeOrderHash(nonce uint32) (common.Hash, error) {
 	chainID := ethmath.NewHexOrDecimal256(888)
-	var domain = gethsigner.TypedDataDomain{
+	var domain = apitypes.TypedDataDomain{
 		Name:              "Injective Protocol",
 		Version:           "2.0.0",
 		ChainId:           chainID,
@@ -238,7 +238,7 @@ func (o *SpotOrder) ComputeOrderHash(nonce uint32) (common.Hash, error) {
 		"TriggerPrice": triggerPrice,
 	}
 
-	var typedData = gethsigner.TypedData{
+	var typedData = apitypes.TypedData{
 		Types:       eip712OrderTypes,
 		PrimaryType: "SpotOrder",
 		Domain:      domain,

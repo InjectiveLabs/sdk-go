@@ -1,20 +1,20 @@
 package types
 
 import (
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"cosmossdk.io/errors"
 )
 
 var (
-	ErrInsuranceFundAlreadyExists = sdkerrors.Register(ModuleName, 1, "insurance fund already exists")
-	ErrInsuranceFundNotFound      = sdkerrors.Register(ModuleName, 2, "insurance fund not found")
-	ErrRedemptionAlreadyExists    = sdkerrors.Register(ModuleName, 3, "redemption already exists")
-	ErrInvalidDepositAmount       = sdkerrors.Register(ModuleName, 4, "invalid deposit amount")
-	ErrInvalidDepositDenom        = sdkerrors.Register(ModuleName, 5, "invalid deposit denom")
-	ErrPayoutTooLarge             = sdkerrors.Register(ModuleName, 6, "insurance payout exceeds deposits")
-	ErrInvalidTicker              = sdkerrors.Register(ModuleName, 7, "invalid ticker")
-	ErrInvalidQuoteDenom          = sdkerrors.Register(ModuleName, 8, "invalid quote denom")
-	ErrInvalidOracle              = sdkerrors.Register(ModuleName, 9, "invalid oracle")
-	ErrInvalidExpirationTime      = sdkerrors.Register(ModuleName, 10, "invalid expiration time")
-	ErrInvalidMarketID            = sdkerrors.Register(ModuleName, 11, "invalid marketID")
-	ErrInvalidShareDenom          = sdkerrors.Register(ModuleName, 12, "invalid share denom")
+	ErrInsuranceFundAlreadyExists = errors.Register(ModuleName, 1, "insurance fund already exists")
+	ErrInsuranceFundNotFound      = errors.Register(ModuleName, 2, "insurance fund not found")
+	ErrRedemptionAlreadyExists    = errors.Register(ModuleName, 3, "redemption already exists")
+	ErrInvalidDepositAmount       = errors.Register(ModuleName, 4, "invalid deposit amount")
+	ErrInvalidDepositDenom        = errors.Register(ModuleName, 5, "invalid deposit denom")
+	ErrPayoutTooLarge             = errors.Register(ModuleName, 6, "insurance payout exceeds deposits")
+	ErrInvalidTicker              = errors.Register(ModuleName, 7, "invalid ticker")
+	ErrInvalidQuoteDenom          = errors.Register(ModuleName, 8, "invalid quote denom")
+	ErrInvalidOracle              = errors.Register(ModuleName, 9, "invalid oracle")
+	ErrInvalidExpirationTime      = errors.Register(ModuleName, 10, "invalid expiration time")
+	ErrInvalidMarketID            = errors.Register(ModuleName, 11, "invalid marketID")
+	ErrInvalidShareDenom          = errors.Register(ModuleName, 12, "invalid share denom")
 )

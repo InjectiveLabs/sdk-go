@@ -1,10 +1,10 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // constants
@@ -16,21 +16,17 @@ const (
 )
 
 func init() {
-	gov.RegisterProposalType(ProposalContractRegistrationRequest)
-	gov.RegisterProposalTypeCodec(&ContractRegistrationRequestProposal{}, "injective/ContractRegistrationRequestProposal")
-	gov.RegisterProposalType(ProposalBatchContractRegistrationRequest)
-	gov.RegisterProposalTypeCodec(&BatchContractRegistrationRequestProposal{}, "injective/BatchContractRegistrationRequestProposal")
-	gov.RegisterProposalType(ProposalBatchContractDeregistration)
-	gov.RegisterProposalTypeCodec(&BatchContractDeregistrationProposal{}, "injective/BatchContractDeregistrationProposal")
-	gov.RegisterProposalType(ProposalBatchStoreCode)
-	gov.RegisterProposalTypeCodec(&BatchStoreCodeProposal{}, "injective/BatchStoreCodeProposal")
+	govtypes.RegisterProposalType(ProposalContractRegistrationRequest)
+	govtypes.RegisterProposalType(ProposalBatchContractRegistrationRequest)
+	govtypes.RegisterProposalType(ProposalBatchContractDeregistration)
+	govtypes.RegisterProposalType(ProposalBatchStoreCode)
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &ContractRegistrationRequestProposal{}
-var _ gov.Content = &BatchContractRegistrationRequestProposal{}
-var _ gov.Content = &BatchContractDeregistrationProposal{}
-var _ gov.Content = &BatchStoreCodeProposal{}
+var _ govtypes.Content = &ContractRegistrationRequestProposal{}
+var _ govtypes.Content = &BatchContractRegistrationRequestProposal{}
+var _ govtypes.Content = &BatchContractDeregistrationProposal{}
+var _ govtypes.Content = &BatchStoreCodeProposal{}
 
 // NewContractRegistrationRequestProposal returns new instance of ContractRegistrationRequestProposal
 func NewContractRegistrationRequestProposal(title, description string, contractRegistrationRequest ContractRegistrationRequest) *ContractRegistrationRequestProposal {
@@ -63,10 +59,10 @@ func (p *ContractRegistrationRequestProposal) ProposalType() string {
 func (p *ContractRegistrationRequestProposal) ValidateBasic() error {
 	// Check if contract address is valid
 	if _, err := sdk.AccAddressFromBech32(p.ContractRegistrationRequest.ContractAddress); err != nil {
-		return sdkerrors.Wrapf(ErrInvalidContractAddress, "ContractRegistrationRequestProposal: Error parsing registry contract address %s", err.Error())
+		return errors.Wrapf(ErrInvalidContractAddress, "ContractRegistrationRequestProposal: Error parsing registry contract address %s", err.Error())
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // GetTitle returns the title of this proposal.
@@ -92,15 +88,15 @@ func (p *BatchContractRegistrationRequestProposal) ValidateBasic() error {
 	for _, req := range p.ContractRegistrationRequests {
 		// Check if contract address is valid
 		if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-			return sdkerrors.Wrapf(ErrInvalidContractAddress, "BatchContractRegistrationRequestProposal: Error parsing registry contract address %s", err.Error())
+			return errors.Wrapf(ErrInvalidContractAddress, "BatchContractRegistrationRequestProposal: Error parsing registry contract address %s", err.Error())
 		}
 	}
 
 	if hasDuplicatesContractRegistrationRequest(p.ContractRegistrationRequests) {
-		return sdkerrors.Wrapf(ErrDuplicateContract, "BatchContractRegistrationRequestProposal: Duplicate contract registration requests")
+		return errors.Wrapf(ErrDuplicateContract, "BatchContractRegistrationRequestProposal: Duplicate contract registration requests")
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // GetTitle returns the title of this proposal.
@@ -124,7 +120,7 @@ func (p *BatchContractDeregistrationProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *BatchContractDeregistrationProposal) ValidateBasic() error {
 	if len(p.Contracts) == 0 {
-		return sdkerrors.Wrapf(ErrNoContractAddresses, "BatchContractDeregistrationProposal: Contract list was empty")
+		return errors.Wrapf(ErrNoContractAddresses, "BatchContractDeregistrationProposal: Contract list was empty")
 	}
 
 	found := make(map[string]struct{})
@@ -133,18 +129,18 @@ func (p *BatchContractDeregistrationProposal) ValidateBasic() error {
 		// Check if contract address is valid
 		addr, err := sdk.AccAddressFromBech32(contract)
 		if err != nil {
-			return sdkerrors.Wrapf(ErrInvalidContractAddress, "BatchContractDeregistrationProposal: Error parsing contract address %s", err.Error())
+			return errors.Wrapf(ErrInvalidContractAddress, "BatchContractDeregistrationProposal: Error parsing contract address %s", err.Error())
 		}
 
 		// Check that there are no duplicate contract addresses
 		if _, ok := found[addr.String()]; ok {
-			return sdkerrors.Wrapf(ErrDuplicateContract, "BatchContractDeregistrationProposal: Duplicate contract in contracts to deregister")
+			return errors.Wrapf(ErrDuplicateContract, "BatchContractDeregistrationProposal: Duplicate contract in contracts to deregister")
 		} else {
 			found[addr.String()] = struct{}{}
 		}
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // NewBatchStoreCodeProposal returns new instance of BatchStoreCodeProposal
@@ -182,7 +178,7 @@ func (p *BatchStoreCodeProposal) ValidateBasic() error {
 		}
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 func HasDuplicates(slice []string) bool {

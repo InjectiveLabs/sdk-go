@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -14,6 +15,7 @@ const (
 	TypeMsgSetPayees              = "setPayees"
 	TypeMsgTransferPayeeship      = "transferPayeeship"
 	TypeMsgAcceptPayeeship        = "acceptPayeeship"
+	TypeMsgUpdateParams           = "updateParams"
 )
 
 var (
@@ -25,7 +27,42 @@ var (
 	_ sdk.Msg = &MsgSetPayees{}
 	_ sdk.Msg = &MsgTransferPayeeship{}
 	_ sdk.Msg = &MsgAcceptPayeeship{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgUpdateParams) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
+
+// ValidateBasic implements the sdk.Msg interface for MsgUpdateParams.
+func (msg MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errors.Wrap(err, "invalid authority address")
+	}
+
+	if err := msg.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Authority)
+	if err != nil {
+		panic(err)
+	}
+
+	return []sdk.AccAddress{sender}
+}
 
 // Route implements the sdk.Msg interface. It should return the name of the module
 func (msg MsgCreateFeed) Route() string { return RouterKey }
@@ -36,7 +73,7 @@ func (msg MsgCreateFeed) Type() string { return TypeMsgCreateFeed }
 // ValidateBasic implements the sdk.Msg interface for MsgCreateFeed.
 func (msg MsgCreateFeed) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if err := msg.Config.ValidateBasic(); err != nil {
@@ -70,11 +107,11 @@ func (msg MsgUpdateFeed) Type() string { return TypeMsgUpdateFeed }
 // ValidateBasic implements the sdk.Msg interface for MsgUpdateFeed.
 func (msg MsgUpdateFeed) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if msg.FeedId == "" || len(msg.FeedId) > FeedIDMaxLength {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
 	}
 
 	seenTransmitters := make(map[string]struct{}, len(msg.Transmitters))
@@ -107,13 +144,13 @@ func (msg MsgUpdateFeed) ValidateBasic() error {
 
 	if msg.LinkPerTransmission != nil {
 		if msg.LinkPerTransmission.IsNil() || !msg.LinkPerTransmission.IsPositive() {
-			return sdkerrors.Wrap(ErrIncorrectConfig, "LinkPerTransmission must be positive")
+			return errors.Wrap(ErrIncorrectConfig, "LinkPerTransmission must be positive")
 		}
 	}
 
 	if msg.LinkPerObservation != nil {
 		if msg.LinkPerObservation.IsNil() || !msg.LinkPerObservation.IsPositive() {
-			return sdkerrors.Wrap(ErrIncorrectConfig, "LinkPerObservation must be positive")
+			return errors.Wrap(ErrIncorrectConfig, "LinkPerObservation must be positive")
 		}
 	}
 
@@ -165,27 +202,27 @@ func (msg MsgTransmit) ValidateBasic() error {
 
 	switch {
 	case len(msg.ConfigDigest) == 0:
-		return sdkerrors.Wrap(ErrIncorrectTransmissionData, "missing config digest")
+		return errors.Wrap(ErrIncorrectTransmissionData, "missing config digest")
 	case msg.FeedId == "":
-		return sdkerrors.Wrap(ErrIncorrectTransmissionData, "missing feed hash")
+		return errors.Wrap(ErrIncorrectTransmissionData, "missing feed hash")
 	case msg.Report == nil:
-		return sdkerrors.Wrap(ErrIncorrectTransmissionData, "missing report")
+		return errors.Wrap(ErrIncorrectTransmissionData, "missing report")
 	}
 
 	if len(msg.Report.Observers) > MaxNumOracles {
-		return sdkerrors.Wrap(ErrIncorrectTransmissionData, "too many observers")
+		return errors.Wrap(ErrIncorrectTransmissionData, "too many observers")
 	} else if len(msg.Report.Observations) != len(msg.Report.Observers) {
-		return sdkerrors.Wrap(ErrIncorrectTransmissionData, "wrong observations count")
+		return errors.Wrap(ErrIncorrectTransmissionData, "wrong observations count")
 	}
 
 	if len(msg.Report.Observations) > MaxNumOracles {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "num observations out of bounds")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "num observations out of bounds")
 	}
 
 	for i := 0; i < len(msg.Report.Observations)-1; i++ {
 		inOrder := msg.Report.Observations[i].LTE(msg.Report.Observations[i+1])
 		if !inOrder {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "observations not sorted")
+			return errors.Wrap(sdkerrors.ErrInvalidRequest, "observations not sorted")
 		}
 	}
 	return nil
@@ -215,15 +252,15 @@ func (msg MsgFundFeedRewardPool) Type() string { return TypeMsgFundFeedRewardPoo
 // ValidateBasic implements the sdk.Msg interface for MsgFundFeedRewardPool.
 func (msg MsgFundFeedRewardPool) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if msg.FeedId == "" || len(msg.FeedId) > FeedIDMaxLength {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
 	}
 
 	if !msg.Amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	return nil
@@ -253,15 +290,15 @@ func (msg MsgWithdrawFeedRewardPool) Type() string { return TypeMsgWithdrawFeedR
 // ValidateBasic implements the sdk.Msg interface for MsgWithdrawFeedRewardPool.
 func (msg MsgWithdrawFeedRewardPool) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if msg.FeedId == "" || len(msg.FeedId) > FeedIDMaxLength {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
 	}
 
 	if !msg.Amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	return nil
@@ -291,11 +328,11 @@ func (msg MsgSetPayees) Type() string { return TypeMsgSetPayees }
 // ValidateBasic implements the sdk.Msg interface for MsgSetPayees.
 func (msg MsgSetPayees) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if msg.FeedId == "" || len(msg.FeedId) > FeedIDMaxLength {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
 	}
 
 	if len(msg.Transmitters) != len(msg.Payees) || len(msg.Payees) == 0 {
@@ -357,23 +394,23 @@ func (msg MsgTransferPayeeship) Type() string { return TypeMsgTransferPayeeship 
 // ValidateBasic implements the sdk.Msg interface for MsgTransferPayeeship.
 func (msg MsgTransferPayeeship) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if msg.FeedId == "" || len(msg.FeedId) > FeedIDMaxLength {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.Transmitter); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Transmitter)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Transmitter)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.Proposed); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Proposed)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Proposed)
 	}
 
 	if msg.Transmitter == msg.Proposed {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "proposed cannot be the same as transmitter")
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, "proposed cannot be the same as transmitter")
 	}
 
 	return nil
@@ -403,15 +440,15 @@ func (msg MsgAcceptPayeeship) Type() string { return TypeMsgAcceptPayeeship }
 // ValidateBasic implements the sdk.Msg interface for MsgAcceptPayeeship.
 func (msg MsgAcceptPayeeship) ValidateBasic() error {
 	if msg.Payee == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Payee)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Payee)
 	}
 
 	if msg.FeedId == "" || len(msg.FeedId) > FeedIDMaxLength {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "feedId not valid")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.Transmitter); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Transmitter)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Transmitter)
 	}
 
 	return nil

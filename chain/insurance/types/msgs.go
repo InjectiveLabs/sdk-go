@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -13,7 +14,41 @@ var (
 	_ sdk.Msg = &MsgCreateInsuranceFund{}
 	_ sdk.Msg = &MsgUnderwrite{}
 	_ sdk.Msg = &MsgRequestRedemption{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgUpdateParams) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgUpdateParams) Type() string { return "updateParams" }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errors.Wrap(err, "invalid authority address")
+	}
+
+	if err := msg.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Authority)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
 
 // Route implements the sdk.Msg interface. It should return the name of the module
 func (msg MsgCreateInsuranceFund) Route() string { return RouterKey }
@@ -24,36 +59,36 @@ func (msg MsgCreateInsuranceFund) Type() string { return "createInsuranceFund" }
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgCreateInsuranceFund) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Ticker == "" {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if msg.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 	if msg.OracleBase == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle base should not be empty")
 	}
 	if msg.OracleQuote == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle quote should not be empty")
 	}
 	if msg.OracleType == oracletypes.OracleType_Unspecified {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle type should not be unspecified")
+		return errors.Wrap(ErrInvalidOracle, "oracle type should not be unspecified")
 	}
 	if msg.QuoteDenom != msg.InitialDeposit.Denom {
-		return sdkerrors.Wrapf(ErrInvalidDepositDenom, "oracle quote denom %s does not match deposit denom %s", msg.QuoteDenom, msg.InitialDeposit.Denom)
+		return errors.Wrapf(ErrInvalidDepositDenom, "oracle quote denom %s does not match deposit denom %s", msg.QuoteDenom, msg.InitialDeposit.Denom)
 	}
 
 	if msg.OracleType == oracletypes.OracleType_Provider && msg.Expiry != BinaryOptionsExpiryFlag {
-		return sdkerrors.Wrap(ErrInvalidExpirationTime, "oracle expiration time should be -2 for binary options markets")
+		return errors.Wrap(ErrInvalidExpirationTime, "oracle expiration time should be -2 for binary options markets")
 	}
 
 	if !msg.InitialDeposit.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
 	}
 	if !msg.InitialDeposit.IsPositive() || msg.InitialDeposit.Amount.GT(MaxUnderwritingAmount) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.InitialDeposit.String())
 	}
 	return nil
 }
@@ -81,16 +116,16 @@ func (msg MsgUnderwrite) Type() string { return "underwrite" }
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgUnderwrite) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.MarketId == "" {
-		return sdkerrors.Wrap(ErrInvalidMarketID, msg.MarketId)
+		return errors.Wrap(ErrInvalidMarketID, msg.MarketId)
 	}
 	if !msg.Deposit.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
 	}
 	if !msg.Deposit.IsPositive() || msg.Deposit.Amount.GT(MaxUnderwritingAmount) {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Deposit.String())
 	}
 	return nil
 }
@@ -118,18 +153,18 @@ func (msg MsgRequestRedemption) Type() string { return "requestRedemption" }
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgRequestRedemption) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.MarketId == "" {
-		return sdkerrors.Wrap(ErrInvalidMarketID, msg.MarketId)
+		return errors.Wrap(ErrInvalidMarketID, msg.MarketId)
 	}
 
 	if !msg.Amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if !msg.Amount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 	return nil
 }

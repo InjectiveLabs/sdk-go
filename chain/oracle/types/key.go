@@ -26,6 +26,7 @@ var (
 	// Keys for band store prefixes
 	BandPriceKey   = []byte{0x01}
 	BandRelayerKey = []byte{0x02}
+	ParamsKey      = []byte{0x03}
 
 	// Keys for pricefeeder store prefixes
 	PricefeedInfoKey    = []byte{0x11}

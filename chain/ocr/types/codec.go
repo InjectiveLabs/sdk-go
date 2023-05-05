@@ -6,7 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // RegisterLegacyAminoCodec registers the necessary modules/ocr interfaces and concrete types
@@ -20,6 +20,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgSetPayees{}, "ocr/MsgSetPayees", nil)
 	cdc.RegisterConcrete(&MsgTransferPayeeship{}, "ocr/MsgTransferPayeeship", nil)
 	cdc.RegisterConcrete(&MsgAcceptPayeeship{}, "ocr/MsgAcceptPayeeship", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "ocr/MsgUpdateParams", nil)
 
 	cdc.RegisterConcrete(&SetConfigProposal{}, "ocr/SetConfigProposal", nil)
 	cdc.RegisterConcrete(&SetBatchConfigProposal{}, "ocr/SetBatchConfigProposal", nil)
@@ -35,6 +36,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgSetPayees{},
 		&MsgTransferPayeeship{},
 		&MsgAcceptPayeeship{},
+		&MsgUpdateParams{},
 	)
 
 	registry.RegisterImplementations(

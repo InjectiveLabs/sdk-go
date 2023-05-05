@@ -7,9 +7,9 @@ import (
 	context "context"
 	fmt "fmt"
 	_ "github.com/cosmos/cosmos-sdk/types/query"
-	_ "github.com/gogo/protobuf/gogoproto"
-	grpc1 "github.com/gogo/protobuf/grpc"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	grpc1 "github.com/cosmos/gogoproto/grpc"
+	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -305,7 +305,8 @@ func (m *QueryDenomsFromCreatorResponse) GetDenoms() []string {
 	return nil
 }
 
-// QueryModuleStateRequest is the request type for the Query/TokenfactoryModuleState RPC method.
+// QueryModuleStateRequest is the request type for the
+// Query/TokenfactoryModuleState RPC method.
 type QueryModuleStateRequest struct {
 }
 
@@ -342,7 +343,8 @@ func (m *QueryModuleStateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 
-// QueryModuleStateResponse is the response type for the Query/TokenfactoryModuleState RPC method.
+// QueryModuleStateResponse is the response type for the
+// Query/TokenfactoryModuleState RPC method.
 type QueryModuleStateResponse struct {
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }

@@ -6,7 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/wasmx interfaces and concrete types
@@ -20,6 +20,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgActivateContract{}, "wasmx/MsgActivateContract", nil)
 	cdc.RegisterConcrete(&MsgDeactivateContract{}, "wasmx/MsgDeactivateContract", nil)
 	cdc.RegisterConcrete(&MsgExecuteContractCompat{}, "wasmx/MsgExecuteContractCompat", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "wasmx/MsgUpdateParams", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -36,6 +37,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgActivateContract{},
 		&MsgActivateContract{},
 		&MsgDeactivateContract{},
+		&MsgUpdateParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

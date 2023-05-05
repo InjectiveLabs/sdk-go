@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"strings"
 
+	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	gethcommon "github.com/ethereum/go-ethereum/common"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -41,7 +42,7 @@ func ZeroAddress() gethcommon.Address {
 // Creates a new EthAddress from a string, performing validation and returning any validation errors
 func NewEthAddress(address string) (*gethcommon.Address, error) {
 	if err := ValidateEthAddress(address); err != nil {
-		return nil, sdkerrors.Wrap(err, "invalid input address")
+		return nil, errors.Wrap(err, "invalid input address")
 	}
 
 	addr := gethcommon.HexToAddress(address)
@@ -64,7 +65,7 @@ func NewERC20Token(amount uint64, contract gethcommon.Address) *ERC20Token {
 	return &ERC20Token{Amount: sdk.NewIntFromUint64(amount), Contract: contract.Hex()}
 }
 
-func NewSDKIntERC20Token(amount sdk.Int, contract gethcommon.Address) *ERC20Token {
+func NewSDKIntERC20Token(amount math.Int, contract gethcommon.Address) *ERC20Token {
 	return &ERC20Token{Amount: amount, Contract: contract.Hex()}
 }
 
@@ -88,13 +89,13 @@ func (p PeggyDenom) String() string {
 func (p PeggyDenom) TokenContract() (gethcommon.Address, error) {
 	fullPrefix := []byte(PeggyDenomPrefix + PeggyDenomSeparator)
 	if !bytes.HasPrefix(p, fullPrefix) {
-		err := errors.Errorf("denom '%x' byte prefix not equal to expected '%x'", []byte(p), fullPrefix)
+		err := fmt.Errorf("denom '%x' byte prefix not equal to expected '%x'", []byte(p), fullPrefix)
 		return gethcommon.Address{}, err
 	}
 
 	addressBytes := bytes.TrimPrefix(p, fullPrefix)
 	if len(addressBytes) != ETHContractAddressLen {
-		err := errors.Errorf("failed to validate Ethereum address bytes: %x", addressBytes)
+		err := fmt.Errorf("failed to validate Ethereum address bytes: %x", addressBytes)
 		return gethcommon.Address{}, err
 	}
 
@@ -112,7 +113,7 @@ func NewPeggyDenom(tokenContract gethcommon.Address) PeggyDenom {
 func NewPeggyDenomFromString(denom string) (PeggyDenom, error) {
 	fullPrefix := PeggyDenomPrefix + PeggyDenomSeparator
 	if !strings.HasPrefix(denom, fullPrefix) {
-		err := errors.Errorf("denom '%s' string prefix not equal to expected '%s'", denom, fullPrefix)
+		err := fmt.Errorf("denom '%s' string prefix not equal to expected '%s'", denom, fullPrefix)
 		return nil, err
 	}
 
@@ -132,15 +133,15 @@ func PeggyDenomString(tokenContract gethcommon.Address) string {
 // ValidateBasic permforms stateless validation
 func (e *ERC20Token) ValidateBasic() error {
 	if err := ValidateEthAddress(e.Contract); err != nil {
-		return sdkerrors.Wrap(err, "ethereum address")
+		return errors.Wrap(err, "ethereum address")
 	}
 
 	if !e.PeggyCoin().IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, e.PeggyCoin().String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, e.PeggyCoin().String())
 	}
 
 	if !e.PeggyCoin().IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, e.PeggyCoin().String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, e.PeggyCoin().String())
 	}
 
 	return nil
@@ -149,12 +150,12 @@ func (e *ERC20Token) ValidateBasic() error {
 // Add adds one ERC20 to another
 func (e *ERC20Token) Add(o *ERC20Token) (*ERC20Token, error) {
 	if e.Contract != o.Contract {
-		return nil, errors.New("invalid contract address")
+		return nil, fmt.Errorf("invalid contract address")
 	}
 
 	sum := e.Amount.Add(o.Amount)
 	if !sum.IsUint64() {
-		return nil, errors.New("invalid amount")
+		return nil, fmt.Errorf("invalid amount")
 	}
 
 	return NewERC20Token(sum.Uint64(), gethcommon.HexToAddress(e.Contract)), nil

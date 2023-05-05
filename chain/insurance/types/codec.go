@@ -14,6 +14,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateInsuranceFund{}, "insurance/MsgCreateInsuranceFund", nil)
 	cdc.RegisterConcrete(&MsgUnderwrite{}, "insurance/MsgUnderwrite", nil)
 	cdc.RegisterConcrete(&MsgRequestRedemption{}, "insurance/MsgRequestRedemption", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "insurance/MsgUpdateParams", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -21,6 +22,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCreateInsuranceFund{},
 		&MsgUnderwrite{},
 		&MsgRequestRedemption{},
+		&MsgUpdateParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

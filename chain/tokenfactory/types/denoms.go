@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 )
 
@@ -68,27 +68,27 @@ func DeconstructDenom(denom string) (creator, subdenom string, err error) {
 
 	strParts := strings.Split(denom, "/")
 	if len(strParts) < 3 {
-		return "", "", sdkerrors.Wrapf(ErrInvalidDenom, "not enough parts of denom %s", denom)
+		return "", "", errors.Wrapf(ErrInvalidDenom, "not enough parts of denom %s", denom)
 	}
 
 	if strParts[0] != ModuleDenomPrefix {
-		return "", "", sdkerrors.Wrapf(ErrInvalidDenom, "denom prefix is incorrect. Is: %s.  Should be: %s", strParts[0], ModuleDenomPrefix)
+		return "", "", errors.Wrapf(ErrInvalidDenom, "denom prefix is incorrect. Is: %s.  Should be: %s", strParts[0], ModuleDenomPrefix)
 	}
 
 	creator = strParts[1]
 	creatorAddr, err := sdk.AccAddressFromBech32(creator)
 	if err != nil {
-		return "", "", sdkerrors.Wrapf(ErrInvalidDenom, "Invalid creator address (%s)", err)
+		return "", "", errors.Wrapf(ErrInvalidDenom, "Invalid creator address (%s)", err)
 	}
 
 	if len(strParts[2]) < MinSubdenomLength {
-		return "", "", sdkerrors.Wrapf(ErrSubdenomTooShort, "subdenom too short. Has length of: %d.  Should have length at least of: %d", len(strParts[2]), MinSubdenomLength)
+		return "", "", errors.Wrapf(ErrSubdenomTooShort, "subdenom too short. Has length of: %d.  Should have length at least of: %d", len(strParts[2]), MinSubdenomLength)
 	}
 
 	if len(strParts) > 3 {
 		for i := 2; i <= len(strParts)-1; i++ {
 			if len(strParts[i]) < MinSubdenomLength {
-				return "", "", sdkerrors.Wrapf(ErrSubdenomNestedTooShort, "nested subdenom too short. Has length of: %d.  Should have length at least of: %d", len(strParts[i]), MinSubdenomLength)
+				return "", "", errors.Wrapf(ErrSubdenomNestedTooShort, "nested subdenom too short. Has length of: %d.  Should have length at least of: %d", len(strParts[i]), MinSubdenomLength)
 			}
 		}
 	}

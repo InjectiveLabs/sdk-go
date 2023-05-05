@@ -35,6 +35,7 @@ var (
 	TransmissionsCountPrefix   = []byte{0x08}
 	PayeePrefix                = []byte{0x09}
 	PendingPayeeTransferPrefix = []byte{0x10}
+	ParamsKey                  = []byte{0x11}
 )
 
 func GetFeedConfigKey(feedId string) []byte {

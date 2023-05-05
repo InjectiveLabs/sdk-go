@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"strings"
 
 	"gopkg.in/yaml.v2"
 
+	"cosmossdk.io/errors"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -23,6 +23,8 @@ var (
 	_ authtypes.GenesisAccount           = (*EthAccount)(nil)
 	_ codectypes.UnpackInterfacesMessage = (*EthAccount)(nil)
 )
+
+var EmptyCodeHash = ethcrypto.Keccak256(nil)
 
 // ----------------------------------------------------------------------------
 // Main Ethermint account
@@ -117,7 +119,7 @@ func (acc *EthAccount) UnmarshalJSON(bz []byte) error {
 		ethAddressFromAccAddress := ethcmn.BytesToAddress(address.Bytes())
 
 		if !bytes.Equal(ethAddress.Bytes(), address.Bytes()) {
-			err = sdkerrors.Wrapf(
+			err = errors.Wrapf(
 				sdkerrors.ErrInvalidAddress,
 				"expected %s, got %s",
 				ethAddressFromAccAddress.String(), ethAddress.String(),
@@ -131,7 +133,7 @@ func (acc *EthAccount) UnmarshalJSON(bz []byte) error {
 		ethAddress := ethcmn.HexToAddress(alias.EthAddress)
 		alias.Address = sdk.AccAddress(ethAddress.Bytes()).String()
 	case alias.Address == "" && alias.EthAddress == "":
-		err = sdkerrors.Wrapf(
+		err = errors.Wrapf(
 			sdkerrors.ErrInvalidAddress,
 			"account must contain address in Ethereum Hex or Cosmos Bech32 format",
 		)

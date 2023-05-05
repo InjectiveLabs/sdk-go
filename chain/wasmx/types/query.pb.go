@@ -6,9 +6,9 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/gogo/protobuf/gogoproto"
-	grpc1 "github.com/gogo/protobuf/grpc"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	grpc1 "github.com/cosmos/gogoproto/grpc"
+	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -29,7 +29,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryWasmxParamsRequest is the request type for the Query/WasmxParams RPC method.
+// QueryWasmxParamsRequest is the request type for the Query/WasmxParams RPC
+// method.
 type QueryWasmxParamsRequest struct {
 }
 
@@ -66,7 +67,8 @@ func (m *QueryWasmxParamsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryWasmxParamsRequest proto.InternalMessageInfo
 
-// QueryWasmxParamsRequest is the response type for the Query/WasmxParams RPC method.
+// QueryWasmxParamsRequest is the response type for the Query/WasmxParams RPC
+// method.
 type QueryWasmxParamsResponse struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
@@ -111,7 +113,8 @@ func (m *QueryWasmxParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryModuleStateRequest is the request type for the Query/WasmxModuleState RPC method.
+// QueryModuleStateRequest is the request type for the Query/WasmxModuleState
+// RPC method.
 type QueryModuleStateRequest struct {
 }
 
@@ -148,7 +151,8 @@ func (m *QueryModuleStateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 
-// QueryModuleStateResponse is the response type for the Query/WasmxModuleState RPC method.
+// QueryModuleStateResponse is the response type for the Query/WasmxModuleState
+// RPC method.
 type QueryModuleStateResponse struct {
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }

@@ -8,9 +8,9 @@ import (
 	types "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types1 "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
-	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
@@ -32,8 +32,9 @@ var _ = time.Kitchen
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Params struct {
-	// default_redemption_notice_period_duration defines the default minimum notice period duration that must pass after an underwriter sends
-	// a redemption request before the underwriter can claim his tokens
+	// default_redemption_notice_period_duration defines the default minimum
+	// notice period duration that must pass after an underwriter sends a
+	// redemption request before the underwriter can claim his tokens
 	DefaultRedemptionNoticePeriodDuration time.Duration `protobuf:"bytes,1,opt,name=default_redemption_notice_period_duration,json=defaultRedemptionNoticePeriodDuration,proto3,stdduration" json:"default_redemption_notice_period_duration" yaml:"default_redemption_notice_period_duration"`
 }
 
@@ -82,8 +83,9 @@ type InsuranceFund struct {
 	DepositDenom string `protobuf:"bytes,1,opt,name=deposit_denom,json=depositDenom,proto3" json:"deposit_denom,omitempty"`
 	// insurance fund pool token denomination for the given insurance fund
 	InsurancePoolTokenDenom string `protobuf:"bytes,2,opt,name=insurance_pool_token_denom,json=insurancePoolTokenDenom,proto3" json:"insurance_pool_token_denom,omitempty"`
-	// redemption_notice_period_duration defines the minimum notice period duration that must pass after an underwriter sends
-	// a redemption request before the underwriter can claim his tokens
+	// redemption_notice_period_duration defines the minimum notice period
+	// duration that must pass after an underwriter sends a redemption request
+	// before the underwriter can claim his tokens
 	RedemptionNoticePeriodDuration time.Duration `protobuf:"bytes,3,opt,name=redemption_notice_period_duration,json=redemptionNoticePeriodDuration,proto3,stdduration" json:"redemption_notice_period_duration" yaml:"redemption_notice_period_duration"`
 	// balance of fund
 	Balance github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,4,opt,name=balance,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"balance"`
@@ -93,13 +95,16 @@ type InsuranceFund struct {
 	MarketId string `protobuf:"bytes,6,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// ticker of the derivative market
 	MarketTicker string `protobuf:"bytes,7,opt,name=market_ticker,json=marketTicker,proto3" json:"market_ticker,omitempty"`
-	// Oracle base currency of the derivative market OR the oracle symbol for the binary options market.
+	// Oracle base currency of the derivative market OR the oracle symbol for the
+	// binary options market.
 	OracleBase string `protobuf:"bytes,8,opt,name=oracle_base,json=oracleBase,proto3" json:"oracle_base,omitempty"`
-	// Oracle quote currency of the derivative market OR the oracle provider for the binary options market.
+	// Oracle quote currency of the derivative market OR the oracle provider for
+	// the binary options market.
 	OracleQuote string `protobuf:"bytes,9,opt,name=oracle_quote,json=oracleQuote,proto3" json:"oracle_quote,omitempty"`
 	// Oracle type of the binary options or derivative market
 	OracleType types.OracleType `protobuf:"varint,10,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
-	// Expiration time of the derivative market. Should be -1 for perpetual or -2 for binary options markets.
+	// Expiration time of the derivative market. Should be -1 for perpetual or -2
+	// for binary options markets.
 	Expiry int64 `protobuf:"varint,11,opt,name=expiry,proto3" json:"expiry,omitempty"`
 }
 
@@ -612,7 +617,7 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	n1, err1 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.DefaultRedemptionNoticePeriodDuration, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.DefaultRedemptionNoticePeriodDuration):])
+	n1, err1 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.DefaultRedemptionNoticePeriodDuration, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.DefaultRedemptionNoticePeriodDuration):])
 	if err1 != nil {
 		return 0, err1
 	}
@@ -701,7 +706,7 @@ func (m *InsuranceFund) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0x22
-	n2, err2 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.RedemptionNoticePeriodDuration, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.RedemptionNoticePeriodDuration):])
+	n2, err2 := github_com_cosmos_gogoproto_types.StdDurationMarshalTo(m.RedemptionNoticePeriodDuration, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.RedemptionNoticePeriodDuration):])
 	if err2 != nil {
 		return 0, err2
 	}
@@ -756,7 +761,7 @@ func (m *RedemptionSchedule) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0x2a
-	n4, err4 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.ClaimableRedemptionTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.ClaimableRedemptionTime):])
+	n4, err4 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.ClaimableRedemptionTime, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.ClaimableRedemptionTime):])
 	if err4 != nil {
 		return 0, err4
 	}
@@ -975,7 +980,7 @@ func (m *Params) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.DefaultRedemptionNoticePeriodDuration)
+	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.DefaultRedemptionNoticePeriodDuration)
 	n += 1 + l + sovInsurance(uint64(l))
 	return n
 }
@@ -994,7 +999,7 @@ func (m *InsuranceFund) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovInsurance(uint64(l))
 	}
-	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.RedemptionNoticePeriodDuration)
+	l = github_com_cosmos_gogoproto_types.SizeOfStdDuration(m.RedemptionNoticePeriodDuration)
 	n += 1 + l + sovInsurance(uint64(l))
 	l = m.Balance.Size()
 	n += 1 + l + sovInsurance(uint64(l))
@@ -1042,7 +1047,7 @@ func (m *RedemptionSchedule) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovInsurance(uint64(l))
 	}
-	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.ClaimableRedemptionTime)
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.ClaimableRedemptionTime)
 	n += 1 + l + sovInsurance(uint64(l))
 	l = m.RedemptionAmount.Size()
 	n += 1 + l + sovInsurance(uint64(l))
@@ -1175,7 +1180,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.DefaultRedemptionNoticePeriodDuration, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.DefaultRedemptionNoticePeriodDuration, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1322,7 +1327,7 @@ func (m *InsuranceFund) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.RedemptionNoticePeriodDuration, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_cosmos_gogoproto_types.StdDurationUnmarshal(&m.RedemptionNoticePeriodDuration, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1722,7 +1727,7 @@ func (m *RedemptionSchedule) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(&m.ClaimableRedemptionTime, dAtA[iNdEx:postIndex]); err != nil {
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.ClaimableRedemptionTime, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

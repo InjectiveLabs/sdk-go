@@ -7,8 +7,8 @@ import (
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -234,7 +234,8 @@ type EventAuctionStart struct {
 	Round uint64 `protobuf:"varint,1,opt,name=round,proto3" json:"round,omitempty"`
 	// ending_timestamp describes auction end time
 	EndingTimestamp int64 `protobuf:"varint,2,opt,name=ending_timestamp,json=endingTimestamp,proto3" json:"ending_timestamp,omitempty"`
-	// new_basket describes auction module balance at the time of new auction start
+	// new_basket describes auction module balance at the time of new auction
+	// start
 	NewBasket github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=new_basket,json=newBasket,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"new_basket"`
 }
 

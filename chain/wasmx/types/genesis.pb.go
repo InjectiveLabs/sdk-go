@@ -5,8 +5,8 @@ package types
 
 import (
 	fmt "fmt"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -79,7 +79,8 @@ func (m *RegisteredContractWithAddress) GetRegisteredContract() *RegisteredContr
 type GenesisState struct {
 	// params defines all the parameters of related to wasmx.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// registered_contracts is an array containing the genesis registered contracts
+	// registered_contracts is an array containing the genesis registered
+	// contracts
 	RegisteredContracts []RegisteredContractWithAddress `protobuf:"bytes,2,rep,name=registered_contracts,json=registeredContracts,proto3" json:"registered_contracts"`
 }
 

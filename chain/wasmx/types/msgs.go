@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -13,7 +14,38 @@ const (
 	TypeMsgActivate              = "msgActivate"
 	TypeMsgDeactivate            = "msgDeactivate"
 	TypeMsgExecuteContractCompat = "executeContractCompat"
+	TypeMsgUpdateParams          = "updateParams"
 )
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgUpdateParams) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errors.Wrap(err, "invalid authority address")
+	}
+
+	if err := msg.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
 
 // Route implements the sdk.Msg interface. It should return the name of the module
 func (msg MsgUpdateContract) Route() string { return RouterKey }
@@ -24,25 +56,25 @@ func (msg MsgUpdateContract) Type() string { return TypeMsgUpdate }
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgUpdateContract) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
 	}
 
 	if msg.AdminAddress != "" {
 		if _, err := sdk.AccAddressFromBech32(msg.AdminAddress); err != nil {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.AdminAddress)
+			return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.AdminAddress)
 		}
 	}
 
 	if msg.GasLimit == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "GasLimit must be > 0")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "GasLimit must be > 0")
 	}
 
 	if msg.GasPrice == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "GasPrice must be > 0")
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "GasPrice must be > 0")
 	}
 
 	return nil
@@ -71,10 +103,10 @@ func (msg MsgActivateContract) Type() string { return TypeMsgActivate }
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgActivateContract) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
 	}
 	return nil
 }
@@ -102,10 +134,10 @@ func (msg MsgDeactivateContract) Type() string { return TypeMsgDeactivate }
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgDeactivateContract) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
 	}
 	return nil
 }
