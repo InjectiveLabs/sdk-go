@@ -101,6 +101,7 @@ func InitCosmosKeyring(
 			cosmosKeyringBackend,
 			absoluteKeyringDir,
 			passReader,
+			nil,
 			hd.EthSecp256k1Option(),
 		)
 		if err != nil {
@@ -108,7 +109,7 @@ func InitCosmosKeyring(
 			return emptyCosmosAddress, nil, err
 		}
 
-		var keyInfo keyring.Info
+		var keyInfo *keyring.Record
 		if fromIsAddress {
 			if keyInfo, err = kb.KeyByAddress(addressFrom); err != nil {
 				err = errors.Wrapf(err, "couldn't find an entry for the key %s in keybase", addressFrom.String())
@@ -121,26 +122,31 @@ func InitCosmosKeyring(
 			}
 		}
 
+		address, err := keyInfo.GetAddress()
+		if err != nil {
+			panic(err)
+		}
+
 		switch keyType := keyInfo.GetType(); keyType {
 		case keyring.TypeLocal:
 			// kb has a key and it's totally usable
-			return keyInfo.GetAddress(), kb, nil
+			return address, kb, nil
 		case keyring.TypeLedger:
 			// the kb stores references to ledger keys, so we must explicitly
 			// check that. kb doesn't know how to scan HD keys - they must be added manually before
 			if cosmosUseLedger {
-				return keyInfo.GetAddress(), kb, nil
+				return address, kb, nil
 			}
-			err := errors.Errorf("'%s' key is a ledger reference, enable ledger option", keyInfo.GetName())
+			err := errors.Errorf("'%s' key is a ledger reference, enable ledger option", keyInfo.Name)
 			return emptyCosmosAddress, nil, err
 		case keyring.TypeOffline:
-			err := errors.Errorf("'%s' key is an offline key, not supported yet", keyInfo.GetName())
+			err := errors.Errorf("'%s' key is an offline key, not supported yet", keyInfo.Name)
 			return emptyCosmosAddress, nil, err
 		case keyring.TypeMulti:
-			err := errors.Errorf("'%s' key is an multisig key, not supported yet", keyInfo.GetName())
+			err := errors.Errorf("'%s' key is an multisig key, not supported yet", keyInfo.Name)
 			return emptyCosmosAddress, nil, err
 		default:
-			err := errors.Errorf("'%s' key  has unsupported type: %s", keyInfo.GetName(), keyType)
+			err := errors.Errorf("'%s' key  has unsupported type: %s", keyInfo.Name, keyType)
 			return emptyCosmosAddress, nil, err
 		}
 
@@ -178,7 +184,7 @@ func (r *passReader) Read(p []byte) (n int, err error) {
 // KeyringForPrivKey creates a temporary in-mem keyring for a PrivKey.
 // Allows to init Context when the key has been provided in plaintext and parsed.
 func KeyringForPrivKey(name string, privKey cryptotypes.PrivKey) (keyring.Keyring, error) {
-	kb := keyring.NewInMemory(hd.EthSecp256k1Option())
+	kb := keyring.NewInMemory(nil, hd.EthSecp256k1Option())
 	tmpPhrase := randPhrase(64)
 	armored := cosmcrypto.EncryptArmorPrivKey(privKey, tmpPhrase, privKey.Type())
 	err := kb.ImportPrivKey(name, armored, tmpPhrase)
