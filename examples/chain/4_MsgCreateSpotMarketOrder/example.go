@@ -8,8 +8,6 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
 
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 )
@@ -17,12 +15,6 @@ import (
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
-	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		os.Getenv("HOME")+"/.injectived",
 		"injectived",
@@ -46,9 +38,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	clientCtx.WithNodeURI(network.TmEndpoint)
-	clientCtx = clientCtx.WithClient(tmRPC)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,

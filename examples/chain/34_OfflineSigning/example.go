@@ -11,7 +11,6 @@ import (
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func StoreTxToFile(fileName string, txBytes []byte) error {
@@ -29,11 +28,6 @@ func LoadTxFromFile(fileName string) ([]byte, error) {
 
 func main() {
 	network := common.LoadNetwork("devnet", "")
-	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
-
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		os.Getenv("HOME")+"/.injectived",
@@ -59,7 +53,7 @@ func main() {
 		panic(err)
 	}
 
-	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,

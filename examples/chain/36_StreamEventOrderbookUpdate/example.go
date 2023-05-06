@@ -5,13 +5,10 @@ import (
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func main() {
 	network := common.LoadNetwork("devnet", "")
-	tmRPC, err := rpchttp.New("http://139.178.68.147:26657", "/websocket")
-
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
 		"",
@@ -20,7 +17,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,

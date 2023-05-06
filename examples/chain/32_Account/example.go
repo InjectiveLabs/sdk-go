@@ -6,7 +6,6 @@ import (
 	"os"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 
 	"github.com/InjectiveLabs/sdk-go/chain/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -16,10 +15,6 @@ import (
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("mainnet", "sentry0")
-	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		os.Getenv("HOME")+"/.injectived",
@@ -45,8 +40,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx.WithNodeURI(network.TmEndpoint)
-	clientCtx = clientCtx.WithClient(tmRPC)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
 
 	queryClient := authtypes.NewQueryClient(clientCtx)
 
