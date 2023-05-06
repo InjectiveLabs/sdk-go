@@ -16,17 +16,17 @@ import (
 	"sync/atomic"
 	"time"
 
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
-	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -152,7 +152,7 @@ type chainClient struct {
 	sessionCookie  string
 	sessionEnabled bool
 
-	cometbftClient  rpcclient.Client
+	cometbftClient      rpcclient.Client
 	txClient            txtypes.ServiceClient
 	authQueryClient     authtypes.QueryClient
 	exchangeQueryClient exchangetypes.QueryClient
@@ -213,7 +213,6 @@ func NewChainClient(
 		}
 	}
 
-
 	// build client
 	cc := &chainClient{
 		ctx:  ctx,
@@ -233,7 +232,7 @@ func NewChainClient(
 
 		sessionEnabled: stickySessionEnabled,
 
-		cometbftClient: cometbftClient,
+		cometbftClient:      cometbftClient,
 		txClient:            txtypes.NewServiceClient(conn),
 		authQueryClient:     authtypes.NewQueryClient(conn),
 		exchangeQueryClient: exchangetypes.NewQueryClient(conn),
