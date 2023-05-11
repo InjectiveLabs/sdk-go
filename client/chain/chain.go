@@ -52,7 +52,7 @@ const (
 	defaultBroadcastStatusPoll       = 100 * time.Millisecond
 	defaultBroadcastTimeout          = 40 * time.Second
 	defaultTimeoutHeight             = 20
-	defaultTimeoutHeightSyncInterval = 10 * time.Second
+	defaultTimeoutHeightSyncInterval = 30 * time.Second
 	defaultSessionRenewalOffset      = 120
 	defaultBlockTime                 = 3 * time.Second
 	defaultChainCookieName           = ".chain_cookie"
@@ -296,9 +296,9 @@ func (c *chainClient) syncTimeoutHeight() {
 func (c *chainClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
 	from := clientCtx.GetFromAddress()
 
-	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
-		return txf, err
-	}
+	// if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
+	// 	return txf, err
+	// }
 
 	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
 	if initNum == 0 || initSeq == 0 {
@@ -541,8 +541,10 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 
 		c.txFactory = c.txFactory.WithSequence(c.accSeq)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-		res, txBytes, err := c.broadcastTxAsync(c.ctx, c.txFactory, false, msgs...)
 
+		c.logger.Infoln("[INJ-GO-SDK] Sending chain msg: ", time.Now().Format("2006-01-02 15:04:05"))
+
+		res, txBytes, err := c.broadcastTxAsync(c.ctx, c.txFactory, false, msgs...)
 		if err != nil {
 			if strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
