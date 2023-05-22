@@ -73,6 +73,8 @@ type ChainClient interface {
 	// return account number and sequence without increasing sequence
 	GetAccNonce() (accNum uint64, accSeq uint64)
 
+	GetBlockHeight() (int64, error)
+
 	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
@@ -287,6 +289,16 @@ func (c *chainClient) syncTimeoutHeight() {
 		c.txFactory.WithTimeoutHeight(uint64(block.Block.Height) + defaultTimeoutHeight)
 		time.Sleep(defaultTimeoutHeightSyncInterval)
 	}
+}
+
+// test
+func (c *chainClient) GetBlockHeight() (int64, error) {
+	ctx := context.Background()
+	block, err := c.ctx.Client.Block(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	return block.Block.Height, nil
 }
 
 // prepareFactory ensures the account defined by ctx.GetFromAddress() exists and
