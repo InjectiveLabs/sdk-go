@@ -1,6 +1,6 @@
 module github.com/InjectiveLabs/sdk-go
 
-go 1.17
+go 1.19
 
 require (
 	cosmossdk.io/errors v1.0.0-beta.7
