@@ -16,7 +16,6 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
-	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
@@ -36,6 +35,7 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
+	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	paramproposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -56,7 +56,6 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	oracle.RegisterInterfaces(interfaceRegistry)
 	insurance.RegisterInterfaces(interfaceRegistry)
 	auction.RegisterInterfaces(interfaceRegistry)
-	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
@@ -72,6 +71,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	distributiontypes.RegisterInterfaces(interfaceRegistry)
 	evidencetypes.RegisterInterfaces(interfaceRegistry)
 	govtypes.RegisterInterfaces(interfaceRegistry)
+	govv1types.RegisterInterfaces(interfaceRegistry)
 	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
 	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
 	ibccoretypes.RegisterInterfaces(interfaceRegistry)
@@ -101,7 +101,6 @@ func NewClientContext(
 	insurance.RegisterInterfaces(interfaceRegistry)
 	auction.RegisterInterfaces(interfaceRegistry)
 	oracle.RegisterInterfaces(interfaceRegistry)
-	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
@@ -117,6 +116,7 @@ func NewClientContext(
 	distributiontypes.RegisterInterfaces(interfaceRegistry)
 	evidencetypes.RegisterInterfaces(interfaceRegistry)
 	govtypes.RegisterInterfaces(interfaceRegistry)
+	govv1types.RegisterInterfaces(interfaceRegistry)
 	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
 	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
 	ibccoretypes.RegisterInterfaces(interfaceRegistry)
