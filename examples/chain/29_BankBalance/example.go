@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
 	"os"
 )
@@ -13,6 +15,10 @@ import (
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
+	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	if err != nil {
+		panic(err)
+	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		os.Getenv("HOME")+"/.injectived",
@@ -38,7 +44,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,

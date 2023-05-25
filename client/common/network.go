@@ -117,7 +117,7 @@ func LoadNetwork(name string, node string) Network {
 			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
 			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network:443"
 			chainGrpcEndpoint = "k8s.global.mainnet.chain.grpc.injective.network:443"
-			exchangeGrpcEndpoint = "tcp://k8s.global.mainnet.exchange.grpc.injective.network:443"
+			exchangeGrpcEndpoint = "k8s.global.mainnet.exchange.grpc.injective.network:443"
 			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			explorerGrpcEndpoint = "tcp://k8s.mainnet.explorer.grpc.injective.network:443"
 			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})

@@ -206,6 +206,10 @@ func NewChainClient(
 	var cometbftClient *rpchttp.HTTP
 	if ctx.NodeURI != "" {
 		cometbftClient, err = rpchttp.New(ctx.NodeURI, "/websocket")
+		if err != nil {
+			panic(err)
+		}
+
 		if !cometbftClient.IsRunning() {
 			err = cometbftClient.Start()
 			if err != nil {
