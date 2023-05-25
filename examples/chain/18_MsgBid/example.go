@@ -9,12 +9,17 @@ import (
 
 	auctiontypes "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "k8s")
+	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	if err != nil {
+		panic(err)
+	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		os.Getenv("HOME")+"/.injectived",
@@ -40,7 +45,7 @@ func main() {
 		fmt.Println(err)
 	}
 
-	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	round := uint64(9355)
 	bidAmount := sdktypes.Coin{

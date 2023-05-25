@@ -216,8 +216,6 @@ func NewChainClient(
 				return nil, err
 			}
 		}
-
-		ctx = ctx.WithClient(cometbftClient)
 	}
 
 	// build client
