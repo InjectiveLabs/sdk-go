@@ -30,7 +30,6 @@ func main() {
 	}
 
 	// initialize grpc client
-
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),
@@ -42,7 +41,6 @@ func main() {
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
 
 	// prepare tx msg
-
 	msg := &banktypes.MsgSend{
 		FromAddress: senderAddress.String(),
 		ToAddress:   "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
