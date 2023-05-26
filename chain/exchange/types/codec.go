@@ -44,6 +44,22 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgReclaimLockedFunds{}, "exchange/MsgReclaimLockedFunds", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "exchange/MsgUpdateParams", nil)
 
+	RegisterAminoProposalTypes(cdc)
+
+	cdc.RegisterConcrete(&CreateSpotLimitOrderAuthz{}, "exchange/CreateSpotLimitOrderAuthz", nil)
+	cdc.RegisterConcrete(&CreateSpotMarketOrderAuthz{}, "exchange/CreateSpotMarketOrderAuthz", nil)
+	cdc.RegisterConcrete(&BatchCreateSpotLimitOrdersAuthz{}, "exchange/BatchCreateSpotLimitOrdersAuthz", nil)
+	cdc.RegisterConcrete(&CancelSpotOrderAuthz{}, "exchange/CancelSpotOrderAuthz", nil)
+	cdc.RegisterConcrete(&BatchCancelSpotOrdersAuthz{}, "exchange/BatchCancelSpotOrdersAuthz", nil)
+	cdc.RegisterConcrete(&CreateDerivativeLimitOrderAuthz{}, "exchange/CreateDerivativeLimitOrderAuthz", nil)
+	cdc.RegisterConcrete(&CreateDerivativeMarketOrderAuthz{}, "exchange/CreateDerivativeMarketOrderAuthz", nil)
+	cdc.RegisterConcrete(&BatchCreateDerivativeLimitOrdersAuthz{}, "exchange/BatchCreateDerivativeLimitOrdersAuthz", nil)
+	cdc.RegisterConcrete(&CancelDerivativeOrderAuthz{}, "exchange/CancelDerivativeOrderAuthz", nil)
+	cdc.RegisterConcrete(&BatchCancelDerivativeOrdersAuthz{}, "exchange/BatchCancelDerivativeOrdersAuthz", nil)
+	cdc.RegisterConcrete(&BatchUpdateOrdersAuthz{}, "exchange/BatchUpdateOrdersAuthz", nil)
+}
+
+func RegisterAminoProposalTypes(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/BatchExchangeModificationProposal", nil)
 	cdc.RegisterConcrete(&SpotMarketParamUpdateProposal{}, "exchange/SpotMarketParamUpdateProposal", nil)
@@ -61,18 +77,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&BinaryOptionsMarketParamUpdateProposal{}, "exchange/BinaryOptionsMarketParamUpdateProposal", nil)
 	cdc.RegisterConcrete(&BinaryOptionsMarketLaunchProposal{}, "exchange/BinaryOptionsMarketLaunchProposal", nil)
 	cdc.RegisterConcrete(&AtomicMarketOrderFeeMultiplierScheduleProposal{}, "exchange/AtomicMarketOrderFeeMultiplierScheduleProposal", nil)
-
-	cdc.RegisterConcrete(&CreateSpotLimitOrderAuthz{}, "exchange/CreateSpotLimitOrderAuthz", nil)
-	cdc.RegisterConcrete(&CreateSpotMarketOrderAuthz{}, "exchange/CreateSpotMarketOrderAuthz", nil)
-	cdc.RegisterConcrete(&BatchCreateSpotLimitOrdersAuthz{}, "exchange/BatchCreateSpotLimitOrdersAuthz", nil)
-	cdc.RegisterConcrete(&CancelSpotOrderAuthz{}, "exchange/CancelSpotOrderAuthz", nil)
-	cdc.RegisterConcrete(&BatchCancelSpotOrdersAuthz{}, "exchange/BatchCancelSpotOrdersAuthz", nil)
-	cdc.RegisterConcrete(&CreateDerivativeLimitOrderAuthz{}, "exchange/CreateDerivativeLimitOrderAuthz", nil)
-	cdc.RegisterConcrete(&CreateDerivativeMarketOrderAuthz{}, "exchange/CreateDerivativeMarketOrderAuthz", nil)
-	cdc.RegisterConcrete(&BatchCreateDerivativeLimitOrdersAuthz{}, "exchange/BatchCreateDerivativeLimitOrdersAuthz", nil)
-	cdc.RegisterConcrete(&CancelDerivativeOrderAuthz{}, "exchange/CancelDerivativeOrderAuthz", nil)
-	cdc.RegisterConcrete(&BatchCancelDerivativeOrdersAuthz{}, "exchange/BatchCancelDerivativeOrdersAuthz", nil)
-	cdc.RegisterConcrete(&BatchUpdateOrdersAuthz{}, "exchange/BatchUpdateOrdersAuthz", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

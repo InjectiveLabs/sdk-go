@@ -22,6 +22,10 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgAcceptPayeeship{}, "ocr/MsgAcceptPayeeship", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "ocr/MsgUpdateParams", nil)
 
+	RegisterAminoProposalTypes(cdc)
+}
+
+func RegisterAminoProposalTypes(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&SetConfigProposal{}, "ocr/SetConfigProposal", nil)
 	cdc.RegisterConcrete(&SetBatchConfigProposal{}, "ocr/SetBatchConfigProposal", nil)
 }

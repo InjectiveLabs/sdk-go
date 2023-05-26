@@ -20,6 +20,10 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRelayPythPrices{}, "oracle/MsgRelayPythPrices", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "oracle/MsgUpdateParams", nil)
 
+	RegisterAminoProposalTypes(cdc)
+}
+
+func RegisterAminoProposalTypes(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&GrantBandOraclePrivilegeProposal{}, "oracle/GrantBandOraclePrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokeBandOraclePrivilegeProposal{}, "oracle/RevokeBandOraclePrivilegeProposal", nil)
 	cdc.RegisterConcrete(&GrantPriceFeederPrivilegeProposal{}, "oracle/GrantPriceFeederPrivilegeProposal", nil)
@@ -29,7 +33,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&EnableBandIBCProposal{}, "oracle/EnableBandIBCProposal", nil)
 	cdc.RegisterConcrete(&GrantProviderPrivilegeProposal{}, "oracle/GrantProviderPrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokeProviderPrivilegeProposal{}, "oracle/RevokeProviderPrivilegeProposal", nil)
-
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

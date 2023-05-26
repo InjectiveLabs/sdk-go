@@ -2,8 +2,8 @@ package types
 
 import (
 	"cosmossdk.io/errors"
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
@@ -20,6 +20,8 @@ func init() {
 	govtypes.RegisterProposalType(ProposalBatchContractRegistrationRequest)
 	govtypes.RegisterProposalType(ProposalBatchContractDeregistration)
 	govtypes.RegisterProposalType(ProposalBatchStoreCode)
+
+	RegisterAminoProposal(govcdc.Amino)
 }
 
 // Implements Proposal Interface
@@ -57,12 +59,38 @@ func (p *ContractRegistrationRequestProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *ContractRegistrationRequestProposal) ValidateBasic() error {
-	// Check if contract address is valid
-	if _, err := sdk.AccAddressFromBech32(p.ContractRegistrationRequest.ContractAddress); err != nil {
-		return errors.Wrapf(ErrInvalidContractAddress, "ContractRegistrationRequestProposal: Error parsing registry contract address %s", err.Error())
+	if err := p.ContractRegistrationRequest.Validate(); err != nil {
+		return err
 	}
 
 	return govtypes.ValidateAbstract(p)
+}
+
+func (req *ContractRegistrationRequest) Validate() error {
+	// Check if contract address is valid
+	if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
+		return errors.Wrapf(ErrInvalidContractAddress, "ContractRegistrationRequestProposal: Error parsing registry contract address %s", err.Error())
+	}
+
+	if req.GranterAddress != "" {
+		if _, err := sdk.AccAddressFromBech32(req.GranterAddress); err != nil {
+			return errors.Wrapf(ErrInvalidContractAddress, "ContractRegistrationRequestProposal: Error parsing granter address %s", err.Error())
+		}
+	}
+
+	if req.FundingMode == FundingMode_Unspecified {
+		return errors.Wrapf(ErrInvalidFundingMode, "ContractRegistrationRequestProposal: FundingMode must be specified")
+	}
+
+	if (req.FundingMode == FundingMode_GrantOnly || req.FundingMode == FundingMode_Dual) && req.GranterAddress == "" {
+		return errors.Wrapf(ErrInvalidFundingMode, "GranterAddress must be specified")
+	}
+
+	if req.FundingMode == FundingMode_SelfFunded && req.GranterAddress != "" {
+		return errors.Wrapf(ErrInvalidFundingMode, "GranterAddress must be empty for self-funded contracts")
+	}
+
+	return nil
 }
 
 // GetTitle returns the title of this proposal.
@@ -86,9 +114,8 @@ func (p *BatchContractRegistrationRequestProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *BatchContractRegistrationRequestProposal) ValidateBasic() error {
 	for _, req := range p.ContractRegistrationRequests {
-		// Check if contract address is valid
-		if _, err := sdk.AccAddressFromBech32(req.ContractAddress); err != nil {
-			return errors.Wrapf(ErrInvalidContractAddress, "BatchContractRegistrationRequestProposal: Error parsing registry contract address %s", err.Error())
+		if err := req.Validate(); err != nil {
+			return err
 		}
 	}
 
@@ -141,15 +168,6 @@ func (p *BatchContractDeregistrationProposal) ValidateBasic() error {
 	}
 
 	return govtypes.ValidateAbstract(p)
-}
-
-// NewBatchStoreCodeProposal returns new instance of BatchStoreCodeProposal
-func NewBatchStoreCodeProposal(title, description string, proposals []wasmtypes.StoreCodeProposal) *BatchStoreCodeProposal {
-	return &BatchStoreCodeProposal{
-		Title:       title,
-		Description: description,
-		Proposals:   proposals,
-	}
 }
 
 // GetTitle returns the title of this proposal.

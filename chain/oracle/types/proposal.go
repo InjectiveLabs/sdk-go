@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	bandobi "github.com/bandprotocol/bandchain-packet/obi"
@@ -37,6 +38,8 @@ func init() {
 	govtypes.RegisterProposalType(ProposalUpdateBandOracleRequest)
 	govtypes.RegisterProposalType(ProposalTypeGrantProviderPrivilege)
 	govtypes.RegisterProposalType(ProposalTypeRevokeProviderPrivilege)
+
+	RegisterLegacyAminoCodec(govcdc.Amino)
 }
 
 // Implements Proposal Interface

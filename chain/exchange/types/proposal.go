@@ -11,6 +11,7 @@ import (
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -54,6 +55,9 @@ func init() {
 	govtypes.RegisterProposalType(ProposalTypeBinaryOptionsMarketLaunch)
 	govtypes.RegisterProposalType(ProposalTypeBinaryOptionsMarketParamUpdate)
 	govtypes.RegisterProposalType(ProposalAtomicMarketOrderFeeMultiplierSchedule)
+
+	// register codec
+	RegisterAminoProposalTypes(govcdc.Amino)
 }
 
 func SafeIsPositiveInt(v sdkmath.Int) bool {

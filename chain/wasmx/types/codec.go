@@ -12,15 +12,20 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/wasmx interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	cdc.RegisterConcrete(&ContractRegistrationRequestProposal{}, "wasmx/ContractRegistrationRequestProposal", nil)
-	cdc.RegisterConcrete(&BatchContractRegistrationRequestProposal{}, "wasmx/BatchContractRegistrationRequestProposal", nil)
-	cdc.RegisterConcrete(&BatchContractDeregistrationProposal{}, "wasmx/BatchContractDeregistrationProposal", nil)
-	cdc.RegisterConcrete(&BatchStoreCodeProposal{}, "wasmx/BatchStoreCodeProposal", nil)
 	cdc.RegisterConcrete(&MsgUpdateContract{}, "wasmx/MsgUpdateContract", nil)
 	cdc.RegisterConcrete(&MsgActivateContract{}, "wasmx/MsgActivateContract", nil)
 	cdc.RegisterConcrete(&MsgDeactivateContract{}, "wasmx/MsgDeactivateContract", nil)
 	cdc.RegisterConcrete(&MsgExecuteContractCompat{}, "wasmx/MsgExecuteContractCompat", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "wasmx/MsgUpdateParams", nil)
+
+	RegisterAminoProposal(cdc)
+}
+
+func RegisterAminoProposal(cdc *codec.LegacyAmino) {
+	cdc.RegisterConcrete(&ContractRegistrationRequestProposal{}, "wasmx/ContractRegistrationRequestProposal", nil)
+	cdc.RegisterConcrete(&BatchContractRegistrationRequestProposal{}, "wasmx/BatchContractRegistrationRequestProposal", nil)
+	cdc.RegisterConcrete(&BatchContractDeregistrationProposal{}, "wasmx/BatchContractDeregistrationProposal", nil)
+	cdc.RegisterConcrete(&BatchStoreCodeProposal{}, "wasmx/BatchStoreCodeProposal", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

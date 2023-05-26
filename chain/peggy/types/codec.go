@@ -69,7 +69,12 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&IDSet{}, "peggy/IDSet", nil)
 	cdc.RegisterConcrete(&Attestation{}, "peggy/Attestation", nil)
 	cdc.RegisterConcrete(&MsgSubmitBadSignatureEvidence{}, "peggy/MsgSubmitBadSignatureEvidence", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "peggy/MsgUpdateParams", nil)
+
+	RegisterAminoProposalTypes(cdc)
+}
+
+func RegisterAminoProposalTypes(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&BlacklistEthereumAddressesProposal{}, "peggy/BlacklistEthereumAddressesProposal", nil)
 	cdc.RegisterConcrete(&RevokeEthereumBlacklistProposal{}, "peggy/RevokeEthereumBlacklistProposal", nil)
-	cdc.RegisterConcrete(&MsgUpdateParams{}, "peggy/MsgUpdateParams", nil)
 }
