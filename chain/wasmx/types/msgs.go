@@ -15,6 +15,7 @@ const (
 	TypeMsgDeactivate            = "msgDeactivate"
 	TypeMsgExecuteContractCompat = "executeContractCompat"
 	TypeMsgUpdateParams          = "updateParams"
+	TypeMsgRegisterContract      = "registerContract"
 )
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -197,4 +198,29 @@ func (msg MsgExecuteContractCompat) GetSigners() []sdk.AccAddress {
 		panic(err.Error())
 	}
 	return []sdk.AccAddress{senderAddr}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgRegisterContract) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgRegisterContract) Type() string { return TypeMsgRegisterContract }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
+func (msg MsgRegisterContract) ValidateBasic() error {
+	if err := msg.ContractRegistrationRequest.Validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgRegisterContract) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgRegisterContract) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{addr}
 }

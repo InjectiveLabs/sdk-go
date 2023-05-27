@@ -20,7 +20,7 @@ const (
 	TStoreKey = "transient_exchange"
 )
 const PriceDecimalPlaces = 18
-const DefaultQueryOrderbookLimit = 20
+const DefaultQueryOrderbookLimit uint64 = 20
 const Uint64BytesLen = 8
 
 var (

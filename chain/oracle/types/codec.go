@@ -6,7 +6,10 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	groupcdc "github.com/cosmos/cosmos-sdk/x/group/codec"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/oracle interfaces and concrete types
@@ -29,7 +32,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&EnableBandIBCProposal{}, "oracle/EnableBandIBCProposal", nil)
 	cdc.RegisterConcrete(&GrantProviderPrivilegeProposal{}, "oracle/GrantProviderPrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokeProviderPrivilegeProposal{}, "oracle/RevokeProviderPrivilegeProposal", nil)
-
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -76,4 +78,8 @@ func init() {
 	RegisterLegacyAminoCodec(amino)
 	cryptocodec.RegisterCrypto(amino)
 	amino.Seal()
+
+	RegisterLegacyAminoCodec(authzcdc.Amino)
+	RegisterLegacyAminoCodec(govcdc.Amino)
+	RegisterLegacyAminoCodec(groupcdc.Amino)
 }

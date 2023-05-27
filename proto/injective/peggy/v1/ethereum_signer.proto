@@ -5,7 +5,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 
 // SignType defines messages that have been signed by an orchestrator
 enum SignType {
-  option (gogoproto.goproto_enum_prefix)   = false;
+  option (gogoproto.goproto_enum_prefix) = false;
   option (gogoproto.goproto_enum_stringer) = false;
 
   SIGN_TYPE_UNKNOWN = 0;

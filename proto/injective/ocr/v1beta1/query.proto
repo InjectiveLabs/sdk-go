@@ -17,31 +17,40 @@ service Query {
 
   // Retrieves the OCR FeedConfig for a given FeedId
   rpc FeedConfig(QueryFeedConfigRequest) returns (QueryFeedConfigResponse) {
-    option (google.api.http).get = "/chainlink/ocr/v1beta1/feed_config/{feed_id}";
+    option (google.api.http).get =
+        "/chainlink/ocr/v1beta1/feed_config/{feed_id}";
   }
 
   // Retrieves the OCR FeedConfigInfo for a given FeedId
-  rpc FeedConfigInfo(QueryFeedConfigInfoRequest) returns (QueryFeedConfigInfoResponse) {
-    option (google.api.http).get = "/chainlink/ocr/v1beta1/feed_config_info/{feed_id}";
+  rpc FeedConfigInfo(QueryFeedConfigInfoRequest)
+      returns (QueryFeedConfigInfoResponse) {
+    option (google.api.http).get =
+        "/chainlink/ocr/v1beta1/feed_config_info/{feed_id}";
   }
 
   // Retrieves latest round ID and data, including median answer for that round
   rpc LatestRound(QueryLatestRoundRequest) returns (QueryLatestRoundResponse) {
-    option (google.api.http).get = "/chainlink/ocr/v1beta1/latest_round/{feed_id}";
+    option (google.api.http).get =
+        "/chainlink/ocr/v1beta1/latest_round/{feed_id}";
   }
 
-  // LatestTransmissionDetails returns details about the latest trasmission recorded on chain for the given feed ID.
-  rpc LatestTransmissionDetails(QueryLatestTransmissionDetailsRequest) returns (QueryLatestTransmissionDetailsResponse) {
-    option (google.api.http).get = "/chainlink/ocr/v1beta1/latest_transmission_details/{feed_id}";
+  // LatestTransmissionDetails returns details about the latest trasmission
+  // recorded on chain for the given feed ID.
+  rpc LatestTransmissionDetails(QueryLatestTransmissionDetailsRequest)
+      returns (QueryLatestTransmissionDetailsResponse) {
+    option (google.api.http).get =
+        "/chainlink/ocr/v1beta1/latest_transmission_details/{feed_id}";
   }
 
   // Retrieves transmitter's owed amount
   rpc OwedAmount(QueryOwedAmountRequest) returns (QueryOwedAmountResponse) {
-    option (google.api.http).get = "/chainlink/ocr/v1beta1/owed_amount/{transmitter}";
+    option (google.api.http).get =
+        "/chainlink/ocr/v1beta1/owed_amount/{transmitter}";
   }
 
   // Retrieves the entire OCR module's state
-  rpc OcrModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+  rpc OcrModuleState(QueryModuleStateRequest)
+      returns (QueryModuleStateResponse) {
     option (google.api.http).get = "/chainlink/ocr/v1beta1/module_state";
   }
 }
@@ -49,41 +58,31 @@ service Query {
 message QueryParamsRequest {}
 
 message QueryParamsResponse {
-  Params params = 1 [
-    (gogoproto.nullable) = false
-  ];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-message QueryFeedConfigRequest {
-  string feed_id = 1;
-}
+message QueryFeedConfigRequest { string feed_id = 1; }
 
 message QueryFeedConfigResponse {
   FeedConfigInfo feed_config_info = 1;
   FeedConfig feed_config = 2;
 }
 
-message QueryFeedConfigInfoRequest {
-  string feed_id = 1;
-}
+message QueryFeedConfigInfoRequest { string feed_id = 1; }
 
 message QueryFeedConfigInfoResponse {
   FeedConfigInfo feed_config_info = 1;
   EpochAndRound epoch_and_round = 2;
 }
 
-message QueryLatestRoundRequest {
-  string feed_id = 1;
-}
+message QueryLatestRoundRequest { string feed_id = 1; }
 
 message QueryLatestRoundResponse {
   uint64 latest_round_id = 1;
   Transmission data = 2;
 }
 
-message QueryLatestTransmissionDetailsRequest {
-  string feed_id = 1;
-}
+message QueryLatestTransmissionDetailsRequest { string feed_id = 1; }
 
 message QueryLatestTransmissionDetailsResponse {
   bytes config_digest = 1;
@@ -91,16 +90,12 @@ message QueryLatestTransmissionDetailsResponse {
   Transmission data = 3;
 }
 
-message QueryOwedAmountRequest {
-  string transmitter = 1;
-}
+message QueryOwedAmountRequest { string transmitter = 1; }
 
 message QueryOwedAmountResponse {
-  cosmos.base.v1beta1.Coin amount = 1 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 1 [ (gogoproto.nullable) = false ];
 }
 
 message QueryModuleStateRequest {}
 
-message QueryModuleStateResponse {
-  GenesisState state = 1;
-}
+message QueryModuleStateResponse { GenesisState state = 1; }

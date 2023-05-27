@@ -15,8 +15,10 @@ message RegisteredContractWithAddress {
 // GenesisState defines the wasmx module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to wasmx.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 
-  // registered_contracts is an array containing the genesis registered contracts
-  repeated RegisteredContractWithAddress registered_contracts = 2 [(gogoproto.nullable) = false];
+  // registered_contracts is an array containing the genesis registered
+  // contracts
+  repeated RegisteredContractWithAddress registered_contracts = 2
+      [ (gogoproto.nullable) = false ];
 }

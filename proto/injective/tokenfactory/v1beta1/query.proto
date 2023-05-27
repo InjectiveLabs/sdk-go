@@ -22,8 +22,8 @@ service Query {
   // DenomAuthorityMetadata for a particular denom.
   rpc DenomAuthorityMetadata(QueryDenomAuthorityMetadataRequest)
       returns (QueryDenomAuthorityMetadataResponse) {
-    option (google.api.http).get =
-        "/injective/tokenfactory/v1beta1/denoms/{creator}/{sub_denom}/authority_metadata";
+    option (google.api.http).get = "/injective/tokenfactory/v1beta1/denoms/"
+                                   "{creator}/{sub_denom}/authority_metadata";
   }
 
   // DenomsFromCreator defines a gRPC query method for fetching all
@@ -35,10 +35,11 @@ service Query {
   }
 
   // Retrieves the entire auction module's state
-  rpc TokenfactoryModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
-    option (google.api.http).get = "/injective/tokenfactory/v1beta1/module_state";
+  rpc TokenfactoryModuleState(QueryModuleStateRequest)
+      returns (QueryModuleStateResponse) {
+    option (google.api.http).get =
+        "/injective/tokenfactory/v1beta1/module_state";
   }
-
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -78,11 +79,10 @@ message QueryDenomsFromCreatorResponse {
   repeated string denoms = 1 [ (gogoproto.moretags) = "yaml:\"denoms\"" ];
 }
 
-
-// QueryModuleStateRequest is the request type for the Query/TokenfactoryModuleState RPC method.
+// QueryModuleStateRequest is the request type for the
+// Query/TokenfactoryModuleState RPC method.
 message QueryModuleStateRequest {}
 
-// QueryModuleStateResponse is the response type for the Query/TokenfactoryModuleState RPC method.
-message QueryModuleStateResponse {
-  GenesisState state = 1;
-}
+// QueryModuleStateResponse is the response type for the
+// Query/TokenfactoryModuleState RPC method.
+message QueryModuleStateResponse { GenesisState state = 1; }

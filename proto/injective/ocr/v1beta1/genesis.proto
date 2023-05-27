@@ -10,7 +10,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // GenesisState defines the OCR module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to OCR.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 
   // feed_configs stores all of the supported OCR feeds
   repeated FeedConfig feed_configs = 2;
@@ -21,7 +21,8 @@ message GenesisState {
   // feed_transmissions stores the last transmission for each feed
   repeated FeedTransmission feed_transmissions = 4;
 
-  // latest_aggregator_round_ids stores the latest aggregator round ID for each feedId
+  // latest_aggregator_round_ids stores the latest aggregator round ID for each
+  // feedId
   repeated FeedLatestAggregatorRoundIDs latest_aggregator_round_ids = 5;
 
   // reward_pools stores the reward pools
@@ -54,7 +55,7 @@ message FeedLatestAggregatorRoundIDs {
 
 message RewardPool {
   string feed_id = 1;
-  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
 }
 
 message FeedCounts {
@@ -72,4 +73,3 @@ message PendingPayeeship {
   string transmitter = 2;
   string proposed_payee = 3;
 }
-

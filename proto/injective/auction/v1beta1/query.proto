@@ -12,36 +12,40 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 service Query {
 
   // Retrieves auction params
-  rpc AuctionParams(QueryAuctionParamsRequest) returns (QueryAuctionParamsResponse) {
+  rpc AuctionParams(QueryAuctionParamsRequest)
+      returns (QueryAuctionParamsResponse) {
     option (google.api.http).get = "/injective/auction/v1beta1/params";
   }
 
   // Retrieves current auction basket with current highest bid and bidder
-  rpc CurrentAuctionBasket(QueryCurrentAuctionBasketRequest) returns (QueryCurrentAuctionBasketResponse) {
+  rpc CurrentAuctionBasket(QueryCurrentAuctionBasketRequest)
+      returns (QueryCurrentAuctionBasketResponse) {
     option (google.api.http).get = "/injective/auction/v1beta1/basket";
   };
 
   // Retrieves the entire auction module's state
-  rpc AuctionModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+  rpc AuctionModuleState(QueryModuleStateRequest)
+      returns (QueryModuleStateResponse) {
     option (google.api.http).get = "/injective/auction/v1beta1/module_state";
   }
-
 }
 
-// QueryAuctionParamsRequest is the request type for the Query/AuctionParams RPC method.
+// QueryAuctionParamsRequest is the request type for the Query/AuctionParams RPC
+// method.
 message QueryAuctionParamsRequest {}
 
-// QueryAuctionParamsRequest is the response type for the Query/AuctionParams RPC method.
+// QueryAuctionParamsRequest is the response type for the Query/AuctionParams
+// RPC method.
 message QueryAuctionParamsResponse {
-  Params params = 1 [
-    (gogoproto.nullable) = false
-  ];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryCurrentAuctionBasketRequest is the request type for the Query/CurrentAuctionBasket RPC method.
+// QueryCurrentAuctionBasketRequest is the request type for the
+// Query/CurrentAuctionBasket RPC method.
 message QueryCurrentAuctionBasketRequest {}
 
-// QueryCurrentAuctionBasketResponse is the response type for the Query/CurrentAuctionBasket RPC method.
+// QueryCurrentAuctionBasketResponse is the response type for the
+// Query/CurrentAuctionBasket RPC method.
 message QueryCurrentAuctionBasketResponse {
   // amount describes the amount put on auction
   repeated cosmos.base.v1beta1.Coin amount = 1 [
@@ -61,11 +65,10 @@ message QueryCurrentAuctionBasketResponse {
   ];
 }
 
-
-// QueryModuleStateRequest is the request type for the Query/AuctionModuleState RPC method.
+// QueryModuleStateRequest is the request type for the Query/AuctionModuleState
+// RPC method.
 message QueryModuleStateRequest {}
 
-// QueryModuleStateResponse is the response type for the Query/AuctionModuleState RPC method.
-message QueryModuleStateResponse {
-  GenesisState state = 1;
-}
+// QueryModuleStateResponse is the response type for the
+// Query/AuctionModuleState RPC method.
+message QueryModuleStateResponse { GenesisState state = 1; }

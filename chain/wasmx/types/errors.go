@@ -11,4 +11,7 @@ var (
 	ErrNoContractAddresses    = errors.Register(ModuleName, 6, "no contract addresses found")
 	ErrInvalidCodeId          = errors.Register(ModuleName, 7, "invalid code id")
 	ErrDeductingGasFees       = errors.Register(ModuleName, 8, "not possible to deduct gas fees")
+	ErrMissingGranterAddress  = errors.Register(ModuleName, 9, "missing granter address")
+	ErrNoGranterAccount       = errors.Register(ModuleName, 10, "granter address does not exist")
+	ErrInvalidFundingMode     = errors.Register(ModuleName, 11, "invalid funding mode")
 )
