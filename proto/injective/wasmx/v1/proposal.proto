@@ -1,39 +1,54 @@
 syntax = "proto3";
 package injective.wasmx.v1;
 
-import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
 import "cosmwasm/wasm/v1/proposal.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message ContractRegistrationRequestProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
 
   string title = 1;
   string description = 2;
-  ContractRegistrationRequest contract_registration_request = 3 [(gogoproto.nullable) = false];
+  ContractRegistrationRequest contract_registration_request = 3
+      [ (gogoproto.nullable) = false ];
 }
 
 message BatchContractRegistrationRequestProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
 
   string title = 1;
   string description = 2;
-  repeated ContractRegistrationRequest contract_registration_requests = 3 [(gogoproto.nullable) = false];
+  repeated ContractRegistrationRequest contract_registration_requests = 3
+      [ (gogoproto.nullable) = false ];
 }
 
 message BatchContractDeregistrationProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
 
   string title = 1;
   string description = 2;
-  repeated string contracts = 3 [(gogoproto.nullable) = false];
+  repeated string contracts = 3;
+}
+
+enum FundingMode {
+  Unspecified = 0;
+  SelfFunded = 1;
+  GrantOnly = 2;
+  Dual = 3;
 }
 
 message ContractRegistrationRequest {
+  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
+
   // Unique Identifier for contract instance to be registered.
   string contract_address = 1;
 
@@ -45,21 +60,33 @@ message ContractRegistrationRequest {
 
   bool should_pin_contract = 4;
 
-  // if true contract owner can update it, if false only current code_id will be allowed to be executed
+  // if true contract owner can update it, if false only current code_id will be
+  // allowed to be executed
   bool is_migration_allowed = 5;
 
-  // code_id of the contract being registered - will be verified upon every execution but only if is_migration_allowed is false
+  // code_id of the contract being registered - will be verified upon every
+  // execution but only if is_migration_allowed is false
   uint64 code_id = 6;
 
-  // Optional address of admin account (that will be allowed to pause or update contract params)
+  // Optional address of admin account (that will be allowed to pause or update
+  // contract params)
   string admin_address = 7;
+
+  // Optional address of the contract that grants fees. Must be set if
+  // funding_mode is other than SelfFunded
+  string granter_address = 8;
+
+  // Specifies how the contract will fund its execution
+  FundingMode funding_mode = 9;
 }
 
 message BatchStoreCodeProposal {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
 
   string title = 1;
   string description = 2;
-  repeated cosmwasm.wasm.v1.StoreCodeProposal proposals = 3 [(gogoproto.nullable) = false];
+  repeated cosmwasm.wasm.v1.StoreCodeProposal proposals = 3
+      [ (gogoproto.nullable) = false ];
 }

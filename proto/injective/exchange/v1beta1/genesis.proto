@@ -10,7 +10,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // GenesisState defines the exchange module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to exchange.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 
   // spot_markets is an array containing the genesis trade pairs
   repeated SpotMarket spot_markets = 2;
@@ -19,31 +19,44 @@ message GenesisState {
   repeated DerivativeMarket derivative_markets = 3;
 
   // spot_orderbook defines the spot exchange limit orderbook active at genesis.
-  repeated SpotOrderBook spot_orderbook = 4 [(gogoproto.nullable) = false];
+  repeated SpotOrderBook spot_orderbook = 4 [ (gogoproto.nullable) = false ];
 
-  // derivative_orderbook defines the derivative exchange limit orderbook active at genesis.
-  repeated DerivativeOrderBook derivative_orderbook = 5 [(gogoproto.nullable) = false];
+  // derivative_orderbook defines the derivative exchange limit orderbook active
+  // at genesis.
+  repeated DerivativeOrderBook derivative_orderbook = 5
+      [ (gogoproto.nullable) = false ];
 
   // balances defines the exchange users balances active at genesis.
-  repeated Balance balances = 6 [(gogoproto.nullable) = false];
+  repeated Balance balances = 6 [ (gogoproto.nullable) = false ];
 
   // positions defines the exchange derivative positions at genesis
-  repeated DerivativePosition positions = 7 [(gogoproto.nullable) = false];
+  repeated DerivativePosition positions = 7 [ (gogoproto.nullable) = false ];
 
-  // subaccount_trade_nonces defines the subaccount trade nonces for the subaccounts at genesis
-  repeated SubaccountNonce subaccount_trade_nonces = 8 [(gogoproto.nullable) = false];
+  // subaccount_trade_nonces defines the subaccount trade nonces for the
+  // subaccounts at genesis
+  repeated SubaccountNonce subaccount_trade_nonces = 8
+      [ (gogoproto.nullable) = false ];
 
-  // expiry_futures_market_info defines the market info for the expiry futures markets at genesis
-  repeated ExpiryFuturesMarketInfoState expiry_futures_market_info_state = 9 [(gogoproto.nullable) = false];
+  // expiry_futures_market_info defines the market info for the expiry futures
+  // markets at genesis
+  repeated ExpiryFuturesMarketInfoState expiry_futures_market_info_state = 9
+      [ (gogoproto.nullable) = false ];
 
-  // perpetual_market_info defines the market info for the perpetual derivative markets at genesis
-  repeated PerpetualMarketInfo perpetual_market_info = 10 [(gogoproto.nullable) = false];
+  // perpetual_market_info defines the market info for the perpetual derivative
+  // markets at genesis
+  repeated PerpetualMarketInfo perpetual_market_info = 10
+      [ (gogoproto.nullable) = false ];
 
-  // perpetual_market_funding_state defines the funding state for the perpetual derivative markets at genesis
-  repeated PerpetualMarketFundingState perpetual_market_funding_state = 11 [(gogoproto.nullable) = false];
+  // perpetual_market_funding_state defines the funding state for the perpetual
+  // derivative markets at genesis
+  repeated PerpetualMarketFundingState perpetual_market_funding_state = 11
+      [ (gogoproto.nullable) = false ];
 
-  // derivative_market_settlement_scheduled defines the scheduled markets for settlement at genesis
-  repeated DerivativeMarketSettlementInfo derivative_market_settlement_scheduled = 12 [(gogoproto.nullable) = false];
+  // derivative_market_settlement_scheduled defines the scheduled markets for
+  // settlement at genesis
+  repeated DerivativeMarketSettlementInfo
+      derivative_market_settlement_scheduled = 12
+      [ (gogoproto.nullable) = false ];
 
   // sets spot markets as enabled
   bool is_spot_exchange_enabled = 13;
@@ -58,7 +71,8 @@ message GenesisState {
   repeated CampaignRewardPool trading_reward_pool_campaign_schedule = 16;
 
   // the current trading reward account points
-  repeated TradingRewardCampaignAccountPoints trading_reward_campaign_account_points = 17;
+  repeated TradingRewardCampaignAccountPoints
+      trading_reward_campaign_account_points = 17;
 
   // the fee discount schedule
   FeeDiscountSchedule fee_discount_schedule = 18;
@@ -67,38 +81,47 @@ message GenesisState {
   repeated FeeDiscountAccountTierTTL fee_discount_account_tier_ttl = 19;
 
   // the fee discount paid by accounts in all buckets
-  repeated FeeDiscountBucketVolumeAccounts fee_discount_bucket_volume_accounts = 20;
+  repeated FeeDiscountBucketVolumeAccounts fee_discount_bucket_volume_accounts =
+      20;
 
   // sets the first fee cycle as finished
   bool is_first_fee_cycle_finished = 21;
 
   // the current and upcoming trading reward campaign pending pools
-  repeated CampaignRewardPool pending_trading_reward_pool_campaign_schedule = 22;
+  repeated CampaignRewardPool pending_trading_reward_pool_campaign_schedule =
+      22;
 
   // the pending trading reward account points
-  repeated TradingRewardCampaignAccountPendingPoints pending_trading_reward_campaign_account_points = 23;
+  repeated TradingRewardCampaignAccountPendingPoints
+      pending_trading_reward_campaign_account_points = 23;
 
   // the addresses opting out of trading rewards
   repeated string rewards_opt_out_addresses = 24;
 
   repeated TradeRecords historical_trade_records = 25;
 
-  // binary_options_markets is an array containing the genesis binary options markets
+  // binary_options_markets is an array containing the genesis binary options
+  // markets
   repeated BinaryOptionsMarket binary_options_markets = 26;
 
-  // binary_options_markets_scheduled_for_settlement contains the marketIDs of binary options markets scheduled for next-block settlement
+  // binary_options_markets_scheduled_for_settlement contains the marketIDs of
+  // binary options markets scheduled for next-block settlement
   repeated string binary_options_market_ids_scheduled_for_settlement = 27;
 
-  // spot_market_ids_scheduled_to_force_close defines the scheduled markets for forced closings at genesis
+  // spot_market_ids_scheduled_to_force_close defines the scheduled markets for
+  // forced closings at genesis
   repeated string spot_market_ids_scheduled_to_force_close = 28;
 
   // denom_decimals defines the denom decimals for the exchange.
-  repeated DenomDecimals denom_decimals = 29 [(gogoproto.nullable) = false];
+  repeated DenomDecimals denom_decimals = 29 [ (gogoproto.nullable) = false ];
 
-  // conditional_derivative_orderbook contains conditional orderbooks for all markets (both lmit and market conditional orders)
-  repeated ConditionalDerivativeOrderBook conditional_derivative_orderbooks = 30;
+  // conditional_derivative_orderbook contains conditional orderbooks for all
+  // markets (both lmit and market conditional orders)
+  repeated ConditionalDerivativeOrderBook conditional_derivative_orderbooks =
+      30;
 
-  // market_fee_multipliers contains any non-default atomic order fee multipliers
+  // market_fee_multipliers contains any non-default atomic order fee
+  // multipliers
   repeated MarketFeeMultiplier market_fee_multipliers = 31;
 
   repeated OrderbookSequence orderbook_sequences = 32;
@@ -199,7 +222,8 @@ message SubaccountNonce {
   option (gogoproto.goproto_getters) = false;
 
   string subaccount_id = 1;
-  SubaccountTradeNonce subaccount_trade_nonce = 2 [(gogoproto.nullable) = false];
+  SubaccountTradeNonce subaccount_trade_nonce = 2
+      [ (gogoproto.nullable) = false ];
 }
 
 message ExpiryFuturesMarketInfoState {

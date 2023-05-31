@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 
+	"cosmossdk.io/errors"
 	sdksecp256k1 "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/legacy/legacytx"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -49,6 +50,7 @@ var (
 	_ sdk.Msg = &MsgAdminUpdateBinaryOptionsMarket{}
 	_ sdk.Msg = &MsgBatchCancelBinaryOptionsOrders{}
 	_ sdk.Msg = &MsgReclaimLockedFunds{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 // exchange message types
@@ -82,17 +84,43 @@ const (
 	TypeMsgAdminUpdateBinaryOptionsMarket   = "adminUpdateBinaryOptionsMarket"
 	TypeMsgBatchCancelBinaryOptionsOrders   = "batchCancelBinaryOptionsOrders"
 	TypeMsgReclaimLockedFunds               = "reclaimLockedFunds"
+	TypeMsgUpdateParams                     = "updateParams"
 )
+
+func (msg MsgUpdateParams) Route() string { return RouterKey }
+
+func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
+
+func (msg MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errors.Wrap(err, "invalid authority address")
+	}
+
+	if err := msg.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshal(msg))
+}
+
+func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
 
 func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	if !IsHexHash(o.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
+		return errors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 	switch o.OrderType {
 	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_BUY_ATOMIC, OrderType_SELL_ATOMIC:
 		// do nothing
 	default:
-		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
+		return errors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
 	}
 
 	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
@@ -103,7 +131,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	if o.OrderInfo.FeeRecipient != "" {
 		_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
 		if err != nil {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
+			return errors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
 		}
 	}
 	return o.OrderInfo.ValidateBasic(senderAddr, false, false)
@@ -115,7 +143,7 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand,
 	}
 
 	if o.Quantity.IsNil() || o.Quantity.LTE(sdk.ZeroDec()) || o.Quantity.GT(MaxOrderQuantity) {
-		return sdkerrors.Wrap(ErrInvalidQuantity, o.Quantity.String())
+		return errors.Wrap(ErrInvalidQuantity, o.Quantity.String())
 	}
 
 	if hasBinaryPriceBand {
@@ -123,16 +151,16 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand,
 		// and we have no idea what the scale factor of the market is here when we execute ValidateBasic(), and thus we allow
 		// very high ceiling price to cover all cases
 		if o.Price.IsNil() || o.Price.LT(sdk.ZeroDec()) || o.Price.GT(MaxOrderPrice) {
-			return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
+			return errors.Wrap(ErrInvalidPrice, o.Price.String())
 		}
 	} else {
 		if o.Price.IsNil() || o.Price.LTE(sdk.ZeroDec()) || o.Price.GT(MaxOrderPrice) {
-			return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
+			return errors.Wrap(ErrInvalidPrice, o.Price.String())
 		}
 	}
 
 	if isDerivative && !hasBinaryPriceBand && o.Price.LT(MinDerivativeOrderPrice) {
-		return sdkerrors.Wrap(ErrInvalidPrice, o.Price.String())
+		return errors.Wrap(ErrInvalidPrice, o.Price.String())
 	}
 
 	return nil
@@ -140,22 +168,22 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand,
 
 func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand bool) error {
 	if !IsHexHash(o.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
+		return errors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 
 	switch o.OrderType {
 	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_STOP_BUY, OrderType_STOP_SELL, OrderType_TAKE_BUY, OrderType_TAKE_SELL, OrderType_BUY_ATOMIC, OrderType_SELL_ATOMIC:
 		// do nothing
 	default:
-		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
+		return errors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
 	}
 
 	if o.Margin.IsNil() || o.Margin.LT(sdk.ZeroDec()) {
-		return sdkerrors.Wrap(ErrInsufficientOrderMargin, o.Margin.String())
+		return errors.Wrap(ErrInsufficientOrderMargin, o.Margin.String())
 	}
 
 	if o.Margin.GT(MaxOrderMargin) {
-		return sdkerrors.Wrap(ErrTooMuchOrderMargin, o.Margin.String())
+		return errors.Wrap(ErrTooMuchOrderMargin, o.Margin.String())
 	}
 
 	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
@@ -165,13 +193,13 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 
 	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
 		!o.IsConditional() && o.TriggerPrice != nil */// commented out this check since FE is sending to us 0.0 trigger price for all orders
-		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
+		return errors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
 
 	if o.OrderInfo.FeeRecipient != "" {
 		_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
 		if err != nil {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
+			return errors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
 		}
 	}
 	return o.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand, !hasBinaryPriceBand)
@@ -179,7 +207,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 
 func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
 	if !IsHexHash(o.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, o.MarketId)
+		return errors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
 
 	if err := CheckValidSubaccountIDOrNonce(senderAddr, o.SubaccountId); err != nil {
@@ -187,7 +215,7 @@ func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
 	}
 
 	if ok := IsValidOrderHash(o.OrderHash); !ok {
-		return sdkerrors.Wrap(ErrOrderHashInvalid, o.OrderHash)
+		return errors.Wrap(ErrOrderHashInvalid, o.OrderHash)
 	}
 	return nil
 }
@@ -203,33 +231,33 @@ func (msg MsgDeposit) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if !msg.Amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if !msg.Amount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if IsNonceDerivedSubaccountID(msg.SubaccountId) {
 		subaccountID, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SubaccountId)
 		if err != nil {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+			return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 		}
 		if IsDefaultSubaccountID(subaccountID) {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+			return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 		}
 	} else {
 		// deposits to externally owned subaccounts are allowed but they MUST be explicitly specified
 		_, ok := IsValidSubaccountID(msg.SubaccountId)
 		if !ok {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+			return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 		}
 		if IsDefaultSubaccountID(common.HexToHash(msg.SubaccountId)) {
-			return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+			return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 		}
 	}
 
@@ -260,15 +288,15 @@ func (msg MsgWithdraw) Type() string { return TypeMsgWithdraw }
 func (msg MsgWithdraw) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if !msg.Amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if !msg.Amount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SubaccountId); err != nil {
@@ -277,11 +305,11 @@ func (msg MsgWithdraw) ValidateBasic() error {
 
 	subaccountID, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SubaccountId)
 	if err != nil {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 	}
 
 	if IsDefaultSubaccountID(subaccountID) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 	}
 	return nil
 }
@@ -310,26 +338,26 @@ func (msg MsgInstantSpotMarketLaunch) Type() string { return TypeMsgInstantSpotM
 func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Ticker == "" || len(msg.Ticker) > MaxTickerLength {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if msg.BaseDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
+		return errors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
 	}
 	if msg.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 	if msg.BaseDenom == msg.QuoteDenom {
 		return ErrSameDenoms
 	}
 
 	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
 	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return nil
@@ -359,13 +387,13 @@ func (msg MsgInstantPerpetualMarketLaunch) Type() string { return TypeMsgInstant
 func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Ticker == "" || len(msg.Ticker) > MaxTickerLength {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if msg.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 	oracleParams := NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
 	if err := oracleParams.ValidateBasic(); err != nil {
@@ -390,10 +418,10 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 		return ErrMarginsRelation
 	}
 	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
 	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return nil
@@ -425,19 +453,19 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) Type() string {
 func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Ticker == "" || len(msg.Ticker) > MaxTickerLength {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if msg.OracleSymbol == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
 	}
 	if msg.OracleProvider == "" {
-		return sdkerrors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
+		return errors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
 	}
 	if msg.OracleType != oracletypes.OracleType_Provider {
-		return sdkerrors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
+		return errors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
 	}
 	if msg.OracleScaleFactor > MaxOracleScaleFactor {
 		return ErrExceedsMaxOracleScaleFactor
@@ -457,17 +485,17 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	if msg.Admin != "" {
 		_, err := sdk.AccAddressFromBech32(msg.Admin)
 		if err != nil {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Admin)
+			return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Admin)
 		}
 	}
 	if msg.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
 	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return nil
@@ -499,13 +527,13 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) Type() string {
 func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Ticker == "" || len(msg.Ticker) > MaxTickerLength {
-		return sdkerrors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
 	}
 	if msg.QuoteDenom == "" {
-		return sdkerrors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
 	}
 
 	oracleParams := NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
@@ -513,7 +541,7 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 		return err
 	}
 	if msg.Expiry <= 0 {
-		return sdkerrors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
+		return errors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
 	}
 	if err := ValidateMakerFee(msg.MakerFeeRate); err != nil {
 		return err
@@ -534,10 +562,10 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 		return ErrMarginsRelation
 	}
 	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidPriceTickSize, err.Error())
+		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
 	}
 	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return sdkerrors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
 
 	return nil
@@ -567,7 +595,7 @@ func (msg MsgCreateSpotLimitOrder) Type() string { return TypeMsgCreateSpotLimit
 func (msg MsgCreateSpotLimitOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil { // We don't need to check if sender is empty.
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if err := msg.Order.ValidateBasic(senderAddr); err != nil {
 		return err
@@ -599,11 +627,11 @@ func (msg MsgBatchCreateSpotLimitOrders) Type() string { return TypeMsgBatchCrea
 func (msg MsgBatchCreateSpotLimitOrders) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil { // We don't need to check if sender is empty.
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if len(msg.Orders) == 0 {
-		return sdkerrors.Wrap(ErrOrderDoesntExist, "must create at least 1 order")
+		return errors.Wrap(ErrOrderDoesntExist, "must create at least 1 order")
 	}
 
 	for idx := range msg.Orders {
@@ -639,11 +667,11 @@ func (msg MsgCreateSpotMarketOrder) Type() string { return TypeMsgCreateSpotMark
 func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
-		return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Spot market order can't be a post only order")
+		return errors.Wrap(ErrInvalidOrderTypeForMessage, "Spot market order can't be a post only order")
 	}
 
 	if err := msg.Order.ValidateBasic(senderAddr); err != nil {
@@ -677,7 +705,7 @@ func (msg *MsgCancelSpotOrder) Type() string { return TypeMsgCancelSpotOrder }
 func (msg *MsgCancelSpotOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	orderData := OrderData{
@@ -712,11 +740,11 @@ func (msg *MsgBatchCancelSpotOrders) Type() string { return TypeMsgBatchCancelSp
 func (msg *MsgBatchCancelSpotOrders) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if len(msg.Data) == 0 {
-		return sdkerrors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
+		return errors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
 	}
 
 	for idx := range msg.Data {
@@ -752,10 +780,10 @@ func (msg MsgCreateDerivativeLimitOrder) Type() string { return TypeMsgCreateDer
 func (msg MsgCreateDerivativeLimitOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Order.OrderType == OrderType_BUY_ATOMIC || msg.Order.OrderType == OrderType_SELL_ATOMIC {
-		return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative limit orders can't be atomic orders")
+		return errors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative limit orders can't be atomic orders")
 	}
 	if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
 		return err
@@ -818,10 +846,10 @@ func (msg MsgCreateBinaryOptionsLimitOrder) Type() string {
 func (msg MsgCreateBinaryOptionsLimitOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if msg.Order.OrderType.IsConditional() {
-		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
+		return errors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
 	}
 	if err := msg.Order.ValidateBasic(senderAddr, true); err != nil {
 		return err
@@ -856,11 +884,11 @@ func (msg MsgBatchCreateDerivativeLimitOrders) Type() string {
 func (msg MsgBatchCreateDerivativeLimitOrders) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if len(msg.Orders) == 0 {
-		return sdkerrors.Wrap(ErrOrderDoesntExist, "must create at least 1 order")
+		return errors.Wrap(ErrOrderDoesntExist, "must create at least 1 order")
 	}
 
 	for idx := range msg.Orders {
@@ -896,11 +924,11 @@ func (msg MsgCreateDerivativeMarketOrder) Type() string { return TypeMsgCreateDe
 func (msg MsgCreateDerivativeMarketOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
-		return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative market order can't be a post only order")
+		return errors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative market order can't be a post only order")
 	}
 
 	if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
@@ -963,14 +991,14 @@ func (msg MsgCreateBinaryOptionsMarketOrder) Type() string {
 func (msg MsgCreateBinaryOptionsMarketOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
-		return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "market order can't be a post only order")
+		return errors.Wrap(ErrInvalidOrderTypeForMessage, "market order can't be a post only order")
 	}
 	if msg.Order.OrderType.IsConditional() {
-		return sdkerrors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
+		return errors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
 	}
 
 	if err := msg.Order.ValidateBasic(senderAddr, true); err != nil {
@@ -1007,7 +1035,7 @@ func (msg *MsgCancelDerivativeOrder) Type() string {
 func (msg *MsgCancelDerivativeOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	orderData := OrderData{
@@ -1046,11 +1074,11 @@ func (msg *MsgBatchCancelDerivativeOrders) Type() string {
 func (msg *MsgBatchCancelDerivativeOrders) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if len(msg.Data) == 0 {
-		return sdkerrors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
+		return errors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
 	}
 
 	for idx := range msg.Data {
@@ -1090,7 +1118,7 @@ func (msg *MsgCancelBinaryOptionsOrder) Type() string {
 func (msg *MsgCancelBinaryOptionsOrder) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	orderData := OrderData{
@@ -1128,11 +1156,11 @@ func (msg *MsgBatchCancelBinaryOptionsOrders) Type() string {
 func (msg *MsgBatchCancelBinaryOptionsOrders) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if len(msg.Data) == 0 {
-		return sdkerrors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
+		return errors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
 	}
 
 	for idx := range msg.Data {
@@ -1169,14 +1197,14 @@ func (msg *MsgSubaccountTransfer) Type() string {
 func (msg *MsgSubaccountTransfer) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if !msg.Amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if !msg.Amount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SourceSubaccountId); err != nil {
@@ -1189,24 +1217,24 @@ func (msg *MsgSubaccountTransfer) ValidateBasic() error {
 
 	sourceSubaccount, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SourceSubaccountId)
 	if err != nil {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
 
 	destinationSubaccount, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.DestinationSubaccountId)
 	if err != nil {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 
 	if IsDefaultSubaccountID(sourceSubaccount) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
 
 	if IsDefaultSubaccountID(destinationSubaccount) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 
 	if !bytes.Equal(SubaccountIDToSdkAddress(sourceSubaccount).Bytes(), SubaccountIDToSdkAddress(destinationSubaccount).Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 
 	return nil
@@ -1235,15 +1263,15 @@ func (msg *MsgExternalTransfer) Type() string {
 func (msg *MsgExternalTransfer) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if !msg.Amount.IsValid() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if !msg.Amount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SourceSubaccountId); err != nil {
@@ -1252,20 +1280,20 @@ func (msg *MsgExternalTransfer) ValidateBasic() error {
 
 	sourceSubaccountId, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SourceSubaccountId)
 	if err != nil {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
 
 	if IsDefaultSubaccountID(common.HexToHash(msg.SourceSubaccountId)) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
 
 	_, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
 	if !ok || IsDefaultSubaccountID(common.HexToHash(msg.DestinationSubaccountId)) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 
 	if !bytes.Equal(SubaccountIDToSdkAddress(sourceSubaccountId).Bytes(), senderAddr.Bytes()) {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 	return nil
 }
@@ -1293,19 +1321,19 @@ func (msg *MsgIncreasePositionMargin) Type() string {
 func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if !IsHexHash(msg.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
+		return errors.Wrap(ErrMarketInvalid, msg.MarketId)
 	}
 
 	if !msg.Amount.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Amount.String())
 	}
 
 	if msg.Amount.GT(MaxOrderMargin) {
-		return sdkerrors.Wrap(ErrTooMuchOrderMargin, msg.Amount.String())
+		return errors.Wrap(ErrTooMuchOrderMargin, msg.Amount.String())
 	}
 
 	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.SourceSubaccountId); err != nil {
@@ -1314,7 +1342,7 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 
 	_, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
 	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 
 	return nil
@@ -1343,30 +1371,30 @@ func (msg *MsgPrivilegedExecuteContract) Type() string {
 func (msg *MsgPrivilegedExecuteContract) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	// funds must either be "empty" or a valid funds coins string
 	if !msg.HasEmptyFunds() {
 		if coins, err := sdk.ParseDecCoins(msg.Funds); err != nil || !coins.IsAllPositive() {
-			return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, msg.Funds)
+			return errors.Wrap(sdkerrors.ErrInvalidCoins, msg.Funds)
 		}
 	}
 
 	_, err = sdk.AccAddressFromBech32(msg.ContractAddress)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
 	}
 
 	var e wasmxtypes.ExecutionData
 	if err := json.Unmarshal([]byte(msg.Data), &e); err != nil {
-		return sdkerrors.Wrap(err, msg.Data)
+		return errors.Wrap(err, msg.Data)
 	}
 
 	if e.Name == "" {
-		return sdkerrors.Wrap(ErrBadField, "name should not be empty")
+		return errors.Wrap(ErrBadField, "name should not be empty")
 	} else if e.Origin != "" && e.Origin != msg.Sender {
-		return sdkerrors.Wrap(ErrBadField, "origin must match sender or be empty")
+		return errors.Wrap(ErrBadField, "origin must match sender or be empty")
 	}
 
 	return nil
@@ -1425,16 +1453,16 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
 
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if !IsHexHash(msg.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
+		return errors.Wrap(ErrMarketInvalid, msg.MarketId)
 	}
 
 	_, ok := IsValidSubaccountID(msg.SubaccountId)
 	if !ok {
-		return sdkerrors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+		return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
 	}
 
 	if msg.Order != nil {
@@ -1478,7 +1506,7 @@ func (msg MsgBatchUpdateOrders) Type() string { return TypeMsgBatchUpdateOrders 
 func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	hasCancelAllMarketId := len(msg.SpotMarketIdsToCancelAll) > 0 || len(msg.DerivativeMarketIdsToCancelAll) > 0 || len(msg.BinaryOptionsMarketIdsToCancelAll) > 0
@@ -1487,11 +1515,11 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 	hasSubaccountIdForCancelAll := msg.SubaccountId != ""
 
 	if hasCancelAllMarketId && !hasSubaccountIdForCancelAll {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains cancel all marketIDs but no subaccountID")
+		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains cancel all marketIDs but no subaccountID")
 	}
 
 	if hasSubaccountIdForCancelAll && !hasCancelAllMarketId {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains subaccountID but no cancel all marketIDs")
+		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains subaccountID but no cancel all marketIDs")
 	}
 
 	if hasSubaccountIdForCancelAll {
@@ -1501,16 +1529,16 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 
 		hasDuplicateSpotMarketIds := HasDuplicatesHexHash(msg.SpotMarketIdsToCancelAll)
 		if hasDuplicateSpotMarketIds {
-			return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all spot market ids")
+			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all spot market ids")
 		}
 
 		hasDuplicateDerivativesMarketIds := HasDuplicatesHexHash(msg.DerivativeMarketIdsToCancelAll)
 		if hasDuplicateDerivativesMarketIds {
-			return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
+			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
 		}
 		hasDuplicateBinaryOptionsMarketIds := HasDuplicatesHexHash(msg.BinaryOptionsMarketIdsToCancelAll)
 		if hasDuplicateBinaryOptionsMarketIds {
-			return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all binary options market ids")
+			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all binary options market ids")
 		}
 	}
 
@@ -1521,36 +1549,36 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		len(msg.SpotOrdersToCreate) == 0 &&
 		len(msg.BinaryOptionsOrdersToCreate) == 0 &&
 		len(msg.BinaryOptionsOrdersToCancel) == 0 {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg is empty")
+		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg is empty")
 	}
 
 	hasDuplicateSpotOrderToCancel := HasDuplicatesOrder(msg.SpotOrdersToCancel)
 	if hasDuplicateSpotOrderToCancel {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate spot order to cancel")
+		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate spot order to cancel")
 	}
 
 	hasDuplicateDerivativeOrderToCancel := HasDuplicatesOrder(msg.DerivativeOrdersToCancel)
 	if hasDuplicateDerivativeOrderToCancel {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate derivative order to cancel")
+		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate derivative order to cancel")
 	}
 
 	hasDuplicateBinaryOptionsOrderToCancel := HasDuplicatesOrder(msg.BinaryOptionsOrdersToCancel)
 	if hasDuplicateBinaryOptionsOrderToCancel {
-		return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate binary options order to cancel")
+		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate binary options order to cancel")
 	}
 
 	if len(msg.SpotMarketIdsToCancelAll) > 0 && len(msg.SpotOrdersToCancel) > 0 {
 		seen := make(map[common.Hash]struct{})
 		for _, marketID := range msg.SpotMarketIdsToCancelAll {
 			if !IsHexHash(marketID) {
-				return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+				return errors.Wrap(ErrMarketInvalid, marketID)
 			}
 			seen[common.HexToHash(marketID)] = struct{}{}
 		}
 
 		for idx := range msg.SpotOrdersToCancel {
 			if _, ok := seen[common.HexToHash(msg.SpotOrdersToCancel[idx].MarketId)]; ok {
-				return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a spot market that is also in cancel all")
+				return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a spot market that is also in cancel all")
 			}
 		}
 	}
@@ -1559,14 +1587,14 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		seen := make(map[common.Hash]struct{})
 		for _, marketID := range msg.DerivativeMarketIdsToCancelAll {
 			if !IsHexHash(marketID) {
-				return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+				return errors.Wrap(ErrMarketInvalid, marketID)
 			}
 			seen[common.HexToHash(marketID)] = struct{}{}
 		}
 
 		for idx := range msg.DerivativeOrdersToCancel {
 			if _, ok := seen[common.HexToHash(msg.DerivativeOrdersToCancel[idx].MarketId)]; ok {
-				return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a derivative market that is also in cancel all")
+				return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a derivative market that is also in cancel all")
 			}
 		}
 	}
@@ -1575,14 +1603,14 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		seen := make(map[common.Hash]struct{})
 		for _, marketID := range msg.BinaryOptionsMarketIdsToCancelAll {
 			if !IsHexHash(marketID) {
-				return sdkerrors.Wrap(ErrMarketInvalid, marketID)
+				return errors.Wrap(ErrMarketInvalid, marketID)
 			}
 			seen[common.HexToHash(marketID)] = struct{}{}
 		}
 
 		for idx := range msg.BinaryOptionsOrdersToCancel {
 			if _, ok := seen[common.HexToHash(msg.BinaryOptionsOrdersToCancel[idx].MarketId)]; ok {
-				return sdkerrors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a binary options market that is also in cancel all")
+				return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a binary options market that is also in cancel all")
 			}
 		}
 	}
@@ -1609,7 +1637,7 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 			return err
 		}
 		if msg.SpotOrdersToCreate[idx].OrderType.IsAtomic() { // must be checked separately as type is SpotOrder, so it won't check for atomic orders properly
-			return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Spot limit orders can't be atomic orders")
+			return errors.Wrap(ErrInvalidOrderTypeForMessage, "Spot limit orders can't be atomic orders")
 		}
 	}
 
@@ -1618,7 +1646,7 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 			return err
 		}
 		if msg.DerivativeOrdersToCreate[idx].OrderType.IsAtomic() {
-			return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative limit orders can't be atomic orders")
+			return errors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative limit orders can't be atomic orders")
 		}
 	}
 
@@ -1627,7 +1655,7 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 			return err
 		}
 		if msg.BinaryOptionsOrdersToCreate[idx].OrderType.IsAtomic() {
-			return sdkerrors.Wrap(ErrInvalidOrderTypeForMessage, "Binary limit orders can't be atomic orders")
+			return errors.Wrap(ErrInvalidOrderTypeForMessage, "Binary limit orders can't be atomic orders")
 		}
 	}
 
@@ -1658,11 +1686,11 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) Type() string {
 
 func (msg *MsgAdminUpdateBinaryOptionsMarket) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	if !IsHexHash(msg.MarketId) {
-		return sdkerrors.Wrap(ErrMarketInvalid, msg.MarketId)
+		return errors.Wrap(ErrMarketInvalid, msg.MarketId)
 	}
 
 	if (msg.SettlementTimestamp > 0 && msg.ExpirationTimestamp >= msg.SettlementTimestamp) ||
@@ -1682,11 +1710,11 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) ValidateBasic() error {
 	case msg.SettlementPrice.Equal(BinaryOptionsMarketRefundFlagPrice),
 		msg.SettlementPrice.GTE(sdk.ZeroDec()) && msg.SettlementPrice.LTE(MaxBinaryOptionsOrderPrice):
 		if msg.Status != MarketStatus_Demolished {
-			return sdkerrors.Wrapf(ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", msg.Status.String())
+			return errors.Wrapf(ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", msg.Status.String())
 		}
 		// ok
 	default:
-		return sdkerrors.Wrap(ErrInvalidPrice, msg.SettlementPrice.String())
+		return errors.Wrap(ErrInvalidPrice, msg.SettlementPrice.String())
 	}
 	// admin can only change status to demolished
 	switch msg.Status {
@@ -1694,7 +1722,7 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) ValidateBasic() error {
 		MarketStatus_Unspecified,
 		MarketStatus_Demolished:
 	default:
-		return sdkerrors.Wrap(ErrInvalidMarketStatus, msg.Status.String())
+		return errors.Wrap(ErrInvalidMarketStatus, msg.Status.String())
 	}
 
 	return nil
@@ -1723,13 +1751,13 @@ func (msg *MsgReclaimLockedFunds) Type() string {
 func (msg *MsgReclaimLockedFunds) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
 	// TODO: restrict the msg.Sender to be a specific EOA?
 	// Placeholder for now obviously, if we decide so, change this check to the actual address
 	// if !senderAddr.Equals(senderAddr) {
-	//	return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	//	return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	// }
 
 	lockedPubKey := sdksecp256k1.PubKey{
@@ -1792,7 +1820,7 @@ func (msg *MsgReclaimLockedFunds) ValidateBasic() error {
 	}
 
 	if !lockedPubKey.VerifySignature(signBz, tx.GetSignatures()[0]) {
-		return sdkerrors.Wrapf(ErrBadField, "signature verification failed with signature %s on signBz %s, msg.Signature is %s", common.Bytes2Hex(tx.GetSignatures()[0]), string(signBz), common.Bytes2Hex(msg.Signature))
+		return errors.Wrapf(ErrBadField, "signature verification failed with signature %s on signBz %s, msg.Signature is %s", common.Bytes2Hex(tx.GetSignatures()[0]), string(signBz), common.Bytes2Hex(msg.Signature))
 	}
 
 	return nil
@@ -1816,7 +1844,7 @@ var _ legacytx.LegacyMsg = &MsgSignData{}
 
 func (msg *MsgSignData) ValidateBasic() error {
 	if msg.Signer.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Signer.String())
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Signer.String())
 	}
 
 	return nil

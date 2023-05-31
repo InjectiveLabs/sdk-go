@@ -7,9 +7,9 @@ import (
 	context "context"
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	grpc1 "github.com/gogo/protobuf/grpc"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	grpc1 "github.com/cosmos/gogoproto/grpc"
+	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -118,7 +118,8 @@ func (m *QueryPythPriceResponse) GetPriceState() *PythPriceState {
 	return nil
 }
 
-// QueryOracleParamsRequest is the request type for the Query/OracleParams RPC method.
+// QueryOracleParamsRequest is the request type for the Query/OracleParams RPC
+// method.
 type QueryParamsRequest struct {
 }
 
@@ -155,7 +156,8 @@ func (m *QueryParamsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
-// QueryOracleParamsResponse is the response type for the Query/OracleParams RPC method.
+// QueryOracleParamsResponse is the response type for the Query/OracleParams RPC
+// method.
 type QueryParamsResponse struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
@@ -200,7 +202,8 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryBandRelayersRequest is the request type for the Query/BandRelayers RPC method.
+// QueryBandRelayersRequest is the request type for the Query/BandRelayers RPC
+// method.
 type QueryBandRelayersRequest struct {
 }
 
@@ -237,7 +240,8 @@ func (m *QueryBandRelayersRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryBandRelayersRequest proto.InternalMessageInfo
 
-// QueryBandRelayersResponse is the response type for the Query/BandRelayers RPC method.
+// QueryBandRelayersResponse is the response type for the Query/BandRelayers RPC
+// method.
 type QueryBandRelayersResponse struct {
 	Relayers []string `protobuf:"bytes,1,rep,name=relayers,proto3" json:"relayers,omitempty"`
 }
@@ -282,7 +286,8 @@ func (m *QueryBandRelayersResponse) GetRelayers() []string {
 	return nil
 }
 
-// QueryBandPriceStatesRequest is the request type for the Query/BandPriceStates RPC method.
+// QueryBandPriceStatesRequest is the request type for the Query/BandPriceStates
+// RPC method.
 type QueryBandPriceStatesRequest struct {
 }
 
@@ -319,7 +324,8 @@ func (m *QueryBandPriceStatesRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryBandPriceStatesRequest proto.InternalMessageInfo
 
-// QueryBandPriceStatesResponse is the response type for the Query/BandPriceStates RPC method.
+// QueryBandPriceStatesResponse is the response type for the
+// Query/BandPriceStates RPC method.
 type QueryBandPriceStatesResponse struct {
 	PriceStates []*BandPriceState `protobuf:"bytes,1,rep,name=price_states,json=priceStates,proto3" json:"price_states,omitempty"`
 }
@@ -364,7 +370,8 @@ func (m *QueryBandPriceStatesResponse) GetPriceStates() []*BandPriceState {
 	return nil
 }
 
-// QueryBandIBCPriceStatesRequest is the request type for the Query/BandIBCPriceStates RPC method.
+// QueryBandIBCPriceStatesRequest is the request type for the
+// Query/BandIBCPriceStates RPC method.
 type QueryBandIBCPriceStatesRequest struct {
 }
 
@@ -401,7 +408,8 @@ func (m *QueryBandIBCPriceStatesRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryBandIBCPriceStatesRequest proto.InternalMessageInfo
 
-// QueryBandIBCPriceStatesResponse is the response type for the Query/BandIBCPriceStates RPC method.
+// QueryBandIBCPriceStatesResponse is the response type for the
+// Query/BandIBCPriceStates RPC method.
 type QueryBandIBCPriceStatesResponse struct {
 	PriceStates []*BandPriceState `protobuf:"bytes,1,rep,name=price_states,json=priceStates,proto3" json:"price_states,omitempty"`
 }
@@ -446,7 +454,8 @@ func (m *QueryBandIBCPriceStatesResponse) GetPriceStates() []*BandPriceState {
 	return nil
 }
 
-// QueryPriceFeedPriceStatesRequest is the request type for the Query/PriceFeedPriceStates RPC method.
+// QueryPriceFeedPriceStatesRequest is the request type for the
+// Query/PriceFeedPriceStates RPC method.
 type QueryPriceFeedPriceStatesRequest struct {
 }
 
@@ -483,7 +492,8 @@ func (m *QueryPriceFeedPriceStatesRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryPriceFeedPriceStatesRequest proto.InternalMessageInfo
 
-// QueryPriceFeedPriceStatesResponse is the response type for the Query/PriceFeedPriceStates RPC method.
+// QueryPriceFeedPriceStatesResponse is the response type for the
+// Query/PriceFeedPriceStates RPC method.
 type QueryPriceFeedPriceStatesResponse struct {
 	PriceStates []*PriceFeedState `protobuf:"bytes,1,rep,name=price_states,json=priceStates,proto3" json:"price_states,omitempty"`
 }
@@ -528,7 +538,8 @@ func (m *QueryPriceFeedPriceStatesResponse) GetPriceStates() []*PriceFeedState {
 	return nil
 }
 
-// QueryCoinbasePriceStatesRequest is the request type for the Query/CoinbasePriceStates RPC method.
+// QueryCoinbasePriceStatesRequest is the request type for the
+// Query/CoinbasePriceStates RPC method.
 type QueryCoinbasePriceStatesRequest struct {
 }
 
@@ -565,7 +576,8 @@ func (m *QueryCoinbasePriceStatesRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryCoinbasePriceStatesRequest proto.InternalMessageInfo
 
-// QueryCoinbasePriceStatesResponse is the response type for the Query/CoinbasePriceStates RPC method.
+// QueryCoinbasePriceStatesResponse is the response type for the
+// Query/CoinbasePriceStates RPC method.
 type QueryCoinbasePriceStatesResponse struct {
 	PriceStates []*CoinbasePriceState `protobuf:"bytes,1,rep,name=price_states,json=priceStates,proto3" json:"price_states,omitempty"`
 }
@@ -610,7 +622,8 @@ func (m *QueryCoinbasePriceStatesResponse) GetPriceStates() []*CoinbasePriceStat
 	return nil
 }
 
-// QueryPythPriceStatesRequest is the request type for the Query/CoinbasePriceStates RPC method.
+// QueryPythPriceStatesRequest is the request type for the
+// Query/CoinbasePriceStates RPC method.
 type QueryPythPriceStatesRequest struct {
 }
 
@@ -647,7 +660,8 @@ func (m *QueryPythPriceStatesRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryPythPriceStatesRequest proto.InternalMessageInfo
 
-// QueryPythPriceStatesResponse is the response type for the Query/CoinbasePriceStates RPC method.
+// QueryPythPriceStatesResponse is the response type for the
+// Query/CoinbasePriceStates RPC method.
 type QueryPythPriceStatesResponse struct {
 	PriceStates []*PythPriceState `protobuf:"bytes,1,rep,name=price_states,json=priceStates,proto3" json:"price_states,omitempty"`
 }
@@ -692,7 +706,8 @@ func (m *QueryPythPriceStatesResponse) GetPriceStates() []*PythPriceState {
 	return nil
 }
 
-// QueryProviderPriceStateRequest is the request type for the Query/ProviderPriceState RPC method.
+// QueryProviderPriceStateRequest is the request type for the
+// Query/ProviderPriceState RPC method.
 type QueryProviderPriceStateRequest struct {
 	Provider string `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`
 	Symbol   string `protobuf:"bytes,2,opt,name=symbol,proto3" json:"symbol,omitempty"`
@@ -745,7 +760,8 @@ func (m *QueryProviderPriceStateRequest) GetSymbol() string {
 	return ""
 }
 
-// QueryProviderPriceStatesResponse is the response type for the Query/ProviderPriceStates RPC method.
+// QueryProviderPriceStatesResponse is the response type for the
+// Query/ProviderPriceStates RPC method.
 type QueryProviderPriceStateResponse struct {
 	PriceState *PriceState `protobuf:"bytes,1,opt,name=price_state,json=priceState,proto3" json:"price_state,omitempty"`
 }
@@ -790,7 +806,8 @@ func (m *QueryProviderPriceStateResponse) GetPriceState() *PriceState {
 	return nil
 }
 
-// QueryModuleStateRequest is the request type for the Query/OracleModuleState RPC method.
+// QueryModuleStateRequest is the request type for the Query/OracleModuleState
+// RPC method.
 type QueryModuleStateRequest struct {
 }
 
@@ -827,7 +844,8 @@ func (m *QueryModuleStateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 
-// QueryModuleStateResponse is the response type for the Query/OracleModuleState RPC method.
+// QueryModuleStateResponse is the response type for the Query/OracleModuleState
+// RPC method.
 type QueryModuleStateResponse struct {
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }
@@ -969,12 +987,15 @@ func (m *QueryHistoricalPriceRecordsResponse) GetPriceRecords() []*PriceRecords 
 }
 
 type OracleHistoryOptions struct {
-	// MaxAge restricts the oracle price records oldest age in seconds from the current block time to consider.
-	// A value of 0 means use all the records present on the chain.
+	// MaxAge restricts the oracle price records oldest age in seconds from the
+	// current block time to consider. A value of 0 means use all the records
+	// present on the chain.
 	MaxAge uint64 `protobuf:"varint,1,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
-	// If IncludeRawHistory is true, the raw underlying data used for the computation is included in the response
+	// If IncludeRawHistory is true, the raw underlying data used for the
+	// computation is included in the response
 	IncludeRawHistory bool `protobuf:"varint,2,opt,name=include_raw_history,json=includeRawHistory,proto3" json:"include_raw_history,omitempty"`
-	// If IncludeMetadata is true, metadata on the computation is included in the response
+	// If IncludeMetadata is true, metadata on the computation is included in the
+	// response
 	IncludeMetadata bool `protobuf:"varint,3,opt,name=include_metadata,json=includeMetadata,proto3" json:"include_metadata,omitempty"`
 }
 
@@ -1032,7 +1053,8 @@ func (m *OracleHistoryOptions) GetIncludeMetadata() bool {
 	return false
 }
 
-// QueryOracleVolatilityRequest is the request type for Query/OracleVolatility RPC method.
+// QueryOracleVolatilityRequest is the request type for Query/OracleVolatility
+// RPC method.
 type QueryOracleVolatilityRequest struct {
 	BaseInfo             *OracleInfo           `protobuf:"bytes,1,opt,name=base_info,json=baseInfo,proto3" json:"base_info,omitempty"`
 	QuoteInfo            *OracleInfo           `protobuf:"bytes,2,opt,name=quote_info,json=quoteInfo,proto3" json:"quote_info,omitempty"`
@@ -1093,7 +1115,8 @@ func (m *QueryOracleVolatilityRequest) GetOracleHistoryOptions() *OracleHistoryO
 	return nil
 }
 
-// QueryOracleVolatilityResponse is the response type for Query/OracleVolatility RPC method.
+// QueryOracleVolatilityResponse is the response type for Query/OracleVolatility
+// RPC method.
 type QueryOracleVolatilityResponse struct {
 	Volatility      *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=volatility,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"volatility,omitempty"`
 	HistoryMetadata *MetadataStatistics                     `protobuf:"bytes,2,opt,name=history_metadata,json=historyMetadata,proto3" json:"history_metadata,omitempty"`
@@ -1315,7 +1338,8 @@ func (m *QueryOracleProviderPricesResponse) GetProviderState() []*ProviderState 
 	return nil
 }
 
-// QueryOraclePriceRequest is the request type for the Query/OraclePrice RPC method.
+// QueryOraclePriceRequest is the request type for the Query/OraclePrice RPC
+// method.
 type QueryOraclePriceRequest struct {
 	OracleType OracleType `protobuf:"varint,1,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
 	Base       string     `protobuf:"bytes,2,opt,name=base,proto3" json:"base,omitempty"`
@@ -1433,7 +1457,8 @@ func (m *PricePairState) GetQuoteTimestamp() int64 {
 	return 0
 }
 
-// QueryOraclePriceResponse is the response type for the Query/OraclePrice RPC method.
+// QueryOraclePriceResponse is the response type for the Query/OraclePrice RPC
+// method.
 type QueryOraclePriceResponse struct {
 	PricePairState *PricePairState `protobuf:"bytes,1,opt,name=price_pair_state,json=pricePairState,proto3" json:"price_pair_state,omitempty"`
 }

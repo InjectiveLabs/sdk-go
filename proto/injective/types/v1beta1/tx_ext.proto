@@ -14,9 +14,9 @@ message ExtensionOptionsWeb3Tx {
 
   // feePayer is an account address for the fee payer. It will be validated
   // during EIP712 signature checking.
-  string feePayer         = 2;
+  string feePayer = 2;
 
   // feePayerSig is a signature data from the fee paying account,
   // allows to perform fee delegation when using EIP712 Domain.
-  bytes feePayerSig       = 3;
+  bytes feePayerSig = 3;
 }

@@ -59,6 +59,10 @@ message EventAuctionStart {
   uint64 round = 1;
   // ending_timestamp describes auction end time
   int64 ending_timestamp = 2;
-  // new_basket describes auction module balance at the time of new auction start
-  repeated cosmos.base.v1beta1.Coin new_basket = 3 [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // new_basket describes auction module balance at the time of new auction
+  // start
+  repeated cosmos.base.v1beta1.Coin new_basket = 3 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }

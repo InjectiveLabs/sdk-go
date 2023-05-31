@@ -9,11 +9,12 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 
+	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	tmcrypto "github.com/tendermint/tendermint/crypto"
+	tmcrypto "github.com/cometbft/cometbft/crypto"
 )
 
 const (
@@ -135,7 +136,9 @@ var (
 func (pubKey PubKey) Address() tmcrypto.Address {
 	pubk, err := ethcrypto.DecompressPubkey(pubKey.Key)
 	if err != nil {
-		panic(err)
+		if pubk, err = ethcrypto.UnmarshalPubkey(pubKey.Key); err != nil {
+			panic(err)
+		}
 	}
 
 	return tmcrypto.Address(ethcrypto.PubkeyToAddress(*pubk).Bytes())
@@ -169,7 +172,7 @@ func (pubKey PubKey) MarshalAmino() ([]byte, error) {
 // UnmarshalAmino overrides Amino binary marshalling.
 func (pubKey *PubKey) UnmarshalAmino(bz []byte) error {
 	if len(bz) != PubKeySize {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidPubKey, "invalid pubkey size, expected %d, got %d", PubKeySize, len(bz))
+		return errors.Wrapf(sdkerrors.ErrInvalidPubKey, "invalid pubkey size, expected %d, got %d", PubKeySize, len(bz))
 	}
 	pubKey.Key = bz
 
@@ -191,7 +194,7 @@ func (pubKey *PubKey) UnmarshalAminoJSON(bz []byte) error {
 // VerifySignature verifies that the ECDSA public key created a given signature over
 // the provided message. It will calculate the Keccak256 hash of the message
 // prior to verification.
-func (pubKey PubKey) VerifySignature(msg []byte, sig []byte) bool {
+func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 	if len(sig) == 65 {
 		// remove recovery ID if contained in the signature
 		sig = sig[:len(sig)-1]

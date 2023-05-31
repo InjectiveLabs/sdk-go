@@ -20,6 +20,8 @@ var (
 
 	GlobalShareDenomIdPrefixKey         = []byte{0x04, 0x00}
 	GlobalRedemptionScheduleIdPrefixKey = []byte{0x05, 0x00}
+
+	ParamsKey = []byte{0x10}
 )
 
 // GetRedemptionScheduleKey provides the key to store a single pending redemption

@@ -7,9 +7,9 @@ import (
 	context "context"
 	fmt "fmt"
 	types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	grpc1 "github.com/gogo/protobuf/grpc"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	grpc1 "github.com/cosmos/gogoproto/grpc"
+	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -770,7 +770,8 @@ type QueryClient interface {
 	FeedConfigInfo(ctx context.Context, in *QueryFeedConfigInfoRequest, opts ...grpc.CallOption) (*QueryFeedConfigInfoResponse, error)
 	// Retrieves latest round ID and data, including median answer for that round
 	LatestRound(ctx context.Context, in *QueryLatestRoundRequest, opts ...grpc.CallOption) (*QueryLatestRoundResponse, error)
-	// LatestTransmissionDetails returns details about the latest trasmission recorded on chain for the given feed ID.
+	// LatestTransmissionDetails returns details about the latest trasmission
+	// recorded on chain for the given feed ID.
 	LatestTransmissionDetails(ctx context.Context, in *QueryLatestTransmissionDetailsRequest, opts ...grpc.CallOption) (*QueryLatestTransmissionDetailsResponse, error)
 	// Retrieves transmitter's owed amount
 	OwedAmount(ctx context.Context, in *QueryOwedAmountRequest, opts ...grpc.CallOption) (*QueryOwedAmountResponse, error)
@@ -858,7 +859,8 @@ type QueryServer interface {
 	FeedConfigInfo(context.Context, *QueryFeedConfigInfoRequest) (*QueryFeedConfigInfoResponse, error)
 	// Retrieves latest round ID and data, including median answer for that round
 	LatestRound(context.Context, *QueryLatestRoundRequest) (*QueryLatestRoundResponse, error)
-	// LatestTransmissionDetails returns details about the latest trasmission recorded on chain for the given feed ID.
+	// LatestTransmissionDetails returns details about the latest trasmission
+	// recorded on chain for the given feed ID.
 	LatestTransmissionDetails(context.Context, *QueryLatestTransmissionDetailsRequest) (*QueryLatestTransmissionDetailsResponse, error)
 	// Retrieves transmitter's owed amount
 	OwedAmount(context.Context, *QueryOwedAmountRequest) (*QueryOwedAmountResponse, error)

@@ -1,6 +1,7 @@
 package types
 
 import (
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -10,7 +11,7 @@ type FeeDiscountRates struct {
 }
 
 func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
-	stakedAmount sdk.Int,
+	stakedAmount sdkmath.Int,
 	tradingVolume sdk.Dec,
 ) (
 	feeDiscountRates *FeeDiscountRates,
@@ -44,7 +45,7 @@ func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
 }
 
 func (s *FeeDiscountSchedule) TierOneRequirements() (
-	minStakedAmount sdk.Int,
+	minStakedAmount sdkmath.Int,
 	minTradingFeePaid sdk.Dec,
 ) {
 	// s.TierInfos[0] is tier one, since tier 0 is implicit

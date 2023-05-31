@@ -86,9 +86,7 @@ func OracleScriptStoreKey(oracleScriptID OracleScriptID) []byte {
 
 // ReporterStoreKey returns the key to check whether an address is a reporter of a validator.
 func ReporterStoreKey(validatorAddress sdk.ValAddress, reporterAddress sdk.AccAddress) []byte {
-	buf := append(ReporterStoreKeyPrefix, []byte(validatorAddress)...)
-	buf = append(buf, []byte(reporterAddress)...)
-	return buf
+	return append(append(ReporterStoreKeyPrefix, []byte(validatorAddress)...), []byte(reporterAddress)...)
 }
 
 // ValidatorStatusStoreKey returns the key to a validator's status.
@@ -103,9 +101,7 @@ func ResultStoreKey(requestID RequestID) []byte {
 
 // ReportsOfValidatorPrefixKey returns the prefix key to get all reports for a request from a validator.
 func ReportsOfValidatorPrefixKey(reqID RequestID, val sdk.ValAddress) []byte {
-	buf := append(ReportStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(reqID))...)
-	buf = append(buf, val.Bytes()...)
-	return buf
+	return append(append(ReportStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(reqID))...), val.Bytes()...)
 }
 
 // ReportersOfValidatorPrefixKey returns the prefix key to get all reporters of a validator.

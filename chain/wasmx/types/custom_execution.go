@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -20,11 +21,11 @@ type ExecutionData struct {
 func NewInjectiveExecMsg(origin sdk.AccAddress, data string) (*InjectiveExecMsg, error) {
 	var e ExecutionData
 	if err := json.Unmarshal([]byte(data), &e); err != nil {
-		return nil, sdkerrors.Wrap(err, data)
+		return nil, errors.Wrap(err, data)
 	}
 
 	if e.Origin == "" && origin.Empty() {
-		return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "origin address is empty")
+		return nil, errors.Wrap(sdkerrors.ErrInvalidAddress, "origin address is empty")
 	}
 
 	// override e.Origin for safety

@@ -1,0 +1,13 @@
+syntax = "proto3";
+package injective.wasmx.v1;
+
+import "injective/wasmx/v1/wasmx.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
+
+message EventContractExecution {
+    string contract_address = 1;
+    bytes response = 2;
+    string error = 3;
+  }

@@ -8,9 +8,9 @@ import (
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	grpc1 "github.com/gogo/protobuf/grpc"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	grpc1 "github.com/cosmos/gogoproto/grpc"
+	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -31,7 +31,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryAuctionParamsRequest is the request type for the Query/AuctionParams RPC method.
+// QueryAuctionParamsRequest is the request type for the Query/AuctionParams RPC
+// method.
 type QueryAuctionParamsRequest struct {
 }
 
@@ -68,7 +69,8 @@ func (m *QueryAuctionParamsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryAuctionParamsRequest proto.InternalMessageInfo
 
-// QueryAuctionParamsRequest is the response type for the Query/AuctionParams RPC method.
+// QueryAuctionParamsRequest is the response type for the Query/AuctionParams
+// RPC method.
 type QueryAuctionParamsResponse struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
@@ -113,7 +115,8 @@ func (m *QueryAuctionParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryCurrentAuctionBasketRequest is the request type for the Query/CurrentAuctionBasket RPC method.
+// QueryCurrentAuctionBasketRequest is the request type for the
+// Query/CurrentAuctionBasket RPC method.
 type QueryCurrentAuctionBasketRequest struct {
 }
 
@@ -150,7 +153,8 @@ func (m *QueryCurrentAuctionBasketRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryCurrentAuctionBasketRequest proto.InternalMessageInfo
 
-// QueryCurrentAuctionBasketResponse is the response type for the Query/CurrentAuctionBasket RPC method.
+// QueryCurrentAuctionBasketResponse is the response type for the
+// Query/CurrentAuctionBasket RPC method.
 type QueryCurrentAuctionBasketResponse struct {
 	// amount describes the amount put on auction
 	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
@@ -225,7 +229,8 @@ func (m *QueryCurrentAuctionBasketResponse) GetHighestBidder() string {
 	return ""
 }
 
-// QueryModuleStateRequest is the request type for the Query/AuctionModuleState RPC method.
+// QueryModuleStateRequest is the request type for the Query/AuctionModuleState
+// RPC method.
 type QueryModuleStateRequest struct {
 }
 
@@ -262,7 +267,8 @@ func (m *QueryModuleStateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 
-// QueryModuleStateResponse is the response type for the Query/AuctionModuleState RPC method.
+// QueryModuleStateResponse is the response type for the
+// Query/AuctionModuleState RPC method.
 type QueryModuleStateResponse struct {
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }

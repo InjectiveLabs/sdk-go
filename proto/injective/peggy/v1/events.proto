@@ -44,8 +44,6 @@ message EventValsetUpdateRequest {
     (gogoproto.nullable) = false
   ];
   string reward_token = 5;
-
-
 }
 message EventSetOrchestratorAddresses {
   string validator_address = 1;
@@ -77,7 +75,6 @@ message EventConfirmBatch {
   uint64 batch_nonce = 1;
   string orchestrator_address = 2;
 }
-
 
 message EventAttestationVote {
   uint64 event_nonce = 1;
@@ -135,11 +132,17 @@ message EventValsetUpdateClaim {
   string orchestrator_address = 8;
 }
 
-message EventCancelSendToEth {
-  uint64 outgoing_tx_id = 1;
-}
+message EventCancelSendToEth { uint64 outgoing_tx_id = 1; }
 
 message EventSubmitBadSignatureEvidence {
   string bad_eth_signature = 1;
   string bad_eth_signature_subject = 2;
+}
+
+message EventValidatorSlash {
+  int64 power = 1;
+  string reason = 2;
+  string consensus_address = 3;
+  string operator_address = 4;
+  string moniker = 5;
 }

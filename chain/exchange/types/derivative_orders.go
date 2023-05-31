@@ -1,8 +1,8 @@
 package types
 
 import (
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -225,14 +225,14 @@ func (o *DerivativeLimitOrder) GetCancelRefundAmount(feeRate sdk.Dec) sdk.Dec {
 
 func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
 	if BreachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
+		return errors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
 	}
 	if BreachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
-		return sdkerrors.Wrapf(ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
+		return errors.Wrapf(ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
 	}
 	if !o.Margin.IsZero() {
 		if BreachesMinimumTickSize(o.Margin, minQuantityTickSize) {
-			return sdkerrors.Wrapf(ErrInvalidMargin, "margin %s must be a multiple of the minimum quantity tick size %s", o.Margin.String(), minQuantityTickSize.String())
+			return errors.Wrapf(ErrInvalidMargin, "margin %s must be a multiple of the minimum quantity tick size %s", o.Margin.String(), minQuantityTickSize.String())
 		}
 	}
 	return nil
@@ -261,7 +261,7 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, execut
 	if marketType == MarketType_BinaryOption {
 		requiredMargin := o.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
 		if !o.Margin.Equal(requiredMargin) {
-			return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "margin check: need %s but got %s", requiredMargin.String(), o.Margin.String())
+			return sdk.Dec{}, errors.Wrapf(ErrInsufficientOrderMargin, "margin check: need %s but got %s", requiredMargin.String(), o.Margin.String())
 		}
 		return marginHold, nil
 	}
@@ -269,7 +269,7 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, execut
 	// For perpetual and expiry futures margins
 	// Enforce that Margin ≥ InitialMarginRatio * Price * Quantity
 	if o.Margin.LT(initialMarginRatio.Mul(notional)) {
-		return sdk.Dec{}, sdkerrors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", initialMarginRatio.Mul(notional).String(), o.Margin.String())
+		return sdk.Dec{}, errors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", initialMarginRatio.Mul(notional).String(), o.Margin.String())
 	}
 
 	if err := o.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, executionMarkPrice); err != nil {
@@ -284,9 +284,9 @@ func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initia
 	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
 	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1 + InitialMarginRatio) * Quantity)
 	if o.OrderType.IsBuy() && markPrice.LT(markPriceThreshold) {
-		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
+		return errors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
 	} else if !o.OrderType.IsBuy() && markPrice.GT(markPriceThreshold) {
-		return sdkerrors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
+		return errors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
 	}
 
 	return nil
@@ -306,7 +306,7 @@ func (o *DerivativeOrder) CheckValidConditionalPrice(markPrice sdk.Dec) (err err
 		ok = o.TriggerPrice.LT(markPrice)
 	}
 	if !ok {
-		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "order type %s incompatible with trigger price %s and markPrice %s", o.OrderType.String(), o.TriggerPrice.String(), markPrice.String())
+		return errors.Wrapf(ErrInvalidTriggerPrice, "order type %s incompatible with trigger price %s and markPrice %s", o.OrderType.String(), o.TriggerPrice.String(), markPrice.String())
 	}
 	return nil
 }
@@ -315,11 +315,11 @@ func (o *DerivativeOrder) CheckValidConditionalPrice(markPrice sdk.Dec) (err err
 func (o *DerivativeOrder) CheckBinaryOptionsPricesWithinBounds(oracleScaleFactor uint32) (err error) {
 	maxScaledPrice := GetScaledPrice(sdk.OneDec(), oracleScaleFactor)
 	if o.Price().GTE(maxScaledPrice) {
-		return sdkerrors.Wrapf(ErrInvalidPrice, "price must be less than %s", maxScaledPrice.String())
+		return errors.Wrapf(ErrInvalidPrice, "price must be less than %s", maxScaledPrice.String())
 	}
 
 	if o.IsConditional() && o.TriggerPrice.GTE(maxScaledPrice) {
-		return sdkerrors.Wrapf(ErrInvalidTriggerPrice, "trigger price must be less than %s", maxScaledPrice.String())
+		return errors.Wrapf(ErrInvalidTriggerPrice, "trigger price must be less than %s", maxScaledPrice.String())
 	}
 	return nil
 }

@@ -109,4 +109,6 @@ message StreamAccountPortfolioResponse {
 	string amount = 3;
 	// subaccount id of portfolio entry
 	string subaccount_id = 4;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 5;
 }

@@ -1,8 +1,8 @@
 package types
 
 import (
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"cosmossdk.io/errors"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // constants
@@ -12,14 +12,13 @@ const (
 )
 
 func init() {
-	gov.RegisterProposalType(ProposalTypeOcrSetConfig)
-	gov.RegisterProposalTypeCodec(&SetConfigProposal{}, "injective/OcrSetConfigProposal")
-	gov.RegisterProposalTypeCodec(&SetBatchConfigProposal{}, "injective/OcrSetBatchConfigProposal")
+	govtypes.RegisterProposalType(ProposalTypeOcrSetConfig)
+	govtypes.RegisterProposalType(ProposalTypeOcrBatchSetConfig)
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &SetConfigProposal{}
-var _ gov.Content = &SetBatchConfigProposal{}
+var _ govtypes.Content = &SetConfigProposal{}
+var _ govtypes.Content = &SetBatchConfigProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *SetConfigProposal) GetTitle() string {
@@ -42,14 +41,14 @@ func (p *SetConfigProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SetConfigProposal) ValidateBasic() error {
 	if p.Config == nil {
-		return sdkerrors.Wrap(ErrIncompleteProposal, "proposal is missing config")
+		return errors.Wrap(ErrIncompleteProposal, "proposal is missing config")
 	}
 
 	if err := p.Config.ValidateBasic(); err != nil {
 		return err
 	}
 
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // GetTitle returns the title of this proposal.
@@ -73,7 +72,7 @@ func (p *SetBatchConfigProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SetBatchConfigProposal) ValidateBasic() error {
 	if len(p.FeedProperties) == 0 {
-		return sdkerrors.Wrap(ErrIncompleteProposal, "proposal is missing feeds")
+		return errors.Wrap(ErrIncompleteProposal, "proposal is missing feeds")
 	}
 
 	for _, feed := range p.FeedProperties {
@@ -100,5 +99,5 @@ func (p *SetBatchConfigProposal) ValidateBasic() error {
 			return err
 		}
 	}
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }

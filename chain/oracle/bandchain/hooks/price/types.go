@@ -1,6 +1,6 @@
 package price
 
-import "github.com/InjectiveLabs/sdk-go/bandchain/oracle/types"
+import "github.com/InjectiveLabs/sdk-go/chain/oracle/bandchain/oracle/types"
 
 type SymbolInput struct {
 	Symbols            []string `json:"symbols"`
@@ -34,7 +34,7 @@ type Price struct {
 	ResolveTime int64           `json:"resolve_time"`
 }
 
-func NewPrice(symbol string, multiplier uint64, px uint64, reqID types.RequestID, resolveTime int64) Price {
+func NewPrice(symbol string, multiplier, px uint64, reqID types.RequestID, resolveTime int64) Price {
 	return Price{
 		Symbol:      symbol,
 		Multiplier:  multiplier,

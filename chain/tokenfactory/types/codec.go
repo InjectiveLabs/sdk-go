@@ -17,16 +17,17 @@ func RegisterCodec(cdc *codec.LegacyAmino) {
 	// nolint:all
 	// cdc.RegisterConcrete(&MsgForceTransfer{}, "injective/tokenfactory/force-transfer", nil)
 	cdc.RegisterConcrete(&MsgChangeAdmin{}, "injective/tokenfactory/change-admin", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "injective/tokenfactory/update-params", nil)
 }
 
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
-	registry.RegisterImplementations(
-		(*sdk.Msg)(nil),
+	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreateDenom{},
 		&MsgMint{},
 		&MsgBurn{},
 		// &MsgForceTransfer{},
 		&MsgChangeAdmin{},
+		&MsgUpdateParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

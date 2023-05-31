@@ -9,7 +9,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // GenesisState defines the auction module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to auction.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 
   // current auction round
   uint64 auction_round = 2;

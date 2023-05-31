@@ -13,93 +13,108 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 service Query {
 
   // Retrieves insurance params
-  rpc InsuranceParams(QueryInsuranceParamsRequest) returns (QueryInsuranceParamsResponse) {
+  rpc InsuranceParams(QueryInsuranceParamsRequest)
+      returns (QueryInsuranceParamsResponse) {
     option (google.api.http).get = "/injective/insurance/v1beta1/params";
   }
 
   // Retrieves individual insurance fund information from market id
-  rpc InsuranceFund(QueryInsuranceFundRequest) returns (QueryInsuranceFundResponse) {
-    option (google.api.http).get = "/injective/insurance/v1beta1/insurance_fund/{market_id}";
+  rpc InsuranceFund(QueryInsuranceFundRequest)
+      returns (QueryInsuranceFundResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/insurance_fund/{market_id}";
   }
 
   // Retrieves all insurance funds
-  rpc InsuranceFunds(QueryInsuranceFundsRequest) returns (QueryInsuranceFundsResponse) {
-    option (google.api.http).get = "/injective/insurance/v1beta1/insurance_funds";
+  rpc InsuranceFunds(QueryInsuranceFundsRequest)
+      returns (QueryInsuranceFundsResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/insurance_funds";
   }
 
-  // Retrives the value of insurance fund share token at current price (not pending redemption)
-  rpc EstimatedRedemptions(QueryEstimatedRedemptionsRequest) returns (QueryEstimatedRedemptionsResponse) {
-    option (google.api.http).get = "/injective/insurance/v1beta1/estimated_redemptions";
+  // Retrives the value of insurance fund share token at current price (not
+  // pending redemption)
+  rpc EstimatedRedemptions(QueryEstimatedRedemptionsRequest)
+      returns (QueryEstimatedRedemptionsResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/estimated_redemptions";
   }
 
   // Retrieves pending redemptions' share token at current price
-  rpc PendingRedemptions(QueryPendingRedemptionsRequest) returns (QueryPendingRedemptionsResponse) {
-    option (google.api.http).get = "/injective/insurance/v1beta1/pending_redemptions";
+  rpc PendingRedemptions(QueryPendingRedemptionsRequest)
+      returns (QueryPendingRedemptionsResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/pending_redemptions";
   }
 
   // Retrieves the entire insurance module's state
-  rpc InsuranceModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+  rpc InsuranceModuleState(QueryModuleStateRequest)
+      returns (QueryModuleStateResponse) {
     option (google.api.http).get = "/injective/insurance/v1beta1/module_state";
   }
 }
 
-// QueryInsuranceParamsRequest is the request type for the Query/InsuranceParams RPC method.
+// QueryInsuranceParamsRequest is the request type for the Query/InsuranceParams
+// RPC method.
 message QueryInsuranceParamsRequest {}
 
-// QueryInsuranceParamsRequest is the response type for the Query/InsuranceParams RPC method.
+// QueryInsuranceParamsRequest is the response type for the
+// Query/InsuranceParams RPC method.
 message QueryInsuranceParamsResponse {
-  Params params = 1 [
-    (gogoproto.nullable) = false
-  ];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryInsuranceFundRequest is the request type for the Query/InsuranceFunds RPC method.
+// QueryInsuranceFundRequest is the request type for the Query/InsuranceFunds
+// RPC method.
 message QueryInsuranceFundRequest {
   // Market ID for the market
   string market_id = 1;
 }
 
-// QueryInsuranceFundResponse is the response type for the Query/InsuranceFund RPC method.
-message QueryInsuranceFundResponse {
-  InsuranceFund fund = 1;
-}
+// QueryInsuranceFundResponse is the response type for the Query/InsuranceFund
+// RPC method.
+message QueryInsuranceFundResponse { InsuranceFund fund = 1; }
 
-// QueryInsuranceFundsRequest is the request type for the Query/InsuranceFunds RPC method.
+// QueryInsuranceFundsRequest is the request type for the Query/InsuranceFunds
+// RPC method.
 message QueryInsuranceFundsRequest {}
 
-// QueryInsuranceFundsResponse is the response type for the Query/InsuranceFunds RPC method.
+// QueryInsuranceFundsResponse is the response type for the Query/InsuranceFunds
+// RPC method.
 message QueryInsuranceFundsResponse {
-  repeated InsuranceFund funds = 1 [(gogoproto.nullable) = false];
+  repeated InsuranceFund funds = 1 [ (gogoproto.nullable) = false ];
 }
 
-
-// QueryEstimatedRedemptionsRequest is the request type for the Query/EstimatedRedemptions RPC method.
+// QueryEstimatedRedemptionsRequest is the request type for the
+// Query/EstimatedRedemptions RPC method.
 message QueryEstimatedRedemptionsRequest {
   string marketId = 1;
   string address = 2;
 }
 
-// QueryEstimatedRedemptionsResponse is the response type for the Query/EstimatedRedemptions RPC method.
+// QueryEstimatedRedemptionsResponse is the response type for the
+// Query/EstimatedRedemptions RPC method.
 message QueryEstimatedRedemptionsResponse {
-  repeated cosmos.base.v1beta1.Coin amount = 1 [(gogoproto.nullable) = false];
+  repeated cosmos.base.v1beta1.Coin amount = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryPendingRedemptionsRequest is the request type for the Query/PendingRedemptions RPC method.
+// QueryPendingRedemptionsRequest is the request type for the
+// Query/PendingRedemptions RPC method.
 message QueryPendingRedemptionsRequest {
   string marketId = 1;
   string address = 2;
 }
 
-// QueryPendingRedemptionsResponse is the response type for the Query/PendingRedemptions RPC method.
+// QueryPendingRedemptionsResponse is the response type for the
+// Query/PendingRedemptions RPC method.
 message QueryPendingRedemptionsResponse {
-  repeated cosmos.base.v1beta1.Coin amount = 1 [(gogoproto.nullable) = false];
+  repeated cosmos.base.v1beta1.Coin amount = 1 [ (gogoproto.nullable) = false ];
 }
 
-
-// QueryModuleStateRequest is the request type for the Query/InsuranceModuleState RPC method.
+// QueryModuleStateRequest is the request type for the
+// Query/InsuranceModuleState RPC method.
 message QueryModuleStateRequest {}
 
-// QueryModuleStateResponse is the response type for the Query/InsuranceModuleState RPC method.
-message QueryModuleStateResponse {
-  GenesisState state = 1;
-}
+// QueryModuleStateResponse is the response type for the
+// Query/InsuranceModuleState RPC method.
+message QueryModuleStateResponse { GenesisState state = 1; }

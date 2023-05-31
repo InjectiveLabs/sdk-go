@@ -20,7 +20,7 @@ const (
 	TStoreKey = "transient_exchange"
 )
 const PriceDecimalPlaces = 18
-const DefaultQueryOrderbookLimit = 20
+const DefaultQueryOrderbookLimit uint64 = 20
 const Uint64BytesLen = 8
 
 var (
@@ -37,6 +37,7 @@ var (
 	OrderbookSequencePrefix              = []byte{0x0a} // prefix for each key to a market's orderbook sequence
 	SubaccountMarketVolumePrefix         = []byte{0x0b} // prefix for each key to the aggregate volume for a subaccount in a market
 	MarketVolumePrefix                   = []byte{0x0c} // prefix for each key to the aggregate volume for a market
+	ParamsKey                            = []byte{0x0d} // prefix for module params
 
 	DenomDecimalsPrefix              = []byte{0x10} // prefix for denom decimals
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
@@ -325,8 +326,16 @@ func GetSpotLimitOrderIndexPrefix(marketID common.Hash, isBuy bool, subaccountID
 	return append(SpotLimitOrdersIndexPrefix, GetLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID)...)
 }
 
+func GetSpotLimitOrderIndexByAccountAddressPrefix(marketID common.Hash, isBuy bool, account sdk.AccAddress) []byte {
+	return append(SpotLimitOrdersIndexPrefix, GetLimitOrderIndexAccountAddressPrefix(marketID, isBuy, account)...)
+}
+
 func GetDerivativeLimitOrderIndexPrefix(marketID common.Hash, isBuy bool, subaccountID common.Hash) []byte {
 	return append(DerivativeLimitOrdersIndexPrefix, GetLimitOrderIndexSubaccountPrefix(marketID, isBuy, subaccountID)...)
+}
+
+func GetDerivativeLimitOrderIndexByAccountAddressPrefix(marketID common.Hash, isBuy bool, account sdk.AccAddress) []byte {
+	return append(DerivativeLimitOrdersIndexPrefix, GetLimitOrderIndexAccountAddressPrefix(marketID, isBuy, account)...)
 }
 
 func GetLimitOrderIndexKey(marketID common.Hash, isBuy bool, subaccountID, orderHash common.Hash) []byte {
@@ -340,6 +349,11 @@ func GetTransientLimitOrderIndexIteratorPrefix(marketID common.Hash, isBuy bool,
 // GetLimitOrderIndexSubaccountPrefix returns a prefix containing marketID + isBuy + subaccountID
 func GetLimitOrderIndexSubaccountPrefix(marketID common.Hash, isBuy bool, subaccountID common.Hash) []byte {
 	return append(MarketDirectionPrefix(marketID, isBuy), subaccountID.Bytes()...)
+}
+
+// GetLimitOrderIndexAccountAddressPrefix returns a prefix containing marketID + isBuy + account
+func GetLimitOrderIndexAccountAddressPrefix(marketID common.Hash, isBuy bool, account sdk.AccAddress) []byte {
+	return append(MarketDirectionPrefix(marketID, isBuy), account.Bytes()...)
 }
 
 func GetOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {

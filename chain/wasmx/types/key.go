@@ -15,6 +15,7 @@ const (
 var (
 	ContractsByGasPricePrefix = []byte{0x01} // key to the smart contract execution request ID
 	ContractsIndexPrefix      = []byte{0x02}
+	ParamsKey                 = []byte{0x10}
 )
 
 func GetContractsByGasPriceKey(gasPrice uint64, address sdk.AccAddress) []byte {

@@ -110,6 +110,8 @@ message TxDetailData {
 	uint64 block_unix_timestamp = 19;
 	// Transaction log indicating errors
 	string error_log = 20;
+	// transaction event logs
+	bytes logs = 21;
 }
 
 message GasFee {
@@ -225,6 +227,8 @@ message TxData {
 	string error_log = 8;
 	uint32 code = 9;
 	bytes tx_msg_types = 10;
+	// transaction event logs
+	bytes logs = 11;
 }
 
 message GetValidatorsRequest {

@@ -6,6 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/insurance interfaces and concrete types
@@ -14,6 +15,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateInsuranceFund{}, "insurance/MsgCreateInsuranceFund", nil)
 	cdc.RegisterConcrete(&MsgUnderwrite{}, "insurance/MsgUnderwrite", nil)
 	cdc.RegisterConcrete(&MsgRequestRedemption{}, "insurance/MsgRequestRedemption", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "insurance/MsgUpdateParams", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -21,6 +23,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCreateInsuranceFund{},
 		&MsgUnderwrite{},
 		&MsgRequestRedemption{},
+		&MsgUpdateParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
@@ -42,4 +45,6 @@ func init() {
 	RegisterLegacyAminoCodec(amino)
 	cryptocodec.RegisterCrypto(amino)
 	amino.Seal()
+
+	RegisterLegacyAminoCodec(authzcdc.Amino)
 }
