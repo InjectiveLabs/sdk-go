@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	log "github.com/InjectiveLabs/suplog"
+	"github.com/sirupsen/logrus"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -23,16 +23,18 @@ type TendermintClient interface {
 
 type tmClient struct {
 	rpcClient rpcclient.Client
+	logger    *logrus.Logger
 }
 
-func NewRPCClient(rpcNodeAddr string) TendermintClient {
+func NewRPCClient(rpcNodeAddr string, logger *logrus.Logger) TendermintClient {
 	rpcClient, err := rpchttp.NewWithTimeout(rpcNodeAddr, "/websocket", 10)
 	if err != nil {
-		log.WithError(err).Fatalln("failed to init rpcClient")
+		logger.Errorln("[INJ-GO-SDK] Failed to init rpcClient: ", err)
 	}
 
 	return &tmClient{
 		rpcClient: rpcClient,
+		logger:    logger,
 	}
 }
 
@@ -67,7 +69,7 @@ func (c *tmClient) GetTxs(ctx context.Context, block *tmctypes.ResultBlock) ([]*
 		tx, err := c.rpcClient.Tx(ctx, tmTx.Hash(), true)
 		if err != nil {
 			if strings.HasSuffix(err.Error(), "not found") {
-				log.WithError(err).Errorln("failed to get Tx by hash")
+				c.logger.Errorln("[INJ-GO-SDK] Failed to get Tx by hash: ", err)
 				continue
 			}
 

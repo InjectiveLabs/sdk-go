@@ -14,9 +14,9 @@ import (
 	oraclePB "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
 	portfolioExchangePB "github.com/InjectiveLabs/sdk-go/exchange/portfolio_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/metadata"
 
-	log "github.com/InjectiveLabs/suplog"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
@@ -128,10 +128,7 @@ func NewExchangeClient(protoAddr string, options ...common.ClientOption) (Exchan
 		derivativeExchangeClient: derivativeExchangePB.NewInjectiveDerivativeExchangeRPCClient(conn),
 		portfolioExchangeClient:  portfolioExchangePB.NewInjectivePortfolioRPCClient(conn),
 
-		logger: log.WithFields(log.Fields{
-			"module": "sdk-go",
-			"svc":    "exchangeClient",
-		}),
+		logger: opts.Logger,
 	}
 
 	return cc, nil
@@ -140,7 +137,7 @@ func NewExchangeClient(protoAddr string, options ...common.ClientOption) (Exchan
 type exchangeClient struct {
 	opts   *common.ClientOptions
 	conn   *grpc.ClientConn
-	logger log.Logger
+	logger *logrus.Logger
 	client *grpc.ClientConn
 
 	sessionCookie string

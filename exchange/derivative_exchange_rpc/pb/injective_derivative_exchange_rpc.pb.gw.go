@@ -15,9 +15,9 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -1267,7 +1267,7 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerServer(ctx context.Context, mu
 
 // RegisterInjectiveDerivativeExchangeRPCHandlerFromEndpoint is same as RegisterInjectiveDerivativeExchangeRPCHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterInjectiveDerivativeExchangeRPCHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterInjectiveDerivativeExchangeRPCHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption,logger *logrus.Logger) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -1275,14 +1275,14 @@ func RegisterInjectiveDerivativeExchangeRPCHandlerFromEndpoint(ctx context.Conte
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				logger.Warnf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				logger.Warnf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()

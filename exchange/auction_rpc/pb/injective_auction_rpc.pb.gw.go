@@ -15,9 +15,9 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -188,7 +188,7 @@ func RegisterInjectiveAuctionRPCHandlerServer(ctx context.Context, mux *runtime.
 
 // RegisterInjectiveAuctionRPCHandlerFromEndpoint is same as RegisterInjectiveAuctionRPCHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterInjectiveAuctionRPCHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterInjectiveAuctionRPCHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption,logger *logrus.Logger) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -196,14 +196,14 @@ func RegisterInjectiveAuctionRPCHandlerFromEndpoint(ctx context.Context, mux *ru
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				logger.Warnf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
+				logger.Warnf("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()

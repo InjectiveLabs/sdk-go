@@ -20,6 +20,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.2.0
+	github.com/sirupsen/logrus v1.9.0
 	github.com/tyler-smith/go-bip39 v1.1.0
 	golang.org/x/crypto v0.7.0
 	google.golang.org/genproto v0.0.0-20230216225411-c8e22ba71e44
@@ -135,7 +136,6 @@ require (
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
 	github.com/shirou/gopsutil v3.21.4-0.20210419000835-c7a38de76ee5+incompatible // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/cobra v1.6.1 // indirect
