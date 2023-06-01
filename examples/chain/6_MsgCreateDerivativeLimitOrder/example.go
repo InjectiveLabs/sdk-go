@@ -86,9 +86,8 @@ func main() {
 		fmt.Println(err)
 	}
 
-	simResMsgs := common.MsgResponse(simRes.Result.Data)
 	msgCreateDerivativeLimitOrderResponse := exchangetypes.MsgCreateDerivativeLimitOrderResponse{}
-	msgCreateDerivativeLimitOrderResponse.Unmarshal(simResMsgs[0].Data)
+	err = msgCreateDerivativeLimitOrderResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {
 		fmt.Println(err)
