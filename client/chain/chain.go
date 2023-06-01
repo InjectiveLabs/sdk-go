@@ -110,6 +110,8 @@ type ChainClient interface {
 
 	GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
 	GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
+
+	UpdateSubaccountNonceFromChain() error
 	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
@@ -132,6 +134,8 @@ type ChainClient interface {
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
 	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
 
+	// get tx from chain node
+	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
 	Close()
 }
 
@@ -146,6 +150,9 @@ type chainClient struct {
 	doneC       chan bool
 	msgC        chan sdk.Msg
 	syncMux     *sync.Mutex
+
+	cancelCtx context.Context
+	cancelFn  func()
 
 	accNum    uint64
 	accSeq    uint64
@@ -165,6 +172,7 @@ type chainClient struct {
 	bankQueryClient     banktypes.QueryClient
 	authzQueryClient    authztypes.QueryClient
 	wasmQueryClient     wasmtypes.QueryClient
+	subaccountToNonce   map[ethcommon.Hash]uint32
 
 	closed  int64
 	canSign bool
@@ -223,6 +231,7 @@ func NewChainClient(
 		}
 	}
 
+	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client
 	cc := &chainClient{
 		ctx:  ctx,
@@ -236,6 +245,8 @@ func NewChainClient(
 		syncMux:   new(sync.Mutex),
 		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
 		doneC:     make(chan bool, 1),
+		cancelCtx: cancelCtx,
+		cancelFn:  cancelFn,
 
 		sessionEnabled: stickySessionEnabled,
 
@@ -246,6 +257,7 @@ func NewChainClient(
 		bankQueryClient:     banktypes.NewQueryClient(conn),
 		authzQueryClient:    authztypes.NewQueryClient(conn),
 		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
+		subaccountToNonce:   make(map[ethcommon.Hash]uint32),
 	}
 
 	// routine upate nonce
@@ -293,15 +305,23 @@ func (c *chainClient) syncNonce() {
 }
 
 func (c *chainClient) syncTimeoutHeight() {
+	t := time.NewTicker(defaultTimeoutHeightSyncInterval)
+	defer t.Stop()
+
 	for {
-		ctx := context.Background()
-		block, err := c.ctx.Client.Block(ctx, nil)
+		block, err := c.ctx.Client.Block(c.cancelCtx, nil)
 		if err != nil {
 			c.logger.Errorln("[INJ-GO-SDK] Failed to get current block: ", err)
 			return
 		}
 		c.txFactory.WithTimeoutHeight(uint64(block.Block.Height) + defaultTimeoutHeight)
-		time.Sleep(defaultTimeoutHeightSyncInterval)
+
+		select {
+		case <-c.cancelCtx.Done():
+			return
+		case <-t.C:
+			continue
+		}
 	}
 }
 
@@ -464,6 +484,10 @@ func (c *chainClient) Close() {
 	}
 	if atomic.CompareAndSwapInt64(&c.closed, 0, 1) {
 		close(c.msgC)
+	}
+
+	if c.cancelFn != nil {
+		c.cancelFn()
 	}
 	<-c.doneC
 	if c.conn != nil {
@@ -691,8 +715,6 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
-				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
-
 				t.Reset(defaultBroadcastStatusPoll)
 				continue
 
@@ -779,8 +801,8 @@ func (c *chainClient) broadcastTx(
 	}
 
 	req := txtypes.BroadcastTxRequest{
-		txBytes,
-		txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+		TxBytes: txBytes,
+		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
 	}
 	// use our own client to broadcast tx
 	var header metadata.MD
@@ -808,8 +830,6 @@ func (c *chainClient) broadcastTx(
 				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
-
-				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
 
 				t.Reset(defaultBroadcastStatusPoll)
 				continue
@@ -1416,6 +1436,12 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 		// send results to channel
 		orderbookCh <- ob
 	}
+}
+
+func (c *chainClient) GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error) {
+	return c.txClient.GetTx(ctx, &txtypes.GetTxRequest{
+		Hash: txHash,
+	})
 }
 
 type DerivativeOrderData struct {
