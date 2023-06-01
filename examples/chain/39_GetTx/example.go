@@ -8,8 +8,9 @@ import (
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 func main() {
