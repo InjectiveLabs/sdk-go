@@ -20,6 +20,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
@@ -44,6 +45,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
@@ -57,6 +59,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
@@ -74,14 +77,15 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
-	simResMsgs := common.MsgResponse(simRes.Result.Data)
 	msgLiquidatePositionResponse := exchangetypes.MsgLiquidatePositionResponse{}
-	msgLiquidatePositionResponse.Unmarshal(simResMsgs[0].Data)
+	msgLiquidatePositionResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
@@ -89,6 +93,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	time.Sleep(time.Second * 5)

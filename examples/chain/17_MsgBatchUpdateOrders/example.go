@@ -44,6 +44,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
@@ -57,6 +58,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
@@ -102,11 +104,11 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
-	simResMsgs := common.MsgResponse(simRes.Result.Data)
 	MsgBatchUpdateOrdersResponse := exchangetypes.MsgBatchUpdateOrdersResponse{}
-	MsgBatchUpdateOrdersResponse.Unmarshal(simResMsgs[0].Data)
+	MsgBatchUpdateOrdersResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	fmt.Println("simulated spot order hashes", MsgBatchUpdateOrdersResponse.SpotOrderHashes)
 
@@ -117,6 +119,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	time.Sleep(time.Second * 5)

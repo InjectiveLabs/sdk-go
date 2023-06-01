@@ -44,6 +44,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
@@ -57,6 +58,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
@@ -84,14 +86,15 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
-	simResMsgs := common.MsgResponse(simRes.Result.Data)
 	msgBatchCreateDerivativeLimitOrdersResponse := exchangetypes.MsgBatchCreateDerivativeLimitOrdersResponse{}
-	msgBatchCreateDerivativeLimitOrdersResponse.Unmarshal(simResMsgs[0].Data)
+	err = msgBatchCreateDerivativeLimitOrdersResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	fmt.Println("simulated order hashes", msgBatchCreateDerivativeLimitOrdersResponse.OrderHashes)
@@ -101,6 +104,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	time.Sleep(time.Second * 5)
