@@ -192,21 +192,14 @@ func NewChainClient(
 		txFactory = txFactory.WithGasPrices(opts.GasPrices)
 	}
 
-	// test
-	fmt.Println("📣 Before grpc connection")
-
 	// init grpc connection
 	var conn *grpc.ClientConn
 	var err error
 	stickySessionEnabled := true
 	if opts.TLSCert != nil {
 		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
-		// test
-		fmt.Println("📣 WITH TLSCert: ", protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
 		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
-		// test
-		fmt.Println("📣 WITHOUT TLSCert: ", protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
 		stickySessionEnabled = false
 	}
 	if err != nil {
@@ -222,9 +215,6 @@ func NewChainClient(
 			panic(err)
 		}
 
-		// test
-		fmt.Println("📣 Before check cometbft client running")
-
 		if !cometbftClient.IsRunning() {
 			err = cometbftClient.Start()
 			if err != nil {
@@ -232,9 +222,6 @@ func NewChainClient(
 			}
 		}
 	}
-
-	// test
-	fmt.Println("📣 After check cometbft client running")
 
 	// build client
 	cc := &chainClient{
@@ -265,9 +252,6 @@ func NewChainClient(
 	closeRoutineUpdateNonce := cc.RoutineUpdateNounce()
 	cc.closeRoutineUpdateNonce = closeRoutineUpdateNonce
 
-	// test
-	fmt.Println("📣 Routine update nonce")
-
 	if cc.canSign {
 		var err error
 
@@ -281,9 +265,6 @@ func NewChainClient(
 		go cc.syncTimeoutHeight()
 	}
 
-	// test
-	fmt.Println("📣 Open chain cookie")
-
 	// create file if not exist
 	os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
 
@@ -295,9 +276,6 @@ func NewChainClient(
 		cc.sessionCookie = string(data)
 		cc.logger.Infoln("[INJ-GO-SDK] Chain session cookie loaded from disk")
 	}
-
-	// test
-	fmt.Println("📣 Finished")
 
 	return cc, nil
 }
