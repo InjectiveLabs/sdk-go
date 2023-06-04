@@ -272,7 +272,7 @@ func NewChainClient(
 	}
 
 	// create file if not exist
-	_, err = os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
+	cookie_file, err := os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		cc.logger.Errorln(err)
 	}
