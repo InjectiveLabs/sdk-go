@@ -8,7 +8,7 @@ import (
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
+	gethsigner "github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"golang.org/x/crypto/sha3"
 )
 

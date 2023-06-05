@@ -16,9 +16,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	"github.com/InjectiveLabs/sdk-go/client/common"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -28,13 +29,16 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/cosmos/gogoproto/proto"
 	eth "github.com/ethereum/go-ethereum/common"
-	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 )
@@ -154,6 +158,7 @@ type chainClient struct {
 	sessionCookie  string
 	sessionEnabled bool
 
+	cometbftClient      rpcclient.Client
 	txClient            txtypes.ServiceClient
 	authQueryClient     authtypes.QueryClient
 	exchangeQueryClient exchangetypes.QueryClient
@@ -203,10 +208,18 @@ func NewChainClient(
 	}
 
 	// init tm websocket
-	if ctx.Client != nil && !ctx.Client.IsRunning() {
-		err = ctx.Client.Start()
+	var cometbftClient *rpchttp.HTTP
+	if ctx.NodeURI != "" {
+		cometbftClient, err = rpchttp.New(ctx.NodeURI, "/websocket")
 		if err != nil {
-			return nil, err
+			panic(err)
+		}
+
+		if !cometbftClient.IsRunning() {
+			err = cometbftClient.Start()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -226,6 +239,7 @@ func NewChainClient(
 
 		sessionEnabled: stickySessionEnabled,
 
+		cometbftClient:      cometbftClient,
 		txClient:            txtypes.NewServiceClient(conn),
 		authQueryClient:     authtypes.NewQueryClient(conn),
 		exchangeQueryClient: exchangetypes.NewQueryClient(conn),
@@ -525,7 +539,7 @@ func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*t
 		return nil, err
 	}
 
-	simTxBytes, err := tx.BuildSimTx(txf, msgs...)
+	simTxBytes, err := txf.BuildSimTx(msgs...)
 	if err != nil {
 		err = errors.Wrap(err, "failed to build sim tx bytes")
 		return nil, err
@@ -604,7 +618,7 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
 
 	if clientCtx.Simulate {
-		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
+		simTxBytes, err := txf.BuildSimTx(msgs...)
 		if err != nil {
 			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, err
@@ -628,7 +642,7 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 		return nil, errors.Wrap(err, "failed to prepareFactory")
 	}
 
-	txn, err := tx.BuildUnsignedTx(txf, msgs...)
+	txn, err := txf.BuildUnsignedTx(msgs...)
 	if err != nil {
 		err = errors.Wrap(err, "failed to BuildUnsignedTx")
 		return nil, err
@@ -725,7 +739,7 @@ func (c *chainClient) broadcastTx(
 	}
 	ctx := context.Background()
 	if clientCtx.Simulate {
-		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
+		simTxBytes, err := txf.BuildSimTx(msgs...)
 		if err != nil {
 			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, err
@@ -744,7 +758,7 @@ func (c *chainClient) broadcastTx(
 		c.gasWanted = adjustedGas
 	}
 
-	txn, err := tx.BuildUnsignedTx(txf, msgs...)
+	txn, err := txf.BuildUnsignedTx(msgs...)
 
 	if err != nil {
 		err = errors.Wrap(err, "failed to BuildUnsignedTx")
@@ -825,7 +839,7 @@ func (c *chainClient) broadcastTxAsync(
 	}
 	ctx := context.Background()
 	if clientCtx.Simulate {
-		simTxBytes, err := tx.BuildSimTx(txf, msgs...)
+		simTxBytes, err := txf.BuildSimTx(msgs...)
 		if err != nil {
 			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, nil, err
@@ -844,7 +858,7 @@ func (c *chainClient) broadcastTxAsync(
 		c.gasWanted = adjustedGas
 	}
 
-	txn, err := tx.BuildUnsignedTx(txf, msgs...)
+	txn, err := txf.BuildUnsignedTx(msgs...)
 
 	if err != nil {
 		err = errors.Wrap(err, "failed to BuildUnsignedTx")
@@ -1035,7 +1049,7 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.H
 	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
 }
 
-func formatPriceToTickSize(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
+func formatPriceToTickSize(value, tickSize cosmtypes.Dec) sdkmath.LegacyDec {
 	residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
 	formattedValue := new(big.Int).Sub(value.BigInt(), residue)
 	p := decimal.NewFromBigInt(formattedValue, -18).StringFixed(18)
@@ -1153,7 +1167,7 @@ func (c *chainClient) BuildGenericAuthz(granter string, grantee string, msgtype 
 		Grantee: grantee,
 		Grant: authztypes.Grant{
 			Authorization: authzAny,
-			Expiration:    expireIn,
+			Expiration:    &expireIn,
 		},
 	}
 }
@@ -1259,7 +1273,7 @@ func (c *chainClient) BuildExchangeAuthz(granter string, grantee string, authzTy
 		Grantee: grantee,
 		Grant: authztypes.Grant{
 			Authorization: &typedAuthzAny,
-			Expiration:    expireIn,
+			Expiration:    &expireIn,
 		},
 	}
 }
@@ -1315,14 +1329,14 @@ func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 		Grantee: grantee,
 		Grant: authztypes.Grant{
 			Authorization: &typedAuthzAny,
-			Expiration:    expireIn,
+			Expiration:    &expireIn,
 		},
 	}
 }
 
 func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[string]uint) {
 	filter := fmt.Sprintf("tm.event='Tx' AND message.sender='%s' AND message.action='/injective.exchange.v1beta1.MsgBatchUpdateOrders' AND injective.exchange.v1beta1.EventOrderFail.flags EXISTS", sender)
-	eventCh, err := c.ctx.Client.Subscribe(context.Background(), "OrderFail", filter, 10000)
+	eventCh, err := c.cometbftClient.Subscribe(context.Background(), "OrderFail", filter, 10000)
 	if err != nil {
 		panic(err)
 	}
@@ -1356,7 +1370,7 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 
 func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook) {
 	filter := fmt.Sprintf("tm.event='NewBlock' AND %s EXISTS", orderbookType)
-	eventCh, err := c.ctx.Client.Subscribe(context.Background(), "OrderbookUpdate", filter, 10000)
+	eventCh, err := c.cometbftClient.Subscribe(context.Background(), "OrderbookUpdate", filter, 10000)
 	if err != nil {
 		panic(err)
 	}

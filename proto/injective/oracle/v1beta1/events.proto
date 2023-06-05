@@ -9,7 +9,10 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 
 message SetChainlinkPriceEvent {
   string feed_id = 1;
-  string answer = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string answer = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   uint64 timestamp = 3;
 }
 
@@ -17,7 +20,10 @@ message SetChainlinkPriceEvent {
 message SetBandPriceEvent {
   string relayer = 1;
   string symbol = 2;
-  string price = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string price = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   uint64 resolve_time = 4;
   uint64 request_id = 5;
 }
@@ -25,7 +31,10 @@ message SetBandPriceEvent {
 message SetBandIBCPriceEvent {
   string relayer = 1;
   repeated string symbols = 2;
-  repeated string prices = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  repeated string prices = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   uint64 resolve_time = 4;
   uint64 request_id = 5;
   int64 client_id = 6;
@@ -41,9 +50,7 @@ message EventBandIBCAckError {
   int64 client_id = 2;
 }
 
-message EventBandIBCResponseTimeout {
-  int64 client_id = 1;
-}
+message EventBandIBCResponseTimeout { int64 client_id = 1; }
 
 message SetPriceFeedPriceEvent {
   string relayer = 1;
@@ -52,24 +59,29 @@ message SetPriceFeedPriceEvent {
   string quote = 3;
 
   // price defines the price of the oracle base and quote
-  string price = 4 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string price = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message SetProviderPriceEvent {
   string provider = 1;
   string relayer = 2;
   string symbol = 3;
-  string price = 4 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string price = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message SetCoinbasePriceEvent {
   string symbol = 1;
-  string price = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string price = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
   uint64 timestamp = 3;
 }
 
-
-message EventSetPythPrices {
-  repeated PythPriceState prices = 1;
-}
-
+message EventSetPythPrices { repeated PythPriceState prices = 1; }

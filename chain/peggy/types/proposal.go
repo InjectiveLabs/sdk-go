@@ -1,7 +1,7 @@
 package types
 
 import (
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
 // constants
@@ -11,15 +11,13 @@ const (
 )
 
 func init() {
-	gov.RegisterProposalType(ProposalTypeBlacklistEthereumAddresses)
-	gov.RegisterProposalTypeCodec(&BlacklistEthereumAddressesProposal{}, "injective/BlacklistEthereumAddressesProposal")
-	gov.RegisterProposalType(ProposalTypeRevokeEthereumBlacklist)
-	gov.RegisterProposalTypeCodec(&RevokeEthereumBlacklistProposal{}, "injective/RevokeEthereumBlacklistProposal")
+	govtypes.RegisterProposalType(ProposalTypeBlacklistEthereumAddresses)
+	govtypes.RegisterProposalType(ProposalTypeRevokeEthereumBlacklist)
 }
 
 // Implements Proposal Interface
-var _ gov.Content = &BlacklistEthereumAddressesProposal{}
-var _ gov.Content = &RevokeEthereumBlacklistProposal{}
+var _ govtypes.Content = &BlacklistEthereumAddressesProposal{}
+var _ govtypes.Content = &RevokeEthereumBlacklistProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *BlacklistEthereumAddressesProposal) GetTitle() string {
@@ -46,7 +44,7 @@ func (p *BlacklistEthereumAddressesProposal) ValidateBasic() error {
 			return err
 		}
 	}
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }
 
 // GetTitle returns the title of this proposal.
@@ -74,5 +72,5 @@ func (p *RevokeEthereumBlacklistProposal) ValidateBasic() error {
 			return err
 		}
 	}
-	return gov.ValidateAbstract(p)
+	return govtypes.ValidateAbstract(p)
 }

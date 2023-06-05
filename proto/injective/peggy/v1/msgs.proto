@@ -1,62 +1,74 @@
 syntax = "proto3";
 package injective.peggy.v1;
+
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "injective/peggy/v1/types.proto";
+import "injective/peggy/v1/params.proto";
 import "google/protobuf/any.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
 
 service Msg {
-  rpc ValsetConfirm(MsgValsetConfirm) returns(MsgValsetConfirmResponse) {
+  rpc ValsetConfirm(MsgValsetConfirm) returns (MsgValsetConfirmResponse) {
     option (google.api.http).post = "/injective/peggy/v1/valset_confirm";
   }
-  rpc SendToEth(MsgSendToEth) returns(MsgSendToEthResponse) {
+  rpc SendToEth(MsgSendToEth) returns (MsgSendToEthResponse) {
     option (google.api.http).post = "/injective/peggy/v1/send_to_eth";
   }
-  rpc RequestBatch(MsgRequestBatch) returns(MsgRequestBatchResponse) {
+  rpc RequestBatch(MsgRequestBatch) returns (MsgRequestBatchResponse) {
     option (google.api.http).post = "/injective/peggy/v1/request_batch";
   }
-  rpc ConfirmBatch(MsgConfirmBatch) returns(MsgConfirmBatchResponse) {
+  rpc ConfirmBatch(MsgConfirmBatch) returns (MsgConfirmBatchResponse) {
     option (google.api.http).post = "/injective/peggy/v1/confirm_batch";
   }
-  rpc DepositClaim(MsgDepositClaim) returns(MsgDepositClaimResponse) {
+  rpc DepositClaim(MsgDepositClaim) returns (MsgDepositClaimResponse) {
     option (google.api.http).post = "/injective/peggy/v1/deposit_claim";
   }
-  rpc WithdrawClaim(MsgWithdrawClaim) returns(MsgWithdrawClaimResponse) {
+  rpc WithdrawClaim(MsgWithdrawClaim) returns (MsgWithdrawClaimResponse) {
     option (google.api.http).post = "/injective/peggy/v1/withdraw_claim";
   }
-  rpc ValsetUpdateClaim(MsgValsetUpdatedClaim) returns (MsgValsetUpdatedClaimResponse) {
+  rpc ValsetUpdateClaim(MsgValsetUpdatedClaim)
+      returns (MsgValsetUpdatedClaimResponse) {
     option (google.api.http).post = "/injective/peggy/v1/valset_updated_claim";
   }
   rpc ERC20DeployedClaim(MsgERC20DeployedClaim)
       returns (MsgERC20DeployedClaimResponse) {
     option (google.api.http).post = "/injective/peggy/v1/erc20_deployed_claim";
   }
-  rpc SetOrchestratorAddresses(MsgSetOrchestratorAddresses) returns(MsgSetOrchestratorAddressesResponse) {
-    option (google.api.http).post = "/injective/peggy/v1/set_orchestrator_address";
+  rpc SetOrchestratorAddresses(MsgSetOrchestratorAddresses)
+      returns (MsgSetOrchestratorAddressesResponse) {
+    option (google.api.http).post =
+        "/injective/peggy/v1/set_orchestrator_address";
   }
   rpc CancelSendToEth(MsgCancelSendToEth) returns (MsgCancelSendToEthResponse) {
     option (google.api.http).post = "/injective/peggy/v1/cancel_send_to_eth";
   }
-  rpc SubmitBadSignatureEvidence(MsgSubmitBadSignatureEvidence) returns (MsgSubmitBadSignatureEvidenceResponse) {
-    option (google.api.http).post = "/injective/peggy/v1/submit_bad_signature_evidence";
+  rpc SubmitBadSignatureEvidence(MsgSubmitBadSignatureEvidence)
+      returns (MsgSubmitBadSignatureEvidenceResponse) {
+    option (google.api.http).post =
+        "/injective/peggy/v1/submit_bad_signature_evidence";
   }
+
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 // MsgSetOrchestratorAddresses
-// this message allows validators to delegate their voting responsibilities 
+// this message allows validators to delegate their voting responsibilities
 // to a given key. This key is then used as an optional authentication method
 // for sigining oracle claims
 // VALIDATOR
 // The validator field is a cosmosvaloper1... string (i.e. sdk.ValAddress)
 // that references a validator in the active set
 // ORCHESTRATOR
-// The orchestrator field is a cosmos1... string  (i.e. sdk.AccAddress) that 
+// The orchestrator field is a cosmos1... string  (i.e. sdk.AccAddress) that
 // references the key that is being delegated to
 // ETH_ADDRESS
-// This is a hex encoded 0x Ethereum public key that will be used by this validator
-// on Ethereum
+// This is a hex encoded 0x Ethereum public key that will be used by this
+// validator on Ethereum
 message MsgSetOrchestratorAddresses {
   string sender = 1;
   string orchestrator = 2;
@@ -81,6 +93,8 @@ message MsgSetOrchestratorAddressesResponse {}
 // chain store and submit them to Ethereum to update the validator set
 // -------------
 message MsgValsetConfirm {
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
   uint64 nonce = 1;
   string orchestrator = 2;
   string eth_address = 3;
@@ -102,14 +116,12 @@ message MsgValsetConfirmResponse {}
 // actually send this message in the first place. So a successful send has
 // two layers of fees for the user
 message MsgSendToEth {
-  string                   sender = 1;
-  string                   eth_dest = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [
-    (gogoproto.nullable) = false
-  ];
-  cosmos.base.v1beta1.Coin bridge_fee = 4 [
-    (gogoproto.nullable) = false
-  ];
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string eth_dest = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin bridge_fee = 4 [ (gogoproto.nullable) = false ];
 }
 
 message MsgSendToEthResponse {}
@@ -124,6 +136,8 @@ message MsgSendToEthResponse {}
 // can finally submit the batch
 // -------------
 message MsgRequestBatch {
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
   string orchestrator = 1;
   string denom = 2;
 }
@@ -139,6 +153,8 @@ message MsgRequestBatchResponse {}
 // as well as an Ethereum signature over this batch by the validator
 // -------------
 message MsgConfirmBatch {
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
   uint64 nonce = 1;
   string token_contract = 2;
   string eth_signer = 3;
@@ -154,6 +170,8 @@ message MsgConfirmBatchResponse {}
 // issued to the Cosmos address in question
 // -------------
 message MsgDepositClaim {
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
   uint64 event_nonce = 1;
   uint64 block_height = 2;
   string token_contract = 3;
@@ -172,6 +190,8 @@ message MsgDepositClaimResponse {}
 // WithdrawClaim claims that a batch of withdrawal
 // operations on the bridge contract was executed.
 message MsgWithdrawClaim {
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
   uint64 event_nonce = 1;
   uint64 block_height = 2;
   uint64 batch_nonce = 3;
@@ -185,6 +205,8 @@ message MsgWithdrawClaimResponse {}
 // to learn about an ERC20 that someone deployed
 // to represent a Cosmos asset
 message MsgERC20DeployedClaim {
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
   uint64 event_nonce = 1;
   uint64 block_height = 2;
   string cosmos_denom = 3;
@@ -201,6 +223,8 @@ message MsgERC20DeployedClaimResponse {}
 // to cancel a given MsgSendToEth and recieve a refund
 // of the tokens
 message MsgCancelSendToEth {
+  option (cosmos.msg.v1.signer) = "sender";
+
   uint64 transaction_id = 1;
   string sender = 2;
 }
@@ -211,8 +235,10 @@ message MsgCancelSendToEthResponse {}
 // validator has signed a valset, batch, or logic call that never
 // existed. Subject contains the batch, valset, or logic call.
 message MsgSubmitBadSignatureEvidence {
+  option (cosmos.msg.v1.signer) = "sender";
+
   google.protobuf.Any subject = 1;
-  string              signature = 2;
+  string signature = 2;
   string sender = 3;
 }
 
@@ -221,6 +247,8 @@ message MsgSubmitBadSignatureEvidenceResponse {}
 // This informs the Cosmos module that a validator
 // set has been updated.
 message MsgValsetUpdatedClaim {
+  option (cosmos.msg.v1.signer) = "orchestrator";
+
   uint64 event_nonce = 1;
   uint64 valset_nonce = 2;
   uint64 block_height = 3;
@@ -234,3 +262,17 @@ message MsgValsetUpdatedClaim {
 }
 
 message MsgValsetUpdatedClaimResponse {}
+
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // params defines the peggy parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateParamsResponse {}

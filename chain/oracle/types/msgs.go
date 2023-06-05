@@ -3,20 +3,22 @@ package types
 import (
 	"strings"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-const RouterKey = ModuleName
-
 // oracle message types
 const (
+	RouterKey = ModuleName
+
 	TypeMsgRelayPriceFeedPrice   = "relayPriceFeedPrice"
 	TypeMsgRelayBandRates        = "relayBandRates"
 	TypeMsgRelayCoinbaseMessages = "relayCoinbaseMessages"
 	TypeMsgRequestBandIBCRates   = "requestBandIBCRates"
 	TypeMsgRelayProviderPrices   = "relayProviderPrices"
 	TypeMsgRelayPythPrices       = "relayPythPrices"
+	TypeMsgUpdateParams          = "updateParams"
 )
 
 var (
@@ -26,7 +28,33 @@ var (
 	_ sdk.Msg = &MsgRequestBandIBCRates{}
 	_ sdk.Msg = &MsgRelayProviderPrices{}
 	_ sdk.Msg = &MsgRelayPythPrices{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
+
+func (msg MsgUpdateParams) Route() string { return RouterKey }
+
+func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
+
+func (msg MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errors.Wrap(err, "invalid authority address")
+	}
+
+	if err := msg.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshal(msg))
+}
+
+func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
 
 // Route implements the sdk.Msg interface. It should return the name of the module
 func (msg MsgRelayPriceFeedPrice) Route() string { return RouterKey }
@@ -37,7 +65,7 @@ func (msg MsgRelayPriceFeedPrice) Type() string { return TypeMsgRelayPriceFeedPr
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgRelayPriceFeedPrice) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
 		return err
@@ -172,11 +200,11 @@ func (msg MsgRequestBandIBCRates) ValidateBasic() error {
 		return err
 	}
 	if sender.Empty() {
-		return sdkerrors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: Sender address must not be empty.")
+		return errors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: Sender address must not be empty.")
 	}
 
 	if msg.RequestId == 0 {
-		return sdkerrors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: requestID should be greater than zero")
+		return errors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: requestID should be greater than zero")
 	}
 	return nil
 }
@@ -205,7 +233,7 @@ func (msg MsgRelayProviderPrices) Type() string { return TypeMsgRelayProviderPri
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgRelayProviderPrices) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
 		return err
@@ -260,7 +288,7 @@ func (msg MsgRelayPythPrices) Type() string { return TypeMsgRelayPythPrices }
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgRelayPythPrices) ValidateBasic() error {
 	if msg.Sender == "" {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
 		return err

@@ -16,7 +16,6 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
-	evm "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
@@ -36,15 +35,16 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
 	feegranttypes "github.com/cosmos/cosmos-sdk/x/feegrant"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	paramproposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
-	ibcfeetypes "github.com/cosmos/ibc-go/v4/modules/apps/29-fee/types"
-	ibcapplicationtypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	ibccoretypes "github.com/cosmos/ibc-go/v4/modules/core/types"
+	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
+	ibcapplicationtypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibccoretypes "github.com/cosmos/ibc-go/v7/modules/core/types"
 )
 
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
@@ -56,7 +56,6 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	oracle.RegisterInterfaces(interfaceRegistry)
 	insurance.RegisterInterfaces(interfaceRegistry)
 	auction.RegisterInterfaces(interfaceRegistry)
-	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
@@ -72,6 +71,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	distributiontypes.RegisterInterfaces(interfaceRegistry)
 	evidencetypes.RegisterInterfaces(interfaceRegistry)
 	govtypes.RegisterInterfaces(interfaceRegistry)
+	govv1types.RegisterInterfaces(interfaceRegistry)
 	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
 	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
 	ibccoretypes.RegisterInterfaces(interfaceRegistry)
@@ -101,7 +101,6 @@ func NewClientContext(
 	insurance.RegisterInterfaces(interfaceRegistry)
 	auction.RegisterInterfaces(interfaceRegistry)
 	oracle.RegisterInterfaces(interfaceRegistry)
-	evm.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
 	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
@@ -117,6 +116,7 @@ func NewClientContext(
 	distributiontypes.RegisterInterfaces(interfaceRegistry)
 	evidencetypes.RegisterInterfaces(interfaceRegistry)
 	govtypes.RegisterInterfaces(interfaceRegistry)
+	govv1types.RegisterInterfaces(interfaceRegistry)
 	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
 	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
 	ibccoretypes.RegisterInterfaces(interfaceRegistry)
@@ -137,23 +137,25 @@ func NewClientContext(
 		}),
 	}
 
-	var keyInfo keyring.Info
+	var keyInfo keyring.Record
 
 	if kb != nil {
 		addr, err := cosmostypes.AccAddressFromBech32(fromSpec)
 		if err == nil {
-			keyInfo, err = kb.KeyByAddress(addr)
+			record, err := kb.KeyByAddress(addr)
 			if err != nil {
 				err = errors.Wrapf(err, "failed to load key info by address %s", addr.String())
 				return clientCtx, err
 			}
+			keyInfo = *record
 		} else {
 			// failed to parse Bech32, is it a name?
-			keyInfo, err = kb.Key(fromSpec)
+			record, err := kb.Key(fromSpec)
 			if err != nil {
 				err = errors.Wrapf(err, "no key in keyring for name: %s", fromSpec)
 				return clientCtx, err
 			}
+			keyInfo = *record
 		}
 	}
 
@@ -177,13 +179,12 @@ func newContext(
 	chainId string,
 	encodingConfig EncodingConfig,
 	kb keyring.Keyring,
-	keyInfo keyring.Info,
+	keyInfo keyring.Record,
 
 ) client.Context {
 	clientCtx := client.Context{
 		ChainID:           chainId,
 		Codec:             encodingConfig.Marshaler,
-		JSONCodec:         encodingConfig.Marshaler,
 		InterfaceRegistry: encodingConfig.InterfaceRegistry,
 		Output:            os.Stderr,
 		OutputFormat:      "json",
@@ -197,11 +198,15 @@ func newContext(
 		AccountRetriever:  authtypes.AccountRetriever{},
 	}
 
-	if keyInfo != nil {
+	if keyInfo.PubKey != nil {
+		address, err := keyInfo.GetAddress()
+		if err != nil {
+			panic(err)
+		}
 		clientCtx = clientCtx.WithKeyring(kb)
-		clientCtx = clientCtx.WithFromAddress(keyInfo.GetAddress())
-		clientCtx = clientCtx.WithFromName(keyInfo.GetName())
-		clientCtx = clientCtx.WithFrom(keyInfo.GetName())
+		clientCtx = clientCtx.WithFromAddress(address)
+		clientCtx = clientCtx.WithFromName(keyInfo.Name)
+		clientCtx = clientCtx.WithFrom(keyInfo.Name)
 	}
 
 	return clientCtx

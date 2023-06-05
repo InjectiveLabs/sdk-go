@@ -1,9 +1,11 @@
 syntax = "proto3";
 package injective.ocr.v1beta1;
 
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
 import "gogoproto/gogo.proto";
 import "injective/ocr/v1beta1/ocr.proto";
-import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ocr/types";
 
@@ -11,34 +13,49 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 service Msg {
   // CreateFeed defines a method for creating feed by module admin
   rpc CreateFeed(MsgCreateFeed) returns (MsgCreateFeedResponse);
-  // CreateFeed defines a method for creating feed by feed admin or feed billing admin
+  // CreateFeed defines a method for creating feed by feed admin or feed billing
+  // admin
   rpc UpdateFeed(MsgUpdateFeed) returns (MsgUpdateFeedResponse);
   // Transmit defines a method for transmitting the feed info by transmitter
   rpc Transmit(MsgTransmit) returns (MsgTransmitResponse);
   // FundFeedRewardPool defines a method to put funds into feed reward pool
-  rpc FundFeedRewardPool(MsgFundFeedRewardPool) returns (MsgFundFeedRewardPoolResponse);
-  // WithdrawFeedRewardPool defines a method to witdhraw feed reward by feed admin or billing admin
-  rpc WithdrawFeedRewardPool(MsgWithdrawFeedRewardPool) returns (MsgWithdrawFeedRewardPoolResponse);
+  rpc FundFeedRewardPool(MsgFundFeedRewardPool)
+      returns (MsgFundFeedRewardPoolResponse);
+  // WithdrawFeedRewardPool defines a method to witdhraw feed reward by feed
+  // admin or billing admin
+  rpc WithdrawFeedRewardPool(MsgWithdrawFeedRewardPool)
+      returns (MsgWithdrawFeedRewardPoolResponse);
   // SetPayees defines a method to set payees for transmitters (batch action)
   rpc SetPayees(MsgSetPayees) returns (MsgSetPayeesResponse);
-  // TransferPayeeship defines a method for a payee to transfer reward receive ownership
-  rpc TransferPayeeship(MsgTransferPayeeship) returns (MsgTransferPayeeshipResponse);
-  // AcceptPayeeship defines a method for a new payee to accept reward receive ownership
+  // TransferPayeeship defines a method for a payee to transfer reward receive
+  // ownership
+  rpc TransferPayeeship(MsgTransferPayeeship)
+      returns (MsgTransferPayeeshipResponse);
+  // AcceptPayeeship defines a method for a new payee to accept reward receive
+  // ownership
   rpc AcceptPayeeship(MsgAcceptPayeeship) returns (MsgAcceptPayeeshipResponse);
+
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
 message MsgCreateFeed {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
+
   string sender = 1;
   FeedConfig config = 2;
 }
 
-message MsgCreateFeedResponse{}
+message MsgCreateFeedResponse {}
 
 message MsgUpdateFeed {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
+
   string sender = 1;
   // feed_id is an unique ID for the target of this config
   string feed_id = 2;
@@ -46,17 +63,18 @@ message MsgUpdateFeed {
   // signers ith element is address ith oracle uses to sign a report
   repeated string signers = 3;
 
-  // transmitters ith element is address ith oracle uses to transmit a report via the transmit method
+  // transmitters ith element is address ith oracle uses to transmit a report
+  // via the transmit method
   repeated string transmitters = 4;
 
   // Fixed LINK reward for each observer
-  string link_per_observation = 5[
+  string link_per_observation = 5 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = true
   ];
 
   // Fixed LINK reward for transmitter
-  string link_per_transmission = 6[
+  string link_per_transmission = 6 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable) = true
   ];
@@ -71,11 +89,14 @@ message MsgUpdateFeed {
   string billing_admin = 9;
 }
 
-message MsgUpdateFeedResponse{}
+message MsgUpdateFeedResponse {}
 
 message MsgTransmit {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "transmitter";
+
   // Address of the transmitter
   string transmitter = 1;
   bytes config_digest = 2;
@@ -87,33 +108,39 @@ message MsgTransmit {
   repeated bytes signatures = 8;
 }
 
-message MsgTransmitResponse{}
+message MsgTransmitResponse {}
 
 message MsgFundFeedRewardPool {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  option (cosmos.msg.v1.signer) = "sender";
+
   string sender = 1;
   string feed_id = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
 }
 
-message MsgFundFeedRewardPoolResponse{}
+message MsgFundFeedRewardPoolResponse {}
 
 message MsgWithdrawFeedRewardPool {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  option (cosmos.msg.v1.signer) = "sender";
+
   string sender = 1;
   string feed_id = 2;
-  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
 }
 
-message MsgWithdrawFeedRewardPoolResponse{}
+message MsgWithdrawFeedRewardPoolResponse {}
 
 message MsgSetPayees {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
   string feed_id = 2;
@@ -124,11 +151,13 @@ message MsgSetPayees {
   repeated string payees = 4;
 }
 
-message MsgSetPayeesResponse{}
+message MsgSetPayeesResponse {}
 
 message MsgTransferPayeeship {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
 
   // transmitter address of oracle whose payee is changing
   string sender = 1;
@@ -138,11 +167,14 @@ message MsgTransferPayeeship {
   string proposed = 4;
 }
 
-message MsgTransferPayeeshipResponse{}
+message MsgTransferPayeeshipResponse {}
 
 message MsgAcceptPayeeship {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "transmitter";
+
   // new payee address
   string payee = 1;
   // transmitter address of oracle whose payee is changing
@@ -150,4 +182,18 @@ message MsgAcceptPayeeship {
   string feed_id = 3;
 }
 
-message MsgAcceptPayeeshipResponse{}
+message MsgAcceptPayeeshipResponse {}
+
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // params defines the ocr parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateParamsResponse {}

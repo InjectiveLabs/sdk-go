@@ -7,7 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
+	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	groupcdc "github.com/cosmos/cosmos-sdk/x/group/codec"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/exchange interfaces and concrete types
@@ -42,6 +45,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCancelBinaryOptionsOrder{}, "exchange/MsgCancelBinaryOptionsOrder", nil)
 	cdc.RegisterConcrete(&MsgAdminUpdateBinaryOptionsMarket{}, "exchange/MsgAdminUpdateBinaryOptionsMarket", nil)
 	cdc.RegisterConcrete(&MsgReclaimLockedFunds{}, "exchange/MsgReclaimLockedFunds", nil)
+	cdc.RegisterConcrete(&MsgUpdateParams{}, "exchange/MsgUpdateParams", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/BatchExchangeModificationProposal", nil)
@@ -105,6 +109,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCancelBinaryOptionsOrder{},
 		&MsgAdminUpdateBinaryOptionsMarket{},
 		&MsgReclaimLockedFunds{},
+		&MsgUpdateParams{},
 	)
 
 	registry.RegisterImplementations(
@@ -165,4 +170,8 @@ func init() {
 	RegisterLegacyAminoCodec(amino)
 	cryptocodec.RegisterCrypto(amino)
 	amino.Seal()
+
+	RegisterLegacyAminoCodec(govcdc.Amino)
+	RegisterLegacyAminoCodec(authzcdc.Amino)
+	RegisterLegacyAminoCodec(groupcdc.Amino)
 }

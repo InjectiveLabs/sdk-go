@@ -5,7 +5,7 @@ package types
 
 import (
 	fmt "fmt"
-	proto "github.com/gogo/protobuf/proto"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -22,7 +22,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// base header ak message type, we can cast the bytes into corresponding message response type
+// base header ak message type, we can cast the bytes into corresponding message
+// response type
 type TxResponseGenericMessage struct {
 	Header string `protobuf:"bytes,1,opt,name=header,proto3" json:"header,omitempty"`
 	Data   []byte `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`

@@ -16,60 +16,79 @@ service Query {
   }
 
   // Retrieves the band relayers
-  rpc BandRelayers(QueryBandRelayersRequest) returns (QueryBandRelayersResponse) {
+  rpc BandRelayers(QueryBandRelayersRequest)
+      returns (QueryBandRelayersResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/band_relayers";
   }
 
   // Retrieves the state for all band price feeds
-  rpc BandPriceStates(QueryBandPriceStatesRequest) returns (QueryBandPriceStatesResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/band_price_states";
+  rpc BandPriceStates(QueryBandPriceStatesRequest)
+      returns (QueryBandPriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/band_price_states";
   }
 
   // Retrieves the state for all band ibc price feeds
-  rpc BandIBCPriceStates(QueryBandIBCPriceStatesRequest) returns (QueryBandIBCPriceStatesResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/band_ibc_price_states";
+  rpc BandIBCPriceStates(QueryBandIBCPriceStatesRequest)
+      returns (QueryBandIBCPriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/band_ibc_price_states";
   }
 
   // Retrieves the state for all price feeds
-  rpc PriceFeedPriceStates(QueryPriceFeedPriceStatesRequest) returns (QueryPriceFeedPriceStatesResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/pricefeed_price_states";
+  rpc PriceFeedPriceStates(QueryPriceFeedPriceStatesRequest)
+      returns (QueryPriceFeedPriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/pricefeed_price_states";
   }
 
   // Retrieves the state for all coinbase price feeds
-  rpc CoinbasePriceStates(QueryCoinbasePriceStatesRequest) returns (QueryCoinbasePriceStatesResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/coinbase_price_states";
+  rpc CoinbasePriceStates(QueryCoinbasePriceStatesRequest)
+      returns (QueryCoinbasePriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/coinbase_price_states";
   }
 
   // Retrieves the state for all pyth price feeds
-  rpc PythPriceStates(QueryPythPriceStatesRequest) returns (QueryPythPriceStatesResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/pyth_price_states";
+  rpc PythPriceStates(QueryPythPriceStatesRequest)
+      returns (QueryPythPriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/pyth_price_states";
   }
 
   // Retrieves the state for all provider price feeds
-  rpc ProviderPriceState(QueryProviderPriceStateRequest) returns (QueryProviderPriceStateResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/provider_price_state/{provider}/{symbol}";
+  rpc ProviderPriceState(QueryProviderPriceStateRequest)
+      returns (QueryProviderPriceStateResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/provider_price_state/{provider}/{symbol}";
   }
 
   // Retrieves the entire oracle module's state
-  rpc OracleModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+  rpc OracleModuleState(QueryModuleStateRequest)
+      returns (QueryModuleStateResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/module_state";
   }
 
   // Retrieves historical price records for a given OracleType and Symbol
-  rpc HistoricalPriceRecords(QueryHistoricalPriceRecordsRequest) returns (QueryHistoricalPriceRecordsResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/historical_price_records";
+  rpc HistoricalPriceRecords(QueryHistoricalPriceRecordsRequest)
+      returns (QueryHistoricalPriceRecordsResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/historical_price_records";
   }
 
   // Retrieves mixed volatility value for the specified pair of base/quote
-  rpc OracleVolatility(QueryOracleVolatilityRequest) returns (QueryOracleVolatilityResponse){
+  rpc OracleVolatility(QueryOracleVolatilityRequest)
+      returns (QueryOracleVolatilityResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/volatility";
   }
 
-  rpc OracleProvidersInfo(QueryOracleProvidersInfoRequest) returns (QueryOracleProvidersInfoResponse) {
+  rpc OracleProvidersInfo(QueryOracleProvidersInfoRequest)
+      returns (QueryOracleProvidersInfoResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/providers";
   }
 
-  rpc OracleProviderPrices(QueryOracleProviderPricesRequest) returns (QueryOracleProviderPricesResponse) {
+  rpc OracleProviderPrices(QueryOracleProviderPricesRequest)
+      returns (QueryOracleProviderPricesResponse) {
     option (google.api.http).get = "/injective/oracle/v1beta1/provider_prices";
   }
 
@@ -82,91 +101,98 @@ service Query {
   }
 }
 
-message QueryPythPriceRequest {
-  string price_id = 1;
-}
+message QueryPythPriceRequest { string price_id = 1; }
 
 message QueryPythPriceResponse {
   PythPriceState price_state = 1;
 }
 
-// QueryOracleParamsRequest is the request type for the Query/OracleParams RPC method.
+// QueryOracleParamsRequest is the request type for the Query/OracleParams RPC
+// method.
 message QueryParamsRequest {}
 
-// QueryOracleParamsResponse is the response type for the Query/OracleParams RPC method.
+// QueryOracleParamsResponse is the response type for the Query/OracleParams RPC
+// method.
 message QueryParamsResponse {
-  Params params = 1 [
-    (gogoproto.nullable) = false
-  ];
-
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryBandRelayersRequest is the request type for the Query/BandRelayers RPC method.
+// QueryBandRelayersRequest is the request type for the Query/BandRelayers RPC
+// method.
 message QueryBandRelayersRequest {}
 
-// QueryBandRelayersResponse is the response type for the Query/BandRelayers RPC method.
-message QueryBandRelayersResponse {
-  repeated string relayers = 1;
-}
+// QueryBandRelayersResponse is the response type for the Query/BandRelayers RPC
+// method.
+message QueryBandRelayersResponse { repeated string relayers = 1; }
 
-// QueryBandPriceStatesRequest is the request type for the Query/BandPriceStates RPC method.
+// QueryBandPriceStatesRequest is the request type for the Query/BandPriceStates
+// RPC method.
 message QueryBandPriceStatesRequest {}
 
-// QueryBandPriceStatesResponse is the response type for the Query/BandPriceStates RPC method.
+// QueryBandPriceStatesResponse is the response type for the
+// Query/BandPriceStates RPC method.
 message QueryBandPriceStatesResponse {
   repeated BandPriceState price_states = 1;
 }
 
-// QueryBandIBCPriceStatesRequest is the request type for the Query/BandIBCPriceStates RPC method.
+// QueryBandIBCPriceStatesRequest is the request type for the
+// Query/BandIBCPriceStates RPC method.
 message QueryBandIBCPriceStatesRequest {}
 
-// QueryBandIBCPriceStatesResponse is the response type for the Query/BandIBCPriceStates RPC method.
+// QueryBandIBCPriceStatesResponse is the response type for the
+// Query/BandIBCPriceStates RPC method.
 message QueryBandIBCPriceStatesResponse {
   repeated BandPriceState price_states = 1;
 }
 
-// QueryPriceFeedPriceStatesRequest is the request type for the Query/PriceFeedPriceStates RPC method.
+// QueryPriceFeedPriceStatesRequest is the request type for the
+// Query/PriceFeedPriceStates RPC method.
 message QueryPriceFeedPriceStatesRequest {}
 
-// QueryPriceFeedPriceStatesResponse is the response type for the Query/PriceFeedPriceStates RPC method.
+// QueryPriceFeedPriceStatesResponse is the response type for the
+// Query/PriceFeedPriceStates RPC method.
 message QueryPriceFeedPriceStatesResponse {
   repeated PriceFeedState price_states = 1;
 }
 
-// QueryCoinbasePriceStatesRequest is the request type for the Query/CoinbasePriceStates RPC method.
+// QueryCoinbasePriceStatesRequest is the request type for the
+// Query/CoinbasePriceStates RPC method.
 message QueryCoinbasePriceStatesRequest {}
 
-// QueryCoinbasePriceStatesResponse is the response type for the Query/CoinbasePriceStates RPC method.
+// QueryCoinbasePriceStatesResponse is the response type for the
+// Query/CoinbasePriceStates RPC method.
 message QueryCoinbasePriceStatesResponse {
   repeated CoinbasePriceState price_states = 1;
 }
 
-// QueryPythPriceStatesRequest is the request type for the Query/CoinbasePriceStates RPC method.
+// QueryPythPriceStatesRequest is the request type for the
+// Query/CoinbasePriceStates RPC method.
 message QueryPythPriceStatesRequest {}
 
-// QueryPythPriceStatesResponse is the response type for the Query/CoinbasePriceStates RPC method.
+// QueryPythPriceStatesResponse is the response type for the
+// Query/CoinbasePriceStates RPC method.
 message QueryPythPriceStatesResponse {
   repeated PythPriceState price_states = 1;
 }
 
-// QueryProviderPriceStateRequest is the request type for the Query/ProviderPriceState RPC method.
+// QueryProviderPriceStateRequest is the request type for the
+// Query/ProviderPriceState RPC method.
 message QueryProviderPriceStateRequest {
   string provider = 1;
   string symbol = 2;
 }
 
-// QueryProviderPriceStatesResponse is the response type for the Query/ProviderPriceStates RPC method.
-message QueryProviderPriceStateResponse {
-  PriceState price_state = 1;
-}
+// QueryProviderPriceStatesResponse is the response type for the
+// Query/ProviderPriceStates RPC method.
+message QueryProviderPriceStateResponse { PriceState price_state = 1; }
 
-// QueryModuleStateRequest is the request type for the Query/OracleModuleState RPC method.
+// QueryModuleStateRequest is the request type for the Query/OracleModuleState
+// RPC method.
 message QueryModuleStateRequest {}
 
-// QueryModuleStateResponse is the response type for the Query/OracleModuleState RPC method.
-message QueryModuleStateResponse {
-  GenesisState state = 1;
-}
+// QueryModuleStateResponse is the response type for the Query/OracleModuleState
+// RPC method.
+message QueryModuleStateResponse { GenesisState state = 1; }
 
 message QueryHistoricalPriceRecordsRequest {
   OracleType oracle = 1;
@@ -178,25 +204,31 @@ message QueryHistoricalPriceRecordsResponse {
 }
 
 message OracleHistoryOptions {
-  // MaxAge restricts the oracle price records oldest age in seconds from the current block time to consider.
-  // A value of 0 means use all the records present on the chain.
+  // MaxAge restricts the oracle price records oldest age in seconds from the
+  // current block time to consider. A value of 0 means use all the records
+  // present on the chain.
   uint64 max_age = 1;
-  // If IncludeRawHistory is true, the raw underlying data used for the computation is included in the response
+  // If IncludeRawHistory is true, the raw underlying data used for the
+  // computation is included in the response
   bool include_raw_history = 2;
-  // If IncludeMetadata is true, metadata on the computation is included in the response
+  // If IncludeMetadata is true, metadata on the computation is included in the
+  // response
   bool include_metadata = 3;
 }
 
-// QueryOracleVolatilityRequest is the request type for Query/OracleVolatility RPC method.
+// QueryOracleVolatilityRequest is the request type for Query/OracleVolatility
+// RPC method.
 message QueryOracleVolatilityRequest {
   OracleInfo base_info = 1;
   OracleInfo quote_info = 2;
   OracleHistoryOptions oracle_history_options = 3;
 }
 
-// QueryOracleVolatilityResponse is the response type for Query/OracleVolatility RPC method.
+// QueryOracleVolatilityResponse is the response type for Query/OracleVolatility
+// RPC method.
 message QueryOracleVolatilityResponse {
-  string volatility = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
+  string volatility = 1
+      [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec" ];
   MetadataStatistics history_metadata = 2;
   repeated PriceRecord raw_history = 3;
 }
@@ -207,15 +239,14 @@ message QueryOracleProvidersInfoResponse {
   repeated ProviderInfo providers = 1;
 }
 
-message QueryOracleProviderPricesRequest {
-  string provider = 1;
-}
+message QueryOracleProviderPricesRequest { string provider = 1; }
 
 message QueryOracleProviderPricesResponse {
-    repeated ProviderState providerState = 1;
+  repeated ProviderState providerState = 1;
 }
 
-// QueryOraclePriceRequest is the request type for the Query/OraclePrice RPC method.
+// QueryOraclePriceRequest is the request type for the Query/OraclePrice RPC
+// method.
 message QueryOraclePriceRequest {
   OracleType oracle_type = 1;
   string base = 2;
@@ -223,18 +254,32 @@ message QueryOraclePriceRequest {
 }
 
 message PricePairState {
-  string pair_price = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
-  string base_price = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
-  string quote_price = 3 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string pair_price = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string base_price = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string quote_price = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 
-  string base_cumulative_price = 4 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
-  string quote_cumulative_price = 5 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+  string base_cumulative_price = 4 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
+  string quote_cumulative_price = 5 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable) = false
+  ];
 
   int64 base_timestamp = 6;
   int64 quote_timestamp = 7;
 }
 
-// QueryOraclePriceResponse is the response type for the Query/OraclePrice RPC method.
-message QueryOraclePriceResponse {
-  PricePairState price_pair_state = 1;
-}
+// QueryOraclePriceResponse is the response type for the Query/OraclePrice RPC
+// method.
+message QueryOraclePriceResponse { PricePairState price_pair_state = 1; }

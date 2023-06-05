@@ -9,7 +9,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // GenesisState defines the oracle module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to oracle.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 
   repeated string band_relayers = 2;
 
@@ -23,7 +23,7 @@ message GenesisState {
 
   repeated BandOracleRequest band_ibc_oracle_requests = 7;
 
-  BandIBCParams band_ibc_params = 8 [(gogoproto.nullable) = false];
+  BandIBCParams band_ibc_params = 8 [ (gogoproto.nullable) = false ];
 
   uint64 band_ibc_latest_client_id = 9;
 

@@ -7,8 +7,8 @@ import (
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -820,7 +820,8 @@ func (m *PythPriceState) GetPriceState() PriceState {
 type BandOracleRequest struct {
 	// Unique Identifier for band ibc oracle request
 	RequestId uint64 `protobuf:"varint,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
-	// OracleScriptID is the unique identifier of the oracle script to be executed.
+	// OracleScriptID is the unique identifier of the oracle script to be
+	// executed.
 	OracleScriptId int64 `protobuf:"varint,2,opt,name=oracle_script_id,json=oracleScriptId,proto3" json:"oracle_script_id,omitempty"`
 	// Symbols is the list of symbols to prepare in the calldata
 	Symbols []string `protobuf:"bytes,3,rep,name=symbols,proto3" json:"symbols,omitempty"`
@@ -831,13 +832,15 @@ type BandOracleRequest struct {
 	// proceed to the execution phase. Higher value means more security, at the
 	// cost of liveness.
 	MinCount uint64 `protobuf:"varint,5,opt,name=min_count,json=minCount,proto3" json:"min_count,omitempty"`
-	// FeeLimit is the maximum tokens that will be paid to all data source providers.
+	// FeeLimit is the maximum tokens that will be paid to all data source
+	// providers.
 	FeeLimit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,6,rep,name=fee_limit,json=feeLimit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee_limit"`
 	// PrepareGas is amount of gas to pay to prepare raw requests
 	PrepareGas uint64 `protobuf:"varint,7,opt,name=prepare_gas,json=prepareGas,proto3" json:"prepare_gas,omitempty"`
 	// ExecuteGas is amount of gas to reserve for executing
 	ExecuteGas uint64 `protobuf:"varint,8,opt,name=execute_gas,json=executeGas,proto3" json:"execute_gas,omitempty"`
-	// MinSourceCount is the minimum number of data sources that must be used by each validator
+	// MinSourceCount is the minimum number of data sources that must be used by
+	// each validator
 	MinSourceCount uint64 `protobuf:"varint,9,opt,name=min_source_count,json=minSourceCount,proto3" json:"min_source_count,omitempty"`
 }
 
@@ -948,7 +951,7 @@ type BandIBCParams struct {
 	IbcVersion string `protobuf:"bytes,4,opt,name=ibc_version,json=ibcVersion,proto3" json:"ibc_version,omitempty"`
 	// band IBC portID
 	IbcPortId string `protobuf:"bytes,5,opt,name=ibc_port_id,json=ibcPortId,proto3" json:"ibc_port_id,omitempty"`
-	//  legacy oracle scheme ids
+	// legacy oracle scheme ids
 	LegacyOracleIds []int64 `protobuf:"varint,6,rep,packed,name=legacy_oracle_ids,json=legacyOracleIds,proto3" json:"legacy_oracle_ids,omitempty"`
 }
 
@@ -1236,17 +1239,21 @@ func (m *PriceRecord) GetTimestamp() int64 {
 	return 0
 }
 
-// MetadataStatistics refers to the metadata summary statistics of the historical sample considered
+// MetadataStatistics refers to the metadata summary statistics of the
+// historical sample considered
 type MetadataStatistics struct {
-	// GroupCount refers to the number of groups used. Equals RecordsSampleSize if no grouping is used
+	// GroupCount refers to the number of groups used. Equals RecordsSampleSize if
+	// no grouping is used
 	GroupCount uint32 `protobuf:"varint,1,opt,name=group_count,json=groupCount,proto3" json:"group_count,omitempty"`
 	// RecordsSampleSize refers to the total number of records used.
 	RecordsSampleSize uint32 `protobuf:"varint,2,opt,name=records_sample_size,json=recordsSampleSize,proto3" json:"records_sample_size,omitempty"`
 	// Mean refers to the arithmetic mean
-	// For trades, the mean is the VWAP computed over the grouped trade records ∑ (price * quantity) / ∑ quantity
-	// For oracle prices, the mean is computed over the price records ∑ (price) / prices_count
+	// For trades, the mean is the VWAP computed over the grouped trade records ∑
+	// (price * quantity) / ∑ quantity For oracle prices, the mean is computed
+	// over the price records ∑ (price) / prices_count
 	Mean github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,3,opt,name=mean,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"mean"`
-	// TWAP refers to the time-weighted average price which equals ∑ (price_i * ∆t_i) / ∑ ∆t_i where ∆t_i = t_i - t_{i-1}
+	// TWAP refers to the time-weighted average price which equals ∑ (price_i *
+	// ∆t_i) / ∑ ∆t_i where ∆t_i = t_i - t_{i-1}
 	Twap github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=twap,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"twap"`
 	// FirstTimestamp is the timestamp of the oldest record considered
 	FirstTimestamp int64 `protobuf:"varint,5,opt,name=first_timestamp,json=firstTimestamp,proto3" json:"first_timestamp,omitempty"`

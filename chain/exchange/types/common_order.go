@@ -4,10 +4,10 @@ import (
 	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
-	gethsigner "github.com/ethereum/go-ethereum/signer/core"
-	"github.com/gogo/protobuf/proto"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -80,7 +80,7 @@ func (m *OrderInfo) IsFromDefaultSubaccount() bool {
 	return IsDefaultSubaccountID(common.HexToHash(m.SubaccountId))
 }
 
-var eip712OrderTypes = gethsigner.Types{
+var eip712OrderTypes = apitypes.Types{
 	"EIP712Domain": {
 		{Name: "name", Type: "string"},
 		{Name: "version", Type: "string"},
@@ -113,7 +113,7 @@ var eip712OrderTypes = gethsigner.Types{
 
 func computeOrderHash(marketId, subaccountId, feeRecipient, price, quantity, margin, triggerPrice, orderType string, nonce uint32) (common.Hash, error) {
 	chainID := ethmath.NewHexOrDecimal256(888)
-	var domain = gethsigner.TypedDataDomain{
+	var domain = apitypes.TypedDataDomain{
 		Name:              "Injective Protocol",
 		Version:           "2.0.0",
 		ChainId:           chainID,
@@ -135,7 +135,7 @@ func computeOrderHash(marketId, subaccountId, feeRecipient, price, quantity, mar
 		"Salt":         strconv.Itoa(int(nonce)),
 	}
 
-	var typedData = gethsigner.TypedData{
+	var typedData = apitypes.TypedData{
 		Types:       eip712OrderTypes,
 		PrimaryType: "DerivativeOrder",
 		Domain:      domain,

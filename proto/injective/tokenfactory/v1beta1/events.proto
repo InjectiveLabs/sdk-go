@@ -15,12 +15,12 @@ message EventCreateTFDenom {
 
 message EventMintTFDenom {
   string recipient_address = 1;
-  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
 }
 
 message EventBurnTFDenom {
   string burner_address = 1;
-  cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
 }
 
 message EventChangeTFAdmin {
@@ -30,5 +30,5 @@ message EventChangeTFAdmin {
 
 message EventSetTFDenomMetadata {
   string denom = 1;
-  cosmos.bank.v1beta1.Metadata metadata = 2[(gogoproto.nullable) = false];
+  cosmos.bank.v1beta1.Metadata metadata = 2 [ (gogoproto.nullable) = false ];
 }

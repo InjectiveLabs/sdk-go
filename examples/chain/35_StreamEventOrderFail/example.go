@@ -2,14 +2,18 @@ package main
 
 import (
 	"fmt"
+
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
 	network := common.LoadNetwork("mainnet", "sentry0")
-	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	if err != nil {
+		panic(err)
+	}
 
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
@@ -19,7 +23,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,

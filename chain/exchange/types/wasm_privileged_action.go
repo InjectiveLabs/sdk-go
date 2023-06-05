@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 
+	"cosmossdk.io/errors"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
@@ -26,13 +27,13 @@ func ParseRequest(data []byte) (InjectiveAction, error) {
 	err := json.Unmarshal(data, &request)
 
 	if err != nil {
-		return nil, sdkerrors.Wrap(err, "failed to parse exchange action request")
+		return nil, errors.Wrap(err, "failed to parse exchange action request")
 	}
 
 	if request.SyntheticTrade != nil {
 		err = request.SyntheticTrade.ValidateBasic()
 		if err != nil {
-			return request.SyntheticTrade, sdkerrors.Wrap(err, "invalid synthetic trade request")
+			return request.SyntheticTrade, errors.Wrap(err, "invalid synthetic trade request")
 		}
 
 		return request.SyntheticTrade, nil
@@ -41,11 +42,11 @@ func ParseRequest(data []byte) (InjectiveAction, error) {
 	if request.PositionTransfer != nil {
 		err = request.PositionTransfer.ValidateBasic()
 		if err != nil {
-			return request.PositionTransfer, sdkerrors.Wrap(err, "invalid position transfer request")
+			return request.PositionTransfer, errors.Wrap(err, "invalid position transfer request")
 		}
 
 		return request.PositionTransfer, nil
 	}
 
-	return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "unknown variant of InjectiveAction")
+	return nil, errors.Wrap(sdkerrors.ErrUnknownRequest, "unknown variant of InjectiveAction")
 }

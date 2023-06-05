@@ -29,6 +29,7 @@ var (
 	DenomsPrefixKey           = []byte{0x02}
 	CreatorPrefixKey          = []byte{0x03}
 	AdminPrefixKey            = []byte{0x04}
+	ParamsKey                 = []byte{0x05}
 )
 
 // GetDenomPrefixStore returns the store prefix where all the data associated with a specific denom

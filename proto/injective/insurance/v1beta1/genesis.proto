@@ -9,19 +9,21 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // GenesisState defines the insurance module's genesis state.
 message GenesisState {
   // params defines all the parameters of related to insurance.
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 
-  // insurance_funds describes the insurance funds available for derivative markets
-  repeated InsuranceFund insurance_funds = 2 [(gogoproto.nullable) = false];
+  // insurance_funds describes the insurance funds available for derivative
+  // markets
+  repeated InsuranceFund insurance_funds = 2 [ (gogoproto.nullable) = false ];
 
   // redemption_schedule describes the redemption requests pending
-  repeated RedemptionSchedule redemption_schedule = 3 [(gogoproto.nullable) = false];
+  repeated RedemptionSchedule redemption_schedule = 3
+      [ (gogoproto.nullable) = false ];
 
-  // next_share_denom_id describes the next share denom id to be used for newly creating insurance fund
-  // incremented by 1 per insurance fund creation
+  // next_share_denom_id describes the next share denom id to be used for newly
+  // creating insurance fund incremented by 1 per insurance fund creation
   uint64 next_share_denom_id = 4;
 
-  // next_redemption_schedule_id describes next redemption schedule id to be used for next schedule
-  // incremented by 1 per redemption request
+  // next_redemption_schedule_id describes next redemption schedule id to be
+  // used for next schedule incremented by 1 per redemption request
   uint64 next_redemption_schedule_id = 5;
 }

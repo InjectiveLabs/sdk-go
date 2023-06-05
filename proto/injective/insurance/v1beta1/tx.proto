@@ -3,6 +3,9 @@ package injective.insurance.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "injective/insurance/v1beta1/insurance.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
@@ -11,64 +14,98 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 service Msg {
 
   // CreateInsuranceFund defines a method for creating an insurance fund
-  rpc CreateInsuranceFund(MsgCreateInsuranceFund) returns (MsgCreateInsuranceFundResponse);
+  rpc CreateInsuranceFund(MsgCreateInsuranceFund)
+      returns (MsgCreateInsuranceFundResponse);
 
-  // Underwrite defines a method for depositing tokens to underwrite an insurance fund
+  // Underwrite defines a method for depositing tokens to underwrite an
+  // insurance fund
   rpc Underwrite(MsgUnderwrite) returns (MsgUnderwriteResponse);
 
-  // RequestRedemption defines a method for requesting a redemption of the sender's insurance fund tokens
-  rpc RequestRedemption(MsgRequestRedemption) returns (MsgRequestRedemptionResponse);
+  // RequestRedemption defines a method for requesting a redemption of the
+  // sender's insurance fund tokens
+  rpc RequestRedemption(MsgRequestRedemption)
+      returns (MsgRequestRedemptionResponse);
+
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgCreateInsuranceFund a message to create an insurance fund for a derivative market.
+// MsgCreateInsuranceFund a message to create an insurance fund for a derivative
+// market.
 message MsgCreateInsuranceFund {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
+
   // Creator of the insurance fund.
   string sender = 1;
   // Ticker for the derivative market.
   string ticker = 2;
   // Coin denom to use for the market quote denom
   string quote_denom = 3;
-  // Oracle base currency of the derivative market OR the oracle symbol for the binary options market.
+  // Oracle base currency of the derivative market OR the oracle symbol for the
+  // binary options market.
   string oracle_base = 4;
-  // Oracle quote currency of the derivative market OR the oracle provider for the binary options market.
+  // Oracle quote currency of the derivative market OR the oracle provider for
+  // the binary options market.
   string oracle_quote = 5;
   // Oracle type of the binary options or derivative market
   injective.oracle.v1beta1.OracleType oracle_type = 6;
-  // Expiration time of the derivative market. Should be -1 for perpetual or -2 for binary options markets.
+  // Expiration time of the derivative market. Should be -1 for perpetual or -2
+  // for binary options markets.
   int64 expiry = 7;
   // Initial deposit of the insurance fund
-  cosmos.base.v1beta1.Coin initial_deposit = 8 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin initial_deposit = 8 [ (gogoproto.nullable) = false ];
 }
 
-message MsgCreateInsuranceFundResponse{}
+message MsgCreateInsuranceFundResponse {}
 
-// MsgUnderwrite defines a message for depositing coins to underwrite an insurance fund
+// MsgUnderwrite defines a message for depositing coins to underwrite an
+// insurance fund
 message MsgUnderwrite {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
+
   // Address of the underwriter.
   string sender = 1;
   // MarketID of the insurance fund.
   string market_id = 2;
   // Amount of quote_denom to underwrite the insurance fund.
-  cosmos.base.v1beta1.Coin deposit = 3 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin deposit = 3 [ (gogoproto.nullable) = false ];
 }
 
-message MsgUnderwriteResponse{}
+message MsgUnderwriteResponse {}
 
-// MsgRequestRedemption defines a message for requesting a redemption of the sender's insurance fund tokens
+// MsgRequestRedemption defines a message for requesting a redemption of the
+// sender's insurance fund tokens
 message MsgRequestRedemption {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
+
   // Address of the underwriter requesting a redemption.
   string sender = 1;
   // MarketID of the insurance fund.
   string market_id = 2;
   // Insurance fund share token amount to be redeemed.
-  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
 }
 
-message MsgRequestRedemptionResponse{}
+message MsgRequestRedemptionResponse {}
 
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // params defines the insurance parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateParamsResponse {}

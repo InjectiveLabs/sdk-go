@@ -3,36 +3,50 @@ package injective.oracle.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "injective/oracle/v1beta1/oracle.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
 // Msg defines the oracle Msg service.
 service Msg {
 
-  // RelayProviderPrice defines a method for relaying a price for a provider-based oracle
-  rpc RelayProviderPrices(MsgRelayProviderPrices) returns (MsgRelayProviderPricesResponse);
+  // RelayProviderPrice defines a method for relaying a price for a
+  // provider-based oracle
+  rpc RelayProviderPrices(MsgRelayProviderPrices)
+      returns (MsgRelayProviderPricesResponse);
 
-  // RelayPriceFeedPrice defines a method for relaying a price for a price feeder-based oracle
-  rpc RelayPriceFeedPrice(MsgRelayPriceFeedPrice) returns (MsgRelayPriceFeedPriceResponse);
+  // RelayPriceFeedPrice defines a method for relaying a price for a price
+  // feeder-based oracle
+  rpc RelayPriceFeedPrice(MsgRelayPriceFeedPrice)
+      returns (MsgRelayPriceFeedPriceResponse);
 
   // RelayBandRates defines a method for relaying rates from Band
   rpc RelayBandRates(MsgRelayBandRates) returns (MsgRelayBandRatesResponse);
 
   // RequestBandIBCRates defines a method for fetching rates from Band ibc
-  rpc RequestBandIBCRates(MsgRequestBandIBCRates) returns (MsgRequestBandIBCRatesResponse);
+  rpc RequestBandIBCRates(MsgRequestBandIBCRates)
+      returns (MsgRequestBandIBCRatesResponse);
 
-  // RelayCoinbaseMessages defines a method for relaying price messages from Coinbase API
-  rpc RelayCoinbaseMessages(MsgRelayCoinbaseMessages) returns (MsgRelayCoinbaseMessagesResponse);
+  // RelayCoinbaseMessages defines a method for relaying price messages from
+  // Coinbase API
+  rpc RelayCoinbaseMessages(MsgRelayCoinbaseMessages)
+      returns (MsgRelayCoinbaseMessagesResponse);
 
   // RelayPythPrices defines a method for relaying rates from the Pyth contract
   rpc RelayPythPrices(MsgRelayPythPrices) returns (MsgRelayPythPricesResponse);
 
+  //  UpdateParams enables updating oracle module's params via governance
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgRelayProviderPrice defines a SDK message for setting a price through the provider oracle.
+// MsgRelayProviderPrice defines a SDK message for setting a price through the
+// provider oracle.
 message MsgRelayProviderPrices {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
   string sender = 1;
   string provider = 2;
   repeated string symbols = 3;
@@ -42,12 +56,15 @@ message MsgRelayProviderPrices {
   ];
 }
 
-message MsgRelayProviderPricesResponse{}
+message MsgRelayProviderPricesResponse {}
 
-// MsgRelayPriceFeedPrice defines a SDK message for setting a price through the pricefeed oracle.
+// MsgRelayPriceFeedPrice defines a SDK message for setting a price through the
+// pricefeed oracle.
 message MsgRelayPriceFeedPrice {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
   string sender = 1;
 
   repeated string base = 2;
@@ -60,9 +77,11 @@ message MsgRelayPriceFeedPrice {
   ];
 }
 
-message MsgRelayPriceFeedPriceResponse{}
+message MsgRelayPriceFeedPriceResponse {}
 
 message MsgRelayBandRates {
+  option (cosmos.msg.v1.signer) = "relayer";
+
   string relayer = 1;
   repeated string symbols = 2;
   repeated uint64 rates = 3;
@@ -70,44 +89,60 @@ message MsgRelayBandRates {
   repeated uint64 requestIDs = 5;
 }
 
-message MsgRelayBandRatesResponse{}
+message MsgRelayBandRatesResponse {}
 
-// MsgRelayCoinbaseMessages defines a SDK message for relaying price messages from Coinbase API.
+// MsgRelayCoinbaseMessages defines a SDK message for relaying price messages
+// from Coinbase API.
 message MsgRelayCoinbaseMessages {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
   string sender = 1;
 
   repeated bytes messages = 2;
   repeated bytes signatures = 3;
 }
 
-message MsgRelayCoinbaseMessagesResponse{}
+message MsgRelayCoinbaseMessagesResponse {}
 
-// MsgRequestBandIBCRates defines a SDK message for requesting data from BandChain using IBC.
+// MsgRequestBandIBCRates defines a SDK message for requesting data from
+// BandChain using IBC.
 message MsgRequestBandIBCRates {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
   uint64 request_id = 2;
-
 }
 
 // MsgRequestDataResponse defines the Msg/RequestBandIBCRates response type.
 message MsgRequestBandIBCRatesResponse {}
 
-
 // MsgRelayPythPrices defines a SDK message for updating Pyth prices
 message MsgRelayPythPrices {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
   repeated PriceAttestation price_attestations = 2;
 }
 
-
 // MsgRelayPythPricesResponse defines the Msg/RelayPythPrices response type.
 message MsgRelayPythPricesResponse {}
 
+message MsgUpdateParams {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // params defines the oracle parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateParamsResponse {}

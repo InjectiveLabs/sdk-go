@@ -6,8 +6,8 @@ package types
 import (
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -34,21 +34,27 @@ type GenesisState struct {
 	DerivativeMarkets []*DerivativeMarket `protobuf:"bytes,3,rep,name=derivative_markets,json=derivativeMarkets,proto3" json:"derivative_markets,omitempty"`
 	// spot_orderbook defines the spot exchange limit orderbook active at genesis.
 	SpotOrderbook []SpotOrderBook `protobuf:"bytes,4,rep,name=spot_orderbook,json=spotOrderbook,proto3" json:"spot_orderbook"`
-	// derivative_orderbook defines the derivative exchange limit orderbook active at genesis.
+	// derivative_orderbook defines the derivative exchange limit orderbook active
+	// at genesis.
 	DerivativeOrderbook []DerivativeOrderBook `protobuf:"bytes,5,rep,name=derivative_orderbook,json=derivativeOrderbook,proto3" json:"derivative_orderbook"`
 	// balances defines the exchange users balances active at genesis.
 	Balances []Balance `protobuf:"bytes,6,rep,name=balances,proto3" json:"balances"`
 	// positions defines the exchange derivative positions at genesis
 	Positions []DerivativePosition `protobuf:"bytes,7,rep,name=positions,proto3" json:"positions"`
-	// subaccount_trade_nonces defines the subaccount trade nonces for the subaccounts at genesis
+	// subaccount_trade_nonces defines the subaccount trade nonces for the
+	// subaccounts at genesis
 	SubaccountTradeNonces []SubaccountNonce `protobuf:"bytes,8,rep,name=subaccount_trade_nonces,json=subaccountTradeNonces,proto3" json:"subaccount_trade_nonces"`
-	// expiry_futures_market_info defines the market info for the expiry futures markets at genesis
+	// expiry_futures_market_info defines the market info for the expiry futures
+	// markets at genesis
 	ExpiryFuturesMarketInfoState []ExpiryFuturesMarketInfoState `protobuf:"bytes,9,rep,name=expiry_futures_market_info_state,json=expiryFuturesMarketInfoState,proto3" json:"expiry_futures_market_info_state"`
-	// perpetual_market_info defines the market info for the perpetual derivative markets at genesis
+	// perpetual_market_info defines the market info for the perpetual derivative
+	// markets at genesis
 	PerpetualMarketInfo []PerpetualMarketInfo `protobuf:"bytes,10,rep,name=perpetual_market_info,json=perpetualMarketInfo,proto3" json:"perpetual_market_info"`
-	// perpetual_market_funding_state defines the funding state for the perpetual derivative markets at genesis
+	// perpetual_market_funding_state defines the funding state for the perpetual
+	// derivative markets at genesis
 	PerpetualMarketFundingState []PerpetualMarketFundingState `protobuf:"bytes,11,rep,name=perpetual_market_funding_state,json=perpetualMarketFundingState,proto3" json:"perpetual_market_funding_state"`
-	// derivative_market_settlement_scheduled defines the scheduled markets for settlement at genesis
+	// derivative_market_settlement_scheduled defines the scheduled markets for
+	// settlement at genesis
 	DerivativeMarketSettlementScheduled []DerivativeMarketSettlementInfo `protobuf:"bytes,12,rep,name=derivative_market_settlement_scheduled,json=derivativeMarketSettlementScheduled,proto3" json:"derivative_market_settlement_scheduled"`
 	// sets spot markets as enabled
 	IsSpotExchangeEnabled bool `protobuf:"varint,13,opt,name=is_spot_exchange_enabled,json=isSpotExchangeEnabled,proto3" json:"is_spot_exchange_enabled,omitempty"`
@@ -75,17 +81,22 @@ type GenesisState struct {
 	// the addresses opting out of trading rewards
 	RewardsOptOutAddresses []string        `protobuf:"bytes,24,rep,name=rewards_opt_out_addresses,json=rewardsOptOutAddresses,proto3" json:"rewards_opt_out_addresses,omitempty"`
 	HistoricalTradeRecords []*TradeRecords `protobuf:"bytes,25,rep,name=historical_trade_records,json=historicalTradeRecords,proto3" json:"historical_trade_records,omitempty"`
-	// binary_options_markets is an array containing the genesis binary options markets
+	// binary_options_markets is an array containing the genesis binary options
+	// markets
 	BinaryOptionsMarkets []*BinaryOptionsMarket `protobuf:"bytes,26,rep,name=binary_options_markets,json=binaryOptionsMarkets,proto3" json:"binary_options_markets,omitempty"`
-	// binary_options_markets_scheduled_for_settlement contains the marketIDs of binary options markets scheduled for next-block settlement
+	// binary_options_markets_scheduled_for_settlement contains the marketIDs of
+	// binary options markets scheduled for next-block settlement
 	BinaryOptionsMarketIdsScheduledForSettlement []string `protobuf:"bytes,27,rep,name=binary_options_market_ids_scheduled_for_settlement,json=binaryOptionsMarketIdsScheduledForSettlement,proto3" json:"binary_options_market_ids_scheduled_for_settlement,omitempty"`
-	// spot_market_ids_scheduled_to_force_close defines the scheduled markets for forced closings at genesis
+	// spot_market_ids_scheduled_to_force_close defines the scheduled markets for
+	// forced closings at genesis
 	SpotMarketIdsScheduledToForceClose []string `protobuf:"bytes,28,rep,name=spot_market_ids_scheduled_to_force_close,json=spotMarketIdsScheduledToForceClose,proto3" json:"spot_market_ids_scheduled_to_force_close,omitempty"`
 	// denom_decimals defines the denom decimals for the exchange.
 	DenomDecimals []DenomDecimals `protobuf:"bytes,29,rep,name=denom_decimals,json=denomDecimals,proto3" json:"denom_decimals"`
-	// conditional_derivative_orderbook contains conditional orderbooks for all markets (both lmit and market conditional orders)
+	// conditional_derivative_orderbook contains conditional orderbooks for all
+	// markets (both lmit and market conditional orders)
 	ConditionalDerivativeOrderbooks []*ConditionalDerivativeOrderBook `protobuf:"bytes,30,rep,name=conditional_derivative_orderbooks,json=conditionalDerivativeOrderbooks,proto3" json:"conditional_derivative_orderbooks,omitempty"`
-	// market_fee_multipliers contains any non-default atomic order fee multipliers
+	// market_fee_multipliers contains any non-default atomic order fee
+	// multipliers
 	MarketFeeMultipliers []*MarketFeeMultiplier             `protobuf:"bytes,31,rep,name=market_fee_multipliers,json=marketFeeMultipliers,proto3" json:"market_fee_multipliers,omitempty"`
 	OrderbookSequences   []*OrderbookSequence               `protobuf:"bytes,32,rep,name=orderbook_sequences,json=orderbookSequences,proto3" json:"orderbook_sequences,omitempty"`
 	SubaccountVolumes    []*AggregateSubaccountVolumeRecord `protobuf:"bytes,33,rep,name=subaccount_volumes,json=subaccountVolumes,proto3" json:"subaccount_volumes,omitempty"`

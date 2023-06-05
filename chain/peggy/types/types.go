@@ -9,8 +9,9 @@ import (
 	"strconv"
 	"strings"
 
+	"cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	gethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -38,13 +39,13 @@ func UInt64FromString(s string) (uint64, error) {
 // ValidateBasic performs stateless checks on validity
 func (b *BridgeValidator) ValidateBasic() error {
 	if b.Power == 0 {
-		return sdkerrors.Wrap(ErrEmpty, "power")
+		return errors.Wrap(ErrEmpty, "power")
 	}
 	if err := ValidateEthAddress(b.EthereumAddress); err != nil {
-		return sdkerrors.Wrap(err, "ethereum address")
+		return errors.Wrap(err, "ethereum address")
 	}
 	if b.EthereumAddress == "" {
-		return sdkerrors.Wrap(ErrEmpty, "address")
+		return errors.Wrap(ErrEmpty, "address")
 	}
 	return nil
 }
@@ -136,17 +137,17 @@ func (b BridgeValidators) ValidateBasic() error {
 	}
 	for i := range b {
 		if err := b[i].ValidateBasic(); err != nil {
-			return sdkerrors.Wrapf(err, "member %d", i)
+			return errors.Wrapf(err, "member %d", i)
 		}
 	}
 	if b.HasDuplicates() {
-		return sdkerrors.Wrap(ErrDuplicate, "addresses")
+		return errors.Wrap(ErrDuplicate, "addresses")
 	}
 	return nil
 }
 
 // NewValset returns a new valset
-func NewValset(nonce, height uint64, members BridgeValidators, rewardAmount sdk.Int, rewardToken gethcommon.Address) *Valset {
+func NewValset(nonce, height uint64, members BridgeValidators, rewardAmount sdkmath.Int, rewardToken gethcommon.Address) *Valset {
 	members.Sort()
 	mem := make([]*BridgeValidator, 0)
 	for _, val := range members {
@@ -248,7 +249,7 @@ func (v Valsets) Swap(i, j int) {
 }
 
 // GetFees returns the total fees contained within a given batch
-func (b OutgoingTxBatch) GetFees() sdk.Int {
+func (b OutgoingTxBatch) GetFees() sdkmath.Int {
 	sum := sdk.ZeroInt()
 	for _, t := range b.Transactions {
 		sum.Add(t.Erc20Fee.Amount)

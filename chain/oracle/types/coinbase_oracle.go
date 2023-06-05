@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -73,7 +73,7 @@ func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress co
 	trimmedSig[64] = signature[95]
 
 	if len(trimmedSig) < 65 {
-		return sdkerrors.Wrap(ErrInvalidEthereumSignature, "signature too short")
+		return errors.Wrap(ErrInvalidEthereumSignature, "signature too short")
 	}
 
 	// calculate recover id
@@ -89,12 +89,12 @@ func ValidateEthereumSignature(hash common.Hash, signature []byte, ethAddress co
 	// verify signature
 	pubkey, err := crypto.SigToPub(preambleHash.Bytes(), trimmedSig)
 	if err != nil {
-		return sdkerrors.Wrap(err, "signature to public key")
+		return errors.Wrap(err, "signature to public key")
 	}
 	addr := crypto.PubkeyToAddress(*pubkey)
 
 	if !bytes.Equal(addr.Bytes(), ethAddress.Bytes()) {
-		return sdkerrors.Wrapf(ErrInvalidEthereumSignature, "signature not matching, expected %s but got %s", ethAddress.Hex(), addr.Hex())
+		return errors.Wrapf(ErrInvalidEthereumSignature, "signature not matching, expected %s but got %s", ethAddress.Hex(), addr.Hex())
 	}
 
 	return nil

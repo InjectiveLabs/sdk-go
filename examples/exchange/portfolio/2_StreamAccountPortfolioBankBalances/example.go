@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
 	"github.com/InjectiveLabs/sdk-go/client/common"
+
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
@@ -19,7 +19,7 @@ func main() {
 
 	ctx := context.Background()
 
-	stream, err := exchangeClient.StreamAccountPortfolio(ctx, "inj1clw20s2uxeyxtam6f7m84vgae92s9eh7vygagt", "", "")
+	stream, err := exchangeClient.StreamAccountPortfolio(ctx, "inj1rgxjfea3y2e7n0frz5syly8n5zulagy3fc56jy", "", "")
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -7,9 +7,9 @@ import (
 	context "context"
 	fmt "fmt"
 	types "github.com/cosmos/cosmos-sdk/types"
-	_ "github.com/gogo/protobuf/gogoproto"
-	grpc1 "github.com/gogo/protobuf/grpc"
-	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/cosmos/gogoproto/gogoproto"
+	grpc1 "github.com/cosmos/gogoproto/grpc"
+	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -30,7 +30,8 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryInsuranceParamsRequest is the request type for the Query/InsuranceParams RPC method.
+// QueryInsuranceParamsRequest is the request type for the Query/InsuranceParams
+// RPC method.
 type QueryInsuranceParamsRequest struct {
 }
 
@@ -67,7 +68,8 @@ func (m *QueryInsuranceParamsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryInsuranceParamsRequest proto.InternalMessageInfo
 
-// QueryInsuranceParamsRequest is the response type for the Query/InsuranceParams RPC method.
+// QueryInsuranceParamsRequest is the response type for the
+// Query/InsuranceParams RPC method.
 type QueryInsuranceParamsResponse struct {
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
@@ -112,7 +114,8 @@ func (m *QueryInsuranceParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryInsuranceFundRequest is the request type for the Query/InsuranceFunds RPC method.
+// QueryInsuranceFundRequest is the request type for the Query/InsuranceFunds
+// RPC method.
 type QueryInsuranceFundRequest struct {
 	// Market ID for the market
 	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
@@ -158,7 +161,8 @@ func (m *QueryInsuranceFundRequest) GetMarketId() string {
 	return ""
 }
 
-// QueryInsuranceFundResponse is the response type for the Query/InsuranceFund RPC method.
+// QueryInsuranceFundResponse is the response type for the Query/InsuranceFund
+// RPC method.
 type QueryInsuranceFundResponse struct {
 	Fund *InsuranceFund `protobuf:"bytes,1,opt,name=fund,proto3" json:"fund,omitempty"`
 }
@@ -203,7 +207,8 @@ func (m *QueryInsuranceFundResponse) GetFund() *InsuranceFund {
 	return nil
 }
 
-// QueryInsuranceFundsRequest is the request type for the Query/InsuranceFunds RPC method.
+// QueryInsuranceFundsRequest is the request type for the Query/InsuranceFunds
+// RPC method.
 type QueryInsuranceFundsRequest struct {
 }
 
@@ -240,7 +245,8 @@ func (m *QueryInsuranceFundsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryInsuranceFundsRequest proto.InternalMessageInfo
 
-// QueryInsuranceFundsResponse is the response type for the Query/InsuranceFunds RPC method.
+// QueryInsuranceFundsResponse is the response type for the Query/InsuranceFunds
+// RPC method.
 type QueryInsuranceFundsResponse struct {
 	Funds []InsuranceFund `protobuf:"bytes,1,rep,name=funds,proto3" json:"funds"`
 }
@@ -285,7 +291,8 @@ func (m *QueryInsuranceFundsResponse) GetFunds() []InsuranceFund {
 	return nil
 }
 
-// QueryEstimatedRedemptionsRequest is the request type for the Query/EstimatedRedemptions RPC method.
+// QueryEstimatedRedemptionsRequest is the request type for the
+// Query/EstimatedRedemptions RPC method.
 type QueryEstimatedRedemptionsRequest struct {
 	MarketId string `protobuf:"bytes,1,opt,name=marketId,proto3" json:"marketId,omitempty"`
 	Address  string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
@@ -338,7 +345,8 @@ func (m *QueryEstimatedRedemptionsRequest) GetAddress() string {
 	return ""
 }
 
-// QueryEstimatedRedemptionsResponse is the response type for the Query/EstimatedRedemptions RPC method.
+// QueryEstimatedRedemptionsResponse is the response type for the
+// Query/EstimatedRedemptions RPC method.
 type QueryEstimatedRedemptionsResponse struct {
 	Amount []types.Coin `protobuf:"bytes,1,rep,name=amount,proto3" json:"amount"`
 }
@@ -383,7 +391,8 @@ func (m *QueryEstimatedRedemptionsResponse) GetAmount() []types.Coin {
 	return nil
 }
 
-// QueryPendingRedemptionsRequest is the request type for the Query/PendingRedemptions RPC method.
+// QueryPendingRedemptionsRequest is the request type for the
+// Query/PendingRedemptions RPC method.
 type QueryPendingRedemptionsRequest struct {
 	MarketId string `protobuf:"bytes,1,opt,name=marketId,proto3" json:"marketId,omitempty"`
 	Address  string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
@@ -436,7 +445,8 @@ func (m *QueryPendingRedemptionsRequest) GetAddress() string {
 	return ""
 }
 
-// QueryPendingRedemptionsResponse is the response type for the Query/PendingRedemptions RPC method.
+// QueryPendingRedemptionsResponse is the response type for the
+// Query/PendingRedemptions RPC method.
 type QueryPendingRedemptionsResponse struct {
 	Amount []types.Coin `protobuf:"bytes,1,rep,name=amount,proto3" json:"amount"`
 }
@@ -481,7 +491,8 @@ func (m *QueryPendingRedemptionsResponse) GetAmount() []types.Coin {
 	return nil
 }
 
-// QueryModuleStateRequest is the request type for the Query/InsuranceModuleState RPC method.
+// QueryModuleStateRequest is the request type for the
+// Query/InsuranceModuleState RPC method.
 type QueryModuleStateRequest struct {
 }
 
@@ -518,7 +529,8 @@ func (m *QueryModuleStateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 
-// QueryModuleStateResponse is the response type for the Query/InsuranceModuleState RPC method.
+// QueryModuleStateResponse is the response type for the
+// Query/InsuranceModuleState RPC method.
 type QueryModuleStateResponse struct {
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }
@@ -650,7 +662,8 @@ type QueryClient interface {
 	InsuranceFund(ctx context.Context, in *QueryInsuranceFundRequest, opts ...grpc.CallOption) (*QueryInsuranceFundResponse, error)
 	// Retrieves all insurance funds
 	InsuranceFunds(ctx context.Context, in *QueryInsuranceFundsRequest, opts ...grpc.CallOption) (*QueryInsuranceFundsResponse, error)
-	// Retrives the value of insurance fund share token at current price (not pending redemption)
+	// Retrives the value of insurance fund share token at current price (not
+	// pending redemption)
 	EstimatedRedemptions(ctx context.Context, in *QueryEstimatedRedemptionsRequest, opts ...grpc.CallOption) (*QueryEstimatedRedemptionsResponse, error)
 	// Retrieves pending redemptions' share token at current price
 	PendingRedemptions(ctx context.Context, in *QueryPendingRedemptionsRequest, opts ...grpc.CallOption) (*QueryPendingRedemptionsResponse, error)
@@ -728,7 +741,8 @@ type QueryServer interface {
 	InsuranceFund(context.Context, *QueryInsuranceFundRequest) (*QueryInsuranceFundResponse, error)
 	// Retrieves all insurance funds
 	InsuranceFunds(context.Context, *QueryInsuranceFundsRequest) (*QueryInsuranceFundsResponse, error)
-	// Retrives the value of insurance fund share token at current price (not pending redemption)
+	// Retrives the value of insurance fund share token at current price (not
+	// pending redemption)
 	EstimatedRedemptions(context.Context, *QueryEstimatedRedemptionsRequest) (*QueryEstimatedRedemptionsResponse, error)
 	// Retrieves pending redemptions' share token at current price
 	PendingRedemptions(context.Context, *QueryPendingRedemptionsRequest) (*QueryPendingRedemptionsResponse, error)

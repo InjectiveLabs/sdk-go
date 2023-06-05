@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var InsuranceFundInitialSupply = sdk.NewIntWithDecimal(1, 18)
+var InsuranceFundInitialSupply = math.NewIntWithDecimal(1, 18)
 
 func NewInsuranceFund(
 	marketID common.Hash,
@@ -24,8 +23,8 @@ func NewInsuranceFund(
 		DepositDenom:                   depositDenom,
 		InsurancePoolTokenDenom:        poolTokenDenom,
 		RedemptionNoticePeriodDuration: redemptionNoticePeriodDuration,
-		Balance:                        sdk.ZeroInt(),
-		TotalShare:                     sdk.ZeroInt(),
+		Balance:                        math.ZeroInt(),
+		TotalShare:                     math.ZeroInt(),
 		MarketId:                       marketID.Hex(),
 		MarketTicker:                   ticker,
 		OracleBase:                     oracleBase,
@@ -40,11 +39,11 @@ func (fund InsuranceFund) ShareDenom() string {
 	return fund.InsurancePoolTokenDenom
 }
 
-func (fund *InsuranceFund) AddTotalShare(shares sdk.Int) {
+func (fund *InsuranceFund) AddTotalShare(shares math.Int) {
 	fund.TotalShare = fund.TotalShare.Add(shares)
 }
 
-func (fund *InsuranceFund) SubTotalShare(shares sdk.Int) {
+func (fund *InsuranceFund) SubTotalShare(shares math.Int) {
 	fund.TotalShare = fund.TotalShare.Sub(shares)
 }
 

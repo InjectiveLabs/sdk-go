@@ -1,16 +1,17 @@
 package hd
 
 import (
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	ethaccounts "github.com/ethereum/go-ethereum/accounts"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/tyler-smith/go-bip39"
 
-	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+
+	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 )
 
 const (
@@ -71,8 +72,10 @@ func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
 		}
 
 		key := masterKey
+		// todo: Child method incompatible, see
+		// https://pkg.go.dev/github.com/btcsuite/btcd/btcutil/hdkeychain@v1.1.2#ExtendedKey.Derive:~:text=the%20given%20index.-,IMPORTANT,-%3A%20if%20you%20were
 		for _, n := range hdpath {
-			key, err = key.Child(n)
+			key, err = key.Derive(n)
 			if err != nil {
 				return nil, err
 			}

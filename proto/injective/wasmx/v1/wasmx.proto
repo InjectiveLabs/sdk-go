@@ -2,25 +2,29 @@ syntax = "proto3";
 package injective.wasmx.v1;
 
 import "gogoproto/gogo.proto";
+import "injective/wasmx/v1/proposal.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message Params {
   option (gogoproto.equal) = true;
 
-  // Set the status to active to indicate that contracts can be executed in begin blocker.
+  // Set the status to active to indicate that contracts can be executed in
+  // begin blocker.
   bool is_execution_enabled = 1;
 
-  // Maximum aggregate total gas to be used for the contract executions in the BeginBlocker.
+  // Maximum aggregate total gas to be used for the contract executions in the
+  // BeginBlocker.
   uint64 max_begin_block_total_gas = 2;
 
-  // the maximum gas limit each individual contract can consume in the BeginBlocker.
+  // the maximum gas limit each individual contract can consume in the
+  // BeginBlocker.
   uint64 max_contract_gas_limit = 3;
 
-  // min_gas_price defines the minimum gas price the contracts must pay to be executed in the BeginBlocker.
+  // min_gas_price defines the minimum gas price the contracts must pay to be
+  // executed in the BeginBlocker.
   uint64 min_gas_price = 4;
 }
-
 
 message RegisteredContract {
   option (gogoproto.equal) = true;
@@ -29,14 +33,22 @@ message RegisteredContract {
   uint64 gas_limit = 1;
 
   // gas price that contract is willing to pay for execution in BeginBlocker
-  uint64  gas_price = 2;
+  uint64 gas_price = 2;
 
   // is contract currently active
-  bool is_executable  = 3;
+  bool is_executable = 3;
 
-  // code_id that is allowed to be executed (to prevent malicious updates) - if nil/0 any code_id can be executed
-  uint64 code_id = 4  [(gogoproto.nullable) = true];
+  // code_id that is allowed to be executed (to prevent malicious updates) - if
+  // nil/0 any code_id can be executed
+  uint64 code_id = 4 [ (gogoproto.nullable) = true ];
 
   // optional - admin addr that is allowed to update contract data
-  string admin_address  = 5 [(gogoproto.nullable) = true];
+  string admin_address = 5 [ (gogoproto.nullable) = true ];
+
+  // Optional: address of the contract granting fee
+  // Must be set if fund_mode is GrantOnly
+  string granter_address = 6 [ (gogoproto.nullable) = true ];
+
+  // funding mode
+  FundingMode fund_mode = 7;
 }
