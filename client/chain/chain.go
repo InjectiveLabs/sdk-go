@@ -272,11 +272,12 @@ func NewChainClient(
 	}
 
 	// create file if not exist
-	cookie_file, err := os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
+	cookieFile, err := os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		cc.logger.Errorln(err)
+	} else {
+		defer cookieFile.Close()
 	}
-	defer cookie_file.Close()
 
 	// attempt to load from disk
 	data, err := os.ReadFile(defaultChainCookieName)
