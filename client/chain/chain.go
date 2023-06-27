@@ -83,18 +83,44 @@ type ChainClient interface {
 
 	// Build signed tx with given accNum and accSeq, useful for offline siging
 	// If simulate is set to false, initialGas will be used
-	BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msg ...sdk.Msg) ([]byte, error)
+	BuildSignedTx(
+		clientCtx client.Context,
+		accNum, accSeq, initialGas uint64,
+		msg ...sdk.Msg,
+	) ([]byte, error)
 	SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
-	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
-	GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error)
-	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
+	GetBankBalances(
+		ctx context.Context,
+		address string,
+	) (*banktypes.QueryAllBalancesResponse, error)
+	GetBankBalance(
+		ctx context.Context,
+		address string,
+		denom string,
+	) (*banktypes.QueryBalanceResponse, error)
+	GetAuthzGrants(
+		ctx context.Context,
+		req authztypes.QueryGrantsRequest,
+	) (*authztypes.QueryGrantsResponse, error)
 	GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error)
 
-	BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant
-	BuildExchangeAuthz(granter string, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant
+	BuildGenericAuthz(
+		granter string,
+		grantee string,
+		msgtype string,
+		expireIn time.Time,
+	) *authztypes.MsgGrant
+	BuildExchangeAuthz(
+		granter string,
+		grantee string,
+		authzType ExchangeAuthz,
+		subaccountId string,
+		markets []string,
+		expireIn time.Time,
+	) *authztypes.MsgGrant
 	BuildExchangeBatchUpdateOrdersAuthz(
 		granter string,
 		grantee string,
@@ -106,14 +132,31 @@ type ChainClient interface {
 
 	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
 
-	GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
-	GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
+	GetSubAccountNonce(
+		ctx context.Context,
+		subaccountId eth.Hash,
+	) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
+	GetFeeDiscountInfo(
+		ctx context.Context,
+		account string,
+	) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
 
 	UpdateSubaccountNonceFromChain() error
-	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error)
+	ComputeOrderHashes(
+		spotOrders []exchangetypes.SpotOrder,
+		derivativeOrders []exchangetypes.DerivativeOrder,
+	) (OrderHashes, error)
 
-	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
-	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
+	SpotOrder(
+		defaultSubaccountID eth.Hash,
+		network common.Network,
+		d *SpotOrderData,
+	) *exchangetypes.SpotOrder
+	DerivativeOrder(
+		defaultSubaccountID eth.Hash,
+		network common.Network,
+		d *DerivativeOrderData,
+	) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
 	SmartContractState(
@@ -130,7 +173,11 @@ type ChainClient interface {
 	GetGasFee() (string, error)
 
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
-	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
+	StreamOrderbookUpdateEvents(
+		orderbookType OrderbookType,
+		marketIds []string,
+		orderbookCh chan exchangetypes.Orderbook,
+	)
 
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
@@ -200,7 +247,11 @@ func NewChainClient(
 	var err error
 	stickySessionEnabled := true
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.Dial(
+			protoAddr,
+			grpc.WithTransportCredentials(opts.TLSCert),
+			grpc.WithContextDialer(common.DialerFunc),
+		)
 	} else {
 		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
 		stickySessionEnabled = false
@@ -261,7 +312,8 @@ func NewChainClient(
 	if cc.canSign {
 		var err error
 
-		cc.accNum, cc.accSeq, err = cc.txFactory.AccountRetriever().GetAccountNumberSequence(ctx, ctx.GetFromAddress())
+		cc.accNum, cc.accSeq, err = cc.txFactory.AccountRetriever().
+			GetAccountNumberSequence(ctx, ctx.GetFromAddress())
 		if err != nil {
 			err = errors.Wrap(err, "failed to get initial account num and seq")
 			return nil, err
@@ -292,7 +344,8 @@ func NewChainClient(
 }
 
 func (c *chainClient) syncNonce() {
-	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
+	num, seq, err := c.txFactory.AccountRetriever().
+		GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
 	if err != nil {
 		c.logger.WithError(err).Errorln("failed to get account seq")
 		return
@@ -491,21 +544,31 @@ func (c *chainClient) Close() {
 	}
 }
 
-func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
+func (c *chainClient) GetBankBalances(
+	ctx context.Context,
+	address string,
+) (*banktypes.QueryAllBalancesResponse, error) {
 	req := &banktypes.QueryAllBalancesRequest{
 		Address: address,
 	}
 	return c.bankQueryClient.AllBalances(ctx, req)
 }
 
-func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error) {
+func (c *chainClient) GetAccount(
+	ctx context.Context,
+	address string,
+) (*authtypes.QueryAccountResponse, error) {
 	req := &authtypes.QueryAccountRequest{
 		Address: address,
 	}
 	return c.authQueryClient.Account(ctx, req)
 }
 
-func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
+func (c *chainClient) GetBankBalance(
+	ctx context.Context,
+	address string,
+	denom string,
+) (*banktypes.QueryBalanceResponse, error) {
 	req := &banktypes.QueryBalanceRequest{
 		Address: address,
 		Denom:   denom,
@@ -532,7 +595,9 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed synchronously broadcast messages:", string(resJSON))
+			c.logger.WithField("size", len(msgs)).
+				WithError(err).
+				Errorln("failed synchronously broadcast messages:", string(resJSON))
 			return nil, err
 		}
 	}
@@ -542,14 +607,20 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 	return res, nil
 }
 
-func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error) {
+func (c *chainClient) GetFeeDiscountInfo(
+	ctx context.Context,
+	account string,
+) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error) {
 	req := &exchangetypes.QueryFeeDiscountAccountInfoRequest{
 		Account: account,
 	}
 	return c.exchangeQueryClient.FeeDiscountAccountInfo(ctx, req)
 }
 
-func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
+func (c *chainClient) SimulateMsg(
+	clientCtx client.Context,
+	msgs ...sdk.Msg,
+) (*txtypes.SimulateResponse, error) {
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 	txf, err := c.prepareFactory(clientCtx, c.txFactory)
@@ -567,7 +638,11 @@ func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*t
 	ctx := context.Background()
 	ctx = c.getCookie(ctx)
 	var header metadata.MD
-	simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+	simRes, err := c.txClient.Simulate(
+		ctx,
+		&txtypes.SimulateRequest{TxBytes: simTxBytes},
+		grpc.Header(&header),
+	)
 	if err != nil {
 		err = errors.Wrap(err, "failed to CalculateGas")
 		return nil, err
@@ -596,7 +671,9 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to asynchronously broadcast messagess:", string(resJSON))
+			c.logger.WithField("size", len(msgs)).
+				WithError(err).
+				Errorln("failed to asynchronously broadcast messagess:", string(resJSON))
 			return nil, err
 		}
 	}
@@ -606,8 +683,16 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	return res, nil
 }
 
-func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
-	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
+func (c *chainClient) BuildSignedTx(
+	clientCtx client.Context,
+	accNum, accSeq, initialGas uint64,
+	msgs ...sdk.Msg,
+) ([]byte, error) {
+	txf := NewTxFactory(
+		clientCtx,
+	).WithSequence(accSeq).
+		WithAccountNumber(accNum).
+		WithGas(initialGas)
 
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
@@ -617,7 +702,11 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 		}
 		ctx := c.getCookie(context.Background())
 		var header metadata.MD
-		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+		simRes, err := c.txClient.Simulate(
+			ctx,
+			&txtypes.SimulateRequest{TxBytes: simTxBytes},
+			grpc.Header(&header),
+		)
 		if err != nil {
 			err = errors.Wrap(err, "failed to CalculateGas")
 			return nil, err
@@ -664,7 +753,14 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 		return res, err
 	}
 
-	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
+	var broadcastTimeout time.Duration
+	if c.opts.TxBroadcastTimeoutSec > 0 {
+		broadcastTimeout = time.Duration(c.opts.TxBroadcastTimeoutSec) * time.Second
+	} else {
+		broadcastTimeout = defaultBroadcastTimeout
+	}
+
+	awaitCtx, cancelFn := context.WithTimeout(context.Background(), broadcastTimeout)
 	defer cancelFn()
 
 	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
@@ -736,7 +832,11 @@ func (c *chainClient) broadcastTx(
 		}
 		ctx := c.getCookie(ctx)
 		var header metadata.MD
-		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+		simRes, err := c.txClient.Simulate(
+			ctx,
+			&txtypes.SimulateRequest{TxBytes: simTxBytes},
+			grpc.Header(&header),
+		)
 		if err != nil {
 			err = errors.Wrap(err, "failed to CalculateGas")
 			return nil, err
@@ -780,7 +880,14 @@ func (c *chainClient) broadcastTx(
 		return res, err
 	}
 
-	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
+	var broadcastTimeout time.Duration
+	if c.opts.TxBroadcastTimeoutSec > 0 {
+		broadcastTimeout = time.Duration(c.opts.TxBroadcastTimeoutSec) * time.Second
+	} else {
+		broadcastTimeout = defaultBroadcastTimeout
+	}
+
+	awaitCtx, cancelFn := context.WithTimeout(context.Background(), broadcastTimeout)
 	defer cancelFn()
 
 	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
@@ -857,14 +964,23 @@ func (c *chainClient) runBatchBroadcast() {
 			}
 			if err != nil {
 				resJSON, _ := json.MarshalIndent(res, "", "\t")
-				c.logger.WithField("size", len(toSubmit)).WithError(err).Errorln("failed to broadcast messages batch:", string(resJSON))
+				c.logger.WithField("size", len(toSubmit)).
+					WithError(err).
+					Errorln("failed to broadcast messages batch:", string(resJSON))
 				return
 			}
 		}
 
 		if res.TxResponse.Code != 0 {
-			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
-			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to broadcast messages batch")
+			err = errors.Errorf(
+				"error %d (%s): %s",
+				res.TxResponse.Code,
+				res.TxResponse.Codespace,
+				res.TxResponse.RawLog,
+			)
+			log.WithField("txHash", res.TxResponse.TxHash).
+				WithError(err).
+				Errorln("failed to broadcast messages batch")
 		} else {
 			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch broadcasted successfully at height", res.TxResponse.Height)
 		}
@@ -929,7 +1045,10 @@ func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
 	return eth.BytesToHash(eth.RightPadBytes(acc.Bytes(), 32))
 }
 
-func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
+func (c *chainClient) GetSubAccountNonce(
+	ctx context.Context,
+	subaccountId eth.Hash,
+) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
 	req := &exchangetypes.QuerySubaccountTradeNonceRequest{SubaccountId: subaccountId.String()}
 	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
 }
@@ -942,7 +1061,11 @@ func formatPriceToTickSize(value, tickSize cosmtypes.Dec) sdkmath.LegacyDec {
 	return realValue
 }
 
-func GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec) {
+func GetSpotQuantity(
+	value decimal.Decimal,
+	minTickSize cosmtypes.Dec,
+	baseDecimals int,
+) (qty cosmtypes.Dec) {
 	mid, _ := cosmtypes.NewDecFromStr(value.String())
 	bStr := decimal.New(1, int32(baseDecimals)).String()
 	baseDec, _ := cosmtypes.NewDecFromStr(bStr)
@@ -952,7 +1075,12 @@ func GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecim
 	return qty
 }
 
-func GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec {
+func GetSpotPrice(
+	price decimal.Decimal,
+	baseDecimals int,
+	quoteDecimals int,
+	minPriceTickSize cosmtypes.Dec,
+) cosmtypes.Dec {
 	scale := decimal.New(1, int32(quoteDecimals-baseDecimals))
 	priceStr := scale.Mul(price).StringFixed(18)
 	decPrice, err := cosmtypes.NewDecFromStr(priceStr)
@@ -982,15 +1110,28 @@ func GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
 	return realValue
 }
 
-func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
+func (c *chainClient) SpotOrder(
+	defaultSubaccountID eth.Hash,
+	network common.Network,
+	d *SpotOrderData,
+) *exchangetypes.SpotOrder {
 
 	baseDecimals := common.LoadMetadata(network, d.MarketId).Base
 	quoteDecimals := common.LoadMetadata(network, d.MarketId).Quote
 	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
 	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
 
-	orderSize := GetSpotQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)), baseDecimals)
-	orderPrice := GetSpotPrice(d.Price, baseDecimals, quoteDecimals, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+	orderSize := GetSpotQuantity(
+		d.Quantity,
+		cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)),
+		baseDecimals,
+	)
+	orderPrice := GetSpotPrice(
+		d.Price,
+		baseDecimals,
+		quoteDecimals,
+		cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)),
+	)
 
 	return &exchangetypes.SpotOrder{
 		MarketId:  d.MarketId,
@@ -1004,7 +1145,11 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 	}
 }
 
-func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
+func (c *chainClient) DerivativeOrder(
+	defaultSubaccountID eth.Hash,
+	network common.Network,
+	d *DerivativeOrderData,
+) *exchangetypes.DerivativeOrder {
 
 	margin := cosmtypes.MustNewDecFromStr(fmt.Sprint(d.Quantity)).Mul(d.Price).Quo(d.Leverage)
 
@@ -1015,9 +1160,18 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
 	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
 
-	orderSize := GetDerivativeQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)))
-	orderPrice := GetDerivativePrice(d.Price, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
-	orderMargin := GetDerivativePrice(margin, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+	orderSize := GetDerivativeQuantity(
+		d.Quantity,
+		cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)),
+	)
+	orderPrice := GetDerivativePrice(
+		d.Price,
+		cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)),
+	)
+	orderMargin := GetDerivativePrice(
+		margin,
+		cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)),
+	)
 
 	return &exchangetypes.DerivativeOrder{
 		MarketId:  d.MarketId,
@@ -1032,7 +1186,10 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 	}
 }
 
-func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData {
+func (c *chainClient) OrderCancel(
+	defaultSubaccountID eth.Hash,
+	d *OrderCancelData,
+) *exchangetypes.OrderData {
 	return &exchangetypes.OrderData{
 		MarketId:     d.MarketId,
 		OrderHash:    d.OrderHash,
@@ -1040,11 +1197,19 @@ func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelDa
 	}
 }
 
-func (c *chainClient) GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error) {
+func (c *chainClient) GetAuthzGrants(
+	ctx context.Context,
+	req authztypes.QueryGrantsRequest,
+) (*authztypes.QueryGrantsResponse, error) {
 	return c.authzQueryClient.Grants(ctx, &req)
 }
 
-func (c *chainClient) BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant {
+func (c *chainClient) BuildGenericAuthz(
+	granter string,
+	grantee string,
+	msgtype string,
+	expireIn time.Time,
+) *authztypes.MsgGrant {
 	authz := authztypes.NewGenericAuthorization(msgtype)
 	authzAny := codectypes.UnsafePackAny(authz)
 	return &authztypes.MsgGrant{
@@ -1060,22 +1225,51 @@ func (c *chainClient) BuildGenericAuthz(granter string, grantee string, msgtype 
 type ExchangeAuthz string
 
 var (
-	CreateSpotLimitOrderAuthz       = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateSpotLimitOrderAuthz{}))
-	CreateSpotMarketOrderAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateSpotMarketOrderAuthz{}))
-	BatchCreateSpotLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCreateSpotLimitOrdersAuthz{}))
-	CancelSpotOrderAuthz            = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CancelSpotOrderAuthz{}))
-	BatchCancelSpotOrdersAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCancelSpotOrdersAuthz{}))
+	CreateSpotLimitOrderAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.CreateSpotLimitOrderAuthz{}),
+	)
+	CreateSpotMarketOrderAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.CreateSpotMarketOrderAuthz{}),
+	)
+	BatchCreateSpotLimitOrdersAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.BatchCreateSpotLimitOrdersAuthz{}),
+	)
+	CancelSpotOrderAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.CancelSpotOrderAuthz{}),
+	)
+	BatchCancelSpotOrdersAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.BatchCancelSpotOrdersAuthz{}),
+	)
 
-	CreateDerivativeLimitOrderAuthz       = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateDerivativeLimitOrderAuthz{}))
-	CreateDerivativeMarketOrderAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateDerivativeMarketOrderAuthz{}))
-	BatchCreateDerivativeLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCreateDerivativeLimitOrdersAuthz{}))
-	CancelDerivativeOrderAuthz            = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CancelDerivativeOrderAuthz{}))
-	BatchCancelDerivativeOrdersAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCancelDerivativeOrdersAuthz{}))
+	CreateDerivativeLimitOrderAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.CreateDerivativeLimitOrderAuthz{}),
+	)
+	CreateDerivativeMarketOrderAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.CreateDerivativeMarketOrderAuthz{}),
+	)
+	BatchCreateDerivativeLimitOrdersAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.BatchCreateDerivativeLimitOrdersAuthz{}),
+	)
+	CancelDerivativeOrderAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.CancelDerivativeOrderAuthz{}),
+	)
+	BatchCancelDerivativeOrdersAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.BatchCancelDerivativeOrdersAuthz{}),
+	)
 
-	BatchUpdateOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchUpdateOrdersAuthz{}))
+	BatchUpdateOrdersAuthz = ExchangeAuthz(
+		"/" + proto.MessageName(&exchangetypes.BatchUpdateOrdersAuthz{}),
+	)
 )
 
-func (c *chainClient) BuildExchangeAuthz(granter string, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant {
+func (c *chainClient) BuildExchangeAuthz(
+	granter string,
+	grantee string,
+	authzType ExchangeAuthz,
+	subaccountId string,
+	markets []string,
+	expireIn time.Time,
+) *authztypes.MsgGrant {
 	var typedAuthzAny codectypes.Any
 	var typedAuthzBytes []byte
 	switch authzType {
@@ -1220,7 +1414,10 @@ func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 }
 
 func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[string]uint) {
-	filter := fmt.Sprintf("tm.event='Tx' AND message.sender='%s' AND message.action='/injective.exchange.v1beta1.MsgBatchUpdateOrders' AND injective.exchange.v1beta1.EventOrderFail.flags EXISTS", sender)
+	filter := fmt.Sprintf(
+		"tm.event='Tx' AND message.sender='%s' AND message.action='/injective.exchange.v1beta1.MsgBatchUpdateOrders' AND injective.exchange.v1beta1.EventOrderFail.flags EXISTS",
+		sender,
+	)
 	eventCh, err := c.cometbftClient.Subscribe(context.Background(), "OrderFail", filter, 10000)
 	if err != nil {
 		panic(err)
@@ -1231,13 +1428,19 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 		e := <-eventCh
 
 		var failedOrderHashes []string
-		err = json.Unmarshal([]byte(e.Events["injective.exchange.v1beta1.EventOrderFail.hashes"][0]), &failedOrderHashes)
+		err = json.Unmarshal(
+			[]byte(e.Events["injective.exchange.v1beta1.EventOrderFail.hashes"][0]),
+			&failedOrderHashes,
+		)
 		if err != nil {
 			panic(err)
 		}
 
 		var failedOrderCodes []uint
-		err = json.Unmarshal([]byte(e.Events["injective.exchange.v1beta1.EventOrderFail.flags"][0]), &failedOrderCodes)
+		err = json.Unmarshal(
+			[]byte(e.Events["injective.exchange.v1beta1.EventOrderFail.flags"][0]),
+			&failedOrderCodes,
+		)
 		if err != nil {
 			panic(err)
 		}
@@ -1253,9 +1456,18 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 	}
 }
 
-func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook) {
+func (c *chainClient) StreamOrderbookUpdateEvents(
+	orderbookType OrderbookType,
+	marketIds []string,
+	orderbookCh chan exchangetypes.Orderbook,
+) {
 	filter := fmt.Sprintf("tm.event='NewBlock' AND %s EXISTS", orderbookType)
-	eventCh, err := c.cometbftClient.Subscribe(context.Background(), "OrderbookUpdate", filter, 10000)
+	eventCh, err := c.cometbftClient.Subscribe(
+		context.Background(),
+		"OrderbookUpdate",
+		filter,
+		10000,
+	)
 	if err != nil {
 		panic(err)
 	}

@@ -18,14 +18,25 @@ func init() {
 }
 
 type ClientOptions struct {
-	GasPrices string
-	TLSCert   credentials.TransportCredentials
+	GasPrices             string
+	TLSCert               credentials.TransportCredentials
+	TxBroadcastTimeoutSec int64
 }
 
 type ClientOption func(opts *ClientOptions) error
 
 func DefaultClientOptions() *ClientOptions {
 	return &ClientOptions{}
+}
+
+func OptionTxBroadcastTimeoutSec(timeout int64) ClientOption {
+	return func(opts *ClientOptions) error {
+		if timeout <= 0 {
+			return errors.New("timeout must be positive")
+		}
+		opts.TxBroadcastTimeoutSec = timeout
+		return nil
+	}
 }
 
 func OptionGasPrices(gasPrices string) ClientOption {
