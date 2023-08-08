@@ -11,6 +11,7 @@ import (
 	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	groupcdc "github.com/cosmos/cosmos-sdk/x/group/codec"
+	proto "github.com/cosmos/gogoproto/proto"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/exchange interfaces and concrete types
@@ -110,6 +111,19 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgAdminUpdateBinaryOptionsMarket{},
 		&MsgReclaimLockedFunds{},
 		&MsgUpdateParams{},
+	)
+
+	registry.RegisterImplementations(
+		(*proto.Message)(nil),
+		&MsgCreateSpotLimitOrderResponse{},
+		&MsgCreateSpotMarketOrderResponse{},
+		&MsgBatchCreateSpotLimitOrdersResponse{},
+		&MsgCreateDerivativeLimitOrderResponse{},
+		&MsgCreateDerivativeMarketOrderResponse{},
+		&MsgBatchCreateDerivativeLimitOrdersResponse{},
+		&MsgCreateBinaryOptionsLimitOrderResponse{},
+		&MsgCreateBinaryOptionsMarketOrderResponse{},
+		&MsgBatchUpdateOrdersResponse{},
 	)
 
 	registry.RegisterImplementations(
