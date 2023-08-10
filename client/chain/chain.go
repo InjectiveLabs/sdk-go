@@ -809,6 +809,8 @@ func (c *chainClient) broadcastTx(
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
+				c.logger.Debugf("Tx Error for Hash: %s: %v", res.TxResponse.TxHash, err)
+
 				// log.WithError(err).Warningln("Tx Error for Hash:", res.TxHash)
 
 				t.Reset(defaultBroadcastStatusPoll)

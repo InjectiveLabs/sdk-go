@@ -86,6 +86,7 @@ type ExchangeClient interface {
 	GetInfo(ctx context.Context, req metaPB.InfoRequest) (metaPB.InfoResponse, error)
 	GetVersion(ctx context.Context, req metaPB.VersionRequest) (metaPB.VersionResponse, error)
 	Ping(ctx context.Context, req metaPB.PingRequest) (metaPB.PingResponse, error)
+	OrdersHistory(ctx context.Context, in *derivativeExchangePB.OrdersHistoryRequest) (*derivativeExchangePB.OrdersHistoryResponse, error)
 	Close()
 }
 
@@ -153,6 +154,20 @@ type exchangeClient struct {
 	portfolioExchangeClient  portfolioExchangePB.InjectivePortfolioRPCClient
 
 	closed int64
+}
+
+// test
+func (c *exchangeClient) OrdersHistory(ctx context.Context, in *derivativeExchangePB.OrdersHistoryRequest) (*derivativeExchangePB.OrdersHistoryResponse, error) {
+	var header metadata.MD
+	ctx = c.getCookie(ctx)
+	res, err := c.derivativeExchangeClient.OrdersHistory(ctx, in, grpc.Header(&header))
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	c.setCookie(header)
+
+	return res, nil
 }
 
 func (c *exchangeClient) setCookie(metadata metadata.MD) {
