@@ -272,7 +272,6 @@ func traverseFields(
 
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 		ethTyp := typToEth(fieldType)
-		fmt.Println("field name:", fieldName, "type:", fieldType.String(), "is_collection:", isCollection)
 		if len(ethTyp) > 0 {
 			if isCollection {
 				ethTyp += "[]"
