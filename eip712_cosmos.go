@@ -105,10 +105,17 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtyp
 			{Name: "msgs", Type: "Msg[]"},
 			{Name: "sequence", Type: "string"},
 			{Name: "timeout_height", Type: "string"},
+			{Name: "tip", Type: "Tip"},
+		},
+		"Tip": {
+			{Name: "amount", Type: "Coin"},
+			{Name: "tipper", Type: "string"},
 		},
 		"Fee": {
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "gas", Type: "string"},
+			{Name: "granter", Type: "string"},
+			{Name: "payer", Type: "string"},
 		},
 		"Coin": {
 			{Name: "denom", Type: "string"},
@@ -229,10 +236,10 @@ func traverseFields(
 
 		var isCollection bool
 		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
-			if field.Len() == 0 {
-				// skip empty collections from type mapping
-				continue
-			}
+			// if field.Len() == 0 {
+			// 	// skip empty collections from type mapping
+			// 	continue
+			// }
 
 			fieldType = fieldType.Elem()
 			field = field.Index(0)
@@ -265,7 +272,11 @@ func traverseFields(
 
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 		ethTyp := typToEth(fieldType)
+		fmt.Println("field name:", fieldName, "type:", fieldType.String(), "is_collection:", isCollection)
 		if len(ethTyp) > 0 {
+			if isCollection {
+				ethTyp += "[]"
+			}
 			if prefix == typeDefPrefix {
 				typeMap[rootType] = append(typeMap[rootType], typeddata.Type{
 					Name: fieldName,
