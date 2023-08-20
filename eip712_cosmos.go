@@ -105,17 +105,17 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtyp
 			{Name: "msgs", Type: "Msg[]"},
 			{Name: "sequence", Type: "string"},
 			{Name: "timeout_height", Type: "string"},
-			{Name: "tip", Type: "Tip"},
+			// {Name: "tip", Type: "Tip"},
 		},
-		"Tip": {
-			{Name: "amount", Type: "Coin"},
-			{Name: "tipper", Type: "string"},
-		},
+		// "Tip": {
+		// 	{Name: "amount", Type: "Coin"},
+		// 	{Name: "tipper", Type: "string"},
+		// },
 		"Fee": {
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "gas", Type: "string"},
-			{Name: "granter", Type: "string"},
-			{Name: "payer", Type: "string"},
+			// {Name: "granter", Type: "string"},
+			// {Name: "payer", Type: "string"},
 		},
 		"Coin": {
 			{Name: "denom", Type: "string"},
@@ -193,21 +193,24 @@ func traverseFields(
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
 
 		if fieldType == cosmosAnyType {
-			any := field.Interface().(*codectypes.Any)
-			anyWrapper := &cosmosAnyWrapper{
-				Type: any.TypeUrl,
-			}
-
-			err = cdc.UnpackAny(any, &anyWrapper.Value)
+			bz, err := field.Interface().(*codectypes.Any).MarshalJSON()
 			if err != nil {
-				err = errors.Wrap(err, "failed to unpack Any in msg struct")
-				return
+				return fmt.Errorf("marshal json of any failed: %w", err)
 			}
-
-			fieldType = reflect.TypeOf(anyWrapper)
-			field = reflect.ValueOf(anyWrapper)
-
-			// then continue as normal
+			fieldType = reflect.TypeOf("")
+			field = reflect.ValueOf(string(bz))
+		} else if fieldType == cosmosArrayOfAnyType {
+			arrayOfAny := field.Interface().([]*codectypes.Any)
+			anyStrings := make([]string, len(arrayOfAny))
+			for idx, a := range arrayOfAny {
+				bz, err := a.MarshalJSON()
+				if err != nil {
+					return fmt.Errorf("marshal json of any failed: %w", err)
+				}
+				anyStrings[idx] = string(bz)
+			}
+			fieldType = reflect.TypeOf(stringArray)
+			field = reflect.ValueOf(anyStrings)
 		}
 
 		for {
@@ -236,10 +239,10 @@ func traverseFields(
 
 		var isCollection bool
 		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
-			// if field.Len() == 0 {
-			// 	// skip empty collections from type mapping
-			// 	continue
-			// }
+			if field.Len() == 0 {
+				// skip empty collections from type mapping
+				continue
+			}
 
 			fieldType = fieldType.Elem()
 			field = field.Index(0)
@@ -360,6 +363,10 @@ var (
 	cosmIntType   = reflect.TypeOf(cosmtypes.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
 	timeType      = reflect.TypeOf(time.Time{})
+
+	cosmosArrayOfAnyType = reflect.TypeOf([]*codectypes.Any{})
+
+	stringArray = []string{}
 )
 
 // typToEth supports only basic types and arrays of basic types.
