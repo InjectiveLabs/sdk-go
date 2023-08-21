@@ -221,12 +221,19 @@ func traverseFields(
 		}
 
 		if fieldType == cosmosAnyType {
-			bz, err := field.Interface().(*codectypes.Any).MarshalJSON()
-			if err != nil {
-				return fmt.Errorf("marshal json of any failed: %w", err)
+			any := field.Interface().(*codectypes.Any)
+			anyWrapper := &cosmosAnyWrapper{
+				Type: any.TypeUrl,
 			}
-			fieldType = reflect.TypeOf("")
-			field = reflect.ValueOf(string(bz))
+
+			err = cdc.UnpackAny(any, &anyWrapper.Value)
+			if err != nil {
+				err = errors.Wrap(err, "failed to unpack Any in msg struct")
+				return
+			}
+
+			fieldType = reflect.TypeOf(anyWrapper)
+			field = reflect.ValueOf(anyWrapper)
 		}
 
 		for {
