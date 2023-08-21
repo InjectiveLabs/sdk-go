@@ -105,17 +105,10 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtyp
 			{Name: "msgs", Type: "Msg[]"},
 			{Name: "sequence", Type: "string"},
 			{Name: "timeout_height", Type: "string"},
-			// {Name: "tip", Type: "Tip"},
 		},
-		// "Tip": {
-		// 	{Name: "amount", Type: "Coin"},
-		// 	{Name: "tipper", Type: "string"},
-		// },
 		"Fee": {
 			{Name: "amount", Type: "Coin[]"},
 			{Name: "gas", Type: "string"},
-			// {Name: "granter", Type: "string"},
-			// {Name: "payer", Type: "string"},
 		},
 		"Coin": {
 			{Name: "denom", Type: "string"},
@@ -191,28 +184,6 @@ func traverseFields(
 
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
-
-		if fieldType == cosmosAnyType {
-			bz, err := field.Interface().(*codectypes.Any).MarshalJSON()
-			if err != nil {
-				return fmt.Errorf("marshal json of any failed: %w", err)
-			}
-			fieldType = reflect.TypeOf("")
-			field = reflect.ValueOf(string(bz))
-		} else if fieldType == cosmosArrayOfAnyType {
-			arrayOfAny := field.Interface().([]*codectypes.Any)
-			anyStrings := make([]string, len(arrayOfAny))
-			for idx, a := range arrayOfAny {
-				bz, err := a.MarshalJSON()
-				if err != nil {
-					return fmt.Errorf("marshal json of any failed: %w", err)
-				}
-				anyStrings[idx] = string(bz)
-			}
-			fieldType = reflect.TypeOf(stringArray)
-			field = reflect.ValueOf(anyStrings)
-		}
-
 		for {
 			if fieldType.Kind() == reflect.Ptr {
 				fieldType = fieldType.Elem()
@@ -247,6 +218,15 @@ func traverseFields(
 			fieldType = fieldType.Elem()
 			field = field.Index(0)
 			isCollection = true
+		}
+
+		if fieldType == cosmosAnyType {
+			bz, err := field.Interface().(*codectypes.Any).MarshalJSON()
+			if err != nil {
+				return fmt.Errorf("marshal json of any failed: %w", err)
+			}
+			fieldType = reflect.TypeOf("")
+			field = reflect.ValueOf(string(bz))
 		}
 
 		for {
