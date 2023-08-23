@@ -64,11 +64,13 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
+	txFactory := chainclient.NewTxFactory(clientCtx)
+	txFactory = txFactory.WithGasPrices("500000000inj")
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network.ChainGrpcEndpoint,
 		common.OptionTLSCert(network.ChainTlsCert),
-		common.OptionGasPrices("500000000inj"),
+		common.OptionTxFactory(&txFactory),
 	)
 
 	if err != nil {
