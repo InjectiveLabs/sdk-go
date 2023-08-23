@@ -190,9 +190,14 @@ func NewChainClient(
 	}
 
 	// init tx factory
-	txFactory := NewTxFactory(ctx)
-	if len(opts.GasPrices) > 0 {
-		txFactory = txFactory.WithGasPrices(opts.GasPrices)
+	var txFactory tx.Factory
+	if opts.TxFactory == nil {
+		txFactory = NewTxFactory(ctx)
+		if len(opts.GasPrices) > 0 {
+			txFactory = txFactory.WithGasPrices(opts.GasPrices)
+		}
+	} else {
+		txFactory = *opts.TxFactory
 	}
 
 	// init grpc connection
