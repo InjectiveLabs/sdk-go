@@ -166,6 +166,7 @@ func (c *exchangeClient) setCookie(metadata metadata.MD) {
 }
 
 func (c *exchangeClient) getCookie(ctx context.Context) context.Context {
+	fmt.Println("session cookie:", c.sessionCookie)
 	return metadata.AppendToOutgoingContext(ctx, "cookie", c.sessionCookie)
 }
 
