@@ -131,6 +131,7 @@ type ChainClient interface {
 
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
 	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
+	StreamSubaccountDepositUpdates(ctx context.Context) (chan []*exchangetypes.DepositUpdate, error)
 
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
@@ -1263,6 +1264,37 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 
 		failEventCh <- results
 	}
+}
+
+func (c *chainClient) StreamSubaccountDepositUpdates(ctx context.Context) (chan []*exchangetypes.DepositUpdate, error) {
+	eventKey := "injective.exchange.v1beta1.EventBatchDepositUpdate.deposit_updates"
+	filter := fmt.Sprintf("tm.event='NewBlock' AND %s EXISTS", eventKey)
+	eventCh, err := c.cometbftClient.Subscribe(ctx, "EventBatchDepositUpdate", filter, 10000)
+	if err != nil {
+		return nil, err
+	}
+
+	convertedUpdates := make(chan []*exchangetypes.DepositUpdate, 10000)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				close(convertedUpdates)
+				return
+			case evData := <-eventCh:
+				var depositUpdates []*exchangetypes.DepositUpdate
+				err := json.Unmarshal([]byte(evData.Events[eventKey][0]), &depositUpdates)
+				if err != nil {
+					c.logger.WithError(err).Warningf("cannot unmarshal event deposit")
+					continue
+				}
+
+				convertedUpdates <- depositUpdates
+			}
+		}
+	}()
+
+	return convertedUpdates, nil
 }
 
 func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook) {
