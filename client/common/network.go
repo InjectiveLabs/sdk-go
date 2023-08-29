@@ -127,9 +127,10 @@ func LoadNetwork(name string, node string) Network {
 			tmEndpoint = "http://sentry.tm.injective.network:26657"
 			chainGrpcEndpoint = "sentry.chain.grpc.injective.network:443"
 			exchangeGrpcEndpoint = "sentry.exchange.grpc.injective.network:443"
-			explorerGrpcEndpoint = "tcp://api.injective.network:9911"
+			explorerGrpcEndpoint = "k8s.global.mainnet.explorer.grpc.injective.network:443"
 			chainTlsCert = credentials.NewTLS(&tls.Config{InsecureSkipVerify: false})
 			exchangeTlsCert = credentials.NewTLS(&tls.Config{InsecureSkipVerify: false})
+			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 		} else {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.network:10337", node)
 			tmEndpoint = fmt.Sprintf("http://%s.injective.network:26657", node)
@@ -139,7 +140,8 @@ func LoadNetwork(name string, node string) Network {
 			if node == "sentry2" {
 				explorerGrpcEndpoint = "tcp://sentry2.injective.network:9911"
 			} else {
-				explorerGrpcEndpoint = "tcp://api.injective.network:9911"
+				explorerGrpcEndpoint = "k8s.global.mainnet.explorer.grpc.injective.network:443"
+				explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			}
 		}
 
