@@ -392,6 +392,7 @@ func (c *chainClient) fetchCookie(ctx context.Context) context.Context {
 	c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
 	c.setCookie(header)
 	time.Sleep(defaultBlockTime)
+
 	return metadata.NewOutgoingContext(ctx, metadata.Pairs("cookie", c.sessionCookie))
 }
 
@@ -412,6 +413,10 @@ func (c *chainClient) getCookieExpirationTime(cookies []*http.Cookie) (time.Time
 		expiresAt = strings.Replace(cookie.Value, "-", " ", -1)
 	} else {
 		cookie := cookieByName(cookies, "Expires")
+		if cookie == nil {
+			return time.Time{}, nil
+		}
+
 		expiresAt = strings.Replace(cookie.Value, "-", " ", -1)
 		yyyy := fmt.Sprintf("20%s", expiresAt[12:14])
 		expiresAt = expiresAt[:12] + yyyy + expiresAt[14:]
@@ -439,10 +444,12 @@ func (c *chainClient) getCookie(ctx context.Context) context.Context {
 			panic(err)
 		}
 
-		// renew session if timestamp diff < offset
-		timestampDiff := expiresTimestamp.Unix() - time.Now().Unix()
-		if timestampDiff < defaultSessionRenewalOffset {
-			return c.fetchCookie(ctx)
+		if !expiresTimestamp.IsZero() {
+			// renew session if timestamp diff < offset
+			timestampDiff := expiresTimestamp.Unix() - time.Now().Unix()
+			if timestampDiff < defaultSessionRenewalOffset {
+				return c.fetchCookie(ctx)
+			}
 		}
 	} else {
 		return c.fetchCookie(ctx)
