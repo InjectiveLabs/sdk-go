@@ -184,29 +184,6 @@ func traverseFields(
 
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
-		for {
-			if fieldType.Kind() == reflect.Ptr {
-				fieldType = fieldType.Elem()
-
-				if field.IsValid() {
-					field = field.Elem()
-				}
-
-				continue
-			}
-
-			if fieldType.Kind() == reflect.Interface {
-				fieldType = reflect.TypeOf(field.Interface())
-				continue
-			}
-
-			if field.Kind() == reflect.Ptr {
-				field = field.Elem()
-				continue
-			}
-
-			break
-		}
 
 		var isCollection bool
 		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
