@@ -123,7 +123,7 @@ func LoadNetwork(name string, node string) Network {
 			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			explorerTlsCert = LoadTlsCert(certPath, explorerGrpcEndpoint)
 		} else if node == "sentry" {
-			lcdEndpoint = "http://sentry.lcd.injective.network:10337"
+			lcdEndpoint = "https://sentry.lcd.injective.network"
 			tmEndpoint = "http://sentry.tm.injective.network:26657"
 			chainGrpcEndpoint = "sentry.chain.grpc.injective.network:443"
 			exchangeGrpcEndpoint = "sentry.exchange.grpc.injective.network:443"
