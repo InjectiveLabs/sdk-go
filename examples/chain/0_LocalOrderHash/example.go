@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// prepare tx msg
-	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
+	defaultSubaccountID := chainClient.Subaccount(senderAddress, 1)
 
 	spotOrder := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
@@ -87,7 +87,7 @@ func main() {
 	msg1.Orders = []exchangetypes.DerivativeOrder{*derivativeOrder, *derivativeOrder}
 
 	// compute local order hashes
-	orderHashes, err := chainClient.ComputeOrderHashes(msg.Orders, msg1.Orders)
+	orderHashes, err := chainClient.ComputeOrderHashes(msg.Orders, msg1.Orders, defaultSubaccountID)
 
 	if err != nil {
 		fmt.Println(err)
