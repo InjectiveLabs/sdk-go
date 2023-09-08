@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 	"math"
 	"math/big"
 	"net/http"
@@ -68,6 +70,12 @@ var (
 	ErrEnqueueTimeout = errors.New("enqueue timeout")
 	ErrReadOnly       = errors.New("client is in read-only mode")
 )
+
+var keepaliveParameters = keepalive.ClientParameters{
+	Time:                45 * time.Second, // send pings every 45 seconds if there is no activity
+	Timeout:             5 * time.Second,  // wait 5 seconds for ping ack before considering the connection dead
+	PermitWithoutStream: true,             // send pings even without active streams
+}
 
 type ChainClient interface {
 	CanSignTransactions() bool
@@ -205,9 +213,19 @@ func NewChainClient(
 	var err error
 	stickySessionEnabled := true
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.Dial(
+			protoAddr,
+			grpc.WithTransportCredentials(opts.TLSCert),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithKeepaliveParams(keepaliveParameters),
+		)
 	} else {
-		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.Dial(
+			protoAddr,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithKeepaliveParams(keepaliveParameters),
+		)
 		stickySessionEnabled = false
 	}
 	if err != nil {

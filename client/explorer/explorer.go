@@ -3,6 +3,9 @@ package exchange
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
+	"time"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
@@ -12,6 +15,12 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )
+
+var keepaliveParameters = keepalive.ClientParameters{
+	Time:                45 * time.Second, // send pings every 45 seconds if there is no activity
+	Timeout:             5 * time.Second,  // wait 5 seconds for ping ack before considering the connection dead
+	PermitWithoutStream: true,             // send pings even without active streams
+}
 
 type ExplorerClient interface {
 	QueryClient() *grpc.ClientConn
@@ -47,9 +56,19 @@ func NewExplorerClient(protoAddr string, options ...common.ClientOption) (Explor
 	var conn *grpc.ClientConn
 	var err error
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(protoAddr, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.Dial(
+			protoAddr,
+			grpc.WithTransportCredentials(opts.TLSCert),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithKeepaliveParams(keepaliveParameters),
+		)
 	} else {
-		conn, err = grpc.Dial(protoAddr, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.Dial(
+			protoAddr,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithKeepaliveParams(keepaliveParameters),
+		)
 	}
 	if err != nil {
 		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", protoAddr)
