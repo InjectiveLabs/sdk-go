@@ -515,7 +515,9 @@ func (typedData *TypedData) Format() ([]*NameValueType, error) {
 	if err != nil {
 		return nil, err
 	}
-	ptype, err := typedData.formatData(typedData.PrimaryType, typedData.Message)
+	ptype, err := typedData.formatData(typedData.PrimaryType, map[string]interface{}{
+		"data": typedData.Message,
+	})
 	if err != nil {
 		return nil, err
 	}

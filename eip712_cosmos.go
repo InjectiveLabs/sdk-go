@@ -2,7 +2,6 @@ package sdk
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -26,14 +25,7 @@ func WrapTxToEIP712(
 	chainID uint64,
 	msg cosmtypes.Msg,
 	data []byte,
-	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
-	txData := make(map[string]interface{})
-	if err := json.Unmarshal(data, &txData); err != nil {
-		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
-		return typeddata.TypedData{}, err
-	}
-
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
@@ -47,23 +39,13 @@ func WrapTxToEIP712(
 		return typeddata.TypedData{}, err
 	}
 
-	if feeDelegation != nil {
-		feeInfo := txData["fee"].(map[string]interface{})
-		feeInfo["feePayer"] = feeDelegation.FeePayer.String()
-
-		// also patching msgTypes to include feePayer
-		msgTypes["Fee"] = []typeddata.Type{
-			{Name: "feePayer", Type: "string"},
-			{Name: "amount", Type: "Coin[]"},
-			{Name: "gas", Type: "string"},
-		}
-	}
-
 	var typedData = typeddata.TypedData{
 		Types:       msgTypes,
 		PrimaryType: "Tx",
 		Domain:      domain,
-		Message:     txData,
+		Message: typeddata.TypedDataMessage{
+			"data": string(data),
+		},
 	}
 
 	return typedData, nil
@@ -98,32 +80,8 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtyp
 			},
 		},
 		"Tx": {
-			{Name: "account_number", Type: "string"},
-			{Name: "chain_id", Type: "string"},
-			{Name: "fee", Type: "Fee"},
-			{Name: "memo", Type: "string"},
-			{Name: "msgs", Type: "Msg[]"},
-			{Name: "sequence", Type: "string"},
-			{Name: "timeout_height", Type: "string"},
+			{Name: "data", Type: "string"},
 		},
-		"Fee": {
-			{Name: "amount", Type: "Coin[]"},
-			{Name: "gas", Type: "string"},
-		},
-		"Coin": {
-			{Name: "denom", Type: "string"},
-			{Name: "amount", Type: "string"},
-		},
-		"Msg": {
-			{Name: "type", Type: "string"},
-			{Name: "value", Type: msgTypeName},
-		},
-		msgTypeName: {},
-	}
-
-	err := walkFields(cdc, rootTypes, msgTypeName, msg)
-	if err != nil {
-		return nil, err
 	}
 
 	return rootTypes, nil
