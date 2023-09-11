@@ -105,12 +105,14 @@ type ChainClient interface {
 	) *authztypes.MsgGrant
 
 	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
+	Subaccount(account cosmtypes.AccAddress, index int) eth.Hash
 
 	GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
 	GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
 
 	UpdateSubaccountNonceFromChain() error
-	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error)
+	SynchronizeSubaccountNonce(subaccountId eth.Hash) error
+	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId eth.Hash) (OrderHashes, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
@@ -938,7 +940,15 @@ func (c *chainClient) GetGasFee() (string, error) {
 }
 
 func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
-	return eth.BytesToHash(eth.RightPadBytes(acc.Bytes(), 32))
+	return c.Subaccount(acc, 0)
+}
+
+func (c *chainClient) Subaccount(account cosmtypes.AccAddress, index int) eth.Hash {
+	ethAddress := eth.BytesToAddress(account.Bytes())
+	ethLowerAddress := strings.ToLower(ethAddress.String())
+
+	subaccountId := fmt.Sprintf("%s%024x", ethLowerAddress, index)
+	return eth.HexToHash(subaccountId)
 }
 
 func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
