@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"golang.org/x/exp/maps"
 	"strconv"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -59,7 +58,7 @@ var domain = gethsigner.TypedDataDomain{
 }
 
 func (c *chainClient) UpdateSubaccountNonceFromChain() error {
-	for _, subaccountId := range maps.Keys(c.subaccountToNonce) {
+	for subaccountId := range c.subaccountToNonce {
 		err := c.SynchronizeSubaccountNonce(subaccountId)
 		if err != nil {
 			return err
