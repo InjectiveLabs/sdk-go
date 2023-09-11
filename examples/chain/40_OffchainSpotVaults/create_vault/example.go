@@ -71,7 +71,19 @@ func main() {
 		CodeID: 2711,
 		Label:  "spot-offchain-vault example",
 		Msg: types.RawContractMessage(
-			fmt.Sprintf(`{"admin":"%s","vault_type":{"Spot":{"oracle_type":9,"base_oracle_symbol":"0x2d9315a88f3019f8efa88dfe9c0f0843712da0bac814461e27733f6b83eb51b3","quote_oracle_symbol":"0x1fc18861232290221461220bd4e2acd1dcdfbc89c84092c93c18bdc7756c1588","base_decimals":18,"quote_decimals":6}},"market_id":"0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe","oracle_stale_time":3600,"notional_value_cap":"5000000000000"}`, senderAddress.String()),
+			fmt.Sprintf(`{
+				"admin":"%s",
+				"vault_type":
+				{"Spot":
+					{"oracle_type":9,
+					"base_oracle_symbol":"0x2d9315a88f3019f8efa88dfe9c0f0843712da0bac814461e27733f6b83eb51b3",
+					"quote_oracle_symbol":"0x1fc18861232290221461220bd4e2acd1dcdfbc89c84092c93c18bdc7756c1588",
+					"base_decimals":18,"quote_decimals":6}
+				},
+				"market_id":"0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe",
+				"oracle_stale_time":3600,
+				"notional_value_cap":"5000000000000"
+			}`, senderAddress.String()),
 		),
 		Funds: cosmtypes.NewCoins(cosmtypes.NewCoin("inj", math.NewIntFromBigInt(cosmtypes.MustNewDecFromStr("10").BigInt()))),
 	}

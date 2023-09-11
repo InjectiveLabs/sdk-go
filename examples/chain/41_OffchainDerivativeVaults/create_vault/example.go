@@ -70,7 +70,17 @@ func main() {
 		CodeID: 2711,
 		Label:  "derivative-offchain-vault example",
 		Msg: types.RawContractMessage(
-			fmt.Sprintf(`{"admin":"%s","vault_type":{"Derivative":{"position_pnl_penalty":"0.05","allowed_derivative_redemption_types":3}},"market_id":"0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6","oracle_stale_time":3600,"notional_value_cap":"5000000000000"}`, senderAddress.String()),
+			fmt.Sprintf(`{
+				"admin":"%s",
+				"vault_type":{
+					"Derivative":{
+						"position_pnl_penalty":"0.05",
+						"allowed_derivative_redemption_types":3
+					}
+				},
+				"market_id":"0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6",
+				"oracle_stale_time":3600,"notional_value_cap":"5000000000000"
+			}`, senderAddress.String()),
 		),
 		Funds: cosmtypes.NewCoins(cosmtypes.NewCoin("inj", math.NewIntFromBigInt(cosmtypes.MustNewDecFromStr("10").BigInt()))),
 	}
