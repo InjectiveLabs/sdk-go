@@ -6,11 +6,13 @@ import (
 	"math/big"
 	"reflect"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"time"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/pkg/errors"
@@ -25,6 +27,7 @@ func WrapTxToEIP712(
 	chainID uint64,
 	msg cosmtypes.Msg,
 	data []byte,
+	legacySignDoc *legacytx.StdSignDoc,
 ) (typeddata.TypedData, error) {
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
@@ -39,12 +42,23 @@ func WrapTxToEIP712(
 		return typeddata.TypedData{}, err
 	}
 
+	msgs := make([]interface{}, len(legacySignDoc.Msgs))
+	for i, s := range legacySignDoc.Msgs {
+		msgs[i] = string(s)
+	}
+
 	var typedData = typeddata.TypedData{
 		Types:       msgTypes,
 		PrimaryType: "Tx",
 		Domain:      domain,
 		Message: typeddata.TypedDataMessage{
-			"data": string(data),
+			"account_number": strconv.FormatUint(legacySignDoc.AccountNumber, 10),
+			"chain_id":       strconv.FormatUint(chainID, 10),
+			"fee":            string(legacySignDoc.Fee),
+			"memo":           legacySignDoc.Memo,
+			"msgs":           msgs,
+			"sequence":       strconv.FormatUint(legacySignDoc.Sequence, 10),
+			"timeout_height": strconv.FormatUint(legacySignDoc.TimeoutHeight, 10),
 		},
 	}
 
@@ -80,7 +94,13 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtyp
 			},
 		},
 		"Tx": {
-			{Name: "data", Type: "string"},
+			{Name: "account_number", Type: "uint64"},
+			{Name: "chain_id", Type: "uint64"},
+			{Name: "fee", Type: "string"},
+			{Name: "memo", Type: "string"},
+			{Name: "msgs", Type: "string[]"},
+			{Name: "sequence", Type: "uint64"},
+			{Name: "timeout_height", Type: "uint64"},
 		},
 	}
 
