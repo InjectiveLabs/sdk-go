@@ -58,26 +58,33 @@ var domain = gethsigner.TypedDataDomain{
 }
 
 func (c *chainClient) UpdateSubaccountNonceFromChain() error {
-	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
+	for subaccountId := range c.subaccountToNonce {
+		err := c.SynchronizeSubaccountNonce(subaccountId)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *chainClient) SynchronizeSubaccountNonce(subaccountId common.Hash) error {
 	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
 	if err != nil {
 		return err
 	}
-
 	c.subaccountToNonce[subaccountId] = res.Nonce
 	return nil
 }
 
-func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error) {
+func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId common.Hash) (OrderHashes, error) {
 	if len(spotOrders)+len(derivativeOrders) == 0 {
 		return OrderHashes{}, nil
 	}
 
 	orderHashes := OrderHashes{}
 	// get nonce
-	subaccountId := c.DefaultSubaccount(c.ctx.FromAddress)
 	if _, exist := c.subaccountToNonce[subaccountId]; !exist {
-		if err := c.UpdateSubaccountNonceFromChain(); err != nil {
+		if err := c.SynchronizeSubaccountNonce(subaccountId); err != nil {
 			return OrderHashes{}, err
 		}
 	}
