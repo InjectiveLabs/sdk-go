@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "lb")
 	tmClient := tmclient.NewRPCClient(network.TmEndpoint)
 	clientCtx, cancelFn := context.WithCancel(context.Background())
 	defer cancelFn()

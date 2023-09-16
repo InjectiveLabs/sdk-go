@@ -40,8 +40,7 @@ func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyr
 
 	chainClient, err := NewChainClient(
 		clientCtx,
-		network.ChainGrpcEndpoint,
-		common.OptionTLSCert(network.ChainTlsCert),
+		network,
 		common.OptionGasPrices("500000000inj"),
 	)
 
@@ -49,7 +48,7 @@ func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyr
 }
 
 func TestDefaultSubaccount(t *testing.T) {
-	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "lb")
 	senderAddress, cosmosKeyring, err := accountForTests()
 
 	if err != nil {
@@ -71,8 +70,8 @@ func TestDefaultSubaccount(t *testing.T) {
 	}
 }
 
-func TestGetSubaccountWithIndes(t *testing.T) {
-	network := common.LoadNetwork("testnet", "k8s")
+func TestGetSubaccountWithIndex(t *testing.T) {
+	network := common.LoadNetwork("testnet", "lb")
 	senderAddress, cosmosKeyring, err := accountForTests()
 
 	if err != nil {
