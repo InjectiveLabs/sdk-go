@@ -1,18 +1,21 @@
-package sdk
+package ante
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
 	"runtime/debug"
-	"strconv"
 	"strings"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/pkg/errors"
@@ -20,15 +23,45 @@ import (
 	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
+type EIP712Wrapper func(
+	cdc codec.ProtoCodecMarshaler,
+	chainID uint64,
+	signerData *authsigning.SignerData,
+	timeoutHeight uint64,
+	memo string,
+	feeInfo legacytx.StdFee,
+	msgs []cosmtypes.Msg,
+	feeDelegation *FeeDelegationOptions,
+) (typeddata.TypedData, error)
+
 // WrapTxToEIP712 is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible request. All messages must be of the same type.
 func WrapTxToEIP712(
-	cdc codectypes.AnyUnpacker,
+	cdc codec.ProtoCodecMarshaler,
 	chainID uint64,
-	msg cosmtypes.Msg,
-	data []byte,
-	legacySignDoc *legacytx.StdSignDoc,
+	signerData *authsigning.SignerData,
+	timeoutHeight uint64,
+	memo string,
+	feeInfo legacytx.StdFee,
+	msgs []cosmtypes.Msg,
+	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
+	data := legacytx.StdSignBytes(
+		signerData.ChainID,
+		signerData.AccountNumber,
+		signerData.Sequence,
+		timeoutHeight,
+		feeInfo,
+		msgs, memo,
+		nil,
+	)
+
+	txData := make(map[string]interface{})
+	if err := json.Unmarshal(data, &txData); err != nil {
+		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
+		return typeddata.TypedData{}, err
+	}
+
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
@@ -37,29 +70,28 @@ func WrapTxToEIP712(
 		Salt:              "0",
 	}
 
-	msgTypes, err := extractMsgTypes(cdc, "MsgValue", msg)
+	msgTypes, err := extractMsgTypes(cdc, "MsgValue", msgs[0])
 	if err != nil {
 		return typeddata.TypedData{}, err
 	}
 
-	msgs := make([]interface{}, len(legacySignDoc.Msgs))
-	for i, s := range legacySignDoc.Msgs {
-		msgs[i] = string(s)
+	if feeDelegation != nil {
+		feeInfo := txData["fee"].(map[string]interface{})
+		feeInfo["feePayer"] = feeDelegation.FeePayer.String()
+
+		// also patching msgTypes to include feePayer
+		msgTypes["Fee"] = []typeddata.Type{
+			{Name: "feePayer", Type: "string"},
+			{Name: "amount", Type: "Coin[]"},
+			{Name: "gas", Type: "string"},
+		}
 	}
 
 	var typedData = typeddata.TypedData{
 		Types:       msgTypes,
 		PrimaryType: "Tx",
 		Domain:      domain,
-		Message: typeddata.TypedDataMessage{
-			"account_number": strconv.FormatUint(legacySignDoc.AccountNumber, 10),
-			"chain_id":       strconv.FormatUint(chainID, 10),
-			"fee":            string(legacySignDoc.Fee),
-			"memo":           legacySignDoc.Memo,
-			"msgs":           msgs,
-			"sequence":       strconv.FormatUint(legacySignDoc.Sequence, 10),
-			"timeout_height": strconv.FormatUint(legacySignDoc.TimeoutHeight, 10),
-		},
+		Message:     txData,
 	}
 
 	return typedData, nil
@@ -69,7 +101,7 @@ type FeeDelegationOptions struct {
 	FeePayer cosmtypes.AccAddress
 }
 
-func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtypes.Msg) (typeddata.Types, error) {
+func extractMsgTypes(cdc codec.ProtoCodecMarshaler, msgTypeName string, msg cosmtypes.Msg) (typeddata.Types, error) {
 	rootTypes := typeddata.Types{
 		"EIP712Domain": {
 			{
@@ -94,14 +126,32 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtyp
 			},
 		},
 		"Tx": {
-			{Name: "account_number", Type: "uint64"},
-			{Name: "chain_id", Type: "uint64"},
-			{Name: "fee", Type: "string"},
+			{Name: "account_number", Type: "string"},
+			{Name: "chain_id", Type: "string"},
+			{Name: "fee", Type: "Fee"},
 			{Name: "memo", Type: "string"},
-			{Name: "msgs", Type: "string[]"},
-			{Name: "sequence", Type: "uint64"},
-			{Name: "timeout_height", Type: "uint64"},
+			{Name: "msgs", Type: "Msg[]"},
+			{Name: "sequence", Type: "string"},
+			{Name: "timeout_height", Type: "string"},
 		},
+		"Fee": {
+			{Name: "amount", Type: "Coin[]"},
+			{Name: "gas", Type: "string"},
+		},
+		"Coin": {
+			{Name: "denom", Type: "string"},
+			{Name: "amount", Type: "string"},
+		},
+		"Msg": {
+			{Name: "type", Type: "string"},
+			{Name: "value", Type: msgTypeName},
+		},
+		msgTypeName: {},
+	}
+
+	err := walkFields(cdc, rootTypes, msgTypeName, msg)
+	if err != nil {
+		return nil, err
 	}
 
 	return rootTypes, nil
@@ -109,7 +159,7 @@ func extractMsgTypes(cdc codectypes.AnyUnpacker, msgTypeName string, msg cosmtyp
 
 const typeDefPrefix = "_"
 
-func walkFields(cdc codectypes.AnyUnpacker, typeMap typeddata.Types, rootType string, in interface{}) (err error) {
+func walkFields(cdc codec.ProtoCodecMarshaler, typeMap typeddata.Types, rootType string, in interface{}) (err error) {
 	defer doRecover(&err)
 
 	t := reflect.TypeOf(in)
@@ -134,7 +184,7 @@ type cosmosAnyWrapper struct {
 }
 
 func traverseFields(
-	cdc codectypes.AnyUnpacker,
+	cdc codec.ProtoCodecMarshaler,
 	typeMap typeddata.Types,
 	rootType string,
 	prefix string,
@@ -162,6 +212,17 @@ func traverseFields(
 
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
+		var isCollection bool
+		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
+			if field.Len() == 0 {
+				// skip empty collections from type mapping
+				continue
+			}
+
+			fieldType = fieldType.Elem()
+			field = field.Index(0)
+			isCollection = true
+		}
 
 		if fieldType == cosmosAnyType {
 			any := field.Interface().(*codectypes.Any)
@@ -177,7 +238,6 @@ func traverseFields(
 
 			fieldType = reflect.TypeOf(anyWrapper)
 			field = reflect.ValueOf(anyWrapper)
-
 			// then continue as normal
 		}
 
@@ -203,18 +263,6 @@ func traverseFields(
 			}
 
 			break
-		}
-
-		var isCollection bool
-		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
-			if field.Len() == 0 {
-				// skip empty collections from type mapping
-				continue
-			}
-
-			fieldType = fieldType.Elem()
-			field = field.Index(0)
-			isCollection = true
 		}
 
 		for {
@@ -244,6 +292,9 @@ func traverseFields(
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 		ethTyp := typToEth(fieldType)
 		if len(ethTyp) > 0 {
+			if isCollection {
+				ethTyp += "[]"
+			}
 			if prefix == typeDefPrefix {
 				typeMap[rootType] = append(typeMap[rootType], typeddata.Type{
 					Name: fieldName,
@@ -314,7 +365,7 @@ func sanitizeTypedef(str string) string {
 
 		subparts := strings.Split(part, "_")
 		for _, subpart := range subparts {
-			buf.WriteString(strings.Title(subpart))
+			buf.WriteString(strings.Title(subpart)) //nolint // strings is used for compat
 		}
 	}
 
@@ -325,7 +376,7 @@ var (
 	hashType      = reflect.TypeOf(common.Hash{})
 	addressType   = reflect.TypeOf(common.Address{})
 	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(cosmtypes.Int{})
+	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
 	timeType      = reflect.TypeOf(time.Time{})
 )
@@ -387,6 +438,7 @@ func typToEth(typ reflect.Type) string {
 	return ""
 }
 
+//nolint:gocritic // this is a handy way to return err in defered funcs
 func doRecover(err *error) {
 	if r := recover(); r != nil {
 		debug.PrintStack()
@@ -399,4 +451,105 @@ func doRecover(err *error) {
 
 		*err = errors.Errorf("%v", r)
 	}
+}
+
+func signableTypes() typeddata.Types {
+	return typeddata.Types{
+		"EIP712Domain": {
+			{
+				Name: "name",
+				Type: "string",
+			},
+			{
+				Name: "version",
+				Type: "string",
+			},
+			{
+				Name: "chainId",
+				Type: "uint256",
+			},
+			{
+				Name: "verifyingContract",
+				Type: "string",
+			},
+			{
+				Name: "salt",
+				Type: "string",
+			},
+		},
+		"Tx": {
+			{Name: "context", Type: "string"},
+			{Name: "msgs", Type: "string"},
+		},
+	}
+}
+
+func WrapTxToEIP712V2(
+	cdc codec.ProtoCodecMarshaler,
+	chainID uint64,
+	signerData *authsigning.SignerData,
+	timeoutHeight uint64,
+	memo string,
+	feeInfo legacytx.StdFee,
+	msgs []cosmtypes.Msg,
+	feeDelegation *FeeDelegationOptions,
+) (typeddata.TypedData, error) {
+	domain := typeddata.TypedDataDomain{
+		Name:              "Injective Web3",
+		Version:           "1.0.0",
+		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
+		VerifyingContract: "cosmos",
+		Salt:              "0",
+	}
+
+	msgTypes := signableTypes()
+	msgsJsons := make([]json.RawMessage, len(msgs))
+	for idx, m := range msgs {
+		bzMsg, err := cdc.MarshalInterfaceJSON(m)
+		if err != nil {
+			return typeddata.TypedData{}, fmt.Errorf("cannot marshal json at index %d: %w", idx, err)
+		}
+
+		msgsJsons[idx] = bzMsg
+	}
+
+	bzMsgs, err := json.Marshal(msgsJsons)
+	if err != nil {
+		return typeddata.TypedData{}, fmt.Errorf("marshal json err: %w", err)
+	}
+
+	if feeDelegation != nil {
+		feeInfo.Payer = feeDelegation.FeePayer.String()
+	}
+
+	bzFee, err := json.Marshal(feeInfo)
+	if err != nil {
+		return typeddata.TypedData{}, fmt.Errorf("marshal fee info failed: %w", err)
+	}
+
+	context := map[string]interface{}{
+		"account_number": signerData.AccountNumber,
+		"sequence":       signerData.Sequence,
+		"timeout_height": timeoutHeight,
+		"chain_id":       signerData.ChainID,
+		"memo":           memo,
+		"fee":            json.RawMessage(bzFee),
+	}
+
+	bzTxContext, err := json.Marshal(context)
+	if err != nil {
+		return typeddata.TypedData{}, fmt.Errorf("marshal json err: %w", err)
+	}
+
+	var typedData = typeddata.TypedData{
+		Types:       msgTypes,
+		PrimaryType: "Tx",
+		Domain:      domain,
+		Message: typeddata.TypedDataMessage{
+			"context": string(bzTxContext),
+			"msgs":    string(bzMsgs),
+		},
+	}
+
+	return typedData, nil
 }
