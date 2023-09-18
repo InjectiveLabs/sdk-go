@@ -23,6 +23,8 @@ import (
 	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
+var ErrNoMessage = errors.New("no message found. There should be at least one message")
+
 type EIP712Wrapper func(
 	cdc codec.ProtoCodecMarshaler,
 	chainID uint64,
@@ -46,6 +48,10 @@ func WrapTxToEIP712(
 	msgs []cosmtypes.Msg,
 	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
+	if len(msgs) == 0 {
+		return typeddata.TypedData{}, ErrNoMessage
+	}
+
 	data := legacytx.StdSignBytes(
 		signerData.ChainID,
 		signerData.AccountNumber,
@@ -502,7 +508,35 @@ func WrapTxToEIP712V2(
 		Salt:              "0",
 	}
 
-	msgTypes := signableTypes()
+	msgTypes := typeddata.Types{
+		"EIP712Domain": {
+			{
+				Name: "name",
+				Type: "string",
+			},
+			{
+				Name: "version",
+				Type: "string",
+			},
+			{
+				Name: "chainId",
+				Type: "uint256",
+			},
+			{
+				Name: "verifyingContract",
+				Type: "string",
+			},
+			{
+				Name: "salt",
+				Type: "string",
+			},
+		},
+		"Tx": {
+			{Name: "context", Type: "string"},
+			{Name: "msgs", Type: "string"},
+		},
+	}
+
 	msgsJsons := make([]json.RawMessage, len(msgs))
 	for idx, m := range msgs {
 		bzMsg, err := cdc.MarshalInterfaceJSON(m)
