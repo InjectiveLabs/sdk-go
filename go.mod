@@ -169,7 +169,7 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.40.2-inj
 	github.com/bandprotocol/bandchain-packet => github.com/InjectiveLabs/bandchain-packet v0.0.4-0.20230327115226-35199d4659d5
 	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v0.37.1-inj
-	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.47.2-inj-2
+	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.47.3-inj-5
 	github.com/cosmos/ibc-go/v7 => github.com/InjectiveLabs/ibc-go/v7 v7.0.1-inj
 	github.com/miguelmota/go-ethereum-hdwallet => github.com/InjectiveLabs/go-ethereum-hdwallet v0.1.2
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
