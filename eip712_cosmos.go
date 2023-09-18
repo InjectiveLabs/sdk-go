@@ -459,37 +459,6 @@ func doRecover(err *error) {
 	}
 }
 
-func signableTypes() typeddata.Types {
-	return typeddata.Types{
-		"EIP712Domain": {
-			{
-				Name: "name",
-				Type: "string",
-			},
-			{
-				Name: "version",
-				Type: "string",
-			},
-			{
-				Name: "chainId",
-				Type: "uint256",
-			},
-			{
-				Name: "verifyingContract",
-				Type: "string",
-			},
-			{
-				Name: "salt",
-				Type: "string",
-			},
-		},
-		"Tx": {
-			{Name: "context", Type: "string"},
-			{Name: "msgs", Type: "string"},
-		},
-	}
-}
-
 func WrapTxToEIP712V2(
 	cdc codec.ProtoCodecMarshaler,
 	chainID uint64,
