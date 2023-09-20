@@ -233,7 +233,7 @@ func LoadNetwork(name string, node string) Network {
 			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 		} else if node == "lb_k8s" {
 			certPath := getFileAbsPath("../cert/testnet.crt")
-			lcdEndpoint = "https://k8s.testnet.lcd.injective.network"
+			lcdEndpoint = "https://k8s.testnet.lcd.injective.network:443"
 			tmEndpoint = "https://k8s.testnet.tm.injective.network:443"
 			chainGrpcEndpoint = "tcp://k8s.testnet.chain.grpc.injective.network:443"
 			exchangeGrpcEndpoint = "tcp://k8s.testnet.exchange.grpc.injective.network:443"
@@ -248,11 +248,11 @@ func LoadNetwork(name string, node string) Network {
 			explorerAssistant := TestnetKubernetesCookieAssistant()
 			explorerCookieAssistant = &explorerAssistant
 		} else if node == "sentry" {
-			lcdEndpoint = "https://testnet.lcd.injective.network"
-			tmEndpoint = "https://testnet.tm.injective.network"
-			chainGrpcEndpoint = "testnet.chain.grpc.injective.network"
-			exchangeGrpcEndpoint = "testnet.exchange.grpc.injective.network"
-			explorerGrpcEndpoint = "testnet.explorer.grpc.injective.network"
+			lcdEndpoint = "https://testnet.lcd.injective.network:443"
+			tmEndpoint = "https://testnet.tm.injective.network:443"
+			chainGrpcEndpoint = "testnet.chain.grpc.injective.network:443"
+			exchangeGrpcEndpoint = "testnet.exchange.grpc.injective.network:443"
+			explorerGrpcEndpoint = "testnet.explorer.grpc.injective.network:443"
 			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
