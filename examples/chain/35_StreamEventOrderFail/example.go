@@ -5,15 +5,10 @@ import (
 
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
-	network := common.LoadNetwork("mainnet", "sentry0")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
-	if err != nil {
-		panic(err)
-	}
+	network := common.LoadNetwork("mainnet", "lb")
 
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
@@ -23,12 +18,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
-		network.ChainGrpcEndpoint,
-		common.OptionTLSCert(network.ChainTlsCert),
+		network,
 		common.OptionGasPrices("500000000inj"),
 	)
 	if err != nil {

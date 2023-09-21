@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("mainnet", "k8s")
+	network := common.LoadNetwork("mainnet", "lb")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 
 	if err != nil {
@@ -50,8 +50,7 @@ func main() {
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
-		network.ChainGrpcEndpoint,
-		common.OptionTLSCert(network.ChainTlsCert),
+		network,
 		common.OptionGasPrices("500000000inj"),
 	)
 
