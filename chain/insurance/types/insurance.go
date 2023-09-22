@@ -10,7 +10,11 @@ import (
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 )
 
-var InsuranceFundInitialSupply = math.NewIntWithDecimal(1, 18)
+var (
+	InsuranceFundInitialSupply                = math.NewIntWithDecimal(1, 18)
+	InsuranceFundProtocolOwnedLiquiditySupply = math.NewIntWithDecimal(1, 16)
+	InsuranceFundCreatorSupply                = InsuranceFundInitialSupply.Sub(InsuranceFundProtocolOwnedLiquiditySupply)
+)
 
 func NewInsuranceFund(
 	marketID common.Hash,

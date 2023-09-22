@@ -6,19 +6,21 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-func NewMarketOrderForLiquidation(position *Position, positionSubaccountID common.Hash, liquidator sdk.AccAddress) *DerivativeMarketOrder {
+func NewMarketOrderForLiquidation(
+	position *Position,
+	positionSubaccountID common.Hash,
+	liquidator sdk.AccAddress,
+	worstPrice sdk.Dec,
+) *DerivativeMarketOrder {
 	var (
-		worstPrice sdk.Dec
-		orderType  OrderType
+		orderType OrderType
 	)
 
-	// if long position, market sell order at price 0
-	// if short position, market buy order at price infinity
+	// if long position, market sell order
+	// if short position, market buy order
 	if position.IsLong {
-		worstPrice = sdk.ZeroDec()
 		orderType = OrderType_SELL
 	} else {
-		worstPrice = MaxOrderPrice
 		orderType = OrderType_BUY
 	}
 
