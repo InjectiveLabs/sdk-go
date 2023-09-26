@@ -31,9 +31,9 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&ExtensionOptionsWeb3Tx{},
 	)
 
-	registry.RegisterInterface("injective.types.v1beta1.ExtensionOptionI", (*tx.ExtensionOptionI)(nil))
+	registry.RegisterInterface("injective.types.v1beta1.ExtensionOptionI", (*tx.TxExtensionOptionI)(nil))
 	registry.RegisterImplementations(
-		(*tx.ExtensionOptionI)(nil),
+		(*tx.TxExtensionOptionI)(nil),
 		&ExtensionOptionsWeb3Tx{},
 	)
 }
