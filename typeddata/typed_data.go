@@ -2,7 +2,6 @@ package typeddata
 
 import (
 	"bytes"
-	"encoding/hex"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -11,13 +10,12 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/consensus/clique"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
 )
@@ -77,11 +75,12 @@ func (t *Type) typeName() string {
 }
 
 func (t *Type) isReferenceType() bool {
-	if len(t.Type) == 0 {
+	if t.Type == "" {
 		return false
 	}
 	// Reference types must have a leading uppercase character
-	return unicode.IsUpper([]rune(t.Type)[0])
+	firstLetter, _ := utf8.DecodeRuneInString(t.Type)
+	return unicode.IsUpper(firstLetter)
 }
 
 type Types map[string][]Type
@@ -129,23 +128,6 @@ func ComputeTypedDataHash(typedData TypedData) ([]byte, error) {
 	return crypto.Keccak256(rawData), nil
 }
 
-// cliqueHeaderHashAndRlp returns the hash which is used as input for the proof-of-authority
-// signing. It is the hash of the entire header apart from the 65 byte signature
-// contained at the end of the extra data.
-//
-// The method requires the extra data to be at least 65 bytes -- the original implementation
-// in clique.go panics if this is the case, thus it's been reimplemented here to avoid the panic
-// and simply return an error instead
-func cliqueHeaderHashAndRlp(header *types.Header) (hash, rlp []byte, err error) {
-	if len(header.Extra) < 65 {
-		err = fmt.Errorf("clique header extradata too short, %d < 65", len(header.Extra))
-		return
-	}
-	rlp = clique.CliqueRLP(header)
-	hash = clique.SealHash(header).Bytes()
-	return hash, rlp, err
-}
-
 // HashStruct generates a keccak256 hash of the encoding of the provided data
 func (typedData *TypedData) HashStruct(primaryType string, data TypedDataMessage) (hexutil.Bytes, error) {
 	encodedData, err := typedData.EncodeData(primaryType, data, 1)
@@ -158,9 +140,7 @@ func (typedData *TypedData) HashStruct(primaryType string, data TypedDataMessage
 // Dependencies returns an array of custom types ordered by their hierarchical reference tree
 func (typedData *TypedData) Dependencies(primaryType string, found []string) []string {
 	// BUGFIX (Geth): cut array suffixes so we can lookup the type
-	if strings.HasSuffix(primaryType, "[]") {
-		primaryType = primaryType[:len(primaryType)-2]
-	}
+	primaryType = strings.TrimSuffix(primaryType, "[]")
 
 	includes := func(arr []string, str string) bool {
 		for _, obj := range arr {
@@ -224,10 +204,6 @@ func (typedData *TypedData) TypeHash(primaryType string) hexutil.Bytes {
 	return crypto.Keccak256(typedData.EncodeType(primaryType))
 }
 
-func toh(b []byte) string {
-	return hex.EncodeToString(b)
-}
-
 // EncodeData generates the following encoding:
 // `enc(value₁) ‖ enc(value₂) ‖ … ‖ enc(valueₙ)`
 //
@@ -251,7 +227,8 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 	for _, field := range typedData.Types[primaryType] {
 		encType := field.Type
 		encValue := data[field.Name]
-		if encType[len(encType)-1:] == "]" {
+		switch {
+		case encType[len(encType)-1:] == "]":
 			arrayValue, ok := encValue.([]interface{})
 			if !ok {
 				return nil, dataMismatchError(encType, encValue)
@@ -290,7 +267,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 			}
 
 			buffer.Write(crypto.Keccak256(arrayBuffer.Bytes()))
-		} else if typedData.Types[field.Type] != nil {
+		case typedData.Types[field.Type] != nil:
 			mapValue, ok := encValue.(map[string]interface{})
 			if !ok {
 				return nil, dataMismatchError(encType, encValue)
@@ -300,7 +277,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 				return nil, err
 			}
 			buffer.Write(crypto.Keccak256(encodedData))
-		} else {
+		default:
 			byteValue, err := typedData.EncodePrimitiveValue(encType, encValue, depth)
 			if err != nil {
 				return nil, err
@@ -320,11 +297,11 @@ func parseBytes(encType interface{}) ([]byte, bool) {
 	case hexutil.Bytes:
 		return v, true
 	case string:
-		bytes, err := hexutil.Decode(v)
+		b, err := hexutil.Decode(v)
 		if err != nil {
 			return nil, false
 		}
-		return bytes, true
+		return b, true
 	default:
 		return nil, false
 	}
@@ -524,8 +501,7 @@ func (typedData *TypedData) Format() ([]*NameValueType, error) {
 		Name:  "EIP712Domain",
 		Value: domain,
 		Typ:   "domain",
-	})
-	nvts = append(nvts, &NameValueType{
+	}, &NameValueType{
 		Name:  typedData.PrimaryType,
 		Value: ptype,
 		Typ:   "primary type",
@@ -534,7 +510,7 @@ func (typedData *TypedData) Format() ([]*NameValueType, error) {
 }
 
 func (typedData *TypedData) formatData(primaryType string, data map[string]interface{}) ([]*NameValueType, error) {
-	var output []*NameValueType
+	output := []*NameValueType{}
 
 	// Add field contents. Structs and arrays have special handlers.
 	for _, field := range typedData.Types[primaryType] {
@@ -544,7 +520,8 @@ func (typedData *TypedData) formatData(primaryType string, data map[string]inter
 			Name: encName,
 			Typ:  field.Type,
 		}
-		if field.isArray() {
+		switch {
+		case field.isArray():
 			arrayValue, _ := encValue.([]interface{})
 			parsedType := field.typeName()
 			for _, v := range arrayValue {
@@ -563,7 +540,7 @@ func (typedData *TypedData) formatData(primaryType string, data map[string]inter
 					item.Value = primitiveOutput
 				}
 			}
-		} else if typedData.Types[field.Type] != nil {
+		case typedData.Types[field.Type] != nil:
 			if mapValue, ok := encValue.(map[string]interface{}); ok {
 				mapOutput, err := typedData.formatData(field.Type, mapValue)
 				if err != nil {
@@ -573,7 +550,7 @@ func (typedData *TypedData) formatData(primaryType string, data map[string]inter
 			} else {
 				item.Value = "<nil>"
 			}
-		} else {
+		default:
 			primitiveOutput, err := formatPrimitiveValue(field.Type, encValue)
 			if err != nil {
 				return nil, err
@@ -648,14 +625,14 @@ func (nvt *NameValueType) Pprint(depth int) string {
 // Validate checks if the types object is conformant to the specs
 func (t Types) validate() error {
 	for typeKey, typeArr := range t {
-		if len(typeKey) == 0 {
+		if typeKey == "" {
 			return fmt.Errorf("empty type key")
 		}
 		for i, typeObj := range typeArr {
-			if len(typeObj.Type) == 0 {
+			if typeObj.Type == "" {
 				return fmt.Errorf("type %q:%d: empty Type", typeKey, i)
 			}
-			if len(typeObj.Name) == 0 {
+			if typeObj.Name == "" {
 				return fmt.Errorf("type %q:%d: empty Name", typeKey, i)
 			}
 			if typeKey == typeObj.Type {
@@ -792,7 +769,7 @@ func isPrimitiveTypeValid(primitiveType string) bool {
 // validate checks if the given domain is valid, i.e. contains at least
 // the minimum viable keys and values
 func (domain *TypedDataDomain) validate() error {
-	if domain.ChainId == nil && len(domain.Name) == 0 && len(domain.Version) == 0 && len(domain.VerifyingContract) == 0 && len(domain.Salt) == 0 {
+	if domain.ChainId == nil && domain.Name == "" && domain.Version == "" && domain.VerifyingContract == "" && domain.Salt == "" {
 		return errors.New("domain is undefined")
 	}
 
