@@ -10,7 +10,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("devnet-1", "")
-	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
 		fmt.Println(err)
 	}

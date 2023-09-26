@@ -42,7 +42,7 @@ decimals = %s
 func FetchDenom(network common.Network) {
 	metadataOutput := ""
 	symbols := make(map[string][]string)
-	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint, common.OptionTLSCert(network.ExchangeTlsCert))
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
 		panic(err)
 	}
@@ -143,8 +143,8 @@ func FetchDenom(network common.Network) {
 
 func main() {
 	devnet := common.LoadNetwork("devnet", "")
-	testnet := common.LoadNetwork("testnet", "k8s")
-	mainnet := common.LoadNetwork("mainnet", "k8s")
+	testnet := common.LoadNetwork("testnet", "lb")
+	mainnet := common.LoadNetwork("mainnet", "lb")
 	FetchDenom(devnet)
 	FetchDenom(testnet)
 	FetchDenom(mainnet)
