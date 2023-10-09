@@ -2,15 +2,17 @@ package types
 
 import (
 	"fmt"
+	"time"
 )
 
 type StreamResponseMap struct {
 	BlockHeight                          uint64
+	BlockTime                            time.Time
 	BankBalancesByAccount                map[string][]*BankBalance
-	SpotOrdersBySubaccount               map[string][]*SpotOrder
-	SpotOrdersByMarketID                 map[string][]*SpotOrder
-	DerivativeOrdersBySubaccount         map[string][]*DerivativeOrder
-	DerivativeOrdersByMarketID           map[string][]*DerivativeOrder
+	SpotOrdersBySubaccount               map[string][]*SpotOrderUpdate
+	SpotOrdersByMarketID                 map[string][]*SpotOrderUpdate
+	DerivativeOrdersBySubaccount         map[string][]*DerivativeOrderUpdate
+	DerivativeOrdersByMarketID           map[string][]*DerivativeOrderUpdate
 	SpotOrderbookUpdatesByMarketID       map[string][]*OrderbookUpdate
 	DerivativeOrderbookUpdatesByMarketID map[string][]*OrderbookUpdate
 	SubaccountDepositsBySubaccountID     map[string][]*SubaccountDeposits
@@ -26,10 +28,10 @@ type StreamResponseMap struct {
 func NewStreamResponseMap() *StreamResponseMap {
 	return &StreamResponseMap{
 		BankBalancesByAccount:                map[string][]*BankBalance{},
-		SpotOrdersBySubaccount:               map[string][]*SpotOrder{},
-		SpotOrdersByMarketID:                 map[string][]*SpotOrder{},
-		DerivativeOrdersBySubaccount:         map[string][]*DerivativeOrder{},
-		DerivativeOrdersByMarketID:           map[string][]*DerivativeOrder{},
+		SpotOrdersBySubaccount:               map[string][]*SpotOrderUpdate{},
+		SpotOrdersByMarketID:                 map[string][]*SpotOrderUpdate{},
+		DerivativeOrdersBySubaccount:         map[string][]*DerivativeOrderUpdate{},
+		DerivativeOrdersByMarketID:           map[string][]*DerivativeOrderUpdate{},
 		SpotOrderbookUpdatesByMarketID:       map[string][]*OrderbookUpdate{},
 		DerivativeOrderbookUpdatesByMarketID: map[string][]*OrderbookUpdate{},
 		SubaccountDepositsBySubaccountID:     map[string][]*SubaccountDeposits{},
@@ -49,8 +51,8 @@ func NewChainStreamResponse() *StreamResponse {
 		SubaccountDeposits:         []*SubaccountDeposits{},
 		SpotTrades:                 []*SpotTrade{},
 		DerivativeTrades:           []*DerivativeTrade{},
-		SpotOrders:                 []*SpotOrder{},
-		DerivativeOrders:           []*DerivativeOrder{},
+		SpotOrders:                 []*SpotOrderUpdate{},
+		DerivativeOrders:           []*DerivativeOrderUpdate{},
 		SpotOrderbookUpdates:       []*OrderbookUpdate{},
 		DerivativeOrderbookUpdates: []*OrderbookUpdate{},
 		Positions:                  []*Position{},
