@@ -214,7 +214,7 @@ func LoadNetwork(name string, node string) Network {
 			explorerCookieAssistant: &DisabledCookieAssistant{},
 		}
 	case "testnet":
-		validNodes := []string{"lb", "lb_k8s", "sentry", "sentry0", "sentry1"}
+		validNodes := []string{"lb", "lb_k8s", "sentry"}
 		if !contains(validNodes, node) {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
@@ -265,16 +265,6 @@ func LoadNetwork(name string, node string) Network {
 			chainCookieAssistant = &DisabledCookieAssistant{}
 			exchangeCookieAssistant = &DisabledCookieAssistant{}
 			explorerCookieAssistant = &DisabledCookieAssistant{}
-		} else {
-			lcdEndpoint = fmt.Sprintf("http://%s.injective.dev:10337", node)
-			tmEndpoint = fmt.Sprintf("http://%s.injective.dev:26657", node)
-			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.dev:9900", node)
-			chainStreamGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.dev:9999", node)
-			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.dev:9910", node)
-			explorerGrpcEndpoint = "tcp://testnet.api.injective.dev:9911"
-			chainCookieAssistant = &DisabledCookieAssistant{}
-			exchangeCookieAssistant = &DisabledCookieAssistant{}
-			explorerCookieAssistant = &DisabledCookieAssistant{}
 		}
 
 		return Network{
@@ -295,7 +285,7 @@ func LoadNetwork(name string, node string) Network {
 			explorerCookieAssistant: explorerCookieAssistant,
 		}
 	case "mainnet":
-		validNodes := []string{"lb", "lb_k8s", "sentry0", "sentry1", "sentry2", "sentry3"}
+		validNodes := []string{"lb", "lb_k8s"}
 		if !contains(validNodes, node) {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
@@ -316,7 +306,6 @@ func LoadNetwork(name string, node string) Network {
 			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 		} else if node == "lb_k8s" {
-			//certPath := getFileAbsPath("../cert/mainnet.crt")
 			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
 			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network:443"
 			chainGrpcEndpoint = "k8s.global.mainnet.chain.grpc.injective.network:443"
@@ -332,22 +321,6 @@ func LoadNetwork(name string, node string) Network {
 			exchangeCookieAssistant = &exchangeAssistant
 			explorerAssistant := MainnetKubernetesCookieAssistant()
 			explorerCookieAssistant = &explorerAssistant
-		} else {
-			lcdEndpoint = fmt.Sprintf("http://%s.injective.network:10337", node)
-			tmEndpoint = fmt.Sprintf("http://%s.injective.network:26657", node)
-			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9900", node)
-			chainStreamGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9999", node)
-			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9910", node)
-			// only sentry2 and equinix-0 have explorer
-			if node == "sentry2" {
-				explorerGrpcEndpoint = "tcp://sentry2.injective.network:9911"
-			} else {
-				explorerGrpcEndpoint = "k8s.global.mainnet.explorer.grpc.injective.network:443"
-				explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			}
-			chainCookieAssistant = &DisabledCookieAssistant{}
-			exchangeCookieAssistant = &DisabledCookieAssistant{}
-			explorerCookieAssistant = &DisabledCookieAssistant{}
 		}
 
 		return Network{
