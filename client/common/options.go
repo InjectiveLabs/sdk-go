@@ -64,6 +64,7 @@ func OptionLogger(logger *logrus.Logger) ClientOption {
 			log.Infoln("logger input is nil")
 		}
 		opts.Logger = logger
+		return nil
 	}
 }
 

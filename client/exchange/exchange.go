@@ -3,6 +3,7 @@ package exchange
 import (
 	"context"
 	"fmt"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	accountPB "github.com/InjectiveLabs/sdk-go/exchange/accounts_rpc/pb"
 	auctionPB "github.com/InjectiveLabs/sdk-go/exchange/auction_rpc/pb"
@@ -139,10 +140,11 @@ func NewExchangeClient(network common.Network, options ...common.ClientOption) (
 }
 
 type exchangeClient struct {
-	opts   *common.ClientOptions
-	conn   *grpc.ClientConn
-	logger *logrus.Logger
-	client *grpc.ClientConn
+	opts    *common.ClientOptions
+	network common.Network
+	conn    *grpc.ClientConn
+	logger  *logrus.Logger
+	client  *grpc.ClientConn
 
 	sessionCookie string
 
