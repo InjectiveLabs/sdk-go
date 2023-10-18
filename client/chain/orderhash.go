@@ -58,7 +58,26 @@ var domain = gethsigner.TypedDataDomain{
 	Salt:              "0x0000000000000000000000000000000000000000000000000000000000000000",
 }
 
-func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder) (OrderHashes, error) {
+func (c *chainClient) UpdateSubaccountNonceFromChain() error {
+	for subaccountId := range c.subaccountToNonce {
+		err := c.SynchronizeSubaccountNonce(subaccountId)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *chainClient) SynchronizeSubaccountNonce(subaccountId common.Hash) error {
+	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
+	if err != nil {
+		return err
+	}
+	c.subaccountToNonce[subaccountId] = res.Nonce
+	return nil
+}
+
+func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId common.Hash) (OrderHashes, error) {
 	if len(spotOrders)+len(derivativeOrders) == 0 {
 		return OrderHashes{}, nil
 	}
@@ -68,7 +87,14 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 	// protect nonce used in this function
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
+	// get nonce
+	if _, exist := c.subaccountToNonce[subaccountId]; !exist {
+		if err := c.SynchronizeSubaccountNonce(subaccountId); err != nil {
+			return OrderHashes{}, err
+		}
+	}
 
+	nonce := c.subaccountToNonce[subaccountId]
 	for _, o := range spotOrders {
 		c.nonce++
 
@@ -155,6 +181,8 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 		hash := common.BytesToHash(w.Sum(nil))
 		orderHashes.Derivative = append(orderHashes.Derivative, hash)
 	}
+
+	c.subaccountToNonce[subaccountId] = nonce
 
 	return orderHashes, nil
 }

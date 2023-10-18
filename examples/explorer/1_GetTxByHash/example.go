@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("testnet", "k8s")
-	explorerClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExplorerTlsCert))
+	network := common.LoadNetwork("mainnet", "sentry")
+	explorerClient, err := explorerclient.NewExplorerClient(network)
 	if err != nil {
 		panic(err)
 	}

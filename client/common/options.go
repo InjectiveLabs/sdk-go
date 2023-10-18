@@ -4,6 +4,7 @@ import (
 	ctypes "github.com/InjectiveLabs/sdk-go/chain/types"
 
 	log "github.com/InjectiveLabs/suplog"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -23,6 +24,7 @@ type ClientOptions struct {
 	GasPrices string
 	TLSCert   credentials.TransportCredentials
 	Logger    *logrus.Logger
+	TxFactory *tx.Factory
 }
 
 type ClientOption func(opts *ClientOptions) error
@@ -62,6 +64,12 @@ func OptionLogger(logger *logrus.Logger) ClientOption {
 			log.Infoln("logger input is nil")
 		}
 		opts.Logger = logger
+	}
+}
+
+func OptionTxFactory(txFactory *tx.Factory) ClientOption {
+	return func(opts *ClientOptions) error {
+		opts.TxFactory = txFactory
 		return nil
 	}
 }

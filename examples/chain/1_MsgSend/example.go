@@ -14,8 +14,7 @@ import (
 )
 
 func main() {
-	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "lb")
 	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		panic(err)
@@ -38,6 +37,7 @@ func main() {
 	// initialize grpc client
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,
+
 		senderAddress.String(),
 		cosmosKeyring,
 	)
@@ -57,8 +57,7 @@ func main() {
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
-		network.ChainGrpcEndpoint,
-		common.OptionTLSCert(network.ChainTlsCert),
+		network,
 		common.OptionGasPrices("500000000inj"),
 	)
 

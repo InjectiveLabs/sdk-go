@@ -14,8 +14,7 @@ import (
 )
 
 func main() {
-	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "lb")
 	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		panic(err)
@@ -43,19 +42,20 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
-		network.ChainGrpcEndpoint,
-		common.OptionTLSCert(network.ChainTlsCert),
+		network,
 		common.OptionGasPrices("500000000inj"),
 	)
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
@@ -79,14 +79,15 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
-	simResMsgs := common.MsgResponse(simRes.Result.Data)
 	msgBatchCreateSpotLimitOrdersResponse := exchangetypes.MsgBatchCreateSpotLimitOrdersResponse{}
-	msgBatchCreateSpotLimitOrdersResponse.Unmarshal(simResMsgs[0].Data)
+	err = msgBatchCreateSpotLimitOrdersResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	fmt.Println("simulated order hashes", msgBatchCreateSpotLimitOrdersResponse.OrderHashes)
@@ -96,6 +97,7 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	time.Sleep(time.Second * 5)

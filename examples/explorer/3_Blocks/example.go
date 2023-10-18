@@ -11,7 +11,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("mainnet", "lb")
-	explorerClient, err := explorerclient.NewExplorerClient(network.ExplorerGrpcEndpoint, common.OptionTLSCert(network.ExplorerTlsCert))
+	explorerClient, err := explorerclient.NewExplorerClient(network)
 	if err != nil {
 		panic(err)
 	}

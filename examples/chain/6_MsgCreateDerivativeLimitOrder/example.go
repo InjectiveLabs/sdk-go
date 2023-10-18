@@ -15,8 +15,7 @@ import (
 )
 
 func main() {
-	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "lb")
 	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		panic(err)
@@ -50,8 +49,7 @@ func main() {
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
-		network.ChainGrpcEndpoint,
-		common.OptionTLSCert(network.ChainTlsCert),
+		network,
 		common.OptionGasPrices("500000000inj"),
 	)
 
@@ -86,9 +84,8 @@ func main() {
 		fmt.Println(err)
 	}
 
-	simResMsgs := common.MsgResponse(simRes.Result.Data)
 	msgCreateDerivativeLimitOrderResponse := exchangetypes.MsgCreateDerivativeLimitOrderResponse{}
-	msgCreateDerivativeLimitOrderResponse.Unmarshal(simResMsgs[0].Data)
+	err = msgCreateDerivativeLimitOrderResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {
 		fmt.Println(err)

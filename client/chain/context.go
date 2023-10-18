@@ -45,6 +45,8 @@ import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
 	ibcapplicationtypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibccoretypes "github.com/cosmos/ibc-go/v7/modules/core/types"
+	ibclightclienttypes "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
+	ibctenderminttypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 )
 
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
@@ -75,6 +77,8 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
 	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
 	ibccoretypes.RegisterInterfaces(interfaceRegistry)
+	ibclightclienttypes.RegisterInterfaces(interfaceRegistry)
+	ibctenderminttypes.RegisterInterfaces(interfaceRegistry)
 	slashingtypes.RegisterInterfaces(interfaceRegistry)
 	stakingtypes.RegisterInterfaces(interfaceRegistry)
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
@@ -120,6 +124,8 @@ func NewClientContext(
 	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
 	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
 	ibccoretypes.RegisterInterfaces(interfaceRegistry)
+	ibclightclienttypes.RegisterInterfaces(interfaceRegistry)
+	ibctenderminttypes.RegisterInterfaces(interfaceRegistry)
 	slashingtypes.RegisterInterfaces(interfaceRegistry)
 	stakingtypes.RegisterInterfaces(interfaceRegistry)
 	upgradetypes.RegisterInterfaces(interfaceRegistry)

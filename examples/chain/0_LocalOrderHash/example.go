@@ -14,8 +14,7 @@ import (
 )
 
 func main() {
-	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("testnet", "k8s")
+	network := common.LoadNetwork("testnet", "lb")
 	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		panic(err)
@@ -49,8 +48,7 @@ func main() {
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
-		network.ChainGrpcEndpoint,
-		common.OptionTLSCert(network.ChainTlsCert),
+		network,
 		common.OptionGasPrices("500000000inj"),
 	)
 
@@ -59,7 +57,7 @@ func main() {
 	}
 
 	// prepare tx msg
-	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
+	defaultSubaccountID := chainClient.Subaccount(senderAddress, 1)
 
 	spotOrder := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
@@ -87,7 +85,7 @@ func main() {
 	msg1.Orders = []exchangetypes.DerivativeOrder{*derivativeOrder, *derivativeOrder}
 
 	// compute local order hashes
-	orderHashes, err := chainClient.ComputeOrderHashes(msg.Orders, msg1.Orders)
+	orderHashes, err := chainClient.ComputeOrderHashes(msg.Orders, msg1.Orders, defaultSubaccountID)
 
 	if err != nil {
 		fmt.Println(err)
