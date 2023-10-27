@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"time"
 
@@ -69,6 +70,7 @@ func main() {
 		Price:        price,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     marketId,
+		Cid:          uuid.NewString(),
 	})
 
 	msg := new(exchangetypes.MsgCreateSpotLimitOrder)

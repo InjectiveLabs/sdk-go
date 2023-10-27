@@ -946,6 +946,7 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 			FeeRecipient: d.FeeRecipient,
 			Price:        orderPrice,
 			Quantity:     orderSize,
+			Cid:          d.Cid,
 		},
 	}
 }
@@ -974,6 +975,7 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 			FeeRecipient: d.FeeRecipient,
 			Price:        orderPrice,
 			Quantity:     orderSize,
+			Cid:          d.Cid,
 		},
 	}
 }
@@ -983,6 +985,7 @@ func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelDa
 		MarketId:     d.MarketId,
 		OrderHash:    d.OrderHash,
 		SubaccountId: defaultSubaccountID.Hex(),
+		Cid:          d.Cid,
 	}
 }
 
@@ -1315,6 +1318,7 @@ type DerivativeOrderData struct {
 	FeeRecipient string
 	MarketId     string
 	IsReduceOnly bool
+	Cid          string
 }
 
 type SpotOrderData struct {
@@ -1323,9 +1327,11 @@ type SpotOrderData struct {
 	Quantity     decimal.Decimal
 	FeeRecipient string
 	MarketId     string
+	Cid          string
 }
 
 type OrderCancelData struct {
 	MarketId  string
 	OrderHash string
+	Cid       string
 }

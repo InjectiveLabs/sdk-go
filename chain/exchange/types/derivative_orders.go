@@ -449,8 +449,20 @@ func (o *DerivativeLimitOrder) IsConditional() bool {
 	return o.OrderType.IsConditional()
 }
 
+func (o *DerivativeLimitOrder) Cid() string {
+	return o.OrderInfo.GetCid()
+}
+
+func (o *DerivativeMarketOrder) Cid() string {
+	return o.OrderInfo.GetCid()
+}
+
 func (o *DerivativeOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
+}
+
+func (o *DerivativeOrder) Cid() string {
+	return o.OrderInfo.GetCid()
 }
 
 func (o *DerivativeOrder) IsFromDefaultSubaccount() bool {

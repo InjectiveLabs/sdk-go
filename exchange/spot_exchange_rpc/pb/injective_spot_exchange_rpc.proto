@@ -20,15 +20,9 @@ service InjectiveSpotExchangeRPC {
 	// Stream live updates of selected spot markets
 	rpc StreamMarkets (StreamMarketsRequest) returns (stream StreamMarketsResponse);
 	// Orderbook of a Spot Market
-	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
-	// Orderbook of a Spot Market
 	rpc OrderbookV2 (OrderbookV2Request) returns (OrderbookV2Response);
 	// Orderbook of Spot Markets
-	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
-	// Orderbook of Spot Markets
 	rpc OrderbooksV2 (OrderbooksV2Request) returns (OrderbooksV2Response);
-	// Stream live snapshot updates of selected spot market orderbook
-	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
 	// Stream live snapshot updates of selected spot market orderbook
 	rpc StreamOrderbookV2 (StreamOrderbookV2Request) returns (stream StreamOrderbookV2Response);
 	// Stream live level updates of selected spot market orderbook
@@ -49,6 +43,8 @@ service InjectiveSpotExchangeRPC {
 	rpc OrdersHistory (OrdersHistoryRequest) returns (OrdersHistoryResponse);
 	// Stream updates to historical orders of a spot Market
 	rpc StreamOrdersHistory (StreamOrdersHistoryRequest) returns (stream StreamOrdersHistoryResponse);
+	// Get historical atomic swaps
+	rpc AtomicSwapHistory (AtomicSwapHistoryRequest) returns (AtomicSwapHistoryResponse);
 }
 
 message MarketsRequest {
@@ -58,6 +54,7 @@ message MarketsRequest {
 	string base_denom = 2;
 	// Filter by the Coin denomination of the quote currency
 	string quote_denom = 3;
+	repeated string market_statuses = 4;
 }
 
 message MarketsResponse {
@@ -132,34 +129,6 @@ message StreamMarketsResponse {
 	sint64 timestamp = 3;
 }
 
-message OrderbookRequest {
-	// MarketId of the market's orderbook we want to fetch
-	string market_id = 1;
-}
-
-message OrderbookResponse {
-	// Orderbook of a particular spot market
-	SpotLimitOrderbook orderbook = 1;
-}
-
-message SpotLimitOrderbook {
-	// Array of price levels for buys
-	repeated PriceLevel buys = 1;
-	// Array of price levels for sells
-	repeated PriceLevel sells = 2;
-	// Last update timestamp in UNIX millis.
-	sint64 timestamp = 3;
-}
-
-message PriceLevel {
-	// Price number of the price level.
-	string price = 1;
-	// Quantity of the price level.
-	string quantity = 2;
-	// Price level last updated timestamp in UNIX millis.
-	sint64 timestamp = 3;
-}
-
 message OrderbookV2Request {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
@@ -181,20 +150,13 @@ message SpotLimitOrderbookV2 {
 	sint64 timestamp = 4;
 }
 
-message OrderbooksRequest {
-	// MarketIds of the markets
-	repeated string market_ids = 1;
-}
-
-message OrderbooksResponse {
-	repeated SingleSpotLimitOrderbook orderbooks = 1;
-}
-
-message SingleSpotLimitOrderbook {
-	// market's ID
-	string market_id = 1;
-	// Orderbook of the market
-	SpotLimitOrderbook orderbook = 2;
+message PriceLevel {
+	// Price number of the price level.
+	string price = 1;
+	// Quantity of the price level.
+	string quantity = 2;
+	// Price level last updated timestamp in UNIX millis.
+	sint64 timestamp = 3;
 }
 
 message OrderbooksV2Request {
@@ -211,22 +173,6 @@ message SingleSpotLimitOrderbookV2 {
 	string market_id = 1;
 	// Orderbook of the market
 	SpotLimitOrderbookV2 orderbook = 2;
-}
-
-message StreamOrderbookRequest {
-	// List of market IDs for orderbook streaming, empty means 'ALL' spot markets
-	repeated string market_ids = 1;
-}
-
-message StreamOrderbookResponse {
-	// Orderbook of a Spot Market
-	SpotLimitOrderbook orderbook = 1;
-	// Order update type
-	string operation_type = 2;
-	// Operation timestamp in UNIX millis.
-	sint64 timestamp = 3;
-	// MarketId of the market's orderbook
-	string market_id = 4;
 }
 
 message StreamOrderbookV2Request {
@@ -308,6 +254,8 @@ message OrdersRequest {
 	bool include_inactive = 9;
 	// Choose to return subaccount total orders
 	bool subaccount_total_orders = 10;
+	// TradeId of the order we want to fetch
+	string trade_id = 11;
 }
 
 message OrdersResponse {
@@ -341,6 +289,8 @@ message SpotLimitOrder {
 	sint64 created_at = 11;
 	// Order updated timestamp in UNIX millis.
 	sint64 updated_at = 12;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 13;
 }
 // Paging defines the structure for required params for handling pagination
 message Paging {
@@ -352,6 +302,8 @@ message Paging {
 	sint32 to = 3;
 	// count entries by subaccount, serving some places on helix
 	sint64 count_by_subaccount = 4;
+	// array of tokens to navigate to the next pages
+	repeated string next = 5;
 }
 
 message StreamOrdersRequest {
@@ -377,6 +329,8 @@ message StreamOrdersRequest {
 	bool include_inactive = 9;
 	// Choose to return subaccount total orders
 	bool subaccount_total_orders = 10;
+	// TradeId of the order we want to fetch
+	string trade_id = 11;
 }
 
 message StreamOrdersResponse {
@@ -412,6 +366,10 @@ message TradesRequest {
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
 }
 
 message TradesResponse {
@@ -470,6 +428,10 @@ message StreamTradesRequest {
 	// Subaccount ids of traders we want to get trades
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
 }
 
 message StreamTradesResponse {
@@ -538,6 +500,10 @@ message OrdersHistoryRequest {
 	string state = 9;
 	repeated string execution_types = 10;
 	repeated string market_ids = 11;
+	// TradeId of the order we want to fetch
+	string trade_id = 12;
+	// Return only orders for active markets
+	bool active_markets_only = 13;
 }
 
 message OrdersHistoryResponse {
@@ -575,6 +541,8 @@ message SpotOrderHistory {
 	sint64 updated_at = 13;
 	// Order direction (order side)
 	string direction = 14;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 15;
 }
 
 message StreamOrdersHistoryRequest {
@@ -598,4 +566,58 @@ message StreamOrdersHistoryResponse {
 	string operation_type = 2;
 	// Operation timestamp in UNIX millis.
 	sint64 timestamp = 3;
+}
+
+message AtomicSwapHistoryRequest {
+	// sender of the atomic swap
+	string address = 1;
+	// atomic swap contract address to filter
+	string contract_address = 2;
+	// skip some swaps
+	sint32 skip = 3;
+	// limit number of swaps returned by this API
+	sint32 limit = 4;
+	// lowerbound of atomic swap index
+	sint32 from_number = 5;
+	// upperbound of atomic swap index
+	sint32 to_number = 6;
+}
+
+message AtomicSwapHistoryResponse {
+	// Paging indicates total number of records with this filter
+	Paging paging = 1;
+	// swap data
+	repeated AtomicSwap data = 2;
+}
+
+message AtomicSwap {
+	// executor of the swap
+	string sender = 1;
+	// swap route
+	string route = 2;
+	// source coin
+	Coin source_coin = 3;
+	// destination received coin
+	Coin dest_coin = 4;
+	// fees of each steps in route
+	repeated Coin fees = 5;
+	// contract address that executes to make this swap
+	string contract_address = 6;
+	// Numerical index by sender to use in pagination from_number and to_number
+	sint32 index_by_sender = 7;
+	// Numerical index by sender + acontract to use in pagination from_number and
+// to_number, that support contract filter
+	sint32 index_by_sender_contract = 8;
+	// transaction hash of the swap
+	string tx_hash = 9;
+	// transaction timestamp of the swap
+	sint64 executed_at = 10;
+	// Refunded amount of the swap
+	string refund_amount = 11;
+}
+
+message Coin {
+	// Denom of the coin
+	string denom = 1;
+	string amount = 2;
 }
