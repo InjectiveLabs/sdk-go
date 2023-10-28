@@ -14,8 +14,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/InjectiveLabs/injective-core/injective-chain/crypto/ethsecp256k1"
-	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
-	wasmxtypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types"
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
 const RouterKey = ModuleName

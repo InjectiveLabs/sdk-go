@@ -13,7 +13,7 @@ import (
 	ethcodec "github.com/InjectiveLabs/injective-core/injective-chain/codec"
 	cryptocodec "github.com/InjectiveLabs/injective-core/injective-chain/crypto/codec"
 	"github.com/InjectiveLabs/injective-core/injective-chain/crypto/ethsecp256k1"
-	"github.com/InjectiveLabs/injective-core/injective-chain/types"
+	"github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 func init() {

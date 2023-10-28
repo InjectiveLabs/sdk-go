@@ -23,12 +23,9 @@ import (
 type ExchangeClient interface {
 	QueryClient() *grpc.ClientConn
 	GetDerivativeMarket(ctx context.Context, marketId string) (derivativeExchangePB.MarketResponse, error)
-	GetDerivativeOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error)
-	GetDerivativeOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error)
 	GetDerivativeOrderbookV2(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookV2Response, error)
 	GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksV2Response, error)
 	// StreamDerivativeOrderbook deprecated API
-	StreamDerivativeOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error)
 	StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error)
 	StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
 	StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
@@ -59,12 +56,9 @@ type ExchangeClient interface {
 	GetPortfolio(ctx context.Context, accountAddress string) (accountPB.PortfolioResponse, error)
 	GetRewards(ctx context.Context, req accountPB.RewardsRequest) (accountPB.RewardsResponse, error)
 	GetSpotOrders(ctx context.Context, req spotExchangePB.OrdersRequest) (spotExchangePB.OrdersResponse, error)
-	GetSpotOrderbook(ctx context.Context, marketId string) (spotExchangePB.OrderbookResponse, error)
-	GetSpotOrderbooks(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksResponse, error)
 	GetSpotOrderbookV2(ctx context.Context, marketId string) (spotExchangePB.OrderbookV2Response, error)
 	GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksV2Response, error)
 	// StreamSpotOrderbook deprecated API
-	StreamSpotOrderbook(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookClient, error)
 	StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error)
 	StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
 	GetSpotMarkets(ctx context.Context, req spotExchangePB.MarketsRequest) (spotExchangePB.MarketsResponse, error)
@@ -203,36 +197,6 @@ func (c *exchangeClient) GetDerivativePositions(ctx context.Context, req derivat
 	return *res, nil
 }
 
-func (c *exchangeClient) GetDerivativeOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error) {
-	req := derivativeExchangePB.OrderbookRequest{
-		MarketId: marketId,
-	}
-
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Orderbook(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return derivativeExchangePB.OrderbookResponse{}, err
-	}
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetDerivativeOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error) {
-	req := derivativeExchangePB.OrderbooksRequest{
-		MarketIds: marketIds,
-	}
-
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Orderbooks(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return derivativeExchangePB.OrderbooksResponse{}, err
-	}
-
-	return *res, nil
-}
-
 func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookV2Response, error) {
 	req := derivativeExchangePB.OrderbookV2Request{
 		MarketId: marketId,
@@ -261,21 +225,6 @@ func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketId
 	}
 
 	return *res, nil
-}
-
-func (c *exchangeClient) StreamDerivativeOrderbook(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookClient, error) {
-	req := derivativeExchangePB.StreamOrderbookRequest{
-		MarketIds: marketIds,
-	}
-
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamOrderbook(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return stream, nil
 }
 
 func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
@@ -665,21 +614,6 @@ func (c *exchangeClient) GetSpotOrders(ctx context.Context, req spotExchangePB.O
 	return *res, nil
 }
 
-func (c *exchangeClient) GetSpotOrderbook(ctx context.Context, marketId string) (spotExchangePB.OrderbookResponse, error) {
-	req := spotExchangePB.OrderbookRequest{
-		MarketId: marketId,
-	}
-
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.Orderbook(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return spotExchangePB.OrderbookResponse{}, err
-	}
-
-	return *res, nil
-}
-
 func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string) (spotExchangePB.OrderbookV2Response, error) {
 	req := spotExchangePB.OrderbookV2Request{
 		MarketId: marketId,
@@ -690,21 +624,6 @@ func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string
 	if err != nil {
 		fmt.Println(err)
 		return spotExchangePB.OrderbookV2Response{}, err
-	}
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetSpotOrderbooks(ctx context.Context, marketIds []string) (spotExchangePB.OrderbooksResponse, error) {
-	req := spotExchangePB.OrderbooksRequest{
-		MarketIds: marketIds,
-	}
-
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.Orderbooks(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return spotExchangePB.OrderbooksResponse{}, err
 	}
 
 	return *res, nil
@@ -732,21 +651,6 @@ func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketId
 
 	ctx = c.getCookie(ctx)
 	stream, err := c.spotExchangeClient.StreamOrderbookUpdate(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return stream, nil
-}
-
-func (c *exchangeClient) StreamSpotOrderbook(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookClient, error) {
-	req := spotExchangePB.StreamOrderbookRequest{
-		MarketIds: marketIds,
-	}
-
-	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamOrderbook(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

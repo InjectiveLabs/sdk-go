@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	chaintypes "github.com/InjectiveLabs/injective-core/injective-chain/types"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 const (
