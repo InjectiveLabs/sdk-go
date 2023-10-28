@@ -6,7 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	types "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
+	types "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	_ "github.com/cosmos/cosmos-proto"
 	types1 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
