@@ -6,7 +6,7 @@ import (
 	bandobi "github.com/bandprotocol/bandchain-packet/obi"
 	bandPacket "github.com/bandprotocol/bandchain-packet/packet"
 
-	bandprice "github.com/InjectiveLabs/sdk-go/chain/oracle/bandchain/hooks/price"
+	bandprice "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/bandchain/hooks/price"
 )
 
 func NewOracleRequestPacketData(clientID string, calldata []byte, r *BandOracleRequest) bandPacket.OracleRequestPacketData {

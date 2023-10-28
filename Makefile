@@ -49,3 +49,4 @@ copy-chain-types:
 
 	echo "👉 Replace injective-core/injective-chain/modules with sdk-go/chain"
 	echo "👉 Replace injective-core/injective-chain/types with sdk-go/chain/types"
+proto/injective/exchange/v1beta1/exchange.proto
