@@ -7,7 +7,7 @@ import (
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
 )
 
 var (

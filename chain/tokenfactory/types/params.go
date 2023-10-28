@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
+	chaintypes "github.com/InjectiveLabs/injective-core/injective-chain/types"
 )
 
 // Parameter store keys.
