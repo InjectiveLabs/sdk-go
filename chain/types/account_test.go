@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	ethcodec "github.com/InjectiveLabs/injective-core/injective-chain/codec"
-	cryptocodec "github.com/InjectiveLabs/injective-core/injective-chain/crypto/codec"
-	"github.com/InjectiveLabs/injective-core/injective-chain/crypto/ethsecp256k1"
+	ethcodec "github.com/InjectiveLabs/sdk-go/chain/codec"
+	cryptocodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
+	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
 	"github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
