@@ -664,8 +664,6 @@ github.com/InjectiveLabs/cosmos-sdk/math v0.47.2-inj h1:6KmIhzArX8fy14+u7iGPxlyx
 github.com/InjectiveLabs/cosmos-sdk/math v0.47.2-inj/go.mod h1:An0MllWJY6PxibUpnwGk8jOm+a/qIxlKmL5Zyp9NnaM=
 github.com/InjectiveLabs/ibc-go/v7 v7.0.1-inj h1:cDf/KfRFt/o9Q1dqkzlFNwypAiXA2u/TyEf6AdWW2RQ=
 github.com/InjectiveLabs/ibc-go/v7 v7.0.1-inj/go.mod h1:Ptq4SfvPxRu+SlI9etQ4x4I9Wm5nCw1r6GzVClBKZ5E=
-github.com/InjectiveLabs/injective-core v1.12.0-alpha h1:FD4n6t2QY6/5SRTkUwZgAPECJOyJelGDWbqs1HDrX9o=
-github.com/InjectiveLabs/injective-core v1.12.0-alpha/go.mod h1:DrQTdUsI/dX8hfJSgp67ToG1+9v9qX3qyFTxT/bUToM=
 github.com/InjectiveLabs/suplog v1.3.3 h1:ARIR3lWD9BxcrmqTwgcGBt8t7e10gwOqllUAXa/MfxI=
 github.com/InjectiveLabs/suplog v1.3.3/go.mod h1:+I9WRgUhzmo1V/n7IkW24kFBFB9ZTPAiXXXCogWxmTM=
 github.com/InjectiveLabs/wasmd v0.40.2-inj h1:xC6D4UG17gUenuRCIesVMTYclBUyAq0s1oDxjlSo0LE=

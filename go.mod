@@ -6,7 +6,6 @@ require (
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.1
 	github.com/CosmWasm/wasmd v0.40.2
-	github.com/InjectiveLabs/injective-core v1.12.0-alpha
 	github.com/InjectiveLabs/suplog v1.3.3
 	github.com/bandprotocol/bandchain-packet v0.0.4
 	github.com/btcsuite/btcd v0.23.4
