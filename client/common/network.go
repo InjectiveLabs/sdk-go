@@ -214,7 +214,7 @@ func LoadNetwork(name string, node string) Network {
 			explorerCookieAssistant: &DisabledCookieAssistant{},
 		}
 	case "testnet":
-		validNodes := []string{"lb", "lb_k8s", "sentry"}
+		validNodes := []string{"lb", "sentry"}
 		if !contains(validNodes, node) {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
@@ -226,7 +226,7 @@ func LoadNetwork(name string, node string) Network {
 			lcdEndpoint = "https://testnet.sentry.lcd.injective.network:443"
 			tmEndpoint = "https://testnet.sentry.tm.injective.network:443"
 			chainGrpcEndpoint = "testnet.sentry.chain.grpc.injective.network:443"
-			chainStreamGrpcEndpoint = "testnet.sentry.chain.stream.grpc.injective.network:443"
+			chainStreamGrpcEndpoint = "testnet.sentry.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = "testnet.sentry.exchange.grpc.injective.network:443"
 			explorerGrpcEndpoint = "testnet.sentry.explorer.grpc.injective.network:443"
 			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
@@ -235,28 +235,11 @@ func LoadNetwork(name string, node string) Network {
 			chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
-		} else if node == "lb_k8s" {
-			certPath := getFileAbsPath("../cert/testnet.crt")
-			lcdEndpoint = "https://k8s.testnet.lcd.injective.network:443"
-			tmEndpoint = "https://k8s.testnet.tm.injective.network:443"
-			chainGrpcEndpoint = "tcp://k8s.testnet.chain.grpc.injective.network:443"
-			chainStreamGrpcEndpoint = "tcp://k8s.testnet.chain.stream.grpc.injective.network:443"
-			exchangeGrpcEndpoint = "tcp://k8s.testnet.exchange.grpc.injective.network:443"
-			explorerGrpcEndpoint = "tcp://k8s.testnet.explorer.grpc.injective.network:443"
-			chainTlsCert = LoadTlsCert(certPath, chainGrpcEndpoint)
-			exchangeTlsCert = LoadTlsCert(certPath, exchangeGrpcEndpoint)
-			explorerTlsCert = LoadTlsCert(certPath, explorerGrpcEndpoint)
-			chainAssistant := TestnetKubernetesCookieAssistant()
-			chainCookieAssistant = &chainAssistant
-			exchangeAssistant := TestnetKubernetesCookieAssistant()
-			exchangeCookieAssistant = &exchangeAssistant
-			explorerAssistant := TestnetKubernetesCookieAssistant()
-			explorerCookieAssistant = &explorerAssistant
 		} else if node == "sentry" {
 			lcdEndpoint = "https://testnet.lcd.injective.network:443"
 			tmEndpoint = "https://testnet.tm.injective.network:443"
 			chainGrpcEndpoint = "testnet.chain.grpc.injective.network:443"
-			chainStreamGrpcEndpoint = "testnet.chain.stream.grpc.injective.network:443"
+			chainStreamGrpcEndpoint = "testnet.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = "testnet.exchange.grpc.injective.network:443"
 			explorerGrpcEndpoint = "testnet.explorer.grpc.injective.network:443"
 			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
@@ -285,43 +268,26 @@ func LoadNetwork(name string, node string) Network {
 			explorerCookieAssistant: explorerCookieAssistant,
 		}
 	case "mainnet":
-		validNodes := []string{"lb", "lb_k8s"}
+		validNodes := []string{"lb"}
 		if !contains(validNodes, node) {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, chainStreamGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
 		var chainTlsCert, exchangeTlsCert, explorerTlsCert credentials.TransportCredentials
 		var chainCookieAssistant, exchangeCookieAssistant, explorerCookieAssistant CookieAssistant
-		if node == "lb" {
-			lcdEndpoint = "https://sentry.lcd.injective.network"
-			tmEndpoint = "https://sentry.tm.injective.network:443"
-			chainGrpcEndpoint = "sentry.chain.grpc.injective.network:443"
-			chainStreamGrpcEndpoint = "sentry.chain.stream.grpc.injective.network:443"
-			exchangeGrpcEndpoint = "sentry.exchange.grpc.injective.network:443"
-			explorerGrpcEndpoint = "sentry.explorer.grpc.injective.network:443"
-			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
-			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
-			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
-		} else if node == "lb_k8s" {
-			lcdEndpoint = "https://k8s.global.mainnet.lcd.injective.network"
-			tmEndpoint = "https://k8s.global.mainnet.tm.injective.network:443"
-			chainGrpcEndpoint = "k8s.global.mainnet.chain.grpc.injective.network:443"
-			chainStreamGrpcEndpoint = "k8s.global.mainnet.chain.stream.grpc.injective.network:443"
-			exchangeGrpcEndpoint = "k8s.global.mainnet.exchange.grpc.injective.network:443"
-			explorerGrpcEndpoint = "k8s.global.mainnet.explorer.grpc.injective.network:443"
-			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			chainAssistant := MainnetKubernetesCookieAssistant()
-			chainCookieAssistant = &chainAssistant
-			exchangeAssistant := MainnetKubernetesCookieAssistant()
-			exchangeCookieAssistant = &exchangeAssistant
-			explorerAssistant := MainnetKubernetesCookieAssistant()
-			explorerCookieAssistant = &explorerAssistant
-		}
+
+		lcdEndpoint = "https://sentry.lcd.injective.network"
+		tmEndpoint = "https://sentry.tm.injective.network:443"
+		chainGrpcEndpoint = "sentry.chain.grpc.injective.network:443"
+		chainStreamGrpcEndpoint = "sentry.chain.stream.injective.network:443"
+		exchangeGrpcEndpoint = "sentry.exchange.grpc.injective.network:443"
+		explorerGrpcEndpoint = "sentry.explorer.grpc.injective.network:443"
+		chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
+		exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
+		explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 
 		return Network{
 			LcdEndpoint:             lcdEndpoint,
