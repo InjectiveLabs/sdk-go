@@ -49,6 +49,14 @@ func (o *SpotLimitOrder) IsFromDefaultSubaccount() bool {
 	return o.OrderInfo.IsFromDefaultSubaccount()
 }
 
+func (o *SpotLimitOrder) Cid() string {
+	return o.OrderInfo.GetCid()
+}
+
+func (o *SpotMarketOrder) Cid() string {
+	return o.OrderInfo.GetCid()
+}
+
 func (o *SpotLimitOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }

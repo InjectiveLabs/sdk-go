@@ -188,6 +188,17 @@ func (p *Position) checkValidClosingPrice(closingPrice, tradeFeeRate sdk.Dec, fu
 	return nil
 }
 
+func (p *Position) GetLiquidationMarketOrderWorstPrice(markPrice sdk.Dec, funding *PerpetualMarketFunding) sdk.Dec {
+	bankruptcyPrice := p.GetBankruptcyPrice(funding)
+	hasNegativeEquity := (p.IsLong && markPrice.LT(bankruptcyPrice)) || (p.IsShort() && markPrice.GT(bankruptcyPrice))
+
+	if hasNegativeEquity {
+		return markPrice
+	}
+
+	return bankruptcyPrice
+}
+
 func (p *Position) GetBankruptcyPrice(funding *PerpetualMarketFunding) (bankruptcyPrice sdk.Dec) {
 	return p.GetLiquidationPrice(sdk.ZeroDec(), funding)
 }

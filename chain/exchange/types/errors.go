@@ -100,4 +100,7 @@ var (
 	ErrTooMuchOrderMargin                       = errors.Register(ModuleName, 93, "Order has too much margin")
 	ErrBadSubaccountNonce                       = errors.Register(ModuleName, 94, "Subaccount nonce is invalid")
 	ErrInsufficientFunds                        = errors.Register(ModuleName, 95, "insufficient funds")
+	ErrPostOnlyMode                             = errors.Register(ModuleName, 96, "exchange is in post-only mode")
+	ErrClientOrderIdAlreadyExists               = errors.Register(ModuleName, 97, "client order id already exists")
+	ErrInvalidCid                               = errors.Register(ModuleName, 98, "client order id is invalid. Max length is 36 chars")
 )

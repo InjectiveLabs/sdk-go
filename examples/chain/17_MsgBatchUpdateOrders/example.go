@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"time"
 
@@ -72,6 +73,7 @@ func main() {
 		Price:        sprice,
 		FeeRecipient: senderAddress.String(),
 		MarketId:     smarketId,
+		Cid:          uuid.NewString(),
 	})
 
 	dmarketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
@@ -88,6 +90,7 @@ func main() {
 		FeeRecipient: senderAddress.String(),
 		MarketId:     dmarketId,
 		IsReduceOnly: false,
+		Cid:          uuid.NewString(),
 	})
 
 	msg := new(exchangetypes.MsgBatchUpdateOrders)
