@@ -35,12 +35,15 @@ type ExchangeClient interface {
 	GetDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error)
 	GetDerivativeMarkets(ctx context.Context, req derivativeExchangePB.MarketsRequest) (derivativeExchangePB.MarketsResponse, error)
 	GetDerivativePositions(ctx context.Context, req derivativeExchangePB.PositionsRequest) (derivativeExchangePB.PositionsResponse, error)
+	GetDerivativeLiquidablePositions(ctx context.Context, req derivativeExchangePB.LiquidablePositionsRequest) (derivativeExchangePB.LiquidablePositionsResponse, error)
 	StreamDerivativePositions(ctx context.Context, req derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
 	StreamDerivativeOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error)
 	GetDerivativeTrades(ctx context.Context, req derivativeExchangePB.TradesRequest) (derivativeExchangePB.TradesResponse, error)
 	StreamDerivativeTrades(ctx context.Context, req derivativeExchangePB.StreamTradesRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesClient, error)
 	GetSubaccountDerivativeOrdersList(ctx context.Context, req derivativeExchangePB.SubaccountOrdersListRequest) (derivativeExchangePB.SubaccountOrdersListResponse, error)
 	GetSubaccountDerivativeTradesList(ctx context.Context, req derivativeExchangePB.SubaccountTradesListRequest) (derivativeExchangePB.SubaccountTradesListResponse, error)
+	GetHistoricalDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersHistoryRequest) (derivativeExchangePB.OrdersHistoryResponse, error)
+	StreamHistoricalDerivativeOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersHistoryRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersHistoryClient, error)
 	GetDerivativeFundingPayments(ctx context.Context, req derivativeExchangePB.FundingPaymentsRequest) (derivativeExchangePB.FundingPaymentsResponse, error)
 	GetDerivativeFundingRates(ctx context.Context, req derivativeExchangePB.FundingRatesRequest) (derivativeExchangePB.FundingRatesResponse, error)
 	GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (oraclePB.PriceResponse, error)
@@ -75,6 +78,8 @@ type ExchangeClient interface {
 	StreamSpotTrades(ctx context.Context, req spotExchangePB.StreamTradesRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesClient, error)
 	GetSubaccountSpotOrdersList(ctx context.Context, req spotExchangePB.SubaccountOrdersListRequest) (spotExchangePB.SubaccountOrdersListResponse, error)
 	GetSubaccountSpotTradesList(ctx context.Context, req spotExchangePB.SubaccountTradesListRequest) (spotExchangePB.SubaccountTradesListResponse, error)
+	GetHistoricalSpotOrders(ctx context.Context, req spotExchangePB.OrdersHistoryRequest) (spotExchangePB.OrdersHistoryResponse, error)
+	StreamHistoricalSpotOrders(ctx context.Context, req spotExchangePB.StreamOrdersHistoryRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrdersHistoryClient, error)
 	GetInsuranceFunds(ctx context.Context, req insurancePB.FundsRequest) (insurancePB.FundsResponse, error)
 	GetRedemptions(ctx context.Context, req insurancePB.RedemptionsRequest) (insurancePB.RedemptionsResponse, error)
 
@@ -198,6 +203,17 @@ func (c *exchangeClient) GetDerivativePositions(ctx context.Context, req derivat
 	if err != nil {
 		fmt.Println(err)
 		return derivativeExchangePB.PositionsResponse{}, err
+	}
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetDerivativeLiquidablePositions(ctx context.Context, req derivativeExchangePB.LiquidablePositionsRequest) (derivativeExchangePB.LiquidablePositionsResponse, error) {
+	ctx = c.getCookie(ctx)
+	res, err := c.derivativeExchangeClient.LiquidablePositions(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return derivativeExchangePB.LiquidablePositionsResponse{}, err
 	}
 
 	return *res, nil
@@ -413,6 +429,27 @@ func (c *exchangeClient) GetSubaccountDerivativeTradesList(ctx context.Context, 
 	}
 
 	return *res, nil
+}
+
+func (c *exchangeClient) GetHistoricalDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersHistoryRequest) (derivativeExchangePB.OrdersHistoryResponse, error) {
+	ctx = c.getCookie(ctx)
+	res, err := c.derivativeExchangeClient.OrdersHistory(ctx, &req)
+	if err != nil {
+		return derivativeExchangePB.OrdersHistoryResponse{}, err
+	}
+
+	return *res, nil
+}
+
+func (c *exchangeClient) StreamHistoricalDerivativeOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersHistoryRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersHistoryClient, error) {
+	ctx = c.getCookie(ctx)
+	stream, err := c.derivativeExchangeClient.StreamOrdersHistory(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
 }
 
 func (c *exchangeClient) GetDerivativeFundingPayments(ctx context.Context, req derivativeExchangePB.FundingPaymentsRequest) (derivativeExchangePB.FundingPaymentsResponse, error) {
@@ -864,6 +901,27 @@ func (c *exchangeClient) GetSubaccountSpotTradesList(ctx context.Context, req sp
 	}
 
 	return *res, nil
+}
+
+func (c *exchangeClient) GetHistoricalSpotOrders(ctx context.Context, req spotExchangePB.OrdersHistoryRequest) (spotExchangePB.OrdersHistoryResponse, error) {
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.OrdersHistory(ctx, &req)
+	if err != nil {
+		return spotExchangePB.OrdersHistoryResponse{}, err
+	}
+
+	return *res, nil
+}
+
+func (c *exchangeClient) StreamHistoricalSpotOrders(ctx context.Context, req spotExchangePB.StreamOrdersHistoryRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrdersHistoryClient, error) {
+	ctx = c.getCookie(ctx)
+	stream, err := c.spotExchangeClient.StreamOrdersHistory(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
 }
 
 func (c *exchangeClient) GetInsuranceFunds(ctx context.Context, req insurancePB.FundsRequest) (insurancePB.FundsResponse, error) {

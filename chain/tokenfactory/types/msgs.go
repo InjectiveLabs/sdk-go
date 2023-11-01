@@ -51,10 +51,12 @@ func (m MsgUpdateParams) GetSigners() []sdk.AccAddress {
 }
 
 // NewMsgCreateDenom creates a msg to create a new denom
-func NewMsgCreateDenom(sender, subdenom string) *MsgCreateDenom {
+func NewMsgCreateDenom(sender, subdenom, name, symbol string) *MsgCreateDenom {
 	return &MsgCreateDenom{
 		Sender:   sender,
 		Subdenom: subdenom,
+		Name:     name,
+		Symbol:   symbol,
 	}
 }
 
