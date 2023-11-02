@@ -19,7 +19,7 @@ func main() {
 
 	ctx := context.Background()
 	marketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
-	res, err := exchangeClient.GetSpotOrderbooks(ctx, marketIds)
+	res, err := exchangeClient.GetSpotOrderbooksV2(ctx, marketIds)
 	if err != nil {
 		fmt.Println(err)
 	}

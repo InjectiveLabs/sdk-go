@@ -403,6 +403,8 @@ message OrdersRequest {
 	bool subaccount_total_orders = 12;
 	// TradeId of the order we want to fetch
 	string trade_id = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message OrdersResponse {
@@ -453,6 +455,8 @@ message DerivativeLimitOrder {
 	string execution_type = 20;
 	// Transaction Hash where order is created. Not all orders have this field
 	string tx_hash = 21;
+	// Custom client order ID
+	string cid = 22;
 }
 
 message PositionsRequest {
@@ -635,6 +639,8 @@ message StreamOrdersRequest {
 	bool subaccount_total_orders = 12;
 	// TradeId of the order we want to fetch
 	string trade_id = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message StreamOrdersResponse {
@@ -827,6 +833,8 @@ message OrdersHistoryRequest {
 	string trade_id = 14;
 	// Return only orders for active markets
 	bool active_markets_only = 15;
+	// Client order ID
+	string cid = 16;
 }
 
 message OrdersHistoryResponse {
@@ -876,6 +884,8 @@ message DerivativeOrderHistory {
 	string margin = 19;
 	// Transaction Hash where order is created. Not all orders have this field
 	string tx_hash = 20;
+	// Custom client order ID
+	string cid = 21;
 }
 
 message StreamOrdersHistoryRequest {
