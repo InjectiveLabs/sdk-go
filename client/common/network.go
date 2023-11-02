@@ -360,6 +360,16 @@ func LoadNetwork(name string, node string) Network {
 	return Network{}
 }
 
+// NewNetwork returns a new Network instance with all cookie assistants disabled.
+// It can be used to setup a custom environment from scratch.
+func NewNetwork() Network {
+	return Network{
+		chainCookieAssistant:    &DisabledCookieAssistant{},
+		exchangeCookieAssistant: &DisabledCookieAssistant{},
+		explorerCookieAssistant: &DisabledCookieAssistant{},
+	}
+}
+
 func contains(s []string, e string) bool {
 	for _, a := range s {
 		if a == e {
