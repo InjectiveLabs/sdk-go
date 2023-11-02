@@ -36,8 +36,10 @@ func (e ExecutionType) IsTaker() bool {
 
 func (s MarketStatus) SupportsOrderCancellations() bool {
 	switch s {
-	case MarketStatus_Active, MarketStatus_Demolished, MarketStatus_Expired, MarketStatus_Paused:
+	case MarketStatus_Active, MarketStatus_Demolished, MarketStatus_Expired:
 		return true
+	case MarketStatus_Paused:
+		return false
 	default:
 		return false
 	}

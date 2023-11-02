@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/google/uuid"
 	"os"
 	"time"
 
@@ -66,7 +65,6 @@ func main() {
 		Price:        decimal.NewFromFloat(22.55),
 		FeeRecipient: senderAddress.String(),
 		MarketId:     "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa",
-		Cid:          uuid.NewString(),
 	})
 
 	derivativeOrder := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
@@ -76,7 +74,6 @@ func main() {
 		Leverage:     cosmtypes.MustNewDecFromStr("2.5"),
 		FeeRecipient: senderAddress.String(),
 		MarketId:     "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce",
-		Cid:          uuid.NewString(),
 	})
 
 	msg := new(exchangetypes.MsgBatchCreateSpotLimitOrders)

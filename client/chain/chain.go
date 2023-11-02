@@ -36,7 +36,6 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -135,21 +134,18 @@ type ChainClient interface {
 	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
 	StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIds []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook)
 
-	ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error)
-
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
 	Close()
 }
 
 type chainClient struct {
-	ctx             client.Context
-	network         common.Network
-	opts            *common.ClientOptions
-	logger          log.Logger
-	conn            *grpc.ClientConn
-	chainStreamConn *grpc.ClientConn
-	txFactory       tx.Factory
+	ctx       client.Context
+	network   common.Network
+	opts      *common.ClientOptions
+	logger    log.Logger
+	conn      *grpc.ClientConn
+	txFactory tx.Factory
 
 	fromAddress sdk.AccAddress
 	doneC       chan bool
@@ -173,7 +169,6 @@ type chainClient struct {
 	bankQueryClient     banktypes.QueryClient
 	authzQueryClient    authztypes.QueryClient
 	wasmQueryClient     wasmtypes.QueryClient
-	chainStreamClient   chainstreamtypes.StreamClient
 	subaccountToNonce   map[ethcommon.Hash]uint32
 
 	closed  int64
@@ -226,17 +221,6 @@ func NewChainClient(
 		return nil, err
 	}
 
-	var chainStreamConn *grpc.ClientConn
-	if opts.TLSCert != nil {
-		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
-	} else {
-		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
-	}
-	if err != nil {
-		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
-		return nil, err
-	}
-
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client
 	cc := &chainClient{
@@ -249,15 +233,14 @@ func NewChainClient(
 			"svc":    "chainClient",
 		}),
 
-		conn:            conn,
-		chainStreamConn: chainStreamConn,
-		txFactory:       txFactory,
-		canSign:         ctx.Keyring != nil,
-		syncMux:         new(sync.Mutex),
-		msgC:            make(chan sdk.Msg, msgCommitBatchSizeLimit),
-		doneC:           make(chan bool, 1),
-		cancelCtx:       cancelCtx,
-		cancelFn:        cancelFn,
+		conn:      conn,
+		txFactory: txFactory,
+		canSign:   ctx.Keyring != nil,
+		syncMux:   new(sync.Mutex),
+		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
+		doneC:     make(chan bool, 1),
+		cancelCtx: cancelCtx,
+		cancelFn:  cancelFn,
 
 		sessionEnabled: stickySessionEnabled,
 
@@ -267,7 +250,6 @@ func NewChainClient(
 		bankQueryClient:     banktypes.NewQueryClient(conn),
 		authzQueryClient:    authztypes.NewQueryClient(conn),
 		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
-		chainStreamClient:   chainstreamtypes.NewStreamClient(chainStreamConn),
 		subaccountToNonce:   make(map[ethcommon.Hash]uint32),
 	}
 
@@ -428,9 +410,6 @@ func (c *chainClient) Close() {
 	<-c.doneC
 	if c.conn != nil {
 		c.conn.Close()
-	}
-	if c.chainStreamConn != nil {
-		c.chainStreamConn.Close()
 	}
 }
 
@@ -946,7 +925,6 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 			FeeRecipient: d.FeeRecipient,
 			Price:        orderPrice,
 			Quantity:     orderSize,
-			Cid:          d.Cid,
 		},
 	}
 }
@@ -975,7 +953,6 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 			FeeRecipient: d.FeeRecipient,
 			Price:        orderPrice,
 			Quantity:     orderSize,
-			Cid:          d.Cid,
 		},
 	}
 }
@@ -985,7 +962,6 @@ func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelDa
 		MarketId:     d.MarketId,
 		OrderHash:    d.OrderHash,
 		SubaccountId: defaultSubaccountID.Hex(),
-		Cid:          d.Cid,
 	}
 }
 
@@ -1299,17 +1275,6 @@ func (c *chainClient) GetTx(ctx context.Context, txHash string) (*txtypes.GetTxR
 	})
 }
 
-func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.chainStreamClient.Stream(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	return stream, nil
-}
-
 type DerivativeOrderData struct {
 	OrderType    exchangetypes.OrderType
 	Price        cosmtypes.Dec
@@ -1318,7 +1283,6 @@ type DerivativeOrderData struct {
 	FeeRecipient string
 	MarketId     string
 	IsReduceOnly bool
-	Cid          string
 }
 
 type SpotOrderData struct {
@@ -1327,11 +1291,9 @@ type SpotOrderData struct {
 	Quantity     decimal.Decimal
 	FeeRecipient string
 	MarketId     string
-	Cid          string
 }
 
 type OrderCancelData struct {
 	MarketId  string
 	OrderHash string
-	Cid       string
 }

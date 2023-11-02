@@ -192,7 +192,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 	}
 
 	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
-		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
+		!o.IsConditional() && o.TriggerPrice != nil */// commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return errors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
 
@@ -214,23 +214,10 @@ func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return err
 	}
 
-	// order data must contain either an order hash or cid
-	if o.Cid == "" && o.OrderHash == "" {
-		return ErrOrderHashInvalid
-	}
-
-	if o.Cid != "" && !IsValidCid(o.Cid) {
-		return errors.Wrap(ErrInvalidCid, o.Cid)
-	}
-
-	if o.OrderHash != "" && !IsValidOrderHash(o.OrderHash) {
+	if ok := IsValidOrderHash(o.OrderHash); !ok {
 		return errors.Wrap(ErrOrderHashInvalid, o.OrderHash)
 	}
 	return nil
-}
-
-func (o *OrderData) GetIdentifier() any {
-	return GetOrderIdentifier(o.OrderHash, o.Cid)
 }
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -725,7 +712,6 @@ func (msg *MsgCancelSpotOrder) ValidateBasic() error {
 		MarketId:     msg.MarketId,
 		SubaccountId: msg.SubaccountId,
 		OrderHash:    msg.OrderHash,
-		Cid:          msg.Cid,
 	}
 	return orderData.ValidateBasic(senderAddr)
 }
@@ -1056,7 +1042,6 @@ func (msg *MsgCancelDerivativeOrder) ValidateBasic() error {
 		MarketId:     msg.MarketId,
 		SubaccountId: msg.SubaccountId,
 		OrderHash:    msg.OrderHash,
-		Cid:          msg.Cid,
 	}
 	return orderData.ValidateBasic(senderAddr)
 }
@@ -1140,7 +1125,6 @@ func (msg *MsgCancelBinaryOptionsOrder) ValidateBasic() error {
 		MarketId:     msg.MarketId,
 		SubaccountId: msg.SubaccountId,
 		OrderHash:    msg.OrderHash,
-		Cid:          msg.Cid,
 	}
 	return orderData.ValidateBasic(senderAddr)
 }

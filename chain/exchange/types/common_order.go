@@ -186,11 +186,3 @@ func (m *OrderType) UnmarshalJSON(data []byte) error {
 	*m = OrderType(value)
 	return nil
 }
-
-// GetOrderIdentifier returns the cid of an order if it exists, otherwise returns the order hash
-func GetOrderIdentifier(orderHash, cid string) any {
-	if cid != "" {
-		return cid
-	}
-	return common.HexToHash(orderHash)
-}

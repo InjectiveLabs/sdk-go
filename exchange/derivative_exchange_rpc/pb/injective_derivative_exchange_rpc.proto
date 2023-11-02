@@ -25,9 +25,15 @@ service InjectiveDerivativeExchangeRPC {
 	// BinaryOptionMarket gets details of a single binary options market
 	rpc BinaryOptionsMarket (BinaryOptionsMarketRequest) returns (BinaryOptionsMarketResponse);
 	// Orderbook gets the Orderbook of a Derivative Market
+	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
+	// Orderbook gets the Orderbook of a Derivative Market
 	rpc OrderbookV2 (OrderbookV2Request) returns (OrderbookV2Response);
 	// Orderbooks gets the Orderbooks of requested derivative markets
+	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
+	// Orderbooks gets the Orderbooks of requested derivative markets
 	rpc OrderbooksV2 (OrderbooksV2Request) returns (OrderbooksV2Response);
+	// Stream live snapshot updates of selected derivative market orderbook
+	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
 	// Stream live snapshot updates of selected derivative market orderbook
 	rpc StreamOrderbookV2 (StreamOrderbookV2Request) returns (stream StreamOrderbookV2Response);
 	// Stream live level updates of selected derivative market orderbook
@@ -66,7 +72,6 @@ message MarketsRequest {
 	string market_status = 1;
 	// Filter by the Coin denomination of the quote currency
 	string quote_denom = 2;
-	repeated string market_statuses = 3;
 }
 
 message MarketsResponse {
@@ -254,8 +259,6 @@ message Paging {
 	sint32 to = 3;
 	// count entries by subaccount, serving some places on helix
 	sint64 count_by_subaccount = 4;
-	// array of tokens to navigate to the next pages
-	repeated string next = 5;
 }
 
 message BinaryOptionsMarketRequest {
@@ -266,6 +269,34 @@ message BinaryOptionsMarketRequest {
 message BinaryOptionsMarketResponse {
 	// Info about particular derivative market
 	BinaryOptionsMarketInfo market = 1;
+}
+
+message OrderbookRequest {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+}
+
+message OrderbookResponse {
+	// Orderbook of a particular derivative market
+	DerivativeLimitOrderbook orderbook = 1;
+}
+
+message DerivativeLimitOrderbook {
+	// Array of price levels for buys
+	repeated PriceLevel buys = 1;
+	// Array of price levels for sells
+	repeated PriceLevel sells = 2;
+	// Last update timestamp in UNIX millis.
+	sint64 timestamp = 4;
+}
+
+message PriceLevel {
+	// Price number of the price level.
+	string price = 1;
+	// Quantity of the price level.
+	string quantity = 2;
+	// Price level last updated timestamp in UNIX millis.
+	sint64 timestamp = 3;
 }
 
 message OrderbookV2Request {
@@ -289,13 +320,20 @@ message DerivativeLimitOrderbookV2 {
 	sint64 timestamp = 4;
 }
 
-message PriceLevel {
-	// Price number of the price level.
-	string price = 1;
-	// Quantity of the price level.
-	string quantity = 2;
-	// Price level last updated timestamp in UNIX millis.
-	sint64 timestamp = 3;
+message OrderbooksRequest {
+	// MarketIds of the markets
+	repeated string market_ids = 1;
+}
+
+message OrderbooksResponse {
+	repeated SingleDerivativeLimitOrderbook orderbooks = 1;
+}
+
+message SingleDerivativeLimitOrderbook {
+	// market's ID
+	string market_id = 1;
+	// Orderbook of the market
+	DerivativeLimitOrderbook orderbook = 2;
 }
 
 message OrderbooksV2Request {
@@ -312,6 +350,23 @@ message SingleDerivativeLimitOrderbookV2 {
 	string market_id = 1;
 	// Orderbook of the market
 	DerivativeLimitOrderbookV2 orderbook = 2;
+}
+
+message StreamOrderbookRequest {
+	// List of market IDs for orderbook streaming, empty means 'ALL' derivative
+// markets
+	repeated string market_ids = 1;
+}
+
+message StreamOrderbookResponse {
+	// Orderbook of a Derivative Market
+	DerivativeLimitOrderbook orderbook = 1;
+	// Order update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+	// MarketId of the market's orderbook
+	string market_id = 4;
 }
 
 message StreamOrderbookV2Request {
@@ -401,8 +456,6 @@ message OrdersRequest {
 	bool include_inactive = 11;
 	// Choose to return subaccount total orders
 	bool subaccount_total_orders = 12;
-	// TradeId of the order we want to fetch
-	string trade_id = 13;
 }
 
 message OrdersResponse {
@@ -451,8 +504,6 @@ message DerivativeLimitOrder {
 	string placed_order_hash = 19;
 	// Execution type of conditional order
 	string execution_type = 20;
-	// Transaction Hash where order is created. Not all orders have this field
-	string tx_hash = 21;
 }
 
 message PositionsRequest {
@@ -633,8 +684,6 @@ message StreamOrdersRequest {
 	bool include_inactive = 11;
 	// Choose to return subaccount total orders
 	bool subaccount_total_orders = 12;
-	// TradeId of the order we want to fetch
-	string trade_id = 13;
 }
 
 message StreamOrdersResponse {
@@ -671,10 +720,6 @@ message TradesRequest {
 // trades from multiple subaccounts
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
-	// Filter by the tradeId of the trade
-	string trade_id = 12;
-	// Account address
-	string account_address = 13;
 }
 
 message TradesResponse {
@@ -746,10 +791,6 @@ message StreamTradesRequest {
 // trades from multiple subaccounts
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
-	// Filter by the tradeId of the trade
-	string trade_id = 12;
-	// Account address
-	string account_address = 13;
 }
 
 message StreamTradesResponse {
@@ -823,10 +864,6 @@ message OrdersHistoryRequest {
 	string state = 11;
 	repeated string execution_types = 12;
 	repeated string market_ids = 13;
-	// TradeId of the order we want to fetch
-	string trade_id = 14;
-	// Return only orders for active markets
-	bool active_markets_only = 15;
 }
 
 message OrdersHistoryResponse {
@@ -874,8 +911,6 @@ message DerivativeOrderHistory {
 	string placed_order_hash = 18;
 	// Order's margin
 	string margin = 19;
-	// Transaction Hash where order is created. Not all orders have this field
-	string tx_hash = 20;
 }
 
 message StreamOrdersHistoryRequest {

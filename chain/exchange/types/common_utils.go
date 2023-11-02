@@ -138,11 +138,6 @@ func IsValidOrderHash(orderHash string) bool {
 	return IsHexHash(orderHash)
 }
 
-func IsValidCid(cid string) bool {
-	// Arbitrarily setting max length of cid to uuid length
-	return len(cid) <= 36
-}
-
 // IsHexHash verifies whether a string can represent a valid hex-encoded hash or not.
 func IsHexHash(s string) bool {
 	if !isHexString(s) {
@@ -342,18 +337,12 @@ func HasDuplicatesCoin(slice []sdk.Coin) bool {
 }
 
 func HasDuplicatesOrder(slice []*OrderData) bool {
-	seenHashes := make(map[string]struct{})
-	seenCids := make(map[string]struct{})
+	seen := make(map[string]struct{})
 	for _, item := range slice {
-		hash, cid := item.GetOrderHash(), item.GetCid()
-		_, hashExists := seenHashes[hash]
-		_, cidExists := seenCids[cid]
-
-		if (hash != "" && hashExists) || (cid != "" && cidExists) {
+		if _, ok := seen[item.OrderHash]; ok {
 			return true
 		}
-		seenHashes[hash] = struct{}{}
-		seenCids[cid] = struct{}{}
+		seen[item.OrderHash] = struct{}{}
 	}
 	return false
 }
