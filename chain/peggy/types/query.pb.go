@@ -1797,7 +1797,8 @@ func (m *QueryModuleStateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 
-// QueryModuleStateResponse is the response type for the Query/PeggyModuleState RPC method.
+// QueryModuleStateResponse is the response type for the Query/PeggyModuleState
+// RPC method.
 type QueryModuleStateResponse struct {
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }

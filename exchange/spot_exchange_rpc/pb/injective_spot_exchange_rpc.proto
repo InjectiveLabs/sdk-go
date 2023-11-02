@@ -256,6 +256,8 @@ message OrdersRequest {
 	bool subaccount_total_orders = 10;
 	// TradeId of the order we want to fetch
 	string trade_id = 11;
+	// Client order ID
+	string cid = 12;
 }
 
 message OrdersResponse {
@@ -291,6 +293,8 @@ message SpotLimitOrder {
 	sint64 updated_at = 12;
 	// Transaction Hash where order is created. Not all orders have this field
 	string tx_hash = 13;
+	// Custom client order ID
+	string cid = 14;
 }
 // Paging defines the structure for required params for handling pagination
 message Paging {
@@ -331,6 +335,8 @@ message StreamOrdersRequest {
 	bool subaccount_total_orders = 10;
 	// TradeId of the order we want to fetch
 	string trade_id = 11;
+	// Client order ID
+	string cid = 12;
 }
 
 message StreamOrdersResponse {
@@ -504,6 +510,8 @@ message OrdersHistoryRequest {
 	string trade_id = 12;
 	// Return only orders for active markets
 	bool active_markets_only = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message OrdersHistoryResponse {
@@ -543,6 +551,8 @@ message SpotOrderHistory {
 	string direction = 14;
 	// Transaction Hash where order is created. Not all orders have this field
 	string tx_hash = 15;
+	// Custom client order ID
+	string cid = 16;
 }
 
 message StreamOrdersHistoryRequest {

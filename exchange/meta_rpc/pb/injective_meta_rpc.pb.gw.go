@@ -204,22 +204,20 @@ func RegisterInjectiveMetaRPCHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Ping", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Ping"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Ping", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Ping"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveMetaRPC_Ping_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveMetaRPC_Ping_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_Ping_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_Ping_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -229,22 +227,20 @@ func RegisterInjectiveMetaRPCHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Version", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Version"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Version", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Version"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveMetaRPC_Version_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveMetaRPC_Version_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_Version_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_Version_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -254,22 +250,20 @@ func RegisterInjectiveMetaRPCHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Info", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Info"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Info", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Info"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveMetaRPC_Info_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveMetaRPC_Info_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_Info_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_Info_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -286,22 +280,20 @@ func RegisterInjectiveMetaRPCHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveMetaRPC_TokenMetadata_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveMetaRPC_TokenMetadata_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_TokenMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_TokenMetadata_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -311,7 +303,7 @@ func RegisterInjectiveMetaRPCHandlerServer(ctx context.Context, mux *runtime.Ser
 // RegisterInjectiveMetaRPCHandlerFromEndpoint is same as RegisterInjectiveMetaRPCHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
 func RegisterInjectiveMetaRPCHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	conn, err := grpc.DialContext(ctx, endpoint, opts...)
+	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
 	}
@@ -350,21 +342,19 @@ func RegisterInjectiveMetaRPCHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Ping", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Ping"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Ping", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Ping"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveMetaRPC_Ping_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_InjectiveMetaRPC_Ping_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_Ping_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_Ping_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -372,21 +362,19 @@ func RegisterInjectiveMetaRPCHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Version", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Version"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Version", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Version"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveMetaRPC_Version_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_InjectiveMetaRPC_Version_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_Version_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_Version_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -394,21 +382,19 @@ func RegisterInjectiveMetaRPCHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Info", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Info"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/Info", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/Info"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveMetaRPC_Info_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_InjectiveMetaRPC_Info_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_Info_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_Info_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -416,21 +402,19 @@ func RegisterInjectiveMetaRPCHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/StreamKeepalive", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/StreamKeepalive"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/StreamKeepalive", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/StreamKeepalive"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveMetaRPC_StreamKeepalive_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_InjectiveMetaRPC_StreamKeepalive_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_StreamKeepalive_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_StreamKeepalive_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -438,21 +422,19 @@ func RegisterInjectiveMetaRPCHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata", runtime.WithHTTPPathPattern("/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveMetaRPC_TokenMetadata_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_InjectiveMetaRPC_TokenMetadata_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveMetaRPC_TokenMetadata_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveMetaRPC_TokenMetadata_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 

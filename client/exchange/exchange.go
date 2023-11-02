@@ -213,36 +213,6 @@ func (c *exchangeClient) GetDerivativeLiquidablePositions(ctx context.Context, r
 	return *res, nil
 }
 
-func (c *exchangeClient) GetDerivativeOrderbook(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookResponse, error) {
-	req := derivativeExchangePB.OrderbookRequest{
-		MarketId: marketId,
-	}
-
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Orderbook(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return derivativeExchangePB.OrderbookResponse{}, err
-	}
-
-	return *res, nil
-}
-
-func (c *exchangeClient) GetDerivativeOrderbooks(ctx context.Context, marketIds []string) (derivativeExchangePB.OrderbooksResponse, error) {
-	req := derivativeExchangePB.OrderbooksRequest{
-		MarketIds: marketIds,
-	}
-
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Orderbooks(ctx, &req)
-	if err != nil {
-		fmt.Println(err)
-		return derivativeExchangePB.OrderbooksResponse{}, err
-	}
-
-	return *res, nil
-}
-
 func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId string) (derivativeExchangePB.OrderbookV2Response, error) {
 	req := derivativeExchangePB.OrderbookV2Request{
 		MarketId: marketId,

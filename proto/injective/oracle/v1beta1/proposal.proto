@@ -6,7 +6,7 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/oracle/types";
 
 message GrantBandOraclePrivilegeProposal {
   option (gogoproto.equal) = false;

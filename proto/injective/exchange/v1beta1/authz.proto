@@ -3,7 +3,7 @@ package injective.exchange.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/exchange/types";
 
 // spot authz messages
 message CreateSpotLimitOrderAuthz {

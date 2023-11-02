@@ -5614,7 +5614,8 @@ func (m *MitoVaultInfosResponse) GetCw20Addresses() []string {
 	return nil
 }
 
-// QueryMarketIDFromVaultRequest is the request type for the Query/QueryMarketIDFromVault RPC method.
+// QueryMarketIDFromVaultRequest is the request type for the
+// Query/QueryMarketIDFromVault RPC method.
 type QueryMarketIDFromVaultRequest struct {
 	VaultAddress string `protobuf:"bytes,1,opt,name=vault_address,json=vaultAddress,proto3" json:"vault_address,omitempty"`
 }
@@ -5798,8 +5799,9 @@ func (m *QueryHistoricalTradeRecordsResponse) GetTradeRecords() []*TradeRecords 
 type TradeHistoryOptions struct {
 	// TradeGroupingSec of 0 means use the chain's default grouping
 	TradeGroupingSec uint64 `protobuf:"varint,1,opt,name=trade_grouping_sec,json=tradeGroupingSec,proto3" json:"trade_grouping_sec,omitempty"`
-	// MaxAge restricts the trade records oldest age in seconds from the current block time to consider.
-	// A value of 0 means use all the records present on the chain.
+	// MaxAge restricts the trade records oldest age in seconds from the current
+	// block time to consider. A value of 0 means use all the records present on
+	// the chain.
 	MaxAge uint64 `protobuf:"varint,2,opt,name=max_age,json=maxAge,proto3" json:"max_age,omitempty"`
 	// If IncludeRawHistory is true, the raw underlying data used for the
 	// computation is included in the response
@@ -6937,7 +6939,8 @@ type QueryClient interface {
 	FeeDiscountTierStatistics(ctx context.Context, in *QueryFeeDiscountTierStatisticsRequest, opts ...grpc.CallOption) (*QueryFeeDiscountTierStatisticsResponse, error)
 	// Retrieves market making pool info
 	MitoVaultInfos(ctx context.Context, in *MitoVaultInfosRequest, opts ...grpc.CallOption) (*MitoVaultInfosResponse, error)
-	// QueryMarketIDFromVault returns the market ID for a given vault subaccount ID
+	// QueryMarketIDFromVault returns the market ID for a given vault subaccount
+	// ID
 	QueryMarketIDFromVault(ctx context.Context, in *QueryMarketIDFromVaultRequest, opts ...grpc.CallOption) (*QueryMarketIDFromVaultResponse, error)
 	// Retrieves historical trade records for a given market ID
 	HistoricalTradeRecords(ctx context.Context, in *QueryHistoricalTradeRecordsRequest, opts ...grpc.CallOption) (*QueryHistoricalTradeRecordsResponse, error)
@@ -7579,7 +7582,8 @@ type QueryServer interface {
 	FeeDiscountTierStatistics(context.Context, *QueryFeeDiscountTierStatisticsRequest) (*QueryFeeDiscountTierStatisticsResponse, error)
 	// Retrieves market making pool info
 	MitoVaultInfos(context.Context, *MitoVaultInfosRequest) (*MitoVaultInfosResponse, error)
-	// QueryMarketIDFromVault returns the market ID for a given vault subaccount ID
+	// QueryMarketIDFromVault returns the market ID for a given vault subaccount
+	// ID
 	QueryMarketIDFromVault(context.Context, *QueryMarketIDFromVaultRequest) (*QueryMarketIDFromVaultResponse, error)
 	// Retrieves historical trade records for a given market ID
 	HistoricalTradeRecords(context.Context, *QueryHistoricalTradeRecordsRequest) (*QueryHistoricalTradeRecordsResponse, error)

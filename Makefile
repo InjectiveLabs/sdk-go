@@ -53,4 +53,3 @@ copy-chain-types:
 	echo "👉 Replace injective-core/injective-chain/modules with sdk-go/chain"
 	echo "👉 Replace injective-core/injective-chain/types with sdk-go/chain/types"
 	echo "👉 Replace injective-core/injective-chain/crypto with sdk-go/chain/crypto"
-	echo "👉 Replace injective-core/injective-chain/codec with sdk-go/chain/codec"

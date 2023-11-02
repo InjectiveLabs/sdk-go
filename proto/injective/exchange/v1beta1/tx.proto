@@ -9,7 +9,7 @@ import "gogoproto/gogo.proto";
 import "injective/exchange/v1beta1/exchange.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/exchange/types";
 
 // Msg defines the exchange Msg service.
 service Msg {
