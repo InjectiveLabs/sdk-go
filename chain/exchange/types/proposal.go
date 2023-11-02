@@ -197,18 +197,6 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 		}
 	}
 
-	if p.FeeDiscountProposal != nil {
-		if err := p.FeeDiscountProposal.ValidateBasic(); err != nil {
-			return err
-		}
-	}
-
-	for _, proposal := range p.MarketForcedSettlementProposals {
-		if err := proposal.ValidateBasic(); err != nil {
-			return err
-		}
-	}
-
 	return govtypes.ValidateAbstract(p)
 }
 

@@ -28,9 +28,7 @@ copy-exchange-client:
 
 copy-chain-types:
 	cp ../injective-core/injective-chain/types/*.go chain/types
-	rm -rf chain/types/*test.go rm -rf chain/types/*gw.go
 	cp ../injective-core/injective-chain/crypto/ethsecp256k1/*.go chain/crypto/ethsecp256k1
-	rm -rf chain/crypto/ethsecp256k1/*test.go rm -rf chain/crypto/ethsecp256k1/*gw.go
 	cp ../injective-core/injective-chain/modules/auction/types/*.go chain/auction/types
 	rm -rf chain/auction/types/*test.go  rm -rf chain/auction/types/*gw.go
 	cp ../injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types
@@ -48,8 +46,6 @@ copy-chain-types:
 	rm -rf chain/wasmx/types/*test.go  rm -rf chain/wasmx/types/*gw.go
 	cp ../injective-core/injective-chain/modules/tokenfactory/types/*.go chain/tokenfactory/types
 	rm -rf chain/tokenfactory/types/*test.go  rm -rf chain/tokenfactory/types/*gw.go
-	cp ../injective-core/injective-chain/stream/types/*.go chain/stream/types
 
 	echo "👉 Replace injective-core/injective-chain/modules with sdk-go/chain"
 	echo "👉 Replace injective-core/injective-chain/types with sdk-go/chain/types"
-	echo "👉 Replace injective-core/injective-chain/crypto with sdk-go/chain/crypto"

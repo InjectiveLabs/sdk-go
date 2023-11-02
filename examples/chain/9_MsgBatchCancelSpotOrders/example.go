@@ -60,21 +60,15 @@ func main() {
 
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
 	orderHash := "0x17196096ffc32ad088ef959ad95b4cc247a87c7c9d45a2500b81ab8f5a71da5a"
-	cid := "666C5452-B563-445F-977B-539D79C482EE"
 
-	orderWithHash := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
+	order := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
 		MarketId:  marketId,
 		OrderHash: orderHash,
 	})
 
-	orderWithCid := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
-		MarketId: marketId,
-		Cid:      cid,
-	})
-
 	msg := new(exchangetypes.MsgBatchCancelSpotOrders)
 	msg.Sender = senderAddress.String()
-	msg.Data = []exchangetypes.OrderData{*orderWithHash, *orderWithCid}
+	msg.Data = []exchangetypes.OrderData{*order}
 	CosMsgs := []cosmtypes.Msg{msg}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

@@ -38,7 +38,6 @@ var (
 	SubaccountMarketVolumePrefix         = []byte{0x0b} // prefix for each key to the aggregate volume for a subaccount in a market
 	MarketVolumePrefix                   = []byte{0x0c} // prefix for each key to the aggregate volume for a market
 	ParamsKey                            = []byte{0x0d} // prefix for module params
-	SubaccountCidPrefix                  = []byte{0x0e} // prefix for each
 
 	DenomDecimalsPrefix              = []byte{0x10} // prefix for denom decimals
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
@@ -111,17 +110,6 @@ var (
 
 	AtomicMarketOrderTakerFeeMultiplierKey = []byte{0x79} // key to store individual market atomic take fee multiplier
 )
-
-func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
-	return append(SubaccountCidPrefix, append(subaccountID.Bytes(), cid...)...)
-}
-
-func ParseMarketDirectionAndOrderHashFromSubaccountCidValue(key []byte) (marketID common.Hash, direction byte, orderHash common.Hash) {
-	marketID = common.BytesToHash(key[:common.HashLength])
-	direction = key[common.HashLength]
-	orderHash = common.BytesToHash(key[common.HashLength+1:])
-	return marketID, direction, orderHash
-}
 
 // GetFeeDiscountAccountVolumeInBucketKey provides the key for the account's volume in the given bucket
 func GetFeeDiscountAccountVolumeInBucketKey(bucketStartTimestamp int64, account sdk.AccAddress) []byte {
