@@ -301,7 +301,7 @@ func traverseFields(
 			if isCollection {
 				ethTyp += "[]"
 			}
-			if field.Kind() == reflect.String && ethTyp == "string" && field.Len() == 0 {
+			if field.Kind() == reflect.String && field.Len() == 0 {
 				// skip empty strings from type mapping
 				continue
 			}
