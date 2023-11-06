@@ -27,10 +27,10 @@ var metadataTemplate = `[%s]
 description = '%s %s %s'
 base = %d
 quote = %d
-min_price_tick_size = %.18f
-min_display_price_tick_size = %.4f
-min_quantity_tick_size = %f
-min_display_quantity_tick_size = %.4f
+min_price_tick_size = %s
+min_display_price_tick_size = %s
+min_quantity_tick_size = %s
+min_display_quantity_tick_size = %s
 
 `
 var symbolTemplate = `[%s]
@@ -80,10 +80,10 @@ func FetchDenom(network common.Network) {
 			network.Name, "Spot", m.Ticker,
 			m.BaseTokenMeta.Decimals,
 			m.QuoteTokenMeta.Decimals,
-			minPriceTickSize,
-			minDisplayPriceTickSize,
-			minQuantityTickSize,
-			minDisplayQuantityTickSize,
+			strconv.FormatFloat(minPriceTickSize, 'f', -1, 64),
+			strconv.FormatFloat(minDisplayPriceTickSize, 'f', -1, 64),
+			strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64),
+			strconv.FormatFloat(minDisplayQuantityTickSize, 'f', -1, 64),
 		)
 		metadataOutput += config
 	}
@@ -117,10 +117,10 @@ func FetchDenom(network common.Network) {
 			network.Name, "Derivative", m.Ticker,
 			0,
 			m.QuoteTokenMeta.Decimals,
-			minPriceTickSize,
-			minDisplayPriceTickSize,
-			minQuantityTickSize,
-			minQuantityTickSize,
+			strconv.FormatFloat(minPriceTickSize, 'f', -1, 64),
+			strconv.FormatFloat(minDisplayPriceTickSize, 'f', -1, 64),
+			strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64),
+			strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64),
 		)
 		metadataOutput += config
 	}
