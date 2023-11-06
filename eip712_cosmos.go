@@ -301,6 +301,10 @@ func traverseFields(
 			if isCollection {
 				ethTyp += "[]"
 			}
+			if field.Kind() == reflect.String && ethTyp == "string" && field.Len() == 0 {
+				// skip empty strings from type mapping
+				continue
+			}
 			if prefix == typeDefPrefix {
 				typeMap[rootType] = append(typeMap[rootType], typeddata.Type{
 					Name: fieldName,
