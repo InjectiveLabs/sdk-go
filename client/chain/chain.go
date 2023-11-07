@@ -604,7 +604,7 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 			return nil, err
 		}
 
-		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
+		adjustedGas := 2 * uint64(txf.GasAdjustment()*float64(simRes.GasInfo.GasUsed))
 		txf = txf.WithGas(adjustedGas)
 
 		c.gasWanted = adjustedGas
