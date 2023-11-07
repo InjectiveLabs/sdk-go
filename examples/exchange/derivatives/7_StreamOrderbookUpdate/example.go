@@ -18,7 +18,7 @@ type MapOrderbook struct {
 
 func main() {
 	network := common.LoadNetwork("devnet-1", "")
-	exchangeClient, err := exchangeclient.NewExchangeClient(network.ExchangeGrpcEndpoint)
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
