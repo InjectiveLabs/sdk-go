@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/exchange/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
 enum AtomicMarketOrderAccessLevel {
   Nobody = 0;
@@ -157,6 +157,8 @@ message Params {
   // is_instant_derivative_market_launch_enabled defines whether instant
   // derivative market launch is enabled
   bool is_instant_derivative_market_launch_enabled = 24;
+
+  int64 post_only_mode_height_threshold = 25;
 }
 
 enum MarketStatus {
@@ -465,6 +467,7 @@ message OrderInfo {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable) = false
   ];
+  string cid = 5;
 }
 
 enum OrderType {
@@ -679,6 +682,7 @@ message TradeLog {
   ];
   bytes order_hash = 5;
   bytes fee_recipient_address = 6 [ (gogoproto.nullable) = true ];
+  string cid = 7;
 }
 
 message PositionDelta {
@@ -710,6 +714,7 @@ message DerivativeTradeLog {
   ];
   bytes order_hash = 5;
   bytes fee_recipient_address = 6 [ (gogoproto.nullable) = true ];
+  string cid = 7;
 }
 
 enum ExecutionType {

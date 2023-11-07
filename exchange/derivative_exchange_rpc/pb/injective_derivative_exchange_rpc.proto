@@ -681,6 +681,8 @@ message TradesRequest {
 	string trade_id = 12;
 	// Account address
 	string account_address = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message TradesResponse {
@@ -714,6 +716,8 @@ message DerivativeTrade {
 	string trade_id = 11;
 	// Trade's execution side, marker/taker
 	string execution_side = 12;
+	// Custom client order ID
+	string cid = 13;
 }
 
 message PositionDelta {
@@ -756,6 +760,8 @@ message StreamTradesRequest {
 	string trade_id = 12;
 	// Account address
 	string account_address = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message StreamTradesResponse {

@@ -376,6 +376,8 @@ message TradesRequest {
 	string trade_id = 12;
 	// Account address
 	string account_address = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message TradesResponse {
@@ -408,6 +410,8 @@ message SpotTrade {
 	string trade_id = 10;
 	// Trade's execution side, marker/taker
 	string execution_side = 11;
+	// Custom client order ID
+	string cid = 12;
 }
 
 message StreamTradesRequest {
@@ -438,6 +442,8 @@ message StreamTradesRequest {
 	string trade_id = 12;
 	// Account address
 	string account_address = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message StreamTradesResponse {

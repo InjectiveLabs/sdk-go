@@ -4,7 +4,7 @@ package injective.oracle.v1beta1;
 import "injective/oracle/v1beta1/oracle.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/oracle/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
 // GenesisState defines the oracle module's genesis state.
 message GenesisState {

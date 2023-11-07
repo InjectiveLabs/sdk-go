@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("devnet", "lb")
+	network := common.LoadNetwork("testnet", "lb")
 
 	clientCtx, err := chainclient.NewClientContext(
 		network.ChainId,

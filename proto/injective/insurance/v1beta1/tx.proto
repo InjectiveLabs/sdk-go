@@ -8,7 +8,7 @@ import "cosmos_proto/cosmos.proto";
 import "injective/insurance/v1beta1/insurance.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/insurance/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
 
 // Msg defines the insurance Msg service.
 service Msg {

@@ -7,7 +7,7 @@ import "injective/exchange/v1beta1/genesis.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/exchange/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -357,9 +357,12 @@ service Query {
         "/injective/exchange/v1beta1/mito_vault_infos";
   }
 
-  // QueryMarketIDFromVault returns the market ID for a given vault subaccount ID
-  rpc QueryMarketIDFromVault(QueryMarketIDFromVaultRequest) returns (QueryMarketIDFromVaultResponse) {
-    option (google.api.http).get = "/injective/exchange/v1beta1/vault_market_id/{vault_address}";
+  // QueryMarketIDFromVault returns the market ID for a given vault subaccount
+  // ID
+  rpc QueryMarketIDFromVault(QueryMarketIDFromVaultRequest)
+      returns (QueryMarketIDFromVaultResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/vault_market_id/{vault_address}";
   }
 
   // Retrieves historical trade records for a given market ID
@@ -575,7 +578,6 @@ message QuerySpotMarketRequest {
 // QuerySpotMarketResponse is the response type for the Query/SpotMarket RPC
 // method.
 message QuerySpotMarketResponse { SpotMarket market = 1; }
-
 
 enum OrderSide {
   // will return both
@@ -1286,10 +1288,9 @@ message MitoVaultInfosResponse {
   repeated string cw20_addresses = 4;
 }
 
-// QueryMarketIDFromVaultRequest is the request type for the Query/QueryMarketIDFromVault RPC method.
-message QueryMarketIDFromVaultRequest {
-  string vault_address = 1;
-}
+// QueryMarketIDFromVaultRequest is the request type for the
+// Query/QueryMarketIDFromVault RPC method.
+message QueryMarketIDFromVaultRequest { string vault_address = 1; }
 
 // QueryMarketIDFromVaultResponse is the response type for the
 // Query/QueryMarketIDFromVault RPC method.
@@ -1306,8 +1307,9 @@ message QueryHistoricalTradeRecordsResponse {
 message TradeHistoryOptions {
   // TradeGroupingSec of 0 means use the chain's default grouping
   uint64 trade_grouping_sec = 1;
-  // MaxAge restricts the trade records oldest age in seconds from the current block time to consider.
-  // A value of 0 means use all the records present on the chain.
+  // MaxAge restricts the trade records oldest age in seconds from the current
+  // block time to consider. A value of 0 means use all the records present on
+  // the chain.
   uint64 max_age = 2;
   // If IncludeRawHistory is true, the raw underlying data used for the
   // computation is included in the response
