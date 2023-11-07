@@ -294,7 +294,11 @@ func (msg MsgRelayPythPrices) ValidateBasic() error {
 		return err
 	}
 
-	// the ValidateBasic method intentionally does not check the validity of the price attestations since
+	if len(msg.PriceAttestations) == 0 {
+		return ErrEmptyPriceAttestations
+	}
+
+	// the ValidateBasic method intentiontally does not check the validity of the price attestations since
 	// we don't want to prevent attesting valid prices just because other price attestations are invalid
 	return nil
 }

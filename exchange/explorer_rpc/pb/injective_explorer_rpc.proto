@@ -53,8 +53,6 @@ service InjectiveExplorerRPC {
 	// Request relayers infos by marketIDs. If no ids are provided, all market with
 // associated relayers are returned
 	rpc Relayers (RelayersRequest) returns (RelayersResponse);
-	// GetBankTransfers returns bank transfers.
-	rpc GetBankTransfers (GetBankTransfersRequest) returns (GetBankTransfersResponse);
 	// StreamTxs returns transactions based upon the request params
 	rpc StreamTxs (StreamTxsRequest) returns (stream StreamTxsResponse);
 	// StreamBlocks returns the latest blocks
@@ -64,9 +62,7 @@ service InjectiveExplorerRPC {
 message GetAccountTxsRequest {
 	// Address of account
 	string address = 1;
-	// Return transactions before this block number
 	uint64 before = 2;
-	// Return transactions after this block number
 	uint64 after = 3;
 	sint32 limit = 4;
 	uint64 skip = 5;
@@ -74,14 +70,6 @@ message GetAccountTxsRequest {
 	string module = 7;
 	sint64 from_number = 8;
 	sint64 to_number = 9;
-	// The starting timestamp in UNIX milliseconds that the txs must be equal or
-// older than
-	sint64 start_time = 10;
-	// The ending timestamp in UNIX milliseconds that the txs must be equal or
-// younger than
-	sint64 end_time = 11;
-	// The status of the txs to be returned
-	string status = 12;
 }
 
 message GetAccountTxsResponse {
@@ -98,8 +86,6 @@ message Paging {
 	sint32 to = 3;
 	// count entries by subaccount, serving some places on helix
 	sint64 count_by_subaccount = 4;
-	// array of tokens to navigate to the next pages
-	repeated string next = 5;
 }
 // TxDetailData wraps tx data includes details information
 message TxDetailData {
@@ -126,8 +112,6 @@ message TxDetailData {
 	string error_log = 20;
 	// transaction event logs
 	bytes logs = 21;
-	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
-	repeated sint64 claim_ids = 22;
 }
 
 message GasFee {
@@ -204,8 +188,6 @@ message TxDataRPC {
 	// Transaction log indicating errors
 	string error_log = 8;
 	uint32 code = 9;
-	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
-	repeated sint64 claim_ids = 10;
 }
 
 message GetBlockRequest {
@@ -247,8 +229,6 @@ message TxData {
 	bytes tx_msg_types = 10;
 	// transaction event logs
 	bytes logs = 11;
-	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
-	repeated sint64 claim_ids = 12;
 }
 
 message GetValidatorsRequest {
@@ -286,8 +266,6 @@ message Validator {
 	repeated SlashingEvent slashing_events = 21;
 	// uptime percentage base on latest 10k block
 	double uptime_percentage = 22;
-	// URL of the validator logo
-	string image_url = 23;
 }
 
 message ValidatorDescription {
@@ -296,7 +274,6 @@ message ValidatorDescription {
 	string website = 3;
 	string security_contact = 4;
 	string details = 5;
-	string image_url = 6;
 }
 
 message ValidatorUptime {
@@ -347,14 +324,6 @@ message GetTxsRequest {
 	string module = 6;
 	sint64 from_number = 7;
 	sint64 to_number = 8;
-	// The starting timestamp in UNIX milliseconds that the txs must be equal or
-// older than
-	sint64 start_time = 9;
-	// The ending timestamp in UNIX milliseconds that the txs must be equal or
-// younger than
-	sint64 end_time = 10;
-	// The status of the txs to be returned
-	string status = 11;
 }
 
 message GetTxsResponse {
@@ -604,8 +573,6 @@ message GetWasmContractsRequest {
 	sint64 to_number = 4;
 	bool assets_only = 5;
 	sint64 skip = 6;
-	// Label of the contract
-	string label = 7;
 }
 
 message GetWasmContractsResponse {
@@ -769,48 +736,6 @@ message Relayer {
 	string cta = 2;
 }
 
-message GetBankTransfersRequest {
-	// Transfer sender address
-	repeated string senders = 1;
-	// Transfer recipient address
-	repeated string recipients = 2;
-	// Returns transfers with the community pool address as either sender or
-// recipient
-	bool is_community_pool_related = 3;
-	sint32 limit = 4;
-	uint64 skip = 5;
-	// The starting timestamp in UNIX milliseconds that the transfers must be equal
-// or older than
-	sint64 start_time = 6;
-	// The ending timestamp in UNIX milliseconds that the transfers must be equal
-// or younger than
-	sint64 end_time = 7;
-	// Transfers where either the sender or the recipient is one of the addresses
-	repeated string address = 8;
-	sint32 per_page = 9;
-	string token = 10;
-}
-
-message GetBankTransfersResponse {
-	Paging paging = 1;
-	repeated BankTransfer data = 2;
-}
-// Bank transfer represents a transfer
-message BankTransfer {
-	string sender = 1;
-	string recipient = 2;
-	// Amounts transferred
-	repeated Coin amounts = 3;
-	uint64 block_number = 4;
-	string block_timestamp = 5;
-}
-
-message Coin {
-	// Denom of the coin
-	string denom = 1;
-	string amount = 2;
-}
-
 message StreamTxsRequest {
 }
 
@@ -825,8 +750,6 @@ message StreamTxsResponse {
 	// Transaction log indicating errors
 	string error_log = 8;
 	uint32 code = 9;
-	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
-	repeated sint64 claim_ids = 10;
 }
 
 message StreamBlocksRequest {

@@ -86,34 +86,6 @@ func (m *SpotMarket) StatusSupportsOrderCancellations() bool {
 	return m.Status.SupportsOrderCancellations()
 }
 
-func (m *SpotMarket) GetMarketType() MarketType {
-	return MarketType_Spot
-}
-
-func (m *SpotMarket) GetMakerFeeRate() sdk.Dec {
-	return m.MakerFeeRate
-}
-
-func (m *SpotMarket) GetTakerFeeRate() sdk.Dec {
-	return m.TakerFeeRate
-}
-
-func (m *SpotMarket) GetRelayerFeeShareRate() sdk.Dec {
-	return m.RelayerFeeShareRate
-}
-
-func (m *SpotMarket) GetMinPriceTickSize() sdk.Dec {
-	return m.MinPriceTickSize
-}
-
-func (m *SpotMarket) GetMinQuantityTickSize() sdk.Dec {
-	return m.MinQuantityTickSize
-}
-
-func (m *SpotMarket) GetMarketStatus() MarketStatus {
-	return m.Status
-}
-
 func (m *ExpiryFuturesMarketInfo) IsPremature(currBlockTime int64) bool {
 	return currBlockTime < m.TwapStartTimestamp
 }
