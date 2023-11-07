@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"os"
 	"time"
 
@@ -74,6 +75,7 @@ func main() {
 		FeeRecipient: senderAddress.String(),
 		MarketId:     marketId,
 		IsReduceOnly: true,
+		Cid:          uuid.NewString(),
 	})
 
 	msg := new(exchangetypes.MsgBatchCreateDerivativeLimitOrders)
