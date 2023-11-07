@@ -28,7 +28,7 @@ func main() {
 
 	res, err := exchangeClient.GetDerivativeTrades(ctx, req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	str, _ := json.MarshalIndent(res, "", " ")
