@@ -720,7 +720,7 @@ func (c *chainClient) broadcastTx(
 			return nil, err
 		}
 
-		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
+		adjustedGas := 2 * uint64(txf.GasAdjustment()*float64(simRes.GasInfo.GasUsed))
 		txf = txf.WithGas(adjustedGas)
 
 		c.gasWanted = adjustedGas
@@ -821,7 +821,7 @@ func (c *chainClient) broadcastTxAsync(
 			return nil, nil, err
 		}
 
-		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
+		adjustedGas := 2 * uint64(txf.GasAdjustment()*float64(simRes.GasInfo.GasUsed))
 		txf = txf.WithGas(adjustedGas)
 
 		c.gasWanted = adjustedGas
