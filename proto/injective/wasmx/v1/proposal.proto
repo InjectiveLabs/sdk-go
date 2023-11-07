@@ -5,7 +5,7 @@ import "cosmos_proto/cosmos.proto";
 import "cosmwasm/wasm/v1/proposal.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/wasmx/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message ContractRegistrationRequestProposal {
   option (gogoproto.equal) = false;

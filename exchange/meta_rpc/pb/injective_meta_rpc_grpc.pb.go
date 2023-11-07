@@ -27,6 +27,8 @@ type InjectiveMetaRPCClient interface {
 	// Stream keepalive, if server exits, a shutdown event will be sent over this
 	// channel.
 	StreamKeepalive(ctx context.Context, in *StreamKeepaliveRequest, opts ...grpc.CallOption) (InjectiveMetaRPC_StreamKeepaliveClient, error)
+	// Get tokens metadata. Can be filtered by denom
+	TokenMetadata(ctx context.Context, in *TokenMetadataRequest, opts ...grpc.CallOption) (*TokenMetadataResponse, error)
 }
 
 type injectiveMetaRPCClient struct {
@@ -96,6 +98,15 @@ func (x *injectiveMetaRPCStreamKeepaliveClient) Recv() (*StreamKeepaliveResponse
 	return m, nil
 }
 
+func (c *injectiveMetaRPCClient) TokenMetadata(ctx context.Context, in *TokenMetadataRequest, opts ...grpc.CallOption) (*TokenMetadataResponse, error) {
+	out := new(TokenMetadataResponse)
+	err := c.cc.Invoke(ctx, "/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InjectiveMetaRPCServer is the server API for InjectiveMetaRPC service.
 // All implementations must embed UnimplementedInjectiveMetaRPCServer
 // for forward compatibility
@@ -109,6 +120,8 @@ type InjectiveMetaRPCServer interface {
 	// Stream keepalive, if server exits, a shutdown event will be sent over this
 	// channel.
 	StreamKeepalive(*StreamKeepaliveRequest, InjectiveMetaRPC_StreamKeepaliveServer) error
+	// Get tokens metadata. Can be filtered by denom
+	TokenMetadata(context.Context, *TokenMetadataRequest) (*TokenMetadataResponse, error)
 	mustEmbedUnimplementedInjectiveMetaRPCServer()
 }
 
@@ -127,6 +140,9 @@ func (UnimplementedInjectiveMetaRPCServer) Info(context.Context, *InfoRequest) (
 }
 func (UnimplementedInjectiveMetaRPCServer) StreamKeepalive(*StreamKeepaliveRequest, InjectiveMetaRPC_StreamKeepaliveServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamKeepalive not implemented")
+}
+func (UnimplementedInjectiveMetaRPCServer) TokenMetadata(context.Context, *TokenMetadataRequest) (*TokenMetadataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TokenMetadata not implemented")
 }
 func (UnimplementedInjectiveMetaRPCServer) mustEmbedUnimplementedInjectiveMetaRPCServer() {}
 
@@ -216,6 +232,24 @@ func (x *injectiveMetaRPCStreamKeepaliveServer) Send(m *StreamKeepaliveResponse)
 	return x.ServerStream.SendMsg(m)
 }
 
+func _InjectiveMetaRPC_TokenMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TokenMetadataRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveMetaRPCServer).TokenMetadata(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_meta_rpc.InjectiveMetaRPC/TokenMetadata",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveMetaRPCServer).TokenMetadata(ctx, req.(*TokenMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InjectiveMetaRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveMetaRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -234,6 +268,10 @@ var InjectiveMetaRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Info",
 			Handler:    _InjectiveMetaRPC_Info_Handler,
+		},
+		{
+			MethodName: "TokenMetadata",
+			Handler:    _InjectiveMetaRPC_TokenMetadata_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

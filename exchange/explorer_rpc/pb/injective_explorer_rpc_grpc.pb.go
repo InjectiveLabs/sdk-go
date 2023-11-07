@@ -58,6 +58,8 @@ type InjectiveExplorerRPCClient interface {
 	// Request relayers infos by marketIDs. If no ids are provided, all market with
 	// associated relayers are returned
 	Relayers(ctx context.Context, in *RelayersRequest, opts ...grpc.CallOption) (*RelayersResponse, error)
+	// GetBankTransfers returns bank transfers.
+	GetBankTransfers(ctx context.Context, in *GetBankTransfersRequest, opts ...grpc.CallOption) (*GetBankTransfersResponse, error)
 	// StreamTxs returns transactions based upon the request params
 	StreamTxs(ctx context.Context, in *StreamTxsRequest, opts ...grpc.CallOption) (InjectiveExplorerRPC_StreamTxsClient, error)
 	// StreamBlocks returns the latest blocks
@@ -234,6 +236,15 @@ func (c *injectiveExplorerRPCClient) Relayers(ctx context.Context, in *RelayersR
 	return out, nil
 }
 
+func (c *injectiveExplorerRPCClient) GetBankTransfers(ctx context.Context, in *GetBankTransfersRequest, opts ...grpc.CallOption) (*GetBankTransfersResponse, error) {
+	out := new(GetBankTransfersResponse)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetBankTransfers", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *injectiveExplorerRPCClient) StreamTxs(ctx context.Context, in *StreamTxsRequest, opts ...grpc.CallOption) (InjectiveExplorerRPC_StreamTxsClient, error) {
 	stream, err := c.cc.NewStream(ctx, &InjectiveExplorerRPC_ServiceDesc.Streams[0], "/injective_explorer_rpc.InjectiveExplorerRPC/StreamTxs", opts...)
 	if err != nil {
@@ -342,6 +353,8 @@ type InjectiveExplorerRPCServer interface {
 	// Request relayers infos by marketIDs. If no ids are provided, all market with
 	// associated relayers are returned
 	Relayers(context.Context, *RelayersRequest) (*RelayersResponse, error)
+	// GetBankTransfers returns bank transfers.
+	GetBankTransfers(context.Context, *GetBankTransfersRequest) (*GetBankTransfersResponse, error)
 	// StreamTxs returns transactions based upon the request params
 	StreamTxs(*StreamTxsRequest, InjectiveExplorerRPC_StreamTxsServer) error
 	// StreamBlocks returns the latest blocks
@@ -406,6 +419,9 @@ func (UnimplementedInjectiveExplorerRPCServer) GetCw20Balance(context.Context, *
 }
 func (UnimplementedInjectiveExplorerRPCServer) Relayers(context.Context, *RelayersRequest) (*RelayersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Relayers not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetBankTransfers(context.Context, *GetBankTransfersRequest) (*GetBankTransfersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBankTransfers not implemented")
 }
 func (UnimplementedInjectiveExplorerRPCServer) StreamTxs(*StreamTxsRequest, InjectiveExplorerRPC_StreamTxsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamTxs not implemented")
@@ -750,6 +766,24 @@ func _InjectiveExplorerRPC_Relayers_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveExplorerRPC_GetBankTransfers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBankTransfersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetBankTransfers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetBankTransfers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetBankTransfers(ctx, req.(*GetBankTransfersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _InjectiveExplorerRPC_StreamTxs_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StreamTxsRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -870,6 +904,10 @@ var InjectiveExplorerRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Relayers",
 			Handler:    _InjectiveExplorerRPC_Relayers_Handler,
+		},
+		{
+			MethodName: "GetBankTransfers",
+			Handler:    _InjectiveExplorerRPC_GetBankTransfers_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

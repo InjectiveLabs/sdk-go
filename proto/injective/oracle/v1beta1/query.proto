@@ -5,7 +5,7 @@ import "google/api/annotations.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 import "injective/oracle/v1beta1/genesis.proto";
 import "gogoproto/gogo.proto";
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/oracle/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -103,9 +103,7 @@ service Query {
 
 message QueryPythPriceRequest { string price_id = 1; }
 
-message QueryPythPriceResponse {
-  PythPriceState price_state = 1;
-}
+message QueryPythPriceResponse { PythPriceState price_state = 1; }
 
 // QueryOracleParamsRequest is the request type for the Query/OracleParams RPC
 // method.

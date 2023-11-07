@@ -2,6 +2,8 @@ package types
 
 import (
 	"crypto/ecdsa"
+	"fmt"
+	"math/big"
 
 	"cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"
@@ -21,12 +23,33 @@ func NewEthereumSignature(hash common.Hash, privateKey *ecdsa.PrivateKey) ([]byt
 	return crypto.Sign(protectedHash.Bytes(), privateKey)
 }
 
+// decodeSignature was duplicated from go-ethereum with slight modifications
+func decodeSignature(sig []byte) (r, s *big.Int, v byte) {
+	if len(sig) != crypto.SignatureLength {
+		panic(fmt.Sprintf("wrong size for signature: got %d, want %d", len(sig), crypto.SignatureLength))
+	}
+	r = new(big.Int).SetBytes(sig[:32])
+	s = new(big.Int).SetBytes(sig[32:64])
+	if sig[64] == 27 || sig[64] == 28 {
+		v = sig[64] - 27
+	} else {
+		v = sig[64]
+	}
+	return r, s, v
+}
+
 // ValidateEthereumSignature takes a message, an associated signature and public key and
 // returns an error if the signature isn't valid
 func EthAddressFromSignature(hash common.Hash, signature []byte) (common.Address, error) {
 	if len(signature) < 65 {
 		return common.Address{}, errors.Wrap(ErrInvalid, "signature too short")
 	}
+
+	r, s, v := decodeSignature(signature)
+	if !crypto.ValidateSignatureValues(v, r, s, true) {
+		return common.Address{}, errors.Wrap(ErrInvalid, "Signature values failed validation")
+	}
+
 	// To verify signature
 	// - use crypto.SigToPub to get the public key
 	// - use crypto.PubkeyToAddress to get the address

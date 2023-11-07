@@ -222,6 +222,8 @@ message Paging {
 	sint32 to = 3;
 	// count entries by subaccount, serving some places on helix
 	sint64 count_by_subaccount = 4;
+	// array of tokens to navigate to the next pages
+	repeated string next = 5;
 }
 
 message SubaccountOrderSummaryRequest {

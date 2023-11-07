@@ -2,12 +2,27 @@ syntax = "proto3";
 package injective.wasmx.v1;
 
 import "injective/wasmx/v1/wasmx.proto";
+import "injective/wasmx/v1/proposal.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/wasmx/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message EventContractExecution {
-    string contract_address = 1;
-    bytes response = 2;
-    string error = 3;
-  }
+  string contract_address = 1;
+  bytes response = 2;
+  string other_error = 3;
+  string execution_error = 4;
+}
+
+message EventContractRegistered {
+  string contract_address = 1;
+  uint64 gas_price = 3;
+  bool should_pin_contract = 4;
+  bool is_migration_allowed = 5;
+  uint64 code_id = 6;
+  string admin_address = 7;
+  string granter_address = 8;
+  FundingMode funding_mode = 9;
+}
+
+message EventContractDeregistered { string contract_address = 1; }

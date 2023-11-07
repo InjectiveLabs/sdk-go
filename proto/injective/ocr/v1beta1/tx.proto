@@ -7,7 +7,7 @@ import "gogoproto/gogo.proto";
 import "injective/ocr/v1beta1/ocr.proto";
 import "cosmos_proto/cosmos.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/ocr/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ocr/types";
 
 // Msg defines the OCR Msg service.
 service Msg {

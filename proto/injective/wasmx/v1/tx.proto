@@ -8,7 +8,7 @@ import "cosmos/msg/v1/msg.proto";
 import "injective/wasmx/v1/wasmx.proto";
 import "injective/wasmx/v1/proposal.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/wasmx/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 // Msg defines the wasmx Msg service.
 service Msg {
@@ -21,7 +21,8 @@ service Msg {
   rpc ExecuteContractCompat(MsgExecuteContractCompat)
       returns (MsgExecuteContractCompatResponse);
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
-  rpc RegisterContract(MsgRegisterContract) returns (MsgRegisterContractResponse);
+  rpc RegisterContract(MsgRegisterContract)
+      returns (MsgRegisterContractResponse);
 }
 
 // MsgExecuteContractCompat submits the given message data to a smart contract,
@@ -100,7 +101,8 @@ message MsgRegisterContract {
 
   string sender = 1;
 
-  ContractRegistrationRequest contract_registration_request = 2 [ (gogoproto.nullable) = false ];
+  ContractRegistrationRequest contract_registration_request = 2
+      [ (gogoproto.nullable) = false ];
 }
 
 message MsgRegisterContractResponse {}

@@ -8,7 +8,7 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "injective/tokenfactory/v1beta1/params.proto";
 
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/tokenfactory/types";
 
 // Msg defines the tokefactory module's gRPC message service.
 service Msg {
@@ -40,6 +40,8 @@ message MsgCreateDenom {
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
   // subdenom can be up to 44 "alphanumeric" characters long.
   string subdenom = 2 [ (gogoproto.moretags) = "yaml:\"subdenom\"" ];
+  string name = 3 [ (gogoproto.moretags) = "yaml:\"name\"" ];
+  string symbol = 4 [ (gogoproto.moretags) = "yaml:\"symbol\"" ];
 }
 
 // MsgCreateDenomResponse is the return value of MsgCreateDenom

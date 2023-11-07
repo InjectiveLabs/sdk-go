@@ -5,7 +5,7 @@ import "google/api/annotations.proto";
 import "injective/wasmx/v1/wasmx.proto";
 import "injective/wasmx/v1/genesis.proto";
 import "gogoproto/gogo.proto";
-option go_package = "github.com/InjectiveLabs/sdk-go/chain/wasmx/types";
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -15,9 +15,11 @@ service Query {
     option (google.api.http).get = "/injective/wasmx/v1/params";
   }
 
-   // Retrieves contract registration info
-  rpc ContractRegistrationInfo(QueryContractRegistrationInfoRequest) returns (QueryContractRegistrationInfoResponse) {
-    option (google.api.http).get = "/injective/wasmx/v1/registration_info/{contract_address}";
+  // Retrieves contract registration info
+  rpc ContractRegistrationInfo(QueryContractRegistrationInfoRequest)
+      returns (QueryContractRegistrationInfoResponse) {
+    option (google.api.http).get =
+        "/injective/wasmx/v1/registration_info/{contract_address}";
   }
 
   // Retrieves the entire wasmx module's state

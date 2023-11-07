@@ -86,6 +86,7 @@ var (
 	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
 	KeyMinimalProtocolFeeRate                      = []byte("MinimalProtocolFeeRate")
 	KeyIsInstantDerivativeMarketLaunchEnabled      = []byte("IsInstantDerivativeMarketLaunchEnabled")
+	KeyPostOnlyModeHeightThreshold                 = []byte("PostOnlyModeHeightThreshold")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -118,6 +119,7 @@ func NewParams(
 	derivativeAtomicMarketOrderFeeMultiplier sdk.Dec,
 	binaryOptionsAtomicMarketOrderFeeMultiplier sdk.Dec,
 	minimalProtocolFeeRate sdk.Dec,
+	postOnlyModeHeightThreshold int64,
 ) Params {
 	return Params{
 		SpotMarketInstantListingFee:                 spotMarketInstantListingFee,
@@ -143,6 +145,8 @@ func NewParams(
 		DerivativeAtomicMarketOrderFeeMultiplier:    derivativeAtomicMarketOrderFeeMultiplier,
 		BinaryOptionsAtomicMarketOrderFeeMultiplier: binaryOptionsAtomicMarketOrderFeeMultiplier,
 		MinimalProtocolFeeRate:                      minimalProtocolFeeRate,
+		IsInstantDerivativeMarketLaunchEnabled:      false,
+		PostOnlyModeHeightThreshold:                 postOnlyModeHeightThreshold,
 	}
 }
 
@@ -173,6 +177,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyBinaryOptionsAtomicMarketOrderFeeMultiplier, &p.BinaryOptionsAtomicMarketOrderFeeMultiplier, validateAtomicMarketOrderFeeMultiplier),
 		paramtypes.NewParamSetPair(KeyMinimalProtocolFeeRate, &p.MinimalProtocolFeeRate, ValidateFee),
 		paramtypes.NewParamSetPair(KeyIsInstantDerivativeMarketLaunchEnabled, &p.IsInstantDerivativeMarketLaunchEnabled, validateBool),
+		paramtypes.NewParamSetPair(KeyPostOnlyModeHeightThreshold, &p.PostOnlyModeHeightThreshold, validatePostOnlyModeHeightThreshold),
 	}
 }
 
@@ -202,6 +207,8 @@ func DefaultParams() Params {
 		DerivativeAtomicMarketOrderFeeMultiplier:    sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
 		BinaryOptionsAtomicMarketOrderFeeMultiplier: sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
 		MinimalProtocolFeeRate:                      sdk.MustNewDecFromStr("0.00005"), // default 0.005% minimal fee rate
+		IsInstantDerivativeMarketLaunchEnabled:      false,
+		PostOnlyModeHeightThreshold:                 0,
 	}
 }
 
@@ -272,6 +279,9 @@ func (p Params) Validate() error {
 	}
 	if err := ValidateFee(p.MinimalProtocolFeeRate); err != nil {
 		return fmt.Errorf("minimal_protocol_fee_rate is incorrect: %w", err)
+	}
+	if err := validatePostOnlyModeHeightThreshold(p.PostOnlyModeHeightThreshold); err != nil {
+		return fmt.Errorf("post_only_mode_height_threshold is incorrect: %w", err)
 	}
 	return nil
 }
@@ -473,6 +483,19 @@ func validateFundingInterval(i interface{}) error {
 
 	if v <= 0 {
 		return fmt.Errorf("fundingInterval must be positive: %d", v)
+	}
+
+	return nil
+}
+
+func validatePostOnlyModeHeightThreshold(i interface{}) error {
+	v, ok := i.(int64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v < 0 {
+		return fmt.Errorf("postOnlyModeHeightThreshold must be non-negative: %d", v)
 	}
 
 	return nil
