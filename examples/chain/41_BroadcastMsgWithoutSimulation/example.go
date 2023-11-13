@@ -79,7 +79,7 @@ func main() {
 	msg.Sender = senderAddress.String()
 	msg.Order = exchangetypes.SpotOrder(*order)
 
-	result, err := clientInstance.AsyncBroadcastMsg(msg)
+	result, err := clientInstance.SyncBroadcastMsg(msg)
 
 	if err != nil {
 		panic(err)
