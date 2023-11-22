@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"time"
 
 	"cosmossdk.io/errors"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -14,6 +15,7 @@ import (
 	"golang.org/x/exp/maps"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type eventproviderFetcher struct {
@@ -22,13 +24,45 @@ type eventproviderFetcher struct {
 	filterTypes []string
 }
 
+func dialConnection(eventproviderURL string) (*grpc.ClientConn, error) {
+	// ignore cert verification if server has tls
+	ctx, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancelFn()
+
+	conn, err := grpc.DialContext(
+		ctx,
+		eventproviderURL,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithContextDialer(common.DialerFunc),
+		grpc.WithBlock(),
+	)
+	if err != nil {
+		suplog.WithError(err).Warningln("cannot connect eventprovider with non-TLS mode. Trying TLS mode now...")
+
+		ctx2, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancelFn()
+		tlsConfig := tls.Config{InsecureSkipVerify: true}
+		creds := credentials.NewTLS(&tlsConfig)
+		conn, err = grpc.DialContext(
+			ctx2,
+			eventproviderURL,
+			grpc.WithTransportCredentials(creds),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithBlock(),
+		)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
+}
+
 func NewEventProviderFetcher(epAddr string, filters FilterMap) (*eventproviderFetcher, error) {
 	// TODO: Support connect with both tls and non-tls
 	// create grpc client
-	tlsConfig := tls.Config{InsecureSkipVerify: true}
-	creds := credentials.NewTLS(&tlsConfig)
-	var conn *grpc.ClientConn
-	conn, err := grpc.Dial(epAddr, grpc.WithTransportCredentials(creds), grpc.WithContextDialer(common.DialerFunc))
+	conn, err := dialConnection(epAddr)
 	if err != nil {
 		err := fmt.Errorf("failed to connect to the gRPC '%s': %w", epAddr, err)
 		return nil, err
@@ -42,7 +76,7 @@ func NewEventProviderFetcher(epAddr string, filters FilterMap) (*eventproviderFe
 }
 
 func (ef *eventproviderFetcher) Fetch(ctx context.Context, height int64) ([]Event, error) {
-	resp, err := ef.ep.GetRawBlockEvents(ctx, &eventproviderPB.GetRawBlockEventsRequest{
+	resp, err := ef.ep.GetABCIBlockEvents(ctx, &eventproviderPB.GetABCIBlockEventsRequest{
 		Height:     int32(height),
 		EventTypes: ef.filterTypes,
 	})

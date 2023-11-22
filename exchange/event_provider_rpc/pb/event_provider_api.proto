@@ -22,7 +22,7 @@ service EventProviderAPI {
 	// Get custom processed block events for selected backend
 	rpc GetCustomEventsRPC (GetCustomEventsRPCRequest) returns (GetCustomEventsRPCResponse);
 	// Get raw block events for selected height
-	rpc GetRawBlockEvents (GetRawBlockEventsRequest) returns (GetRawBlockEventsResponse);
+	rpc GetABCIBlockEvents (GetABCIBlockEventsRequest) returns (GetABCIBlockEventsResponse);
 }
 
 message GetLatestHeightRequest {
@@ -113,13 +113,13 @@ message GetCustomEventsRPCResponse {
 	BlockEventsRPC data = 4;
 }
 
-message GetRawBlockEventsRequest {
+message GetABCIBlockEventsRequest {
 	sint32 height = 1;
 	// Array of event types
 	repeated string event_types = 2;
 }
 
-message GetRawBlockEventsResponse {
+message GetABCIBlockEventsResponse {
 	// Response version.
 	string v = 1;
 	// Status of the response.

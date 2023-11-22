@@ -36,6 +36,26 @@ func (m *MockEventProviderAPIClient) EXPECT() *MockEventProviderAPIClientMockRec
 	return m.recorder
 }
 
+// GetABCIBlockEvents mocks base method.
+func (m *MockEventProviderAPIClient) GetABCIBlockEvents(ctx context.Context, in *GetABCIBlockEventsRequest, opts ...grpc.CallOption) (*GetABCIBlockEventsResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetABCIBlockEvents", varargs...)
+	ret0, _ := ret[0].(*GetABCIBlockEventsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetABCIBlockEvents indicates an expected call of GetABCIBlockEvents.
+func (mr *MockEventProviderAPIClientMockRecorder) GetABCIBlockEvents(ctx, in interface{}, opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetABCIBlockEvents", reflect.TypeOf((*MockEventProviderAPIClient)(nil).GetABCIBlockEvents), varargs...)
+}
+
 // GetBlockEventsRPC mocks base method.
 func (m *MockEventProviderAPIClient) GetBlockEventsRPC(ctx context.Context, in *GetBlockEventsRPCRequest, opts ...grpc.CallOption) (*GetBlockEventsRPCResponse, error) {
 	m.ctrl.T.Helper()
@@ -94,26 +114,6 @@ func (mr *MockEventProviderAPIClientMockRecorder) GetLatestHeight(ctx, in interf
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, in}, opts...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestHeight", reflect.TypeOf((*MockEventProviderAPIClient)(nil).GetLatestHeight), varargs...)
-}
-
-// GetRawBlockEvents mocks base method.
-func (m *MockEventProviderAPIClient) GetRawBlockEvents(ctx context.Context, in *GetRawBlockEventsRequest, opts ...grpc.CallOption) (*GetRawBlockEventsResponse, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, in}
-	for _, a := range opts {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "GetRawBlockEvents", varargs...)
-	ret0, _ := ret[0].(*GetRawBlockEventsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetRawBlockEvents indicates an expected call of GetRawBlockEvents.
-func (mr *MockEventProviderAPIClientMockRecorder) GetRawBlockEvents(ctx, in interface{}, opts ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, in}, opts...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRawBlockEvents", reflect.TypeOf((*MockEventProviderAPIClient)(nil).GetRawBlockEvents), varargs...)
 }
 
 // StreamBlockEvents mocks base method.
@@ -282,6 +282,21 @@ func (m *MockEventProviderAPIServer) EXPECT() *MockEventProviderAPIServerMockRec
 	return m.recorder
 }
 
+// GetABCIBlockEvents mocks base method.
+func (m *MockEventProviderAPIServer) GetABCIBlockEvents(arg0 context.Context, arg1 *GetABCIBlockEventsRequest) (*GetABCIBlockEventsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetABCIBlockEvents", arg0, arg1)
+	ret0, _ := ret[0].(*GetABCIBlockEventsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetABCIBlockEvents indicates an expected call of GetABCIBlockEvents.
+func (mr *MockEventProviderAPIServerMockRecorder) GetABCIBlockEvents(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetABCIBlockEvents", reflect.TypeOf((*MockEventProviderAPIServer)(nil).GetABCIBlockEvents), arg0, arg1)
+}
+
 // GetBlockEventsRPC mocks base method.
 func (m *MockEventProviderAPIServer) GetBlockEventsRPC(arg0 context.Context, arg1 *GetBlockEventsRPCRequest) (*GetBlockEventsRPCResponse, error) {
 	m.ctrl.T.Helper()
@@ -325,21 +340,6 @@ func (m *MockEventProviderAPIServer) GetLatestHeight(arg0 context.Context, arg1 
 func (mr *MockEventProviderAPIServerMockRecorder) GetLatestHeight(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestHeight", reflect.TypeOf((*MockEventProviderAPIServer)(nil).GetLatestHeight), arg0, arg1)
-}
-
-// GetRawBlockEvents mocks base method.
-func (m *MockEventProviderAPIServer) GetRawBlockEvents(arg0 context.Context, arg1 *GetRawBlockEventsRequest) (*GetRawBlockEventsResponse, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRawBlockEvents", arg0, arg1)
-	ret0, _ := ret[0].(*GetRawBlockEventsResponse)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetRawBlockEvents indicates an expected call of GetRawBlockEvents.
-func (mr *MockEventProviderAPIServerMockRecorder) GetRawBlockEvents(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRawBlockEvents", reflect.TypeOf((*MockEventProviderAPIServer)(nil).GetRawBlockEvents), arg0, arg1)
 }
 
 // StreamBlockEvents mocks base method.

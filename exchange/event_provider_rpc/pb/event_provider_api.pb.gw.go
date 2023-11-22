@@ -158,8 +158,8 @@ func local_request_EventProviderAPI_GetCustomEventsRPC_0(ctx context.Context, ma
 
 }
 
-func request_EventProviderAPI_GetRawBlockEvents_0(ctx context.Context, marshaler runtime.Marshaler, client EventProviderAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRawBlockEventsRequest
+func request_EventProviderAPI_GetABCIBlockEvents_0(ctx context.Context, marshaler runtime.Marshaler, client EventProviderAPIClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetABCIBlockEventsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -170,13 +170,13 @@ func request_EventProviderAPI_GetRawBlockEvents_0(ctx context.Context, marshaler
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.GetRawBlockEvents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetABCIBlockEvents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_EventProviderAPI_GetRawBlockEvents_0(ctx context.Context, marshaler runtime.Marshaler, server EventProviderAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRawBlockEventsRequest
+func local_request_EventProviderAPI_GetABCIBlockEvents_0(ctx context.Context, marshaler runtime.Marshaler, server EventProviderAPIServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetABCIBlockEventsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -187,7 +187,7 @@ func local_request_EventProviderAPI_GetRawBlockEvents_0(ctx context.Context, mar
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.GetRawBlockEvents(ctx, &protoReq)
+	msg, err := server.GetABCIBlockEvents(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -204,22 +204,20 @@ func RegisterEventProviderAPIHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetLatestHeight", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetLatestHeight"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetLatestHeight", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetLatestHeight"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_EventProviderAPI_GetLatestHeight_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_EventProviderAPI_GetLatestHeight_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_GetLatestHeight_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_GetLatestHeight_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -236,22 +234,20 @@ func RegisterEventProviderAPIHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetBlockEventsRPC", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetBlockEventsRPC"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetBlockEventsRPC", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetBlockEventsRPC"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_EventProviderAPI_GetBlockEventsRPC_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_EventProviderAPI_GetBlockEventsRPC_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_GetBlockEventsRPC_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_GetBlockEventsRPC_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -261,47 +257,43 @@ func RegisterEventProviderAPIHandlerServer(ctx context.Context, mux *runtime.Ser
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetCustomEventsRPC", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetCustomEventsRPC"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetCustomEventsRPC", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetCustomEventsRPC"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_EventProviderAPI_GetCustomEventsRPC_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_EventProviderAPI_GetCustomEventsRPC_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_GetCustomEventsRPC_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_GetCustomEventsRPC_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_EventProviderAPI_GetRawBlockEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_EventProviderAPI_GetABCIBlockEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetRawBlockEvents", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetRawBlockEvents"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetABCIBlockEvents", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetABCIBlockEvents"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_EventProviderAPI_GetRawBlockEvents_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_EventProviderAPI_GetABCIBlockEvents_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_GetRawBlockEvents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_GetABCIBlockEvents_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -350,21 +342,19 @@ func RegisterEventProviderAPIHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetLatestHeight", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetLatestHeight"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetLatestHeight", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetLatestHeight"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_EventProviderAPI_GetLatestHeight_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_EventProviderAPI_GetLatestHeight_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_GetLatestHeight_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_GetLatestHeight_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -372,21 +362,19 @@ func RegisterEventProviderAPIHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/StreamBlockEvents", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/StreamBlockEvents"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/StreamBlockEvents", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/StreamBlockEvents"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_EventProviderAPI_StreamBlockEvents_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_EventProviderAPI_StreamBlockEvents_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_StreamBlockEvents_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_StreamBlockEvents_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -394,21 +382,19 @@ func RegisterEventProviderAPIHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetBlockEventsRPC", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetBlockEventsRPC"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetBlockEventsRPC", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetBlockEventsRPC"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_EventProviderAPI_GetBlockEventsRPC_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_EventProviderAPI_GetBlockEventsRPC_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_GetBlockEventsRPC_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_GetBlockEventsRPC_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -416,43 +402,39 @@ func RegisterEventProviderAPIHandlerClient(ctx context.Context, mux *runtime.Ser
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetCustomEventsRPC", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetCustomEventsRPC"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetCustomEventsRPC", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetCustomEventsRPC"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_EventProviderAPI_GetCustomEventsRPC_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_EventProviderAPI_GetCustomEventsRPC_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_GetCustomEventsRPC_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_GetCustomEventsRPC_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_EventProviderAPI_GetRawBlockEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_EventProviderAPI_GetABCIBlockEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetRawBlockEvents", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetRawBlockEvents"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/event_provider_api.EventProviderAPI/GetABCIBlockEvents", runtime.WithHTTPPathPattern("/event_provider_api.EventProviderAPI/GetABCIBlockEvents"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_EventProviderAPI_GetRawBlockEvents_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		resp, md, err := request_EventProviderAPI_GetABCIBlockEvents_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_EventProviderAPI_GetRawBlockEvents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_EventProviderAPI_GetABCIBlockEvents_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -468,7 +450,7 @@ var (
 
 	pattern_EventProviderAPI_GetCustomEventsRPC_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"event_provider_api.EventProviderAPI", "GetCustomEventsRPC"}, ""))
 
-	pattern_EventProviderAPI_GetRawBlockEvents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"event_provider_api.EventProviderAPI", "GetRawBlockEvents"}, ""))
+	pattern_EventProviderAPI_GetABCIBlockEvents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"event_provider_api.EventProviderAPI", "GetABCIBlockEvents"}, ""))
 )
 
 var (
@@ -480,5 +462,5 @@ var (
 
 	forward_EventProviderAPI_GetCustomEventsRPC_0 = runtime.ForwardResponseMessage
 
-	forward_EventProviderAPI_GetRawBlockEvents_0 = runtime.ForwardResponseMessage
+	forward_EventProviderAPI_GetABCIBlockEvents_0 = runtime.ForwardResponseMessage
 )

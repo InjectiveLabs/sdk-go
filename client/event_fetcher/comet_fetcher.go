@@ -40,7 +40,7 @@ func (cm *cometFetcher) Fetch(ctx context.Context, height int64) ([]Event, error
 	}
 
 	events = append(events, filterEvents(blockResults.EndBlockEvents, cm.filters)...)
-	return nil, nil
+	return events, nil
 }
 
 func filterEvents(evList []abci.Event, filters FilterMap) (result []Event) {
