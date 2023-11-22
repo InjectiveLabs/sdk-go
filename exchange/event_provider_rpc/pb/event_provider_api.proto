@@ -1,0 +1,157 @@
+// Code generated with goa v3.5.2, DO NOT EDIT.
+//
+// EventProviderAPI protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/InjectiveLabs/injective-indexer/api/design -o ../
+
+syntax = "proto3";
+
+package event_provider_api;
+
+option go_package = "/event_provider_apipb";
+
+// EventProviderAPI provides processed block events for different backends.
+service EventProviderAPI {
+	// Get latest block from event provider
+	rpc GetLatestHeight (GetLatestHeightRequest) returns (GetLatestHeightResponse);
+	// Stream processed block events for selected backend
+	rpc StreamBlockEvents (StreamBlockEventsRequest) returns (stream StreamBlockEventsResponse);
+	// Get processed block events for selected backend
+	rpc GetBlockEventsRPC (GetBlockEventsRPCRequest) returns (GetBlockEventsRPCResponse);
+	// Get custom processed block events for selected backend
+	rpc GetCustomEventsRPC (GetCustomEventsRPCRequest) returns (GetCustomEventsRPCResponse);
+	// Get raw block events for selected height
+	rpc GetRawBlockEvents (GetRawBlockEventsRequest) returns (GetRawBlockEventsResponse);
+}
+
+message GetLatestHeightRequest {
+}
+
+message GetLatestHeightResponse {
+	// Response version.
+	string v = 1;
+	// Status of the response.
+	string s = 2;
+	// Error message.
+	string e = 3;
+	LatestBlockHeight data = 4;
+}
+// Latest block height from event provider db
+message LatestBlockHeight {
+	uint64 height = 1;
+}
+
+message StreamBlockEventsRequest {
+	// Select backend processor
+	string backend = 1;
+	sint32 height = 2;
+}
+
+message StreamBlockEventsResponse {
+	repeated Block blocks = 1;
+}
+
+message Block {
+	sint64 height = 1;
+	string version = 2;
+	// Processed block events in the block
+	repeated BlockEvent events = 3;
+	// Indicates whether the block is the latest one available in the event provider
+	bool in_sync = 4;
+}
+
+message BlockEvent {
+	// Event type
+	string type_url = 1;
+	// Event data
+	bytes value = 2;
+	// TX hash
+	bytes tx_hash = 3;
+}
+
+message GetBlockEventsRPCRequest {
+	// Select backend processor
+	string backend = 1;
+	sint32 height = 2;
+}
+
+message GetBlockEventsRPCResponse {
+	// Response version.
+	string v = 1;
+	// Status of the response.
+	string s = 2;
+	// Error message.
+	string e = 3;
+	BlockEventsRPC data = 4;
+}
+// Processed block events for backend processor to consume
+message BlockEventsRPC {
+	// Array of event types
+	repeated string types = 1;
+	// Array of parsed events
+	repeated bytes events = 2;
+	// Map of event index - tx hash
+	map<sint32, bytes> tx_hashes = 3;
+}
+
+message GetCustomEventsRPCRequest {
+	// Select backend processor
+	string backend = 1;
+	sint32 height = 2;
+	// Specify custom events to get
+	string events = 3;
+}
+
+message GetCustomEventsRPCResponse {
+	// Response version.
+	string v = 1;
+	// Status of the response.
+	string s = 2;
+	// Error message.
+	string e = 3;
+	BlockEventsRPC data = 4;
+}
+
+message GetRawBlockEventsRequest {
+	sint32 height = 1;
+	// Array of event types
+	repeated string event_types = 2;
+}
+
+message GetRawBlockEventsResponse {
+	// Response version.
+	string v = 1;
+	// Status of the response.
+	string s = 2;
+	// Error message.
+	string e = 3;
+	RawBlock raw_block = 4;
+}
+
+message RawBlock {
+	sint64 height = 1;
+	repeated ABCIResponseDeliverTx txs_results = 2;
+	repeated ABCIEvent begin_block_events = 3;
+	repeated ABCIEvent end_block_events = 4;
+}
+
+message ABCIResponseDeliverTx {
+	sint32 code = 1;
+	string log = 2;
+	string info = 3;
+	sint64 gas_wanted = 4;
+	sint64 gas_used = 5;
+	repeated ABCIEvent events = 6;
+	string codespace = 7;
+}
+
+message ABCIEvent {
+	string type = 1;
+	repeated ABCIAttribute attributes = 2;
+}
+
+message ABCIAttribute {
+	string key = 1;
+	string value = 2;
+}
