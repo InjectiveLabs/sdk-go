@@ -287,14 +287,14 @@ func LoadNetwork(name string, node string) Network {
 			explorerCookieAssistant: explorerCookieAssistant,
 		}
 	case "mainnet":
-		validNodes := []string{"lb", "lb_k8s", "sentry0", "sentry1", "sentry2", "sentry3"}
+		validNodes := []string{"lb", "lb_k8s", "sentry", "sentry0", "sentry1", "sentry2", "sentry3"}
 		if !contains(validNodes, node) {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
 		var chainTlsCert, exchangeTlsCert, explorerTlsCert credentials.TransportCredentials
 		var chainCookieAssistant, exchangeCookieAssistant, explorerCookieAssistant CookieAssistant
-		if node == "lb" {
+		if node == "lb" || node == "sentry" {
 			lcdEndpoint = "https://sentry.lcd.injective.network"
 			tmEndpoint = "https://sentry.tm.injective.network:443"
 			chainGrpcEndpoint = "sentry.chain.grpc.injective.network:443"
