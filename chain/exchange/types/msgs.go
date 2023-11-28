@@ -13,9 +13,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/InjectiveLabs/sdk-go/chain/crypto/ethsecp256k1"
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
+	"github.com/InjectiveLabs/injective-core/injective-chain/crypto/ethsecp256k1"
+	oracletypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types"
+	wasmxtypes "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types"
 )
 
 const RouterKey = ModuleName
@@ -140,6 +140,10 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand, isDerivative bool) error {
 	if err := CheckValidSubaccountIDOrNonce(senderAddr, o.SubaccountId); err != nil {
 		return err
+	}
+
+	if o.Cid != "" && !IsValidCid(o.Cid) {
+		return errors.Wrap(ErrInvalidCid, o.Cid)
 	}
 
 	if o.Quantity.IsNil() || o.Quantity.LTE(sdk.ZeroDec()) || o.Quantity.GT(MaxOrderQuantity) {

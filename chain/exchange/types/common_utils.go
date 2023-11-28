@@ -75,6 +75,10 @@ func (d *DerivativeLimitOrderDelta) OrderHash() common.Hash {
 	return d.Order.Hash()
 }
 
+func (d *DerivativeLimitOrderDelta) Cid() string {
+	return d.Order.Cid()
+}
+
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
 var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
 
