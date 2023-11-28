@@ -1,6 +1,6 @@
 package price
 
-import "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/bandchain/oracle/types"
+import "github.com/InjectiveLabs/sdk-go/chain/oracle/bandchain/oracle/types"
 
 type SymbolInput struct {
 	Symbols            []string `json:"symbols"`

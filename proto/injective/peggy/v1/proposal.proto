@@ -4,7 +4,7 @@ package injective.peggy.v1;
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/peggy/types";
 
 message BlacklistEthereumAddressesProposal {
   option (gogoproto.equal) = false;

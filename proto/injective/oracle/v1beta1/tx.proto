@@ -6,7 +6,7 @@ import "injective/oracle/v1beta1/oracle.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/oracle/types";
 
 // Msg defines the oracle Msg service.
 service Msg {

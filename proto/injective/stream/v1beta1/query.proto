@@ -6,7 +6,7 @@ import "gogoproto/gogo.proto";
 import "injective/exchange/v1beta1/events.proto";
 import "injective/exchange/v1beta1/exchange.proto";
 
-option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/stream/types";
+option go_package = "github.com/InjectiveLabs/sdk-go/chain/stream/types";
 
 // ChainStream defines the gRPC streaming service.
 service Stream { rpc Stream(StreamRequest) returns (stream StreamResponse); }
