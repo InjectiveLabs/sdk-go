@@ -340,20 +340,22 @@ func RegisterInjectiveAccountsRPCHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveAccountsRPC_Portfolio_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveAccountsRPC_Portfolio_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_Portfolio_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_Portfolio_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -363,20 +365,22 @@ func RegisterInjectiveAccountsRPCHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveAccountsRPC_OrderStates_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveAccountsRPC_OrderStates_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_OrderStates_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_OrderStates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -386,20 +390,22 @@ func RegisterInjectiveAccountsRPCHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountsList", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountsList"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountsList", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountsList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountsList_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountsList_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountsList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountsList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -409,20 +415,22 @@ func RegisterInjectiveAccountsRPCHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalancesList", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalancesList"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalancesList", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalancesList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountBalancesList_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountBalancesList_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountBalancesList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountBalancesList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -432,20 +440,22 @@ func RegisterInjectiveAccountsRPCHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -462,20 +472,22 @@ func RegisterInjectiveAccountsRPCHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountHistory", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountHistory"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountHistory", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountHistory"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountHistory_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountHistory_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -485,20 +497,22 @@ func RegisterInjectiveAccountsRPCHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountOrderSummary_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveAccountsRPC_SubaccountOrderSummary_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountOrderSummary_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountOrderSummary_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -508,20 +522,22 @@ func RegisterInjectiveAccountsRPCHandlerServer(ctx context.Context, mux *runtime
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/Rewards", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/Rewards"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/Rewards", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/Rewards"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveAccountsRPC_Rewards_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveAccountsRPC_Rewards_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_Rewards_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_Rewards_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -570,19 +586,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/Portfolio"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_Portfolio_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_Portfolio_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_Portfolio_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_Portfolio_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -590,19 +608,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/OrderStates"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_OrderStates_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_OrderStates_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_OrderStates_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_OrderStates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -610,19 +630,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountsList", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountsList"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountsList", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountsList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_SubaccountsList_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_SubaccountsList_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountsList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountsList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -630,19 +652,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalancesList", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalancesList"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalancesList", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalancesList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_SubaccountBalancesList_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_SubaccountBalancesList_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountBalancesList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountBalancesList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -650,19 +674,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountBalanceEndpoint"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountBalanceEndpoint_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -670,19 +696,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/StreamSubaccountBalance", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/StreamSubaccountBalance"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/StreamSubaccountBalance", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/StreamSubaccountBalance"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_StreamSubaccountBalance_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_StreamSubaccountBalance_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_StreamSubaccountBalance_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_StreamSubaccountBalance_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -690,19 +718,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountHistory", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountHistory"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountHistory", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountHistory"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_SubaccountHistory_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_SubaccountHistory_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -710,19 +740,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/SubaccountOrderSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_SubaccountOrderSummary_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_SubaccountOrderSummary_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_SubaccountOrderSummary_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_SubaccountOrderSummary_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -730,19 +762,21 @@ func RegisterInjectiveAccountsRPCHandlerClient(ctx context.Context, mux *runtime
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/Rewards", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/Rewards"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_accounts_rpc.InjectiveAccountsRPC/Rewards", runtime.WithHTTPPathPattern("/injective_accounts_rpc.InjectiveAccountsRPC/Rewards"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveAccountsRPC_Rewards_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveAccountsRPC_Rewards_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveAccountsRPC_Rewards_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveAccountsRPC_Rewards_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 

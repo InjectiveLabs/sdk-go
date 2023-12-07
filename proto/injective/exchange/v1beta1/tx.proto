@@ -129,6 +129,10 @@ service Msg {
   rpc LiquidatePosition(MsgLiquidatePosition)
       returns (MsgLiquidatePositionResponse);
 
+  // EmergencySettleMarket defines a method for emergency settling a market
+  rpc EmergencySettleMarket(MsgEmergencySettleMarket)
+      returns (MsgEmergencySettleMarketResponse);
+
   // IncreasePositionMargin defines a method for increasing margin of a position
   rpc IncreasePositionMargin(MsgIncreasePositionMargin)
       returns (MsgIncreasePositionMarginResponse);
@@ -799,6 +803,18 @@ message MsgLiquidatePosition {
 
 // MsgLiquidatePositionResponse defines the Msg/LiquidatePosition response type.
 message MsgLiquidatePositionResponse {}
+
+// A Cosmos-SDK MsgEmergencySettleMarket
+message MsgEmergencySettleMarket {
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string subaccount_id = 2;
+  string market_id = 3;
+}
+
+// MsgEmergencySettleMarketResponse defines the Msg/EmergencySettleMarket response type.
+message MsgEmergencySettleMarketResponse {}
 
 // A Cosmos-SDK MsgIncreasePositionMargin
 message MsgIncreasePositionMargin {

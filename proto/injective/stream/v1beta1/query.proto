@@ -158,6 +158,7 @@ message SpotTrade {
   bytes order_hash = 8;
   string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
   string cid = 10;
+  string trade_id = 11;
 }
 
 message DerivativeTrade {
@@ -177,6 +178,7 @@ message DerivativeTrade {
   string order_hash = 8;
   string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
   string cid = 10;
+  string trade_id = 11;
 }
 
 message TradesFilter {

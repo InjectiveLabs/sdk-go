@@ -103,4 +103,5 @@ var (
 	ErrPostOnlyMode                             = errors.Register(ModuleName, 96, "exchange is in post-only mode")
 	ErrClientOrderIdAlreadyExists               = errors.Register(ModuleName, 97, "client order id already exists")
 	ErrInvalidCid                               = errors.Register(ModuleName, 98, "client order id is invalid. Max length is 36 chars")
+	ErrInvalidEmergencySettle                   = errors.Register(ModuleName, 99, "market cannot be settled in emergency mode")
 )
