@@ -37,6 +37,7 @@ var (
 	_ sdk.Msg = &MsgExternalTransfer{}
 	_ sdk.Msg = &MsgIncreasePositionMargin{}
 	_ sdk.Msg = &MsgLiquidatePosition{}
+	_ sdk.Msg = &MsgEmergencySettleMarket{}
 	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
@@ -71,6 +72,7 @@ const (
 	TypeMsgExternalTransfer                 = "externalTransfer"
 	TypeMsgIncreasePositionMargin           = "increasePositionMargin"
 	TypeMsgLiquidatePosition                = "liquidatePosition"
+	TypeMsgEmergencySettleMarket            = "emergencySettleMarket"
 	TypeMsgInstantSpotMarketLaunch          = "instantSpotMarketLaunch"
 	TypeMsgInstantPerpetualMarketLaunch     = "instantPerpetualMarketLaunch"
 	TypeMsgInstantExpiryFuturesMarketLaunch = "instantExpiryFuturesMarketLaunch"
@@ -1509,6 +1511,45 @@ func (msg *MsgLiquidatePosition) GetSignBytes() []byte {
 }
 
 func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgEmergencySettleMarket) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgEmergencySettleMarket) Type() string {
+	return TypeMsgEmergencySettleMarket
+}
+
+func (msg *MsgEmergencySettleMarket) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+
+	if err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !IsHexHash(msg.MarketId) {
+		return errors.Wrap(ErrMarketInvalid, msg.MarketId)
+	}
+
+	_, ok := IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	return nil
+}
+
+func (msg *MsgEmergencySettleMarket) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgEmergencySettleMarket) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

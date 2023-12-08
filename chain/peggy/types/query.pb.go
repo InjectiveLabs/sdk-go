@@ -29,6 +29,94 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+type QueryFirstConfirmedOutgoingTxBatchRequest struct {
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) Reset() {
+	*m = QueryFirstConfirmedOutgoingTxBatchRequest{}
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) String() string {
+	return proto.CompactTextString(m)
+}
+func (*QueryFirstConfirmedOutgoingTxBatchRequest) ProtoMessage() {}
+func (*QueryFirstConfirmedOutgoingTxBatchRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_702b8e5c1503495b, []int{0}
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryFirstConfirmedOutgoingTxBatchRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFirstConfirmedOutgoingTxBatchRequest.Merge(m, src)
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFirstConfirmedOutgoingTxBatchRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryFirstConfirmedOutgoingTxBatchRequest proto.InternalMessageInfo
+
+type QueryFirstConfirmedOutgoingTxBatchResponse struct {
+	Batch *OutgoingTxBatch `protobuf:"bytes,1,opt,name=batch,proto3" json:"batch,omitempty"`
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) Reset() {
+	*m = QueryFirstConfirmedOutgoingTxBatchResponse{}
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) String() string {
+	return proto.CompactTextString(m)
+}
+func (*QueryFirstConfirmedOutgoingTxBatchResponse) ProtoMessage() {}
+func (*QueryFirstConfirmedOutgoingTxBatchResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_702b8e5c1503495b, []int{1}
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryFirstConfirmedOutgoingTxBatchResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryFirstConfirmedOutgoingTxBatchResponse.Merge(m, src)
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryFirstConfirmedOutgoingTxBatchResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryFirstConfirmedOutgoingTxBatchResponse proto.InternalMessageInfo
+
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) GetBatch() *OutgoingTxBatch {
+	if m != nil {
+		return m.Batch
+	}
+	return nil
+}
+
 type QueryParamsRequest struct {
 }
 
@@ -36,7 +124,7 @@ func (m *QueryParamsRequest) Reset()         { *m = QueryParamsRequest{} }
 func (m *QueryParamsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsRequest) ProtoMessage()    {}
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{0}
+	return fileDescriptor_702b8e5c1503495b, []int{2}
 }
 func (m *QueryParamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -73,7 +161,7 @@ func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
 func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsResponse) ProtoMessage()    {}
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{1}
+	return fileDescriptor_702b8e5c1503495b, []int{3}
 }
 func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -116,7 +204,7 @@ func (m *QueryCurrentValsetRequest) Reset()         { *m = QueryCurrentValsetReq
 func (m *QueryCurrentValsetRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryCurrentValsetRequest) ProtoMessage()    {}
 func (*QueryCurrentValsetRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{2}
+	return fileDescriptor_702b8e5c1503495b, []int{4}
 }
 func (m *QueryCurrentValsetRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -153,7 +241,7 @@ func (m *QueryCurrentValsetResponse) Reset()         { *m = QueryCurrentValsetRe
 func (m *QueryCurrentValsetResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryCurrentValsetResponse) ProtoMessage()    {}
 func (*QueryCurrentValsetResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{3}
+	return fileDescriptor_702b8e5c1503495b, []int{5}
 }
 func (m *QueryCurrentValsetResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -197,7 +285,7 @@ func (m *QueryValsetRequestRequest) Reset()         { *m = QueryValsetRequestReq
 func (m *QueryValsetRequestRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryValsetRequestRequest) ProtoMessage()    {}
 func (*QueryValsetRequestRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{4}
+	return fileDescriptor_702b8e5c1503495b, []int{6}
 }
 func (m *QueryValsetRequestRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -241,7 +329,7 @@ func (m *QueryValsetRequestResponse) Reset()         { *m = QueryValsetRequestRe
 func (m *QueryValsetRequestResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryValsetRequestResponse) ProtoMessage()    {}
 func (*QueryValsetRequestResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{5}
+	return fileDescriptor_702b8e5c1503495b, []int{7}
 }
 func (m *QueryValsetRequestResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -286,7 +374,7 @@ func (m *QueryValsetConfirmRequest) Reset()         { *m = QueryValsetConfirmReq
 func (m *QueryValsetConfirmRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryValsetConfirmRequest) ProtoMessage()    {}
 func (*QueryValsetConfirmRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{6}
+	return fileDescriptor_702b8e5c1503495b, []int{8}
 }
 func (m *QueryValsetConfirmRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -337,7 +425,7 @@ func (m *QueryValsetConfirmResponse) Reset()         { *m = QueryValsetConfirmRe
 func (m *QueryValsetConfirmResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryValsetConfirmResponse) ProtoMessage()    {}
 func (*QueryValsetConfirmResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{7}
+	return fileDescriptor_702b8e5c1503495b, []int{9}
 }
 func (m *QueryValsetConfirmResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -381,7 +469,7 @@ func (m *QueryValsetConfirmsByNonceRequest) Reset()         { *m = QueryValsetCo
 func (m *QueryValsetConfirmsByNonceRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryValsetConfirmsByNonceRequest) ProtoMessage()    {}
 func (*QueryValsetConfirmsByNonceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{8}
+	return fileDescriptor_702b8e5c1503495b, []int{10}
 }
 func (m *QueryValsetConfirmsByNonceRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -425,7 +513,7 @@ func (m *QueryValsetConfirmsByNonceResponse) Reset()         { *m = QueryValsetC
 func (m *QueryValsetConfirmsByNonceResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryValsetConfirmsByNonceResponse) ProtoMessage()    {}
 func (*QueryValsetConfirmsByNonceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{9}
+	return fileDescriptor_702b8e5c1503495b, []int{11}
 }
 func (m *QueryValsetConfirmsByNonceResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -468,7 +556,7 @@ func (m *QueryLastValsetRequestsRequest) Reset()         { *m = QueryLastValsetR
 func (m *QueryLastValsetRequestsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryLastValsetRequestsRequest) ProtoMessage()    {}
 func (*QueryLastValsetRequestsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{10}
+	return fileDescriptor_702b8e5c1503495b, []int{12}
 }
 func (m *QueryLastValsetRequestsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -505,7 +593,7 @@ func (m *QueryLastValsetRequestsResponse) Reset()         { *m = QueryLastValset
 func (m *QueryLastValsetRequestsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryLastValsetRequestsResponse) ProtoMessage()    {}
 func (*QueryLastValsetRequestsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{11}
+	return fileDescriptor_702b8e5c1503495b, []int{13}
 }
 func (m *QueryLastValsetRequestsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -553,7 +641,7 @@ func (m *QueryLastPendingValsetRequestByAddrRequest) String() string {
 }
 func (*QueryLastPendingValsetRequestByAddrRequest) ProtoMessage() {}
 func (*QueryLastPendingValsetRequestByAddrRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{12}
+	return fileDescriptor_702b8e5c1503495b, []int{14}
 }
 func (m *QueryLastPendingValsetRequestByAddrRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -601,7 +689,7 @@ func (m *QueryLastPendingValsetRequestByAddrResponse) String() string {
 }
 func (*QueryLastPendingValsetRequestByAddrResponse) ProtoMessage() {}
 func (*QueryLastPendingValsetRequestByAddrResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{13}
+	return fileDescriptor_702b8e5c1503495b, []int{15}
 }
 func (m *QueryLastPendingValsetRequestByAddrResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -644,7 +732,7 @@ func (m *QueryBatchFeeRequest) Reset()         { *m = QueryBatchFeeRequest{} }
 func (m *QueryBatchFeeRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryBatchFeeRequest) ProtoMessage()    {}
 func (*QueryBatchFeeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{14}
+	return fileDescriptor_702b8e5c1503495b, []int{16}
 }
 func (m *QueryBatchFeeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -681,7 +769,7 @@ func (m *QueryBatchFeeResponse) Reset()         { *m = QueryBatchFeeResponse{} }
 func (m *QueryBatchFeeResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryBatchFeeResponse) ProtoMessage()    {}
 func (*QueryBatchFeeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{15}
+	return fileDescriptor_702b8e5c1503495b, []int{17}
 }
 func (m *QueryBatchFeeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -717,26 +805,26 @@ func (m *QueryBatchFeeResponse) GetBatchFees() []*BatchFees {
 	return nil
 }
 
-type QueryLastPendingBatchRequestsByAddrRequest struct {
+type QueryUnconfirmedOutgoingTxBatchesByAddrRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrRequest) Reset() {
-	*m = QueryLastPendingBatchRequestsByAddrRequest{}
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) Reset() {
+	*m = QueryUnconfirmedOutgoingTxBatchesByAddrRequest{}
 }
-func (m *QueryLastPendingBatchRequestsByAddrRequest) String() string {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) String() string {
 	return proto.CompactTextString(m)
 }
-func (*QueryLastPendingBatchRequestsByAddrRequest) ProtoMessage() {}
-func (*QueryLastPendingBatchRequestsByAddrRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{16}
+func (*QueryUnconfirmedOutgoingTxBatchesByAddrRequest) ProtoMessage() {}
+func (*QueryUnconfirmedOutgoingTxBatchesByAddrRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_702b8e5c1503495b, []int{18}
 }
-func (m *QueryLastPendingBatchRequestsByAddrRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryLastPendingBatchRequestsByAddrRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryLastPendingBatchRequestsByAddrRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryUnconfirmedOutgoingTxBatchesByAddrRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -746,45 +834,45 @@ func (m *QueryLastPendingBatchRequestsByAddrRequest) XXX_Marshal(b []byte, deter
 		return b[:n], nil
 	}
 }
-func (m *QueryLastPendingBatchRequestsByAddrRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryLastPendingBatchRequestsByAddrRequest.Merge(m, src)
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryUnconfirmedOutgoingTxBatchesByAddrRequest.Merge(m, src)
 }
-func (m *QueryLastPendingBatchRequestsByAddrRequest) XXX_Size() int {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryLastPendingBatchRequestsByAddrRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryLastPendingBatchRequestsByAddrRequest.DiscardUnknown(m)
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryUnconfirmedOutgoingTxBatchesByAddrRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryLastPendingBatchRequestsByAddrRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryUnconfirmedOutgoingTxBatchesByAddrRequest proto.InternalMessageInfo
 
-func (m *QueryLastPendingBatchRequestsByAddrRequest) GetAddress() string {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-type QueryLastPendingBatchRequestsByAddrResponse struct {
+type QueryUnconfirmedOutgoingTxBatchesByAddrResponse struct {
 	Batches []*OutgoingTxBatch `protobuf:"bytes,1,rep,name=batches,proto3" json:"batches,omitempty"`
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrResponse) Reset() {
-	*m = QueryLastPendingBatchRequestsByAddrResponse{}
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) Reset() {
+	*m = QueryUnconfirmedOutgoingTxBatchesByAddrResponse{}
 }
-func (m *QueryLastPendingBatchRequestsByAddrResponse) String() string {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) String() string {
 	return proto.CompactTextString(m)
 }
-func (*QueryLastPendingBatchRequestsByAddrResponse) ProtoMessage() {}
-func (*QueryLastPendingBatchRequestsByAddrResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{17}
+func (*QueryUnconfirmedOutgoingTxBatchesByAddrResponse) ProtoMessage() {}
+func (*QueryUnconfirmedOutgoingTxBatchesByAddrResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_702b8e5c1503495b, []int{19}
 }
-func (m *QueryLastPendingBatchRequestsByAddrResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryLastPendingBatchRequestsByAddrResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryLastPendingBatchRequestsByAddrResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryUnconfirmedOutgoingTxBatchesByAddrResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -794,19 +882,19 @@ func (m *QueryLastPendingBatchRequestsByAddrResponse) XXX_Marshal(b []byte, dete
 		return b[:n], nil
 	}
 }
-func (m *QueryLastPendingBatchRequestsByAddrResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryLastPendingBatchRequestsByAddrResponse.Merge(m, src)
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryUnconfirmedOutgoingTxBatchesByAddrResponse.Merge(m, src)
 }
-func (m *QueryLastPendingBatchRequestsByAddrResponse) XXX_Size() int {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryLastPendingBatchRequestsByAddrResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryLastPendingBatchRequestsByAddrResponse.DiscardUnknown(m)
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryUnconfirmedOutgoingTxBatchesByAddrResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryLastPendingBatchRequestsByAddrResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryUnconfirmedOutgoingTxBatchesByAddrResponse proto.InternalMessageInfo
 
-func (m *QueryLastPendingBatchRequestsByAddrResponse) GetBatches() []*OutgoingTxBatch {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) GetBatches() []*OutgoingTxBatch {
 	if m != nil {
 		return m.Batches
 	}
@@ -820,7 +908,7 @@ func (m *QueryOutgoingTxBatchesRequest) Reset()         { *m = QueryOutgoingTxBa
 func (m *QueryOutgoingTxBatchesRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryOutgoingTxBatchesRequest) ProtoMessage()    {}
 func (*QueryOutgoingTxBatchesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{18}
+	return fileDescriptor_702b8e5c1503495b, []int{20}
 }
 func (m *QueryOutgoingTxBatchesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -857,7 +945,7 @@ func (m *QueryOutgoingTxBatchesResponse) Reset()         { *m = QueryOutgoingTxB
 func (m *QueryOutgoingTxBatchesResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryOutgoingTxBatchesResponse) ProtoMessage()    {}
 func (*QueryOutgoingTxBatchesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{19}
+	return fileDescriptor_702b8e5c1503495b, []int{21}
 }
 func (m *QueryOutgoingTxBatchesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -902,7 +990,7 @@ func (m *QueryBatchRequestByNonceRequest) Reset()         { *m = QueryBatchReque
 func (m *QueryBatchRequestByNonceRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryBatchRequestByNonceRequest) ProtoMessage()    {}
 func (*QueryBatchRequestByNonceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{20}
+	return fileDescriptor_702b8e5c1503495b, []int{22}
 }
 func (m *QueryBatchRequestByNonceRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -953,7 +1041,7 @@ func (m *QueryBatchRequestByNonceResponse) Reset()         { *m = QueryBatchRequ
 func (m *QueryBatchRequestByNonceResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryBatchRequestByNonceResponse) ProtoMessage()    {}
 func (*QueryBatchRequestByNonceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{21}
+	return fileDescriptor_702b8e5c1503495b, []int{23}
 }
 func (m *QueryBatchRequestByNonceResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -998,7 +1086,7 @@ func (m *QueryBatchConfirmsRequest) Reset()         { *m = QueryBatchConfirmsReq
 func (m *QueryBatchConfirmsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryBatchConfirmsRequest) ProtoMessage()    {}
 func (*QueryBatchConfirmsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{22}
+	return fileDescriptor_702b8e5c1503495b, []int{24}
 }
 func (m *QueryBatchConfirmsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1049,7 +1137,7 @@ func (m *QueryBatchConfirmsResponse) Reset()         { *m = QueryBatchConfirmsRe
 func (m *QueryBatchConfirmsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryBatchConfirmsResponse) ProtoMessage()    {}
 func (*QueryBatchConfirmsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{23}
+	return fileDescriptor_702b8e5c1503495b, []int{25}
 }
 func (m *QueryBatchConfirmsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1093,7 +1181,7 @@ func (m *QueryLastEventByAddrRequest) Reset()         { *m = QueryLastEventByAdd
 func (m *QueryLastEventByAddrRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryLastEventByAddrRequest) ProtoMessage()    {}
 func (*QueryLastEventByAddrRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{24}
+	return fileDescriptor_702b8e5c1503495b, []int{26}
 }
 func (m *QueryLastEventByAddrRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1137,7 +1225,7 @@ func (m *QueryLastEventByAddrResponse) Reset()         { *m = QueryLastEventByAd
 func (m *QueryLastEventByAddrResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryLastEventByAddrResponse) ProtoMessage()    {}
 func (*QueryLastEventByAddrResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{25}
+	return fileDescriptor_702b8e5c1503495b, []int{27}
 }
 func (m *QueryLastEventByAddrResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1181,7 +1269,7 @@ func (m *QueryERC20ToDenomRequest) Reset()         { *m = QueryERC20ToDenomReque
 func (m *QueryERC20ToDenomRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryERC20ToDenomRequest) ProtoMessage()    {}
 func (*QueryERC20ToDenomRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{26}
+	return fileDescriptor_702b8e5c1503495b, []int{28}
 }
 func (m *QueryERC20ToDenomRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1226,7 +1314,7 @@ func (m *QueryERC20ToDenomResponse) Reset()         { *m = QueryERC20ToDenomResp
 func (m *QueryERC20ToDenomResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryERC20ToDenomResponse) ProtoMessage()    {}
 func (*QueryERC20ToDenomResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{27}
+	return fileDescriptor_702b8e5c1503495b, []int{29}
 }
 func (m *QueryERC20ToDenomResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1277,7 +1365,7 @@ func (m *QueryDenomToERC20Request) Reset()         { *m = QueryDenomToERC20Reque
 func (m *QueryDenomToERC20Request) String() string { return proto.CompactTextString(m) }
 func (*QueryDenomToERC20Request) ProtoMessage()    {}
 func (*QueryDenomToERC20Request) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{28}
+	return fileDescriptor_702b8e5c1503495b, []int{30}
 }
 func (m *QueryDenomToERC20Request) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1322,7 +1410,7 @@ func (m *QueryDenomToERC20Response) Reset()         { *m = QueryDenomToERC20Resp
 func (m *QueryDenomToERC20Response) String() string { return proto.CompactTextString(m) }
 func (*QueryDenomToERC20Response) ProtoMessage()    {}
 func (*QueryDenomToERC20Response) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{29}
+	return fileDescriptor_702b8e5c1503495b, []int{31}
 }
 func (m *QueryDenomToERC20Response) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1373,7 +1461,7 @@ func (m *QueryDelegateKeysByValidatorAddress) Reset()         { *m = QueryDelega
 func (m *QueryDelegateKeysByValidatorAddress) String() string { return proto.CompactTextString(m) }
 func (*QueryDelegateKeysByValidatorAddress) ProtoMessage()    {}
 func (*QueryDelegateKeysByValidatorAddress) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{30}
+	return fileDescriptor_702b8e5c1503495b, []int{32}
 }
 func (m *QueryDelegateKeysByValidatorAddress) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1422,7 +1510,7 @@ func (m *QueryDelegateKeysByValidatorAddressResponse) String() string {
 }
 func (*QueryDelegateKeysByValidatorAddressResponse) ProtoMessage() {}
 func (*QueryDelegateKeysByValidatorAddressResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{31}
+	return fileDescriptor_702b8e5c1503495b, []int{33}
 }
 func (m *QueryDelegateKeysByValidatorAddressResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1473,7 +1561,7 @@ func (m *QueryDelegateKeysByEthAddress) Reset()         { *m = QueryDelegateKeys
 func (m *QueryDelegateKeysByEthAddress) String() string { return proto.CompactTextString(m) }
 func (*QueryDelegateKeysByEthAddress) ProtoMessage()    {}
 func (*QueryDelegateKeysByEthAddress) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{32}
+	return fileDescriptor_702b8e5c1503495b, []int{34}
 }
 func (m *QueryDelegateKeysByEthAddress) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1518,7 +1606,7 @@ func (m *QueryDelegateKeysByEthAddressResponse) Reset()         { *m = QueryDele
 func (m *QueryDelegateKeysByEthAddressResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryDelegateKeysByEthAddressResponse) ProtoMessage()    {}
 func (*QueryDelegateKeysByEthAddressResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{33}
+	return fileDescriptor_702b8e5c1503495b, []int{35}
 }
 func (m *QueryDelegateKeysByEthAddressResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1571,7 +1659,7 @@ func (m *QueryDelegateKeysByOrchestratorAddress) Reset() {
 func (m *QueryDelegateKeysByOrchestratorAddress) String() string { return proto.CompactTextString(m) }
 func (*QueryDelegateKeysByOrchestratorAddress) ProtoMessage()    {}
 func (*QueryDelegateKeysByOrchestratorAddress) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{34}
+	return fileDescriptor_702b8e5c1503495b, []int{36}
 }
 func (m *QueryDelegateKeysByOrchestratorAddress) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1620,7 +1708,7 @@ func (m *QueryDelegateKeysByOrchestratorAddressResponse) String() string {
 }
 func (*QueryDelegateKeysByOrchestratorAddressResponse) ProtoMessage() {}
 func (*QueryDelegateKeysByOrchestratorAddressResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{35}
+	return fileDescriptor_702b8e5c1503495b, []int{37}
 }
 func (m *QueryDelegateKeysByOrchestratorAddressResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1671,7 +1759,7 @@ func (m *QueryPendingSendToEth) Reset()         { *m = QueryPendingSendToEth{} }
 func (m *QueryPendingSendToEth) String() string { return proto.CompactTextString(m) }
 func (*QueryPendingSendToEth) ProtoMessage()    {}
 func (*QueryPendingSendToEth) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{36}
+	return fileDescriptor_702b8e5c1503495b, []int{38}
 }
 func (m *QueryPendingSendToEth) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1716,7 +1804,7 @@ func (m *QueryPendingSendToEthResponse) Reset()         { *m = QueryPendingSendT
 func (m *QueryPendingSendToEthResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryPendingSendToEthResponse) ProtoMessage()    {}
 func (*QueryPendingSendToEthResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{37}
+	return fileDescriptor_702b8e5c1503495b, []int{39}
 }
 func (m *QueryPendingSendToEthResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1768,7 +1856,7 @@ func (m *QueryModuleStateRequest) Reset()         { *m = QueryModuleStateRequest
 func (m *QueryModuleStateRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryModuleStateRequest) ProtoMessage()    {}
 func (*QueryModuleStateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{38}
+	return fileDescriptor_702b8e5c1503495b, []int{40}
 }
 func (m *QueryModuleStateRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1807,7 +1895,7 @@ func (m *QueryModuleStateResponse) Reset()         { *m = QueryModuleStateRespon
 func (m *QueryModuleStateResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryModuleStateResponse) ProtoMessage()    {}
 func (*QueryModuleStateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{39}
+	return fileDescriptor_702b8e5c1503495b, []int{41}
 }
 func (m *QueryModuleStateResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1850,7 +1938,7 @@ func (m *MissingNoncesRequest) Reset()         { *m = MissingNoncesRequest{} }
 func (m *MissingNoncesRequest) String() string { return proto.CompactTextString(m) }
 func (*MissingNoncesRequest) ProtoMessage()    {}
 func (*MissingNoncesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{40}
+	return fileDescriptor_702b8e5c1503495b, []int{42}
 }
 func (m *MissingNoncesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1887,7 +1975,7 @@ func (m *MissingNoncesResponse) Reset()         { *m = MissingNoncesResponse{} }
 func (m *MissingNoncesResponse) String() string { return proto.CompactTextString(m) }
 func (*MissingNoncesResponse) ProtoMessage()    {}
 func (*MissingNoncesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_702b8e5c1503495b, []int{41}
+	return fileDescriptor_702b8e5c1503495b, []int{43}
 }
 func (m *MissingNoncesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1924,6 +2012,8 @@ func (m *MissingNoncesResponse) GetOperatorAddresses() []string {
 }
 
 func init() {
+	proto.RegisterType((*QueryFirstConfirmedOutgoingTxBatchRequest)(nil), "injective.peggy.v1.QueryFirstConfirmedOutgoingTxBatchRequest")
+	proto.RegisterType((*QueryFirstConfirmedOutgoingTxBatchResponse)(nil), "injective.peggy.v1.QueryFirstConfirmedOutgoingTxBatchResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "injective.peggy.v1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "injective.peggy.v1.QueryParamsResponse")
 	proto.RegisterType((*QueryCurrentValsetRequest)(nil), "injective.peggy.v1.QueryCurrentValsetRequest")
@@ -1940,8 +2030,8 @@ func init() {
 	proto.RegisterType((*QueryLastPendingValsetRequestByAddrResponse)(nil), "injective.peggy.v1.QueryLastPendingValsetRequestByAddrResponse")
 	proto.RegisterType((*QueryBatchFeeRequest)(nil), "injective.peggy.v1.QueryBatchFeeRequest")
 	proto.RegisterType((*QueryBatchFeeResponse)(nil), "injective.peggy.v1.QueryBatchFeeResponse")
-	proto.RegisterType((*QueryLastPendingBatchRequestsByAddrRequest)(nil), "injective.peggy.v1.QueryLastPendingBatchRequestsByAddrRequest")
-	proto.RegisterType((*QueryLastPendingBatchRequestsByAddrResponse)(nil), "injective.peggy.v1.QueryLastPendingBatchRequestsByAddrResponse")
+	proto.RegisterType((*QueryUnconfirmedOutgoingTxBatchesByAddrRequest)(nil), "injective.peggy.v1.QueryUnconfirmedOutgoingTxBatchesByAddrRequest")
+	proto.RegisterType((*QueryUnconfirmedOutgoingTxBatchesByAddrResponse)(nil), "injective.peggy.v1.QueryUnconfirmedOutgoingTxBatchesByAddrResponse")
 	proto.RegisterType((*QueryOutgoingTxBatchesRequest)(nil), "injective.peggy.v1.QueryOutgoingTxBatchesRequest")
 	proto.RegisterType((*QueryOutgoingTxBatchesResponse)(nil), "injective.peggy.v1.QueryOutgoingTxBatchesResponse")
 	proto.RegisterType((*QueryBatchRequestByNonceRequest)(nil), "injective.peggy.v1.QueryBatchRequestByNonceRequest")
@@ -1971,117 +2061,122 @@ func init() {
 func init() { proto.RegisterFile("injective/peggy/v1/query.proto", fileDescriptor_702b8e5c1503495b) }
 
 var fileDescriptor_702b8e5c1503495b = []byte{
-	// 1759 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x99, 0x5b, 0x6f, 0xd4, 0x46,
-	0x1b, 0xc7, 0xe3, 0xbc, 0x24, 0x21, 0x0f, 0x2f, 0x90, 0x4c, 0x36, 0xb0, 0x71, 0x92, 0xcd, 0x62,
-	0x0e, 0x6f, 0x80, 0x64, 0x9d, 0x2c, 0xa7, 0x97, 0x56, 0xe5, 0x90, 0x34, 0x20, 0x04, 0x34, 0xe9,
-	0x12, 0x95, 0xaa, 0xa5, 0xb5, 0x9c, 0xdd, 0x89, 0xe3, 0x76, 0xe3, 0x59, 0xec, 0x49, 0xc4, 0x0a,
-	0x51, 0xa9, 0xbd, 0x69, 0xa5, 0xaa, 0x12, 0x52, 0xaf, 0xda, 0x0b, 0xda, 0xeb, 0xde, 0xf5, 0x13,
-	0xb4, 0x97, 0x70, 0x87, 0x5a, 0x55, 0xea, 0x55, 0x55, 0x41, 0x3f, 0x48, 0xe5, 0xf1, 0xd8, 0xeb,
-	0xc3, 0xd8, 0xf1, 0x06, 0xae, 0x88, 0x67, 0x9e, 0xc3, 0xef, 0x19, 0x8f, 0x9f, 0x99, 0x3f, 0x0b,
-	0x25, 0xd3, 0xfa, 0x04, 0xd7, 0xa9, 0xb9, 0x8d, 0xd5, 0x16, 0x36, 0x8c, 0xb6, 0xba, 0x3d, 0xaf,
-	0xde, 0xdf, 0xc2, 0x76, 0xbb, 0xd2, 0xb2, 0x09, 0x25, 0x08, 0x05, 0xf3, 0x15, 0x36, 0x5f, 0xd9,
-	0x9e, 0x97, 0xcb, 0x02, 0x1f, 0x03, 0x5b, 0xd8, 0x31, 0x1d, 0xcf, 0x4b, 0x9e, 0x12, 0x58, 0xb4,
-	0x74, 0x5b, 0xdf, 0xf4, 0x0d, 0x44, 0x69, 0x69, 0xbb, 0x85, 0xfd, 0xf9, 0x49, 0xc1, 0xfc, 0xa6,
-	0x63, 0x64, 0x4d, 0xb7, 0x08, 0x69, 0x66, 0x44, 0x5f, 0xd3, 0x69, 0x7d, 0x83, 0xcf, 0x4f, 0x18,
-	0x84, 0x18, 0x4d, 0xac, 0xea, 0x2d, 0x53, 0xd5, 0x2d, 0x8b, 0x50, 0x9d, 0x9a, 0xc4, 0xf2, 0x83,
-	0x17, 0x0c, 0x62, 0x10, 0xf6, 0xa7, 0xea, 0xfe, 0xe5, 0x8d, 0x2a, 0x05, 0x40, 0xef, 0xba, 0xeb,
-	0xb2, 0xc2, 0xca, 0xa8, 0xe1, 0xfb, 0x5b, 0xd8, 0xa1, 0xca, 0x32, 0x8c, 0x44, 0x46, 0x9d, 0x16,
-	0xb1, 0x1c, 0x8c, 0xfe, 0x0f, 0xfd, 0x5e, 0xb9, 0x45, 0xa9, 0x2c, 0x4d, 0xef, 0xab, 0xca, 0x95,
-	0xe4, 0x32, 0x56, 0x3c, 0x9f, 0x85, 0x3d, 0x4f, 0xff, 0x9a, 0xea, 0xa9, 0x71, 0x7b, 0x65, 0x1c,
-	0xc6, 0x58, 0xc0, 0xc5, 0x2d, 0xdb, 0xc6, 0x16, 0x7d, 0x4f, 0x6f, 0x3a, 0x98, 0xfa, 0xd9, 0x56,
-	0x40, 0x16, 0x4d, 0xf2, 0xa4, 0x55, 0xe8, 0xdf, 0x66, 0x23, 0x59, 0x49, 0xb9, 0x0f, 0xb7, 0x54,
-	0xe6, 0x79, 0xba, 0x48, 0x1e, 0xfe, 0x0f, 0x2a, 0x40, 0x9f, 0x45, 0xac, 0x3a, 0x66, 0xf1, 0xf6,
-	0xd4, 0xbc, 0x87, 0x00, 0x22, 0xe6, 0xf2, 0x0a, 0x10, 0x37, 0x23, 0x10, 0x8b, 0xc4, 0x5a, 0x37,
-	0xed, 0xcd, 0x4c, 0x08, 0x54, 0x84, 0x01, 0xbd, 0xd1, 0xb0, 0xb1, 0xe3, 0x14, 0x7b, 0xcb, 0xd2,
-	0xf4, 0x60, 0xcd, 0x7f, 0x54, 0xee, 0x45, 0xf0, 0x82, 0x60, 0x1c, 0xef, 0x12, 0x0c, 0xd4, 0xbd,
-	0x21, 0xce, 0x77, 0x4c, 0xc4, 0x77, 0xdb, 0x31, 0xa2, 0xee, 0xbe, 0x93, 0x72, 0x11, 0x8e, 0x24,
-	0xa3, 0x3b, 0x0b, 0xed, 0x77, 0x5c, 0xaa, 0xec, 0x75, 0x5b, 0x07, 0x25, 0xcb, 0x95, 0x03, 0x5e,
-	0x81, 0xbd, 0x3c, 0x97, 0xbb, 0x77, 0xfe, 0x93, 0x9b, 0x30, 0xf0, 0x52, 0xca, 0x50, 0x62, 0x79,
-	0x6e, 0xe9, 0x4e, 0x74, 0xfb, 0x04, 0x9b, 0xf6, 0x2e, 0x4c, 0xa5, 0x5a, 0x70, 0x8c, 0xb3, 0x30,
-	0xe0, 0xbd, 0x1c, 0x9f, 0x22, 0xeb, 0x3d, 0xfa, 0xa6, 0xca, 0x35, 0x38, 0x15, 0x04, 0x5e, 0xc1,
-	0x56, 0xc3, 0xb4, 0x8c, 0x48, 0xfc, 0x85, 0xf6, 0xd5, 0x46, 0xc3, 0xf6, 0x97, 0x29, 0xf4, 0x0e,
-	0xa5, 0xe8, 0x3b, 0xac, 0xc3, 0xe9, 0x5c, 0x71, 0x5e, 0x09, 0xf6, 0x10, 0x14, 0x58, 0x92, 0x05,
-	0xb7, 0x31, 0x5c, 0xc3, 0xfe, 0xdb, 0x53, 0x56, 0x61, 0x34, 0x36, 0xce, 0xd3, 0xbc, 0x09, 0x83,
-	0x6b, 0x7c, 0xcc, 0x4f, 0x34, 0x29, 0x4a, 0xe4, 0x3b, 0x3a, 0xb5, 0x8e, 0xbd, 0x68, 0x69, 0x98,
-	0x9d, 0xbf, 0xf2, 0x79, 0x97, 0xa6, 0x99, 0x5c, 0x1a, 0x61, 0x1c, 0xce, 0xfc, 0x16, 0x0c, 0x30,
-	0x86, 0x80, 0xf8, 0xa8, 0x88, 0x78, 0x79, 0x8b, 0x1a, 0xc4, 0xb4, 0x8c, 0xd5, 0x07, 0x5e, 0x2c,
-	0xdf, 0x47, 0x99, 0x82, 0x49, 0x96, 0x2d, 0x66, 0x80, 0x83, 0xad, 0xa4, 0xf1, 0xcd, 0x26, 0x30,
-	0x78, 0x3d, 0x04, 0x6b, 0x7c, 0xaf, 0x86, 0x8b, 0xcc, 0xf3, 0xb9, 0xa1, 0x93, 0x30, 0x54, 0x27,
-	0x16, 0xb5, 0xf5, 0x3a, 0xd5, 0xa2, 0xad, 0xe2, 0xa0, 0x3f, 0x7e, 0x95, 0xaf, 0xe9, 0x47, 0x50,
-	0x4e, 0xcf, 0xc1, 0xcb, 0xb8, 0x08, 0x7d, 0x0c, 0x89, 0xb7, 0x8d, 0x5c, 0x45, 0x78, 0x1e, 0xca,
-	0x3d, 0xde, 0xde, 0xd8, 0xa0, 0xff, 0xdd, 0xbf, 0x46, 0x78, 0x59, 0x14, 0x9d, 0x63, 0x5f, 0x4e,
-	0xb4, 0x93, 0xa3, 0x29, 0xed, 0x84, 0xbb, 0x7a, 0xe4, 0x9d, 0x6e, 0x72, 0x01, 0xc6, 0x83, 0xfd,
-	0xb6, 0xb4, 0x8d, 0x2d, 0x9a, 0x7f, 0xa3, 0x4e, 0x88, 0x1d, 0x39, 0xd9, 0x2d, 0x18, 0x6a, 0xea,
-	0x0e, 0xd5, 0xea, 0x4d, 0xdd, 0xdc, 0xd4, 0xb0, 0x6b, 0xc1, 0xd7, 0x56, 0x11, 0x11, 0xba, 0x61,
-	0x16, 0x5d, 0x53, 0x16, 0xab, 0x76, 0xa0, 0x19, 0x79, 0x56, 0xe6, 0xa0, 0xc8, 0xb2, 0x2d, 0xd5,
-	0x16, 0xab, 0x73, 0xab, 0xe4, 0x6d, 0x6c, 0x91, 0xf0, 0x09, 0x82, 0xed, 0x7a, 0x75, 0x8e, 0x13,
-	0x7a, 0x0f, 0xca, 0xc7, 0xfc, 0xad, 0x44, 0x3d, 0x38, 0x5c, 0x01, 0xfa, 0x1a, 0xee, 0x80, 0xef,
-	0xc2, 0x1e, 0xd0, 0x69, 0x18, 0xae, 0x13, 0x67, 0x93, 0x38, 0x1a, 0xb1, 0x4d, 0xc3, 0xb4, 0x74,
-	0x8a, 0x1b, 0xec, 0xb5, 0xec, 0xad, 0x0d, 0x79, 0x13, 0xcb, 0xc1, 0x78, 0x40, 0xc4, 0x02, 0xaf,
-	0x12, 0x96, 0x26, 0x44, 0x94, 0x0c, 0x1f, 0x10, 0x45, 0x3d, 0x3a, 0x44, 0xc9, 0x22, 0xba, 0x23,
-	0xaa, 0xc1, 0x51, 0x1e, 0xbf, 0x89, 0x0d, 0x9d, 0xe2, 0x9b, 0xb8, 0xed, 0x2c, 0xb8, 0xc7, 0x91,
-	0xd9, 0xd0, 0x29, 0xb1, 0xf9, 0x86, 0x72, 0x63, 0x6e, 0xfb, 0x63, 0x5a, 0xf4, 0xe5, 0x0e, 0x6d,
-	0xc7, 0x8c, 0x95, 0xcf, 0x25, 0xde, 0x8f, 0xb2, 0x83, 0x06, 0x65, 0x4c, 0xc1, 0x3e, 0x4c, 0x37,
-	0x62, 0x61, 0x01, 0xd3, 0x0d, 0x3f, 0xfb, 0x3c, 0x14, 0x88, 0xed, 0x7e, 0xf9, 0xd4, 0x8e, 0x00,
-	0x78, 0xbb, 0x7f, 0x24, 0x3c, 0xe7, 0x33, 0x5c, 0xe1, 0x4d, 0x2a, 0x8a, 0xb0, 0xd4, 0x89, 0xb9,
-	0x53, 0x52, 0xe5, 0x4b, 0x09, 0x8e, 0x67, 0x86, 0x08, 0xf8, 0xbb, 0x59, 0x9c, 0xdd, 0xd4, 0xf2,
-	0x21, 0x9c, 0x10, 0x80, 0x2c, 0x27, 0x2d, 0x53, 0x83, 0x4b, 0xe9, 0xc1, 0x3f, 0x83, 0x4a, 0xbe,
-	0xe0, 0xbb, 0x2b, 0x37, 0xb6, 0xcc, 0xbd, 0x89, 0x65, 0xbe, 0xc4, 0x4f, 0x56, 0x7e, 0x6e, 0xdd,
-	0xc1, 0x56, 0x63, 0x95, 0x2c, 0xd1, 0x0d, 0x74, 0x1c, 0x0e, 0x38, 0xd8, 0x6a, 0xe0, 0x78, 0x8e,
-	0xfd, 0xde, 0xa8, 0xef, 0xff, 0x9b, 0xc4, 0xdf, 0x74, 0x3c, 0x40, 0xc0, 0xfb, 0x3e, 0x14, 0xa8,
-	0xad, 0x5b, 0xce, 0x3a, 0xb6, 0x1d, 0xcd, 0xb4, 0xb4, 0xe8, 0xc9, 0x73, 0x22, 0xb3, 0x69, 0x73,
-	0xbf, 0xd5, 0x07, 0x35, 0x14, 0xc4, 0xb8, 0x61, 0xf1, 0xe3, 0x0c, 0xdd, 0x85, 0x91, 0x2d, 0xcb,
-	0x0b, 0xd7, 0xd0, 0x82, 0xf9, 0x62, 0x6f, 0x77, 0x81, 0x83, 0x10, 0xfe, 0xa0, 0xa3, 0x8c, 0xc1,
-	0x61, 0x56, 0xd3, 0x6d, 0xd2, 0xd8, 0x6a, 0xe2, 0x3b, 0x54, 0xa7, 0xc1, 0x4d, 0xa4, 0xc6, 0x5b,
-	0x48, 0x64, 0x8a, 0x57, 0x7a, 0x1e, 0xfa, 0x1c, 0x77, 0x80, 0xf7, 0xcc, 0xb2, 0x88, 0xe0, 0xba,
-	0xa7, 0xc9, 0x3c, 0x47, 0xcf, 0xdc, 0xbd, 0xf5, 0xdc, 0x36, 0x1d, 0xc7, 0xb4, 0x0c, 0x76, 0xbe,
-	0x05, 0x07, 0xf9, 0x35, 0x18, 0x8d, 0x8d, 0xf3, 0x44, 0xb3, 0x80, 0x48, 0x0b, 0x47, 0xf6, 0x18,
-	0x5f, 0xd0, 0xc1, 0xda, 0xb0, 0x3f, 0x73, 0xd5, 0x9f, 0xa8, 0x3e, 0x93, 0xa1, 0x8f, 0x41, 0x23,
-	0x07, 0xfa, 0x3d, 0x85, 0x83, 0x84, 0xcb, 0x93, 0x14, 0x53, 0xf2, 0xff, 0x76, 0xb4, 0xf3, 0x98,
-	0x94, 0xe2, 0x17, 0xbf, 0xff, 0xf3, 0x6d, 0x2f, 0x42, 0x43, 0x71, 0x75, 0x89, 0x1e, 0x4b, 0xb0,
-	0x3f, 0xa2, 0x8e, 0xd0, 0x6c, 0x6a, 0x50, 0x91, 0xc4, 0x92, 0x2b, 0x79, 0xcd, 0x39, 0x4a, 0x99,
-	0xa1, 0xc8, 0xa8, 0xd8, 0x41, 0xf1, 0x2e, 0x98, 0x6a, 0xdd, 0xb3, 0x47, 0x5f, 0x49, 0xb0, 0x3f,
-	0x92, 0x23, 0x03, 0x49, 0x24, 0xc3, 0x32, 0x90, 0x84, 0x12, 0x4c, 0xb4, 0x3a, 0x1e, 0x12, 0x5b,
-	0x9d, 0x88, 0x6c, 0xd8, 0x11, 0x25, 0x2a, 0xc6, 0x76, 0x44, 0x89, 0xc9, 0xad, 0xac, 0xd5, 0xe1,
-	0x00, 0x3f, 0x49, 0x30, 0x2a, 0x54, 0x44, 0xe8, 0x5c, 0xbe, 0x5c, 0x31, 0xf1, 0x25, 0x9f, 0xef,
-	0xd6, 0x8d, 0xa3, 0x2a, 0x0c, 0x75, 0x02, 0xc9, 0x1d, 0x54, 0xff, 0x12, 0xa4, 0x3e, 0x64, 0xb7,
-	0xb2, 0x47, 0xe8, 0x47, 0x09, 0x50, 0x52, 0x34, 0xa1, 0x6a, 0x6a, 0xca, 0x54, 0x0d, 0x26, 0x9f,
-	0xe9, 0xca, 0x87, 0x33, 0x1e, 0x61, 0x8c, 0xe3, 0x68, 0x2c, 0xb1, 0x9c, 0xb6, 0xcf, 0xf2, 0xab,
-	0x04, 0xa5, 0x6c, 0xd9, 0x84, 0x2e, 0x65, 0xa6, 0xde, 0x51, 0xb7, 0xc9, 0x97, 0x77, 0xed, 0xcf,
-	0xcb, 0x98, 0x64, 0x65, 0x1c, 0x46, 0xa3, 0x89, 0x32, 0xdc, 0x5b, 0x1d, 0x7a, 0x22, 0xc1, 0xc1,
-	0xd8, 0xad, 0x11, 0xa9, 0x99, 0x39, 0x93, 0x17, 0x53, 0x79, 0x2e, 0xbf, 0x03, 0xa7, 0x9a, 0x66,
-	0x54, 0x0a, 0x2a, 0x77, 0xa8, 0x88, 0xad, 0xd7, 0x9b, 0x58, 0x65, 0x97, 0x53, 0xf5, 0x21, 0xef,
-	0x7e, 0x8f, 0xd0, 0xf7, 0x12, 0x8c, 0x5c, 0xc7, 0x34, 0x71, 0x8c, 0x9d, 0x4c, 0xef, 0x5f, 0x31,
-	0x53, 0x79, 0x3e, 0xb7, 0x69, 0xc0, 0x77, 0x9c, 0xf1, 0x4d, 0xa1, 0xc9, 0x50, 0xd3, 0xf3, 0x6c,
-	0x35, 0xf7, 0x98, 0xd4, 0x28, 0xd1, 0x30, 0xdd, 0x40, 0x8f, 0x60, 0x30, 0x10, 0xa0, 0x68, 0x3a,
-	0x35, 0x4d, 0x4c, 0xf5, 0xca, 0x27, 0x73, 0x58, 0x72, 0x90, 0x71, 0x06, 0x32, 0x8a, 0x46, 0x62,
-	0xff, 0xb9, 0xb6, 0xee, 0x66, 0x7c, 0x22, 0xc1, 0x70, 0x42, 0x0c, 0xa2, 0xf4, 0x72, 0xd3, 0x94,
-	0xa5, 0x5c, 0xed, 0xc6, 0x25, 0xfd, 0x1b, 0x66, 0x64, 0x2a, 0xe1, 0x2e, 0xf4, 0x01, 0xfa, 0x25,
-	0xfa, 0x81, 0x08, 0xc4, 0x73, 0xbe, 0x0f, 0x24, 0x5d, 0xbd, 0xe7, 0xfb, 0x40, 0x32, 0x54, 0xbb,
-	0x32, 0xc1, 0xea, 0x38, 0x84, 0x0a, 0xf1, 0x3a, 0xd8, 0xf7, 0xf1, 0x9d, 0x04, 0x23, 0x02, 0xa9,
-	0x8a, 0xce, 0x64, 0xbf, 0x42, 0xa1, 0x78, 0x96, 0xcf, 0x76, 0xe7, 0xc4, 0x01, 0x0f, 0x33, 0xc0,
-	0x61, 0x74, 0x30, 0x06, 0xc8, 0x4e, 0x98, 0x88, 0x12, 0xcd, 0x38, 0x61, 0x44, 0x7a, 0x38, 0xe3,
-	0x84, 0x11, 0x0a, 0x5c, 0xd1, 0x09, 0xe3, 0x2d, 0x95, 0xdf, 0xbc, 0xd1, 0x0f, 0x12, 0xfc, 0x37,
-	0x2c, 0xf2, 0xd0, 0x4c, 0x6a, 0x0a, 0x81, 0x7a, 0x94, 0x67, 0x73, 0x5a, 0x73, 0x9e, 0x2a, 0xe3,
-	0x99, 0x41, 0xa7, 0xc2, 0xc7, 0x48, 0x4c, 0xa1, 0xa9, 0x4c, 0xbc, 0xb9, 0x1f, 0xac, 0xa7, 0x2b,
-	0x5d, 0xc2, 0xb0, 0xe8, 0xcb, 0x20, 0x14, 0xa8, 0xc9, 0x0c, 0x42, 0x91, 0x92, 0xcc, 0x47, 0xc8,
-	0xc0, 0x58, 0x4b, 0x61, 0x3a, 0xf3, 0x99, 0x04, 0x63, 0xd7, 0x31, 0x0d, 0x09, 0x87, 0x90, 0xc6,
-	0x43, 0x17, 0x32, 0x00, 0xb2, 0x54, 0x61, 0xc6, 0x87, 0x92, 0x4f, 0x4e, 0x8a, 0x6a, 0x61, 0x3f,
-	0x5e, 0x68, 0x0d, 0xee, 0xaf, 0x7d, 0x8a, 0xdb, 0x8e, 0xb6, 0xd6, 0xd6, 0x02, 0xb5, 0x82, 0x7e,
-	0xf6, 0xba, 0x77, 0xa4, 0x16, 0xb7, 0x7b, 0xcf, 0xe7, 0x84, 0xe9, 0xa8, 0x42, 0xf9, 0x62, 0xd7,
-	0x2e, 0x01, 0xf9, 0x0c, 0x23, 0x3f, 0x81, 0x8e, 0xed, 0x48, 0xee, 0x36, 0xf5, 0x3f, 0x24, 0x98,
-	0x88, 0x33, 0x87, 0x75, 0x1b, 0x7a, 0x23, 0x27, 0x89, 0x40, 0xec, 0xc9, 0x0b, 0xbb, 0xf7, 0x0d,
-	0xca, 0x39, 0xc7, 0xca, 0x51, 0xd1, 0xec, 0x8e, 0xe5, 0x84, 0x85, 0x29, 0xfa, 0x46, 0x82, 0xa1,
-	0x15, 0xd7, 0x21, 0x24, 0x71, 0xd0, 0xe9, 0x54, 0x9e, 0xa4, 0x46, 0x92, 0x67, 0xf2, 0x19, 0x73,
-	0xcc, 0x12, 0xc3, 0x2c, 0xa2, 0x43, 0xa1, 0x5f, 0x95, 0x98, 0x99, 0xc6, 0xd4, 0x11, 0xfa, 0x5a,
-	0x02, 0xc4, 0x65, 0x90, 0x8b, 0x45, 0x3c, 0x2d, 0x24, 0x3e, 0x46, 0x45, 0x32, 0x4a, 0x7c, 0x8c,
-	0x0a, 0x85, 0x95, 0xa8, 0x73, 0x6d, 0x7a, 0x86, 0x1a, 0xbb, 0x6e, 0x3a, 0x0b, 0xf8, 0xe9, 0x8b,
-	0x92, 0xf4, 0xfc, 0x45, 0x49, 0xfa, 0xfb, 0x45, 0x49, 0x7a, 0xfc, 0xb2, 0xd4, 0xf3, 0xfc, 0x65,
-	0xa9, 0xe7, 0xcf, 0x97, 0xa5, 0x9e, 0x0f, 0x6e, 0x1a, 0x26, 0xdd, 0xd8, 0x5a, 0xab, 0xd4, 0xc9,
-	0xa6, 0x7a, 0xc3, 0x4f, 0x78, 0x4b, 0x5f, 0x73, 0xd4, 0x20, 0xfd, 0x6c, 0x9d, 0xd8, 0x38, 0xfc,
-	0xb8, 0xa1, 0x9b, 0x16, 0xaf, 0xd6, 0xe1, 0x29, 0xd9, 0x2f, 0x6e, 0x6b, 0xfd, 0xec, 0x07, 0xae,
-	0x33, 0xff, 0x06, 0x00, 0x00, 0xff, 0xff, 0x0c, 0x4f, 0xe7, 0x8f, 0x0b, 0x1c, 0x00, 0x00,
+	// 1835 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x99, 0xdf, 0x6f, 0xdc, 0x58,
+	0x15, 0xc7, 0xe3, 0xb0, 0x49, 0x36, 0x67, 0xe9, 0x36, 0xb9, 0x99, 0xb4, 0x13, 0x27, 0x99, 0x4c,
+	0xdd, 0x6d, 0x37, 0xd9, 0x24, 0xe3, 0x64, 0xba, 0x3f, 0x28, 0x68, 0xb3, 0xdb, 0x09, 0x49, 0xb5,
+	0xb4, 0x25, 0x61, 0x36, 0xb0, 0x08, 0x16, 0x2c, 0xcf, 0xcc, 0x8d, 0x63, 0x98, 0xf8, 0xce, 0xda,
+	0x4e, 0xd4, 0xd1, 0xaa, 0x48, 0xf0, 0x02, 0x12, 0x42, 0x5a, 0x89, 0x27, 0x78, 0xd8, 0xe5, 0x99,
+	0x37, 0xfe, 0x03, 0xde, 0x58, 0xc4, 0x4b, 0x05, 0x42, 0xe2, 0x09, 0xa1, 0x96, 0x3f, 0x64, 0xe5,
+	0xeb, 0x63, 0x8f, 0x7f, 0x5c, 0x7b, 0x3c, 0x49, 0x9f, 0x9a, 0xb9, 0xf7, 0xfc, 0xf8, 0x9c, 0x7b,
+	0xed, 0x73, 0xef, 0xb7, 0x86, 0x8a, 0x69, 0xfd, 0x8c, 0xb6, 0x5d, 0xf3, 0x9c, 0xaa, 0x3d, 0x6a,
+	0x18, 0x7d, 0xf5, 0x7c, 0x5b, 0xfd, 0xe4, 0x8c, 0xda, 0xfd, 0x5a, 0xcf, 0x66, 0x2e, 0x23, 0x24,
+	0x9c, 0xaf, 0xf1, 0xf9, 0xda, 0xf9, 0xb6, 0x5c, 0x15, 0xf8, 0x18, 0xd4, 0xa2, 0x8e, 0xe9, 0xf8,
+	0x5e, 0xf2, 0x8a, 0xc0, 0xa2, 0xa7, 0xdb, 0xfa, 0x69, 0x60, 0x20, 0x4a, 0xeb, 0xf6, 0x7b, 0x34,
+	0x98, 0x5f, 0x16, 0xcc, 0x9f, 0x3a, 0x46, 0xde, 0x74, 0x8f, 0xb1, 0x6e, 0x4e, 0xf4, 0x96, 0xee,
+	0xb6, 0x4f, 0x70, 0x7e, 0xc9, 0x60, 0xcc, 0xe8, 0x52, 0x55, 0xef, 0x99, 0xaa, 0x6e, 0x59, 0xcc,
+	0xd5, 0x5d, 0x93, 0x59, 0x41, 0xf0, 0x92, 0xc1, 0x0c, 0xc6, 0xff, 0x54, 0xbd, 0xbf, 0xfc, 0x51,
+	0x65, 0x1d, 0xd6, 0xbe, 0xe7, 0xad, 0xcb, 0xbe, 0x69, 0x3b, 0xee, 0x2e, 0xb3, 0x8e, 0x4d, 0xfb,
+	0x94, 0x76, 0x0e, 0xce, 0x5c, 0x83, 0x99, 0x96, 0x71, 0xf4, 0xb8, 0xe1, 0xc5, 0x6f, 0xd2, 0x4f,
+	0xce, 0xa8, 0xe3, 0x2a, 0x06, 0xbc, 0x51, 0xc4, 0xd8, 0xe9, 0x31, 0xcb, 0xa1, 0xe4, 0x2e, 0x4c,
+	0x70, 0xba, 0xb2, 0x54, 0x95, 0x56, 0x5f, 0xa9, 0xdf, 0xac, 0xa5, 0xd7, 0xbc, 0x96, 0xf4, 0xf5,
+	0x3d, 0x94, 0x12, 0x10, 0x9e, 0xe8, 0x90, 0x2f, 0x6e, 0x90, 0xfe, 0x00, 0xe6, 0x62, 0xa3, 0x98,
+	0xe7, 0x1b, 0x30, 0xe9, 0x6f, 0x02, 0x26, 0x92, 0x45, 0x89, 0x7c, 0x9f, 0xc6, 0x4b, 0x5f, 0xfe,
+	0x77, 0x65, 0xac, 0x89, 0xf6, 0xca, 0x22, 0x2c, 0xf0, 0x80, 0xbb, 0x67, 0xb6, 0x4d, 0x2d, 0xf7,
+	0x07, 0x7a, 0xd7, 0xa1, 0x6e, 0x90, 0xed, 0x10, 0x64, 0xd1, 0x24, 0x26, 0xad, 0xc3, 0xe4, 0x39,
+	0x1f, 0xc9, 0x4b, 0x8a, 0x3e, 0x68, 0xa9, 0x6c, 0x63, 0xba, 0x58, 0x1e, 0xfc, 0x87, 0x94, 0x60,
+	0xc2, 0x62, 0x56, 0x9b, 0xf2, 0x78, 0x2f, 0x35, 0xfd, 0x1f, 0x21, 0x44, 0xc2, 0xe5, 0x12, 0x10,
+	0x0f, 0x62, 0x10, 0xb8, 0x89, 0xb9, 0x10, 0xa4, 0x0c, 0x53, 0x7a, 0xa7, 0x63, 0x53, 0xc7, 0x29,
+	0x8f, 0x57, 0xa5, 0xd5, 0xe9, 0x66, 0xf0, 0x53, 0xf9, 0x38, 0x86, 0x17, 0x06, 0x43, 0xbc, 0x1d,
+	0x98, 0x6a, 0xfb, 0x43, 0xc8, 0xf7, 0x9a, 0x88, 0xef, 0x91, 0x63, 0xc4, 0xdd, 0x03, 0x27, 0xe5,
+	0x2e, 0xdc, 0x48, 0x47, 0x77, 0x1a, 0xfd, 0xef, 0x7a, 0x54, 0xf9, 0xeb, 0x76, 0x0c, 0x4a, 0x9e,
+	0x2b, 0x02, 0xbe, 0x0f, 0x2f, 0x63, 0x2e, 0xef, 0xd9, 0xf9, 0x5a, 0x61, 0xc2, 0xd0, 0x4b, 0xa9,
+	0x42, 0x85, 0xe7, 0x79, 0xa8, 0x3b, 0xf1, 0xc7, 0x27, 0x7c, 0x68, 0x3f, 0x82, 0x95, 0x4c, 0x0b,
+	0xc4, 0x78, 0x13, 0xa6, 0xfc, 0xcd, 0x09, 0x28, 0xf2, 0xf6, 0x31, 0x30, 0x55, 0xf6, 0xf1, 0x65,
+	0xf4, 0x02, 0x1f, 0x52, 0xab, 0x63, 0x5a, 0x46, 0x2c, 0x7e, 0xa3, 0x7f, 0xaf, 0xd3, 0xb1, 0x83,
+	0x65, 0x8a, 0xec, 0xa1, 0x14, 0xdf, 0xc3, 0x36, 0xac, 0x17, 0x8a, 0x73, 0x29, 0xd8, 0x6b, 0x50,
+	0xe2, 0x49, 0xf8, 0x5b, 0xbe, 0x4f, 0x83, 0xdd, 0x53, 0x8e, 0x60, 0x3e, 0x31, 0x8e, 0x69, 0xbe,
+	0x05, 0xd3, 0x2d, 0x1c, 0x0b, 0x12, 0x2d, 0x8b, 0x12, 0x05, 0x8e, 0x4e, 0x73, 0x60, 0xaf, 0x7c,
+	0x07, 0x6a, 0x3c, 0xea, 0xf7, 0xad, 0x76, 0x46, 0x93, 0xa2, 0x4e, 0xd1, 0xe5, 0xe9, 0x81, 0x5a,
+	0x38, 0x16, 0xb2, 0xbf, 0x0b, 0x53, 0x2d, 0x7f, 0x02, 0xc9, 0x0b, 0xb5, 0xbe, 0xc0, 0x47, 0x59,
+	0x81, 0x65, 0x9e, 0x31, 0x95, 0x26, 0x58, 0x34, 0x0d, 0x1f, 0x3a, 0x81, 0xc1, 0x8b, 0x21, 0x68,
+	0xe1, 0x33, 0x1b, 0x6d, 0xfe, 0x45, 0x5e, 0x3b, 0xb2, 0x06, 0x33, 0x6d, 0x66, 0xb9, 0xb6, 0xde,
+	0x76, 0xb5, 0x78, 0xcb, 0xb8, 0x1a, 0x8c, 0xdf, 0xc3, 0x75, 0xfd, 0x09, 0x54, 0xb3, 0x73, 0x5c,
+	0xfe, 0x04, 0xf9, 0x18, 0xdb, 0x1c, 0x1f, 0x0c, 0xde, 0xff, 0x17, 0x08, 0x2f, 0x8b, 0xa2, 0x23,
+	0xf6, 0x7b, 0xa9, 0xb6, 0x72, 0x33, 0xa3, 0xad, 0xa0, 0xab, 0x4f, 0x3e, 0xe8, 0x2a, 0xef, 0xc0,
+	0x62, 0xf8, 0x4a, 0xee, 0x9d, 0x53, 0xab, 0xf0, 0xbb, 0xdc, 0x85, 0x25, 0xb1, 0x23, 0x92, 0x3d,
+	0x84, 0x99, 0xae, 0xee, 0xb8, 0x5a, 0xbb, 0xab, 0x9b, 0xa7, 0x1a, 0xf5, 0x2c, 0x70, 0x6d, 0x15,
+	0x11, 0xa1, 0x17, 0x66, 0xd7, 0x33, 0xe5, 0xb1, 0x9a, 0xaf, 0x76, 0x63, 0xbf, 0x95, 0x2d, 0x28,
+	0xf3, 0x6c, 0x7b, 0xcd, 0xdd, 0xfa, 0xd6, 0x11, 0xfb, 0x36, 0xb5, 0x58, 0xf4, 0x24, 0xa1, 0x76,
+	0xbb, 0xbe, 0x85, 0x84, 0xfe, 0x0f, 0xe5, 0xa7, 0xb8, 0x2b, 0x71, 0x0f, 0x84, 0x2b, 0xc1, 0x44,
+	0xc7, 0x1b, 0x08, 0x5c, 0xf8, 0x0f, 0xb2, 0x0e, 0xb3, 0x6d, 0xe6, 0x9c, 0x32, 0x47, 0x63, 0xb6,
+	0x69, 0x98, 0x96, 0xee, 0xd2, 0x0e, 0xdf, 0x96, 0x97, 0x9b, 0x33, 0xfe, 0xc4, 0x41, 0x38, 0x1e,
+	0x12, 0xf1, 0xc0, 0x47, 0x8c, 0xa7, 0x89, 0x10, 0xa5, 0xc3, 0x87, 0x44, 0x71, 0x8f, 0x01, 0x51,
+	0xba, 0x88, 0xd1, 0x88, 0x9a, 0x70, 0x13, 0xe3, 0x77, 0xa9, 0xa1, 0xbb, 0xf4, 0x01, 0xed, 0x3b,
+	0x0d, 0xef, 0x58, 0x32, 0x3b, 0xba, 0xcb, 0x6c, 0x7c, 0xa0, 0xbc, 0x98, 0xe7, 0xc1, 0x98, 0x16,
+	0xdf, 0xdc, 0x99, 0xf3, 0x84, 0xb1, 0xf2, 0x4b, 0x09, 0x5b, 0x76, 0x7e, 0xd0, 0xb0, 0x8c, 0x15,
+	0x78, 0x85, 0xba, 0x27, 0x89, 0xb0, 0x40, 0xdd, 0x93, 0x20, 0xfb, 0x36, 0x94, 0x98, 0xed, 0xbd,
+	0xf9, 0xae, 0x1d, 0x03, 0xf0, 0x9f, 0xfe, 0xb9, 0xe8, 0x5c, 0xc0, 0xf0, 0x3e, 0x36, 0xa9, 0x38,
+	0xc2, 0xde, 0x20, 0xe6, 0xb0, 0xa4, 0xca, 0xaf, 0x25, 0xb8, 0x95, 0x1b, 0x22, 0xe4, 0x1f, 0x65,
+	0x71, 0x2e, 0x52, 0xcb, 0x8f, 0xe1, 0xb6, 0x00, 0xe4, 0x20, 0x6d, 0x99, 0x19, 0x5c, 0xca, 0x0e,
+	0xfe, 0x0b, 0x3c, 0x8b, 0x86, 0x06, 0xbf, 0x58, 0xb9, 0x89, 0x65, 0x1e, 0x4f, 0x2d, 0xf3, 0x0e,
+	0x9e, 0xb0, 0x78, 0xb4, 0x7f, 0x48, 0xad, 0xce, 0x11, 0xdb, 0x73, 0x4f, 0xc8, 0x2d, 0x78, 0xd5,
+	0xa1, 0x56, 0x87, 0x26, 0x73, 0x5c, 0xf1, 0x47, 0x03, 0xff, 0x7f, 0x4a, 0xb8, 0xd3, 0xc9, 0x00,
+	0x21, 0xef, 0x0f, 0xa1, 0xe4, 0xda, 0xba, 0xe5, 0x1c, 0x53, 0xdb, 0xd1, 0x4c, 0x4b, 0x8b, 0x9f,
+	0x3c, 0xb7, 0x73, 0x9b, 0x36, 0xfa, 0x1d, 0x3d, 0x6e, 0x92, 0x30, 0xc6, 0x07, 0x16, 0x1e, 0x67,
+	0xe4, 0x23, 0x98, 0x3b, 0xb3, 0xfc, 0x70, 0x1d, 0x2d, 0x9c, 0x2f, 0x8f, 0x8f, 0x16, 0x38, 0x0c,
+	0x11, 0x0c, 0x3a, 0xca, 0x02, 0x5c, 0xe7, 0x35, 0x3d, 0x62, 0x9d, 0xb3, 0x2e, 0xfd, 0xd0, 0xd5,
+	0xdd, 0xf0, 0x46, 0xd2, 0xc4, 0x16, 0x12, 0x9b, 0xc2, 0x4a, 0xdf, 0x86, 0x09, 0xc7, 0x1b, 0xc0,
+	0x9e, 0x59, 0x15, 0x11, 0xdc, 0xf7, 0x15, 0xa3, 0xef, 0xe8, 0x9b, 0x7b, 0xb7, 0x9f, 0x47, 0xa6,
+	0xe3, 0x98, 0x96, 0xc1, 0xcf, 0xb7, 0xf0, 0x20, 0xdf, 0x87, 0xf9, 0xc4, 0x38, 0x26, 0xda, 0x04,
+	0xc2, 0x7a, 0x34, 0xf6, 0x8c, 0xe1, 0x82, 0x4e, 0x37, 0x67, 0x83, 0x99, 0x7b, 0xc1, 0x44, 0xfd,
+	0x8b, 0x25, 0x98, 0xe0, 0xd0, 0xc4, 0x81, 0x49, 0x5f, 0xe9, 0x10, 0xe1, 0xf2, 0xa4, 0x45, 0x95,
+	0xfc, 0xfa, 0x50, 0x3b, 0x9f, 0x49, 0x29, 0xff, 0xea, 0x5f, 0xff, 0xff, 0xfd, 0x38, 0x21, 0x33,
+	0x49, 0xed, 0x4b, 0x3e, 0x93, 0xe0, 0x4a, 0x4c, 0x25, 0x91, 0xcd, 0xcc, 0xa0, 0x22, 0xa9, 0x25,
+	0xd7, 0x8a, 0x9a, 0x23, 0x4a, 0x95, 0xa3, 0xc8, 0xa4, 0x3c, 0x40, 0xf1, 0x2f, 0x9a, 0x6a, 0xdb,
+	0xb7, 0x27, 0xbf, 0x91, 0xe0, 0x4a, 0x2c, 0x47, 0x0e, 0x92, 0x48, 0x8e, 0xe5, 0x20, 0x09, 0xa5,
+	0x98, 0x68, 0x75, 0x7c, 0x24, 0xbe, 0x3a, 0x31, 0xf9, 0x30, 0x14, 0x25, 0x2e, 0xca, 0x86, 0xa2,
+	0x24, 0x64, 0x57, 0xde, 0xea, 0x20, 0xc0, 0x9f, 0x25, 0x98, 0x17, 0x2a, 0x23, 0xf2, 0x56, 0xb1,
+	0x5c, 0x09, 0x11, 0x26, 0xbf, 0x3d, 0xaa, 0x1b, 0xa2, 0x2a, 0x1c, 0x75, 0x89, 0xc8, 0x03, 0xd4,
+	0xe0, 0x12, 0xa4, 0x7e, 0xca, 0x6f, 0x65, 0x4f, 0xc8, 0x9f, 0x24, 0x20, 0x69, 0xf1, 0x44, 0xea,
+	0x99, 0x29, 0x33, 0xb5, 0x98, 0x7c, 0x67, 0x24, 0x1f, 0x64, 0xbc, 0xc1, 0x19, 0x17, 0xc9, 0x42,
+	0x6a, 0x39, 0xed, 0x80, 0xe5, 0xaf, 0x12, 0x54, 0xf2, 0xe5, 0x13, 0xd9, 0xc9, 0x4d, 0x3d, 0x54,
+	0xbf, 0xc9, 0xef, 0x5d, 0xd8, 0x1f, 0xcb, 0x58, 0xe6, 0x65, 0x5c, 0x27, 0xf3, 0xa9, 0x32, 0xbc,
+	0x5b, 0x1d, 0xf9, 0x5c, 0x82, 0xab, 0x89, 0x5b, 0x23, 0x51, 0x73, 0x73, 0xa6, 0x2f, 0xa6, 0xf2,
+	0x56, 0x71, 0x07, 0xa4, 0x5a, 0xe5, 0x54, 0x0a, 0xa9, 0x0e, 0xa8, 0x98, 0xad, 0xb7, 0xbb, 0x54,
+	0xe5, 0x97, 0x53, 0xf5, 0x53, 0xec, 0x7e, 0x4f, 0xc8, 0x1f, 0x25, 0x98, 0xbb, 0x4f, 0xdd, 0xd4,
+	0x31, 0xb6, 0x96, 0xdd, 0xbf, 0x12, 0xa6, 0xf2, 0x76, 0x61, 0xd3, 0x90, 0xef, 0x16, 0xe7, 0x5b,
+	0x21, 0xcb, 0x91, 0xa6, 0xe7, 0xdb, 0x6a, 0xde, 0x31, 0xa9, 0xb9, 0x4c, 0xa3, 0xee, 0x09, 0x79,
+	0x02, 0xd3, 0xa1, 0x10, 0x25, 0xab, 0x99, 0x69, 0x12, 0xea, 0x57, 0x5e, 0x2b, 0x60, 0x89, 0x20,
+	0x8b, 0x1c, 0x64, 0x9e, 0xcc, 0x25, 0xfe, 0xeb, 0xef, 0xd8, 0xcb, 0xf8, 0xb9, 0x04, 0xb3, 0x29,
+	0x31, 0x48, 0xb2, 0xcb, 0xcd, 0x52, 0x96, 0x72, 0x7d, 0x14, 0x97, 0xec, 0x77, 0x98, 0x93, 0xa9,
+	0x0c, 0x5d, 0xdc, 0xc7, 0xe4, 0x1f, 0x12, 0x28, 0xc3, 0x05, 0x34, 0x69, 0x64, 0xa6, 0x2f, 0xac,
+	0xe4, 0xe5, 0xdd, 0x4b, 0xc5, 0xc0, 0x9a, 0x96, 0x78, 0x4d, 0xd7, 0x48, 0x29, 0x59, 0x13, 0x7f,
+	0x57, 0xfe, 0x20, 0xc1, 0x9c, 0x40, 0xb6, 0x92, 0x3b, 0xf9, 0xdb, 0x29, 0x14, 0xd2, 0xf2, 0x9b,
+	0xa3, 0x39, 0x21, 0xe0, 0x75, 0x0e, 0x38, 0x4b, 0xae, 0x26, 0x00, 0xf9, 0x69, 0x13, 0x53, 0xa5,
+	0x39, 0xa7, 0x8d, 0x48, 0x1b, 0xe7, 0x9c, 0x36, 0x42, 0xb1, 0x2b, 0x3a, 0x6d, 0xfc, 0xa5, 0x0a,
+	0x1a, 0x39, 0xf9, 0x42, 0x82, 0xaf, 0x47, 0x05, 0x1f, 0xd9, 0xc8, 0x4c, 0x21, 0x50, 0x92, 0xf2,
+	0x66, 0x41, 0x6b, 0xe4, 0xa9, 0x73, 0x9e, 0x0d, 0xf2, 0x46, 0xf4, 0x48, 0x49, 0xa8, 0x35, 0x95,
+	0x0b, 0x39, 0xef, 0xe5, 0xf5, 0x35, 0xa6, 0x47, 0x18, 0x15, 0x80, 0x39, 0x84, 0x02, 0x65, 0x99,
+	0x43, 0x28, 0x52, 0x95, 0xc5, 0x08, 0x39, 0x18, 0x6f, 0x2f, 0x5c, 0x73, 0xfe, 0x5d, 0x82, 0x85,
+	0xfb, 0xd4, 0x8d, 0x88, 0x88, 0x88, 0xde, 0x23, 0xef, 0xe4, 0x00, 0xe4, 0x29, 0xc4, 0x9c, 0x53,
+	0xa5, 0x98, 0xb4, 0x14, 0xd5, 0xc2, 0x3f, 0xb3, 0x68, 0x1d, 0xf4, 0xd7, 0x7e, 0x4e, 0xfb, 0x8e,
+	0xd6, 0xea, 0x6b, 0xa1, 0x72, 0x21, 0x7f, 0xf1, 0x3b, 0x79, 0xac, 0x16, 0xaf, 0x93, 0x6f, 0x17,
+	0x84, 0x19, 0x28, 0x44, 0xf9, 0xee, 0xc8, 0x2e, 0x21, 0xf9, 0x06, 0x27, 0xbf, 0x4d, 0x5e, 0x1b,
+	0x4a, 0xee, 0x35, 0xf8, 0x7f, 0x4b, 0xb0, 0x94, 0x64, 0x8e, 0x6a, 0x38, 0xf2, 0xcd, 0x82, 0x24,
+	0x02, 0xe1, 0x27, 0x37, 0x2e, 0xee, 0x1b, 0x96, 0xf3, 0x16, 0x2f, 0x47, 0x25, 0x9b, 0x43, 0xcb,
+	0x89, 0x8a, 0x54, 0xf2, 0x37, 0x09, 0x96, 0x73, 0xbf, 0xe6, 0x90, 0x77, 0x33, 0xe1, 0x8a, 0x7c,
+	0x32, 0x92, 0x77, 0x2e, 0xea, 0x8e, 0x75, 0xbd, 0xce, 0xeb, 0xba, 0x41, 0x56, 0x06, 0x75, 0x1d,
+	0x7b, 0x8e, 0x5a, 0xd8, 0xcb, 0x7d, 0xbd, 0x49, 0x7e, 0x27, 0xc1, 0xcc, 0xa1, 0x67, 0x12, 0x11,
+	0x6e, 0x64, 0x3d, 0x33, 0x7b, 0x5a, 0xf9, 0xc9, 0x1b, 0xc5, 0x8c, 0x11, 0xac, 0xc2, 0xc1, 0xca,
+	0xe4, 0x5a, 0xe4, 0x4b, 0x1e, 0x37, 0xd3, 0xb8, 0xe6, 0x23, 0xbf, 0x95, 0x80, 0xa0, 0xb8, 0xf3,
+	0xb0, 0x98, 0xaf, 0xf0, 0xc4, 0x97, 0x03, 0x91, 0x38, 0x14, 0x5f, 0x0e, 0x84, 0x72, 0x51, 0xd4,
+	0x83, 0x4f, 0x7d, 0x43, 0x8d, 0x5f, 0xa2, 0x9d, 0x06, 0xfd, 0xf2, 0x59, 0x45, 0x7a, 0xfa, 0xac,
+	0x22, 0xfd, 0xef, 0x59, 0x45, 0xfa, 0xec, 0x79, 0x65, 0xec, 0xe9, 0xf3, 0xca, 0xd8, 0x7f, 0x9e,
+	0x57, 0xc6, 0x7e, 0xf4, 0xc0, 0x30, 0xdd, 0x93, 0xb3, 0x56, 0xad, 0xcd, 0x4e, 0xd5, 0x0f, 0x82,
+	0x84, 0x0f, 0xf5, 0x96, 0xa3, 0x86, 0xe9, 0x37, 0xdb, 0xcc, 0xa6, 0xd1, 0x9f, 0x27, 0xba, 0x69,
+	0x61, 0xb5, 0x0e, 0xa6, 0xe4, 0x5f, 0x39, 0x5b, 0x93, 0xfc, 0xa3, 0xe2, 0x9d, 0xaf, 0x02, 0x00,
+	0x00, 0xff, 0xff, 0x72, 0xbe, 0x01, 0x0b, 0x7f, 0x1d, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -2111,7 +2206,7 @@ type QueryClient interface {
 	GetPendingSendToEth(ctx context.Context, in *QueryPendingSendToEth, opts ...grpc.CallOption) (*QueryPendingSendToEthResponse, error)
 	BatchFees(ctx context.Context, in *QueryBatchFeeRequest, opts ...grpc.CallOption) (*QueryBatchFeeResponse, error)
 	OutgoingTxBatches(ctx context.Context, in *QueryOutgoingTxBatchesRequest, opts ...grpc.CallOption) (*QueryOutgoingTxBatchesResponse, error)
-	LastPendingBatchRequestsByAddr(ctx context.Context, in *QueryLastPendingBatchRequestsByAddrRequest, opts ...grpc.CallOption) (*QueryLastPendingBatchRequestsByAddrResponse, error)
+	UnconfirmedOutgoingTxBatchesByAddr(ctx context.Context, in *QueryUnconfirmedOutgoingTxBatchesByAddrRequest, opts ...grpc.CallOption) (*QueryUnconfirmedOutgoingTxBatchesByAddrResponse, error)
 	BatchRequestByNonce(ctx context.Context, in *QueryBatchRequestByNonceRequest, opts ...grpc.CallOption) (*QueryBatchRequestByNonceResponse, error)
 	BatchConfirms(ctx context.Context, in *QueryBatchConfirmsRequest, opts ...grpc.CallOption) (*QueryBatchConfirmsResponse, error)
 	ERC20ToDenom(ctx context.Context, in *QueryERC20ToDenomRequest, opts ...grpc.CallOption) (*QueryERC20ToDenomResponse, error)
@@ -2119,6 +2214,7 @@ type QueryClient interface {
 	GetDelegateKeyByValidator(ctx context.Context, in *QueryDelegateKeysByValidatorAddress, opts ...grpc.CallOption) (*QueryDelegateKeysByValidatorAddressResponse, error)
 	GetDelegateKeyByEth(ctx context.Context, in *QueryDelegateKeysByEthAddress, opts ...grpc.CallOption) (*QueryDelegateKeysByEthAddressResponse, error)
 	GetDelegateKeyByOrchestrator(ctx context.Context, in *QueryDelegateKeysByOrchestratorAddress, opts ...grpc.CallOption) (*QueryDelegateKeysByOrchestratorAddressResponse, error)
+	FirstConfirmedOutgoingTxBatch(ctx context.Context, in *QueryFirstConfirmedOutgoingTxBatchRequest, opts ...grpc.CallOption) (*QueryFirstConfirmedOutgoingTxBatchResponse, error)
 	// Retrieves the entire peggy module's state
 	PeggyModuleState(ctx context.Context, in *QueryModuleStateRequest, opts ...grpc.CallOption) (*QueryModuleStateResponse, error)
 	MissingPeggoNonces(ctx context.Context, in *MissingNoncesRequest, opts ...grpc.CallOption) (*MissingNoncesResponse, error)
@@ -2231,9 +2327,9 @@ func (c *queryClient) OutgoingTxBatches(ctx context.Context, in *QueryOutgoingTx
 	return out, nil
 }
 
-func (c *queryClient) LastPendingBatchRequestsByAddr(ctx context.Context, in *QueryLastPendingBatchRequestsByAddrRequest, opts ...grpc.CallOption) (*QueryLastPendingBatchRequestsByAddrResponse, error) {
-	out := new(QueryLastPendingBatchRequestsByAddrResponse)
-	err := c.cc.Invoke(ctx, "/injective.peggy.v1.Query/LastPendingBatchRequestsByAddr", in, out, opts...)
+func (c *queryClient) UnconfirmedOutgoingTxBatchesByAddr(ctx context.Context, in *QueryUnconfirmedOutgoingTxBatchesByAddrRequest, opts ...grpc.CallOption) (*QueryUnconfirmedOutgoingTxBatchesByAddrResponse, error) {
+	out := new(QueryUnconfirmedOutgoingTxBatchesByAddrResponse)
+	err := c.cc.Invoke(ctx, "/injective.peggy.v1.Query/UnconfirmedOutgoingTxBatchesByAddr", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2303,6 +2399,15 @@ func (c *queryClient) GetDelegateKeyByOrchestrator(ctx context.Context, in *Quer
 	return out, nil
 }
 
+func (c *queryClient) FirstConfirmedOutgoingTxBatch(ctx context.Context, in *QueryFirstConfirmedOutgoingTxBatchRequest, opts ...grpc.CallOption) (*QueryFirstConfirmedOutgoingTxBatchResponse, error) {
+	out := new(QueryFirstConfirmedOutgoingTxBatchResponse)
+	err := c.cc.Invoke(ctx, "/injective.peggy.v1.Query/FirstConfirmedOutgoingTxBatch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) PeggyModuleState(ctx context.Context, in *QueryModuleStateRequest, opts ...grpc.CallOption) (*QueryModuleStateResponse, error) {
 	out := new(QueryModuleStateResponse)
 	err := c.cc.Invoke(ctx, "/injective.peggy.v1.Query/PeggyModuleState", in, out, opts...)
@@ -2338,7 +2443,7 @@ type QueryServer interface {
 	GetPendingSendToEth(context.Context, *QueryPendingSendToEth) (*QueryPendingSendToEthResponse, error)
 	BatchFees(context.Context, *QueryBatchFeeRequest) (*QueryBatchFeeResponse, error)
 	OutgoingTxBatches(context.Context, *QueryOutgoingTxBatchesRequest) (*QueryOutgoingTxBatchesResponse, error)
-	LastPendingBatchRequestsByAddr(context.Context, *QueryLastPendingBatchRequestsByAddrRequest) (*QueryLastPendingBatchRequestsByAddrResponse, error)
+	UnconfirmedOutgoingTxBatchesByAddr(context.Context, *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) (*QueryUnconfirmedOutgoingTxBatchesByAddrResponse, error)
 	BatchRequestByNonce(context.Context, *QueryBatchRequestByNonceRequest) (*QueryBatchRequestByNonceResponse, error)
 	BatchConfirms(context.Context, *QueryBatchConfirmsRequest) (*QueryBatchConfirmsResponse, error)
 	ERC20ToDenom(context.Context, *QueryERC20ToDenomRequest) (*QueryERC20ToDenomResponse, error)
@@ -2346,6 +2451,7 @@ type QueryServer interface {
 	GetDelegateKeyByValidator(context.Context, *QueryDelegateKeysByValidatorAddress) (*QueryDelegateKeysByValidatorAddressResponse, error)
 	GetDelegateKeyByEth(context.Context, *QueryDelegateKeysByEthAddress) (*QueryDelegateKeysByEthAddressResponse, error)
 	GetDelegateKeyByOrchestrator(context.Context, *QueryDelegateKeysByOrchestratorAddress) (*QueryDelegateKeysByOrchestratorAddressResponse, error)
+	FirstConfirmedOutgoingTxBatch(context.Context, *QueryFirstConfirmedOutgoingTxBatchRequest) (*QueryFirstConfirmedOutgoingTxBatchResponse, error)
 	// Retrieves the entire peggy module's state
 	PeggyModuleState(context.Context, *QueryModuleStateRequest) (*QueryModuleStateResponse, error)
 	MissingPeggoNonces(context.Context, *MissingNoncesRequest) (*MissingNoncesResponse, error)
@@ -2388,8 +2494,8 @@ func (*UnimplementedQueryServer) BatchFees(ctx context.Context, req *QueryBatchF
 func (*UnimplementedQueryServer) OutgoingTxBatches(ctx context.Context, req *QueryOutgoingTxBatchesRequest) (*QueryOutgoingTxBatchesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OutgoingTxBatches not implemented")
 }
-func (*UnimplementedQueryServer) LastPendingBatchRequestsByAddr(ctx context.Context, req *QueryLastPendingBatchRequestsByAddrRequest) (*QueryLastPendingBatchRequestsByAddrResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method LastPendingBatchRequestsByAddr not implemented")
+func (*UnimplementedQueryServer) UnconfirmedOutgoingTxBatchesByAddr(ctx context.Context, req *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) (*QueryUnconfirmedOutgoingTxBatchesByAddrResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnconfirmedOutgoingTxBatchesByAddr not implemented")
 }
 func (*UnimplementedQueryServer) BatchRequestByNonce(ctx context.Context, req *QueryBatchRequestByNonceRequest) (*QueryBatchRequestByNonceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BatchRequestByNonce not implemented")
@@ -2411,6 +2517,9 @@ func (*UnimplementedQueryServer) GetDelegateKeyByEth(ctx context.Context, req *Q
 }
 func (*UnimplementedQueryServer) GetDelegateKeyByOrchestrator(ctx context.Context, req *QueryDelegateKeysByOrchestratorAddress) (*QueryDelegateKeysByOrchestratorAddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDelegateKeyByOrchestrator not implemented")
+}
+func (*UnimplementedQueryServer) FirstConfirmedOutgoingTxBatch(ctx context.Context, req *QueryFirstConfirmedOutgoingTxBatchRequest) (*QueryFirstConfirmedOutgoingTxBatchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FirstConfirmedOutgoingTxBatch not implemented")
 }
 func (*UnimplementedQueryServer) PeggyModuleState(ctx context.Context, req *QueryModuleStateRequest) (*QueryModuleStateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PeggyModuleState not implemented")
@@ -2621,20 +2730,20 @@ func _Query_OutgoingTxBatches_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_LastPendingBatchRequestsByAddr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryLastPendingBatchRequestsByAddrRequest)
+func _Query_UnconfirmedOutgoingTxBatchesByAddr_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryUnconfirmedOutgoingTxBatchesByAddrRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).LastPendingBatchRequestsByAddr(ctx, in)
+		return srv.(QueryServer).UnconfirmedOutgoingTxBatchesByAddr(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/injective.peggy.v1.Query/LastPendingBatchRequestsByAddr",
+		FullMethod: "/injective.peggy.v1.Query/UnconfirmedOutgoingTxBatchesByAddr",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).LastPendingBatchRequestsByAddr(ctx, req.(*QueryLastPendingBatchRequestsByAddrRequest))
+		return srv.(QueryServer).UnconfirmedOutgoingTxBatchesByAddr(ctx, req.(*QueryUnconfirmedOutgoingTxBatchesByAddrRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2765,6 +2874,24 @@ func _Query_GetDelegateKeyByOrchestrator_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_FirstConfirmedOutgoingTxBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryFirstConfirmedOutgoingTxBatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).FirstConfirmedOutgoingTxBatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.peggy.v1.Query/FirstConfirmedOutgoingTxBatch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).FirstConfirmedOutgoingTxBatch(ctx, req.(*QueryFirstConfirmedOutgoingTxBatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Query_PeggyModuleState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryModuleStateRequest)
 	if err := dec(in); err != nil {
@@ -2850,8 +2977,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_OutgoingTxBatches_Handler,
 		},
 		{
-			MethodName: "LastPendingBatchRequestsByAddr",
-			Handler:    _Query_LastPendingBatchRequestsByAddr_Handler,
+			MethodName: "UnconfirmedOutgoingTxBatchesByAddr",
+			Handler:    _Query_UnconfirmedOutgoingTxBatchesByAddr_Handler,
 		},
 		{
 			MethodName: "BatchRequestByNonce",
@@ -2882,6 +3009,10 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_GetDelegateKeyByOrchestrator_Handler,
 		},
 		{
+			MethodName: "FirstConfirmedOutgoingTxBatch",
+			Handler:    _Query_FirstConfirmedOutgoingTxBatch_Handler,
+		},
+		{
 			MethodName: "PeggyModuleState",
 			Handler:    _Query_PeggyModuleState_Handler,
 		},
@@ -2892,6 +3023,64 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "injective/peggy/v1/query.proto",
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Batch != nil {
+		{
+			size, err := m.Batch.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *QueryParamsRequest) Marshal() (dAtA []byte, err error) {
@@ -3393,7 +3582,7 @@ func (m *QueryBatchFeeResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -3403,12 +3592,12 @@ func (m *QueryLastPendingBatchRequestsByAddrRequest) Marshal() (dAtA []byte, err
 	return dAtA[:n], nil
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -3423,7 +3612,7 @@ func (m *QueryLastPendingBatchRequestsByAddrRequest) MarshalToSizedBuffer(dAtA [
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -3433,12 +3622,12 @@ func (m *QueryLastPendingBatchRequestsByAddrResponse) Marshal() (dAtA []byte, er
 	return dAtA[:n], nil
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -4273,6 +4462,28 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Batch != nil {
+		l = m.Batch.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
 func (m *QueryParamsRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -4472,7 +4683,7 @@ func (m *QueryBatchFeeResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrRequest) Size() (n int) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -4485,7 +4696,7 @@ func (m *QueryLastPendingBatchRequestsByAddrRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryLastPendingBatchRequestsByAddrResponse) Size() (n int) {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -4843,6 +5054,142 @@ func sovQuery(x uint64) (n int) {
 }
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryFirstConfirmedOutgoingTxBatchRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryFirstConfirmedOutgoingTxBatchRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryFirstConfirmedOutgoingTxBatchResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryFirstConfirmedOutgoingTxBatchResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryFirstConfirmedOutgoingTxBatchResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Batch", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Batch == nil {
+				m.Batch = &OutgoingTxBatch{}
+			}
+			if err := m.Batch.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *QueryParamsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -6042,7 +6389,7 @@ func (m *QueryBatchFeeResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryLastPendingBatchRequestsByAddrRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -6065,10 +6412,10 @@ func (m *QueryLastPendingBatchRequestsByAddrRequest) Unmarshal(dAtA []byte) erro
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryLastPendingBatchRequestsByAddrRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryUnconfirmedOutgoingTxBatchesByAddrRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryLastPendingBatchRequestsByAddrRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryUnconfirmedOutgoingTxBatchesByAddrRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -6124,7 +6471,7 @@ func (m *QueryLastPendingBatchRequestsByAddrRequest) Unmarshal(dAtA []byte) erro
 	}
 	return nil
 }
-func (m *QueryLastPendingBatchRequestsByAddrResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryUnconfirmedOutgoingTxBatchesByAddrResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -6147,10 +6494,10 @@ func (m *QueryLastPendingBatchRequestsByAddrResponse) Unmarshal(dAtA []byte) err
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryLastPendingBatchRequestsByAddrResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryUnconfirmedOutgoingTxBatchesByAddrResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryLastPendingBatchRequestsByAddrResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryUnconfirmedOutgoingTxBatchesByAddrResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
