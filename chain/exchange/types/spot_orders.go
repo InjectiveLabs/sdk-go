@@ -99,6 +99,10 @@ func (o *SpotOrder) IsBuy() bool {
 	return o.OrderType.IsBuy()
 }
 
+func (o *SpotOrder) Cid() string {
+	return o.OrderInfo.Cid
+}
+
 func (m *SpotLimitOrder) IsBuy() bool {
 	return m.OrderType.IsBuy()
 }

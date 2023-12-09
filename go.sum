@@ -69,8 +69,8 @@ github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1 h1:ZnvCV/lzjWmBwuGbkAz+ok
 github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1/go.mod h1:QELTDYiwnbAqIgTF9zeKr+hVlK6eVyt6Nxmh6/1mmzQ=
 github.com/InjectiveLabs/cometbft v0.37.2-inj h1:vKLatEKl3qzhvFAgyvywApTuq44K0XooJpDWWP0bSt0=
 github.com/InjectiveLabs/cometbft v0.37.2-inj/go.mod h1:Y2MMMN//O5K4YKd8ze4r9jmk4Y7h0ajqILXbH5JQFVs=
-github.com/InjectiveLabs/cosmos-sdk v0.47.3-inj-6 h1:6kfOBDrltE6MJgF6Ukiq3vpg8djhd0BNUrJ/irdNuCc=
-github.com/InjectiveLabs/cosmos-sdk v0.47.3-inj-6/go.mod h1:c4OfLdAykA9zsj1CqrxBRqXzVz48I++JSvIMPSPcEmk=
+github.com/InjectiveLabs/cosmos-sdk v0.47.3-inj-7 h1:FFzBEAKG2SbZK08ZL38zQh0gBEmcWOBHdMKyToFXSyI=
+github.com/InjectiveLabs/cosmos-sdk v0.47.3-inj-7/go.mod h1:c4OfLdAykA9zsj1CqrxBRqXzVz48I++JSvIMPSPcEmk=
 github.com/InjectiveLabs/cosmos-sdk/math v0.47.3-inj-1 h1:BHZQuZJXJctENiTfIBSH21HyR3a+Zx3Wd7RPz21spFI=
 github.com/InjectiveLabs/cosmos-sdk/math v0.47.3-inj-1/go.mod h1:An0MllWJY6PxibUpnwGk8jOm+a/qIxlKmL5Zyp9NnaM=
 github.com/InjectiveLabs/ibc-go/v7 v7.2.0-inj h1:CtzShjiD+mGQktWYS0kTzUu8hQaDOmtvSTMekvOm9Rw=

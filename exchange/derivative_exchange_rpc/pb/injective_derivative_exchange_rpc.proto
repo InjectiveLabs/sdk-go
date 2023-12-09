@@ -48,8 +48,12 @@ service InjectiveDerivativeExchangeRPC {
 	rpc StreamOrders (StreamOrdersRequest) returns (stream StreamOrdersResponse);
 	// Trades gets the trades of a Derivative Market.
 	rpc Trades (TradesRequest) returns (TradesResponse);
+	// Trades gets the trades of a Derivative Market.
+	rpc TradesV2 (TradesV2Request) returns (TradesV2Response);
 	// StreamTrades streams newly executed trades from Derivative Market.
 	rpc StreamTrades (StreamTradesRequest) returns (stream StreamTradesResponse);
+	// StreamTrades streams newly executed trades from Derivative Market.
+	rpc StreamTradesV2 (StreamTradesV2Request) returns (stream StreamTradesV2Response);
 	// SubaccountOrdersList lists orders posted from this subaccount.
 	rpc SubaccountOrdersList (SubaccountOrdersListRequest) returns (SubaccountOrdersListResponse);
 	// SubaccountTradesList gets a list of derivatives trades executed by this
@@ -731,6 +735,45 @@ message PositionDelta {
 	string execution_margin = 4;
 }
 
+message TradesV2Request {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+	// Filter by execution side of the trade
+	string execution_side = 2;
+	// Filter by direction the trade
+	string direction = 3;
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 4;
+	// Skip will skip the first n item from the result
+	uint64 skip = 5;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 6;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 7;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 8;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 9;
+	// Subaccount ids of traders we want to get trades. Use this field for fetching
+// trades from multiple subaccounts
+	repeated string subaccount_ids = 10;
+	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
+	// Client order ID
+	string cid = 14;
+}
+
+message TradesV2Response {
+	// Trades of a Derivative Market
+	repeated DerivativeTrade trades = 1;
+	Paging paging = 2;
+}
+
 message StreamTradesRequest {
 	// MarketId of the market's orderbook we want to fetch
 	string market_id = 1;
@@ -765,6 +808,48 @@ message StreamTradesRequest {
 }
 
 message StreamTradesResponse {
+	// New derivative market trade
+	DerivativeTrade trade = 1;
+	// Executed trades update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+}
+
+message StreamTradesV2Request {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+	// Filter by execution side of the trade
+	string execution_side = 2;
+	// Filter by direction the trade
+	string direction = 3;
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 4;
+	// Skip will skip the first n item from the result
+	uint64 skip = 5;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 6;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 7;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 8;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 9;
+	// Subaccount ids of traders we want to get trades. Use this field for fetching
+// trades from multiple subaccounts
+	repeated string subaccount_ids = 10;
+	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
+	// Client order ID
+	string cid = 14;
+}
+
+message StreamTradesV2Response {
 	// New derivative market trade
 	DerivativeTrade trade = 1;
 	// Executed trades update type

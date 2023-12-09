@@ -36,7 +36,9 @@ type ExchangeClient interface {
 	StreamDerivativePositions(ctx context.Context, req derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
 	StreamDerivativeOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error)
 	GetDerivativeTrades(ctx context.Context, req derivativeExchangePB.TradesRequest) (derivativeExchangePB.TradesResponse, error)
+	GetDerivativeTradesV2(ctx context.Context, req derivativeExchangePB.TradesV2Request) (derivativeExchangePB.TradesV2Response, error)
 	StreamDerivativeTrades(ctx context.Context, req derivativeExchangePB.StreamTradesRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesClient, error)
+	StreamDerivativeV2Trades(ctx context.Context, req derivativeExchangePB.StreamTradesV2Request) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesV2Client, error)
 	GetSubaccountDerivativeOrdersList(ctx context.Context, req derivativeExchangePB.SubaccountOrdersListRequest) (derivativeExchangePB.SubaccountOrdersListResponse, error)
 	GetSubaccountDerivativeTradesList(ctx context.Context, req derivativeExchangePB.SubaccountTradesListRequest) (derivativeExchangePB.SubaccountTradesListResponse, error)
 	GetHistoricalDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersHistoryRequest) (derivativeExchangePB.OrdersHistoryResponse, error)
@@ -69,7 +71,9 @@ type ExchangeClient interface {
 	StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error)
 	StreamSpotOrders(ctx context.Context, req spotExchangePB.StreamOrdersRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrdersClient, error)
 	GetSpotTrades(ctx context.Context, req spotExchangePB.TradesRequest) (spotExchangePB.TradesResponse, error)
+	GetSpotTradesV2(ctx context.Context, req spotExchangePB.TradesV2Request) (spotExchangePB.TradesV2Response, error)
 	StreamSpotTrades(ctx context.Context, req spotExchangePB.StreamTradesRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesClient, error)
+	StreamSpotTradesV2(ctx context.Context, req spotExchangePB.StreamTradesV2Request) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesV2Client, error)
 	GetSubaccountSpotOrdersList(ctx context.Context, req spotExchangePB.SubaccountOrdersListRequest) (spotExchangePB.SubaccountOrdersListResponse, error)
 	GetSubaccountSpotTradesList(ctx context.Context, req spotExchangePB.SubaccountTradesListRequest) (spotExchangePB.SubaccountTradesListResponse, error)
 	GetHistoricalSpotOrders(ctx context.Context, req spotExchangePB.OrdersHistoryRequest) (spotExchangePB.OrdersHistoryResponse, error)
@@ -347,9 +351,31 @@ func (c *exchangeClient) GetDerivativeTrades(ctx context.Context, req derivative
 	return *res, nil
 }
 
+func (c *exchangeClient) GetDerivativeTradesV2(ctx context.Context, req derivativeExchangePB.TradesV2Request) (derivativeExchangePB.TradesV2Response, error) {
+	ctx = c.getCookie(ctx)
+	res, err := c.derivativeExchangeClient.TradesV2(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return derivativeExchangePB.TradesV2Response{}, err
+	}
+
+	return *res, nil
+}
+
 func (c *exchangeClient) StreamDerivativeTrades(ctx context.Context, req derivativeExchangePB.StreamTradesRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesClient, error) {
 	ctx = c.getCookie(ctx)
 	stream, err := c.derivativeExchangeClient.StreamTrades(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamDerivativeV2Trades(ctx context.Context, req derivativeExchangePB.StreamTradesV2Request) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesV2Client, error) {
+	ctx = c.getCookie(ctx)
+	stream, err := c.derivativeExchangeClient.StreamTradesV2(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -774,9 +800,31 @@ func (c *exchangeClient) GetSpotTrades(ctx context.Context, req spotExchangePB.T
 	return *res, nil
 }
 
+func (c *exchangeClient) GetSpotTradesV2(ctx context.Context, req spotExchangePB.TradesV2Request) (spotExchangePB.TradesV2Response, error) {
+	ctx = c.getCookie(ctx)
+	res, err := c.spotExchangeClient.TradesV2(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return spotExchangePB.TradesV2Response{}, err
+	}
+
+	return *res, nil
+}
+
 func (c *exchangeClient) StreamSpotTrades(ctx context.Context, req spotExchangePB.StreamTradesRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesClient, error) {
 	ctx = c.getCookie(ctx)
 	stream, err := c.spotExchangeClient.StreamTrades(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamSpotTradesV2(ctx context.Context, req spotExchangePB.StreamTradesV2Request) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesV2Client, error) {
+	ctx = c.getCookie(ctx)
+	stream, err := c.spotExchangeClient.StreamTradesV2(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
