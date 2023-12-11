@@ -64,7 +64,7 @@ func main() {
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	txFactory := chainclient.NewTxFactory(clientCtx)
-	txFactory = txFactory.WithGasPrices("500000000inj")
+	txFactory = txFactory.WithGasPrices("client.DefaultGasPriceWithDenom")
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,

@@ -55,7 +55,7 @@ func main() {
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("500000000inj"),
+		common.OptionGasPrices("client.DefaultGasPriceWithDenom"),
 	)
 
 	if err != nil {
