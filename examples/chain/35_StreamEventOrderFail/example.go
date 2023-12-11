@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/InjectiveLabs/sdk-go/client"
+
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )

@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client"
 	"os"
 	"time"
 
