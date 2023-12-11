@@ -22,7 +22,7 @@ func main() {
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("client.DefaultGasPriceWithDenom"),
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 	if err != nil {
 		panic(err)

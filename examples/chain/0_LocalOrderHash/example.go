@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client"
 	"os"
 	"time"
 
@@ -49,7 +50,7 @@ func main() {
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("client.DefaultGasPriceWithDenom"),
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
