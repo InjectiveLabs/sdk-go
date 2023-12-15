@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/InjectiveLabs/sdk-go/client"
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"os"
 	"time"
 
@@ -42,10 +45,32 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
+
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
+	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+		clientCtx,
+		network,
+		marketsAssistant,
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
+	)
+
+	if err != nil {
+		panic(err)
+	}
 
 	msg := &exchangetypes.MsgIncreasePositionMargin{
 		Sender:                  senderAddress.String(),
@@ -53,16 +78,6 @@ func main() {
 		SourceSubaccountId:      "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000",
 		DestinationSubaccountId: "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000",
 		Amount:                  cosmtypes.MustNewDecFromStr("100000000"), //100 USDT
-	}
-
-	chainClient, err := chainclient.NewChainClient(
-		clientCtx,
-		network,
-		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
-	)
-
-	if err != nil {
-		fmt.Println(err)
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

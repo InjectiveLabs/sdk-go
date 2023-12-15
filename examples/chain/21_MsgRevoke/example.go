@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"os"
 	"time"
 
@@ -41,10 +44,32 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
+
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
+	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+		clientCtx,
+		network,
+		marketsAssistant,
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
+	)
+
+	if err != nil {
+		panic(err)
+	}
 
 	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
 	msgType := "/injective.exchange.v1beta1.MsgCreateSpotLimitOrder"
@@ -53,16 +78,6 @@ func main() {
 		Granter:    senderAddress.String(),
 		Grantee:    grantee,
 		MsgTypeUrl: msgType,
-	}
-
-	chainClient, err := chainclient.NewChainClient(
-		clientCtx,
-		network,
-		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
-	)
-
-	if err != nil {
-		fmt.Println(err)
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

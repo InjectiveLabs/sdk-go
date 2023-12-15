@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 	"os"
@@ -44,13 +47,25 @@ func main() {
 	}
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient).WithSimulation(false)
 
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
 	txFactory := chainclient.NewTxFactory(clientCtx)
 	txFactory = txFactory.WithGasPrices("500000000inj")
 	txFactory = txFactory.WithGas(uint64(txFactory.GasAdjustment() * 140000))
 
-	clientInstance, err := chainclient.NewChainClient(
+	clientInstance, err := chainclient.NewChainClientWithMarketsAssistant(
 		clientCtx,
 		network,
+		marketsAssistant,
 		common.OptionTxFactory(&txFactory),
 		common.OptionGasPrices("500000000inj"),
 	)

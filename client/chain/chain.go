@@ -6,8 +6,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client/core"
 	"math"
-	"math/big"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +15,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	log "github.com/InjectiveLabs/suplog"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -143,13 +142,14 @@ type ChainClient interface {
 }
 
 type chainClient struct {
-	ctx             client.Context
-	network         common.Network
-	opts            *common.ClientOptions
-	logger          log.Logger
-	conn            *grpc.ClientConn
-	chainStreamConn *grpc.ClientConn
-	txFactory       tx.Factory
+	ctx              client.Context
+	network          common.Network
+	marketsAssistant core.MarketsAssistant
+	opts             *common.ClientOptions
+	logger           log.Logger
+	conn             *grpc.ClientConn
+	chainStreamConn  *grpc.ClientConn
+	txFactory        tx.Factory
 
 	fromAddress sdk.AccAddress
 	doneC       chan bool
@@ -180,11 +180,24 @@ type chainClient struct {
 	canSign bool
 }
 
-// NewChainClient creates a new gRPC client that communicates with gRPC server at protoAddr.
-// protoAddr must be in form "tcp://127.0.0.1:8080" or "unix:///tmp/test.sock", protocol is required.
+// Deprecated: Use NewChainClientWithMarketsAssistant instead.
 func NewChainClient(
 	ctx client.Context,
 	network common.Network,
+	options ...common.ClientOption,
+) (ChainClient, error) {
+	assistant, err := core.NewMarketsAssistant(network.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return NewChainClientWithMarketsAssistant(ctx, network, assistant, options...)
+}
+
+func NewChainClientWithMarketsAssistant(
+	ctx client.Context,
+	network common.Network,
+	marketsAssistant core.MarketsAssistant,
 	options ...common.ClientOption,
 ) (ChainClient, error) {
 	// process options
@@ -240,9 +253,10 @@ func NewChainClient(
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client
 	cc := &chainClient{
-		ctx:     ctx,
-		network: network,
-		opts:    opts,
+		ctx:              ctx,
+		network:          network,
+		marketsAssistant: marketsAssistant,
+		opts:             opts,
 
 		logger: log.WithFields(log.Fields{
 			"module": "sdk-go",
@@ -880,63 +894,15 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.H
 	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
 }
 
-func formatPriceToTickSize(value, tickSize cosmtypes.Dec) sdkmath.LegacyDec {
-	residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
-	formattedValue := new(big.Int).Sub(value.BigInt(), residue)
-	p := decimal.NewFromBigInt(formattedValue, -18).StringFixed(18)
-	realValue, _ := cosmtypes.NewDecFromStr(p)
-	return realValue
-}
-
-func GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec) {
-	mid, _ := cosmtypes.NewDecFromStr(value.String())
-	bStr := decimal.New(1, int32(baseDecimals)).String()
-	baseDec, _ := cosmtypes.NewDecFromStr(bStr)
-	scale := baseDec.Quo(minTickSize)
-	midScaledInt := mid.Mul(scale).TruncateDec()
-	qty = minTickSize.Mul(midScaledInt)
-	return qty
-}
-
-func GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec {
-	scale := decimal.New(1, int32(quoteDecimals-baseDecimals))
-	priceStr := scale.Mul(price).StringFixed(18)
-	decPrice, err := cosmtypes.NewDecFromStr(priceStr)
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println(priceStr, scale.String(), price.String())
-		fmt.Println(decPrice.String())
-	}
-	realPrice := formatPriceToTickSize(decPrice, minPriceTickSize)
-	return realPrice
-}
-
-func GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec) {
-	mid := cosmtypes.MustNewDecFromStr(value.StringFixed(18))
-	baseDec := cosmtypes.OneDec()
-	scale := baseDec.Quo(minTickSize)
-	midScaledInt := mid.Mul(scale).TruncateDec()
-	qty = minTickSize.Mul(midScaledInt)
-	return qty
-}
-
-func GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
-	residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
-	formattedValue := new(big.Int).Sub(value.BigInt(), residue)
-	p := decimal.NewFromBigInt(formattedValue, -18).String()
-	realValue, _ := cosmtypes.NewDecFromStr(p)
-	return realValue
-}
-
 func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
 
-	baseDecimals := common.LoadMetadata(network, d.MarketId).Base
-	quoteDecimals := common.LoadMetadata(network, d.MarketId).Quote
-	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
-	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
+	market, isPresent := c.marketsAssistant.AllSpotMarkets()[d.MarketId]
+	if !isPresent {
+		panic(errors.Errorf("Invalid spot market id for %s network (%s)", c.network.Name, d.MarketId))
+	}
 
-	orderSize := GetSpotQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)), baseDecimals)
-	orderPrice := GetSpotPrice(d.Price, baseDecimals, quoteDecimals, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+	orderSize := market.QuantityToChainFormat(d.Quantity)
+	orderPrice := market.PriceToChainFormat(d.Price)
 
 	return &exchangetypes.SpotOrder{
 		MarketId:  d.MarketId,
@@ -953,18 +919,18 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 
 func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
 
-	margin := cosmtypes.MustNewDecFromStr(fmt.Sprint(d.Quantity)).Mul(d.Price).Quo(d.Leverage)
-
-	if d.IsReduceOnly == true {
-		margin = cosmtypes.MustNewDecFromStr("0")
+	market, isPresent := c.marketsAssistant.AllDerivativeMarkets()[d.MarketId]
+	if !isPresent {
+		panic(errors.Errorf("Invalid derivative market id for %s network (%s)", c.network.Name, d.MarketId))
 	}
 
-	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
-	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
+	orderSize := market.QuantityToChainFormat(d.Quantity)
+	orderPrice := market.PriceToChainFormat(d.Price)
+	orderMargin := cosmtypes.MustNewDecFromStr("0")
 
-	orderSize := GetDerivativeQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)))
-	orderPrice := GetDerivativePrice(d.Price, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
-	orderMargin := GetDerivativePrice(margin, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+	if !d.IsReduceOnly {
+		orderMargin = market.CalculateMarginInChainFormat(d.Quantity, d.Price, d.Leverage)
+	}
 
 	return &exchangetypes.DerivativeOrder{
 		MarketId:  d.MarketId,
@@ -1312,9 +1278,9 @@ func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.Stre
 
 type DerivativeOrderData struct {
 	OrderType    exchangetypes.OrderType
-	Price        cosmtypes.Dec
+	Price        decimal.Decimal
 	Quantity     decimal.Decimal
-	Leverage     cosmtypes.Dec
+	Leverage     decimal.Decimal
 	FeeRecipient string
 	MarketId     string
 	IsReduceOnly bool

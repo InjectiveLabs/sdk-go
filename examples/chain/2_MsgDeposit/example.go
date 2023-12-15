@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/InjectiveLabs/sdk-go/client"
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"os"
 	"time"
 
@@ -42,9 +45,31 @@ func main() {
 		cosmosKeyring,
 	)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
+
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
+	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+		clientCtx,
+		network,
+		marketsAssistant,
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
+	)
+
+	if err != nil {
+		panic(err)
+	}
 
 	msg := &exchangetypes.MsgDeposit{
 		Sender:       senderAddress.String(),
@@ -52,16 +77,6 @@ func main() {
 		Amount: sdktypes.Coin{
 			Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000), // 1 INJ
 		},
-	}
-
-	chainClient, err := chainclient.NewChainClient(
-		clientCtx,
-		network,
-		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
-	)
-
-	if err != nil {
-		fmt.Println(err)
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

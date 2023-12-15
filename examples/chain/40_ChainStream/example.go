@@ -8,6 +8,8 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
 func main() {
@@ -19,20 +21,31 @@ func main() {
 		nil,
 	)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
 
-	chainClient, err := chainclient.NewChainClient(
-		clientCtx,
-		network,
-		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
-	)
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
 		panic(err)
 	}
 
 	ctx := context.Background()
+	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
+	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+		clientCtx,
+		network,
+		marketsAssistant,
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
+	)
+
+	if err != nil {
+		panic(err)
+	}
 
 	subaccountId := "0xbdaedec95d563fb05240d6e01821008454c24c36000000000000000000000000"
 

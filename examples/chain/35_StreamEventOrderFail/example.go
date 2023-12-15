@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 
@@ -21,11 +24,24 @@ func main() {
 		panic(err)
 	}
 
-	chainClient, err := chainclient.NewChainClient(
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
+	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
 		clientCtx,
 		network,
+		marketsAssistant,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
+
 	if err != nil {
 		panic(err)
 	}
