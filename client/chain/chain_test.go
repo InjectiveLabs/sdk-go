@@ -1,6 +1,7 @@
 package chain
 
 import (
+	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -41,7 +42,7 @@ func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyr
 	chainClient, err := NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("500000000inj"),
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	return chainClient, err
