@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/InjectiveLabs/sdk-go/client/core"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
@@ -59,7 +60,7 @@ func main() {
 	}
 
 	txFactory := chainclient.NewTxFactory(clientCtx)
-	txFactory = txFactory.WithGasPrices("500000000inj")
+	txFactory = txFactory.WithGasPrices(client.DefaultGasPriceWithDenom)
 	txFactory = txFactory.WithGas(uint64(txFactory.GasAdjustment() * 140000))
 
 	clientInstance, err := chainclient.NewChainClientWithMarketsAssistant(
@@ -67,7 +68,6 @@ func main() {
 		network,
 		marketsAssistant,
 		common.OptionTxFactory(&txFactory),
-		common.OptionGasPrices("500000000inj"),
 	)
 
 	if err != nil {
