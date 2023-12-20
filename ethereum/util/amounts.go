@@ -128,7 +128,7 @@ func (w *Wei) Add(amount *Wei) *Wei {
 	return (*Wei)(&result)
 }
 
-// Sub substracts two amounts and returns a new amount.
+// Sub subtracts two amounts and returns a new amount.
 func (w *Wei) Sub(amount *Wei) *Wei {
 	d1 := (*decimal.Decimal)(w)
 	d2 := (*decimal.Decimal)(amount)
