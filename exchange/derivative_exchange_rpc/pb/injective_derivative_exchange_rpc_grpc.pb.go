@@ -44,6 +44,9 @@ type InjectiveDerivativeExchangeRPCClient interface {
 	Orders(ctx context.Context, in *OrdersRequest, opts ...grpc.CallOption) (*OrdersResponse, error)
 	// Positions gets the positions for a trader.
 	Positions(ctx context.Context, in *PositionsRequest, opts ...grpc.CallOption) (*PositionsResponse, error)
+	// Positions gets the positions for a trader. V2 removed some redundant fields
+	// and had performance improvements
+	PositionsV2(ctx context.Context, in *PositionsV2Request, opts ...grpc.CallOption) (*PositionsV2Response, error)
 	// LiquidablePositions gets all the liquidable positions.
 	LiquidablePositions(ctx context.Context, in *LiquidablePositionsRequest, opts ...grpc.CallOption) (*LiquidablePositionsResponse, error)
 	// FundingPayments gets the funding payments for a trader.
@@ -243,6 +246,15 @@ func (c *injectiveDerivativeExchangeRPCClient) Orders(ctx context.Context, in *O
 func (c *injectiveDerivativeExchangeRPCClient) Positions(ctx context.Context, in *PositionsRequest, opts ...grpc.CallOption) (*PositionsResponse, error) {
 	out := new(PositionsResponse)
 	err := c.cc.Invoke(ctx, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/Positions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveDerivativeExchangeRPCClient) PositionsV2(ctx context.Context, in *PositionsV2Request, opts ...grpc.CallOption) (*PositionsV2Response, error) {
+	out := new(PositionsV2Response)
+	err := c.cc.Invoke(ctx, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/PositionsV2", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -507,6 +519,9 @@ type InjectiveDerivativeExchangeRPCServer interface {
 	Orders(context.Context, *OrdersRequest) (*OrdersResponse, error)
 	// Positions gets the positions for a trader.
 	Positions(context.Context, *PositionsRequest) (*PositionsResponse, error)
+	// Positions gets the positions for a trader. V2 removed some redundant fields
+	// and had performance improvements
+	PositionsV2(context.Context, *PositionsV2Request) (*PositionsV2Response, error)
 	// LiquidablePositions gets all the liquidable positions.
 	LiquidablePositions(context.Context, *LiquidablePositionsRequest) (*LiquidablePositionsResponse, error)
 	// FundingPayments gets the funding payments for a trader.
@@ -573,6 +588,9 @@ func (UnimplementedInjectiveDerivativeExchangeRPCServer) Orders(context.Context,
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) Positions(context.Context, *PositionsRequest) (*PositionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Positions not implemented")
+}
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) PositionsV2(context.Context, *PositionsV2Request) (*PositionsV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PositionsV2 not implemented")
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) LiquidablePositions(context.Context, *LiquidablePositionsRequest) (*LiquidablePositionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LiquidablePositions not implemented")
@@ -830,6 +848,24 @@ func _InjectiveDerivativeExchangeRPC_Positions_Handler(srv interface{}, ctx cont
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveDerivativeExchangeRPCServer).Positions(ctx, req.(*PositionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveDerivativeExchangeRPC_PositionsV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PositionsV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveDerivativeExchangeRPCServer).PositionsV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/PositionsV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveDerivativeExchangeRPCServer).PositionsV2(ctx, req.(*PositionsV2Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1121,6 +1157,10 @@ var InjectiveDerivativeExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Positions",
 			Handler:    _InjectiveDerivativeExchangeRPC_Positions_Handler,
+		},
+		{
+			MethodName: "PositionsV2",
+			Handler:    _InjectiveDerivativeExchangeRPC_PositionsV2_Handler,
 		},
 		{
 			MethodName: "LiquidablePositions",

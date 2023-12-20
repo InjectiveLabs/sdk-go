@@ -36,6 +36,9 @@ service InjectiveDerivativeExchangeRPC {
 	rpc Orders (OrdersRequest) returns (OrdersResponse);
 	// Positions gets the positions for a trader.
 	rpc Positions (PositionsRequest) returns (PositionsResponse);
+	// Positions gets the positions for a trader. V2 removed some redundant fields
+// and had performance improvements
+	rpc PositionsV2 (PositionsV2Request) returns (PositionsV2Response);
 	// LiquidablePositions gets all the liquidable positions.
 	rpc LiquidablePositions (LiquidablePositionsRequest) returns (LiquidablePositionsResponse);
 	// FundingPayments gets the funding payments for a trader.
@@ -518,6 +521,59 @@ message DerivativePosition {
 	sint64 updated_at = 12;
 	// Position created timestamp in UNIX millis.
 	sint64 created_at = 13;
+}
+
+message PositionsV2Request {
+	// SubaccountId of the trader we want to get the positions from
+	string subaccount_id = 1;
+	// MarketId of the position we want to fetch. Use this field for fetching from
+// single market
+	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 4;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 5;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 6;
+	// MarketIds of the markets we want to filter. Use this field for fetching from
+// multiple markets
+	repeated string market_ids = 7;
+	// filter by direction of the position
+	string direction = 8;
+	// set to True to return subaccount total positions
+	bool subaccount_total_positions = 9;
+}
+
+message PositionsV2Response {
+	repeated DerivativePositionV2 positions = 1;
+	Paging paging = 2;
+}
+
+message DerivativePositionV2 {
+	// Ticker of the derivative market
+	string ticker = 1;
+	// Derivative Market ID
+	string market_id = 2;
+	// The subaccountId that the position belongs to
+	string subaccount_id = 3;
+	// Direction of the position
+	string direction = 4;
+	// Quantity of the position
+	string quantity = 5;
+	// Price of the position
+	string entry_price = 6;
+	// Margin of the position
+	string margin = 7;
+	// LiquidationPrice of the position
+	string liquidation_price = 8;
+	// MarkPrice of the position
+	string mark_price = 9;
+	// Position updated timestamp in UNIX millis.
+	sint64 updated_at = 11;
 }
 
 message LiquidablePositionsRequest {

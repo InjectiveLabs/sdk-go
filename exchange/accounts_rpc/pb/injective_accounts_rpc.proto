@@ -102,6 +102,10 @@ message OrderStateRecord {
 	sint64 created_at = 9;
 	// Order updated timestamp in UNIX millis.
 	sint64 updated_at = 10;
+	// Order prices
+	string price = 11;
+	// Margin for derivative order
+	string margin = 12;
 }
 
 message SubaccountsListRequest {

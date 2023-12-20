@@ -24,6 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 type InjectivePortfolioRPCClient interface {
 	// Provide the account's portfolio
 	AccountPortfolio(ctx context.Context, in *AccountPortfolioRequest, opts ...grpc.CallOption) (*AccountPortfolioResponse, error)
+	// Provide the account's portfolio balances
+	AccountPortfolioBalances(ctx context.Context, in *AccountPortfolioBalancesRequest, opts ...grpc.CallOption) (*AccountPortfolioBalancesResponse, error)
 	// Stream the account's portfolio
 	StreamAccountPortfolio(ctx context.Context, in *StreamAccountPortfolioRequest, opts ...grpc.CallOption) (InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
 }
@@ -39,6 +41,15 @@ func NewInjectivePortfolioRPCClient(cc grpc.ClientConnInterface) InjectivePortfo
 func (c *injectivePortfolioRPCClient) AccountPortfolio(ctx context.Context, in *AccountPortfolioRequest, opts ...grpc.CallOption) (*AccountPortfolioResponse, error) {
 	out := new(AccountPortfolioResponse)
 	err := c.cc.Invoke(ctx, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectivePortfolioRPCClient) AccountPortfolioBalances(ctx context.Context, in *AccountPortfolioBalancesRequest, opts ...grpc.CallOption) (*AccountPortfolioBalancesResponse, error) {
+	out := new(AccountPortfolioBalancesResponse)
+	err := c.cc.Invoke(ctx, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +94,8 @@ func (x *injectivePortfolioRPCStreamAccountPortfolioClient) Recv() (*StreamAccou
 type InjectivePortfolioRPCServer interface {
 	// Provide the account's portfolio
 	AccountPortfolio(context.Context, *AccountPortfolioRequest) (*AccountPortfolioResponse, error)
+	// Provide the account's portfolio balances
+	AccountPortfolioBalances(context.Context, *AccountPortfolioBalancesRequest) (*AccountPortfolioBalancesResponse, error)
 	// Stream the account's portfolio
 	StreamAccountPortfolio(*StreamAccountPortfolioRequest, InjectivePortfolioRPC_StreamAccountPortfolioServer) error
 	mustEmbedUnimplementedInjectivePortfolioRPCServer()
@@ -94,6 +107,9 @@ type UnimplementedInjectivePortfolioRPCServer struct {
 
 func (UnimplementedInjectivePortfolioRPCServer) AccountPortfolio(context.Context, *AccountPortfolioRequest) (*AccountPortfolioResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AccountPortfolio not implemented")
+}
+func (UnimplementedInjectivePortfolioRPCServer) AccountPortfolioBalances(context.Context, *AccountPortfolioBalancesRequest) (*AccountPortfolioBalancesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AccountPortfolioBalances not implemented")
 }
 func (UnimplementedInjectivePortfolioRPCServer) StreamAccountPortfolio(*StreamAccountPortfolioRequest, InjectivePortfolioRPC_StreamAccountPortfolioServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamAccountPortfolio not implemented")
@@ -129,6 +145,24 @@ func _InjectivePortfolioRPC_AccountPortfolio_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectivePortfolioRPC_AccountPortfolioBalances_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountPortfolioBalancesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectivePortfolioRPCServer).AccountPortfolioBalances(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectivePortfolioRPCServer).AccountPortfolioBalances(ctx, req.(*AccountPortfolioBalancesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _InjectivePortfolioRPC_StreamAccountPortfolio_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StreamAccountPortfolioRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -160,6 +194,10 @@ var InjectivePortfolioRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AccountPortfolio",
 			Handler:    _InjectivePortfolioRPC_AccountPortfolio_Handler,
+		},
+		{
+			MethodName: "AccountPortfolioBalances",
+			Handler:    _InjectivePortfolioRPC_AccountPortfolioBalances_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
