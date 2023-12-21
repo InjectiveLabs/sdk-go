@@ -26,7 +26,7 @@ func main() {
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
 	}
-	stream, err := exchangeClient.StreamSpotTrades(ctx, req)
+	stream, err := exchangeClient.StreamSpotTrades(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

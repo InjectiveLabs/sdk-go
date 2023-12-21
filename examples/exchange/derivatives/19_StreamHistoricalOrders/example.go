@@ -27,7 +27,7 @@ func main() {
 		SubaccountId: subaccountId,
 		Direction:    direction,
 	}
-	stream, err := exchangeClient.StreamHistoricalDerivativeOrders(ctx, req)
+	stream, err := exchangeClient.StreamHistoricalDerivativeOrders(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

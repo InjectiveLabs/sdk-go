@@ -2,6 +2,9 @@ package chain
 
 import (
 	"context"
+	"os"
+	"testing"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/InjectiveLabs/sdk-go/client/core"
@@ -10,8 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	eth "github.com/ethereum/go-ethereum/common"
-	"os"
-	"testing"
 )
 
 func accountForTests() (cosmtypes.AccAddress, keyring.Keyring, error) {

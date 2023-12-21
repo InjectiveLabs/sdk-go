@@ -27,11 +27,11 @@ func (w *Wei) Scan(v interface{}) error {
 		return nil
 	}
 	var source string
-	switch v.(type) {
+	switch value := v.(type) {
 	case string:
-		source = v.(string)
+		source = value
 	case []byte:
-		source = string(v.([]byte))
+		source = string(value)
 	default:
 		return fmt.Errorf("incompatible type for decimal.Decimal: %T", v)
 	}

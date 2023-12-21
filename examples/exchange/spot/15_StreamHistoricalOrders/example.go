@@ -27,7 +27,7 @@ func main() {
 		SubaccountId: subaccountId,
 		Direction:    direction,
 	}
-	stream, err := exchangeClient.StreamHistoricalSpotOrders(ctx, req)
+	stream, err := exchangeClient.StreamHistoricalSpotOrders(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

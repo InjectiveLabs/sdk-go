@@ -28,7 +28,7 @@ func main() {
 		Limit: limit,
 	}
 
-	res, err := exchangeClient.GetDerivativeLiquidablePositions(ctx, req)
+	res, err := exchangeClient.GetDerivativeLiquidablePositions(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

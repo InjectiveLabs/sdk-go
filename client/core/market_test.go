@@ -1,10 +1,11 @@
 package core
 
 import (
+	"testing"
+
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/huandu/go-assert"
 	"github.com/shopspring/decimal"
-	"testing"
 )
 
 func createINJUSDTSpotMarket() SpotMarket {

@@ -2,9 +2,10 @@ package common
 
 import (
 	"fmt"
-	"google.golang.org/grpc/metadata"
 	"testing"
 	"time"
+
+	"google.golang.org/grpc/metadata"
 )
 
 func TestMainnetKubernetesLoadBalancedCookieAssistant(t *testing.T) {

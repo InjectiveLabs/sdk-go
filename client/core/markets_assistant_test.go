@@ -2,11 +2,12 @@ package core
 
 import (
 	"context"
+	"strings"
+	"testing"
+
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	"github.com/stretchr/testify/assert"
-	"strings"
-	"testing"
 )
 
 func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
@@ -17,14 +18,14 @@ func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 	apeUsdtSpotMarketInfo := createAPEUSDTSpotMarketInfo()
 	btcUsdtDerivativeMarketInfo := createBTCUSDTDerivativeMarketInfo()
 
-	spotMarketInfos = append(spotMarketInfos, &injUsdtSpotMarketInfo)
-	spotMarketInfos = append(spotMarketInfos, &apeUsdtSpotMarketInfo)
-	derivativeMarketInfos = append(derivativeMarketInfos, &btcUsdtDerivativeMarketInfo)
+	spotMarketInfos = append(spotMarketInfos, injUsdtSpotMarketInfo)
+	spotMarketInfos = append(spotMarketInfos, apeUsdtSpotMarketInfo)
+	derivativeMarketInfos = append(derivativeMarketInfos, btcUsdtDerivativeMarketInfo)
 
-	mockExchange.SpotMarketsResponses = append(mockExchange.SpotMarketsResponses, spotExchangePB.MarketsResponse{
+	mockExchange.SpotMarketsResponses = append(mockExchange.SpotMarketsResponses, &spotExchangePB.MarketsResponse{
 		Markets: spotMarketInfos,
 	})
-	mockExchange.DerivativeMarketsResponses = append(mockExchange.DerivativeMarketsResponses, derivativeExchangePB.MarketsResponse{
+	mockExchange.DerivativeMarketsResponses = append(mockExchange.DerivativeMarketsResponses, &derivativeExchangePB.MarketsResponse{
 		Markets: derivativeMarketInfos,
 	})
 

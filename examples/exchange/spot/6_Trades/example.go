@@ -26,7 +26,7 @@ func main() {
 		SubaccountId: subaccountId,
 	}
 
-	res, err := exchangeClient.GetSpotTrades(ctx, req)
+	res, err := exchangeClient.GetSpotTrades(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

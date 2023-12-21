@@ -27,7 +27,7 @@ func main() {
 		OrderDirection: orderDirection,
 	}
 
-	res, err := exchangeClient.GetSubaccountOrderSummary(ctx, req)
+	res, err := exchangeClient.GetSubaccountOrderSummary(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

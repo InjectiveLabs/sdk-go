@@ -25,7 +25,7 @@ func main() {
 		Receiver: receiver,
 	}
 
-	res, err := explorerClient.GetIBCTransfers(ctx, req)
+	res, err := explorerClient.GetIBCTransfers(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

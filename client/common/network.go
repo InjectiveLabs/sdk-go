@@ -4,13 +4,12 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"google.golang.org/grpc/metadata"
 	"net"
 	"net/http"
-	"path"
-	"runtime"
 	"strings"
 	"time"
+
+	"google.golang.org/grpc/metadata"
 
 	"google.golang.org/grpc/credentials"
 )
@@ -74,7 +73,7 @@ func (assistant *ExpiringCookieAssistant) checkCookieExpiration() {
 		expirationTime, err := time.Parse(assistant.timeLayout, cookie.Value)
 
 		if err == nil {
-			timestampDiff := expirationTime.Sub(time.Now())
+			timestampDiff := time.Until(expirationTime)
 			if timestampDiff < SessionRenewalOffset {
 				assistant.cookie = ""
 			}
@@ -173,11 +172,6 @@ func (network *Network) ExchangeMetadata(provider MetadataProvider) (string, err
 
 func (network *Network) ExplorerMetadata(provider MetadataProvider) (string, error) {
 	return network.explorerCookieAssistant.Metadata(provider)
-}
-
-func getFileAbsPath(relativePath string) string {
-	_, filename, _, _ := runtime.Caller(0)
-	return path.Join(path.Dir(filename), relativePath)
 }
 
 func LoadNetwork(name string, node string) Network {

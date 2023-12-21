@@ -26,7 +26,7 @@ func main() {
 		AccountAddress: accountAddress,
 	}
 
-	res, err := exchangeClient.GetRewards(ctx, req)
+	res, err := exchangeClient.GetRewards(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}
