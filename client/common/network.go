@@ -4,13 +4,14 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"google.golang.org/grpc/metadata"
 	"net"
 	"net/http"
 	"path"
 	"runtime"
 	"strings"
 	"time"
+
+	"google.golang.org/grpc/metadata"
 
 	"google.golang.org/grpc/credentials"
 )
@@ -74,7 +75,7 @@ func (assistant *ExpiringCookieAssistant) checkCookieExpiration() {
 		expirationTime, err := time.Parse(assistant.timeLayout, cookie.Value)
 
 		if err == nil {
-			timestampDiff := expirationTime.Sub(time.Now())
+			timestampDiff := time.Until(expirationTime)
 			if timestampDiff < SessionRenewalOffset {
 				assistant.cookie = ""
 			}

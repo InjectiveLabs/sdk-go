@@ -31,7 +31,7 @@ func main() {
 		Limit:        limit,
 	}
 
-	res, err := exchangeClient.GetSubaccountSpotOrdersList(ctx, req)
+	res, err := exchangeClient.GetSubaccountSpotOrdersList(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

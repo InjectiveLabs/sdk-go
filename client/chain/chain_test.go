@@ -1,14 +1,15 @@
 package chain
 
 import (
+	"os"
+	"testing"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	eth "github.com/ethereum/go-ethereum/common"
-	"os"
-	"testing"
 )
 
 func accountForTests() (cosmtypes.AccAddress, keyring.Keyring, error) {

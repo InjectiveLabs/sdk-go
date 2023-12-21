@@ -31,7 +31,7 @@ func main() {
 		Limit:        limit,
 	}
 
-	res, err := exchangeClient.GetDerivativePositionsV2(ctx, req)
+	res, err := exchangeClient.GetDerivativePositionsV2(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

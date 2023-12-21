@@ -32,7 +32,7 @@ func main() {
 		Limit:         limit,
 	}
 
-	res, err := exchangeClient.GetSubaccountHistory(ctx, req)
+	res, err := exchangeClient.GetSubaccountHistory(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

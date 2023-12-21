@@ -29,7 +29,7 @@ func main() {
 		case <-ctx.Done():
 			return
 		default:
-			res, err := stream.Recv()
+			res, err := (*stream).Recv()
 			if err != nil {
 				fmt.Println(err)
 				return

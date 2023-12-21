@@ -22,7 +22,7 @@ func main() {
 
 	req := metaPB.PingRequest{}
 
-	res, err := exchangeClient.Ping(ctx, req)
+	res, err := exchangeClient.Ping(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

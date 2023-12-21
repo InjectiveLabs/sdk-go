@@ -22,7 +22,7 @@ func main() {
 
 	req := metaPB.InfoRequest{}
 
-	res, err := exchangeClient.GetInfo(ctx, req)
+	res, err := exchangeClient.GetInfo(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

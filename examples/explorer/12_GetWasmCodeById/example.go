@@ -24,7 +24,7 @@ func main() {
 		CodeId: 10,
 	}
 
-	res, err := explorerClient.GetWasmCodeByID(ctx, req)
+	res, err := explorerClient.GetWasmCodeByID(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

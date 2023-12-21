@@ -25,7 +25,7 @@ func main() {
 		Sender: sender,
 	}
 
-	res, err := explorerClient.GetPeggyWithdrawals(ctx, req)
+	res, err := explorerClient.GetPeggyWithdrawals(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

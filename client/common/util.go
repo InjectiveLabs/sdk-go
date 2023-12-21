@@ -5,7 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
@@ -13,9 +13,7 @@ import (
 )
 
 func HexToBytes(str string) ([]byte, error) {
-	if strings.HasPrefix(str, "0x") {
-		str = str[2:]
-	}
+	str = strings.TrimPrefix(str, "0x")
 
 	data, err := hex.DecodeString(str)
 	if err != nil {
@@ -31,7 +29,7 @@ func LoadTlsCert(path string, serverName string) credentials.TransportCredential
 	}
 
 	// build cert obj
-	rootCert, err := ioutil.ReadFile(path)
+	rootCert, err := os.ReadFile(path)
 	if err != nil {
 		fmt.Println(err, "cannot load tls cert from path")
 		return nil

@@ -25,7 +25,7 @@ func main() {
 		MarketId: marketId,
 	}
 
-	res, err := exchangeClient.GetDerivativeFundingRates(ctx, req)
+	res, err := exchangeClient.GetDerivativeFundingRates(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

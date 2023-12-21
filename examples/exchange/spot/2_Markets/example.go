@@ -27,7 +27,7 @@ func main() {
 		QuoteDenom:   quoteDenom,
 	}
 
-	res, err := exchangeClient.GetSpotMarkets(ctx, req)
+	res, err := exchangeClient.GetSpotMarkets(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}
