@@ -32,6 +32,7 @@ type ExchangeClient interface {
 	GetDerivativeOrders(ctx context.Context, req derivativeExchangePB.OrdersRequest) (derivativeExchangePB.OrdersResponse, error)
 	GetDerivativeMarkets(ctx context.Context, req derivativeExchangePB.MarketsRequest) (derivativeExchangePB.MarketsResponse, error)
 	GetDerivativePositions(ctx context.Context, req derivativeExchangePB.PositionsRequest) (derivativeExchangePB.PositionsResponse, error)
+	GetDerivativePositionsV2(ctx context.Context, req derivativeExchangePB.PositionsV2Request) (derivativeExchangePB.PositionsV2Response, error)
 	GetDerivativeLiquidablePositions(ctx context.Context, req derivativeExchangePB.LiquidablePositionsRequest) (derivativeExchangePB.LiquidablePositionsResponse, error)
 	StreamDerivativePositions(ctx context.Context, req derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
 	StreamDerivativeOrders(ctx context.Context, req derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error)
@@ -82,6 +83,7 @@ type ExchangeClient interface {
 	GetRedemptions(ctx context.Context, req insurancePB.RedemptionsRequest) (insurancePB.RedemptionsResponse, error)
 
 	GetAccountPortfolio(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioResponse, error)
+	GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioBalancesResponse, error)
 	StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
 
 	StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error)
@@ -195,12 +197,24 @@ func (c *exchangeClient) GetDerivativeOrders(ctx context.Context, req derivative
 	return *res, nil
 }
 
+// Deprecated: Use GetDerivativePositionsV2 instead.
 func (c *exchangeClient) GetDerivativePositions(ctx context.Context, req derivativeExchangePB.PositionsRequest) (derivativeExchangePB.PositionsResponse, error) {
 	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.Positions(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 		return derivativeExchangePB.PositionsResponse{}, err
+	}
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetDerivativePositionsV2(ctx context.Context, req derivativeExchangePB.PositionsV2Request) (derivativeExchangePB.PositionsV2Response, error) {
+	ctx = c.getCookie(ctx)
+	res, err := c.derivativeExchangeClient.PositionsV2(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return derivativeExchangePB.PositionsV2Response{}, err
 	}
 
 	return *res, nil
@@ -944,6 +958,7 @@ func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveM
 	return stream, nil
 }
 
+// Deprecated: Use GetAccountPortfolioBalances instead.
 func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioResponse, error) {
 	ctx = c.getCookie(ctx)
 	res, err := c.portfolioExchangeClient.AccountPortfolio(ctx, &portfolioExchangePB.AccountPortfolioRequest{
@@ -952,6 +967,19 @@ func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress
 	if err != nil {
 		fmt.Println(err)
 		return portfolioExchangePB.AccountPortfolioResponse{}, err
+	}
+
+	return *res, nil
+}
+
+func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
+	ctx = c.getCookie(ctx)
+	res, err := c.portfolioExchangeClient.AccountPortfolioBalances(ctx, &portfolioExchangePB.AccountPortfolioBalancesRequest{
+		AccountAddress: accountAddress,
+	})
+	if err != nil {
+		fmt.Println(err)
+		return portfolioExchangePB.AccountPortfolioBalancesResponse{}, err
 	}
 
 	return *res, nil
