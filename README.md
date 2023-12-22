@@ -1,5 +1,7 @@
 # Injective Protocol Golang SDK 🌟
 
+[![codecov](https://codecov.io/gh/InjectiveLabs/sdk-go/graph/badge.svg?token=XDGZV265EE)](https://codecov.io/gh/InjectiveLabs/sdk-go)
+
 ---
 
 ## 📚 Getting Started
