@@ -14,14 +14,14 @@ func main() {
 	network := common.LoadNetwork("testnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
 
 	stream, err := exchangeClient.StreamKeepalive(ctx)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	for {

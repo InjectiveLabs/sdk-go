@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"os"
 	"time"
 
@@ -59,21 +62,33 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
 	txFactory := chainclient.NewTxFactory(clientCtx)
 	txFactory = txFactory.WithGasPrices(client.DefaultGasPriceWithDenom)
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
 		clientCtx,
 		network,
+		marketsAssistant,
 		common.OptionTxFactory(&txFactory),
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	// note that we use grantee keyring to send the msg on behalf of granter here

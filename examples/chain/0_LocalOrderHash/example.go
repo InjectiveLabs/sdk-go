@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"github.com/google/uuid"
 	"os"
 	"time"
@@ -11,7 +14,6 @@ import (
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/shopspring/decimal"
 )
 
@@ -43,19 +45,31 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
+	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
 		clientCtx,
 		network,
+		marketsAssistant,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	// prepare tx msg
@@ -66,17 +80,17 @@ func main() {
 		Quantity:     decimal.NewFromFloat(2),
 		Price:        decimal.NewFromFloat(22.55),
 		FeeRecipient: senderAddress.String(),
-		MarketId:     "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa",
+		MarketId:     "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe",
 		Cid:          uuid.NewString(),
 	})
 
 	derivativeOrder := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
 		OrderType:    exchangetypes.OrderType_BUY,
 		Quantity:     decimal.NewFromFloat(2),
-		Price:        cosmtypes.MustNewDecFromStr("31000000000"),
-		Leverage:     cosmtypes.MustNewDecFromStr("2.5"),
+		Price:        decimal.RequireFromString("31"),
+		Leverage:     decimal.RequireFromString("2.5"),
 		FeeRecipient: senderAddress.String(),
-		MarketId:     "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce",
+		MarketId:     "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6",
 		Cid:          uuid.NewString(),
 	})
 

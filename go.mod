@@ -18,6 +18,7 @@ require (
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/google/uuid v1.4.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.11.3
+	github.com/huandu/go-assert v1.1.5
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.2.0
