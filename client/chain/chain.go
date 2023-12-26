@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/InjectiveLabs/sdk-go/client/core"
 	"math"
 	"os"
 	"strconv"
@@ -14,6 +13,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/InjectiveLabs/sdk-go/client/core"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	log "github.com/InjectiveLabs/suplog"
@@ -135,6 +136,7 @@ type ChainClient interface {
 	StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIds []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook)
 
 	ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error)
+	SpotMarket(ctx context.Context, req exchangetypes.QuerySpotMarketRequest) (*exchangetypes.QuerySpotMarketResponse, error)
 
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
@@ -1274,6 +1276,10 @@ func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.Stre
 	}
 
 	return stream, nil
+}
+
+func (c *chainClient) SpotMarket(ctx context.Context, req exchangetypes.QuerySpotMarketRequest) (*exchangetypes.QuerySpotMarketResponse, error) {
+	return c.exchangeQueryClient.SpotMarket(ctx, &req)
 }
 
 type DerivativeOrderData struct {
