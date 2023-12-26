@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/InjectiveLabs/sdk-go/client/core"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"math"
 	"os"
 	"strconv"
@@ -86,8 +87,18 @@ type ChainClient interface {
 	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
+	// Bank Module
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
 	GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error)
+	GetBankSpendableBalances(ctx context.Context, address string, pagination *query.PageRequest) (*banktypes.QuerySpendableBalancesResponse, error)
+	GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error)
+	GetBankTotalSupply(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error)
+	GetBankSupplyOf(ctx context.Context, denom string) (*banktypes.QuerySupplyOfResponse, error)
+	GetDenomMetadata(ctx context.Context, denom string) (*banktypes.QueryDenomMetadataResponse, error)
+	GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error)
+	GetDenomOwners(ctx context.Context, denom string, pagination *query.PageRequest) (*banktypes.QueryDenomOwnersResponse, error)
+	GetBankSendEnabled(ctx context.Context, denoms []string, pagination *query.PageRequest) (*banktypes.QuerySendEnabledResponse, error)
+
 	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
 	GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error)
 
@@ -448,18 +459,13 @@ func (c *chainClient) Close() {
 	}
 }
 
+//Bank Module
+
 func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
 	req := &banktypes.QueryAllBalancesRequest{
 		Address: address,
 	}
 	return c.bankQueryClient.AllBalances(ctx, req)
-}
-
-func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error) {
-	req := &authtypes.QueryAccountRequest{
-		Address: address,
-	}
-	return c.authQueryClient.Account(ctx, req)
 }
 
 func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
@@ -468,6 +474,67 @@ func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom 
 		Denom:   denom,
 	}
 	return c.bankQueryClient.Balance(ctx, req)
+}
+
+func (c *chainClient) GetBankSpendableBalances(ctx context.Context, address string, pagination *query.PageRequest) (*banktypes.QuerySpendableBalancesResponse, error) {
+	req := &banktypes.QuerySpendableBalancesRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.SpendableBalances(ctx, req)
+}
+
+func (c *chainClient) GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error) {
+	req := &banktypes.QuerySpendableBalanceByDenomRequest{
+		Address: address,
+		Denom:   denom,
+	}
+	return c.bankQueryClient.SpendableBalanceByDenom(ctx, req)
+}
+
+func (c *chainClient) GetBankTotalSupply(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error) {
+	req := &banktypes.QueryTotalSupplyRequest{Pagination: pagination}
+	return c.bankQueryClient.TotalSupply(ctx, req)
+}
+
+func (c *chainClient) GetBankSupplyOf(ctx context.Context, denom string) (*banktypes.QuerySupplyOfResponse, error) {
+	req := &banktypes.QuerySupplyOfRequest{Denom: denom}
+	return c.bankQueryClient.SupplyOf(ctx, req)
+}
+
+func (c *chainClient) GetDenomMetadata(ctx context.Context, denom string) (*banktypes.QueryDenomMetadataResponse, error) {
+	req := &banktypes.QueryDenomMetadataRequest{Denom: denom}
+	return c.bankQueryClient.DenomMetadata(ctx, req)
+}
+
+func (c *chainClient) GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error) {
+	req := &banktypes.QueryDenomsMetadataRequest{Pagination: pagination}
+	return c.bankQueryClient.DenomsMetadata(ctx, req)
+}
+
+func (c *chainClient) GetDenomOwners(ctx context.Context, denom string, pagination *query.PageRequest) (*banktypes.QueryDenomOwnersResponse, error) {
+	req := &banktypes.QueryDenomOwnersRequest{
+		Denom:      denom,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.DenomOwners(ctx, req)
+}
+
+func (c *chainClient) GetBankSendEnabled(ctx context.Context, denoms []string, pagination *query.PageRequest) (*banktypes.QuerySendEnabledResponse, error) {
+	req := &banktypes.QuerySendEnabledRequest{
+		Denoms:     denoms,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.SendEnabled(ctx, req)
+}
+
+// Auth Module
+
+func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error) {
+	req := &authtypes.QueryAccountRequest{
+		Address: address,
+	}
+	return c.authQueryClient.Account(ctx, req)
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
