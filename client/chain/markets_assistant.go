@@ -10,12 +10,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/shopspring/decimal"
-	"golang.org/x/exp/maps"
 	"gopkg.in/ini.v1"
 	"path"
 	"runtime"
 	"strings"
+	"sync"
 )
+
+var legacyMarketAssistantLazyInitialization sync.Once
+var legacyMarketAssistant MarketsAssistant
 
 type MarketsAssistant struct {
 	tokensBySymbol    map[string]core.Token
@@ -35,100 +38,103 @@ func newMarketsAssistant() MarketsAssistant {
 
 // Deprecated: use NewMarketsAssistantInitializedFromChain instead
 func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
-	assistant := newMarketsAssistant()
-	fileName := getFileAbsPath(fmt.Sprintf("../metadata/assets/%s.ini", networkName))
-	metadataFile, err := ini.Load(fileName)
 
-	if err != nil {
-		return assistant, err
-	}
+	legacyMarketAssistantLazyInitialization.Do(func() {
+		assistant := newMarketsAssistant()
+		fileName := getFileAbsPath(fmt.Sprintf("../metadata/assets/%s.ini", networkName))
+		metadataFile, err := ini.Load(fileName)
 
-	for _, section := range metadataFile.Sections() {
-		sectionName := section.Name()
-		if strings.HasPrefix(sectionName, "0x") {
-			description := section.Key("description").Value()
+		if err == nil {
+			for _, section := range metadataFile.Sections() {
+				sectionName := section.Name()
+				if strings.HasPrefix(sectionName, "0x") {
+					description := section.Key("description").Value()
 
-			decimals, _ := section.Key("quote").Int()
-			quoteToken := core.Token{
-				Name:     "",
-				Symbol:   "",
-				Denom:    "",
-				Address:  "",
-				Decimals: int32(decimals),
-				Logo:     "",
-				Updated:  -1,
-			}
+					decimals, _ := section.Key("quote").Int()
+					quoteToken := core.Token{
+						Name:     "",
+						Symbol:   "",
+						Denom:    "",
+						Address:  "",
+						Decimals: int32(decimals),
+						Logo:     "",
+						Updated:  -1,
+					}
 
-			minPriceTickSize := decimal.RequireFromString(section.Key("min_price_tick_size").String())
-			minQuantityTickSize := decimal.RequireFromString(section.Key("min_quantity_tick_size").String())
+					minPriceTickSize := decimal.RequireFromString(section.Key("min_price_tick_size").String())
+					minQuantityTickSize := decimal.RequireFromString(section.Key("min_quantity_tick_size").String())
 
-			if strings.Contains(description, "Spot") {
-				baseDecimals, _ := section.Key("quote").Int()
-				baseToken := core.Token{
-					Name:     "",
-					Symbol:   "",
-					Denom:    "",
-					Address:  "",
-					Decimals: int32(baseDecimals),
-					Logo:     "",
-					Updated:  -1,
+					if strings.Contains(description, "Spot") {
+						baseDecimals, _ := section.Key("quote").Int()
+						baseToken := core.Token{
+							Name:     "",
+							Symbol:   "",
+							Denom:    "",
+							Address:  "",
+							Decimals: int32(baseDecimals),
+							Logo:     "",
+							Updated:  -1,
+						}
+
+						market := core.SpotMarket{
+							Id:                  sectionName,
+							Status:              "",
+							Ticker:              description,
+							BaseToken:           baseToken,
+							QuoteToken:          quoteToken,
+							MakerFeeRate:        decimal.NewFromInt32(0),
+							TakerFeeRate:        decimal.NewFromInt32(0),
+							ServiceProviderFee:  decimal.NewFromInt32(0),
+							MinPriceTickSize:    minPriceTickSize,
+							MinQuantityTickSize: minQuantityTickSize,
+						}
+
+						assistant.spotMarkets[market.Id] = market
+					} else {
+						market := core.DerivativeMarket{
+							Id:                     sectionName,
+							Status:                 "",
+							Ticker:                 description,
+							OracleBase:             "",
+							OracleQuote:            "",
+							OracleType:             "",
+							OracleScaleFactor:      1,
+							InitialMarginRatio:     decimal.NewFromInt32(0),
+							MaintenanceMarginRatio: decimal.NewFromInt32(0),
+							QuoteToken:             quoteToken,
+							MakerFeeRate:           decimal.NewFromInt32(0),
+							TakerFeeRate:           decimal.NewFromInt32(0),
+							ServiceProviderFee:     decimal.NewFromInt32(0),
+							MinPriceTickSize:       minPriceTickSize,
+							MinQuantityTickSize:    minQuantityTickSize,
+						}
+
+						assistant.derivativeMarkets[market.Id] = market
+					}
+				} else {
+					if sectionName != "DEFAULT" {
+						tokenDecimals, _ := section.Key("decimals").Int()
+						newToken := core.Token{
+							Name:     sectionName,
+							Symbol:   sectionName,
+							Denom:    section.Key("peggy_denom").String(),
+							Address:  "",
+							Decimals: int32(tokenDecimals),
+							Logo:     "",
+							Updated:  -1,
+						}
+
+						assistant.tokensByDenom[newToken.Denom] = newToken
+						assistant.tokensBySymbol[newToken.Symbol] = newToken
+					}
 				}
-
-				market := core.SpotMarket{
-					Id:                  sectionName,
-					Status:              "",
-					Ticker:              description,
-					BaseToken:           baseToken,
-					QuoteToken:          quoteToken,
-					MakerFeeRate:        decimal.NewFromInt32(0),
-					TakerFeeRate:        decimal.NewFromInt32(0),
-					ServiceProviderFee:  decimal.NewFromInt32(0),
-					MinPriceTickSize:    minPriceTickSize,
-					MinQuantityTickSize: minQuantityTickSize,
-				}
-
-				assistant.spotMarkets[market.Id] = market
-			} else {
-				market := core.DerivativeMarket{
-					Id:                     sectionName,
-					Status:                 "",
-					Ticker:                 description,
-					OracleBase:             "",
-					OracleQuote:            "",
-					OracleType:             "",
-					OracleScaleFactor:      1,
-					InitialMarginRatio:     decimal.NewFromInt32(0),
-					MaintenanceMarginRatio: decimal.NewFromInt32(0),
-					QuoteToken:             quoteToken,
-					MakerFeeRate:           decimal.NewFromInt32(0),
-					TakerFeeRate:           decimal.NewFromInt32(0),
-					ServiceProviderFee:     decimal.NewFromInt32(0),
-					MinPriceTickSize:       minPriceTickSize,
-					MinQuantityTickSize:    minQuantityTickSize,
-				}
-
-				assistant.derivativeMarkets[market.Id] = market
-			}
-		} else {
-			if sectionName != "DEFAULT" {
-				tokenDecimals, _ := section.Key("decimals").Int()
-				newToken := core.Token{
-					Name:     sectionName,
-					Symbol:   sectionName,
-					Denom:    section.Key("peggy_denom").String(),
-					Address:  "",
-					Decimals: int32(tokenDecimals),
-					Logo:     "",
-					Updated:  -1,
-				}
-
-				assistant.tokensByDenom[newToken.Denom] = newToken
-				assistant.tokensBySymbol[newToken.Symbol] = newToken
 			}
 		}
-	}
 
-	return assistant, nil
+		legacyMarketAssistant = assistant
+	})
+
+	return legacyMarketAssistant, nil
 }
 
 func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
@@ -310,15 +316,15 @@ func getFileAbsPath(relativePath string) string {
 }
 
 func (assistant MarketsAssistant) AllTokens() map[string]core.Token {
-	return maps.Clone(assistant.tokensBySymbol)
+	return assistant.tokensBySymbol
 }
 
 func (assistant MarketsAssistant) AllSpotMarkets() map[string]core.SpotMarket {
-	return maps.Clone(assistant.spotMarkets)
+	return assistant.spotMarkets
 }
 
 func (assistant MarketsAssistant) AllDerivativeMarkets() map[string]core.DerivativeMarket {
-	return maps.Clone(assistant.derivativeMarkets)
+	return assistant.derivativeMarkets
 }
 
 func (assistant MarketsAssistant) initializeTokensFromChainDenoms(ctx context.Context, chainClient ChainClient) {
