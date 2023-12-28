@@ -1,16 +1,18 @@
-package core
+package chain
 
 import (
 	"context"
+	"github.com/InjectiveLabs/sdk-go/client/exchange"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
 )
 
 func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
-	mockExchange := MockExchangeClient{}
+	mockExchange := exchange.MockExchangeClient{}
 	var spotMarketInfos []*spotExchangePB.SpotMarketInfo
 	var derivativeMarketInfos []*derivativeExchangePB.DerivativeMarketInfo
 	injUsdtSpotMarketInfo := createINJUSDTSpotMarketInfo()
@@ -29,7 +31,7 @@ func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	assistant, err := NewMarketsAssistantUsingExchangeClient(ctx, &mockExchange)
+	assistant, err := NewMarketsAssistantInitializedFromChain(ctx, &mockExchange)
 
 	assert.NoError(t, err)
 
@@ -67,5 +69,30 @@ func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 	assert.Len(t, derivativeMarkets, 1)
 
 	_, isPresent = derivativeMarkets[btcUsdtDerivativeMarketInfo.MarketId]
+	assert.True(t, isPresent)
+}
+
+func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
+	mockExchange := exchange.MockExchangeClient{}
+	mockChain := MockChainClient{}
+	smartDenomMetadata := createSmartDenomMetadata()
+
+	mockExchange.SpotMarketsResponses = append(mockExchange.SpotMarketsResponses, spotExchangePB.MarketsResponse{})
+	mockExchange.DerivativeMarketsResponses = append(mockExchange.DerivativeMarketsResponses, derivativeExchangePB.MarketsResponse{})
+
+	mockChain.DenomsMetadataResponses = append(mockChain.DenomsMetadataResponses, &banktypes.QueryDenomsMetadataResponse{
+		Metadatas: []banktypes.Metadata{smartDenomMetadata},
+	})
+
+	ctx := context.Background()
+	assistant, err := NewMarketsAssistantWithAllTokens(ctx, &mockExchange, &mockChain)
+
+	assert.NoError(t, err)
+
+	tokens := assistant.AllTokens()
+
+	assert.Len(t, tokens, 1)
+
+	_, isPresent := tokens[smartDenomMetadata.Symbol]
 	assert.True(t, isPresent)
 }

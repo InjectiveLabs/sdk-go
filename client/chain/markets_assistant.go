@@ -1,11 +1,14 @@
-package core
+package chain
 
 import (
 	"context"
 	"fmt"
+	"github.com/InjectiveLabs/sdk-go/client/core"
 	"github.com/InjectiveLabs/sdk-go/client/exchange"
 	injective_derivative_exchange_rpcpb "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 	injective_spot_exchange_rpcpb "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/shopspring/decimal"
 	"golang.org/x/exp/maps"
 	"gopkg.in/ini.v1"
@@ -15,22 +18,22 @@ import (
 )
 
 type MarketsAssistant struct {
-	tokensBySymbol    map[string]Token
-	tokensByDenom     map[string]Token
-	spotMarkets       map[string]SpotMarket
-	derivativeMarkets map[string]DerivativeMarket
+	tokensBySymbol    map[string]core.Token
+	tokensByDenom     map[string]core.Token
+	spotMarkets       map[string]core.SpotMarket
+	derivativeMarkets map[string]core.DerivativeMarket
 }
 
 func newMarketsAssistant() MarketsAssistant {
 	return MarketsAssistant{
-		tokensBySymbol:    make(map[string]Token),
-		tokensByDenom:     make(map[string]Token),
-		spotMarkets:       make(map[string]SpotMarket),
-		derivativeMarkets: make(map[string]DerivativeMarket),
+		tokensBySymbol:    make(map[string]core.Token),
+		tokensByDenom:     make(map[string]core.Token),
+		spotMarkets:       make(map[string]core.SpotMarket),
+		derivativeMarkets: make(map[string]core.DerivativeMarket),
 	}
 }
 
-// Deprecated: use NewMarketsAssistantUsingExchangeClient instead
+// Deprecated: use NewMarketsAssistantInitializedFromChain instead
 func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
 	fileName := getFileAbsPath(fmt.Sprintf("../metadata/assets/%s.ini", networkName))
@@ -46,7 +49,7 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 			description := section.Key("description").Value()
 
 			decimals, _ := section.Key("quote").Int()
-			quoteToken := Token{
+			quoteToken := core.Token{
 				Name:     "",
 				Symbol:   "",
 				Denom:    "",
@@ -61,7 +64,7 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 
 			if strings.Contains(description, "Spot") {
 				baseDecimals, _ := section.Key("quote").Int()
-				baseToken := Token{
+				baseToken := core.Token{
 					Name:     "",
 					Symbol:   "",
 					Denom:    "",
@@ -71,7 +74,7 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 					Updated:  -1,
 				}
 
-				market := SpotMarket{
+				market := core.SpotMarket{
 					Id:                  sectionName,
 					Status:              "",
 					Ticker:              description,
@@ -86,7 +89,7 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 
 				assistant.spotMarkets[market.Id] = market
 			} else {
-				market := DerivativeMarket{
+				market := core.DerivativeMarket{
 					Id:                     sectionName,
 					Status:                 "",
 					Ticker:                 description,
@@ -109,7 +112,7 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 		} else {
 			if sectionName != "DEFAULT" {
 				tokenDecimals, _ := section.Key("decimals").Int()
-				newToken := Token{
+				newToken := core.Token{
 					Name:     sectionName,
 					Symbol:   sectionName,
 					Denom:    section.Key("peggy_denom").String(),
@@ -128,7 +131,7 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 	return assistant, nil
 }
 
-func NewMarketsAssistantUsingExchangeClient(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
+func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
 	spotMarketsRequest := injective_spot_exchange_rpcpb.MarketsRequest{
 		MarketStatus: "active",
@@ -159,7 +162,7 @@ func NewMarketsAssistantUsingExchangeClient(ctx context.Context, exchangeClient 
 			minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize())
 			minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize())
 
-			market := SpotMarket{
+			market := core.SpotMarket{
 				Id:                  marketInfo.GetMarketId(),
 				Status:              marketInfo.GetMarketStatus(),
 				Ticker:              marketInfo.GetTicker(),
@@ -199,7 +202,7 @@ func NewMarketsAssistantUsingExchangeClient(ctx context.Context, exchangeClient 
 			minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize())
 			minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize())
 
-			market := DerivativeMarket{
+			market := core.DerivativeMarket{
 				Id:                     marketInfo.GetMarketId(),
 				Status:                 marketInfo.GetMarketStatus(),
 				Ticker:                 marketInfo.GetTicker(),
@@ -224,6 +227,17 @@ func NewMarketsAssistantUsingExchangeClient(ctx context.Context, exchangeClient 
 	return assistant, nil
 }
 
+func NewMarketsAssistantWithAllTokens(ctx context.Context, exchangeClient exchange.ExchangeClient, chainClient ChainClient) (MarketsAssistant, error) {
+	assistant, err := NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
+	if err != nil {
+		return assistant, err
+	}
+
+	assistant.initializeTokensFromChainDenoms(ctx, chainClient)
+
+	return assistant, nil
+}
+
 func uniqueSymbol(symbol string, denom string, tokenMetaSymbol string, tokenMetaName string, assistant MarketsAssistant) string {
 	uniqueSymbol := denom
 	_, isSymbolPresent := assistant.tokensBySymbol[symbol]
@@ -244,13 +258,13 @@ func uniqueSymbol(symbol string, denom string, tokenMetaSymbol string, tokenMeta
 	return uniqueSymbol
 }
 
-func spotTokenRepresentation(symbol string, tokenMeta *injective_spot_exchange_rpcpb.TokenMeta, denom string, assistant *MarketsAssistant) Token {
+func spotTokenRepresentation(symbol string, tokenMeta *injective_spot_exchange_rpcpb.TokenMeta, denom string, assistant *MarketsAssistant) core.Token {
 	_, isPresent := assistant.tokensByDenom[denom]
 
 	if !isPresent {
 		uniqueSymbol := uniqueSymbol(symbol, denom, tokenMeta.GetSymbol(), tokenMeta.GetName(), *assistant)
 
-		newToken := Token{
+		newToken := core.Token{
 			Name:     tokenMeta.GetName(),
 			Symbol:   symbol,
 			Denom:    denom,
@@ -267,13 +281,13 @@ func spotTokenRepresentation(symbol string, tokenMeta *injective_spot_exchange_r
 	return assistant.tokensByDenom[denom]
 }
 
-func derivativeTokenRepresentation(symbol string, tokenMeta *injective_derivative_exchange_rpcpb.TokenMeta, denom string, assistant *MarketsAssistant) Token {
+func derivativeTokenRepresentation(symbol string, tokenMeta *injective_derivative_exchange_rpcpb.TokenMeta, denom string, assistant *MarketsAssistant) core.Token {
 	_, isPresent := assistant.tokensByDenom[denom]
 
 	if !isPresent {
 		uniqueSymbol := uniqueSymbol(symbol, denom, tokenMeta.GetSymbol(), tokenMeta.GetName(), *assistant)
 
-		newToken := Token{
+		newToken := core.Token{
 			Name:     tokenMeta.GetName(),
 			Symbol:   symbol,
 			Denom:    denom,
@@ -295,14 +309,67 @@ func getFileAbsPath(relativePath string) string {
 	return path.Join(path.Dir(filename), relativePath)
 }
 
-func (assistant MarketsAssistant) AllTokens() map[string]Token {
+func (assistant MarketsAssistant) AllTokens() map[string]core.Token {
 	return maps.Clone(assistant.tokensBySymbol)
 }
 
-func (assistant MarketsAssistant) AllSpotMarkets() map[string]SpotMarket {
+func (assistant MarketsAssistant) AllSpotMarkets() map[string]core.SpotMarket {
 	return maps.Clone(assistant.spotMarkets)
 }
 
-func (assistant MarketsAssistant) AllDerivativeMarkets() map[string]DerivativeMarket {
+func (assistant MarketsAssistant) AllDerivativeMarkets() map[string]core.DerivativeMarket {
 	return maps.Clone(assistant.derivativeMarkets)
+}
+
+func (assistant MarketsAssistant) initializeTokensFromChainDenoms(ctx context.Context, chainClient ChainClient) {
+	var denomsMetadata []banktypes.Metadata
+	var nextKey []byte
+
+	for readNextPage := true; readNextPage; readNextPage = len(nextKey) > 0 {
+		pagination := query.PageRequest{Key: nextKey}
+		result, err := chainClient.GetDenomsMetadata(ctx, &pagination)
+
+		if err != nil {
+			panic(err)
+		}
+
+		denomsMetadata = append(denomsMetadata, result.GetMetadatas()...)
+	}
+
+	for _, denomMetadata := range denomsMetadata {
+		symbol := denomMetadata.GetSymbol()
+		denom := denomMetadata.GetBase()
+
+		_, isDenomPresent := assistant.tokensByDenom[denom]
+
+		if symbol != "" && denom != "" && !isDenomPresent {
+			name := denomMetadata.GetName()
+			if name == "" {
+				name = symbol
+			}
+
+			var decimals int32 = -1
+			for _, denomUnit := range denomMetadata.GetDenomUnits() {
+				exponent := int32(denomUnit.GetExponent())
+				if exponent > decimals {
+					decimals = exponent
+				}
+			}
+
+			uniqueSymbol := uniqueSymbol(symbol, denom, symbol, name, assistant)
+
+			newToken := core.Token{
+				Name:     name,
+				Symbol:   symbol,
+				Denom:    denom,
+				Address:  "",
+				Decimals: decimals,
+				Logo:     denomMetadata.GetURI(),
+				Updated:  -1,
+			}
+
+			assistant.tokensByDenom[denom] = newToken
+			assistant.tokensBySymbol[uniqueSymbol] = newToken
+		}
+	}
 }

@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/InjectiveLabs/sdk-go/client/core"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"math"
 	"os"
@@ -124,7 +123,9 @@ type ChainClient interface {
 	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId eth.Hash) (OrderHashes, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
+	CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
+	CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
 	SmartContractState(
@@ -153,14 +154,13 @@ type ChainClient interface {
 }
 
 type chainClient struct {
-	ctx              client.Context
-	network          common.Network
-	marketsAssistant core.MarketsAssistant
-	opts             *common.ClientOptions
-	logger           log.Logger
-	conn             *grpc.ClientConn
-	chainStreamConn  *grpc.ClientConn
-	txFactory        tx.Factory
+	ctx             client.Context
+	network         common.Network
+	opts            *common.ClientOptions
+	logger          log.Logger
+	conn            *grpc.ClientConn
+	chainStreamConn *grpc.ClientConn
+	txFactory       tx.Factory
 
 	fromAddress sdk.AccAddress
 	doneC       chan bool
@@ -191,26 +191,12 @@ type chainClient struct {
 	canSign bool
 }
 
-// Deprecated: Use NewChainClientWithMarketsAssistant instead.
 func NewChainClient(
 	ctx client.Context,
 	network common.Network,
 	options ...common.ClientOption,
 ) (ChainClient, error) {
-	assistant, err := core.NewMarketsAssistant(network.Name)
-	if err != nil {
-		return nil, err
-	}
 
-	return NewChainClientWithMarketsAssistant(ctx, network, assistant, options...)
-}
-
-func NewChainClientWithMarketsAssistant(
-	ctx client.Context,
-	network common.Network,
-	marketsAssistant core.MarketsAssistant,
-	options ...common.ClientOption,
-) (ChainClient, error) {
 	// process options
 	opts := common.DefaultClientOptions()
 
@@ -264,10 +250,9 @@ func NewChainClientWithMarketsAssistant(
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client
 	cc := &chainClient{
-		ctx:              ctx,
-		network:          network,
-		marketsAssistant: marketsAssistant,
-		opts:             opts,
+		ctx:     ctx,
+		network: network,
+		opts:    opts,
 
 		logger: log.WithFields(log.Fields{
 			"module": "sdk-go",
@@ -961,9 +946,19 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.H
 	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
 }
 
+// Deprecated: Use CreateSpotOrder instead
 func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
+	assistant, err := NewMarketsAssistant(network.Name)
+	if err != nil {
+		panic(err)
+	}
 
-	market, isPresent := c.marketsAssistant.AllSpotMarkets()[d.MarketId]
+	return c.CreateSpotOrder(defaultSubaccountID, network, d, assistant)
+}
+
+func (c *chainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
+
+	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
 	if !isPresent {
 		panic(errors.Errorf("Invalid spot market id for %s network (%s)", c.network.Name, d.MarketId))
 	}
@@ -984,9 +979,19 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 	}
 }
 
+// Deprecated: Use CreateDerivativeOrder instead
 func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
 
-	market, isPresent := c.marketsAssistant.AllDerivativeMarkets()[d.MarketId]
+	assistant, err := NewMarketsAssistant(network.Name)
+	if err != nil {
+		panic(err)
+	}
+
+	return c.CreateDerivativeOrder(defaultSubaccountID, network, d, assistant)
+}
+
+func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
+	market, isPresent := marketAssistant.AllDerivativeMarkets()[d.MarketId]
 	if !isPresent {
 		panic(errors.Errorf("Invalid derivative market id for %s network (%s)", c.network.Name, d.MarketId))
 	}
