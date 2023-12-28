@@ -137,6 +137,7 @@ type ChainClient interface {
 
 	ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error)
 	SpotMarket(ctx context.Context, req exchangetypes.QuerySpotMarketRequest) (*exchangetypes.QuerySpotMarketResponse, error)
+	SubaccountDeposits(ctx context.Context, req exchangetypes.QuerySubaccountDepositsRequest) (*exchangetypes.QuerySubaccountDepositsResponse, error)
 
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
@@ -1280,6 +1281,10 @@ func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.Stre
 
 func (c *chainClient) SpotMarket(ctx context.Context, req exchangetypes.QuerySpotMarketRequest) (*exchangetypes.QuerySpotMarketResponse, error) {
 	return c.exchangeQueryClient.SpotMarket(ctx, &req)
+}
+
+func (c *chainClient) SubaccountDeposits(ctx context.Context, req exchangetypes.QuerySubaccountDepositsRequest) (*exchangetypes.QuerySubaccountDepositsResponse, error) {
+	return c.exchangeQueryClient.SubaccountDeposits(ctx, &req)
 }
 
 type DerivativeOrderData struct {
