@@ -1,17 +1,16 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-	"os"
-	"time"
-
 	"github.com/InjectiveLabs/sdk-go/client"
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
-	auctiontypes "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+
+	"os"
 )
 
 func main() {
@@ -57,32 +56,16 @@ func main() {
 		panic(err)
 	}
 
-	round := uint64(9355)
-	bidAmount := sdktypes.Coin{
-		Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000), // 1 INJ
-	}
+	denoms := []string{"factory/inj107aqkjc3t5r3l9j4n9lgrma5tm3jav8qgppz6m/position"}
+	pagination := query.PageRequest{Limit: 10}
+	ctx := context.Background()
 
-	msg := &auctiontypes.MsgBid{
-		Sender:    senderAddress.String(),
-		Round:     round,
-		BidAmount: bidAmount,
-	}
-
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	err = chainClient.QueueBroadcastMsg(msg)
-
+	res, err := chainClient.GetBankSendEnabled(ctx, denoms, &pagination)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	time.Sleep(time.Second * 5)
+	str, _ := json.MarshalIndent(res, "", " ")
+	fmt.Print(string(str))
 
-	gasFee, err := chainClient.GetGasFee()
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("gas fee:", gasFee, "INJ")
 }
