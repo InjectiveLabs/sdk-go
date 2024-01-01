@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/InjectiveLabs/sdk-go/client/core"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"github.com/google/uuid"
 
@@ -59,15 +58,14 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
 	if err != nil {
 		panic(err)
 	}
 
-	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		marketsAssistant,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
@@ -83,14 +81,19 @@ func main() {
 	sprice := decimal.NewFromFloat(22.5)
 	smarketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
 
-	spot_order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     samount,
-		Price:        sprice,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     smarketId,
-		Cid:          uuid.NewString(),
-	})
+	spot_order := chainClient.CreateSpotOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.SpotOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     samount,
+			Price:        sprice,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     smarketId,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant,
+	)
 
 	dmarketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
 	damount := decimal.NewFromFloat(0.01)
@@ -98,16 +101,21 @@ func main() {
 	dleverage := decimal.RequireFromString("2")
 	dmarketIds := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
 
-	derivative_order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     damount,
-		Price:        dprice,
-		Leverage:     dleverage,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     dmarketId,
-		IsReduceOnly: false,
-		Cid:          uuid.NewString(),
-	})
+	derivative_order := chainClient.CreateDerivativeOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.DerivativeOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     damount,
+			Price:        dprice,
+			Leverage:     dleverage,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     dmarketId,
+			IsReduceOnly: false,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant,
+	)
 
 	msg := new(exchangetypes.MsgBatchUpdateOrders)
 	msg.Sender = senderAddress.String()

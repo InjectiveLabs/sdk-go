@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/InjectiveLabs/sdk-go/client/core"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"github.com/google/uuid"
 
@@ -59,15 +58,14 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
 	if err != nil {
 		panic(err)
 	}
 
-	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		marketsAssistant,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
@@ -82,14 +80,18 @@ func main() {
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(22.5)
 
-	order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     amount,
-		Price:        price,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     marketId,
-		Cid:          uuid.NewString(),
-	})
+	order := chainClient.CreateSpotOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.SpotOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     amount,
+			Price:        price,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     marketId,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant)
 	msg := new(exchangetypes.MsgBatchCreateSpotLimitOrders)
 	msg.Sender = senderAddress.String()
 	msg.Orders = []exchangetypes.SpotOrder{*order}

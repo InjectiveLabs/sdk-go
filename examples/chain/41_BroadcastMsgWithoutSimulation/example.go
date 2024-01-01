@@ -7,7 +7,6 @@ import (
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	"github.com/InjectiveLabs/sdk-go/client/core"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -55,7 +54,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
 	if err != nil {
 		panic(err)
 	}
@@ -64,10 +63,9 @@ func main() {
 	txFactory = txFactory.WithGasPrices(client.DefaultGasPriceWithDenom)
 	txFactory = txFactory.WithGas(uint64(txFactory.GasAdjustment() * 140000))
 
-	clientInstance, err := chainclient.NewChainClientWithMarketsAssistant(
+	clientInstance, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		marketsAssistant,
 		common.OptionTxFactory(&txFactory),
 	)
 
@@ -82,14 +80,19 @@ func main() {
 	amount := decimal.NewFromFloat(1)
 	price := decimal.NewFromFloat(4.55)
 
-	order := clientInstance.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     amount,
-		Price:        price,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     marketId,
-		Cid:          uuid.NewString(),
-	})
+	order := clientInstance.CreateSpotOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.SpotOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     amount,
+			Price:        price,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     marketId,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant,
+	)
 
 	msg := new(exchangetypes.MsgCreateSpotLimitOrder)
 	msg.Sender = senderAddress.String()

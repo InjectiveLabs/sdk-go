@@ -6,9 +6,6 @@ import (
 	"fmt"
 
 	"github.com/InjectiveLabs/sdk-go/client"
-	"github.com/InjectiveLabs/sdk-go/client/core"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -49,21 +46,9 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
-	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		marketsAssistant,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
@@ -72,6 +57,7 @@ func main() {
 	}
 
 	address := "inj14au322k9munkmx5wrchz9q30juf5wjgz2cfqku"
+	ctx := context.Background()
 
 	res, err := chainClient.GetBankBalances(ctx, address)
 	if err != nil {

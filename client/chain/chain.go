@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/InjectiveLabs/sdk-go/client/core"
+	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"google.golang.org/grpc/credentials/insecure"
 
@@ -89,8 +89,18 @@ type ChainClient interface {
 	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
+	// Bank Module
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
 	GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error)
+	GetBankSpendableBalances(ctx context.Context, address string, pagination *query.PageRequest) (*banktypes.QuerySpendableBalancesResponse, error)
+	GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error)
+	GetBankTotalSupply(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error)
+	GetBankSupplyOf(ctx context.Context, denom string) (*banktypes.QuerySupplyOfResponse, error)
+	GetDenomMetadata(ctx context.Context, denom string) (*banktypes.QueryDenomMetadataResponse, error)
+	GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error)
+	GetDenomOwners(ctx context.Context, denom string, pagination *query.PageRequest) (*banktypes.QueryDenomOwnersResponse, error)
+	GetBankSendEnabled(ctx context.Context, denoms []string, pagination *query.PageRequest) (*banktypes.QuerySendEnabledResponse, error)
+
 	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
 	GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error)
 
@@ -116,7 +126,9 @@ type ChainClient interface {
 	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId eth.Hash) (OrderHashes, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
+	CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
+	CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
 	SmartContractState(
@@ -145,14 +157,13 @@ type ChainClient interface {
 }
 
 type chainClient struct {
-	ctx              client.Context
-	network          common.Network
-	marketsAssistant core.MarketsAssistant
-	opts             *common.ClientOptions
-	logger           log.Logger
-	conn             *grpc.ClientConn
-	chainStreamConn  *grpc.ClientConn
-	txFactory        tx.Factory
+	ctx             client.Context
+	network         common.Network
+	opts            *common.ClientOptions
+	logger          log.Logger
+	conn            *grpc.ClientConn
+	chainStreamConn *grpc.ClientConn
+	txFactory       tx.Factory
 
 	doneC   chan bool
 	msgC    chan sdk.Msg
@@ -182,26 +193,12 @@ type chainClient struct {
 	canSign bool
 }
 
-// Deprecated: Use NewChainClientWithMarketsAssistant instead.
 func NewChainClient(
 	ctx client.Context,
 	network common.Network,
 	options ...common.ClientOption,
 ) (ChainClient, error) {
-	assistant, err := core.NewMarketsAssistant(network.Name)
-	if err != nil {
-		return nil, err
-	}
 
-	return NewChainClientWithMarketsAssistant(ctx, network, assistant, options...)
-}
-
-func NewChainClientWithMarketsAssistant(
-	ctx client.Context,
-	network common.Network,
-	marketsAssistant core.MarketsAssistant,
-	options ...common.ClientOption,
-) (ChainClient, error) {
 	// process options
 	opts := common.DefaultClientOptions()
 
@@ -255,10 +252,9 @@ func NewChainClientWithMarketsAssistant(
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client
 	cc := &chainClient{
-		ctx:              ctx,
-		network:          network,
-		marketsAssistant: marketsAssistant,
-		opts:             opts,
+		ctx:     ctx,
+		network: network,
+		opts:    opts,
 
 		logger: log.WithFields(log.Fields{
 			"module": "sdk-go",
@@ -453,18 +449,13 @@ func (c *chainClient) Close() {
 	}
 }
 
+//Bank Module
+
 func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
 	req := &banktypes.QueryAllBalancesRequest{
 		Address: address,
 	}
 	return c.bankQueryClient.AllBalances(ctx, req)
-}
-
-func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error) {
-	req := &authtypes.QueryAccountRequest{
-		Address: address,
-	}
-	return c.authQueryClient.Account(ctx, req)
 }
 
 func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
@@ -473,6 +464,67 @@ func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom 
 		Denom:   denom,
 	}
 	return c.bankQueryClient.Balance(ctx, req)
+}
+
+func (c *chainClient) GetBankSpendableBalances(ctx context.Context, address string, pagination *query.PageRequest) (*banktypes.QuerySpendableBalancesResponse, error) {
+	req := &banktypes.QuerySpendableBalancesRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.SpendableBalances(ctx, req)
+}
+
+func (c *chainClient) GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error) {
+	req := &banktypes.QuerySpendableBalanceByDenomRequest{
+		Address: address,
+		Denom:   denom,
+	}
+	return c.bankQueryClient.SpendableBalanceByDenom(ctx, req)
+}
+
+func (c *chainClient) GetBankTotalSupply(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error) {
+	req := &banktypes.QueryTotalSupplyRequest{Pagination: pagination}
+	return c.bankQueryClient.TotalSupply(ctx, req)
+}
+
+func (c *chainClient) GetBankSupplyOf(ctx context.Context, denom string) (*banktypes.QuerySupplyOfResponse, error) {
+	req := &banktypes.QuerySupplyOfRequest{Denom: denom}
+	return c.bankQueryClient.SupplyOf(ctx, req)
+}
+
+func (c *chainClient) GetDenomMetadata(ctx context.Context, denom string) (*banktypes.QueryDenomMetadataResponse, error) {
+	req := &banktypes.QueryDenomMetadataRequest{Denom: denom}
+	return c.bankQueryClient.DenomMetadata(ctx, req)
+}
+
+func (c *chainClient) GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error) {
+	req := &banktypes.QueryDenomsMetadataRequest{Pagination: pagination}
+	return c.bankQueryClient.DenomsMetadata(ctx, req)
+}
+
+func (c *chainClient) GetDenomOwners(ctx context.Context, denom string, pagination *query.PageRequest) (*banktypes.QueryDenomOwnersResponse, error) {
+	req := &banktypes.QueryDenomOwnersRequest{
+		Denom:      denom,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.DenomOwners(ctx, req)
+}
+
+func (c *chainClient) GetBankSendEnabled(ctx context.Context, denoms []string, pagination *query.PageRequest) (*banktypes.QuerySendEnabledResponse, error) {
+	req := &banktypes.QuerySendEnabledRequest{
+		Denoms:     denoms,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.SendEnabled(ctx, req)
+}
+
+// Auth Module
+
+func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error) {
+	req := &authtypes.QueryAccountRequest{
+		Address: address,
+	}
+	return c.authQueryClient.Account(ctx, req)
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
@@ -899,9 +951,19 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.H
 	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
 }
 
+// Deprecated: Use CreateSpotOrder instead
 func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
+	assistant, err := NewMarketsAssistant(network.Name)
+	if err != nil {
+		panic(err)
+	}
 
-	market, isPresent := c.marketsAssistant.AllSpotMarkets()[d.MarketId]
+	return c.CreateSpotOrder(defaultSubaccountID, network, d, assistant)
+}
+
+func (c *chainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
+
+	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
 	if !isPresent {
 		panic(errors.Errorf("Invalid spot market id for %s network (%s)", c.network.Name, d.MarketId))
 	}
@@ -922,9 +984,19 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 	}
 }
 
+// Deprecated: Use CreateDerivativeOrder instead
 func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
 
-	market, isPresent := c.marketsAssistant.AllDerivativeMarkets()[d.MarketId]
+	assistant, err := NewMarketsAssistant(network.Name)
+	if err != nil {
+		panic(err)
+	}
+
+	return c.CreateDerivativeOrder(defaultSubaccountID, network, d, assistant)
+}
+
+func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
+	market, isPresent := marketAssistant.AllDerivativeMarkets()[d.MarketId]
 	if !isPresent {
 		panic(errors.Errorf("Invalid derivative market id for %s network (%s)", c.network.Name, d.MarketId))
 	}

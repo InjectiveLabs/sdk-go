@@ -9,8 +9,6 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	"github.com/InjectiveLabs/sdk-go/client/core"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
 func main() {
@@ -26,21 +24,9 @@ func main() {
 	}
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
-	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		marketsAssistant,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
@@ -90,6 +76,9 @@ func main() {
 			Symbol: []string{"INJ", "USDT"},
 		},
 	}
+
+	ctx := context.Background()
+
 	stream, err := chainClient.ChainStream(ctx, req)
 	if err != nil {
 		panic(err)

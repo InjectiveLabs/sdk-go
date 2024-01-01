@@ -6,9 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/InjectiveLabs/sdk-go/client/core"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
@@ -52,27 +49,17 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
-	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		marketsAssistant,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
 		panic(err)
 	}
+
+	ctx := context.Background()
 
 	timeOutCtx, cancelFn := context.WithTimeout(ctx, 30*time.Second)
 	defer cancelFn()

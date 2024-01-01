@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/InjectiveLabs/sdk-go/client/core"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"github.com/google/uuid"
 
@@ -58,15 +57,14 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketsAssistant, err := core.NewMarketsAssistantUsingExchangeClient(ctx, exchangeClient)
+	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
 	if err != nil {
 		panic(err)
 	}
 
-	chainClient, err := chainclient.NewChainClientWithMarketsAssistant(
+	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		marketsAssistant,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
@@ -81,16 +79,21 @@ func main() {
 	price := decimal.RequireFromString("31000") //31,000
 	leverage := decimal.RequireFromString("2.5")
 
-	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     amount,
-		Price:        price,
-		Leverage:     leverage,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     marketId,
-		IsReduceOnly: true,
-		Cid:          uuid.NewString(),
-	})
+	order := chainClient.CreateDerivativeOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.DerivativeOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     amount,
+			Price:        price,
+			Leverage:     leverage,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     marketId,
+			IsReduceOnly: true,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant,
+	)
 
 	msg := new(exchangetypes.MsgCreateDerivativeLimitOrder)
 	msg.Sender = senderAddress.String()
