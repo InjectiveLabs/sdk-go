@@ -131,17 +131,6 @@ type ChainClient interface {
 	CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
-	SmartContractState(
-		ctx context.Context,
-		contractAddress string,
-		queryData []byte,
-	) (*wasmtypes.QuerySmartContractStateResponse, error)
-	RawContractState(
-		ctx context.Context,
-		contractAddress string,
-		queryData []byte,
-	) (*wasmtypes.QueryRawContractStateResponse, error)
-
 	GetGasFee() (string, error)
 
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
@@ -153,6 +142,27 @@ type ChainClient interface {
 
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
+
+	// wasm module
+	FetchContractInfo(ctx context.Context, address string) (*wasmtypes.QueryContractInfoResponse, error)
+	FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error)
+	FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error)
+	FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error)
+	RawContractState(
+		ctx context.Context,
+		contractAddress string,
+		queryData []byte,
+	) (*wasmtypes.QueryRawContractStateResponse, error)
+	SmartContractState(
+		ctx context.Context,
+		contractAddress string,
+		queryData []byte,
+	) (*wasmtypes.QuerySmartContractStateResponse, error)
+	FetchCode(ctx context.Context, codeId uint64) (*wasmtypes.QueryCodeResponse, error)
+	FetchCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryCodesResponse, error)
+	FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error)
+	FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error)
+
 	Close()
 }
 
@@ -1155,34 +1165,6 @@ func (c *chainClient) BuildExchangeAuthz(granter string, grantee string, authzTy
 	}
 }
 
-func (c *chainClient) SmartContractState(
-	ctx context.Context,
-	contractAddress string,
-	queryData []byte,
-) (*wasmtypes.QuerySmartContractStateResponse, error) {
-	return c.wasmQueryClient.SmartContractState(
-		ctx,
-		&wasmtypes.QuerySmartContractStateRequest{
-			Address:   contractAddress,
-			QueryData: queryData,
-		},
-	)
-}
-
-func (c *chainClient) RawContractState(
-	ctx context.Context,
-	contractAddress string,
-	queryData []byte,
-) (*wasmtypes.QueryRawContractStateResponse, error) {
-	return c.wasmQueryClient.RawContractState(
-		ctx,
-		&wasmtypes.QueryRawContractStateRequest{
-			Address:   contractAddress,
-			QueryData: queryData,
-		},
-	)
-}
-
 func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 	granter string,
 	grantee string,
@@ -1361,6 +1343,96 @@ func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.Stre
 	}
 
 	return stream, nil
+}
+
+// wasm module
+
+func (c *chainClient) FetchContractInfo(ctx context.Context, address string) (*wasmtypes.QueryContractInfoResponse, error) {
+	req := &wasmtypes.QueryContractInfoRequest{
+		Address: address,
+	}
+	return c.wasmQueryClient.ContractInfo(ctx, req)
+}
+
+func (c *chainClient) FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error) {
+	req := &wasmtypes.QueryContractHistoryRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.ContractHistory(ctx, req)
+}
+
+func (c *chainClient) FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error) {
+	req := &wasmtypes.QueryContractsByCodeRequest{
+		CodeId:     codeId,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.ContractsByCode(ctx, req)
+}
+
+func (c *chainClient) FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error) {
+	req := &wasmtypes.QueryAllContractStateRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.AllContractState(ctx, req)
+}
+
+func (c *chainClient) RawContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QueryRawContractStateResponse, error) {
+	return c.wasmQueryClient.RawContractState(
+		ctx,
+		&wasmtypes.QueryRawContractStateRequest{
+			Address:   contractAddress,
+			QueryData: queryData,
+		},
+	)
+}
+
+func (c *chainClient) SmartContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QuerySmartContractStateResponse, error) {
+	return c.wasmQueryClient.SmartContractState(
+		ctx,
+		&wasmtypes.QuerySmartContractStateRequest{
+			Address:   contractAddress,
+			QueryData: queryData,
+		},
+	)
+}
+
+func (c *chainClient) FetchCode(ctx context.Context, codeId uint64) (*wasmtypes.QueryCodeResponse, error) {
+	req := &wasmtypes.QueryCodeRequest{
+		CodeId: codeId,
+	}
+	return c.wasmQueryClient.Code(ctx, req)
+}
+
+func (c *chainClient) FetchCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryCodesResponse, error) {
+	req := &wasmtypes.QueryCodesRequest{
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.Codes(ctx, req)
+}
+
+func (c *chainClient) FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error) {
+	req := &wasmtypes.QueryPinnedCodesRequest{
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.PinnedCodes(ctx, req)
+}
+
+func (c *chainClient) FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error) {
+	req := &wasmtypes.QueryContractsByCreatorRequest{
+		CreatorAddress: creator,
+		Pagination:     pagination,
+	}
+	return c.wasmQueryClient.ContractsByCreator(ctx, req)
 }
 
 type DerivativeOrderData struct {
