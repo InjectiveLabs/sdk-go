@@ -14,7 +14,7 @@ func main() {
 	network := common.LoadNetwork("testnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
@@ -26,9 +26,9 @@ func main() {
 		SubaccountId: subaccountId,
 	}
 
-	res, err := exchangeClient.GetDerivativeTrades(ctx, req)
+	res, err := exchangeClient.GetDerivativeTrades(ctx, &req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	str, _ := json.MarshalIndent(res, "", " ")

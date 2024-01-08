@@ -108,7 +108,6 @@ service Query {
   rpc MissingPeggoNonces(MissingNoncesRequest) returns (MissingNoncesResponse) {
     option (google.api.http).get = "/peggy/v1/missing_nonces";
   }
-
 }
 
 message QueryParamsRequest {}
@@ -210,13 +209,10 @@ message QueryPendingSendToEthResponse {
 // RPC method.
 message QueryModuleStateRequest {}
 
-// QueryModuleStateResponse is the response type for the Query/PeggyModuleState RPC method.
-message QueryModuleStateResponse {
-  GenesisState state = 1;
-}
+// QueryModuleStateResponse is the response type for the Query/PeggyModuleState
+// RPC method.
+message QueryModuleStateResponse { GenesisState state = 1; }
 
 message MissingNoncesRequest {}
 
-message MissingNoncesResponse {
-  repeated string operator_addresses = 1;
-}
+message MissingNoncesResponse { repeated string operator_addresses = 1; }

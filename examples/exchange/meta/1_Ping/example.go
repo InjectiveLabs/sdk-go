@@ -15,14 +15,14 @@ func main() {
 	network := common.LoadNetwork("testnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
 
 	req := metaPB.PingRequest{}
 
-	res, err := exchangeClient.Ping(ctx, req)
+	res, err := exchangeClient.Ping(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

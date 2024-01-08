@@ -22,6 +22,8 @@ service InjectiveMetaRPC {
 	// Stream keepalive, if server exits, a shutdown event will be sent over this
 // channel.
 	rpc StreamKeepalive (StreamKeepaliveRequest) returns (stream StreamKeepaliveResponse);
+	// Get tokens metadata. Can be filtered by denom
+	rpc TokenMetadata (TokenMetadataRequest) returns (TokenMetadataResponse);
 }
 
 message PingRequest {
@@ -68,4 +70,30 @@ message StreamKeepaliveResponse {
 	string new_endpoint = 2;
 	// Operation timestamp in UNIX millis.
 	sint64 timestamp = 3;
+}
+
+message TokenMetadataRequest {
+	repeated string denoms = 1;
+}
+
+message TokenMetadataResponse {
+	// tokens and their metadata list
+	repeated TokenMetadataElement tokens = 1;
+}
+
+message TokenMetadataElement {
+	// Token's Ethereum address, not all token have this information
+	string ethereum_address = 1;
+	// Token's CoinGecko id for price references
+	string coingecko_id = 2;
+	// Token's denom on injective chain
+	string denom = 3;
+	// Token name
+	string name = 4;
+	// Token symbol
+	string symbol = 5;
+	// Number of decimal places used to represent the token's smallest unit
+	sint32 decimals = 6;
+	// Token logo URL
+	string logo = 7;
 }

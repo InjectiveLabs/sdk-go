@@ -29,7 +29,7 @@ func main() {
 		Limit:    limit,
 	}
 
-	res, err := exchangeClient.GetDerivativeOrders(ctx, req)
+	res, err := exchangeClient.GetDerivativeOrders(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

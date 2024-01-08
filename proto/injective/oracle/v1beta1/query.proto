@@ -103,9 +103,7 @@ service Query {
 
 message QueryPythPriceRequest { string price_id = 1; }
 
-message QueryPythPriceResponse {
-  PythPriceState price_state = 1;
-}
+message QueryPythPriceResponse { PythPriceState price_state = 1; }
 
 // QueryOracleParamsRequest is the request type for the Query/OracleParams RPC
 // method.

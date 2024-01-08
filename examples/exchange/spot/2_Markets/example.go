@@ -15,7 +15,7 @@ func main() {
 	network := common.LoadNetwork("testnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
@@ -27,7 +27,7 @@ func main() {
 		QuoteDenom:   quoteDenom,
 	}
 
-	res, err := exchangeClient.GetSpotMarkets(ctx, req)
+	res, err := exchangeClient.GetSpotMarkets(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

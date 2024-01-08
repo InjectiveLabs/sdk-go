@@ -4,6 +4,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// Event type and attribute constants
+
 func (e *EventOrderFail) AddOrderFail(orderHash common.Hash, flag uint32) {
 	e.Hashes = append(e.Hashes, orderHash.Bytes())
 	e.Flags = append(e.Flags, flag)

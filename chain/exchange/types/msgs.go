@@ -37,6 +37,7 @@ var (
 	_ sdk.Msg = &MsgExternalTransfer{}
 	_ sdk.Msg = &MsgIncreasePositionMargin{}
 	_ sdk.Msg = &MsgLiquidatePosition{}
+	_ sdk.Msg = &MsgEmergencySettleMarket{}
 	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
 	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
@@ -71,6 +72,7 @@ const (
 	TypeMsgExternalTransfer                 = "externalTransfer"
 	TypeMsgIncreasePositionMargin           = "increasePositionMargin"
 	TypeMsgLiquidatePosition                = "liquidatePosition"
+	TypeMsgEmergencySettleMarket            = "emergencySettleMarket"
 	TypeMsgInstantSpotMarketLaunch          = "instantSpotMarketLaunch"
 	TypeMsgInstantPerpetualMarketLaunch     = "instantPerpetualMarketLaunch"
 	TypeMsgInstantExpiryFuturesMarketLaunch = "instantExpiryFuturesMarketLaunch"
@@ -142,6 +144,10 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand,
 		return err
 	}
 
+	if o.Cid != "" && !IsValidCid(o.Cid) {
+		return errors.Wrap(ErrInvalidCid, o.Cid)
+	}
+
 	if o.Quantity.IsNil() || o.Quantity.LTE(sdk.ZeroDec()) || o.Quantity.GT(MaxOrderQuantity) {
 		return errors.Wrap(ErrInvalidQuantity, o.Quantity.String())
 	}
@@ -192,7 +198,7 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 	}
 
 	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
-		!o.IsConditional() && o.TriggerPrice != nil */// commented out this check since FE is sending to us 0.0 trigger price for all orders
+		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return errors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
 
@@ -214,10 +220,23 @@ func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
 		return err
 	}
 
-	if ok := IsValidOrderHash(o.OrderHash); !ok {
+	// order data must contain either an order hash or cid
+	if o.Cid == "" && o.OrderHash == "" {
+		return ErrOrderHashInvalid
+	}
+
+	if o.Cid != "" && !IsValidCid(o.Cid) {
+		return errors.Wrap(ErrInvalidCid, o.Cid)
+	}
+
+	if o.OrderHash != "" && !IsValidOrderHash(o.OrderHash) {
 		return errors.Wrap(ErrOrderHashInvalid, o.OrderHash)
 	}
 	return nil
+}
+
+func (o *OrderData) GetIdentifier() any {
+	return GetOrderIdentifier(o.OrderHash, o.Cid)
 }
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -712,6 +731,7 @@ func (msg *MsgCancelSpotOrder) ValidateBasic() error {
 		MarketId:     msg.MarketId,
 		SubaccountId: msg.SubaccountId,
 		OrderHash:    msg.OrderHash,
+		Cid:          msg.Cid,
 	}
 	return orderData.ValidateBasic(senderAddr)
 }
@@ -1042,6 +1062,7 @@ func (msg *MsgCancelDerivativeOrder) ValidateBasic() error {
 		MarketId:     msg.MarketId,
 		SubaccountId: msg.SubaccountId,
 		OrderHash:    msg.OrderHash,
+		Cid:          msg.Cid,
 	}
 	return orderData.ValidateBasic(senderAddr)
 }
@@ -1125,6 +1146,7 @@ func (msg *MsgCancelBinaryOptionsOrder) ValidateBasic() error {
 		MarketId:     msg.MarketId,
 		SubaccountId: msg.SubaccountId,
 		OrderHash:    msg.OrderHash,
+		Cid:          msg.Cid,
 	}
 	return orderData.ValidateBasic(senderAddr)
 }
@@ -1489,6 +1511,45 @@ func (msg *MsgLiquidatePosition) GetSignBytes() []byte {
 }
 
 func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgEmergencySettleMarket) Route() string {
+	return RouterKey
+}
+
+func (msg *MsgEmergencySettleMarket) Type() string {
+	return TypeMsgEmergencySettleMarket
+}
+
+func (msg *MsgEmergencySettleMarket) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+
+	if err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !IsHexHash(msg.MarketId) {
+		return errors.Wrap(ErrMarketInvalid, msg.MarketId)
+	}
+
+	_, ok := IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return errors.Wrap(ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	return nil
+}
+
+func (msg *MsgEmergencySettleMarket) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgEmergencySettleMarket) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

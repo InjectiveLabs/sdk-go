@@ -22,7 +22,7 @@ func main() {
 
 	req := explorerPB.GetWasmContractsRequest{}
 
-	res, err := explorerClient.GetWasmContracts(ctx, req)
+	res, err := explorerClient.GetWasmContracts(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

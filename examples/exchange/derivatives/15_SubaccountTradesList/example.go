@@ -31,7 +31,7 @@ func main() {
 		Limit:        limit,
 	}
 
-	res, err := exchangeClient.GetSubaccountDerivativeTradesList(ctx, req)
+	res, err := exchangeClient.GetSubaccountDerivativeTradesList(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

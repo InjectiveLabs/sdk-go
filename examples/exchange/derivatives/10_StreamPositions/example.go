@@ -25,7 +25,7 @@ func main() {
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
 	}
-	stream, err := exchangeClient.StreamDerivativePositions(ctx, req)
+	stream, err := exchangeClient.StreamDerivativePositions(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

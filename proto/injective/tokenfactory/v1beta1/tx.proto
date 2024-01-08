@@ -40,6 +40,8 @@ message MsgCreateDenom {
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
   // subdenom can be up to 44 "alphanumeric" characters long.
   string subdenom = 2 [ (gogoproto.moretags) = "yaml:\"subdenom\"" ];
+  string name = 3 [ (gogoproto.moretags) = "yaml:\"name\"" ];
+  string symbol = 4 [ (gogoproto.moretags) = "yaml:\"symbol\"" ];
 }
 
 // MsgCreateDenomResponse is the return value of MsgCreateDenom

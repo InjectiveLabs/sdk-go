@@ -6,7 +6,7 @@ import (
 
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 const (
@@ -103,7 +103,7 @@ func DeconstructDenom(denom string) (creator, subdenom string, err error) {
 
 // NewTokenFactoryDenomMintCoinsRestriction creates and returns a MintingRestrictionFn that only allows minting of
 // valid tokenfactory denoms
-func NewTokenFactoryDenomMintCoinsRestriction() bankkeeper.MintingRestrictionFn {
+func NewTokenFactoryDenomMintCoinsRestriction() banktypes.MintingRestrictionFn {
 	return func(ctx sdk.Context, coinsToMint sdk.Coins) error {
 		for _, coin := range coinsToMint {
 			_, _, err := DeconstructDenom(coin.Denom)

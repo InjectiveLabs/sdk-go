@@ -15,6 +15,8 @@ option go_package = "/injective_portfolio_rpcpb";
 service InjectivePortfolioRPC {
 	// Provide the account's portfolio
 	rpc AccountPortfolio (AccountPortfolioRequest) returns (AccountPortfolioResponse);
+	// Provide the account's portfolio balances
+	rpc AccountPortfolioBalances (AccountPortfolioBalancesRequest) returns (AccountPortfolioBalancesResponse);
 	// Stream the account's portfolio
 	rpc StreamAccountPortfolio (StreamAccountPortfolioRequest) returns (stream StreamAccountPortfolioResponse);
 }
@@ -90,6 +92,25 @@ message DerivativePosition {
 	sint64 updated_at = 12;
 	// Position created timestamp in UNIX millis.
 	sint64 created_at = 13;
+}
+
+message AccountPortfolioBalancesRequest {
+	// Account address
+	string account_address = 1;
+}
+
+message AccountPortfolioBalancesResponse {
+	// The portfolio balances of this account
+	PortfolioBalances portfolio = 1;
+}
+
+message PortfolioBalances {
+	// The account's portfolio address
+	string account_address = 1;
+	// Account available bank balances
+	repeated Coin bank_balances = 2;
+	// Subaccounts list
+	repeated SubaccountBalanceV2 subaccounts = 3;
 }
 
 message StreamAccountPortfolioRequest {
