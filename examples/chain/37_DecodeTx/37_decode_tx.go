@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+
 	cosmostxpb "github.com/cosmos/cosmos-sdk/types/tx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )

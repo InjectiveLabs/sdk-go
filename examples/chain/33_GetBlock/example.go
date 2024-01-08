@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	tmclient "github.com/InjectiveLabs/sdk-go/client/tm"
 )

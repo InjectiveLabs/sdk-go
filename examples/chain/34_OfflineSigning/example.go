@@ -4,9 +4,10 @@ package main
 import (
 	"context"
 	"fmt"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"io/ioutil"
 	"os"
+
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"

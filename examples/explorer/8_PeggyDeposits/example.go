@@ -26,7 +26,7 @@ func main() {
 		Receiver: receiver,
 	}
 
-	res, err := explorerClient.GetPeggyDeposits(ctx, req)
+	res, err := explorerClient.GetPeggyDeposits(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

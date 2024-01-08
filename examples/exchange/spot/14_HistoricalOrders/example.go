@@ -32,7 +32,7 @@ func main() {
 		OrderTypes:   orderTypes,
 	}
 
-	res, err := exchangeClient.GetHistoricalSpotOrders(ctx, req)
+	res, err := exchangeClient.GetHistoricalSpotOrders(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

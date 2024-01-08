@@ -22,7 +22,7 @@ func main() {
 
 	req := metaPB.VersionRequest{}
 
-	res, err := exchangeClient.GetVersion(ctx, req)
+	res, err := exchangeClient.GetVersion(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -50,7 +50,7 @@ func createUSDTPerpTokenMeta() derivativeExchangePB.TokenMeta {
 	}
 }
 
-func createINJUSDTSpotMarketInfo() spotExchangePB.SpotMarketInfo {
+func createINJUSDTSpotMarketInfo() *spotExchangePB.SpotMarketInfo {
 	injTokenMeta := createINJTokenMeta()
 	usdtTokenMeta := createUSDTTokenMeta()
 	marketInfo := spotExchangePB.SpotMarketInfo{
@@ -68,10 +68,10 @@ func createINJUSDTSpotMarketInfo() spotExchangePB.SpotMarketInfo {
 		MinQuantityTickSize: "1000000000000000",
 	}
 
-	return marketInfo
+	return &marketInfo
 }
 
-func createAPEUSDTSpotMarketInfo() spotExchangePB.SpotMarketInfo {
+func createAPEUSDTSpotMarketInfo() *spotExchangePB.SpotMarketInfo {
 	apeTokenMeta := createAPETokenMeta()
 	usdtTokenMeta := createUSDTTokenMeta()
 	marketInfo := spotExchangePB.SpotMarketInfo{
@@ -89,10 +89,10 @@ func createAPEUSDTSpotMarketInfo() spotExchangePB.SpotMarketInfo {
 		MinQuantityTickSize: "1000000000000000",
 	}
 
-	return marketInfo
+	return &marketInfo
 }
 
-func createBTCUSDTDerivativeMarketInfo() derivativeExchangePB.DerivativeMarketInfo {
+func createBTCUSDTDerivativeMarketInfo() *derivativeExchangePB.DerivativeMarketInfo {
 	usdtPerpTokenMeta := createUSDTPerpTokenMeta()
 
 	perpetualMarketInfo := derivativeExchangePB.PerpetualMarketInfo{
@@ -130,7 +130,7 @@ func createBTCUSDTDerivativeMarketInfo() derivativeExchangePB.DerivativeMarketIn
 		PerpetualMarketFunding: &perpetualmarketFunding,
 	}
 
-	return marketInfo
+	return &marketInfo
 }
 
 func createSmartDenomMetadata() types.Metadata {

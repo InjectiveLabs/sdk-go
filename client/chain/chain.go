@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	"math"
 	"os"
 	"strconv"
@@ -14,6 +13,10 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/cosmos/cosmos-sdk/types/query"
+
+	"google.golang.org/grpc/credentials/insecure"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	log "github.com/InjectiveLabs/suplog"
@@ -162,10 +165,9 @@ type chainClient struct {
 	chainStreamConn *grpc.ClientConn
 	txFactory       tx.Factory
 
-	fromAddress sdk.AccAddress
-	doneC       chan bool
-	msgC        chan sdk.Msg
-	syncMux     *sync.Mutex
+	doneC   chan bool
+	msgC    chan sdk.Msg
+	syncMux *sync.Mutex
 
 	cancelCtx context.Context
 	cancelFn  func()
@@ -228,7 +230,7 @@ func NewChainClient(
 	if opts.TLSCert != nil {
 		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 		stickySessionEnabled = false
 	}
 	if err != nil {
@@ -240,7 +242,7 @@ func NewChainClient(
 	if opts.TLSCert != nil {
 		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {
 		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
@@ -389,7 +391,10 @@ func (c *chainClient) getAccSeq() uint64 {
 
 func (c *chainClient) requestCookie() metadata.MD {
 	var header metadata.MD
-	c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
+	_, err := c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
+	if err != nil {
+		panic(err)
+	}
 	return header
 }
 
@@ -527,16 +532,18 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
 
-	c.txFactory = c.txFactory.WithSequence(c.accSeq)
+	sequence := c.getAccSeq()
+	c.txFactory = c.txFactory.WithSequence(sequence)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
-			c.txFactory = c.txFactory.WithSequence(c.accSeq)
+			sequence := c.getAccSeq()
+			c.txFactory = c.txFactory.WithSequence(sequence)
 			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-			log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+			log.Debugln("retrying broadcastTx with nonce", sequence)
 			res, err = c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 		}
 		if err != nil {
@@ -545,8 +552,6 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 			return nil, err
 		}
 	}
-
-	c.accSeq++
 
 	return res, nil
 }
@@ -591,15 +596,17 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
 
-	c.txFactory = c.txFactory.WithSequence(c.accSeq)
+	sequence := c.getAccSeq()
+	c.txFactory = c.txFactory.WithSequence(sequence)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 	res, err := c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
 	if err != nil {
 		if strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
-			c.txFactory = c.txFactory.WithSequence(c.accSeq)
+			sequence := c.getAccSeq()
+			c.txFactory = c.txFactory.WithSequence(sequence)
 			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-			log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+			log.Debugln("retrying broadcastTx with nonce", sequence)
 			res, err = c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
 		}
 		if err != nil {
@@ -608,8 +615,6 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 			return nil, err
 		}
 	}
-
-	c.accSeq++
 
 	return res, nil
 }
@@ -847,16 +852,18 @@ func (c *chainClient) runBatchBroadcast() {
 	submitBatch := func(toSubmit []sdk.Msg) {
 		c.syncMux.Lock()
 		defer c.syncMux.Unlock()
-		c.txFactory = c.txFactory.WithSequence(c.accSeq)
+		sequence := c.getAccSeq()
+		c.txFactory = c.txFactory.WithSequence(sequence)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-		log.Debugln("broadcastTx with nonce", c.accSeq)
+		log.Debugln("broadcastTx with nonce", sequence)
 		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 		if err != nil {
 			if strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
-				c.txFactory = c.txFactory.WithSequence(c.accSeq)
+				sequence := c.getAccSeq()
+				c.txFactory = c.txFactory.WithSequence(sequence)
 				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-				log.Debugln("retrying broadcastTx with nonce", c.accSeq)
+				log.Debugln("retrying broadcastTx with nonce", sequence)
 				res, err = c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 			}
 			if err != nil {
@@ -873,8 +880,6 @@ func (c *chainClient) runBatchBroadcast() {
 			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch broadcasted successfully at height", res.TxResponse.Height)
 		}
 
-		c.accSeq++
-		log.Debugln("nonce incremented to", c.accSeq)
 		log.Debugln("gas wanted: ", c.gasWanted)
 	}
 
@@ -1221,7 +1226,12 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 			panic(err)
 		}
 	}
-	defer cometbftClient.Stop()
+	defer func() {
+		err := cometbftClient.Stop()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	c.StreamEventOrderFailWithWebsocket(sender, cometbftClient, failEventCh)
 }
@@ -1275,7 +1285,12 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 			panic(err)
 		}
 	}
-	defer cometbftClient.Stop()
+	defer func() {
+		err := cometbftClient.Stop()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	c.StreamOrderbookUpdateEventsWithWebsocket(orderbookType, marketIds, cometbftClient, orderbookCh)
 

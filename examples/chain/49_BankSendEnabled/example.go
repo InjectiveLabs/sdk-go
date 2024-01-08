@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -56,11 +57,11 @@ func main() {
 		panic(err)
 	}
 
-	denom := "factory/inj107aqkjc3t5r3l9j4n9lgrma5tm3jav8qgppz6m/position"
+	denoms := []string{"factory/inj107aqkjc3t5r3l9j4n9lgrma5tm3jav8qgppz6m/position"}
 	pagination := query.PageRequest{Limit: 10}
 	ctx := context.Background()
 
-	res, err := chainClient.GetDenomOwners(ctx, denom, &pagination)
+	res, err := chainClient.GetBankSendEnabled(ctx, denoms, &pagination)
 	if err != nil {
 		fmt.Println(err)
 	}

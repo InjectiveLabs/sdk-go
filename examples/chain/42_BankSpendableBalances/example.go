@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/cosmos/cosmos-sdk/types/query"
 

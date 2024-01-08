@@ -32,7 +32,7 @@ func main() {
 		IsConditional: isConditional,
 	}
 
-	res, err := exchangeClient.GetHistoricalDerivativeOrders(ctx, req)
+	res, err := exchangeClient.GetHistoricalDerivativeOrders(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

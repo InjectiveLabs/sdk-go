@@ -2,13 +2,14 @@ package chain
 
 import (
 	"context"
+	"strings"
+	"testing"
+
 	"github.com/InjectiveLabs/sdk-go/client/exchange"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/assert"
-	"strings"
-	"testing"
 )
 
 func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
@@ -19,14 +20,14 @@ func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 	apeUsdtSpotMarketInfo := createAPEUSDTSpotMarketInfo()
 	btcUsdtDerivativeMarketInfo := createBTCUSDTDerivativeMarketInfo()
 
-	spotMarketInfos = append(spotMarketInfos, &injUsdtSpotMarketInfo)
-	spotMarketInfos = append(spotMarketInfos, &apeUsdtSpotMarketInfo)
-	derivativeMarketInfos = append(derivativeMarketInfos, &btcUsdtDerivativeMarketInfo)
+	spotMarketInfos = append(spotMarketInfos, injUsdtSpotMarketInfo)
+	spotMarketInfos = append(spotMarketInfos, apeUsdtSpotMarketInfo)
+	derivativeMarketInfos = append(derivativeMarketInfos, btcUsdtDerivativeMarketInfo)
 
-	mockExchange.SpotMarketsResponses = append(mockExchange.SpotMarketsResponses, spotExchangePB.MarketsResponse{
+	mockExchange.SpotMarketsResponses = append(mockExchange.SpotMarketsResponses, &spotExchangePB.MarketsResponse{
 		Markets: spotMarketInfos,
 	})
-	mockExchange.DerivativeMarketsResponses = append(mockExchange.DerivativeMarketsResponses, derivativeExchangePB.MarketsResponse{
+	mockExchange.DerivativeMarketsResponses = append(mockExchange.DerivativeMarketsResponses, &derivativeExchangePB.MarketsResponse{
 		Markets: derivativeMarketInfos,
 	})
 
@@ -77,8 +78,8 @@ func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
 	mockChain := MockChainClient{}
 	smartDenomMetadata := createSmartDenomMetadata()
 
-	mockExchange.SpotMarketsResponses = append(mockExchange.SpotMarketsResponses, spotExchangePB.MarketsResponse{})
-	mockExchange.DerivativeMarketsResponses = append(mockExchange.DerivativeMarketsResponses, derivativeExchangePB.MarketsResponse{})
+	mockExchange.SpotMarketsResponses = append(mockExchange.SpotMarketsResponses, &spotExchangePB.MarketsResponse{})
+	mockExchange.DerivativeMarketsResponses = append(mockExchange.DerivativeMarketsResponses, &derivativeExchangePB.MarketsResponse{})
 
 	mockChain.DenomsMetadataResponses = append(mockChain.DenomsMetadataResponses, &banktypes.QueryDenomsMetadataResponse{
 		Metadatas: []banktypes.Metadata{smartDenomMetadata},

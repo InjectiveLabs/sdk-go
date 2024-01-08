@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-	"github.com/google/uuid"
 	"os"
 	"time"
+
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	"github.com/google/uuid"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/InjectiveLabs/sdk-go/client"

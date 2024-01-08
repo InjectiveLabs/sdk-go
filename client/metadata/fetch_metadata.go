@@ -3,25 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
-	"os"
 
 	//derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
-	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	"math"
 	"strconv"
-)
 
-func find(slice []string, val string) bool {
-	for _, item := range slice {
-		if item == val {
-			return true
-		}
-	}
-	return false
-}
+	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+)
 
 var metadataTemplate = `[%s]
 description = '%s %s %s'
@@ -50,7 +43,7 @@ func FetchDenom(network common.Network) {
 	// fetch spot markets
 	spotMarketsReq := spotExchangePB.MarketsRequest{MarketStatus: "active"}
 	ctx := context.Background()
-	spotRes, err := exchangeClient.GetSpotMarkets(ctx, spotMarketsReq)
+	spotRes, err := exchangeClient.GetSpotMarkets(ctx, &spotMarketsReq)
 	if err != nil {
 		panic(err)
 	}
@@ -90,7 +83,7 @@ func FetchDenom(network common.Network) {
 
 	//fetch derivative markets
 	derivativeMarketsReq := derivativeExchangePB.MarketsRequest{MarketStatus: "active"}
-	derivativeRes, err := exchangeClient.GetDerivativeMarkets(ctx, derivativeMarketsReq)
+	derivativeRes, err := exchangeClient.GetDerivativeMarkets(ctx, &derivativeMarketsReq)
 	if err != nil {
 		panic(err)
 	}

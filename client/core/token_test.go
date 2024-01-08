@@ -1,9 +1,10 @@
 package core
 
 import (
+	"testing"
+
 	"github.com/huandu/go-assert"
 	"github.com/shopspring/decimal"
-	"testing"
 )
 
 func createINJToken() Token {

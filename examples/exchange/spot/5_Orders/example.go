@@ -12,7 +12,7 @@ import (
 
 func main() {
 	//network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("testnet", "lb")
+	network := common.LoadNetwork("mainnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
 		panic(err)
@@ -29,7 +29,7 @@ func main() {
 		Limit:    limit,
 	}
 
-	res, err := exchangeClient.GetSpotOrders(ctx, req)
+	res, err := exchangeClient.GetSpotOrders(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

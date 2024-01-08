@@ -24,7 +24,7 @@ copy-exchange-client:
 	cp -r ../injective-indexer/api/gen/grpc/injective_derivative_exchange_rpc/pb exchange/derivative_exchange_rpc/pb
 	cp -r ../injective-indexer/api/gen/grpc/injective_portfolio_rpc/pb exchange/portfolio_rpc/pb
 
-.PHONY: copy-exchange-client
+.PHONY: copy-exchange-client tests coverage
 
 copy-chain-types:
 	cp ../injective-core/injective-chain/types/*.go chain/types
@@ -53,3 +53,8 @@ copy-chain-types:
 	echo "👉 Replace injective-core/injective-chain/modules with sdk-go/chain"
 	echo "👉 Replace injective-core/injective-chain/types with sdk-go/chain/types"
 	echo "👉 Replace injective-core/injective-chain/crypto with sdk-go/chain/crypto"
+
+tests:
+	go test -race ./client/... ./ethereum/...
+coverage:
+	go test -race -coverprofile=coverage.out -covermode=atomic ./client/... ./ethereum/...

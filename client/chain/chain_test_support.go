@@ -3,6 +3,8 @@ package chain
 import (
 	"context"
 	"errors"
+	"time"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
@@ -17,7 +19,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	eth "github.com/ethereum/go-ethereum/common"
 	"google.golang.org/grpc"
-	"time"
 )
 
 type MockChainClient struct {

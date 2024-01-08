@@ -3,18 +3,19 @@ package chain
 import (
 	"context"
 	"fmt"
-	"github.com/InjectiveLabs/sdk-go/client/core"
-	"github.com/InjectiveLabs/sdk-go/client/exchange"
-	injective_derivative_exchange_rpcpb "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
-	injective_spot_exchange_rpcpb "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/shopspring/decimal"
-	"gopkg.in/ini.v1"
 	"path"
 	"runtime"
 	"strings"
 	"sync"
+
+	"github.com/InjectiveLabs/sdk-go/client/core"
+	"github.com/InjectiveLabs/sdk-go/client/exchange"
+	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
+	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/shopspring/decimal"
+	"gopkg.in/ini.v1"
 )
 
 var legacyMarketAssistantLazyInitialization sync.Once
@@ -139,10 +140,10 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 
 func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
-	spotMarketsRequest := injective_spot_exchange_rpcpb.MarketsRequest{
+	spotMarketsRequest := spotExchangePB.MarketsRequest{
 		MarketStatus: "active",
 	}
-	spotMarkets, err := exchangeClient.GetSpotMarkets(ctx, spotMarketsRequest)
+	spotMarkets, err := exchangeClient.GetSpotMarkets(ctx, &spotMarketsRequest)
 
 	if err != nil {
 		return assistant, err
@@ -185,10 +186,10 @@ func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient
 		}
 	}
 
-	derivativeMarketsRequest := injective_derivative_exchange_rpcpb.MarketsRequest{
+	derivativeMarketsRequest := derivativeExchangePB.MarketsRequest{
 		MarketStatus: "active",
 	}
-	derivativeMarkets, err := exchangeClient.GetDerivativeMarkets(ctx, derivativeMarketsRequest)
+	derivativeMarkets, err := exchangeClient.GetDerivativeMarkets(ctx, &derivativeMarketsRequest)
 
 	if err != nil {
 		return assistant, err
@@ -264,7 +265,7 @@ func uniqueSymbol(symbol string, denom string, tokenMetaSymbol string, tokenMeta
 	return uniqueSymbol
 }
 
-func spotTokenRepresentation(symbol string, tokenMeta *injective_spot_exchange_rpcpb.TokenMeta, denom string, assistant *MarketsAssistant) core.Token {
+func spotTokenRepresentation(symbol string, tokenMeta *spotExchangePB.TokenMeta, denom string, assistant *MarketsAssistant) core.Token {
 	_, isPresent := assistant.tokensByDenom[denom]
 
 	if !isPresent {
@@ -287,7 +288,7 @@ func spotTokenRepresentation(symbol string, tokenMeta *injective_spot_exchange_r
 	return assistant.tokensByDenom[denom]
 }
 
-func derivativeTokenRepresentation(symbol string, tokenMeta *injective_derivative_exchange_rpcpb.TokenMeta, denom string, assistant *MarketsAssistant) core.Token {
+func derivativeTokenRepresentation(symbol string, tokenMeta *derivativeExchangePB.TokenMeta, denom string, assistant *MarketsAssistant) core.Token {
 	_, isPresent := assistant.tokensByDenom[denom]
 
 	if !isPresent {
