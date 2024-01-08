@@ -39,6 +39,7 @@ import (
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -163,6 +164,11 @@ type ChainClient interface {
 	FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error)
 	FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error)
 
+	// tokenfactory module
+	FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error)
+	FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error)
+	FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error)
+
 	Close()
 }
 
@@ -190,14 +196,15 @@ type chainClient struct {
 	sessionCookie  string
 	sessionEnabled bool
 
-	txClient            txtypes.ServiceClient
-	authQueryClient     authtypes.QueryClient
-	exchangeQueryClient exchangetypes.QueryClient
-	bankQueryClient     banktypes.QueryClient
-	authzQueryClient    authztypes.QueryClient
-	wasmQueryClient     wasmtypes.QueryClient
-	chainStreamClient   chainstreamtypes.StreamClient
-	subaccountToNonce   map[ethcommon.Hash]uint32
+	txClient                txtypes.ServiceClient
+	authQueryClient         authtypes.QueryClient
+	exchangeQueryClient     exchangetypes.QueryClient
+	bankQueryClient         banktypes.QueryClient
+	authzQueryClient        authztypes.QueryClient
+	wasmQueryClient         wasmtypes.QueryClient
+	chainStreamClient       chainstreamtypes.StreamClient
+	tokenfactoryQueryClient tokenfactorytypes.QueryClient
+	subaccountToNonce       map[ethcommon.Hash]uint32
 
 	closed  int64
 	canSign bool
@@ -283,14 +290,15 @@ func NewChainClient(
 
 		sessionEnabled: stickySessionEnabled,
 
-		txClient:            txtypes.NewServiceClient(conn),
-		authQueryClient:     authtypes.NewQueryClient(conn),
-		exchangeQueryClient: exchangetypes.NewQueryClient(conn),
-		bankQueryClient:     banktypes.NewQueryClient(conn),
-		authzQueryClient:    authztypes.NewQueryClient(conn),
-		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
-		chainStreamClient:   chainstreamtypes.NewStreamClient(chainStreamConn),
-		subaccountToNonce:   make(map[ethcommon.Hash]uint32),
+		txClient:                txtypes.NewServiceClient(conn),
+		authQueryClient:         authtypes.NewQueryClient(conn),
+		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
+		bankQueryClient:         banktypes.NewQueryClient(conn),
+		authzQueryClient:        authztypes.NewQueryClient(conn),
+		wasmQueryClient:         wasmtypes.NewQueryClient(conn),
+		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
+		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
+		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
 	}
 
 	if cc.canSign {
@@ -401,7 +409,7 @@ func (c *chainClient) getAccSeq() uint64 {
 
 func (c *chainClient) requestCookie() metadata.MD {
 	var header metadata.MD
-	_, err := c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
+	_, err := c.bankQueryClient.Params(context.Background(), &banktypes.QueryParamsRequest{}, grpc.Header(&header))
 	if err != nil {
 		panic(err)
 	}
@@ -1433,6 +1441,34 @@ func (c *chainClient) FetchContractsByCreator(ctx context.Context, creator strin
 		Pagination:     pagination,
 	}
 	return c.wasmQueryClient.ContractsByCreator(ctx, req)
+}
+
+// Tokenfactory module
+
+func (c *chainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
+	req := &tokenfactorytypes.QueryDenomAuthorityMetadataRequest{
+		Creator: creator,
+	}
+
+	if subDenom != "" {
+		req.SubDenom = subDenom
+	}
+
+	return c.tokenfactoryQueryClient.DenomAuthorityMetadata(ctx, req)
+}
+
+func (c *chainClient) FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error) {
+	req := &tokenfactorytypes.QueryDenomsFromCreatorRequest{
+		Creator: creator,
+	}
+
+	return c.tokenfactoryQueryClient.DenomsFromCreator(ctx, req)
+}
+
+func (c *chainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error) {
+	req := &tokenfactorytypes.QueryModuleStateRequest{}
+
+	return c.tokenfactoryQueryClient.TokenfactoryModuleState(ctx, req)
 }
 
 type DerivativeOrderData struct {

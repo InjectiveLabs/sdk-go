@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -271,4 +273,16 @@ func (c *MockChainClient) FetchPinnedCodes(ctx context.Context, pagination *quer
 
 func (c *MockChainClient) FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error) {
 	return &wasmtypes.QueryContractsByCreatorResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
+	return &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error) {
+	return &tokenfactorytypes.QueryDenomsFromCreatorResponse{}, nil
+}
+
+func (c *MockChainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error) {
+	return &tokenfactorytypes.QueryModuleStateResponse{}, nil
 }
