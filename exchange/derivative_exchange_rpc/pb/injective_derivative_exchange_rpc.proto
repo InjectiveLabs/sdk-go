@@ -489,6 +489,8 @@ message PositionsRequest {
 	string direction = 8;
 	// set to True to return subaccount total positions
 	bool subaccount_total_positions = 9;
+	// filter by account address
+	string account_address = 10;
 }
 
 message PositionsResponse {
@@ -546,6 +548,8 @@ message PositionsV2Request {
 	string direction = 8;
 	// set to True to return subaccount total positions
 	bool subaccount_total_positions = 9;
+	// filter by account address
+	string account_address = 10;
 }
 
 message PositionsV2Response {
@@ -574,6 +578,8 @@ message DerivativePositionV2 {
 	string mark_price = 9;
 	// Position updated timestamp in UNIX millis.
 	sint64 updated_at = 11;
+	// Market quote denom
+	string denom = 12;
 }
 
 message LiquidablePositionsRequest {
@@ -659,6 +665,8 @@ message StreamPositionsRequest {
 	repeated string market_ids = 3;
 	// Subaccount ids of traders we want to get positions
 	repeated string subaccount_ids = 4;
+	// filter by account address
+	string account_address = 5;
 }
 
 message StreamPositionsResponse {

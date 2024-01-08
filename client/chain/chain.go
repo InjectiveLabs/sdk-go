@@ -39,6 +39,7 @@ import (
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -131,17 +132,6 @@ type ChainClient interface {
 	CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
-	SmartContractState(
-		ctx context.Context,
-		contractAddress string,
-		queryData []byte,
-	) (*wasmtypes.QuerySmartContractStateResponse, error)
-	RawContractState(
-		ctx context.Context,
-		contractAddress string,
-		queryData []byte,
-	) (*wasmtypes.QueryRawContractStateResponse, error)
-
 	GetGasFee() (string, error)
 
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
@@ -153,6 +143,32 @@ type ChainClient interface {
 
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
+
+	// wasm module
+	FetchContractInfo(ctx context.Context, address string) (*wasmtypes.QueryContractInfoResponse, error)
+	FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error)
+	FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error)
+	FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error)
+	RawContractState(
+		ctx context.Context,
+		contractAddress string,
+		queryData []byte,
+	) (*wasmtypes.QueryRawContractStateResponse, error)
+	SmartContractState(
+		ctx context.Context,
+		contractAddress string,
+		queryData []byte,
+	) (*wasmtypes.QuerySmartContractStateResponse, error)
+	FetchCode(ctx context.Context, codeId uint64) (*wasmtypes.QueryCodeResponse, error)
+	FetchCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryCodesResponse, error)
+	FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error)
+	FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error)
+
+	// tokenfactory module
+	FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error)
+	FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error)
+	FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error)
+
 	Close()
 }
 
@@ -180,14 +196,15 @@ type chainClient struct {
 	sessionCookie  string
 	sessionEnabled bool
 
-	txClient            txtypes.ServiceClient
-	authQueryClient     authtypes.QueryClient
-	exchangeQueryClient exchangetypes.QueryClient
-	bankQueryClient     banktypes.QueryClient
-	authzQueryClient    authztypes.QueryClient
-	wasmQueryClient     wasmtypes.QueryClient
-	chainStreamClient   chainstreamtypes.StreamClient
-	subaccountToNonce   map[ethcommon.Hash]uint32
+	txClient                txtypes.ServiceClient
+	authQueryClient         authtypes.QueryClient
+	exchangeQueryClient     exchangetypes.QueryClient
+	bankQueryClient         banktypes.QueryClient
+	authzQueryClient        authztypes.QueryClient
+	wasmQueryClient         wasmtypes.QueryClient
+	chainStreamClient       chainstreamtypes.StreamClient
+	tokenfactoryQueryClient tokenfactorytypes.QueryClient
+	subaccountToNonce       map[ethcommon.Hash]uint32
 
 	closed  int64
 	canSign bool
@@ -273,14 +290,15 @@ func NewChainClient(
 
 		sessionEnabled: stickySessionEnabled,
 
-		txClient:            txtypes.NewServiceClient(conn),
-		authQueryClient:     authtypes.NewQueryClient(conn),
-		exchangeQueryClient: exchangetypes.NewQueryClient(conn),
-		bankQueryClient:     banktypes.NewQueryClient(conn),
-		authzQueryClient:    authztypes.NewQueryClient(conn),
-		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
-		chainStreamClient:   chainstreamtypes.NewStreamClient(chainStreamConn),
-		subaccountToNonce:   make(map[ethcommon.Hash]uint32),
+		txClient:                txtypes.NewServiceClient(conn),
+		authQueryClient:         authtypes.NewQueryClient(conn),
+		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
+		bankQueryClient:         banktypes.NewQueryClient(conn),
+		authzQueryClient:        authztypes.NewQueryClient(conn),
+		wasmQueryClient:         wasmtypes.NewQueryClient(conn),
+		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
+		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
+		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
 	}
 
 	if cc.canSign {
@@ -391,7 +409,7 @@ func (c *chainClient) getAccSeq() uint64 {
 
 func (c *chainClient) requestCookie() metadata.MD {
 	var header metadata.MD
-	_, err := c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
+	_, err := c.bankQueryClient.Params(context.Background(), &banktypes.QueryParamsRequest{}, grpc.Header(&header))
 	if err != nil {
 		panic(err)
 	}
@@ -1155,34 +1173,6 @@ func (c *chainClient) BuildExchangeAuthz(granter string, grantee string, authzTy
 	}
 }
 
-func (c *chainClient) SmartContractState(
-	ctx context.Context,
-	contractAddress string,
-	queryData []byte,
-) (*wasmtypes.QuerySmartContractStateResponse, error) {
-	return c.wasmQueryClient.SmartContractState(
-		ctx,
-		&wasmtypes.QuerySmartContractStateRequest{
-			Address:   contractAddress,
-			QueryData: queryData,
-		},
-	)
-}
-
-func (c *chainClient) RawContractState(
-	ctx context.Context,
-	contractAddress string,
-	queryData []byte,
-) (*wasmtypes.QueryRawContractStateResponse, error) {
-	return c.wasmQueryClient.RawContractState(
-		ctx,
-		&wasmtypes.QueryRawContractStateRequest{
-			Address:   contractAddress,
-			QueryData: queryData,
-		},
-	)
-}
-
 func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 	granter string,
 	grantee string,
@@ -1361,6 +1351,124 @@ func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.Stre
 	}
 
 	return stream, nil
+}
+
+// wasm module
+
+func (c *chainClient) FetchContractInfo(ctx context.Context, address string) (*wasmtypes.QueryContractInfoResponse, error) {
+	req := &wasmtypes.QueryContractInfoRequest{
+		Address: address,
+	}
+	return c.wasmQueryClient.ContractInfo(ctx, req)
+}
+
+func (c *chainClient) FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error) {
+	req := &wasmtypes.QueryContractHistoryRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.ContractHistory(ctx, req)
+}
+
+func (c *chainClient) FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error) {
+	req := &wasmtypes.QueryContractsByCodeRequest{
+		CodeId:     codeId,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.ContractsByCode(ctx, req)
+}
+
+func (c *chainClient) FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error) {
+	req := &wasmtypes.QueryAllContractStateRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.AllContractState(ctx, req)
+}
+
+func (c *chainClient) RawContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QueryRawContractStateResponse, error) {
+	return c.wasmQueryClient.RawContractState(
+		ctx,
+		&wasmtypes.QueryRawContractStateRequest{
+			Address:   contractAddress,
+			QueryData: queryData,
+		},
+	)
+}
+
+func (c *chainClient) SmartContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QuerySmartContractStateResponse, error) {
+	return c.wasmQueryClient.SmartContractState(
+		ctx,
+		&wasmtypes.QuerySmartContractStateRequest{
+			Address:   contractAddress,
+			QueryData: queryData,
+		},
+	)
+}
+
+func (c *chainClient) FetchCode(ctx context.Context, codeId uint64) (*wasmtypes.QueryCodeResponse, error) {
+	req := &wasmtypes.QueryCodeRequest{
+		CodeId: codeId,
+	}
+	return c.wasmQueryClient.Code(ctx, req)
+}
+
+func (c *chainClient) FetchCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryCodesResponse, error) {
+	req := &wasmtypes.QueryCodesRequest{
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.Codes(ctx, req)
+}
+
+func (c *chainClient) FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error) {
+	req := &wasmtypes.QueryPinnedCodesRequest{
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.PinnedCodes(ctx, req)
+}
+
+func (c *chainClient) FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error) {
+	req := &wasmtypes.QueryContractsByCreatorRequest{
+		CreatorAddress: creator,
+		Pagination:     pagination,
+	}
+	return c.wasmQueryClient.ContractsByCreator(ctx, req)
+}
+
+// Tokenfactory module
+
+func (c *chainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
+	req := &tokenfactorytypes.QueryDenomAuthorityMetadataRequest{
+		Creator: creator,
+	}
+
+	if subDenom != "" {
+		req.SubDenom = subDenom
+	}
+
+	return c.tokenfactoryQueryClient.DenomAuthorityMetadata(ctx, req)
+}
+
+func (c *chainClient) FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error) {
+	req := &tokenfactorytypes.QueryDenomsFromCreatorRequest{
+		Creator: creator,
+	}
+
+	return c.tokenfactoryQueryClient.DenomsFromCreator(ctx, req)
+}
+
+func (c *chainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error) {
+	req := &tokenfactorytypes.QueryModuleStateRequest{}
+
+	return c.tokenfactoryQueryClient.TokenfactoryModuleState(ctx, req)
 }
 
 type DerivativeOrderData struct {

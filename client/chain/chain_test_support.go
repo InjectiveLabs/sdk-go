@@ -5,7 +5,10 @@ import (
 	"errors"
 	"time"
 
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -199,26 +202,6 @@ func (c *MockChainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCanc
 	return &exchangetypes.OrderData{}
 }
 
-func (c *MockChainClient) SmartContractState(
-	ctx context.Context,
-	contractAddress string,
-	queryData []byte,
-) (*wasmtypes.QuerySmartContractStateResponse, error) {
-	return &wasmtypes.QuerySmartContractStateResponse{}, nil
-}
-
-func (c *MockChainClient) RawContractState(
-	ctx context.Context,
-	contractAddress string,
-	queryData []byte,
-) (*wasmtypes.QueryRawContractStateResponse, error) {
-	return &wasmtypes.QueryRawContractStateResponse{}, nil
-}
-
-func (c *MockChainClient) GetGasFee() (string, error) {
-	return "", nil
-}
-
 func (c *MockChainClient) StreamEventOrderFail(sender string, failEventCh chan map[string]uint) {}
 
 func (c *MockChainClient) StreamEventOrderFailWithWebsocket(sender string, websocket *rpchttp.HTTP, failEventCh chan map[string]uint) {
@@ -239,3 +222,67 @@ func (c *MockChainClient) GetTx(ctx context.Context, txHash string) (*txtypes.Ge
 }
 
 func (c *MockChainClient) Close() {}
+
+func (c *MockChainClient) GetGasFee() (string, error) {
+	return "", nil
+}
+
+func (c *MockChainClient) FetchContractInfo(ctx context.Context, address string) (*wasmtypes.QueryContractInfoResponse, error) {
+	return &wasmtypes.QueryContractInfoResponse{}, nil
+}
+
+func (c *MockChainClient) FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error) {
+	return &wasmtypes.QueryContractHistoryResponse{}, nil
+}
+
+func (c *MockChainClient) FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error) {
+	return &wasmtypes.QueryContractsByCodeResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error) {
+	return &wasmtypes.QueryAllContractStateResponse{}, nil
+}
+
+func (c *MockChainClient) SmartContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QuerySmartContractStateResponse, error) {
+	return &wasmtypes.QuerySmartContractStateResponse{}, nil
+}
+
+func (c *MockChainClient) RawContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QueryRawContractStateResponse, error) {
+	return &wasmtypes.QueryRawContractStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchCode(ctx context.Context, codeId uint64) (*wasmtypes.QueryCodeResponse, error) {
+	return &wasmtypes.QueryCodeResponse{}, nil
+}
+
+func (c *MockChainClient) FetchCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryCodesResponse, error) {
+	return &wasmtypes.QueryCodesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error) {
+	return &wasmtypes.QueryPinnedCodesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error) {
+	return &wasmtypes.QueryContractsByCreatorResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
+	return &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error) {
+	return &tokenfactorytypes.QueryDenomsFromCreatorResponse{}, nil
+}
+
+func (c *MockChainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error) {
+	return &tokenfactorytypes.QueryModuleStateResponse{}, nil
+}

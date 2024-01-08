@@ -2463,7 +2463,8 @@ func (m *MsgEmergencySettleMarket) GetMarketId() string {
 	return ""
 }
 
-// MsgEmergencySettleMarketResponse defines the Msg/EmergencySettleMarket response type.
+// MsgEmergencySettleMarketResponse defines the Msg/EmergencySettleMarket
+// response type.
 type MsgEmergencySettleMarketResponse struct {
 }
 
