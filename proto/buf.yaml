@@ -4,7 +4,7 @@ deps:
   - buf.build/cosmos/cosmos-proto
   - buf.build/cosmos/cosmos-sdk:v0.47.0
   - buf.build/cosmos/gogo-proto
-  - buf.build/cosmwasm/wasmd:e65480838a1ded147ef53d35fa3bd9709a61226f
+  - buf.build/cosmwasm/wasmd:2a82e352430f5ce799c1926f203cd43b39221387
 breaking:
   use:
     - FILE

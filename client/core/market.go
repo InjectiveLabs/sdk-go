@@ -46,6 +46,18 @@ func (spotMarket SpotMarket) PriceFromChainFormat(chainValue cosmtypes.Dec) deci
 	return decimal.RequireFromString(chainValue.String()).Mul(decimal.New(1, decimals))
 }
 
+func (spotMarket SpotMarket) QuantityFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return spotMarket.fromExtendedChainformat(spotMarket.QuantityFromChainFormat(chainValue))
+}
+
+func (spotMarket SpotMarket) PriceFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return spotMarket.fromExtendedChainformat(spotMarket.PriceFromChainFormat(chainValue))
+}
+
+func (spotMarket SpotMarket) fromExtendedChainformat(chainValue decimal.Decimal) decimal.Decimal {
+	return chainValue.Div(decimal.New(1, AdditionalChainFormatDecimals))
+}
+
 type DerivativeMarket struct {
 	Id                     string
 	Status                 string
@@ -115,4 +127,20 @@ func (derivativeMarket DerivativeMarket) PriceFromChainFormat(chainValue cosmtyp
 func (derivativeMarket DerivativeMarket) MarginFromChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
 	decimals := -derivativeMarket.QuoteToken.Decimals
 	return decimal.RequireFromString(chainValue.String()).Mul(decimal.New(1, decimals))
+}
+
+func (derivativeMarket DerivativeMarket) QuantityFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return derivativeMarket.fromExtendedChainformat(derivativeMarket.QuantityFromChainFormat(chainValue))
+}
+
+func (derivativeMarket DerivativeMarket) PriceFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return derivativeMarket.fromExtendedChainformat(derivativeMarket.PriceFromChainFormat(chainValue))
+}
+
+func (derivativeMarket DerivativeMarket) MarginFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return derivativeMarket.fromExtendedChainformat(derivativeMarket.MarginFromChainFormat(chainValue))
+}
+
+func (derivativeMarket DerivativeMarket) fromExtendedChainformat(chainValue decimal.Decimal) decimal.Decimal {
+	return chainValue.Div(decimal.New(1, AdditionalChainFormatDecimals))
 }

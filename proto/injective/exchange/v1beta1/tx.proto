@@ -813,7 +813,8 @@ message MsgEmergencySettleMarket {
   string market_id = 3;
 }
 
-// MsgEmergencySettleMarketResponse defines the Msg/EmergencySettleMarket response type.
+// MsgEmergencySettleMarketResponse defines the Msg/EmergencySettleMarket
+// response type.
 message MsgEmergencySettleMarketResponse {}
 
 // A Cosmos-SDK MsgIncreasePositionMargin
