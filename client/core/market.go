@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/shopspring/decimal"
 )
@@ -47,15 +48,11 @@ func (spotMarket SpotMarket) PriceFromChainFormat(chainValue cosmtypes.Dec) deci
 }
 
 func (spotMarket SpotMarket) QuantityFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
-	return spotMarket.fromExtendedChainformat(spotMarket.QuantityFromChainFormat(chainValue))
+	return common.RemoveExtraDecimals(spotMarket.QuantityFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }
 
 func (spotMarket SpotMarket) PriceFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
-	return spotMarket.fromExtendedChainformat(spotMarket.PriceFromChainFormat(chainValue))
-}
-
-func (spotMarket SpotMarket) fromExtendedChainformat(chainValue decimal.Decimal) decimal.Decimal {
-	return chainValue.Div(decimal.New(1, AdditionalChainFormatDecimals))
+	return common.RemoveExtraDecimals(spotMarket.PriceFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }
 
 type DerivativeMarket struct {
@@ -130,17 +127,13 @@ func (derivativeMarket DerivativeMarket) MarginFromChainFormat(chainValue cosmty
 }
 
 func (derivativeMarket DerivativeMarket) QuantityFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
-	return derivativeMarket.fromExtendedChainformat(derivativeMarket.QuantityFromChainFormat(chainValue))
+	return common.RemoveExtraDecimals(derivativeMarket.QuantityFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }
 
 func (derivativeMarket DerivativeMarket) PriceFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
-	return derivativeMarket.fromExtendedChainformat(derivativeMarket.PriceFromChainFormat(chainValue))
+	return common.RemoveExtraDecimals(derivativeMarket.PriceFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }
 
 func (derivativeMarket DerivativeMarket) MarginFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
-	return derivativeMarket.fromExtendedChainformat(derivativeMarket.MarginFromChainFormat(chainValue))
-}
-
-func (derivativeMarket DerivativeMarket) fromExtendedChainformat(chainValue decimal.Decimal) decimal.Decimal {
-	return chainValue.Div(decimal.New(1, AdditionalChainFormatDecimals))
+	return common.RemoveExtraDecimals(derivativeMarket.MarginFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }

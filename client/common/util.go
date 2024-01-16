@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"os"
 	"strings"
 
@@ -55,4 +56,8 @@ func MsgResponse(data []byte) []*chaintypes.TxResponseGenericMessage {
 		panic(err)
 	}
 	return response.Messages
+}
+
+func RemoveExtraDecimals(value decimal.Decimal, decimalsToRemove int32) decimal.Decimal {
+	return value.Div(decimal.New(1, decimalsToRemove))
 }
