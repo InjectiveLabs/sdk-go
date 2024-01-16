@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	"google.golang.org/grpc/credentials"
@@ -290,8 +291,8 @@ func LoadNetwork(name string, node string) Network {
 			chainStreamGrpcEndpoint = "sentry.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9910", node)
 			explorerGrpcEndpoint = "sentry.explorer.grpc.injective.network:443"
-			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainTlsCert = insecure.NewCredentials()
+			exchangeTlsCert = insecure.NewCredentials()
 			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}

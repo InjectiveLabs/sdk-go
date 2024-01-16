@@ -101,7 +101,7 @@ type ExchangeClient interface {
 func NewExchangeClient(network common.Network, options ...common.ClientOption) (ExchangeClient, error) {
 	// process options
 	opts := common.DefaultClientOptions()
-	if network.ChainTlsCert != nil {
+	if network.ExchangeTlsCert != nil {
 		options = append(options, common.OptionTLSCert(network.ExchangeTlsCert))
 	}
 	for _, opt := range options {
