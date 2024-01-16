@@ -9,6 +9,7 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -28,6 +29,7 @@ func main() {
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
+		common.OptionLogger(logrus.New()),
 	)
 
 	if err != nil {

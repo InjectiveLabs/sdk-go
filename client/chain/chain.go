@@ -19,7 +19,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -632,7 +631,6 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 		c.syncMux.Lock()
 		defer c.syncMux.Unlock()
 
-		sequence := c.getAccSeq()
 		c.txFactory = c.txFactory.WithSequence(c.accSeq)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 
@@ -642,7 +640,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 		if err != nil {
 			if strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
-				sequence := c.getAccSeq()
+
 				c.txFactory = c.txFactory.WithSequence(c.accSeq)
 				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 				c.logger.Infof("[INJ-GO-SDK] Retrying broadcastTx with nonce: %d ,err: %v", c.accSeq, err)

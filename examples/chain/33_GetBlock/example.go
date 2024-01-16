@@ -11,7 +11,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient := tmclient.NewRPCClient(network.TmEndpoint)
+	tmClient := tmclient.NewRPCClient(network.TmEndpoint, logrus.New())
 	clientCtx, cancelFn := context.WithCancel(context.Background())
 	defer cancelFn()
 
