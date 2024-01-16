@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -40,7 +41,7 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
@@ -48,16 +49,15 @@ func main() {
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("500000000inj"),
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
-	ctx := context.Background()
-
 	address := "inj14au322k9munkmx5wrchz9q30juf5wjgz2cfqku"
+	ctx := context.Background()
 
 	res, err := chainClient.GetBankBalances(ctx, address)
 	if err != nil {

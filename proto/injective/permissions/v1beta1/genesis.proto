@@ -1,0 +1,15 @@
+syntax = "proto3";
+package injective.permissions.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "injective/permissions/v1beta1/params.proto";
+import "injective/permissions/v1beta1/permissions.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/permissions/types";
+
+// GenesisState defines the permissions module's genesis state.
+message GenesisState {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  repeated Namespace namespaces = 2 [ (gogoproto.nullable) = false ];
+}

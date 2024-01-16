@@ -1,17 +1,21 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
+
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	"github.com/google/uuid"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 func main() {
@@ -42,37 +46,54 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("500000000inj"),
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
 	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
 	amount := decimal.NewFromFloat(0.001)
-	price := cosmtypes.MustNewDecFromStr("31000000000") //31,000
-	leverage := cosmtypes.MustNewDecFromStr("2.5")
+	price := decimal.RequireFromString("31000") //31,000
+	leverage := decimal.RequireFromString("2.5")
 
-	order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     amount,
-		Price:        price,
-		Leverage:     leverage,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     marketId,
-		IsReduceOnly: true,
-	})
+	order := chainClient.CreateDerivativeOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.DerivativeOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     amount,
+			Price:        price,
+			Leverage:     leverage,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     marketId,
+			IsReduceOnly: true,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant,
+	)
 
 	msg := new(exchangetypes.MsgCreateDerivativeLimitOrder)
 	msg.Sender = senderAddress.String()
@@ -81,14 +102,14 @@ func main() {
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	msgCreateDerivativeLimitOrderResponse := exchangetypes.MsgCreateDerivativeLimitOrderResponse{}
 	err = msgCreateDerivativeLimitOrderResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	fmt.Println("simulated order hash", msgCreateDerivativeLimitOrderResponse.OrderHash)

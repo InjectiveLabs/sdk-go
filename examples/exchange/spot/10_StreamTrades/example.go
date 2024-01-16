@@ -15,7 +15,7 @@ func main() {
 	network := common.LoadNetwork("testnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
@@ -26,9 +26,9 @@ func main() {
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
 	}
-	stream, err := exchangeClient.StreamSpotTrades(ctx, req)
+	stream, err := exchangeClient.StreamSpotTrades(ctx, &req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	for {

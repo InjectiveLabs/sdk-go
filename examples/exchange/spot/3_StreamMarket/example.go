@@ -14,14 +14,14 @@ func main() {
 	network := common.LoadNetwork("testnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	ctx := context.Background()
 	marketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
 	stream, err := exchangeClient.StreamSpotMarket(ctx, marketIds)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	for {

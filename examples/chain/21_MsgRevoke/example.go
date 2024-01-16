@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -40,10 +41,20 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
+
+	chainClient, err := chainclient.NewChainClient(
+		clientCtx,
+		network,
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
+	)
+
+	if err != nil {
+		panic(err)
+	}
 
 	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
 	msgType := "/injective.exchange.v1beta1.MsgCreateSpotLimitOrder"
@@ -52,16 +63,6 @@ func main() {
 		Granter:    senderAddress.String(),
 		Grantee:    grantee,
 		MsgTypeUrl: msgType,
-	}
-
-	chainClient, err := chainclient.NewChainClient(
-		clientCtx,
-		network,
-		common.OptionGasPrices("500000000inj"),
-	)
-
-	if err != nil {
-		fmt.Println(err)
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

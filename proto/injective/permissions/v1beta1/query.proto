@@ -1,0 +1,111 @@
+syntax = "proto3";
+package injective.permissions.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "injective/permissions/v1beta1/params.proto";
+import "injective/permissions/v1beta1/genesis.proto";
+import "injective/permissions/v1beta1/permissions.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/permissions/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Params defines a gRPC query method that returns the permissions module's
+  // parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/injective/permissions/v1beta1/params";
+  }
+
+  // AllNamespaces defines a gRPC query method that returns the permissions
+  // module's created namespaces.
+  rpc AllNamespaces(QueryAllNamespacesRequest)
+      returns (QueryAllNamespacesResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/all_namespaces";
+  }
+
+  // NamespaceByDenom defines a gRPC query method that returns the permissions
+  // module's namespace associated with the provided denom.
+  rpc NamespaceByDenom(QueryNamespaceByDenomRequest)
+      returns (QueryNamespaceByDenomResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/namespace_by_denom";
+  }
+
+  // AddressRoles defines a gRPC query method that returns address roles in the
+  // namespace
+  rpc AddressRoles(QueryAddressRolesRequest)
+      returns (QueryAddressRolesResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/addresses_by_role";
+  }
+
+  // AddressesByRole defines a gRPC query method that returns a namespace's
+  // roles associated with the provided address.
+  rpc AddressesByRole(QueryAddressesByRoleRequest)
+      returns (QueryAddressesByRoleResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/addresses_by_role";
+  }
+
+  // VouchersForAddress defines a gRPC query method that returns a map of
+  // vouchers that are held by permissions module for this address, keyed by the
+  // originator address
+  rpc VouchersForAddress(QueryVouchersForAddressRequest)
+      returns (QueryVouchersForAddressResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/vouchers_for_address";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryAllNamespacesRequest is the request type for the Query/AllNamespaces RPC
+// method.
+message QueryAllNamespacesRequest {}
+
+// QueryAllNamespacesResponse is the response type for the Query/AllNamespaces
+// RPC method.
+message QueryAllNamespacesResponse { repeated Namespace namespaces = 1; }
+
+// QueryNamespaceByDenomRequest is the request type for the
+// Query/NamespaceByDenom RPC method.
+message QueryNamespaceByDenomRequest {
+  string denom = 1;
+  bool include_roles = 2;
+}
+
+// QueryNamespaceByDenomResponse is the response type for the
+// Query/NamespaceByDenom RPC method.
+message QueryNamespaceByDenomResponse { Namespace namespace = 1; }
+
+// QueryAddressesByRoleRequest is the request type for the Query/AddressesByRole
+// RPC method.
+message QueryAddressesByRoleRequest {
+  string denom = 1;
+  string role = 2;
+}
+
+// QueryAddressesByRoleResponse is the response type for the
+// Query/AddressesByRole RPC method.
+message QueryAddressesByRoleResponse { repeated string addresses = 1; }
+
+message QueryAddressRolesRequest {
+  string denom = 1;
+  string address = 2;
+}
+
+message QueryAddressRolesResponse { repeated string roles = 1; }
+
+message QueryVouchersForAddressRequest { string address = 1; }
+
+message QueryVouchersForAddressResponse { map<string, Voucher> vouchers = 1; }

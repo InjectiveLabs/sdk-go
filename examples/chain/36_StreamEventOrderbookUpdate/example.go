@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/InjectiveLabs/sdk-go/client"
+
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -23,8 +25,9 @@ func main() {
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("500000000inj"),
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
+
 	if err != nil {
 		panic(err)
 	}

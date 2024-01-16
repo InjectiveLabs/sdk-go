@@ -19,19 +19,19 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
+	marketId := "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"
 	subaccountId := "0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000000"
 	skip := uint64(0)
 	limit := int32(10)
 
-	req := derivativeExchangePB.PositionsRequest{
+	req := derivativeExchangePB.PositionsV2Request{
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
 		Skip:         skip,
 		Limit:        limit,
 	}
 
-	res, err := exchangeClient.GetDerivativePositions(ctx, req)
+	res, err := exchangeClient.GetDerivativePositionsV2(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

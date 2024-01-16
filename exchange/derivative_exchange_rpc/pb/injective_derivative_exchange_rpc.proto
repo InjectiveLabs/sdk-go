@@ -25,15 +25,9 @@ service InjectiveDerivativeExchangeRPC {
 	// BinaryOptionMarket gets details of a single binary options market
 	rpc BinaryOptionsMarket (BinaryOptionsMarketRequest) returns (BinaryOptionsMarketResponse);
 	// Orderbook gets the Orderbook of a Derivative Market
-	rpc Orderbook (OrderbookRequest) returns (OrderbookResponse);
-	// Orderbook gets the Orderbook of a Derivative Market
 	rpc OrderbookV2 (OrderbookV2Request) returns (OrderbookV2Response);
 	// Orderbooks gets the Orderbooks of requested derivative markets
-	rpc Orderbooks (OrderbooksRequest) returns (OrderbooksResponse);
-	// Orderbooks gets the Orderbooks of requested derivative markets
 	rpc OrderbooksV2 (OrderbooksV2Request) returns (OrderbooksV2Response);
-	// Stream live snapshot updates of selected derivative market orderbook
-	rpc StreamOrderbook (StreamOrderbookRequest) returns (stream StreamOrderbookResponse);
 	// Stream live snapshot updates of selected derivative market orderbook
 	rpc StreamOrderbookV2 (StreamOrderbookV2Request) returns (stream StreamOrderbookV2Response);
 	// Stream live level updates of selected derivative market orderbook
@@ -42,6 +36,9 @@ service InjectiveDerivativeExchangeRPC {
 	rpc Orders (OrdersRequest) returns (OrdersResponse);
 	// Positions gets the positions for a trader.
 	rpc Positions (PositionsRequest) returns (PositionsResponse);
+	// Positions gets the positions for a trader. V2 removed some redundant fields
+// and had performance improvements
+	rpc PositionsV2 (PositionsV2Request) returns (PositionsV2Response);
 	// LiquidablePositions gets all the liquidable positions.
 	rpc LiquidablePositions (LiquidablePositionsRequest) returns (LiquidablePositionsResponse);
 	// FundingPayments gets the funding payments for a trader.
@@ -54,8 +51,12 @@ service InjectiveDerivativeExchangeRPC {
 	rpc StreamOrders (StreamOrdersRequest) returns (stream StreamOrdersResponse);
 	// Trades gets the trades of a Derivative Market.
 	rpc Trades (TradesRequest) returns (TradesResponse);
+	// Trades gets the trades of a Derivative Market.
+	rpc TradesV2 (TradesV2Request) returns (TradesV2Response);
 	// StreamTrades streams newly executed trades from Derivative Market.
 	rpc StreamTrades (StreamTradesRequest) returns (stream StreamTradesResponse);
+	// StreamTrades streams newly executed trades from Derivative Market.
+	rpc StreamTradesV2 (StreamTradesV2Request) returns (stream StreamTradesV2Response);
 	// SubaccountOrdersList lists orders posted from this subaccount.
 	rpc SubaccountOrdersList (SubaccountOrdersListRequest) returns (SubaccountOrdersListResponse);
 	// SubaccountTradesList gets a list of derivatives trades executed by this
@@ -72,6 +73,7 @@ message MarketsRequest {
 	string market_status = 1;
 	// Filter by the Coin denomination of the quote currency
 	string quote_denom = 2;
+	repeated string market_statuses = 3;
 }
 
 message MarketsResponse {
@@ -259,6 +261,8 @@ message Paging {
 	sint32 to = 3;
 	// count entries by subaccount, serving some places on helix
 	sint64 count_by_subaccount = 4;
+	// array of tokens to navigate to the next pages
+	repeated string next = 5;
 }
 
 message BinaryOptionsMarketRequest {
@@ -269,34 +273,6 @@ message BinaryOptionsMarketRequest {
 message BinaryOptionsMarketResponse {
 	// Info about particular derivative market
 	BinaryOptionsMarketInfo market = 1;
-}
-
-message OrderbookRequest {
-	// MarketId of the market's orderbook we want to fetch
-	string market_id = 1;
-}
-
-message OrderbookResponse {
-	// Orderbook of a particular derivative market
-	DerivativeLimitOrderbook orderbook = 1;
-}
-
-message DerivativeLimitOrderbook {
-	// Array of price levels for buys
-	repeated PriceLevel buys = 1;
-	// Array of price levels for sells
-	repeated PriceLevel sells = 2;
-	// Last update timestamp in UNIX millis.
-	sint64 timestamp = 4;
-}
-
-message PriceLevel {
-	// Price number of the price level.
-	string price = 1;
-	// Quantity of the price level.
-	string quantity = 2;
-	// Price level last updated timestamp in UNIX millis.
-	sint64 timestamp = 3;
 }
 
 message OrderbookV2Request {
@@ -320,20 +296,13 @@ message DerivativeLimitOrderbookV2 {
 	sint64 timestamp = 4;
 }
 
-message OrderbooksRequest {
-	// MarketIds of the markets
-	repeated string market_ids = 1;
-}
-
-message OrderbooksResponse {
-	repeated SingleDerivativeLimitOrderbook orderbooks = 1;
-}
-
-message SingleDerivativeLimitOrderbook {
-	// market's ID
-	string market_id = 1;
-	// Orderbook of the market
-	DerivativeLimitOrderbook orderbook = 2;
+message PriceLevel {
+	// Price number of the price level.
+	string price = 1;
+	// Quantity of the price level.
+	string quantity = 2;
+	// Price level last updated timestamp in UNIX millis.
+	sint64 timestamp = 3;
 }
 
 message OrderbooksV2Request {
@@ -350,23 +319,6 @@ message SingleDerivativeLimitOrderbookV2 {
 	string market_id = 1;
 	// Orderbook of the market
 	DerivativeLimitOrderbookV2 orderbook = 2;
-}
-
-message StreamOrderbookRequest {
-	// List of market IDs for orderbook streaming, empty means 'ALL' derivative
-// markets
-	repeated string market_ids = 1;
-}
-
-message StreamOrderbookResponse {
-	// Orderbook of a Derivative Market
-	DerivativeLimitOrderbook orderbook = 1;
-	// Order update type
-	string operation_type = 2;
-	// Operation timestamp in UNIX millis.
-	sint64 timestamp = 3;
-	// MarketId of the market's orderbook
-	string market_id = 4;
 }
 
 message StreamOrderbookV2Request {
@@ -456,6 +408,10 @@ message OrdersRequest {
 	bool include_inactive = 11;
 	// Choose to return subaccount total orders
 	bool subaccount_total_orders = 12;
+	// TradeId of the order we want to fetch
+	string trade_id = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message OrdersResponse {
@@ -504,6 +460,10 @@ message DerivativeLimitOrder {
 	string placed_order_hash = 19;
 	// Execution type of conditional order
 	string execution_type = 20;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 21;
+	// Custom client order ID
+	string cid = 22;
 }
 
 message PositionsRequest {
@@ -529,6 +489,8 @@ message PositionsRequest {
 	string direction = 8;
 	// set to True to return subaccount total positions
 	bool subaccount_total_positions = 9;
+	// filter by account address
+	string account_address = 10;
 }
 
 message PositionsResponse {
@@ -561,6 +523,63 @@ message DerivativePosition {
 	sint64 updated_at = 12;
 	// Position created timestamp in UNIX millis.
 	sint64 created_at = 13;
+}
+
+message PositionsV2Request {
+	// SubaccountId of the trader we want to get the positions from
+	string subaccount_id = 1;
+	// MarketId of the position we want to fetch. Use this field for fetching from
+// single market
+	string market_id = 2;
+	// Skip will skip the first n item from the result
+	uint64 skip = 3;
+	// Limit is used to specify the maximum number of items to be returned
+	sint32 limit = 4;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 5;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 6;
+	// MarketIds of the markets we want to filter. Use this field for fetching from
+// multiple markets
+	repeated string market_ids = 7;
+	// filter by direction of the position
+	string direction = 8;
+	// set to True to return subaccount total positions
+	bool subaccount_total_positions = 9;
+	// filter by account address
+	string account_address = 10;
+}
+
+message PositionsV2Response {
+	repeated DerivativePositionV2 positions = 1;
+	Paging paging = 2;
+}
+
+message DerivativePositionV2 {
+	// Ticker of the derivative market
+	string ticker = 1;
+	// Derivative Market ID
+	string market_id = 2;
+	// The subaccountId that the position belongs to
+	string subaccount_id = 3;
+	// Direction of the position
+	string direction = 4;
+	// Quantity of the position
+	string quantity = 5;
+	// Price of the position
+	string entry_price = 6;
+	// Margin of the position
+	string margin = 7;
+	// LiquidationPrice of the position
+	string liquidation_price = 8;
+	// MarkPrice of the position
+	string mark_price = 9;
+	// Position updated timestamp in UNIX millis.
+	sint64 updated_at = 11;
+	// Market quote denom
+	string denom = 12;
 }
 
 message LiquidablePositionsRequest {
@@ -646,6 +665,8 @@ message StreamPositionsRequest {
 	repeated string market_ids = 3;
 	// Subaccount ids of traders we want to get positions
 	repeated string subaccount_ids = 4;
+	// filter by account address
+	string account_address = 5;
 }
 
 message StreamPositionsResponse {
@@ -684,6 +705,10 @@ message StreamOrdersRequest {
 	bool include_inactive = 11;
 	// Choose to return subaccount total orders
 	bool subaccount_total_orders = 12;
+	// TradeId of the order we want to fetch
+	string trade_id = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message StreamOrdersResponse {
@@ -720,6 +745,12 @@ message TradesRequest {
 // trades from multiple subaccounts
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message TradesResponse {
@@ -753,6 +784,8 @@ message DerivativeTrade {
 	string trade_id = 11;
 	// Trade's execution side, marker/taker
 	string execution_side = 12;
+	// Custom client order ID
+	string cid = 13;
 }
 
 message PositionDelta {
@@ -764,6 +797,45 @@ message PositionDelta {
 	string execution_quantity = 3;
 	// Execution Margin of the trade.
 	string execution_margin = 4;
+}
+
+message TradesV2Request {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+	// Filter by execution side of the trade
+	string execution_side = 2;
+	// Filter by direction the trade
+	string direction = 3;
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 4;
+	// Skip will skip the first n item from the result
+	uint64 skip = 5;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 6;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 7;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 8;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 9;
+	// Subaccount ids of traders we want to get trades. Use this field for fetching
+// trades from multiple subaccounts
+	repeated string subaccount_ids = 10;
+	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
+	// Client order ID
+	string cid = 14;
+}
+
+message TradesV2Response {
+	// Trades of a Derivative Market
+	repeated DerivativeTrade trades = 1;
+	Paging paging = 2;
 }
 
 message StreamTradesRequest {
@@ -791,9 +863,57 @@ message StreamTradesRequest {
 // trades from multiple subaccounts
 	repeated string subaccount_ids = 10;
 	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
+	// Client order ID
+	string cid = 14;
 }
 
 message StreamTradesResponse {
+	// New derivative market trade
+	DerivativeTrade trade = 1;
+	// Executed trades update type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 3;
+}
+
+message StreamTradesV2Request {
+	// MarketId of the market's orderbook we want to fetch
+	string market_id = 1;
+	// Filter by execution side of the trade
+	string execution_side = 2;
+	// Filter by direction the trade
+	string direction = 3;
+	// SubaccountId of the trader we want to get the trades from
+	string subaccount_id = 4;
+	// Skip will skip the first n item from the result
+	uint64 skip = 5;
+	// Limit is used to specify the maximum number of items to be returned.
+	sint32 limit = 6;
+	// The starting timestamp in UNIX milliseconds that the trades must be equal or
+// older than
+	sint64 start_time = 7;
+	// The ending timestamp in UNIX milliseconds that the trades must be equal or
+// younger than
+	sint64 end_time = 8;
+	// MarketIds of the markets of which we want to get trades
+	repeated string market_ids = 9;
+	// Subaccount ids of traders we want to get trades. Use this field for fetching
+// trades from multiple subaccounts
+	repeated string subaccount_ids = 10;
+	repeated string execution_types = 11;
+	// Filter by the tradeId of the trade
+	string trade_id = 12;
+	// Account address
+	string account_address = 13;
+	// Client order ID
+	string cid = 14;
+}
+
+message StreamTradesV2Response {
 	// New derivative market trade
 	DerivativeTrade trade = 1;
 	// Executed trades update type
@@ -864,6 +984,12 @@ message OrdersHistoryRequest {
 	string state = 11;
 	repeated string execution_types = 12;
 	repeated string market_ids = 13;
+	// TradeId of the order we want to fetch
+	string trade_id = 14;
+	// Return only orders for active markets
+	bool active_markets_only = 15;
+	// Client order ID
+	string cid = 16;
 }
 
 message OrdersHistoryResponse {
@@ -911,6 +1037,10 @@ message DerivativeOrderHistory {
 	string placed_order_hash = 18;
 	// Order's margin
 	string margin = 19;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 20;
+	// Custom client order ID
+	string cid = 21;
 }
 
 message StreamOrdersHistoryRequest {

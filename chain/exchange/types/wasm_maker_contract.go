@@ -1,7 +1,7 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 type MintToUser struct {
@@ -13,7 +13,7 @@ type MintToUserMsg struct {
 	MintToUser MintToUser `json:"mint_to_user"`
 }
 
-func NewMintToUserMsg(subaccountIDSender string, amount sdk.Int) MintToUserMsg {
+func NewMintToUserMsg(subaccountIDSender string, amount math.Int) MintToUserMsg {
 	return MintToUserMsg{
 		MintToUser: MintToUser{
 			SubaccountIDSender: subaccountIDSender,

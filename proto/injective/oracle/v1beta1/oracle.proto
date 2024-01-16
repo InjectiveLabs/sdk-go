@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
+option (gogoproto.goproto_registration) = true;
 
 message Params {
   option (gogoproto.equal) = true;
@@ -30,7 +31,6 @@ enum OracleType {
 message OracleInfo {
   string symbol = 1;
   OracleType oracle_type = 2;
-  uint32 scale_factor = 3;
 }
 
 message ChainlinkPriceState {

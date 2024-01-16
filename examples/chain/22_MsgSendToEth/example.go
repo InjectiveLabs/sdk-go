@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
@@ -41,10 +42,20 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
+
+	chainClient, err := chainclient.NewChainClient(
+		clientCtx,
+		network,
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
+	)
+
+	if err != nil {
+		panic(err)
+	}
 
 	ethDest := "0xaf79152ac5df276d9a8e1e2e22822f9713474902"
 
@@ -60,16 +71,6 @@ func main() {
 		Amount:    amount,
 		EthDest:   ethDest,
 		BridgeFee: bridgeFee,
-	}
-
-	chainClient, err := chainclient.NewChainClient(
-		clientCtx,
-		network,
-		common.OptionGasPrices("500000000inj"),
-	)
-
-	if err != nil {
-		fmt.Println(err)
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

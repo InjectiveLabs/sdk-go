@@ -27,7 +27,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	res, err := explorerClient.GetAccountTxs(ctx, req)
+	res, err := explorerClient.GetAccountTxs(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

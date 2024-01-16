@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	auctiontypes "github.com/InjectiveLabs/sdk-go/chain/auction/types"
@@ -41,10 +42,20 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
+
+	chainClient, err := chainclient.NewChainClient(
+		clientCtx,
+		network,
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
+	)
+
+	if err != nil {
+		panic(err)
+	}
 
 	round := uint64(9355)
 	bidAmount := sdktypes.Coin{
@@ -55,16 +66,6 @@ func main() {
 		Sender:    senderAddress.String(),
 		Round:     round,
 		BidAmount: bidAmount,
-	}
-
-	chainClient, err := chainclient.NewChainClient(
-		clientCtx,
-		network,
-		common.OptionGasPrices("500000000inj"),
-	)
-
-	if err != nil {
-		fmt.Println(err)
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

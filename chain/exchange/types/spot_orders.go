@@ -49,6 +49,14 @@ func (o *SpotLimitOrder) IsFromDefaultSubaccount() bool {
 	return o.OrderInfo.IsFromDefaultSubaccount()
 }
 
+func (o *SpotLimitOrder) Cid() string {
+	return o.OrderInfo.GetCid()
+}
+
+func (o *SpotMarketOrder) Cid() string {
+	return o.OrderInfo.GetCid()
+}
+
 func (o *SpotLimitOrder) SubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
@@ -89,6 +97,10 @@ func (o *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec)
 
 func (o *SpotOrder) IsBuy() bool {
 	return o.OrderType.IsBuy()
+}
+
+func (o *SpotOrder) Cid() string {
+	return o.OrderInfo.Cid
 }
 
 func (m *SpotLimitOrder) IsBuy() bool {

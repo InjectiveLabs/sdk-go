@@ -15,7 +15,7 @@ func main() {
 	clientCtx, cancelFn := context.WithCancel(context.Background())
 	defer cancelFn()
 
-	res, err := tmClient.GetBlock(clientCtx, 50000)
+	res, err := tmClient.GetBlock(clientCtx, 15478013)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -26,7 +26,7 @@ func main() {
 		DerivativeOrderHashes: derivativeOrderHashes,
 	}
 
-	res, err := exchangeClient.GetOrderStates(ctx, req)
+	res, err := exchangeClient.GetOrderStates(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

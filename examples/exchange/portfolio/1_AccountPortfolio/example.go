@@ -19,7 +19,7 @@ func main() {
 
 	ctx := context.Background()
 	accountAddress := "inj1clw20s2uxeyxtam6f7m84vgae92s9eh7vygagt"
-	res, err := exchangeClient.GetAccountPortfolio(ctx, accountAddress)
+	res, err := exchangeClient.GetAccountPortfolioBalances(ctx, accountAddress)
 	if err != nil {
 		fmt.Println(err)
 	}

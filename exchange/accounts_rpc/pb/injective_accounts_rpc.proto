@@ -102,6 +102,10 @@ message OrderStateRecord {
 	sint64 created_at = 9;
 	// Order updated timestamp in UNIX millis.
 	sint64 updated_at = 10;
+	// Order prices
+	string price = 11;
+	// Margin for derivative order
+	string margin = 12;
 }
 
 message SubaccountsListRequest {
@@ -222,6 +226,8 @@ message Paging {
 	sint32 to = 3;
 	// count entries by subaccount, serving some places on helix
 	sint64 count_by_subaccount = 4;
+	// array of tokens to navigate to the next pages
+	repeated string next = 5;
 }
 
 message SubaccountOrderSummaryRequest {

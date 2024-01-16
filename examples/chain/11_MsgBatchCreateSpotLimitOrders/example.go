@@ -1,14 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
+
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	"github.com/google/uuid"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
@@ -47,10 +52,21 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("500000000inj"),
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
@@ -60,17 +76,22 @@ func main() {
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
-	marketId := "0x0511ddc4e6586f3bfe1acb2dd905f8b8a82c97e1edaef654b12ca7e6031ca0fa"
+	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(22.5)
 
-	order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     amount,
-		Price:        price,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     marketId,
-	})
+	order := chainClient.CreateSpotOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.SpotOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     amount,
+			Price:        price,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     marketId,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant)
 	msg := new(exchangetypes.MsgBatchCreateSpotLimitOrders)
 	msg.Sender = senderAddress.String()
 	msg.Orders = []exchangetypes.SpotOrder{*order}

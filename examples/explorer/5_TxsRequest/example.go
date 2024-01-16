@@ -26,7 +26,7 @@ func main() {
 		Before: before,
 	}
 
-	res, err := explorerClient.GetTxs(ctx, req)
+	res, err := explorerClient.GetTxs(ctx, &req)
 	if err != nil {
 		fmt.Println(err)
 	}

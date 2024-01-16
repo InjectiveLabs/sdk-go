@@ -15,9 +15,11 @@ service Query {
     option (google.api.http).get = "/injective/wasmx/v1/params";
   }
 
-   // Retrieves contract registration info
-  rpc ContractRegistrationInfo(QueryContractRegistrationInfoRequest) returns (QueryContractRegistrationInfoResponse) {
-    option (google.api.http).get = "/injective/wasmx/v1/registration_info/{contract_address}";
+  // Retrieves contract registration info
+  rpc ContractRegistrationInfo(QueryContractRegistrationInfoRequest)
+      returns (QueryContractRegistrationInfoResponse) {
+    option (google.api.http).get =
+        "/injective/wasmx/v1/registration_info/{contract_address}";
   }
 
   // Retrieves the entire wasmx module's state

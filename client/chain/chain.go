@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"math/big"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +14,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/types/query"
+
+	"google.golang.org/grpc/credentials/insecure"
+
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -37,6 +39,8 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -89,8 +93,18 @@ type ChainClient interface {
 	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
+	// Bank Module
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
 	GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error)
+	GetBankSpendableBalances(ctx context.Context, address string, pagination *query.PageRequest) (*banktypes.QuerySpendableBalancesResponse, error)
+	GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error)
+	GetBankTotalSupply(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error)
+	GetBankSupplyOf(ctx context.Context, denom string) (*banktypes.QuerySupplyOfResponse, error)
+	GetDenomMetadata(ctx context.Context, denom string) (*banktypes.QueryDenomMetadataResponse, error)
+	GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error)
+	GetDenomOwners(ctx context.Context, denom string, pagination *query.PageRequest) (*banktypes.QueryDenomOwnersResponse, error)
+	GetBankSendEnabled(ctx context.Context, denoms []string, pagination *query.PageRequest) (*banktypes.QuerySendEnabledResponse, error)
+
 	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
 	GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error)
 
@@ -116,19 +130,10 @@ type ChainClient interface {
 	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId eth.Hash) (OrderHashes, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
+	CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
+	CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
-
-	SmartContractState(
-		ctx context.Context,
-		contractAddress string,
-		queryData []byte,
-	) (*wasmtypes.QuerySmartContractStateResponse, error)
-	RawContractState(
-		ctx context.Context,
-		contractAddress string,
-		queryData []byte,
-	) (*wasmtypes.QueryRawContractStateResponse, error)
 
 	GetGasFee() (string, error)
 
@@ -137,23 +142,51 @@ type ChainClient interface {
 	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
 	StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIds []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook)
 
+	ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error)
+
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
+
+	// wasm module
+	FetchContractInfo(ctx context.Context, address string) (*wasmtypes.QueryContractInfoResponse, error)
+	FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error)
+	FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error)
+	FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error)
+	RawContractState(
+		ctx context.Context,
+		contractAddress string,
+		queryData []byte,
+	) (*wasmtypes.QueryRawContractStateResponse, error)
+	SmartContractState(
+		ctx context.Context,
+		contractAddress string,
+		queryData []byte,
+	) (*wasmtypes.QuerySmartContractStateResponse, error)
+	FetchCode(ctx context.Context, codeId uint64) (*wasmtypes.QueryCodeResponse, error)
+	FetchCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryCodesResponse, error)
+	FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error)
+	FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error)
+
+	// tokenfactory module
+	FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error)
+	FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error)
+	FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error)
+
 	Close()
 }
 
 type chainClient struct {
-	ctx       client.Context
-	network   common.Network
-	opts      *common.ClientOptions
-	logger    *logrus.Logger
-	conn      *grpc.ClientConn
-	txFactory tx.Factory
+	ctx             client.Context
+	network         common.Network
+	opts            *common.ClientOptions
+	logger          *logrus.Logger
+	conn            *grpc.ClientConn
+	chainStreamConn *grpc.ClientConn
+	txFactory       tx.Factory
 
-	fromAddress sdk.AccAddress
-	doneC       chan bool
-	msgC        chan sdk.Msg
-	syncMux     *sync.Mutex
+	doneC   chan bool
+	msgC    chan sdk.Msg
+	syncMux *sync.Mutex
 
 	cancelCtx context.Context
 	cancelFn  func()
@@ -169,26 +202,26 @@ type chainClient struct {
 	sessionCookie  string
 	sessionEnabled bool
 
-	cometbftClient      rpcclient.Client
-	txClient            txtypes.ServiceClient
-	authQueryClient     authtypes.QueryClient
-	exchangeQueryClient exchangetypes.QueryClient
-	bankQueryClient     banktypes.QueryClient
-	authzQueryClient    authztypes.QueryClient
-	wasmQueryClient     wasmtypes.QueryClient
-	subaccountToNonce   map[ethcommon.Hash]uint32
+	txClient                txtypes.ServiceClient
+	authQueryClient         authtypes.QueryClient
+	exchangeQueryClient     exchangetypes.QueryClient
+	bankQueryClient         banktypes.QueryClient
+	authzQueryClient        authztypes.QueryClient
+	wasmQueryClient         wasmtypes.QueryClient
+	chainStreamClient       chainstreamtypes.StreamClient
+	tokenfactoryQueryClient tokenfactorytypes.QueryClient
+	subaccountToNonce       map[ethcommon.Hash]uint32
 
 	closed  int64
 	canSign bool
 }
 
-// NewChainClient creates a new gRPC client that communicates with gRPC server at protoAddr.
-// protoAddr must be in form "tcp://127.0.0.1:8080" or "unix:///tmp/test.sock", protocol is required.
 func NewChainClient(
 	ctx client.Context,
 	network common.Network,
 	options ...common.ClientOption,
 ) (ChainClient, error) {
+
 	// process options
 	opts := common.DefaultClientOptions()
 
@@ -220,7 +253,7 @@ func NewChainClient(
 	if opts.TLSCert != nil {
 		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithInsecure(), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 		stickySessionEnabled = false
 	}
 	if err != nil {
@@ -228,20 +261,15 @@ func NewChainClient(
 		return nil, err
 	}
 
-	// init tm websocket
-	var cometbftClient *rpchttp.HTTP
-	if ctx.NodeURI != "" {
-		cometbftClient, err = rpchttp.New(ctx.NodeURI, "/websocket")
-		if err != nil {
-			panic(err)
-		}
-
-		if !cometbftClient.IsRunning() {
-			err = cometbftClient.Start()
-			if err != nil {
-				return nil, err
-			}
-		}
+	var chainStreamConn *grpc.ClientConn
+	if opts.TLSCert != nil {
+		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+	} else {
+		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+	}
+	if err != nil {
+		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
+		return nil, err
 	}
 
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
@@ -253,25 +281,27 @@ func NewChainClient(
 
 		logger: opts.Logger,
 
-		conn:      conn,
-		txFactory: txFactory,
-		canSign:   ctx.Keyring != nil,
-		syncMux:   new(sync.Mutex),
-		msgC:      make(chan sdk.Msg, msgCommitBatchSizeLimit),
-		doneC:     make(chan bool, 1),
-		cancelCtx: cancelCtx,
-		cancelFn:  cancelFn,
+		conn:            conn,
+		chainStreamConn: chainStreamConn,
+		txFactory:       txFactory,
+		canSign:         ctx.Keyring != nil,
+		syncMux:         new(sync.Mutex),
+		msgC:            make(chan sdk.Msg, msgCommitBatchSizeLimit),
+		doneC:           make(chan bool, 1),
+		cancelCtx:       cancelCtx,
+		cancelFn:        cancelFn,
 
 		sessionEnabled: stickySessionEnabled,
 
-		cometbftClient:      cometbftClient,
-		txClient:            txtypes.NewServiceClient(conn),
-		authQueryClient:     authtypes.NewQueryClient(conn),
-		exchangeQueryClient: exchangetypes.NewQueryClient(conn),
-		bankQueryClient:     banktypes.NewQueryClient(conn),
-		authzQueryClient:    authztypes.NewQueryClient(conn),
-		wasmQueryClient:     wasmtypes.NewQueryClient(conn),
-		subaccountToNonce:   make(map[ethcommon.Hash]uint32),
+		txClient:                txtypes.NewServiceClient(conn),
+		authQueryClient:         authtypes.NewQueryClient(conn),
+		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
+		bankQueryClient:         banktypes.NewQueryClient(conn),
+		authzQueryClient:        authztypes.NewQueryClient(conn),
+		wasmQueryClient:         wasmtypes.NewQueryClient(conn),
+		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
+		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
+		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
 	}
 
 	// routine upate nonce
@@ -393,7 +423,10 @@ func (c *chainClient) getAccSeq() uint64 {
 
 func (c *chainClient) requestCookie() metadata.MD {
 	var header metadata.MD
-	c.txClient.GetTx(context.Background(), &txtypes.GetTxRequest{}, grpc.Header(&header))
+	_, err := c.bankQueryClient.Params(context.Background(), &banktypes.QueryParamsRequest{}, grpc.Header(&header))
+	if err != nil {
+		panic(err)
+	}
 	return header
 }
 
@@ -443,21 +476,21 @@ func (c *chainClient) Close() {
 	if c.conn != nil {
 		c.conn.Close()
 	}
+
 	c.closeRoutineUpdateNonce()
+
+	if c.chainStreamConn != nil {
+		c.chainStreamConn.Close()
+	}
 }
+
+//Bank Module
 
 func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
 	req := &banktypes.QueryAllBalancesRequest{
 		Address: address,
 	}
 	return c.bankQueryClient.AllBalances(ctx, req)
-}
-
-func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error) {
-	req := &authtypes.QueryAccountRequest{
-		Address: address,
-	}
-	return c.authQueryClient.Account(ctx, req)
 }
 
 func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
@@ -468,19 +501,82 @@ func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom 
 	return c.bankQueryClient.Balance(ctx, req)
 }
 
+func (c *chainClient) GetBankSpendableBalances(ctx context.Context, address string, pagination *query.PageRequest) (*banktypes.QuerySpendableBalancesResponse, error) {
+	req := &banktypes.QuerySpendableBalancesRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.SpendableBalances(ctx, req)
+}
+
+func (c *chainClient) GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error) {
+	req := &banktypes.QuerySpendableBalanceByDenomRequest{
+		Address: address,
+		Denom:   denom,
+	}
+	return c.bankQueryClient.SpendableBalanceByDenom(ctx, req)
+}
+
+func (c *chainClient) GetBankTotalSupply(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error) {
+	req := &banktypes.QueryTotalSupplyRequest{Pagination: pagination}
+	return c.bankQueryClient.TotalSupply(ctx, req)
+}
+
+func (c *chainClient) GetBankSupplyOf(ctx context.Context, denom string) (*banktypes.QuerySupplyOfResponse, error) {
+	req := &banktypes.QuerySupplyOfRequest{Denom: denom}
+	return c.bankQueryClient.SupplyOf(ctx, req)
+}
+
+func (c *chainClient) GetDenomMetadata(ctx context.Context, denom string) (*banktypes.QueryDenomMetadataResponse, error) {
+	req := &banktypes.QueryDenomMetadataRequest{Denom: denom}
+	return c.bankQueryClient.DenomMetadata(ctx, req)
+}
+
+func (c *chainClient) GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error) {
+	req := &banktypes.QueryDenomsMetadataRequest{Pagination: pagination}
+	return c.bankQueryClient.DenomsMetadata(ctx, req)
+}
+
+func (c *chainClient) GetDenomOwners(ctx context.Context, denom string, pagination *query.PageRequest) (*banktypes.QueryDenomOwnersResponse, error) {
+	req := &banktypes.QueryDenomOwnersRequest{
+		Denom:      denom,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.DenomOwners(ctx, req)
+}
+
+func (c *chainClient) GetBankSendEnabled(ctx context.Context, denoms []string, pagination *query.PageRequest) (*banktypes.QuerySendEnabledResponse, error) {
+	req := &banktypes.QuerySendEnabledRequest{
+		Denoms:     denoms,
+		Pagination: pagination,
+	}
+	return c.bankQueryClient.SendEnabled(ctx, req)
+}
+
+// Auth Module
+
+func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error) {
+	req := &authtypes.QueryAccountRequest{
+		Address: address,
+	}
+	return c.authQueryClient.Account(ctx, req)
+}
+
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
 func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
 
-	c.txFactory = c.txFactory.WithSequence(c.accSeq)
+	sequence := c.getAccSeq()
+	c.txFactory = c.txFactory.WithSequence(sequence)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 
 	if err != nil {
 		if strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
-			c.txFactory = c.txFactory.WithSequence(c.accSeq)
+			sequence := c.getAccSeq()
+			c.txFactory = c.txFactory.WithSequence(sequence)
 			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 			c.logger.Debugln("[INJ-GO-SDK] Retrying broadcastTx with nonce: ", c.accSeq)
 			res, err = c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
@@ -491,8 +587,6 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 			return nil, err
 		}
 	}
-
-	c.accSeq++
 
 	return res, nil
 }
@@ -538,6 +632,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 		c.syncMux.Lock()
 		defer c.syncMux.Unlock()
 
+		sequence := c.getAccSeq()
 		c.txFactory = c.txFactory.WithSequence(c.accSeq)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 
@@ -547,6 +642,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 		if err != nil {
 			if strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
+				sequence := c.getAccSeq()
 				c.txFactory = c.txFactory.WithSequence(c.accSeq)
 				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 				c.logger.Infof("[INJ-GO-SDK] Retrying broadcastTx with nonce: %d ,err: %v", c.accSeq, err)
@@ -584,7 +680,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 		}
 	}
 
-	return res, err
+	return res, nil
 }
 
 func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
@@ -927,14 +1023,16 @@ func (c *chainClient) runBatchBroadcast() {
 	submitBatch := func(toSubmit []sdk.Msg) {
 		c.syncMux.Lock()
 		defer c.syncMux.Unlock()
-		c.txFactory = c.txFactory.WithSequence(c.accSeq)
+		sequence := c.getAccSeq()
+		c.txFactory = c.txFactory.WithSequence(sequence)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 		c.logger.Debugln("[INJ-GO-SDK] BroadcastTx with nonce", c.accSeq)
 		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 		if err != nil {
 			if strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
-				c.txFactory = c.txFactory.WithSequence(c.accSeq)
+				sequence := c.getAccSeq()
+				c.txFactory = c.txFactory.WithSequence(sequence)
 				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 				c.logger.Debugln("[INJ-GO-SDK] Retrying broadcastTx with nonce: ", c.accSeq)
 				res, err = c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
@@ -1026,63 +1124,25 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.H
 	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
 }
 
-func formatPriceToTickSize(value, tickSize cosmtypes.Dec) sdkmath.LegacyDec {
-	residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
-	formattedValue := new(big.Int).Sub(value.BigInt(), residue)
-	p := decimal.NewFromBigInt(formattedValue, -18).StringFixed(18)
-	realValue, _ := cosmtypes.NewDecFromStr(p)
-	return realValue
-}
-
-func GetSpotQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec, baseDecimals int) (qty cosmtypes.Dec) {
-	mid, _ := cosmtypes.NewDecFromStr(value.String())
-	bStr := decimal.New(1, int32(baseDecimals)).String()
-	baseDec, _ := cosmtypes.NewDecFromStr(bStr)
-	scale := baseDec.Quo(minTickSize)
-	midScaledInt := mid.Mul(scale).TruncateDec()
-	qty = minTickSize.Mul(midScaledInt)
-	return qty
-}
-
-func GetSpotPrice(price decimal.Decimal, baseDecimals int, quoteDecimals int, minPriceTickSize cosmtypes.Dec) cosmtypes.Dec {
-	scale := decimal.New(1, int32(quoteDecimals-baseDecimals))
-	priceStr := scale.Mul(price).StringFixed(18)
-	decPrice, err := cosmtypes.NewDecFromStr(priceStr)
-	if err != nil {
-		fmt.Println(err.Error())
-		fmt.Println(priceStr, scale.String(), price.String())
-		fmt.Println(decPrice.String())
-	}
-	realPrice := formatPriceToTickSize(decPrice, minPriceTickSize)
-	return realPrice
-}
-
-func GetDerivativeQuantity(value decimal.Decimal, minTickSize cosmtypes.Dec) (qty cosmtypes.Dec) {
-	mid := cosmtypes.MustNewDecFromStr(value.StringFixed(18))
-	baseDec := cosmtypes.OneDec()
-	scale := baseDec.Quo(minTickSize)
-	midScaledInt := mid.Mul(scale).TruncateDec()
-	qty = minTickSize.Mul(midScaledInt)
-	return qty
-}
-
-func GetDerivativePrice(value, tickSize cosmtypes.Dec) cosmtypes.Dec {
-	residue := new(big.Int).Mod(value.BigInt(), tickSize.BigInt())
-	formattedValue := new(big.Int).Sub(value.BigInt(), residue)
-	p := decimal.NewFromBigInt(formattedValue, -18).String()
-	realValue, _ := cosmtypes.NewDecFromStr(p)
-	return realValue
-}
-
+// Deprecated: Use CreateSpotOrder instead
 func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
+	assistant, err := NewMarketsAssistant(network.Name)
+	if err != nil {
+		panic(err)
+	}
 
-	baseDecimals := common.LoadMetadata(network, d.MarketId).Base
-	quoteDecimals := common.LoadMetadata(network, d.MarketId).Quote
-	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
-	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
+	return c.CreateSpotOrder(defaultSubaccountID, network, d, assistant)
+}
 
-	orderSize := GetSpotQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)), baseDecimals)
-	orderPrice := GetSpotPrice(d.Price, baseDecimals, quoteDecimals, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+func (c *chainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
+
+	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
+	if !isPresent {
+		panic(errors.Errorf("Invalid spot market id for %s network (%s)", c.network.Name, d.MarketId))
+	}
+
+	orderSize := market.QuantityToChainFormat(d.Quantity)
+	orderPrice := market.PriceToChainFormat(d.Price)
 
 	return &exchangetypes.SpotOrder{
 		MarketId:  d.MarketId,
@@ -1092,24 +1152,35 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 			FeeRecipient: d.FeeRecipient,
 			Price:        orderPrice,
 			Quantity:     orderSize,
+			Cid:          d.Cid,
 		},
 	}
 }
 
+// Deprecated: Use CreateDerivativeOrder instead
 func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
 
-	margin := cosmtypes.MustNewDecFromStr(fmt.Sprint(d.Quantity)).Mul(d.Price).Quo(d.Leverage)
-
-	if d.IsReduceOnly == true {
-		margin = cosmtypes.MustNewDecFromStr("0")
+	assistant, err := NewMarketsAssistant(network.Name)
+	if err != nil {
+		panic(err)
 	}
 
-	minPriceTickSize := common.LoadMetadata(network, d.MarketId).MinPriceTickSize
-	minQuantityTickSize := common.LoadMetadata(network, d.MarketId).MinQuantityTickSize
+	return c.CreateDerivativeOrder(defaultSubaccountID, network, d, assistant)
+}
 
-	orderSize := GetDerivativeQuantity(d.Quantity, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minQuantityTickSize, 'f', -1, 64)))
-	orderPrice := GetDerivativePrice(d.Price, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
-	orderMargin := GetDerivativePrice(margin, cosmtypes.MustNewDecFromStr(strconv.FormatFloat(minPriceTickSize, 'f', -1, 64)))
+func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
+	market, isPresent := marketAssistant.AllDerivativeMarkets()[d.MarketId]
+	if !isPresent {
+		panic(errors.Errorf("Invalid derivative market id for %s network (%s)", c.network.Name, d.MarketId))
+	}
+
+	orderSize := market.QuantityToChainFormat(d.Quantity)
+	orderPrice := market.PriceToChainFormat(d.Price)
+	orderMargin := cosmtypes.MustNewDecFromStr("0")
+
+	if !d.IsReduceOnly {
+		orderMargin = market.CalculateMarginInChainFormat(d.Quantity, d.Price, d.Leverage)
+	}
 
 	return &exchangetypes.DerivativeOrder{
 		MarketId:  d.MarketId,
@@ -1120,6 +1191,7 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 			FeeRecipient: d.FeeRecipient,
 			Price:        orderPrice,
 			Quantity:     orderSize,
+			Cid:          d.Cid,
 		},
 	}
 }
@@ -1129,6 +1201,7 @@ func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelDa
 		MarketId:     d.MarketId,
 		OrderHash:    d.OrderHash,
 		SubaccountId: defaultSubaccountID.Hex(),
+		Cid:          d.Cid,
 	}
 }
 
@@ -1255,34 +1328,6 @@ func (c *chainClient) BuildExchangeAuthz(granter string, grantee string, authzTy
 	}
 }
 
-func (c *chainClient) SmartContractState(
-	ctx context.Context,
-	contractAddress string,
-	queryData []byte,
-) (*wasmtypes.QuerySmartContractStateResponse, error) {
-	return c.wasmQueryClient.SmartContractState(
-		ctx,
-		&wasmtypes.QuerySmartContractStateRequest{
-			Address:   contractAddress,
-			QueryData: queryData,
-		},
-	)
-}
-
-func (c *chainClient) RawContractState(
-	ctx context.Context,
-	contractAddress string,
-	queryData []byte,
-) (*wasmtypes.QueryRawContractStateResponse, error) {
-	return c.wasmQueryClient.RawContractState(
-		ctx,
-		&wasmtypes.QueryRawContractStateRequest{
-			Address:   contractAddress,
-			QueryData: queryData,
-		},
-	)
-}
-
 func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 	granter string,
 	grantee string,
@@ -1326,7 +1371,12 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 			panic(err)
 		}
 	}
-	defer cometbftClient.Stop()
+	defer func() {
+		err := cometbftClient.Stop()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	c.StreamEventOrderFailWithWebsocket(sender, cometbftClient, failEventCh)
 }
@@ -1380,7 +1430,12 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 			panic(err)
 		}
 	}
-	defer cometbftClient.Stop()
+	defer func() {
+		err := cometbftClient.Stop()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	c.StreamOrderbookUpdateEventsWithWebsocket(orderbookType, marketIds, cometbftClient, orderbookCh)
 
@@ -1442,14 +1497,144 @@ func (c *chainClient) GetTx(ctx context.Context, txHash string) (*txtypes.GetTxR
 	})
 }
 
+func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error) {
+	ctx = c.getCookie(ctx)
+	stream, err := c.chainStreamClient.Stream(ctx, &req)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
+}
+
+// wasm module
+
+func (c *chainClient) FetchContractInfo(ctx context.Context, address string) (*wasmtypes.QueryContractInfoResponse, error) {
+	req := &wasmtypes.QueryContractInfoRequest{
+		Address: address,
+	}
+	return c.wasmQueryClient.ContractInfo(ctx, req)
+}
+
+func (c *chainClient) FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error) {
+	req := &wasmtypes.QueryContractHistoryRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.ContractHistory(ctx, req)
+}
+
+func (c *chainClient) FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error) {
+	req := &wasmtypes.QueryContractsByCodeRequest{
+		CodeId:     codeId,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.ContractsByCode(ctx, req)
+}
+
+func (c *chainClient) FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error) {
+	req := &wasmtypes.QueryAllContractStateRequest{
+		Address:    address,
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.AllContractState(ctx, req)
+}
+
+func (c *chainClient) RawContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QueryRawContractStateResponse, error) {
+	return c.wasmQueryClient.RawContractState(
+		ctx,
+		&wasmtypes.QueryRawContractStateRequest{
+			Address:   contractAddress,
+			QueryData: queryData,
+		},
+	)
+}
+
+func (c *chainClient) SmartContractState(
+	ctx context.Context,
+	contractAddress string,
+	queryData []byte,
+) (*wasmtypes.QuerySmartContractStateResponse, error) {
+	return c.wasmQueryClient.SmartContractState(
+		ctx,
+		&wasmtypes.QuerySmartContractStateRequest{
+			Address:   contractAddress,
+			QueryData: queryData,
+		},
+	)
+}
+
+func (c *chainClient) FetchCode(ctx context.Context, codeId uint64) (*wasmtypes.QueryCodeResponse, error) {
+	req := &wasmtypes.QueryCodeRequest{
+		CodeId: codeId,
+	}
+	return c.wasmQueryClient.Code(ctx, req)
+}
+
+func (c *chainClient) FetchCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryCodesResponse, error) {
+	req := &wasmtypes.QueryCodesRequest{
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.Codes(ctx, req)
+}
+
+func (c *chainClient) FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error) {
+	req := &wasmtypes.QueryPinnedCodesRequest{
+		Pagination: pagination,
+	}
+	return c.wasmQueryClient.PinnedCodes(ctx, req)
+}
+
+func (c *chainClient) FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error) {
+	req := &wasmtypes.QueryContractsByCreatorRequest{
+		CreatorAddress: creator,
+		Pagination:     pagination,
+	}
+	return c.wasmQueryClient.ContractsByCreator(ctx, req)
+}
+
+// Tokenfactory module
+
+func (c *chainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
+	req := &tokenfactorytypes.QueryDenomAuthorityMetadataRequest{
+		Creator: creator,
+	}
+
+	if subDenom != "" {
+		req.SubDenom = subDenom
+	}
+
+	return c.tokenfactoryQueryClient.DenomAuthorityMetadata(ctx, req)
+}
+
+func (c *chainClient) FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error) {
+	req := &tokenfactorytypes.QueryDenomsFromCreatorRequest{
+		Creator: creator,
+	}
+
+	return c.tokenfactoryQueryClient.DenomsFromCreator(ctx, req)
+}
+
+func (c *chainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error) {
+	req := &tokenfactorytypes.QueryModuleStateRequest{}
+
+	return c.tokenfactoryQueryClient.TokenfactoryModuleState(ctx, req)
+}
+
 type DerivativeOrderData struct {
 	OrderType    exchangetypes.OrderType
-	Price        cosmtypes.Dec
+	Price        decimal.Decimal
 	Quantity     decimal.Decimal
-	Leverage     cosmtypes.Dec
+	Leverage     decimal.Decimal
 	FeeRecipient string
 	MarketId     string
 	IsReduceOnly bool
+	Cid          string
 }
 
 type SpotOrderData struct {
@@ -1458,9 +1643,11 @@ type SpotOrderData struct {
 	Quantity     decimal.Decimal
 	FeeRecipient string
 	MarketId     string
+	Cid          string
 }
 
 type OrderCancelData struct {
 	MarketId  string
 	OrderHash string
+	Cid       string
 }

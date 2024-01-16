@@ -1,17 +1,21 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
 
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	"github.com/google/uuid"
+
+	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 func main() {
@@ -48,10 +52,21 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
+	if err != nil {
+		panic(err)
+	}
+
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices("500000000inj"),
+		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
@@ -66,29 +81,41 @@ func main() {
 	sprice := decimal.NewFromFloat(22.5)
 	smarketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
 
-	spot_order := chainClient.SpotOrder(defaultSubaccountID, network, &chainclient.SpotOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     samount,
-		Price:        sprice,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     smarketId,
-	})
+	spot_order := chainClient.CreateSpotOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.SpotOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     samount,
+			Price:        sprice,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     smarketId,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant,
+	)
 
 	dmarketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
 	damount := decimal.NewFromFloat(0.01)
-	dprice := cosmtypes.MustNewDecFromStr("31000000000") //31,000
-	dleverage := cosmtypes.MustNewDecFromStr("2")
+	dprice := decimal.RequireFromString("31000") //31,000
+	dleverage := decimal.RequireFromString("2")
 	dmarketIds := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
 
-	derivative_order := chainClient.DerivativeOrder(defaultSubaccountID, network, &chainclient.DerivativeOrderData{
-		OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
-		Quantity:     damount,
-		Price:        dprice,
-		Leverage:     dleverage,
-		FeeRecipient: senderAddress.String(),
-		MarketId:     dmarketId,
-		IsReduceOnly: false,
-	})
+	derivative_order := chainClient.CreateDerivativeOrder(
+		defaultSubaccountID,
+		network,
+		&chainclient.DerivativeOrderData{
+			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			Quantity:     damount,
+			Price:        dprice,
+			Leverage:     dleverage,
+			FeeRecipient: senderAddress.String(),
+			MarketId:     dmarketId,
+			IsReduceOnly: false,
+			Cid:          uuid.NewString(),
+		},
+		marketsAssistant,
+	)
 
 	msg := new(exchangetypes.MsgBatchUpdateOrders)
 	msg.Sender = senderAddress.String()
