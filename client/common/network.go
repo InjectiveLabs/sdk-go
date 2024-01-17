@@ -263,7 +263,7 @@ func LoadNetwork(name string, node string) Network {
 			explorerCookieAssistant: explorerCookieAssistant,
 		}
 	case "mainnet":
-		validNodes := []string{"lb", "sentry", "sentry0", "sentry3"}
+		validNodes := []string{"lb", "sentry", "sentry0", "sentry1", "sentry3"}
 		if !contains(validNodes, node) {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
