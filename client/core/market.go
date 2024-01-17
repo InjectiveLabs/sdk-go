@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/shopspring/decimal"
 )
@@ -44,6 +45,14 @@ func (spotMarket SpotMarket) QuantityFromChainFormat(chainValue cosmtypes.Dec) d
 func (spotMarket SpotMarket) PriceFromChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
 	decimals := spotMarket.BaseToken.Decimals - spotMarket.QuoteToken.Decimals
 	return decimal.RequireFromString(chainValue.String()).Mul(decimal.New(1, decimals))
+}
+
+func (spotMarket SpotMarket) QuantityFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return common.RemoveExtraDecimals(spotMarket.QuantityFromChainFormat(chainValue), AdditionalChainFormatDecimals)
+}
+
+func (spotMarket SpotMarket) PriceFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return common.RemoveExtraDecimals(spotMarket.PriceFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }
 
 type DerivativeMarket struct {
@@ -115,4 +124,16 @@ func (derivativeMarket DerivativeMarket) PriceFromChainFormat(chainValue cosmtyp
 func (derivativeMarket DerivativeMarket) MarginFromChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
 	decimals := -derivativeMarket.QuoteToken.Decimals
 	return decimal.RequireFromString(chainValue.String()).Mul(decimal.New(1, decimals))
+}
+
+func (derivativeMarket DerivativeMarket) QuantityFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return common.RemoveExtraDecimals(derivativeMarket.QuantityFromChainFormat(chainValue), AdditionalChainFormatDecimals)
+}
+
+func (derivativeMarket DerivativeMarket) PriceFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return common.RemoveExtraDecimals(derivativeMarket.PriceFromChainFormat(chainValue), AdditionalChainFormatDecimals)
+}
+
+func (derivativeMarket DerivativeMarket) MarginFromExtendedChainFormat(chainValue cosmtypes.Dec) decimal.Decimal {
+	return common.RemoveExtraDecimals(derivativeMarket.MarginFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }

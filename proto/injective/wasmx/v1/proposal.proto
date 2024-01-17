@@ -2,7 +2,7 @@ syntax = "proto3";
 package injective.wasmx.v1;
 
 import "cosmos_proto/cosmos.proto";
-import "cosmwasm/wasm/v1/proposal.proto";
+import "cosmwasm/wasm/v1/proposal_legacy.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
