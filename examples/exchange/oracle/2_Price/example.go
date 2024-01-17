@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
