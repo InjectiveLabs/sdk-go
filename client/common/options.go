@@ -25,6 +25,7 @@ type ClientOptions struct {
 	TLSCert   credentials.TransportCredentials
 	Logger    *logrus.Logger
 	TxFactory *tx.Factory
+	ErrChan   chan error
 }
 
 type ClientOption func(opts *ClientOptions) error
@@ -71,6 +72,13 @@ func OptionLogger(logger *logrus.Logger) ClientOption {
 func OptionTxFactory(txFactory *tx.Factory) ClientOption {
 	return func(opts *ClientOptions) error {
 		opts.TxFactory = txFactory
+		return nil
+	}
+}
+
+func OptionErrChan(errChan chan error) ClientOption {
+	return func(opts *ClientOptions) error {
+		opts.ErrChan = errChan
 		return nil
 	}
 }

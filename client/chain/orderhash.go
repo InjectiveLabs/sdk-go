@@ -214,6 +214,9 @@ func (c *chainClient) updateNounce() {
 	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
 	if err != nil {
 		c.logger.Errorln("[INJ-GO-SDK] Failed to get nonce: ", err)
+		if c.opts.ErrChan != nil && len(c.opts.ErrChan) == 0 {
+			c.opts.ErrChan <- err
+		}
 	} else {
 		c.syncMux.Lock()
 		defer c.syncMux.Unlock()
