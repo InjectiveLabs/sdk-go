@@ -5,9 +5,10 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
-	"github.com/shopspring/decimal"
 	"os"
 	"strings"
+
+	"github.com/shopspring/decimal"
 
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	"google.golang.org/grpc/credentials"
