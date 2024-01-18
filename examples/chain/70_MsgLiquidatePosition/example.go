@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"github.com/google/uuid"
-	"os"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
