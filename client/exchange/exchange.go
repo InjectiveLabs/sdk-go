@@ -192,7 +192,7 @@ func (c *exchangeClient) requestCookie() metadata.MD {
 	req := metaPB.InfoRequest{Timestamp: time.Now().UnixMilli()}
 	_, err := c.metaClient.Info(context.Background(), &req, grpc.Header(&header))
 	if err != nil {
-		panic(err)
+		c.logger.Errorln("[INJ-GO-SDK] Failed to get cookie from exchange: ", err)
 	}
 	return header
 }
