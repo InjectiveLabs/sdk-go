@@ -1126,7 +1126,7 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.H
 func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
 	assistant, err := NewMarketsAssistant(network.Name)
 	if err != nil {
-		panic(err)
+		c.logger.Errorln("[INJ-GO-SDK] ", err)
 	}
 
 	return c.CreateSpotOrder(defaultSubaccountID, network, d, assistant)
@@ -1136,7 +1136,7 @@ func (c *chainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, network comm
 
 	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
 	if !isPresent {
-		panic(errors.Errorf("Invalid spot market id for %s network (%s)", c.network.Name, d.MarketId))
+		c.logger.Errorln("[INJ-GO-SDK] ", errors.Errorf("Invalid spot market id for %s network (%s)", c.network.Name, d.MarketId))
 	}
 
 	orderSize := market.QuantityToChainFormat(d.Quantity)
@@ -1160,7 +1160,7 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 
 	assistant, err := NewMarketsAssistant(network.Name)
 	if err != nil {
-		panic(err)
+		c.logger.Errorln("[INJ-GO-SDK] ", err)
 	}
 
 	return c.CreateDerivativeOrder(defaultSubaccountID, network, d, assistant)
@@ -1169,7 +1169,7 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
 	market, isPresent := marketAssistant.AllDerivativeMarkets()[d.MarketId]
 	if !isPresent {
-		panic(errors.Errorf("Invalid derivative market id for %s network (%s)", c.network.Name, d.MarketId))
+		c.logger.Errorln("[INJ-GO-SDK] ", errors.Errorf("Invalid derivative market id for %s network (%s)", c.network.Name, d.MarketId))
 	}
 
 	orderSize := market.QuantityToChainFormat(d.Quantity)
@@ -1306,9 +1306,9 @@ func (c *chainClient) BuildExchangeAuthz(granter string, grantee string, authzTy
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	// common msgs
 	case BatchUpdateOrdersAuthz:
-		panic("please use BuildExchangeBatchUpdateOrdersAuthz for BatchUpdateOrdersAuthz")
+		c.logger.Errorln("[INJ-GO-SDK] ", "please use BuildExchangeBatchUpdateOrdersAuthz for BatchUpdateOrdersAuthz")
 	default:
-		panic("unsupported exchange authz type")
+		c.logger.Errorln("[INJ-GO-SDK] ", "unsupported exchange authz type")
 	}
 
 	typedAuthzAny = codectypes.Any{
@@ -1360,19 +1360,19 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 
 	cometbftClient, err = rpchttp.New(c.network.TmEndpoint, "/websocket")
 	if err != nil {
-		panic(err)
+		c.logger.Errorln("[INJ-GO-SDK] ", err)
 	}
 
 	if !cometbftClient.IsRunning() {
 		err = cometbftClient.Start()
 		if err != nil {
-			panic(err)
+			c.logger.Errorln("[INJ-GO-SDK] ", err)
 		}
 	}
 	defer func() {
 		err := cometbftClient.Stop()
 		if err != nil {
-			panic(err)
+			c.logger.Errorln("[INJ-GO-SDK] ", err)
 		}
 	}()
 
@@ -1383,7 +1383,7 @@ func (c *chainClient) StreamEventOrderFailWithWebsocket(sender string, websocket
 	filter := fmt.Sprintf("tm.event='Tx' AND message.sender='%s' AND message.action='/injective.exchange.v1beta1.MsgBatchUpdateOrders' AND injective.exchange.v1beta1.EventOrderFail.flags EXISTS", sender)
 	eventCh, err := websocket.Subscribe(context.Background(), "OrderFail", filter, 10000)
 	if err != nil {
-		panic(err)
+		c.logger.Errorln("[INJ-GO-SDK] ", err)
 	}
 
 	// stream and extract fail events
@@ -1393,13 +1393,13 @@ func (c *chainClient) StreamEventOrderFailWithWebsocket(sender string, websocket
 		var failedOrderHashes []string
 		err = json.Unmarshal([]byte(e.Events["injective.exchange.v1beta1.EventOrderFail.hashes"][0]), &failedOrderHashes)
 		if err != nil {
-			panic(err)
+			c.logger.Errorln("[INJ-GO-SDK] ", err)
 		}
 
 		var failedOrderCodes []uint
 		err = json.Unmarshal([]byte(e.Events["injective.exchange.v1beta1.EventOrderFail.flags"][0]), &failedOrderCodes)
 		if err != nil {
-			panic(err)
+			c.logger.Errorln("[INJ-GO-SDK] ", err)
 		}
 
 		results := map[string]uint{}
@@ -1419,19 +1419,19 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 
 	cometbftClient, err = rpchttp.New(c.network.TmEndpoint, "/websocket")
 	if err != nil {
-		panic(err)
+		c.logger.Errorln("[INJ-GO-SDK] ", err)
 	}
 
 	if !cometbftClient.IsRunning() {
 		err = cometbftClient.Start()
 		if err != nil {
-			panic(err)
+			c.logger.Errorln("[INJ-GO-SDK] ", err)
 		}
 	}
 	defer func() {
 		err := cometbftClient.Stop()
 		if err != nil {
-			panic(err)
+			c.logger.Errorln("[INJ-GO-SDK] ", err)
 		}
 	}()
 
@@ -1443,7 +1443,7 @@ func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType Ord
 	filter := fmt.Sprintf("tm.event='NewBlock' AND %s EXISTS", orderbookType)
 	eventCh, err := websocket.Subscribe(context.Background(), "OrderbookUpdate", filter, 10000)
 	if err != nil {
-		panic(err)
+		c.logger.Errorln("[INJ-GO-SDK] ", err)
 	}
 
 	// turn array into map for convenient lookup
@@ -1462,7 +1462,7 @@ func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType Ord
 			var allOrderbookUpdates []exchangetypes.Orderbook
 			err = json.Unmarshal([]byte(e.Events[string(orderbookType)][0]), &allOrderbookUpdates)
 			if err != nil {
-				panic(err)
+				c.logger.Errorln("[INJ-GO-SDK] ", err)
 			}
 
 			for _, ob := range allOrderbookUpdates {
