@@ -424,7 +424,7 @@ func (c *chainClient) requestCookie() metadata.MD {
 	var header metadata.MD
 	_, err := c.bankQueryClient.Params(context.Background(), &banktypes.QueryParamsRequest{}, grpc.Header(&header))
 	if err != nil {
-		panic(err)
+		c.logger.Errorln("[INJ-GO-SDK] Failed to get chain cookie: ", err)
 	}
 	return header
 }
