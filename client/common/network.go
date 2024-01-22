@@ -17,9 +17,6 @@ import (
 
 const (
 	SessionRenewalOffset = 2 * time.Minute
-
-	PRIVATENODE1 = "10.0.1.2"
-	PRIVATENODE2 = "10.0.9.2"
 )
 
 func cookieByName(cookies []*http.Cookie, key string) *http.Cookie {
@@ -291,9 +288,6 @@ func LoadNetwork(name string, node string) Network {
 			lcdEndpoint = fmt.Sprintf("http://%s.injective.network:10337", node)
 			tmEndpoint = fmt.Sprintf("http://%s.injective.network:26657", node)
 			chainGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9900", node)
-			if node == PRIVATENODE1 || node == PRIVATENODE2 {
-				chainStreamGrpcEndpoint = fmt.Sprintf("tcp://%s:9999", node)
-			}
 			chainStreamGrpcEndpoint = "sentry.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9910", node)
 			explorerGrpcEndpoint = "sentry.explorer.grpc.injective.network:443"
