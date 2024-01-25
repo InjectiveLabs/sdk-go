@@ -83,7 +83,6 @@ func main() {
 
 	spot_order := chainClient.CreateSpotOrder(
 		defaultSubaccountID,
-		network,
 		&chainclient.SpotOrderData{
 			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     samount,
@@ -103,7 +102,6 @@ func main() {
 
 	derivative_order := chainClient.CreateDerivativeOrder(
 		defaultSubaccountID,
-		network,
 		&chainclient.DerivativeOrderData{
 			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     damount,
