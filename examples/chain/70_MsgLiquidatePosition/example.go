@@ -81,7 +81,6 @@ func main() {
 
 	order := chainClient.CreateDerivativeOrder(
 		defaultSubaccountID,
-		network,
 		&chainclient.DerivativeOrderData{
 			OrderType:    exchangetypes.OrderType_SELL,
 			Quantity:     amount,

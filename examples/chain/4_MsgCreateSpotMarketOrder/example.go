@@ -80,7 +80,6 @@ func main() {
 
 	order := chainClient.CreateSpotOrder(
 		defaultSubaccountID,
-		network,
 		&chainclient.SpotOrderData{
 			OrderType:    exchangetypes.OrderType_SELL, //BUY SELL
 			Quantity:     amount,
