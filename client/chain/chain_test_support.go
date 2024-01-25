@@ -183,18 +183,18 @@ func (c *MockChainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrde
 }
 
 func (c *MockChainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
-	return c.CreateSpotOrder(defaultSubaccountID, network, d, MarketsAssistant{})
+	return c.CreateSpotOrder(defaultSubaccountID, d, MarketsAssistant{})
 }
 
-func (c *MockChainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
+func (c *MockChainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 	return &exchangetypes.SpotOrder{}
 }
 
 func (c *MockChainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
-	return c.CreateDerivativeOrder(defaultSubaccountID, network, d, MarketsAssistant{})
+	return c.CreateDerivativeOrder(defaultSubaccountID, d, MarketsAssistant{})
 }
 
-func (c *MockChainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
+func (c *MockChainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
 	return &exchangetypes.DerivativeOrder{}
 }
 

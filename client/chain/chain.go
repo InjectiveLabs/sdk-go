@@ -59,8 +59,6 @@ const (
 	defaultBroadcastTimeout          = 40 * time.Second
 	defaultTimeoutHeight             = 20
 	defaultTimeoutHeightSyncInterval = 10 * time.Second
-	defaultSessionRenewalOffset      = 120
-	defaultBlockTime                 = 3 * time.Second
 	defaultChainCookieName           = ".chain_cookie"
 )
 
@@ -127,9 +125,9 @@ type ChainClient interface {
 	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId eth.Hash) (OrderHashes, error)
 
 	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
-	CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
+	CreateSpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
 	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
-	CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
+	CreateDerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
 	GetGasFee() (string, error)
@@ -976,10 +974,10 @@ func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Net
 		panic(err)
 	}
 
-	return c.CreateSpotOrder(defaultSubaccountID, network, d, assistant)
+	return c.CreateSpotOrder(defaultSubaccountID, d, assistant)
 }
 
-func (c *chainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
+func (c *chainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 
 	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
 	if !isPresent {
@@ -1010,10 +1008,10 @@ func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network comm
 		panic(err)
 	}
 
-	return c.CreateDerivativeOrder(defaultSubaccountID, network, d, assistant)
+	return c.CreateDerivativeOrder(defaultSubaccountID, d, assistant)
 }
 
-func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
+func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
 	market, isPresent := marketAssistant.AllDerivativeMarkets()[d.MarketId]
 	if !isPresent {
 		panic(errors.Errorf("Invalid derivative market id for %s network (%s)", c.network.Name, d.MarketId))

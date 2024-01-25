@@ -1,0 +1,112 @@
+// Code generated with goa v3.5.2, DO NOT EDIT.
+//
+// InjectiveTradingRPC protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/InjectiveLabs/injective-indexer/api/design -o ../
+
+syntax = "proto3";
+
+package injective_trading_rpc;
+
+option go_package = "/injective_trading_rpcpb";
+
+// InjectiveTradingStrategiesRPC defined a gRPC service for Injective Trading
+// Strategies.
+service InjectiveTradingRPC {
+	// Lists all trading strategies
+	rpc ListTradingStrategies (ListTradingStrategiesRequest) returns (ListTradingStrategiesResponse);
+}
+
+message ListTradingStrategiesRequest {
+	string state = 1;
+	// MarketId of the trading strategy
+	string market_id = 2;
+	// subaccount ID to filter by
+	string subaccount_id = 3;
+	// Account address
+	string account_address = 4;
+	// Indicates whether the trading strategy is pending execution
+	bool pending_execution = 5;
+	// The starting timestamp in UNIX milliseconds for the creation time of the
+// trading strategy
+	sint64 start_time = 6;
+	// The ending timestamp in UNIX milliseconds for the creation time of the
+// trading strategy
+	sint64 end_time = 7;
+	sint32 limit = 8;
+	uint64 skip = 9;
+}
+
+message ListTradingStrategiesResponse {
+	// The trading strategies
+	repeated TradingStrategy strategies = 1;
+	Paging paging = 2;
+}
+
+message TradingStrategy {
+	string state = 1;
+	// MarketId of the trading strategy
+	string market_id = 2;
+	// subaccount ID of the trading strategy
+	string subaccount_id = 3;
+	// Account address
+	string account_address = 4;
+	// Contract address
+	string contract_address = 5;
+	// Execution price of the trading strategy
+	string execution_price = 6;
+	// Base quantity of the trading strategy
+	string base_quantity = 7;
+	// Quote quantity of the trading strategy
+	string quote_quantity = 20;
+	// Lower bound of the trading strategy
+	string lower_bound = 8;
+	// Upper bound of the trading strategy
+	string upper_bound = 9;
+	// Stop loss limit of the trading strategy
+	string stop_loss = 10;
+	// Take profit limit of the trading strategy
+	string take_profit = 11;
+	// Swap fee of the trading strategy
+	string swap_fee = 12;
+	// Base deposit at the time of closing the trading strategy
+	string base_deposit = 17;
+	// Quote deposit at the time of closing the trading strategy
+	string quote_deposit = 18;
+	// Market mid price at the time of closing the trading strategy
+	string market_mid_price = 19;
+	// Subscription quote quantity of the trading strategy
+	string subscription_quote_quantity = 21;
+	// Subscription base quantity of the trading strategy
+	string subscription_base_quantity = 22;
+	// Number of grid levels of the trading strategy
+	string number_of_grid_levels = 23;
+	// Indicates whether the trading strategy should exit with quote only
+	bool should_exit_with_quote_only = 24;
+	// Indicates the reason for stopping the trading strategy
+	string stop_reason = 25;
+	// Indicates whether the trading strategy is pending execution
+	bool pending_execution = 26;
+	// Block height when the strategy was created.
+	sint64 created_height = 13;
+	// Block height when the strategy was removed.
+	sint64 removed_height = 14;
+	// UpdatedAt timestamp in UNIX millis.
+	sint64 created_at = 15;
+	// UpdatedAt timestamp in UNIX millis.
+	sint64 updated_at = 16;
+}
+// Paging defines the structure for required params for handling pagination
+message Paging {
+	// total number of txs saved in database
+	sint64 total = 1;
+	// can be either block height or index num
+	sint32 from = 2;
+	// can be either block height or index num
+	sint32 to = 3;
+	// count entries by subaccount, serving some places on helix
+	sint64 count_by_subaccount = 4;
+	// array of tokens to navigate to the next pages
+	repeated string next = 5;
+}

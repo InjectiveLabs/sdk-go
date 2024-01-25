@@ -112,6 +112,27 @@ func TestConvertPriceFromChainFormatForSpotMarket(t *testing.T) {
 	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
 }
 
+func TestConvertQuantityFromExtendedChainFormatForSpotMarket(t *testing.T) {
+	spotMarket := createINJUSDTSpotMarket()
+	expectedQuantity := decimal.RequireFromString("123.456")
+
+	chainFormatQuantity := expectedQuantity.Mul(decimal.New(1, spotMarket.BaseToken.Decimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadableQuantity := spotMarket.QuantityFromExtendedChainFormat(types.MustNewDecFromStr(chainFormatQuantity.String()))
+
+	assert.Assert(t, expectedQuantity.Equal(humanReadableQuantity))
+}
+
+func TestConvertPriceFromExtendedChainFormatForSpotMarket(t *testing.T) {
+	spotMarket := createINJUSDTSpotMarket()
+	expectedPrice := decimal.RequireFromString("123.456")
+
+	priceDecimals := spotMarket.QuoteToken.Decimals - spotMarket.BaseToken.Decimals
+	chainFormatPrice := expectedPrice.Mul(decimal.New(1, priceDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadablePrice := spotMarket.PriceFromExtendedChainFormat(types.MustNewDecFromStr(chainFormatPrice.String()))
+
+	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
+}
+
 //Derivative markets tests
 
 func TestConvertQuantityToChainFormatForDerivativeMarket(t *testing.T) {
@@ -194,6 +215,38 @@ func TestConvertMarginFromChainFormatForDerivativeMarket(t *testing.T) {
 	marginDecimals := derivativeMarket.QuoteToken.Decimals
 	chainFormatMargin := expectedMargin.Mul(decimal.New(1, marginDecimals))
 	humanReadablePrice := derivativeMarket.MarginFromChainFormat(types.MustNewDecFromStr(chainFormatMargin.String()))
+
+	assert.Assert(t, expectedMargin.Equal(humanReadablePrice))
+}
+
+func TestConvertQuantityFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	expectedQuantity := decimal.RequireFromString("123.456")
+
+	chainFormatQuantity := expectedQuantity.Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadableQuantity := derivativeMarket.QuantityFromExtendedChainFormat(types.MustNewDecFromStr(chainFormatQuantity.String()))
+
+	assert.Assert(t, expectedQuantity.Equal(humanReadableQuantity))
+}
+
+func TestConvertPriceFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	expectedPrice := decimal.RequireFromString("123.456")
+
+	priceDecimals := derivativeMarket.QuoteToken.Decimals
+	chainFormatPrice := expectedPrice.Mul(decimal.New(1, priceDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadablePrice := derivativeMarket.PriceFromExtendedChainFormat(types.MustNewDecFromStr(chainFormatPrice.String()))
+
+	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
+}
+
+func TestConvertMarginFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	expectedMargin := decimal.RequireFromString("123.456")
+
+	marginDecimals := derivativeMarket.QuoteToken.Decimals
+	chainFormatMargin := expectedMargin.Mul(decimal.New(1, marginDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadablePrice := derivativeMarket.MarginFromExtendedChainFormat(types.MustNewDecFromStr(chainFormatMargin.String()))
 
 	assert.Assert(t, expectedMargin.Equal(humanReadablePrice))
 }

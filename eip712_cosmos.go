@@ -23,8 +23,6 @@ import (
 	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
-var ErrNoMessage = errors.New("no message found. There should be at least one message")
-
 type EIP712Wrapper func(
 	cdc codec.ProtoCodecMarshaler,
 	chainID uint64,
@@ -48,10 +46,6 @@ func WrapTxToEIP712(
 	msgs []cosmtypes.Msg,
 	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
-	if len(msgs) == 0 {
-		return typeddata.TypedData{}, ErrNoMessage
-	}
-
 	data := legacytx.StdSignBytes(
 		signerData.ChainID,
 		signerData.AccountNumber,
@@ -301,6 +295,10 @@ func traverseFields(
 			if isCollection {
 				ethTyp += "[]"
 			}
+			if field.Kind() == reflect.String && field.Len() == 0 {
+				// skip empty strings from type mapping
+				continue
+			}
 			if prefix == typeDefPrefix {
 				typeMap[rootType] = append(typeMap[rootType], typeddata.Type{
 					Name: fieldName,
@@ -459,25 +457,8 @@ func doRecover(err *error) {
 	}
 }
 
-func WrapTxToEIP712V2(
-	cdc codec.ProtoCodecMarshaler,
-	chainID uint64,
-	signerData *authsigning.SignerData,
-	timeoutHeight uint64,
-	memo string,
-	feeInfo legacytx.StdFee,
-	msgs []cosmtypes.Msg,
-	feeDelegation *FeeDelegationOptions,
-) (typeddata.TypedData, error) {
-	domain := typeddata.TypedDataDomain{
-		Name:              "Injective Web3",
-		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
-		VerifyingContract: "cosmos",
-		Salt:              "0",
-	}
-
-	msgTypes := typeddata.Types{
+func signableTypes() typeddata.Types {
+	return typeddata.Types{
 		"EIP712Domain": {
 			{
 				Name: "name",
@@ -493,7 +474,7 @@ func WrapTxToEIP712V2(
 			},
 			{
 				Name: "verifyingContract",
-				Type: "string",
+				Type: "address",
 			},
 			{
 				Name: "salt",
@@ -505,7 +486,27 @@ func WrapTxToEIP712V2(
 			{Name: "msgs", Type: "string"},
 		},
 	}
+}
 
+func WrapTxToEIP712V2(
+	cdc codec.ProtoCodecMarshaler,
+	chainID uint64,
+	signerData *authsigning.SignerData,
+	timeoutHeight uint64,
+	memo string,
+	feeInfo legacytx.StdFee,
+	msgs []cosmtypes.Msg,
+	feeDelegation *FeeDelegationOptions,
+) (typeddata.TypedData, error) {
+	domain := typeddata.TypedDataDomain{
+		Name:              "Injective Web3",
+		Version:           "1.0.0",
+		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
+		VerifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
+		Salt:              "0",
+	}
+
+	msgTypes := signableTypes()
 	msgsJsons := make([]json.RawMessage, len(msgs))
 	for idx, m := range msgs {
 		bzMsg, err := cdc.MarshalInterfaceJSON(m)

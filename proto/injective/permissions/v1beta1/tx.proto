@@ -111,7 +111,8 @@ message MsgClaimVoucher {
   option (cosmos.msg.v1.signer) = "sender";
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
 
-  string originator = 2; // address of the original voucher sender (typically a module address, a key from VouchersForAddress query response)
+  string originator = 2; // address of the original voucher sender (typically a module address,
+         // a key from VouchersForAddress query response)
 }
 
 message MsgClaimVoucherResponse {}
