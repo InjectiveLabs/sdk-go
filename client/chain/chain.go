@@ -376,6 +376,10 @@ func (c *chainClient) syncTimeoutHeight() {
 // test
 func (c *chainClient) GetBlockHeight() (int64, error) {
 	ctx := context.Background()
+	if c.ctx.Client == nil {
+		return 0, errors.New("client is nil")
+	}
+
 	block, err := c.ctx.Client.Block(ctx, nil)
 	if err != nil {
 		return 0, err
