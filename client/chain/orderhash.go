@@ -192,7 +192,7 @@ func (c *chainClient) RoutineUpdateNounce() context.CancelFunc {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
 
 	go func(ctx context.Context) {
 		for {
