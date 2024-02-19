@@ -304,8 +304,10 @@ func NewChainClient(
 	}
 
 	// routine upate nonce
-	closeRoutineUpdateNonce := cc.RoutineUpdateNounce()
-	cc.closeRoutineUpdateNonce = closeRoutineUpdateNonce
+	if cc.canSign {
+		closeRoutineUpdateNonce := cc.RoutineUpdateNounce()
+		cc.closeRoutineUpdateNonce = closeRoutineUpdateNonce
+	}
 
 	if cc.canSign {
 		var err error
@@ -465,22 +467,26 @@ func (c *chainClient) FromAddress() sdk.AccAddress {
 }
 
 func (c *chainClient) Close() {
-	if !c.canSign {
-		return
-	}
-	if atomic.CompareAndSwapInt64(&c.closed, 0, 1) {
-		close(c.msgC)
+	// if !c.canSign {
+	// 	return
+	// }
+	if c.msgC != nil {
+		if atomic.CompareAndSwapInt64(&c.closed, 0, 1) {
+			close(c.msgC)
+		}
 	}
 
 	if c.cancelFn != nil {
 		c.cancelFn()
 	}
-	<-c.doneC
+	// <-c.doneC // not used
 	if c.conn != nil {
 		c.conn.Close()
 	}
 
-	c.closeRoutineUpdateNonce()
+	if c.closeRoutineUpdateNonce != nil {
+		c.closeRoutineUpdateNonce()
+	}
 
 	if c.chainStreamConn != nil {
 		c.chainStreamConn.Close()
