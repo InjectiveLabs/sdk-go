@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -285,4 +287,41 @@ func (c *MockChainClient) FetchDenomsFromCreator(ctx context.Context, creator st
 
 func (c *MockChainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error) {
 	return &tokenfactorytypes.QueryModuleStateResponse{}, nil
+}
+
+// Distribution module
+func (c *MockChainClient) FetchValidatorDistributionInfo(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorDistributionInfoResponse, error) {
+	return &distributiontypes.QueryValidatorDistributionInfoResponse{}, nil
+}
+
+func (c *MockChainClient) FetchValidatorOutstandingRewards(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorOutstandingRewardsResponse, error) {
+	return &distributiontypes.QueryValidatorOutstandingRewardsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchValidatorCommission(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorCommissionResponse, error) {
+	return &distributiontypes.QueryValidatorCommissionResponse{}, nil
+}
+
+func (c *MockChainClient) FetchValidatorSlashes(ctx context.Context, validatorAddress string, startingHeight uint64, endingHeight uint64, pagination *query.PageRequest) (*distributiontypes.QueryValidatorSlashesResponse, error) {
+	return &distributiontypes.QueryValidatorSlashesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDelegationRewards(ctx context.Context, delegatorAddress string, validatorAddress string) (*distributiontypes.QueryDelegationRewardsResponse, error) {
+	return &distributiontypes.QueryDelegationRewardsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDelegationTotalRewards(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegationTotalRewardsResponse, error) {
+	return &distributiontypes.QueryDelegationTotalRewardsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDelegatorValidators(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorValidatorsResponse, error) {
+	return &distributiontypes.QueryDelegatorValidatorsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDelegatorWithdrawAddress(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorWithdrawAddressResponse, error) {
+	return &distributiontypes.QueryDelegatorWithdrawAddressResponse{}, nil
+}
+
+func (c *MockChainClient) FetchCommunityPool(ctx context.Context) (*distributiontypes.QueryCommunityPoolResponse, error) {
+	return &distributiontypes.QueryCommunityPoolResponse{}, nil
 }

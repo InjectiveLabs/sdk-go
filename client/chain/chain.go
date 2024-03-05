@@ -14,6 +14,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
 	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"google.golang.org/grpc/credentials/insecure"
@@ -167,6 +169,17 @@ type ChainClient interface {
 	FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error)
 	FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error)
 
+	// distribution module
+	FetchValidatorDistributionInfo(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorDistributionInfoResponse, error)
+	FetchValidatorOutstandingRewards(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorOutstandingRewardsResponse, error)
+	FetchValidatorCommission(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorCommissionResponse, error)
+	FetchValidatorSlashes(ctx context.Context, validatorAddress string, startingHeight uint64, endingHeight uint64, pagination *query.PageRequest) (*distributiontypes.QueryValidatorSlashesResponse, error)
+	FetchDelegationRewards(ctx context.Context, delegatorAddress string, validatorAddress string) (*distributiontypes.QueryDelegationRewardsResponse, error)
+	FetchDelegationTotalRewards(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegationTotalRewardsResponse, error)
+	FetchDelegatorValidators(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorValidatorsResponse, error)
+	FetchDelegatorWithdrawAddress(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorWithdrawAddressResponse, error)
+	FetchCommunityPool(ctx context.Context) (*distributiontypes.QueryCommunityPoolResponse, error)
+
 	Close()
 }
 
@@ -202,6 +215,7 @@ type chainClient struct {
 	wasmQueryClient         wasmtypes.QueryClient
 	chainStreamClient       chainstreamtypes.StreamClient
 	tokenfactoryQueryClient tokenfactorytypes.QueryClient
+	distributionQueryClient distributiontypes.QueryClient
 	subaccountToNonce       map[ethcommon.Hash]uint32
 
 	closed  int64
@@ -296,6 +310,7 @@ func NewChainClient(
 		wasmQueryClient:         wasmtypes.NewQueryClient(conn),
 		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
 		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
+		distributionQueryClient: distributiontypes.NewQueryClient(conn),
 		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
 	}
 
@@ -1493,4 +1508,70 @@ type OrderCancelData struct {
 	MarketId  string
 	OrderHash string
 	Cid       string
+}
+
+// Distribution module
+func (c *chainClient) FetchValidatorDistributionInfo(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorDistributionInfoResponse, error) {
+	req := &distributiontypes.QueryValidatorDistributionInfoRequest{
+		ValidatorAddress: validatorAddress,
+	}
+	return c.distributionQueryClient.ValidatorDistributionInfo(ctx, req)
+}
+
+func (c *chainClient) FetchValidatorOutstandingRewards(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorOutstandingRewardsResponse, error) {
+	req := &distributiontypes.QueryValidatorOutstandingRewardsRequest{
+		ValidatorAddress: validatorAddress,
+	}
+	return c.distributionQueryClient.ValidatorOutstandingRewards(ctx, req)
+}
+
+func (c *chainClient) FetchValidatorCommission(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorCommissionResponse, error) {
+	req := &distributiontypes.QueryValidatorCommissionRequest{
+		ValidatorAddress: validatorAddress,
+	}
+	return c.distributionQueryClient.ValidatorCommission(ctx, req)
+}
+
+func (c *chainClient) FetchValidatorSlashes(ctx context.Context, validatorAddress string, startingHeight uint64, endingHeight uint64, pagination *query.PageRequest) (*distributiontypes.QueryValidatorSlashesResponse, error) {
+	req := &distributiontypes.QueryValidatorSlashesRequest{
+		ValidatorAddress: validatorAddress,
+		StartingHeight:   startingHeight,
+		EndingHeight:     endingHeight,
+		Pagination:       pagination,
+	}
+	return c.distributionQueryClient.ValidatorSlashes(ctx, req)
+}
+
+func (c *chainClient) FetchDelegationRewards(ctx context.Context, delegatorAddress string, validatorAddress string) (*distributiontypes.QueryDelegationRewardsResponse, error) {
+	req := &distributiontypes.QueryDelegationRewardsRequest{
+		DelegatorAddress: delegatorAddress,
+		ValidatorAddress: validatorAddress,
+	}
+	return c.distributionQueryClient.DelegationRewards(ctx, req)
+}
+
+func (c *chainClient) FetchDelegationTotalRewards(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegationTotalRewardsResponse, error) {
+	req := &distributiontypes.QueryDelegationTotalRewardsRequest{
+		DelegatorAddress: delegatorAddress,
+	}
+	return c.distributionQueryClient.DelegationTotalRewards(ctx, req)
+}
+
+func (c *chainClient) FetchDelegatorValidators(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorValidatorsResponse, error) {
+	req := &distributiontypes.QueryDelegatorValidatorsRequest{
+		DelegatorAddress: delegatorAddress,
+	}
+	return c.distributionQueryClient.DelegatorValidators(ctx, req)
+}
+
+func (c *chainClient) FetchDelegatorWithdrawAddress(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorWithdrawAddressResponse, error) {
+	req := &distributiontypes.QueryDelegatorWithdrawAddressRequest{
+		DelegatorAddress: delegatorAddress,
+	}
+	return c.distributionQueryClient.DelegatorWithdrawAddress(ctx, req)
+}
+
+func (c *chainClient) FetchCommunityPool(ctx context.Context) (*distributiontypes.QueryCommunityPoolResponse, error) {
+	req := &distributiontypes.QueryCommunityPoolRequest{}
+	return c.distributionQueryClient.CommunityPool(ctx, req)
 }
