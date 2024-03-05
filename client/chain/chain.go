@@ -220,7 +220,7 @@ func NewChainClient(
 	network common.Network,
 	options ...common.ClientOption,
 ) (ChainClient, error) {
-
+	var err error
 	// process options
 	opts := common.DefaultClientOptions()
 
@@ -228,7 +228,7 @@ func NewChainClient(
 		options = append(options, common.OptionTLSCert(network.ChainTlsCert))
 	}
 	for _, opt := range options {
-		if err := opt(opts); err != nil {
+		if err = opt(opts); err != nil {
 			err = errors.Wrap(err, "error in client option")
 			return nil, err
 		}
@@ -247,7 +247,6 @@ func NewChainClient(
 
 	// init grpc connection
 	var conn *grpc.ClientConn
-	var err error
 	stickySessionEnabled := true
 	if opts.TLSCert != nil {
 		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
@@ -259,6 +258,11 @@ func NewChainClient(
 		err = errors.Wrapf(err, "failed to connect to the gRPC: %s", network.ChainGrpcEndpoint)
 		return nil, err
 	}
+	defer func(err error) {
+		if err != nil {
+			conn.Close()
+		}
+	}(err)
 
 	var chainStreamConn *grpc.ClientConn
 	if opts.TLSCert != nil {
@@ -270,6 +274,11 @@ func NewChainClient(
 		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
 		return nil, err
 	}
+	defer func(err error) {
+		if err != nil {
+			chainStreamConn.Close()
+		}
+	}(err)
 
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client
@@ -302,6 +311,11 @@ func NewChainClient(
 		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
 		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
 	}
+	defer func(err error) {
+		if err != nil {
+			cc.Close()
+		}
+	}(err)
 
 	// routine upate nonce
 	if cc.canSign {
@@ -310,7 +324,6 @@ func NewChainClient(
 	}
 
 	if cc.canSign {
-		var err error
 
 		cc.accNum, cc.accSeq, err = cc.txFactory.AccountRetriever().GetAccountNumberSequence(ctx, ctx.GetFromAddress())
 		if err != nil {
@@ -323,7 +336,8 @@ func NewChainClient(
 	}
 
 	// create file if not exist
-	cookieFile, err := os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
+	var cookieFile *os.File
+	cookieFile, err = os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		cc.logger.Errorln(err)
 	} else {
@@ -331,7 +345,8 @@ func NewChainClient(
 	}
 
 	// attempt to load from disk
-	data, err := os.ReadFile(defaultChainCookieName)
+	var data []byte
+	data, err = os.ReadFile(defaultChainCookieName)
 	if err != nil {
 		cc.logger.Errorf("[INJ-GO-SDK] Failed to read default chain cookie %q: %v", defaultChainCookieName, err)
 	} else {
