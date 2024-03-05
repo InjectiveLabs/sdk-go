@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+
 	"github.com/cosmos/cosmos-sdk/types"
 	distriutiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"os"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"

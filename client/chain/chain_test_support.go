@@ -3,8 +3,9 @@ package chain
 import (
 	"context"
 	"errors"
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"time"
+
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 
