@@ -258,11 +258,11 @@ func NewChainClient(
 		err = errors.Wrapf(err, "failed to connect to the gRPC: %s", network.ChainGrpcEndpoint)
 		return nil, err
 	}
-	defer func(err error) {
+	defer func() {
 		if err != nil {
 			conn.Close()
 		}
-	}(err)
+	}()
 
 	var chainStreamConn *grpc.ClientConn
 	if opts.TLSCert != nil {
@@ -274,11 +274,11 @@ func NewChainClient(
 		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
 		return nil, err
 	}
-	defer func(err error) {
+	defer func() {
 		if err != nil {
 			chainStreamConn.Close()
 		}
-	}(err)
+	}()
 
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client
@@ -311,11 +311,11 @@ func NewChainClient(
 		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
 		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
 	}
-	defer func(err error) {
+	defer func() {
 		if err != nil {
 			cc.Close()
 		}
-	}(err)
+	}()
 
 	// routine upate nonce
 	if cc.canSign {
