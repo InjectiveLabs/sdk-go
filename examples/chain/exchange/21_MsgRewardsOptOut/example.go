@@ -8,20 +8,16 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
-	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("devnet-1", "")
-	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
-
+	network := common.LoadNetwork("testnet", "lb")
+	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
@@ -45,11 +41,10 @@ func main() {
 	)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
-	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
+	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
@@ -61,38 +56,15 @@ func main() {
 		panic(err)
 	}
 
-	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
-
-	marketId := "0x56d0c0293c4415e2d48fc2c8503a56a0c7389247396a2ef9b0a48c01f0646705"
-
-	liqMsg := exchangetypes.MsgLiquidatePosition{
-		Sender:       senderAddress.String(),
-		SubaccountId: defaultSubaccountID.String(),
-		MarketId:     marketId,
-		Order:        nil,
-	}
-
-	simRes, err := chainClient.SimulateMsg(clientCtx, &liqMsg)
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	msgLiquidatePositionResponse := exchangetypes.MsgLiquidatePositionResponse{}
-	msgLiquidatePositionResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
-
-	if err != nil {
-		fmt.Println(err)
-		return
+	msg := &exchangetypes.MsgRewardsOptOut{
+		Sender: senderAddress.String(),
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	err = chainClient.QueueBroadcastMsg(&liqMsg)
+	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 
 	time.Sleep(time.Second * 5)
