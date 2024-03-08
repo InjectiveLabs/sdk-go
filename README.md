@@ -20,10 +20,10 @@ $ go install ./...
 injectived keys unsafe-import-eth-key inj-user 5d386fbdbf11f1141010f81a46b40f94887367562bd33b452bbaa6ce1cd1381e
 
 # run chain example
-go run examples/chain/0_MsgSend.go
+go run examples/chain/1_MsgSend/example.go
 
 # run exchange example
-go run examples/exchange/derivative_exchange_rpc/0_GetOrderbook.go
+go run examples/exchange/derivatives/4_Orderbook/example.go
 ```
 
 ---
