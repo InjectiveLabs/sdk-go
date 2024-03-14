@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
@@ -545,4 +547,34 @@ func (c *MockChainClient) FetchTraderDerivativeConditionalOrders(ctx context.Con
 
 func (c *MockChainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error) {
 	return &exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse{}, nil
+}
+
+// Tendermint module
+
+func (c *MockChainClient) FetchNodeInfo(ctx context.Context) (*tmservice.GetNodeInfoResponse, error) {
+	return &tmservice.GetNodeInfoResponse{}, nil
+}
+
+func (c *MockChainClient) FetchSyncing(ctx context.Context) (*tmservice.GetSyncingResponse, error) {
+	return &tmservice.GetSyncingResponse{}, nil
+}
+
+func (c *MockChainClient) FetchLatestBlock(ctx context.Context) (*tmservice.GetLatestBlockResponse, error) {
+	return &tmservice.GetLatestBlockResponse{}, nil
+}
+
+func (c *MockChainClient) FetchBlockByHeight(ctx context.Context, height int64) (*tmservice.GetBlockByHeightResponse, error) {
+	return &tmservice.GetBlockByHeightResponse{}, nil
+}
+
+func (c *MockChainClient) FetchLatestValidatorSet(ctx context.Context) (*tmservice.GetLatestValidatorSetResponse, error) {
+	return &tmservice.GetLatestValidatorSetResponse{}, nil
+}
+
+func (c *MockChainClient) FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*tmservice.GetValidatorSetByHeightResponse, error) {
+	return &tmservice.GetValidatorSetByHeightResponse{}, nil
+}
+
+func (c *MockChainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*tmservice.ABCIQueryResponse, error) {
+	return &tmservice.ABCIQueryResponse{}, nil
 }
