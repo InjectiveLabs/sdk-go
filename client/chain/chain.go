@@ -13,6 +13,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -234,6 +236,15 @@ type ChainClient interface {
 	FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error)
 	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
 
+	// Tendermint module
+	FetchNodeInfo(ctx context.Context) (*tmservice.GetNodeInfoResponse, error)
+	FetchSyncing(ctx context.Context) (*tmservice.GetSyncingResponse, error)
+	FetchLatestBlock(ctx context.Context) (*tmservice.GetLatestBlockResponse, error)
+	FetchBlockByHeight(ctx context.Context, height int64) (*tmservice.GetBlockByHeightResponse, error)
+	FetchLatestValidatorSet(ctx context.Context) (*tmservice.GetLatestValidatorSetResponse, error)
+	FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*tmservice.GetValidatorSetByHeightResponse, error)
+	ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*tmservice.ABCIQueryResponse, error)
+
 	Close()
 }
 
@@ -269,6 +280,7 @@ type chainClient struct {
 	chainStreamClient       chainstreamtypes.StreamClient
 	tokenfactoryQueryClient tokenfactorytypes.QueryClient
 	distributionQueryClient distributiontypes.QueryClient
+	tendermintQueryClient   tmservice.ServiceClient
 	subaccountToNonce       map[ethcommon.Hash]uint32
 
 	closed  int64
@@ -364,6 +376,7 @@ func NewChainClient(
 		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
 		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
 		distributionQueryClient: distributiontypes.NewQueryClient(conn),
+		tendermintQueryClient:   tmservice.NewServiceClient(conn),
 		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
 	}
 
@@ -2016,4 +2029,51 @@ func (c *chainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Contex
 		MarketId: marketId,
 	}
 	return c.exchangeQueryClient.MarketAtomicExecutionFeeMultiplier(ctx, req)
+}
+
+// Tendermint module
+
+func (c *chainClient) FetchNodeInfo(ctx context.Context) (*tmservice.GetNodeInfoResponse, error) {
+	req := &tmservice.GetNodeInfoRequest{}
+	return c.tendermintQueryClient.GetNodeInfo(ctx, req)
+}
+
+func (c *chainClient) FetchSyncing(ctx context.Context) (*tmservice.GetSyncingResponse, error) {
+	req := &tmservice.GetSyncingRequest{}
+	return c.tendermintQueryClient.GetSyncing(ctx, req)
+}
+
+func (c *chainClient) FetchLatestBlock(ctx context.Context) (*tmservice.GetLatestBlockResponse, error) {
+	req := &tmservice.GetLatestBlockRequest{}
+	return c.tendermintQueryClient.GetLatestBlock(ctx, req)
+}
+
+func (c *chainClient) FetchBlockByHeight(ctx context.Context, height int64) (*tmservice.GetBlockByHeightResponse, error) {
+	req := &tmservice.GetBlockByHeightRequest{
+		Height: height,
+	}
+	return c.tendermintQueryClient.GetBlockByHeight(ctx, req)
+}
+
+func (c *chainClient) FetchLatestValidatorSet(ctx context.Context) (*tmservice.GetLatestValidatorSetResponse, error) {
+	req := &tmservice.GetLatestValidatorSetRequest{}
+	return c.tendermintQueryClient.GetLatestValidatorSet(ctx, req)
+}
+
+func (c *chainClient) FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*tmservice.GetValidatorSetByHeightResponse, error) {
+	req := &tmservice.GetValidatorSetByHeightRequest{
+		Height:     height,
+		Pagination: pagination,
+	}
+	return c.tendermintQueryClient.GetValidatorSetByHeight(ctx, req)
+}
+
+func (c *chainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*tmservice.ABCIQueryResponse, error) {
+	req := &tmservice.ABCIQueryRequest{
+		Path:   path,
+		Data:   data,
+		Height: height,
+		Prove:  prove,
+	}
+	return c.tendermintQueryClient.ABCIQuery(ctx, req)
 }
