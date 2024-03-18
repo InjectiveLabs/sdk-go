@@ -554,7 +554,7 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 
 	if err != nil {
-		if strings.Contains(err.Error(), "account sequence mismatch") {
+		if c.opts.FixSeqMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
 			sequence := c.getAccSeq()
 			c.txFactory = c.txFactory.WithSequence(sequence)
@@ -617,7 +617,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 	res, err := c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
 	if err != nil {
-		if strings.Contains(err.Error(), "account sequence mismatch") {
+		if c.opts.FixSeqMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
 			sequence := c.getAccSeq()
 			c.txFactory = c.txFactory.WithSequence(sequence)
@@ -631,7 +631,6 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 			return nil, err
 		}
 	}
-
 	return res, nil
 }
 
@@ -874,7 +873,7 @@ func (c *chainClient) runBatchBroadcast() {
 		log.Debugln("broadcastTx with nonce", sequence)
 		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 		if err != nil {
-			if strings.Contains(err.Error(), "account sequence mismatch") {
+			if c.opts.FixSeqMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
 				sequence := c.getAccSeq()
 				c.txFactory = c.txFactory.WithSequence(sequence)
