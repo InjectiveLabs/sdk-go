@@ -176,7 +176,21 @@ func (network *Network) ExplorerMetadata(provider MetadataProvider) (string, err
 
 func LoadNetwork(name string, node string) Network {
 	switch name {
-
+	case "local":
+		return Network{
+			LcdEndpoint:             "",
+			TmEndpoint:              "tcp://localhost:26657",
+			ChainGrpcEndpoint:       "tcp://localhost:9900",
+			ChainStreamGrpcEndpoint: "",
+			ExchangeGrpcEndpoint:    "",
+			ExplorerGrpcEndpoint:    "",
+			ChainId:                 "injective-1",
+			Fee_denom:               "inj",
+			Name:                    "local-1",
+			chainCookieAssistant:    &DisabledCookieAssistant{},
+			exchangeCookieAssistant: &DisabledCookieAssistant{},
+			explorerCookieAssistant: &DisabledCookieAssistant{},
+		}
 	case "devnet-1":
 		return Network{
 			LcdEndpoint:             "https://devnet-1.lcd.injective.dev",
