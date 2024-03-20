@@ -62,6 +62,8 @@ const (
 	defaultSessionRenewalOffset      = 120
 	defaultBlockTime                 = 3 * time.Second
 	defaultChainCookieName           = ".chain_cookie"
+
+	MaxGasFee = "1000000000inj"
 )
 
 var (
@@ -171,6 +173,9 @@ type ChainClient interface {
 	FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error)
 	FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error)
 
+	AdjustGasPricesToMax()
+	AdjustedGasPricesToOrigin()
+
 	Close()
 }
 
@@ -213,6 +218,8 @@ type chainClient struct {
 
 	closed  int64
 	canSign bool
+
+	isDynamicGasPrices bool
 }
 
 func NewChainClient(
@@ -310,6 +317,8 @@ func NewChainClient(
 		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
 		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
 		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
+
+		isDynamicGasPrices: opts.IsDynamicGasPrices,
 	}
 	defer func() {
 		if err != nil {
@@ -693,8 +702,14 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 
 	res, err = c.PollTxResults(res, c.ctx, txBytes)
 	if err != nil {
+		c.accSeq--
+		if strings.Contains(err.Error(), ErrTimedOut.Error()) && c.isDynamicGasPrices {
+			c.logger.Debugln("[INJ-GO-SDK] Update gas to max gas price")
+			c.txFactory = c.txFactory.WithGasPrices(MaxGasFee)
+		}
 		return res, err
 	} else if res != nil && res.TxResponse != nil {
+		c.txFactory = c.txFactory.WithGasPrices(c.opts.GasPrices)
 		if res.TxResponse.Code != 0 {
 			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
 			c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
@@ -1673,4 +1688,12 @@ type OrderCancelData struct {
 	MarketId  string
 	OrderHash string
 	Cid       string
+}
+
+func (c *chainClient) AdjustGasPricesToMax() {
+	c.txFactory = c.txFactory.WithGasPrices(MaxGasFee)
+}
+
+func (c *chainClient) AdjustedGasPricesToOrigin() {
+	c.txFactory = c.txFactory.WithGasPrices(c.opts.GasPrices)
 }

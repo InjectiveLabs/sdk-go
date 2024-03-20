@@ -21,11 +21,12 @@ func init() {
 }
 
 type ClientOptions struct {
-	GasPrices string
-	TLSCert   credentials.TransportCredentials
-	Logger    *logrus.Logger
-	TxFactory *tx.Factory
-	ErrChan   chan error
+	GasPrices          string
+	IsDynamicGasPrices bool
+	TLSCert            credentials.TransportCredentials
+	Logger             *logrus.Logger
+	TxFactory          *tx.Factory
+	ErrChan            chan error
 }
 
 type ClientOption func(opts *ClientOptions) error
@@ -79,6 +80,13 @@ func OptionTxFactory(txFactory *tx.Factory) ClientOption {
 func OptionErrChan(errChan chan error) ClientOption {
 	return func(opts *ClientOptions) error {
 		opts.ErrChan = errChan
+		return nil
+	}
+}
+
+func OptionIsDynamicGasPrices(isDynamic bool) ClientOption {
+	return func(opts *ClientOptions) error {
+		opts.IsDynamicGasPrices = isDynamic
 		return nil
 	}
 }
