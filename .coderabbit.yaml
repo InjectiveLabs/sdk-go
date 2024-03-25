@@ -1,8 +1,12 @@
 reviews:
+    path_instructions:
+        - path: "**/*.go"
+          instructions: "Ignore making test suggestions for Go files. Review best practices, security, and performance."
     auto_review:
         base_branches:
             - "master"
             - "dev"
             - "feat/.*"
+
 chat:
     auto_reply: true
