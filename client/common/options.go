@@ -19,15 +19,18 @@ func init() {
 }
 
 type ClientOptions struct {
-	GasPrices string
-	TLSCert   credentials.TransportCredentials
-	TxFactory *tx.Factory
+	GasPrices      string
+	TLSCert        credentials.TransportCredentials
+	TxFactory      *tx.Factory
+	FixSeqMismatch bool
 }
 
 type ClientOption func(opts *ClientOptions) error
 
 func DefaultClientOptions() *ClientOptions {
-	return &ClientOptions{}
+	return &ClientOptions{
+		FixSeqMismatch: true,
+	}
 }
 
 func OptionGasPrices(gasPrices string) ClientOption {
@@ -58,6 +61,13 @@ func OptionTLSCert(tlsCert credentials.TransportCredentials) ClientOption {
 func OptionTxFactory(txFactory *tx.Factory) ClientOption {
 	return func(opts *ClientOptions) error {
 		opts.TxFactory = txFactory
+		return nil
+	}
+}
+
+func OptionFixSeqMismatch(fixSeqMismatch bool) ClientOption {
+	return func(opts *ClientOptions) error {
+		opts.FixSeqMismatch = fixSeqMismatch
 		return nil
 	}
 }

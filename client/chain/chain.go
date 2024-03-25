@@ -419,11 +419,11 @@ func (c *chainClient) syncTimeoutHeight() {
 	}
 }
 
-// prepareFactory ensures the account defined by ctx.GetFromAddress() exists and
+// PrepareFactory ensures the account defined by ctx.GetFromAddress() exists and
 // if the account number and/or the account sequence number are zero (not set),
 // they will be queried for and set on the provided Factory. A new Factory with
 // the updated fields will be returned.
-func (c *chainClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+func PrepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
 	from := clientCtx.GetFromAddress()
 
 	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
@@ -605,7 +605,7 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 
 	if err != nil {
-		if strings.Contains(err.Error(), "account sequence mismatch") {
+		if c.opts.FixSeqMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
 			sequence := c.getAccSeq()
 			c.txFactory = c.txFactory.WithSequence(sequence)
@@ -633,7 +633,7 @@ func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*
 func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-	txf, err := c.prepareFactory(clientCtx, c.txFactory)
+	txf, err := PrepareFactory(clientCtx, c.txFactory)
 	if err != nil {
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, err
@@ -668,7 +668,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 	res, err := c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
 	if err != nil {
-		if strings.Contains(err.Error(), "account sequence mismatch") {
+		if c.opts.FixSeqMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
 			sequence := c.getAccSeq()
 			c.txFactory = c.txFactory.WithSequence(sequence)
@@ -682,13 +682,14 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 			return nil, err
 		}
 	}
-
 	return res, nil
 }
-
 func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
 	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
+	return c.buildSignedTx(clientCtx, txf, msgs...)
+}
 
+func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
 		if err != nil {
@@ -709,7 +710,7 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 		c.gasWanted = adjustedGas
 	}
 
-	txf, err := c.prepareFactory(clientCtx, txf)
+	txf, err := PrepareFactory(clientCtx, txf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepareFactory")
 	}
@@ -800,48 +801,9 @@ func (c *chainClient) broadcastTx(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxResponse, error) {
-	txf, err := c.prepareFactory(clientCtx, txf)
+	txBytes, err := c.buildSignedTx(clientCtx, txf, msgs...)
 	if err != nil {
-		err = errors.Wrap(err, "failed to prepareFactory")
-		return nil, err
-	}
-	ctx := context.Background()
-	if clientCtx.Simulate {
-		simTxBytes, err := txf.BuildSimTx(msgs...)
-		if err != nil {
-			err = errors.Wrap(err, "failed to build sim tx bytes")
-			return nil, err
-		}
-		ctx := c.getCookie(ctx)
-		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes})
-		if err != nil {
-			err = errors.Wrap(err, "failed to CalculateGas")
-			return nil, err
-		}
-
-		adjustedGas := uint64(txf.GasAdjustment() * float64(simRes.GasInfo.GasUsed))
-		txf = txf.WithGas(adjustedGas)
-
-		c.gasWanted = adjustedGas
-	}
-
-	txn, err := txf.BuildUnsignedTx(msgs...)
-
-	if err != nil {
-		err = errors.Wrap(err, "failed to BuildUnsignedTx")
-		return nil, err
-	}
-
-	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
-	if err != nil {
-		err = errors.Wrap(err, "failed to Sign Tx")
-		return nil, err
-	}
-
-	txBytes, err := clientCtx.TxConfig.TxEncoder()(txn.GetTx())
-	if err != nil {
-		err = errors.Wrap(err, "failed TxEncoder to encode Tx")
+		err = errors.Wrap(err, "failed to build signed Tx")
 		return nil, err
 	}
 
@@ -850,7 +812,7 @@ func (c *chainClient) broadcastTx(
 		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
 	}
 	// use our own client to broadcast tx
-	ctx = c.getCookie(ctx)
+	ctx := c.getCookie(context.Background())
 	res, err := c.txClient.BroadcastTx(ctx, &req)
 	if !await || err != nil {
 		return res, err
@@ -925,7 +887,7 @@ func (c *chainClient) runBatchBroadcast() {
 		log.Debugln("broadcastTx with nonce", sequence)
 		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 		if err != nil {
-			if strings.Contains(err.Error(), "account sequence mismatch") {
+			if c.opts.FixSeqMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
 				sequence := c.getAccSeq()
 				c.txFactory = c.txFactory.WithSequence(sequence)
