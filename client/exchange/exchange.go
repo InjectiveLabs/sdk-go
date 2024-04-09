@@ -3,6 +3,7 @@ package exchange
 import (
 	"context"
 	"fmt"
+
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
