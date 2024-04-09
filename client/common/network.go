@@ -41,6 +41,8 @@ func (provider *MetadataProvider) metadata() metadata.MD {
 
 type CookieAssistant interface {
 	Metadata(provider MetadataProvider) (string, error)
+	RealMetadata() metadata.MD
+	ProcessResponseMetadata(header metadata.MD)
 }
 
 type ExpiringCookieAssistant struct {
@@ -74,7 +76,7 @@ func (assistant *ExpiringCookieAssistant) checkCookieExpiration() {
 
 		if err == nil {
 			timestampDiff := time.Until(expirationTime)
-			if timestampDiff < SessionRenewalOffset {
+			if timestampDiff < 0 {
 				assistant.cookie = ""
 			}
 		}
@@ -93,6 +95,22 @@ func (assistant *ExpiringCookieAssistant) Metadata(provider MetadataProvider) (s
 	assistant.checkCookieExpiration()
 
 	return cookie, nil
+}
+
+func (assistant *ExpiringCookieAssistant) RealMetadata() metadata.MD {
+	newMetadata := metadata.Pairs()
+	assistant.checkCookieExpiration()
+	if assistant.cookie != "" {
+		newMetadata.Append("cookie", assistant.cookie)
+	}
+	return newMetadata
+}
+
+func (assistant *ExpiringCookieAssistant) ProcessResponseMetadata(header metadata.MD) {
+	cookieInfo := header.Get("set-cookie")
+	if len(cookieInfo) > 0 {
+		assistant.cookie = cookieInfo[0]
+	}
 }
 
 func TestnetKubernetesCookieAssistant() ExpiringCookieAssistant {
@@ -138,11 +156,32 @@ func (assistant *BareMetalLoadBalancedCookieAssistant) Metadata(provider Metadat
 	return assistant.cookie, nil
 }
 
+func (assistant *BareMetalLoadBalancedCookieAssistant) RealMetadata() metadata.MD {
+	newMetadata := metadata.Pairs()
+	if assistant.cookie != "" {
+		newMetadata.Append("cookie", assistant.cookie)
+	}
+	return newMetadata
+}
+
+func (assistant *BareMetalLoadBalancedCookieAssistant) ProcessResponseMetadata(header metadata.MD) {
+	cookieInfo := header.Get("set-cookie")
+	if len(cookieInfo) > 0 {
+		assistant.cookie = cookieInfo[0]
+	}
+}
+
 type DisabledCookieAssistant struct{}
 
 func (assistant *DisabledCookieAssistant) Metadata(provider MetadataProvider) (string, error) {
 	return "", nil
 }
+
+func (assistant *DisabledCookieAssistant) RealMetadata() metadata.MD {
+	return metadata.Pairs()
+}
+
+func (assistant *DisabledCookieAssistant) ProcessResponseMetadata(header metadata.MD) {}
 
 type Network struct {
 	LcdEndpoint             string
@@ -155,23 +194,11 @@ type Network struct {
 	ExchangeTlsCert         credentials.TransportCredentials
 	ExplorerTlsCert         credentials.TransportCredentials
 	ChainId                 string
-	Fee_denom               string
+	FeeDenom                string
 	Name                    string
-	chainCookieAssistant    CookieAssistant
-	exchangeCookieAssistant CookieAssistant
-	explorerCookieAssistant CookieAssistant
-}
-
-func (network *Network) ChainMetadata(provider MetadataProvider) (string, error) {
-	return network.chainCookieAssistant.Metadata(provider)
-}
-
-func (network *Network) ExchangeMetadata(provider MetadataProvider) (string, error) {
-	return network.exchangeCookieAssistant.Metadata(provider)
-}
-
-func (network *Network) ExplorerMetadata(provider MetadataProvider) (string, error) {
-	return network.explorerCookieAssistant.Metadata(provider)
+	ChainCookieAssistant    CookieAssistant
+	ExchangeCookieAssistant CookieAssistant
+	ExplorerCookieAssistant CookieAssistant
 }
 
 func LoadNetwork(name string, node string) Network {
@@ -186,11 +213,11 @@ func LoadNetwork(name string, node string) Network {
 			ExchangeGrpcEndpoint:    "tcp://devnet-1.api.injective.dev:9910",
 			ExplorerGrpcEndpoint:    "tcp://devnet-1.api.injective.dev:9911",
 			ChainId:                 "injective-777",
-			Fee_denom:               "inj",
+			FeeDenom:                "inj",
 			Name:                    "devnet-1",
-			chainCookieAssistant:    &DisabledCookieAssistant{},
-			exchangeCookieAssistant: &DisabledCookieAssistant{},
-			explorerCookieAssistant: &DisabledCookieAssistant{},
+			ChainCookieAssistant:    &DisabledCookieAssistant{},
+			ExchangeCookieAssistant: &DisabledCookieAssistant{},
+			ExplorerCookieAssistant: &DisabledCookieAssistant{},
 		}
 	case "devnet":
 		return Network{
@@ -201,11 +228,11 @@ func LoadNetwork(name string, node string) Network {
 			ExchangeGrpcEndpoint:    "tcp://devnet.injective.dev:9910",
 			ExplorerGrpcEndpoint:    "tcp://devnet.api.injective.dev:9911",
 			ChainId:                 "injective-777",
-			Fee_denom:               "inj",
+			FeeDenom:                "inj",
 			Name:                    "devnet",
-			chainCookieAssistant:    &DisabledCookieAssistant{},
-			exchangeCookieAssistant: &DisabledCookieAssistant{},
-			explorerCookieAssistant: &DisabledCookieAssistant{},
+			ChainCookieAssistant:    &DisabledCookieAssistant{},
+			ExchangeCookieAssistant: &DisabledCookieAssistant{},
+			ExplorerCookieAssistant: &DisabledCookieAssistant{},
 		}
 	case "testnet":
 		validNodes := []string{"lb", "sentry"}
@@ -255,11 +282,11 @@ func LoadNetwork(name string, node string) Network {
 			ExplorerGrpcEndpoint:    explorerGrpcEndpoint,
 			ExplorerTlsCert:         explorerTlsCert,
 			ChainId:                 "injective-888",
-			Fee_denom:               "inj",
+			FeeDenom:                "inj",
 			Name:                    "testnet",
-			chainCookieAssistant:    chainCookieAssistant,
-			exchangeCookieAssistant: exchangeCookieAssistant,
-			explorerCookieAssistant: explorerCookieAssistant,
+			ChainCookieAssistant:    chainCookieAssistant,
+			ExchangeCookieAssistant: exchangeCookieAssistant,
+			ExplorerCookieAssistant: explorerCookieAssistant,
 		}
 	case "mainnet":
 		validNodes := []string{"lb"}
@@ -294,11 +321,11 @@ func LoadNetwork(name string, node string) Network {
 			ExplorerGrpcEndpoint:    explorerGrpcEndpoint,
 			ExplorerTlsCert:         explorerTlsCert,
 			ChainId:                 "injective-1",
-			Fee_denom:               "inj",
+			FeeDenom:                "inj",
 			Name:                    "mainnet",
-			chainCookieAssistant:    chainCookieAssistant,
-			exchangeCookieAssistant: exchangeCookieAssistant,
-			explorerCookieAssistant: explorerCookieAssistant,
+			ChainCookieAssistant:    chainCookieAssistant,
+			ExchangeCookieAssistant: exchangeCookieAssistant,
+			ExplorerCookieAssistant: explorerCookieAssistant,
 		}
 	}
 
@@ -309,9 +336,9 @@ func LoadNetwork(name string, node string) Network {
 // It can be used to setup a custom environment from scratch.
 func NewNetwork() Network {
 	return Network{
-		chainCookieAssistant:    &DisabledCookieAssistant{},
-		exchangeCookieAssistant: &DisabledCookieAssistant{},
-		explorerCookieAssistant: &DisabledCookieAssistant{},
+		ChainCookieAssistant:    &DisabledCookieAssistant{},
+		ExchangeCookieAssistant: &DisabledCookieAssistant{},
+		ExplorerCookieAssistant: &DisabledCookieAssistant{},
 	}
 }
 

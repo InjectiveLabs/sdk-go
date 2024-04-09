@@ -3,22 +3,17 @@ package exchange
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	accountPB "github.com/InjectiveLabs/sdk-go/exchange/accounts_rpc/pb"
 	auctionPB "github.com/InjectiveLabs/sdk-go/exchange/auction_rpc/pb"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
-	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
 	insurancePB "github.com/InjectiveLabs/sdk-go/exchange/insurance_rpc/pb"
 	metaPB "github.com/InjectiveLabs/sdk-go/exchange/meta_rpc/pb"
 	oraclePB "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
 	portfolioExchangePB "github.com/InjectiveLabs/sdk-go/exchange/portfolio_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
-	"google.golang.org/grpc/metadata"
-
 	log "github.com/InjectiveLabs/suplog"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -131,7 +126,6 @@ func NewExchangeClient(network common.Network, options ...common.ClientOption) (
 		conn:    conn,
 
 		metaClient:               metaPB.NewInjectiveMetaRPCClient(conn),
-		explorerClient:           explorerPB.NewInjectiveExplorerRPCClient(conn),
 		accountClient:            accountPB.NewInjectiveAccountsRPCClient(conn),
 		auctionClient:            auctionPB.NewInjectiveAuctionRPCClient(conn),
 		oracleClient:             oraclePB.NewInjectiveOracleRPCClient(conn),
@@ -156,7 +150,6 @@ type exchangeClient struct {
 	logger  log.Logger
 
 	metaClient               metaPB.InjectiveMetaRPCClient
-	explorerClient           explorerPB.InjectiveExplorerRPCClient
 	accountClient            accountPB.InjectiveAccountsRPCClient
 	auctionClient            auctionPB.InjectiveAuctionRPCClient
 	oracleClient             oraclePB.InjectiveOracleRPCClient
@@ -166,22 +159,6 @@ type exchangeClient struct {
 	portfolioExchangeClient  portfolioExchangePB.InjectivePortfolioRPCClient
 }
 
-func (c *exchangeClient) requestCookie() metadata.MD {
-	var header metadata.MD
-	req := metaPB.InfoRequest{Timestamp: time.Now().UnixMilli()}
-	_, err := c.metaClient.Info(context.Background(), &req, grpc.Header(&header))
-	if err != nil {
-		panic(err)
-	}
-	return header
-}
-
-func (c *exchangeClient) getCookie(ctx context.Context) context.Context {
-	provider := common.NewMetadataProvider(c.requestCookie)
-	cookie, _ := c.network.ExchangeMetadata(provider)
-	return metadata.AppendToOutgoingContext(ctx, "cookie", cookie)
-}
-
 func (c *exchangeClient) QueryClient() *grpc.ClientConn {
 	return c.conn
 }
@@ -189,8 +166,7 @@ func (c *exchangeClient) QueryClient() *grpc.ClientConn {
 // Derivatives RPC
 
 func (c *exchangeClient) GetDerivativeOrders(ctx context.Context, req *derivativeExchangePB.OrdersRequest) (*derivativeExchangePB.OrdersResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Orders(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.Orders, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.OrdersResponse{}, err
@@ -201,8 +177,7 @@ func (c *exchangeClient) GetDerivativeOrders(ctx context.Context, req *derivativ
 
 // Deprecated: Use GetDerivativePositionsV2 instead.
 func (c *exchangeClient) GetDerivativePositions(ctx context.Context, req *derivativeExchangePB.PositionsRequest) (*derivativeExchangePB.PositionsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Positions(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.Positions, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.PositionsResponse{}, err
@@ -212,8 +187,7 @@ func (c *exchangeClient) GetDerivativePositions(ctx context.Context, req *deriva
 }
 
 func (c *exchangeClient) GetDerivativePositionsV2(ctx context.Context, req *derivativeExchangePB.PositionsV2Request) (*derivativeExchangePB.PositionsV2Response, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.PositionsV2(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.PositionsV2, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.PositionsV2Response{}, err
@@ -223,8 +197,7 @@ func (c *exchangeClient) GetDerivativePositionsV2(ctx context.Context, req *deri
 }
 
 func (c *exchangeClient) GetDerivativeLiquidablePositions(ctx context.Context, req *derivativeExchangePB.LiquidablePositionsRequest) (*derivativeExchangePB.LiquidablePositionsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.LiquidablePositions(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.LiquidablePositions, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.LiquidablePositionsResponse{}, err
@@ -238,8 +211,7 @@ func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId 
 		MarketId: marketId,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.OrderbookV2(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.OrderbookV2, &req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.OrderbookV2Response{}, err
@@ -253,8 +225,7 @@ func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketId
 		MarketIds: marketIds,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.OrderbooksV2(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.OrderbooksV2, &req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.OrderbooksV2Response{}, err
@@ -268,8 +239,8 @@ func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, market
 		MarketIds: marketIds,
 	}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamOrderbookV2(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamOrderbookV2, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -283,8 +254,8 @@ func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, ma
 		MarketIds: marketIds,
 	}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamOrderbookUpdate(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamOrderbookUpdate, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -294,8 +265,7 @@ func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, ma
 }
 
 func (c *exchangeClient) GetDerivativeMarkets(ctx context.Context, req *derivativeExchangePB.MarketsRequest) (*derivativeExchangePB.MarketsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Markets(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.Markets, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.MarketsResponse{}, err
@@ -309,8 +279,7 @@ func (c *exchangeClient) GetDerivativeMarket(ctx context.Context, marketId strin
 		MarketId: marketId,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Market(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.Market, &req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.MarketResponse{}, err
@@ -324,8 +293,8 @@ func (c *exchangeClient) StreamDerivativeMarket(ctx context.Context, marketIds [
 		MarketIds: marketIds,
 	}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamMarket(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamMarket, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -335,8 +304,8 @@ func (c *exchangeClient) StreamDerivativeMarket(ctx context.Context, marketIds [
 }
 
 func (c *exchangeClient) StreamDerivativePositions(ctx context.Context, req *derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamPositions(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamPositions, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -346,8 +315,8 @@ func (c *exchangeClient) StreamDerivativePositions(ctx context.Context, req *der
 }
 
 func (c *exchangeClient) StreamDerivativeOrders(ctx context.Context, req *derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamOrders(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamOrders, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -357,8 +326,7 @@ func (c *exchangeClient) StreamDerivativeOrders(ctx context.Context, req *deriva
 }
 
 func (c *exchangeClient) GetDerivativeTrades(ctx context.Context, req *derivativeExchangePB.TradesRequest) (*derivativeExchangePB.TradesResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.Trades(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.Trades, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.TradesResponse{}, err
@@ -368,8 +336,7 @@ func (c *exchangeClient) GetDerivativeTrades(ctx context.Context, req *derivativ
 }
 
 func (c *exchangeClient) GetDerivativeTradesV2(ctx context.Context, req *derivativeExchangePB.TradesV2Request) (*derivativeExchangePB.TradesV2Response, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.TradesV2(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.TradesV2, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.TradesV2Response{}, err
@@ -379,8 +346,8 @@ func (c *exchangeClient) GetDerivativeTradesV2(ctx context.Context, req *derivat
 }
 
 func (c *exchangeClient) StreamDerivativeTrades(ctx context.Context, req *derivativeExchangePB.StreamTradesRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamTrades(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamTrades, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -390,8 +357,8 @@ func (c *exchangeClient) StreamDerivativeTrades(ctx context.Context, req *deriva
 }
 
 func (c *exchangeClient) StreamDerivativeV2Trades(ctx context.Context, req *derivativeExchangePB.StreamTradesV2Request) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamTradesV2Client, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamTradesV2(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamTradesV2, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -401,8 +368,8 @@ func (c *exchangeClient) StreamDerivativeV2Trades(ctx context.Context, req *deri
 }
 
 func (c *exchangeClient) GetSubaccountDerivativeOrdersList(ctx context.Context, req *derivativeExchangePB.SubaccountOrdersListRequest) (*derivativeExchangePB.SubaccountOrdersListResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.SubaccountOrdersList(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.SubaccountOrdersList, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.SubaccountOrdersListResponse{}, err
@@ -412,8 +379,8 @@ func (c *exchangeClient) GetSubaccountDerivativeOrdersList(ctx context.Context, 
 }
 
 func (c *exchangeClient) GetSubaccountDerivativeTradesList(ctx context.Context, req *derivativeExchangePB.SubaccountTradesListRequest) (*derivativeExchangePB.SubaccountTradesListResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.SubaccountTradesList(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.SubaccountTradesList, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.SubaccountTradesListResponse{}, err
@@ -423,8 +390,7 @@ func (c *exchangeClient) GetSubaccountDerivativeTradesList(ctx context.Context, 
 }
 
 func (c *exchangeClient) GetHistoricalDerivativeOrders(ctx context.Context, req *derivativeExchangePB.OrdersHistoryRequest) (*derivativeExchangePB.OrdersHistoryResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.OrdersHistory(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.OrdersHistory, req)
 	if err != nil {
 		return &derivativeExchangePB.OrdersHistoryResponse{}, err
 	}
@@ -433,8 +399,8 @@ func (c *exchangeClient) GetHistoricalDerivativeOrders(ctx context.Context, req 
 }
 
 func (c *exchangeClient) StreamHistoricalDerivativeOrders(ctx context.Context, req *derivativeExchangePB.StreamOrdersHistoryRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersHistoryClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.derivativeExchangeClient.StreamOrdersHistory(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamOrdersHistory, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -444,8 +410,7 @@ func (c *exchangeClient) StreamHistoricalDerivativeOrders(ctx context.Context, r
 }
 
 func (c *exchangeClient) GetDerivativeFundingPayments(ctx context.Context, req *derivativeExchangePB.FundingPaymentsRequest) (*derivativeExchangePB.FundingPaymentsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.FundingPayments(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.FundingPayments, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.FundingPaymentsResponse{}, err
@@ -455,8 +420,7 @@ func (c *exchangeClient) GetDerivativeFundingPayments(ctx context.Context, req *
 }
 
 func (c *exchangeClient) GetDerivativeFundingRates(ctx context.Context, req *derivativeExchangePB.FundingRatesRequest) (*derivativeExchangePB.FundingRatesResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.derivativeExchangeClient.FundingRates(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.FundingRates, req)
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.FundingRatesResponse{}, err
@@ -475,8 +439,8 @@ func (c *exchangeClient) GetPrice(ctx context.Context, baseSymbol string, quoteS
 		OracleScaleFactor: oracleScaleFactor,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.oracleClient.Price(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.oracleClient.Price, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &oraclePB.PriceResponse{}, err
@@ -488,8 +452,7 @@ func (c *exchangeClient) GetPrice(ctx context.Context, baseSymbol string, quoteS
 func (c *exchangeClient) GetOracleList(ctx context.Context) (*oraclePB.OracleListResponse, error) {
 	req := oraclePB.OracleListRequest{}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.oracleClient.OracleList(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.oracleClient.OracleList, &req)
 	if err != nil {
 		fmt.Println(err)
 		return &oraclePB.OracleListResponse{}, err
@@ -505,8 +468,8 @@ func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol string, qu
 		OracleType:  oracleType,
 	}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.oracleClient.StreamPrices(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.oracleClient.StreamPrices, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -522,8 +485,7 @@ func (c *exchangeClient) GetAuction(ctx context.Context, round int64) (*auctionP
 		Round: round,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.auctionClient.AuctionEndpoint(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.auctionClient.AuctionEndpoint, &req)
 	if err != nil {
 		fmt.Println(err)
 		return &auctionPB.AuctionEndpointResponse{}, err
@@ -535,8 +497,7 @@ func (c *exchangeClient) GetAuction(ctx context.Context, round int64) (*auctionP
 func (c *exchangeClient) GetAuctions(ctx context.Context) (*auctionPB.AuctionsResponse, error) {
 	req := auctionPB.AuctionsRequest{}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.auctionClient.Auctions(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.auctionClient.Auctions, &req)
 	if err != nil {
 		fmt.Println(err)
 		return &auctionPB.AuctionsResponse{}, err
@@ -548,8 +509,8 @@ func (c *exchangeClient) GetAuctions(ctx context.Context) (*auctionPB.AuctionsRe
 func (c *exchangeClient) StreamBids(ctx context.Context) (auctionPB.InjectiveAuctionRPC_StreamBidsClient, error) {
 	req := auctionPB.StreamBidsRequest{}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.auctionClient.StreamBids(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.auctionClient.StreamBids, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -565,8 +526,8 @@ func (c *exchangeClient) GetSubaccountsList(ctx context.Context, accountAddress 
 		AccountAddress: accountAddress,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.accountClient.SubaccountsList(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.SubaccountsList, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &accountPB.SubaccountsListResponse{}, err
@@ -581,8 +542,8 @@ func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId 
 		Denom:        denom,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.accountClient.SubaccountBalanceEndpoint(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.SubaccountBalanceEndpoint, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &accountPB.SubaccountBalanceEndpointResponse{}, err
@@ -596,8 +557,8 @@ func (c *exchangeClient) StreamSubaccountBalance(ctx context.Context, subaccount
 		SubaccountId: subaccountId,
 	}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.accountClient.StreamSubaccountBalance(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.StreamSubaccountBalance, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -611,8 +572,8 @@ func (c *exchangeClient) GetSubaccountBalancesList(ctx context.Context, subaccou
 		SubaccountId: subaccountId,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.accountClient.SubaccountBalancesList(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.SubaccountBalancesList, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &accountPB.SubaccountBalancesListResponse{}, err
@@ -622,8 +583,8 @@ func (c *exchangeClient) GetSubaccountBalancesList(ctx context.Context, subaccou
 }
 
 func (c *exchangeClient) GetSubaccountHistory(ctx context.Context, req *accountPB.SubaccountHistoryRequest) (*accountPB.SubaccountHistoryResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.accountClient.SubaccountHistory(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.SubaccountHistory, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &accountPB.SubaccountHistoryResponse{}, err
@@ -633,8 +594,8 @@ func (c *exchangeClient) GetSubaccountHistory(ctx context.Context, req *accountP
 }
 
 func (c *exchangeClient) GetSubaccountOrderSummary(ctx context.Context, req *accountPB.SubaccountOrderSummaryRequest) (*accountPB.SubaccountOrderSummaryResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.accountClient.SubaccountOrderSummary(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.SubaccountOrderSummary, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &accountPB.SubaccountOrderSummaryResponse{}, err
@@ -644,8 +605,7 @@ func (c *exchangeClient) GetSubaccountOrderSummary(ctx context.Context, req *acc
 }
 
 func (c *exchangeClient) GetOrderStates(ctx context.Context, req *accountPB.OrderStatesRequest) (*accountPB.OrderStatesResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.accountClient.OrderStates(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.OrderStates, req)
 	if err != nil {
 		fmt.Println(err)
 		return &accountPB.OrderStatesResponse{}, err
@@ -659,8 +619,8 @@ func (c *exchangeClient) GetPortfolio(ctx context.Context, accountAddress string
 		AccountAddress: accountAddress,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.accountClient.Portfolio(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.Portfolio, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &accountPB.PortfolioResponse{}, err
@@ -670,8 +630,8 @@ func (c *exchangeClient) GetPortfolio(ctx context.Context, accountAddress string
 }
 
 func (c *exchangeClient) GetRewards(ctx context.Context, req *accountPB.RewardsRequest) (*accountPB.RewardsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.accountClient.Rewards(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.accountClient.Rewards, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &accountPB.RewardsResponse{}, err
@@ -683,8 +643,8 @@ func (c *exchangeClient) GetRewards(ctx context.Context, req *accountPB.RewardsR
 // Spot RPC
 
 func (c *exchangeClient) GetSpotOrders(ctx context.Context, req *spotExchangePB.OrdersRequest) (*spotExchangePB.OrdersResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.Orders(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.Orders, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.OrdersResponse{}, err
@@ -698,8 +658,8 @@ func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string
 		MarketId: marketId,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.OrderbookV2(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.OrderbookV2, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.OrderbookV2Response{}, err
@@ -713,8 +673,8 @@ func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIds []st
 		MarketIds: marketIds,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.OrderbooksV2(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.OrderbooksV2, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.OrderbooksV2Response{}, err
@@ -728,8 +688,8 @@ func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketId
 		MarketIds: marketIds,
 	}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamOrderbookUpdate(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamOrderbookUpdate, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -743,8 +703,8 @@ func (c *exchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIds []
 		MarketIds: marketIds,
 	}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamOrderbookV2(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamOrderbookV2, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -754,8 +714,8 @@ func (c *exchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIds []
 }
 
 func (c *exchangeClient) GetSpotMarkets(ctx context.Context, req *spotExchangePB.MarketsRequest) (*spotExchangePB.MarketsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.Markets(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.Markets, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.MarketsResponse{}, err
@@ -769,8 +729,8 @@ func (c *exchangeClient) GetSpotMarket(ctx context.Context, marketId string) (*s
 		MarketId: marketId,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.Market(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.Market, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.MarketResponse{}, err
@@ -784,8 +744,8 @@ func (c *exchangeClient) StreamSpotMarket(ctx context.Context, marketIds []strin
 		MarketIds: marketIds,
 	}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamMarkets(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamMarkets, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -795,8 +755,8 @@ func (c *exchangeClient) StreamSpotMarket(ctx context.Context, marketIds []strin
 }
 
 func (c *exchangeClient) StreamSpotOrders(ctx context.Context, req *spotExchangePB.StreamOrdersRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrdersClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamOrders(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamOrders, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -806,8 +766,8 @@ func (c *exchangeClient) StreamSpotOrders(ctx context.Context, req *spotExchange
 }
 
 func (c *exchangeClient) GetSpotTrades(ctx context.Context, req *spotExchangePB.TradesRequest) (*spotExchangePB.TradesResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.Trades(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.Trades, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.TradesResponse{}, err
@@ -817,8 +777,8 @@ func (c *exchangeClient) GetSpotTrades(ctx context.Context, req *spotExchangePB.
 }
 
 func (c *exchangeClient) GetSpotTradesV2(ctx context.Context, req *spotExchangePB.TradesV2Request) (*spotExchangePB.TradesV2Response, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.TradesV2(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.TradesV2, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.TradesV2Response{}, err
@@ -828,8 +788,8 @@ func (c *exchangeClient) GetSpotTradesV2(ctx context.Context, req *spotExchangeP
 }
 
 func (c *exchangeClient) StreamSpotTrades(ctx context.Context, req *spotExchangePB.StreamTradesRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamTrades(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamTrades, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -839,8 +799,8 @@ func (c *exchangeClient) StreamSpotTrades(ctx context.Context, req *spotExchange
 }
 
 func (c *exchangeClient) StreamSpotTradesV2(ctx context.Context, req *spotExchangePB.StreamTradesV2Request) (spotExchangePB.InjectiveSpotExchangeRPC_StreamTradesV2Client, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamTradesV2(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamTradesV2, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -850,8 +810,8 @@ func (c *exchangeClient) StreamSpotTradesV2(ctx context.Context, req *spotExchan
 }
 
 func (c *exchangeClient) GetSubaccountSpotOrdersList(ctx context.Context, req *spotExchangePB.SubaccountOrdersListRequest) (*spotExchangePB.SubaccountOrdersListResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.SubaccountOrdersList(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.SubaccountOrdersList, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.SubaccountOrdersListResponse{}, err
@@ -861,8 +821,8 @@ func (c *exchangeClient) GetSubaccountSpotOrdersList(ctx context.Context, req *s
 }
 
 func (c *exchangeClient) GetSubaccountSpotTradesList(ctx context.Context, req *spotExchangePB.SubaccountTradesListRequest) (*spotExchangePB.SubaccountTradesListResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.SubaccountTradesList(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.SubaccountTradesList, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &spotExchangePB.SubaccountTradesListResponse{}, err
@@ -872,8 +832,7 @@ func (c *exchangeClient) GetSubaccountSpotTradesList(ctx context.Context, req *s
 }
 
 func (c *exchangeClient) GetHistoricalSpotOrders(ctx context.Context, req *spotExchangePB.OrdersHistoryRequest) (*spotExchangePB.OrdersHistoryResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.spotExchangeClient.OrdersHistory(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.OrdersHistory, req)
 	if err != nil {
 		return &spotExchangePB.OrdersHistoryResponse{}, err
 	}
@@ -882,8 +841,8 @@ func (c *exchangeClient) GetHistoricalSpotOrders(ctx context.Context, req *spotE
 }
 
 func (c *exchangeClient) StreamHistoricalSpotOrders(ctx context.Context, req *spotExchangePB.StreamOrdersHistoryRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrdersHistoryClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.spotExchangeClient.StreamOrdersHistory(ctx, req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamOrdersHistory, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -893,8 +852,7 @@ func (c *exchangeClient) StreamHistoricalSpotOrders(ctx context.Context, req *sp
 }
 
 func (c *exchangeClient) GetInsuranceFunds(ctx context.Context, req *insurancePB.FundsRequest) (*insurancePB.FundsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.insuranceClient.Funds(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.insuranceClient.Funds, req)
 	if err != nil {
 		fmt.Println(err)
 		return &insurancePB.FundsResponse{}, err
@@ -904,8 +862,8 @@ func (c *exchangeClient) GetInsuranceFunds(ctx context.Context, req *insurancePB
 }
 
 func (c *exchangeClient) GetRedemptions(ctx context.Context, req *insurancePB.RedemptionsRequest) (*insurancePB.RedemptionsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.insuranceClient.Redemptions(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.insuranceClient.Redemptions, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &insurancePB.RedemptionsResponse{}, err
@@ -915,8 +873,8 @@ func (c *exchangeClient) GetRedemptions(ctx context.Context, req *insurancePB.Re
 }
 
 func (c *exchangeClient) Ping(ctx context.Context, req *metaPB.PingRequest) (*metaPB.PingResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.metaClient.Ping(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.metaClient.Ping, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &metaPB.PingResponse{}, err
@@ -926,8 +884,8 @@ func (c *exchangeClient) Ping(ctx context.Context, req *metaPB.PingRequest) (*me
 }
 
 func (c *exchangeClient) GetVersion(ctx context.Context, req *metaPB.VersionRequest) (*metaPB.VersionResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.metaClient.Version(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.metaClient.Version, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &metaPB.VersionResponse{}, err
@@ -937,8 +895,7 @@ func (c *exchangeClient) GetVersion(ctx context.Context, req *metaPB.VersionRequ
 }
 
 func (c *exchangeClient) GetInfo(ctx context.Context, req *metaPB.InfoRequest) (*metaPB.InfoResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.metaClient.Info(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.metaClient.Info, req)
 	if err != nil {
 		fmt.Println(err)
 		return &metaPB.InfoResponse{}, err
@@ -950,8 +907,8 @@ func (c *exchangeClient) GetInfo(ctx context.Context, req *metaPB.InfoRequest) (
 func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error) {
 	req := metaPB.StreamKeepaliveRequest{}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.metaClient.StreamKeepalive(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.metaClient.StreamKeepalive, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -962,10 +919,10 @@ func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveM
 
 // Deprecated: Use GetAccountPortfolioBalances instead.
 func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.portfolioExchangeClient.AccountPortfolio(ctx, &portfolioExchangePB.AccountPortfolioRequest{
+	req := &portfolioExchangePB.AccountPortfolioRequest{
 		AccountAddress: accountAddress,
-	})
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.portfolioExchangeClient.AccountPortfolio, req)
 	if err != nil {
 		fmt.Println(err)
 		return &portfolioExchangePB.AccountPortfolioResponse{}, err
@@ -975,10 +932,10 @@ func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress
 }
 
 func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.portfolioExchangeClient.AccountPortfolioBalances(ctx, &portfolioExchangePB.AccountPortfolioBalancesRequest{
+	req := &portfolioExchangePB.AccountPortfolioBalancesRequest{
 		AccountAddress: accountAddress,
-	})
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.portfolioExchangeClient.AccountPortfolioBalances, req)
 	if err != nil {
 		fmt.Println(err)
 		return &portfolioExchangePB.AccountPortfolioBalancesResponse{}, err
@@ -988,12 +945,13 @@ func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accoun
 }
 
 func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.portfolioExchangeClient.StreamAccountPortfolio(ctx, &portfolioExchangePB.StreamAccountPortfolioRequest{
+	req := &portfolioExchangePB.StreamAccountPortfolioRequest{
 		AccountAddress: accountAddress,
 		SubaccountId:   subaccountId,
 		Type:           balanceType,
-	})
+	}
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.portfolioExchangeClient.StreamAccountPortfolio, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

@@ -10,186 +10,85 @@ import (
 
 func TestMainnetKubernetesLoadBalancedCookieAssistant(t *testing.T) {
 	assistant := MainnetKubernetesCookieAssistant()
-	expectedCookie := "GCLB=CMOO2-DdvKWMqQE; path=/; HttpOnly; expires=Sat, 16-Sep-2023 18:26:00 GMT"
+	expectedCookie := fmt.Sprintf("GCLB=CMOO2-DdvKWMqQE; path=/; HttpOnly; expires=%s", time.Now().Add(5*time.Hour).Format("Mon, 02-Jan-2006 15:04:05 MST"))
 
-	providerFunc := func() metadata.MD {
-		md := metadata.Pairs("set-cookie", expectedCookie)
-		return md
-	}
+	localMetadata := metadata.Pairs("set-cookie", expectedCookie)
 
-	provider := NewMetadataProvider(providerFunc)
-	cookie, err := assistant.Metadata(provider)
+	assistant.ProcessResponseMetadata(localMetadata)
+	assistantMetadata := assistant.RealMetadata()
+	cookieInfo := assistantMetadata.Get("cookie")
 
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != expectedCookie {
-		t.Fatalf("The parsed cookie is different than the expected cookie")
+	if len(cookieInfo) > 0 {
+		cookie := cookieInfo[0]
+		if cookie != expectedCookie {
+			t.Fatalf("The parsed cookie is different than the expected cookie")
+		}
+	} else {
+		t.Fatalf("The cookie was not parsed")
 	}
 }
 
 func TestMainnetKubernetesLoadBalancedCookieAssistantRemovesExpiredCookie(t *testing.T) {
 	assistant := MainnetKubernetesCookieAssistant()
 	tt := time.Now()
-	closeExpirationTime := tt.Add(30 * time.Second)
+	closeExpirationTime := tt.Add(-30 * time.Second)
 
-	soonToExpireCookie := fmt.Sprintf(
+	expiredCookie := fmt.Sprintf(
 		"GCLB=CMOO2-DdvKWMqQE; path=/; HttpOnly; expires=%s",
 		closeExpirationTime.Format("Mon, 02-Jan-2006 15:04:05 MST"),
 	)
 
-	providerFunc := func() metadata.MD {
-		md := metadata.Pairs("set-cookie", soonToExpireCookie)
-		return md
-	}
+	localMetadata := metadata.Pairs("set-cookie", expiredCookie)
 
-	provider := NewMetadataProvider(providerFunc)
-	cookie, err := assistant.Metadata(provider)
+	assistant.ProcessResponseMetadata(localMetadata)
+	cookieInfo := assistant.RealMetadata()
 
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != soonToExpireCookie {
-		t.Fatalf("The parsed cookie is different than the expected cookie")
-	}
-
-	nextExpirationTime := tt.Add(5 * time.Minute)
-	secondCookie := fmt.Sprintf(
-		"GCLB=CMOO2-DdvKWMqQE; path=/; HttpOnly; expires=%s",
-		nextExpirationTime.Format("Mon, 02-Jan-2006 15:04:05 MST"),
-	)
-
-	providerFunc = func() metadata.MD {
-		md := metadata.Pairs("set-cookie", secondCookie)
-		return md
-	}
-
-	provider = NewMetadataProvider(providerFunc)
-	cookie, err = assistant.Metadata(provider)
-
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != secondCookie {
+	if len(cookieInfo) > 0 {
 		t.Fatalf("The expired cookie was not removed")
-	}
-
-	farFutureTime := tt.Add(5 * time.Hour)
-	notRequiredCookie := fmt.Sprintf(
-		"GCLB=CMOO2-DdvKWMqQE; path=/; HttpOnly; expires=%s",
-		farFutureTime.Format("Mon, 02-Jan-2006 15:04:05 MST"),
-	)
-
-	providerFunc = func() metadata.MD {
-		md := metadata.Pairs("set-cookie", notRequiredCookie)
-		return md
-	}
-
-	provider = NewMetadataProvider(providerFunc)
-	cookie, err = assistant.Metadata(provider)
-
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != secondCookie {
-		t.Fatalf("The cookie assistant removed a cookie that was not expired")
 	}
 
 }
 
 func TestTestnetKubernetesLoadBalancedCookieAssistant(t *testing.T) {
 	assistant := TestnetKubernetesCookieAssistant()
-	expectedCookie := "grpc-cookie=d97c7a00bcb7bc8b69b26fb0303b60d4; Expires=Sun, 17-Sep-23 13:18:08 GMT; Max-Age=172800; Path=/; Secure; HttpOnly"
+	expectedCookie := fmt.Sprintf(
+		"grpc-cookie=d97c7a00bcb7bc8b69b26fb0303b60d4; Expires=%s; Max-Age=172800; Path=/; Secure; HttpOnly",
+		time.Now().Add(5*time.Hour).Format("Mon, 02-Jan-06 15:04:05 MST"),
+	)
 
-	providerFunc := func() metadata.MD {
-		md := metadata.Pairs("set-cookie", expectedCookie)
-		return md
-	}
+	localMetadata := metadata.Pairs("set-cookie", expectedCookie)
 
-	provider := NewMetadataProvider(providerFunc)
-	cookie, err := assistant.Metadata(provider)
+	assistant.ProcessResponseMetadata(localMetadata)
+	assistantMetadata := assistant.RealMetadata()
+	cookieInfo := assistantMetadata.Get("cookie")
 
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != expectedCookie {
-		t.Fatalf("The parsed cookie is different than the expected cookie")
+	if len(cookieInfo) > 0 {
+		cookie := cookieInfo[0]
+		if cookie != expectedCookie {
+			t.Fatalf("The parsed cookie is different than the expected cookie")
+		}
+	} else {
+		t.Fatalf("The cookie was not parsed")
 	}
 }
 
 func TestTestnetKubernetesLoadBalancedCookieAssistantRemovesExpiredCookie(t *testing.T) {
 	assistant := TestnetKubernetesCookieAssistant()
 	tt := time.Now()
-	closeExpirationTime := tt.Add(30 * time.Second)
+	closeExpirationTime := tt.Add(-30 * time.Second)
 
-	soonToExpireCookie := fmt.Sprintf(
+	expiredCookie := fmt.Sprintf(
 		"grpc-cookie=d97c7a00bcb7bc8b69b26fb0303b60d4; Expires=%s; Max-Age=172800; Path=/; Secure; HttpOnly",
 		closeExpirationTime.Format("Mon, 02-Jan-06 15:04:05 MST"),
 	)
 
-	providerFunc := func() metadata.MD {
-		md := metadata.Pairs("set-cookie", soonToExpireCookie)
-		return md
-	}
+	localMetadata := metadata.Pairs("set-cookie", expiredCookie)
 
-	provider := NewMetadataProvider(providerFunc)
-	cookie, err := assistant.Metadata(provider)
+	assistant.ProcessResponseMetadata(localMetadata)
+	cookieInfo := assistant.RealMetadata()
 
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != soonToExpireCookie {
-		t.Fatalf("The parsed cookie is different than the expected cookie")
-	}
-
-	nextExpirationTime := tt.Add(5 * time.Minute)
-	secondCookie := fmt.Sprintf(
-		"grpc-cookie=d97c7a00bcb7bc8b69b26fb0303b60d4; Expires=%s; Max-Age=172800; Path=/; Secure; HttpOnly",
-		nextExpirationTime.Format("Mon, 02-Jan-06 15:04:05 MST"),
-	)
-
-	providerFunc = func() metadata.MD {
-		md := metadata.Pairs("set-cookie", secondCookie)
-		return md
-	}
-
-	provider = NewMetadataProvider(providerFunc)
-	cookie, err = assistant.Metadata(provider)
-
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != secondCookie {
+	if len(cookieInfo) > 0 {
 		t.Fatalf("The expired cookie was not removed")
-	}
-
-	farFutureTime := tt.Add(5 * time.Hour)
-	notRequiredCookie := fmt.Sprintf(
-		"grpc-cookie=d97c7a00bcb7bc8b69b26fb0303b60d4; Expires=%s; Max-Age=172800; Path=/; Secure; HttpOnly",
-		farFutureTime.Format("Mon, 02-Jan-06 15:04:05 MST"),
-	)
-
-	providerFunc = func() metadata.MD {
-		md := metadata.Pairs("set-cookie", notRequiredCookie)
-		return md
-	}
-
-	provider = NewMetadataProvider(providerFunc)
-	cookie, err = assistant.Metadata(provider)
-
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != secondCookie {
-		t.Fatalf("The cookie assistant removed a cookie that was not expired")
 	}
 
 }
@@ -198,39 +97,33 @@ func TestBareMetalLoadBalancedCookieAssistant(t *testing.T) {
 	assistant := BareMetalLoadBalancedCookieAssistant{}
 	expectedCookie := "lb=706c9476f31159d415afe3e9172972618b8ab99455c2daa799199540e6d31a1a; Path=/"
 
-	providerFunc := func() metadata.MD {
-		md := metadata.Pairs("set-cookie", expectedCookie)
-		return md
-	}
+	localMetadata := metadata.Pairs("set-cookie", expectedCookie)
 
-	provider := NewMetadataProvider(providerFunc)
-	cookie, err := assistant.Metadata(provider)
+	assistant.ProcessResponseMetadata(localMetadata)
+	assistantMetadata := assistant.RealMetadata()
+	cookieInfo := assistantMetadata.Get("cookie")
 
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
-
-	if cookie != expectedCookie {
-		t.Fatalf("The parsed cookie is different than the expected cookie")
+	if len(cookieInfo) > 0 {
+		cookie := cookieInfo[0]
+		if cookie != expectedCookie {
+			t.Fatalf("The parsed cookie is different than the expected cookie")
+		}
+	} else {
+		t.Fatalf("The cookie was not parsed")
 	}
 }
 
 func TestDisabledCookieAssistant(t *testing.T) {
 	assistant := DisabledCookieAssistant{}
 	providedCookie := "lb=706c9476f31159d415afe3e9172972618b8ab99455c2daa799199540e6d31a1a; Path=/"
-	providerFunc := func() metadata.MD {
-		md := metadata.Pairs("set-cookie", providedCookie)
-		return md
-	}
 
-	provider := NewMetadataProvider(providerFunc)
-	cookie, err := assistant.Metadata(provider)
+	localMetadata := metadata.Pairs("set-cookie", providedCookie)
 
-	if err != nil {
-		t.Errorf("Error parsing the cookie string %v", err)
-	}
+	assistant.ProcessResponseMetadata(localMetadata)
+	assistantMetadata := assistant.RealMetadata()
+	cookieInfo := assistantMetadata.Get("cookie")
 
-	if cookie != "" {
-		t.Fatalf("The parsed cookie is different than the expected cookie")
+	if len(cookieInfo) > 0 {
+		t.Fatalf("The disabled cookie assistant should not return any cookie")
 	}
 }
