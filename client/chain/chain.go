@@ -13,6 +13,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -243,6 +245,13 @@ type ChainClient interface {
 	FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*tmservice.GetValidatorSetByHeightResponse, error)
 	ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*tmservice.ABCIQueryResponse, error)
 
+	// IBC Transfer module
+	FetchDenomTrace(ctx context.Context, hash string) (*ibctransfertypes.QueryDenomTraceResponse, error)
+	FetchDenomTraces(ctx context.Context, pagination *query.PageRequest) (*ibctransfertypes.QueryDenomTracesResponse, error)
+	FetchDenomHash(ctx context.Context, trace string) (*ibctransfertypes.QueryDenomHashResponse, error)
+	FetchEscrowAddress(ctx context.Context, portId string, channelId string) (*ibctransfertypes.QueryEscrowAddressResponse, error)
+	FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error)
+
 	Close()
 }
 
@@ -269,16 +278,17 @@ type chainClient struct {
 
 	sessionEnabled bool
 
-	txClient                txtypes.ServiceClient
 	authQueryClient         authtypes.QueryClient
-	exchangeQueryClient     exchangetypes.QueryClient
-	bankQueryClient         banktypes.QueryClient
 	authzQueryClient        authztypes.QueryClient
-	wasmQueryClient         wasmtypes.QueryClient
+	bankQueryClient         banktypes.QueryClient
 	chainStreamClient       chainstreamtypes.StreamClient
-	tokenfactoryQueryClient tokenfactorytypes.QueryClient
 	distributionQueryClient distributiontypes.QueryClient
+	exchangeQueryClient     exchangetypes.QueryClient
+	ibcTransferQueryClient  ibctransfertypes.QueryClient
 	tendermintQueryClient   tmservice.ServiceClient
+	tokenfactoryQueryClient tokenfactorytypes.QueryClient
+	txClient                txtypes.ServiceClient
+	wasmQueryClient         wasmtypes.QueryClient
 	subaccountToNonce       map[ethcommon.Hash]uint32
 
 	closed  int64
@@ -365,16 +375,17 @@ func NewChainClient(
 
 		sessionEnabled: stickySessionEnabled,
 
-		txClient:                txtypes.NewServiceClient(conn),
 		authQueryClient:         authtypes.NewQueryClient(conn),
-		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
-		bankQueryClient:         banktypes.NewQueryClient(conn),
 		authzQueryClient:        authztypes.NewQueryClient(conn),
-		wasmQueryClient:         wasmtypes.NewQueryClient(conn),
+		bankQueryClient:         banktypes.NewQueryClient(conn),
 		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
-		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
 		distributionQueryClient: distributiontypes.NewQueryClient(conn),
+		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
+		ibcTransferQueryClient:  ibctransfertypes.NewQueryClient(conn),
 		tendermintQueryClient:   tmservice.NewServiceClient(conn),
+		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
+		txClient:                txtypes.NewServiceClient(conn),
+		wasmQueryClient:         wasmtypes.NewQueryClient(conn),
 		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
 	}
 
@@ -2252,6 +2263,53 @@ func (c *chainClient) ABCIQuery(ctx context.Context, path string, data []byte, h
 		Prove:  prove,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.ABCIQuery, req)
+
+	return res, err
+}
+
+// IBC Transfer module
+func (c *chainClient) FetchDenomTrace(ctx context.Context, hash string) (*ibctransfertypes.QueryDenomTraceResponse, error) {
+	req := &ibctransfertypes.QueryDenomTraceRequest{
+		Hash: hash,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.DenomTrace, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomTraces(ctx context.Context, pagination *query.PageRequest) (*ibctransfertypes.QueryDenomTracesResponse, error) {
+	req := &ibctransfertypes.QueryDenomTracesRequest{
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.DenomTraces, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomHash(ctx context.Context, trace string) (*ibctransfertypes.QueryDenomHashResponse, error) {
+	req := &ibctransfertypes.QueryDenomHashRequest{
+		Trace: trace,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.DenomHash, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchEscrowAddress(ctx context.Context, portId string, channelId string) (*ibctransfertypes.QueryEscrowAddressResponse, error) {
+	req := &ibctransfertypes.QueryEscrowAddressRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.EscrowAddress, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error) {
+	req := &ibctransfertypes.QueryTotalEscrowForDenomRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.TotalEscrowForDenom, req)
 
 	return res, err
 }
