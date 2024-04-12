@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -577,4 +579,25 @@ func (c *MockChainClient) FetchValidatorSetByHeight(ctx context.Context, height 
 
 func (c *MockChainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*tmservice.ABCIQueryResponse, error) {
 	return &tmservice.ABCIQueryResponse{}, nil
+}
+
+// IBC Transfer module
+func (c *MockChainClient) FetchDenomTrace(ctx context.Context, hash string) (*ibctransfertypes.QueryDenomTraceResponse, error) {
+	return &ibctransfertypes.QueryDenomTraceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomTraces(ctx context.Context, pagination *query.PageRequest) (*ibctransfertypes.QueryDenomTracesResponse, error) {
+	return &ibctransfertypes.QueryDenomTracesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomHash(ctx context.Context, trace string) (*ibctransfertypes.QueryDenomHashResponse, error) {
+	return &ibctransfertypes.QueryDenomHashResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEscrowAddress(ctx context.Context, portId string, channelId string) (*ibctransfertypes.QueryEscrowAddressResponse, error) {
+	return &ibctransfertypes.QueryEscrowAddressResponse{}, nil
+}
+
+func (c *MockChainClient) FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error) {
+	return &ibctransfertypes.QueryTotalEscrowForDenomResponse{}, nil
 }
