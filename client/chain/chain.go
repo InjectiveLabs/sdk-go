@@ -13,8 +13,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
 
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -39,6 +37,8 @@ import (
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/gogoproto/proto"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
@@ -252,6 +252,21 @@ type ChainClient interface {
 	FetchEscrowAddress(ctx context.Context, portId string, channelId string) (*ibctransfertypes.QueryEscrowAddressResponse, error)
 	FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error)
 
+	// IBC Core Channel module
+	FetchIBCChannel(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelResponse, error)
+	FetchIBCChannels(ctx context.Context, pagination *query.PageRequest) (*ibcchanneltypes.QueryChannelsResponse, error)
+	FetchIBCConnectionChannels(ctx context.Context, connection string, pagination *query.PageRequest) (*ibcchanneltypes.QueryConnectionChannelsResponse, error)
+	FetchIBCChannelClientState(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelClientStateResponse, error)
+	FetchIBCChannelConsensusState(ctx context.Context, portId string, channelId string, revisionNumber uint64, revisionHeight uint64) (*ibcchanneltypes.QueryChannelConsensusStateResponse, error)
+	FetchIBCPacketCommitment(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketCommitmentResponse, error)
+	FetchIBCPacketCommitments(ctx context.Context, portId string, channelId string, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketCommitmentsResponse, error)
+	FetchIBCPacketReceipt(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketReceiptResponse, error)
+	FetchIBCPacketAcknowledgement(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketAcknowledgementResponse, error)
+	FetchIBCPacketAcknowledgements(ctx context.Context, portId string, channelId string, packetCommitmentSequences []uint64, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketAcknowledgementsResponse, error)
+	FetchIBCUnreceivedPackets(ctx context.Context, portId string, channelId string, packetCommitmentSequences []uint64) (*ibcchanneltypes.QueryUnreceivedPacketsResponse, error)
+	FetchIBCUnreceivedAcks(ctx context.Context, portId string, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error)
+	FetchIBCNextSequenceReceive(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error)
+
 	Close()
 }
 
@@ -284,6 +299,7 @@ type chainClient struct {
 	chainStreamClient       chainstreamtypes.StreamClient
 	distributionQueryClient distributiontypes.QueryClient
 	exchangeQueryClient     exchangetypes.QueryClient
+	ibcChannelQueryClient   ibcchanneltypes.QueryClient
 	ibcTransferQueryClient  ibctransfertypes.QueryClient
 	tendermintQueryClient   tmservice.ServiceClient
 	tokenfactoryQueryClient tokenfactorytypes.QueryClient
@@ -381,6 +397,7 @@ func NewChainClient(
 		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
 		distributionQueryClient: distributiontypes.NewQueryClient(conn),
 		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
+		ibcChannelQueryClient:   ibcchanneltypes.NewQueryClient(conn),
 		ibcTransferQueryClient:  ibctransfertypes.NewQueryClient(conn),
 		tendermintQueryClient:   tmservice.NewServiceClient(conn),
 		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
@@ -2310,6 +2327,146 @@ func (c *chainClient) FetchTotalEscrowForDenom(ctx context.Context, denom string
 		Denom: denom,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.TotalEscrowForDenom, req)
+
+	return res, err
+}
+
+// IBC Core Channel module
+func (c *chainClient) FetchIBCChannel(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelResponse, error) {
+	req := &ibcchanneltypes.QueryChannelRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.Channel, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCChannels(ctx context.Context, pagination *query.PageRequest) (*ibcchanneltypes.QueryChannelsResponse, error) {
+	req := &ibcchanneltypes.QueryChannelsRequest{
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.Channels, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnectionChannels(ctx context.Context, connection string, pagination *query.PageRequest) (*ibcchanneltypes.QueryConnectionChannelsResponse, error) {
+	req := &ibcchanneltypes.QueryConnectionChannelsRequest{
+		Connection: connection,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.ConnectionChannels, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCChannelClientState(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelClientStateResponse, error) {
+	req := &ibcchanneltypes.QueryChannelClientStateRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.ChannelClientState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCChannelConsensusState(ctx context.Context, portId string, channelId string, revisionNumber uint64, revisionHeight uint64) (*ibcchanneltypes.QueryChannelConsensusStateResponse, error) {
+	req := &ibcchanneltypes.QueryChannelConsensusStateRequest{
+		PortId:         portId,
+		ChannelId:      channelId,
+		RevisionNumber: revisionNumber,
+		RevisionHeight: revisionHeight,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.ChannelConsensusState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketCommitment(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketCommitmentResponse, error) {
+	req := &ibcchanneltypes.QueryPacketCommitmentRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+		Sequence:  sequence,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketCommitment, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketCommitments(ctx context.Context, portId string, channelId string, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketCommitmentsResponse, error) {
+	req := &ibcchanneltypes.QueryPacketCommitmentsRequest{
+		PortId:     portId,
+		ChannelId:  channelId,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketCommitments, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketReceipt(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketReceiptResponse, error) {
+	req := &ibcchanneltypes.QueryPacketReceiptRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+		Sequence:  sequence,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketReceipt, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketAcknowledgement(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketAcknowledgementResponse, error) {
+	req := &ibcchanneltypes.QueryPacketAcknowledgementRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+		Sequence:  sequence,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketAcknowledgement, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketAcknowledgements(ctx context.Context, portId string, channelId string, packetCommitmentSequences []uint64, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketAcknowledgementsResponse, error) {
+	req := &ibcchanneltypes.QueryPacketAcknowledgementsRequest{
+		PortId:                    portId,
+		ChannelId:                 channelId,
+		Pagination:                pagination,
+		PacketCommitmentSequences: packetCommitmentSequences,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketAcknowledgements, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCUnreceivedPackets(ctx context.Context, portId string, channelId string, packetCommitmentSequences []uint64) (*ibcchanneltypes.QueryUnreceivedPacketsResponse, error) {
+	req := &ibcchanneltypes.QueryUnreceivedPacketsRequest{
+		PortId:                    portId,
+		ChannelId:                 channelId,
+		PacketCommitmentSequences: packetCommitmentSequences,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.UnreceivedPackets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCUnreceivedAcks(ctx context.Context, portId string, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error) {
+	req := &ibcchanneltypes.QueryUnreceivedAcksRequest{
+		PortId:             portId,
+		ChannelId:          channelId,
+		PacketAckSequences: packetAckSequences,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.UnreceivedAcks, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCNextSequenceReceive(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error) {
+	req := &ibcchanneltypes.QueryNextSequenceReceiveRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.NextSequenceReceive, req)
 
 	return res, err
 }
