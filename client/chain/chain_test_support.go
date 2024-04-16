@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
@@ -600,4 +602,57 @@ func (c *MockChainClient) FetchEscrowAddress(ctx context.Context, portId string,
 
 func (c *MockChainClient) FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error) {
 	return &ibctransfertypes.QueryTotalEscrowForDenomResponse{}, nil
+}
+
+// IBC Core Channel module
+func (c *MockChainClient) FetchIBCChannel(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelResponse, error) {
+	return &ibcchanneltypes.QueryChannelResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCChannels(ctx context.Context, pagination *query.PageRequest) (*ibcchanneltypes.QueryChannelsResponse, error) {
+	return &ibcchanneltypes.QueryChannelsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnectionChannels(ctx context.Context, connection string, pagination *query.PageRequest) (*ibcchanneltypes.QueryConnectionChannelsResponse, error) {
+	return &ibcchanneltypes.QueryConnectionChannelsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCChannelClientState(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelClientStateResponse, error) {
+	return &ibcchanneltypes.QueryChannelClientStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCChannelConsensusState(ctx context.Context, portId string, channelId string, revisionNumber uint64, revisionHeight uint64) (*ibcchanneltypes.QueryChannelConsensusStateResponse, error) {
+	return &ibcchanneltypes.QueryChannelConsensusStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketCommitment(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketCommitmentResponse, error) {
+	return &ibcchanneltypes.QueryPacketCommitmentResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketCommitments(ctx context.Context, portId string, channelId string, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketCommitmentsResponse, error) {
+	return &ibcchanneltypes.QueryPacketCommitmentsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketReceipt(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketReceiptResponse, error) {
+	return &ibcchanneltypes.QueryPacketReceiptResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketAcknowledgement(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketAcknowledgementResponse, error) {
+	return &ibcchanneltypes.QueryPacketAcknowledgementResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketAcknowledgements(ctx context.Context, portId string, channelId string, packetCommitmentSequences []uint64, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketAcknowledgementsResponse, error) {
+	return &ibcchanneltypes.QueryPacketAcknowledgementsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCUnreceivedPackets(ctx context.Context, portId string, channelId string, packetCommitmentSequences []uint64) (*ibcchanneltypes.QueryUnreceivedPacketsResponse, error) {
+	return &ibcchanneltypes.QueryUnreceivedPacketsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCUnreceivedAcks(ctx context.Context, portId string, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error) {
+	return &ibcchanneltypes.QueryUnreceivedAcksResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCNextSequenceReceive(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error) {
+	return &ibcchanneltypes.QueryNextSequenceReceiveResponse{}, nil
 }
