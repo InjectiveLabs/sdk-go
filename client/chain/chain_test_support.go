@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+
 	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -655,4 +657,41 @@ func (c *MockChainClient) FetchIBCUnreceivedAcks(ctx context.Context, portId str
 
 func (c *MockChainClient) FetchIBCNextSequenceReceive(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error) {
 	return &ibcchanneltypes.QueryNextSequenceReceiveResponse{}, nil
+}
+
+// IBC Core Chain module
+func (c *MockChainClient) FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error) {
+	return &ibcclienttypes.QueryClientStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCClientStates(ctx context.Context, pagination *query.PageRequest) (*ibcclienttypes.QueryClientStatesResponse, error) {
+	return &ibcclienttypes.QueryClientStatesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConsensusState(ctx context.Context, clientId string, revisionNumber uint64, revisionHeight uint64, latestHeight bool) (*ibcclienttypes.QueryConsensusStateResponse, error) {
+	return &ibcclienttypes.QueryConsensusStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConsensusStates(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStatesResponse, error) {
+	return &ibcclienttypes.QueryConsensusStatesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConsensusStateHeights(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStateHeightsResponse, error) {
+	return &ibcclienttypes.QueryConsensusStateHeightsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCClientStatus(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStatusResponse, error) {
+	return &ibcclienttypes.QueryClientStatusResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCClientParams(ctx context.Context) (*ibcclienttypes.QueryClientParamsResponse, error) {
+	return &ibcclienttypes.QueryClientParamsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCUpgradedClientState(ctx context.Context) (*ibcclienttypes.QueryUpgradedClientStateResponse, error) {
+	return &ibcclienttypes.QueryUpgradedClientStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error) {
+	return &ibcclienttypes.QueryUpgradedConsensusStateResponse{}, nil
 }
