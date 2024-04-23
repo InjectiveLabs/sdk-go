@@ -3,8 +3,9 @@ package chain
 import (
 	"context"
 	"errors"
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"time"
+
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 
 	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
