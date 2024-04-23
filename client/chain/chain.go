@@ -38,6 +38,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/gogoproto/proto"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
@@ -267,6 +268,17 @@ type ChainClient interface {
 	FetchIBCUnreceivedAcks(ctx context.Context, portId string, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error)
 	FetchIBCNextSequenceReceive(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error)
 
+	// IBC Core Chain module
+	FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error)
+	FetchIBCClientStates(ctx context.Context, pagination *query.PageRequest) (*ibcclienttypes.QueryClientStatesResponse, error)
+	FetchIBCConsensusState(ctx context.Context, clientId string, revisionNumber uint64, revisionHeight uint64, latestHeight bool) (*ibcclienttypes.QueryConsensusStateResponse, error)
+	FetchIBCConsensusStates(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStatesResponse, error)
+	FetchIBCConsensusStateHeights(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStateHeightsResponse, error)
+	FetchIBCClientStatus(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStatusResponse, error)
+	FetchIBCClientParams(ctx context.Context) (*ibcclienttypes.QueryClientParamsResponse, error)
+	FetchIBCUpgradedClientState(ctx context.Context) (*ibcclienttypes.QueryUpgradedClientStateResponse, error)
+	FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error)
+
 	Close()
 }
 
@@ -300,6 +312,7 @@ type chainClient struct {
 	distributionQueryClient distributiontypes.QueryClient
 	exchangeQueryClient     exchangetypes.QueryClient
 	ibcChannelQueryClient   ibcchanneltypes.QueryClient
+	ibcClientQueryClient    ibcclienttypes.QueryClient
 	ibcTransferQueryClient  ibctransfertypes.QueryClient
 	tendermintQueryClient   tmservice.ServiceClient
 	tokenfactoryQueryClient tokenfactorytypes.QueryClient
@@ -398,6 +411,7 @@ func NewChainClient(
 		distributionQueryClient: distributiontypes.NewQueryClient(conn),
 		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
 		ibcChannelQueryClient:   ibcchanneltypes.NewQueryClient(conn),
+		ibcClientQueryClient:    ibcclienttypes.NewQueryClient(conn),
 		ibcTransferQueryClient:  ibctransfertypes.NewQueryClient(conn),
 		tendermintQueryClient:   tmservice.NewServiceClient(conn),
 		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
@@ -2467,6 +2481,87 @@ func (c *chainClient) FetchIBCNextSequenceReceive(ctx context.Context, portId st
 		ChannelId: channelId,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.NextSequenceReceive, req)
+
+	return res, err
+}
+
+// IBC Core Chain module
+func (c *chainClient) FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error) {
+	req := &ibcclienttypes.QueryClientStateRequest{
+		ClientId: clientId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ClientState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCClientStates(ctx context.Context, pagination *query.PageRequest) (*ibcclienttypes.QueryClientStatesResponse, error) {
+	req := &ibcclienttypes.QueryClientStatesRequest{
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ClientStates, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConsensusState(ctx context.Context, clientId string, revisionNumber uint64, revisionHeight uint64, latestHeight bool) (*ibcclienttypes.QueryConsensusStateResponse, error) {
+	req := &ibcclienttypes.QueryConsensusStateRequest{
+		ClientId:       clientId,
+		RevisionNumber: revisionNumber,
+		RevisionHeight: revisionHeight,
+		LatestHeight:   latestHeight,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ConsensusState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConsensusStates(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStatesResponse, error) {
+	req := &ibcclienttypes.QueryConsensusStatesRequest{
+		ClientId:   clientId,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ConsensusStates, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConsensusStateHeights(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStateHeightsResponse, error) {
+	req := &ibcclienttypes.QueryConsensusStateHeightsRequest{
+		ClientId:   clientId,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ConsensusStateHeights, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCClientStatus(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStatusResponse, error) {
+	req := &ibcclienttypes.QueryClientStatusRequest{
+		ClientId: clientId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ClientStatus, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCClientParams(ctx context.Context) (*ibcclienttypes.QueryClientParamsResponse, error) {
+	req := &ibcclienttypes.QueryClientParamsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ClientParams, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCUpgradedClientState(ctx context.Context) (*ibcclienttypes.QueryUpgradedClientStateResponse, error) {
+	req := &ibcclienttypes.QueryUpgradedClientStateRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.UpgradedClientState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error) {
+	req := &ibcclienttypes.QueryUpgradedConsensusStateRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.UpgradedConsensusState, req)
 
 	return res, err
 }
