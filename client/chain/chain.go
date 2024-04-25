@@ -39,6 +39,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
@@ -279,6 +280,14 @@ type ChainClient interface {
 	FetchIBCUpgradedClientState(ctx context.Context) (*ibcclienttypes.QueryUpgradedClientStateResponse, error)
 	FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error)
 
+	// IBC Core Connection module
+	FetchIBCConnection(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionResponse, error)
+	FetchIBCConnections(ctx context.Context, pagination *query.PageRequest) (*ibcconnectiontypes.QueryConnectionsResponse, error)
+	FetchIBCClientConnections(ctx context.Context, clientId string) (*ibcconnectiontypes.QueryClientConnectionsResponse, error)
+	FetchIBCConnectionClientState(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionClientStateResponse, error)
+	FetchIBCConnectionConsensusState(ctx context.Context, connectionId string, revisionNumber uint64, revisionHeight uint64) (*ibcconnectiontypes.QueryConnectionConsensusStateResponse, error)
+	FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error)
+
 	Close()
 }
 
@@ -305,20 +314,21 @@ type chainClient struct {
 
 	sessionEnabled bool
 
-	authQueryClient         authtypes.QueryClient
-	authzQueryClient        authztypes.QueryClient
-	bankQueryClient         banktypes.QueryClient
-	chainStreamClient       chainstreamtypes.StreamClient
-	distributionQueryClient distributiontypes.QueryClient
-	exchangeQueryClient     exchangetypes.QueryClient
-	ibcChannelQueryClient   ibcchanneltypes.QueryClient
-	ibcClientQueryClient    ibcclienttypes.QueryClient
-	ibcTransferQueryClient  ibctransfertypes.QueryClient
-	tendermintQueryClient   tmservice.ServiceClient
-	tokenfactoryQueryClient tokenfactorytypes.QueryClient
-	txClient                txtypes.ServiceClient
-	wasmQueryClient         wasmtypes.QueryClient
-	subaccountToNonce       map[ethcommon.Hash]uint32
+	authQueryClient          authtypes.QueryClient
+	authzQueryClient         authztypes.QueryClient
+	bankQueryClient          banktypes.QueryClient
+	chainStreamClient        chainstreamtypes.StreamClient
+	distributionQueryClient  distributiontypes.QueryClient
+	exchangeQueryClient      exchangetypes.QueryClient
+	ibcChannelQueryClient    ibcchanneltypes.QueryClient
+	ibcClientQueryClient     ibcclienttypes.QueryClient
+	ibcConnectionQueryClient ibcconnectiontypes.QueryClient
+	ibcTransferQueryClient   ibctransfertypes.QueryClient
+	tendermintQueryClient    tmservice.ServiceClient
+	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
+	txClient                 txtypes.ServiceClient
+	wasmQueryClient          wasmtypes.QueryClient
+	subaccountToNonce        map[ethcommon.Hash]uint32
 
 	closed  int64
 	canSign bool
@@ -404,20 +414,21 @@ func NewChainClient(
 
 		sessionEnabled: stickySessionEnabled,
 
-		authQueryClient:         authtypes.NewQueryClient(conn),
-		authzQueryClient:        authztypes.NewQueryClient(conn),
-		bankQueryClient:         banktypes.NewQueryClient(conn),
-		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
-		distributionQueryClient: distributiontypes.NewQueryClient(conn),
-		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
-		ibcChannelQueryClient:   ibcchanneltypes.NewQueryClient(conn),
-		ibcClientQueryClient:    ibcclienttypes.NewQueryClient(conn),
-		ibcTransferQueryClient:  ibctransfertypes.NewQueryClient(conn),
-		tendermintQueryClient:   tmservice.NewServiceClient(conn),
-		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
-		txClient:                txtypes.NewServiceClient(conn),
-		wasmQueryClient:         wasmtypes.NewQueryClient(conn),
-		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
+		authQueryClient:          authtypes.NewQueryClient(conn),
+		authzQueryClient:         authztypes.NewQueryClient(conn),
+		bankQueryClient:          banktypes.NewQueryClient(conn),
+		chainStreamClient:        chainstreamtypes.NewStreamClient(chainStreamConn),
+		distributionQueryClient:  distributiontypes.NewQueryClient(conn),
+		exchangeQueryClient:      exchangetypes.NewQueryClient(conn),
+		ibcChannelQueryClient:    ibcchanneltypes.NewQueryClient(conn),
+		ibcClientQueryClient:     ibcclienttypes.NewQueryClient(conn),
+		ibcConnectionQueryClient: ibcconnectiontypes.NewQueryClient(conn),
+		ibcTransferQueryClient:   ibctransfertypes.NewQueryClient(conn),
+		tendermintQueryClient:    tmservice.NewServiceClient(conn),
+		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
+		txClient:                 txtypes.NewServiceClient(conn),
+		wasmQueryClient:          wasmtypes.NewQueryClient(conn),
+		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
 	}
 
 	if cc.canSign {
@@ -2562,6 +2573,61 @@ func (c *chainClient) FetchIBCUpgradedClientState(ctx context.Context) (*ibcclie
 func (c *chainClient) FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error) {
 	req := &ibcclienttypes.QueryUpgradedConsensusStateRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.UpgradedConsensusState, req)
+
+	return res, err
+}
+
+// IBC Core Connection module
+func (c *chainClient) FetchIBCConnection(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionRequest{
+		ConnectionId: connectionId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.Connection, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnections(ctx context.Context, pagination *query.PageRequest) (*ibcconnectiontypes.QueryConnectionsResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionsRequest{
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.Connections, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCClientConnections(ctx context.Context, clientId string) (*ibcconnectiontypes.QueryClientConnectionsResponse, error) {
+	req := &ibcconnectiontypes.QueryClientConnectionsRequest{
+		ClientId: clientId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ClientConnections, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnectionClientState(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionClientStateResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionClientStateRequest{
+		ConnectionId: connectionId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ConnectionClientState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnectionConsensusState(ctx context.Context, connectionId string, revisionNumber uint64, revisionHeight uint64) (*ibcconnectiontypes.QueryConnectionConsensusStateResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionConsensusStateRequest{
+		ConnectionId:   connectionId,
+		RevisionNumber: revisionNumber,
+		RevisionHeight: revisionHeight,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ConnectionConsensusState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionParamsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ConnectionParams, req)
 
 	return res, err
 }
