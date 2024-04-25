@@ -5,22 +5,13 @@ import (
 	"errors"
 	"time"
 
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-
-	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-
 	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
-
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	"google.golang.org/grpc"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -30,8 +21,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
-	"google.golang.org/grpc"
 )
 
 type MockChainClient struct {
@@ -694,4 +689,29 @@ func (c *MockChainClient) FetchIBCUpgradedClientState(ctx context.Context) (*ibc
 
 func (c *MockChainClient) FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error) {
 	return &ibcclienttypes.QueryUpgradedConsensusStateResponse{}, nil
+}
+
+// IBC Core Connection module
+func (c *MockChainClient) FetchIBCConnection(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnections(ctx context.Context, pagination *query.PageRequest) (*ibcconnectiontypes.QueryConnectionsResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCClientConnections(ctx context.Context, clientId string) (*ibcconnectiontypes.QueryClientConnectionsResponse, error) {
+	return &ibcconnectiontypes.QueryClientConnectionsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnectionClientState(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionClientStateResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionClientStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnectionConsensusState(ctx context.Context, connectionId string, revisionNumber uint64, revisionHeight uint64) (*ibcconnectiontypes.QueryConnectionConsensusStateResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionConsensusStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionParamsResponse{}, nil
 }
