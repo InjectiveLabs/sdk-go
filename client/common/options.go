@@ -19,15 +19,18 @@ func init() {
 }
 
 type ClientOptions struct {
-	GasPrices string
-	TLSCert   credentials.TransportCredentials
-	TxFactory *tx.Factory
+	GasPrices                 string
+	TLSCert                   credentials.TransportCredentials
+	TxFactory                 *tx.Factory
+	ShouldFixSequenceMismatch bool
 }
 
 type ClientOption func(opts *ClientOptions) error
 
 func DefaultClientOptions() *ClientOptions {
-	return &ClientOptions{}
+	return &ClientOptions{
+		ShouldFixSequenceMismatch: true,
+	}
 }
 
 func OptionGasPrices(gasPrices string) ClientOption {

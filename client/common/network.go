@@ -204,6 +204,22 @@ type Network struct {
 func LoadNetwork(name string, node string) Network {
 	switch name {
 
+	case "local":
+		return Network{
+			LcdEndpoint:             "http://localhost:10337",
+			TmEndpoint:              "http://localhost:26657",
+			ChainGrpcEndpoint:       "tcp://localhost:9900",
+			ChainStreamGrpcEndpoint: "tcp://localhost:9999",
+			ExchangeGrpcEndpoint:    "tcp://localhost:9910",
+			ExplorerGrpcEndpoint:    "tcp://localhost:9911",
+			ChainId:                 "injective-1",
+			FeeDenom:                "inj",
+			Name:                    "local",
+			ChainCookieAssistant:    &DisabledCookieAssistant{},
+			ExchangeCookieAssistant: &DisabledCookieAssistant{},
+			ExplorerCookieAssistant: &DisabledCookieAssistant{},
+		}
+
 	case "devnet-1":
 		return Network{
 			LcdEndpoint:             "https://devnet-1.lcd.injective.dev",
