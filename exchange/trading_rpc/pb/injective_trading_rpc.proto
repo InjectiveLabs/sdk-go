@@ -36,6 +36,10 @@ message ListTradingStrategiesRequest {
 	sint64 end_time = 7;
 	sint32 limit = 8;
 	uint64 skip = 9;
+	// Filter by strategy type
+	repeated string strategy_type = 10;
+	// Filter by market type
+	string market_type = 11;
 }
 
 message ListTradingStrategiesResponse {
@@ -96,6 +100,28 @@ message TradingStrategy {
 	sint64 created_at = 15;
 	// UpdatedAt timestamp in UNIX millis.
 	sint64 updated_at = 16;
+	// Indicate how bot will convert funds (into base or quote or keep as is) after
+// strategy ended
+	string exit_type = 27;
+	// Exit config for stop loss
+	ExitConfig stop_loss_config = 28;
+	// Exit config for take profit
+	ExitConfig take_profit_config = 29;
+	// Strategy type: arithmetic, geometric...
+	string strategy_type = 30;
+	// Version of the contract
+	string contract_version = 31;
+	// Name of the contract
+	string contract_name = 32;
+	// Type of the market
+	string market_type = 33;
+}
+
+message ExitConfig {
+	// strategy exit type (stopLoss/takeProfit)
+	string exit_type = 1;
+	// strategy stopLoss/takeProfit price
+	string exit_price = 2;
 }
 // Paging defines the structure for required params for handling pagination
 message Paging {

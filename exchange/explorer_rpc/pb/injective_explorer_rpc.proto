@@ -17,6 +17,8 @@ service InjectiveExplorerRPC {
 	rpc GetAccountTxs (GetAccountTxsRequest) returns (GetAccountTxsResponse);
 	// GetContractTxs returns contract-related transactions
 	rpc GetContractTxs (GetContractTxsRequest) returns (GetContractTxsResponse);
+	// GetContractTxs returns contract-related transactions
+	rpc GetContractTxsV2 (GetContractTxsV2Request) returns (GetContractTxsV2Response);
 	// GetBlocks returns blocks based upon the request params
 	rpc GetBlocks (GetBlocksRequest) returns (GetBlocksResponse);
 	// GetBlock returns block based upon the height or hash
@@ -170,10 +172,33 @@ message GetContractTxsResponse {
 	repeated TxDetailData data = 2;
 }
 
+message GetContractTxsV2Request {
+	// Address of contract
+	string address = 1;
+	// Height of the block
+	uint64 height = 2;
+	// Unix timestamp (UTC) in milliseconds
+	sint64 from = 3;
+	// Unix timestamp (UTC) in milliseconds
+	sint64 to = 4;
+	sint32 limit = 5;
+	// Pagination token
+	string token = 6;
+}
+
+message GetContractTxsV2Response {
+	repeated string next = 1;
+	repeated TxDetailData data = 2;
+}
+
 message GetBlocksRequest {
 	uint64 before = 1;
 	uint64 after = 2;
 	sint32 limit = 3;
+	// Unix timestamp (UTC) in milliseconds
+	uint64 from = 4;
+	// Unix timestamp (UTC) in milliseconds
+	uint64 to = 5;
 }
 
 message GetBlocksResponse {

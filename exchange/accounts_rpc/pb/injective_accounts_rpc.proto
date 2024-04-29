@@ -33,6 +33,8 @@ service InjectiveAccountsRPC {
 	rpc SubaccountOrderSummary (SubaccountOrderSummaryRequest) returns (SubaccountOrderSummaryResponse);
 	// Provide historical trading rewards
 	rpc Rewards (RewardsRequest) returns (RewardsResponse);
+	// Stream live data for an account and respective
+	rpc StreamAccountData (StreamAccountDataRequest) returns (stream StreamAccountDataResponse);
 }
 
 message PortfolioRequest {
@@ -271,4 +273,20 @@ message Coin {
 	// Denom of the coin
 	string denom = 1;
 	string amount = 2;
+}
+
+message StreamAccountDataRequest {
+	// account address
+	string account_address = 1;
+}
+
+message StreamAccountDataResponse {
+	SubaccountBalanceResult subaccount_balance = 1;
+}
+
+message SubaccountBalanceResult {
+	// Subaccount balance
+	SubaccountBalance balance = 1;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 2;
 }

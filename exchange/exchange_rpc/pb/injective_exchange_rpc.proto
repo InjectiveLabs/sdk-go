@@ -57,7 +57,7 @@ message PrepareTxRequest {
 	uint64 chain_id = 1;
 	// Specify Ethereum address of a signer
 	string signer_address = 2;
-	// Account sequence number (nonce) of signer
+	// Deprecated: this field is ignored
 	uint64 sequence = 3;
 	// Textual memo information to attach with tx
 	string memo = 4;
