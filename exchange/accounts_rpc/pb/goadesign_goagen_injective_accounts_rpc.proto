@@ -284,6 +284,7 @@ message StreamAccountDataResponse {
 	SubaccountBalanceResult subaccount_balance = 1;
 	StreamPositionsResult derivative_position = 2;
 	TradeResult trade = 3;
+	OrderResult order = 4;
 }
 
 message SubaccountBalanceResult {
@@ -414,4 +415,96 @@ message PositionDelta {
 	string execution_quantity = 3;
 	// Execution Margin of the trade.
 	string execution_margin = 4;
+}
+
+message OrderResult {
+	oneof order {
+		// Updated spot market order
+	SpotLimitOrder spot_order = 1;
+		// Updated derivative market order
+	DerivativeLimitOrder derivative_order = 2;
+	}
+	// Executed orders update type
+	string operation_type = 3;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 4;
+}
+
+message SpotLimitOrder {
+	// Hash of the order
+	string order_hash = 1;
+	// The side of the order
+	string order_side = 2;
+	// Spot Market ID is keccak265(baseDenom + quoteDenom)
+	string market_id = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// Price of the order
+	string price = 5;
+	// Quantity of the order
+	string quantity = 6;
+	// The amount of the quantity remaining unfilled
+	string unfilled_quantity = 7;
+	// Trigger price is the trigger price used by stop/take orders. 0 if the
+// trigger price is not set.
+	string trigger_price = 8;
+	// Fee recipient address
+	string fee_recipient = 9;
+	// Order state
+	string state = 10;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 11;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 12;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 13;
+	// Custom client order ID
+	string cid = 14;
+}
+
+message DerivativeLimitOrder {
+	// Hash of the order
+	string order_hash = 1;
+	// The side of the order
+	string order_side = 2;
+	// Derivative Market ID
+	string market_id = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// True if the order is a reduce-only order
+	bool is_reduce_only = 5;
+	// Margin of the order
+	string margin = 6;
+	// Price of the order
+	string price = 7;
+	// Quantity of the order
+	string quantity = 8;
+	// The amount of the quantity remaining unfilled
+	string unfilled_quantity = 9;
+	// Trigger price is the trigger price used by stop/take orders
+	string trigger_price = 10;
+	// Fee recipient address
+	string fee_recipient = 11;
+	// Order state
+	string state = 12;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 13;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 14;
+	// Order number of subaccount
+	sint64 order_number = 15;
+	// Order type
+	string order_type = 16;
+	// Order type
+	bool is_conditional = 17;
+	// Trigger timestamp, only exists for conditional orders
+	uint64 trigger_at = 18;
+	// OrderHash of order that is triggered by this conditional order
+	string placed_order_hash = 19;
+	// Execution type of conditional order
+	string execution_type = 20;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 21;
+	// Custom client order ID
+	string cid = 22;
 }
