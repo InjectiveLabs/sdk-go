@@ -286,6 +286,7 @@ message StreamAccountDataResponse {
 	TradeResult trade = 3;
 	OrderResult order = 4;
 	OrderHistoryResult order_history = 5;
+	FundingPaymentResult funding_payment = 6;
 }
 
 message SubaccountBalanceResult {
@@ -601,4 +602,24 @@ message DerivativeOrderHistory {
 	string tx_hash = 20;
 	// Custom client order ID
 	string cid = 21;
+}
+
+message FundingPaymentResult {
+	// Funding payments of the account
+	FundingPayment funding_payments = 1;
+	// Funding payments type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 4;
+}
+
+message FundingPayment {
+	// Derivative Market ID
+	string market_id = 1;
+	// The subaccountId that the position belongs to
+	string subaccount_id = 2;
+	// Amount of the funding payment
+	string amount = 3;
+	// Timestamp of funding payment in UNIX millis
+	sint64 timestamp = 4;
 }
