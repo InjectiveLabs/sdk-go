@@ -282,7 +282,7 @@ message StreamAccountDataRequest {
 
 message StreamAccountDataResponse {
 	SubaccountBalanceResult subaccount_balance = 1;
-	StreamPositionsResult derivative_position = 2;
+	PositionsResult position = 2;
 	TradeResult trade = 3;
 	OrderResult order = 4;
 	OrderHistoryResult order_history = 5;
@@ -296,14 +296,14 @@ message SubaccountBalanceResult {
 	sint64 timestamp = 2;
 }
 
-message StreamPositionsResult {
+message PositionsResult {
 	// Updated derivative Position
-	DerivativePosition position = 1;
+	Position position = 1;
 	// Operation timestamp in UNIX millis.
 	sint64 timestamp = 2;
 }
 
-message DerivativePosition {
+message Position {
 	// Ticker of the derivative market
 	string ticker = 1;
 	// Derivative Market ID
@@ -322,12 +322,10 @@ message DerivativePosition {
 	string liquidation_price = 8;
 	// MarkPrice of the position
 	string mark_price = 9;
-	// Aggregate Quantity of the Reduce Only orders associated with the position
-	string aggregate_reduce_only_quantity = 11;
 	// Position updated timestamp in UNIX millis.
-	sint64 updated_at = 12;
+	sint64 updated_at = 10;
 	// Position created timestamp in UNIX millis.
-	sint64 created_at = 13;
+	sint64 created_at = 11;
 }
 
 message TradeResult {
