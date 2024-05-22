@@ -200,7 +200,7 @@ type chainClient struct {
 
 	accNum    uint64
 	accSeq    uint64
-	gasWanted uint64
+	gasWanted uint64 // gasWanted can be updated function ex: SetSimulate
 	gasFee    string
 
 	nonce                   uint32
@@ -963,6 +963,8 @@ func (c *chainClient) broadcastTxAsync(
 		txf = txf.WithGas(adjustedGas)
 
 		c.gasWanted = adjustedGas
+	} else {
+		txf = txf.WithGas(c.gasWanted)
 	}
 
 	txn, err := txf.BuildUnsignedTx(msgs...)
