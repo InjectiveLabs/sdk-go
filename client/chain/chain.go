@@ -176,6 +176,9 @@ type ChainClient interface {
 	AdjustGasPricesToMax()
 	AdjustedGasPricesToOrigin()
 
+	SetSimulate(simulate bool, gasWanted uint64)
+	GetGasWanted() uint64
+
 	Close()
 }
 
@@ -1665,6 +1668,11 @@ func (c *chainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenf
 	return c.tokenfactoryQueryClient.TokenfactoryModuleState(ctx, req)
 }
 
+func (c *chainClient) SetSimulate(simulate bool, gasWanted uint64) {
+	c.ctx.Simulate = simulate
+	c.gasWanted = gasWanted
+}
+
 type DerivativeOrderData struct {
 	OrderType    exchangetypes.OrderType
 	Price        decimal.Decimal
@@ -1697,4 +1705,8 @@ func (c *chainClient) AdjustGasPricesToMax() {
 
 func (c *chainClient) AdjustedGasPricesToOrigin() {
 	c.txFactory = c.txFactory.WithGasPrices(c.opts.GasPrices)
+}
+
+func (c *chainClient) GetGasWanted() uint64 {
+	return c.gasWanted
 }
