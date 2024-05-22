@@ -11,7 +11,7 @@ Clone the repository locally and install needed dependencies
 ```bash
 $ git clone git@github.com:InjectiveLabs/sdk-go.git
 $ cd sdk-go
-$ go install ./...
+$ go mod download
 ```
 
 ## Run examples
