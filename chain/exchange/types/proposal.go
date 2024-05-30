@@ -4,12 +4,11 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -56,7 +55,7 @@ func init() {
 	govtypes.RegisterProposalType(ProposalAtomicMarketOrderFeeMultiplierSchedule)
 }
 
-func SafeIsPositiveInt(v sdkmath.Int) bool {
+func SafeIsPositiveInt(v math.Int) bool {
 	if v.IsNil() {
 		return false
 	}
@@ -64,7 +63,7 @@ func SafeIsPositiveInt(v sdkmath.Int) bool {
 	return v.IsPositive()
 }
 
-func SafeIsPositiveDec(v sdk.Dec) bool {
+func SafeIsPositiveDec(v math.LegacyDec) bool {
 	if v.IsNil() {
 		return false
 	}
@@ -72,7 +71,7 @@ func SafeIsPositiveDec(v sdk.Dec) bool {
 	return v.IsPositive()
 }
 
-func SafeIsNonNegativeDec(v sdk.Dec) bool {
+func SafeIsNonNegativeDec(v math.LegacyDec) bool {
 	if v.IsNil() {
 		return false
 	}
@@ -80,11 +79,11 @@ func SafeIsNonNegativeDec(v sdk.Dec) bool {
 	return !v.IsNegative()
 }
 
-func IsZeroOrNilInt(v sdkmath.Int) bool {
+func IsZeroOrNilInt(v math.Int) bool {
 	return v.IsNil() || v.IsZero()
 }
 
-func IsZeroOrNilDec(v sdk.Dec) bool {
+func IsZeroOrNilDec(v math.LegacyDec) bool {
 	return v.IsNil() || v.IsZero()
 }
 
@@ -213,8 +212,7 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 }
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
-func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec, status MarketStatus) *SpotMarketParamUpdateProposal {
-
+func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec, status MarketStatus, ticker string) *SpotMarketParamUpdateProposal {
 	return &SpotMarketParamUpdateProposal{
 		title,
 		description,
@@ -225,6 +223,9 @@ func NewSpotMarketParamUpdateProposal(title, description string, marketID common
 		minPriceTickSize,
 		minQuantityTickSize,
 		status,
+		ticker,
+		minNotional,
+		nil,
 	}
 }
 
@@ -254,7 +255,14 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 	if !IsHexHash(p.MarketId) {
 		return errors.Wrap(ErrMarketInvalid, p.MarketId)
 	}
-	if p.MakerFeeRate == nil && p.TakerFeeRate == nil && p.RelayerFeeShareRate == nil && p.MinPriceTickSize == nil && p.MinQuantityTickSize == nil && p.Status == MarketStatus_Unspecified {
+	if p.MakerFeeRate == nil &&
+		p.TakerFeeRate == nil &&
+		p.RelayerFeeShareRate == nil &&
+		p.MinPriceTickSize == nil &&
+		p.MinQuantityTickSize == nil &&
+		p.MinNotional == nil &&
+		p.AdminInfo == nil &&
+		p.Status == MarketStatus_Unspecified {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
@@ -284,6 +292,26 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 			return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 		}
 	}
+	if p.MinNotional != nil {
+		if err := ValidateMinNotional(*p.MinNotional); err != nil {
+			return errors.Wrap(ErrInvalidNotional, err.Error())
+		}
+	}
+
+	if p.AdminInfo != nil {
+		if p.AdminInfo.Admin != "" {
+			if _, err := sdk.AccAddressFromBech32(p.AdminInfo.Admin); err != nil {
+				return errors.Wrap(ErrInvalidAddress, err.Error())
+			}
+		}
+		if p.AdminInfo.AdminPermissions > MaxPerm {
+			return ErrInvalidPermissions
+		}
+	}
+
+	if len(p.Ticker) > MaxTickerLength {
+		return errors.Wrapf(ErrInvalidTicker, "ticker should not exceed %d characters", MaxTickerLength)
+	}
 
 	switch p.Status {
 	case
@@ -307,10 +335,11 @@ func NewSpotMarketLaunchProposal(
 	ticker string,
 	baseDenom string,
 	quoteDenom string,
-	minPriceTickSize sdk.Dec,
-	minQuantityTickSize sdk.Dec,
-	makerFeeRate *sdk.Dec,
-	takerFeeRate *sdk.Dec,
+	minPriceTickSize math.LegacyDec,
+	minQuantityTickSize math.LegacyDec,
+	minNotional math.LegacyDec,
+	makerFeeRate *math.LegacyDec,
+	takerFeeRate *math.LegacyDec,
 ) *SpotMarketLaunchProposal {
 	return &SpotMarketLaunchProposal{
 		Title:               title,
@@ -320,6 +349,7 @@ func NewSpotMarketLaunchProposal(
 		QuoteDenom:          quoteDenom,
 		MinPriceTickSize:    minPriceTickSize,
 		MinQuantityTickSize: minQuantityTickSize,
+		MinNotional:         minNotional,
 		MakerFeeRate:        makerFeeRate,
 		TakerFeeRate:        takerFeeRate,
 	}
@@ -349,7 +379,7 @@ func (p *SpotMarketLaunchProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
-		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed %d characters", MaxTickerLength)
 	}
 	if p.BaseDenom == "" {
 		return errors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
@@ -366,6 +396,9 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
 		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+	}
+	if err := ValidateMinNotional(p.MinNotional); err != nil {
+		return errors.Wrap(ErrInvalidNotional, err.Error())
 	}
 
 	if p.MakerFeeRate != nil {
@@ -395,11 +428,23 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 
 // NewDerivativeMarketParamUpdateProposal returns new instance of DerivativeMarketParamUpdateProposal
 func NewDerivativeMarketParamUpdateProposal(
-	title, description string, marketID string,
-	initialMarginRatio, maintenanceMarginRatio,
-	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec,
-	hourlyInterestRate, hourlyFundingRateCap *sdk.Dec,
-	status MarketStatus, oracleParams *OracleParams,
+	title string,
+	description string,
+	marketID string,
+	initialMarginRatio *math.LegacyDec,
+	maintenanceMarginRatio *math.LegacyDec,
+	makerFeeRate *math.LegacyDec,
+	takerFeeRate *math.LegacyDec,
+	relayerFeeShareRate *math.LegacyDec,
+	minPriceTickSize *math.LegacyDec,
+	minQuantityTickSize *math.LegacyDec,
+	minNotional *math.LegacyDec,
+	hourlyInterestRate *math.LegacyDec,
+	hourlyFundingRateCap *math.LegacyDec,
+	status MarketStatus,
+	oracleParams *OracleParams,
+	ticker string,
+	adminInfo *AdminInfo,
 ) *DerivativeMarketParamUpdateProposal {
 	return &DerivativeMarketParamUpdateProposal{
 		Title:                  title,
@@ -416,6 +461,9 @@ func NewDerivativeMarketParamUpdateProposal(
 		HourlyFundingRateCap:   hourlyFundingRateCap,
 		Status:                 status,
 		OracleParams:           oracleParams,
+		Ticker:                 ticker,
+		MinNotional:            minNotional,
+		AdminInfo:              adminInfo,
 	}
 }
 
@@ -450,11 +498,13 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.RelayerFeeShareRate == nil &&
 		p.MinPriceTickSize == nil &&
 		p.MinQuantityTickSize == nil &&
+		p.MinNotional == nil &&
 		p.InitialMarginRatio == nil &&
 		p.MaintenanceMarginRatio == nil &&
 		p.HourlyInterestRate == nil &&
 		p.HourlyFundingRateCap == nil &&
 		p.Status == MarketStatus_Unspecified &&
+		p.AdminInfo == nil &&
 		p.OracleParams == nil {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
@@ -497,6 +547,11 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 			return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 		}
 	}
+	if p.MinNotional != nil {
+		if err := ValidateMinNotional(*p.MinNotional); err != nil {
+			return errors.Wrap(ErrInvalidNotional, err.Error())
+		}
+	}
 
 	if p.HourlyInterestRate != nil {
 		if err := ValidateHourlyInterestRate(*p.HourlyInterestRate); err != nil {
@@ -508,6 +563,21 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		if err := ValidateHourlyFundingRateCap(*p.HourlyFundingRateCap); err != nil {
 			return errors.Wrap(ErrInvalidHourlyFundingRateCap, err.Error())
 		}
+	}
+
+	if p.AdminInfo != nil {
+		if p.AdminInfo.Admin != "" {
+			if _, err := sdk.AccAddressFromBech32(p.AdminInfo.Admin); err != nil {
+				return errors.Wrap(ErrInvalidAddress, err.Error())
+			}
+		}
+		if p.AdminInfo.AdminPermissions > MaxPerm {
+			return ErrInvalidPermissions
+		}
+	}
+
+	if len(p.Ticker) > MaxTickerLength {
+		return errors.Wrapf(ErrInvalidTicker, "ticker should not exceed %d characters", MaxTickerLength)
 	}
 
 	switch p.Status {
@@ -534,7 +604,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 // NewMarketForcedSettlementProposal returns new instance of MarketForcedSettlementProposal
 func NewMarketForcedSettlementProposal(
 	title, description string, marketID string,
-	settlementPrice *sdk.Dec,
+	settlementPrice *math.LegacyDec,
 ) *MarketForcedSettlementProposal {
 	return &MarketForcedSettlementProposal{
 		Title:           title,
@@ -708,7 +778,7 @@ func (p *ProviderOracleParams) ValidateBasic() error {
 func NewPerpetualMarketLaunchProposal(
 	title, description, ticker, quoteDenom,
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType,
-	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize sdk.Dec,
+	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
 ) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
 		Title:                  title,
@@ -725,6 +795,7 @@ func NewPerpetualMarketLaunchProposal(
 		TakerFeeRate:           takerFeeRate,
 		MinPriceTickSize:       minPriceTickSize,
 		MinQuantityTickSize:    minQuantityTickSize,
+		MinNotional:            minNotional,
 	}
 }
 
@@ -752,7 +823,7 @@ func (p *PerpetualMarketLaunchProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
-		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed %d characters", MaxTickerLength)
 	}
 	if p.QuoteDenom == "" {
 		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
@@ -787,6 +858,9 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
 		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
+	if err := ValidateMinNotional(p.MinNotional); err != nil {
+		return errors.Wrap(ErrInvalidNotional, err.Error())
+	}
 
 	return govtypes.ValidateAbstract(p)
 }
@@ -795,7 +869,7 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 func NewExpiryFuturesMarketLaunchProposal(
 	title, description, ticker, quoteDenom,
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, expiry int64,
-	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize sdk.Dec,
+	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
 ) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
 		Title:                  title,
@@ -813,6 +887,7 @@ func NewExpiryFuturesMarketLaunchProposal(
 		TakerFeeRate:           takerFeeRate,
 		MinPriceTickSize:       minPriceTickSize,
 		MinQuantityTickSize:    minQuantityTickSize,
+		MinNotional:            minNotional,
 	}
 }
 
@@ -840,7 +915,7 @@ func (p *ExpiryFuturesMarketLaunchProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
-		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed %d characters", MaxTickerLength)
 	}
 	if p.QuoteDenom == "" {
 		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
@@ -877,6 +952,9 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
 		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
+	}
+	if err := ValidateMinNotional(p.MinNotional); err != nil {
+		return errors.Wrap(ErrInvalidNotional, err.Error())
 	}
 
 	return govtypes.ValidateAbstract(p)
@@ -1308,11 +1386,11 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 }
 
 func (t *FeeDiscountTierInfo) ValidateBasic() error {
-	if !SafeIsNonNegativeDec(t.MakerDiscountRate) || t.MakerDiscountRate.GT(sdk.OneDec()) {
+	if !SafeIsNonNegativeDec(t.MakerDiscountRate) || t.MakerDiscountRate.GT(math.LegacyOneDec()) {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "MakerDiscountRate must be between 0 and 1")
 	}
 
-	if !SafeIsNonNegativeDec(t.TakerDiscountRate) || t.TakerDiscountRate.GT(sdk.OneDec()) {
+	if !SafeIsNonNegativeDec(t.TakerDiscountRate) || t.TakerDiscountRate.GT(math.LegacyOneDec()) {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "TakerDiscountRate must be between 0 and 1")
 	}
 
@@ -1363,7 +1441,7 @@ func NewBinaryOptionsMarketLaunchProposal(
 	oracleType oracletypes.OracleType, oracleScaleFactor uint32,
 	expirationTimestamp, settlementTimestamp int64,
 	admin, quoteDenom string,
-	makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize sdk.Dec,
+	makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
 
 ) *BinaryOptionsMarketLaunchProposal {
 	return &BinaryOptionsMarketLaunchProposal{
@@ -1382,6 +1460,7 @@ func NewBinaryOptionsMarketLaunchProposal(
 		TakerFeeRate:        takerFeeRate,
 		MinPriceTickSize:    minPriceTickSize,
 		MinQuantityTickSize: minQuantityTickSize,
+		MinNotional:         minNotional,
 	}
 }
 
@@ -1409,7 +1488,7 @@ func (p *BinaryOptionsMarketLaunchProposal) ProposalType() string {
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > MaxTickerLength {
-		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed %d characters", MaxTickerLength)
 	}
 	if p.OracleSymbol == "" {
 		return errors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
@@ -1454,17 +1533,24 @@ func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	if err := ValidateTickSize(p.MinQuantityTickSize); err != nil {
 		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
 	}
+	if err := ValidateMinNotional(p.MinNotional); err != nil {
+		return errors.Wrap(ErrInvalidNotional, err.Error())
+	}
 
 	return govtypes.ValidateAbstract(p)
 }
 
 // NewBinaryOptionsMarketParamUpdateProposal returns new instance of BinaryOptionsMarketParamUpdateProposal
 func NewBinaryOptionsMarketParamUpdateProposal(
-	title, description string, marketID string,
-	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize *sdk.Dec,
+	title string,
+	description string,
+	marketID string,
+	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec,
 	expirationTimestamp, settlementTimestamp int64,
 	admin string,
-	status MarketStatus, oracleParams *ProviderOracleParams,
+	status MarketStatus,
+	oracleParams *ProviderOracleParams,
+	ticker string,
 ) *BinaryOptionsMarketParamUpdateProposal {
 	return &BinaryOptionsMarketParamUpdateProposal{
 		Title:               title,
@@ -1475,11 +1561,13 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 		RelayerFeeShareRate: relayerFeeShareRate,
 		MinPriceTickSize:    minPriceTickSize,
 		MinQuantityTickSize: minQuantityTickSize,
+		MinNotional:         minNotional,
 		ExpirationTimestamp: expirationTimestamp,
 		SettlementTimestamp: settlementTimestamp,
 		Admin:               admin,
 		Status:              status,
 		OracleParams:        oracleParams,
+		Ticker:              ticker,
 	}
 }
 
@@ -1514,6 +1602,7 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		p.RelayerFeeShareRate == nil &&
 		p.MinPriceTickSize == nil &&
 		p.MinQuantityTickSize == nil &&
+		p.MinNotional == nil &&
 		p.Status == MarketStatus_Unspecified &&
 		p.ExpirationTimestamp == 0 &&
 		p.SettlementTimestamp == 0 &&
@@ -1552,6 +1641,12 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
+	if p.MinNotional != nil {
+		if err := ValidateMinNotional(*p.MinNotional); err != nil {
+			return errors.Wrap(ErrInvalidNotional, err.Error())
+		}
+	}
+
 	if p.ExpirationTimestamp != 0 && p.SettlementTimestamp != 0 {
 		if p.ExpirationTimestamp >= p.SettlementTimestamp || p.ExpirationTimestamp < 0 || p.SettlementTimestamp < 0 {
 			return ErrInvalidExpiry
@@ -1568,13 +1663,17 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
+	if len(p.Ticker) > MaxTickerLength {
+		return errors.Wrapf(ErrInvalidTicker, "ticker should not exceed %d characters", MaxTickerLength)
+	}
+
 	// price is either nil (not set), -1 (demolish with refund) or [0..1] (demolish with settle)
 	switch {
 	case p.SettlementPrice == nil,
 		p.SettlementPrice.IsNil():
 		// ok
 	case p.SettlementPrice.Equal(BinaryOptionsMarketRefundFlagPrice),
-		p.SettlementPrice.GTE(sdk.ZeroDec()) && p.SettlementPrice.LTE(MaxBinaryOptionsOrderPrice):
+		p.SettlementPrice.GTE(math.LegacyZeroDec()) && p.SettlementPrice.LTE(MaxBinaryOptionsOrderPrice):
 		if p.Status != MarketStatus_Demolished {
 			return errors.Wrapf(ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", p.Status.String())
 		}
@@ -1634,7 +1733,7 @@ func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ValidateBasic() error {
 			return fmt.Errorf("atomic taker fee multiplier cannot be nil: %v", multiplier)
 		}
 
-		if multiplier.LT(sdk.OneDec()) {
+		if multiplier.LT(math.LegacyOneDec()) {
 			return fmt.Errorf("atomic taker fee multiplier cannot be less than 1: %v", multiplier)
 		}
 

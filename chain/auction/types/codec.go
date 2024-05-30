@@ -14,6 +14,7 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgBid{}, "auction/MsgBid", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "auction/MsgUpdateParams", nil)
+	cdc.RegisterConcrete(&Params{}, "auction/Params", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -26,21 +27,19 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 }
 
 var (
-	amino = codec.NewLegacyAmino()
-
 	// ModuleCdc references the global x/auction module codec. Note, the codec should
 	// ONLY be used in certain instances of tests and for JSON encoding as Amino is
 	// still used for that purpose.
 	//
 	// The actual codec used for serialization should be provided to x/auction and
 	// defined at the application level.
-	ModuleCdc = codec.NewAminoCodec(amino)
+	ModuleCdc = codec.NewLegacyAmino()
 )
 
 func init() {
-	RegisterLegacyAminoCodec(amino)
-	cryptocodec.RegisterCrypto(amino)
+	RegisterLegacyAminoCodec(ModuleCdc)
+	cryptocodec.RegisterCrypto(ModuleCdc)
 
 	RegisterLegacyAminoCodec(authzcdc.Amino)
-	amino.Seal()
+	ModuleCdc.Seal()
 }

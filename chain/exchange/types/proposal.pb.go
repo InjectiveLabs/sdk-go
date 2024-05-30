@@ -4,12 +4,13 @@
 package types
 
 import (
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	types "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/cosmos-sdk/types"
-	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	types1 "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -62,19 +63,24 @@ type SpotMarketParamUpdateProposal struct {
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
 	MarketId    string `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// maker_fee_rate defines the trade fee rate for makers on the spot market
-	MakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate,omitempty"`
+	MakerFeeRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_fee_rate,omitempty"`
 	// taker_fee_rate defines the trade fee rate for takers on the spot market
-	TakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate,omitempty"`
+	TakerFeeRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_fee_rate,omitempty"`
 	// relayer_fee_share_rate defines the relayer fee share rate for the spot
 	// market
-	RelayerFeeShareRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"relayer_fee_share_rate,omitempty"`
+	RelayerFeeShareRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"relayer_fee_share_rate,omitempty"`
 	// min_price_tick_size defines the minimum tick size of the order's price and
 	// margin
-	MinPriceTickSize *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size,omitempty"`
+	MinPriceTickSize *cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size,omitempty"`
 	// min_quantity_tick_size defines the minimum tick size of the order's
 	// quantity
-	MinQuantityTickSize *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size,omitempty"`
-	Status              MarketStatus                            `protobuf:"varint,9,opt,name=status,proto3,enum=injective.exchange.v1beta1.MarketStatus" json:"status,omitempty"`
+	MinQuantityTickSize *cosmossdk_io_math.LegacyDec `protobuf:"bytes,8,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size,omitempty"`
+	Status              MarketStatus                 `protobuf:"varint,9,opt,name=status,proto3,enum=injective.exchange.v1beta1.MarketStatus" json:"status,omitempty"`
+	Ticker              string                       `protobuf:"bytes,10,opt,name=ticker,proto3" json:"ticker,omitempty"`
+	// min_notional defines the minimum notional (in quote asset) required for
+	// orders in the market
+	MinNotional *cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional,omitempty"`
+	AdminInfo   *AdminInfo                   `protobuf:"bytes,12,opt,name=admin_info,json=adminInfo,proto3" json:"admin_info,omitempty"`
 }
 
 func (m *SpotMarketParamUpdateProposal) Reset()         { *m = SpotMarketParamUpdateProposal{} }
@@ -210,14 +216,17 @@ type SpotMarketLaunchProposal struct {
 	// type of coin to use as the quote currency
 	QuoteDenom string `protobuf:"bytes,5,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
 	// min_price_tick_size defines the minimum tick size of the order's price
-	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the order's
 	// quantity
-	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
+	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
 	// maker_fee_rate defines the fee percentage makers pay when trading
-	MakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate,omitempty"`
+	MakerFeeRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,8,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_fee_rate,omitempty"`
 	// taker_fee_rate defines the fee percentage takers pay when trading
-	TakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate,omitempty"`
+	TakerFeeRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,9,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_fee_rate,omitempty"`
+	// min_notional defines the minimum notional for orders in the market
+	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,10,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
+	AdminInfo   *AdminInfo                  `protobuf:"bytes,11,opt,name=admin_info,json=adminInfo,proto3" json:"admin_info,omitempty"`
 }
 
 func (m *SpotMarketLaunchProposal) Reset()         { *m = SpotMarketLaunchProposal{} }
@@ -272,22 +281,26 @@ type PerpetualMarketLaunchProposal struct {
 	OracleType types.OracleType `protobuf:"varint,8,opt,name=oracle_type,json=oracleType,proto3,enum=injective.oracle.v1beta1.OracleType" json:"oracle_type,omitempty"`
 	// initial_margin_ratio defines the initial margin ratio for the derivative
 	// market
-	InitialMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"initial_margin_ratio"`
+	InitialMarginRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,9,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"initial_margin_ratio"`
 	// maintenance_margin_ratio defines the maintenance margin ratio for the
 	// derivative market
-	MaintenanceMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maintenance_margin_ratio"`
+	MaintenanceMarginRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,10,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maintenance_margin_ratio"`
 	// maker_fee_rate defines the exchange trade fee for makers for the derivative
 	// market
-	MakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate"`
+	MakerFeeRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_fee_rate"`
 	// taker_fee_rate defines the exchange trade fee for takers for the derivative
 	// market
-	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
+	TakerFeeRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,12,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_fee_rate"`
 	// min_price_tick_size defines the minimum tick size of the order's price and
 	// margin
-	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,13,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the order's
 	// quantity
-	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,14,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
+	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,14,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
+	// min_notional defines the minimum notional (in quote asset) required for
+	// orders in the market
+	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
+	AdminInfo   *AdminInfo                  `protobuf:"bytes,16,opt,name=admin_info,json=adminInfo,proto3" json:"admin_info,omitempty"`
 }
 
 func (m *PerpetualMarketLaunchProposal) Reset()         { *m = PerpetualMarketLaunchProposal{} }
@@ -345,15 +358,19 @@ type BinaryOptionsMarketLaunchProposal struct {
 	// Address of the quote currency denomination for the binary options contract
 	QuoteDenom string `protobuf:"bytes,11,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
 	// maker_fee_rate defines the maker fee rate of a binary options market
-	MakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate"`
+	MakerFeeRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,12,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_fee_rate"`
 	// taker_fee_rate defines the taker fee rate of a derivative market
-	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
+	TakerFeeRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,13,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_fee_rate"`
 	// min_price_tick_size defines the minimum tick size that the price and margin
 	// required for orders in the market
-	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,14,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,14,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the quantity
 	// required for orders in the market
-	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,15,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
+	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
+	// min_notional defines the minimum notional (in quote asset) required for
+	// orders in the market
+	MinNotional      cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
+	AdminPermissions uint32                      `protobuf:"varint,17,opt,name=admin_permissions,json=adminPermissions,proto3" json:"admin_permissions,omitempty"`
 }
 
 func (m *BinaryOptionsMarketLaunchProposal) Reset()         { *m = BinaryOptionsMarketLaunchProposal{} }
@@ -410,22 +427,26 @@ type ExpiryFuturesMarketLaunchProposal struct {
 	Expiry int64 `protobuf:"varint,9,opt,name=expiry,proto3" json:"expiry,omitempty"`
 	// initial_margin_ratio defines the initial margin ratio for the derivative
 	// market
-	InitialMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"initial_margin_ratio"`
+	InitialMarginRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,10,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"initial_margin_ratio"`
 	// maintenance_margin_ratio defines the maintenance margin ratio for the
 	// derivative market
-	MaintenanceMarginRatio github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maintenance_margin_ratio"`
+	MaintenanceMarginRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maintenance_margin_ratio"`
 	// maker_fee_rate defines the exchange trade fee for makers for the derivative
 	// market
-	MakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate"`
+	MakerFeeRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,12,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_fee_rate"`
 	// taker_fee_rate defines the exchange trade fee for takers for the derivative
 	// market
-	TakerFeeRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,13,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate"`
+	TakerFeeRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,13,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_fee_rate"`
 	// min_price_tick_size defines the minimum tick size of the order's price and
 	// margin
-	MinPriceTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,14,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size"`
+	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,14,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the order's
 	// quantity
-	MinQuantityTickSize github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,15,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size"`
+	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
+	// min_notional defines the minimum notional (in quote asset) required for
+	// orders in the market
+	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
+	AdminInfo   *AdminInfo                  `protobuf:"bytes,17,opt,name=admin_info,json=adminInfo,proto3" json:"admin_info,omitempty"`
 }
 
 func (m *ExpiryFuturesMarketLaunchProposal) Reset()         { *m = ExpiryFuturesMarketLaunchProposal{} }
@@ -467,32 +488,37 @@ type DerivativeMarketParamUpdateProposal struct {
 	MarketId    string `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// initial_margin_ratio defines the initial margin ratio for the derivative
 	// market
-	InitialMarginRatio *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"initial_margin_ratio,omitempty"`
+	InitialMarginRatio *cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=initial_margin_ratio,json=initialMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"initial_margin_ratio,omitempty"`
 	// maintenance_margin_ratio defines the maintenance margin ratio for the
 	// derivative market
-	MaintenanceMarginRatio *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maintenance_margin_ratio,omitempty"`
+	MaintenanceMarginRatio *cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maintenance_margin_ratio,omitempty"`
 	// maker_fee_rate defines the exchange trade fee for makers for the derivative
 	// market
-	MakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate,omitempty"`
+	MakerFeeRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_fee_rate,omitempty"`
 	// taker_fee_rate defines the exchange trade fee for takers for the derivative
 	// market
-	TakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate,omitempty"`
+	TakerFeeRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_fee_rate,omitempty"`
 	// relayer_fee_share_rate defines the relayer fee share rate for the
 	// derivative market
-	RelayerFeeShareRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"relayer_fee_share_rate,omitempty"`
+	RelayerFeeShareRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,8,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"relayer_fee_share_rate,omitempty"`
 	// min_price_tick_size defines the minimum tick size of the order's price and
 	// margin
-	MinPriceTickSize *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,9,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size,omitempty"`
+	MinPriceTickSize *cosmossdk_io_math.LegacyDec `protobuf:"bytes,9,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size,omitempty"`
 	// min_quantity_tick_size defines the minimum tick size of the order's
 	// quantity
-	MinQuantityTickSize *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,10,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size,omitempty"`
+	MinQuantityTickSize *cosmossdk_io_math.LegacyDec `protobuf:"bytes,10,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size,omitempty"`
 	// hourly_interest_rate defines the hourly interest rate
-	HourlyInterestRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=HourlyInterestRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"HourlyInterestRate,omitempty"`
+	HourlyInterestRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=HourlyInterestRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"HourlyInterestRate,omitempty"`
 	// hourly_funding_rate_cap defines the maximum absolute value of the hourly
 	// funding rate
-	HourlyFundingRateCap *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=HourlyFundingRateCap,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"HourlyFundingRateCap,omitempty"`
-	Status               MarketStatus                            `protobuf:"varint,13,opt,name=status,proto3,enum=injective.exchange.v1beta1.MarketStatus" json:"status,omitempty"`
-	OracleParams         *OracleParams                           `protobuf:"bytes,14,opt,name=oracle_params,json=oracleParams,proto3" json:"oracle_params,omitempty"`
+	HourlyFundingRateCap *cosmossdk_io_math.LegacyDec `protobuf:"bytes,12,opt,name=HourlyFundingRateCap,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"HourlyFundingRateCap,omitempty"`
+	Status               MarketStatus                 `protobuf:"varint,13,opt,name=status,proto3,enum=injective.exchange.v1beta1.MarketStatus" json:"status,omitempty"`
+	OracleParams         *OracleParams                `protobuf:"bytes,14,opt,name=oracle_params,json=oracleParams,proto3" json:"oracle_params,omitempty"`
+	Ticker               string                       `protobuf:"bytes,15,opt,name=ticker,proto3" json:"ticker,omitempty"`
+	// min_notional defines the minimum notional (in quote asset) required for
+	// orders in the market
+	MinNotional *cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional,omitempty"`
+	AdminInfo   *AdminInfo                   `protobuf:"bytes,17,opt,name=admin_info,json=adminInfo,proto3" json:"admin_info,omitempty"`
 }
 
 func (m *DerivativeMarketParamUpdateProposal) Reset()         { *m = DerivativeMarketParamUpdateProposal{} }
@@ -528,18 +554,70 @@ func (m *DerivativeMarketParamUpdateProposal) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DerivativeMarketParamUpdateProposal proto.InternalMessageInfo
 
+type AdminInfo struct {
+	Admin            string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
+	AdminPermissions uint32 `protobuf:"varint,2,opt,name=admin_permissions,json=adminPermissions,proto3" json:"admin_permissions,omitempty"`
+}
+
+func (m *AdminInfo) Reset()         { *m = AdminInfo{} }
+func (m *AdminInfo) String() string { return proto.CompactTextString(m) }
+func (*AdminInfo) ProtoMessage()    {}
+func (*AdminInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_32e9ec9b6b22477c, []int{8}
+}
+func (m *AdminInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *AdminInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AdminInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *AdminInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AdminInfo.Merge(m, src)
+}
+func (m *AdminInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *AdminInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_AdminInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AdminInfo proto.InternalMessageInfo
+
+func (m *AdminInfo) GetAdmin() string {
+	if m != nil {
+		return m.Admin
+	}
+	return ""
+}
+
+func (m *AdminInfo) GetAdminPermissions() uint32 {
+	if m != nil {
+		return m.AdminPermissions
+	}
+	return 0
+}
+
 type MarketForcedSettlementProposal struct {
-	Title           string                                  `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Description     string                                  `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	MarketId        string                                  `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	SettlementPrice *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=settlement_price,json=settlementPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"settlement_price,omitempty"`
+	Title           string                       `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description     string                       `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	MarketId        string                       `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	SettlementPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=settlement_price,json=settlementPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"settlement_price,omitempty"`
 }
 
 func (m *MarketForcedSettlementProposal) Reset()         { *m = MarketForcedSettlementProposal{} }
 func (m *MarketForcedSettlementProposal) String() string { return proto.CompactTextString(m) }
 func (*MarketForcedSettlementProposal) ProtoMessage()    {}
 func (*MarketForcedSettlementProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{8}
+	return fileDescriptor_32e9ec9b6b22477c, []int{9}
 }
 func (m *MarketForcedSettlementProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -578,7 +656,7 @@ func (m *UpdateDenomDecimalsProposal) Reset()         { *m = UpdateDenomDecimals
 func (m *UpdateDenomDecimalsProposal) String() string { return proto.CompactTextString(m) }
 func (*UpdateDenomDecimalsProposal) ProtoMessage()    {}
 func (*UpdateDenomDecimalsProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{9}
+	return fileDescriptor_32e9ec9b6b22477c, []int{10}
 }
 func (m *UpdateDenomDecimalsProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -613,29 +691,33 @@ type BinaryOptionsMarketParamUpdateProposal struct {
 	MarketId    string `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// maker_fee_rate defines the exchange trade fee for makers for the derivative
 	// market
-	MakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,4,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"maker_fee_rate,omitempty"`
+	MakerFeeRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=maker_fee_rate,json=makerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_fee_rate,omitempty"`
 	// taker_fee_rate defines the exchange trade fee for takers for the derivative
 	// market
-	TakerFeeRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,5,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"taker_fee_rate,omitempty"`
+	TakerFeeRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=taker_fee_rate,json=takerFeeRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_fee_rate,omitempty"`
 	// relayer_fee_share_rate defines the relayer fee share rate for the
 	// derivative market
-	RelayerFeeShareRate *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,6,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"relayer_fee_share_rate,omitempty"`
+	RelayerFeeShareRate *cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=relayer_fee_share_rate,json=relayerFeeShareRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"relayer_fee_share_rate,omitempty"`
 	// min_price_tick_size defines the minimum tick size of the order's price and
 	// margin
-	MinPriceTickSize *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,7,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_price_tick_size,omitempty"`
+	MinPriceTickSize *cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size,omitempty"`
 	// min_quantity_tick_size defines the minimum tick size of the order's
 	// quantity
-	MinQuantityTickSize *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,8,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"min_quantity_tick_size,omitempty"`
+	MinQuantityTickSize *cosmossdk_io_math.LegacyDec `protobuf:"bytes,8,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size,omitempty"`
 	// expiration timestamp
 	ExpirationTimestamp int64 `protobuf:"varint,9,opt,name=expiration_timestamp,json=expirationTimestamp,proto3" json:"expiration_timestamp,omitempty"`
 	// expiration timestamp
 	SettlementTimestamp int64 `protobuf:"varint,10,opt,name=settlement_timestamp,json=settlementTimestamp,proto3" json:"settlement_timestamp,omitempty"`
 	// new price at which market will be settled
-	SettlementPrice *github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,11,opt,name=settlement_price,json=settlementPrice,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"settlement_price,omitempty"`
+	SettlementPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=settlement_price,json=settlementPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"settlement_price,omitempty"`
 	// admin of the market
 	Admin        string                `protobuf:"bytes,12,opt,name=admin,proto3" json:"admin,omitempty"`
 	Status       MarketStatus          `protobuf:"varint,13,opt,name=status,proto3,enum=injective.exchange.v1beta1.MarketStatus" json:"status,omitempty"`
 	OracleParams *ProviderOracleParams `protobuf:"bytes,14,opt,name=oracle_params,json=oracleParams,proto3" json:"oracle_params,omitempty"`
+	Ticker       string                `protobuf:"bytes,15,opt,name=ticker,proto3" json:"ticker,omitempty"`
+	// min_notional defines the minimum notional (in quote asset) required for
+	// orders in the market
+	MinNotional *cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional,omitempty"`
 }
 
 func (m *BinaryOptionsMarketParamUpdateProposal) Reset() {
@@ -644,7 +726,7 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Reset() {
 func (m *BinaryOptionsMarketParamUpdateProposal) String() string { return proto.CompactTextString(m) }
 func (*BinaryOptionsMarketParamUpdateProposal) ProtoMessage()    {}
 func (*BinaryOptionsMarketParamUpdateProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{10}
+	return fileDescriptor_32e9ec9b6b22477c, []int{11}
 }
 func (m *BinaryOptionsMarketParamUpdateProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -688,7 +770,7 @@ func (m *ProviderOracleParams) Reset()         { *m = ProviderOracleParams{} }
 func (m *ProviderOracleParams) String() string { return proto.CompactTextString(m) }
 func (*ProviderOracleParams) ProtoMessage()    {}
 func (*ProviderOracleParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{11}
+	return fileDescriptor_32e9ec9b6b22477c, []int{12}
 }
 func (m *ProviderOracleParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -760,7 +842,7 @@ func (m *OracleParams) Reset()         { *m = OracleParams{} }
 func (m *OracleParams) String() string { return proto.CompactTextString(m) }
 func (*OracleParams) ProtoMessage()    {}
 func (*OracleParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{12}
+	return fileDescriptor_32e9ec9b6b22477c, []int{13}
 }
 func (m *OracleParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -828,7 +910,7 @@ func (m *TradingRewardCampaignLaunchProposal) Reset()         { *m = TradingRewa
 func (m *TradingRewardCampaignLaunchProposal) String() string { return proto.CompactTextString(m) }
 func (*TradingRewardCampaignLaunchProposal) ProtoMessage()    {}
 func (*TradingRewardCampaignLaunchProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{13}
+	return fileDescriptor_32e9ec9b6b22477c, []int{14}
 }
 func (m *TradingRewardCampaignLaunchProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -869,7 +951,7 @@ func (m *TradingRewardCampaignUpdateProposal) Reset()         { *m = TradingRewa
 func (m *TradingRewardCampaignUpdateProposal) String() string { return proto.CompactTextString(m) }
 func (*TradingRewardCampaignUpdateProposal) ProtoMessage()    {}
 func (*TradingRewardCampaignUpdateProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{14}
+	return fileDescriptor_32e9ec9b6b22477c, []int{15}
 }
 func (m *TradingRewardCampaignUpdateProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -901,14 +983,14 @@ var xxx_messageInfo_TradingRewardCampaignUpdateProposal proto.InternalMessageInf
 type RewardPointUpdate struct {
 	AccountAddress string `protobuf:"bytes,1,opt,name=account_address,json=accountAddress,proto3" json:"account_address,omitempty"`
 	// new_points overwrites the current trading reward points for the account
-	NewPoints github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,12,opt,name=new_points,json=newPoints,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"new_points"`
+	NewPoints cosmossdk_io_math.LegacyDec `protobuf:"bytes,12,opt,name=new_points,json=newPoints,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"new_points"`
 }
 
 func (m *RewardPointUpdate) Reset()         { *m = RewardPointUpdate{} }
 func (m *RewardPointUpdate) String() string { return proto.CompactTextString(m) }
 func (*RewardPointUpdate) ProtoMessage()    {}
 func (*RewardPointUpdate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{15}
+	return fileDescriptor_32e9ec9b6b22477c, []int{16}
 }
 func (m *RewardPointUpdate) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -957,7 +1039,7 @@ func (m *TradingRewardPendingPointsUpdateProposal) Reset() {
 func (m *TradingRewardPendingPointsUpdateProposal) String() string { return proto.CompactTextString(m) }
 func (*TradingRewardPendingPointsUpdateProposal) ProtoMessage()    {}
 func (*TradingRewardPendingPointsUpdateProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{16}
+	return fileDescriptor_32e9ec9b6b22477c, []int{17}
 }
 func (m *TradingRewardPendingPointsUpdateProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -996,7 +1078,7 @@ func (m *FeeDiscountProposal) Reset()         { *m = FeeDiscountProposal{} }
 func (m *FeeDiscountProposal) String() string { return proto.CompactTextString(m) }
 func (*FeeDiscountProposal) ProtoMessage()    {}
 func (*FeeDiscountProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{17}
+	return fileDescriptor_32e9ec9b6b22477c, []int{18}
 }
 func (m *FeeDiscountProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1035,7 +1117,7 @@ func (m *BatchCommunityPoolSpendProposal) Reset()         { *m = BatchCommunityP
 func (m *BatchCommunityPoolSpendProposal) String() string { return proto.CompactTextString(m) }
 func (*BatchCommunityPoolSpendProposal) ProtoMessage()    {}
 func (*BatchCommunityPoolSpendProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{18}
+	return fileDescriptor_32e9ec9b6b22477c, []int{19}
 }
 func (m *BatchCommunityPoolSpendProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1080,7 +1162,7 @@ func (m *AtomicMarketOrderFeeMultiplierScheduleProposal) String() string {
 }
 func (*AtomicMarketOrderFeeMultiplierScheduleProposal) ProtoMessage() {}
 func (*AtomicMarketOrderFeeMultiplierScheduleProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_32e9ec9b6b22477c, []int{19}
+	return fileDescriptor_32e9ec9b6b22477c, []int{20}
 }
 func (m *AtomicMarketOrderFeeMultiplierScheduleProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1119,6 +1201,7 @@ func init() {
 	proto.RegisterType((*BinaryOptionsMarketLaunchProposal)(nil), "injective.exchange.v1beta1.BinaryOptionsMarketLaunchProposal")
 	proto.RegisterType((*ExpiryFuturesMarketLaunchProposal)(nil), "injective.exchange.v1beta1.ExpiryFuturesMarketLaunchProposal")
 	proto.RegisterType((*DerivativeMarketParamUpdateProposal)(nil), "injective.exchange.v1beta1.DerivativeMarketParamUpdateProposal")
+	proto.RegisterType((*AdminInfo)(nil), "injective.exchange.v1beta1.AdminInfo")
 	proto.RegisterType((*MarketForcedSettlementProposal)(nil), "injective.exchange.v1beta1.MarketForcedSettlementProposal")
 	proto.RegisterType((*UpdateDenomDecimalsProposal)(nil), "injective.exchange.v1beta1.UpdateDenomDecimalsProposal")
 	proto.RegisterType((*BinaryOptionsMarketParamUpdateProposal)(nil), "injective.exchange.v1beta1.BinaryOptionsMarketParamUpdateProposal")
@@ -1138,142 +1221,160 @@ func init() {
 }
 
 var fileDescriptor_32e9ec9b6b22477c = []byte{
-	// 2150 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x5a, 0xcd, 0x6f, 0x24, 0x47,
-	0x15, 0x77, 0xaf, 0x3f, 0xe7, 0xcd, 0xf8, 0x23, 0xed, 0x89, 0x99, 0x78, 0xb3, 0xe3, 0x8f, 0x4d,
-	0x76, 0x1d, 0xa4, 0x9d, 0x61, 0x4d, 0x50, 0xc4, 0x4a, 0x08, 0xfc, 0x31, 0x26, 0x16, 0xeb, 0xdd,
-	0x49, 0x8f, 0x37, 0x82, 0x48, 0xd0, 0xd4, 0x74, 0x97, 0xed, 0xc2, 0xd3, 0x5d, 0xbd, 0x5d, 0x35,
-	0xde, 0x75, 0xc4, 0x11, 0x04, 0x5a, 0x2e, 0x20, 0x81, 0xe0, 0xb2, 0x52, 0xb8, 0x71, 0xe3, 0x00,
-	0xff, 0x00, 0x48, 0x48, 0x81, 0x1c, 0xc8, 0x31, 0xe2, 0x10, 0xa1, 0xdd, 0x03, 0x08, 0x89, 0x33,
-	0x1c, 0x51, 0x57, 0x55, 0xf7, 0xf4, 0x7c, 0xf7, 0x8c, 0x3d, 0x11, 0x87, 0x3d, 0xcd, 0xd4, 0xab,
-	0x57, 0xbf, 0xf7, 0xea, 0xd5, 0x7b, 0xaf, 0x5e, 0x55, 0x35, 0xbc, 0x41, 0xdc, 0xef, 0x61, 0x8b,
-	0x93, 0x33, 0x5c, 0xc4, 0x8f, 0xad, 0x13, 0xe4, 0x1e, 0xe3, 0xe2, 0xd9, 0xed, 0x2a, 0xe6, 0xe8,
-	0x76, 0xd1, 0xf3, 0xa9, 0x47, 0x19, 0xaa, 0x15, 0x3c, 0x9f, 0x72, 0xaa, 0x2f, 0x47, 0xac, 0x85,
-	0x90, 0xb5, 0xa0, 0x58, 0x97, 0xf3, 0x16, 0x65, 0x0e, 0x65, 0xc5, 0x2a, 0x62, 0x8d, 0xf1, 0x16,
-	0x25, 0xae, 0x1c, 0xbb, 0x5c, 0x50, 0xfd, 0x36, 0x61, 0xdc, 0x27, 0xd5, 0x3a, 0x27, 0xd4, 0x8d,
-	0xf8, 0xe2, 0x44, 0xc5, 0xff, 0x39, 0xc5, 0xef, 0xb0, 0xe3, 0xe2, 0xd9, 0xed, 0xe0, 0x47, 0x75,
-	0xbc, 0x22, 0x3b, 0x4c, 0xd1, 0x2a, 0xca, 0x86, 0xea, 0xca, 0x1e, 0xd3, 0x63, 0x2a, 0xe9, 0xc1,
-	0x3f, 0x45, 0xed, 0x35, 0xc1, 0x68, 0x1a, 0x92, 0xf5, 0xf5, 0x06, 0x2b, 0xf5, 0x91, 0x55, 0x6b,
-	0x30, 0xca, 0xa6, 0x64, 0x5b, 0xff, 0xdd, 0x24, 0x5c, 0xab, 0x78, 0x94, 0x1f, 0x20, 0xff, 0x14,
-	0xf3, 0x32, 0xf2, 0x91, 0xf3, 0xc0, 0xb3, 0x11, 0xc7, 0x65, 0x65, 0x2f, 0x3d, 0x0b, 0x93, 0x9c,
-	0xf0, 0x1a, 0xce, 0x69, 0xab, 0xda, 0x46, 0xca, 0x90, 0x0d, 0x7d, 0x15, 0xd2, 0x36, 0x66, 0x96,
-	0x4f, 0xbc, 0x60, 0xa2, 0xb9, 0x2b, 0xa2, 0x2f, 0x4e, 0xd2, 0xaf, 0x42, 0xca, 0x11, 0xa0, 0x26,
-	0xb1, 0x73, 0xe3, 0xa2, 0x7f, 0x46, 0x12, 0xf6, 0x6d, 0xfd, 0x10, 0xe6, 0x1c, 0x74, 0x8a, 0x7d,
-	0xf3, 0x08, 0x63, 0xd3, 0x47, 0x1c, 0xe7, 0x26, 0x02, 0x8e, 0xed, 0xc2, 0x87, 0x9f, 0xae, 0x68,
-	0x7f, 0xfb, 0x74, 0xe5, 0xc6, 0x31, 0xe1, 0x27, 0xf5, 0x6a, 0xc1, 0xa2, 0x8e, 0xb2, 0x8b, 0xfa,
-	0xb9, 0xc5, 0xec, 0xd3, 0x22, 0x3f, 0xf7, 0x30, 0x2b, 0xec, 0x62, 0xcb, 0xc8, 0x08, 0x94, 0x3d,
-	0x8c, 0x0d, 0xc4, 0x71, 0x80, 0xca, 0x9b, 0x51, 0x27, 0x87, 0x43, 0xe5, 0x71, 0x54, 0x0b, 0x96,
-	0x7c, 0x5c, 0x43, 0xe7, 0x0a, 0x97, 0x9d, 0x20, 0x5f, 0xa1, 0x4f, 0x0d, 0x85, 0xbe, 0xa8, 0xd0,
-	0xf6, 0x30, 0xae, 0x04, 0x58, 0x42, 0xc8, 0xb7, 0x61, 0xd1, 0x21, 0xae, 0xe9, 0xf9, 0xc4, 0xc2,
-	0x26, 0x27, 0xd6, 0xa9, 0xc9, 0xc8, 0xfb, 0x38, 0x37, 0x3d, 0x94, 0x84, 0x05, 0x87, 0xb8, 0xe5,
-	0x00, 0xe9, 0x90, 0x58, 0xa7, 0x15, 0xf2, 0xbe, 0x98, 0x43, 0x00, 0xff, 0xb0, 0x8e, 0x5c, 0x4e,
-	0xf8, 0x79, 0x4c, 0xc2, 0xcc, 0x70, 0x73, 0x70, 0x88, 0xfb, 0x8e, 0x02, 0x8b, 0x84, 0x7c, 0x0d,
-	0xa6, 0x18, 0x47, 0xbc, 0xce, 0x72, 0xa9, 0x55, 0x6d, 0x63, 0x6e, 0x73, 0xa3, 0xd0, 0x3d, 0xc8,
-	0x0a, 0xd2, 0xe1, 0x2a, 0x82, 0xdf, 0x50, 0xe3, 0xee, 0xdc, 0xf8, 0xf1, 0x07, 0x2b, 0x63, 0xff,
-	0xfc, 0x60, 0x65, 0xec, 0x2f, 0xbf, 0xbf, 0xb5, 0xac, 0xe2, 0xe1, 0x98, 0x9e, 0x45, 0x83, 0x76,
-	0xa8, 0xcb, 0xb1, 0xcb, 0xd7, 0x7f, 0xa3, 0xc1, 0x52, 0x49, 0x21, 0x96, 0x5c, 0x54, 0xad, 0x5d,
-	0xdc, 0x5d, 0xef, 0x42, 0x26, 0xd4, 0xf1, 0xf0, 0xdc, 0xc3, 0xc2, 0x63, 0xfb, 0x4c, 0xa1, 0x14,
-	0xe3, 0x37, 0x9a, 0x46, 0xdf, 0x99, 0x09, 0x27, 0xb2, 0xfe, 0x8f, 0x0c, 0xac, 0x6d, 0x23, 0x6e,
-	0x9d, 0x84, 0xdc, 0x07, 0xd4, 0x26, 0x47, 0xc4, 0x42, 0x81, 0xd4, 0x0b, 0x6b, 0xfd, 0x43, 0x0d,
-	0xd6, 0x99, 0x47, 0xb9, 0xa9, 0x42, 0xcd, 0x0b, 0x02, 0xd8, 0xac, 0x8b, 0x08, 0x36, 0xc3, 0x94,
-	0xc7, 0x72, 0xe3, 0xab, 0xe3, 0x1b, 0xe9, 0xcd, 0x2f, 0xf7, 0x9a, 0x4c, 0xcf, 0x24, 0x60, 0xe4,
-	0x59, 0xaf, 0x6e, 0xa6, 0xff, 0x52, 0x83, 0x0d, 0x1b, 0xfb, 0xe4, 0x0c, 0x05, 0xe8, 0x7d, 0xb4,
-	0x99, 0x10, 0xda, 0x7c, 0xb5, 0x97, 0x36, 0xbb, 0x11, 0x56, 0x77, 0x9d, 0x5e, 0xb3, 0xfb, 0x33,
-	0x31, 0xbd, 0x0e, 0xaf, 0xc6, 0x0d, 0x54, 0x43, 0x75, 0xd7, 0x3a, 0x89, 0x29, 0x33, 0x29, 0x94,
-	0x79, 0x33, 0x99, 0x69, 0xee, 0x8a, 0xd1, 0x91, 0x06, 0xaf, 0xb0, 0x2e, 0x3d, 0x4c, 0xff, 0x81,
-	0x06, 0x6b, 0x1e, 0xf6, 0x3d, 0xcc, 0xeb, 0xa8, 0xd6, 0x55, 0xf8, 0x54, 0xff, 0x75, 0x29, 0x87,
-	0x20, 0x1d, 0x35, 0xc8, 0x7b, 0xbd, 0xba, 0x99, 0xfe, 0x33, 0x0d, 0x6e, 0xe0, 0xc7, 0x1e, 0xf1,
-	0xcf, 0xcd, 0xa3, 0x3a, 0xaf, 0xfb, 0x98, 0x75, 0xd5, 0x65, 0x5a, 0xe8, 0xf2, 0x95, 0xde, 0x0e,
-	0x1f, 0x20, 0xed, 0x49, 0xa0, 0x8e, 0xfa, 0xac, 0xe3, 0x7e, 0x2c, 0x4c, 0xff, 0x85, 0x06, 0x37,
-	0xb9, 0x8f, 0x6c, 0xe2, 0x1e, 0x9b, 0x3e, 0x7e, 0x84, 0x7c, 0xdb, 0xb4, 0x90, 0xe3, 0x21, 0x72,
-	0xec, 0xb6, 0xfa, 0x8a, 0xc8, 0x4e, 0x7d, 0x5c, 0xe5, 0x50, 0x42, 0x19, 0x02, 0x69, 0x47, 0x01,
-	0xb5, 0xb8, 0xca, 0x75, 0xde, 0x9f, 0x49, 0xd8, 0xaa, 0x4a, 0x5c, 0xe4, 0x9f, 0x9b, 0x54, 0x44,
-	0x57, 0x77, 0x5b, 0xa5, 0xfa, 0xdb, 0x6a, 0x5b, 0x20, 0xdd, 0x97, 0x40, 0x9d, 0x6d, 0x55, 0xed,
-	0xc7, 0xc2, 0xf4, 0x9f, 0x6b, 0xf0, 0x7a, 0x8b, 0x4e, 0x5d, 0x82, 0x0a, 0x84, 0x4a, 0xdb, 0x03,
-	0xaa, 0xd4, 0x29, 0xae, 0xd6, 0x9a, 0xf4, 0xea, 0x18, 0x54, 0xdf, 0x87, 0xbc, 0x8d, 0x5d, 0xea,
-	0x98, 0x36, 0xb6, 0x88, 0x83, 0x6a, 0xac, 0x6d, 0xe1, 0xd2, 0x62, 0xe1, 0xde, 0xea, 0xa5, 0x8e,
-	0x04, 0xdd, 0x0d, 0x70, 0x76, 0x15, 0x4c, 0xa4, 0xc3, 0x55, 0x3b, 0x4e, 0x6e, 0x59, 0x28, 0x0b,
-	0x5e, 0x0e, 0x36, 0x62, 0x9b, 0x30, 0x8b, 0xd6, 0x5d, 0xde, 0x10, 0x9a, 0x11, 0x42, 0x8b, 0xbd,
-	0x84, 0xee, 0x61, 0xbc, 0xab, 0xc6, 0x45, 0xc2, 0x16, 0x8f, 0xda, 0x89, 0xfa, 0x8f, 0x34, 0x58,
-	0x57, 0xcb, 0x7f, 0x44, 0x7d, 0x0b, 0xdb, 0x26, 0xc3, 0x9c, 0xd7, 0xb0, 0x83, 0x63, 0x12, 0x59,
-	0x6e, 0x56, 0x98, 0xfd, 0x4e, 0xff, 0x9d, 0x6e, 0x4f, 0x80, 0x54, 0x22, 0x8c, 0x48, 0xfa, 0x8a,
-	0xd3, 0xb3, 0x3f, 0xf9, 0xa6, 0xf8, 0xc7, 0x09, 0xc8, 0x75, 0x4b, 0x55, 0x43, 0x6f, 0x30, 0x4b,
-	0x30, 0x15, 0xd4, 0x0a, 0xd8, 0x57, 0x25, 0x9c, 0x6a, 0xe9, 0xd7, 0x00, 0x82, 0xf2, 0xd8, 0x14,
-	0xeb, 0x24, 0x8b, 0x37, 0x23, 0x15, 0x50, 0xc4, 0x7a, 0xea, 0x2b, 0x90, 0x7e, 0x58, 0xa7, 0x3c,
-	0xec, 0x17, 0x65, 0x98, 0x01, 0x82, 0x24, 0x19, 0xba, 0xd4, 0x3b, 0x8d, 0x8a, 0x6a, 0x6c, 0x44,
-	0xf5, 0xce, 0xf4, 0x50, 0x12, 0x3a, 0xd6, 0x3b, 0xed, 0x45, 0xec, 0xcc, 0x48, 0x8a, 0xd8, 0xd4,
-	0xc5, 0x8b, 0xd8, 0xc4, 0x4e, 0xf4, 0xdb, 0x69, 0xb8, 0xd6, 0x73, 0xcb, 0xb9, 0x74, 0x4f, 0x6a,
-	0x71, 0x95, 0x89, 0x36, 0x57, 0x59, 0x81, 0xb4, 0x3c, 0xb2, 0x98, 0x81, 0x7f, 0x85, 0xbe, 0x24,
-	0x49, 0xdb, 0x88, 0x61, 0x7d, 0x0d, 0x32, 0x8a, 0x41, 0x8c, 0x92, 0x4e, 0x64, 0xa8, 0x41, 0xef,
-	0x04, 0x24, 0xbd, 0x00, 0x8b, 0x8a, 0x85, 0x59, 0xa8, 0x86, 0xcd, 0x23, 0x64, 0x71, 0xea, 0x0b,
-	0x67, 0x98, 0x35, 0x5e, 0x92, 0x5d, 0x95, 0xa0, 0x67, 0x4f, 0x74, 0xe8, 0xa5, 0x48, 0x66, 0x60,
-	0x50, 0xb1, 0xae, 0x73, 0x9b, 0xaf, 0xc5, 0xa2, 0x5c, 0x1d, 0xa2, 0x42, 0xf3, 0xdd, 0x17, 0x4d,
-	0x51, 0x08, 0x2a, 0xcd, 0x82, 0xff, 0xfa, 0x77, 0x21, 0x4b, 0x5c, 0xc2, 0x89, 0x2c, 0x01, 0x8e,
-	0x89, 0x1b, 0x2c, 0x28, 0xa1, 0xb1, 0x15, 0x1d, 0xc4, 0x09, 0x75, 0x85, 0x75, 0x20, 0xa0, 0x8c,
-	0x00, 0x49, 0x3f, 0x81, 0x9c, 0x83, 0x48, 0xb0, 0x76, 0xc8, 0xb5, 0x70, 0xb3, 0x14, 0x18, 0x4a,
-	0xca, 0x52, 0x0c, 0x2f, 0x2e, 0xa9, 0xdd, 0xdb, 0xd3, 0x43, 0xe1, 0xf7, 0xf3, 0xf6, 0xcc, 0x70,
-	0xa8, 0x4d, 0x47, 0xb6, 0x2e, 0xd9, 0x65, 0x76, 0xe4, 0xd9, 0x65, 0xee, 0xd2, 0xb2, 0x4b, 0xe2,
-	0x88, 0xfd, 0xf7, 0x14, 0xac, 0xf5, 0x2d, 0x36, 0x2e, 0x3d, 0x6a, 0xaf, 0xc3, 0x6c, 0x18, 0x50,
-	0xe7, 0x4e, 0x95, 0xd6, 0x54, 0xdc, 0xaa, 0x40, 0xac, 0x08, 0x9a, 0x7e, 0x13, 0xe6, 0x15, 0x93,
-	0xe7, 0xd3, 0x33, 0x62, 0x63, 0x5f, 0x45, 0xef, 0x9c, 0x24, 0x97, 0x15, 0xb5, 0x35, 0xdc, 0xa6,
-	0x86, 0x0c, 0xb7, 0x41, 0xa3, 0xfc, 0x36, 0x64, 0x45, 0xbd, 0x2a, 0xce, 0x62, 0x26, 0x27, 0x0e,
-	0x66, 0x1c, 0x39, 0x9e, 0x08, 0xf7, 0x71, 0x63, 0xb1, 0xd1, 0x77, 0x18, 0x76, 0x05, 0x43, 0x62,
-	0x75, 0x40, 0x63, 0x48, 0x4a, 0x0e, 0x69, 0xf4, 0x35, 0x86, 0x64, 0x61, 0x12, 0xd9, 0x0e, 0x71,
-	0x65, 0x3c, 0x1a, 0xb2, 0xd1, 0x9a, 0xf6, 0xd2, 0x6d, 0x69, 0xaf, 0x3d, 0xde, 0x32, 0x23, 0x89,
-	0xb7, 0xd9, 0xd1, 0xc5, 0xdb, 0xdc, 0xc8, 0xe3, 0x6d, 0xfe, 0xb3, 0x8f, 0xb7, 0x8f, 0xa6, 0x61,
-	0xad, 0xef, 0x41, 0xe8, 0xc5, 0x2e, 0x39, 0x40, 0xd8, 0x2e, 0xc1, 0x94, 0x3c, 0x36, 0xaa, 0x28,
-	0x52, 0xad, 0xae, 0xbb, 0x27, 0x7c, 0x26, 0xbb, 0x67, 0x7a, 0xc4, 0xbb, 0xe7, 0x8b, 0x68, 0xfe,
-	0x7f, 0x88, 0xe6, 0x5f, 0xa5, 0xe0, 0x7a, 0x82, 0xcb, 0xa6, 0xd1, 0xdc, 0x82, 0x77, 0x73, 0xf0,
-	0xe1, 0xee, 0xc2, 0x07, 0x75, 0xf0, 0xe1, 0xee, 0xc6, 0x93, 0x3b, 0xf8, 0xd4, 0x48, 0x0e, 0x43,
-	0xd3, 0x23, 0xbd, 0xd1, 0x9f, 0x19, 0xf9, 0x8d, 0x7e, 0x6a, 0xe4, 0x37, 0xfa, 0x70, 0x79, 0x37,
-	0xfa, 0xdf, 0x01, 0xfd, 0x6d, 0x5a, 0xf7, 0x6b, 0xe7, 0xfb, 0x2e, 0xc7, 0x3e, 0x66, 0xdc, 0x68,
-	0xae, 0xfb, 0x07, 0x72, 0xcf, 0x76, 0x24, 0xbd, 0x0a, 0x59, 0x49, 0xdd, 0xab, 0xbb, 0xe2, 0x7e,
-	0x0e, 0x71, 0xbc, 0x83, 0xbc, 0x58, 0x6e, 0x1c, 0x44, 0x42, 0x47, 0xac, 0xd8, 0xab, 0xc4, 0xec,
-	0x70, 0xaf, 0x12, 0xfa, 0x41, 0x54, 0xeb, 0x8a, 0xbb, 0x37, 0x26, 0x32, 0x61, 0xba, 0x37, 0x90,
-	0xdc, 0xea, 0x44, 0x26, 0x61, 0x61, 0x55, 0x2c, 0x5b, 0x89, 0x53, 0xd3, 0x7f, 0x35, 0xc8, 0xf7,
-	0xbe, 0x3b, 0x1a, 0x4d, 0x56, 0xfa, 0x16, 0x2c, 0x34, 0x5d, 0x75, 0x11, 0x6b, 0xd8, 0xd7, 0xb9,
-	0x79, 0x16, 0x53, 0x99, 0x58, 0xc9, 0xb3, 0xf2, 0x5f, 0x35, 0xb8, 0xda, 0xe3, 0x7a, 0x70, 0xe8,
-	0x79, 0x97, 0x61, 0xae, 0xf9, 0xde, 0x52, 0xbd, 0x8c, 0xbc, 0xd1, 0xfb, 0x2d, 0x22, 0xa6, 0x82,
-	0x31, 0xdb, 0x74, 0x33, 0x99, 0x78, 0x46, 0xff, 0x9a, 0x86, 0x1b, 0xc9, 0xee, 0x5f, 0x5f, 0x3c,
-	0xb8, 0xbe, 0x78, 0x70, 0x4d, 0x98, 0x9e, 0xbb, 0x9d, 0x5f, 0x53, 0x83, 0x9f, 0x5f, 0xa1, 0xfb,
-	0xf9, 0xb5, 0x53, 0x3e, 0x48, 0x5f, 0x4a, 0x3e, 0x68, 0x1c, 0x8d, 0x33, 0xf1, 0xa3, 0xf1, 0xc5,
-	0x33, 0xf6, 0x83, 0xce, 0x19, 0xfb, 0x0b, 0x3d, 0x1f, 0xda, 0xd4, 0x65, 0xc4, 0x25, 0x64, 0xee,
-	0x3f, 0x68, 0x90, 0xed, 0x04, 0x17, 0x9c, 0x74, 0xd4, 0x75, 0x89, 0x8c, 0x6d, 0xd5, 0xd2, 0x97,
-	0x61, 0x26, 0xba, 0x21, 0x91, 0x91, 0x1d, 0xb5, 0xbb, 0x1d, 0xca, 0xc6, 0x13, 0x1e, 0xca, 0x26,
-	0x86, 0x3b, 0x94, 0xad, 0xff, 0x59, 0x83, 0x4c, 0x93, 0xee, 0x2d, 0x07, 0x4c, 0xad, 0xef, 0x01,
-	0xf3, 0x4a, 0xe2, 0x03, 0xe6, 0xa8, 0xe7, 0xf2, 0xa7, 0x2b, 0x70, 0xbd, 0xe3, 0x33, 0xe1, 0x25,
-	0x1d, 0xda, 0xdf, 0x83, 0xd9, 0xe8, 0x05, 0x93, 0xb8, 0x47, 0x54, 0x4c, 0x28, 0xbd, 0xf9, 0xa5,
-	0x81, 0x9f, 0x2d, 0xf7, 0xdd, 0x23, 0x6a, 0x64, 0xac, 0x58, 0x4b, 0xaf, 0xc2, 0xcb, 0x11, 0xb6,
-	0x7a, 0x2d, 0xf5, 0x28, 0x8d, 0x5e, 0xd1, 0x0b, 0xbd, 0x64, 0x84, 0xb0, 0x52, 0x48, 0x99, 0xd2,
-	0x9a, 0xb1, 0x68, 0xb5, 0xd1, 0x92, 0xfb, 0xf5, 0x47, 0xe3, 0x5d, 0xec, 0x78, 0x49, 0x3b, 0xd8,
-	0x28, 0xed, 0x58, 0x87, 0x95, 0x8e, 0x76, 0x34, 0x91, 0x6d, 0x13, 0xb1, 0x23, 0x0f, 0x69, 0xd1,
-	0x57, 0x3b, 0x58, 0x74, 0x2b, 0xc4, 0xd4, 0x1f, 0xc2, 0xb5, 0xce, 0x62, 0xe5, 0x83, 0x69, 0xf8,
-	0xfd, 0xc1, 0xa0, 0x42, 0x97, 0x3b, 0x08, 0x95, 0x8b, 0x90, 0x7c, 0x35, 0x7f, 0xa2, 0xc1, 0x4b,
-	0xe1, 0x70, 0xe2, 0x72, 0x39, 0x5c, 0xbf, 0x09, 0xf3, 0xc8, 0x92, 0xef, 0xaa, 0xc8, 0xb6, 0x7d,
-	0xcc, 0x98, 0x5a, 0xc5, 0x39, 0x45, 0xde, 0x92, 0x54, 0xfd, 0x00, 0xc0, 0xc5, 0x8f, 0x4c, 0x2f,
-	0x18, 0xcb, 0x86, 0xbc, 0xcd, 0x48, 0xb9, 0xf8, 0x91, 0x10, 0xce, 0xd6, 0x7f, 0x7d, 0x05, 0x36,
-	0x9a, 0xd6, 0xb2, 0x8c, 0x45, 0x19, 0x2f, 0xbb, 0x2f, 0xc9, 0xc1, 0xde, 0x84, 0x25, 0x4f, 0xc2,
-	0x8a, 0x55, 0x88, 0xed, 0x7f, 0xe3, 0x62, 0xff, 0xcb, 0x7a, 0xa1, 0x50, 0x5a, 0x6b, 0x6c, 0x80,
-	0x26, 0x64, 0xa3, 0xa5, 0x23, 0x2e, 0x8f, 0x96, 0x4e, 0xfa, 0xcb, 0xad, 0x5e, 0x4b, 0xd7, 0x66,
-	0x5f, 0x43, 0xf7, 0x5b, 0x49, 0x03, 0xbc, 0xf0, 0x6a, 0xb0, 0xd8, 0xe1, 0x01, 0x7b, 0x68, 0x73,
-	0x7c, 0x03, 0x66, 0x98, 0x75, 0x82, 0xed, 0x7a, 0x0d, 0xab, 0x50, 0x4b, 0xfa, 0x76, 0x5e, 0x51,
-	0xc3, 0x8c, 0x08, 0x20, 0xf1, 0x24, 0x3e, 0xd1, 0x60, 0x45, 0x7c, 0x10, 0xb5, 0x43, 0x1d, 0xa7,
-	0xee, 0x12, 0x7e, 0x1e, 0x58, 0xbb, 0x12, 0x58, 0xfe, 0xc2, 0x13, 0x7a, 0x00, 0xa9, 0xd6, 0x8f,
-	0x9e, 0xde, 0x52, 0x5f, 0x6b, 0x16, 0x9a, 0x3e, 0xcc, 0x6c, 0x28, 0xd5, 0x4d, 0x07, 0xa3, 0x81,
-	0x94, 0x78, 0x6a, 0xff, 0xd1, 0xa0, 0xb0, 0xc5, 0xa9, 0x43, 0x2c, 0x59, 0x95, 0xdc, 0xf7, 0x6d,
-	0x51, 0x75, 0x1e, 0xd4, 0x6b, 0x9c, 0x78, 0x35, 0x82, 0xfd, 0xd0, 0x6e, 0x17, 0x9e, 0x29, 0x86,
-	0xa5, 0xf0, 0xeb, 0x04, 0x8c, 0x4d, 0x27, 0x12, 0x10, 0x4e, 0xbb, 0x98, 0xe0, 0x8b, 0x84, 0xb8,
-	0x62, 0x46, 0xd6, 0x69, 0x27, 0x26, 0x9e, 0xf9, 0xe7, 0x1f, 0x43, 0x26, 0xfe, 0x35, 0x9c, 0xbe,
-	0x09, 0xd9, 0xd2, 0x37, 0x77, 0xde, 0xde, 0xba, 0xf7, 0xf5, 0x92, 0xf9, 0xe0, 0x5e, 0xa5, 0x5c,
-	0xda, 0xd9, 0xdf, 0xdb, 0x2f, 0xed, 0x2e, 0x8c, 0x2d, 0xe7, 0x9e, 0x3c, 0x5d, 0xed, 0xd8, 0xa7,
-	0xeb, 0x30, 0x51, 0x29, 0xdf, 0x3f, 0x5c, 0xd0, 0x96, 0x67, 0x9e, 0x3c, 0x5d, 0x15, 0xff, 0x03,
-	0x43, 0xec, 0x96, 0x8c, 0xfd, 0x77, 0xb7, 0x0e, 0xf7, 0xdf, 0x2d, 0x55, 0x16, 0xae, 0x2c, 0xcf,
-	0x3f, 0x79, 0xba, 0x1a, 0x27, 0x6d, 0x9f, 0x7c, 0xf8, 0x2c, 0xaf, 0x7d, 0xfc, 0x2c, 0xaf, 0xfd,
-	0xfd, 0x59, 0x5e, 0xfb, 0xe9, 0xf3, 0xfc, 0xd8, 0xc7, 0xcf, 0xf3, 0x63, 0x9f, 0x3c, 0xcf, 0x8f,
-	0xbd, 0x77, 0x2f, 0x96, 0x84, 0xf6, 0x43, 0x63, 0xdc, 0x45, 0x55, 0x56, 0x8c, 0x4c, 0x73, 0xcb,
-	0xa2, 0x3e, 0x8e, 0x37, 0x4f, 0x10, 0x71, 0x8b, 0x0e, 0x0d, 0x96, 0x88, 0x35, 0x3e, 0xb1, 0x15,
-	0x09, 0xab, 0x3a, 0x25, 0xbe, 0x98, 0xfd, 0xe2, 0xff, 0x02, 0x00, 0x00, 0xff, 0xff, 0xa1, 0x8e,
-	0xe4, 0xae, 0x66, 0x2c, 0x00, 0x00,
+	// 2444 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x5b, 0xcb, 0x8f, 0x1b, 0x49,
+	0xfd, 0x9f, 0x9e, 0x99, 0x4c, 0xec, 0xb2, 0xe7, 0xd5, 0xe3, 0x9d, 0x9f, 0x77, 0x92, 0x78, 0x66,
+	0x3a, 0xaf, 0xd9, 0xfc, 0x36, 0x36, 0x09, 0x8b, 0x22, 0x2c, 0x21, 0x98, 0xe7, 0xee, 0x88, 0x64,
+	0xe2, 0xb4, 0x67, 0x76, 0x57, 0x11, 0xa8, 0x55, 0xee, 0xae, 0x99, 0x29, 0xe2, 0x7e, 0xa4, 0xab,
+	0x3c, 0xc9, 0xac, 0x38, 0x70, 0x60, 0x05, 0xca, 0x09, 0x10, 0x0f, 0x71, 0x88, 0xb4, 0x27, 0xce,
+	0x48, 0xf0, 0x0f, 0xc0, 0x01, 0x2d, 0x2b, 0x0e, 0x2b, 0x71, 0x00, 0x71, 0x58, 0xa1, 0x44, 0x08,
+	0xfe, 0x02, 0xc4, 0x81, 0x03, 0xea, 0xaa, 0xea, 0x76, 0xdb, 0x6e, 0xb7, 0xdb, 0x1e, 0x9b, 0x3d,
+	0x90, 0x4b, 0xe2, 0xfe, 0xd6, 0xb7, 0x3e, 0xf5, 0xad, 0xef, 0xab, 0xbe, 0xf5, 0x18, 0xf0, 0x06,
+	0xb6, 0xbe, 0x85, 0x74, 0x8a, 0x4f, 0x50, 0x09, 0x3d, 0xd5, 0x8f, 0xa1, 0x75, 0x84, 0x4a, 0x27,
+	0xb7, 0x6a, 0x88, 0xc2, 0x5b, 0x25, 0xc7, 0xb5, 0x1d, 0x9b, 0xc0, 0x7a, 0xd1, 0x71, 0x6d, 0x6a,
+	0xcb, 0x4b, 0x01, 0x6b, 0xd1, 0x67, 0x2d, 0x0a, 0xd6, 0xa5, 0x82, 0x6e, 0x13, 0xd3, 0x26, 0xa5,
+	0x1a, 0x24, 0xcd, 0xfe, 0xba, 0x8d, 0x2d, 0xde, 0x77, 0xa9, 0x28, 0xda, 0x0d, 0x4c, 0xa8, 0x8b,
+	0x6b, 0x0d, 0x8a, 0x6d, 0x2b, 0xe0, 0x0b, 0x13, 0x05, 0xff, 0xff, 0x09, 0x7e, 0x93, 0x1c, 0x95,
+	0x4e, 0x6e, 0x79, 0xff, 0x89, 0x86, 0xd7, 0x79, 0x83, 0xc6, 0xbe, 0x4a, 0xfc, 0x43, 0x34, 0xe5,
+	0x8e, 0xec, 0x23, 0x9b, 0xd3, 0xbd, 0x5f, 0x82, 0x1a, 0x37, 0xc1, 0x60, 0x1a, 0x9c, 0xf5, 0x6a,
+	0x93, 0xd5, 0x76, 0xa1, 0x5e, 0x6f, 0x32, 0xf2, 0x4f, 0xc1, 0x36, 0x0f, 0x4d, 0x6c, 0xd9, 0x25,
+	0xf6, 0x2f, 0x27, 0x29, 0x7f, 0x9c, 0x02, 0x97, 0xaa, 0x8e, 0x4d, 0xef, 0x41, 0xf7, 0x11, 0xa2,
+	0x15, 0xe8, 0x42, 0xf3, 0xc0, 0x31, 0x20, 0x45, 0x15, 0xa1, 0x42, 0x39, 0x07, 0xce, 0x51, 0x4c,
+	0xeb, 0x28, 0x2f, 0xad, 0x48, 0x6b, 0x69, 0x95, 0x7f, 0xc8, 0x2b, 0x20, 0x63, 0x20, 0xa2, 0xbb,
+	0xd8, 0xf1, 0xe6, 0x9e, 0x1f, 0x67, 0x6d, 0x61, 0x92, 0x7c, 0x01, 0xa4, 0x4d, 0x06, 0xaa, 0x61,
+	0x23, 0x3f, 0xc1, 0xda, 0x53, 0x9c, 0xb0, 0x6b, 0xc8, 0xbb, 0x60, 0xc6, 0x84, 0x8f, 0x90, 0xab,
+	0x1d, 0x22, 0xa4, 0xb9, 0x90, 0xa2, 0xfc, 0xa4, 0xc7, 0xb1, 0x71, 0xf9, 0xe3, 0xcf, 0x96, 0xa5,
+	0xbf, 0x7c, 0xb6, 0x7c, 0x81, 0xeb, 0x87, 0x18, 0x8f, 0x8a, 0xd8, 0x2e, 0x99, 0x90, 0x1e, 0x17,
+	0xef, 0xa2, 0x23, 0xa8, 0x9f, 0x6e, 0x21, 0x5d, 0xcd, 0xb2, 0xae, 0x3b, 0x08, 0xa9, 0x90, 0x22,
+	0x0f, 0x8a, 0xb6, 0x42, 0x9d, 0xeb, 0x03, 0x8a, 0x86, 0xa1, 0xde, 0x07, 0x8b, 0x2e, 0xaa, 0xc3,
+	0x53, 0x01, 0x46, 0x8e, 0xa1, 0x2b, 0x20, 0xa7, 0x92, 0x43, 0x2e, 0x08, 0x88, 0x1d, 0x84, 0xaa,
+	0x1e, 0x00, 0x43, 0x56, 0xc1, 0x82, 0x89, 0x2d, 0xcd, 0x71, 0xb1, 0x8e, 0x34, 0x8a, 0xf5, 0x47,
+	0x1a, 0xc1, 0x1f, 0xa0, 0xfc, 0xf9, 0xe4, 0xb0, 0x73, 0x26, 0xb6, 0x2a, 0x5e, 0xf7, 0x7d, 0xac,
+	0x3f, 0xaa, 0xe2, 0x0f, 0x98, 0xb4, 0x1e, 0xe6, 0xe3, 0x06, 0xb4, 0x28, 0xa6, 0xa7, 0x21, 0xd8,
+	0x54, 0x1f, 0xd2, 0x9a, 0xd8, 0x7a, 0x20, 0x10, 0x02, 0xe4, 0xaf, 0x81, 0x29, 0x42, 0x21, 0x6d,
+	0x90, 0x7c, 0x7a, 0x45, 0x5a, 0x9b, 0xb9, 0xbd, 0x56, 0xec, 0x1e, 0x40, 0x45, 0xee, 0x39, 0x55,
+	0xc6, 0xaf, 0x8a, 0x7e, 0xf2, 0x45, 0x30, 0xe5, 0x89, 0x83, 0xdc, 0x3c, 0x60, 0xb2, 0x4c, 0x7a,
+	0xb2, 0xa8, 0x82, 0x26, 0xef, 0x80, 0xac, 0x27, 0xb9, 0x65, 0x7b, 0x8e, 0x02, 0xeb, 0xf9, 0x4c,
+	0x72, 0x79, 0x33, 0x26, 0xb6, 0xf6, 0x44, 0x3f, 0x79, 0x0b, 0x00, 0x68, 0x78, 0x48, 0xd8, 0x3a,
+	0xb4, 0xf3, 0xd9, 0x15, 0x69, 0x2d, 0x73, 0xfb, 0x6a, 0x9c, 0xac, 0xeb, 0x1e, 0xf7, 0xae, 0x75,
+	0x68, 0xab, 0x69, 0xe8, 0xff, 0x2c, 0x3f, 0xf8, 0xfe, 0x47, 0xcb, 0x63, 0xff, 0xf8, 0x68, 0x79,
+	0xec, 0x93, 0x5f, 0xdf, 0x5c, 0x12, 0x71, 0x79, 0x64, 0x9f, 0x04, 0x9d, 0x36, 0x6d, 0x8b, 0x22,
+	0x8b, 0x3e, 0xfb, 0xfb, 0x2f, 0x6f, 0x5c, 0x0b, 0x02, 0x31, 0x36, 0x66, 0x94, 0x3f, 0x48, 0x60,
+	0x71, 0x5b, 0xb0, 0x6e, 0x5b, 0xb0, 0x56, 0x3f, 0x7b, 0x38, 0xdd, 0x05, 0x59, 0x7f, 0xf0, 0xfd,
+	0x53, 0x07, 0xb1, 0x88, 0xea, 0x61, 0x99, 0xed, 0x10, 0xbf, 0xda, 0xd2, 0xbb, 0xfc, 0xa6, 0x3f,
+	0x67, 0x6f, 0x56, 0xcb, 0xc1, 0xac, 0xa2, 0x65, 0x56, 0x7e, 0x3a, 0x0d, 0x56, 0x37, 0x20, 0xd5,
+	0x8f, 0xfd, 0xf6, 0x7b, 0xb6, 0x81, 0x0f, 0xb1, 0x0e, 0x3d, 0xc9, 0xce, 0x3c, 0xb3, 0x0f, 0x25,
+	0xa0, 0x10, 0xc7, 0xa6, 0x9a, 0x48, 0x17, 0x8e, 0xa7, 0x50, 0xad, 0xc1, 0x34, 0xaa, 0xf9, 0x99,
+	0x9c, 0xe4, 0x27, 0x56, 0x26, 0xd6, 0x32, 0xb7, 0xbf, 0x1c, 0x37, 0xe1, 0x58, 0xa3, 0xa8, 0x05,
+	0x12, 0xd7, 0x4c, 0xe4, 0x9f, 0x49, 0x60, 0xcd, 0x40, 0x2e, 0x3e, 0x81, 0x1e, 0x7a, 0x0f, 0x69,
+	0x26, 0x99, 0x34, 0x5f, 0x8d, 0x93, 0x66, 0x2b, 0xc0, 0xea, 0x2e, 0xd3, 0x15, 0xa3, 0x37, 0x13,
+	0x91, 0x1b, 0xe0, 0x62, 0x58, 0x41, 0x75, 0xd8, 0xb0, 0xf4, 0xe3, 0x90, 0x30, 0xe7, 0x98, 0x30,
+	0x6f, 0x25, 0x53, 0xcd, 0x5d, 0xd6, 0x3b, 0x90, 0xe0, 0x75, 0xd2, 0xa5, 0x85, 0xc8, 0xdf, 0x95,
+	0xc0, 0xaa, 0x83, 0x5c, 0x07, 0xd1, 0x06, 0xac, 0x77, 0x1d, 0x7c, 0xaa, 0xb7, 0x5d, 0x2a, 0x3e,
+	0x48, 0xa4, 0x04, 0x05, 0x27, 0xae, 0x99, 0xc8, 0x3f, 0x94, 0xc0, 0x35, 0xf4, 0xd4, 0xc1, 0xee,
+	0xa9, 0x76, 0xd8, 0xa0, 0x0d, 0x17, 0x91, 0xae, 0xb2, 0x9c, 0x67, 0xb2, 0x7c, 0x25, 0x3e, 0x28,
+	0x3c, 0xa4, 0x1d, 0x0e, 0x14, 0x29, 0x8f, 0x82, 0x7a, 0xb1, 0x10, 0xf9, 0x27, 0x12, 0xb8, 0x4e,
+	0x5d, 0x68, 0x60, 0xeb, 0x48, 0x73, 0xd1, 0x13, 0xe8, 0x1a, 0x9a, 0x0e, 0x4d, 0x07, 0xe2, 0x23,
+	0xab, 0xdd, 0x57, 0x58, 0x36, 0xee, 0xe1, 0x2a, 0xfb, 0x1c, 0x4a, 0x65, 0x48, 0x9b, 0x02, 0xa8,
+	0xcd, 0x55, 0x2e, 0xd3, 0xde, 0x4c, 0x4c, 0x57, 0x35, 0x6c, 0x41, 0xf7, 0x54, 0xb3, 0x59, 0x74,
+	0x75, 0xd7, 0x55, 0xba, 0xb7, 0xae, 0x36, 0x18, 0xd2, 0x7d, 0x0e, 0x14, 0xad, 0xab, 0x5a, 0x2f,
+	0x16, 0x22, 0xff, 0x58, 0x02, 0x57, 0xdb, 0x64, 0xea, 0x12, 0x54, 0x80, 0x89, 0xb4, 0xd1, 0xa7,
+	0x48, 0x51, 0x71, 0xb5, 0xda, 0x22, 0x57, 0x64, 0x50, 0x7d, 0x1b, 0x14, 0x0c, 0x64, 0xd9, 0xa6,
+	0x66, 0x20, 0x1d, 0x9b, 0xb0, 0x4e, 0x3a, 0x0c, 0x97, 0x61, 0x86, 0xbb, 0x13, 0x27, 0x0e, 0x07,
+	0xdd, 0xf2, 0x70, 0xb6, 0x04, 0x4c, 0x20, 0xc3, 0x05, 0x23, 0x4c, 0x6e, 0x33, 0x94, 0x0e, 0x5e,
+	0xf3, 0x4a, 0x0c, 0x03, 0x13, 0xdd, 0x6e, 0x58, 0xb4, 0x39, 0x28, 0x5f, 0xc5, 0x4a, 0x71, 0x83,
+	0xee, 0x20, 0xb4, 0x25, 0xfa, 0x05, 0x83, 0x2d, 0x1c, 0x76, 0x12, 0xe5, 0xef, 0x49, 0x40, 0x11,
+	0xe6, 0x3f, 0xb4, 0x5d, 0x1d, 0x19, 0x1a, 0x41, 0x94, 0xd6, 0x91, 0x89, 0x42, 0x23, 0x92, 0xfc,
+	0x34, 0x53, 0x7b, 0xb9, 0xf7, 0x22, 0xbf, 0xc3, 0x40, 0xaa, 0x01, 0x46, 0x30, 0xfa, 0xb2, 0x19,
+	0xdb, 0x4e, 0xca, 0x07, 0xc9, 0xd7, 0xd8, 0x1b, 0xc1, 0x6a, 0xd4, 0x73, 0xc9, 0x51, 0x3e, 0x39,
+	0x07, 0xf2, 0xdd, 0x32, 0xdb, 0xc0, 0xeb, 0xd1, 0x62, 0x50, 0xbb, 0xf0, 0xaa, 0xd5, 0xaf, 0x5a,
+	0x2e, 0x01, 0xe0, 0x6d, 0x12, 0x34, 0x66, 0x56, 0x5e, 0xaf, 0xaa, 0x69, 0x8f, 0xc2, 0xcc, 0x2f,
+	0x2f, 0x83, 0xcc, 0xe3, 0x86, 0x4d, 0xfd, 0x76, 0x56, 0x84, 0xaa, 0x80, 0x91, 0x38, 0x43, 0x97,
+	0x1a, 0xb0, 0x59, 0x5a, 0x8e, 0x0d, 0xb3, 0x06, 0x3c, 0x9f, 0x1c, 0x36, 0xb2, 0x06, 0xec, 0xac,
+	0xd0, 0x53, 0xc3, 0xab, 0xd0, 0xd3, 0x83, 0x56, 0xe8, 0xed, 0x95, 0x23, 0x48, 0x3e, 0xcb, 0x98,
+	0xca, 0x31, 0x33, 0x60, 0xe5, 0x78, 0x37, 0xb9, 0x57, 0xaf, 0x46, 0x54, 0x8e, 0xad, 0xfe, 0xaa,
+	0xfc, 0x22, 0x05, 0x2e, 0xc5, 0xae, 0x94, 0x43, 0xf7, 0xe8, 0x36, 0x97, 0x9d, 0xec, 0x70, 0xd9,
+	0x65, 0x90, 0xe1, 0x1b, 0x48, 0xcd, 0xf3, 0x73, 0xdf, 0xa7, 0x39, 0x69, 0x03, 0x12, 0x24, 0xaf,
+	0x82, 0xac, 0x60, 0x60, 0xbd, 0xb8, 0x33, 0xab, 0xa2, 0xd3, 0x03, 0x8f, 0x24, 0x17, 0xc1, 0x82,
+	0x60, 0x21, 0x3a, 0xac, 0x23, 0xed, 0x10, 0xea, 0xd4, 0x76, 0x99, 0x7f, 0x4e, 0xab, 0xf3, 0xbc,
+	0xa9, 0xea, 0xb5, 0xec, 0xb0, 0x06, 0x79, 0x3b, 0x18, 0x93, 0x7a, 0x75, 0x6e, 0x8a, 0xd5, 0xb9,
+	0x57, 0x42, 0xb6, 0x11, 0x5b, 0x5a, 0x5f, 0xc9, 0xf7, 0xd9, 0x27, 0xab, 0x71, 0x85, 0x64, 0xde,
+	0x6f, 0xf9, 0x00, 0xe4, 0xb0, 0x85, 0x29, 0xe6, 0x95, 0xcb, 0x11, 0xb6, 0x3c, 0xcf, 0xc3, 0x76,
+	0xc8, 0xf5, 0x7a, 0x7a, 0x8c, 0x2c, 0x00, 0xee, 0xb1, 0xfe, 0xaa, 0xd7, 0x5d, 0xfe, 0x26, 0xc8,
+	0x9b, 0x10, 0x7b, 0x66, 0x85, 0x96, 0x8e, 0x5a, 0xa1, 0xfb, 0x70, 0xc6, 0xc5, 0x10, 0x48, 0x18,
+	0xbe, 0x33, 0xea, 0x32, 0xc9, 0x41, 0x7b, 0x45, 0x5d, 0xb6, 0x0f, 0xa8, 0x96, 0xa8, 0xeb, 0x92,
+	0xb9, 0xa6, 0x47, 0x93, 0xb9, 0x66, 0xce, 0x98, 0xb9, 0xda, 0x73, 0xc4, 0xec, 0x50, 0x72, 0xc4,
+	0xdc, 0x7f, 0x73, 0x77, 0x19, 0x9b, 0x06, 0x94, 0xbf, 0x9d, 0x07, 0xab, 0x3d, 0x4b, 0xb3, 0xa1,
+	0x27, 0x8b, 0xcb, 0x60, 0xda, 0x8f, 0xe3, 0x53, 0xb3, 0x66, 0xd7, 0x45, 0xba, 0x10, 0xf1, 0x5f,
+	0x65, 0x34, 0xf9, 0x3a, 0x98, 0x15, 0x4c, 0x8e, 0x6b, 0x9f, 0x60, 0x03, 0xb9, 0x22, 0x69, 0xcc,
+	0x70, 0x72, 0x45, 0x50, 0xdb, 0xa3, 0x7c, 0x6a, 0xc0, 0x28, 0xef, 0x37, 0xb9, 0xdc, 0x02, 0x39,
+	0x56, 0xdd, 0xb3, 0x32, 0x42, 0xa3, 0xd8, 0x44, 0x84, 0x42, 0xd3, 0x61, 0x59, 0x66, 0x42, 0x5d,
+	0x68, 0xb6, 0xed, 0xfb, 0x4d, 0x5e, 0x97, 0x50, 0xd5, 0xd4, 0xec, 0x92, 0xe6, 0x5d, 0x9a, 0x6d,
+	0xcd, 0x2e, 0x39, 0x70, 0x8e, 0x39, 0x00, 0xcf, 0x08, 0x2a, 0xff, 0x68, 0xcf, 0xb6, 0x99, 0x8e,
+	0x6c, 0xdb, 0x19, 0xfc, 0xd9, 0xe1, 0x05, 0xff, 0xf4, 0x90, 0x83, 0x7f, 0x66, 0x34, 0xc1, 0x3f,
+	0x3b, 0xe4, 0xe0, 0x9f, 0x1b, 0x30, 0xf8, 0xff, 0x1f, 0xcc, 0xf3, 0xe0, 0x77, 0x90, 0x6b, 0x62,
+	0x42, 0xbc, 0x30, 0xcb, 0xcf, 0x33, 0xb7, 0x9a, 0x63, 0x0d, 0x95, 0x26, 0x7d, 0xc0, 0xea, 0xb6,
+	0x57, 0x04, 0x2b, 0xbf, 0x4b, 0x81, 0xd5, 0x9e, 0xdb, 0xd5, 0x57, 0x45, 0x41, 0x1f, 0xe9, 0x62,
+	0x11, 0x4c, 0xf1, 0xcd, 0xbd, 0x88, 0x5e, 0xf1, 0xd5, 0xb5, 0x58, 0x00, 0xa3, 0x2b, 0x16, 0x32,
+	0xa3, 0x28, 0x16, 0x5e, 0xe5, 0x8b, 0xcf, 0x2b, 0x5f, 0xb4, 0x16, 0x0b, 0xf3, 0x03, 0x16, 0x0b,
+	0x03, 0x25, 0x92, 0x9e, 0x29, 0x42, 0xf9, 0x11, 0x00, 0x97, 0x13, 0x9c, 0x46, 0x8e, 0xe6, 0xaa,
+	0xa7, 0x5b, 0x6c, 0xf5, 0x71, 0xe1, 0xd3, 0x6f, 0x6c, 0xf5, 0x71, 0x01, 0x94, 0x3c, 0xb6, 0xa6,
+	0x86, 0xb7, 0xfd, 0x3d, 0x3f, 0xfc, 0x0b, 0xaa, 0xd4, 0x68, 0x2e, 0xa8, 0xd2, 0xa3, 0xb9, 0xa0,
+	0x02, 0x67, 0xbc, 0xa0, 0xaa, 0x02, 0xf9, 0x1d, 0xbb, 0xe1, 0xd6, 0x4f, 0x77, 0x2d, 0x8a, 0x5c,
+	0x44, 0xa8, 0xda, 0xba, 0x55, 0xea, 0xed, 0x51, 0x9d, 0xdd, 0xe5, 0xf7, 0x40, 0x8e, 0x53, 0x77,
+	0x1a, 0x16, 0x3b, 0x68, 0x85, 0x14, 0x6d, 0x42, 0x27, 0x94, 0x54, 0x7b, 0xc2, 0x46, 0x02, 0x84,
+	0xae, 0xd3, 0xa6, 0x07, 0xbc, 0x4e, 0xbb, 0x17, 0xd4, 0xde, 0xec, 0xe4, 0x94, 0xb0, 0x6c, 0x9a,
+	0x89, 0x07, 0xe2, 0x4b, 0x20, 0x0b, 0x73, 0xe2, 0x57, 0xe9, 0xfc, 0x2b, 0x74, 0x3b, 0x37, 0x9b,
+	0xe0, 0x76, 0x6e, 0x6e, 0x28, 0xb7, 0x73, 0x83, 0xa6, 0xc4, 0xf7, 0x92, 0xa7, 0xc4, 0x37, 0x83,
+	0x94, 0x98, 0x20, 0xd9, 0x29, 0x7b, 0x20, 0x1d, 0x0c, 0xd8, 0xac, 0xd8, 0xa5, 0x70, 0xc5, 0x1e,
+	0x59, 0x04, 0x8e, 0x47, 0x17, 0x81, 0xca, 0xcf, 0xc7, 0x41, 0x21, 0xfe, 0x98, 0x74, 0x34, 0xf9,
+	0x75, 0x0f, 0xcc, 0xb5, 0x9c, 0xea, 0x62, 0xbd, 0xaf, 0xcb, 0xf4, 0x59, 0x12, 0x92, 0x13, 0xeb,
+	0xa8, 0xac, 0x26, 0x57, 0xf8, 0xf5, 0x40, 0xe1, 0xf1, 0x13, 0x57, 0xfe, 0x25, 0x81, 0x0b, 0x31,
+	0x47, 0xe5, 0x03, 0x2b, 0xa6, 0x02, 0x66, 0x5a, 0xcf, 0xf0, 0xc5, 0x2d, 0xe1, 0x1b, 0xf1, 0xf7,
+	0x72, 0x21, 0x11, 0xd4, 0xe9, 0x96, 0x53, 0xfa, 0xf2, 0xfd, 0xe4, 0xb3, 0xbf, 0x12, 0xcc, 0x3e,
+	0x66, 0x6a, 0xca, 0x6f, 0x53, 0xe0, 0x5a, 0xb2, 0x4b, 0x8b, 0x57, 0x2f, 0x2d, 0xfe, 0xf7, 0x5e,
+	0x5a, 0x74, 0x3b, 0x8f, 0x48, 0xf7, 0x7f, 0x1e, 0x01, 0xba, 0x9f, 0x47, 0x44, 0xa5, 0x88, 0xcc,
+	0xe0, 0x29, 0xa2, 0x99, 0x2d, 0xb3, 0xe1, 0x6c, 0x79, 0xf6, 0x65, 0xee, 0x20, 0x7a, 0x99, 0xfb,
+	0x42, 0xec, 0xdd, 0xb2, 0x38, 0x51, 0xfa, 0xbc, 0x97, 0xbb, 0xf2, 0xc3, 0xe4, 0x99, 0xa3, 0x14,
+	0x77, 0x08, 0x10, 0xb5, 0x56, 0xfd, 0x46, 0x02, 0xb9, 0xa8, 0x89, 0x7a, 0x1b, 0x5a, 0x71, 0x1a,
+	0xc7, 0x73, 0x86, 0xf8, 0x92, 0x97, 0x40, 0x2a, 0x38, 0x80, 0xe3, 0x19, 0x23, 0xf8, 0xee, 0xb6,
+	0xf7, 0x9e, 0x48, 0xb8, 0xf7, 0x9e, 0x1c, 0x6c, 0xef, 0xad, 0xfc, 0x5e, 0x02, 0xd9, 0x16, 0xd9,
+	0xdb, 0xce, 0x11, 0xa4, 0x9e, 0xe7, 0x08, 0xe3, 0x89, 0xcf, 0x11, 0x46, 0x3d, 0x97, 0x7f, 0x8e,
+	0x83, 0xcb, 0x91, 0x77, 0xf6, 0x43, 0x3a, 0x9b, 0x79, 0x08, 0xa6, 0x83, 0xe7, 0x04, 0xac, 0x7a,
+	0x9a, 0x60, 0x81, 0xf0, 0xa5, 0xbe, 0xdf, 0x10, 0xb0, 0x6a, 0x2a, 0xab, 0x87, 0xbe, 0xe4, 0x1a,
+	0x78, 0x2d, 0xc0, 0x16, 0x4f, 0x17, 0x1c, 0xdb, 0x0e, 0x9e, 0xb4, 0x14, 0xe3, 0xc6, 0xf0, 0x61,
+	0xf9, 0x20, 0x15, 0xdb, 0xae, 0xab, 0x0b, 0x7a, 0x07, 0x8d, 0x0c, 0x56, 0xb4, 0x25, 0x50, 0xa8,
+	0xf2, 0xef, 0x89, 0x2e, 0x8a, 0x1f, 0xd2, 0x52, 0x3a, 0x4a, 0xc5, 0x37, 0xc0, 0x72, 0xa4, 0xe2,
+	0x35, 0x68, 0x18, 0x98, 0x25, 0x80, 0x01, 0x4d, 0x70, 0x31, 0xc2, 0x04, 0xeb, 0x3e, 0xa6, 0xfc,
+	0x18, 0x5c, 0x8a, 0x1e, 0x96, 0x3f, 0x77, 0xf0, 0x5f, 0x0f, 0xf5, 0x3b, 0xe8, 0x52, 0xc4, 0xa0,
+	0xdc, 0x08, 0xc3, 0x34, 0x7f, 0x5b, 0x1e, 0xfc, 0x8e, 0x04, 0xe6, 0xfd, 0xf1, 0xb0, 0x45, 0x79,
+	0xab, 0x7c, 0x1d, 0xcc, 0x42, 0x9d, 0x3f, 0xa3, 0x80, 0x86, 0xe1, 0x22, 0x42, 0x84, 0xd9, 0x67,
+	0x04, 0x79, 0x9d, 0x53, 0xe5, 0x0d, 0x00, 0x2c, 0xf4, 0x44, 0x73, 0xbc, 0xbe, 0xa4, 0x9f, 0xc3,
+	0xb2, 0xb4, 0x85, 0x9e, 0xb0, 0x11, 0x89, 0xf2, 0xa7, 0x71, 0xb0, 0xd6, 0x22, 0x6a, 0x05, 0xb1,
+	0xcd, 0x1e, 0x6f, 0x1e, 0x92, 0x1b, 0xbe, 0x05, 0x16, 0x1d, 0x0e, 0xcb, 0x6c, 0x15, 0x5a, 0xe5,
+	0x27, 0xd8, 0x2a, 0x9f, 0x73, 0xfc, 0x41, 0xed, 0x7a, 0x73, 0x99, 0xd7, 0x40, 0x2e, 0x30, 0x30,
+	0xb6, 0x68, 0x60, 0x60, 0xee, 0x55, 0x37, 0xe3, 0x0c, 0xdc, 0xa1, 0x54, 0x55, 0x76, 0xdb, 0x49,
+	0xa4, 0xfc, 0x8d, 0xe4, 0x76, 0xbd, 0x15, 0x6d, 0xd7, 0x18, 0x65, 0x29, 0x2f, 0x25, 0xb0, 0x10,
+	0xf1, 0xb4, 0x65, 0x60, 0x25, 0x7e, 0x1d, 0xa4, 0x88, 0x7e, 0x8c, 0x8c, 0x46, 0x1d, 0x89, 0x30,
+	0x4e, 0xfa, 0xaa, 0xa6, 0x2a, 0xba, 0xa9, 0x01, 0x40, 0xf9, 0xed, 0xe4, 0x53, 0xbf, 0x18, 0x4c,
+	0x3d, 0x62, 0x36, 0xca, 0x87, 0xe3, 0x60, 0x99, 0x3d, 0x6c, 0xd9, 0xb4, 0x4d, 0xb3, 0x61, 0x61,
+	0x7a, 0xea, 0x19, 0xb1, 0xea, 0x19, 0xf4, 0xcc, 0x33, 0x3e, 0x00, 0xe9, 0xf6, 0xf7, 0x92, 0x77,
+	0xc4, 0xfb, 0xf5, 0x62, 0xcb, 0x53, 0xf5, 0xa6, 0xd4, 0xdd, 0x64, 0x50, 0x9b, 0x48, 0xe5, 0x6a,
+	0xf2, 0xb9, 0xaf, 0xb5, 0x3e, 0xde, 0xe9, 0x8e, 0xaf, 0xfc, 0x6a, 0x1c, 0x14, 0xd7, 0xa9, 0x6d,
+	0x62, 0x9d, 0x97, 0x3d, 0xf7, 0x5d, 0x83, 0x55, 0xf2, 0xf7, 0x1a, 0x75, 0x8a, 0x9d, 0x3a, 0x46,
+	0xae, 0x6f, 0x85, 0x33, 0xab, 0x05, 0x81, 0x45, 0xff, 0x15, 0x14, 0x42, 0x9a, 0x19, 0x0c, 0xe0,
+	0xeb, 0xa8, 0x94, 0xe0, 0xe5, 0x53, 0x58, 0x30, 0x35, 0x67, 0x76, 0x12, 0x49, 0xb9, 0x96, 0x5c,
+	0x4d, 0x77, 0x02, 0x35, 0xf5, 0xa7, 0x82, 0x1b, 0x4f, 0x41, 0x36, 0xfc, 0xaa, 0x57, 0xbe, 0x0d,
+	0x72, 0xdb, 0xef, 0x6f, 0xbe, 0xb3, 0xbe, 0xf7, 0xf6, 0xb6, 0x76, 0xb0, 0x57, 0xad, 0x6c, 0x6f,
+	0xee, 0xee, 0xec, 0x6e, 0x6f, 0xcd, 0x8d, 0x2d, 0xe5, 0x9f, 0x3d, 0x5f, 0x89, 0x6c, 0x93, 0x65,
+	0x30, 0x59, 0xad, 0xdc, 0xdf, 0x9f, 0x93, 0x96, 0x52, 0xcf, 0x9e, 0xaf, 0xb0, 0xdf, 0x9e, 0x12,
+	0xb7, 0xb6, 0xd5, 0xdd, 0x77, 0xd7, 0xf7, 0x77, 0xdf, 0xdd, 0xae, 0xce, 0x8d, 0x2f, 0xcd, 0x3e,
+	0x7b, 0xbe, 0x12, 0x26, 0x6d, 0x1c, 0x7f, 0xfc, 0xa2, 0x20, 0x7d, 0xfa, 0xa2, 0x20, 0xfd, 0xf5,
+	0x45, 0x41, 0xfa, 0xc1, 0xcb, 0xc2, 0xd8, 0xa7, 0x2f, 0x0b, 0x63, 0x7f, 0x7e, 0x59, 0x18, 0x7b,
+	0xb8, 0x77, 0x84, 0xe9, 0x71, 0xa3, 0x56, 0xd4, 0x6d, 0xb3, 0xb4, 0xeb, 0x2b, 0xf2, 0x2e, 0xac,
+	0x91, 0x52, 0xa0, 0xd6, 0x9b, 0xba, 0xed, 0xa2, 0xf0, 0xe7, 0x31, 0xc4, 0x56, 0xc9, 0xb4, 0xbd,
+	0xb9, 0x91, 0x66, 0x35, 0xec, 0xd5, 0x64, 0xa4, 0x36, 0xc5, 0xfe, 0x32, 0xe1, 0x8b, 0xff, 0x09,
+	0x00, 0x00, 0xff, 0xff, 0x16, 0x7b, 0x31, 0x71, 0xe1, 0x31, 0x00, 0x00,
 }
 
 func (m *SpotMarketParamUpdateProposal) Marshal() (dAtA []byte, err error) {
@@ -1296,6 +1397,37 @@ func (m *SpotMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byte) (int, 
 	_ = i
 	var l int
 	_ = l
+	if m.AdminInfo != nil {
+		{
+			size, err := m.AdminInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x62
+	}
+	if m.MinNotional != nil {
+		{
+			size := m.MinNotional.Size()
+			i -= size
+			if _, err := m.MinNotional.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x5a
+	}
+	if len(m.Ticker) > 0 {
+		i -= len(m.Ticker)
+		copy(dAtA[i:], m.Ticker)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Ticker)))
+		i--
+		dAtA[i] = 0x52
+	}
 	if m.Status != 0 {
 		i = encodeVarintProposal(dAtA, i, uint64(m.Status))
 		i--
@@ -1632,6 +1764,28 @@ func (m *SpotMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (int, error
 	_ = i
 	var l int
 	_ = l
+	if m.AdminInfo != nil {
+		{
+			size, err := m.AdminInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x5a
+	}
+	{
+		size := m.MinNotional.Size()
+		i -= size
+		if _, err := m.MinNotional.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintProposal(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x52
 	if m.TakerFeeRate != nil {
 		{
 			size := m.TakerFeeRate.Size()
@@ -1734,6 +1888,30 @@ func (m *PerpetualMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (int, 
 	_ = i
 	var l int
 	_ = l
+	if m.AdminInfo != nil {
+		{
+			size, err := m.AdminInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x82
+	}
+	{
+		size := m.MinNotional.Size()
+		i -= size
+		if _, err := m.MinNotional.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintProposal(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x7a
 	{
 		size := m.MinQuantityTickSize.Size()
 		i -= size
@@ -1869,6 +2047,25 @@ func (m *BinaryOptionsMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (i
 	_ = i
 	var l int
 	_ = l
+	if m.AdminPermissions != 0 {
+		i = encodeVarintProposal(dAtA, i, uint64(m.AdminPermissions))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x88
+	}
+	{
+		size := m.MinNotional.Size()
+		i -= size
+		if _, err := m.MinNotional.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintProposal(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x82
 	{
 		size := m.MinQuantityTickSize.Size()
 		i -= size
@@ -2001,6 +2198,32 @@ func (m *ExpiryFuturesMarketLaunchProposal) MarshalToSizedBuffer(dAtA []byte) (i
 	_ = i
 	var l int
 	_ = l
+	if m.AdminInfo != nil {
+		{
+			size, err := m.AdminInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x8a
+	}
+	{
+		size := m.MinNotional.Size()
+		i -= size
+		if _, err := m.MinNotional.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintProposal(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1
+	i--
+	dAtA[i] = 0x82
 	{
 		size := m.MinQuantityTickSize.Size()
 		i -= size
@@ -2141,6 +2364,41 @@ func (m *DerivativeMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byte) 
 	_ = i
 	var l int
 	_ = l
+	if m.AdminInfo != nil {
+		{
+			size, err := m.AdminInfo.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x8a
+	}
+	if m.MinNotional != nil {
+		{
+			size := m.MinNotional.Size()
+			i -= size
+			if _, err := m.MinNotional.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x82
+	}
+	if len(m.Ticker) > 0 {
+		i -= len(m.Ticker)
+		copy(dAtA[i:], m.Ticker)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Ticker)))
+		i--
+		dAtA[i] = 0x7a
+	}
 	if m.OracleParams != nil {
 		{
 			size, err := m.OracleParams.MarshalToSizedBuffer(dAtA[:i])
@@ -2290,6 +2548,41 @@ func (m *DerivativeMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byte) 
 	return len(dAtA) - i, nil
 }
 
+func (m *AdminInfo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AdminInfo) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AdminInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.AdminPermissions != 0 {
+		i = encodeVarintProposal(dAtA, i, uint64(m.AdminPermissions))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Admin) > 0 {
+		i -= len(m.Admin)
+		copy(dAtA[i:], m.Admin)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Admin)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *MarketForcedSettlementProposal) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -2417,6 +2710,27 @@ func (m *BinaryOptionsMarketParamUpdateProposal) MarshalToSizedBuffer(dAtA []byt
 	_ = i
 	var l int
 	_ = l
+	if m.MinNotional != nil {
+		{
+			size := m.MinNotional.Size()
+			i -= size
+			if _, err := m.MinNotional.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x82
+	}
+	if len(m.Ticker) > 0 {
+		i -= len(m.Ticker)
+		copy(dAtA[i:], m.Ticker)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Ticker)))
+		i--
+		dAtA[i] = 0x7a
+	}
 	if m.OracleParams != nil {
 		{
 			size, err := m.OracleParams.MarshalToSizedBuffer(dAtA[:i])
@@ -3080,6 +3394,18 @@ func (m *SpotMarketParamUpdateProposal) Size() (n int) {
 	if m.Status != 0 {
 		n += 1 + sovProposal(uint64(m.Status))
 	}
+	l = len(m.Ticker)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	if m.MinNotional != nil {
+		l = m.MinNotional.Size()
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	if m.AdminInfo != nil {
+		l = m.AdminInfo.Size()
+		n += 1 + l + sovProposal(uint64(l))
+	}
 	return n
 }
 
@@ -3218,6 +3544,12 @@ func (m *SpotMarketLaunchProposal) Size() (n int) {
 		l = m.TakerFeeRate.Size()
 		n += 1 + l + sovProposal(uint64(l))
 	}
+	l = m.MinNotional.Size()
+	n += 1 + l + sovProposal(uint64(l))
+	if m.AdminInfo != nil {
+		l = m.AdminInfo.Size()
+		n += 1 + l + sovProposal(uint64(l))
+	}
 	return n
 }
 
@@ -3269,6 +3601,12 @@ func (m *PerpetualMarketLaunchProposal) Size() (n int) {
 	n += 1 + l + sovProposal(uint64(l))
 	l = m.MinQuantityTickSize.Size()
 	n += 1 + l + sovProposal(uint64(l))
+	l = m.MinNotional.Size()
+	n += 1 + l + sovProposal(uint64(l))
+	if m.AdminInfo != nil {
+		l = m.AdminInfo.Size()
+		n += 2 + l + sovProposal(uint64(l))
+	}
 	return n
 }
 
@@ -3326,6 +3664,11 @@ func (m *BinaryOptionsMarketLaunchProposal) Size() (n int) {
 	n += 1 + l + sovProposal(uint64(l))
 	l = m.MinQuantityTickSize.Size()
 	n += 1 + l + sovProposal(uint64(l))
+	l = m.MinNotional.Size()
+	n += 2 + l + sovProposal(uint64(l))
+	if m.AdminPermissions != 0 {
+		n += 2 + sovProposal(uint64(m.AdminPermissions))
+	}
 	return n
 }
 
@@ -3380,6 +3723,12 @@ func (m *ExpiryFuturesMarketLaunchProposal) Size() (n int) {
 	n += 1 + l + sovProposal(uint64(l))
 	l = m.MinQuantityTickSize.Size()
 	n += 1 + l + sovProposal(uint64(l))
+	l = m.MinNotional.Size()
+	n += 2 + l + sovProposal(uint64(l))
+	if m.AdminInfo != nil {
+		l = m.AdminInfo.Size()
+		n += 2 + l + sovProposal(uint64(l))
+	}
 	return n
 }
 
@@ -3443,6 +3792,34 @@ func (m *DerivativeMarketParamUpdateProposal) Size() (n int) {
 	if m.OracleParams != nil {
 		l = m.OracleParams.Size()
 		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = len(m.Ticker)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	if m.MinNotional != nil {
+		l = m.MinNotional.Size()
+		n += 2 + l + sovProposal(uint64(l))
+	}
+	if m.AdminInfo != nil {
+		l = m.AdminInfo.Size()
+		n += 2 + l + sovProposal(uint64(l))
+	}
+	return n
+}
+
+func (m *AdminInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Admin)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	if m.AdminPermissions != 0 {
+		n += 1 + sovProposal(uint64(m.AdminPermissions))
 	}
 	return n
 }
@@ -3553,6 +3930,14 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Size() (n int) {
 	if m.OracleParams != nil {
 		l = m.OracleParams.Size()
 		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = len(m.Ticker)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	if m.MinNotional != nil {
+		l = m.MinNotional.Size()
+		n += 2 + l + sovProposal(uint64(l))
 	}
 	return n
 }
@@ -3932,7 +4317,7 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MakerFeeRate = &v
 			if err := m.MakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -3968,7 +4353,7 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.TakerFeeRate = &v
 			if err := m.TakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -4004,7 +4389,7 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.RelayerFeeShareRate = &v
 			if err := m.RelayerFeeShareRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -4040,7 +4425,7 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MinPriceTickSize = &v
 			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -4076,7 +4461,7 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MinQuantityTickSize = &v
 			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -4101,6 +4486,110 @@ func (m *SpotMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ticker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Ticker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinNotional", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			var v cosmossdk_io_math.LegacyDec
+			m.MinNotional = &v
+			if err := m.MinNotional.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AdminInfo", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.AdminInfo == nil {
+				m.AdminInfo = &AdminInfo{}
+			}
+			if err := m.AdminInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipProposal(dAtA[iNdEx:])
@@ -5036,7 +5525,7 @@ func (m *SpotMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MakerFeeRate = &v
 			if err := m.MakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -5072,9 +5561,79 @@ func (m *SpotMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.TakerFeeRate = &v
 			if err := m.TakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinNotional", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinNotional.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AdminInfo", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.AdminInfo == nil {
+				m.AdminInfo = &AdminInfo{}
+			}
+			if err := m.AdminInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -5559,6 +6118,76 @@ func (m *PerpetualMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 15:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinNotional", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinNotional.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 16:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AdminInfo", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.AdminInfo == nil {
+				m.AdminInfo = &AdminInfo{}
+			}
+			if err := m.AdminInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -6048,6 +6677,59 @@ func (m *BinaryOptionsMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 16:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinNotional", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinNotional.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 17:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AdminPermissions", wireType)
+			}
+			m.AdminPermissions = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.AdminPermissions |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipProposal(dAtA[iNdEx:])
@@ -6551,6 +7233,76 @@ func (m *ExpiryFuturesMarketLaunchProposal) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 16:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinNotional", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinNotional.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 17:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AdminInfo", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.AdminInfo == nil {
+				m.AdminInfo = &AdminInfo{}
+			}
+			if err := m.AdminInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipProposal(dAtA[iNdEx:])
@@ -6727,7 +7479,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.InitialMarginRatio = &v
 			if err := m.InitialMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -6763,7 +7515,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MaintenanceMarginRatio = &v
 			if err := m.MaintenanceMarginRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -6799,7 +7551,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MakerFeeRate = &v
 			if err := m.MakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -6835,7 +7587,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.TakerFeeRate = &v
 			if err := m.TakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -6871,7 +7623,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.RelayerFeeShareRate = &v
 			if err := m.RelayerFeeShareRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -6907,7 +7659,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MinPriceTickSize = &v
 			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -6943,7 +7695,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MinQuantityTickSize = &v
 			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -6979,7 +7731,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.HourlyInterestRate = &v
 			if err := m.HourlyInterestRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7015,7 +7767,7 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.HourlyFundingRateCap = &v
 			if err := m.HourlyFundingRateCap.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7076,6 +7828,211 @@ func (m *DerivativeMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 15:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ticker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Ticker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 16:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinNotional", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			var v cosmossdk_io_math.LegacyDec
+			m.MinNotional = &v
+			if err := m.MinNotional.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 17:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AdminInfo", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.AdminInfo == nil {
+				m.AdminInfo = &AdminInfo{}
+			}
+			if err := m.AdminInfo.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProposal(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AdminInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProposal
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AdminInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AdminInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Admin", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Admin = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AdminPermissions", wireType)
+			}
+			m.AdminPermissions = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.AdminPermissions |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipProposal(dAtA[iNdEx:])
@@ -7252,7 +8209,7 @@ func (m *MarketForcedSettlementProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.SettlementPrice = &v
 			if err := m.SettlementPrice.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7582,7 +8539,7 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MakerFeeRate = &v
 			if err := m.MakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7618,7 +8575,7 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.TakerFeeRate = &v
 			if err := m.TakerFeeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7654,7 +8611,7 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.RelayerFeeShareRate = &v
 			if err := m.RelayerFeeShareRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7690,7 +8647,7 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MinPriceTickSize = &v
 			if err := m.MinPriceTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7726,7 +8683,7 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.MinQuantityTickSize = &v
 			if err := m.MinQuantityTickSize.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7800,7 +8757,7 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			var v github_com_cosmos_cosmos_sdk_types.Dec
+			var v cosmossdk_io_math.LegacyDec
 			m.SettlementPrice = &v
 			if err := m.SettlementPrice.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -7890,6 +8847,74 @@ func (m *BinaryOptionsMarketParamUpdateProposal) Unmarshal(dAtA []byte) error {
 				m.OracleParams = &ProviderOracleParams{}
 			}
 			if err := m.OracleParams.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 15:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ticker", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Ticker = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 16:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinNotional", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			var v cosmossdk_io_math.LegacyDec
+			m.MinNotional = &v
+			if err := m.MinNotional.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

@@ -592,20 +592,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Markets", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Markets"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Markets", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Markets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_Markets_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_Markets_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_Markets_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_Markets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -615,20 +617,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Market", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Market"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Market", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Market"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_Market_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_Market_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_Market_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_Market_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -645,20 +649,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbookV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbookV2"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbookV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbookV2"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_OrderbookV2_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_OrderbookV2_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_OrderbookV2_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_OrderbookV2_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -668,20 +674,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbooksV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbooksV2"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbooksV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbooksV2"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_OrderbooksV2_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_OrderbooksV2_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_OrderbooksV2_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_OrderbooksV2_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -705,20 +713,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Orders", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Orders"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Orders", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Orders"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_Orders_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_Orders_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_Orders_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_Orders_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -735,20 +745,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Trades", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Trades"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Trades", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Trades"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_Trades_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_Trades_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_Trades_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_Trades_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -765,20 +777,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/TradesV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/TradesV2"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/TradesV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/TradesV2"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_TradesV2_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_TradesV2_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_TradesV2_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_TradesV2_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -795,20 +809,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountOrdersList", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountOrdersList"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountOrdersList", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountOrdersList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_SubaccountOrdersList_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_SubaccountOrdersList_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_SubaccountOrdersList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_SubaccountOrdersList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -818,20 +834,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountTradesList", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountTradesList"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountTradesList", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountTradesList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_SubaccountTradesList_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_SubaccountTradesList_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_SubaccountTradesList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_SubaccountTradesList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -841,20 +859,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_OrdersHistory_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_OrdersHistory_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_OrdersHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_OrdersHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -871,20 +891,22 @@ func RegisterInjectiveSpotExchangeRPCHandlerServer(ctx context.Context, mux *run
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/AtomicSwapHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/AtomicSwapHistory"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/AtomicSwapHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/AtomicSwapHistory"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectiveSpotExchangeRPC_AtomicSwapHistory_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectiveSpotExchangeRPC_AtomicSwapHistory_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_AtomicSwapHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_AtomicSwapHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -933,19 +955,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Markets", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Markets"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Markets", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Markets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_Markets_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_Markets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_Markets_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_Markets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -953,19 +977,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Market", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Market"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Market", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Market"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_Market_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_Market_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_Market_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_Market_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -973,19 +999,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamMarkets", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamMarkets"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamMarkets", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamMarkets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_StreamMarkets_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamMarkets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_StreamMarkets_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_StreamMarkets_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -993,19 +1021,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbookV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbookV2"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbookV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbookV2"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_OrderbookV2_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_OrderbookV2_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_OrderbookV2_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_OrderbookV2_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1013,19 +1043,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbooksV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbooksV2"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbooksV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrderbooksV2"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_OrderbooksV2_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_OrderbooksV2_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_OrderbooksV2_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_OrderbooksV2_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1033,19 +1065,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookV2"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookV2"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrderbookV2_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrderbookV2_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_StreamOrderbookV2_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_StreamOrderbookV2_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1053,19 +1087,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrderbookUpdate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_StreamOrderbookUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1073,19 +1109,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Orders", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Orders"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Orders", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Orders"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_Orders_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_Orders_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_Orders_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_Orders_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1093,19 +1131,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrders", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrders"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrders", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrders"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrders_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrders_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_StreamOrders_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_StreamOrders_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1113,19 +1153,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Trades", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Trades"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Trades", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/Trades"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_Trades_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_Trades_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_Trades_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_Trades_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1133,19 +1175,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTrades", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTrades"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTrades", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTrades"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_StreamTrades_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamTrades_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_StreamTrades_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_StreamTrades_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1153,19 +1197,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/TradesV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/TradesV2"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/TradesV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/TradesV2"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_TradesV2_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_TradesV2_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_TradesV2_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_TradesV2_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1173,19 +1219,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTradesV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTradesV2"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTradesV2", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamTradesV2"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_StreamTradesV2_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamTradesV2_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_StreamTradesV2_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_StreamTradesV2_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1193,19 +1241,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountOrdersList", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountOrdersList"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountOrdersList", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountOrdersList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_SubaccountOrdersList_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_SubaccountOrdersList_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_SubaccountOrdersList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_SubaccountOrdersList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1213,19 +1263,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountTradesList", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountTradesList"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountTradesList", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/SubaccountTradesList"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_SubaccountTradesList_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_SubaccountTradesList_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_SubaccountTradesList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_SubaccountTradesList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1233,19 +1285,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/OrdersHistory"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_OrdersHistory_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_OrdersHistory_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_OrdersHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_OrdersHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1253,19 +1307,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/StreamOrdersHistory"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrdersHistory_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_StreamOrdersHistory_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_StreamOrdersHistory_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_StreamOrdersHistory_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1273,19 +1329,21 @@ func RegisterInjectiveSpotExchangeRPCHandlerClient(ctx context.Context, mux *run
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/AtomicSwapHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/AtomicSwapHistory"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/AtomicSwapHistory", runtime.WithHTTPPathPattern("/injective_spot_exchange_rpc.InjectiveSpotExchangeRPC/AtomicSwapHistory"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectiveSpotExchangeRPC_AtomicSwapHistory_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectiveSpotExchangeRPC_AtomicSwapHistory_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectiveSpotExchangeRPC_AtomicSwapHistory_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectiveSpotExchangeRPC_AtomicSwapHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 

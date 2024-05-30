@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -18,7 +18,7 @@ const (
 )
 
 // MaxUnderwritingAmount equals 1 trillion * 1e18
-var MaxUnderwritingAmount, _ = sdk.NewIntFromString("1000000000000000000000000000")
+var MaxUnderwritingAmount, _ = math.NewIntFromString("1000000000000000000000000000")
 var PerpetualExpiryFlag int64 = -1
 var BinaryOptionsExpiryFlag int64 = -2
 

@@ -1,18 +1,17 @@
 package types
 
 import (
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 type FeeDiscountRates struct {
-	MakerDiscountRate sdk.Dec
-	TakerDiscountRate sdk.Dec
+	MakerDiscountRate math.LegacyDec
+	TakerDiscountRate math.LegacyDec
 }
 
 func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
-	stakedAmount sdkmath.Int,
-	tradingVolume sdk.Dec,
+	stakedAmount math.Int,
+	tradingVolume math.LegacyDec,
 ) (
 	feeDiscountRates *FeeDiscountRates,
 	tierLevel uint64,
@@ -31,8 +30,8 @@ func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
 
 	if tierLevel == 0 {
 		feeDiscountRates = &FeeDiscountRates{
-			MakerDiscountRate: sdk.ZeroDec(),
-			TakerDiscountRate: sdk.ZeroDec(),
+			MakerDiscountRate: math.LegacyZeroDec(),
+			TakerDiscountRate: math.LegacyZeroDec(),
 		}
 	} else {
 		feeDiscountRates = &FeeDiscountRates{
@@ -45,8 +44,8 @@ func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
 }
 
 func (s *FeeDiscountSchedule) TierOneRequirements() (
-	minStakedAmount sdkmath.Int,
-	minTradingFeePaid sdk.Dec,
+	minStakedAmount math.Int,
+	minTradingFeePaid math.LegacyDec,
 ) {
 	// s.TierInfos[0] is tier one, since tier 0 is implicit
 	return s.TierInfos[0].StakedAmount, s.TierInfos[0].Volume
@@ -61,8 +60,8 @@ func (s *FeeDiscountSchedule) GetFeeDiscountRatesMap() FeeDiscountRatesMap {
 
 	feeDiscountRatesMap := make(FeeDiscountRatesMap, len(s.TierInfos))
 	feeDiscountRatesMap[0] = &FeeDiscountRates{
-		MakerDiscountRate: sdk.ZeroDec(),
-		TakerDiscountRate: sdk.ZeroDec(),
+		MakerDiscountRate: math.LegacyZeroDec(),
+		TakerDiscountRate: math.LegacyZeroDec(),
 	}
 
 	for idx, tierInfo := range s.TierInfos {

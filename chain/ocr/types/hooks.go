@@ -1,12 +1,13 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type OcrHooks interface {
 	AfterSetFeedConfig(ctx sdk.Context, feedConfig *FeedConfig)
-	AfterTransmit(ctx sdk.Context, feedId string, answer sdk.Dec, timestamp int64)
+	AfterTransmit(ctx sdk.Context, feedId string, answer math.LegacyDec, timestamp int64)
 	AfterFundFeedRewardPool(ctx sdk.Context, feedId string, newPoolAmount sdk.Coin)
 }
 
@@ -24,7 +25,7 @@ func (h MultiOcrHooks) AfterSetFeedConfig(ctx sdk.Context, feedConfig *FeedConfi
 	}
 }
 
-func (h MultiOcrHooks) AfterTransmit(ctx sdk.Context, feedId string, answer sdk.Dec, timestamp int64) {
+func (h MultiOcrHooks) AfterTransmit(ctx sdk.Context, feedId string, answer math.LegacyDec, timestamp int64) {
 	for i := range h {
 		h[i].AfterTransmit(ctx, feedId, answer, timestamp)
 	}

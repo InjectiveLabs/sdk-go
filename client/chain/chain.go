@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	sdkmath "cosmossdk.io/math"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -13,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -37,10 +38,10 @@ import (
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/gogoproto/proto"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	ibcconnectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
@@ -195,7 +196,7 @@ type ChainClient interface {
 	FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMarketResponse, error)
 	FetchChainFullSpotMarkets(ctx context.Context, status string, marketIds []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error)
 	FetchChainFullSpotMarket(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketResponse, error)
-	FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdk.Dec, limitCumulativeQuantity sdk.Dec) (*exchangetypes.QuerySpotOrderbookResponse, error)
+	FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdkmath.LegacyDec, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangetypes.QuerySpotOrderbookResponse, error)
 	FetchChainTraderSpotOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error)
 	FetchChainAccountAddressSpotOrders(ctx context.Context, marketId string, address string) (*exchangetypes.QueryAccountAddressSpotOrdersResponse, error)
 	FetchChainSpotOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangetypes.QuerySpotOrdersByHashesResponse, error)
@@ -203,7 +204,7 @@ type ChainClient interface {
 	FetchChainTraderSpotTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error)
 	FetchSpotMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMidPriceAndTOBResponse, error)
 	FetchDerivativeMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMidPriceAndTOBResponse, error)
-	FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdk.Dec) (*exchangetypes.QueryDerivativeOrderbookResponse, error)
+	FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangetypes.QueryDerivativeOrderbookResponse, error)
 	FetchChainTraderDerivativeOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error)
 	FetchChainAccountAddressDerivativeOrders(ctx context.Context, marketId string, address string) (*exchangetypes.QueryAccountAddressDerivativeOrdersResponse, error)
 	FetchChainDerivativeOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangetypes.QueryDerivativeOrdersByHashesResponse, error)
@@ -239,13 +240,13 @@ type ChainClient interface {
 	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
 
 	// Tendermint module
-	FetchNodeInfo(ctx context.Context) (*tmservice.GetNodeInfoResponse, error)
-	FetchSyncing(ctx context.Context) (*tmservice.GetSyncingResponse, error)
-	FetchLatestBlock(ctx context.Context) (*tmservice.GetLatestBlockResponse, error)
-	FetchBlockByHeight(ctx context.Context, height int64) (*tmservice.GetBlockByHeightResponse, error)
-	FetchLatestValidatorSet(ctx context.Context) (*tmservice.GetLatestValidatorSetResponse, error)
-	FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*tmservice.GetValidatorSetByHeightResponse, error)
-	ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*tmservice.ABCIQueryResponse, error)
+	FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error)
+	FetchSyncing(ctx context.Context) (*cmtservice.GetSyncingResponse, error)
+	FetchLatestBlock(ctx context.Context) (*cmtservice.GetLatestBlockResponse, error)
+	FetchBlockByHeight(ctx context.Context, height int64) (*cmtservice.GetBlockByHeightResponse, error)
+	FetchLatestValidatorSet(ctx context.Context) (*cmtservice.GetLatestValidatorSetResponse, error)
+	FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*cmtservice.GetValidatorSetByHeightResponse, error)
+	ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*cmtservice.ABCIQueryResponse, error)
 
 	// IBC Transfer module
 	FetchDenomTrace(ctx context.Context, hash string) (*ibctransfertypes.QueryDenomTraceResponse, error)
@@ -324,7 +325,7 @@ type chainClient struct {
 	ibcClientQueryClient     ibcclienttypes.QueryClient
 	ibcConnectionQueryClient ibcconnectiontypes.QueryClient
 	ibcTransferQueryClient   ibctransfertypes.QueryClient
-	tendermintQueryClient    tmservice.ServiceClient
+	tendermintQueryClient    cmtservice.ServiceClient
 	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
 	txClient                 txtypes.ServiceClient
 	wasmQueryClient          wasmtypes.QueryClient
@@ -424,7 +425,7 @@ func NewChainClient(
 		ibcClientQueryClient:     ibcclienttypes.NewQueryClient(conn),
 		ibcConnectionQueryClient: ibcconnectiontypes.NewQueryClient(conn),
 		ibcTransferQueryClient:   ibctransfertypes.NewQueryClient(conn),
-		tendermintQueryClient:    tmservice.NewServiceClient(conn),
+		tendermintQueryClient:    cmtservice.NewServiceClient(conn),
 		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
 		txClient:                 txtypes.NewServiceClient(conn),
 		wasmQueryClient:          wasmtypes.NewQueryClient(conn),
@@ -765,6 +766,7 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 }
 
 func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
+	ctx := context.Background()
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
 		if err != nil {
@@ -772,7 +774,6 @@ func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, ms
 			return nil, err
 		}
 
-		ctx := context.Background()
 		req := &txtypes.SimulateRequest{TxBytes: simTxBytes}
 		simRes, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.Simulate, req)
 
@@ -799,7 +800,7 @@ func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, ms
 	}
 
 	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
+	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to Sign Tx")
 		return nil, err
@@ -1108,7 +1109,7 @@ func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, d *Der
 
 	orderSize := market.QuantityToChainFormat(d.Quantity)
 	orderPrice := market.PriceToChainFormat(d.Price)
-	orderMargin := sdk.MustNewDecFromStr("0")
+	orderMargin := sdkmath.LegacyMustNewDecFromStr("0")
 
 	if !d.IsReduceOnly {
 		orderMargin = market.CalculateMarginInChainFormat(d.Quantity, d.Price, d.Leverage)
@@ -1821,7 +1822,7 @@ func (c *chainClient) FetchChainFullSpotMarket(ctx context.Context, marketId str
 	return res, err
 }
 
-func (c *chainClient) FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdk.Dec, limitCumulativeQuantity sdk.Dec) (*exchangetypes.QuerySpotOrderbookResponse, error) {
+func (c *chainClient) FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdkmath.LegacyDec, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangetypes.QuerySpotOrderbookResponse, error) {
 	req := &exchangetypes.QuerySpotOrderbookRequest{
 		MarketId:                marketId,
 		Limit:                   limit,
@@ -1903,7 +1904,7 @@ func (c *chainClient) FetchDerivativeMidPriceAndTOB(ctx context.Context, marketI
 	return res, err
 }
 
-func (c *chainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdk.Dec) (*exchangetypes.QueryDerivativeOrderbookResponse, error) {
+func (c *chainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangetypes.QueryDerivativeOrderbookResponse, error) {
 	req := &exchangetypes.QueryDerivativeOrderbookRequest{
 		MarketId:                marketId,
 		Limit:                   limit,
@@ -2213,29 +2214,29 @@ func (c *chainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Contex
 
 // Tendermint module
 
-func (c *chainClient) FetchNodeInfo(ctx context.Context) (*tmservice.GetNodeInfoResponse, error) {
-	req := &tmservice.GetNodeInfoRequest{}
+func (c *chainClient) FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error) {
+	req := &cmtservice.GetNodeInfoRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetNodeInfo, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchSyncing(ctx context.Context) (*tmservice.GetSyncingResponse, error) {
-	req := &tmservice.GetSyncingRequest{}
+func (c *chainClient) FetchSyncing(ctx context.Context) (*cmtservice.GetSyncingResponse, error) {
+	req := &cmtservice.GetSyncingRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetSyncing, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchLatestBlock(ctx context.Context) (*tmservice.GetLatestBlockResponse, error) {
-	req := &tmservice.GetLatestBlockRequest{}
+func (c *chainClient) FetchLatestBlock(ctx context.Context) (*cmtservice.GetLatestBlockResponse, error) {
+	req := &cmtservice.GetLatestBlockRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetLatestBlock, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchBlockByHeight(ctx context.Context, height int64) (*tmservice.GetBlockByHeightResponse, error) {
-	req := &tmservice.GetBlockByHeightRequest{
+func (c *chainClient) FetchBlockByHeight(ctx context.Context, height int64) (*cmtservice.GetBlockByHeightResponse, error) {
+	req := &cmtservice.GetBlockByHeightRequest{
 		Height: height,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetBlockByHeight, req)
@@ -2243,15 +2244,15 @@ func (c *chainClient) FetchBlockByHeight(ctx context.Context, height int64) (*tm
 	return res, err
 }
 
-func (c *chainClient) FetchLatestValidatorSet(ctx context.Context) (*tmservice.GetLatestValidatorSetResponse, error) {
-	req := &tmservice.GetLatestValidatorSetRequest{}
+func (c *chainClient) FetchLatestValidatorSet(ctx context.Context) (*cmtservice.GetLatestValidatorSetResponse, error) {
+	req := &cmtservice.GetLatestValidatorSetRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetLatestValidatorSet, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*tmservice.GetValidatorSetByHeightResponse, error) {
-	req := &tmservice.GetValidatorSetByHeightRequest{
+func (c *chainClient) FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*cmtservice.GetValidatorSetByHeightResponse, error) {
+	req := &cmtservice.GetValidatorSetByHeightRequest{
 		Height:     height,
 		Pagination: pagination,
 	}
@@ -2260,8 +2261,8 @@ func (c *chainClient) FetchValidatorSetByHeight(ctx context.Context, height int6
 	return res, err
 }
 
-func (c *chainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*tmservice.ABCIQueryResponse, error) {
-	req := &tmservice.ABCIQueryRequest{
+func (c *chainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*cmtservice.ABCIQueryResponse, error) {
+	req := &cmtservice.ABCIQueryRequest{
 		Path:   path,
 		Data:   data,
 		Height: height,

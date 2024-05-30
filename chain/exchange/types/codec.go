@@ -8,10 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
-	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	groupcdc "github.com/cosmos/cosmos-sdk/x/group/codec"
-	proto "github.com/cosmos/gogoproto/proto"
+	"github.com/cosmos/gogoproto/proto"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/exchange interfaces and concrete types
@@ -45,8 +43,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCreateBinaryOptionsMarketOrder{}, "exchange/MsgCreateBinaryOptionsMarketOrder", nil)
 	cdc.RegisterConcrete(&MsgCancelBinaryOptionsOrder{}, "exchange/MsgCancelBinaryOptionsOrder", nil)
 	cdc.RegisterConcrete(&MsgAdminUpdateBinaryOptionsMarket{}, "exchange/MsgAdminUpdateBinaryOptionsMarket", nil)
-	cdc.RegisterConcrete(&MsgReclaimLockedFunds{}, "exchange/MsgReclaimLockedFunds", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "exchange/MsgUpdateParams", nil)
+	cdc.RegisterConcrete(&MsgUpdateSpotMarket{}, "exchange/MsgUpdateSpotMarket", nil)
+	cdc.RegisterConcrete(&MsgUpdateDerivativeMarket{}, "exchange/MsgUpdateDerivativeMarket", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/BatchExchangeModificationProposal", nil)
@@ -77,6 +76,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&CancelDerivativeOrderAuthz{}, "exchange/CancelDerivativeOrderAuthz", nil)
 	cdc.RegisterConcrete(&BatchCancelDerivativeOrdersAuthz{}, "exchange/BatchCancelDerivativeOrdersAuthz", nil)
 	cdc.RegisterConcrete(&BatchUpdateOrdersAuthz{}, "exchange/BatchUpdateOrdersAuthz", nil)
+
+	cdc.RegisterConcrete(&Params{}, "exchange/Params", nil)
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -109,8 +110,9 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCreateBinaryOptionsMarketOrder{},
 		&MsgCancelBinaryOptionsOrder{},
 		&MsgAdminUpdateBinaryOptionsMarket{},
-		&MsgReclaimLockedFunds{},
 		&MsgUpdateParams{},
+		&MsgUpdateSpotMarket{},
+		&MsgUpdateDerivativeMarket{},
 	)
 
 	registry.RegisterImplementations(
@@ -169,23 +171,19 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 }
 
 var (
-	amino = codec.NewLegacyAmino()
-
 	// ModuleCdc references the global x/exchange module codec. Note, the codec should
 	// ONLY be used in certain instances of tests and for JSON encoding as Amino is
 	// still used for that purpose.
 	//
 	// The actual codec used for serialization should be provided to x/exchange and
 	// defined at the application level.
-	ModuleCdc = codec.NewAminoCodec(amino)
+	ModuleCdc = codec.NewLegacyAmino()
 )
 
 func init() {
-	RegisterLegacyAminoCodec(amino)
-	cryptocodec.RegisterCrypto(amino)
-	amino.Seal()
-
-	RegisterLegacyAminoCodec(govcdc.Amino)
+	RegisterLegacyAminoCodec(ModuleCdc)
+	cryptocodec.RegisterCrypto(ModuleCdc)
 	RegisterLegacyAminoCodec(authzcdc.Amino)
-	RegisterLegacyAminoCodec(groupcdc.Amino)
+
+	ModuleCdc.Seal()
 }
