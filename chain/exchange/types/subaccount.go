@@ -3,15 +3,15 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 func NewSubaccountOrderbookMetadata() *SubaccountOrderbookMetadata {
 	return &SubaccountOrderbookMetadata{
 		VanillaLimitOrderCount:          0,
 		ReduceOnlyLimitOrderCount:       0,
-		AggregateReduceOnlyQuantity:     sdk.ZeroDec(),
-		AggregateVanillaQuantity:        sdk.ZeroDec(),
+		AggregateReduceOnlyQuantity:     math.LegacyZeroDec(),
+		AggregateVanillaQuantity:        math.LegacyZeroDec(),
 		VanillaConditionalOrderCount:    0,
 		ReduceOnlyConditionalOrderCount: 0,
 	}
@@ -26,6 +26,7 @@ func NewSubaccountOrder(o *DerivativeLimitOrder) *SubaccountOrder {
 		Price:        o.OrderInfo.Price,
 		Quantity:     o.Fillable,
 		IsReduceOnly: o.IsReduceOnly(),
+		Cid:          o.Cid(),
 	}
 }
 

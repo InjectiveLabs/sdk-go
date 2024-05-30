@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
@@ -42,23 +42,29 @@ const (
 
 	// MaxSubaccountNonceLength restricts the size of a subaccount number from 0 to 999
 	MaxSubaccountNonceLength = 3
+
+	// MaxGranterDelegations is the maximum number of delegations that are checked for stake granter
+	MaxGranterDelegations = 25
 )
 
-var MaxBinaryOptionsOrderPrice = sdk.OneDec()
+var MaxBinaryOptionsOrderPrice = math.LegacyOneDec()
 
 // would be $0.000001 for USDT
-var MinDerivativeOrderPrice = sdk.OneDec()
+var MinDerivativeOrderPrice = math.LegacyOneDec()
 
 // MaxOrderPrice equals 10^32
-var MaxOrderPrice = sdk.MustNewDecFromStr("100000000000000000000000000000000")
+var MaxOrderPrice = math.LegacyMustNewDecFromStr("100000000000000000000000000000000")
 
 // MaxOrderMargin equals 10^32
-var MaxOrderMargin = sdk.MustNewDecFromStr("100000000000000000000000000000000")
+var MaxOrderMargin = math.LegacyMustNewDecFromStr("100000000000000000000000000000000")
 
-var MaxOrderQuantity = sdk.MustNewDecFromStr("100000000000000000000000000000000")
-var MaxFeeMultiplier = sdk.MustNewDecFromStr("100")
+// MaxTokenInt equals 100,000,000 * 10^18
+var MaxTokenInt, _ = math.NewIntFromString("100000000000000000000000000")
 
-var minMarginRatio = sdk.NewDecWithPrec(5, 3)
+var MaxOrderQuantity = math.LegacyMustNewDecFromStr("100000000000000000000000000000000")
+var MaxFeeMultiplier = math.LegacyMustNewDecFromStr("100")
+
+var minMarginRatio = math.LegacyNewDecWithPrec(5, 3)
 
 // Parameter keys
 var (
@@ -98,27 +104,27 @@ func ParamKeyTable() paramtypes.KeyTable {
 func NewParams(
 	spotMarketInstantListingFee sdk.Coin,
 	derivativeMarketInstantListingFee sdk.Coin,
-	defaultSpotMakerFee sdk.Dec,
-	defaultSpotTakerFee sdk.Dec,
-	defaultDerivativeMakerFee sdk.Dec,
-	defaultDerivativeTakerFee sdk.Dec,
-	defaultInitialMarginRatio sdk.Dec,
-	defaultMaintenanceMarginRatio sdk.Dec,
+	defaultSpotMakerFee math.LegacyDec,
+	defaultSpotTakerFee math.LegacyDec,
+	defaultDerivativeMakerFee math.LegacyDec,
+	defaultDerivativeTakerFee math.LegacyDec,
+	defaultInitialMarginRatio math.LegacyDec,
+	defaultMaintenanceMarginRatio math.LegacyDec,
 	defaultFundingInterval int64,
 	fundingMultiple int64,
-	relayerFeeShare sdk.Dec,
-	defaultHourlyFundingRateCap sdk.Dec,
-	defaultHourlyInterestRate sdk.Dec,
+	relayerFeeShare math.LegacyDec,
+	defaultHourlyFundingRateCap math.LegacyDec,
+	defaultHourlyInterestRate math.LegacyDec,
 	maxDerivativeSideOrderCount uint32,
-	injRewardStakedRequirementThreshold sdkmath.Int,
+	injRewardStakedRequirementThreshold math.Int,
 	tradingRewardsVestingDuration int64,
-	liquidatorRewardShareRate sdk.Dec,
+	liquidatorRewardShareRate math.LegacyDec,
 	binaryOptionsMarketInstantListingFee sdk.Coin,
 	atomicMarketOrderAccessLevel AtomicMarketOrderAccessLevel,
-	spotAtomicMarketOrderFeeMultiplier sdk.Dec,
-	derivativeAtomicMarketOrderFeeMultiplier sdk.Dec,
-	binaryOptionsAtomicMarketOrderFeeMultiplier sdk.Dec,
-	minimalProtocolFeeRate sdk.Dec,
+	spotAtomicMarketOrderFeeMultiplier math.LegacyDec,
+	derivativeAtomicMarketOrderFeeMultiplier math.LegacyDec,
+	binaryOptionsAtomicMarketOrderFeeMultiplier math.LegacyDec,
+	minimalProtocolFeeRate math.LegacyDec,
 	postOnlyModeHeightThreshold int64,
 ) Params {
 	return Params{
@@ -184,29 +190,29 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		SpotMarketInstantListingFee:                 sdk.NewCoin("inj", sdkmath.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
-		DerivativeMarketInstantListingFee:           sdk.NewCoin("inj", sdkmath.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
-		DefaultSpotMakerFeeRate:                     sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
-		DefaultSpotTakerFeeRate:                     sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
-		DefaultDerivativeMakerFeeRate:               sdk.NewDecWithPrec(-1, 4), // default -0.01% maker fees
-		DefaultDerivativeTakerFeeRate:               sdk.NewDecWithPrec(1, 3),  // default 0.1% taker fees
-		DefaultInitialMarginRatio:                   sdk.NewDecWithPrec(5, 2),  // default 5% initial margin ratio
-		DefaultMaintenanceMarginRatio:               sdk.NewDecWithPrec(2, 2),  // default 2% maintenance margin ratio
+		SpotMarketInstantListingFee:                 sdk.NewCoin("inj", math.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
+		DerivativeMarketInstantListingFee:           sdk.NewCoin("inj", math.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
+		DefaultSpotMakerFeeRate:                     math.LegacyNewDecWithPrec(-1, 4), // default -0.01% maker fees
+		DefaultSpotTakerFeeRate:                     math.LegacyNewDecWithPrec(1, 3),  // default 0.1% taker fees
+		DefaultDerivativeMakerFeeRate:               math.LegacyNewDecWithPrec(-1, 4), // default -0.01% maker fees
+		DefaultDerivativeTakerFeeRate:               math.LegacyNewDecWithPrec(1, 3),  // default 0.1% taker fees
+		DefaultInitialMarginRatio:                   math.LegacyNewDecWithPrec(5, 2),  // default 5% initial margin ratio
+		DefaultMaintenanceMarginRatio:               math.LegacyNewDecWithPrec(2, 2),  // default 2% maintenance margin ratio
 		DefaultFundingInterval:                      DefaultFundingIntervalSeconds,
 		FundingMultiple:                             DefaultFundingMultipleSeconds,
-		RelayerFeeShareRate:                         sdk.NewDecWithPrec(40, 2),      // default 40% relayer fee share
-		DefaultHourlyFundingRateCap:                 sdk.NewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
-		DefaultHourlyInterestRate:                   sdk.NewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
+		RelayerFeeShareRate:                         math.LegacyNewDecWithPrec(40, 2),      // default 40% relayer fee share
+		DefaultHourlyFundingRateCap:                 math.LegacyNewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
+		DefaultHourlyInterestRate:                   math.LegacyNewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
 		MaxDerivativeOrderSideCount:                 MaxDerivativeOrderSideCount,
-		InjRewardStakedRequirementThreshold:         sdkmath.NewIntWithDecimal(100, 18), // 100 INJ
-		TradingRewardsVestingDuration:               604800,                             // 7 days
-		LiquidatorRewardShareRate:                   sdk.NewDecWithPrec(5, 2),           // 5% liquidator reward
-		BinaryOptionsMarketInstantListingFee:        sdk.NewCoin("inj", sdkmath.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
+		InjRewardStakedRequirementThreshold:         math.NewIntWithDecimal(100, 18), // 100 INJ
+		TradingRewardsVestingDuration:               604800,                          // 7 days
+		LiquidatorRewardShareRate:                   math.LegacyNewDecWithPrec(5, 2), // 5% liquidator reward
+		BinaryOptionsMarketInstantListingFee:        sdk.NewCoin("inj", math.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
 		AtomicMarketOrderAccessLevel:                AtomicMarketOrderAccessLevel_SmartContractsOnly,
-		SpotAtomicMarketOrderFeeMultiplier:          sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
-		DerivativeAtomicMarketOrderFeeMultiplier:    sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
-		BinaryOptionsAtomicMarketOrderFeeMultiplier: sdk.NewDecWithPrec(25, 1),        // default 2.5 multiplier
-		MinimalProtocolFeeRate:                      sdk.MustNewDecFromStr("0.00005"), // default 0.005% minimal fee rate
+		SpotAtomicMarketOrderFeeMultiplier:          math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
+		DerivativeAtomicMarketOrderFeeMultiplier:    math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
+		BinaryOptionsAtomicMarketOrderFeeMultiplier: math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
+		MinimalProtocolFeeRate:                      math.LegacyMustNewDecFromStr("0.00005"), // default 0.005% minimal fee rate
 		IsInstantDerivativeMarketLaunchEnabled:      false,
 		PostOnlyModeHeightThreshold:                 0,
 	}
@@ -326,7 +332,7 @@ func validateBinaryOptionsMarketInstantListingFee(i interface{}) error {
 }
 
 func ValidateFee(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -338,7 +344,7 @@ func ValidateFee(i interface{}) error {
 	if v.IsNegative() {
 		return fmt.Errorf("exchange fee cannot be negative: %s", v)
 	}
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("exchange fee cannot be greater than 1: %s", v)
 	}
 
@@ -346,7 +352,7 @@ func ValidateFee(i interface{}) error {
 }
 
 func ValidateMakerFee(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -355,11 +361,11 @@ func ValidateMakerFee(i interface{}) error {
 		return fmt.Errorf("exchange fee cannot be nil: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("exchange fee cannot be greater than 1: %s", v)
 	}
 
-	if v.LT(sdk.OneDec().Neg()) {
+	if v.LT(math.LegacyOneDec().Neg()) {
 		return fmt.Errorf("exchange fee cannot be less than -1: %s", v)
 	}
 
@@ -367,7 +373,7 @@ func ValidateMakerFee(i interface{}) error {
 }
 
 func ValidateHourlyFundingRateCap(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -385,7 +391,7 @@ func ValidateHourlyFundingRateCap(i interface{}) error {
 		return fmt.Errorf("hourly funding rate cap cannot be zero: %s", v)
 	}
 
-	if v.GT(sdk.NewDecWithPrec(3, 2)) {
+	if v.GT(math.LegacyNewDecWithPrec(3, 2)) {
 		return fmt.Errorf("hourly funding rate cap cannot be larger than 3 percent: %s", v)
 	}
 
@@ -393,7 +399,7 @@ func ValidateHourlyFundingRateCap(i interface{}) error {
 }
 
 func ValidateHourlyInterestRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -407,7 +413,7 @@ func ValidateHourlyInterestRate(i interface{}) error {
 		return fmt.Errorf("hourly interest rate cannot be negative: %s", v)
 	}
 
-	if v.GT(sdk.NewDecWithPrec(1, 2)) {
+	if v.GT(math.LegacyNewDecWithPrec(1, 2)) {
 		return fmt.Errorf("hourly interest rate cannot be larger than 1 percent: %s", v)
 	}
 
@@ -415,7 +421,7 @@ func ValidateHourlyInterestRate(i interface{}) error {
 }
 
 func ValidateTickSize(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -437,12 +443,12 @@ func ValidateTickSize(i interface{}) error {
 	}
 
 	// 1e18 scaleFactor
-	scaleFactor := sdk.NewDec(1000000000000000000)
+	scaleFactor := math.LegacyNewDec(1000000000000000000)
 	// v can be a decimal (e.g. 1e-18) so we scale by 1e18
 	scaledValue := v.Mul(scaleFactor)
 
-	power := sdk.NewDec(1)
-	ten := sdk.NewDec(10)
+	power := math.LegacyNewDec(1)
+	ten := math.LegacyNewDec(10)
 
 	// determine whether scaledValue is a power of 10
 	for power.LT(scaledValue) {
@@ -456,8 +462,25 @@ func ValidateTickSize(i interface{}) error {
 	return nil
 }
 
+func ValidateMinNotional(i interface{}) error {
+	v, ok := i.(math.LegacyDec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("min notional cannot be nil")
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("min notional cannot be negative: %s", v)
+	}
+
+	return nil
+}
+
 func ValidateMarginRatio(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -468,7 +491,7 @@ func ValidateMarginRatio(i interface{}) error {
 	if v.LT(minMarginRatio) {
 		return fmt.Errorf("margin ratio cannot be less than minimum: %s", v)
 	}
-	if v.GTE(sdk.OneDec()) {
+	if v.GTE(math.LegacyOneDec()) {
 		return fmt.Errorf("margin ratio cannot be greater than or equal to 1: %s", v)
 	}
 
@@ -528,7 +551,7 @@ func validateDerivativeOrderSideCount(i interface{}) error {
 }
 
 func validateInjRewardStakedRequirementThreshold(i interface{}) error {
-	v, ok := i.(sdkmath.Int)
+	v, ok := i.(math.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -558,7 +581,7 @@ func validateTradingRewardsVestingDuration(i interface{}) error {
 }
 
 func validateLiquidatorRewardShareRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -569,7 +592,7 @@ func validateLiquidatorRewardShareRate(i interface{}) error {
 	if v.IsNegative() {
 		return fmt.Errorf("reward ratio cannot be negative: %s", v)
 	}
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("reward ratio cannot be greater than 1: %s", v)
 	}
 
@@ -588,7 +611,7 @@ func validateAtomicMarketOrderAccessLevel(i interface{}) error {
 }
 
 func validateAtomicMarketOrderFeeMultiplier(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -596,7 +619,7 @@ func validateAtomicMarketOrderFeeMultiplier(i interface{}) error {
 	if v.IsNil() {
 		return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be nil: %s", v)
 	}
-	if v.LT(sdk.OneDec()) {
+	if v.LT(math.LegacyOneDec()) {
 		return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be less than one: %s", v)
 	}
 	if v.GT(MaxFeeMultiplier) {

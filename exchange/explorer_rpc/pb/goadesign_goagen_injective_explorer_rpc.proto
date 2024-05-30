@@ -1,0 +1,870 @@
+// Code generated with goa v3.7.0, DO NOT EDIT.
+//
+// InjectiveExplorerRPC protocol buffer definition
+//
+// Command:
+// $ goa gen github.com/InjectiveLabs/injective-indexer/api/design -o ../
+
+syntax = "proto3";
+
+package injective_explorer_rpc;
+
+option go_package = "/injective_explorer_rpcpb";
+
+// ExplorerAPI implements explorer data API for e.g. Blockchain Explorer
+service InjectiveExplorerRPC {
+	// GetAccountTxs returns tranctions involving in an account based upon params.
+	rpc GetAccountTxs (GetAccountTxsRequest) returns (GetAccountTxsResponse);
+	// GetContractTxs returns contract-related transactions
+	rpc GetContractTxs (GetContractTxsRequest) returns (GetContractTxsResponse);
+	// GetContractTxs returns contract-related transactions
+	rpc GetContractTxsV2 (GetContractTxsV2Request) returns (GetContractTxsV2Response);
+	// GetBlocks returns blocks based upon the request params
+	rpc GetBlocks (GetBlocksRequest) returns (GetBlocksResponse);
+	// GetBlock returns block based upon the height or hash
+	rpc GetBlock (GetBlockRequest) returns (GetBlockResponse);
+	// GetValidators returns validators on the active chain
+	rpc GetValidators (GetValidatorsRequest) returns (GetValidatorsResponse);
+	// GetValidator returns validator information on the active chain
+	rpc GetValidator (GetValidatorRequest) returns (GetValidatorResponse);
+	// GetValidatorUptime returns validator uptime information on the active chain
+	rpc GetValidatorUptime (GetValidatorUptimeRequest) returns (GetValidatorUptimeResponse);
+	// GetTxs returns transactions based upon the request params
+	rpc GetTxs (GetTxsRequest) returns (GetTxsResponse);
+	// GetTxByTxHash returns certain transaction information by its tx hash.
+	rpc GetTxByTxHash (GetTxByTxHashRequest) returns (GetTxByTxHashResponse);
+	// GetPeggyDepositTxs returns the peggy deposit transactions based upon the
+// request params
+	rpc GetPeggyDepositTxs (GetPeggyDepositTxsRequest) returns (GetPeggyDepositTxsResponse);
+	// GetPeggyWithdrawalTxs returns the peggy withdrawal transactions based upon
+// the request params
+	rpc GetPeggyWithdrawalTxs (GetPeggyWithdrawalTxsRequest) returns (GetPeggyWithdrawalTxsResponse);
+	// GetIBCTransferTxs returns the ibc transfer transactions based upon the
+// request params
+	rpc GetIBCTransferTxs (GetIBCTransferTxsRequest) returns (GetIBCTransferTxsResponse);
+	// GetWasmCodes lists all stored code
+	rpc GetWasmCodes (GetWasmCodesRequest) returns (GetWasmCodesResponse);
+	// GetWasmCodeById list cosmwasm code infor by ID
+	rpc GetWasmCodeByID (GetWasmCodeByIDRequest) returns (GetWasmCodeByIDResponse);
+	// GetWasmContracts lists all contracts
+	rpc GetWasmContracts (GetWasmContractsRequest) returns (GetWasmContractsResponse);
+	// GetWasmContractByAddress list cosmwasm contract info by its address
+	rpc GetWasmContractByAddress (GetWasmContractByAddressRequest) returns (GetWasmContractByAddressResponse);
+	// GetCw20Balance lists all cw20 balances of an injective account
+	rpc GetCw20Balance (GetCw20BalanceRequest) returns (GetCw20BalanceResponse);
+	// Request relayers infos by marketIDs. If no ids are provided, all market with
+// associated relayers are returned
+	rpc Relayers (RelayersRequest) returns (RelayersResponse);
+	// GetBankTransfers returns bank transfers.
+	rpc GetBankTransfers (GetBankTransfersRequest) returns (GetBankTransfersResponse);
+	// StreamTxs returns transactions based upon the request params
+	rpc StreamTxs (StreamTxsRequest) returns (stream StreamTxsResponse);
+	// StreamBlocks returns the latest blocks
+	rpc StreamBlocks (StreamBlocksRequest) returns (stream StreamBlocksResponse);
+}
+
+message GetAccountTxsRequest {
+	// Address of account
+	string address = 1;
+	// Return transactions before this block number
+	uint64 before = 2;
+	// Return transactions after this block number
+	uint64 after = 3;
+	sint32 limit = 4;
+	uint64 skip = 5;
+	string type = 6;
+	string module = 7;
+	sint64 from_number = 8;
+	sint64 to_number = 9;
+	// The starting timestamp in UNIX milliseconds that the txs must be equal or
+// older than
+	sint64 start_time = 10;
+	// The ending timestamp in UNIX milliseconds that the txs must be equal or
+// younger than
+	sint64 end_time = 11;
+	// The status of the txs to be returned
+	string status = 12;
+}
+
+message GetAccountTxsResponse {
+	Paging paging = 1;
+	repeated TxDetailData data = 2;
+}
+// Paging defines the structure for required params for handling pagination
+message Paging {
+	// total number of txs saved in database
+	sint64 total = 1;
+	// can be either block height or index num
+	sint32 from = 2;
+	// can be either block height or index num
+	sint32 to = 3;
+	// count entries by subaccount, serving some places on helix
+	sint64 count_by_subaccount = 4;
+	// array of tokens to navigate to the next pages
+	repeated string next = 5;
+}
+// TxDetailData wraps tx data includes details information
+message TxDetailData {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	uint32 code = 5;
+	bytes data = 6;
+	string info = 8;
+	sint64 gas_wanted = 9;
+	sint64 gas_used = 10;
+	GasFee gas_fee = 11;
+	string codespace = 12;
+	repeated Event events = 13;
+	string tx_type = 14;
+	bytes messages = 15;
+	repeated Signature signatures = 16;
+	string memo = 17;
+	uint64 tx_number = 18;
+	// Block timestamp in unix milli
+	uint64 block_unix_timestamp = 19;
+	// Transaction log indicating errors
+	string error_log = 20;
+	// transaction event logs
+	bytes logs = 21;
+	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
+	repeated sint64 claim_ids = 22;
+}
+
+message GasFee {
+	repeated CosmosCoin amount = 1;
+	uint64 gas_limit = 2;
+	string payer = 3;
+	string granter = 4;
+}
+
+message CosmosCoin {
+	// Coin denominator
+	string denom = 1;
+	// Coin amount (big int)
+	string amount = 2;
+}
+
+message Event {
+	string type = 1;
+	map<string, string> attributes = 2;
+}
+// Signature wraps tx signature
+message Signature {
+	string pubkey = 1;
+	string address = 2;
+	uint64 sequence = 3;
+	string signature = 4;
+}
+
+message GetContractTxsRequest {
+	// Address of contract
+	string address = 1;
+	sint32 limit = 2;
+	uint64 skip = 3;
+	sint64 from_number = 4;
+	sint64 to_number = 5;
+}
+
+message GetContractTxsResponse {
+	Paging paging = 1;
+	repeated TxDetailData data = 2;
+}
+
+message GetContractTxsV2Request {
+	// Address of contract
+	string address = 1;
+	// Height of the block
+	uint64 height = 2;
+	// Unix timestamp (UTC) in milliseconds
+	sint64 from = 3;
+	// Unix timestamp (UTC) in milliseconds
+	sint64 to = 4;
+	sint32 limit = 5;
+	// Pagination token
+	string token = 6;
+}
+
+message GetContractTxsV2Response {
+	repeated string next = 1;
+	repeated TxDetailData data = 2;
+}
+
+message GetBlocksRequest {
+	uint64 before = 1;
+	uint64 after = 2;
+	sint32 limit = 3;
+	// Unix timestamp (UTC) in milliseconds
+	uint64 from = 4;
+	// Unix timestamp (UTC) in milliseconds
+	uint64 to = 5;
+}
+
+message GetBlocksResponse {
+	Paging paging = 1;
+	repeated BlockInfo data = 2;
+}
+
+message BlockInfo {
+	uint64 height = 1;
+	string proposer = 2;
+	string moniker = 3;
+	string block_hash = 4;
+	string parent_hash = 5;
+	sint64 num_pre_commits = 6;
+	sint64 num_txs = 7;
+	repeated TxDataRPC txs = 8;
+	string timestamp = 9;
+}
+// TxData wraps tx data
+message TxDataRPC {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	string codespace = 5;
+	string messages = 6;
+	uint64 tx_number = 7;
+	// Transaction log indicating errors
+	string error_log = 8;
+	uint32 code = 9;
+	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
+	repeated sint64 claim_ids = 10;
+}
+
+message GetBlockRequest {
+	string id = 1;
+}
+
+message GetBlockResponse {
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	BlockDetailInfo data = 3;
+}
+
+message BlockDetailInfo {
+	uint64 height = 1;
+	string proposer = 2;
+	string moniker = 3;
+	string block_hash = 4;
+	string parent_hash = 5;
+	sint64 num_pre_commits = 6;
+	sint64 num_txs = 7;
+	sint64 total_txs = 8;
+	repeated TxData txs = 9;
+	string timestamp = 10;
+}
+// TxData wraps tx data
+message TxData {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	string codespace = 5;
+	bytes messages = 6;
+	uint64 tx_number = 7;
+	// Transaction log indicating errors
+	string error_log = 8;
+	uint32 code = 9;
+	bytes tx_msg_types = 10;
+	// transaction event logs
+	bytes logs = 11;
+	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
+	repeated sint64 claim_ids = 12;
+}
+
+message GetValidatorsRequest {
+}
+
+message GetValidatorsResponse {
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	repeated Validator data = 3;
+}
+// Validator defines the structure for validator information.
+message Validator {
+	string id = 1;
+	string moniker = 2;
+	string operator_address = 3;
+	string consensus_address = 4;
+	bool jailed = 5;
+	sint32 status = 6;
+	string tokens = 7;
+	string delegator_shares = 8;
+	ValidatorDescription description = 9;
+	sint64 unbonding_height = 10;
+	string unbonding_time = 11;
+	string commission_rate = 12;
+	string commission_max_rate = 13;
+	string commission_max_change_rate = 14;
+	string commission_update_time = 15;
+	uint64 proposed = 16;
+	uint64 signed = 17;
+	uint64 missed = 18;
+	string timestamp = 19;
+	repeated ValidatorUptime uptimes = 20;
+	repeated SlashingEvent slashing_events = 21;
+	// uptime percentage base on latest 10k block
+	double uptime_percentage = 22;
+	// URL of the validator logo
+	string image_url = 23;
+}
+
+message ValidatorDescription {
+	string moniker = 1;
+	string identity = 2;
+	string website = 3;
+	string security_contact = 4;
+	string details = 5;
+	string image_url = 6;
+}
+
+message ValidatorUptime {
+	uint64 block_number = 1;
+	string status = 2;
+}
+
+message SlashingEvent {
+	uint64 block_number = 1;
+	string block_timestamp = 2;
+	string address = 3;
+	uint64 power = 4;
+	string reason = 5;
+	string jailed = 6;
+	uint64 missed_blocks = 7;
+}
+
+message GetValidatorRequest {
+	string address = 1;
+}
+
+message GetValidatorResponse {
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	Validator data = 3;
+}
+
+message GetValidatorUptimeRequest {
+	string address = 1;
+}
+
+message GetValidatorUptimeResponse {
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	repeated ValidatorUptime data = 3;
+}
+
+message GetTxsRequest {
+	uint64 before = 1;
+	uint64 after = 2;
+	sint32 limit = 3;
+	uint64 skip = 4;
+	string type = 5;
+	string module = 6;
+	sint64 from_number = 7;
+	sint64 to_number = 8;
+	// The starting timestamp in UNIX milliseconds that the txs must be equal or
+// older than
+	sint64 start_time = 9;
+	// The ending timestamp in UNIX milliseconds that the txs must be equal or
+// younger than
+	sint64 end_time = 10;
+	// The status of the txs to be returned
+	string status = 11;
+}
+
+message GetTxsResponse {
+	Paging paging = 1;
+	repeated TxData data = 2;
+}
+
+message GetTxByTxHashRequest {
+	string hash = 1;
+}
+
+message GetTxByTxHashResponse {
+	// Status of the response.
+	string s = 1;
+	// Error message.
+	string errmsg = 2;
+	TxDetailData data = 3;
+}
+
+message GetPeggyDepositTxsRequest {
+	// Sender address of deposit request
+	string sender = 1;
+	// Address of receiveer upon deposit
+	string receiver = 2;
+	sint32 limit = 3;
+	uint64 skip = 4;
+}
+
+message GetPeggyDepositTxsResponse {
+	repeated PeggyDepositTx field = 1;
+}
+// PeggyDepositTx wraps tx data includes peggy deposit tx details information
+message PeggyDepositTx {
+	// Sender address of deposit request
+	string sender = 1;
+	// Address of receiveer upon deposit
+	string receiver = 2;
+	// The event nonce of WithdrawalClaim event emitted by Ethereum chain upon
+// deposit
+	uint64 event_nonce = 3;
+	// The block height of WithdrawalClaim event emitted by Ethereum chain upon
+// deposit
+	uint64 event_height = 4;
+	// Amount of tokens being deposited
+	string amount = 5;
+	// Denom of tokens being deposited
+	string denom = 6;
+	// orchestratorAddress who created batch request
+	string orchestrator_address = 7;
+	string state = 8;
+	// The claimType will be DepoistClaim for Deposits
+	sint32 claim_type = 9;
+	repeated string tx_hashes = 10;
+	string created_at = 11;
+	string updated_at = 12;
+}
+
+message GetPeggyWithdrawalTxsRequest {
+	// Sender address of withdrawal request
+	string sender = 1;
+	// Address of receiveer upon withdrawal
+	string receiver = 2;
+	sint32 limit = 3;
+	uint64 skip = 4;
+}
+
+message GetPeggyWithdrawalTxsResponse {
+	repeated PeggyWithdrawalTx field = 1;
+}
+// PeggyWithdrawalTx wraps tx data includes peggy withdrawal tx details
+// information
+message PeggyWithdrawalTx {
+	// Sender address of withdrawal request
+	string sender = 1;
+	// Address of receiveer upon withdrawal
+	string receiver = 2;
+	// Amount of tokens being withdrawan
+	string amount = 3;
+	// Denom of tokens being withdrawan
+	string denom = 4;
+	// The bridge fee paid by sender for withdrawal
+	string bridge_fee = 5;
+	// A auto incremented unique ID representing the withdrawal request
+	uint64 outgoing_tx_id = 6;
+	// The timestamp after which Batch request will be discarded if not processed
+// already
+	uint64 batch_timeout = 7;
+	// A auto incremented unique ID representing the Withdrawal Batches
+	uint64 batch_nonce = 8;
+	// orchestratorAddress who created batch request
+	string orchestrator_address = 9;
+	// The event nonce of WithdrawalClaim event emitted by Ethereum chain upon
+// batch withdrawal
+	uint64 event_nonce = 10;
+	// The block height of WithdrawalClaim event emitted by Ethereum chain upon
+// batch withdrawal
+	uint64 event_height = 11;
+	string state = 12;
+	// The claimType will be WithdrawalClaim for Batch Withdrawals
+	sint32 claim_type = 13;
+	repeated string tx_hashes = 14;
+	string created_at = 15;
+	string updated_at = 16;
+}
+
+message GetIBCTransferTxsRequest {
+	string sender = 1;
+	string receiver = 2;
+	string src_channel = 3;
+	string src_port = 4;
+	string dest_channel = 5;
+	string dest_port = 6;
+	sint32 limit = 7;
+	uint64 skip = 8;
+}
+
+message GetIBCTransferTxsResponse {
+	repeated IBCTransferTx field = 1;
+}
+// IBCTransferTx wraps tx data includes ibc transfer tx details information
+message IBCTransferTx {
+	// the sender address
+	string sender = 1;
+	// the recipient address on the destination chain
+	string receiver = 2;
+	// the port on which the packet will be sent
+	string source_port = 3;
+	// the channel by which the packet will be sent
+	string source_channel = 4;
+	// identifies the port on the receiving chain
+	string destination_port = 5;
+	// identifies the channel end on the receiving chain
+	string destination_channel = 6;
+	// transfer amount
+	string amount = 7;
+	// transafer denom
+	string denom = 8;
+	// Timeout height relative to the current block height. The timeout is disabled
+// when set to 0
+	string timeout_height = 9;
+	// Timeout timestamp (in nanoseconds) relative to the current block timestamp
+	uint64 timeout_timestamp = 10;
+	// number corresponds to the order of sends and receives, where a Packet with
+// an earlier sequence number must be sent and received before a Packet with a
+// later sequence number
+	uint64 packet_sequence = 11;
+	bytes data_hex = 12;
+	string state = 13;
+	// it's injective chain tx hash array
+	repeated string tx_hashes = 14;
+	string created_at = 15;
+	string updated_at = 16;
+}
+
+message GetWasmCodesRequest {
+	sint32 limit = 1;
+	sint64 from_number = 2;
+	sint64 to_number = 3;
+}
+
+message GetWasmCodesResponse {
+	Paging paging = 1;
+	repeated WasmCode data = 2;
+}
+// Detail of cosmwasm stored code
+message WasmCode {
+	// ID of stored wasmcode, sorted in descending order
+	uint64 code_id = 1;
+	// Tx hash of store code transaction
+	string tx_hash = 2;
+	// Checksum of the cosmwasm code
+	Checksum checksum = 3;
+	// Block time when the code is stored, in millisecond
+	uint64 created_at = 4;
+	// Contract type of the wasm code
+	string contract_type = 5;
+	// version string of the wasm code
+	string version = 6;
+	// describe instantiate permission
+	ContractPermission permission = 7;
+	// code schema preview
+	string code_schema = 8;
+	// code repo preview, may contain schema folder
+	string code_view = 9;
+	// count number of contract instantiation from this code
+	uint64 instantiates = 10;
+	// creator of this code
+	string creator = 11;
+	// monotonic order of the code stored
+	sint64 code_number = 12;
+	// id of the proposal that store this code
+	sint64 proposal_id = 13;
+}
+
+message Checksum {
+	// Algorithm of hash function
+	string algorithm = 1;
+	// Hash if apply algorithm to the cosmwasm bytecode
+	string hash = 2;
+}
+
+message ContractPermission {
+	// Access type of instantiation
+	sint32 access_type = 1;
+	// Account address
+	string address = 2;
+}
+
+message GetWasmCodeByIDRequest {
+	// Code ID of the code
+	sint64 code_id = 1;
+}
+
+message GetWasmCodeByIDResponse {
+	// ID of stored wasmcode, sorted in descending order
+	uint64 code_id = 1;
+	// Tx hash of store code transaction
+	string tx_hash = 2;
+	// Checksum of the cosmwasm code
+	Checksum checksum = 3;
+	// Block time when the code is stored, in millisecond
+	uint64 created_at = 4;
+	// Contract type of the wasm code
+	string contract_type = 5;
+	// version string of the wasm code
+	string version = 6;
+	// describe instantiate permission
+	ContractPermission permission = 7;
+	// code schema preview
+	string code_schema = 8;
+	// code repo preview, may contain schema folder
+	string code_view = 9;
+	// count number of contract instantiation from this code
+	uint64 instantiates = 10;
+	// creator of this code
+	string creator = 11;
+	// monotonic order of the code stored
+	sint64 code_number = 12;
+	// id of the proposal that store this code
+	sint64 proposal_id = 13;
+}
+
+message GetWasmContractsRequest {
+	sint32 limit = 1;
+	sint64 code_id = 2;
+	sint64 from_number = 3;
+	sint64 to_number = 4;
+	bool assets_only = 5;
+	sint64 skip = 6;
+	// Label of the contract
+	string label = 7;
+}
+
+message GetWasmContractsResponse {
+	Paging paging = 1;
+	repeated WasmContract data = 2;
+}
+// Detail of cosmwasm instantiated contract
+message WasmContract {
+	// General name of the contract
+	string label = 1;
+	// Address of the contract
+	string address = 2;
+	// hash of the instantiate transaction
+	string tx_hash = 3;
+	// Address of the contract creator
+	string creator = 4;
+	// Number of times call to execute contract
+	uint64 executes = 5;
+	// Block timestamp that contract was instantiated, in millisecond
+	uint64 instantiated_at = 6;
+	// init message when this contract was instantiated
+	string init_message = 7;
+	// Block timestamp that contract was called, in millisecond
+	uint64 last_executed_at = 8;
+	// Contract funds
+	repeated ContractFund funds = 9;
+	// Code id of the contract
+	uint64 code_id = 10;
+	// Admin of the contract
+	string admin = 11;
+	// Latest migrate message of the contract
+	string current_migrate_message = 12;
+	// Monotonic contract number in database
+	sint64 contract_number = 13;
+	// Contract version string
+	string version = 14;
+	// Contract type
+	string type = 15;
+	Cw20Metadata cw20_metadata = 16;
+	// id of the proposal that instantiate this contract
+	sint64 proposal_id = 17;
+}
+
+message ContractFund {
+	// Denominator
+	string denom = 1;
+	// Amount of denom
+	string amount = 2;
+}
+// General cw20 metadata
+message Cw20Metadata {
+	Cw20TokenInfo token_info = 1;
+	Cw20MarketingInfo marketing_info = 2;
+}
+// Token name, symbol, decimal and so on
+message Cw20TokenInfo {
+	// General name of the token
+	string name = 1;
+	// Symbol of then token
+	string symbol = 2;
+	// Decimal places of token
+	sint64 decimals = 3;
+	// Token's total supply
+	string total_supply = 4;
+}
+// Marketing info
+message Cw20MarketingInfo {
+	// Project information
+	string project = 1;
+	// Token's description
+	string description = 2;
+	// logo (url/embedded)
+	string logo = 3;
+	// A random field for additional marketing info
+	bytes marketing = 4;
+}
+
+message GetWasmContractByAddressRequest {
+	// Contract address
+	string contract_address = 1;
+}
+
+message GetWasmContractByAddressResponse {
+	// General name of the contract
+	string label = 1;
+	// Address of the contract
+	string address = 2;
+	// hash of the instantiate transaction
+	string tx_hash = 3;
+	// Address of the contract creator
+	string creator = 4;
+	// Number of times call to execute contract
+	uint64 executes = 5;
+	// Block timestamp that contract was instantiated, in millisecond
+	uint64 instantiated_at = 6;
+	// init message when this contract was instantiated
+	string init_message = 7;
+	// Block timestamp that contract was called, in millisecond
+	uint64 last_executed_at = 8;
+	// Contract funds
+	repeated ContractFund funds = 9;
+	// Code id of the contract
+	uint64 code_id = 10;
+	// Admin of the contract
+	string admin = 11;
+	// Latest migrate message of the contract
+	string current_migrate_message = 12;
+	// Monotonic contract number in database
+	sint64 contract_number = 13;
+	// Contract version string
+	string version = 14;
+	// Contract type
+	string type = 15;
+	Cw20Metadata cw20_metadata = 16;
+	// id of the proposal that instantiate this contract
+	sint64 proposal_id = 17;
+}
+
+message GetCw20BalanceRequest {
+	// address to list balance of
+	string address = 1;
+	sint32 limit = 2;
+}
+
+message GetCw20BalanceResponse {
+	repeated WasmCw20Balance field = 1;
+}
+
+message WasmCw20Balance {
+	// Address of CW20 contract
+	string contract_address = 1;
+	// Account address
+	string account = 2;
+	// Account balance
+	string balance = 3;
+	// update timestamp in milisecond
+	sint64 updated_at = 4;
+	Cw20Metadata cw20_metadata = 5;
+}
+
+message RelayersRequest {
+	// Specify multiple marketIDs to search.
+	repeated string market_i_ds = 1;
+}
+
+message RelayersResponse {
+	repeated RelayerMarkets field = 1;
+}
+
+message RelayerMarkets {
+	// Market ID of the market
+	string market_id = 1;
+	// Relayers list for specified market
+	repeated Relayer relayers = 2;
+}
+
+message Relayer {
+	// Relayer identifier
+	string name = 1;
+	// Call to action. A link to the relayer
+	string cta = 2;
+}
+
+message GetBankTransfersRequest {
+	// Transfer sender address
+	repeated string senders = 1;
+	// Transfer recipient address
+	repeated string recipients = 2;
+	// Returns transfers with the community pool address as either sender or
+// recipient
+	bool is_community_pool_related = 3;
+	sint32 limit = 4;
+	uint64 skip = 5;
+	// The starting timestamp in UNIX milliseconds that the transfers must be equal
+// or older than
+	sint64 start_time = 6;
+	// The ending timestamp in UNIX milliseconds that the transfers must be equal
+// or younger than
+	sint64 end_time = 7;
+	// Transfers where either the sender or the recipient is one of the addresses
+	repeated string address = 8;
+	sint32 per_page = 9;
+	string token = 10;
+}
+
+message GetBankTransfersResponse {
+	Paging paging = 1;
+	repeated BankTransfer data = 2;
+}
+// Bank transfer represents a transfer
+message BankTransfer {
+	string sender = 1;
+	string recipient = 2;
+	// Amounts transferred
+	repeated Coin amounts = 3;
+	uint64 block_number = 4;
+	string block_timestamp = 5;
+}
+
+message Coin {
+	// Denom of the coin
+	string denom = 1;
+	string amount = 2;
+}
+
+message StreamTxsRequest {
+}
+
+message StreamTxsResponse {
+	string id = 1;
+	uint64 block_number = 2;
+	string block_timestamp = 3;
+	string hash = 4;
+	string codespace = 5;
+	string messages = 6;
+	uint64 tx_number = 7;
+	// Transaction log indicating errors
+	string error_log = 8;
+	uint32 code = 9;
+	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
+	repeated sint64 claim_ids = 10;
+}
+
+message StreamBlocksRequest {
+}
+
+message StreamBlocksResponse {
+	uint64 height = 1;
+	string proposer = 2;
+	string moniker = 3;
+	string block_hash = 4;
+	string parent_hash = 5;
+	sint64 num_pre_commits = 6;
+	sint64 num_txs = 7;
+	repeated TxDataRPC txs = 8;
+	string timestamp = 9;
+}

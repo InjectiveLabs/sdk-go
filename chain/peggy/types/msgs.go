@@ -24,6 +24,8 @@ var (
 	_ sdk.Msg = &MsgValsetUpdatedClaim{}
 	_ sdk.Msg = &MsgSubmitBadSignatureEvidence{}
 	_ sdk.Msg = &MsgUpdateParams{}
+	_ sdk.Msg = &MsgBlacklistEthereumAddresses{}
+	_ sdk.Msg = &MsgRevokeEthereumBlacklist{}
 )
 
 func (m *MsgUpdateParams) Route() string { return RouterKey }
@@ -618,3 +620,61 @@ func (msg MsgSubmitBadSignatureEvidence) Type() string { return "Submit_Bad_Sign
 
 // Route should return the name of the module
 func (msg MsgSubmitBadSignatureEvidence) Route() string { return RouterKey }
+
+func (m *MsgBlacklistEthereumAddresses) Route() string { return RouterKey }
+
+func (m *MsgBlacklistEthereumAddresses) Type() string { return "blacklist_ethereum_addresses" }
+
+func (m *MsgBlacklistEthereumAddresses) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Signer); err != nil {
+		return errors.Wrap(err, "invalid signer address")
+	}
+
+	for _, blacklistAddress := range m.BlacklistAddresses {
+
+		_, err := NewEthAddress(blacklistAddress)
+		if err != nil {
+			return errors.Wrapf(err, "invalid blacklist address %s", blacklistAddress)
+		}
+	}
+
+	return nil
+}
+
+func (m *MsgBlacklistEthereumAddresses) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshal(m))
+}
+
+func (m *MsgBlacklistEthereumAddresses) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(m.Signer)
+	return []sdk.AccAddress{addr}
+}
+
+func (m *MsgRevokeEthereumBlacklist) Route() string { return RouterKey }
+
+func (m *MsgRevokeEthereumBlacklist) Type() string { return "revoke_ethereum_blacklist" }
+
+func (m *MsgRevokeEthereumBlacklist) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Signer); err != nil {
+		return errors.Wrap(err, "invalid signer address")
+	}
+
+	for _, blacklistAddress := range m.BlacklistAddresses {
+
+		_, err := NewEthAddress(blacklistAddress)
+		if err != nil {
+			return errors.Wrapf(err, "invalid blacklist address %s", blacklistAddress)
+		}
+	}
+
+	return nil
+}
+
+func (m *MsgRevokeEthereumBlacklist) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshal(m))
+}
+
+func (m *MsgRevokeEthereumBlacklist) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(m.Signer)
+	return []sdk.AccAddress{addr}
+}

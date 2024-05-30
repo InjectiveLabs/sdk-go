@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 // DefaultParamspace defines the default auth module parameter subspace
@@ -25,11 +25,11 @@ func DefaultParams() *Params {
 		TargetBatchTimeout:            43200000,
 		AverageBlockTime:              5000,
 		AverageEthereumBlockTime:      15000,
-		SlashFractionValset:           sdk.NewDec(1).Quo(sdk.NewDec(1000)),
-		SlashFractionBatch:            sdk.NewDec(1).Quo(sdk.NewDec(1000)),
-		SlashFractionClaim:            sdk.NewDec(1).Quo(sdk.NewDec(1000)),
-		SlashFractionConflictingClaim: sdk.NewDec(1).Quo(sdk.NewDec(1000)),
-		SlashFractionBadEthSignature:  sdk.NewDec(1).Quo(sdk.NewDec(1000)),
+		SlashFractionValset:           math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBatch:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionClaim:            math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionConflictingClaim: math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
+		SlashFractionBadEthSignature:  math.LegacyNewDec(1).Quo(math.LegacyNewDec(1000)),
 		CosmosCoinDenom:               "inj",
 		UnbondSlashingValsetsWindow:   10000,
 		ClaimSlashingEnabled:          false,
@@ -199,7 +199,7 @@ func validateUnbondSlashingValsetsWindow(i interface{}) error {
 }
 
 func validateSlashFractionValset(i interface{}) error {
-	if _, ok := i.(sdk.Dec); !ok {
+	if _, ok := i.(math.LegacyDec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
@@ -220,21 +220,21 @@ func validateSignedClaimsWindow(i interface{}) error {
 }
 
 func validateSlashFractionBatch(i interface{}) error {
-	if _, ok := i.(sdk.Dec); !ok {
+	if _, ok := i.(math.LegacyDec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
 func validateSlashFractionClaim(i interface{}) error {
-	if _, ok := i.(sdk.Dec); !ok {
+	if _, ok := i.(math.LegacyDec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
 func validateSlashFractionConflictingClaim(i interface{}) error {
-	if _, ok := i.(sdk.Dec); !ok {
+	if _, ok := i.(math.LegacyDec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
@@ -284,7 +284,7 @@ func validateClaimSlashingEnabled(i interface{}) error {
 }
 
 func validateSlashFractionBadEthSignature(i interface{}) error {
-	if _, ok := i.(sdk.Dec); !ok {
+	if _, ok := i.(math.LegacyDec); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil

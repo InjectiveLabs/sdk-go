@@ -1,6 +1,8 @@
 package types
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -39,7 +41,7 @@ func (a BatchUpdateOrdersAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgBatchUpdateOrders{})
 }
 
-func (a BatchUpdateOrdersAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a BatchUpdateOrdersAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	ordersToUpdate, ok := msg.(*MsgBatchUpdateOrders)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")

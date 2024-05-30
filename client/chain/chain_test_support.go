@@ -2,10 +2,11 @@ package chain
 
 import (
 	"context"
+	sdkmath "cosmossdk.io/math"
 	"errors"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client/grpc/tmservice"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"google.golang.org/grpc"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
@@ -22,10 +23,10 @@ import (
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	ibcconnectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
-	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
 )
 
@@ -382,7 +383,7 @@ func (c *MockChainClient) FetchChainFullSpotMarket(ctx context.Context, marketId
 	return &exchangetypes.QueryFullSpotMarketResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdk.Dec, limitCumulativeQuantity sdk.Dec) (*exchangetypes.QuerySpotOrderbookResponse, error) {
+func (c *MockChainClient) FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdkmath.LegacyDec, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangetypes.QuerySpotOrderbookResponse, error) {
 	return &exchangetypes.QuerySpotOrderbookResponse{}, nil
 }
 
@@ -414,7 +415,7 @@ func (c *MockChainClient) FetchDerivativeMidPriceAndTOB(ctx context.Context, mar
 	return &exchangetypes.QueryDerivativeMidPriceAndTOBResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdk.Dec) (*exchangetypes.QueryDerivativeOrderbookResponse, error) {
+func (c *MockChainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangetypes.QueryDerivativeOrderbookResponse, error) {
 	return &exchangetypes.QueryDerivativeOrderbookResponse{}, nil
 }
 
@@ -552,32 +553,32 @@ func (c *MockChainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Co
 
 // Tendermint module
 
-func (c *MockChainClient) FetchNodeInfo(ctx context.Context) (*tmservice.GetNodeInfoResponse, error) {
-	return &tmservice.GetNodeInfoResponse{}, nil
+func (c *MockChainClient) FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error) {
+	return &cmtservice.GetNodeInfoResponse{}, nil
 }
 
-func (c *MockChainClient) FetchSyncing(ctx context.Context) (*tmservice.GetSyncingResponse, error) {
-	return &tmservice.GetSyncingResponse{}, nil
+func (c *MockChainClient) FetchSyncing(ctx context.Context) (*cmtservice.GetSyncingResponse, error) {
+	return &cmtservice.GetSyncingResponse{}, nil
 }
 
-func (c *MockChainClient) FetchLatestBlock(ctx context.Context) (*tmservice.GetLatestBlockResponse, error) {
-	return &tmservice.GetLatestBlockResponse{}, nil
+func (c *MockChainClient) FetchLatestBlock(ctx context.Context) (*cmtservice.GetLatestBlockResponse, error) {
+	return &cmtservice.GetLatestBlockResponse{}, nil
 }
 
-func (c *MockChainClient) FetchBlockByHeight(ctx context.Context, height int64) (*tmservice.GetBlockByHeightResponse, error) {
-	return &tmservice.GetBlockByHeightResponse{}, nil
+func (c *MockChainClient) FetchBlockByHeight(ctx context.Context, height int64) (*cmtservice.GetBlockByHeightResponse, error) {
+	return &cmtservice.GetBlockByHeightResponse{}, nil
 }
 
-func (c *MockChainClient) FetchLatestValidatorSet(ctx context.Context) (*tmservice.GetLatestValidatorSetResponse, error) {
-	return &tmservice.GetLatestValidatorSetResponse{}, nil
+func (c *MockChainClient) FetchLatestValidatorSet(ctx context.Context) (*cmtservice.GetLatestValidatorSetResponse, error) {
+	return &cmtservice.GetLatestValidatorSetResponse{}, nil
 }
 
-func (c *MockChainClient) FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*tmservice.GetValidatorSetByHeightResponse, error) {
-	return &tmservice.GetValidatorSetByHeightResponse{}, nil
+func (c *MockChainClient) FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*cmtservice.GetValidatorSetByHeightResponse, error) {
+	return &cmtservice.GetValidatorSetByHeightResponse{}, nil
 }
 
-func (c *MockChainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*tmservice.ABCIQueryResponse, error) {
-	return &tmservice.ABCIQueryResponse{}, nil
+func (c *MockChainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*cmtservice.ABCIQueryResponse, error) {
+	return &cmtservice.ABCIQueryResponse{}, nil
 }
 
 // IBC Transfer module

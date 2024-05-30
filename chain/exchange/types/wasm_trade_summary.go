@@ -4,25 +4,26 @@ import (
 	"bytes"
 	"sort"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type MarketSummary struct {
-	TotalUserQuantity     sdk.Dec
-	TotalContractQuantity sdk.Dec
-	TotalUserMargin       sdk.Dec
-	TotalContractMargin   sdk.Dec
-	netQuantity           sdk.Dec
+	TotalUserQuantity     math.LegacyDec
+	TotalContractQuantity math.LegacyDec
+	TotalUserMargin       math.LegacyDec
+	TotalContractMargin   math.LegacyDec
+	netQuantity           math.LegacyDec
 }
 
 func NewMarketSummary() *MarketSummary {
 	return &MarketSummary{
-		TotalUserQuantity:     sdk.ZeroDec(),
-		TotalContractQuantity: sdk.ZeroDec(),
-		TotalUserMargin:       sdk.ZeroDec(),
-		TotalContractMargin:   sdk.ZeroDec(),
-		netQuantity:           sdk.ZeroDec(),
+		TotalUserQuantity:     math.LegacyZeroDec(),
+		TotalContractQuantity: math.LegacyZeroDec(),
+		TotalUserMargin:       math.LegacyZeroDec(),
+		TotalContractMargin:   math.LegacyZeroDec(),
+		netQuantity:           math.LegacyZeroDec(),
 	}
 }
 

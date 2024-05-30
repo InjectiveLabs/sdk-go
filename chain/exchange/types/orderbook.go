@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/olekukonko/tablewriter"
 )
@@ -45,7 +45,7 @@ func (o *Orderbook) IsCrossed() bool {
 		return false
 	}
 
-	lowestSellPrice := sdk.ZeroDec()
+	lowestSellPrice := math.LegacyZeroDec()
 
 	isQuantityAllZero := true
 
@@ -126,7 +126,7 @@ func (o *Orderbook) Equals(other *Orderbook) bool {
 }
 
 // getReadableDec is a test utility function to return a readable representation of decimal strings
-func getReadableDec(d sdk.Dec) string {
+func getReadableDec(d math.LegacyDec) string {
 	if d.IsNil() {
 		return d.String()
 	}
@@ -141,17 +141,17 @@ func getReadableDec(d sdk.Dec) string {
 	return dec
 }
 
-func NewLevel(price, quantity sdk.Dec) *Level {
+func NewLevel(price, quantity math.LegacyDec) *Level {
 	return &Level{
 		P: price,
 		Q: quantity,
 	}
 }
 
-func (l *Level) GetPrice() sdk.Dec {
+func (l *Level) GetPrice() math.LegacyDec {
 	return l.P
 }
 
-func (l *Level) GetQuantity() sdk.Dec {
+func (l *Level) GetQuantity() math.LegacyDec {
 	return l.Q
 }

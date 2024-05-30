@@ -3,7 +3,7 @@ package types
 import (
 	"strconv"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
@@ -13,20 +13,20 @@ import (
 
 // GetRequiredBinaryOptionsOrderMargin returns the required margin for a binary options trade (or order) at a given price
 func GetRequiredBinaryOptionsOrderMargin(
-	price sdk.Dec,
-	quantity sdk.Dec,
+	price math.LegacyDec,
+	quantity math.LegacyDec,
 	oracleScaleFactor uint32,
 	orderType OrderType,
 	isReduceOnly bool,
-) sdk.Dec {
+) math.LegacyDec {
 	if isReduceOnly {
-		return sdk.ZeroDec()
+		return math.LegacyZeroDec()
 	}
 
 	if orderType.IsBuy() {
 		return price.Mul(quantity)
 	}
-	return GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(price).Mul(quantity)
+	return GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor).Sub(price).Mul(quantity)
 }
 
 func (t OrderType) IsBuy() bool {
@@ -68,11 +68,11 @@ func (t OrderType) IsAtomic() bool {
 	return false
 }
 
-func (m *OrderInfo) GetNotional() sdk.Dec {
+func (m *OrderInfo) GetNotional() math.LegacyDec {
 	return m.Quantity.Mul(m.Price)
 }
 
-func (m *OrderInfo) GetFeeAmount(fee sdk.Dec) sdk.Dec {
+func (m *OrderInfo) GetFeeAmount(fee math.LegacyDec) math.LegacyDec {
 	return m.GetNotional().Mul(fee)
 }
 

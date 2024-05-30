@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
@@ -10,7 +11,7 @@ import (
 var _ paramtypes.ParamSet = &Params{}
 
 var (
-	LargestDecPrice sdk.Dec = sdk.MustNewDecFromStr("10000000")
+	LargestDecPrice math.LegacyDec = math.LegacyMustNewDecFromStr("10000000")
 )
 
 const (

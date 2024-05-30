@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -37,21 +38,21 @@ func IsIBCDenom(denom string) bool {
 
 type SpotLimitOrderDelta struct {
 	Order        *SpotLimitOrder
-	FillQuantity sdk.Dec
+	FillQuantity math.LegacyDec
 }
 
 type DerivativeLimitOrderDelta struct {
 	Order          *DerivativeLimitOrder
-	FillQuantity   sdk.Dec
-	CancelQuantity sdk.Dec
+	FillQuantity   math.LegacyDec
+	CancelQuantity math.LegacyDec
 }
 
 type DerivativeMarketOrderDelta struct {
 	Order        *DerivativeMarketOrder
-	FillQuantity sdk.Dec
+	FillQuantity math.LegacyDec
 }
 
-func (d *DerivativeMarketOrderDelta) UnfilledQuantity() sdk.Dec {
+func (d *DerivativeMarketOrderDelta) UnfilledQuantity() math.LegacyDec {
 	return d.Order.OrderInfo.Quantity.Sub(d.FillQuantity)
 }
 
@@ -63,11 +64,11 @@ func (d *DerivativeLimitOrderDelta) SubaccountID() common.Hash {
 	return d.Order.SubaccountID()
 }
 
-func (d *DerivativeLimitOrderDelta) Price() sdk.Dec {
+func (d *DerivativeLimitOrderDelta) Price() math.LegacyDec {
 	return d.Order.Price()
 }
 
-func (d *DerivativeLimitOrderDelta) FillableQuantity() sdk.Dec {
+func (d *DerivativeLimitOrderDelta) FillableQuantity() math.LegacyDec {
 	return d.Order.Fillable.Sub(d.CancelQuantity)
 }
 
@@ -87,6 +88,8 @@ var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(ZeroSubaccount
 
 // inj1qqq3zyg3zyg3zyg3zyg3zyg3zyg3zyg3c9gg96
 var AuctionFeesAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
+
+var hexRegex = regexp.MustCompile("^(0x)?[0-9a-fA-F]+$")
 
 func StringInSlice(a string, list *[]string) bool {
 	for _, b := range *list {
@@ -161,11 +164,10 @@ func IsHexHash(s string) bool {
 }
 
 func isHexString(str string) bool {
-	isMatched, _ := regexp.MatchString("^(0x)?[0-9a-fA-F]+$", str)
-	return isMatched
+	return hexRegex.MatchString(str)
 }
 
-func BreachesMinimumTickSize(value, minTickSize sdk.Dec) bool {
+func BreachesMinimumTickSize(value, minTickSize math.LegacyDec) bool {
 	// obviously breached if the value less than the minTickSize
 	if value.LT(minTickSize) {
 		return true
@@ -300,16 +302,24 @@ func EthAddressToSubaccountID(addr common.Address) common.Hash {
 	return common.BytesToHash(common.RightPadBytes(addr.Bytes(), 32))
 }
 
-func DecToDecBytes(dec sdk.Dec) []byte {
+func DecToDecBytes(dec math.LegacyDec) []byte {
 	return dec.BigInt().Bytes()
 }
 
-func DecBytesToDec(bz []byte) sdk.Dec {
-	dec := sdk.NewDecFromBigIntWithPrec(new(big.Int).SetBytes(bz), sdk.Precision)
+func DecBytesToDec(bz []byte) math.LegacyDec {
+	dec := math.LegacyNewDecFromBigIntWithPrec(new(big.Int).SetBytes(bz), math.LegacyPrecision)
 	if dec.IsNil() {
-		return sdk.ZeroDec()
+		return math.LegacyZeroDec()
 	}
 	return dec
+}
+
+func IntToIntBytes(i math.Int) []byte {
+	return i.BigInt().Bytes()
+}
+
+func IntBytesToInt(bz []byte) math.Int {
+	return math.NewIntFromBigInt(new(big.Int).SetBytes(bz))
 }
 
 func HasDuplicates(slice []string) bool {

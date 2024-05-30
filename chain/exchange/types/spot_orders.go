@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
@@ -11,7 +12,7 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-func (o *SpotOrder) ToSpotMarketOrder(sender sdk.AccAddress, balanceHold sdk.Dec, orderHash common.Hash) *SpotMarketOrder {
+func (o *SpotOrder) ToSpotMarketOrder(sender sdk.AccAddress, balanceHold math.LegacyDec, orderHash common.Hash) *SpotMarketOrder {
 	if o.OrderInfo.FeeRecipient == "" {
 		o.OrderInfo.FeeRecipient = sender.String()
 	}
@@ -85,12 +86,20 @@ func (o *SpotMarketOrder) FeeRecipient() common.Address {
 	return o.OrderInfo.FeeRecipientAddress()
 }
 
-func (o *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
+func (o *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
 	if BreachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
 		return errors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
 	}
 	if BreachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
 		return errors.Wrapf(ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
+	}
+	return nil
+}
+
+func (o *SpotOrder) CheckNotional(minNotional math.LegacyDec) error {
+	orderNotional := o.GetQuantity().Mul(o.GetPrice())
+	if !minNotional.IsNil() && orderNotional.LT(minNotional) {
+		return errors.Wrapf(ErrInvalidNotional, "order notional (%s) is less than the minimum notional for the market (%s)", orderNotional.String(), minNotional.String())
 	}
 	return nil
 }
@@ -127,16 +136,16 @@ func (o *SpotMarketOrder) IsConditional() bool {
 	return o.OrderType.IsConditional()
 }
 
-func (m *SpotLimitOrder) GetUnfilledNotional() sdk.Dec {
+func (m *SpotLimitOrder) GetUnfilledNotional() math.LegacyDec {
 	return m.Fillable.Mul(m.OrderInfo.Price)
 }
-func (m *SpotLimitOrder) GetUnfilledFeeAmount(fee sdk.Dec) sdk.Dec {
+func (m *SpotLimitOrder) GetUnfilledFeeAmount(fee math.LegacyDec) math.LegacyDec {
 	return m.GetUnfilledNotional().Mul(fee)
 }
 
-func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (sdk.Dec, string) {
+func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (math.LegacyDec, string) {
 	var denom string
-	var balanceHold sdk.Dec
+	var balanceHold math.LegacyDec
 	if m.IsBuy() {
 		denom = market.QuoteDenom
 		if m.OrderType.IsPostOnly() {
@@ -158,16 +167,16 @@ func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (sdk.Dec, s
 	return balanceHold, denom
 }
 
-func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (sdk.Dec, string) {
+func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (math.LegacyDec, string) {
 	var denom string
-	var balanceHold sdk.Dec
+	var balanceHold math.LegacyDec
 	if m.IsBuy() {
-		var tradeFeeRate sdk.Dec
+		var tradeFeeRate math.LegacyDec
 
 		if isTransient {
 			tradeFeeRate = market.TakerFeeRate
 		} else {
-			tradeFeeRate = sdk.MaxDec(sdk.ZeroDec(), market.MakerFeeRate)
+			tradeFeeRate = math.LegacyMaxDec(math.LegacyZeroDec(), market.MakerFeeRate)
 		}
 
 		// for a resting limit buy in the ETH/USDT market, denom is USDT and fillable amount is BalanceHold is (1 + makerFee)*(price * quantity) since (takerFee - makerFee) is already refunded
@@ -195,14 +204,14 @@ func (m *SpotOrder) GetMarginDenom(market *SpotMarket) string {
 }
 
 // GetMarketOrderBalanceHold calculates the balance hold for the market order.
-func (m *SpotOrder) GetMarketOrderBalanceHold(feeRate, bestPrice sdk.Dec) sdk.Dec {
-	var balanceHold sdk.Dec
+func (m *SpotOrder) GetMarketOrderBalanceHold(feeRate, bestPrice math.LegacyDec) math.LegacyDec {
+	var balanceHold math.LegacyDec
 
 	if m.IsBuy() {
 		// required margin for best sell price = bestPrice * quantity * (1 + feeRate)
-		requiredMarginForBestPrice := bestPrice.Mul(m.OrderInfo.Quantity).Mul(sdk.OneDec().Add(feeRate))
-		requiredMarginForWorstPrice := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity).Mul(sdk.OneDec().Add(feeRate))
-		requiredMargin := sdk.MaxDec(requiredMarginForBestPrice, requiredMarginForWorstPrice)
+		requiredMarginForBestPrice := bestPrice.Mul(m.OrderInfo.Quantity).Mul(math.LegacyOneDec().Add(feeRate))
+		requiredMarginForWorstPrice := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity).Mul(math.LegacyOneDec().Add(feeRate))
+		requiredMargin := math.LegacyMaxDec(requiredMarginForBestPrice, requiredMarginForWorstPrice)
 		balanceHold = requiredMargin
 	} else {
 		// required margin for market sells just equals the quantity being sold
@@ -218,6 +227,7 @@ func (m *SpotLimitOrder) ToTrimmed() *TrimmedSpotLimitOrder {
 		Fillable:  m.Fillable,
 		IsBuy:     m.IsBuy(),
 		OrderHash: common.BytesToHash(m.OrderHash).Hex(),
+		Cid:       m.Cid(),
 	}
 }
 

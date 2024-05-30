@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/cosmos/gogoproto/proto"
 )
 
@@ -47,29 +47,29 @@ func (o *OracleType) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (c *CoinbasePriceState) GetDecPrice() sdk.Dec {
+func (c *CoinbasePriceState) GetDecPrice() math.LegacyDec {
 	// nolint:all
 	// price = price/10^6
-	return sdk.NewDec(int64(c.Value)).QuoTruncate(sdk.NewDec(10).Power(6))
+	return math.LegacyNewDec(int64(c.Value)).QuoTruncate(math.LegacyNewDec(10).Power(6))
 }
 
-func NewPriceState(price sdk.Dec, timestamp int64) *PriceState {
+func NewPriceState(price math.LegacyDec, timestamp int64) *PriceState {
 	return &PriceState{
 		Price:           price,
-		CumulativePrice: sdk.ZeroDec(),
+		CumulativePrice: math.LegacyZeroDec(),
 		Timestamp:       timestamp,
 	}
 }
 
-func NewProviderPriceState(symbol string, price sdk.Dec, timestamp int64) *ProviderPriceState {
+func NewProviderPriceState(symbol string, price math.LegacyDec, timestamp int64) *ProviderPriceState {
 	return &ProviderPriceState{
 		Symbol: symbol,
 		State:  NewPriceState(price, timestamp),
 	}
 }
 
-func (p *PriceState) UpdatePrice(price sdk.Dec, timestamp int64) {
-	cumulativePriceDelta := sdk.NewDec(timestamp - p.Timestamp).Mul(p.Price)
+func (p *PriceState) UpdatePrice(price math.LegacyDec, timestamp int64) {
+	cumulativePriceDelta := math.LegacyNewDec(timestamp - p.Timestamp).Mul(p.Price)
 	p.CumulativePrice = p.CumulativePrice.Add(cumulativePriceDelta)
 	p.Timestamp = timestamp
 	p.Price = price
@@ -105,8 +105,8 @@ func (s SymbolPriceTimestamps) GetTimestamp(oracleType OracleType, symbol string
 }
 
 // CheckPriceFeedThreshold returns true if the newPrice has changed beyond 100x or less than 1% of the last price
-func CheckPriceFeedThreshold(lastPrice, newPrice sdk.Dec) bool {
-	return newPrice.GT(lastPrice.Mul(sdk.NewDec(100))) || newPrice.LT(lastPrice.Quo(sdk.NewDec(100)))
+func CheckPriceFeedThreshold(lastPrice, newPrice math.LegacyDec) bool {
+	return newPrice.GT(lastPrice.Mul(math.LegacyNewDec(100))) || newPrice.LT(lastPrice.Quo(math.LegacyNewDec(100)))
 }
 
 func IsLegacySchemeOracleScript(scriptID int64, params BandIBCParams) bool {

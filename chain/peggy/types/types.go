@@ -250,7 +250,7 @@ func (v Valsets) Swap(i, j int) {
 
 // GetFees returns the total fees contained within a given batch
 func (b OutgoingTxBatch) GetFees() sdkmath.Int {
-	sum := sdk.ZeroInt()
+	sum := sdkmath.ZeroInt()
 	for _, t := range b.Transactions {
 		sum.Add(t.Erc20Fee.Amount)
 	}

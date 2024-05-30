@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"sort"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 func NewDeposit() *Deposit {
 	return &Deposit{
-		AvailableBalance: sdk.ZeroDec(),
-		TotalBalance:     sdk.ZeroDec(),
+		AvailableBalance: math.LegacyZeroDec(),
+		TotalBalance:     math.LegacyZeroDec(),
 	}
 }
 
@@ -25,11 +25,11 @@ func (d *Deposit) Display() string {
 }
 
 type DepositDelta struct {
-	AvailableBalanceDelta sdk.Dec
-	TotalBalanceDelta     sdk.Dec
+	AvailableBalanceDelta math.LegacyDec
+	TotalBalanceDelta     math.LegacyDec
 }
 
-func NewUniformDepositDelta(delta sdk.Dec) *DepositDelta {
+func NewUniformDepositDelta(delta math.LegacyDec) *DepositDelta {
 	return &DepositDelta{
 		AvailableBalanceDelta: delta,
 		TotalBalanceDelta:     delta,
@@ -37,10 +37,10 @@ func NewUniformDepositDelta(delta sdk.Dec) *DepositDelta {
 }
 
 func NewDepositDelta() *DepositDelta {
-	return NewUniformDepositDelta(sdk.ZeroDec())
+	return NewUniformDepositDelta(math.LegacyZeroDec())
 }
 
-func (d *DepositDelta) AddAvailableBalance(amount sdk.Dec) {
+func (d *DepositDelta) AddAvailableBalance(amount math.LegacyDec) {
 	d.AvailableBalanceDelta = d.AvailableBalanceDelta.Add(amount)
 }
 
@@ -74,11 +74,11 @@ func (d *DepositDeltas) ApplyDepositDelta(subaccountID common.Hash, delta *Depos
 	d.ApplyDelta(subaccountID, delta.TotalBalanceDelta, delta.AvailableBalanceDelta)
 }
 
-func (d *DepositDeltas) ApplyUniformDelta(subaccountID common.Hash, delta sdk.Dec) {
+func (d *DepositDeltas) ApplyUniformDelta(subaccountID common.Hash, delta math.LegacyDec) {
 	d.ApplyDelta(subaccountID, delta, delta)
 }
 
-func (d *DepositDeltas) ApplyDelta(subaccountID common.Hash, totalBalanceDelta, availableBalanceDelta sdk.Dec) {
+func (d *DepositDeltas) ApplyDelta(subaccountID common.Hash, totalBalanceDelta, availableBalanceDelta math.LegacyDec) {
 	delta := (*d)[subaccountID]
 	if delta == nil {
 		delta = NewDepositDelta()
