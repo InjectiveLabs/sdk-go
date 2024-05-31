@@ -53,11 +53,6 @@ import (
 type OrderbookType string
 
 const (
-	SpotOrderbook       = "injective.exchange.v1beta1.EventOrderbookUpdate.spot_orderbooks"
-	DerivativeOrderbook = "injective.exchange.v1beta1.EventOrderbookUpdate.derivative_orderbooks"
-)
-
-const (
 	msgCommitBatchSizeLimit          = 1024
 	msgCommitBatchTimeLimit          = 500 * time.Millisecond
 	defaultBroadcastStatusPoll       = 100 * time.Millisecond
