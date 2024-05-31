@@ -784,19 +784,19 @@ func (domain *TypedDataDomain) Map() map[string]interface{} {
 		dataMap["chainId"] = domain.ChainId
 	}
 
-	if len(domain.Name) > 0 {
+	if domain.Name != "" {
 		dataMap["name"] = domain.Name
 	}
 
-	if len(domain.Version) > 0 {
+	if domain.Version != "" {
 		dataMap["version"] = domain.Version
 	}
 
-	if len(domain.VerifyingContract) > 0 {
+	if domain.VerifyingContract != "" {
 		dataMap["verifyingContract"] = domain.VerifyingContract
 	}
 
-	if len(domain.Salt) > 0 {
+	if domain.Salt != "" {
 		dataMap["salt"] = domain.Salt
 	}
 	return dataMap

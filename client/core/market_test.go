@@ -1,8 +1,9 @@
 package core
 
 import (
-	sdkmath "cosmossdk.io/math"
 	"testing"
+
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/huandu/go-assert"
 	"github.com/shopspring/decimal"

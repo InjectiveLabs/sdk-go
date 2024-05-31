@@ -2,9 +2,10 @@ package chain
 
 import (
 	"context"
-	sdkmath "cosmossdk.io/math"
 	"errors"
 	"time"
+
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"google.golang.org/grpc"

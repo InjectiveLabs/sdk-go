@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	sdkmath "cosmossdk.io/math"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -13,6 +12,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 
@@ -832,7 +833,7 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 		case <-t.C:
 			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
-				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
+				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
@@ -903,7 +904,7 @@ func (c *chainClient) broadcastTx(
 		case <-t.C:
 			resultTx, err := clientCtx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
-				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
+				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
