@@ -60,7 +60,7 @@ func main() {
 	msg.DelegatorAddress = senderAddress.String()
 	msg.ValidatorAddress = "injvaloper14gy4acwjm96wd20awm9ar6j54lev5p7espy9ug"
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {

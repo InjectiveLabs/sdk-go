@@ -117,7 +117,7 @@ func main() {
 
 	fmt.Println("simulated order hashes", msgBatchCreateDerivativeLimitOrdersResponse.OrderHashes)
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {

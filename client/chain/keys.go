@@ -48,7 +48,7 @@ func InitCosmosKeyring(
 			return emptyCosmosAddress, nil, err
 		}
 
-		// Specfic to Injective chain with Ethermint keys
+		// Specific to Injective chain with Ethermint keys
 		// Should be secp256k1.PrivKey for generic Cosmos chain
 		cosmosAccPk := &ethsecp256k1.PrivKey{
 			Key: pkBytes,
@@ -72,7 +72,7 @@ func InitCosmosKeyring(
 			}
 		}
 
-		if len(keyName) == 0 {
+		if keyName == "" {
 			keyName = defaultKeyringKeyName
 		}
 

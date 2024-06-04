@@ -65,7 +65,7 @@ func main() {
 		},
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {

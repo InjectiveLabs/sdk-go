@@ -89,7 +89,7 @@ func main() {
 		MinQuantityTickSize: chainMinQuantityTickSize,
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(msg)
 
 	if err != nil {

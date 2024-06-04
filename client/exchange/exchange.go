@@ -97,8 +97,8 @@ type ExchangeClient interface {
 func NewExchangeClient(network common.Network, options ...common.ClientOption) (ExchangeClient, error) {
 	// process options
 	opts := common.DefaultClientOptions()
-	if network.ChainTlsCert != nil {
-		options = append(options, common.OptionTLSCert(network.ExchangeTlsCert))
+	if network.ChainTLSCert != nil {
+		options = append(options, common.OptionTLSCert(network.ExchangeTLSCert))
 	}
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
@@ -433,7 +433,7 @@ func (c *exchangeClient) GetDerivativeFundingRates(ctx context.Context, req *der
 
 // Oracle RPC
 
-func (c *exchangeClient) GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (*oraclePB.PriceResponse, error) {
+func (c *exchangeClient) GetPrice(ctx context.Context, baseSymbol, quoteSymbol, oracleType string, oracleScaleFactor uint32) (*oraclePB.PriceResponse, error) {
 	req := oraclePB.PriceRequest{
 		BaseSymbol:        baseSymbol,
 		QuoteSymbol:       quoteSymbol,
@@ -463,7 +463,7 @@ func (c *exchangeClient) GetOracleList(ctx context.Context) (*oraclePB.OracleLis
 	return res, nil
 }
 
-func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error) {
+func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol, quoteSymbol, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error) {
 	req := oraclePB.StreamPricesRequest{
 		BaseSymbol:  baseSymbol,
 		QuoteSymbol: quoteSymbol,
@@ -538,7 +538,7 @@ func (c *exchangeClient) GetSubaccountsList(ctx context.Context, accountAddress 
 	return res, nil
 }
 
-func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (*accountPB.SubaccountBalanceEndpointResponse, error) {
+func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId, denom string) (*accountPB.SubaccountBalanceEndpointResponse, error) {
 	req := accountPB.SubaccountBalanceEndpointRequest{
 		SubaccountId: subaccountId,
 		Denom:        denom,
@@ -946,7 +946,7 @@ func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accoun
 	return res, nil
 }
 
-func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
+func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
 	req := &portfolioExchangePB.StreamAccountPortfolioRequest{
 		AccountAddress: accountAddress,
 		SubaccountId:   subaccountId,

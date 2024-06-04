@@ -99,7 +99,7 @@ func (derivativeMarket DerivativeMarket) MarginToChainFormat(humanReadableValue 
 	return valueInChainFormat
 }
 
-func (derivativeMarket DerivativeMarket) CalculateMarginInChainFormat(humanReadableQuantity decimal.Decimal, humanReadablePrice decimal.Decimal, leverage decimal.Decimal) sdkmath.LegacyDec {
+func (derivativeMarket DerivativeMarket) CalculateMarginInChainFormat(humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal) sdkmath.LegacyDec {
 	chainFormattedQuantity := humanReadableQuantity
 	chainFormattedPrice := humanReadablePrice.Mul(decimal.New(1, derivativeMarket.QuoteToken.Decimals))
 

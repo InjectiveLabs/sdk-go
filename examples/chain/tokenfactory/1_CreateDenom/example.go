@@ -60,7 +60,7 @@ func main() {
 	message.Name = "Injective Test Token"
 	message.Symbol = "INJTEST"
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(message)
 
 	if err != nil {

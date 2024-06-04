@@ -290,6 +290,6 @@ func validateSlashFractionBadEthSignature(i interface{}) error {
 	return nil
 }
 
-func validateValsetReward(i interface{}) error {
+func validateValsetReward(_ interface{}) error {
 	return nil
 }
