@@ -6,8 +6,7 @@ import (
 )
 
 func IsAllowed(accessConfig types.AccessConfig, actor types2.AccAddress) bool {
-	switch accessConfig.Permission {
-	case types.AccessTypeAnyOfAddresses:
+	if accessConfig.Permission == types.AccessTypeAnyOfAddresses {
 		for _, v := range accessConfig.Addresses {
 			if v == actor.String() {
 				return true

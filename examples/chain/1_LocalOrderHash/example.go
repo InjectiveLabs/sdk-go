@@ -119,7 +119,7 @@ func main() {
 	fmt.Println("computed spot order hashes: ", orderHashes.Spot)
 	fmt.Println("computed derivative order hashes: ", orderHashes.Derivative)
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg, msg1)
 
 	if err != nil {

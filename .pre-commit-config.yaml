@@ -13,7 +13,7 @@ repos:
         -   id: end-of-file-fixer
         -   id: check-yaml
   -   repo: https://github.com/dnephin/pre-commit-golang
-      rev: v0.5.0
+      rev: master
       hooks:
         - id: go-fmt
         - id: go-imports

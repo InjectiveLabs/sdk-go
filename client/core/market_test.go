@@ -134,7 +134,7 @@ func TestConvertPriceFromExtendedChainFormatForSpotMarket(t *testing.T) {
 	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
 }
 
-//Derivative markets tests
+// Derivative markets tests
 
 func TestConvertQuantityToChainFormatForDerivativeMarket(t *testing.T) {
 	derivativeMarket := createBTCUSDTPerpMarket()

@@ -219,7 +219,7 @@ func (o *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) mat
 	if o.IsVanilla() {
 		// negative fees are only accounted for upon matching
 		positiveFeePart := math.LegacyMaxDec(math.LegacyZeroDec(), feeRate)
-		//nolint:all
+		// nolint:all
 		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
 		notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
 		marginHoldRefund = o.Fillable.Mul(o.Margin.Add(notional.Mul(positiveFeePart))).Quo(o.OrderInfo.Quantity)

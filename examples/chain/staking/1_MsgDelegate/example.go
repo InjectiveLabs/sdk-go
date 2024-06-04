@@ -64,7 +64,7 @@ func main() {
 		Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000), // 1 INJ
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {

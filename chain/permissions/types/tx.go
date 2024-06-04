@@ -33,7 +33,7 @@ func (m MsgCreateNamespace) Route() string { return routerKey }
 
 func (m MsgCreateNamespace) Type() string { return "create_namespace" }
 
-func (msg MsgCreateNamespace) ValidateBasic() error { return nil }
+func (m MsgCreateNamespace) ValidateBasic() error { return nil }
 
 func (m *MsgCreateNamespace) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshal(m))
@@ -84,7 +84,7 @@ func (m MsgUpdateNamespaceRoles) Route() string { return routerKey }
 
 func (m MsgUpdateNamespaceRoles) Type() string { return "update_namespace_roles" }
 
-func (msg MsgUpdateNamespaceRoles) ValidateBasic() error { return nil }
+func (m MsgUpdateNamespaceRoles) ValidateBasic() error { return nil }
 
 func (m *MsgUpdateNamespaceRoles) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshal(m))
@@ -101,7 +101,7 @@ func (m MsgRevokeNamespaceRoles) Route() string { return routerKey }
 
 func (m MsgRevokeNamespaceRoles) Type() string { return "revoke_namespace_roles" }
 
-func (msg MsgRevokeNamespaceRoles) ValidateBasic() error { return nil }
+func (m MsgRevokeNamespaceRoles) ValidateBasic() error { return nil }
 
 func (m *MsgRevokeNamespaceRoles) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshal(m))
@@ -118,7 +118,7 @@ func (m MsgClaimVoucher) Route() string { return routerKey }
 
 func (m MsgClaimVoucher) Type() string { return "claim_voucher" }
 
-func (msg MsgClaimVoucher) ValidateBasic() error { return nil }
+func (m MsgClaimVoucher) ValidateBasic() error { return nil }
 
 func (m *MsgClaimVoucher) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshal(m))

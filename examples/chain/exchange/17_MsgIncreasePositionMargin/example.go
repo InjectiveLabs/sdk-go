@@ -66,7 +66,7 @@ func main() {
 		Amount:                  cosmtypes.MustNewDecFromStr("100000000"), //100 USDT
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {

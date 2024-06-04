@@ -194,12 +194,12 @@ func traverseFields(
 
 	if prefix == typeDefPrefix {
 		if len(typeMap[rootType]) == n {
-			return
+			return nil
 		}
 	} else {
 		typeDef := sanitizeTypedef(prefix)
 		if len(typeMap[typeDef]) == n {
-			return
+			return nil
 		}
 	}
 
@@ -232,7 +232,7 @@ func traverseFields(
 			err = cdc.UnpackAny(any, &anyWrapper.Value)
 			if err != nil {
 				err = errors.Wrap(err, "failed to unpack Any in msg struct")
-				return
+				return err
 			}
 
 			fieldType = reflect.TypeOf(anyWrapper)
@@ -337,7 +337,7 @@ func traverseFields(
 
 			err = traverseFields(cdc, typeMap, rootType, fieldPrefix, fieldType, field)
 			if err != nil {
-				return
+				return err
 			}
 
 			continue

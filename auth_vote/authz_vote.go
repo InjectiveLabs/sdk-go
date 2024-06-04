@@ -69,7 +69,7 @@ func main() {
 	validators := []string{"inj156t3yxd4udv0h9gwagfcmwnmm3quy0npqc7pks", "inj16nd8yqxe9p6ggnrz58qr7dxn5y2834yendward"}
 	grantee := senderAddress.String()
 	proposalId := uint64(375)
-	var msgs []sdk.Msg
+	var msgs = make([]sdk.Msg, 0)
 
 	for _, validator := range validators {
 		msgVote := v1beta1.MsgVote{
@@ -92,7 +92,7 @@ func main() {
 		msgs = append(msgs, sdkMsg)
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(msgs...)
 
 	if err != nil {
