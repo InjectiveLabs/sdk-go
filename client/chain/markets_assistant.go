@@ -148,9 +148,10 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
 
-	officialTokens, err := core.LoadTokens(exchangeClient.GetNetwork().OfficialTokensListUrl)
+	officialTokens, err := core.LoadTokens(exchangeClient.GetNetwork().OfficialTokensListURL)
 	if err == nil {
-		for _, tokenMetadata := range officialTokens {
+		for i := range officialTokens {
+			tokenMetadata := officialTokens[i]
 			if tokenMetadata.Denom != "" {
 				// add tokens to the assistant ensuring all of them get assigned a unique symbol
 				tokenRepresentation(tokenMetadata.GetSymbol(), tokenMetadata, tokenMetadata.Denom, &assistant)

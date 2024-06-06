@@ -24,7 +24,7 @@ func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 	defer httpServer.Close()
 
 	network := common.NewNetwork()
-	network.OfficialTokensListUrl = httpServer.URL
+	network.OfficialTokensListURL = httpServer.URL
 
 	mockExchange := exchange.MockExchangeClient{}
 	mockExchange.Network = network
@@ -95,7 +95,7 @@ func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
 	defer httpServer.Close()
 
 	network := common.NewNetwork()
-	network.OfficialTokensListUrl = httpServer.URL
+	network.OfficialTokensListURL = httpServer.URL
 
 	mockExchange := exchange.MockExchangeClient{}
 	mockExchange.Network = network

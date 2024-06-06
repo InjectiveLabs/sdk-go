@@ -15,9 +15,9 @@ import (
 )
 
 const (
-	MainnetTokensListUrl = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json"
-	TestnetTokensListUrl = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json"
-	DevnetTokensListUrl  = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"
+	MainnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json" // nolint:gosec // not credentials, just the link to the public tokens list
+	TestnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json" // nolint:gosec // not credentials, just the link to the public tokens list
+	DevnetTokensListURL  = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"  // nolint:gosec // not credentials, just the link to the public tokens list
 )
 
 func cookieByName(cookies []*http.Cookie, key string) *http.Cookie {
@@ -201,7 +201,7 @@ type Network struct {
 	ChainCookieAssistant    CookieAssistant
 	ExchangeCookieAssistant CookieAssistant
 	ExplorerCookieAssistant CookieAssistant
-	OfficialTokensListUrl   string
+	OfficialTokensListURL   string
 }
 
 func LoadNetwork(name, node string) Network {
@@ -221,7 +221,7 @@ func LoadNetwork(name, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
-			OfficialTokensListUrl:   MainnetTokensListUrl,
+			OfficialTokensListURL:   MainnetTokensListURL,
 		}
 
 	case "devnet-1":
@@ -238,7 +238,7 @@ func LoadNetwork(name, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
-			OfficialTokensListUrl:   DevnetTokensListUrl,
+			OfficialTokensListURL:   DevnetTokensListURL,
 		}
 	case "devnet":
 		return Network{
@@ -254,7 +254,7 @@ func LoadNetwork(name, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
-			OfficialTokensListUrl:   DevnetTokensListUrl,
+			OfficialTokensListURL:   DevnetTokensListURL,
 		}
 	case "testnet":
 		validNodes := []string{"lb", "sentry"}
@@ -309,7 +309,7 @@ func LoadNetwork(name, node string) Network {
 			ChainCookieAssistant:    chainCookieAssistant,
 			ExchangeCookieAssistant: exchangeCookieAssistant,
 			ExplorerCookieAssistant: explorerCookieAssistant,
-			OfficialTokensListUrl:   TestnetTokensListUrl,
+			OfficialTokensListURL:   TestnetTokensListURL,
 		}
 	case "mainnet":
 		validNodes := []string{"lb"}
@@ -349,7 +349,7 @@ func LoadNetwork(name, node string) Network {
 			ChainCookieAssistant:    chainCookieAssistant,
 			ExchangeCookieAssistant: exchangeCookieAssistant,
 			ExplorerCookieAssistant: explorerCookieAssistant,
-			OfficialTokensListUrl:   MainnetTokensListUrl,
+			OfficialTokensListURL:   MainnetTokensListURL,
 		}
 
 	default:
@@ -364,7 +364,7 @@ func NewNetwork() Network {
 		ChainCookieAssistant:    &DisabledCookieAssistant{},
 		ExchangeCookieAssistant: &DisabledCookieAssistant{},
 		ExplorerCookieAssistant: &DisabledCookieAssistant{},
-		OfficialTokensListUrl:   MainnetTokensListUrl,
+		OfficialTokensListURL:   MainnetTokensListURL,
 	}
 }
 
