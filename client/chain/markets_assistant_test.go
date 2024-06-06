@@ -2,8 +2,12 @@ package chain
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	"github.com/InjectiveLabs/sdk-go/client/exchange"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
@@ -13,7 +17,17 @@ import (
 )
 
 func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
+	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("[]"))
+	}))
+	defer httpServer.Close()
+
+	network := common.NewNetwork()
+	network.OfficialTokensListUrl = httpServer.URL
+
 	mockExchange := exchange.MockExchangeClient{}
+	mockExchange.Network = network
 	var spotMarketInfos []*spotExchangePB.SpotMarketInfo
 	var derivativeMarketInfos []*derivativeExchangePB.DerivativeMarketInfo
 	injUsdtSpotMarketInfo := createINJUSDTSpotMarketInfo()
@@ -74,7 +88,17 @@ func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 }
 
 func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
+	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("[]"))
+	}))
+	defer httpServer.Close()
+
+	network := common.NewNetwork()
+	network.OfficialTokensListUrl = httpServer.URL
+
 	mockExchange := exchange.MockExchangeClient{}
+	mockExchange.Network = network
 	mockChain := MockChainClient{}
 	smartDenomMetadata := createSmartDenomMetadata()
 

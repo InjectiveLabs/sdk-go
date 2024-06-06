@@ -32,6 +32,7 @@ require (
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/ini.v1 v1.67.0
 	gopkg.in/yaml.v2 v2.4.0
+	gotest.tools/v3 v3.5.0
 )
 
 require (

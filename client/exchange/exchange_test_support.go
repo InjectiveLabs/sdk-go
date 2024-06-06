@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/InjectiveLabs/sdk-go/client/common"
+
 	accountPB "github.com/InjectiveLabs/sdk-go/exchange/accounts_rpc/pb"
 	auctionPB "github.com/InjectiveLabs/sdk-go/exchange/auction_rpc/pb"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
@@ -16,6 +18,7 @@ import (
 )
 
 type MockExchangeClient struct {
+	Network                    common.Network
 	SpotMarketsResponses       []*spotExchangePB.MarketsResponse
 	DerivativeMarketsResponses []*derivativeExchangePB.MarketsResponse
 }
@@ -301,6 +304,10 @@ func (e *MockExchangeClient) GetVersion(ctx context.Context, req *metaPB.Version
 
 func (e *MockExchangeClient) Ping(ctx context.Context, req *metaPB.PingRequest) (*metaPB.PingResponse, error) {
 	return &metaPB.PingResponse{}, nil
+}
+
+func (e *MockExchangeClient) GetNetwork() common.Network {
+	return e.Network
 }
 
 func (e *MockExchangeClient) Close() {

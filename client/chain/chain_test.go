@@ -39,6 +39,8 @@ func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyr
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
+	// configure Keyring as nil to avoid the account initialization request when running unit tests
+	clientCtx.Keyring = nil
 
 	chainClient, err := NewChainClient(
 		clientCtx,
