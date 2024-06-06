@@ -15,7 +15,9 @@ import (
 )
 
 const (
-	SessionRenewalOffset = 2 * time.Minute
+	MainnetTokensListUrl = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json"
+	TestnetTokensListUrl = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json"
+	DevnetTokensListUrl  = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"
 )
 
 func cookieByName(cookies []*http.Cookie, key string) *http.Cookie {
@@ -199,6 +201,7 @@ type Network struct {
 	ChainCookieAssistant    CookieAssistant
 	ExchangeCookieAssistant CookieAssistant
 	ExplorerCookieAssistant CookieAssistant
+	OfficialTokensListUrl   string
 }
 
 func LoadNetwork(name string, node string) Network {
@@ -218,6 +221,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
+			OfficialTokensListUrl:   MainnetTokensListUrl,
 		}
 
 	case "devnet-1":
@@ -234,6 +238,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
+			OfficialTokensListUrl:   DevnetTokensListUrl,
 		}
 	case "devnet":
 		return Network{
@@ -249,6 +254,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
+			OfficialTokensListUrl:   DevnetTokensListUrl,
 		}
 	case "testnet":
 		validNodes := []string{"lb", "sentry"}
@@ -303,6 +309,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainCookieAssistant:    chainCookieAssistant,
 			ExchangeCookieAssistant: exchangeCookieAssistant,
 			ExplorerCookieAssistant: explorerCookieAssistant,
+			OfficialTokensListUrl:   TestnetTokensListUrl,
 		}
 	case "mainnet":
 		validNodes := []string{"lb"}
@@ -342,6 +349,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainCookieAssistant:    chainCookieAssistant,
 			ExchangeCookieAssistant: exchangeCookieAssistant,
 			ExplorerCookieAssistant: explorerCookieAssistant,
+			OfficialTokensListUrl:   MainnetTokensListUrl,
 		}
 	}
 
@@ -355,6 +363,7 @@ func NewNetwork() Network {
 		ChainCookieAssistant:    &DisabledCookieAssistant{},
 		ExchangeCookieAssistant: &DisabledCookieAssistant{},
 		ExplorerCookieAssistant: &DisabledCookieAssistant{},
+		OfficialTokensListUrl:   MainnetTokensListUrl,
 	}
 }
 

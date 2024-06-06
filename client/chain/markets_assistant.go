@@ -21,6 +21,15 @@ import (
 var legacyMarketAssistantLazyInitialization sync.Once
 var legacyMarketAssistant MarketsAssistant
 
+type TokenMetadata interface {
+	GetName() string
+	GetAddress() string
+	GetSymbol() string
+	GetLogo() string
+	GetDecimals() int32
+	GetUpdatedAt() int64
+}
+
 type MarketsAssistant struct {
 	tokensBySymbol    map[string]core.Token
 	tokensByDenom     map[string]core.Token
@@ -140,6 +149,17 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 
 func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
+
+	officialTokens, err := core.LoadTokens(exchangeClient.GetNetwork().OfficialTokensListUrl)
+	if err == nil {
+		for _, tokenMetadata := range officialTokens {
+			if tokenMetadata.Denom != "" {
+				// add tokens to the assistant ensuring all of them get assigned a unique symbol
+				tokenRepresentation(tokenMetadata.GetSymbol(), tokenMetadata, tokenMetadata.Denom, &assistant)
+			}
+		}
+	}
+
 	spotMarketsRequest := spotExchangePB.MarketsRequest{
 		MarketStatus: "active",
 	}
@@ -160,8 +180,8 @@ func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient
 				quoteTokenSymbol = marketInfo.GetQuoteTokenMeta().GetSymbol()
 			}
 
-			baseToken := spotTokenRepresentation(baseTokenSymbol, marketInfo.GetBaseTokenMeta(), marketInfo.GetBaseDenom(), &assistant)
-			quoteToken := spotTokenRepresentation(quoteTokenSymbol, marketInfo.GetQuoteTokenMeta(), marketInfo.GetQuoteDenom(), &assistant)
+			baseToken := tokenRepresentation(baseTokenSymbol, marketInfo.GetBaseTokenMeta(), marketInfo.GetBaseDenom(), &assistant)
+			quoteToken := tokenRepresentation(quoteTokenSymbol, marketInfo.GetQuoteTokenMeta(), marketInfo.GetQuoteDenom(), &assistant)
 
 			makerFeeRate := decimal.RequireFromString(marketInfo.GetMakerFeeRate())
 			takerFeeRate := decimal.RequireFromString(marketInfo.GetTakerFeeRate())
@@ -199,7 +219,7 @@ func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient
 		if len(marketInfo.GetQuoteTokenMeta().GetSymbol()) > 0 {
 			quoteTokenSymbol := marketInfo.GetQuoteTokenMeta().GetSymbol()
 
-			quoteToken := derivativeTokenRepresentation(quoteTokenSymbol, marketInfo.GetQuoteTokenMeta(), marketInfo.GetQuoteDenom(), &assistant)
+			quoteToken := tokenRepresentation(quoteTokenSymbol, marketInfo.GetQuoteTokenMeta(), marketInfo.GetQuoteDenom(), &assistant)
 
 			initialMarginRatio := decimal.RequireFromString(marketInfo.GetInitialMarginRatio())
 			maintenanceMarginRatio := decimal.RequireFromString(marketInfo.GetMaintenanceMarginRatio())
@@ -265,30 +285,7 @@ func uniqueSymbol(symbol string, denom string, tokenMetaSymbol string, tokenMeta
 	return uniqueSymbol
 }
 
-func spotTokenRepresentation(symbol string, tokenMeta *spotExchangePB.TokenMeta, denom string, assistant *MarketsAssistant) core.Token {
-	_, isPresent := assistant.tokensByDenom[denom]
-
-	if !isPresent {
-		uniqueSymbol := uniqueSymbol(symbol, denom, tokenMeta.GetSymbol(), tokenMeta.GetName(), *assistant)
-
-		newToken := core.Token{
-			Name:     tokenMeta.GetName(),
-			Symbol:   symbol,
-			Denom:    denom,
-			Address:  tokenMeta.GetAddress(),
-			Decimals: tokenMeta.GetDecimals(),
-			Logo:     tokenMeta.GetLogo(),
-			Updated:  tokenMeta.GetUpdatedAt(),
-		}
-
-		assistant.tokensByDenom[denom] = newToken
-		assistant.tokensBySymbol[uniqueSymbol] = newToken
-	}
-
-	return assistant.tokensByDenom[denom]
-}
-
-func derivativeTokenRepresentation(symbol string, tokenMeta *derivativeExchangePB.TokenMeta, denom string, assistant *MarketsAssistant) core.Token {
+func tokenRepresentation(symbol string, tokenMeta TokenMetadata, denom string, assistant *MarketsAssistant) core.Token {
 	_, isPresent := assistant.tokensByDenom[denom]
 
 	if !isPresent {

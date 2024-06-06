@@ -90,6 +90,7 @@ type ExchangeClient interface {
 	GetInfo(ctx context.Context, req *metaPB.InfoRequest) (*metaPB.InfoResponse, error)
 	GetVersion(ctx context.Context, req *metaPB.VersionRequest) (*metaPB.VersionResponse, error)
 	Ping(ctx context.Context, req *metaPB.PingRequest) (*metaPB.PingResponse, error)
+	GetNetwork() common.Network
 	Close()
 }
 
@@ -959,6 +960,10 @@ func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddr
 	}
 
 	return stream, nil
+}
+
+func (c *exchangeClient) GetNetwork() common.Network {
+	return c.network
 }
 
 func (c *exchangeClient) Close() {

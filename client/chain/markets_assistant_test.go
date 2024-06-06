@@ -2,6 +2,9 @@ package chain
 
 import (
 	"context"
+	"github.com/InjectiveLabs/sdk-go/client/common"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -13,7 +16,17 @@ import (
 )
 
 func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
+	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("[]"))
+	}))
+	defer httpServer.Close()
+
+	network := common.NewNetwork()
+	network.OfficialTokensListUrl = httpServer.URL
+
 	mockExchange := exchange.MockExchangeClient{}
+	mockExchange.Network = network
 	var spotMarketInfos []*spotExchangePB.SpotMarketInfo
 	var derivativeMarketInfos []*derivativeExchangePB.DerivativeMarketInfo
 	injUsdtSpotMarketInfo := createINJUSDTSpotMarketInfo()
@@ -74,7 +87,17 @@ func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 }
 
 func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
+	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("[]"))
+	}))
+	defer httpServer.Close()
+
+	network := common.NewNetwork()
+	network.OfficialTokensListUrl = httpServer.URL
+
 	mockExchange := exchange.MockExchangeClient{}
+	mockExchange.Network = network
 	mockChain := MockChainClient{}
 	smartDenomMetadata := createSmartDenomMetadata()
 
