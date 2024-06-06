@@ -3,10 +3,11 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-	"gotest.tools/v3/assert"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"gotest.tools/v3/assert"
 )
 
 func TestLoadTokensFromUrl(t *testing.T) {
@@ -47,7 +48,7 @@ func TestLoadTokensFromUrl(t *testing.T) {
 
 	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write(metadataString)
+		_, _ = w.Write(metadataString)
 	}))
 	defer httpServer.Close()
 

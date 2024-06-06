@@ -3,6 +3,7 @@ package exchange
 import (
 	"context"
 	"errors"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	accountPB "github.com/InjectiveLabs/sdk-go/exchange/accounts_rpc/pb"

@@ -2,11 +2,12 @@ package chain
 
 import (
 	"context"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	"github.com/InjectiveLabs/sdk-go/client/exchange"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
@@ -18,7 +19,7 @@ import (
 func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("[]"))
+		_, _ = w.Write([]byte("[]"))
 	}))
 	defer httpServer.Close()
 
@@ -89,7 +90,7 @@ func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
 func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
 	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("[]"))
+		_, _ = w.Write([]byte("[]"))
 	}))
 	defer httpServer.Close()
 
