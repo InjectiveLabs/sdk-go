@@ -351,9 +351,10 @@ func LoadNetwork(name string, node string) Network {
 			ExplorerCookieAssistant: explorerCookieAssistant,
 			OfficialTokensListUrl:   MainnetTokensListUrl,
 		}
-	}
 
-	return Network{}
+	default:
+		panic(fmt.Sprintf("invalid network %s", name))
+	}
 }
 
 // NewNetwork returns a new Network instance with all cookie assistants disabled.
