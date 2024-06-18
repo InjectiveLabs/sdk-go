@@ -165,9 +165,7 @@ func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (balanceHol
 	return balanceHold, denom
 }
 
-func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (marginHold math.LegacyDec, marginDenom string) {
-	var denom string
-	var balanceHold math.LegacyDec
+func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (balanceHold math.LegacyDec, denom string) {
 	if m.IsBuy() {
 		var tradeFeeRate math.LegacyDec
 

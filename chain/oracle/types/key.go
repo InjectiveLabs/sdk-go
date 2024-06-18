@@ -58,6 +58,10 @@ var (
 
 	// PythPriceKey is the prefix for the priceID => PythPriceState store.
 	PythPriceKey = []byte{0x71}
+
+	// StorkPriceKey is the prefix for the priceID => StorkPriceState store.
+	StorkPriceKey = []byte{0x81}
+	StorkPublisherKey = []byte{0x82}
 )
 
 func GetBandPriceStoreKey(symbol string) []byte {
@@ -107,6 +111,10 @@ func GetCoinbasePriceStoreKey(key string, timestamp uint64) []byte {
 
 func GetCoinbasePriceStoreIterationKey(key string) []byte {
 	return append(CoinbasePriceKey, []byte(key)...)
+}
+
+func GetStorkPriceStoreKey(key string) []byte {
+	return append(StorkPriceKey, []byte(key)...)
 }
 
 func GetChainlinkPriceStoreKey(feedId string) []byte {

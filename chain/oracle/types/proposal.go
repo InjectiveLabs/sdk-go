@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"strings"
 
 	"cosmossdk.io/errors"
@@ -8,10 +9,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	bandobi "github.com/bandprotocol/bandchain-packet/obi"
-
 	bandprice "github.com/InjectiveLabs/sdk-go/chain/oracle/bandchain/hooks/price"
 	bandoracle "github.com/InjectiveLabs/sdk-go/chain/oracle/bandchain/oracle/types"
+	bandobi "github.com/bandprotocol/bandchain-packet/obi"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // constants
@@ -25,6 +26,8 @@ const (
 	ProposalEnableBandIBC                        string = "ProposalTypeEnableBandIBC"
 	ProposalTypeGrantProviderPrivilege           string = "ProposalTypeGrantProviderPrivilege"
 	ProposalTypeRevokeProviderPrivilege          string = "ProposalTypeRevokeProviderPrivilege"
+	ProposalTypeGrantStorkPublisherPrivilege     string = "ProposalTypeGrantStorkPublisherPrivilege"
+	ProposalTypeRevokeStorkPublisherPrivilege    string = "ProposalTypeRevokeStorkPublisherPrivilege"
 )
 
 func init() {
@@ -37,6 +40,8 @@ func init() {
 	govtypes.RegisterProposalType(ProposalUpdateBandOracleRequest)
 	govtypes.RegisterProposalType(ProposalTypeGrantProviderPrivilege)
 	govtypes.RegisterProposalType(ProposalTypeRevokeProviderPrivilege)
+	govtypes.RegisterProposalType(ProposalTypeGrantStorkPublisherPrivilege)
+	govtypes.RegisterProposalType(ProposalTypeRevokeStorkPublisherPrivilege)
 }
 
 // Implements Proposal Interface
@@ -49,6 +54,8 @@ var _ govtypes.Content = &UpdateBandOracleRequestProposal{}
 var _ govtypes.Content = &EnableBandIBCProposal{}
 var _ govtypes.Content = &GrantProviderPrivilegeProposal{}
 var _ govtypes.Content = &RevokeProviderPrivilegeProposal{}
+var _ govtypes.Content = &GrantStorkPublisherPrivilegeProposal{}
+var _ govtypes.Content = &RevokeStorkPublisherPrivilegeProposal{}
 
 // GetTitle returns the title of this proposal.
 func (p *GrantBandOraclePrivilegeProposal) GetTitle() string {
@@ -414,4 +421,62 @@ func (p *UpdateBandOracleRequestProposal) ValidateBasic() error {
 	}
 
 	return govtypes.ValidateAbstract(p)
+}
+
+// GetTitle returns the title of this proposal.
+func (p *GrantStorkPublisherPrivilegeProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal.
+func (p *GrantStorkPublisherPrivilegeProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *GrantStorkPublisherPrivilegeProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *GrantStorkPublisherPrivilegeProposal) ProposalType() string {
+	return ProposalTypeGrantBandOraclePrivilege
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *GrantStorkPublisherPrivilegeProposal) ValidateBasic() error {
+	for _, publisher := range p.StorkPublishers {
+		if !common.IsHexAddress(publisher.Address) {
+			return fmt.Errorf("Publisher get wrong format key address: %s", publisher.Address)
+		}
+	}
+
+	return nil
+}
+
+// GetTitle returns the title of this proposal.
+func (p *RevokeStorkPublisherPrivilegeProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal.
+func (p *RevokeStorkPublisherPrivilegeProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *RevokeStorkPublisherPrivilegeProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *RevokeStorkPublisherPrivilegeProposal) ProposalType() string {
+	return ProposalTypeGrantBandOraclePrivilege
+}
+
+// ValidateBasic returns ValidateBasic result of this proposal.
+func (p *RevokeStorkPublisherPrivilegeProposal) ValidateBasic() error {
+	for _, publisher := range p.StorkPublishers {
+		if !common.IsHexAddress(publisher.Address) {
+			return fmt.Errorf("Publisher get wrong format key address: %s", publisher.Address)
+		}
+	}
+
+	return nil
 }

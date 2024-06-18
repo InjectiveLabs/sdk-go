@@ -32,6 +32,8 @@ func GetOracleType(oracleTypeStr string) (OracleType, error) {
 		oracleType = OracleType_Provider
 	case "pyth":
 		oracleType = OracleType_Pyth
+	case "stork":
+		oracleType = OracleType_Stork
 	default:
 		return OracleType_Band, errors.Wrapf(ErrUnsupportedOracleType, "%s", oracleTypeStr)
 	}
@@ -51,6 +53,12 @@ func (c *CoinbasePriceState) GetDecPrice() math.LegacyDec {
 	// nolint:all
 	// price = price/10^6
 	return math.LegacyNewDec(int64(c.Value)).QuoTruncate(math.LegacyNewDec(10).Power(6))
+}
+
+func (c *StorkPriceState) GetDecPrice() math.LegacyDec {
+	// nolint:all
+	// price = price/10^18
+	return c.Value.QuoTruncate(math.LegacyNewDec(10).Power(18))
 }
 
 func NewPriceState(price math.LegacyDec, timestamp int64) *PriceState {

@@ -19,7 +19,7 @@ const (
 var (
 	DefaultIsExecutionEnabled           = false
 	DefaultMaxBeginBlockTotalGas uint64 = 42_000_000                        // 42M
-	DefaultMaxContractGasLimit          = DefaultMaxBeginBlockTotalGas / 12 // 3.5M
+	DefaultMaxContractGasLimit   uint64 = DefaultMaxBeginBlockTotalGas / 12 // 3.5M
 	DefaultMinGasPrice           uint64 = 1_000_000_000                     // 1B
 )
 

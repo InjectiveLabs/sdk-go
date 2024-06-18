@@ -1,11 +1,14 @@
 package types
 
 import (
+	"strconv"
 	"strings"
+	"slices"
 
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // oracle message types
@@ -18,6 +21,7 @@ const (
 	TypeMsgRequestBandIBCRates   = "requestBandIBCRates"
 	TypeMsgRelayProviderPrices   = "relayProviderPrices"
 	TypeMsgRelayPythPrices       = "relayPythPrices"
+	TypeMsgRekayStorkPrices      = "relayStorkPrices"
 	TypeMsgUpdateParams          = "updateParams"
 )
 
@@ -28,6 +32,7 @@ var (
 	_ sdk.Msg = &MsgRequestBandIBCRates{}
 	_ sdk.Msg = &MsgRelayProviderPrices{}
 	_ sdk.Msg = &MsgRelayPythPrices{}
+	_ sdk.Msg = &MsgRelayStorkMessage{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
@@ -306,6 +311,50 @@ func (msg *MsgRelayPythPrices) GetSignBytes() []byte {
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
 func (msg MsgRelayPythPrices) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgRelayStorkMessage) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgRelayStorkMessage) Type() string { return TypeMsgRekayStorkPrices }
+
+// ValidateBasic implements the sdk.Msg interface for MsgRelayStorkMessage.
+func (msg MsgRelayStorkMessage) ValidateBasic() error {
+	if msg.Sender == "" {
+		return ErrEmptyStorkSender
+	}
+
+	assetIDs := make([]string, 0)
+	for _, assetPair := range msg.AssetPairs {
+		if slices.Contains(assetIDs, assetPair.AssetId) {
+			return errors.Wrapf(ErrStorkAssetIdNotUnique, "Asset id %s is not unique", assetPair.AssetId)
+		}
+		assetIDs = append(assetIDs, assetPair.AssetId)
+
+		for _, signedPrice := range assetPair.SignedPrices {
+			// note: relayer should convert the edsa r,s,v signatures format to the normal bytes arrays signature
+			if !VerifyStorkMsgSignature(common.HexToAddress(signedPrice.PublisherKey), assetPair.AssetId, strconv.FormatUint(signedPrice.Timestamp, 10), signedPrice.Price.String(), signedPrice.Signature) {
+				return errors.Wrapf(ErrInvalidStorkSignature, "Invalid signature for asset %s with publisher address %s", assetPair.AssetId, signedPrice.PublisherKey)
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgRelayStorkMessage) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgRelayStorkMessage) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
