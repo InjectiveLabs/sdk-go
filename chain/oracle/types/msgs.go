@@ -21,7 +21,7 @@ const (
 	TypeMsgRequestBandIBCRates   = "requestBandIBCRates"
 	TypeMsgRelayProviderPrices   = "relayProviderPrices"
 	TypeMsgRelayPythPrices       = "relayPythPrices"
-	TypeMsgRekayStorkPrices      = "relayStorkPrices"
+	TypeMsgRelayStorkPrices      = "relayStorkPrices"
 	TypeMsgUpdateParams          = "updateParams"
 )
 
@@ -322,7 +322,7 @@ func (msg MsgRelayPythPrices) GetSigners() []sdk.AccAddress {
 func (msg MsgRelayStorkMessage) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgRelayStorkMessage) Type() string { return TypeMsgRekayStorkPrices }
+func (msg MsgRelayStorkMessage) Type() string { return TypeMsgRelayStorkPrices }
 
 // ValidateBasic implements the sdk.Msg interface for MsgRelayStorkMessage.
 func (msg MsgRelayStorkMessage) ValidateBasic() error {
