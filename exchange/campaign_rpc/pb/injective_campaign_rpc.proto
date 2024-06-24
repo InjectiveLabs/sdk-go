@@ -1,4 +1,4 @@
-// Code generated with goa v3.5.2, DO NOT EDIT.
+// Code generated with goa v3.7.0, DO NOT EDIT.
 //
 // InjectiveCampaignRPC protocol buffer definition
 //
@@ -34,6 +34,8 @@ message RankingRequest {
 	string account_address = 3;
 	sint32 limit = 4;
 	uint64 skip = 5;
+	// Contract address that manages the round and reward
+	string contract_address = 6;
 }
 
 message RankingResponse {
@@ -61,12 +63,21 @@ message Campaign {
 	// Campaigns round ID
 	sint32 round_id = 9;
 	// Contract address that controls this campaign
-	string contract = 10;
+	string manager_contract = 10;
 	// Reward tokens of this campaign
 	repeated Coin rewards = 11;
 	// Total user score if accountAddress is passed, this is useful to estimate
 // account's reward
 	string user_score = 12;
+	// Return true if user claimed the reward of this campaign
+	bool user_claimed = 13;
+	// Suffix of the subaccount that eligible for volume score
+	string subaccount_id_suffix = 14;
+	// Contract that manage users reward
+	string reward_contract = 15;
+	// Version of reward contract, UI use this to determine the message that need
+// to be sent
+	string version = 16;
 }
 
 message Coin {
@@ -94,6 +105,8 @@ message CampaignUser {
 	// True if this user is updated to be in Galxe Campain list, only eligible
 // address are added
 	bool galxe_updated = 9;
+	// True if this user claimed the reward
+	bool reward_claimed = 10;
 }
 // Paging defines the structure for required params for handling pagination
 message Paging {
@@ -110,18 +123,21 @@ message Paging {
 }
 
 message CampaignsRequest {
-	// Round ID, if not specified, it will return latest roundId
+	// Round ID, if not specified, it will return latest roundId
 	sint64 round_id = 1;
 	// Address of login account, if not specified it will return no user rewards
 	string account_address = 2;
 	// This will return campaign x where x.roundId <= toRoundId. Useful for listing
 // multiple rounds
 	sint32 to_round_id = 3;
+	// Contract address that manages the round and reward
+	string contract_address = 4;
 }
 
 message CampaignsResponse {
 	repeated Campaign campaigns = 1;
-	repeated Coin account_rewards = 2;
+	repeated Coin accumulated_rewards = 2;
+	sint32 reward_count = 3;
 }
 
 message ListGuildsRequest {

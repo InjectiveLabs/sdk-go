@@ -1,4 +1,4 @@
-// Code generated with goa v3.5.2, DO NOT EDIT.
+// Code generated with goa v3.7.0, DO NOT EDIT.
 //
 // InjectiveInsuranceRPC protocol buffer definition
 //
@@ -15,6 +15,8 @@ option go_package = "/injective_insurance_rpcpb";
 service InjectiveInsuranceRPC {
 	// Funds lists all insurance funds.
 	rpc Funds (FundsRequest) returns (FundsResponse);
+	// Funds returns an insurance fund for a given insurance fund token denom.
+	rpc Fund (FundRequest) returns (FundResponse);
 	// PendingRedemptions lists all pending redemptions according to a filter
 	rpc Redemptions (RedemptionsRequest) returns (RedemptionsResponse);
 }
@@ -64,6 +66,16 @@ message TokenMeta {
 	sint32 decimals = 5;
 	// Token metadata fetched timestamp in UNIX millis.
 	sint64 updated_at = 6;
+}
+
+message FundRequest {
+	// denom of insurance fund
+	string denom = 1;
+}
+
+message FundResponse {
+	// The insurance fund corresponding to the provided token denom
+	InsuranceFund fund = 1;
 }
 
 message RedemptionsRequest {

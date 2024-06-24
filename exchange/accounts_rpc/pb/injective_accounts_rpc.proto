@@ -1,4 +1,4 @@
-// Code generated with goa v3.5.2, DO NOT EDIT.
+// Code generated with goa v3.7.0, DO NOT EDIT.
 //
 // InjectiveAccountsRPC protocol buffer definition
 //
@@ -33,6 +33,8 @@ service InjectiveAccountsRPC {
 	rpc SubaccountOrderSummary (SubaccountOrderSummaryRequest) returns (SubaccountOrderSummaryResponse);
 	// Provide historical trading rewards
 	rpc Rewards (RewardsRequest) returns (RewardsResponse);
+	// Stream live data for an account and respective data
+	rpc StreamAccountData (StreamAccountDataRequest) returns (stream StreamAccountDataResponse);
 }
 
 message PortfolioRequest {
@@ -271,4 +273,351 @@ message Coin {
 	// Denom of the coin
 	string denom = 1;
 	string amount = 2;
+}
+
+message StreamAccountDataRequest {
+	// account address
+	string account_address = 1;
+}
+
+message StreamAccountDataResponse {
+	SubaccountBalanceResult subaccount_balance = 1;
+	PositionsResult position = 2;
+	TradeResult trade = 3;
+	OrderResult order = 4;
+	OrderHistoryResult order_history = 5;
+	FundingPaymentResult funding_payment = 6;
+}
+
+message SubaccountBalanceResult {
+	// Subaccount balance
+	SubaccountBalance balance = 1;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 2;
+}
+
+message PositionsResult {
+	// Updated derivative Position
+	Position position = 1;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 2;
+}
+
+message Position {
+	// Ticker of the derivative market
+	string ticker = 1;
+	// Derivative Market ID
+	string market_id = 2;
+	// The subaccountId that the position belongs to
+	string subaccount_id = 3;
+	// Direction of the position
+	string direction = 4;
+	// Quantity of the position
+	string quantity = 5;
+	// Price of the position
+	string entry_price = 6;
+	// Margin of the position
+	string margin = 7;
+	// LiquidationPrice of the position
+	string liquidation_price = 8;
+	// MarkPrice of the position
+	string mark_price = 9;
+	// Position updated timestamp in UNIX millis.
+	sint64 updated_at = 10;
+	// Position created timestamp in UNIX millis.
+	sint64 created_at = 11;
+}
+
+message TradeResult {
+	oneof trade {
+		// New spot market trade
+	SpotTrade spot_trade = 1;
+		// New derivative market trade
+	DerivativeTrade derivative_trade = 2;
+	}
+	// Executed trades update type
+	string operation_type = 3;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 4;
+}
+
+message SpotTrade {
+	// Maker order hash.
+	string order_hash = 1;
+	// The subaccountId that executed the trade
+	string subaccount_id = 2;
+	// The ID of the market that this trade is in
+	string market_id = 3;
+	// The execution type of the trade
+	string trade_execution_type = 4;
+	// The direction the trade
+	string trade_direction = 5;
+	// Price level at which trade has been executed
+	PriceLevel price = 6;
+	// The fee associated with the trade (quote asset denom)
+	string fee = 7;
+	// Timestamp of trade execution in UNIX millis
+	sint64 executed_at = 8;
+	// Fee recipient address
+	string fee_recipient = 9;
+	// A unique string that helps differentiate between trades
+	string trade_id = 10;
+	// Trade's execution side, marker/taker
+	string execution_side = 11;
+	// Custom client order ID
+	string cid = 12;
+}
+
+message PriceLevel {
+	// Price number of the price level.
+	string price = 1;
+	// Quantity of the price level.
+	string quantity = 2;
+	// Price level last updated timestamp in UNIX millis.
+	sint64 timestamp = 3;
+}
+
+message DerivativeTrade {
+	// Order hash.
+	string order_hash = 1;
+	// The subaccountId that executed the trade
+	string subaccount_id = 2;
+	// The ID of the market that this trade is in
+	string market_id = 3;
+	// The execution type of the trade
+	string trade_execution_type = 4;
+	// True if the trade is a liquidation
+	bool is_liquidation = 5;
+	// Position Delta from the trade
+	PositionDelta position_delta = 6;
+	// The payout associated with the trade
+	string payout = 7;
+	// The fee associated with the trade
+	string fee = 8;
+	// Timestamp of trade execution in UNIX millis
+	sint64 executed_at = 9;
+	// Fee recipient address
+	string fee_recipient = 10;
+	// A unique string that helps differentiate between trades
+	string trade_id = 11;
+	// Trade's execution side, marker/taker
+	string execution_side = 12;
+	// Custom client order ID
+	string cid = 13;
+}
+
+message PositionDelta {
+	// The direction the trade
+	string trade_direction = 1;
+	// Execution Price of the trade.
+	string execution_price = 2;
+	// Execution Quantity of the trade.
+	string execution_quantity = 3;
+	// Execution Margin of the trade.
+	string execution_margin = 4;
+}
+
+message OrderResult {
+	oneof order {
+		// Updated spot market order
+	SpotLimitOrder spot_order = 1;
+		// Updated derivative market order
+	DerivativeLimitOrder derivative_order = 2;
+	}
+	// Executed orders update type
+	string operation_type = 3;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 4;
+}
+
+message SpotLimitOrder {
+	// Hash of the order
+	string order_hash = 1;
+	// The side of the order
+	string order_side = 2;
+	// Spot Market ID is keccak265(baseDenom + quoteDenom)
+	string market_id = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// Price of the order
+	string price = 5;
+	// Quantity of the order
+	string quantity = 6;
+	// The amount of the quantity remaining unfilled
+	string unfilled_quantity = 7;
+	// Trigger price is the trigger price used by stop/take orders. 0 if the
+// trigger price is not set.
+	string trigger_price = 8;
+	// Fee recipient address
+	string fee_recipient = 9;
+	// Order state
+	string state = 10;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 11;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 12;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 13;
+	// Custom client order ID
+	string cid = 14;
+}
+
+message DerivativeLimitOrder {
+	// Hash of the order
+	string order_hash = 1;
+	// The side of the order
+	string order_side = 2;
+	// Derivative Market ID
+	string market_id = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// True if the order is a reduce-only order
+	bool is_reduce_only = 5;
+	// Margin of the order
+	string margin = 6;
+	// Price of the order
+	string price = 7;
+	// Quantity of the order
+	string quantity = 8;
+	// The amount of the quantity remaining unfilled
+	string unfilled_quantity = 9;
+	// Trigger price is the trigger price used by stop/take orders
+	string trigger_price = 10;
+	// Fee recipient address
+	string fee_recipient = 11;
+	// Order state
+	string state = 12;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 13;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 14;
+	// Order number of subaccount
+	sint64 order_number = 15;
+	// Order type
+	string order_type = 16;
+	// Order type
+	bool is_conditional = 17;
+	// Trigger timestamp, only exists for conditional orders
+	uint64 trigger_at = 18;
+	// OrderHash of order that is triggered by this conditional order
+	string placed_order_hash = 19;
+	// Execution type of conditional order
+	string execution_type = 20;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 21;
+	// Custom client order ID
+	string cid = 22;
+}
+
+message OrderHistoryResult {
+	oneof order_history {
+		// Spot order history
+	SpotOrderHistory spot_order_history = 1;
+		// Derivative order history
+	DerivativeOrderHistory derivative_order_history = 2;
+	}
+	// Order update type
+	string operation_type = 3;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 4;
+}
+
+message SpotOrderHistory {
+	// Hash of the order
+	string order_hash = 1;
+	// Spot Market ID is keccak265(baseDenom + quoteDenom)
+	string market_id = 2;
+	// active state of the order
+	bool is_active = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// The execution type
+	string execution_type = 5;
+	// The side of the order
+	string order_type = 6;
+	// Price of the order
+	string price = 7;
+	// Trigger price
+	string trigger_price = 8;
+	// Quantity of the order
+	string quantity = 9;
+	// Filled amount
+	string filled_quantity = 10;
+	// Order state
+	string state = 11;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 12;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 13;
+	// Order direction (order side)
+	string direction = 14;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 15;
+	// Custom client order ID
+	string cid = 16;
+}
+
+message DerivativeOrderHistory {
+	// Hash of the order
+	string order_hash = 1;
+	// Spot Market ID is keccak265(baseDenom + quoteDenom)
+	string market_id = 2;
+	// active state of the order
+	bool is_active = 3;
+	// The subaccountId that this order belongs to
+	string subaccount_id = 4;
+	// The execution type
+	string execution_type = 5;
+	// The side of the order
+	string order_type = 6;
+	// Price of the order
+	string price = 7;
+	// Trigger price
+	string trigger_price = 8;
+	// Quantity of the order
+	string quantity = 9;
+	// Filled amount
+	string filled_quantity = 10;
+	// Order state
+	string state = 11;
+	// Order committed timestamp in UNIX millis.
+	sint64 created_at = 12;
+	// Order updated timestamp in UNIX millis.
+	sint64 updated_at = 13;
+	// True if an order is reduce only
+	bool is_reduce_only = 14;
+	// Order direction (order side)
+	string direction = 15;
+	// True if this is conditional order, otherwise false
+	bool is_conditional = 16;
+	// Trigger timestamp in unix milli
+	uint64 trigger_at = 17;
+	// Order hash placed when this triggers
+	string placed_order_hash = 18;
+	// Order's margin
+	string margin = 19;
+	// Transaction Hash where order is created. Not all orders have this field
+	string tx_hash = 20;
+	// Custom client order ID
+	string cid = 21;
+}
+
+message FundingPaymentResult {
+	// Funding payments of the account
+	FundingPayment funding_payments = 1;
+	// Funding payments type
+	string operation_type = 2;
+	// Operation timestamp in UNIX millis.
+	sint64 timestamp = 4;
+}
+
+message FundingPayment {
+	// Derivative Market ID
+	string market_id = 1;
+	// The subaccountId that the position belongs to
+	string subaccount_id = 2;
+	// Amount of the funding payment
+	string amount = 3;
+	// Timestamp of funding payment in UNIX millis
+	sint64 timestamp = 4;
 }

@@ -1,4 +1,4 @@
-// Code generated with goa v3.5.2, DO NOT EDIT.
+// Code generated with goa v3.7.0, DO NOT EDIT.
 //
 // InjectiveDerivativeExchangeRPC protocol buffer definition
 //
@@ -670,7 +670,7 @@ message StreamPositionsRequest {
 }
 
 message StreamPositionsResponse {
-	// Updated Derivative Position
+	// Updated derivative Position
 	DerivativePosition position = 1;
 	// Operation timestamp in UNIX millis.
 	sint64 timestamp = 2;
