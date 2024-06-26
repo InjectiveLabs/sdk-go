@@ -3,6 +3,7 @@ package chain
 import (
 	"context"
 	"errors"
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -716,4 +717,26 @@ func (c *MockChainClient) FetchIBCConnectionConsensusState(ctx context.Context, 
 
 func (c *MockChainClient) FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error) {
 	return &ibcconnectiontypes.QueryConnectionParamsResponse{}, nil
+}
+
+// Permissions module
+
+func (c *MockChainClient) FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error) {
+	return &permissionstypes.QueryAllNamespacesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error) {
+	return &permissionstypes.QueryNamespaceByDenomResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error) {
+	return &permissionstypes.QueryAddressRolesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error) {
+	return &permissionstypes.QueryAddressesByRoleResponse{}, nil
+}
+
+func (c *MockChainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
+	return &permissionstypes.QueryVouchersForAddressResponse{}, nil
 }

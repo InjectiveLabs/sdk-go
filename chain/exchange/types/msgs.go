@@ -32,6 +32,7 @@ var (
 	_ sdk.Msg = &MsgSubaccountTransfer{}
 	_ sdk.Msg = &MsgExternalTransfer{}
 	_ sdk.Msg = &MsgIncreasePositionMargin{}
+	_ sdk.Msg = &MsgDecreasePositionMargin{}
 	_ sdk.Msg = &MsgLiquidatePosition{}
 	_ sdk.Msg = &MsgEmergencySettleMarket{}
 	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}

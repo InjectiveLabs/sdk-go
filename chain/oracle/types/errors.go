@@ -44,4 +44,8 @@ var (
 	ErrInvalidPythExponent         = errors.Register(ModuleName, 37, "unauthorized Pyth price relay")
 	ErrInvalidPythPublishTime      = errors.Register(ModuleName, 38, "unauthorized Pyth price relay")
 	ErrEmptyPriceAttestations      = errors.Register(ModuleName, 39, "empty price attestations")
+	ErrBadStorkMessageTimestamp    = errors.Register(ModuleName, 40, "bad Stork message timestamp")
+	ErrEmptyStorkSender            = errors.Register(ModuleName, 41, "sender stork is empty")
+	ErrInvalidStorkSignature       = errors.Register(ModuleName, 42, "invalid stork signature")
+	ErrStorkAssetIdNotUnique       = errors.Register(ModuleName, 43, "stork asset id not unique")
 )

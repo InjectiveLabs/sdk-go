@@ -11,7 +11,7 @@ import (
 var _ paramtypes.ParamSet = &Params{}
 
 var (
-	LargestDecPrice math.LegacyDec = math.LegacyMustNewDecFromStr("10000000")
+	LargestDecPrice = math.LegacyMustNewDecFromStr("10000000")
 )
 
 const (

@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"cosmossdk.io/math"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
@@ -66,13 +68,13 @@ func main() {
 			{
 				Address: senderAddress.String(),
 				Coins: []sdktypes.Coin{{
-					Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000)}, // 1 INJ
+					Denom: "inj", Amount: math.NewInt(1000000000000000000)}, // 1 INJ
 				},
 			},
 			{
 				Address: senderAddress.String(),
 				Coins: []sdktypes.Coin{{
-					Denom: "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5", Amount: sdktypes.NewInt(1000000)}, // 1 USDT
+					Denom: "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5", Amount: math.NewInt(1000000)}, // 1 USDT
 				},
 			},
 		},
@@ -80,13 +82,13 @@ func main() {
 			{
 				Address: "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
 				Coins: []sdktypes.Coin{{
-					Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000)}, // 1 INJ
+					Denom: "inj", Amount: math.NewInt(1000000000000000000)}, // 1 INJ
 				},
 			},
 			{
 				Address: "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
 				Coins: []sdktypes.Coin{{
-					Denom: "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5", Amount: sdktypes.NewInt(1000000)}, // 1 USDT
+					Denom: "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5", Amount: math.NewInt(1000000)}, // 1 USDT
 				},
 			},
 		},
