@@ -3,8 +3,9 @@ package chain
 import (
 	"context"
 	"errors"
-	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	"time"
+
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 
 	sdkmath "cosmossdk.io/math"
 
