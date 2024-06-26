@@ -52,7 +52,7 @@ func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyr
 }
 
 func TestDefaultSubaccount(t *testing.T) {
-	network := common.LoadNetwork("testnet", "lb")
+	network := common.LoadNetwork("devnet", "lb")
 	senderAddress, cosmosKeyring, err := accountForTests()
 
 	if err != nil {
@@ -75,7 +75,7 @@ func TestDefaultSubaccount(t *testing.T) {
 }
 
 func TestGetSubaccountWithIndex(t *testing.T) {
-	network := common.LoadNetwork("testnet", "lb")
+	network := common.LoadNetwork("devnet", "lb")
 	senderAddress, cosmosKeyring, err := accountForTests()
 
 	if err != nil {
