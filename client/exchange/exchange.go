@@ -24,10 +24,10 @@ type ExchangeClient interface {
 	QueryClient() *grpc.ClientConn
 	GetDerivativeMarket(ctx context.Context, marketId string) (*derivativeExchangePB.MarketResponse, error)
 	GetDerivativeOrderbookV2(ctx context.Context, marketId string) (*derivativeExchangePB.OrderbookV2Response, error)
-	GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (*derivativeExchangePB.OrderbooksV2Response, error)
+	GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error)
 	// StreamDerivativeOrderbook deprecated API
-	StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error)
-	StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
+	StreamDerivativeOrderbookV2(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error)
+	StreamDerivativeOrderbookUpdate(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
 	StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
 	GetDerivativeOrders(ctx context.Context, req *derivativeExchangePB.OrdersRequest) (*derivativeExchangePB.OrdersResponse, error)
 	GetDerivativeMarkets(ctx context.Context, req *derivativeExchangePB.MarketsRequest) (*derivativeExchangePB.MarketsResponse, error)
@@ -222,9 +222,9 @@ func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId 
 	return res, nil
 }
 
-func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
+func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
 	req := derivativeExchangePB.OrderbooksV2Request{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.OrderbooksV2, &req)
@@ -236,9 +236,9 @@ func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketId
 	return res, nil
 }
 
-func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
+func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
 	req := derivativeExchangePB.StreamOrderbookV2Request{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamOrderbookV2, &req)
@@ -251,9 +251,9 @@ func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, market
 	return stream, nil
 }
 
-func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
+func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
 	req := derivativeExchangePB.StreamOrderbookUpdateRequest{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamOrderbookUpdate, &req)

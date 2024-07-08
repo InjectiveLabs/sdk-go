@@ -355,7 +355,7 @@ func NewChainClient(
 	var txFactory tx.Factory
 	if opts.TxFactory == nil {
 		txFactory = NewTxFactory(ctx)
-		if len(opts.GasPrices) > 0 {
+		if opts.GasPrices != "" {
 			txFactory = txFactory.WithGasPrices(opts.GasPrices)
 		}
 	} else {
@@ -1381,9 +1381,9 @@ func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType Ord
 	}
 
 	// turn array into map for convenient lookup
-	marketIdsMap := map[string]bool{}
+	marketIDsMap := map[string]bool{}
 	for _, id := range marketIds {
-		marketIdsMap[id] = true
+		marketIDsMap[id] = true
 	}
 
 	filteredOrderbookUpdateCh := make(chan exchangetypes.Orderbook, 10000)
@@ -1401,7 +1401,7 @@ func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType Ord
 
 			for _, ob := range allOrderbookUpdates {
 				id := ethcommon.BytesToHash(ob.MarketId).String()
-				if marketIdsMap[id] {
+				if marketIDsMap[id] {
 					filteredOrderbookUpdateCh <- ob
 				}
 			}

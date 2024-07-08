@@ -36,15 +36,15 @@ func (e *MockExchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marke
 	return &derivativeExchangePB.OrderbookV2Response{}, nil
 }
 
-func (e *MockExchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
+func (e *MockExchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
 	return &derivativeExchangePB.OrderbooksV2Response{}, nil
 }
 
-func (e *MockExchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
+func (e *MockExchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
 	return nil, nil
 }
 
-func (e *MockExchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
+func (e *MockExchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
 	return nil, nil
 }
 
