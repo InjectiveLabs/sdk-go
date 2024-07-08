@@ -214,10 +214,10 @@ func (c *MockChainClient) StreamEventOrderFail(sender string, failEventCh chan m
 func (c *MockChainClient) StreamEventOrderFailWithWebsocket(sender string, websocket *rpchttp.HTTP, failEventCh chan map[string]uint) {
 }
 
-func (c *MockChainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook) {
+func (c *MockChainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIDs []string, orderbookCh chan exchangetypes.Orderbook) {
 }
 
-func (c *MockChainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIds []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook) {
+func (c *MockChainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIDs []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook) {
 }
 
 func (c *MockChainClient) ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error) {
@@ -348,7 +348,7 @@ func (c *MockChainClient) FetchAggregateVolume(ctx context.Context, account stri
 	return &exchangetypes.QueryAggregateVolumeResponse{}, nil
 }
 
-func (c *MockChainClient) FetchAggregateVolumes(ctx context.Context, accounts, marketIds []string) (*exchangetypes.QueryAggregateVolumesResponse, error) {
+func (c *MockChainClient) FetchAggregateVolumes(ctx context.Context, accounts, marketIDs []string) (*exchangetypes.QueryAggregateVolumesResponse, error) {
 	return &exchangetypes.QueryAggregateVolumesResponse{}, nil
 }
 
@@ -356,7 +356,7 @@ func (c *MockChainClient) FetchAggregateMarketVolume(ctx context.Context, market
 	return &exchangetypes.QueryAggregateMarketVolumeResponse{}, nil
 }
 
-func (c *MockChainClient) FetchAggregateMarketVolumes(ctx context.Context, marketIds []string) (*exchangetypes.QueryAggregateMarketVolumesResponse, error) {
+func (c *MockChainClient) FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangetypes.QueryAggregateMarketVolumesResponse, error) {
 	return &exchangetypes.QueryAggregateMarketVolumesResponse{}, nil
 }
 
@@ -368,7 +368,7 @@ func (c *MockChainClient) FetchDenomDecimals(ctx context.Context, denoms []strin
 	return &exchangetypes.QueryDenomDecimalsResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIds []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
+func (c *MockChainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
 	return &exchangetypes.QuerySpotMarketsResponse{}, nil
 }
 
@@ -376,7 +376,7 @@ func (c *MockChainClient) FetchChainSpotMarket(ctx context.Context, marketId str
 	return &exchangetypes.QuerySpotMarketResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainFullSpotMarkets(ctx context.Context, status string, marketIds []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error) {
+func (c *MockChainClient) FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error) {
 	return &exchangetypes.QueryFullSpotMarketsResponse{}, nil
 }
 
@@ -436,7 +436,7 @@ func (c *MockChainClient) FetchChainTraderDerivativeTransientOrders(ctx context.
 	return &exchangetypes.QueryTraderDerivativeOrdersResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIds []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
+func (c *MockChainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
 	return &exchangetypes.QueryDerivativeMarketsResponse{}, nil
 }
 

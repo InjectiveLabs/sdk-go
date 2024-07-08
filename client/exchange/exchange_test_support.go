@@ -48,7 +48,7 @@ func (e *MockExchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context
 	return nil, nil
 }
 
-func (e *MockExchangeClient) StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error) {
+func (e *MockExchangeClient) StreamDerivativeMarket(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error) {
 	return nil, nil
 }
 
@@ -230,7 +230,7 @@ func (e *MockExchangeClient) GetSpotMarket(ctx context.Context, marketId string)
 	return &spotExchangePB.MarketResponse{}, nil
 }
 
-func (e *MockExchangeClient) StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error) {
+func (e *MockExchangeClient) StreamSpotMarket(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error) {
 	return nil, nil
 }
 
