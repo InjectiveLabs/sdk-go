@@ -199,15 +199,15 @@ func (e *MockExchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId st
 	return &spotExchangePB.OrderbookV2Response{}, nil
 }
 
-func (e *MockExchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (*spotExchangePB.OrderbooksV2Response, error) {
+func (e *MockExchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error) {
 	return &spotExchangePB.OrderbooksV2Response{}, nil
 }
 
-func (e *MockExchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
+func (e *MockExchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
 	return nil, nil
 }
 
-func (e *MockExchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
+func (e *MockExchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
 	return nil, nil
 }
 

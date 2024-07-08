@@ -63,10 +63,10 @@ type ExchangeClient interface {
 	GetRewards(ctx context.Context, req *accountPB.RewardsRequest) (*accountPB.RewardsResponse, error)
 	GetSpotOrders(ctx context.Context, req *spotExchangePB.OrdersRequest) (*spotExchangePB.OrdersResponse, error)
 	GetSpotOrderbookV2(ctx context.Context, marketId string) (*spotExchangePB.OrderbookV2Response, error)
-	GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (*spotExchangePB.OrderbooksV2Response, error)
+	GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error)
 	// StreamSpotOrderbook deprecated API
-	StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error)
-	StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
+	StreamSpotOrderbookV2(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error)
+	StreamSpotOrderbookUpdate(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
 	GetSpotMarkets(ctx context.Context, req *spotExchangePB.MarketsRequest) (*spotExchangePB.MarketsResponse, error)
 	GetSpotMarket(ctx context.Context, marketId string) (*spotExchangePB.MarketResponse, error)
 	StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error)
@@ -670,9 +670,9 @@ func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string
 	return res, nil
 }
 
-func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (*spotExchangePB.OrderbooksV2Response, error) {
+func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error) {
 	req := spotExchangePB.OrderbooksV2Request{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.OrderbooksV2, &req)
@@ -685,9 +685,9 @@ func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIds []st
 	return res, nil
 }
 
-func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
+func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
 	req := spotExchangePB.StreamOrderbookUpdateRequest{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamOrderbookUpdate, &req)
@@ -700,9 +700,9 @@ func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketId
 	return stream, nil
 }
 
-func (c *exchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
+func (c *exchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
 	req := spotExchangePB.StreamOrderbookV2Request{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamOrderbookV2, &req)
