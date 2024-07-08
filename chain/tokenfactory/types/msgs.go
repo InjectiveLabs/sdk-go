@@ -3,9 +3,11 @@ package types
 import (
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	"github.com/InjectiveLabs/sdk-go/chain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"strings"
 )
 
 // constants
@@ -15,7 +17,6 @@ const (
 	TypeMsgBurn             = "tf_burn"
 	TypeMsgChangeAdmin      = "change_admin"
 	TypeMsgSetDenomMetadata = "set_denom_metadata"
-	TypeMsgForceTransfer    = "force_transfer"
 	TypeMsgUpdateParams     = "update_params"
 )
 
@@ -210,9 +211,22 @@ func (m MsgSetDenomMetadata) ValidateBasic() error {
 		return err
 	}
 
-	_, _, err = DeconstructDenom(m.Metadata.Base)
+	if m.Metadata.Base == types.InjectiveCoin {
+		return errors.Wrap(ErrInvalidDenom, "cannot set metadata for INJ")
+	}
+
+	err = sdk.ValidateDenom(m.Metadata.Base)
 	if err != nil {
 		return err
+	}
+
+	// If denom metadata is for a TokenFactory denom, run the different components validations
+	strParts := strings.Split(m.Metadata.Base, "/")
+	if len(strParts) > 2 {
+		_, _, err = DeconstructDenom(m.Metadata.Base)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

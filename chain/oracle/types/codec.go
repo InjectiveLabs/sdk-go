@@ -19,6 +19,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRequestBandIBCRates{}, "oracle/MsgRequestBandIBCRates", nil)
 	cdc.RegisterConcrete(&MsgRelayProviderPrices{}, "oracle/MsgRelayProviderPrices", nil)
 	cdc.RegisterConcrete(&MsgRelayPythPrices{}, "oracle/MsgRelayPythPrices", nil)
+	cdc.RegisterConcrete(&MsgRelayStorkPrices{}, "oracle/MsgRelayStorkPrices", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "oracle/MsgUpdateParams", nil)
 
 	cdc.RegisterConcrete(&GrantBandOraclePrivilegeProposal{}, "oracle/GrantBandOraclePrivilegeProposal", nil)
@@ -30,6 +31,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&EnableBandIBCProposal{}, "oracle/EnableBandIBCProposal", nil)
 	cdc.RegisterConcrete(&GrantProviderPrivilegeProposal{}, "oracle/GrantProviderPrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokeProviderPrivilegeProposal{}, "oracle/RevokeProviderPrivilegeProposal", nil)
+	cdc.RegisterConcrete(&GrantStorkPublisherPrivilegeProposal{}, "oracle/GrantStorkPublisherPrivilegeProposal", nil)
+	cdc.RegisterConcrete(&RevokeStorkPublisherPrivilegeProposal{}, "oracle/RevokeStorkPublisherPrivilegeProposal", nil)
 	cdc.RegisterConcrete(&Params{}, "oracle/Params", nil)
 }
 
@@ -41,6 +44,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgRequestBandIBCRates{},
 		&MsgRelayProviderPrices{},
 		&MsgRelayPythPrices{},
+		&MsgRelayStorkPrices{},
 		&MsgUpdateParams{},
 	)
 
@@ -54,6 +58,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&EnableBandIBCProposal{},
 		&GrantProviderPrivilegeProposal{},
 		&RevokeProviderPrivilegeProposal{},
+		&GrantStorkPublisherPrivilegeProposal{},
+		&RevokeStorkPublisherPrivilegeProposal{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

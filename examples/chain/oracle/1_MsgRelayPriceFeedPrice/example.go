@@ -3,15 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
-	"time"
 
+	"cosmossdk.io/math"
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 func main() {
@@ -57,7 +56,7 @@ func main() {
 		panic(err)
 	}
 
-	price := []cosmtypes.Dec{cosmtypes.MustNewDecFromStr("100")}
+	price := []math.LegacyDec{math.LegacyMustNewDecFromStr("100")}
 	base := []string{"BAYC"}
 	quote := []string{"WETH"}
 
@@ -69,20 +68,11 @@ func main() {
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	err = chainClient.QueueBroadcastMsg(msg)
+	result, err := chainClient.SyncBroadcastMsg(msg)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
-	time.Sleep(time.Second * 5)
-
-	gasFee, err := chainClient.GetGasFee()
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("gas fee:", gasFee, "INJ")
+	fmt.Printf("Broadcast result: %s\n", result)
 }

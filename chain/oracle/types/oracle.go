@@ -14,6 +14,9 @@ const BandPriceMultiplier uint64 = 1000000000 // 1e9
 
 // MaxHistoricalPriceRecordAge is the maximum age of oracle price records to track.
 const MaxHistoricalPriceRecordAge = 60 * 5
+const MaxStorkTimestampIntervalNano = 500_000_000 // 500ms
+
+var EighteenDecimals = math.LegacyNewDec(10).Power(18)
 
 func GetOracleType(oracleTypeStr string) (OracleType, error) {
 	oracleTypeStr = strings.ToLower(oracleTypeStr)
@@ -32,6 +35,8 @@ func GetOracleType(oracleTypeStr string) (OracleType, error) {
 		oracleType = OracleType_Provider
 	case "pyth":
 		oracleType = OracleType_Pyth
+	case "stork":
+		oracleType = OracleType_Stork
 	default:
 		return OracleType_Band, errors.Wrapf(ErrUnsupportedOracleType, "%s", oracleTypeStr)
 	}

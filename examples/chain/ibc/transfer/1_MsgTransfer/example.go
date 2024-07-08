@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"cosmossdk.io/math"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
@@ -60,7 +62,7 @@ func main() {
 	sourcePort := "transfer"
 	sourceChannel := "channel-126"
 	coin := sdktypes.Coin{
-		Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000), // 1 INJ
+		Denom: "inj", Amount: math.NewInt(1000000000000000000), // 1 INJ
 	}
 	sender := senderAddress.String()
 	receiver := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"

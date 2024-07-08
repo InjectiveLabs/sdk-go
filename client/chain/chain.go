@@ -59,6 +59,8 @@ const (
 	defaultBroadcastTimeout          = 40 * time.Second
 	defaultTimeoutHeight             = 20
 	defaultTimeoutHeightSyncInterval = 10 * time.Second
+	SpotOrderbook                    = "injective.exchange.v1beta1.EventOrderbookUpdate.spot_orderbooks"
+	DerivativeOrderbook              = "injective.exchange.v1beta1.EventOrderbookUpdate.derivative_orderbooks"
 )
 
 var (

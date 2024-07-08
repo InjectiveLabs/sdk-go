@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 
 	"os"
+
+	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -64,8 +65,8 @@ func main() {
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 	limit := uint64(2)
 	orderSide := types.OrderSide_Buy
-	limitCumulativeNotional := cosmostypes.Dec{}
-	limitCumulativeQuantity := cosmostypes.Dec{}
+	limitCumulativeNotional := math.LegacyDec{}
+	limitCumulativeQuantity := math.LegacyDec{}
 
 	res, err := chainClient.FetchChainSpotOrderbook(ctx, marketId, limit, orderSide, limitCumulativeNotional, limitCumulativeQuantity)
 	if err != nil {

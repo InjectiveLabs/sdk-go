@@ -67,6 +67,8 @@ message PrepareTxRequest {
 	CosmosTxFee fee = 6;
 	// List of Cosmos proto3-encoded Msgs to include in a single tx
 	repeated bytes msgs = 7;
+	// The wrapper of the EIP712 message, V1 or V2
+	string eip712_wrapper = 8;
 }
 
 message CosmosTxFee {

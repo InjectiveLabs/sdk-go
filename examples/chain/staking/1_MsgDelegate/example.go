@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"cosmossdk.io/math"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
@@ -61,7 +63,7 @@ func main() {
 	msg.DelegatorAddress = senderAddress.String()
 	msg.ValidatorAddress = "injvaloper14gy4acwjm96wd20awm9ar6j54lev5p7espy9ug"
 	msg.Amount = sdktypes.Coin{
-		Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000), // 1 INJ
+		Denom: "inj", Amount: math.NewInt(1000000000000000000), // 1 INJ
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
