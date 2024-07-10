@@ -143,7 +143,9 @@ func (m *SpotLimitOrder) GetUnfilledFeeAmount(fee math.LegacyDec) math.LegacyDec
 	return m.GetUnfilledNotional().Mul(fee)
 }
 
-func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (balanceHold math.LegacyDec, denom string) {
+func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (math.LegacyDec, string) {
+	var denom string
+	var balanceHold math.LegacyDec
 	if m.IsBuy() {
 		denom = market.QuoteDenom
 		if m.OrderType.IsPostOnly() {
@@ -165,7 +167,9 @@ func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (balanceHol
 	return balanceHold, denom
 }
 
-func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (balanceHold math.LegacyDec, denom string) {
+func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (math.LegacyDec, string) {
+	var denom string
+	var balanceHold math.LegacyDec
 	if m.IsBuy() {
 		var tradeFeeRate math.LegacyDec
 
