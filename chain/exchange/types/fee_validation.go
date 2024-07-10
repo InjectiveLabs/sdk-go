@@ -16,10 +16,11 @@ func ValidateMakerWithTakerFee(makerFeeRate, takerFeeRate, relayerFeeShareRate, 
 		return nil
 	}
 
-	// if makerFeeRate is negative, must hold: takerFeeRate * (1 - relayerFeeShareRate) + makerFeeRate > minimalProtocolFeeRate
 	if takerFeeRate.Mul(math.LegacyOneDec().Sub(relayerFeeShareRate)).Add(makerFeeRate).LT(minimalProtocolFeeRate) {
-		errMsg := fmt.Sprintf("if makerFeeRate (%v) is negative, (takerFeeRate = %v) * (1 - relayerFeeShareRate = %v) + makerFeeRate < %v", makerFeeRate.String(), takerFeeRate.String(), relayerFeeShareRate.String(), minimalProtocolFeeRate.String())
-		return errors.Wrap(ErrFeeRatesRelation, errMsg)
+		// if makerFeeRate is negative then takerFeeRate >= (minimalProtocolFeeRate - relayerFeeShareRate)/(1 - makerFeeRate)
+		numerator := minimalProtocolFeeRate.Sub(relayerFeeShareRate)
+		denominator := math.LegacyOneDec().Sub(makerFeeRate)
+		return errors.Wrap(ErrFeeRatesRelation, fmt.Sprintf("if maker_fee_rate is negative (%v), taker_fee_rate must be GTE than %v [ taker_fee_rate >= (minimum_protocol_fee_rate - maker_fee_rate)/(1 - relayer_fee_share_rate) ]", makerFeeRate.String(), numerator.Quo(denominator).String()))
 	}
 
 	return nil
