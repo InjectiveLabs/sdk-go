@@ -79,6 +79,7 @@ func main() {
 		Symbol:      "INJTEST",
 		URI:         "http://injective-test.com/icon.jpg",
 		URIHash:     "",
+		Decimals:    tokenDecimals,
 	}
 
 	message := new(tokenfactorytypes.MsgSetDenomMetadata)
