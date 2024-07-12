@@ -481,11 +481,11 @@ func (c *chainClient) syncTimeoutHeight() {
 	}
 }
 
-// prepareFactory ensures the account defined by ctx.GetFromAddress() exists and
+// PrepareFactory ensures the account defined by ctx.GetFromAddress() exists and
 // if the account number and/or the account sequence number are zero (not set),
 // they will be queried for and set on the provided Factory. A new Factory with
 // the updated fields will be returned.
-func (c *chainClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+func PrepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
 	from := clientCtx.GetFromAddress()
 
 	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
@@ -703,7 +703,7 @@ func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*
 func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-	txf, err := c.prepareFactory(clientCtx, c.txFactory)
+	txf, err := PrepareFactory(clientCtx, c.txFactory)
 	if err != nil {
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, err
@@ -785,7 +785,7 @@ func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, ms
 		c.gasWanted = adjustedGas
 	}
 
-	txf, err := c.prepareFactory(clientCtx, txf)
+	txf, err := PrepareFactory(clientCtx, txf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepareFactory")
 	}
