@@ -14,6 +14,7 @@ func IsAllowed(accessConfig types.AccessConfig, actor types2.AccAddress) bool {
 			}
 		}
 		return false
+	default:
+		return false
 	}
-	return false
 }
