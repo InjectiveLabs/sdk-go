@@ -341,11 +341,13 @@ func (msg MsgRelayStorkPrices) ValidateBasic() error {
 		oldestTimestamp := ^uint64(0) // max uint64
 		for i := range assetPair.SignedPrices {
 			p := assetPair.SignedPrices[i]
-			if p.Timestamp > newestTimestamp {
-				newestTimestamp = p.Timestamp
+			// convert timestamp to nanoseconds to validate conditions	
+			timestamp := ConvertTimestampToNanoSecond(p.Timestamp)
+			if timestamp > newestTimestamp {
+				newestTimestamp = timestamp
 			}
-			if p.Timestamp < oldestTimestamp {
-				oldestTimestamp = p.Timestamp
+			if timestamp < oldestTimestamp {
+				oldestTimestamp = timestamp
 			}
 
 			price := new(big.Int).Quo(p.Price.BigInt(), sdkmath.LegacyOneDec().BigInt()).String()
@@ -375,4 +377,26 @@ func (msg MsgRelayStorkPrices) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{sender}
+}
+
+// ConvertTimestampToNanoSecond converts timestamp to nano seconds
+// if timestamp > 1e18 => timestamp is in nanosecond format
+// else if timestamp > 1e15 => timestamp is in microsecond format
+// else if timestamp > 1e12 => timestamp is in millisecond format
+// else the timestamp is in second format
+func ConvertTimestampToNanoSecond(timestamp uint64) (nanoSeconds uint64) {
+	switch {
+	// nanosecond
+	case timestamp > 1e18:
+		return timestamp
+	// microsecond
+	case timestamp > 1e15:
+		return timestamp * 1_000
+	// millisecond
+	case timestamp > 1e12:
+		return timestamp * 1_000_000
+	// second
+	default:
+		return timestamp * 1_000_000_000
+	}
 }

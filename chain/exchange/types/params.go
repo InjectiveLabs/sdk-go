@@ -21,11 +21,11 @@ const (
 	// funding is consistently applied on the hour for all perpetual markets.
 	DefaultFundingMultipleSeconds int64 = 3600
 
-	// SpotMarketInstantListingFee is 1000 INJ
-	SpotMarketInstantListingFee int64 = 1000
+	// SpotMarketInstantListingFee is 20 INJ
+	SpotMarketInstantListingFee int64 = 20
 
-	// DerivativeMarketInstantListingFee is 1000 INJ
-	DerivativeMarketInstantListingFee int64 = 1000
+	// DerivativeMarketInstantListingFee is 20 INJ
+	DerivativeMarketInstantListingFee int64 = 20
 
 	// BinaryOptionsMarketInstantListingFee is 100 INJ
 	BinaryOptionsMarketInstantListingFee int64 = 100
@@ -289,6 +289,9 @@ func (p Params) Validate() error {
 	if err := validatePostOnlyModeHeightThreshold(p.PostOnlyModeHeightThreshold); err != nil {
 		return fmt.Errorf("post_only_mode_height_threshold is incorrect: %w", err)
 	}
+	if err := validateAdmins(p.ExchangeAdmins); err != nil {
+		return fmt.Errorf("ExchangeAdmins is incorrect: %w", err)
+	}
 	return nil
 }
 
@@ -519,6 +522,29 @@ func validatePostOnlyModeHeightThreshold(i interface{}) error {
 
 	if v < 0 {
 		return fmt.Errorf("postOnlyModeHeightThreshold must be non-negative: %d", v)
+	}
+
+	return nil
+}
+
+func validateAdmins(i interface{}) error {
+	v, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	admins := make(map[string]struct{})
+
+	for _, admin := range v {
+		adminAddr, err := sdk.AccAddressFromBech32(admin)
+		if err != nil {
+			return fmt.Errorf("invalid admin address: %s", admin)
+		}
+
+		if _, found := admins[adminAddr.String()]; found {
+			return fmt.Errorf("duplicate admin: %s", admin)
+		}
+		admins[adminAddr.String()] = struct{}{}
 	}
 
 	return nil
