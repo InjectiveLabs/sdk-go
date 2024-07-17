@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -25,10 +27,11 @@ var (
 
 // Parameter keys
 var (
-	KeyIsExecutionEnabled    = []byte("IsExecutionEnabled")
-	KeyMaxBeginBlockTotalGas = []byte("MaxBeginBlockTotalGas")
-	KeyMaxContractGasLimit   = []byte("MaxContractGasLimit")
-	KeyMinGasPrice           = []byte("MinGasPrice")
+	KeyIsExecutionEnabled     = []byte("IsExecutionEnabled")
+	KeyMaxBeginBlockTotalGas  = []byte("MaxBeginBlockTotalGas")
+	KeyMaxContractGasLimit    = []byte("MaxContractGasLimit")
+	KeyMinGasPrice            = []byte("MinGasPrice")
+	KeyRegisterContractAccess = []byte("RegisterContractAccess")
 )
 
 // ParamKeyTable returns the parameter key table.
@@ -42,12 +45,14 @@ func NewParams(
 	maxBeginBlockTotalGas uint64,
 	maxContractGasLimit uint64,
 	minGasPrice uint64,
+	registerContractAccess wasmtypes.AccessConfig,
 ) Params {
 	return Params{
-		IsExecutionEnabled:    isExecutionEnabled,
-		MaxBeginBlockTotalGas: maxBeginBlockTotalGas,
-		MaxContractGasLimit:   maxContractGasLimit,
-		MinGasPrice:           minGasPrice,
+		IsExecutionEnabled:     isExecutionEnabled,
+		MaxBeginBlockTotalGas:  maxBeginBlockTotalGas,
+		MaxContractGasLimit:    maxContractGasLimit,
+		MinGasPrice:            minGasPrice,
+		RegisterContractAccess: registerContractAccess,
 	}
 }
 
@@ -58,16 +63,18 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyIsExecutionEnabled, &p.IsExecutionEnabled, validateIsExecutionEnabled),
 		paramtypes.NewParamSetPair(KeyMaxBeginBlockTotalGas, &p.MaxBeginBlockTotalGas, validateMaxBeginBlockTotalGas),
 		paramtypes.NewParamSetPair(KeyMaxContractGasLimit, &p.MaxContractGasLimit, validateMaxContractGasLimit),
+		paramtypes.NewParamSetPair(KeyRegisterContractAccess, &p.RegisterContractAccess, validateAccessConfig),
 	}
 }
 
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		IsExecutionEnabled:    DefaultIsExecutionEnabled,
-		MaxBeginBlockTotalGas: DefaultMaxBeginBlockTotalGas,
-		MaxContractGasLimit:   DefaultMaxContractGasLimit,
-		MinGasPrice:           DefaultMinGasPrice,
+		IsExecutionEnabled:     DefaultIsExecutionEnabled,
+		MaxBeginBlockTotalGas:  DefaultMaxBeginBlockTotalGas,
+		MaxContractGasLimit:    DefaultMaxContractGasLimit,
+		MinGasPrice:            DefaultMinGasPrice,
+		RegisterContractAccess: wasmtypes.AccessConfig{},
 	}
 }
 
@@ -89,6 +96,9 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	if err := validateAccessConfig(p.RegisterContractAccess); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -134,6 +144,28 @@ func validateMinGasPrice(i interface{}) error {
 
 	if v == 0 {
 		return fmt.Errorf("MinGasPrice must be positive: %d", v)
+	}
+	return nil
+}
+
+func validateAccessConfig(i interface{}) error {
+	v, ok := i.(wasmtypes.AccessConfig)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	uploaders := make(map[string]struct{})
+
+	for _, addr := range v.Addresses {
+		address, err := sdk.AccAddressFromBech32(addr)
+		if err != nil {
+			return fmt.Errorf("invalid address: %s", addr)
+		}
+
+		if _, found := uploaders[address.String()]; found {
+			return fmt.Errorf("duplicate address: %s", addr)
+		}
+		uploaders[address.String()] = struct{}{}
 	}
 	return nil
 }

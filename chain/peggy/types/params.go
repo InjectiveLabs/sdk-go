@@ -7,11 +7,11 @@ import (
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// DefaultParamspace defines the default auth module parameter subspace
+// DefaultParamspace defines the default peggy module parameter subspace
 const (
-	// todo: implement oracle constants as params
 	DefaultParamspace = ModuleName
 )
 
@@ -33,6 +33,7 @@ func DefaultParams() *Params {
 		CosmosCoinDenom:               "inj",
 		UnbondSlashingValsetsWindow:   10000,
 		ClaimSlashingEnabled:          false,
+		Admins:                        nil,
 	}
 }
 
@@ -97,6 +98,9 @@ func (p Params) ValidateBasic() error {
 	}
 	if err := validateClaimSlashingEnabled(p.ClaimSlashingEnabled); err != nil {
 		return errors.Wrap(err, "claim slashing enabled")
+	}
+	if err := validateAdmins(p.Admins); err != nil {
+		return errors.Wrap(err, "admins")
 	}
 
 	return nil
@@ -291,5 +295,28 @@ func validateSlashFractionBadEthSignature(i interface{}) error {
 }
 
 func validateValsetReward(i interface{}) error {
+	return nil
+}
+
+func validateAdmins(i interface{}) error {
+	v, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	admins := make(map[string]struct{})
+
+	for _, admin := range v {
+		adminAddr, err := sdk.AccAddressFromBech32(admin)
+		if err != nil {
+			return fmt.Errorf("invalid admin address: %s", admin)
+		}
+
+		if _, found := admins[adminAddr.String()]; found {
+			return fmt.Errorf("duplicate admin: %s", admin)
+		}
+		admins[adminAddr.String()] = struct{}{}
+	}
+
 	return nil
 }

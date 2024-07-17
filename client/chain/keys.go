@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/types"
 	cosmcrypto "github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -190,7 +189,7 @@ func (r *passReader) Read(p []byte) (n int, err error) {
 }
 
 func getCryptoCodec() *codec.ProtoCodec {
-	registry := types.NewInterfaceRegistry()
+	registry := NewInterfaceRegistry()
 	crypto_cdc.RegisterInterfaces(registry)
 	return codec.NewProtoCodec(registry)
 }

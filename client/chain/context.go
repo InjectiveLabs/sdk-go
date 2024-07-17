@@ -3,6 +3,10 @@ package chain
 import (
 	"os"
 
+	"cosmossdk.io/x/tx/signing"
+	"github.com/cosmos/cosmos-sdk/codec/address"
+	"github.com/cosmos/gogoproto/proto"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -49,9 +53,28 @@ import (
 	ibctenderminttypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 )
 
+// NewInterfaceRegistry returns a new InterfaceRegistry
+func NewInterfaceRegistry() types.InterfaceRegistry {
+	registry, err := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
+		ProtoFiles: proto.HybridResolver,
+		SigningOptions: signing.Options{
+			AddressCodec: address.Bech32Codec{
+				Bech32Prefix: cosmostypes.GetConfig().GetBech32AccountAddrPrefix(),
+			},
+			ValidatorAddressCodec: address.Bech32Codec{
+				Bech32Prefix: cosmostypes.GetConfig().GetBech32ValidatorAddrPrefix(),
+			},
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	return registry
+}
+
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
 func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
-	interfaceRegistry := types.NewInterfaceRegistry()
+	interfaceRegistry := NewInterfaceRegistry()
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
 	exchange.RegisterInterfaces(interfaceRegistry)
@@ -98,7 +121,7 @@ func NewClientContext(
 ) (client.Context, error) {
 	clientCtx := client.Context{}
 
-	interfaceRegistry := types.NewInterfaceRegistry()
+	interfaceRegistry := NewInterfaceRegistry()
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
 	exchange.RegisterInterfaces(interfaceRegistry)
@@ -205,12 +228,12 @@ func newContext(
 	}
 
 	if keyInfo.PubKey != nil {
-		address, err := keyInfo.GetAddress()
+		keyInfoAddress, err := keyInfo.GetAddress()
 		if err != nil {
 			panic(err)
 		}
 		clientCtx = clientCtx.WithKeyring(kb)
-		clientCtx = clientCtx.WithFromAddress(address)
+		clientCtx = clientCtx.WithFromAddress(keyInfoAddress)
 		clientCtx = clientCtx.WithFromName(keyInfo.Name)
 		clientCtx = clientCtx.WithFrom(keyInfo.Name)
 	}
