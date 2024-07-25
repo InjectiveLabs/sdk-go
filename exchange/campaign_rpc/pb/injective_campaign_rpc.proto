@@ -78,6 +78,8 @@ message Campaign {
 	// Version of reward contract, UI use this to determine the message that need
 // to be sent
 	string version = 16;
+	// Campaign type
+	string type = 17;
 }
 
 message Coin {
@@ -132,6 +134,8 @@ message CampaignsRequest {
 	sint32 to_round_id = 3;
 	// Contract address that manages the round and reward
 	string contract_address = 4;
+	// Campaign type
+	string type = 5;
 }
 
 message CampaignsResponse {
