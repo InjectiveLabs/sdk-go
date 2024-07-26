@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net"
 	"net/http"
@@ -254,6 +255,101 @@ func LoadNetwork(name, node string) Network {
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
 			OfficialTokensListURL:   DevnetTokensListURL,
+		}
+	case "testnet":
+		validNodes := []string{"lb", "sentry"}
+		if !contains(validNodes, node) {
+			panic(fmt.Sprintf("invalid node %s for %s", node, name))
+		}
+
+		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, chainStreamGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
+		var chainTLSCert, exchangeTLSCert, explorerTLSCert credentials.TransportCredentials
+		var chainCookieAssistant, exchangeCookieAssistant, explorerCookieAssistant CookieAssistant
+		if node == "lb" {
+			lcdEndpoint = "https://testnet.sentry.lcd.injective.network:443"
+			tmEndpoint = "https://testnet.sentry.tm.injective.network:443"
+			chainGrpcEndpoint = "testnet.sentry.chain.grpc.injective.network:443"
+			chainStreamGrpcEndpoint = "testnet.sentry.chain.stream.injective.network:443"
+			exchangeGrpcEndpoint = "testnet.sentry.exchange.grpc.injective.network:443"
+			explorerGrpcEndpoint = "testnet.sentry.explorer.grpc.injective.network:443"
+			chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
+			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
+			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
+		} else if node == "sentry" {
+			lcdEndpoint = "https://testnet.lcd.injective.network:443"
+			tmEndpoint = "https://testnet.tm.injective.network:443"
+			chainGrpcEndpoint = "testnet.chain.grpc.injective.network:443"
+			chainStreamGrpcEndpoint = "testnet.chain.stream.injective.network:443"
+			exchangeGrpcEndpoint = "testnet.exchange.grpc.injective.network:443"
+			explorerGrpcEndpoint = "testnet.explorer.grpc.injective.network:443"
+			chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainCookieAssistant = &DisabledCookieAssistant{}
+			exchangeCookieAssistant = &DisabledCookieAssistant{}
+			explorerCookieAssistant = &DisabledCookieAssistant{}
+		}
+
+		return Network{
+			LcdEndpoint:             lcdEndpoint,
+			TmEndpoint:              tmEndpoint,
+			ChainGrpcEndpoint:       chainGrpcEndpoint,
+			ChainStreamGrpcEndpoint: chainStreamGrpcEndpoint,
+			ChainTLSCert:            chainTLSCert,
+			ExchangeGrpcEndpoint:    exchangeGrpcEndpoint,
+			ExchangeTLSCert:         exchangeTLSCert,
+			ExplorerGrpcEndpoint:    explorerGrpcEndpoint,
+			ExplorerTLSCert:         explorerTLSCert,
+			ChainId:                 "injective-888",
+			FeeDenom:                "inj",
+			Name:                    "testnet",
+			ChainCookieAssistant:    chainCookieAssistant,
+			ExchangeCookieAssistant: exchangeCookieAssistant,
+			ExplorerCookieAssistant: explorerCookieAssistant,
+			OfficialTokensListURL:   TestnetTokensListURL,
+		}
+	case "mainnet":
+		validNodes := []string{"lb"}
+		if !contains(validNodes, node) {
+			panic(fmt.Sprintf("invalid node %s for %s", node, name))
+		}
+		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, chainStreamGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
+		var chainTLSCert, exchangeTLSCert, explorerTLSCert credentials.TransportCredentials
+		var chainCookieAssistant, exchangeCookieAssistant, explorerCookieAssistant CookieAssistant
+
+		lcdEndpoint = "https://sentry.lcd.injective.network"
+		tmEndpoint = "https://sentry.tm.injective.network:443"
+		chainGrpcEndpoint = "sentry.chain.grpc.injective.network:443"
+		chainStreamGrpcEndpoint = "sentry.chain.stream.injective.network:443"
+		exchangeGrpcEndpoint = "sentry.exchange.grpc.injective.network:443"
+		explorerGrpcEndpoint = "sentry.explorer.grpc.injective.network:443"
+		chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
+		exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
+		explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
+
+		return Network{
+			LcdEndpoint:             lcdEndpoint,
+			TmEndpoint:              tmEndpoint,
+			ChainGrpcEndpoint:       chainGrpcEndpoint,
+			ChainStreamGrpcEndpoint: chainStreamGrpcEndpoint,
+			ChainTLSCert:            chainTLSCert,
+			ExchangeGrpcEndpoint:    exchangeGrpcEndpoint,
+			ExchangeTLSCert:         exchangeTLSCert,
+			ExplorerGrpcEndpoint:    explorerGrpcEndpoint,
+			ExplorerTLSCert:         explorerTLSCert,
+			ChainId:                 "injective-1",
+			FeeDenom:                "inj",
+			Name:                    "mainnet",
+			ChainCookieAssistant:    chainCookieAssistant,
+			ExchangeCookieAssistant: exchangeCookieAssistant,
+			ExplorerCookieAssistant: explorerCookieAssistant,
+			OfficialTokensListURL:   MainnetTokensListURL,
 		}
 
 	default:

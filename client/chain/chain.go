@@ -774,9 +774,6 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 }
 
 func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
-	if c.network.ChainId != "injective-777" {
-		panic("This versions of Go SDK should only be used with Devnet environment")
-	}
 	ctx := context.Background()
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
@@ -888,10 +885,6 @@ func (c *chainClient) broadcastTx(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxResponse, error) {
-	if c.network.ChainId != "injective-777" {
-		panic("This versions of Go SDK should only be used with Devnet environment")
-	}
-
 	txBytes, err := c.buildSignedTx(clientCtx, txf, msgs...)
 	if err != nil {
 		err = errors.Wrap(err, "failed to build signed Tx")
