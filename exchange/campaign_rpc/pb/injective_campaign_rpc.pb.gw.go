@@ -99,6 +99,40 @@ func local_request_InjectiveCampaignRPC_Campaigns_0(ctx context.Context, marshal
 
 }
 
+func request_InjectiveCampaignRPC_CampaignsV2_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveCampaignRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CampaignsV2Request
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.CampaignsV2(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectiveCampaignRPC_CampaignsV2_0(ctx context.Context, marshaler runtime.Marshaler, server InjectiveCampaignRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CampaignsV2Request
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.CampaignsV2(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_InjectiveCampaignRPC_ListGuilds_0(ctx context.Context, marshaler runtime.Marshaler, client InjectiveCampaignRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListGuildsRequest
 	var metadata runtime.ServerMetadata
@@ -254,6 +288,31 @@ func RegisterInjectiveCampaignRPCHandlerServer(ctx context.Context, mux *runtime
 		}
 
 		forward_InjectiveCampaignRPC_Campaigns_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_InjectiveCampaignRPC_CampaignsV2_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_campaign_rpc.InjectiveCampaignRPC/CampaignsV2", runtime.WithHTTPPathPattern("/injective_campaign_rpc.InjectiveCampaignRPC/CampaignsV2"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectiveCampaignRPC_CampaignsV2_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveCampaignRPC_CampaignsV2_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -417,6 +476,28 @@ func RegisterInjectiveCampaignRPCHandlerClient(ctx context.Context, mux *runtime
 
 	})
 
+	mux.Handle("POST", pattern_InjectiveCampaignRPC_CampaignsV2_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_campaign_rpc.InjectiveCampaignRPC/CampaignsV2", runtime.WithHTTPPathPattern("/injective_campaign_rpc.InjectiveCampaignRPC/CampaignsV2"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectiveCampaignRPC_CampaignsV2_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectiveCampaignRPC_CampaignsV2_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_InjectiveCampaignRPC_ListGuilds_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -491,6 +572,8 @@ var (
 
 	pattern_InjectiveCampaignRPC_Campaigns_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_campaign_rpc.InjectiveCampaignRPC", "Campaigns"}, ""))
 
+	pattern_InjectiveCampaignRPC_CampaignsV2_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_campaign_rpc.InjectiveCampaignRPC", "CampaignsV2"}, ""))
+
 	pattern_InjectiveCampaignRPC_ListGuilds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_campaign_rpc.InjectiveCampaignRPC", "ListGuilds"}, ""))
 
 	pattern_InjectiveCampaignRPC_ListGuildMembers_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_campaign_rpc.InjectiveCampaignRPC", "ListGuildMembers"}, ""))
@@ -502,6 +585,8 @@ var (
 	forward_InjectiveCampaignRPC_Ranking_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveCampaignRPC_Campaigns_0 = runtime.ForwardResponseMessage
+
+	forward_InjectiveCampaignRPC_CampaignsV2_0 = runtime.ForwardResponseMessage
 
 	forward_InjectiveCampaignRPC_ListGuilds_0 = runtime.ForwardResponseMessage
 
