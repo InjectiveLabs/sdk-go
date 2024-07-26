@@ -13,6 +13,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+
 	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
@@ -286,6 +288,13 @@ type ChainClient interface {
 	FetchIBCConnectionConsensusState(ctx context.Context, connectionId string, revisionNumber uint64, revisionHeight uint64) (*ibcconnectiontypes.QueryConnectionConsensusStateResponse, error)
 	FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error)
 
+	// Permissions module
+	FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error)
+	FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error)
+	FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error)
+	FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error)
+	FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error)
+
 	Close()
 }
 
@@ -322,6 +331,7 @@ type chainClient struct {
 	ibcClientQueryClient     ibcclienttypes.QueryClient
 	ibcConnectionQueryClient ibcconnectiontypes.QueryClient
 	ibcTransferQueryClient   ibctransfertypes.QueryClient
+	permissionsQueryClient   permissionstypes.QueryClient
 	tendermintQueryClient    cmtservice.ServiceClient
 	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
 	txClient                 txtypes.ServiceClient
@@ -422,6 +432,7 @@ func NewChainClient(
 		ibcClientQueryClient:     ibcclienttypes.NewQueryClient(conn),
 		ibcConnectionQueryClient: ibcconnectiontypes.NewQueryClient(conn),
 		ibcTransferQueryClient:   ibctransfertypes.NewQueryClient(conn),
+		permissionsQueryClient:   permissionstypes.NewQueryClient(conn),
 		tendermintQueryClient:    cmtservice.NewServiceClient(conn),
 		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
 		txClient:                 txtypes.NewServiceClient(conn),
@@ -763,6 +774,9 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 }
 
 func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
+	if c.network.ChainId != "injective-777" {
+		panic("This versions of Go SDK should only be used with Devnet environment")
+	}
 	ctx := context.Background()
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
@@ -874,6 +888,10 @@ func (c *chainClient) broadcastTx(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxResponse, error) {
+	if c.network.ChainId != "injective-777" {
+		panic("This versions of Go SDK should only be used with Devnet environment")
+	}
+
 	txBytes, err := c.buildSignedTx(clientCtx, txf, msgs...)
 	if err != nil {
 		err = errors.Wrap(err, "failed to build signed Tx")
@@ -2589,6 +2607,54 @@ func (c *chainClient) FetchIBCConnectionConsensusState(ctx context.Context, conn
 func (c *chainClient) FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error) {
 	req := &ibcconnectiontypes.QueryConnectionParamsRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ConnectionParams, req)
+
+	return res, err
+}
+
+// Permissions module
+
+func (c *chainClient) FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error) {
+	req := &permissionstypes.QueryAllNamespacesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AllNamespaces, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error) {
+	req := &permissionstypes.QueryNamespaceByDenomRequest{
+		Denom:        denom,
+		IncludeRoles: includeRoles,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.NamespaceByDenom, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error) {
+	req := &permissionstypes.QueryAddressRolesRequest{
+		Denom:   denom,
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AddressRoles, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error) {
+	req := &permissionstypes.QueryAddressesByRoleRequest{
+		Denom: denom,
+		Role:  role,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AddressesByRole, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
+	req := &permissionstypes.QueryVouchersForAddressRequest{
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.VouchersForAddress, req)
 
 	return res, err
 }
