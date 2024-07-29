@@ -1,6 +1,8 @@
 package types
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -19,7 +21,7 @@ func (a CreateSpotLimitOrderAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgCreateSpotLimitOrder{})
 }
 
-func (a CreateSpotLimitOrderAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a CreateSpotLimitOrderAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	spotOrder, ok := msg.(*MsgCreateSpotLimitOrder)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
@@ -59,7 +61,7 @@ func (a CreateSpotMarketOrderAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgCreateSpotMarketOrder{})
 }
 
-func (a CreateSpotMarketOrderAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a CreateSpotMarketOrderAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	spotOrder, ok := msg.(*MsgCreateSpotMarketOrder)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
@@ -99,7 +101,7 @@ func (a BatchCreateSpotLimitOrdersAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgBatchCreateSpotLimitOrders{})
 }
 
-func (a BatchCreateSpotLimitOrdersAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a BatchCreateSpotLimitOrdersAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	spotOrders, ok := msg.(*MsgBatchCreateSpotLimitOrders)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
@@ -141,7 +143,7 @@ func (a CancelSpotOrderAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgCancelSpotOrder{})
 }
 
-func (a CancelSpotOrderAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a CancelSpotOrderAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	orderToCancel, ok := msg.(*MsgCancelSpotOrder)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
@@ -181,7 +183,7 @@ func (a BatchCancelSpotOrdersAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgBatchCancelSpotOrders{})
 }
 
-func (a BatchCancelSpotOrdersAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a BatchCancelSpotOrdersAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	ordersToCancel, ok := msg.(*MsgBatchCancelSpotOrders)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")

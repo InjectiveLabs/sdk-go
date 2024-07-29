@@ -31,6 +31,40 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
+func request_InjectivePortfolioRPC_TokenHolders_0(ctx context.Context, marshaler runtime.Marshaler, client InjectivePortfolioRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq TokenHoldersRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.TokenHolders(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_InjectivePortfolioRPC_TokenHolders_0(ctx context.Context, marshaler runtime.Marshaler, server InjectivePortfolioRPCServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq TokenHoldersRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.TokenHolders(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
 func request_InjectivePortfolioRPC_AccountPortfolio_0(ctx context.Context, marshaler runtime.Marshaler, client InjectivePortfolioRPCClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AccountPortfolioRequest
 	var metadata runtime.ServerMetadata
@@ -130,26 +164,53 @@ func request_InjectivePortfolioRPC_StreamAccountPortfolio_0(ctx context.Context,
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterInjectivePortfolioRPCHandlerFromEndpoint instead.
 func RegisterInjectivePortfolioRPCHandlerServer(ctx context.Context, mux *runtime.ServeMux, server InjectivePortfolioRPCServer) error {
 
+	mux.Handle("POST", pattern_InjectivePortfolioRPC_TokenHolders_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/TokenHolders", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/TokenHolders"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_InjectivePortfolioRPC_TokenHolders_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectivePortfolioRPC_TokenHolders_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_InjectivePortfolioRPC_AccountPortfolio_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectivePortfolioRPC_AccountPortfolio_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectivePortfolioRPC_AccountPortfolio_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectivePortfolioRPC_AccountPortfolio_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectivePortfolioRPC_AccountPortfolio_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -159,20 +220,22 @@ func RegisterInjectivePortfolioRPCHandlerServer(ctx context.Context, mux *runtim
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_InjectivePortfolioRPC_AccountPortfolioBalances_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_InjectivePortfolioRPC_AccountPortfolioBalances_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectivePortfolioRPC_AccountPortfolioBalances_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectivePortfolioRPC_AccountPortfolioBalances_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -224,23 +287,47 @@ func RegisterInjectivePortfolioRPCHandler(ctx context.Context, mux *runtime.Serv
 // "InjectivePortfolioRPCClient" to call the correct interceptors.
 func RegisterInjectivePortfolioRPCHandlerClient(ctx context.Context, mux *runtime.ServeMux, client InjectivePortfolioRPCClient) error {
 
+	mux.Handle("POST", pattern_InjectivePortfolioRPC_TokenHolders_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/TokenHolders", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/TokenHolders"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_InjectivePortfolioRPC_TokenHolders_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_InjectivePortfolioRPC_TokenHolders_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
 	mux.Handle("POST", pattern_InjectivePortfolioRPC_AccountPortfolio_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolio"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectivePortfolioRPC_AccountPortfolio_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectivePortfolioRPC_AccountPortfolio_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectivePortfolioRPC_AccountPortfolio_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectivePortfolioRPC_AccountPortfolio_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -248,19 +335,21 @@ func RegisterInjectivePortfolioRPCHandlerClient(ctx context.Context, mux *runtim
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/AccountPortfolioBalances"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectivePortfolioRPC_AccountPortfolioBalances_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectivePortfolioRPC_AccountPortfolioBalances_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectivePortfolioRPC_AccountPortfolioBalances_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_InjectivePortfolioRPC_AccountPortfolioBalances_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -268,19 +357,21 @@ func RegisterInjectivePortfolioRPCHandlerClient(ctx context.Context, mux *runtim
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/StreamAccountPortfolio", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/StreamAccountPortfolio"))
+		var err error
+		var annotatedContext context.Context
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/injective_portfolio_rpc.InjectivePortfolioRPC/StreamAccountPortfolio", runtime.WithHTTPPathPattern("/injective_portfolio_rpc.InjectivePortfolioRPC/StreamAccountPortfolio"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_InjectivePortfolioRPC_StreamAccountPortfolio_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
+		resp, md, err := request_InjectivePortfolioRPC_StreamAccountPortfolio_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_InjectivePortfolioRPC_StreamAccountPortfolio_0(ctx, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
+		forward_InjectivePortfolioRPC_StreamAccountPortfolio_0(annotatedContext, mux, outboundMarshaler, w, req, func() (proto.Message, error) { return resp.Recv() }, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -288,6 +379,8 @@ func RegisterInjectivePortfolioRPCHandlerClient(ctx context.Context, mux *runtim
 }
 
 var (
+	pattern_InjectivePortfolioRPC_TokenHolders_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_portfolio_rpc.InjectivePortfolioRPC", "TokenHolders"}, ""))
+
 	pattern_InjectivePortfolioRPC_AccountPortfolio_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_portfolio_rpc.InjectivePortfolioRPC", "AccountPortfolio"}, ""))
 
 	pattern_InjectivePortfolioRPC_AccountPortfolioBalances_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"injective_portfolio_rpc.InjectivePortfolioRPC", "AccountPortfolioBalances"}, ""))
@@ -296,6 +389,8 @@ var (
 )
 
 var (
+	forward_InjectivePortfolioRPC_TokenHolders_0 = runtime.ForwardResponseMessage
+
 	forward_InjectivePortfolioRPC_AccountPortfolio_0 = runtime.ForwardResponseMessage
 
 	forward_InjectivePortfolioRPC_AccountPortfolioBalances_0 = runtime.ForwardResponseMessage

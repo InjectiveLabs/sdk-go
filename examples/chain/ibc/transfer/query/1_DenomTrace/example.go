@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 

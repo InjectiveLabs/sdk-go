@@ -36,8 +36,8 @@ type ExplorerClient interface {
 func NewExplorerClient(network common.Network, options ...common.ClientOption) (ExplorerClient, error) {
 	// process options
 	opts := common.DefaultClientOptions()
-	if network.ChainTlsCert != nil {
-		options = append(options, common.OptionTLSCert(network.ExchangeTlsCert))
+	if network.ChainTLSCert != nil {
+		options = append(options, common.OptionTLSCert(network.ExchangeTLSCert))
 	}
 	for _, opt := range options {
 		if err := opt(opts); err != nil {

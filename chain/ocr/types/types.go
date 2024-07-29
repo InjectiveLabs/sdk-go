@@ -84,13 +84,13 @@ func (cfg *FeedConfig) ValidateBasic() error {
 		return errors.Wrap(ErrIncorrectConfig, "feed_id cannot have leading or trailing space characters")
 	}
 
-	if len(cfg.ModuleParams.FeedAdmin) > 0 {
+	if cfg.ModuleParams.FeedAdmin != "" {
 		if _, err := sdk.AccAddressFromBech32(cfg.ModuleParams.FeedAdmin); err != nil {
 			return err
 		}
 	}
 
-	if len(cfg.ModuleParams.BillingAdmin) > 0 {
+	if cfg.ModuleParams.BillingAdmin != "" {
 		if _, err := sdk.AccAddressFromBech32(cfg.ModuleParams.BillingAdmin); err != nil {
 			return err
 		}

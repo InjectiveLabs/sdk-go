@@ -6,11 +6,13 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "injective/oracle/v1beta1/oracle.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
 
 message Params {
   option (gogoproto.equal) = true;
+  option (amino.name) = "insurance/Params";
 
   // default_redemption_notice_period_duration defines the default minimum
   // notice period duration that must pass after an underwriter sends a
@@ -37,12 +39,12 @@ message InsuranceFund {
   ];
   // balance of fund
   string balance = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   // total share tokens minted
   string total_share = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   // marketID of the derivative market

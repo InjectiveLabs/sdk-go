@@ -1,4 +1,4 @@
-// Code generated with goa v3.5.2, DO NOT EDIT.
+// Code generated with goa v3.7.0, DO NOT EDIT.
 //
 // InjectiveDerivativeExchangeRPC protocol buffer definition
 //
@@ -124,6 +124,8 @@ message DerivativeMarketInfo {
 	PerpetualMarketInfo perpetual_market_info = 18;
 	PerpetualMarketFunding perpetual_market_funding = 19;
 	ExpiryFuturesMarketInfo expiry_futures_market_info = 20;
+	// Minimum notional value for the order
+	string min_notional = 21;
 }
 
 message TokenMeta {
@@ -250,6 +252,8 @@ message BinaryOptionsMarketInfo {
 	string min_quantity_tick_size = 16;
 	// Defines the settlement price of the market
 	string settlement_price = 17;
+	// Defines the minimum notional value for the market
+	string min_notional = 18;
 }
 // Paging defines the structure for required params for handling pagination
 message Paging {
@@ -670,7 +674,7 @@ message StreamPositionsRequest {
 }
 
 message StreamPositionsResponse {
-	// Updated Derivative Position
+	// Updated derivative Position
 	DerivativePosition position = 1;
 	// Operation timestamp in UNIX millis.
 	sint64 timestamp = 2;

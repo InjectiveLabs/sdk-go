@@ -9,7 +9,7 @@ import (
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 
-	//derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
+	// derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 	"math"
 	"strconv"
 
@@ -81,7 +81,7 @@ func FetchDenom(network common.Network) {
 		metadataOutput += config
 	}
 
-	//fetch derivative markets
+	// fetch derivative markets
 	derivativeMarketsReq := derivativeExchangePB.MarketsRequest{MarketStatus: "active"}
 	derivativeRes, err := exchangeClient.GetDerivativeMarkets(ctx, &derivativeMarketsReq)
 	if err != nil {
@@ -128,7 +128,7 @@ func FetchDenom(network common.Network) {
 	}
 
 	fileName := fmt.Sprintf("client/metadata/assets/%s.ini", network.Name)
-	err = os.WriteFile(fileName, []byte(metadataOutput), 0644)
+	err = os.WriteFile(fileName, []byte(metadataOutput), 0600) // nolint:gocritic // 0600 is the correct permission
 	if err != nil {
 		panic(err)
 	}

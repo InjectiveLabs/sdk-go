@@ -129,6 +129,10 @@ message GenesisState {
   repeated AggregateSubaccountVolumeRecord subaccount_volumes = 33;
 
   repeated MarketVolume market_volumes = 34;
+
+  repeated FullGrantAuthorizations grant_authorizations = 35;
+
+  repeated FullActiveGrant active_grants = 36;
 }
 
 message OrderbookSequence {
@@ -149,7 +153,7 @@ message FeeDiscountBucketVolumeAccounts {
 message AccountVolume {
   string account = 1;
   string volume = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -157,7 +161,7 @@ message AccountVolume {
 message TradingRewardCampaignAccountPoints {
   string account = 1;
   string points = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -234,4 +238,19 @@ message ExpiryFuturesMarketInfoState {
 message PerpetualMarketFundingState {
   string market_id = 1;
   PerpetualMarketFunding funding = 2;
+}
+
+message FullGrantAuthorizations {
+  string granter = 1;
+  string total_grant_amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  int64 last_delegations_checked_time = 3;
+  repeated GrantAuthorization grants = 4;
+}
+
+message FullActiveGrant {
+  string grantee = 1;
+  ActiveGrant active_grant = 2;
 }

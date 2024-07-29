@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"os"
 
+	"cosmossdk.io/math"
+
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
-	"github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -72,10 +72,10 @@ func main() {
 	}
 
 	quoteToken := marketsAssistant.AllTokens()["USDC"]
-	minPriceTickSize := types.MustNewDecFromStr("0.01")
-	minQuantityTickSize := types.MustNewDecFromStr("0.001")
+	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
+	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(types.NewDecFromIntWithPrec(types.NewInt(1), int64(quoteToken.Decimals)))
+	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
 	chainMinQuantityTickSize := minQuantityTickSize
 
 	msg := &exchangetypes.MsgInstantPerpetualMarketLaunch{
@@ -86,15 +86,15 @@ func main() {
 		OracleQuote:            "USDC",
 		OracleScaleFactor:      6,
 		OracleType:             oracletypes.OracleType_Band,
-		MakerFeeRate:           types.MustNewDecFromStr("-0.0001"),
-		TakerFeeRate:           types.MustNewDecFromStr("0.001"),
-		InitialMarginRatio:     types.MustNewDecFromStr("0.33"),
-		MaintenanceMarginRatio: types.MustNewDecFromStr("0.095"),
+		MakerFeeRate:           math.LegacyMustNewDecFromStr("-0.0001"),
+		TakerFeeRate:           math.LegacyMustNewDecFromStr("0.001"),
+		InitialMarginRatio:     math.LegacyMustNewDecFromStr("0.33"),
+		MaintenanceMarginRatio: math.LegacyMustNewDecFromStr("0.095"),
 		MinPriceTickSize:       chainMinPriceTickSize,
 		MinQuantityTickSize:    chainMinQuantityTickSize,
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(msg)
 
 	if err != nil {

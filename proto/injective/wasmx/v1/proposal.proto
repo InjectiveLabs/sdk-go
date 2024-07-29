@@ -4,10 +4,12 @@ package injective.wasmx.v1;
 import "cosmos_proto/cosmos.proto";
 import "cosmwasm/wasm/v1/proposal_legacy.proto";
 import "gogoproto/gogo.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message ContractRegistrationRequestProposal {
+  option (amino.name) = "wasmx/ContractRegistrationRequestProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -19,6 +21,7 @@ message ContractRegistrationRequestProposal {
 }
 
 message BatchContractRegistrationRequestProposal {
+  option (amino.name) = "wasmx/BatchContractRegistrationRequestProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -30,6 +33,7 @@ message BatchContractRegistrationRequestProposal {
 }
 
 message BatchContractDeregistrationProposal {
+  option (amino.name) = "wasmx/BatchContractDeregistrationProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -81,6 +85,7 @@ message ContractRegistrationRequest {
 }
 
 message BatchStoreCodeProposal {
+  option (amino.name) = "wasmx/BatchStoreCodeProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";

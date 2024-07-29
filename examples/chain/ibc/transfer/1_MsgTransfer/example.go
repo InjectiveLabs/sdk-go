@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"os"
 
+	"cosmossdk.io/math"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibccoretypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibccoretypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 )
 
 func main() {
@@ -60,7 +62,7 @@ func main() {
 	sourcePort := "transfer"
 	sourceChannel := "channel-126"
 	coin := sdktypes.Coin{
-		Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000), // 1 INJ
+		Denom: "inj", Amount: math.NewInt(1000000000000000000), // 1 INJ
 	}
 	sender := senderAddress.String()
 	receiver := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
@@ -75,7 +77,7 @@ func main() {
 		TimeoutHeight: timeoutHeight,
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(msg)
 
 	if err != nil {

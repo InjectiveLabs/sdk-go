@@ -61,8 +61,8 @@ func (msg MsgCreateInsuranceFund) ValidateBasic() error {
 	if msg.Sender == "" {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
-	if msg.Ticker == "" {
-		return errors.Wrap(ErrInvalidTicker, "ticker should not be empty or exceed 30 characters")
+	if msg.Ticker == "" || len(msg.Ticker) > 40 {
+		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed 40 characters")
 	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")

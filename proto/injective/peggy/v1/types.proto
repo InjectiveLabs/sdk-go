@@ -17,7 +17,7 @@ message Valset {
   repeated BridgeValidator members = 2;
   uint64 height = 3;
   string reward_amount = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   // the reward token in it's Ethereum hex address representation

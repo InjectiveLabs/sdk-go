@@ -24,11 +24,11 @@ type ExchangeClient interface {
 	QueryClient() *grpc.ClientConn
 	GetDerivativeMarket(ctx context.Context, marketId string) (*derivativeExchangePB.MarketResponse, error)
 	GetDerivativeOrderbookV2(ctx context.Context, marketId string) (*derivativeExchangePB.OrderbookV2Response, error)
-	GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (*derivativeExchangePB.OrderbooksV2Response, error)
+	GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error)
 	// StreamDerivativeOrderbook deprecated API
-	StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error)
-	StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
-	StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
+	StreamDerivativeOrderbookV2(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error)
+	StreamDerivativeOrderbookUpdate(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
+	StreamDerivativeMarket(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
 	GetDerivativeOrders(ctx context.Context, req *derivativeExchangePB.OrdersRequest) (*derivativeExchangePB.OrdersResponse, error)
 	GetDerivativeMarkets(ctx context.Context, req *derivativeExchangePB.MarketsRequest) (*derivativeExchangePB.MarketsResponse, error)
 	GetDerivativePositions(ctx context.Context, req *derivativeExchangePB.PositionsRequest) (*derivativeExchangePB.PositionsResponse, error)
@@ -63,13 +63,13 @@ type ExchangeClient interface {
 	GetRewards(ctx context.Context, req *accountPB.RewardsRequest) (*accountPB.RewardsResponse, error)
 	GetSpotOrders(ctx context.Context, req *spotExchangePB.OrdersRequest) (*spotExchangePB.OrdersResponse, error)
 	GetSpotOrderbookV2(ctx context.Context, marketId string) (*spotExchangePB.OrderbookV2Response, error)
-	GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (*spotExchangePB.OrderbooksV2Response, error)
+	GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error)
 	// StreamSpotOrderbook deprecated API
-	StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error)
-	StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
+	StreamSpotOrderbookV2(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error)
+	StreamSpotOrderbookUpdate(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
 	GetSpotMarkets(ctx context.Context, req *spotExchangePB.MarketsRequest) (*spotExchangePB.MarketsResponse, error)
 	GetSpotMarket(ctx context.Context, marketId string) (*spotExchangePB.MarketResponse, error)
-	StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error)
+	StreamSpotMarket(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error)
 	StreamSpotOrders(ctx context.Context, req *spotExchangePB.StreamOrdersRequest) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrdersClient, error)
 	GetSpotTrades(ctx context.Context, req *spotExchangePB.TradesRequest) (*spotExchangePB.TradesResponse, error)
 	GetSpotTradesV2(ctx context.Context, req *spotExchangePB.TradesV2Request) (*spotExchangePB.TradesV2Response, error)
@@ -97,8 +97,8 @@ type ExchangeClient interface {
 func NewExchangeClient(network common.Network, options ...common.ClientOption) (ExchangeClient, error) {
 	// process options
 	opts := common.DefaultClientOptions()
-	if network.ChainTlsCert != nil {
-		options = append(options, common.OptionTLSCert(network.ExchangeTlsCert))
+	if network.ChainTLSCert != nil {
+		options = append(options, common.OptionTLSCert(network.ExchangeTLSCert))
 	}
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
@@ -222,9 +222,9 @@ func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId 
 	return res, nil
 }
 
-func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
+func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
 	req := derivativeExchangePB.OrderbooksV2Request{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.OrderbooksV2, &req)
@@ -236,9 +236,9 @@ func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketId
 	return res, nil
 }
 
-func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
+func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
 	req := derivativeExchangePB.StreamOrderbookV2Request{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamOrderbookV2, &req)
@@ -251,9 +251,9 @@ func (c *exchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, market
 	return stream, nil
 }
 
-func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
+func (c *exchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
 	req := derivativeExchangePB.StreamOrderbookUpdateRequest{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamOrderbookUpdate, &req)
@@ -290,9 +290,9 @@ func (c *exchangeClient) GetDerivativeMarket(ctx context.Context, marketId strin
 	return res, nil
 }
 
-func (c *exchangeClient) StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error) {
+func (c *exchangeClient) StreamDerivativeMarket(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error) {
 	req := derivativeExchangePB.StreamMarketRequest{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamMarket, &req)
@@ -433,7 +433,7 @@ func (c *exchangeClient) GetDerivativeFundingRates(ctx context.Context, req *der
 
 // Oracle RPC
 
-func (c *exchangeClient) GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (*oraclePB.PriceResponse, error) {
+func (c *exchangeClient) GetPrice(ctx context.Context, baseSymbol, quoteSymbol, oracleType string, oracleScaleFactor uint32) (*oraclePB.PriceResponse, error) {
 	req := oraclePB.PriceRequest{
 		BaseSymbol:        baseSymbol,
 		QuoteSymbol:       quoteSymbol,
@@ -463,7 +463,7 @@ func (c *exchangeClient) GetOracleList(ctx context.Context) (*oraclePB.OracleLis
 	return res, nil
 }
 
-func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error) {
+func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol, quoteSymbol, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error) {
 	req := oraclePB.StreamPricesRequest{
 		BaseSymbol:  baseSymbol,
 		QuoteSymbol: quoteSymbol,
@@ -538,7 +538,7 @@ func (c *exchangeClient) GetSubaccountsList(ctx context.Context, accountAddress 
 	return res, nil
 }
 
-func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (*accountPB.SubaccountBalanceEndpointResponse, error) {
+func (c *exchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId, denom string) (*accountPB.SubaccountBalanceEndpointResponse, error) {
 	req := accountPB.SubaccountBalanceEndpointRequest{
 		SubaccountId: subaccountId,
 		Denom:        denom,
@@ -670,9 +670,9 @@ func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string
 	return res, nil
 }
 
-func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (*spotExchangePB.OrderbooksV2Response, error) {
+func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error) {
 	req := spotExchangePB.OrderbooksV2Request{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.OrderbooksV2, &req)
@@ -685,9 +685,9 @@ func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIds []st
 	return res, nil
 }
 
-func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
+func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
 	req := spotExchangePB.StreamOrderbookUpdateRequest{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamOrderbookUpdate, &req)
@@ -700,9 +700,9 @@ func (c *exchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketId
 	return stream, nil
 }
 
-func (c *exchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
+func (c *exchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
 	req := spotExchangePB.StreamOrderbookV2Request{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamOrderbookV2, &req)
@@ -741,9 +741,9 @@ func (c *exchangeClient) GetSpotMarket(ctx context.Context, marketId string) (*s
 	return res, nil
 }
 
-func (c *exchangeClient) StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error) {
+func (c *exchangeClient) StreamSpotMarket(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error) {
 	req := spotExchangePB.StreamMarketsRequest{
-		MarketIds: marketIds,
+		MarketIds: marketIDs,
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.StreamMarkets, &req)
@@ -946,7 +946,7 @@ func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accoun
 	return res, nil
 }
 
-func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
+func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
 	req := &portfolioExchangePB.StreamAccountPortfolioRequest{
 		AccountAddress: accountAddress,
 		SubaccountId:   subaccountId,

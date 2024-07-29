@@ -79,13 +79,14 @@ func main() {
 		Symbol:      "INJTEST",
 		URI:         "http://injective-test.com/icon.jpg",
 		URIHash:     "",
+		Decimals:    tokenDecimals,
 	}
 
 	message := new(tokenfactorytypes.MsgSetDenomMetadata)
 	message.Sender = senderAddress.String()
 	message.Metadata = metadata
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(message)
 
 	if err != nil {

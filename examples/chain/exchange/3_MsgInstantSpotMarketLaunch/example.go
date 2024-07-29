@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"os"
 
+	"cosmossdk.io/math"
+
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
-	"github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -72,13 +72,13 @@ func main() {
 
 	baseToken := marketsAssistant.AllTokens()["INJ"]
 	quoteToken := marketsAssistant.AllTokens()["USDC"]
-	minPriceTickSize := types.MustNewDecFromStr("0.01")
-	minQuantityTickSize := types.MustNewDecFromStr("0.001")
+	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
+	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(types.NewDecFromIntWithPrec(types.NewInt(1), int64(quoteToken.Decimals)))
-	chainMinPriceTickSize = chainMinPriceTickSize.Quo(types.NewDecFromIntWithPrec(types.NewInt(1), int64(baseToken.Decimals)))
+	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
+	chainMinPriceTickSize = chainMinPriceTickSize.Quo(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
 
-	chainMinQuantityTickSize := minQuantityTickSize.Mul(types.NewDecFromIntWithPrec(types.NewInt(1), int64(baseToken.Decimals)))
+	chainMinQuantityTickSize := minQuantityTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
 
 	msg := &exchangetypes.MsgInstantSpotMarketLaunch{
 		Sender:              senderAddress.String(),
@@ -89,7 +89,7 @@ func main() {
 		MinQuantityTickSize: chainMinQuantityTickSize,
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(msg)
 
 	if err != nil {

@@ -1,12 +1,12 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
 type positionPayout struct {
-	Payout       sdk.Dec
-	PnlNotional  sdk.Dec
+	Payout       math.LegacyDec
+	PnlNotional  math.LegacyDec
 	IsProfitable bool
 }
 
@@ -33,12 +33,12 @@ func (p *DerivativePosition) Copy() *DerivativePosition {
 func (m *PositionDelta) IsShort() bool { return !m.IsLong }
 
 // NewPosition initializes a new position with a given cumulativeFundingEntry (should be nil for non-perpetual markets)
-func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
+func NewPosition(isLong bool, cumulativeFundingEntry math.LegacyDec) *Position {
 	position := &Position{
 		IsLong:     isLong,
-		Quantity:   sdk.ZeroDec(),
-		EntryPrice: sdk.ZeroDec(),
-		Margin:     sdk.ZeroDec(),
+		Quantity:   math.LegacyZeroDec(),
+		EntryPrice: math.LegacyZeroDec(),
+		Margin:     math.LegacyZeroDec(),
 	}
 	if !cumulativeFundingEntry.IsNil() {
 		position.CumulativeFundingEntry = cumulativeFundingEntry
@@ -48,7 +48,7 @@ func NewPosition(isLong bool, cumulativeFundingEntry sdk.Dec) *Position {
 
 // GetEffectiveMarginRatio returns the effective margin ratio of the position, based on the input closing price.
 // CONTRACT: position must already be funding-adjusted (if perpetual) and have positive quantity.
-func (p *Position) GetEffectiveMarginRatio(closingPrice, closingFee sdk.Dec) (marginRatio sdk.Dec) {
+func (p *Position) GetEffectiveMarginRatio(closingPrice, closingFee math.LegacyDec) (marginRatio math.LegacyDec) {
 	// nolint:all
 	// marginRatio = (margin + quantity * PnlPerContract) / (closingPrice * quantity)
 	effectiveMargin := p.Margin.Add(p.GetPayoutFromPnl(closingPrice, p.Quantity)).Sub(closingFee)
@@ -64,7 +64,7 @@ func (p *Position) GetEffectiveMarginRatio(closingPrice, closingFee sdk.Dec) (ma
 // => Entry price adjustment for sells
 // (settlementPrice - newEntryPrice) * quantity = (settlementPrice - entryPrice) * quantity * (1 - missingFundsRate)
 // newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
-func (p *Position) ApplyProfitHaircutForDerivatives(deficitAmount, totalProfits, settlementPrice sdk.Dec) {
+func (p *Position) ApplyProfitHaircutForDerivatives(deficitAmount, totalProfits, settlementPrice math.LegacyDec) {
 	// haircutPercentage = deficitAmount / totalProfits
 	// To preserve precision, the division by totalProfits is done last.
 	// newEntryPrice =  haircutPercentage * (settlementPrice - entryPrice) + entryPrice
@@ -73,20 +73,20 @@ func (p *Position) ApplyProfitHaircutForDerivatives(deficitAmount, totalProfits,
 
 	// profitable position but with negative margin, we didn't account for negative margin previously,
 	// so we can safely add it if payout becomes negative from haircut
-	newPositionPayout := p.GetPayoutIfFullyClosing(settlementPrice, sdk.ZeroDec()).Payout
+	newPositionPayout := p.GetPayoutIfFullyClosing(settlementPrice, math.LegacyZeroDec()).Payout
 	if newPositionPayout.IsNegative() {
 		p.Margin = p.Margin.Add(newPositionPayout.Abs())
 	}
 }
 
-func (p *Position) ApplyTotalPositionPayoutHaircut(deficitAmount, totalPayouts, settlementPrice sdk.Dec) {
+func (p *Position) ApplyTotalPositionPayoutHaircut(deficitAmount, totalPayouts, settlementPrice math.LegacyDec) {
 	p.ApplyProfitHaircutForDerivatives(deficitAmount, totalPayouts, settlementPrice)
 
 	removedMargin := p.Margin.Mul(deficitAmount).Quo(totalPayouts)
 	p.Margin = p.Margin.Sub(removedMargin)
 }
 
-func (p *Position) ApplyProfitHaircutForBinaryOptions(deficitAmount, totalAssets sdk.Dec, oracleScaleFactor uint32) {
+func (p *Position) ApplyProfitHaircutForBinaryOptions(deficitAmount, totalAssets math.LegacyDec, oracleScaleFactor uint32) {
 	// haircutPercentage = deficitAmount / totalAssets
 	// To preserve precision, the division by totalAssets is done last.
 	// newMargin =  p.Margin - p.Margin * haircutPercentage
@@ -97,12 +97,12 @@ func (p *Position) ApplyProfitHaircutForBinaryOptions(deficitAmount, totalAssets
 	if p.IsLong {
 		p.EntryPrice = p.Margin.Quo(p.Quantity)
 	} else {
-		scaledOne := GetScaledPrice(sdk.OneDec(), oracleScaleFactor)
+		scaledOne := GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor)
 		p.EntryPrice = scaledOne.Sub(p.Margin.Quo(p.Quantity))
 	}
 }
 
-func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate sdk.Dec) (payout, closeTradingFee sdk.Dec, positionDelta *PositionDelta) {
+func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate math.LegacyDec) (payout, closeTradingFee math.LegacyDec, positionDelta *PositionDelta, pnl math.LegacyDec) {
 	closingDirection := !p.IsLong
 	fullyClosingQuantity := p.Quantity
 
@@ -110,29 +110,29 @@ func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate 
 	positionDelta = &PositionDelta{
 		IsLong:            closingDirection,
 		ExecutionQuantity: fullyClosingQuantity,
-		ExecutionMargin:   sdk.ZeroDec(),
+		ExecutionMargin:   math.LegacyZeroDec(),
 		ExecutionPrice:    settlementPrice,
 	}
 
 	// there should not be positions with 0 quantity
 	if fullyClosingQuantity.IsZero() {
-		return sdk.ZeroDec(), closeTradingFee, positionDelta
+		return math.LegacyZeroDec(), closeTradingFee, positionDelta, math.LegacyZeroDec()
 	}
 
-	payout, _, _ = p.ApplyPositionDelta(positionDelta, closeTradingFee)
+	payout, _, _, pnl = p.ApplyPositionDelta(positionDelta, closeTradingFee)
 
-	return payout, closeTradingFee, positionDelta
+	return payout, closeTradingFee, positionDelta, pnl
 }
 
 func (p *Position) ClosePositionWithoutPayouts() {
 	p.IsLong = false
-	p.EntryPrice = sdk.ZeroDec()
-	p.Quantity = sdk.ZeroDec()
-	p.Margin = sdk.ZeroDec()
-	p.CumulativeFundingEntry = sdk.ZeroDec()
+	p.EntryPrice = math.LegacyZeroDec()
+	p.Quantity = math.LegacyZeroDec()
+	p.Margin = math.LegacyZeroDec()
+	p.CumulativeFundingEntry = math.LegacyZeroDec()
 }
 
-func (p *Position) ClosePositionByRefunding(closingFeeRate sdk.Dec) (payout, closeTradingFee sdk.Dec, positionDelta *PositionDelta) {
+func (p *Position) ClosePositionByRefunding(closingFeeRate math.LegacyDec) (payout, closeTradingFee math.LegacyDec, positionDelta *PositionDelta, pnl math.LegacyDec) {
 	return p.ClosePositionWithSettlePrice(p.EntryPrice, closingFeeRate)
 }
 
@@ -146,11 +146,11 @@ func (p *Position) GetDirectionString() string {
 
 func (p *Position) CheckValidPositionToReduce(
 	marketType MarketType,
-	reducePrice sdk.Dec,
+	reducePrice math.LegacyDec,
 	isBuyOrder bool,
-	tradeFeeRate sdk.Dec,
+	tradeFeeRate math.LegacyDec,
 	funding *PerpetualMarketFunding,
-	orderMargin sdk.Dec,
+	orderMargin math.LegacyDec,
 ) error {
 	if isBuyOrder == p.IsLong {
 		return ErrInvalidReduceOnlyPositionDirection
@@ -167,19 +167,19 @@ func (p *Position) CheckValidPositionToReduce(
 	return nil
 }
 
-func (p *Position) checkValidClosingPrice(closingPrice, tradeFeeRate sdk.Dec, funding *PerpetualMarketFunding, orderMargin sdk.Dec) error {
+func (p *Position) checkValidClosingPrice(closingPrice, tradeFeeRate math.LegacyDec, funding *PerpetualMarketFunding, orderMargin math.LegacyDec) error {
 	bankruptcyPrice := p.GetBankruptcyPriceWithAddedMargin(funding, orderMargin)
 
 	if p.IsLong {
 		// For long positions, Price ≥ BankruptcyPrice / (1 - TradeFeeRate) must hold
-		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(sdk.OneDec().Sub(tradeFeeRate))
+		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(math.LegacyOneDec().Sub(tradeFeeRate))
 
 		if closingPrice.LT(feeAdjustedBankruptcyPrice) {
 			return ErrPriceSurpassesBankruptcyPrice
 		}
 	} else {
 		// For short positions, Price ≤ BankruptcyPrice / (1 + TradeFeeRate) must hold
-		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(sdk.OneDec().Add(tradeFeeRate))
+		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(math.LegacyOneDec().Add(tradeFeeRate))
 
 		if closingPrice.GT(feeAdjustedBankruptcyPrice) {
 			return ErrPriceSurpassesBankruptcyPrice
@@ -188,7 +188,7 @@ func (p *Position) checkValidClosingPrice(closingPrice, tradeFeeRate sdk.Dec, fu
 	return nil
 }
 
-func (p *Position) GetLiquidationMarketOrderWorstPrice(markPrice sdk.Dec, funding *PerpetualMarketFunding) sdk.Dec {
+func (p *Position) GetLiquidationMarketOrderWorstPrice(markPrice math.LegacyDec, funding *PerpetualMarketFunding) math.LegacyDec {
 	bankruptcyPrice := p.GetBankruptcyPrice(funding)
 	hasNegativeEquity := (p.IsLong && markPrice.LT(bankruptcyPrice)) || (p.IsShort() && markPrice.GT(bankruptcyPrice))
 
@@ -199,40 +199,40 @@ func (p *Position) GetLiquidationMarketOrderWorstPrice(markPrice sdk.Dec, fundin
 	return bankruptcyPrice
 }
 
-func (p *Position) GetBankruptcyPrice(funding *PerpetualMarketFunding) (bankruptcyPrice sdk.Dec) {
-	return p.GetLiquidationPrice(sdk.ZeroDec(), funding)
+func (p *Position) GetBankruptcyPrice(funding *PerpetualMarketFunding) (bankruptcyPrice math.LegacyDec) {
+	return p.GetLiquidationPrice(math.LegacyZeroDec(), funding)
 }
 
-func (p *Position) GetBankruptcyPriceWithAddedMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) (bankruptcyPrice sdk.Dec) {
-	return p.getLiquidationPriceWithAddedMargin(sdk.ZeroDec(), funding, addedMargin)
+func (p *Position) GetBankruptcyPriceWithAddedMargin(funding *PerpetualMarketFunding, addedMargin math.LegacyDec) (bankruptcyPrice math.LegacyDec) {
+	return p.getLiquidationPriceWithAddedMargin(math.LegacyZeroDec(), funding, addedMargin)
 }
 
-func (p *Position) GetLiquidationPrice(maintenanceMarginRatio sdk.Dec, funding *PerpetualMarketFunding) sdk.Dec {
-	return p.getLiquidationPriceWithAddedMargin(maintenanceMarginRatio, funding, sdk.ZeroDec())
+func (p *Position) GetLiquidationPrice(maintenanceMarginRatio math.LegacyDec, funding *PerpetualMarketFunding) math.LegacyDec {
+	return p.getLiquidationPriceWithAddedMargin(maintenanceMarginRatio, funding, math.LegacyZeroDec())
 }
 
-func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio sdk.Dec, funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
+func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio math.LegacyDec, funding *PerpetualMarketFunding, addedMargin math.LegacyDec) math.LegacyDec {
 	adjustedUnitMargin := p.getFundingAdjustedUnitMarginWithAddedMargin(funding, addedMargin)
 
 	// TODO include closing fee for reduce only ?
 
-	var liquidationPrice sdk.Dec
+	var liquidationPrice math.LegacyDec
 	if p.IsLong {
 		// liquidation price = (entry price - unit margin) / (1 - maintenanceMarginRatio)
-		liquidationPrice = p.EntryPrice.Sub(adjustedUnitMargin).Quo(sdk.OneDec().Sub(maintenanceMarginRatio))
+		liquidationPrice = p.EntryPrice.Sub(adjustedUnitMargin).Quo(math.LegacyOneDec().Sub(maintenanceMarginRatio))
 	} else {
 		// liquidation price = (entry price + unit margin) / (1 + maintenanceMarginRatio)
-		liquidationPrice = p.EntryPrice.Add(adjustedUnitMargin).Quo(sdk.OneDec().Add(maintenanceMarginRatio))
+		liquidationPrice = p.EntryPrice.Add(adjustedUnitMargin).Quo(math.LegacyOneDec().Add(maintenanceMarginRatio))
 	}
 	return liquidationPrice
 }
 
-func (p *Position) GetEffectiveMargin(funding *PerpetualMarketFunding, closingPrice sdk.Dec) sdk.Dec {
+func (p *Position) GetEffectiveMargin(funding *PerpetualMarketFunding, closingPrice math.LegacyDec) math.LegacyDec {
 	fundingAdjustedMargin := p.Margin
 	if funding != nil {
 		fundingAdjustedMargin = p.getFundingAdjustedMargin(funding)
 	}
-	pnlNotional := sdk.ZeroDec()
+	pnlNotional := math.LegacyZeroDec()
 	if !closingPrice.IsNil() {
 		pnlNotional = p.GetPayoutFromPnl(closingPrice, p.Quantity)
 	}
@@ -250,11 +250,11 @@ func (p *Position) ApplyFunding(funding *PerpetualMarketFunding) {
 	}
 }
 
-func (p *Position) getFundingAdjustedMargin(funding *PerpetualMarketFunding) sdk.Dec {
-	return p.getFundingAdjustedMarginWithAddedMargin(funding, sdk.ZeroDec())
+func (p *Position) getFundingAdjustedMargin(funding *PerpetualMarketFunding) math.LegacyDec {
+	return p.getFundingAdjustedMarginWithAddedMargin(funding, math.LegacyZeroDec())
 }
 
-func (p *Position) getFundingAdjustedMarginWithAddedMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
+func (p *Position) getFundingAdjustedMarginWithAddedMargin(funding *PerpetualMarketFunding, addedMargin math.LegacyDec) math.LegacyDec {
 	adjustedMargin := p.Margin.Add(addedMargin)
 
 	// Compute the adjusted position margin for positions in perpetual markets
@@ -273,7 +273,7 @@ func (p *Position) getFundingAdjustedMarginWithAddedMargin(funding *PerpetualMar
 	return adjustedMargin
 }
 
-func (p *Position) getFundingAdjustedUnitMarginWithAddedMargin(funding *PerpetualMarketFunding, addedMargin sdk.Dec) sdk.Dec {
+func (p *Position) getFundingAdjustedUnitMarginWithAddedMargin(funding *PerpetualMarketFunding, addedMargin math.LegacyDec) math.LegacyDec {
 	adjustedMargin := p.getFundingAdjustedMarginWithAddedMargin(funding, addedMargin)
 
 	// Unit Margin = PositionMargin / PositionQuantity
@@ -281,14 +281,14 @@ func (p *Position) getFundingAdjustedUnitMarginWithAddedMargin(funding *Perpetua
 	return fundingAdjustedUnitMargin
 }
 
-func (p *Position) GetAverageWeightedEntryPrice(executionQuantity, executionPrice sdk.Dec) sdk.Dec {
+func (p *Position) GetAverageWeightedEntryPrice(executionQuantity, executionPrice math.LegacyDec) math.LegacyDec {
 	num := p.Quantity.Mul(p.EntryPrice).Add(executionQuantity.Mul(executionPrice))
 	denom := p.Quantity.Add(executionQuantity)
 
 	return num.Quo(denom)
 }
 
-func (p *Position) GetPayoutIfFullyClosing(closingPrice, closingFeeRate sdk.Dec) *positionPayout {
+func (p *Position) GetPayoutIfFullyClosing(closingPrice, closingFeeRate math.LegacyDec) *positionPayout {
 	isProfitable := (p.IsLong && p.EntryPrice.LT(closingPrice)) || (!p.IsLong && p.EntryPrice.GT(closingPrice))
 
 	fullyClosingQuantity := p.Quantity
@@ -306,8 +306,8 @@ func (p *Position) GetPayoutIfFullyClosing(closingPrice, closingFeeRate sdk.Dec)
 	}
 }
 
-func (p *Position) GetPayoutFromPnl(closingPrice, closingQuantity sdk.Dec) sdk.Dec {
-	var pnlNotional sdk.Dec
+func (p *Position) GetPayoutFromPnl(closingPrice, closingQuantity math.LegacyDec) math.LegacyDec {
+	var pnlNotional math.LegacyDec
 
 	if p.IsLong {
 		// nolint:all
@@ -322,19 +322,19 @@ func (p *Position) GetPayoutFromPnl(closingPrice, closingQuantity sdk.Dec) sdk.D
 	return pnlNotional
 }
 
-func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceOnly sdk.Dec) (
-	payout, closeExecutionMargin, collateralizationMargin sdk.Dec,
+func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceOnly math.LegacyDec) (
+	payout, closeExecutionMargin, collateralizationMargin, pnl math.LegacyDec,
 ) {
 	// No payouts or margin changes if the position delta is nil
 	if delta == nil || p == nil {
-		return sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()
+		return math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()
 	}
 
 	if p.Quantity.IsZero() {
 		p.IsLong = delta.IsLong
 	}
 
-	payout, closeExecutionMargin, collateralizationMargin = sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()
+	payout, closeExecutionMargin, collateralizationMargin = math.LegacyZeroDec(), math.LegacyZeroDec(), math.LegacyZeroDec()
 	isNettingInSameDirection := (p.IsLong && delta.IsLong) || (p.IsShort() && delta.IsShort())
 
 	if isNettingInSameDirection {
@@ -343,11 +343,11 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 		p.Margin = p.Margin.Add(delta.ExecutionMargin)
 		collateralizationMargin = delta.ExecutionMargin
 
-		return payout, closeExecutionMargin, collateralizationMargin
+		return payout, closeExecutionMargin, collateralizationMargin, math.LegacyZeroDec()
 	}
 
 	// netting in opposing direction
-	closingQuantity := sdk.MinDec(p.Quantity, delta.ExecutionQuantity)
+	closingQuantity := math.LegacyMinDec(p.Quantity, delta.ExecutionQuantity)
 	// closeExecutionMargin = execution margin * closing quantity / execution quantity
 	closeExecutionMargin = delta.ExecutionMargin.Mul(closingQuantity).Quo(delta.ExecutionQuantity)
 
@@ -383,8 +383,8 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 		}
 
 		// recurse
-		_, _, collateralizationMargin = p.ApplyPositionDelta(newPositionDelta, tradingFeeForReduceOnly)
+		_, _, collateralizationMargin, _ = p.ApplyPositionDelta(newPositionDelta, tradingFeeForReduceOnly)
 	}
 
-	return payout, closeExecutionMargin, collateralizationMargin
+	return payout, closeExecutionMargin, collateralizationMargin, pnlNotional
 }

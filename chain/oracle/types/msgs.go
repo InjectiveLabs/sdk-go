@@ -1,11 +1,16 @@
 package types
 
 import (
+	"fmt"
+	"math/big"
+	"strconv"
 	"strings"
 
 	"cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // oracle message types
@@ -18,6 +23,7 @@ const (
 	TypeMsgRequestBandIBCRates   = "requestBandIBCRates"
 	TypeMsgRelayProviderPrices   = "relayProviderPrices"
 	TypeMsgRelayPythPrices       = "relayPythPrices"
+	TypeMsgRelayStorkPrices      = "relayStorkPrices"
 	TypeMsgUpdateParams          = "updateParams"
 )
 
@@ -28,6 +34,7 @@ var (
 	_ sdk.Msg = &MsgRequestBandIBCRates{}
 	_ sdk.Msg = &MsgRelayProviderPrices{}
 	_ sdk.Msg = &MsgRelayPythPrices{}
+	_ sdk.Msg = &MsgRelayStorkPrices{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
@@ -287,9 +294,6 @@ func (msg MsgRelayPythPrices) Type() string { return TypeMsgRelayPythPrices }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgRelayPythPrices) ValidateBasic() error {
-	if msg.Sender == "" {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
 		return err
 	}
@@ -311,4 +315,88 @@ func (msg MsgRelayPythPrices) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgRelayStorkPrices) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgRelayStorkPrices) Type() string { return TypeMsgRelayStorkPrices }
+
+// ValidateBasic implements the sdk.Msg interface for MsgRelayStorkPrices.
+func (msg MsgRelayStorkPrices) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return err
+	}
+
+	assetIDs := make(map[string]struct{})
+	for idx := range msg.AssetPairs {
+		assetPair := msg.AssetPairs[idx]
+		if _, found := assetIDs[assetPair.AssetId]; found {
+			return errors.Wrapf(ErrStorkAssetIdNotUnique, "Asset id %s is not unique", assetPair.AssetId)
+		}
+		assetIDs[assetPair.AssetId] = struct{}{}
+
+		var newestTimestamp uint64
+		oldestTimestamp := ^uint64(0) // max uint64
+		for i := range assetPair.SignedPrices {
+			p := assetPair.SignedPrices[i]
+			// convert timestamp to nanoseconds to validate conditions	
+			timestamp := ConvertTimestampToNanoSecond(p.Timestamp)
+			if timestamp > newestTimestamp {
+				newestTimestamp = timestamp
+			}
+			if timestamp < oldestTimestamp {
+				oldestTimestamp = timestamp
+			}
+
+			price := new(big.Int).Quo(p.Price.BigInt(), sdkmath.LegacyOneDec().BigInt()).String()
+			// note: relayer should convert the ecdsa r,s,v signatures format to the normal bytes arrays signature
+			if !VerifyStorkMsgSignature(common.HexToAddress(p.PublisherKey), assetPair.AssetId, strconv.FormatUint(p.Timestamp, 10), price, p.Signature) {
+				return errors.Wrapf(ErrInvalidStorkSignature, "Invalid signature for asset %s with publisher address %s", assetPair.AssetId, p.PublisherKey)
+			}
+		}
+
+		if newestTimestamp-oldestTimestamp > MaxStorkTimestampIntervalNano {
+			return fmt.Errorf("price timestamps between %d and %d exceed threshold %d", oldestTimestamp, newestTimestamp, MaxStorkTimestampIntervalNano)
+		}
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgRelayStorkPrices) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgRelayStorkPrices) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// ConvertTimestampToNanoSecond converts timestamp to nano seconds
+// if timestamp > 1e18 => timestamp is in nanosecond format
+// else if timestamp > 1e15 => timestamp is in microsecond format
+// else if timestamp > 1e12 => timestamp is in millisecond format
+// else the timestamp is in second format
+func ConvertTimestampToNanoSecond(timestamp uint64) (nanoSeconds uint64) {
+	switch {
+	// nanosecond
+	case timestamp > 1e18:
+		return timestamp
+	// microsecond
+	case timestamp > 1e15:
+		return timestamp * 1_000
+	// millisecond
+	case timestamp > 1e12:
+		return timestamp * 1_000_000
+	// second
+	default:
+		return timestamp * 1_000_000_000
+	}
 }

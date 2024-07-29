@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -15,7 +16,7 @@ type MatchedMarketDirection struct {
 
 type TriggeredOrdersInMarket struct {
 	Market             *DerivativeMarket
-	MarkPrice          sdk.Dec
+	MarkPrice          math.LegacyDec
 	MarketOrders       []*DerivativeMarketOrder
 	LimitOrders        []*DerivativeLimitOrder
 	HasLimitBuyOrders  bool
@@ -45,10 +46,10 @@ func (s MarketStatus) SupportsOrderCancellations() bool {
 
 type TradingRewardAccountPoints struct {
 	Account sdk.AccAddress
-	Points  sdk.Dec
+	Points  math.LegacyDec
 }
 
-func (p *PointsMultiplier) GetMultiplier(e ExecutionType) sdk.Dec {
+func (p *PointsMultiplier) GetMultiplier(e ExecutionType) math.LegacyDec {
 	if e.IsMaker() {
 		return p.MakerPointsMultiplier
 	}
@@ -57,9 +58,9 @@ func (p *PointsMultiplier) GetMultiplier(e ExecutionType) sdk.Dec {
 }
 
 type IOrder interface {
-	GetPrice() sdk.Dec
-	GetQuantity() sdk.Dec
-	GetFillable() sdk.Dec
+	GetPrice() math.LegacyDec
+	GetQuantity() math.LegacyDec
+	GetFillable() math.LegacyDec
 	IsBuy() bool
 	GetSubaccountID() common.Hash
 }
@@ -67,63 +68,63 @@ type IOrder interface {
 // IDerivativeOrder proto interface for wrapping all different variations of representations of derivative orders. Methods can be added as needed (make sure to add to every implementor)
 type IDerivativeOrder interface {
 	IOrder
-	GetMargin() sdk.Dec
+	GetMargin() math.LegacyDec
 	IsReduceOnly() bool
 	IsVanilla() bool
 }
 
 type IMutableDerivativeOrder interface {
 	IDerivativeOrder
-	SetPrice(sdk.Dec)
-	SetQuantity(sdk.Dec)
-	SetMargin(sdk.Dec)
+	SetPrice(math.LegacyDec)
+	SetQuantity(math.LegacyDec)
+	SetMargin(math.LegacyDec)
 }
 
 // DerivativeOrder - IMutableDerivativeOrder implementation
 
-func (o *DerivativeOrder) GetPrice() sdk.Dec {
+func (o *DerivativeOrder) GetPrice() math.LegacyDec {
 	return o.OrderInfo.Price
 }
 
-func (o *DerivativeOrder) GetQuantity() sdk.Dec {
+func (o *DerivativeOrder) GetQuantity() math.LegacyDec {
 	return o.OrderInfo.Quantity
 }
-func (o *DerivativeOrder) GetFillable() sdk.Dec {
+func (o *DerivativeOrder) GetFillable() math.LegacyDec {
 	return o.GetQuantity()
 }
 
-func (o *DerivativeOrder) GetMargin() sdk.Dec {
+func (o *DerivativeOrder) GetMargin() math.LegacyDec {
 	return o.Margin
 }
 func (o *DerivativeOrder) GetSubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
 
-func (o *DerivativeOrder) SetPrice(price sdk.Dec) {
+func (o *DerivativeOrder) SetPrice(price math.LegacyDec) {
 	o.OrderInfo.Price = price
 }
 
-func (o *DerivativeOrder) SetQuantity(quantity sdk.Dec) {
+func (o *DerivativeOrder) SetQuantity(quantity math.LegacyDec) {
 	o.OrderInfo.Quantity = quantity
 }
 
-func (o *DerivativeOrder) SetMargin(margin sdk.Dec) {
+func (o *DerivativeOrder) SetMargin(margin math.LegacyDec) {
 	o.Margin = margin
 }
 
 // DerivativeLimitOrder - IMutableDerivativeOrder implementation
 
-func (o *DerivativeLimitOrder) GetPrice() sdk.Dec {
+func (o *DerivativeLimitOrder) GetPrice() math.LegacyDec {
 	return o.OrderInfo.Price
 }
 
-func (o *DerivativeLimitOrder) GetQuantity() sdk.Dec {
+func (o *DerivativeLimitOrder) GetQuantity() math.LegacyDec {
 	return o.OrderInfo.Quantity
 }
-func (o *DerivativeLimitOrder) GetFillable() sdk.Dec {
+func (o *DerivativeLimitOrder) GetFillable() math.LegacyDec {
 	return o.Fillable
 }
-func (o *DerivativeLimitOrder) GetMargin() sdk.Dec {
+func (o *DerivativeLimitOrder) GetMargin() math.LegacyDec {
 	return o.Margin
 }
 
@@ -131,46 +132,46 @@ func (o *DerivativeLimitOrder) GetSubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
 
-func (o *DerivativeLimitOrder) SetPrice(price sdk.Dec) {
+func (o *DerivativeLimitOrder) SetPrice(price math.LegacyDec) {
 	o.OrderInfo.Price = price
 }
 
-func (o *DerivativeLimitOrder) SetQuantity(quantity sdk.Dec) {
+func (o *DerivativeLimitOrder) SetQuantity(quantity math.LegacyDec) {
 	o.OrderInfo.Quantity = quantity
 	o.Fillable = quantity
 }
 
-func (o *DerivativeLimitOrder) SetMargin(margin sdk.Dec) {
+func (o *DerivativeLimitOrder) SetMargin(margin math.LegacyDec) {
 	o.Margin = margin
 }
 
 // DerivativeMarketOrder - IMutableDerivativeOrder implementation
 
-func (o *DerivativeMarketOrder) GetPrice() sdk.Dec {
+func (o *DerivativeMarketOrder) GetPrice() math.LegacyDec {
 	return o.OrderInfo.Price
 }
 
-func (o *DerivativeMarketOrder) GetQuantity() sdk.Dec {
+func (o *DerivativeMarketOrder) GetQuantity() math.LegacyDec {
 	return o.OrderInfo.Quantity
 }
-func (o *DerivativeMarketOrder) GetFillable() sdk.Dec {
+func (o *DerivativeMarketOrder) GetFillable() math.LegacyDec {
 	return o.OrderInfo.Quantity
 }
-func (o *DerivativeMarketOrder) GetMargin() sdk.Dec {
+func (o *DerivativeMarketOrder) GetMargin() math.LegacyDec {
 	return o.Margin
 }
 func (o *DerivativeMarketOrder) GetSubaccountID() common.Hash {
 	return o.OrderInfo.SubaccountID()
 }
-func (o *DerivativeMarketOrder) SetPrice(price sdk.Dec) {
+func (o *DerivativeMarketOrder) SetPrice(price math.LegacyDec) {
 	o.OrderInfo.Price = price
 }
 
-func (o *DerivativeMarketOrder) SetQuantity(quantity sdk.Dec) {
+func (o *DerivativeMarketOrder) SetQuantity(quantity math.LegacyDec) {
 	o.OrderInfo.Quantity = quantity
 }
 
-func (o *DerivativeMarketOrder) SetMargin(margin sdk.Dec) {
+func (o *DerivativeMarketOrder) SetMargin(margin math.LegacyDec) {
 	o.Margin = margin
 }
 
@@ -180,37 +181,37 @@ func (o *DerivativeMarketOrder) DebugString() string {
 
 // spot orders
 
-func (o *SpotOrder) GetPrice() sdk.Dec {
+func (o *SpotOrder) GetPrice() math.LegacyDec {
 	return o.OrderInfo.Price
 }
-func (o *SpotLimitOrder) GetPrice() sdk.Dec {
+func (o *SpotLimitOrder) GetPrice() math.LegacyDec {
 	return o.OrderInfo.Price
 }
-func (o *SpotMarketOrder) GetPrice() sdk.Dec {
+func (o *SpotMarketOrder) GetPrice() math.LegacyDec {
 	return o.OrderInfo.Price
 }
 
-func (o *SpotOrder) GetQuantity() sdk.Dec {
+func (o *SpotOrder) GetQuantity() math.LegacyDec {
 	return o.OrderInfo.Quantity
 }
-func (o *SpotLimitOrder) GetQuantity() sdk.Dec {
+func (o *SpotLimitOrder) GetQuantity() math.LegacyDec {
 	return o.OrderInfo.Quantity
 }
 
-func (o *SpotMarketOrder) GetQuantity() sdk.Dec {
+func (o *SpotMarketOrder) GetQuantity() math.LegacyDec {
 	return o.OrderInfo.Quantity
 }
 func (o *SpotMarketOrder) IsBuy() bool {
 	return o.OrderType.IsBuy()
 }
-func (o *SpotOrder) GetFillable() sdk.Dec {
+func (o *SpotOrder) GetFillable() math.LegacyDec {
 	return o.OrderInfo.Quantity
 }
-func (o *SpotMarketOrder) GetFillable() sdk.Dec {
+func (o *SpotMarketOrder) GetFillable() math.LegacyDec {
 	// no fillable for market order, but quantity works same in this case
 	return o.OrderInfo.Quantity
 }
-func (o *SpotLimitOrder) GetFillable() sdk.Dec {
+func (o *SpotLimitOrder) GetFillable() math.LegacyDec {
 	return o.Fillable
 }
 

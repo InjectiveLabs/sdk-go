@@ -1,4 +1,4 @@
-// Code generated with goa v3.5.2, DO NOT EDIT.
+// Code generated with goa v3.7.0, DO NOT EDIT.
 //
 // InjectivePortfolioRPC protocol buffer definition
 //
@@ -13,12 +13,35 @@ option go_package = "/injective_portfolio_rpcpb";
 
 // InjectivePortfolioRPC defines gRPC API of Exchange Portfolio provider.
 service InjectivePortfolioRPC {
+	// Provide a list of addresses holding a specific token
+	rpc TokenHolders (TokenHoldersRequest) returns (TokenHoldersResponse);
 	// Provide the account's portfolio
 	rpc AccountPortfolio (AccountPortfolioRequest) returns (AccountPortfolioResponse);
 	// Provide the account's portfolio balances
 	rpc AccountPortfolioBalances (AccountPortfolioBalancesRequest) returns (AccountPortfolioBalancesResponse);
 	// Stream the account's portfolio
 	rpc StreamAccountPortfolio (StreamAccountPortfolioRequest) returns (stream StreamAccountPortfolioResponse);
+}
+
+message TokenHoldersRequest {
+	// Denom of the token
+	string denom = 1;
+	// Cursor for pagination
+	string cursor = 2;
+	sint32 limit = 3;
+}
+
+message TokenHoldersResponse {
+	repeated Holder holders = 1;
+	// Next cursors for pagination
+	repeated string next_cursors = 2;
+}
+
+message Holder {
+	// Account address for the holder
+	string account_address = 1;
+	// The balance of the holder
+	string balance = 2;
 }
 
 message AccountPortfolioRequest {

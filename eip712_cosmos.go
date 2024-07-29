@@ -10,14 +10,14 @@ import (
 	"strings"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
+	ethmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/pkg/errors"
 
 	"github.com/InjectiveLabs/sdk-go/typeddata"
@@ -53,7 +53,6 @@ func WrapTxToEIP712(
 		timeoutHeight,
 		feeInfo,
 		msgs, memo,
-		nil,
 	)
 
 	txData := make(map[string]interface{})
@@ -65,7 +64,7 @@ func WrapTxToEIP712(
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
 		VerifyingContract: "cosmos",
 		Salt:              "0",
 	}
@@ -195,12 +194,12 @@ func traverseFields(
 
 	if prefix == typeDefPrefix {
 		if len(typeMap[rootType]) == n {
-			return
+			return nil
 		}
 	} else {
 		typeDef := sanitizeTypedef(prefix)
 		if len(typeMap[typeDef]) == n {
-			return
+			return nil
 		}
 	}
 
@@ -233,7 +232,7 @@ func traverseFields(
 			err = cdc.UnpackAny(any, &anyWrapper.Value)
 			if err != nil {
 				err = errors.Wrap(err, "failed to unpack Any in msg struct")
-				return
+				return err
 			}
 
 			fieldType = reflect.TypeOf(anyWrapper)
@@ -291,7 +290,7 @@ func traverseFields(
 
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 		ethTyp := typToEth(fieldType)
-		if len(ethTyp) > 0 {
+		if ethTyp != "" {
 			if isCollection {
 				ethTyp += "[]"
 			}
@@ -338,7 +337,7 @@ func traverseFields(
 
 			err = traverseFields(cdc, typeMap, rootType, fieldPrefix, fieldType, field)
 			if err != nil {
-				return
+				return err
 			}
 
 			continue
@@ -380,7 +379,7 @@ var (
 	hashType      = reflect.TypeOf(common.Hash{})
 	addressType   = reflect.TypeOf(common.Address{})
 	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
+	cosmIntType   = reflect.TypeOf(math.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
 	timeType      = reflect.TypeOf(time.Time{})
 )
@@ -415,12 +414,12 @@ func typToEth(typ reflect.Type) string {
 		return "uint64"
 	case reflect.Slice:
 		ethName := typToEth(typ.Elem())
-		if len(ethName) > 0 {
+		if ethName != "" {
 			return ethName + "[]"
 		}
 	case reflect.Array:
 		ethName := typToEth(typ.Elem())
-		if len(ethName) > 0 {
+		if ethName != "" {
 			return ethName + "[]"
 		}
 	case reflect.Ptr:
@@ -501,7 +500,7 @@ func WrapTxToEIP712V2(
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
 		VerifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
 		Salt:              "0",
 	}

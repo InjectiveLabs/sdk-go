@@ -36,19 +36,19 @@ func (e *MockExchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marke
 	return &derivativeExchangePB.OrderbookV2Response{}, nil
 }
 
-func (e *MockExchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIds []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
+func (e *MockExchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
 	return &derivativeExchangePB.OrderbooksV2Response{}, nil
 }
 
-func (e *MockExchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
+func (e *MockExchangeClient) StreamDerivativeOrderbookV2(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error) {
 	return nil, nil
 }
 
-func (e *MockExchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
+func (e *MockExchangeClient) StreamDerivativeOrderbookUpdate(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error) {
 	return nil, nil
 }
 
-func (e *MockExchangeClient) StreamDerivativeMarket(ctx context.Context, marketIds []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error) {
+func (e *MockExchangeClient) StreamDerivativeMarket(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error) {
 	return nil, nil
 }
 
@@ -131,7 +131,7 @@ func (e *MockExchangeClient) GetDerivativeFundingRates(ctx context.Context, req 
 	return &derivativeExchangePB.FundingRatesResponse{}, nil
 }
 
-func (e *MockExchangeClient) GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (*oraclePB.PriceResponse, error) {
+func (e *MockExchangeClient) GetPrice(ctx context.Context, baseSymbol, quoteSymbol, oracleType string, oracleScaleFactor uint32) (*oraclePB.PriceResponse, error) {
 	return &oraclePB.PriceResponse{}, nil
 }
 
@@ -139,7 +139,7 @@ func (e *MockExchangeClient) GetOracleList(ctx context.Context) (*oraclePB.Oracl
 	return &oraclePB.OracleListResponse{}, nil
 }
 
-func (e *MockExchangeClient) StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error) {
+func (e *MockExchangeClient) StreamPrices(ctx context.Context, baseSymbol, quoteSymbol, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error) {
 	return nil, nil
 }
 
@@ -159,7 +159,7 @@ func (e *MockExchangeClient) GetSubaccountsList(ctx context.Context, accountAddr
 	return &accountPB.SubaccountsListResponse{}, nil
 }
 
-func (e *MockExchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (*accountPB.SubaccountBalanceEndpointResponse, error) {
+func (e *MockExchangeClient) GetSubaccountBalance(ctx context.Context, subaccountId, denom string) (*accountPB.SubaccountBalanceEndpointResponse, error) {
 	return &accountPB.SubaccountBalanceEndpointResponse{}, nil
 }
 
@@ -199,15 +199,15 @@ func (e *MockExchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId st
 	return &spotExchangePB.OrderbookV2Response{}, nil
 }
 
-func (e *MockExchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIds []string) (*spotExchangePB.OrderbooksV2Response, error) {
+func (e *MockExchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error) {
 	return &spotExchangePB.OrderbooksV2Response{}, nil
 }
 
-func (e *MockExchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
+func (e *MockExchangeClient) StreamSpotOrderbookV2(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error) {
 	return nil, nil
 }
 
-func (e *MockExchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
+func (e *MockExchangeClient) StreamSpotOrderbookUpdate(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error) {
 	return nil, nil
 }
 
@@ -230,7 +230,7 @@ func (e *MockExchangeClient) GetSpotMarket(ctx context.Context, marketId string)
 	return &spotExchangePB.MarketResponse{}, nil
 }
 
-func (e *MockExchangeClient) StreamSpotMarket(ctx context.Context, marketIds []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error) {
+func (e *MockExchangeClient) StreamSpotMarket(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamMarketsClient, error) {
 	return nil, nil
 }
 
@@ -286,7 +286,7 @@ func (e *MockExchangeClient) GetAccountPortfolioBalances(ctx context.Context, ac
 	return &portfolioExchangePB.AccountPortfolioBalancesResponse{}, nil
 }
 
-func (e *MockExchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
+func (e *MockExchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddress, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error) {
 	return nil, nil
 }
 

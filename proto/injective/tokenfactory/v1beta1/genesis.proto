@@ -31,4 +31,5 @@ message GenesisDenom {
   ];
   string name = 3 [ (gogoproto.moretags) = "yaml:\"name\"" ];
   string symbol = 4 [ (gogoproto.moretags) = "yaml:\"symbol\"" ];
+  uint32 decimals = 5 [ (gogoproto.moretags) = "yaml:\"decimals\"" ];
 }

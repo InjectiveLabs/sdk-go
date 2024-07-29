@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"cosmossdk.io/math"
+
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -59,10 +61,10 @@ func main() {
 	message.Sender = senderAddress.String()
 	message.Amount = sdktypes.Coin{
 		Denom:  "factory/inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r/inj_test",
-		Amount: sdktypes.NewInt(100),
+		Amount: math.NewInt(100),
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(message)
 
 	if err != nil {

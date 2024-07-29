@@ -51,7 +51,7 @@ func OptionTLSCert(tlsCert credentials.TransportCredentials) ClientOption {
 		if tlsCert == nil {
 			log.Infoln("client does not use grpc secure transport")
 		} else {
-			log.Infoln("succesfully load server TLS cert")
+			log.Infoln("successfully load server TLS cert")
 		}
 		opts.TLSCert = tlsCert
 		return nil

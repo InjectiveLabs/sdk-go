@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"cosmossdk.io/math"
+
 	"github.com/cosmos/cosmos-sdk/types"
 	distriutiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
@@ -57,14 +59,14 @@ func main() {
 		panic(err)
 	}
 
-	amount := types.NewCoin("inj", types.NewInt(1))
+	amount := types.NewCoin("inj", math.NewInt(1))
 
 	msg := &distriutiontypes.MsgFundCommunityPool{
 		Amount:    []types.Coin{amount},
 		Depositor: senderAddress.String(),
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(msg)
 
 	if err != nil {

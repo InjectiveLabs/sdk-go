@@ -6,20 +6,20 @@ import (
 	"fmt"
 	"strings"
 
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"gopkg.in/yaml.v2"
 
 	"cosmossdk.io/errors"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	ethcmn "github.com/ethereum/go-ethereum/common"
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 )
 
 var (
-	_ authtypes.AccountI                 = (*EthAccount)(nil)
+	_ sdk.AccountI                       = (*EthAccount)(nil)
 	_ authtypes.GenesisAccount           = (*EthAccount)(nil)
 	_ codectypes.UnpackInterfacesMessage = (*EthAccount)(nil)
 )
@@ -32,7 +32,7 @@ var EmptyCodeHash = ethcrypto.Keccak256(nil)
 
 // ProtoAccount defines the prototype function for BaseAccount used for an
 // AccountKeeper.
-func ProtoAccount() authtypes.AccountI {
+func ProtoAccount() sdk.AccountI {
 	return &EthAccount{
 		BaseAccount: &authtypes.BaseAccount{},
 		CodeHash:    ethcrypto.Keccak256(nil),

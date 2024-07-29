@@ -67,6 +67,8 @@ var (
 	// to a relayer when they relay a valset
 	ParamStoreValsetRewardAmount = []byte("ValsetReward")
 
+	ParamStoreAdmins = []byte("Admins")
+
 	// Ensure that params implements the proper interface
 	_ paramtypes.ParamSet = &Params{}
 )
@@ -101,5 +103,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamStoreClaimSlashingEnabled, &p.ClaimSlashingEnabled, validateClaimSlashingEnabled),
 		paramtypes.NewParamSetPair(ParamsStoreKeyBridgeContractStartHeight, &p.BridgeContractStartHeight, validateBridgeContractStartHeight),
 		paramtypes.NewParamSetPair(ParamStoreValsetRewardAmount, &p.ValsetReward, validateValsetReward),
+		paramtypes.NewParamSetPair(ParamStoreAdmins, &p.Admins, validateAdmins),
 	}
 }

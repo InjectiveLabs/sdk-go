@@ -1,10 +1,10 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
-func NewVolumeRecord(makerVolume, takerVolume sdk.Dec) VolumeRecord {
+func NewVolumeRecord(makerVolume, takerVolume math.LegacyDec) VolumeRecord {
 	return VolumeRecord{
 		MakerVolume: makerVolume,
 		TakerVolume: takerVolume,
@@ -12,16 +12,16 @@ func NewVolumeRecord(makerVolume, takerVolume sdk.Dec) VolumeRecord {
 }
 
 func NewZeroVolumeRecord() VolumeRecord {
-	return NewVolumeRecord(sdk.ZeroDec(), sdk.ZeroDec())
+	return NewVolumeRecord(math.LegacyZeroDec(), math.LegacyZeroDec())
 }
 
 func (v VolumeRecord) Add(record VolumeRecord) VolumeRecord {
 	if v.MakerVolume.IsNil() {
-		v.MakerVolume = sdk.ZeroDec()
+		v.MakerVolume = math.LegacyZeroDec()
 	}
 
 	if v.TakerVolume.IsNil() {
-		v.TakerVolume = sdk.ZeroDec()
+		v.TakerVolume = math.LegacyZeroDec()
 	}
 
 	if record.IsZero() {
@@ -45,8 +45,8 @@ func (v *VolumeRecord) IsZero() bool {
 	return (v.TakerVolume.IsNil() || v.TakerVolume.IsZero()) && (v.MakerVolume.IsNil() || v.MakerVolume.IsZero())
 }
 
-func (v *VolumeRecord) Total() sdk.Dec {
-	totalVolume := sdk.ZeroDec()
+func (v *VolumeRecord) Total() math.LegacyDec {
+	totalVolume := math.LegacyZeroDec()
 	if !v.TakerVolume.IsNil() {
 		totalVolume = totalVolume.Add(v.TakerVolume)
 	}
@@ -56,9 +56,9 @@ func (v *VolumeRecord) Total() sdk.Dec {
 	return totalVolume
 }
 
-func NewVolumeWithSingleType(volume sdk.Dec, isMaker bool) VolumeRecord {
+func NewVolumeWithSingleType(volume math.LegacyDec, isMaker bool) VolumeRecord {
 	if isMaker {
-		return NewVolumeRecord(volume, sdk.ZeroDec())
+		return NewVolumeRecord(volume, math.LegacyZeroDec())
 	}
-	return NewVolumeRecord(sdk.ZeroDec(), volume)
+	return NewVolumeRecord(math.LegacyZeroDec(), volume)
 }

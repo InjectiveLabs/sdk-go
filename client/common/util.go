@@ -25,7 +25,7 @@ func HexToBytes(str string) ([]byte, error) {
 	return data, nil
 }
 
-func LoadTlsCert(path string, serverName string) credentials.TransportCredentials {
+func LoadTLSCert(path, serverName string) credentials.TransportCredentials {
 	if path == "" {
 		return nil
 	}
@@ -43,6 +43,7 @@ func LoadTlsCert(path string, serverName string) credentials.TransportCredential
 	}
 	// get domain from tcp://domain:port
 	domain := strings.Split(serverName, ":")[1][2:]
+	// nolint:gosec // we ignore the MinVersion validation because it's not a security issue
 	config := &tls.Config{
 		RootCAs:    certPool,
 		ServerName: domain,

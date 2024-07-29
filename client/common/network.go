@@ -15,9 +15,9 @@ import (
 )
 
 const (
-	MainnetTokensListUrl = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json"
-	TestnetTokensListUrl = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json"
-	DevnetTokensListUrl  = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"
+	MainnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json" // nolint:gosec // not credentials, just the link to the public tokens list
+	TestnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json" // nolint:gosec // not credentials, just the link to the public tokens list
+	DevnetTokensListURL  = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"  // nolint:gosec // not credentials, just the link to the public tokens list
 )
 
 func cookieByName(cookies []*http.Cookie, key string) *http.Cookie {
@@ -66,7 +66,7 @@ func (assistant *ExpiringCookieAssistant) initializeCookie(provider MetadataProv
 }
 
 func (assistant *ExpiringCookieAssistant) checkCookieExpiration() {
-	//borrow http request to parse cookie
+	// borrow http request to parse cookie
 	header := http.Header{}
 	header.Add("Cookie", assistant.cookie)
 	request := http.Request{Header: header}
@@ -190,21 +190,21 @@ type Network struct {
 	TmEndpoint              string
 	ChainGrpcEndpoint       string
 	ChainStreamGrpcEndpoint string
-	ChainTlsCert            credentials.TransportCredentials
+	ChainTLSCert            credentials.TransportCredentials
 	ExchangeGrpcEndpoint    string
 	ExplorerGrpcEndpoint    string
-	ExchangeTlsCert         credentials.TransportCredentials
-	ExplorerTlsCert         credentials.TransportCredentials
+	ExchangeTLSCert         credentials.TransportCredentials
+	ExplorerTLSCert         credentials.TransportCredentials
 	ChainId                 string
 	FeeDenom                string
 	Name                    string
 	ChainCookieAssistant    CookieAssistant
 	ExchangeCookieAssistant CookieAssistant
 	ExplorerCookieAssistant CookieAssistant
-	OfficialTokensListUrl   string
+	OfficialTokensListURL   string
 }
 
-func LoadNetwork(name string, node string) Network {
+func LoadNetwork(name, node string) Network {
 	switch name {
 
 	case "local":
@@ -221,7 +221,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
-			OfficialTokensListUrl:   MainnetTokensListUrl,
+			OfficialTokensListURL:   MainnetTokensListURL,
 		}
 
 	case "devnet-1":
@@ -238,7 +238,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
-			OfficialTokensListUrl:   DevnetTokensListUrl,
+			OfficialTokensListURL:   DevnetTokensListURL,
 		}
 	case "devnet":
 		return Network{
@@ -254,7 +254,7 @@ func LoadNetwork(name string, node string) Network {
 			ChainCookieAssistant:    &DisabledCookieAssistant{},
 			ExchangeCookieAssistant: &DisabledCookieAssistant{},
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
-			OfficialTokensListUrl:   DevnetTokensListUrl,
+			OfficialTokensListURL:   DevnetTokensListURL,
 		}
 	case "testnet":
 		validNodes := []string{"lb", "sentry"}
@@ -263,7 +263,7 @@ func LoadNetwork(name string, node string) Network {
 		}
 
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, chainStreamGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
-		var chainTlsCert, exchangeTlsCert, explorerTlsCert credentials.TransportCredentials
+		var chainTLSCert, exchangeTLSCert, explorerTLSCert credentials.TransportCredentials
 		var chainCookieAssistant, exchangeCookieAssistant, explorerCookieAssistant CookieAssistant
 		if node == "lb" {
 			lcdEndpoint = "https://testnet.sentry.lcd.injective.network:443"
@@ -272,9 +272,9 @@ func LoadNetwork(name string, node string) Network {
 			chainStreamGrpcEndpoint = "testnet.sentry.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = "testnet.sentry.exchange.grpc.injective.network:443"
 			explorerGrpcEndpoint = "testnet.sentry.explorer.grpc.injective.network:443"
-			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
@@ -285,9 +285,9 @@ func LoadNetwork(name string, node string) Network {
 			chainStreamGrpcEndpoint = "testnet.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = "testnet.exchange.grpc.injective.network:443"
 			explorerGrpcEndpoint = "testnet.explorer.grpc.injective.network:443"
-			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			chainCookieAssistant = &DisabledCookieAssistant{}
 			exchangeCookieAssistant = &DisabledCookieAssistant{}
 			explorerCookieAssistant = &DisabledCookieAssistant{}
@@ -298,18 +298,18 @@ func LoadNetwork(name string, node string) Network {
 			TmEndpoint:              tmEndpoint,
 			ChainGrpcEndpoint:       chainGrpcEndpoint,
 			ChainStreamGrpcEndpoint: chainStreamGrpcEndpoint,
-			ChainTlsCert:            chainTlsCert,
+			ChainTLSCert:            chainTLSCert,
 			ExchangeGrpcEndpoint:    exchangeGrpcEndpoint,
-			ExchangeTlsCert:         exchangeTlsCert,
+			ExchangeTLSCert:         exchangeTLSCert,
 			ExplorerGrpcEndpoint:    explorerGrpcEndpoint,
-			ExplorerTlsCert:         explorerTlsCert,
+			ExplorerTLSCert:         explorerTLSCert,
 			ChainId:                 "injective-888",
 			FeeDenom:                "inj",
 			Name:                    "testnet",
 			ChainCookieAssistant:    chainCookieAssistant,
 			ExchangeCookieAssistant: exchangeCookieAssistant,
 			ExplorerCookieAssistant: explorerCookieAssistant,
-			OfficialTokensListUrl:   TestnetTokensListUrl,
+			OfficialTokensListURL:   TestnetTokensListURL,
 		}
 	case "mainnet":
 		validNodes := []string{"lb"}
@@ -317,7 +317,7 @@ func LoadNetwork(name string, node string) Network {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, chainStreamGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
-		var chainTlsCert, exchangeTlsCert, explorerTlsCert credentials.TransportCredentials
+		var chainTLSCert, exchangeTLSCert, explorerTLSCert credentials.TransportCredentials
 		var chainCookieAssistant, exchangeCookieAssistant, explorerCookieAssistant CookieAssistant
 
 		lcdEndpoint = "https://sentry.lcd.injective.network"
@@ -326,9 +326,9 @@ func LoadNetwork(name string, node string) Network {
 		chainStreamGrpcEndpoint = "sentry.chain.stream.injective.network:443"
 		exchangeGrpcEndpoint = "sentry.exchange.grpc.injective.network:443"
 		explorerGrpcEndpoint = "sentry.explorer.grpc.injective.network:443"
-		chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-		exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-		explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+		explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 		chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 		exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 		explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
@@ -338,18 +338,18 @@ func LoadNetwork(name string, node string) Network {
 			TmEndpoint:              tmEndpoint,
 			ChainGrpcEndpoint:       chainGrpcEndpoint,
 			ChainStreamGrpcEndpoint: chainStreamGrpcEndpoint,
-			ChainTlsCert:            chainTlsCert,
+			ChainTLSCert:            chainTLSCert,
 			ExchangeGrpcEndpoint:    exchangeGrpcEndpoint,
-			ExchangeTlsCert:         exchangeTlsCert,
+			ExchangeTLSCert:         exchangeTLSCert,
 			ExplorerGrpcEndpoint:    explorerGrpcEndpoint,
-			ExplorerTlsCert:         explorerTlsCert,
+			ExplorerTLSCert:         explorerTLSCert,
 			ChainId:                 "injective-1",
 			FeeDenom:                "inj",
 			Name:                    "mainnet",
 			ChainCookieAssistant:    chainCookieAssistant,
 			ExchangeCookieAssistant: exchangeCookieAssistant,
 			ExplorerCookieAssistant: explorerCookieAssistant,
-			OfficialTokensListUrl:   MainnetTokensListUrl,
+			OfficialTokensListURL:   MainnetTokensListURL,
 		}
 
 	default:
@@ -364,7 +364,7 @@ func NewNetwork() Network {
 		ChainCookieAssistant:    &DisabledCookieAssistant{},
 		ExchangeCookieAssistant: &DisabledCookieAssistant{},
 		ExplorerCookieAssistant: &DisabledCookieAssistant{},
-		OfficialTokensListUrl:   MainnetTokensListUrl,
+		OfficialTokensListURL:   MainnetTokensListURL,
 	}
 }
 
@@ -392,8 +392,8 @@ func Connect(protoAddr string) (net.Conn, error) {
 // ProtocolAndAddress splits an address into the protocol and address components.
 // For instance, "tcp://127.0.0.1:8080" will be split into "tcp" and "127.0.0.1:8080".
 // If the address has no protocol prefix, the default is "tcp".
-func ProtocolAndAddress(listenAddr string) (string, string) {
-	protocol, address := "tcp", listenAddr
+func ProtocolAndAddress(listenAddr string) (protocol, address string) {
+	protocol, address = "tcp", listenAddr
 	parts := strings.SplitN(address, "://", 2)
 	if len(parts) == 2 {
 		protocol, address = parts[0], parts[1]

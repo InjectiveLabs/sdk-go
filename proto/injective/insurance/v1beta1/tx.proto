@@ -7,11 +7,13 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "injective/insurance/v1beta1/insurance.proto";
 import "injective/oracle/v1beta1/oracle.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
 
 // Msg defines the insurance Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
 
   // CreateInsuranceFund defines a method for creating an insurance fund
   rpc CreateInsuranceFund(MsgCreateInsuranceFund)
@@ -32,6 +34,7 @@ service Msg {
 // MsgCreateInsuranceFund a message to create an insurance fund for a derivative
 // market.
 message MsgCreateInsuranceFund {
+  option (amino.name) = "insurance/MsgCreateInsuranceFund";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -63,6 +66,7 @@ message MsgCreateInsuranceFundResponse {}
 // MsgUnderwrite defines a message for depositing coins to underwrite an
 // insurance fund
 message MsgUnderwrite {
+  option (amino.name) = "insurance/MsgUnderwrite";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -81,6 +85,7 @@ message MsgUnderwriteResponse {}
 // MsgRequestRedemption defines a message for requesting a redemption of the
 // sender's insurance fund tokens
 message MsgRequestRedemption {
+  option (amino.name) = "insurance/MsgRequestRedemption";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -97,6 +102,7 @@ message MsgRequestRedemption {
 message MsgRequestRedemptionResponse {}
 
 message MsgUpdateParams {
+  option (amino.name) = "insurance/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.

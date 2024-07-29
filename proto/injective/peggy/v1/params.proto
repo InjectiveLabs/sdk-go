@@ -3,6 +3,7 @@ package injective.peggy.v1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
 
@@ -90,6 +91,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // bootstrapping.
 
 message Params {
+  option (amino.name) = "peggy/Params";
   option (gogoproto.stringer) = false;
 
   string peggy_id = 1;
@@ -103,24 +105,24 @@ message Params {
   uint64 average_block_time = 9;
   uint64 average_ethereum_block_time = 10;
   bytes slash_fraction_valset = 11 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   bytes slash_fraction_batch = 12 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   bytes slash_fraction_claim = 13 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   bytes slash_fraction_conflicting_claim = 14 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   uint64 unbond_slashing_valsets_window = 15;
   bytes slash_fraction_bad_eth_signature = 16 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string cosmos_coin_denom = 17;
@@ -129,4 +131,6 @@ message Params {
   uint64 bridge_contract_start_height = 20;
 
   cosmos.base.v1beta1.Coin valset_reward = 21 [ (gogoproto.nullable) = false ];
+
+  repeated string admins = 22;
 }

@@ -111,7 +111,7 @@ func main() {
 
 	fmt.Println("simulated order hash", msgCreateSpotMarketOrderResponse.OrderHash)
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {

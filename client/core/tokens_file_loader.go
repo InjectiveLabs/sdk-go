@@ -46,14 +46,14 @@ func (tm TokenMetadata) GetUpdatedAt() int64 {
 }
 
 // LoadTokens loads tokens from the given file URL
-func LoadTokens(tokensFileUrl string) ([]TokenMetadata, error) {
+func LoadTokens(tokensFileURL string) ([]TokenMetadata, error) {
 	var tokensMetadata []TokenMetadata
-	response, err := http.Get(tokensFileUrl)
+	response, err := http.Get(tokensFileURL) // nolint:gosec // we want the URL to be parameterizable
 	if err != nil {
 		return tokensMetadata, err
 	}
 	if 400 <= response.StatusCode {
-		return tokensMetadata, fmt.Errorf("failed to load tokens from %s: %s", tokensFileUrl, response.Status)
+		return tokensMetadata, fmt.Errorf("failed to load tokens from %s: %s", tokensFileURL, response.Status)
 	}
 	defer response.Body.Close()
 
