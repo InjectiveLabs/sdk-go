@@ -26,6 +26,8 @@ type InjectiveCampaignRPCClient interface {
 	Ranking(ctx context.Context, in *RankingRequest, opts ...grpc.CallOption) (*RankingResponse, error)
 	// List current round active campaigns
 	Campaigns(ctx context.Context, in *CampaignsRequest, opts ...grpc.CallOption) (*CampaignsResponse, error)
+	// List campaigns v2
+	CampaignsV2(ctx context.Context, in *CampaignsV2Request, opts ...grpc.CallOption) (*CampaignsV2Response, error)
 	// List guilds by campaign
 	ListGuilds(ctx context.Context, in *ListGuildsRequest, opts ...grpc.CallOption) (*ListGuildsResponse, error)
 	// List guild members of given campaign and guildId
@@ -54,6 +56,15 @@ func (c *injectiveCampaignRPCClient) Ranking(ctx context.Context, in *RankingReq
 func (c *injectiveCampaignRPCClient) Campaigns(ctx context.Context, in *CampaignsRequest, opts ...grpc.CallOption) (*CampaignsResponse, error) {
 	out := new(CampaignsResponse)
 	err := c.cc.Invoke(ctx, "/injective_campaign_rpc.InjectiveCampaignRPC/Campaigns", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveCampaignRPCClient) CampaignsV2(ctx context.Context, in *CampaignsV2Request, opts ...grpc.CallOption) (*CampaignsV2Response, error) {
+	out := new(CampaignsV2Response)
+	err := c.cc.Invoke(ctx, "/injective_campaign_rpc.InjectiveCampaignRPC/CampaignsV2", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,6 +106,8 @@ type InjectiveCampaignRPCServer interface {
 	Ranking(context.Context, *RankingRequest) (*RankingResponse, error)
 	// List current round active campaigns
 	Campaigns(context.Context, *CampaignsRequest) (*CampaignsResponse, error)
+	// List campaigns v2
+	CampaignsV2(context.Context, *CampaignsV2Request) (*CampaignsV2Response, error)
 	// List guilds by campaign
 	ListGuilds(context.Context, *ListGuildsRequest) (*ListGuildsResponse, error)
 	// List guild members of given campaign and guildId
@@ -113,6 +126,9 @@ func (UnimplementedInjectiveCampaignRPCServer) Ranking(context.Context, *Ranking
 }
 func (UnimplementedInjectiveCampaignRPCServer) Campaigns(context.Context, *CampaignsRequest) (*CampaignsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Campaigns not implemented")
+}
+func (UnimplementedInjectiveCampaignRPCServer) CampaignsV2(context.Context, *CampaignsV2Request) (*CampaignsV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CampaignsV2 not implemented")
 }
 func (UnimplementedInjectiveCampaignRPCServer) ListGuilds(context.Context, *ListGuildsRequest) (*ListGuildsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListGuilds not implemented")
@@ -168,6 +184,24 @@ func _InjectiveCampaignRPC_Campaigns_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveCampaignRPCServer).Campaigns(ctx, req.(*CampaignsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveCampaignRPC_CampaignsV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CampaignsV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveCampaignRPCServer).CampaignsV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_campaign_rpc.InjectiveCampaignRPC/CampaignsV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveCampaignRPCServer).CampaignsV2(ctx, req.(*CampaignsV2Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -240,6 +274,10 @@ var InjectiveCampaignRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Campaigns",
 			Handler:    _InjectiveCampaignRPC_Campaigns_Handler,
+		},
+		{
+			MethodName: "CampaignsV2",
+			Handler:    _InjectiveCampaignRPC_CampaignsV2_Handler,
 		},
 		{
 			MethodName: "ListGuilds",

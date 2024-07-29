@@ -21,7 +21,7 @@ message EventBatchDerivativeExecution {
   bool is_liquidation = 3;
   // nil for time expiry futures
   string cumulative_funding = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   ExecutionType executionType = 5;
@@ -32,11 +32,11 @@ message EventLostFundsFromLiquidation {
   string market_id = 1;
   bytes subaccount_id = 2;
   string lost_funds_from_available_during_payout = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string lost_funds_from_order_cancels = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -107,11 +107,11 @@ message EventPerpetualMarketFundingUpdate {
   PerpetualMarketFunding funding = 2 [ (gogoproto.nullable) = false ];
   bool is_hourly_funding = 3;
   string funding_rate = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   string mark_price = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 }
@@ -139,7 +139,7 @@ message EventBatchDepositUpdate { repeated DepositUpdate deposit_updates = 1; }
 message DerivativeMarketOrderCancel {
   DerivativeMarketOrder market_order = 1 [ (gogoproto.nullable) = true ];
   string cancel_quantity = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -182,12 +182,14 @@ message EventConditionalDerivativeOrderTrigger {
   bool isLimitTrigger = 2;
   bytes triggered_order_hash = 3;
   bytes placed_order_hash = 4;
+  string triggered_order_cid = 5;
 }
 
 message EventOrderFail {
   bytes account = 1;
   repeated bytes hashes = 2;
   repeated uint32 flags = 3;
+  repeated string cids = 4;
 }
 
 message EventAtomicMarketOrderFeeMultipliersUpdated {
@@ -208,4 +210,31 @@ message Orderbook {
   bytes market_id = 1;
   repeated Level buy_levels = 2;
   repeated Level sell_levels = 3;
+}
+
+message EventGrantAuthorizations {
+  string granter = 1;
+  repeated GrantAuthorization grants = 2;
+}
+
+message EventGrantActivation {
+  string grantee = 1;
+  string granter = 2;
+  string amount = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventInvalidGrant {
+  string grantee = 1;
+  string granter = 2;
+}
+
+message EventOrderCancelFail {
+  string market_id = 1;
+  string subaccount_id = 2;
+  string order_hash = 3;
+  string cid = 4;
+  string description = 5;
 }

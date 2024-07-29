@@ -19,4 +19,7 @@ message GenesisState {
 
   // auction ending timestamp
   int64 auction_ending_timestamp = 4;
+
+  // last auction result
+  LastAuctionResult last_auction_result = 5;
 }

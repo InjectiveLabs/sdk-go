@@ -8,6 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+
+	injcodectypes "github.com/InjectiveLabs/sdk-go/chain/codec/types"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/oracle interfaces and concrete types
@@ -76,7 +78,7 @@ var (
 	// defined at the application level.
 	// ModuleCdc = codec.NewAminoCodec(amino)
 
-	ModuleCdc = codec.NewProtoCodec(types.NewInterfaceRegistry())
+	ModuleCdc = codec.NewProtoCodec(injcodectypes.NewInterfaceRegistry())
 )
 
 func init() {

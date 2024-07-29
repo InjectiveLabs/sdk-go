@@ -17,6 +17,8 @@ service InjectiveCampaignRPC {
 	rpc Ranking (RankingRequest) returns (RankingResponse);
 	// List current round active campaigns
 	rpc Campaigns (CampaignsRequest) returns (CampaignsResponse);
+	// List campaigns v2
+	rpc CampaignsV2 (CampaignsV2Request) returns (CampaignsV2Response);
 	// List guilds by campaign
 	rpc ListGuilds (ListGuildsRequest) returns (ListGuildsResponse);
 	// List guild members of given campaign and guildId
@@ -78,6 +80,8 @@ message Campaign {
 	// Version of reward contract, UI use this to determine the message that need
 // to be sent
 	string version = 16;
+	// Campaign type
+	string type = 17;
 }
 
 message Coin {
@@ -132,12 +136,67 @@ message CampaignsRequest {
 	sint32 to_round_id = 3;
 	// Contract address that manages the round and reward
 	string contract_address = 4;
+	// Campaign type
+	string type = 5;
 }
 
 message CampaignsResponse {
 	repeated Campaign campaigns = 1;
 	repeated Coin accumulated_rewards = 2;
 	sint32 reward_count = 3;
+}
+
+message CampaignsV2Request {
+	// Campaign type
+	string type = 1;
+	// Whether the campaign is active
+	bool active = 2;
+	// Limit number of returned campaigns
+	sint32 limit = 3;
+	// Cursor for pagination
+	string cursor = 4;
+}
+
+message CampaignsV2Response {
+	repeated CampaignV2 campaigns = 1;
+	string cursor = 2;
+}
+
+message CampaignV2 {
+	string campaign_id = 1;
+	// MarketId of the trading strategy
+	string market_id = 2;
+	// Total campaign score
+	string total_score = 4;
+	// Campaign creation date in UNIX millis.
+	sint64 created_at = 5;
+	// Campaign last update date in UNIX millis.
+	sint64 updated_at = 6;
+	// Campaign start date in UNIX millis.
+	sint64 start_date = 7;
+	// Campaign end date in UNIX millis.
+	sint64 end_date = 8;
+	// Whether the campaign rewards can be claimed.
+	bool is_claimable = 9;
+	// Campaigns round ID
+	sint32 round_id = 10;
+	// Contract address that controls this campaign
+	string manager_contract = 11;
+	// Reward tokens of this campaign
+	repeated Coin rewards = 12;
+	// Suffix of the subaccount that eligible for volume score
+	string subaccount_id_suffix = 13;
+	// Contract that manage users reward
+	string reward_contract = 14;
+	// Campaign type
+	string type = 15;
+	// Version of reward contract, UI use this to determine the message that need
+// to be sent
+	string version = 16;
+	// Campaign name
+	string name = 17;
+	// Campaign description
+	string description = 18;
 }
 
 message ListGuildsRequest {

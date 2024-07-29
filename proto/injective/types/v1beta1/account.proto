@@ -14,8 +14,7 @@ message EthAccount {
   option (gogoproto.goproto_stringer) = false;
   option (gogoproto.equal) = false;
 
-  option (cosmos_proto.implements_interface) =
-      "github.com/cosmos/cosmos-sdk/x/auth/types.AccountI";
+  option (cosmos_proto.implements_interface) = "cosmos.auth.v1beta1.AccountI";
 
   cosmos.auth.v1beta1.BaseAccount base_account = 1 [
     (gogoproto.embed) = true,

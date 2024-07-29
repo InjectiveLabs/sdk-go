@@ -2,11 +2,14 @@ syntax = "proto3";
 package injective.wasmx.v1;
 
 import "gogoproto/gogo.proto";
+import "cosmwasm/wasm/v1/types.proto";
+import "amino/amino.proto";
 import "injective/wasmx/v1/proposal.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message Params {
+  option (amino.name) = "wasmx/Params";
   option (gogoproto.equal) = true;
 
   // Set the status to active to indicate that contracts can be executed in
@@ -24,6 +27,12 @@ message Params {
   // min_gas_price defines the minimum gas price the contracts must pay to be
   // executed in the BeginBlocker.
   uint64 min_gas_price = 4;
+
+  cosmwasm.wasm.v1.AccessConfig register_contract_access = 5 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.moretags) = "yaml:\"register_contract_access\""
+  ];
 }
 
 message RegisteredContract {

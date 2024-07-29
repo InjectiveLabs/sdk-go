@@ -56,6 +56,19 @@ service Query {
         "/injective/oracle/v1beta1/pyth_price_states";
   }
 
+  // Retrieves the state for all stork price feeds
+  rpc StorkPriceStates(QueryStorkPriceStatesRequest)
+      returns (QueryStorkPriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/stork_price_states";
+  }
+
+  // Retrieves all stork publishers
+  rpc StorkPublishers(QueryStorkPublishersRequest)
+      returns (QueryStorkPublishersResponse) {
+    option (google.api.http).get = "/injective/oracle/v1beta1/stork_publishers";
+  }
+
   // Retrieves the state for all provider price feeds
   rpc ProviderPriceState(QueryProviderPriceStateRequest)
       returns (QueryProviderPriceStateResponse) {
@@ -173,6 +186,24 @@ message QueryPythPriceStatesResponse {
   repeated PythPriceState price_states = 1;
 }
 
+// QueryStorkPriceStatesRequest is the request type for the
+// Query/StorkPriceStates RPC method.
+message QueryStorkPriceStatesRequest {}
+
+// QueryStorkPriceStatesResponse is the response type for the
+// Query/StorkPriceStates RPC method.
+message QueryStorkPriceStatesResponse {
+  repeated StorkPriceState price_states = 1;
+}
+
+// QueryStorkPublishersRequest is the request type for the
+// Query/StorkPublishers RPC method.
+message QueryStorkPublishersRequest {}
+
+// QueryStorkPublishersResponse is the response type for the
+// Query/StorkPublishers RPC method.
+message QueryStorkPublishersResponse { repeated string publishers = 1; }
+
 // QueryProviderPriceStateRequest is the request type for the
 // Query/ProviderPriceState RPC method.
 message QueryProviderPriceStateRequest {
@@ -226,7 +257,7 @@ message QueryOracleVolatilityRequest {
 // RPC method.
 message QueryOracleVolatilityResponse {
   string volatility = 1
-      [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec" ];
+      [ (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec" ];
   MetadataStatistics history_metadata = 2;
   repeated PriceRecord raw_history = 3;
 }
@@ -243,34 +274,43 @@ message QueryOracleProviderPricesResponse {
   repeated ProviderState providerState = 1;
 }
 
+// ScalingOptions defines optional configuration to avoid precision loss. The
+// oracle result will be returned as base_price * 10^base_decimals / quote_price
+// * 10^quote_decimals
+message ScalingOptions {
+  uint32 base_decimals = 1;
+  uint32 quote_decimals = 2;
+}
+
 // QueryOraclePriceRequest is the request type for the Query/OraclePrice RPC
 // method.
 message QueryOraclePriceRequest {
   OracleType oracle_type = 1;
   string base = 2;
   string quote = 3;
+  ScalingOptions scaling_options = 4 [ (gogoproto.nullable) = true ];
 }
 
 message PricePairState {
   string pair_price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string base_price = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string quote_price = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   string base_cumulative_price = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string quote_cumulative_price = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 

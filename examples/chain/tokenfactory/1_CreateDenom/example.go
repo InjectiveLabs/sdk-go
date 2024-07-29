@@ -59,6 +59,7 @@ func main() {
 	message.Subdenom = "inj_test"
 	message.Name = "Injective Test Token"
 	message.Symbol = "INJTEST"
+	message.Decimals = 18
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	response, err := chainClient.AsyncBroadcastMsg(message)
