@@ -60,9 +60,9 @@ func main() {
 	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
 	expireIn := time.Now().AddDate(1, 0, 0) // years months days
 
-	//GENERIC AUTHZ
-	//msgtype := "/injective.exchange.v1beta1.MsgCreateSpotLimitOrder"
-	//msg := chainClient.BuildGenericAuthz(granter, grantee, msgtype, expireIn)
+	// GENERIC AUTHZ
+	// msgtype := "/injective.exchange.v1beta1.MsgCreateSpotLimitOrder"
+	// msg := chainClient.BuildGenericAuthz(granter, grantee, msgtype, expireIn)
 
 	// TYPED AUTHZ
 	msg := chainClient.BuildExchangeAuthz(
@@ -74,7 +74,7 @@ func main() {
 		expireIn,
 	)
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {

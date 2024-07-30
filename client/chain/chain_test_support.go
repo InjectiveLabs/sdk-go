@@ -5,14 +5,17 @@ import (
 	"errors"
 	"time"
 
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	sdkmath "cosmossdk.io/math"
+
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
+	"google.golang.org/grpc"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -22,8 +25,12 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
-	"google.golang.org/grpc"
 )
 
 type MockChainClient struct {
@@ -46,7 +53,7 @@ func (c *MockChainClient) ClientContext() client.Context {
 	return client.Context{}
 }
 
-func (c *MockChainClient) GetAccNonce() (accNum uint64, accSeq uint64) {
+func (c *MockChainClient) GetAccNonce() (accNum, accSeq uint64) {
 	return 1, 2
 }
 
@@ -63,7 +70,7 @@ func (c *MockChainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastT
 }
 
 func (c *MockChainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msg ...sdk.Msg) ([]byte, error) {
-	return *new([]byte), nil
+	return []byte(nil), nil
 }
 
 func (c *MockChainClient) SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error) {
@@ -82,7 +89,7 @@ func (c *MockChainClient) GetBankBalances(ctx context.Context, address string) (
 	return &banktypes.QueryAllBalancesResponse{}, nil
 }
 
-func (c *MockChainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
+func (c *MockChainClient) GetBankBalance(ctx context.Context, address, denom string) (*banktypes.QueryBalanceResponse, error) {
 	return &banktypes.QueryBalanceResponse{}, nil
 }
 
@@ -90,7 +97,7 @@ func (c *MockChainClient) GetBankSpendableBalances(ctx context.Context, address 
 	return &banktypes.QuerySpendableBalancesResponse{}, nil
 }
 
-func (c *MockChainClient) GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error) {
+func (c *MockChainClient) GetBankSpendableBalancesByDenom(ctx context.Context, address, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error) {
 	return &banktypes.QuerySpendableBalanceByDenomResponse{}, nil
 }
 
@@ -137,11 +144,11 @@ func (c *MockChainClient) GetAccount(ctx context.Context, address string) (*auth
 	return &authtypes.QueryAccountResponse{}, nil
 }
 
-func (c *MockChainClient) BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant {
+func (c *MockChainClient) BuildGenericAuthz(granter, grantee, msgtype string, expireIn time.Time) *authztypes.MsgGrant {
 	return &authztypes.MsgGrant{}
 }
 
-func (c *MockChainClient) BuildExchangeAuthz(granter string, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant {
+func (c *MockChainClient) BuildExchangeAuthz(granter, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant {
 	return &authztypes.MsgGrant{}
 }
 
@@ -209,10 +216,10 @@ func (c *MockChainClient) StreamEventOrderFail(sender string, failEventCh chan m
 func (c *MockChainClient) StreamEventOrderFailWithWebsocket(sender string, websocket *rpchttp.HTTP, failEventCh chan map[string]uint) {
 }
 
-func (c *MockChainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook) {
+func (c *MockChainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIDs []string, orderbookCh chan exchangetypes.Orderbook) {
 }
 
-func (c *MockChainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIds []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook) {
+func (c *MockChainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIDs []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook) {
 }
 
 func (c *MockChainClient) ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error) {
@@ -277,7 +284,7 @@ func (c *MockChainClient) FetchContractsByCreator(ctx context.Context, creator s
 	return &wasmtypes.QueryContractsByCreatorResponse{}, nil
 }
 
-func (c *MockChainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
+func (c *MockChainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
 	return &tokenfactorytypes.QueryDenomAuthorityMetadataResponse{}, nil
 }
 
@@ -302,11 +309,11 @@ func (c *MockChainClient) FetchValidatorCommission(ctx context.Context, validato
 	return &distributiontypes.QueryValidatorCommissionResponse{}, nil
 }
 
-func (c *MockChainClient) FetchValidatorSlashes(ctx context.Context, validatorAddress string, startingHeight uint64, endingHeight uint64, pagination *query.PageRequest) (*distributiontypes.QueryValidatorSlashesResponse, error) {
+func (c *MockChainClient) FetchValidatorSlashes(ctx context.Context, validatorAddress string, startingHeight, endingHeight uint64, pagination *query.PageRequest) (*distributiontypes.QueryValidatorSlashesResponse, error) {
 	return &distributiontypes.QueryValidatorSlashesResponse{}, nil
 }
 
-func (c *MockChainClient) FetchDelegationRewards(ctx context.Context, delegatorAddress string, validatorAddress string) (*distributiontypes.QueryDelegationRewardsResponse, error) {
+func (c *MockChainClient) FetchDelegationRewards(ctx context.Context, delegatorAddress, validatorAddress string) (*distributiontypes.QueryDelegationRewardsResponse, error) {
 	return &distributiontypes.QueryDelegationRewardsResponse{}, nil
 }
 
@@ -331,7 +338,7 @@ func (c *MockChainClient) FetchSubaccountDeposits(ctx context.Context, subaccoun
 	return &exchangetypes.QuerySubaccountDepositsResponse{}, nil
 }
 
-func (c *MockChainClient) FetchSubaccountDeposit(ctx context.Context, subaccountId string, denom string) (*exchangetypes.QuerySubaccountDepositResponse, error) {
+func (c *MockChainClient) FetchSubaccountDeposit(ctx context.Context, subaccountId, denom string) (*exchangetypes.QuerySubaccountDepositResponse, error) {
 	return &exchangetypes.QuerySubaccountDepositResponse{}, nil
 }
 
@@ -343,7 +350,7 @@ func (c *MockChainClient) FetchAggregateVolume(ctx context.Context, account stri
 	return &exchangetypes.QueryAggregateVolumeResponse{}, nil
 }
 
-func (c *MockChainClient) FetchAggregateVolumes(ctx context.Context, accounts []string, marketIds []string) (*exchangetypes.QueryAggregateVolumesResponse, error) {
+func (c *MockChainClient) FetchAggregateVolumes(ctx context.Context, accounts, marketIDs []string) (*exchangetypes.QueryAggregateVolumesResponse, error) {
 	return &exchangetypes.QueryAggregateVolumesResponse{}, nil
 }
 
@@ -351,7 +358,7 @@ func (c *MockChainClient) FetchAggregateMarketVolume(ctx context.Context, market
 	return &exchangetypes.QueryAggregateMarketVolumeResponse{}, nil
 }
 
-func (c *MockChainClient) FetchAggregateMarketVolumes(ctx context.Context, marketIds []string) (*exchangetypes.QueryAggregateMarketVolumesResponse, error) {
+func (c *MockChainClient) FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangetypes.QueryAggregateMarketVolumesResponse, error) {
 	return &exchangetypes.QueryAggregateMarketVolumesResponse{}, nil
 }
 
@@ -363,7 +370,7 @@ func (c *MockChainClient) FetchDenomDecimals(ctx context.Context, denoms []strin
 	return &exchangetypes.QueryDenomDecimalsResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIds []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
+func (c *MockChainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
 	return &exchangetypes.QuerySpotMarketsResponse{}, nil
 }
 
@@ -371,7 +378,7 @@ func (c *MockChainClient) FetchChainSpotMarket(ctx context.Context, marketId str
 	return &exchangetypes.QuerySpotMarketResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainFullSpotMarkets(ctx context.Context, status string, marketIds []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error) {
+func (c *MockChainClient) FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error) {
 	return &exchangetypes.QueryFullSpotMarketsResponse{}, nil
 }
 
@@ -379,27 +386,27 @@ func (c *MockChainClient) FetchChainFullSpotMarket(ctx context.Context, marketId
 	return &exchangetypes.QueryFullSpotMarketResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdk.Dec, limitCumulativeQuantity sdk.Dec) (*exchangetypes.QuerySpotOrderbookResponse, error) {
+func (c *MockChainClient) FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangetypes.QuerySpotOrderbookResponse, error) {
 	return &exchangetypes.QuerySpotOrderbookResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainTraderSpotOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error) {
+func (c *MockChainClient) FetchChainTraderSpotOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error) {
 	return &exchangetypes.QueryTraderSpotOrdersResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainAccountAddressSpotOrders(ctx context.Context, marketId string, address string) (*exchangetypes.QueryAccountAddressSpotOrdersResponse, error) {
+func (c *MockChainClient) FetchChainAccountAddressSpotOrders(ctx context.Context, marketId, address string) (*exchangetypes.QueryAccountAddressSpotOrdersResponse, error) {
 	return &exchangetypes.QueryAccountAddressSpotOrdersResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainSpotOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangetypes.QuerySpotOrdersByHashesResponse, error) {
+func (c *MockChainClient) FetchChainSpotOrdersByHashes(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangetypes.QuerySpotOrdersByHashesResponse, error) {
 	return &exchangetypes.QuerySpotOrdersByHashesResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainSubaccountOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountOrdersResponse, error) {
+func (c *MockChainClient) FetchChainSubaccountOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountOrdersResponse, error) {
 	return &exchangetypes.QuerySubaccountOrdersResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainTraderSpotTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error) {
+func (c *MockChainClient) FetchChainTraderSpotTransientOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error) {
 	return &exchangetypes.QueryTraderSpotOrdersResponse{}, nil
 }
 
@@ -411,27 +418,27 @@ func (c *MockChainClient) FetchDerivativeMidPriceAndTOB(ctx context.Context, mar
 	return &exchangetypes.QueryDerivativeMidPriceAndTOBResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdk.Dec) (*exchangetypes.QueryDerivativeOrderbookResponse, error) {
+func (c *MockChainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangetypes.QueryDerivativeOrderbookResponse, error) {
 	return &exchangetypes.QueryDerivativeOrderbookResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainTraderDerivativeOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error) {
+func (c *MockChainClient) FetchChainTraderDerivativeOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error) {
 	return &exchangetypes.QueryTraderDerivativeOrdersResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainAccountAddressDerivativeOrders(ctx context.Context, marketId string, address string) (*exchangetypes.QueryAccountAddressDerivativeOrdersResponse, error) {
+func (c *MockChainClient) FetchChainAccountAddressDerivativeOrders(ctx context.Context, marketId, address string) (*exchangetypes.QueryAccountAddressDerivativeOrdersResponse, error) {
 	return &exchangetypes.QueryAccountAddressDerivativeOrdersResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainDerivativeOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangetypes.QueryDerivativeOrdersByHashesResponse, error) {
+func (c *MockChainClient) FetchChainDerivativeOrdersByHashes(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangetypes.QueryDerivativeOrdersByHashesResponse, error) {
 	return &exchangetypes.QueryDerivativeOrdersByHashesResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainTraderDerivativeTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error) {
+func (c *MockChainClient) FetchChainTraderDerivativeTransientOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error) {
 	return &exchangetypes.QueryTraderDerivativeOrdersResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIds []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
+func (c *MockChainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
 	return &exchangetypes.QueryDerivativeMarketsResponse{}, nil
 }
 
@@ -455,11 +462,11 @@ func (c *MockChainClient) FetchChainSubaccountPositions(ctx context.Context, sub
 	return &exchangetypes.QuerySubaccountPositionsResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
+func (c *MockChainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
 	return &exchangetypes.QuerySubaccountPositionInMarketResponse{}, nil
 }
 
-func (c *MockChainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error) {
+func (c *MockChainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error) {
 	return &exchangetypes.QuerySubaccountEffectivePositionInMarketResponse{}, nil
 }
 
@@ -539,10 +546,198 @@ func (c *MockChainClient) FetchChainBinaryOptionsMarkets(ctx context.Context, st
 	return &exchangetypes.QueryBinaryMarketsResponse{}, nil
 }
 
-func (c *MockChainClient) FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error) {
+func (c *MockChainClient) FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error) {
 	return &exchangetypes.QueryTraderDerivativeConditionalOrdersResponse{}, nil
 }
 
 func (c *MockChainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error) {
 	return &exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse{}, nil
+}
+
+// Tendermint module
+
+func (c *MockChainClient) FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error) {
+	return &cmtservice.GetNodeInfoResponse{}, nil
+}
+
+func (c *MockChainClient) FetchSyncing(ctx context.Context) (*cmtservice.GetSyncingResponse, error) {
+	return &cmtservice.GetSyncingResponse{}, nil
+}
+
+func (c *MockChainClient) FetchLatestBlock(ctx context.Context) (*cmtservice.GetLatestBlockResponse, error) {
+	return &cmtservice.GetLatestBlockResponse{}, nil
+}
+
+func (c *MockChainClient) FetchBlockByHeight(ctx context.Context, height int64) (*cmtservice.GetBlockByHeightResponse, error) {
+	return &cmtservice.GetBlockByHeightResponse{}, nil
+}
+
+func (c *MockChainClient) FetchLatestValidatorSet(ctx context.Context) (*cmtservice.GetLatestValidatorSetResponse, error) {
+	return &cmtservice.GetLatestValidatorSetResponse{}, nil
+}
+
+func (c *MockChainClient) FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*cmtservice.GetValidatorSetByHeightResponse, error) {
+	return &cmtservice.GetValidatorSetByHeightResponse{}, nil
+}
+
+func (c *MockChainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*cmtservice.ABCIQueryResponse, error) {
+	return &cmtservice.ABCIQueryResponse{}, nil
+}
+
+// IBC Transfer module
+func (c *MockChainClient) FetchDenomTrace(ctx context.Context, hash string) (*ibctransfertypes.QueryDenomTraceResponse, error) {
+	return &ibctransfertypes.QueryDenomTraceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomTraces(ctx context.Context, pagination *query.PageRequest) (*ibctransfertypes.QueryDenomTracesResponse, error) {
+	return &ibctransfertypes.QueryDenomTracesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomHash(ctx context.Context, trace string) (*ibctransfertypes.QueryDenomHashResponse, error) {
+	return &ibctransfertypes.QueryDenomHashResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEscrowAddress(ctx context.Context, portId, channelId string) (*ibctransfertypes.QueryEscrowAddressResponse, error) {
+	return &ibctransfertypes.QueryEscrowAddressResponse{}, nil
+}
+
+func (c *MockChainClient) FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error) {
+	return &ibctransfertypes.QueryTotalEscrowForDenomResponse{}, nil
+}
+
+// IBC Core Channel module
+func (c *MockChainClient) FetchIBCChannel(ctx context.Context, portId, channelId string) (*ibcchanneltypes.QueryChannelResponse, error) {
+	return &ibcchanneltypes.QueryChannelResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCChannels(ctx context.Context, pagination *query.PageRequest) (*ibcchanneltypes.QueryChannelsResponse, error) {
+	return &ibcchanneltypes.QueryChannelsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnectionChannels(ctx context.Context, connection string, pagination *query.PageRequest) (*ibcchanneltypes.QueryConnectionChannelsResponse, error) {
+	return &ibcchanneltypes.QueryConnectionChannelsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCChannelClientState(ctx context.Context, portId, channelId string) (*ibcchanneltypes.QueryChannelClientStateResponse, error) {
+	return &ibcchanneltypes.QueryChannelClientStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCChannelConsensusState(ctx context.Context, portId, channelId string, revisionNumber, revisionHeight uint64) (*ibcchanneltypes.QueryChannelConsensusStateResponse, error) {
+	return &ibcchanneltypes.QueryChannelConsensusStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketCommitment(ctx context.Context, portId, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketCommitmentResponse, error) {
+	return &ibcchanneltypes.QueryPacketCommitmentResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketCommitments(ctx context.Context, portId, channelId string, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketCommitmentsResponse, error) {
+	return &ibcchanneltypes.QueryPacketCommitmentsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketReceipt(ctx context.Context, portId, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketReceiptResponse, error) {
+	return &ibcchanneltypes.QueryPacketReceiptResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketAcknowledgement(ctx context.Context, portId, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketAcknowledgementResponse, error) {
+	return &ibcchanneltypes.QueryPacketAcknowledgementResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCPacketAcknowledgements(ctx context.Context, portId, channelId string, packetCommitmentSequences []uint64, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketAcknowledgementsResponse, error) {
+	return &ibcchanneltypes.QueryPacketAcknowledgementsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCUnreceivedPackets(ctx context.Context, portId, channelId string, packetCommitmentSequences []uint64) (*ibcchanneltypes.QueryUnreceivedPacketsResponse, error) {
+	return &ibcchanneltypes.QueryUnreceivedPacketsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCUnreceivedAcks(ctx context.Context, portId, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error) {
+	return &ibcchanneltypes.QueryUnreceivedAcksResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCNextSequenceReceive(ctx context.Context, portId, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error) {
+	return &ibcchanneltypes.QueryNextSequenceReceiveResponse{}, nil
+}
+
+// IBC Core Chain module
+func (c *MockChainClient) FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error) {
+	return &ibcclienttypes.QueryClientStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCClientStates(ctx context.Context, pagination *query.PageRequest) (*ibcclienttypes.QueryClientStatesResponse, error) {
+	return &ibcclienttypes.QueryClientStatesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConsensusState(ctx context.Context, clientId string, revisionNumber, revisionHeight uint64, latestHeight bool) (*ibcclienttypes.QueryConsensusStateResponse, error) {
+	return &ibcclienttypes.QueryConsensusStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConsensusStates(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStatesResponse, error) {
+	return &ibcclienttypes.QueryConsensusStatesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConsensusStateHeights(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStateHeightsResponse, error) {
+	return &ibcclienttypes.QueryConsensusStateHeightsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCClientStatus(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStatusResponse, error) {
+	return &ibcclienttypes.QueryClientStatusResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCClientParams(ctx context.Context) (*ibcclienttypes.QueryClientParamsResponse, error) {
+	return &ibcclienttypes.QueryClientParamsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCUpgradedClientState(ctx context.Context) (*ibcclienttypes.QueryUpgradedClientStateResponse, error) {
+	return &ibcclienttypes.QueryUpgradedClientStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error) {
+	return &ibcclienttypes.QueryUpgradedConsensusStateResponse{}, nil
+}
+
+// IBC Core Connection module
+func (c *MockChainClient) FetchIBCConnection(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnections(ctx context.Context, pagination *query.PageRequest) (*ibcconnectiontypes.QueryConnectionsResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCClientConnections(ctx context.Context, clientId string) (*ibcconnectiontypes.QueryClientConnectionsResponse, error) {
+	return &ibcconnectiontypes.QueryClientConnectionsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnectionClientState(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionClientStateResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionClientStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnectionConsensusState(ctx context.Context, connectionId string, revisionNumber, revisionHeight uint64) (*ibcconnectiontypes.QueryConnectionConsensusStateResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionConsensusStateResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error) {
+	return &ibcconnectiontypes.QueryConnectionParamsResponse{}, nil
+}
+
+// Permissions module
+
+func (c *MockChainClient) FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error) {
+	return &permissionstypes.QueryAllNamespacesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error) {
+	return &permissionstypes.QueryNamespaceByDenomResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error) {
+	return &permissionstypes.QueryAddressRolesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error) {
+	return &permissionstypes.QueryAddressesByRoleResponse{}, nil
+}
+
+func (c *MockChainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
+	return &permissionstypes.QueryVouchersForAddressResponse{}, nil
 }

@@ -3,6 +3,7 @@ package injective.permissions.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "injective/permissions/v1beta1/params.proto";
 import "injective/permissions/v1beta1/genesis.proto";
@@ -108,4 +109,10 @@ message QueryAddressRolesResponse { repeated string roles = 1; }
 
 message QueryVouchersForAddressRequest { string address = 1; }
 
-message QueryVouchersForAddressResponse { map<string, Voucher> vouchers = 1; }
+message QueryVouchersForAddressResponse {
+  repeated cosmos.base.v1beta1.Coin vouchers = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.jsontag) = "vouchers,omitempty"
+  ];
+}

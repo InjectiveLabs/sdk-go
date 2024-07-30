@@ -54,6 +54,6 @@ var (
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.
-func WrapMaxError(err error, got, max int) error {
-	return errors.Wrapf(err, "got: %d, max: %d", got, max)
+func WrapMaxError(err error, got, maximum int) error {
+	return errors.Wrapf(err, "got: %d, maximum: %d", got, maximum)
 }

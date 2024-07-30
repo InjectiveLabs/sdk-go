@@ -2,6 +2,7 @@ package types
 
 import (
 	"cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -10,7 +11,7 @@ func NewMarketOrderForLiquidation(
 	position *Position,
 	positionSubaccountID common.Hash,
 	liquidator sdk.AccAddress,
-	worstPrice sdk.Dec,
+	worstPrice math.LegacyDec,
 ) *DerivativeMarketOrder {
 	var (
 		orderType OrderType
@@ -32,8 +33,8 @@ func NewMarketOrderForLiquidation(
 			Quantity:     position.Quantity,
 		},
 		OrderType:    orderType,
-		Margin:       sdk.ZeroDec(),
-		MarginHold:   sdk.ZeroDec(),
+		Margin:       math.LegacyZeroDec(),
+		MarginHold:   math.LegacyZeroDec(),
 		TriggerPrice: nil,
 	}
 
@@ -48,6 +49,7 @@ func (m *DerivativeLimitOrder) ToTrimmed() *TrimmedDerivativeLimitOrder {
 		Fillable:  m.Fillable,
 		IsBuy:     m.IsBuy(),
 		OrderHash: common.BytesToHash(m.OrderHash).Hex(),
+		Cid:       m.Cid(),
 	}
 }
 
@@ -57,18 +59,18 @@ func (o *DerivativeMarketOrderCancel) GetCancelDepositDelta() *DepositDelta {
 	if order.IsVanilla() && o.CancelQuantity.Equal(order.OrderInfo.Quantity) {
 		return &DepositDelta{
 			AvailableBalanceDelta: order.MarginHold,
-			TotalBalanceDelta:     sdk.ZeroDec(),
+			TotalBalanceDelta:     math.LegacyZeroDec(),
 		}
 	}
 	// TODO: double check that partial market order executions are covered earlier upstream
 	return nil
 }
 
-func (o *DerivativeMarketOrder) GetCancelRefundAmount() sdk.Dec {
+func (o *DerivativeMarketOrder) GetCancelRefundAmount() math.LegacyDec {
 	if o.IsVanilla() {
 		return o.MarginHold
 	}
-	return sdk.ZeroDec()
+	return math.LegacyZeroDec()
 }
 
 func (o *DerivativeMarketOrderCancel) ApplyDerivativeMarketCancellation(
@@ -93,7 +95,7 @@ func NewDerivativeMarketOrder(o *DerivativeOrder, sender sdk.AccAddress, orderHa
 		OrderInfo:    o.OrderInfo,
 		OrderType:    o.OrderType,
 		Margin:       o.Margin,
-		MarginHold:   sdk.ZeroDec(),
+		MarginHold:   math.LegacyZeroDec(),
 		TriggerPrice: o.TriggerPrice,
 		OrderHash:    orderHash.Bytes(),
 	}
@@ -132,7 +134,7 @@ func (o *DerivativeMarketOrder) ToDerivativeOrder(marketID string) *DerivativeOr
 	}
 }
 
-func (o *DerivativeLimitOrder) HasEqualOrWorsePrice(price sdk.Dec) bool {
+func (o *DerivativeLimitOrder) HasEqualOrWorsePrice(price math.LegacyDec) bool {
 	// the buy order has a worse price than the input price if it's less than
 	if o.IsBuy() {
 		return o.Price().LTE(price)
@@ -140,7 +142,7 @@ func (o *DerivativeLimitOrder) HasEqualOrWorsePrice(price sdk.Dec) bool {
 	return o.Price().GTE(price)
 }
 
-func (o *DerivativeMarketOrder) HasEqualOrWorsePrice(price sdk.Dec) bool {
+func (o *DerivativeMarketOrder) HasEqualOrWorsePrice(price math.LegacyDec) bool {
 	// the buy order has a worse price than the input price if it's less than
 	if o.IsBuy() {
 		return o.Price().LTE(price)
@@ -148,7 +150,7 @@ func (o *DerivativeMarketOrder) HasEqualOrWorsePrice(price sdk.Dec) bool {
 	return o.Price().GTE(price)
 }
 
-func ResizeReduceOnlyOrder(o IMutableDerivativeOrder, newQuantity sdk.Dec) error {
+func ResizeReduceOnlyOrder(o IMutableDerivativeOrder, newQuantity math.LegacyDec) error {
 	if o.IsVanilla() {
 		return ErrOrderInvalid.Wrap("ResizeReduceOnlyOrder should only be used for reduce only orders!")
 	}
@@ -163,7 +165,7 @@ func ResizeReduceOnlyOrder(o IMutableDerivativeOrder, newQuantity sdk.Dec) error
 }
 
 func (o *DerivativeMarketOrder) ResizeReduceOnlyOrder(
-	newQuantity sdk.Dec,
+	newQuantity math.LegacyDec,
 	oracleScaleFactor uint32,
 	isBinaryOptionsOrder bool,
 ) {
@@ -185,38 +187,38 @@ func (o *DerivativeMarketOrder) ResizeReduceOnlyOrder(
 	}
 }
 
-func (o *DerivativeLimitOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) sdk.Dec {
+func (o *DerivativeLimitOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) math.LegacyDec {
 	// Margin = Price * Quantity for buys
 	if o.IsBuy() {
 		notional := o.Price().Mul(o.OrderInfo.Quantity)
 		return notional
 	}
 	// Margin = (scaled(1) - Price) * Quantity for sells
-	return o.OrderInfo.Quantity.Mul(GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(o.Price()))
+	return o.OrderInfo.Quantity.Mul(GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor).Sub(o.Price()))
 }
 
-func (o *DerivativeMarketOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) sdk.Dec {
+func (o *DerivativeMarketOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) math.LegacyDec {
 	// Margin = Price * Quantity for buys
 	if o.IsBuy() {
 		notional := o.Price().Mul(o.OrderInfo.Quantity)
 		return notional
 	}
 	// Margin = (scaled(1) - Price) * Quantity for sells
-	return o.OrderInfo.Quantity.Mul(GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(o.Price()))
+	return o.OrderInfo.Quantity.Mul(GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor).Sub(o.Price()))
 }
 
-func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate sdk.Dec) *DepositDelta {
+func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate math.LegacyDec) *DepositDelta {
 	return &DepositDelta{
 		AvailableBalanceDelta: o.GetCancelRefundAmount(feeRate),
-		TotalBalanceDelta:     sdk.ZeroDec(),
+		TotalBalanceDelta:     math.LegacyZeroDec(),
 	}
 }
 
-func (o *DerivativeLimitOrder) GetCancelRefundAmount(feeRate sdk.Dec) sdk.Dec {
-	marginHoldRefund := sdk.ZeroDec()
+func (o *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) math.LegacyDec {
+	marginHoldRefund := math.LegacyZeroDec()
 	if o.IsVanilla() {
 		// negative fees are only accounted for upon matching
-		positiveFeePart := sdk.MaxDec(sdk.ZeroDec(), feeRate)
+		positiveFeePart := math.LegacyMaxDec(math.LegacyZeroDec(), feeRate)
 		//nolint:all
 		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
 		notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
@@ -225,45 +227,48 @@ func (o *DerivativeLimitOrder) GetCancelRefundAmount(feeRate sdk.Dec) sdk.Dec {
 	return marginHoldRefund
 }
 
-func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize sdk.Dec) error {
+func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
 	if BreachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
 		return errors.Wrapf(ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
 	}
 	if BreachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
 		return errors.Wrapf(ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
 	}
-	if !o.Margin.IsZero() {
-		if BreachesMinimumTickSize(o.Margin, minQuantityTickSize) {
-			return errors.Wrapf(ErrInvalidMargin, "margin %s must be a multiple of the minimum quantity tick size %s", o.Margin.String(), minQuantityTickSize.String())
-		}
+	return nil
+}
+
+func (o *DerivativeOrder) CheckNotional(minNotional math.LegacyDec) error {
+	orderNotional := o.GetQuantity().Mul(o.GetPrice())
+	if !minNotional.IsNil() && orderNotional.LT(minNotional) {
+		return errors.Wrapf(ErrInvalidNotional, "order notional (%s) is less than the minimum notional for the market (%s)", orderNotional.String(), minNotional.String())
 	}
 	return nil
 }
 
-func GetScaledPrice(price sdk.Dec, scaleFactor uint32) sdk.Dec {
-	return price.Mul(sdk.NewDec(10).Power(uint64(scaleFactor)))
+func GetScaledPrice(price math.LegacyDec, scaleFactor uint32) math.LegacyDec {
+	return price.Mul(math.LegacyNewDec(10).Power(uint64(scaleFactor)))
 }
 
-func (o *DerivativeOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) sdk.Dec {
+func (o *DerivativeOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) math.LegacyDec {
 	// Margin = Price * Quantity for buys
 	if o.IsBuy() {
 		notional := o.Price().Mul(o.OrderInfo.Quantity)
 		return notional
 	}
 	// Margin = (scaled(1) - Price) * Quantity for sells
-	return o.OrderInfo.Quantity.Mul(GetScaledPrice(sdk.OneDec(), oracleScaleFactor).Sub(o.Price()))
+	return o.OrderInfo.Quantity.Mul(GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor).Sub(o.Price()))
 }
 
-func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, executionMarkPrice, feeRate sdk.Dec, marketType MarketType, oracleScaleFactor uint32) (marginHold sdk.Dec, err error) {
+func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, executionMarkPrice, feeRate math.LegacyDec, marketType MarketType, oracleScaleFactor uint32) (marginHold math.LegacyDec, err error) {
 	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-	positiveFeeRatePart := sdk.MaxDec(feeRate, sdk.ZeroDec())
+	positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
 	feeAmount := notional.Mul(positiveFeeRatePart)
 
 	marginHold = o.Margin.Add(feeAmount)
 	if marketType == MarketType_BinaryOption {
 		requiredMargin := o.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
 		if !o.Margin.Equal(requiredMargin) {
-			return sdk.Dec{}, errors.Wrapf(ErrInsufficientOrderMargin, "margin check: need %s but got %s", requiredMargin.String(), o.Margin.String())
+			return math.LegacyDec{}, errors.Wrapf(ErrInsufficientMargin, "margin check: need %s but got %s", requiredMargin.String(), o.Margin.String())
 		}
 		return marginHold, nil
 	}
@@ -271,31 +276,34 @@ func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, execut
 	// For perpetual and expiry futures margins
 	// Enforce that Margin ≥ InitialMarginRatio * Price * Quantity
 	if o.Margin.LT(initialMarginRatio.Mul(notional)) {
-		return sdk.Dec{}, errors.Wrapf(ErrInsufficientOrderMargin, "InitialMarginRatio Check: need at least %s but got %s", initialMarginRatio.Mul(notional).String(), o.Margin.String())
+		return math.LegacyDec{}, errors.Wrapf(ErrInsufficientMargin, "InitialMarginRatio Check: need at least %s but got %s", initialMarginRatio.Mul(notional).String(), o.Margin.String())
 	}
 
 	if err := o.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, executionMarkPrice); err != nil {
-		return sdk.Dec{}, err
+		return math.LegacyDec{}, err
 	}
 
 	return marginHold, nil
 }
 
-func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice sdk.Dec) (err error) {
-	markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio)
+func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice math.LegacyDec) (err error) {
 	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
 	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1 + InitialMarginRatio) * Quantity)
-	if o.OrderType.IsBuy() && markPrice.LT(markPriceThreshold) {
-		return errors.Wrapf(ErrInsufficientOrderMargin, "Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
-	} else if !o.OrderType.IsBuy() && markPrice.GT(markPriceThreshold) {
-		return errors.Wrapf(ErrInsufficientOrderMargin, "Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
-	}
+	markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio)
+	return CheckInitialMarginMarkPriceRequirement(o.IsBuy(), markPriceThreshold, markPrice)
+}
 
+func CheckInitialMarginMarkPriceRequirement(isBuyOrLong bool, markPriceThreshold, markPrice math.LegacyDec) error {
+	if isBuyOrLong && markPrice.LT(markPriceThreshold) {
+		return errors.Wrapf(ErrInsufficientMargin, "Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
+	} else if !isBuyOrLong && markPrice.GT(markPriceThreshold) {
+		return errors.Wrapf(ErrInsufficientMargin, "Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
+	}
 	return nil
 }
 
 // CheckValidConditionalPrice checks that conditional order type (STOP or TAKE) actually valid for current relation between triggerPrice and markPrice
-func (o *DerivativeOrder) CheckValidConditionalPrice(markPrice sdk.Dec) (err error) {
+func (o *DerivativeOrder) CheckValidConditionalPrice(markPrice math.LegacyDec) (err error) {
 	if !o.IsConditional() {
 		return nil
 	}
@@ -315,7 +323,7 @@ func (o *DerivativeOrder) CheckValidConditionalPrice(markPrice sdk.Dec) (err err
 
 // CheckBinaryOptionsPricesWithinBounds checks that binary options order prices don't exceed 1 (scaled)
 func (o *DerivativeOrder) CheckBinaryOptionsPricesWithinBounds(oracleScaleFactor uint32) (err error) {
-	maxScaledPrice := GetScaledPrice(sdk.OneDec(), oracleScaleFactor)
+	maxScaledPrice := GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor)
 	if o.Price().GTE(maxScaledPrice) {
 		return errors.Wrapf(ErrInvalidPrice, "price must be less than %s", maxScaledPrice.String())
 	}
@@ -326,24 +334,28 @@ func (o *DerivativeOrder) CheckBinaryOptionsPricesWithinBounds(oracleScaleFactor
 	return nil
 }
 
-func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio sdk.Dec) sdk.Dec {
-	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-	var numerator, denominator sdk.Dec
-	if o.OrderType.IsBuy() {
-		numerator = o.Margin.Sub(notional)
-		denominator = initialMarginRatio.Sub(sdk.OneDec()).Mul(o.OrderInfo.Quantity)
+func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio math.LegacyDec) math.LegacyDec {
+	return ComputeMarkPriceThreshold(o.IsBuy(), o.Price(), o.GetQuantity(), o.Margin, initialMarginRatio)
+}
+
+func ComputeMarkPriceThreshold(isBuyOrLong bool, price, quantity, margin, initialMarginRatio math.LegacyDec) math.LegacyDec {
+	notional := price.Mul(quantity)
+	var numerator, denominator math.LegacyDec
+	if isBuyOrLong {
+		numerator = margin.Sub(notional)
+		denominator = initialMarginRatio.Sub(math.LegacyOneDec()).Mul(quantity)
 	} else {
-		numerator = o.Margin.Add(notional)
-		denominator = initialMarginRatio.Add(sdk.OneDec()).Mul(o.OrderInfo.Quantity)
+		numerator = margin.Add(notional)
+		denominator = initialMarginRatio.Add(math.LegacyOneDec()).Mul(quantity)
 	}
 	return numerator.Quo(denominator)
 }
 
-func (o *DerivativeLimitOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice sdk.Dec) (err error) {
+func (o *DerivativeLimitOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice math.LegacyDec) (err error) {
 	return o.ToDerivativeOrder("").CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice)
 }
 
-func (o *DerivativeMarketOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice sdk.Dec) (err error) {
+func (o *DerivativeMarketOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice math.LegacyDec) (err error) {
 	return o.ToDerivativeOrder("").CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice)
 }
 
@@ -417,23 +429,23 @@ func (m *DerivativeOrder) IsBuy() bool {
 	return m.OrderType.IsBuy()
 }
 
-func (m *DerivativeMarketOrder) Quantity() sdk.Dec {
+func (m *DerivativeMarketOrder) Quantity() math.LegacyDec {
 	return m.OrderInfo.Quantity
 }
 
-func (m *DerivativeMarketOrder) FillableQuantity() sdk.Dec {
+func (m *DerivativeMarketOrder) FillableQuantity() math.LegacyDec {
 	return m.OrderInfo.Quantity
 }
 
-func (m *DerivativeMarketOrder) Price() sdk.Dec {
+func (m *DerivativeMarketOrder) Price() math.LegacyDec {
 	return m.OrderInfo.Price
 }
 
-func (m *DerivativeLimitOrder) Price() sdk.Dec {
+func (m *DerivativeLimitOrder) Price() math.LegacyDec {
 	return m.OrderInfo.Price
 }
 
-func (m *DerivativeOrder) Price() sdk.Dec {
+func (m *DerivativeOrder) Price() math.LegacyDec {
 	return m.OrderInfo.Price
 }
 
@@ -512,10 +524,10 @@ func (o *TrimmedDerivativeLimitOrder) IsReduceOnly() bool {
 
 func EmptyDerivativeMarketOrderResults() *DerivativeMarketOrderResults {
 	return &DerivativeMarketOrderResults{
-		Quantity:      sdk.ZeroDec(),
-		Price:         sdk.ZeroDec(),
-		Fee:           sdk.ZeroDec(),
+		Quantity:      math.LegacyZeroDec(),
+		Price:         math.LegacyZeroDec(),
+		Fee:           math.LegacyZeroDec(),
 		PositionDelta: PositionDelta{},
-		Payout:        sdk.ZeroDec(),
+		Payout:        math.LegacyZeroDec(),
 	}
 }

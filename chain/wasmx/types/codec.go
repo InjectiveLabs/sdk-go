@@ -7,9 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
-	govcdc "github.com/cosmos/cosmos-sdk/x/gov/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	groupcdc "github.com/cosmos/cosmos-sdk/x/group/codec"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/wasmx interfaces and concrete types
@@ -25,6 +23,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&BatchContractRegistrationRequestProposal{}, "wasmx/BatchContractRegistrationRequestProposal", nil)
 	cdc.RegisterConcrete(&BatchContractDeregistrationProposal{}, "wasmx/BatchContractDeregistrationProposal", nil)
 	cdc.RegisterConcrete(&BatchStoreCodeProposal{}, "wasmx/BatchStoreCodeProposal", nil)
+
+	cdc.RegisterConcrete(&Params{}, "wasmx/Params", nil)
+
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -48,23 +49,23 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 }
 
 var (
-	amino = codec.NewLegacyAmino()
-
 	// ModuleCdc references the global x/wasmx module codec. Note, the codec should
 	// ONLY be used in certain instances of tests and for JSON encoding as Amino is
 	// still used for that purpose.
 	//
 	// The actual codec used for serialization should be provided to x/wasmx and
 	// defined at the application level.
-	ModuleCdc = codec.NewAminoCodec(amino)
+	ModuleCdc = codec.NewLegacyAmino()
 )
 
 func init() {
-	RegisterLegacyAminoCodec(amino)
-	cryptocodec.RegisterCrypto(amino)
-	amino.Seal()
+	RegisterLegacyAminoCodec(ModuleCdc)
+	cryptocodec.RegisterCrypto(ModuleCdc)
+	ModuleCdc.Seal()
 
 	RegisterLegacyAminoCodec(authzcdc.Amino)
-	RegisterLegacyAminoCodec(govcdc.Amino)
-	RegisterLegacyAminoCodec(groupcdc.Amino)
+
+	// TODO: Check
+	// RegisterLegacyAminoCodec(govcdc.Amino)
+	// RegisterLegacyAminoCodec(groupcdc.Amino)
 }

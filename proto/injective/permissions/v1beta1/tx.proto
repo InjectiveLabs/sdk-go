@@ -8,11 +8,14 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "injective/permissions/v1beta1/params.proto";
 import "injective/permissions/v1beta1/permissions.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/permissions/types";
 
 // Msg defines the permissions module's gRPC message service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
   rpc CreateNamespace(MsgCreateNamespace) returns (MsgCreateNamespaceResponse);
   rpc DeleteNamespace(MsgDeleteNamespace) returns (MsgDeleteNamespaceResponse);
@@ -25,6 +28,7 @@ service Msg {
 }
 
 message MsgUpdateParams {
+  option (amino.name) = "permissions/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
@@ -39,6 +43,7 @@ message MsgUpdateParams {
 message MsgUpdateParamsResponse {}
 
 message MsgCreateNamespace {
+  option (amino.name) = "permissions/MsgCreateNamespace";
   option (cosmos.msg.v1.signer) = "sender";
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
 
@@ -48,6 +53,7 @@ message MsgCreateNamespace {
 message MsgCreateNamespaceResponse {}
 
 message MsgDeleteNamespace {
+  option (amino.name) = "permissions/MsgDeleteNamespace";
   option (cosmos.msg.v1.signer) = "sender";
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
 
@@ -57,6 +63,7 @@ message MsgDeleteNamespace {
 message MsgDeleteNamespaceResponse {}
 
 message MsgUpdateNamespace {
+  option (amino.name) = "permissions/MsgUpdateNamespace";
   option (cosmos.msg.v1.signer) = "sender";
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
 
@@ -80,15 +87,16 @@ message MsgUpdateNamespace {
 message MsgUpdateNamespaceResponse {}
 
 message MsgUpdateNamespaceRoles {
+  option (amino.name) = "permissions/MsgUpdateNamespaceRoles";
   option (cosmos.msg.v1.signer) = "sender";
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
 
   string namespace_denom =
       2; // namespace denom to which this updates are applied
 
-  map<string, uint32> role_permissions =
+  repeated Role role_permissions =
       3; // new role definitions or updated permissions for existing roles
-  map<string, Roles> address_roles =
+  repeated AddressRoles address_roles =
       4; // new addresses to add or new roles for existing addresses to
          // overwrite current roles
 }
@@ -96,23 +104,24 @@ message MsgUpdateNamespaceRoles {
 message MsgUpdateNamespaceRolesResponse {}
 
 message MsgRevokeNamespaceRoles {
+  option (amino.name) = "permissions/MsgRevokeNamespaceRoles";
   option (cosmos.msg.v1.signer) = "sender";
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
 
   string namespace_denom =
       2; // namespace denom to which this updates are applied
-  map<string, Roles> address_roles_to_revoke =
-      3; // map of {"address" => array of roles to revoke from this address}
+  repeated AddressRoles address_roles_to_revoke =
+      3; // {"address" => array of roles to revoke from this address}
 }
 
 message MsgRevokeNamespaceRolesResponse {}
 
 message MsgClaimVoucher {
+  option (amino.name) = "permissions/MsgClaimVoucher";
   option (cosmos.msg.v1.signer) = "sender";
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
 
-  string originator = 2; // address of the original voucher sender (typically a module address,
-         // a key from VouchersForAddress query response)
+  string denom = 2;
 }
 
 message MsgClaimVoucherResponse {}

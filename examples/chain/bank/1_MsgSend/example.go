@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"cosmossdk.io/math"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -62,11 +64,11 @@ func main() {
 		FromAddress: senderAddress.String(),
 		ToAddress:   "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
 		Amount: []sdktypes.Coin{{
-			Denom: "inj", Amount: sdktypes.NewInt(1000000000000000000)}, // 1 INJ
+			Denom: "inj", Amount: math.NewInt(1000000000000000000)}, // 1 INJ
 		},
 	}
 
-	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
+	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
 	err = chainClient.QueueBroadcastMsg(msg)
 
 	if err != nil {

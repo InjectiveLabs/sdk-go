@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	//network := common.LoadNetwork("mainnet", "k8s")
+	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("mainnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {

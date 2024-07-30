@@ -3,10 +3,10 @@ package types
 import (
 	"sort"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 )
 
-type TradingRewardPoints map[string]sdk.Dec
+type TradingRewardPoints map[string]math.LegacyDec
 
 func NewTradingRewardPoints() TradingRewardPoints {
 	tradingRewardPoints := make(TradingRewardPoints)
@@ -23,7 +23,7 @@ func (l TradingRewardPoints) GetSortedAccountKeys() []string {
 	return accountKeys
 }
 
-func (l TradingRewardPoints) AddPointsForAddress(addr string, newPoints sdk.Dec) {
+func (l TradingRewardPoints) AddPointsForAddress(addr string, newPoints math.LegacyDec) {
 	if !newPoints.IsPositive() {
 		return
 	}

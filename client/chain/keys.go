@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/codec/types"
 	cosmcrypto "github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -36,7 +35,7 @@ func InitCosmosKeyring(
 	cosmosUseLedger bool,
 ) (cosmtypes.AccAddress, keyring.Keyring, error) {
 	switch {
-	case len(cosmosPrivKey) > 0:
+	case cosmosPrivKey != "":
 		if cosmosUseLedger {
 			err := errors.New("cannot combine ledger and privkey options")
 			return emptyCosmosAddress, nil, err
@@ -48,7 +47,7 @@ func InitCosmosKeyring(
 			return emptyCosmosAddress, nil, err
 		}
 
-		// Specfic to Injective chain with Ethermint keys
+		// Specific to Injective chain with Ethermint keys
 		// Should be secp256k1.PrivKey for generic Cosmos chain
 		cosmosAccPk := &ethsecp256k1.PrivKey{
 			Key: pkBytes,
@@ -59,7 +58,7 @@ func InitCosmosKeyring(
 		var keyName string
 
 		// check that if cosmos 'From' specified separately, it must match the provided privkey,
-		if len(cosmosKeyFrom) > 0 {
+		if cosmosKeyFrom != "" {
 			addressFrom, err := cosmtypes.AccAddressFromBech32(cosmosKeyFrom)
 			if err == nil {
 				if !bytes.Equal(addressFrom.Bytes(), addressFromPk.Bytes()) {
@@ -72,7 +71,7 @@ func InitCosmosKeyring(
 			}
 		}
 
-		if len(keyName) == 0 {
+		if keyName == "" {
 			keyName = defaultKeyringKeyName
 		}
 
@@ -80,7 +79,7 @@ func InitCosmosKeyring(
 		kb, err := KeyringForPrivKey(keyName, cosmosAccPk)
 		return addressFromPk, kb, err
 
-	case len(cosmosKeyFrom) > 0:
+	case cosmosKeyFrom != "":
 		var fromIsAddress bool
 		addressFrom, err := cosmtypes.AccAddressFromBech32(cosmosKeyFrom)
 		if err == nil {
@@ -88,7 +87,7 @@ func InitCosmosKeyring(
 		}
 
 		var passReader io.Reader = os.Stdin
-		if len(cosmosKeyPassphrase) > 0 {
+		if cosmosKeyPassphrase != "" {
 			passReader = newPassReader(cosmosKeyPassphrase)
 		}
 
@@ -190,7 +189,7 @@ func (r *passReader) Read(p []byte) (n int, err error) {
 }
 
 func getCryptoCodec() *codec.ProtoCodec {
-	registry := types.NewInterfaceRegistry()
+	registry := NewInterfaceRegistry()
 	crypto_cdc.RegisterInterfaces(registry)
 	return codec.NewProtoCodec(registry)
 }

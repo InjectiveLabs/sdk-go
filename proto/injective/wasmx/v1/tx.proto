@@ -7,11 +7,14 @@ import "cosmos_proto/cosmos.proto";
 import "cosmos/msg/v1/msg.proto";
 import "injective/wasmx/v1/wasmx.proto";
 import "injective/wasmx/v1/proposal.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 // Msg defines the wasmx Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   rpc UpdateRegistryContractParams(MsgUpdateContract)
       returns (MsgUpdateContractResponse);
   rpc ActivateRegistryContract(MsgActivateContract)
@@ -28,6 +31,7 @@ service Msg {
 // MsgExecuteContractCompat submits the given message data to a smart contract,
 // compatible with EIP712
 message MsgExecuteContractCompat {
+  option (amino.name) = "wasmx/MsgExecuteContractCompat";
   option (cosmos.msg.v1.signer) = "sender";
 
   // Sender is the that actor that signed the messages
@@ -47,6 +51,7 @@ message MsgExecuteContractCompatResponse {
 }
 
 message MsgUpdateContract {
+  option (amino.name) = "wasmx/MsgUpdateContract";
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
@@ -63,6 +68,7 @@ message MsgUpdateContract {
 message MsgUpdateContractResponse {}
 
 message MsgActivateContract {
+  option (amino.name) = "wasmx/MsgActivateContract";
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
@@ -73,6 +79,7 @@ message MsgActivateContract {
 message MsgActivateContractResponse {}
 
 message MsgDeactivateContract {
+  option (amino.name) = "wasmx/MsgDeactivateContract";
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
@@ -83,6 +90,7 @@ message MsgDeactivateContract {
 message MsgDeactivateContractResponse {}
 
 message MsgUpdateParams {
+  option (amino.name) = "wasmx/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
@@ -97,6 +105,7 @@ message MsgUpdateParams {
 message MsgUpdateParamsResponse {}
 
 message MsgRegisterContract {
+  option (amino.name) = "wasmx/MsgRegisterContract";
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;

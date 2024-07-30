@@ -8,8 +8,9 @@ const (
 
 var (
 	// Keys for store prefixes
-	BidsKey            = []byte{0x01}
-	AuctionRoundKey    = []byte{0x03}
-	KeyEndingTimeStamp = []byte{0x04}
-	ParamsKey          = []byte{0x10}
+	BidsKey              = []byte{0x01}
+	AuctionRoundKey      = []byte{0x03}
+	KeyEndingTimeStamp   = []byte{0x04}
+	KeyLastAuctionResult = []byte{0x05}
+	ParamsKey            = []byte{0x10}
 )

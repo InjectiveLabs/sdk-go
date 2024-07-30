@@ -1,6 +1,7 @@
 package types
 
 import (
+	"context"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -27,13 +28,14 @@ type BankKeeper interface {
 
 // OracleKeeper defines the expected oracle keeper methods.
 type OracleKeeper interface {
-	GetPrice(ctx sdk.Context, oracletype oracletypes.OracleType, base string, quote string) *sdk.Dec
-	GetCumulativePrice(ctx sdk.Context, oracleType oracletypes.OracleType, base string, quote string) *sdk.Dec
+	GetPrice(ctx sdk.Context, oracletype oracletypes.OracleType, base string, quote string) *sdkmath.LegacyDec
+	GetPricePairState(ctx sdk.Context, oracletype oracletypes.OracleType, base, quote string, scalingOptions *oracletypes.ScalingOptions) *oracletypes.PricePairState
+	GetCumulativePrice(ctx sdk.Context, oracleType oracletypes.OracleType, base string, quote string) *sdkmath.LegacyDec
 	GetHistoricalPriceRecords(ctx sdk.Context, oracleType oracletypes.OracleType, symbol string, from int64) (entry *oracletypes.PriceRecords, omitted bool)
 	GetMixedHistoricalPriceRecords(ctx sdk.Context, baseOracleType, quoteOracleType oracletypes.OracleType, baseSymbol, quoteSymbol string, from int64) (mixed *oracletypes.PriceRecords, ok bool)
-	GetStandardDeviationForPriceRecords(priceRecords []*oracletypes.PriceRecord) *sdk.Dec
+	GetStandardDeviationForPriceRecords(priceRecords []*oracletypes.PriceRecord) *sdkmath.LegacyDec
 	GetProviderInfo(ctx sdk.Context, provider string) *oracletypes.ProviderInfo
-	GetProviderPrice(ctx sdk.Context, provider, symbol string) *sdk.Dec
+	GetProviderPrice(ctx sdk.Context, provider, symbol string) *sdkmath.LegacyDec
 	GetProviderPriceState(ctx sdk.Context, provider, symbol string) *oracletypes.ProviderPriceState
 }
 
@@ -52,8 +54,8 @@ type InsuranceKeeper interface {
 }
 
 type GovKeeper interface {
-	IterateActiveProposalsQueue(ctx sdk.Context, endTime time.Time, cb func(proposal v1.Proposal) (stop bool))
-	GetParams(ctx sdk.Context) v1.Params
+	IterateActiveProposalsQueue(ctx context.Context, endTime time.Time, cb func(proposal v1.Proposal) (stop bool))
+	GetParams(ctx context.Context) v1.Params
 }
 
 type DistributionKeeper interface {
@@ -63,8 +65,8 @@ type DistributionKeeper interface {
 }
 
 type StakingKeeper interface {
-	GetDelegatorDelegations(ctx sdk.Context, delegator sdk.AccAddress, maxRetrieve uint16) (delegations []stakingtypes.Delegation)
-	Validator(sdk.Context, sdk.ValAddress) stakingtypes.ValidatorI
+	GetDelegatorDelegations(ctx context.Context, delegator sdk.AccAddress, maxRetrieve uint16) (delegations []stakingtypes.Delegation, err error)
+	Validator(context.Context, sdk.ValAddress) (stakingtypes.ValidatorI, error) // get a particular validator by operator address
 }
 
 type WasmViewKeeper interface {

@@ -3,11 +3,13 @@ package injective.oracle.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 option (gogoproto.goproto_registration) = true;
 
 message Params {
+  option (amino.name) = "oracle/Params";
   option (gogoproto.equal) = true;
 
   string pyth_contract = 1;
@@ -26,6 +28,7 @@ enum OracleType {
   Pyth = 9;
   BandIBC = 10;
   Provider = 11;
+  Stork = 12;
 }
 
 message OracleInfo {
@@ -36,7 +39,7 @@ message OracleInfo {
 message ChainlinkPriceState {
   string feed_id = 1;
   string answer = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   uint64 timestamp = 3;
@@ -46,7 +49,7 @@ message ChainlinkPriceState {
 message BandPriceState {
   string symbol = 1;
   string rate = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   uint64 resolve_time = 3;
@@ -83,7 +86,7 @@ message PriceFeedInfo {
 
 message PriceFeedPrice {
   string price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -101,14 +104,28 @@ message CoinbasePriceState {
   PriceState price_state = 5 [ (gogoproto.nullable) = false ];
 }
 
+message StorkPriceState {
+  // timestamp of the when the price was signed by stork
+  uint64 timestamp = 1;
+  // the symbol of the price, e.g. BTC
+  string symbol = 2;
+  // the value of the price scaled by 1e18
+  string value = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the price state
+  PriceState price_state = 5 [ (gogoproto.nullable) = false ];
+}
+
 message PriceState {
   string price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   string cumulative_price = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
@@ -118,15 +135,15 @@ message PriceState {
 message PythPriceState {
   string price_id = 1;
   string ema_price = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string ema_conf = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string conf = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   uint64 publish_time = 5;
@@ -206,7 +223,7 @@ message PriceRecord {
   int64 timestamp = 1;
 
   string price = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -224,13 +241,13 @@ message MetadataStatistics {
   // (price * quantity) / ∑ quantity For oracle prices, the mean is computed
   // over the price records ∑ (price) / prices_count
   string mean = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // TWAP refers to the time-weighted average price which equals ∑ (price_i *
   // ∆t_i) / ∑ ∆t_i where ∆t_i = t_i - t_{i-1}
   string twap = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // FirstTimestamp is the timestamp of the oldest record considered
@@ -239,17 +256,17 @@ message MetadataStatistics {
   int64 last_timestamp = 6;
   // MinPrice refers to the smallest individual raw price considered
   string min_price = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // MaxPrice refers to the largest individual raw price considered
   string max_price = 8 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // MedianPrice refers to the median individual raw price considered
   string median_price = 9 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -264,4 +281,19 @@ message PriceAttestation {
   uint64 ema_conf = 6;
   int32 ema_expo = 7;
   int64 publish_time = 8;
+}
+
+message AssetPair {
+  string asset_id = 1;
+  repeated SignedPriceOfAssetPair signed_prices = 2;
+}
+
+message SignedPriceOfAssetPair {
+  string publisher_key = 1;
+  uint64 timestamp = 2;
+  string price = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  bytes signature = 4;
 }

@@ -5,10 +5,12 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ocr/types";
 
 message Params {
+  option (amino.name) = "ocr/Params";
   option (gogoproto.equal) = true;
 
   // Native denom for LINK coin in the bank keeper
@@ -62,25 +64,25 @@ message ModuleParams {
 
   // lowest answer the median of a report is allowed to be
   string min_answer = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // highest answer the median of a report is allowed to be
   string max_answer = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // Fixed LINK reward for each observer
   string link_per_observation = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
   // Fixed LINK reward for transmitter
   string link_per_transmission = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
@@ -130,6 +132,7 @@ message ContractConfig {
 }
 
 message SetConfigProposal {
+  option (amino.name) = "ocr/SetConfigProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -161,25 +164,25 @@ message FeedProperties {
 
   // lowest answer the median of a report is allowed to be
   string min_answer = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // highest answer the median of a report is allowed to be
   string max_answer = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // Fixed LINK reward for each observer
   string link_per_observation = 8 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
   // Fixed LINK reward for transmitter
   string link_per_transmission = 9 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
@@ -192,6 +195,7 @@ message FeedProperties {
 }
 
 message SetBatchConfigProposal {
+  option (amino.name) = "ocr/SetBatchConfigProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -230,7 +234,7 @@ message Payee {
 // time timestamp
 message Transmission {
   string answer = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   int64 observations_timestamp = 2; // when were observations made offchain
@@ -246,7 +250,7 @@ message Report {
   int64 observations_timestamp = 1;
   bytes observers = 2; // ith element is the index of the ith observer
   repeated string observations = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ]; // ith element is the ith observation
 }
@@ -269,12 +273,12 @@ message EventOraclePaid {
 
 message EventAnswerUpdated {
   string current = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
   string round_id = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
@@ -284,7 +288,7 @@ message EventAnswerUpdated {
 
 message EventNewRound {
   string round_id = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
@@ -304,13 +308,13 @@ message EventNewTransmission {
   string feed_id = 1;
   uint32 aggregator_round_id = 2;
   string answer = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string transmitter = 4;
   int64 observations_timestamp = 5;
   repeated string observations = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   bytes observers = 7;

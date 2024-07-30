@@ -38,6 +38,10 @@ message GenesisState {
   repeated ProviderState provider_states = 14;
 
   repeated PythPriceState pyth_price_states = 15;
+
+  repeated StorkPriceState stork_price_states = 16;
+
+  repeated string stork_publishers = 17;
 }
 
 message CalldataRecord {

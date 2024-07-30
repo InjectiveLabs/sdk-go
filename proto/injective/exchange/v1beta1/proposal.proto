@@ -8,10 +8,12 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "injective/exchange/v1beta1/exchange.proto";
 import "injective/oracle/v1beta1/oracle.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
 message SpotMarketParamUpdateProposal {
+  option (amino.name) = "exchange/SpotMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -22,37 +24,48 @@ message SpotMarketParamUpdateProposal {
 
   // maker_fee_rate defines the trade fee rate for makers on the spot market
   string maker_fee_rate = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // taker_fee_rate defines the trade fee rate for takers on the spot market
   string taker_fee_rate = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // relayer_fee_share_rate defines the relayer fee share rate for the spot
   // market
   string relayer_fee_share_rate = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // min_price_tick_size defines the minimum tick size of the order's price and
   // margin
   string min_price_tick_size = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // min_quantity_tick_size defines the minimum tick size of the order's
   // quantity
   string min_quantity_tick_size = 8 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   MarketStatus status = 9;
+
+  string ticker = 10 [ (gogoproto.nullable) = true ];
+
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+
+  AdminInfo admin_info = 12;
 }
 
 enum ExchangeType {
@@ -63,6 +76,7 @@ enum ExchangeType {
 }
 
 message ExchangeEnableProposal {
+  option (amino.name) = "exchange/ExchangeEnableProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -73,6 +87,7 @@ message ExchangeEnableProposal {
 }
 
 message BatchExchangeModificationProposal {
+  option (amino.name) = "exchange/BatchExchangeModificationProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -104,6 +119,7 @@ message BatchExchangeModificationProposal {
 // SpotMarketLaunchProposal defines a SDK message for proposing a new spot
 // market through governance
 message SpotMarketLaunchProposal {
+  option (amino.name) = "exchange/SpotMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -118,30 +134,37 @@ message SpotMarketLaunchProposal {
   string quote_denom = 5;
   // min_price_tick_size defines the minimum tick size of the order's price
   string min_price_tick_size = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_quantity_tick_size defines the minimum tick size of the order's
   // quantity
   string min_quantity_tick_size = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // maker_fee_rate defines the fee percentage makers pay when trading
   string maker_fee_rate = 8 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // taker_fee_rate defines the fee percentage takers pay when trading
   string taker_fee_rate = 9 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+  // min_notional defines the minimum notional for orders in the market
+  string min_notional = 10 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  AdminInfo admin_info = 11;
 }
 
 // PerpetualMarketLaunchProposal defines a SDK message for proposing a new
 // perpetual futures market through governance
 message PerpetualMarketLaunchProposal {
+  option (amino.name) = "exchange/PerpetualMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -163,45 +186,53 @@ message PerpetualMarketLaunchProposal {
   // initial_margin_ratio defines the initial margin ratio for the derivative
   // market
   string initial_margin_ratio = 9 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // maintenance_margin_ratio defines the maintenance margin ratio for the
   // derivative market
   string maintenance_margin_ratio = 10 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // maker_fee_rate defines the exchange trade fee for makers for the derivative
   // market
   string maker_fee_rate = 11 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // taker_fee_rate defines the exchange trade fee for takers for the derivative
   // market
   string taker_fee_rate = 12 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_price_tick_size defines the minimum tick size of the order's price and
   // margin
   string min_price_tick_size = 13 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_quantity_tick_size defines the minimum tick size of the order's
   // quantity
   string min_quantity_tick_size = 14 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  AdminInfo admin_info = 16;
 }
 
 message BinaryOptionsMarketLaunchProposal {
+  option (amino.name) = "exchange/BinaryOptionsMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -228,31 +259,39 @@ message BinaryOptionsMarketLaunchProposal {
   string quote_denom = 11;
   // maker_fee_rate defines the maker fee rate of a binary options market
   string maker_fee_rate = 12 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // taker_fee_rate defines the taker fee rate of a derivative market
   string taker_fee_rate = 13 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_price_tick_size defines the minimum tick size that the price and margin
   // required for orders in the market
   string min_price_tick_size = 14 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_quantity_tick_size defines the minimum tick size of the quantity
   // required for orders in the market
   string min_quantity_tick_size = 15 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 16 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  uint32 admin_permissions = 17;
 }
 
 // ExpiryFuturesMarketLaunchProposal defines a SDK message for proposing a new
 // expiry futures market through governance
 message ExpiryFuturesMarketLaunchProposal {
+  option (amino.name) = "exchange/ExpiryFuturesMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -276,45 +315,54 @@ message ExpiryFuturesMarketLaunchProposal {
   // initial_margin_ratio defines the initial margin ratio for the derivative
   // market
   string initial_margin_ratio = 10 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // maintenance_margin_ratio defines the maintenance margin ratio for the
   // derivative market
   string maintenance_margin_ratio = 11 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // maker_fee_rate defines the exchange trade fee for makers for the derivative
   // market
   string maker_fee_rate = 12 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
   // taker_fee_rate defines the exchange trade fee for takers for the derivative
   // market
   string taker_fee_rate = 13 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_price_tick_size defines the minimum tick size of the order's price and
   // margin
   string min_price_tick_size = 14 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_quantity_tick_size defines the minimum tick size of the order's
   // quantity
   string min_quantity_tick_size = 15 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 16 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  AdminInfo admin_info = 17;
 }
 
 message DerivativeMarketParamUpdateProposal {
+  option (amino.name) = "exchange/DerivativeMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -327,68 +375,85 @@ message DerivativeMarketParamUpdateProposal {
   // initial_margin_ratio defines the initial margin ratio for the derivative
   // market
   string initial_margin_ratio = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // maintenance_margin_ratio defines the maintenance margin ratio for the
   // derivative market
   string maintenance_margin_ratio = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // maker_fee_rate defines the exchange trade fee for makers for the derivative
   // market
   string maker_fee_rate = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // taker_fee_rate defines the exchange trade fee for takers for the derivative
   // market
   string taker_fee_rate = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // relayer_fee_share_rate defines the relayer fee share rate for the
   // derivative market
   string relayer_fee_share_rate = 8 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // min_price_tick_size defines the minimum tick size of the order's price and
   // margin
   string min_price_tick_size = 9 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // min_quantity_tick_size defines the minimum tick size of the order's
   // quantity
   string min_quantity_tick_size = 10 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // hourly_interest_rate defines the hourly interest rate
   string HourlyInterestRate = 11 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // hourly_funding_rate_cap defines the maximum absolute value of the hourly
   // funding rate
   string HourlyFundingRateCap = 12 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   MarketStatus status = 13;
 
   OracleParams oracle_params = 14;
+
+  string ticker = 15 [ (gogoproto.nullable) = true ];
+
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 16 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+
+  AdminInfo admin_info = 17;
+}
+
+message AdminInfo {
+  string admin = 1;
+  uint32 admin_permissions = 2;
 }
 
 message MarketForcedSettlementProposal {
+  option (amino.name) = "exchange/MarketForcedSettlementProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -397,12 +462,13 @@ message MarketForcedSettlementProposal {
   string description = 2;
   string market_id = 3;
   string settlement_price = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 }
 
 message UpdateDenomDecimalsProposal {
+  option (amino.name) = "exchange/UpdateDenomDecimalsProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -413,6 +479,7 @@ message UpdateDenomDecimalsProposal {
 }
 
 message BinaryOptionsMarketParamUpdateProposal {
+  option (amino.name) = "exchange/BinaryOptionsMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -425,34 +492,34 @@ message BinaryOptionsMarketParamUpdateProposal {
   // maker_fee_rate defines the exchange trade fee for makers for the derivative
   // market
   string maker_fee_rate = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // taker_fee_rate defines the exchange trade fee for takers for the derivative
   // market
   string taker_fee_rate = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // relayer_fee_share_rate defines the relayer fee share rate for the
   // derivative market
   string relayer_fee_share_rate = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
   // min_price_tick_size defines the minimum tick size of the order's price and
   // margin
   string min_price_tick_size = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // min_quantity_tick_size defines the minimum tick size of the order's
   // quantity
   string min_quantity_tick_size = 8 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 
@@ -462,13 +529,22 @@ message BinaryOptionsMarketParamUpdateProposal {
   int64 settlement_timestamp = 10;
   // new price at which market will be settled
   string settlement_price = 11 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // admin of the market
   string admin = 12;
   MarketStatus status = 13;
   ProviderOracleParams oracle_params = 14;
+
+  string ticker = 15 [ (gogoproto.nullable) = true ];
+
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 16 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message ProviderOracleParams {
@@ -494,6 +570,7 @@ message OracleParams {
 }
 
 message TradingRewardCampaignLaunchProposal {
+  option (amino.name) = "exchange/TradingRewardCampaignLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -505,6 +582,7 @@ message TradingRewardCampaignLaunchProposal {
 }
 
 message TradingRewardCampaignUpdateProposal {
+  option (amino.name) = "exchange/TradingRewardCampaignUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -520,12 +598,13 @@ message RewardPointUpdate {
   string account_address = 1;
   // new_points overwrites the current trading reward points for the account
   string new_points = 12 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
 
 message TradingRewardPendingPointsUpdateProposal {
+  option (amino.name) = "exchange/TradingRewardPendingPointsUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -537,6 +616,7 @@ message TradingRewardPendingPointsUpdateProposal {
 }
 
 message FeeDiscountProposal {
+  option (amino.name) = "exchange/FeeDiscountProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -547,6 +627,7 @@ message FeeDiscountProposal {
 }
 
 message BatchCommunityPoolSpendProposal {
+  option (amino.name) = "exchange/BatchCommunityPoolSpendProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -559,6 +640,8 @@ message BatchCommunityPoolSpendProposal {
 // AtomicMarketOrderFeeMultiplierScheduleProposal defines a SDK message for
 // proposing new atomic take fee multipliers for specified markets
 message AtomicMarketOrderFeeMultiplierScheduleProposal {
+  option (amino.name) =
+      "exchange/AtomicMarketOrderFeeMultiplierScheduleProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";

@@ -28,6 +28,12 @@ service Query {
       returns (QueryModuleStateResponse) {
     option (google.api.http).get = "/injective/auction/v1beta1/module_state";
   }
+
+  rpc LastAuctionResult(QueryLastAuctionResultRequest)
+      returns (QueryLastAuctionResultResponse) {
+    option (google.api.http).get =
+        "/injective/auction/v1beta1/last_auction_result";
+  }
 }
 
 // QueryAuctionParamsRequest is the request type for the Query/AuctionParams RPC
@@ -60,7 +66,7 @@ message QueryCurrentAuctionBasketResponse {
   string highestBidder = 4;
   // highestBidAmount describes highest bid amount on current round
   string highestBidAmount = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 }
@@ -72,3 +78,9 @@ message QueryModuleStateRequest {}
 // QueryModuleStateResponse is the response type for the
 // Query/AuctionModuleState RPC method.
 message QueryModuleStateResponse { GenesisState state = 1; }
+
+message QueryLastAuctionResultRequest {}
+
+message QueryLastAuctionResultResponse {
+  LastAuctionResult last_auction_result = 1;
+}

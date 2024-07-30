@@ -41,7 +41,7 @@ func BindContract(client *ethclient.Client, contract *Contract) (*BoundContract,
 	}
 	parsedABI, err := abi.JSON(bytes.NewReader(contract.ABI))
 	if err != nil {
-		err = fmt.Errorf("failed to parse contract ABI: %v", err)
+		err = fmt.Errorf("failed to parse contract ABI: %w", err)
 		return nil, err
 	}
 	bound := &BoundContract{
@@ -85,10 +85,6 @@ func (contract *BoundContract) Source() *Contract {
 
 func (contract *BoundContract) ABI() abi.ABI {
 	return contract.abi
-}
-
-func (c *BoundContract) DeployContract(opts *bind.TransactOpts, params ...interface{}) (common.Address, *types.Transaction, error) {
-	panic("not implemented")
 }
 
 func (c *BoundContract) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {

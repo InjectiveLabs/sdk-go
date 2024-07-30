@@ -8,8 +8,6 @@ import (
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
-	"google.golang.org/grpc/metadata"
-
 	log "github.com/InjectiveLabs/suplog"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -38,8 +36,8 @@ type ExplorerClient interface {
 func NewExplorerClient(network common.Network, options ...common.ClientOption) (ExplorerClient, error) {
 	// process options
 	opts := common.DefaultClientOptions()
-	if network.ChainTlsCert != nil {
-		options = append(options, common.OptionTLSCert(network.ExchangeTlsCert))
+	if network.ChainTLSCert != nil {
+		options = append(options, common.OptionTLSCert(network.ExchangeTLSCert))
 	}
 	for _, opt := range options {
 		if err := opt(opts); err != nil {
@@ -86,22 +84,6 @@ type explorerClient struct {
 	explorerClient explorerPB.InjectiveExplorerRPCClient
 }
 
-func (c *explorerClient) requestCookie() metadata.MD {
-	var header metadata.MD
-	req := explorerPB.GetTxsRequest{}
-	_, err := c.explorerClient.GetTxs(context.Background(), &req, grpc.Header(&header))
-	if err != nil {
-		panic(err)
-	}
-	return header
-}
-
-func (c *explorerClient) getCookie(ctx context.Context) context.Context {
-	provider := common.NewMetadataProvider(c.requestCookie)
-	cookie, _ := c.network.ExplorerMetadata(provider)
-	return metadata.AppendToOutgoingContext(ctx, "cookie", cookie)
-}
-
 func (c *explorerClient) QueryClient() *grpc.ClientConn {
 	return c.conn
 }
@@ -111,8 +93,8 @@ func (c *explorerClient) GetTxByTxHash(ctx context.Context, hash string) (*explo
 		Hash: hash,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetTxByTxHash(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetTxByTxHash, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetTxByTxHashResponse{}, err
@@ -122,8 +104,8 @@ func (c *explorerClient) GetTxByTxHash(ctx context.Context, hash string) (*explo
 }
 
 func (c *explorerClient) GetAccountTxs(ctx context.Context, req *explorerPB.GetAccountTxsRequest) (*explorerPB.GetAccountTxsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetAccountTxs(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetAccountTxs, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetAccountTxsResponse{}, err
@@ -135,8 +117,8 @@ func (c *explorerClient) GetAccountTxs(ctx context.Context, req *explorerPB.GetA
 func (c *explorerClient) GetBlocks(ctx context.Context) (*explorerPB.GetBlocksResponse, error) {
 	req := explorerPB.GetBlocksRequest{}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetBlocks(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetBlocks, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetBlocksResponse{}, err
@@ -150,8 +132,8 @@ func (c *explorerClient) GetBlock(ctx context.Context, blockHeight string) (*exp
 		Id: blockHeight,
 	}
 
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetBlock(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetBlock, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetBlockResponse{}, err
@@ -161,8 +143,8 @@ func (c *explorerClient) GetBlock(ctx context.Context, blockHeight string) (*exp
 }
 
 func (c *explorerClient) GetTxs(ctx context.Context, req *explorerPB.GetTxsRequest) (*explorerPB.GetTxsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetTxs(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetTxs, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetTxsResponse{}, err
@@ -172,8 +154,8 @@ func (c *explorerClient) GetTxs(ctx context.Context, req *explorerPB.GetTxsReque
 }
 
 func (c *explorerClient) GetPeggyDeposits(ctx context.Context, req *explorerPB.GetPeggyDepositTxsRequest) (*explorerPB.GetPeggyDepositTxsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetPeggyDepositTxs(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetPeggyDepositTxs, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetPeggyDepositTxsResponse{}, err
@@ -183,8 +165,8 @@ func (c *explorerClient) GetPeggyDeposits(ctx context.Context, req *explorerPB.G
 }
 
 func (c *explorerClient) GetPeggyWithdrawals(ctx context.Context, req *explorerPB.GetPeggyWithdrawalTxsRequest) (*explorerPB.GetPeggyWithdrawalTxsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetPeggyWithdrawalTxs(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetPeggyWithdrawalTxs, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetPeggyWithdrawalTxsResponse{}, err
@@ -194,8 +176,8 @@ func (c *explorerClient) GetPeggyWithdrawals(ctx context.Context, req *explorerP
 }
 
 func (c *explorerClient) GetIBCTransfers(ctx context.Context, req *explorerPB.GetIBCTransferTxsRequest) (*explorerPB.GetIBCTransferTxsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetIBCTransferTxs(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetIBCTransferTxs, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetIBCTransferTxsResponse{}, err
@@ -207,8 +189,8 @@ func (c *explorerClient) GetIBCTransfers(ctx context.Context, req *explorerPB.Ge
 func (c *explorerClient) StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error) {
 	req := explorerPB.StreamTxsRequest{}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.explorerClient.StreamTxs(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.StreamTxs, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -220,8 +202,8 @@ func (c *explorerClient) StreamTxs(ctx context.Context) (explorerPB.InjectiveExp
 func (c *explorerClient) StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error) {
 	req := explorerPB.StreamBlocksRequest{}
 
-	ctx = c.getCookie(ctx)
-	stream, err := c.explorerClient.StreamBlocks(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.StreamBlocks, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -231,8 +213,8 @@ func (c *explorerClient) StreamBlocks(ctx context.Context) (explorerPB.Injective
 }
 
 func (c *explorerClient) GetWasmCodes(ctx context.Context, req *explorerPB.GetWasmCodesRequest) (*explorerPB.GetWasmCodesResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetWasmCodes(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetWasmCodes, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetWasmCodesResponse{}, err
@@ -242,8 +224,8 @@ func (c *explorerClient) GetWasmCodes(ctx context.Context, req *explorerPB.GetWa
 }
 
 func (c *explorerClient) GetWasmCodeByID(ctx context.Context, req *explorerPB.GetWasmCodeByIDRequest) (*explorerPB.GetWasmCodeByIDResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetWasmCodeByID(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetWasmCodeByID, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetWasmCodeByIDResponse{}, err
@@ -253,8 +235,8 @@ func (c *explorerClient) GetWasmCodeByID(ctx context.Context, req *explorerPB.Ge
 }
 
 func (c *explorerClient) GetWasmContracts(ctx context.Context, req *explorerPB.GetWasmContractsRequest) (*explorerPB.GetWasmContractsResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetWasmContracts(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetWasmContracts, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetWasmContractsResponse{}, err
@@ -264,8 +246,8 @@ func (c *explorerClient) GetWasmContracts(ctx context.Context, req *explorerPB.G
 }
 
 func (c *explorerClient) GetWasmContractByAddress(ctx context.Context, req *explorerPB.GetWasmContractByAddressRequest) (*explorerPB.GetWasmContractByAddressResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetWasmContractByAddress(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetWasmContractByAddress, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetWasmContractByAddressResponse{}, err
@@ -275,8 +257,8 @@ func (c *explorerClient) GetWasmContractByAddress(ctx context.Context, req *expl
 }
 
 func (c *explorerClient) GetCW20Balance(ctx context.Context, req *explorerPB.GetCw20BalanceRequest) (*explorerPB.GetCw20BalanceResponse, error) {
-	ctx = c.getCookie(ctx)
-	res, err := c.explorerClient.GetCw20Balance(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetCw20Balance, req)
+
 	if err != nil {
 		fmt.Println(err)
 		return &explorerPB.GetCw20BalanceResponse{}, err
