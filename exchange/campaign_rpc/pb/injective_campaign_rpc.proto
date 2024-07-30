@@ -155,6 +155,14 @@ message CampaignsV2Request {
 	sint32 limit = 3;
 	// Cursor for pagination
 	string cursor = 4;
+	// Filter campaigns by start date greater than this value in milliseconds
+	sint64 from_start_date = 5;
+	// Filter campaigns by start date lower than this value in milliseconds
+	sint64 to_start_date = 6;
+	// Filter campaigns by end date greater than this value in milliseconds
+	sint64 from_end_date = 7;
+	// Filter campaigns by end date lower than this value in milliseconds
+	sint64 to_end_date = 8;
 }
 
 message CampaignsV2Response {
