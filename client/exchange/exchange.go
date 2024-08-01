@@ -166,7 +166,6 @@ type exchangeClient struct {
 // test
 func (c *exchangeClient) OrdersHistory(ctx context.Context, in *derivativeExchangePB.OrdersHistoryRequest) (*derivativeExchangePB.OrdersHistoryResponse, error) {
 	var header metadata.MD
-	ctx = c.getCookie(ctx)
 	res, err := c.derivativeExchangeClient.OrdersHistory(ctx, in, grpc.Header(&header))
 	if err != nil {
 		fmt.Println(err)
@@ -199,11 +198,11 @@ func (c *exchangeClient) requestCookie() metadata.MD {
 	return header
 }
 
-func (c *exchangeClient) getCookie(ctx context.Context) context.Context {
-	provider := common.NewMetadataProvider(c.requestCookie)
-	cookie, _ := c.network.ExchangeMetadata(provider)
-	return metadata.AppendToOutgoingContext(ctx, "cookie", cookie)
-}
+// func (c *exchangeClient) getCookie(ctx context.Context) context.Context {
+// 	provider := common.NewMetadataProvider(c.requestCookie)
+// 	cookie, _ := c.network.ExchangeMetadata(provider)
+// 	return metadata.AppendToOutgoingContext(ctx, "cookie", cookie)
+// }
 
 func (c *exchangeClient) QueryClient() *grpc.ClientConn {
 	return c.conn

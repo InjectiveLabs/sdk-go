@@ -537,20 +537,6 @@ func (c *chainClient) GetBlockHeight() (int64, error) {
 	return block.Block.Height, nil
 }
 
-// test
-func (c *chainClient) GetBlockHeight() (int64, error) {
-	ctx := context.Background()
-	if c.ctx.Client == nil {
-		return 0, errors.New("client is nil")
-	}
-
-	block, err := c.ctx.Client.Block(ctx, nil)
-	if err != nil {
-		return 0, err
-	}
-	return block.Block.Height, nil
-}
-
 // PrepareFactory ensures the account defined by ctx.GetFromAddress() exists and
 // if the account number and/or the account sequence number are zero (not set),
 // they will be queried for and set on the provided Factory. A new Factory with
@@ -998,7 +984,6 @@ func (c *chainClient) broadcastTx(
 			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, err
 		}
-		ctx := c.getCookie(ctx)
 		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes})
 		if err != nil {
 			err = errors.Wrap(err, "failed to CalculateGas")
@@ -1019,15 +1004,9 @@ func (c *chainClient) broadcastTx(
 	}
 
 	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
+	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to Sign Tx")
-		return nil, err
-	}
-
-	txBytes, err := clientCtx.TxConfig.TxEncoder()(txn.GetTx())
-	if err != nil {
-		err = errors.Wrap(err, "failed TxEncoder to encode Tx")
 		return nil, err
 	}
 
@@ -1085,7 +1064,7 @@ func (c *chainClient) broadcastTxAsync(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxResponse, []byte, error) {
-	txf, err := c.prepareFactory(clientCtx, txf)
+	txf, err := PrepareFactory(clientCtx, txf)
 	if err != nil {
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, nil, err
@@ -1097,7 +1076,6 @@ func (c *chainClient) broadcastTxAsync(
 			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, nil, err
 		}
-		ctx := c.getCookie(ctx)
 		var header metadata.MD
 		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
 		if err != nil {
@@ -1121,7 +1099,7 @@ func (c *chainClient) broadcastTxAsync(
 	}
 
 	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
+	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to Sign Tx")
 		return nil, nil, err
@@ -1139,7 +1117,6 @@ func (c *chainClient) broadcastTxAsync(
 	}
 	// use our own client to broadcast tx
 	var header metadata.MD
-	ctx = c.getCookie(ctx)
 	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
 	return res, txBytes, err
 
