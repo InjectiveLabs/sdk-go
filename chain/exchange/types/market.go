@@ -3,7 +3,7 @@ package types
 import (
 	"strconv"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
@@ -11,11 +11,11 @@ import (
 	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 )
 
-var BinaryOptionsMarketRefundFlagPrice = sdk.NewDec(-1)
+var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
 
 type DerivativeMarketInfo struct {
 	Market    *DerivativeMarket
-	MarkPrice sdk.Dec
+	MarkPrice math.LegacyDec
 	Funding   *PerpetualMarketFunding
 }
 
@@ -90,24 +90,28 @@ func (m *SpotMarket) GetMarketType() MarketType {
 	return MarketType_Spot
 }
 
-func (m *SpotMarket) GetMakerFeeRate() sdk.Dec {
+func (m *SpotMarket) GetMakerFeeRate() math.LegacyDec {
 	return m.MakerFeeRate
 }
 
-func (m *SpotMarket) GetTakerFeeRate() sdk.Dec {
+func (m *SpotMarket) GetTakerFeeRate() math.LegacyDec {
 	return m.TakerFeeRate
 }
 
-func (m *SpotMarket) GetRelayerFeeShareRate() sdk.Dec {
+func (m *SpotMarket) GetRelayerFeeShareRate() math.LegacyDec {
 	return m.RelayerFeeShareRate
 }
 
-func (m *SpotMarket) GetMinPriceTickSize() sdk.Dec {
+func (m *SpotMarket) GetMinPriceTickSize() math.LegacyDec {
 	return m.MinPriceTickSize
 }
 
-func (m *SpotMarket) GetMinQuantityTickSize() sdk.Dec {
+func (m *SpotMarket) GetMinQuantityTickSize() math.LegacyDec {
 	return m.MinQuantityTickSize
+}
+
+func (m *SpotMarket) GetMinNotional() math.LegacyDec {
+	return m.MinNotional
 }
 
 func (m *SpotMarket) GetMarketStatus() MarketStatus {
@@ -149,8 +153,12 @@ func (m *DerivativeMarket) IsInactive() bool {
 	return !m.IsActive()
 }
 
-func (m *DerivativeMarket) GetMinQuantityTickSize() sdk.Dec {
+func (m *DerivativeMarket) GetMinQuantityTickSize() math.LegacyDec {
 	return m.MinQuantityTickSize
+}
+
+func (m *DerivativeMarket) GetMinNotional() math.LegacyDec {
+	return m.MinNotional
 }
 
 type MarketType byte
@@ -162,6 +170,21 @@ const (
 	MarketType_Expiry
 	MarketType_BinaryOption
 )
+
+func (m MarketType) String() string {
+	switch m {
+	case MarketType_Spot:
+		return "spot"
+	case MarketType_Perpetual:
+		return "perpetual"
+	case MarketType_BinaryOption:
+		return "binary_option"
+	case MarketType_Expiry:
+		return "expiry"
+	default:
+		return ""
+	}
+}
 
 func (m MarketType) IsSpot() bool {
 	return m == MarketType_Spot
@@ -187,23 +210,23 @@ func (m *DerivativeMarket) GetMarketType() MarketType {
 	}
 }
 
-func (m *DerivativeMarket) GetMakerFeeRate() sdk.Dec {
+func (m *DerivativeMarket) GetMakerFeeRate() math.LegacyDec {
 	return m.MakerFeeRate
 }
 
-func (m *DerivativeMarket) GetTakerFeeRate() sdk.Dec {
+func (m *DerivativeMarket) GetTakerFeeRate() math.LegacyDec {
 	return m.TakerFeeRate
 }
 
-func (m *DerivativeMarket) GetRelayerFeeShareRate() sdk.Dec {
+func (m *DerivativeMarket) GetRelayerFeeShareRate() math.LegacyDec {
 	return m.RelayerFeeShareRate
 }
 
-func (m *DerivativeMarket) GetInitialMarginRatio() sdk.Dec {
+func (m *DerivativeMarket) GetInitialMarginRatio() math.LegacyDec {
 	return m.InitialMarginRatio
 }
 
-func (m *DerivativeMarket) GetMinPriceTickSize() sdk.Dec {
+func (m *DerivativeMarket) GetMinPriceTickSize() math.LegacyDec {
 	return m.MinPriceTickSize
 }
 
@@ -234,8 +257,8 @@ func (m *BinaryOptionsMarket) GetMarketType() MarketType {
 	return MarketType_BinaryOption
 }
 
-func (m *BinaryOptionsMarket) GetInitialMarginRatio() sdk.Dec {
-	return sdk.OneDec()
+func (m *BinaryOptionsMarket) GetInitialMarginRatio() math.LegacyDec {
+	return math.LegacyOneDec()
 }
 func (m *BinaryOptionsMarket) IsInactive() bool {
 	return !m.IsActive()
@@ -249,12 +272,16 @@ func (m *BinaryOptionsMarket) MarketID() common.Hash {
 	return common.HexToHash(m.MarketId)
 }
 
-func (m *BinaryOptionsMarket) GetMinPriceTickSize() sdk.Dec {
+func (m *BinaryOptionsMarket) GetMinPriceTickSize() math.LegacyDec {
 	return m.MinPriceTickSize
 }
 
-func (m *BinaryOptionsMarket) GetMinQuantityTickSize() sdk.Dec {
+func (m *BinaryOptionsMarket) GetMinQuantityTickSize() math.LegacyDec {
 	return m.MinQuantityTickSize
+}
+
+func (m *BinaryOptionsMarket) GetMinNotional() math.LegacyDec {
+	return m.MinNotional
 }
 
 func (m *BinaryOptionsMarket) GetTicker() string {
@@ -265,15 +292,15 @@ func (m *BinaryOptionsMarket) GetQuoteDenom() string {
 	return m.QuoteDenom
 }
 
-func (m *BinaryOptionsMarket) GetMakerFeeRate() sdk.Dec {
+func (m *BinaryOptionsMarket) GetMakerFeeRate() math.LegacyDec {
 	return m.MakerFeeRate
 }
 
-func (m *BinaryOptionsMarket) GetTakerFeeRate() sdk.Dec {
+func (m *BinaryOptionsMarket) GetTakerFeeRate() math.LegacyDec {
 	return m.TakerFeeRate
 }
 
-func (m *BinaryOptionsMarket) GetRelayerFeeShareRate() sdk.Dec {
+func (m *BinaryOptionsMarket) GetRelayerFeeShareRate() math.LegacyDec {
 	return m.RelayerFeeShareRate
 }
 

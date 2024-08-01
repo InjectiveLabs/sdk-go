@@ -39,6 +39,8 @@ func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyr
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
+	// configure Keyring as nil to avoid the account initialization request when running unit tests
+	clientCtx.Keyring = nil
 
 	chainClient, err := NewChainClient(
 		clientCtx,
@@ -50,7 +52,7 @@ func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyr
 }
 
 func TestDefaultSubaccount(t *testing.T) {
-	network := common.LoadNetwork("testnet", "lb")
+	network := common.LoadNetwork("devnet", "lb")
 	senderAddress, cosmosKeyring, err := accountForTests()
 
 	if err != nil {
@@ -73,7 +75,7 @@ func TestDefaultSubaccount(t *testing.T) {
 }
 
 func TestGetSubaccountWithIndex(t *testing.T) {
-	network := common.LoadNetwork("testnet", "lb")
+	network := common.LoadNetwork("devnet", "lb")
 	senderAddress, cosmosKeyring, err := accountForTests()
 
 	if err != nil {

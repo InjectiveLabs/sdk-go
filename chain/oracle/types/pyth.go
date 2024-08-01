@@ -1,15 +1,15 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 func NewPythPriceState(
 	priceID common.Hash,
-	emaPrice, emaConf, conf sdk.Dec,
+	emaPrice, emaConf, conf math.LegacyDec,
 	publishTime int64,
-	price sdk.Dec,
+	price math.LegacyDec,
 	blockTime int64,
 ) *PythPriceState {
 	return &PythPriceState{
@@ -23,9 +23,9 @@ func NewPythPriceState(
 }
 
 func (p *PythPriceState) Update(
-	emaPrice, emaConf, conf sdk.Dec,
+	emaPrice, emaConf, conf math.LegacyDec,
 	publishTime uint64,
-	price sdk.Dec,
+	price math.LegacyDec,
 	blockTime int64,
 ) {
 	p.EmaPrice = emaPrice
@@ -64,12 +64,12 @@ func (p *PriceAttestation) Validate() error {
 	return nil
 }
 
-func GetExponentiatedDec(value, expo int64) sdk.Dec {
+func GetExponentiatedDec(value, expo int64) math.LegacyDec {
 	// price * 10^-expo
 	if expo <= 0 {
-		return sdk.NewDecWithPrec(value, -expo)
+		return math.LegacyNewDecWithPrec(value, -expo)
 	}
 
 	// price * 10^expo
-	return sdk.NewDec(value).Power(uint64(expo))
+	return math.LegacyNewDec(value).Power(uint64(expo))
 }

@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/shopspring/decimal"
+
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	"google.golang.org/grpc/credentials"
 )
@@ -23,7 +25,7 @@ func HexToBytes(str string) ([]byte, error) {
 	return data, nil
 }
 
-func LoadTlsCert(path string, serverName string) credentials.TransportCredentials {
+func LoadTLSCert(path, serverName string) credentials.TransportCredentials {
 	if path == "" {
 		return nil
 	}
@@ -41,6 +43,7 @@ func LoadTlsCert(path string, serverName string) credentials.TransportCredential
 	}
 	// get domain from tcp://domain:port
 	domain := strings.Split(serverName, ":")[1][2:]
+	// nolint:gosec // we ignore the MinVersion validation because it's not a security issue
 	config := &tls.Config{
 		RootCAs:    certPool,
 		ServerName: domain,
@@ -55,4 +58,8 @@ func MsgResponse(data []byte) []*chaintypes.TxResponseGenericMessage {
 		panic(err)
 	}
 	return response.Messages
+}
+
+func RemoveExtraDecimals(value decimal.Decimal, decimalsToRemove int32) decimal.Decimal {
+	return value.Div(decimal.New(1, decimalsToRemove))
 }

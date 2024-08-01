@@ -1,15 +1,15 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 type PositionTransfer struct {
-	MarketID                common.Hash `json:"market_id"`
-	SourceSubaccountID      common.Hash `json:"source_subaccount_id"`
-	DestinationSubaccountID common.Hash `json:"destination_subaccount_id"`
-	Quantity                sdk.Dec     `json:"quantity"`
+	MarketID                common.Hash    `json:"market_id"`
+	SourceSubaccountID      common.Hash    `json:"source_subaccount_id"`
+	DestinationSubaccountID common.Hash    `json:"destination_subaccount_id"`
+	Quantity                math.LegacyDec `json:"quantity"`
 }
 
 func (p *PositionTransfer) ValidateBasic() error {
@@ -50,12 +50,12 @@ func (a *SyntheticTradeAction) ValidateBasic() error {
 }
 
 type SyntheticTrade struct {
-	MarketID     common.Hash `json:"market_id"`
-	SubaccountID common.Hash `json:"subaccount_id"`
-	IsBuy        bool        `json:"is_buy"`
-	Quantity     sdk.Dec     `json:"quantity"`
-	Price        sdk.Dec     `json:"price"`
-	Margin       sdk.Dec     `json:"margin"`
+	MarketID     common.Hash    `json:"market_id"`
+	SubaccountID common.Hash    `json:"subaccount_id"`
+	IsBuy        bool           `json:"is_buy"`
+	Quantity     math.LegacyDec `json:"quantity"`
+	Price        math.LegacyDec `json:"price"`
+	Margin       math.LegacyDec `json:"margin"`
 }
 
 func (t *SyntheticTrade) Validate() error {

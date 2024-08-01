@@ -6,15 +6,13 @@ import (
 	"crypto/subtle"
 	"fmt"
 
-	ethcrypto "github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/crypto/secp256k1"
-
 	"cosmossdk.io/errors"
+	tmcrypto "github.com/cometbft/cometbft/crypto"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	tmcrypto "github.com/cometbft/cometbft/crypto"
+	ethcrypto "github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 )
 
 const (
@@ -197,7 +195,7 @@ func (pubKey *PubKey) UnmarshalAminoJSON(bz []byte) error {
 func (pubKey PubKey) VerifySignature(msg, sig []byte) bool {
 	if len(sig) == 65 {
 		// remove recovery ID if contained in the signature
-		sig = sig[:len(sig)-1]
+		sig = sig[:64]
 	}
 
 	// the signature needs to be in [R || S] format when provided to VerifySignature

@@ -62,7 +62,7 @@ func ValidateEthAddress(address string) error {
 
 // NewERC20Token returns a new instance of an ERC20
 func NewERC20Token(amount uint64, contract gethcommon.Address) *ERC20Token {
-	return &ERC20Token{Amount: sdk.NewIntFromUint64(amount), Contract: contract.Hex()}
+	return &ERC20Token{Amount: math.NewIntFromUint64(amount), Contract: contract.Hex()}
 }
 
 func NewSDKIntERC20Token(amount math.Int, contract gethcommon.Address) *ERC20Token {

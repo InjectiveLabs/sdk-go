@@ -1,6 +1,8 @@
 package types
 
 import (
+	"context"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -19,7 +21,7 @@ func (a CreateDerivativeLimitOrderAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgCreateDerivativeLimitOrder{})
 }
 
-func (a CreateDerivativeLimitOrderAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a CreateDerivativeLimitOrderAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	derivativeOrder, ok := msg.(*MsgCreateDerivativeLimitOrder)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
@@ -59,7 +61,7 @@ func (a CreateDerivativeMarketOrderAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgCreateDerivativeMarketOrder{})
 }
 
-func (a CreateDerivativeMarketOrderAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a CreateDerivativeMarketOrderAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	derivativeOrder, ok := msg.(*MsgCreateDerivativeMarketOrder)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
@@ -99,7 +101,7 @@ func (a BatchCreateDerivativeLimitOrdersAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgBatchCreateDerivativeLimitOrders{})
 }
 
-func (a BatchCreateDerivativeLimitOrdersAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a BatchCreateDerivativeLimitOrdersAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	derivativeOrders, ok := msg.(*MsgBatchCreateDerivativeLimitOrders)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
@@ -141,7 +143,7 @@ func (a CancelDerivativeOrderAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgCancelDerivativeOrder{})
 }
 
-func (a CancelDerivativeOrderAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a CancelDerivativeOrderAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	orderToCancel, ok := msg.(*MsgCancelDerivativeOrder)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
@@ -181,7 +183,7 @@ func (a BatchCancelDerivativeOrdersAuthz) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgBatchCancelDerivativeOrders{})
 }
 
-func (a BatchCancelDerivativeOrdersAuthz) Accept(ctx sdk.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+func (a BatchCancelDerivativeOrdersAuthz) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
 	ordersToCancel, ok := msg.(*MsgBatchCancelDerivativeOrders)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")

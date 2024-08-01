@@ -21,18 +21,21 @@ func init() {
 }
 
 type ClientOptions struct {
-	GasPrices          string
-	IsDynamicGasPrices bool
-	TLSCert            credentials.TransportCredentials
-	Logger             *logrus.Logger
-	TxFactory          *tx.Factory
-	ErrChan            chan error
+	GasPrices                 string
+	IsDynamicGasPrices        bool
+	TLSCert                   credentials.TransportCredentials
+	Logger                    *logrus.Logger
+	TxFactory                 *tx.Factory
+	ShouldFixSequenceMismatch bool
+	ErrChan                   chan error
 }
 
 type ClientOption func(opts *ClientOptions) error
 
 func DefaultClientOptions() *ClientOptions {
-	return &ClientOptions{}
+	return &ClientOptions{
+		ShouldFixSequenceMismatch: true,
+	}
 }
 
 func OptionGasPrices(gasPrices string) ClientOption {
@@ -53,7 +56,7 @@ func OptionTLSCert(tlsCert credentials.TransportCredentials) ClientOption {
 		if tlsCert == nil {
 			log.Infoln("client does not use grpc secure transport")
 		} else {
-			log.Infoln("succesfully load server TLS cert")
+			log.Infoln("successfully load server TLS cert")
 		}
 		opts.TLSCert = tlsCert
 		return nil

@@ -10,16 +10,16 @@ import (
 type Wei decimal.Decimal
 
 func (w Wei) String() string {
-	return (decimal.Decimal)(w).String()
+	return decimal.Decimal(w).String()
 }
 
 func (w Wei) StringGwei() string {
-	d := (decimal.Decimal)(w).Div(decimal.NewFromFloat(1e9))
+	d := decimal.Decimal(w).Div(decimal.NewFromFloat(1e9))
 	return d.String()
 }
 
 func (w Wei) Bytes() []byte {
-	return []byte((decimal.Decimal)(w).String())
+	return []byte(decimal.Decimal(w).String())
 }
 
 func (w *Wei) Scan(v interface{}) error {
@@ -37,10 +37,10 @@ func (w *Wei) Scan(v interface{}) error {
 	}
 	d, err := decimal.NewFromString(source)
 	if err != nil {
-		err := fmt.Errorf("failed to parse decimal.Decimal from %s, error: %v", source, err)
+		err := fmt.Errorf("failed to parse decimal.Decimal from %s, error: %w", source, err)
 		return err
 	} else {
-		*w = (Wei)(d)
+		*w = Wei(d)
 	}
 	return nil
 }
@@ -128,7 +128,7 @@ func (w *Wei) Add(amount *Wei) *Wei {
 	return (*Wei)(&result)
 }
 
-// Sub substracts two amounts and returns a new amount.
+// Sub subtracts two amounts and returns a new amount.
 func (w *Wei) Sub(amount *Wei) *Wei {
 	d1 := (*decimal.Decimal)(w)
 	d2 := (*decimal.Decimal)(amount)

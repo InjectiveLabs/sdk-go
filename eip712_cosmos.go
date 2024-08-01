@@ -10,20 +10,18 @@ import (
 	"strings"
 	"time"
 
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
+	ethmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/pkg/errors"
 
 	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
-
-var ErrNoMessage = errors.New("no message found. There should be at least one message")
 
 type EIP712Wrapper func(
 	cdc codec.ProtoCodecMarshaler,
@@ -48,10 +46,6 @@ func WrapTxToEIP712(
 	msgs []cosmtypes.Msg,
 	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
-	if len(msgs) == 0 {
-		return typeddata.TypedData{}, ErrNoMessage
-	}
-
 	data := legacytx.StdSignBytes(
 		signerData.ChainID,
 		signerData.AccountNumber,
@@ -59,7 +53,6 @@ func WrapTxToEIP712(
 		timeoutHeight,
 		feeInfo,
 		msgs, memo,
-		nil,
 	)
 
 	txData := make(map[string]interface{})
@@ -71,7 +64,7 @@ func WrapTxToEIP712(
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
 		VerifyingContract: "cosmos",
 		Salt:              "0",
 	}
@@ -201,12 +194,12 @@ func traverseFields(
 
 	if prefix == typeDefPrefix {
 		if len(typeMap[rootType]) == n {
-			return
+			return nil
 		}
 	} else {
 		typeDef := sanitizeTypedef(prefix)
 		if len(typeMap[typeDef]) == n {
-			return
+			return nil
 		}
 	}
 
@@ -239,7 +232,7 @@ func traverseFields(
 			err = cdc.UnpackAny(any, &anyWrapper.Value)
 			if err != nil {
 				err = errors.Wrap(err, "failed to unpack Any in msg struct")
-				return
+				return err
 			}
 
 			fieldType = reflect.TypeOf(anyWrapper)
@@ -297,9 +290,13 @@ func traverseFields(
 
 		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
 		ethTyp := typToEth(fieldType)
-		if len(ethTyp) > 0 {
+		if ethTyp != "" {
 			if isCollection {
 				ethTyp += "[]"
+			}
+			if field.Kind() == reflect.String && field.Len() == 0 {
+				// skip empty strings from type mapping
+				continue
 			}
 			if prefix == typeDefPrefix {
 				typeMap[rootType] = append(typeMap[rootType], typeddata.Type{
@@ -340,7 +337,7 @@ func traverseFields(
 
 			err = traverseFields(cdc, typeMap, rootType, fieldPrefix, fieldType, field)
 			if err != nil {
-				return
+				return err
 			}
 
 			continue
@@ -382,7 +379,7 @@ var (
 	hashType      = reflect.TypeOf(common.Hash{})
 	addressType   = reflect.TypeOf(common.Address{})
 	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
+	cosmIntType   = reflect.TypeOf(math.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
 	timeType      = reflect.TypeOf(time.Time{})
 )
@@ -417,12 +414,12 @@ func typToEth(typ reflect.Type) string {
 		return "uint64"
 	case reflect.Slice:
 		ethName := typToEth(typ.Elem())
-		if len(ethName) > 0 {
+		if ethName != "" {
 			return ethName + "[]"
 		}
 	case reflect.Array:
 		ethName := typToEth(typ.Elem())
-		if len(ethName) > 0 {
+		if ethName != "" {
 			return ethName + "[]"
 		}
 	case reflect.Ptr:
@@ -459,25 +456,8 @@ func doRecover(err *error) {
 	}
 }
 
-func WrapTxToEIP712V2(
-	cdc codec.ProtoCodecMarshaler,
-	chainID uint64,
-	signerData *authsigning.SignerData,
-	timeoutHeight uint64,
-	memo string,
-	feeInfo legacytx.StdFee,
-	msgs []cosmtypes.Msg,
-	feeDelegation *FeeDelegationOptions,
-) (typeddata.TypedData, error) {
-	domain := typeddata.TypedDataDomain{
-		Name:              "Injective Web3",
-		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(int64(chainID)),
-		VerifyingContract: "cosmos",
-		Salt:              "0",
-	}
-
-	msgTypes := typeddata.Types{
+func signableTypes() typeddata.Types {
+	return typeddata.Types{
 		"EIP712Domain": {
 			{
 				Name: "name",
@@ -493,7 +473,7 @@ func WrapTxToEIP712V2(
 			},
 			{
 				Name: "verifyingContract",
-				Type: "string",
+				Type: "address",
 			},
 			{
 				Name: "salt",
@@ -505,7 +485,27 @@ func WrapTxToEIP712V2(
 			{Name: "msgs", Type: "string"},
 		},
 	}
+}
 
+func WrapTxToEIP712V2(
+	cdc codec.ProtoCodecMarshaler,
+	chainID uint64,
+	signerData *authsigning.SignerData,
+	timeoutHeight uint64,
+	memo string,
+	feeInfo legacytx.StdFee,
+	msgs []cosmtypes.Msg,
+	feeDelegation *FeeDelegationOptions,
+) (typeddata.TypedData, error) {
+	domain := typeddata.TypedDataDomain{
+		Name:              "Injective Web3",
+		Version:           "1.0.0",
+		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
+		VerifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
+		Salt:              "0",
+	}
+
+	msgTypes := signableTypes()
 	msgsJsons := make([]json.RawMessage, len(msgs))
 	for idx, m := range msgs {
 		bzMsg, err := cdc.MarshalInterfaceJSON(m)

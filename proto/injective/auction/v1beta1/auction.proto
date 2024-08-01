@@ -3,17 +3,19 @@ package injective.auction.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/auction/types";
 
 message Params {
   option (gogoproto.equal) = true;
+  option (amino.name) = "auction/Params";
 
   // auction_period_duration defines the auction period duration
   int64 auction_period = 1;
   // min_next_bid_increment_rate defines the minimum increment rate for new bids
   string min_next_bid_increment_rate = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -28,6 +30,18 @@ message Bid {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
+}
+
+message LastAuctionResult {
+  // winner describes the address of the winner
+  string winner = 1;
+  // amount describes the amount the winner get from the auction
+  string amount = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+  // round defines the round number of auction
+  uint64 round = 3;
 }
 
 message EventBid {

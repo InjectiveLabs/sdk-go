@@ -1,10 +1,11 @@
 version: v1
 name: buf.build/InjectiveLabs/injective-core
 deps:
+  - buf.build/googleapis/googleapis
   - buf.build/cosmos/cosmos-proto
-  - buf.build/cosmos/cosmos-sdk:v0.47.0
+  - buf.build/cosmos/cosmos-sdk:v0.50.5
   - buf.build/cosmos/gogo-proto
-  - buf.build/cosmwasm/wasmd:e65480838a1ded147ef53d35fa3bd9709a61226f
+  - buf.build/cosmwasm/wasmd:v0.51.0
 breaking:
   use:
     - FILE

@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"strings"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/shopspring/decimal"
@@ -110,6 +111,11 @@ var (
 	ConditionalOrderInvalidationFlagPrefix       = []byte{0x78} // prefix for a key to save flags to invalidate conditional orders
 
 	AtomicMarketOrderTakerFeeMultiplierKey = []byte{0x79} // key to store individual market atomic take fee multiplier
+
+	GrantAuthorizationsPrefix            = []byte{0x80} // prefix to store individual stake grants by (granter, grantee)
+	TotalGrantAmountPrefix               = []byte{0x81} // prefix to store the total granted amount by granter
+	LastGranterDelegationCheckTimePrefix = []byte{0x82} // prefix to store the last timestamp that the granter's delegations were checked
+	ActiveGrantPrefix                    = []byte{0x83} // prefix to store the grantee's active grant
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
@@ -271,12 +277,12 @@ func GetSubaccountOrderSuffix(marketID, subaccountID common.Hash, isBuy bool) []
 	return append(MarketSubaccountInfix(marketID, subaccountID), getBoolPrefix(isBuy)...)
 }
 
-func GetSubaccountOrderKey(marketID, subaccountID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
+func GetSubaccountOrderKey(marketID, subaccountID common.Hash, isBuy bool, price math.LegacyDec, orderHash common.Hash) []byte {
 	// TODO use copy for greater efficiency
 	return append(append(GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
-func GetSubaccountOrderIterationKey(price sdk.Dec, orderHash common.Hash) []byte {
+func GetSubaccountOrderIterationKey(price math.LegacyDec, orderHash common.Hash) []byte {
 	return append([]byte(GetPaddedPrice(price)), orderHash.Bytes()...)
 }
 
@@ -308,7 +314,7 @@ func GetDerivativeMarketTransientMarketsKey(marketID common.Hash, isBuy bool) []
 	return append(DerivativeMarketOrderIndicatorPrefix, MarketDirectionPrefix(marketID, isBuy)...)
 }
 
-func GetPaddedPrice(price sdk.Dec) string {
+func GetPaddedPrice(price math.LegacyDec) string {
 	dec := decimal.NewFromBigInt(price.BigInt(), -18).StringFixed(PriceDecimalPlaces)
 	return getPaddedPriceFromString(dec)
 }
@@ -319,7 +325,7 @@ func getPaddedPriceFromString(price string) string {
 	return fmt.Sprintf("%032s.%s", naturalPart, decimalPart)
 }
 
-func GetPriceFromPaddedPrice(paddedPrice string) sdk.Dec {
+func GetPriceFromPaddedPrice(paddedPrice string) math.LegacyDec {
 	priceString := strings.Trim(paddedPrice, "0")
 	// remove the "." if there's no decimal component
 	priceString = strings.TrimSuffix(priceString, ".")
@@ -327,10 +333,10 @@ func GetPriceFromPaddedPrice(paddedPrice string) sdk.Dec {
 	if strings.HasPrefix(priceString, ".") {
 		priceString = "0" + priceString
 	}
-	return sdk.MustNewDecFromStr(priceString)
+	return math.LegacyMustNewDecFromStr(priceString)
 }
 
-func GetLimitOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
+func GetLimitOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price math.LegacyDec, orderHash common.Hash) []byte {
 	return GetOrderByPriceKeyPrefix(marketID, isBuy, price, orderHash)
 }
 
@@ -368,7 +374,7 @@ func GetLimitOrderIndexAccountAddressPrefix(marketID common.Hash, isBuy bool, ac
 	return append(MarketDirectionPrefix(marketID, isBuy), account.Bytes()...)
 }
 
-func GetOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
+func GetOrderByPriceKeyPrefix(marketID common.Hash, isBuy bool, price math.LegacyDec, orderHash common.Hash) []byte {
 	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
@@ -376,12 +382,12 @@ func GetOrderByStringPriceKeyPrefix(marketID common.Hash, isBuy bool, price stri
 	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(getPaddedPriceFromString(price))...), orderHash.Bytes()...)
 }
 
-func GetConditionalOrderByTriggerPriceKeyPrefix(marketID common.Hash, isHigher bool, triggerPrice sdk.Dec, orderHash common.Hash) []byte {
+func GetConditionalOrderByTriggerPriceKeyPrefix(marketID common.Hash, isHigher bool, triggerPrice math.LegacyDec, orderHash common.Hash) []byte {
 	return append(append(MarketDirectionPrefix(marketID, isHigher), []byte(GetPaddedPrice(triggerPrice))...), orderHash.Bytes()...)
 }
 
 // SpotMarketDirectionPriceHashPrefix turns a marketID + direction + price + order hash to prefix used to get a spot order from the store.
-func SpotMarketDirectionPriceHashPrefix(marketID common.Hash, isBuy bool, price sdk.Dec, orderHash common.Hash) []byte {
+func SpotMarketDirectionPriceHashPrefix(marketID common.Hash, isBuy bool, price math.LegacyDec, orderHash common.Hash) []byte {
 	return append(append(MarketDirectionPrefix(marketID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
@@ -517,12 +523,32 @@ func GetDenomDecimalsKey(denom string) []byte {
 func GetSpotOrderbookLevelsKey(marketID common.Hash, isBuy bool) []byte {
 	return append(SpotOrderbookLevelsPrefix, MarketDirectionPrefix(marketID, isBuy)...)
 }
-func GetSpotOrderbookLevelsForPriceKey(marketID common.Hash, isBuy bool, price sdk.Dec) []byte {
+func GetSpotOrderbookLevelsForPriceKey(marketID common.Hash, isBuy bool, price math.LegacyDec) []byte {
 	return append(GetSpotOrderbookLevelsKey(marketID, isBuy), GetPaddedPrice(price)...)
 }
 func GetDerivativeOrderbookLevelsKey(marketID common.Hash, isBuy bool) []byte {
 	return append(DerivativeOrderbookLevelsPrefix, MarketDirectionPrefix(marketID, isBuy)...)
 }
-func GetDerivativeOrderbookLevelsForPriceKey(marketID common.Hash, isBuy bool, price sdk.Dec) []byte {
+func GetDerivativeOrderbookLevelsForPriceKey(marketID common.Hash, isBuy bool, price math.LegacyDec) []byte {
 	return append(GetDerivativeOrderbookLevelsKey(marketID, isBuy), GetPaddedPrice(price)...)
+}
+
+func GetGrantAuthorizationKey(granter, grantee sdk.AccAddress) []byte {
+	return append(GrantAuthorizationsPrefix, append(granter.Bytes(), grantee.Bytes()...)...)
+}
+
+func GetGrantAuthorizationIteratorPrefix(granter sdk.AccAddress) []byte {
+	return append(GrantAuthorizationsPrefix, granter.Bytes()...)
+}
+
+func GetTotalGrantAmountKey(granter sdk.AccAddress) []byte {
+	return append(TotalGrantAmountPrefix, granter.Bytes()...)
+}
+
+func GetActiveGrantKey(grantee sdk.AccAddress) []byte {
+	return append(ActiveGrantPrefix, grantee.Bytes()...)
+}
+
+func GetLastValidGrantDelegationCheckTimeKey(granter sdk.AccAddress) []byte {
+	return append(LastGranterDelegationCheckTimePrefix, granter.Bytes()...)
 }

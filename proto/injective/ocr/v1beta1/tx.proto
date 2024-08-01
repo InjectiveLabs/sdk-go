@@ -6,11 +6,14 @@ import "cosmos/msg/v1/msg.proto";
 import "gogoproto/gogo.proto";
 import "injective/ocr/v1beta1/ocr.proto";
 import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ocr/types";
 
 // Msg defines the OCR Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   // CreateFeed defines a method for creating feed by module admin
   rpc CreateFeed(MsgCreateFeed) returns (MsgCreateFeedResponse);
   // CreateFeed defines a method for creating feed by feed admin or feed billing
@@ -39,6 +42,7 @@ service Msg {
 }
 
 message MsgCreateFeed {
+  option (amino.name) = "ocr/MsgCreateFeed";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -51,6 +55,7 @@ message MsgCreateFeed {
 message MsgCreateFeedResponse {}
 
 message MsgUpdateFeed {
+  option (amino.name) = "ocr/MsgUpdateFeed";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -69,13 +74,13 @@ message MsgUpdateFeed {
 
   // Fixed LINK reward for each observer
   string link_per_observation = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = true
   ];
 
   // Fixed LINK reward for transmitter
   string link_per_transmission = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = true
   ];
 
@@ -92,6 +97,7 @@ message MsgUpdateFeed {
 message MsgUpdateFeedResponse {}
 
 message MsgTransmit {
+  option (amino.name) = "ocr/MsgTransmit";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -111,6 +117,7 @@ message MsgTransmit {
 message MsgTransmitResponse {}
 
 message MsgFundFeedRewardPool {
+  option (amino.name) = "ocr/MsgFundFeedRewardPool";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -124,6 +131,7 @@ message MsgFundFeedRewardPool {
 message MsgFundFeedRewardPoolResponse {}
 
 message MsgWithdrawFeedRewardPool {
+  option (amino.name) = "ocr/MsgWithdrawFeedRewardPool";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -137,6 +145,7 @@ message MsgWithdrawFeedRewardPool {
 message MsgWithdrawFeedRewardPoolResponse {}
 
 message MsgSetPayees {
+  option (amino.name) = "ocr/MsgSetPayees";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -154,6 +163,7 @@ message MsgSetPayees {
 message MsgSetPayeesResponse {}
 
 message MsgTransferPayeeship {
+  option (amino.name) = "ocr/MsgTransferPayeeship";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -170,6 +180,7 @@ message MsgTransferPayeeship {
 message MsgTransferPayeeshipResponse {}
 
 message MsgAcceptPayeeship {
+  option (amino.name) = "ocr/MsgAcceptPayeeship";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -185,6 +196,7 @@ message MsgAcceptPayeeship {
 message MsgAcceptPayeeshipResponse {}
 
 message MsgUpdateParams {
+  option (amino.name) = "ocr/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.

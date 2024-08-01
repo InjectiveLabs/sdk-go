@@ -16,7 +16,9 @@ import (
 )
 
 const (
-	SessionRenewalOffset = 2 * time.Minute
+	MainnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json" // nolint:gosec // not credentials, just the link to the public tokens list
+	TestnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json" // nolint:gosec // not credentials, just the link to the public tokens list
+	DevnetTokensListURL  = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"  // nolint:gosec // not credentials, just the link to the public tokens list
 )
 
 func cookieByName(cookies []*http.Cookie, key string) *http.Cookie {
@@ -42,6 +44,8 @@ func (provider *MetadataProvider) metadata() metadata.MD {
 
 type CookieAssistant interface {
 	Metadata(provider MetadataProvider) (string, error)
+	RealMetadata() metadata.MD
+	ProcessResponseMetadata(header metadata.MD)
 }
 
 type ExpiringCookieAssistant struct {
@@ -63,7 +67,7 @@ func (assistant *ExpiringCookieAssistant) initializeCookie(provider MetadataProv
 }
 
 func (assistant *ExpiringCookieAssistant) checkCookieExpiration() {
-	//borrow http request to parse cookie
+	// borrow http request to parse cookie
 	header := http.Header{}
 	header.Add("Cookie", assistant.cookie)
 	request := http.Request{Header: header}
@@ -75,7 +79,7 @@ func (assistant *ExpiringCookieAssistant) checkCookieExpiration() {
 
 		if err == nil {
 			timestampDiff := time.Until(expirationTime)
-			if timestampDiff < SessionRenewalOffset {
+			if timestampDiff < 0 {
 				assistant.cookie = ""
 			}
 		}
@@ -94,6 +98,22 @@ func (assistant *ExpiringCookieAssistant) Metadata(provider MetadataProvider) (s
 	assistant.checkCookieExpiration()
 
 	return cookie, nil
+}
+
+func (assistant *ExpiringCookieAssistant) RealMetadata() metadata.MD {
+	newMetadata := metadata.Pairs()
+	assistant.checkCookieExpiration()
+	if assistant.cookie != "" {
+		newMetadata.Append("cookie", assistant.cookie)
+	}
+	return newMetadata
+}
+
+func (assistant *ExpiringCookieAssistant) ProcessResponseMetadata(header metadata.MD) {
+	cookieInfo := header.Get("set-cookie")
+	if len(cookieInfo) > 0 {
+		assistant.cookie = cookieInfo[0]
+	}
 }
 
 func TestnetKubernetesCookieAssistant() ExpiringCookieAssistant {
@@ -139,44 +159,71 @@ func (assistant *BareMetalLoadBalancedCookieAssistant) Metadata(provider Metadat
 	return assistant.cookie, nil
 }
 
+func (assistant *BareMetalLoadBalancedCookieAssistant) RealMetadata() metadata.MD {
+	newMetadata := metadata.Pairs()
+	if assistant.cookie != "" {
+		newMetadata.Append("cookie", assistant.cookie)
+	}
+	return newMetadata
+}
+
+func (assistant *BareMetalLoadBalancedCookieAssistant) ProcessResponseMetadata(header metadata.MD) {
+	cookieInfo := header.Get("set-cookie")
+	if len(cookieInfo) > 0 {
+		assistant.cookie = cookieInfo[0]
+	}
+}
+
 type DisabledCookieAssistant struct{}
 
 func (assistant *DisabledCookieAssistant) Metadata(provider MetadataProvider) (string, error) {
 	return "", nil
 }
 
+func (assistant *DisabledCookieAssistant) RealMetadata() metadata.MD {
+	return metadata.Pairs()
+}
+
+func (assistant *DisabledCookieAssistant) ProcessResponseMetadata(header metadata.MD) {}
+
 type Network struct {
 	LcdEndpoint             string
 	TmEndpoint              string
 	ChainGrpcEndpoint       string
 	ChainStreamGrpcEndpoint string
-	ChainTlsCert            credentials.TransportCredentials
+	ChainTLSCert            credentials.TransportCredentials
 	ExchangeGrpcEndpoint    string
 	ExplorerGrpcEndpoint    string
-	ExchangeTlsCert         credentials.TransportCredentials
-	ExplorerTlsCert         credentials.TransportCredentials
+	ExchangeTLSCert         credentials.TransportCredentials
+	ExplorerTLSCert         credentials.TransportCredentials
 	ChainId                 string
-	Fee_denom               string
+	FeeDenom                string
 	Name                    string
-	chainCookieAssistant    CookieAssistant
-	exchangeCookieAssistant CookieAssistant
-	explorerCookieAssistant CookieAssistant
+	ChainCookieAssistant    CookieAssistant
+	ExchangeCookieAssistant CookieAssistant
+	ExplorerCookieAssistant CookieAssistant
+	OfficialTokensListURL   string
 }
 
-func (network *Network) ChainMetadata(provider MetadataProvider) (string, error) {
-	return network.chainCookieAssistant.Metadata(provider)
-}
-
-func (network *Network) ExchangeMetadata(provider MetadataProvider) (string, error) {
-	return network.exchangeCookieAssistant.Metadata(provider)
-}
-
-func (network *Network) ExplorerMetadata(provider MetadataProvider) (string, error) {
-	return network.explorerCookieAssistant.Metadata(provider)
-}
-
-func LoadNetwork(name string, node string) Network {
+func LoadNetwork(name, node string) Network {
 	switch name {
+
+	case "local":
+		return Network{
+			LcdEndpoint:             "http://localhost:10337",
+			TmEndpoint:              "http://localhost:26657",
+			ChainGrpcEndpoint:       "tcp://localhost:9900",
+			ChainStreamGrpcEndpoint: "tcp://localhost:9999",
+			ExchangeGrpcEndpoint:    "tcp://localhost:9910",
+			ExplorerGrpcEndpoint:    "tcp://localhost:9911",
+			ChainId:                 "injective-1",
+			FeeDenom:                "inj",
+			Name:                    "local",
+			ChainCookieAssistant:    &DisabledCookieAssistant{},
+			ExchangeCookieAssistant: &DisabledCookieAssistant{},
+			ExplorerCookieAssistant: &DisabledCookieAssistant{},
+			OfficialTokensListURL:   MainnetTokensListURL,
+		}
 
 	case "devnet-1":
 		return Network{
@@ -187,11 +234,12 @@ func LoadNetwork(name string, node string) Network {
 			ExchangeGrpcEndpoint:    "tcp://devnet-1.api.injective.dev:9910",
 			ExplorerGrpcEndpoint:    "tcp://devnet-1.api.injective.dev:9911",
 			ChainId:                 "injective-777",
-			Fee_denom:               "inj",
+			FeeDenom:                "inj",
 			Name:                    "devnet-1",
-			chainCookieAssistant:    &DisabledCookieAssistant{},
-			exchangeCookieAssistant: &DisabledCookieAssistant{},
-			explorerCookieAssistant: &DisabledCookieAssistant{},
+			ChainCookieAssistant:    &DisabledCookieAssistant{},
+			ExchangeCookieAssistant: &DisabledCookieAssistant{},
+			ExplorerCookieAssistant: &DisabledCookieAssistant{},
+			OfficialTokensListURL:   DevnetTokensListURL,
 		}
 	case "devnet":
 		return Network{
@@ -202,11 +250,12 @@ func LoadNetwork(name string, node string) Network {
 			ExchangeGrpcEndpoint:    "tcp://devnet.injective.dev:9910",
 			ExplorerGrpcEndpoint:    "tcp://devnet.api.injective.dev:9911",
 			ChainId:                 "injective-777",
-			Fee_denom:               "inj",
+			FeeDenom:                "inj",
 			Name:                    "devnet",
-			chainCookieAssistant:    &DisabledCookieAssistant{},
-			exchangeCookieAssistant: &DisabledCookieAssistant{},
-			explorerCookieAssistant: &DisabledCookieAssistant{},
+			ChainCookieAssistant:    &DisabledCookieAssistant{},
+			ExchangeCookieAssistant: &DisabledCookieAssistant{},
+			ExplorerCookieAssistant: &DisabledCookieAssistant{},
+			OfficialTokensListURL:   DevnetTokensListURL,
 		}
 	case "testnet":
 		validNodes := []string{"lb", "sentry"}
@@ -215,7 +264,7 @@ func LoadNetwork(name string, node string) Network {
 		}
 
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, chainStreamGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
-		var chainTlsCert, exchangeTlsCert, explorerTlsCert credentials.TransportCredentials
+		var chainTLSCert, exchangeTLSCert, explorerTLSCert credentials.TransportCredentials
 		var chainCookieAssistant, exchangeCookieAssistant, explorerCookieAssistant CookieAssistant
 		if node == "lb" {
 			lcdEndpoint = "https://testnet.sentry.lcd.injective.network:443"
@@ -224,9 +273,9 @@ func LoadNetwork(name string, node string) Network {
 			chainStreamGrpcEndpoint = "testnet.sentry.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = "testnet.sentry.exchange.grpc.injective.network:443"
 			explorerGrpcEndpoint = "testnet.sentry.explorer.grpc.injective.network:443"
-			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
@@ -237,9 +286,9 @@ func LoadNetwork(name string, node string) Network {
 			chainStreamGrpcEndpoint = "testnet.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = "testnet.exchange.grpc.injective.network:443"
 			explorerGrpcEndpoint = "testnet.explorer.grpc.injective.network:443"
-			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			chainCookieAssistant = &DisabledCookieAssistant{}
 			exchangeCookieAssistant = &DisabledCookieAssistant{}
 			explorerCookieAssistant = &DisabledCookieAssistant{}
@@ -250,17 +299,18 @@ func LoadNetwork(name string, node string) Network {
 			TmEndpoint:              tmEndpoint,
 			ChainGrpcEndpoint:       chainGrpcEndpoint,
 			ChainStreamGrpcEndpoint: chainStreamGrpcEndpoint,
-			ChainTlsCert:            chainTlsCert,
+			ChainTLSCert:            chainTLSCert,
 			ExchangeGrpcEndpoint:    exchangeGrpcEndpoint,
-			ExchangeTlsCert:         exchangeTlsCert,
+			ExchangeTLSCert:         exchangeTLSCert,
 			ExplorerGrpcEndpoint:    explorerGrpcEndpoint,
-			ExplorerTlsCert:         explorerTlsCert,
+			ExplorerTLSCert:         explorerTLSCert,
 			ChainId:                 "injective-888",
-			Fee_denom:               "inj",
+			FeeDenom:                "inj",
 			Name:                    "testnet",
-			chainCookieAssistant:    chainCookieAssistant,
-			exchangeCookieAssistant: exchangeCookieAssistant,
-			explorerCookieAssistant: explorerCookieAssistant,
+			ChainCookieAssistant:    chainCookieAssistant,
+			ExchangeCookieAssistant: exchangeCookieAssistant,
+			ExplorerCookieAssistant: explorerCookieAssistant,
+			OfficialTokensListURL:   TestnetTokensListURL,
 		}
 	case "mainnet":
 		validNodes := []string{"lb", "sentry", "sentry0", "sentry1", "sentry3"}
@@ -268,7 +318,7 @@ func LoadNetwork(name string, node string) Network {
 			panic(fmt.Sprintf("invalid node %s for %s", node, name))
 		}
 		var lcdEndpoint, tmEndpoint, chainGrpcEndpoint, chainStreamGrpcEndpoint, exchangeGrpcEndpoint, explorerGrpcEndpoint string
-		var chainTlsCert, exchangeTlsCert, explorerTlsCert credentials.TransportCredentials
+		var chainTLSCert, exchangeTLSCert, explorerTLSCert credentials.TransportCredentials
 		var chainCookieAssistant, exchangeCookieAssistant, explorerCookieAssistant CookieAssistant
 
 		if node == "lb" || node == "sentry" {
@@ -278,9 +328,9 @@ func LoadNetwork(name string, node string) Network {
 			chainStreamGrpcEndpoint = "sentry.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = "sentry.exchange.grpc.injective.network:443"
 			explorerGrpcEndpoint = "sentry.explorer.grpc.injective.network:443"
-			chainTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			exchangeTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			exchangeTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
@@ -291,9 +341,9 @@ func LoadNetwork(name string, node string) Network {
 			chainStreamGrpcEndpoint = "sentry.chain.stream.injective.network:443"
 			exchangeGrpcEndpoint = fmt.Sprintf("tcp://%s.injective.network:9910", node)
 			explorerGrpcEndpoint = "sentry.explorer.grpc.injective.network:443"
-			chainTlsCert = insecure.NewCredentials()
-			exchangeTlsCert = insecure.NewCredentials()
-			explorerTlsCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
+			chainTLSCert = insecure.NewCredentials()
+			explorerTLSCert = insecure.NewCredentials()
+			explorerTLSCert = credentials.NewServerTLSFromCert(&tls.Certificate{})
 			chainCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			exchangeCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
 			explorerCookieAssistant = &BareMetalLoadBalancedCookieAssistant{}
@@ -304,30 +354,33 @@ func LoadNetwork(name string, node string) Network {
 			TmEndpoint:              tmEndpoint,
 			ChainGrpcEndpoint:       chainGrpcEndpoint,
 			ChainStreamGrpcEndpoint: chainStreamGrpcEndpoint,
-			ChainTlsCert:            chainTlsCert,
+			ChainTLSCert:            chainTLSCert,
 			ExchangeGrpcEndpoint:    exchangeGrpcEndpoint,
-			ExchangeTlsCert:         exchangeTlsCert,
+			ExchangeTLSCert:         exchangeTLSCert,
 			ExplorerGrpcEndpoint:    explorerGrpcEndpoint,
-			ExplorerTlsCert:         explorerTlsCert,
+			ExplorerTLSCert:         explorerTLSCert,
 			ChainId:                 "injective-1",
-			Fee_denom:               "inj",
+			FeeDenom:                "inj",
 			Name:                    "mainnet",
-			chainCookieAssistant:    chainCookieAssistant,
-			exchangeCookieAssistant: exchangeCookieAssistant,
-			explorerCookieAssistant: explorerCookieAssistant,
+			ChainCookieAssistant:    chainCookieAssistant,
+			ExchangeCookieAssistant: exchangeCookieAssistant,
+			ExplorerCookieAssistant: explorerCookieAssistant,
+			OfficialTokensListURL:   MainnetTokensListURL,
 		}
-	}
 
-	return Network{}
+	default:
+		panic(fmt.Sprintf("invalid network %s", name))
+	}
 }
 
 // NewNetwork returns a new Network instance with all cookie assistants disabled.
 // It can be used to setup a custom environment from scratch.
 func NewNetwork() Network {
 	return Network{
-		chainCookieAssistant:    &DisabledCookieAssistant{},
-		exchangeCookieAssistant: &DisabledCookieAssistant{},
-		explorerCookieAssistant: &DisabledCookieAssistant{},
+		ChainCookieAssistant:    &DisabledCookieAssistant{},
+		ExchangeCookieAssistant: &DisabledCookieAssistant{},
+		ExplorerCookieAssistant: &DisabledCookieAssistant{},
+		OfficialTokensListURL:   MainnetTokensListURL,
 	}
 }
 
@@ -355,8 +408,8 @@ func Connect(protoAddr string) (net.Conn, error) {
 // ProtocolAndAddress splits an address into the protocol and address components.
 // For instance, "tcp://127.0.0.1:8080" will be split into "tcp" and "127.0.0.1:8080".
 // If the address has no protocol prefix, the default is "tcp".
-func ProtocolAndAddress(listenAddr string) (string, string) {
-	protocol, address := "tcp", listenAddr
+func ProtocolAndAddress(listenAddr string) (protocol, address string) {
+	protocol, address = "tcp", listenAddr
 	parts := strings.SplitN(address, "://", 2)
 	if len(parts) == 2 {
 		protocol, address = parts[0], parts[1]

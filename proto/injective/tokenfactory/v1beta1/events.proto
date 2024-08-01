@@ -18,7 +18,7 @@ message EventMintTFDenom {
   cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
 }
 
-message EventBurnTFDenom {
+message EventBurnDenom {
   string burner_address = 1;
   cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
 }

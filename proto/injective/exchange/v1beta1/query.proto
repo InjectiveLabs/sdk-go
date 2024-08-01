@@ -416,6 +416,27 @@ service Query {
     option (google.api.http).get =
         "/injective/exchange/v1beta1/atomic_order_fee_multiplier";
   }
+
+  // Retrieves the active stake grant for a grantee
+  rpc ActiveStakeGrant(QueryActiveStakeGrantRequest)
+      returns (QueryActiveStakeGrantResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/active_stake_grant/{grantee}";
+  }
+
+  // Retrieves the grant authorization amount for a granter and grantee
+  rpc GrantAuthorization(QueryGrantAuthorizationRequest)
+      returns (QueryGrantAuthorizationResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/grant_authorization/{granter}/{grantee}";
+  }
+
+  // Retrieves the grant authorization amount for a granter and grantee
+  rpc GrantAuthorizations(QueryGrantAuthorizationsRequest)
+      returns (QueryGrantAuthorizationsResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/grant_authorizations/{granter}";
+  }
 }
 
 message Subaccount {
@@ -594,11 +615,11 @@ message QuerySpotOrderbookRequest {
   uint64 limit = 2;
   OrderSide order_side = 3;
   string limit_cumulative_notional = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   string limit_cumulative_quantity = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 }
@@ -687,22 +708,23 @@ message QueryAccountAddressSpotOrdersRequest {
 message TrimmedSpotLimitOrder {
   // price of the order
   string price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // quantity of the order
   string quantity = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // the amount of the quantity remaining fillable
   string fillable = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // true if the order is a buy
   bool isBuy = 4;
   string order_hash = 5;
+  string cid = 6;
 }
 
 // QueryTraderSpotOrdersResponse is the response type for the
@@ -729,17 +751,17 @@ message QuerySpotMidPriceAndTOBRequest {
 message QuerySpotMidPriceAndTOBResponse {
   // mid price of the market
   string mid_price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // best buy price of the market
   string best_buy_price = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // best sell price of the market
   string best_sell_price = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 }
@@ -756,17 +778,17 @@ message QueryDerivativeMidPriceAndTOBRequest {
 message QueryDerivativeMidPriceAndTOBResponse {
   // mid price of the market
   string mid_price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // best buy price of the market
   string best_buy_price = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // best sell price of the market
   string best_sell_price = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 }
@@ -778,7 +800,7 @@ message QueryDerivativeOrderbookRequest {
   string market_id = 1;
   uint64 limit = 2;
   string limit_cumulative_notional = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 }
@@ -812,12 +834,12 @@ message QueryTraderSpotOrdersToCancelUpToAmountRequest {
   string subaccount_id = 2;
   // the base amount to cancel (free up)
   string base_amount = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // the quote amount to cancel (free up)
   string quote_amount = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // The cancellation strategy
@@ -825,7 +847,7 @@ message QueryTraderSpotOrdersToCancelUpToAmountRequest {
   // The reference price for the cancellation strategy, e.g. mid price or mark
   // price
   string reference_price = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 }
@@ -839,7 +861,7 @@ message QueryTraderDerivativeOrdersToCancelUpToAmountRequest {
   string subaccount_id = 2;
   // the quote amount to cancel (free up)
   string quote_amount = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // The cancellation strategy
@@ -847,7 +869,7 @@ message QueryTraderDerivativeOrdersToCancelUpToAmountRequest {
   // The reference price for the cancellation strategy, e.g. mid price or mark
   // price
   string reference_price = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
 }
@@ -873,28 +895,29 @@ message QueryAccountAddressDerivativeOrdersRequest {
 message TrimmedDerivativeLimitOrder {
   // price of the order
   string price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // quantity of the order
   string quantity = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // margin of the order
   string margin = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // the amount of the quantity remaining fillable
   string fillable = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // true if the order is a buy
   bool isBuy = 5
       [ (gogoproto.jsontag) = "isBuy" ]; // ensure omitempty is not in jsontag
   string order_hash = 6;
+  string cid = 7;
 }
 
 // QueryTraderDerivativeOrdersResponse is the response type for the
@@ -942,12 +965,12 @@ message QueryDerivativeMarketsRequest {
 
 message PriceLevel {
   string price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // quantity
   string quantity = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -964,7 +987,7 @@ message FullDerivativeMarket {
     ExpiryFuturesMarketInfo futures_info = 3;
   }
   string mark_price = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
@@ -1047,15 +1070,15 @@ message QuerySubaccountPositionInMarketResponse {
 message EffectivePosition {
   bool is_long = 1;
   string quantity = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string entry_price = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string effective_margin = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -1135,7 +1158,7 @@ message QueryTradeRewardPointsRequest {
 // Query/TradeRewardPoints RPC method.
 message QueryTradeRewardPointsResponse {
   repeated string account_trade_reward_points = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -1150,12 +1173,12 @@ message QueryTradeRewardCampaignResponse {
   TradingRewardCampaignInfo trading_reward_campaign_info = 1;
   repeated CampaignRewardPool trading_reward_pool_campaign_schedule = 2;
   string total_trade_reward_points = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   repeated CampaignRewardPool pending_trading_reward_pool_campaign_schedule = 4;
   repeated string pending_total_trade_reward_points = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -1206,23 +1229,23 @@ message BalanceMismatch {
   string subaccountId = 1;
   string denom = 2;
   string available = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string total = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string balance_hold = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string expected_total = 6 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string difference = 7 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -1241,15 +1264,15 @@ message BalanceWithMarginHold {
   string subaccountId = 1;
   string denom = 2;
   string available = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string total = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   string balance_hold = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -1330,7 +1353,7 @@ message QueryMarketVolatilityRequest {
 // Query/MarketVolatility RPC method.
 message QueryMarketVolatilityResponse {
   string volatility = 1
-      [ (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec" ];
+      [ (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec" ];
   injective.oracle.v1beta1.MetadataStatistics history_metadata = 2;
   repeated TradeRecord raw_history = 3;
 }
@@ -1356,22 +1379,22 @@ message QueryTraderDerivativeConditionalOrdersRequest {
 message TrimmedDerivativeConditionalOrder {
   // price of the order
   string price = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // quantity of the order
   string quantity = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // margin of the order
   string margin = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // price to trigger the order
   string triggerPrice = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // true if the order is a buy
@@ -1379,6 +1402,7 @@ message TrimmedDerivativeConditionalOrder {
       [ (gogoproto.jsontag) = "isBuy" ]; // ensure omitempty is not in jsontag
   bool isLimit = 6 [ (gogoproto.jsontag) = "isLimit" ];
   string order_hash = 7;
+  string cid = 8;
 }
 
 // QueryTraderDerivativeOrdersResponse is the response type for the
@@ -1391,7 +1415,36 @@ message QueryMarketAtomicExecutionFeeMultiplierRequest { string market_id = 1; }
 
 message QueryMarketAtomicExecutionFeeMultiplierResponse {
   string multiplier = 1 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+}
+
+message QueryActiveStakeGrantRequest { string grantee = 1; }
+
+message QueryActiveStakeGrantResponse {
+  ActiveGrant grant = 1;
+  EffectiveGrant effective_grant = 2;
+}
+
+message QueryGrantAuthorizationRequest {
+  string granter = 1;
+  string grantee = 2;
+}
+
+message QueryGrantAuthorizationResponse {
+  string amount = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message QueryGrantAuthorizationsRequest { string granter = 1; }
+
+message QueryGrantAuthorizationsResponse {
+  string total_grant_amount = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  repeated GrantAuthorization grants = 2;
 }

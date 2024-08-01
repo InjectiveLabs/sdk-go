@@ -1,4 +1,4 @@
-// Code generated with goa v3.5.2, DO NOT EDIT.
+// Code generated with goa v3.7.0, DO NOT EDIT.
 //
 // InjectiveExchangeRPC protocol buffer definition
 //
@@ -57,7 +57,7 @@ message PrepareTxRequest {
 	uint64 chain_id = 1;
 	// Specify Ethereum address of a signer
 	string signer_address = 2;
-	// Account sequence number (nonce) of signer
+	// Deprecated: this field is ignored
 	uint64 sequence = 3;
 	// Textual memo information to attach with tx
 	string memo = 4;
@@ -67,6 +67,8 @@ message PrepareTxRequest {
 	CosmosTxFee fee = 6;
 	// List of Cosmos proto3-encoded Msgs to include in a single tx
 	repeated bytes msgs = 7;
+	// The wrapper of the EIP712 message, V1 or V2
+	string eip712_wrapper = 8;
 }
 
 message CosmosTxFee {

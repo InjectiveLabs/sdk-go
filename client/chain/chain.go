@@ -7,50 +7,53 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+
+	sdkmath "cosmossdk.io/math"
+
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
+
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
 	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/gogoproto/proto"
-	eth "github.com/ethereum/go-ethereum/common"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 )
 
 type OrderbookType string
-
-const (
-	SpotOrderbook       = "injective.exchange.v1beta1.EventOrderbookUpdate.spot_orderbooks"
-	DerivativeOrderbook = "injective.exchange.v1beta1.EventOrderbookUpdate.derivative_orderbooks"
-)
 
 const (
 	msgCommitBatchSizeLimit          = 1024
@@ -59,9 +62,8 @@ const (
 	defaultBroadcastTimeout          = 40 * time.Second
 	defaultTimeoutHeight             = 20
 	defaultTimeoutHeightSyncInterval = 30 * time.Second
-	defaultSessionRenewalOffset      = 120
-	defaultBlockTime                 = 3 * time.Second
-	defaultChainCookieName           = ".chain_cookie"
+	SpotOrderbook                    = "injective.exchange.v1beta1.EventOrderbookUpdate.spot_orderbooks"
+	DerivativeOrderbook              = "injective.exchange.v1beta1.EventOrderbookUpdate.derivative_orderbooks"
 
 	MaxGasFee = "1000000000inj"
 )
@@ -120,28 +122,28 @@ type ChainClient interface {
 		expireIn time.Time,
 	) *authztypes.MsgGrant
 
-	DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash
-	Subaccount(account cosmtypes.AccAddress, index int) eth.Hash
+	DefaultSubaccount(acc sdk.AccAddress) ethcommon.Hash
+	Subaccount(account sdk.AccAddress, index int) ethcommon.Hash
 
-	GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
+	GetSubAccountNonce(ctx context.Context, subaccountId ethcommon.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
 	GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
 
 	UpdateSubaccountNonceFromChain() error
-	SynchronizeSubaccountNonce(subaccountId eth.Hash) error
-	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId eth.Hash) (OrderHashes, error)
+	SynchronizeSubaccountNonce(subaccountId ethcommon.Hash) error
+	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId ethcommon.Hash) (OrderHashes, error)
 
-	SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
-	CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
-	DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
-	CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
-	OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData
+	SpotOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
+	CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
+	DerivativeOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
+	CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
+	OrderCancel(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
 	GetGasFee() (string, error)
 
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
 	StreamEventOrderFailWithWebsocket(sender string, websocket *rpchttp.HTTP, failEventCh chan map[string]uint)
-	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook)
-	StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIds []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook)
+	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIDs []string, orderbookCh chan exchangetypes.Orderbook)
+	StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIDs []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook)
 
 	ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error)
 
@@ -172,6 +174,131 @@ type ChainClient interface {
 	FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error)
 	FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error)
 	FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error)
+
+	// distribution module
+	FetchValidatorDistributionInfo(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorDistributionInfoResponse, error)
+	FetchValidatorOutstandingRewards(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorOutstandingRewardsResponse, error)
+	FetchValidatorCommission(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorCommissionResponse, error)
+	FetchValidatorSlashes(ctx context.Context, validatorAddress string, startingHeight uint64, endingHeight uint64, pagination *query.PageRequest) (*distributiontypes.QueryValidatorSlashesResponse, error)
+	FetchDelegationRewards(ctx context.Context, delegatorAddress string, validatorAddress string) (*distributiontypes.QueryDelegationRewardsResponse, error)
+	FetchDelegationTotalRewards(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegationTotalRewardsResponse, error)
+	FetchDelegatorValidators(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorValidatorsResponse, error)
+	FetchDelegatorWithdrawAddress(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorWithdrawAddressResponse, error)
+	FetchCommunityPool(ctx context.Context) (*distributiontypes.QueryCommunityPoolResponse, error)
+
+	// chain exchange module
+	FetchSubaccountDeposits(ctx context.Context, subaccountID string) (*exchangetypes.QuerySubaccountDepositsResponse, error)
+	FetchSubaccountDeposit(ctx context.Context, subaccountId string, denom string) (*exchangetypes.QuerySubaccountDepositResponse, error)
+	FetchExchangeBalances(ctx context.Context) (*exchangetypes.QueryExchangeBalancesResponse, error)
+	FetchAggregateVolume(ctx context.Context, account string) (*exchangetypes.QueryAggregateVolumeResponse, error)
+	FetchAggregateVolumes(ctx context.Context, accounts []string, marketIDs []string) (*exchangetypes.QueryAggregateVolumesResponse, error)
+	FetchAggregateMarketVolume(ctx context.Context, marketId string) (*exchangetypes.QueryAggregateMarketVolumeResponse, error)
+	FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangetypes.QueryAggregateMarketVolumesResponse, error)
+	FetchDenomDecimal(ctx context.Context, denom string) (*exchangetypes.QueryDenomDecimalResponse, error)
+	FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangetypes.QueryDenomDecimalsResponse, error)
+	FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error)
+	FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMarketResponse, error)
+	FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error)
+	FetchChainFullSpotMarket(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketResponse, error)
+	FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdkmath.LegacyDec, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangetypes.QuerySpotOrderbookResponse, error)
+	FetchChainTraderSpotOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error)
+	FetchChainAccountAddressSpotOrders(ctx context.Context, marketId string, address string) (*exchangetypes.QueryAccountAddressSpotOrdersResponse, error)
+	FetchChainSpotOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangetypes.QuerySpotOrdersByHashesResponse, error)
+	FetchChainSubaccountOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountOrdersResponse, error)
+	FetchChainTraderSpotTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error)
+	FetchSpotMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMidPriceAndTOBResponse, error)
+	FetchDerivativeMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMidPriceAndTOBResponse, error)
+	FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangetypes.QueryDerivativeOrderbookResponse, error)
+	FetchChainTraderDerivativeOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error)
+	FetchChainAccountAddressDerivativeOrders(ctx context.Context, marketId string, address string) (*exchangetypes.QueryAccountAddressDerivativeOrdersResponse, error)
+	FetchChainDerivativeOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangetypes.QueryDerivativeOrdersByHashesResponse, error)
+	FetchChainTraderDerivativeTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error)
+	FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error)
+	FetchChainDerivativeMarket(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketResponse, error)
+	FetchDerivativeMarketAddress(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketAddressResponse, error)
+	FetchSubaccountTradeNonce(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
+	FetchChainPositions(ctx context.Context) (*exchangetypes.QueryPositionsResponse, error)
+	FetchChainSubaccountPositions(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountPositionsResponse, error)
+	FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error)
+	FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error)
+	FetchChainPerpetualMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketInfoResponse, error)
+	FetchChainExpiryFuturesMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryExpiryFuturesMarketInfoResponse, error)
+	FetchChainPerpetualMarketFunding(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketFundingResponse, error)
+	FetchSubaccountOrderMetadata(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountOrderMetadataResponse, error)
+	FetchTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error)
+	FetchPendingTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error)
+	FetchFeeDiscountAccountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
+	FetchTradeRewardCampaign(ctx context.Context) (*exchangetypes.QueryTradeRewardCampaignResponse, error)
+	FetchFeeDiscountSchedule(ctx context.Context) (*exchangetypes.QueryFeeDiscountScheduleResponse, error)
+	FetchBalanceMismatches(ctx context.Context, dustFactor int64) (*exchangetypes.QueryBalanceMismatchesResponse, error)
+	FetchBalanceWithBalanceHolds(ctx context.Context) (*exchangetypes.QueryBalanceWithBalanceHoldsResponse, error)
+	FetchFeeDiscountTierStatistics(ctx context.Context) (*exchangetypes.QueryFeeDiscountTierStatisticsResponse, error)
+	FetchMitoVaultInfos(ctx context.Context) (*exchangetypes.MitoVaultInfosResponse, error)
+	FetchMarketIDFromVault(ctx context.Context, vaultAddress string) (*exchangetypes.QueryMarketIDFromVaultResponse, error)
+	FetchHistoricalTradeRecords(ctx context.Context, marketId string) (*exchangetypes.QueryHistoricalTradeRecordsResponse, error)
+	FetchIsOptedOutOfRewards(ctx context.Context, account string) (*exchangetypes.QueryIsOptedOutOfRewardsResponse, error)
+	FetchOptedOutOfRewardsAccounts(ctx context.Context) (*exchangetypes.QueryOptedOutOfRewardsAccountsResponse, error)
+	FetchMarketVolatility(ctx context.Context, marketId string, tradeHistoryOptions *exchangetypes.TradeHistoryOptions) (*exchangetypes.QueryMarketVolatilityResponse, error)
+	FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error)
+	FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error)
+	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
+
+	// Tendermint module
+	FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error)
+	FetchSyncing(ctx context.Context) (*cmtservice.GetSyncingResponse, error)
+	FetchLatestBlock(ctx context.Context) (*cmtservice.GetLatestBlockResponse, error)
+	FetchBlockByHeight(ctx context.Context, height int64) (*cmtservice.GetBlockByHeightResponse, error)
+	FetchLatestValidatorSet(ctx context.Context) (*cmtservice.GetLatestValidatorSetResponse, error)
+	FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*cmtservice.GetValidatorSetByHeightResponse, error)
+	ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*cmtservice.ABCIQueryResponse, error)
+
+	// IBC Transfer module
+	FetchDenomTrace(ctx context.Context, hash string) (*ibctransfertypes.QueryDenomTraceResponse, error)
+	FetchDenomTraces(ctx context.Context, pagination *query.PageRequest) (*ibctransfertypes.QueryDenomTracesResponse, error)
+	FetchDenomHash(ctx context.Context, trace string) (*ibctransfertypes.QueryDenomHashResponse, error)
+	FetchEscrowAddress(ctx context.Context, portId string, channelId string) (*ibctransfertypes.QueryEscrowAddressResponse, error)
+	FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error)
+
+	// IBC Core Channel module
+	FetchIBCChannel(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelResponse, error)
+	FetchIBCChannels(ctx context.Context, pagination *query.PageRequest) (*ibcchanneltypes.QueryChannelsResponse, error)
+	FetchIBCConnectionChannels(ctx context.Context, connection string, pagination *query.PageRequest) (*ibcchanneltypes.QueryConnectionChannelsResponse, error)
+	FetchIBCChannelClientState(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelClientStateResponse, error)
+	FetchIBCChannelConsensusState(ctx context.Context, portId string, channelId string, revisionNumber uint64, revisionHeight uint64) (*ibcchanneltypes.QueryChannelConsensusStateResponse, error)
+	FetchIBCPacketCommitment(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketCommitmentResponse, error)
+	FetchIBCPacketCommitments(ctx context.Context, portId string, channelId string, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketCommitmentsResponse, error)
+	FetchIBCPacketReceipt(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketReceiptResponse, error)
+	FetchIBCPacketAcknowledgement(ctx context.Context, portId string, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketAcknowledgementResponse, error)
+	FetchIBCPacketAcknowledgements(ctx context.Context, portId string, channelId string, packetCommitmentSequences []uint64, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketAcknowledgementsResponse, error)
+	FetchIBCUnreceivedPackets(ctx context.Context, portId string, channelId string, packetCommitmentSequences []uint64) (*ibcchanneltypes.QueryUnreceivedPacketsResponse, error)
+	FetchIBCUnreceivedAcks(ctx context.Context, portId string, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error)
+	FetchIBCNextSequenceReceive(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error)
+
+	// IBC Core Chain module
+	FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error)
+	FetchIBCClientStates(ctx context.Context, pagination *query.PageRequest) (*ibcclienttypes.QueryClientStatesResponse, error)
+	FetchIBCConsensusState(ctx context.Context, clientId string, revisionNumber uint64, revisionHeight uint64, latestHeight bool) (*ibcclienttypes.QueryConsensusStateResponse, error)
+	FetchIBCConsensusStates(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStatesResponse, error)
+	FetchIBCConsensusStateHeights(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStateHeightsResponse, error)
+	FetchIBCClientStatus(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStatusResponse, error)
+	FetchIBCClientParams(ctx context.Context) (*ibcclienttypes.QueryClientParamsResponse, error)
+	FetchIBCUpgradedClientState(ctx context.Context) (*ibcclienttypes.QueryUpgradedClientStateResponse, error)
+	FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error)
+
+	// IBC Core Connection module
+	FetchIBCConnection(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionResponse, error)
+	FetchIBCConnections(ctx context.Context, pagination *query.PageRequest) (*ibcconnectiontypes.QueryConnectionsResponse, error)
+	FetchIBCClientConnections(ctx context.Context, clientId string) (*ibcconnectiontypes.QueryClientConnectionsResponse, error)
+	FetchIBCConnectionClientState(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionClientStateResponse, error)
+	FetchIBCConnectionConsensusState(ctx context.Context, connectionId string, revisionNumber uint64, revisionHeight uint64) (*ibcconnectiontypes.QueryConnectionConsensusStateResponse, error)
+	FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error)
+
+	// Permissions module
+	FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error)
+	FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error)
+	FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error)
+	FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error)
+	FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error)
 
 	AdjustGasPricesToMax()
 	AdjustedGasPricesToOrigin()
@@ -206,18 +333,24 @@ type chainClient struct {
 	nonce                   uint32
 	closeRoutineUpdateNonce context.CancelFunc
 
-	sessionCookie  string
 	sessionEnabled bool
 
-	txClient                txtypes.ServiceClient
-	authQueryClient         authtypes.QueryClient
-	exchangeQueryClient     exchangetypes.QueryClient
-	bankQueryClient         banktypes.QueryClient
-	authzQueryClient        authztypes.QueryClient
-	wasmQueryClient         wasmtypes.QueryClient
-	chainStreamClient       chainstreamtypes.StreamClient
-	tokenfactoryQueryClient tokenfactorytypes.QueryClient
-	subaccountToNonce       map[ethcommon.Hash]uint32
+	authQueryClient          authtypes.QueryClient
+	authzQueryClient         authztypes.QueryClient
+	bankQueryClient          banktypes.QueryClient
+	chainStreamClient        chainstreamtypes.StreamClient
+	distributionQueryClient  distributiontypes.QueryClient
+	exchangeQueryClient      exchangetypes.QueryClient
+	ibcChannelQueryClient    ibcchanneltypes.QueryClient
+	ibcClientQueryClient     ibcclienttypes.QueryClient
+	ibcConnectionQueryClient ibcconnectiontypes.QueryClient
+	ibcTransferQueryClient   ibctransfertypes.QueryClient
+	permissionsQueryClient   permissionstypes.QueryClient
+	tendermintQueryClient    cmtservice.ServiceClient
+	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
+	txClient                 txtypes.ServiceClient
+	wasmQueryClient          wasmtypes.QueryClient
+	subaccountToNonce        map[ethcommon.Hash]uint32
 
 	closed  int64
 	canSign bool
@@ -234,8 +367,8 @@ func NewChainClient(
 	// process options
 	opts := common.DefaultClientOptions()
 
-	if network.ChainTlsCert != nil {
-		options = append(options, common.OptionTLSCert(network.ChainTlsCert))
+	if network.ChainTLSCert != nil {
+		options = append(options, common.OptionTLSCert(network.ChainTLSCert))
 	}
 	for _, opt := range options {
 		if err = opt(opts); err != nil {
@@ -248,7 +381,7 @@ func NewChainClient(
 	var txFactory tx.Factory
 	if opts.TxFactory == nil {
 		txFactory = NewTxFactory(ctx)
-		if len(opts.GasPrices) > 0 {
+		if opts.GasPrices != "" {
 			txFactory = txFactory.WithGasPrices(opts.GasPrices)
 		}
 	} else {
@@ -311,15 +444,22 @@ func NewChainClient(
 
 		sessionEnabled: stickySessionEnabled,
 
-		txClient:                txtypes.NewServiceClient(conn),
-		authQueryClient:         authtypes.NewQueryClient(conn),
-		exchangeQueryClient:     exchangetypes.NewQueryClient(conn),
-		bankQueryClient:         banktypes.NewQueryClient(conn),
-		authzQueryClient:        authztypes.NewQueryClient(conn),
-		wasmQueryClient:         wasmtypes.NewQueryClient(conn),
-		chainStreamClient:       chainstreamtypes.NewStreamClient(chainStreamConn),
-		tokenfactoryQueryClient: tokenfactorytypes.NewQueryClient(conn),
-		subaccountToNonce:       make(map[ethcommon.Hash]uint32),
+		authQueryClient:          authtypes.NewQueryClient(conn),
+		authzQueryClient:         authztypes.NewQueryClient(conn),
+		bankQueryClient:          banktypes.NewQueryClient(conn),
+		chainStreamClient:        chainstreamtypes.NewStreamClient(chainStreamConn),
+		distributionQueryClient:  distributiontypes.NewQueryClient(conn),
+		exchangeQueryClient:      exchangetypes.NewQueryClient(conn),
+		ibcChannelQueryClient:    ibcchanneltypes.NewQueryClient(conn),
+		ibcClientQueryClient:     ibcclienttypes.NewQueryClient(conn),
+		ibcConnectionQueryClient: ibcconnectiontypes.NewQueryClient(conn),
+		ibcTransferQueryClient:   ibctransfertypes.NewQueryClient(conn),
+		permissionsQueryClient:   permissionstypes.NewQueryClient(conn),
+		tendermintQueryClient:    cmtservice.NewServiceClient(conn),
+		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
+		txClient:                 txtypes.NewServiceClient(conn),
+		wasmQueryClient:          wasmtypes.NewQueryClient(conn),
+		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
 
 		isDynamicGasPrices: opts.IsDynamicGasPrices,
 	}
@@ -345,25 +485,6 @@ func NewChainClient(
 
 		go cc.runBatchBroadcast()
 		go cc.syncTimeoutHeight()
-	}
-
-	// create file if not exist
-	var cookieFile *os.File
-	cookieFile, err = os.OpenFile(defaultChainCookieName, os.O_RDONLY|os.O_CREATE, 0666)
-	if err != nil {
-		cc.logger.Errorln(err)
-	} else {
-		defer cookieFile.Close()
-	}
-
-	// attempt to load from disk
-	var data []byte
-	data, err = os.ReadFile(defaultChainCookieName)
-	if err != nil {
-		cc.logger.Errorf("[INJ-GO-SDK] Failed to read default chain cookie %q: %v", defaultChainCookieName, err)
-	} else {
-		cc.sessionCookie = string(data)
-		cc.logger.Infoln("[INJ-GO-SDK] Chain session cookie loaded from disk")
 	}
 
 	return cc, nil
@@ -416,11 +537,25 @@ func (c *chainClient) GetBlockHeight() (int64, error) {
 	return block.Block.Height, nil
 }
 
-// prepareFactory ensures the account defined by ctx.GetFromAddress() exists and
+// test
+func (c *chainClient) GetBlockHeight() (int64, error) {
+	ctx := context.Background()
+	if c.ctx.Client == nil {
+		return 0, errors.New("client is nil")
+	}
+
+	block, err := c.ctx.Client.Block(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	return block.Block.Height, nil
+}
+
+// PrepareFactory ensures the account defined by ctx.GetFromAddress() exists and
 // if the account number and/or the account sequence number are zero (not set),
 // they will be queried for and set on the provided Factory. A new Factory with
 // the updated fields will be returned.
-func (c *chainClient) prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+func PrepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
 	from := clientCtx.GetFromAddress()
 
 	// if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
@@ -453,23 +588,7 @@ func (c *chainClient) getAccSeq() uint64 {
 	return c.accSeq
 }
 
-func (c *chainClient) requestCookie() metadata.MD {
-	var header metadata.MD
-	_, err := c.bankQueryClient.Params(context.Background(), &banktypes.QueryParamsRequest{}, grpc.Header(&header))
-	if err != nil {
-		c.logger.Errorln("[INJ-GO-SDK] Failed to get chain cookie: ", err)
-	}
-	return header
-}
-
-func (c *chainClient) getCookie(ctx context.Context) context.Context {
-	provider := common.NewMetadataProvider(c.requestCookie)
-	cookie, _ := c.network.ChainMetadata(provider)
-	md := metadata.Pairs("cookie", cookie)
-	return metadata.NewOutgoingContext(ctx, md)
-}
-
-func (c *chainClient) GetAccNonce() (accNum uint64, accSeq uint64) {
+func (c *chainClient) GetAccNonce() (accNum, accSeq uint64) {
 	return c.accNum, c.accSeq
 }
 
@@ -520,21 +639,25 @@ func (c *chainClient) Close() {
 	}
 }
 
-//Bank Module
+// Bank Module
 
 func (c *chainClient) GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error) {
 	req := &banktypes.QueryAllBalancesRequest{
 		Address: address,
 	}
-	return c.bankQueryClient.AllBalances(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.AllBalances, req)
+
+	return res, err
 }
 
-func (c *chainClient) GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error) {
+func (c *chainClient) GetBankBalance(ctx context.Context, address, denom string) (*banktypes.QueryBalanceResponse, error) {
 	req := &banktypes.QueryBalanceRequest{
 		Address: address,
 		Denom:   denom,
 	}
-	return c.bankQueryClient.Balance(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.Balance, req)
+
+	return res, err
 }
 
 func (c *chainClient) GetBankSpendableBalances(ctx context.Context, address string, pagination *query.PageRequest) (*banktypes.QuerySpendableBalancesResponse, error) {
@@ -542,35 +665,47 @@ func (c *chainClient) GetBankSpendableBalances(ctx context.Context, address stri
 		Address:    address,
 		Pagination: pagination,
 	}
-	return c.bankQueryClient.SpendableBalances(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.SpendableBalances, req)
+
+	return res, err
 }
 
-func (c *chainClient) GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error) {
+func (c *chainClient) GetBankSpendableBalancesByDenom(ctx context.Context, address, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error) {
 	req := &banktypes.QuerySpendableBalanceByDenomRequest{
 		Address: address,
 		Denom:   denom,
 	}
-	return c.bankQueryClient.SpendableBalanceByDenom(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.SpendableBalanceByDenom, req)
+
+	return res, err
 }
 
 func (c *chainClient) GetBankTotalSupply(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error) {
 	req := &banktypes.QueryTotalSupplyRequest{Pagination: pagination}
-	return c.bankQueryClient.TotalSupply(ctx, req)
+	resp, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.TotalSupply, req)
+
+	return resp, err
 }
 
 func (c *chainClient) GetBankSupplyOf(ctx context.Context, denom string) (*banktypes.QuerySupplyOfResponse, error) {
 	req := &banktypes.QuerySupplyOfRequest{Denom: denom}
-	return c.bankQueryClient.SupplyOf(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.SupplyOf, req)
+
+	return res, err
 }
 
 func (c *chainClient) GetDenomMetadata(ctx context.Context, denom string) (*banktypes.QueryDenomMetadataResponse, error) {
 	req := &banktypes.QueryDenomMetadataRequest{Denom: denom}
-	return c.bankQueryClient.DenomMetadata(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.DenomMetadata, req)
+
+	return res, err
 }
 
 func (c *chainClient) GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error) {
 	req := &banktypes.QueryDenomsMetadataRequest{Pagination: pagination}
-	return c.bankQueryClient.DenomsMetadata(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.DenomsMetadata, req)
+
+	return res, err
 }
 
 func (c *chainClient) GetDenomOwners(ctx context.Context, denom string, pagination *query.PageRequest) (*banktypes.QueryDenomOwnersResponse, error) {
@@ -578,7 +713,9 @@ func (c *chainClient) GetDenomOwners(ctx context.Context, denom string, paginati
 		Denom:      denom,
 		Pagination: pagination,
 	}
-	return c.bankQueryClient.DenomOwners(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.DenomOwners, req)
+
+	return res, err
 }
 
 func (c *chainClient) GetBankSendEnabled(ctx context.Context, denoms []string, pagination *query.PageRequest) (*banktypes.QuerySendEnabledResponse, error) {
@@ -586,7 +723,9 @@ func (c *chainClient) GetBankSendEnabled(ctx context.Context, denoms []string, p
 		Denoms:     denoms,
 		Pagination: pagination,
 	}
-	return c.bankQueryClient.SendEnabled(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.bankQueryClient.SendEnabled, req)
+
+	return res, err
 }
 
 // Auth Module
@@ -595,7 +734,9 @@ func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtype
 	req := &authtypes.QueryAccountRequest{
 		Address: address,
 	}
-	return c.authQueryClient.Account(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.authQueryClient.Account, req)
+
+	return res, err
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
@@ -609,7 +750,7 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
 
 	if err != nil {
-		if strings.Contains(err.Error(), "account sequence mismatch") {
+		if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
 			sequence := c.getAccSeq()
 			c.txFactory = c.txFactory.WithSequence(sequence)
@@ -631,13 +772,15 @@ func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*
 	req := &exchangetypes.QueryFeeDiscountAccountInfoRequest{
 		Account: account,
 	}
-	return c.exchangeQueryClient.FeeDiscountAccountInfo(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FeeDiscountAccountInfo, req)
+
+	return res, err
 }
 
 func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-	txf, err := c.prepareFactory(clientCtx, c.txFactory)
+	txf, err := PrepareFactory(clientCtx, c.txFactory)
 	if err != nil {
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, err
@@ -650,8 +793,9 @@ func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*t
 	}
 
 	ctx := context.Background()
-	ctx = c.getCookie(ctx)
-	simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes})
+	req := &txtypes.SimulateRequest{TxBytes: simTxBytes}
+	simRes, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.Simulate, req)
+
 	if err != nil {
 		err = errors.Wrap(err, "failed to CalculateGas")
 		return nil, err
@@ -675,7 +819,7 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 
 		res, txBytes, err := c.broadcastTxAsync(c.ctx, c.txFactory, false, msgs...)
 		if err != nil {
-			if strings.Contains(err.Error(), "account sequence mismatch") {
+			if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
 
 				c.txFactory = c.txFactory.WithSequence(c.accSeq)
@@ -727,16 +871,21 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 
 func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
 	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
+	return c.buildSignedTx(clientCtx, txf, msgs...)
+}
 
+func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
+	ctx := context.Background()
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
 		if err != nil {
 			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, err
 		}
-		ctx := c.getCookie(context.Background())
-		var header metadata.MD
-		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+
+		req := &txtypes.SimulateRequest{TxBytes: simTxBytes}
+		simRes, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.Simulate, req)
+
 		if err != nil {
 			err = errors.Wrap(err, "failed to CalculateGas")
 			return nil, err
@@ -748,7 +897,7 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 		c.gasWanted = adjustedGas
 	}
 
-	txf, err := c.prepareFactory(clientCtx, txf)
+	txf, err := PrepareFactory(clientCtx, txf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepareFactory")
 	}
@@ -760,7 +909,7 @@ func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, in
 	}
 
 	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(txf, clientCtx.GetFromName(), txn, true)
+	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to Sign Tx")
 		return nil, err
@@ -776,8 +925,8 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 	}
 
 	ctx := context.Background()
-	ctx = c.getCookie(ctx)
-	res, err := c.txClient.BroadcastTx(ctx, &req)
+
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
 	if err != nil {
 		return res, err
 	}
@@ -797,7 +946,7 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 		case <-t.C:
 			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
-				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
+				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
@@ -823,9 +972,7 @@ func (c *chainClient) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.Broadcast
 	}
 
 	ctx := context.Background()
-	// use our own client to broadcast tx
-	ctx = c.getCookie(ctx)
-	res, err := c.txClient.BroadcastTx(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
 	if err != nil {
 		return nil, err
 	}
@@ -839,7 +986,7 @@ func (c *chainClient) broadcastTx(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxResponse, error) {
-	txf, err := c.prepareFactory(clientCtx, txf)
+	txBytes, err := c.buildSignedTx(clientCtx, txf, msgs...)
 	if err != nil {
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, err
@@ -888,9 +1035,8 @@ func (c *chainClient) broadcastTx(
 		TxBytes: txBytes,
 		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
 	}
-	// use our own client to broadcast tx
-	ctx = c.getCookie(ctx)
-	res, err := c.txClient.BroadcastTx(ctx, &req)
+
+	res, err := common.ExecuteCall(context.Background(), c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
 	if !await || err != nil {
 		return res, err
 	}
@@ -910,7 +1056,7 @@ func (c *chainClient) broadcastTx(
 		case <-t.C:
 			resultTx, err := clientCtx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
-				if errRes := client.CheckTendermintError(err, txBytes); errRes != nil {
+				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
@@ -1073,7 +1219,7 @@ func (c *chainClient) runBatchBroadcast() {
 		c.logger.Debugln("[INJ-GO-SDK] BroadcastTx with nonce", c.accSeq)
 		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
 		if err != nil {
-			if strings.Contains(err.Error(), "account sequence mismatch") {
+			if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
 				sequence := c.getAccSeq()
 				c.txFactory = c.txFactory.WithSequence(sequence)
@@ -1151,34 +1297,36 @@ func (c *chainClient) GetGasFee() (string, error) {
 	return c.gasFee, err
 }
 
-func (c *chainClient) DefaultSubaccount(acc cosmtypes.AccAddress) eth.Hash {
+func (c *chainClient) DefaultSubaccount(acc sdk.AccAddress) ethcommon.Hash {
 	return c.Subaccount(acc, 0)
 }
 
-func (c *chainClient) Subaccount(account cosmtypes.AccAddress, index int) eth.Hash {
-	ethAddress := eth.BytesToAddress(account.Bytes())
+func (c *chainClient) Subaccount(account sdk.AccAddress, index int) ethcommon.Hash {
+	ethAddress := ethcommon.BytesToAddress(account.Bytes())
 	ethLowerAddress := strings.ToLower(ethAddress.String())
 
 	subaccountId := fmt.Sprintf("%s%024x", ethLowerAddress, index)
-	return eth.HexToHash(subaccountId)
+	return ethcommon.HexToHash(subaccountId)
 }
 
-func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
+func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId ethcommon.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
 	req := &exchangetypes.QuerySubaccountTradeNonceRequest{SubaccountId: subaccountId.String()}
-	return c.exchangeQueryClient.SubaccountTradeNonce(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountTradeNonce, req)
+
+	return res, err
 }
 
 // Deprecated: Use CreateSpotOrder instead
-func (c *chainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
+func (c *chainClient) SpotOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
 	assistant, err := NewMarketsAssistant(network.Name)
 	if err != nil {
 		c.logger.Errorln("[INJ-GO-SDK] ", err)
 	}
 
-	return c.CreateSpotOrder(defaultSubaccountID, network, d, assistant)
+	return c.CreateSpotOrder(defaultSubaccountID, d, assistant)
 }
 
-func (c *chainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
+func (c *chainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 
 	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
 	if !isPresent {
@@ -1202,17 +1350,17 @@ func (c *chainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, network comm
 }
 
 // Deprecated: Use CreateDerivativeOrder instead
-func (c *chainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
+func (c *chainClient) DerivativeOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
 
 	assistant, err := NewMarketsAssistant(network.Name)
 	if err != nil {
 		c.logger.Errorln("[INJ-GO-SDK] ", err)
 	}
 
-	return c.CreateDerivativeOrder(defaultSubaccountID, network, d, assistant)
+	return c.CreateDerivativeOrder(defaultSubaccountID, d, assistant)
 }
 
-func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
+func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
 	market, isPresent := marketAssistant.AllDerivativeMarkets()[d.MarketId]
 	if !isPresent {
 		c.logger.Errorln("[INJ-GO-SDK] ", errors.Errorf("Invalid derivative market id for %s network (%s)", c.network.Name, d.MarketId))
@@ -1220,7 +1368,7 @@ func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, networ
 
 	orderSize := market.QuantityToChainFormat(d.Quantity)
 	orderPrice := market.PriceToChainFormat(d.Price)
-	orderMargin := cosmtypes.MustNewDecFromStr("0")
+	orderMargin := sdkmath.LegacyMustNewDecFromStr("0")
 
 	if !d.IsReduceOnly {
 		orderMargin = market.CalculateMarginInChainFormat(d.Quantity, d.Price, d.Leverage)
@@ -1240,7 +1388,7 @@ func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, networ
 	}
 }
 
-func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData {
+func (c *chainClient) OrderCancel(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangetypes.OrderData {
 	return &exchangetypes.OrderData{
 		MarketId:     d.MarketId,
 		OrderHash:    d.OrderHash,
@@ -1250,10 +1398,12 @@ func (c *chainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelDa
 }
 
 func (c *chainClient) GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error) {
-	return c.authzQueryClient.Grants(ctx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.authzQueryClient.Grants, &req)
+
+	return res, err
 }
 
-func (c *chainClient) BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant {
+func (c *chainClient) BuildGenericAuthz(granter, grantee, msgtype string, expireIn time.Time) *authztypes.MsgGrant {
 	authz := authztypes.NewGenericAuthorization(msgtype)
 	authzAny := codectypes.UnsafePackAny(authz)
 	return &authztypes.MsgGrant{
@@ -1284,7 +1434,7 @@ var (
 	BatchUpdateOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchUpdateOrdersAuthz{}))
 )
 
-func (c *chainClient) BuildExchangeAuthz(granter string, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant {
+func (c *chainClient) BuildExchangeAuthz(granter, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant {
 	var typedAuthzAny codectypes.Any
 	var typedAuthzBytes []byte
 	switch authzType {
@@ -1459,7 +1609,7 @@ func (c *chainClient) StreamEventOrderFailWithWebsocket(sender string, websocket
 	}
 }
 
-func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIds []string, orderbookCh chan exchangetypes.Orderbook) {
+func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIDs []string, orderbookCh chan exchangetypes.Orderbook) {
 	var cometbftClient *rpchttp.HTTP
 	var err error
 
@@ -1481,11 +1631,11 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 		}
 	}()
 
-	c.StreamOrderbookUpdateEventsWithWebsocket(orderbookType, marketIds, cometbftClient, orderbookCh)
+	c.StreamOrderbookUpdateEventsWithWebsocket(orderbookType, marketIDs, cometbftClient, orderbookCh)
 
 }
 
-func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIds []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook) {
+func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIDs []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook) {
 	filter := fmt.Sprintf("tm.event='NewBlock' AND %s EXISTS", orderbookType)
 	eventCh, err := websocket.Subscribe(context.Background(), "OrderbookUpdate", filter, 10000)
 	if err != nil {
@@ -1493,9 +1643,9 @@ func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType Ord
 	}
 
 	// turn array into map for convenient lookup
-	marketIdsMap := map[string]bool{}
-	for _, id := range marketIds {
-		marketIdsMap[id] = true
+	marketIDsMap := map[string]bool{}
+	for _, id := range marketIDs {
+		marketIDsMap[id] = true
 	}
 
 	filteredOrderbookUpdateCh := make(chan exchangetypes.Orderbook, 10000)
@@ -1513,7 +1663,7 @@ func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType Ord
 
 			for _, ob := range allOrderbookUpdates {
 				id := ethcommon.BytesToHash(ob.MarketId).String()
-				if marketIdsMap[id] {
+				if marketIDsMap[id] {
 					filteredOrderbookUpdateCh <- ob
 				}
 			}
@@ -1536,14 +1686,17 @@ func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType Ord
 }
 
 func (c *chainClient) GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error) {
-	return c.txClient.GetTx(ctx, &txtypes.GetTxRequest{
+	req := &txtypes.GetTxRequest{
 		Hash: txHash,
-	})
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.GetTx, req)
+
+	return res, err
 }
 
 func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error) {
-	ctx = c.getCookie(ctx)
-	stream, err := c.chainStreamClient.Stream(ctx, &req)
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ChainCookieAssistant, c.chainStreamClient.Stream, &req)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -1558,7 +1711,9 @@ func (c *chainClient) FetchContractInfo(ctx context.Context, address string) (*w
 	req := &wasmtypes.QueryContractInfoRequest{
 		Address: address,
 	}
-	return c.wasmQueryClient.ContractInfo(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.ContractInfo, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error) {
@@ -1566,7 +1721,9 @@ func (c *chainClient) FetchContractHistory(ctx context.Context, address string, 
 		Address:    address,
 		Pagination: pagination,
 	}
-	return c.wasmQueryClient.ContractHistory(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.ContractHistory, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error) {
@@ -1574,7 +1731,9 @@ func (c *chainClient) FetchContractsByCode(ctx context.Context, codeId uint64, p
 		CodeId:     codeId,
 		Pagination: pagination,
 	}
-	return c.wasmQueryClient.ContractsByCode(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.ContractsByCode, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error) {
@@ -1582,7 +1741,9 @@ func (c *chainClient) FetchAllContractsState(ctx context.Context, address string
 		Address:    address,
 		Pagination: pagination,
 	}
-	return c.wasmQueryClient.AllContractState(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.AllContractState, req)
+
+	return res, err
 }
 
 func (c *chainClient) RawContractState(
@@ -1590,13 +1751,13 @@ func (c *chainClient) RawContractState(
 	contractAddress string,
 	queryData []byte,
 ) (*wasmtypes.QueryRawContractStateResponse, error) {
-	return c.wasmQueryClient.RawContractState(
-		ctx,
-		&wasmtypes.QueryRawContractStateRequest{
-			Address:   contractAddress,
-			QueryData: queryData,
-		},
-	)
+	req := &wasmtypes.QueryRawContractStateRequest{
+		Address:   contractAddress,
+		QueryData: queryData,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.RawContractState, req)
+
+	return res, err
 }
 
 func (c *chainClient) SmartContractState(
@@ -1604,34 +1765,40 @@ func (c *chainClient) SmartContractState(
 	contractAddress string,
 	queryData []byte,
 ) (*wasmtypes.QuerySmartContractStateResponse, error) {
-	return c.wasmQueryClient.SmartContractState(
-		ctx,
-		&wasmtypes.QuerySmartContractStateRequest{
-			Address:   contractAddress,
-			QueryData: queryData,
-		},
-	)
+	req := &wasmtypes.QuerySmartContractStateRequest{
+		Address:   contractAddress,
+		QueryData: queryData,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.SmartContractState, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchCode(ctx context.Context, codeId uint64) (*wasmtypes.QueryCodeResponse, error) {
 	req := &wasmtypes.QueryCodeRequest{
 		CodeId: codeId,
 	}
-	return c.wasmQueryClient.Code(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.Code, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryCodesResponse, error) {
 	req := &wasmtypes.QueryCodesRequest{
 		Pagination: pagination,
 	}
-	return c.wasmQueryClient.Codes(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.Codes, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error) {
 	req := &wasmtypes.QueryPinnedCodesRequest{
 		Pagination: pagination,
 	}
-	return c.wasmQueryClient.PinnedCodes(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.PinnedCodes, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error) {
@@ -1639,12 +1806,14 @@ func (c *chainClient) FetchContractsByCreator(ctx context.Context, creator strin
 		CreatorAddress: creator,
 		Pagination:     pagination,
 	}
-	return c.wasmQueryClient.ContractsByCreator(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.wasmQueryClient.ContractsByCreator, req)
+
+	return res, err
 }
 
 // Tokenfactory module
 
-func (c *chainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
+func (c *chainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error) {
 	req := &tokenfactorytypes.QueryDenomAuthorityMetadataRequest{
 		Creator: creator,
 	}
@@ -1653,7 +1822,9 @@ func (c *chainClient) FetchDenomAuthorityMetadata(ctx context.Context, creator s
 		req.SubDenom = subDenom
 	}
 
-	return c.tokenfactoryQueryClient.DenomAuthorityMetadata(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tokenfactoryQueryClient.DenomAuthorityMetadata, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error) {
@@ -1661,13 +1832,17 @@ func (c *chainClient) FetchDenomsFromCreator(ctx context.Context, creator string
 		Creator: creator,
 	}
 
-	return c.tokenfactoryQueryClient.DenomsFromCreator(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tokenfactoryQueryClient.DenomsFromCreator, req)
+
+	return res, err
 }
 
 func (c *chainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error) {
 	req := &tokenfactorytypes.QueryModuleStateRequest{}
 
-	return c.tokenfactoryQueryClient.TokenfactoryModuleState(ctx, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tokenfactoryQueryClient.TokenfactoryModuleState, req)
+
+	return res, err
 }
 
 func (c *chainClient) SetSimulate(simulate bool, gasWanted uint64) {
@@ -1699,6 +1874,1038 @@ type OrderCancelData struct {
 	MarketId  string
 	OrderHash string
 	Cid       string
+}
+
+// Distribution module
+func (c *chainClient) FetchValidatorDistributionInfo(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorDistributionInfoResponse, error) {
+	req := &distributiontypes.QueryValidatorDistributionInfoRequest{
+		ValidatorAddress: validatorAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.ValidatorDistributionInfo, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchValidatorOutstandingRewards(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorOutstandingRewardsResponse, error) {
+	req := &distributiontypes.QueryValidatorOutstandingRewardsRequest{
+		ValidatorAddress: validatorAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.ValidatorOutstandingRewards, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchValidatorCommission(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorCommissionResponse, error) {
+	req := &distributiontypes.QueryValidatorCommissionRequest{
+		ValidatorAddress: validatorAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.ValidatorCommission, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchValidatorSlashes(ctx context.Context, validatorAddress string, startingHeight, endingHeight uint64, pagination *query.PageRequest) (*distributiontypes.QueryValidatorSlashesResponse, error) {
+	req := &distributiontypes.QueryValidatorSlashesRequest{
+		ValidatorAddress: validatorAddress,
+		StartingHeight:   startingHeight,
+		EndingHeight:     endingHeight,
+		Pagination:       pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.ValidatorSlashes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDelegationRewards(ctx context.Context, delegatorAddress, validatorAddress string) (*distributiontypes.QueryDelegationRewardsResponse, error) {
+	req := &distributiontypes.QueryDelegationRewardsRequest{
+		DelegatorAddress: delegatorAddress,
+		ValidatorAddress: validatorAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.DelegationRewards, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDelegationTotalRewards(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegationTotalRewardsResponse, error) {
+	req := &distributiontypes.QueryDelegationTotalRewardsRequest{
+		DelegatorAddress: delegatorAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.DelegationTotalRewards, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDelegatorValidators(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorValidatorsResponse, error) {
+	req := &distributiontypes.QueryDelegatorValidatorsRequest{
+		DelegatorAddress: delegatorAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.DelegatorValidators, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDelegatorWithdrawAddress(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorWithdrawAddressResponse, error) {
+	req := &distributiontypes.QueryDelegatorWithdrawAddressRequest{
+		DelegatorAddress: delegatorAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.DelegatorWithdrawAddress, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchCommunityPool(ctx context.Context) (*distributiontypes.QueryCommunityPoolResponse, error) {
+	req := &distributiontypes.QueryCommunityPoolRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.distributionQueryClient.CommunityPool, req)
+
+	return res, err
+}
+
+// Chain exchange module
+func (c *chainClient) FetchSubaccountDeposits(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountDepositsResponse, error) {
+	req := &exchangetypes.QuerySubaccountDepositsRequest{
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountDeposits, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSubaccountDeposit(ctx context.Context, subaccountId, denom string) (*exchangetypes.QuerySubaccountDepositResponse, error) {
+	req := &exchangetypes.QuerySubaccountDepositRequest{
+		SubaccountId: subaccountId,
+		Denom:        denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountDeposit, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchExchangeBalances(ctx context.Context) (*exchangetypes.QueryExchangeBalancesResponse, error) {
+	req := &exchangetypes.QueryExchangeBalancesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.ExchangeBalances, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAggregateVolume(ctx context.Context, account string) (*exchangetypes.QueryAggregateVolumeResponse, error) {
+	req := &exchangetypes.QueryAggregateVolumeRequest{
+		Account: account,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.AggregateVolume, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAggregateVolumes(ctx context.Context, accounts, marketIDs []string) (*exchangetypes.QueryAggregateVolumesResponse, error) {
+	req := &exchangetypes.QueryAggregateVolumesRequest{
+		Accounts:  accounts,
+		MarketIds: marketIDs,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.AggregateVolumes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAggregateMarketVolume(ctx context.Context, marketId string) (*exchangetypes.QueryAggregateMarketVolumeResponse, error) {
+	req := &exchangetypes.QueryAggregateMarketVolumeRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.AggregateMarketVolume, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangetypes.QueryAggregateMarketVolumesResponse, error) {
+	req := &exchangetypes.QueryAggregateMarketVolumesRequest{
+		MarketIds: marketIDs,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.AggregateMarketVolumes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomDecimal(ctx context.Context, denom string) (*exchangetypes.QueryDenomDecimalResponse, error) {
+	req := &exchangetypes.QueryDenomDecimalRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DenomDecimal, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangetypes.QueryDenomDecimalsResponse, error) {
+	req := &exchangetypes.QueryDenomDecimalsRequest{
+		Denoms: denoms,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DenomDecimals, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
+	req := &exchangetypes.QuerySpotMarketsRequest{
+		MarketIds: marketIDs,
+	}
+	if status != "" {
+		req.Status = status
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SpotMarkets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMarketResponse, error) {
+	req := &exchangetypes.QuerySpotMarketRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SpotMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error) {
+	req := &exchangetypes.QueryFullSpotMarketsRequest{
+		MarketIds:          marketIDs,
+		WithMidPriceAndTob: withMidPriceAndTob,
+	}
+	if status != "" {
+		req.Status = status
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FullSpotMarkets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainFullSpotMarket(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketResponse, error) {
+	req := &exchangetypes.QueryFullSpotMarketRequest{
+		MarketId:           marketId,
+		WithMidPriceAndTob: withMidPriceAndTob,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FullSpotMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangetypes.QuerySpotOrderbookResponse, error) {
+	req := &exchangetypes.QuerySpotOrderbookRequest{
+		MarketId:                marketId,
+		Limit:                   limit,
+		OrderSide:               orderSide,
+		LimitCumulativeNotional: &limitCumulativeNotional,
+		LimitCumulativeQuantity: &limitCumulativeQuantity,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SpotOrderbook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainTraderSpotOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error) {
+	req := &exchangetypes.QueryTraderSpotOrdersRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TraderSpotOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainAccountAddressSpotOrders(ctx context.Context, marketId, address string) (*exchangetypes.QueryAccountAddressSpotOrdersResponse, error) {
+	req := &exchangetypes.QueryAccountAddressSpotOrdersRequest{
+		MarketId:       marketId,
+		AccountAddress: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.AccountAddressSpotOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSpotOrdersByHashes(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangetypes.QuerySpotOrdersByHashesResponse, error) {
+	req := &exchangetypes.QuerySpotOrdersByHashesRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+		OrderHashes:  orderHashes,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SpotOrdersByHashes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSubaccountOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountOrdersResponse, error) {
+	req := &exchangetypes.QuerySubaccountOrdersRequest{
+		SubaccountId: subaccountId,
+		MarketId:     marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainTraderSpotTransientOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error) {
+	req := &exchangetypes.QueryTraderSpotOrdersRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TraderSpotTransientOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSpotMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMidPriceAndTOBResponse, error) {
+	req := &exchangetypes.QuerySpotMidPriceAndTOBRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SpotMidPriceAndTOB, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDerivativeMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMidPriceAndTOBResponse, error) {
+	req := &exchangetypes.QueryDerivativeMidPriceAndTOBRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DerivativeMidPriceAndTOB, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangetypes.QueryDerivativeOrderbookResponse, error) {
+	req := &exchangetypes.QueryDerivativeOrderbookRequest{
+		MarketId:                marketId,
+		Limit:                   limit,
+		LimitCumulativeNotional: &limitCumulativeNotional,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DerivativeOrderbook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainTraderDerivativeOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error) {
+	req := &exchangetypes.QueryTraderDerivativeOrdersRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TraderDerivativeOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainAccountAddressDerivativeOrders(ctx context.Context, marketId, address string) (*exchangetypes.QueryAccountAddressDerivativeOrdersResponse, error) {
+	req := &exchangetypes.QueryAccountAddressDerivativeOrdersRequest{
+		MarketId:       marketId,
+		AccountAddress: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.AccountAddressDerivativeOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainDerivativeOrdersByHashes(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangetypes.QueryDerivativeOrdersByHashesResponse, error) {
+	req := &exchangetypes.QueryDerivativeOrdersByHashesRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+		OrderHashes:  orderHashes,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DerivativeOrdersByHashes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainTraderDerivativeTransientOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error) {
+	req := &exchangetypes.QueryTraderDerivativeOrdersRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TraderDerivativeTransientOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
+	req := &exchangetypes.QueryDerivativeMarketsRequest{
+		MarketIds:          marketIDs,
+		WithMidPriceAndTob: withMidPriceAndTob,
+	}
+	if status != "" {
+		req.Status = status
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DerivativeMarkets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainDerivativeMarket(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketResponse, error) {
+	req := &exchangetypes.QueryDerivativeMarketRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DerivativeMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDerivativeMarketAddress(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketAddressResponse, error) {
+	req := &exchangetypes.QueryDerivativeMarketAddressRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DerivativeMarketAddress, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSubaccountTradeNonce(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
+	req := &exchangetypes.QuerySubaccountTradeNonceRequest{
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountTradeNonce, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainPositions(ctx context.Context) (*exchangetypes.QueryPositionsResponse, error) {
+	req := &exchangetypes.QueryPositionsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.Positions, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSubaccountPositions(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountPositionsResponse, error) {
+	req := &exchangetypes.QuerySubaccountPositionsRequest{
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountPositions, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
+	req := &exchangetypes.QuerySubaccountPositionInMarketRequest{
+		SubaccountId: subaccountId,
+		MarketId:     marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountPositionInMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error) {
+	req := &exchangetypes.QuerySubaccountEffectivePositionInMarketRequest{
+		SubaccountId: subaccountId,
+		MarketId:     marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountEffectivePositionInMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainPerpetualMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketInfoResponse, error) {
+	req := &exchangetypes.QueryPerpetualMarketInfoRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.PerpetualMarketInfo, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainExpiryFuturesMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryExpiryFuturesMarketInfoResponse, error) {
+	req := &exchangetypes.QueryExpiryFuturesMarketInfoRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.ExpiryFuturesMarketInfo, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainPerpetualMarketFunding(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketFundingResponse, error) {
+	req := &exchangetypes.QueryPerpetualMarketFundingRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.PerpetualMarketFunding, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSubaccountOrderMetadata(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountOrderMetadataResponse, error) {
+	req := &exchangetypes.QuerySubaccountOrderMetadataRequest{
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountOrderMetadata, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error) {
+	req := &exchangetypes.QueryTradeRewardPointsRequest{
+		Accounts: accounts,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TradeRewardPoints, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPendingTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error) {
+	req := &exchangetypes.QueryTradeRewardPointsRequest{
+		Accounts: accounts,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.PendingTradeRewardPoints, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTradeRewardCampaign(ctx context.Context) (*exchangetypes.QueryTradeRewardCampaignResponse, error) {
+	req := &exchangetypes.QueryTradeRewardCampaignRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TradeRewardCampaign, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchFeeDiscountAccountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error) {
+	req := &exchangetypes.QueryFeeDiscountAccountInfoRequest{
+		Account: account,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FeeDiscountAccountInfo, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchFeeDiscountSchedule(ctx context.Context) (*exchangetypes.QueryFeeDiscountScheduleResponse, error) {
+	req := &exchangetypes.QueryFeeDiscountScheduleRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FeeDiscountSchedule, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchBalanceMismatches(ctx context.Context, dustFactor int64) (*exchangetypes.QueryBalanceMismatchesResponse, error) {
+	req := &exchangetypes.QueryBalanceMismatchesRequest{
+		DustFactor: dustFactor,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.BalanceMismatches, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchBalanceWithBalanceHolds(ctx context.Context) (*exchangetypes.QueryBalanceWithBalanceHoldsResponse, error) {
+	req := &exchangetypes.QueryBalanceWithBalanceHoldsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.BalanceWithBalanceHolds, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchFeeDiscountTierStatistics(ctx context.Context) (*exchangetypes.QueryFeeDiscountTierStatisticsResponse, error) {
+	req := &exchangetypes.QueryFeeDiscountTierStatisticsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FeeDiscountTierStatistics, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMitoVaultInfos(ctx context.Context) (*exchangetypes.MitoVaultInfosResponse, error) {
+	req := &exchangetypes.MitoVaultInfosRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MitoVaultInfos, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketIDFromVault(ctx context.Context, vaultAddress string) (*exchangetypes.QueryMarketIDFromVaultResponse, error) {
+	req := &exchangetypes.QueryMarketIDFromVaultRequest{
+		VaultAddress: vaultAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.QueryMarketIDFromVault, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchHistoricalTradeRecords(ctx context.Context, marketId string) (*exchangetypes.QueryHistoricalTradeRecordsResponse, error) {
+	req := &exchangetypes.QueryHistoricalTradeRecordsRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.HistoricalTradeRecords, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIsOptedOutOfRewards(ctx context.Context, account string) (*exchangetypes.QueryIsOptedOutOfRewardsResponse, error) {
+	req := &exchangetypes.QueryIsOptedOutOfRewardsRequest{
+		Account: account,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.IsOptedOutOfRewards, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchOptedOutOfRewardsAccounts(ctx context.Context) (*exchangetypes.QueryOptedOutOfRewardsAccountsResponse, error) {
+	req := &exchangetypes.QueryOptedOutOfRewardsAccountsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.OptedOutOfRewardsAccounts, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketVolatility(ctx context.Context, marketId string, tradeHistoryOptions *exchangetypes.TradeHistoryOptions) (*exchangetypes.QueryMarketVolatilityResponse, error) {
+	req := &exchangetypes.QueryMarketVolatilityRequest{
+		MarketId:            marketId,
+		TradeHistoryOptions: tradeHistoryOptions,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketVolatility, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error) {
+	req := &exchangetypes.QueryBinaryMarketsRequest{}
+	if status != "" {
+		req.Status = status
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.BinaryOptionsMarkets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error) {
+	req := &exchangetypes.QueryTraderDerivativeConditionalOrdersRequest{
+		SubaccountId: subaccountId,
+		MarketId:     marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TraderDerivativeConditionalOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error) {
+	req := &exchangetypes.QueryMarketAtomicExecutionFeeMultiplierRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketAtomicExecutionFeeMultiplier, req)
+
+	return res, err
+}
+
+// Tendermint module
+
+func (c *chainClient) FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error) {
+	req := &cmtservice.GetNodeInfoRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetNodeInfo, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSyncing(ctx context.Context) (*cmtservice.GetSyncingResponse, error) {
+	req := &cmtservice.GetSyncingRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetSyncing, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchLatestBlock(ctx context.Context) (*cmtservice.GetLatestBlockResponse, error) {
+	req := &cmtservice.GetLatestBlockRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetLatestBlock, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchBlockByHeight(ctx context.Context, height int64) (*cmtservice.GetBlockByHeightResponse, error) {
+	req := &cmtservice.GetBlockByHeightRequest{
+		Height: height,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetBlockByHeight, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchLatestValidatorSet(ctx context.Context) (*cmtservice.GetLatestValidatorSetResponse, error) {
+	req := &cmtservice.GetLatestValidatorSetRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetLatestValidatorSet, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchValidatorSetByHeight(ctx context.Context, height int64, pagination *query.PageRequest) (*cmtservice.GetValidatorSetByHeightResponse, error) {
+	req := &cmtservice.GetValidatorSetByHeightRequest{
+		Height:     height,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.GetValidatorSetByHeight, req)
+
+	return res, err
+}
+
+func (c *chainClient) ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*cmtservice.ABCIQueryResponse, error) {
+	req := &cmtservice.ABCIQueryRequest{
+		Path:   path,
+		Data:   data,
+		Height: height,
+		Prove:  prove,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.tendermintQueryClient.ABCIQuery, req)
+
+	return res, err
+}
+
+// IBC Transfer module
+func (c *chainClient) FetchDenomTrace(ctx context.Context, hash string) (*ibctransfertypes.QueryDenomTraceResponse, error) {
+	req := &ibctransfertypes.QueryDenomTraceRequest{
+		Hash: hash,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.DenomTrace, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomTraces(ctx context.Context, pagination *query.PageRequest) (*ibctransfertypes.QueryDenomTracesResponse, error) {
+	req := &ibctransfertypes.QueryDenomTracesRequest{
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.DenomTraces, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomHash(ctx context.Context, trace string) (*ibctransfertypes.QueryDenomHashResponse, error) {
+	req := &ibctransfertypes.QueryDenomHashRequest{
+		Trace: trace,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.DenomHash, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchEscrowAddress(ctx context.Context, portId, channelId string) (*ibctransfertypes.QueryEscrowAddressResponse, error) {
+	req := &ibctransfertypes.QueryEscrowAddressRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.EscrowAddress, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error) {
+	req := &ibctransfertypes.QueryTotalEscrowForDenomRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcTransferQueryClient.TotalEscrowForDenom, req)
+
+	return res, err
+}
+
+// IBC Core Channel module
+func (c *chainClient) FetchIBCChannel(ctx context.Context, portId, channelId string) (*ibcchanneltypes.QueryChannelResponse, error) {
+	req := &ibcchanneltypes.QueryChannelRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.Channel, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCChannels(ctx context.Context, pagination *query.PageRequest) (*ibcchanneltypes.QueryChannelsResponse, error) {
+	req := &ibcchanneltypes.QueryChannelsRequest{
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.Channels, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnectionChannels(ctx context.Context, connection string, pagination *query.PageRequest) (*ibcchanneltypes.QueryConnectionChannelsResponse, error) {
+	req := &ibcchanneltypes.QueryConnectionChannelsRequest{
+		Connection: connection,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.ConnectionChannels, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCChannelClientState(ctx context.Context, portId, channelId string) (*ibcchanneltypes.QueryChannelClientStateResponse, error) {
+	req := &ibcchanneltypes.QueryChannelClientStateRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.ChannelClientState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCChannelConsensusState(ctx context.Context, portId, channelId string, revisionNumber, revisionHeight uint64) (*ibcchanneltypes.QueryChannelConsensusStateResponse, error) {
+	req := &ibcchanneltypes.QueryChannelConsensusStateRequest{
+		PortId:         portId,
+		ChannelId:      channelId,
+		RevisionNumber: revisionNumber,
+		RevisionHeight: revisionHeight,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.ChannelConsensusState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketCommitment(ctx context.Context, portId, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketCommitmentResponse, error) {
+	req := &ibcchanneltypes.QueryPacketCommitmentRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+		Sequence:  sequence,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketCommitment, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketCommitments(ctx context.Context, portId, channelId string, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketCommitmentsResponse, error) {
+	req := &ibcchanneltypes.QueryPacketCommitmentsRequest{
+		PortId:     portId,
+		ChannelId:  channelId,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketCommitments, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketReceipt(ctx context.Context, portId, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketReceiptResponse, error) {
+	req := &ibcchanneltypes.QueryPacketReceiptRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+		Sequence:  sequence,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketReceipt, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketAcknowledgement(ctx context.Context, portId, channelId string, sequence uint64) (*ibcchanneltypes.QueryPacketAcknowledgementResponse, error) {
+	req := &ibcchanneltypes.QueryPacketAcknowledgementRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+		Sequence:  sequence,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketAcknowledgement, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCPacketAcknowledgements(ctx context.Context, portId, channelId string, packetCommitmentSequences []uint64, pagination *query.PageRequest) (*ibcchanneltypes.QueryPacketAcknowledgementsResponse, error) {
+	req := &ibcchanneltypes.QueryPacketAcknowledgementsRequest{
+		PortId:                    portId,
+		ChannelId:                 channelId,
+		Pagination:                pagination,
+		PacketCommitmentSequences: packetCommitmentSequences,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.PacketAcknowledgements, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCUnreceivedPackets(ctx context.Context, portId, channelId string, packetCommitmentSequences []uint64) (*ibcchanneltypes.QueryUnreceivedPacketsResponse, error) {
+	req := &ibcchanneltypes.QueryUnreceivedPacketsRequest{
+		PortId:                    portId,
+		ChannelId:                 channelId,
+		PacketCommitmentSequences: packetCommitmentSequences,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.UnreceivedPackets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCUnreceivedAcks(ctx context.Context, portId, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error) {
+	req := &ibcchanneltypes.QueryUnreceivedAcksRequest{
+		PortId:             portId,
+		ChannelId:          channelId,
+		PacketAckSequences: packetAckSequences,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.UnreceivedAcks, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCNextSequenceReceive(ctx context.Context, portId, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error) {
+	req := &ibcchanneltypes.QueryNextSequenceReceiveRequest{
+		PortId:    portId,
+		ChannelId: channelId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcChannelQueryClient.NextSequenceReceive, req)
+
+	return res, err
+}
+
+// IBC Core Chain module
+func (c *chainClient) FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error) {
+	req := &ibcclienttypes.QueryClientStateRequest{
+		ClientId: clientId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ClientState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCClientStates(ctx context.Context, pagination *query.PageRequest) (*ibcclienttypes.QueryClientStatesResponse, error) {
+	req := &ibcclienttypes.QueryClientStatesRequest{
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ClientStates, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConsensusState(ctx context.Context, clientId string, revisionNumber, revisionHeight uint64, latestHeight bool) (*ibcclienttypes.QueryConsensusStateResponse, error) {
+	req := &ibcclienttypes.QueryConsensusStateRequest{
+		ClientId:       clientId,
+		RevisionNumber: revisionNumber,
+		RevisionHeight: revisionHeight,
+		LatestHeight:   latestHeight,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ConsensusState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConsensusStates(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStatesResponse, error) {
+	req := &ibcclienttypes.QueryConsensusStatesRequest{
+		ClientId:   clientId,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ConsensusStates, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConsensusStateHeights(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStateHeightsResponse, error) {
+	req := &ibcclienttypes.QueryConsensusStateHeightsRequest{
+		ClientId:   clientId,
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ConsensusStateHeights, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCClientStatus(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStatusResponse, error) {
+	req := &ibcclienttypes.QueryClientStatusRequest{
+		ClientId: clientId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ClientStatus, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCClientParams(ctx context.Context) (*ibcclienttypes.QueryClientParamsResponse, error) {
+	req := &ibcclienttypes.QueryClientParamsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.ClientParams, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCUpgradedClientState(ctx context.Context) (*ibcclienttypes.QueryUpgradedClientStateResponse, error) {
+	req := &ibcclienttypes.QueryUpgradedClientStateRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.UpgradedClientState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error) {
+	req := &ibcclienttypes.QueryUpgradedConsensusStateRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcClientQueryClient.UpgradedConsensusState, req)
+
+	return res, err
+}
+
+// IBC Core Connection module
+func (c *chainClient) FetchIBCConnection(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionRequest{
+		ConnectionId: connectionId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.Connection, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnections(ctx context.Context, pagination *query.PageRequest) (*ibcconnectiontypes.QueryConnectionsResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionsRequest{
+		Pagination: pagination,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.Connections, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCClientConnections(ctx context.Context, clientId string) (*ibcconnectiontypes.QueryClientConnectionsResponse, error) {
+	req := &ibcconnectiontypes.QueryClientConnectionsRequest{
+		ClientId: clientId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ClientConnections, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnectionClientState(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionClientStateResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionClientStateRequest{
+		ConnectionId: connectionId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ConnectionClientState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnectionConsensusState(ctx context.Context, connectionId string, revisionNumber, revisionHeight uint64) (*ibcconnectiontypes.QueryConnectionConsensusStateResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionConsensusStateRequest{
+		ConnectionId:   connectionId,
+		RevisionNumber: revisionNumber,
+		RevisionHeight: revisionHeight,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ConnectionConsensusState, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error) {
+	req := &ibcconnectiontypes.QueryConnectionParamsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.ibcConnectionQueryClient.ConnectionParams, req)
+
+	return res, err
+}
+
+// Permissions module
+
+func (c *chainClient) FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error) {
+	req := &permissionstypes.QueryAllNamespacesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AllNamespaces, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error) {
+	req := &permissionstypes.QueryNamespaceByDenomRequest{
+		Denom:        denom,
+		IncludeRoles: includeRoles,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.NamespaceByDenom, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error) {
+	req := &permissionstypes.QueryAddressRolesRequest{
+		Denom:   denom,
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AddressRoles, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error) {
+	req := &permissionstypes.QueryAddressesByRoleRequest{
+		Denom: denom,
+		Role:  role,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AddressesByRole, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
+	req := &permissionstypes.QueryVouchersForAddressRequest{
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.VouchersForAddress, req)
+
+	return res, err
 }
 
 func (c *chainClient) AdjustGasPricesToMax() {

@@ -1,4 +1,4 @@
-// Code generated with goa v3.5.2, DO NOT EDIT.
+// Code generated with goa v3.7.0, DO NOT EDIT.
 //
 // InjectiveSpotExchangeRPC protocol buffer definition
 //
@@ -92,6 +92,8 @@ message SpotMarketInfo {
 	string min_price_tick_size = 11;
 	// Defines the minimum required tick size for the order's quantity
 	string min_quantity_tick_size = 12;
+	// Minimum notional value for the market
+	string min_notional = 13;
 }
 
 message TokenMeta {

@@ -9,10 +9,13 @@ import "injective/peggy/v1/params.proto";
 import "google/protobuf/any.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
 
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   rpc ValsetConfirm(MsgValsetConfirm) returns (MsgValsetConfirmResponse) {
     option (google.api.http).post = "/injective/peggy/v1/valset_confirm";
   }
@@ -54,6 +57,15 @@ service Msg {
   }
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // BlacklistEthereumAddresses adds Ethereum addresses to the peggy blacklist.
+  rpc BlacklistEthereumAddresses(MsgBlacklistEthereumAddresses)
+      returns (MsgBlacklistEthereumAddressesResponse);
+
+  // RevokeEthereumBlacklist removes Ethereum addresses from the peggy
+  // blacklist.
+  rpc RevokeEthereumBlacklist(MsgRevokeEthereumBlacklist)
+      returns (MsgRevokeEthereumBlacklistResponse);
 }
 
 // MsgSetOrchestratorAddresses
@@ -70,6 +82,9 @@ service Msg {
 // This is a hex encoded 0x Ethereum public key that will be used by this
 // validator on Ethereum
 message MsgSetOrchestratorAddresses {
+  option (amino.name) = "peggy/MsgSetOrchestratorAddresses";
+  option (cosmos.msg.v1.signer) = "sender";
+
   string sender = 1;
   string orchestrator = 2;
   string eth_address = 3;
@@ -93,6 +108,7 @@ message MsgSetOrchestratorAddressesResponse {}
 // chain store and submit them to Ethereum to update the validator set
 // -------------
 message MsgValsetConfirm {
+  option (amino.name) = "peggy/MsgValsetConfirm";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
   uint64 nonce = 1;
@@ -116,6 +132,7 @@ message MsgValsetConfirmResponse {}
 // actually send this message in the first place. So a successful send has
 // two layers of fees for the user
 message MsgSendToEth {
+  option (amino.name) = "peggy/MsgSendToEth";
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
@@ -136,6 +153,7 @@ message MsgSendToEthResponse {}
 // can finally submit the batch
 // -------------
 message MsgRequestBatch {
+  option (amino.name) = "peggy/MsgRequestBatch";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
   string orchestrator = 1;
@@ -153,6 +171,7 @@ message MsgRequestBatchResponse {}
 // as well as an Ethereum signature over this batch by the validator
 // -------------
 message MsgConfirmBatch {
+  option (amino.name) = "peggy/MsgConfirmBatch";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
   uint64 nonce = 1;
@@ -170,13 +189,14 @@ message MsgConfirmBatchResponse {}
 // issued to the Cosmos address in question
 // -------------
 message MsgDepositClaim {
+  option (amino.name) = "peggy/MsgDepositClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
   uint64 event_nonce = 1;
   uint64 block_height = 2;
   string token_contract = 3;
   string amount = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   string ethereum_sender = 5;
@@ -190,6 +210,7 @@ message MsgDepositClaimResponse {}
 // WithdrawClaim claims that a batch of withdrawal
 // operations on the bridge contract was executed.
 message MsgWithdrawClaim {
+  option (amino.name) = "peggy/MsgWithdrawClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
   uint64 event_nonce = 1;
@@ -205,6 +226,7 @@ message MsgWithdrawClaimResponse {}
 // to learn about an ERC20 that someone deployed
 // to represent a Cosmos asset
 message MsgERC20DeployedClaim {
+  option (amino.name) = "peggy/MsgERC20DeployedClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
   uint64 event_nonce = 1;
@@ -223,6 +245,7 @@ message MsgERC20DeployedClaimResponse {}
 // to cancel a given MsgSendToEth and recieve a refund
 // of the tokens
 message MsgCancelSendToEth {
+  option (amino.name) = "peggy/MsgCancelSendToEth";
   option (cosmos.msg.v1.signer) = "sender";
 
   uint64 transaction_id = 1;
@@ -235,6 +258,7 @@ message MsgCancelSendToEthResponse {}
 // validator has signed a valset, batch, or logic call that never
 // existed. Subject contains the batch, valset, or logic call.
 message MsgSubmitBadSignatureEvidence {
+  option (amino.name) = "peggy/MsgSubmitBadSignatureEvidence";
   option (cosmos.msg.v1.signer) = "sender";
 
   google.protobuf.Any subject = 1;
@@ -247,6 +271,7 @@ message MsgSubmitBadSignatureEvidenceResponse {}
 // This informs the Cosmos module that a validator
 // set has been updated.
 message MsgValsetUpdatedClaim {
+  option (amino.name) = "peggy/MsgValsetUpdatedClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
 
   uint64 event_nonce = 1;
@@ -254,7 +279,7 @@ message MsgValsetUpdatedClaim {
   uint64 block_height = 3;
   repeated BridgeValidator members = 4;
   string reward_amount = 5 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
   string reward_token = 6;
@@ -264,6 +289,7 @@ message MsgValsetUpdatedClaim {
 message MsgValsetUpdatedClaimResponse {}
 
 message MsgUpdateParams {
+  option (amino.name) = "peggy/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
@@ -276,3 +302,35 @@ message MsgUpdateParams {
 }
 
 message MsgUpdateParamsResponse {}
+
+// MsgBlacklistEthereumAddresses defines the message used to add Ethereum
+// addresses to peggy blacklist.
+message MsgBlacklistEthereumAddresses {
+  option (amino.name) = "peggy/MsgBlacklistEthereumAddresses";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  // signer address
+  string signer = 1;
+  // Ethereum addresses to include in the blacklist
+  repeated string blacklist_addresses = 2;
+}
+
+// MsgBlacklistEthereumAddressesResponse defines the
+// MsgBlacklistEthereumAddresses response type.
+message MsgBlacklistEthereumAddressesResponse {}
+
+// MsgRevokeEthereumBlacklist defines the message used to remove Ethereum
+// addresses from peggy blacklist.
+message MsgRevokeEthereumBlacklist {
+  option (amino.name) = "peggy/MsgRevokeEthereumBlacklist";
+  option (cosmos.msg.v1.signer) = "signer";
+
+  // signer address
+  string signer = 1;
+  // Ethereum addresses to include in the blacklist
+  repeated string blacklist_addresses = 2;
+}
+
+// MsgRevokeEthereumBlacklistResponse defines the MsgRevokeEthereumBlacklist
+// response type.
+message MsgRevokeEthereumBlacklistResponse {}

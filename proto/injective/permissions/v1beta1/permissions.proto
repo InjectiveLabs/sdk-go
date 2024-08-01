@@ -16,8 +16,14 @@ message Namespace {
   bool sends_paused = 4;
   bool burns_paused = 5;
 
-  map<string, uint32> role_permissions = 6; // permissions for each role
-  map<string, Roles> address_roles = 7;
+  repeated Role role_permissions = 6; // permissions for each role
+
+  repeated AddressRoles address_roles = 7;
+}
+
+message AddressRoles {
+  string address = 1;
+  repeated string roles = 2;
 }
 
 // each Action enum value should be a power of two
@@ -30,11 +36,9 @@ enum Action {
 
 // Role is only used for storage
 message Role {
-  string name = 1;
+  string role = 1;
   uint32 permissions = 2;
 }
-
-message Roles { repeated string roles = 1; }
 
 // used in storage
 message RoleIDs { repeated uint32 role_ids = 1; }
@@ -44,4 +48,9 @@ message Voucher {
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
+}
+
+message AddressVoucher {
+  string address = 1;
+  Voucher voucher = 2;
 }

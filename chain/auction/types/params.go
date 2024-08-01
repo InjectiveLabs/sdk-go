@@ -3,7 +3,7 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
@@ -14,7 +14,7 @@ var (
 	// DefaultAuctionPeriod represents the number of seconds in 1 week
 	DefaultAuctionPeriod int64 = 60 * 60 * 24 * 7
 	// DefaultMinNextBidIncrementRate represents default min increment rate 0.25%
-	DefaultMinNextBidIncrementRate = sdk.NewDecWithPrec(25, 4)
+	DefaultMinNextBidIncrementRate = math.LegacyNewDecWithPrec(25, 4)
 )
 
 // Parameter keys
@@ -31,7 +31,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 // NewParams creates a new Params instance
 func NewParams(
 	auctionPeriod int64,
-	minNextBidIncrementRate sdk.Dec,
+	minNextBidIncrementRate math.LegacyDec,
 ) Params {
 	return Params{
 		AuctionPeriod:           auctionPeriod,
@@ -82,7 +82,7 @@ func validateAuctionPeriodDuration(i interface{}) error {
 }
 
 func validateMinNextBidIncrementRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -91,11 +91,11 @@ func validateMinNextBidIncrementRate(i interface{}) error {
 		return fmt.Errorf("MinNextBidIncrementRate cannot be nil")
 	}
 
-	if v.Equal(sdk.ZeroDec()) {
+	if v.Equal(math.LegacyZeroDec()) {
 		return fmt.Errorf("MinNextBidIncrementRate must be positive: %s", v.String())
 	}
 
-	if v.GT(sdk.NewDecWithPrec(2, 1)) { // > 20%
+	if v.GT(math.LegacyNewDecWithPrec(2, 1)) { // > 20%
 		return fmt.Errorf("MinNextBidIncrementRate must be equal or less than 20 percent: %s", v.String())
 	}
 

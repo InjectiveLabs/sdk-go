@@ -3,7 +3,8 @@ package core
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/types"
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/huandu/go-assert"
 	"github.com/shopspring/decimal"
 )
@@ -73,7 +74,7 @@ func TestConvertQuantityToChainFormatForSpotMarket(t *testing.T) {
 	chainValue := spotMarket.QuantityToChainFormat(originalQuantity)
 	expectedValue := originalQuantity.Mul(decimal.New(1, spotMarket.BaseToken.Decimals))
 	quantizedValue := expectedValue.DivRound(spotMarket.MinQuantityTickSize, 0).Mul(spotMarket.MinQuantityTickSize)
-	quantizedChainFormatValue := types.MustNewDecFromStr(quantizedValue.String())
+	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
@@ -86,7 +87,7 @@ func TestConvertPriceToChainFormatForSpotMarket(t *testing.T) {
 	priceDecimals := spotMarket.QuoteToken.Decimals - spotMarket.BaseToken.Decimals
 	expectedValue := originalPrice.Mul(decimal.New(1, priceDecimals))
 	quantizedValue := expectedValue.DivRound(spotMarket.MinPriceTickSize, 0).Mul(spotMarket.MinPriceTickSize)
-	quantizedChainFormatValue := types.MustNewDecFromStr(quantizedValue.String())
+	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
@@ -96,7 +97,7 @@ func TestConvertQuantityFromChainFormatForSpotMarket(t *testing.T) {
 	expectedQuantity := decimal.RequireFromString("123.456")
 
 	chainFormatQuantity := expectedQuantity.Mul(decimal.New(1, spotMarket.BaseToken.Decimals))
-	humanReadableQuantity := spotMarket.QuantityFromChainFormat(types.MustNewDecFromStr(chainFormatQuantity.String()))
+	humanReadableQuantity := spotMarket.QuantityFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatQuantity.String()))
 
 	assert.Assert(t, expectedQuantity.Equal(humanReadableQuantity))
 }
@@ -107,12 +108,33 @@ func TestConvertPriceFromChainFormatForSpotMarket(t *testing.T) {
 
 	priceDecimals := spotMarket.QuoteToken.Decimals - spotMarket.BaseToken.Decimals
 	chainFormatPrice := expectedPrice.Mul(decimal.New(1, priceDecimals))
-	humanReadablePrice := spotMarket.PriceFromChainFormat(types.MustNewDecFromStr(chainFormatPrice.String()))
+	humanReadablePrice := spotMarket.PriceFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
 
 	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
 }
 
-//Derivative markets tests
+func TestConvertQuantityFromExtendedChainFormatForSpotMarket(t *testing.T) {
+	spotMarket := createINJUSDTSpotMarket()
+	expectedQuantity := decimal.RequireFromString("123.456")
+
+	chainFormatQuantity := expectedQuantity.Mul(decimal.New(1, spotMarket.BaseToken.Decimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadableQuantity := spotMarket.QuantityFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatQuantity.String()))
+
+	assert.Assert(t, expectedQuantity.Equal(humanReadableQuantity))
+}
+
+func TestConvertPriceFromExtendedChainFormatForSpotMarket(t *testing.T) {
+	spotMarket := createINJUSDTSpotMarket()
+	expectedPrice := decimal.RequireFromString("123.456")
+
+	priceDecimals := spotMarket.QuoteToken.Decimals - spotMarket.BaseToken.Decimals
+	chainFormatPrice := expectedPrice.Mul(decimal.New(1, priceDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadablePrice := spotMarket.PriceFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
+
+	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
+}
+
+// Derivative markets tests
 
 func TestConvertQuantityToChainFormatForDerivativeMarket(t *testing.T) {
 	derivativeMarket := createBTCUSDTPerpMarket()
@@ -120,7 +142,7 @@ func TestConvertQuantityToChainFormatForDerivativeMarket(t *testing.T) {
 
 	chainValue := derivativeMarket.QuantityToChainFormat(originalQuantity)
 	quantizedValue := originalQuantity.DivRound(derivativeMarket.MinQuantityTickSize, 0).Mul(derivativeMarket.MinQuantityTickSize)
-	quantizedChainFormatValue := types.MustNewDecFromStr(quantizedValue.String())
+	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
@@ -133,7 +155,7 @@ func TestConvertPriceToChainFormatForDerivativeMarket(t *testing.T) {
 	priceDecimals := derivativeMarket.QuoteToken.Decimals
 	expectedValue := originalPrice.Mul(decimal.New(1, priceDecimals))
 	quantizedValue := expectedValue.DivRound(derivativeMarket.MinPriceTickSize, 0).Mul(derivativeMarket.MinPriceTickSize)
-	quantizedChainFormatValue := types.MustNewDecFromStr(quantizedValue.String())
+	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
@@ -146,7 +168,7 @@ func TestConvertMarginToChainFormatForDerivativeMarket(t *testing.T) {
 	marginDecimals := derivativeMarket.QuoteToken.Decimals
 	expectedValue := originalPrice.Mul(decimal.New(1, marginDecimals))
 	quantizedValue := expectedValue.DivRound(derivativeMarket.MinQuantityTickSize, 0).Mul(derivativeMarket.MinQuantityTickSize)
-	quantizedChainFormatValue := types.MustNewDecFromStr(quantizedValue.String())
+	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
@@ -161,7 +183,7 @@ func TestCalculateMarginInChainFormatForDerivativeMarket(t *testing.T) {
 	decimals := derivativeMarket.QuoteToken.Decimals
 	expectedValue := originalQuantity.Mul(originalPrice).Div(originalLeverage).Mul(decimal.New(1, decimals))
 	quantizedValue := expectedValue.DivRound(derivativeMarket.MinQuantityTickSize, 0).Mul(derivativeMarket.MinQuantityTickSize)
-	legacyDecimalQuantizedValue := types.MustNewDecFromStr(quantizedValue.String())
+	legacyDecimalQuantizedValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, chainValue.Equal(legacyDecimalQuantizedValue))
 }
@@ -171,7 +193,7 @@ func TestConvertQuantityFromChainFormatForDerivativeMarket(t *testing.T) {
 	expectedQuantity := decimal.RequireFromString("123.456")
 
 	chainFormatQuantity := expectedQuantity
-	humanReadableQuantity := derivativeMarket.QuantityFromChainFormat(types.MustNewDecFromStr(chainFormatQuantity.String()))
+	humanReadableQuantity := derivativeMarket.QuantityFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatQuantity.String()))
 
 	assert.Assert(t, expectedQuantity.Equal(humanReadableQuantity))
 }
@@ -182,7 +204,7 @@ func TestConvertPriceFromChainFormatForDerivativeMarket(t *testing.T) {
 
 	priceDecimals := derivativeMarket.QuoteToken.Decimals
 	chainFormatPrice := expectedPrice.Mul(decimal.New(1, priceDecimals))
-	humanReadablePrice := derivativeMarket.PriceFromChainFormat(types.MustNewDecFromStr(chainFormatPrice.String()))
+	humanReadablePrice := derivativeMarket.PriceFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
 
 	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
 }
@@ -193,7 +215,39 @@ func TestConvertMarginFromChainFormatForDerivativeMarket(t *testing.T) {
 
 	marginDecimals := derivativeMarket.QuoteToken.Decimals
 	chainFormatMargin := expectedMargin.Mul(decimal.New(1, marginDecimals))
-	humanReadablePrice := derivativeMarket.MarginFromChainFormat(types.MustNewDecFromStr(chainFormatMargin.String()))
+	humanReadablePrice := derivativeMarket.MarginFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatMargin.String()))
+
+	assert.Assert(t, expectedMargin.Equal(humanReadablePrice))
+}
+
+func TestConvertQuantityFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	expectedQuantity := decimal.RequireFromString("123.456")
+
+	chainFormatQuantity := expectedQuantity.Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadableQuantity := derivativeMarket.QuantityFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatQuantity.String()))
+
+	assert.Assert(t, expectedQuantity.Equal(humanReadableQuantity))
+}
+
+func TestConvertPriceFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	expectedPrice := decimal.RequireFromString("123.456")
+
+	priceDecimals := derivativeMarket.QuoteToken.Decimals
+	chainFormatPrice := expectedPrice.Mul(decimal.New(1, priceDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadablePrice := derivativeMarket.PriceFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
+
+	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
+}
+
+func TestConvertMarginFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	expectedMargin := decimal.RequireFromString("123.456")
+
+	marginDecimals := derivativeMarket.QuoteToken.Decimals
+	chainFormatMargin := expectedMargin.Mul(decimal.New(1, marginDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadablePrice := derivativeMarket.MarginFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatMargin.String()))
 
 	assert.Assert(t, expectedMargin.Equal(humanReadablePrice))
 }

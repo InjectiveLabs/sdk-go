@@ -5,11 +5,13 @@ import "gogoproto/gogo.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
 // Msg defines the oracle Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
 
   // RelayProviderPrice defines a method for relaying a price for a
   // provider-based oracle
@@ -33,6 +35,11 @@ service Msg {
   rpc RelayCoinbaseMessages(MsgRelayCoinbaseMessages)
       returns (MsgRelayCoinbaseMessagesResponse);
 
+  // RelayStorkMessage defines a method for relaying price message from
+  // Stork API
+  rpc RelayStorkMessage(MsgRelayStorkPrices)
+      returns (MsgRelayStorkPricesResponse);
+
   // RelayPythPrices defines a method for relaying rates from the Pyth contract
   rpc RelayPythPrices(MsgRelayPythPrices) returns (MsgRelayPythPricesResponse);
 
@@ -43,6 +50,7 @@ service Msg {
 // MsgRelayProviderPrice defines a SDK message for setting a price through the
 // provider oracle.
 message MsgRelayProviderPrices {
+  option (amino.name) = "oracle/MsgRelayProviderPrices";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -51,7 +59,7 @@ message MsgRelayProviderPrices {
   string provider = 2;
   repeated string symbols = 3;
   repeated string prices = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -61,6 +69,7 @@ message MsgRelayProviderPricesResponse {}
 // MsgRelayPriceFeedPrice defines a SDK message for setting a price through the
 // pricefeed oracle.
 message MsgRelayPriceFeedPrice {
+  option (amino.name) = "oracle/MsgRelayPriceFeedPrice";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -72,7 +81,7 @@ message MsgRelayPriceFeedPrice {
 
   // price defines the price of the oracle base and quote
   repeated string price = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -80,6 +89,7 @@ message MsgRelayPriceFeedPrice {
 message MsgRelayPriceFeedPriceResponse {}
 
 message MsgRelayBandRates {
+  option (amino.name) = "oracle/MsgRelayBandRates";
   option (cosmos.msg.v1.signer) = "relayer";
 
   string relayer = 1;
@@ -94,6 +104,7 @@ message MsgRelayBandRatesResponse {}
 // MsgRelayCoinbaseMessages defines a SDK message for relaying price messages
 // from Coinbase API.
 message MsgRelayCoinbaseMessages {
+  option (amino.name) = "oracle/MsgRelayCoinbaseMessages";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -106,9 +117,23 @@ message MsgRelayCoinbaseMessages {
 
 message MsgRelayCoinbaseMessagesResponse {}
 
+// MsgRelayStorkPrices defines a SDK message for relaying price message
+// from Stork API.
+message MsgRelayStorkPrices {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  repeated AssetPair asset_pairs = 2;
+}
+
+message MsgRelayStorkPricesResponse {}
+
 // MsgRequestBandIBCRates defines a SDK message for requesting data from
 // BandChain using IBC.
 message MsgRequestBandIBCRates {
+  option (amino.name) = "oracle/MsgRequestBandIBCRates";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -122,6 +147,7 @@ message MsgRequestBandIBCRatesResponse {}
 
 // MsgRelayPythPrices defines a SDK message for updating Pyth prices
 message MsgRelayPythPrices {
+  option (amino.name) = "oracle/MsgRelayPythPrices";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -134,6 +160,7 @@ message MsgRelayPythPrices {
 message MsgRelayPythPricesResponse {}
 
 message MsgUpdateParams {
+  option (amino.name) = "oracle/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.

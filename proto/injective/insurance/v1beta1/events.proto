@@ -1,0 +1,36 @@
+syntax = "proto3";
+package injective.insurance.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "injective/insurance/v1beta1/insurance.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
+
+message EventInsuranceFundUpdate { InsuranceFund fund = 1; }
+
+message EventRequestRedemption { RedemptionSchedule schedule = 1; }
+
+message EventWithdrawRedemption {
+  // redemption schedule triggered withdraw
+  RedemptionSchedule schedule = 1;
+  // redeem coin amount in base_currency
+  cosmos.base.v1beta1.Coin redeem_coin = 2 [ (gogoproto.nullable) = false ];
+}
+
+message EventUnderwrite {
+  // address of the underwriter
+  string underwriter = 1;
+  // marketId of insurance fund for the redemption
+  string marketId = 2;
+  // deposit coin amount
+  cosmos.base.v1beta1.Coin deposit = 3 [ (gogoproto.nullable) = false ];
+  // share coin amount
+  cosmos.base.v1beta1.Coin shares = 4 [ (gogoproto.nullable) = false ];
+}
+
+message EventInsuranceWithdraw {
+  string market_id = 1;
+  string market_ticker = 2;
+  cosmos.base.v1beta1.Coin withdrawal = 3 [ (gogoproto.nullable) = false ];
+}

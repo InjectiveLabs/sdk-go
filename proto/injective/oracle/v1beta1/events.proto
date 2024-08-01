@@ -10,7 +10,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 message SetChainlinkPriceEvent {
   string feed_id = 1;
   string answer = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   uint64 timestamp = 3;
@@ -21,7 +21,7 @@ message SetBandPriceEvent {
   string relayer = 1;
   string symbol = 2;
   string price = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   uint64 resolve_time = 4;
@@ -32,7 +32,7 @@ message SetBandIBCPriceEvent {
   string relayer = 1;
   repeated string symbols = 2;
   repeated string prices = 3 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   uint64 resolve_time = 4;
@@ -60,7 +60,7 @@ message SetPriceFeedPriceEvent {
 
   // price defines the price of the oracle base and quote
   string price = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -70,7 +70,7 @@ message SetProviderPriceEvent {
   string relayer = 2;
   string symbol = 3;
   string price = 4 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 }
@@ -78,10 +78,12 @@ message SetProviderPriceEvent {
 message SetCoinbasePriceEvent {
   string symbol = 1;
   string price = 2 [
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   uint64 timestamp = 3;
 }
+
+message EventSetStorkPrices { repeated StorkPriceState prices = 1; }
 
 message EventSetPythPrices { repeated PythPriceState prices = 1; }
