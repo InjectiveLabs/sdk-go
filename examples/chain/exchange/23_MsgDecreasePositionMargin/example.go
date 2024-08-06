@@ -1,10 +1,11 @@
 package main
 
 import (
-	"cosmossdk.io/math"
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"cosmossdk.io/math"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 

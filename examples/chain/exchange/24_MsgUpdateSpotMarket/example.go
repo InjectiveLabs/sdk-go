@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"cosmossdk.io/math"
 	"encoding/json"
 	"fmt"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	"os"
+
+	"cosmossdk.io/math"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 
