@@ -73,6 +73,10 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 
 					minPriceTickSize := decimal.RequireFromString(section.Key("min_price_tick_size").String())
 					minQuantityTickSize := decimal.RequireFromString(section.Key("min_quantity_tick_size").String())
+					minNotional := decimal.Zero
+					if section.HasKey("min_notional") {
+						minNotional = decimal.RequireFromString(section.Key("min_notional").String())
+					}
 
 					if strings.Contains(description, "Spot") {
 						baseDecimals, _ := section.Key("quote").Int()
@@ -97,6 +101,7 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 							ServiceProviderFee:  decimal.NewFromInt32(0),
 							MinPriceTickSize:    minPriceTickSize,
 							MinQuantityTickSize: minQuantityTickSize,
+							MinNotional:         minNotional,
 						}
 
 						assistant.spotMarkets[market.Id] = market
@@ -117,6 +122,7 @@ func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
 							ServiceProviderFee:     decimal.NewFromInt32(0),
 							MinPriceTickSize:       minPriceTickSize,
 							MinQuantityTickSize:    minQuantityTickSize,
+							MinNotional:            minNotional,
 						}
 
 						assistant.derivativeMarkets[market.Id] = market
@@ -190,6 +196,7 @@ func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient
 		serviceProviderFee := decimal.RequireFromString(marketInfo.GetServiceProviderFee())
 		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize())
 		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize())
+		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional())
 
 		market := core.SpotMarket{
 			Id:                  marketInfo.GetMarketId(),
@@ -202,6 +209,7 @@ func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient
 			ServiceProviderFee:  serviceProviderFee,
 			MinPriceTickSize:    minPriceTickSize,
 			MinQuantityTickSize: minQuantityTickSize,
+			MinNotional:         minNotional,
 		}
 
 		assistant.spotMarkets[market.Id] = market
@@ -232,6 +240,7 @@ func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient
 		serviceProviderFee := decimal.RequireFromString(marketInfo.GetServiceProviderFee())
 		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize())
 		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize())
+		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional())
 
 		market := core.DerivativeMarket{
 			Id:                     marketInfo.GetMarketId(),
@@ -249,6 +258,7 @@ func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient
 			ServiceProviderFee:     serviceProviderFee,
 			MinPriceTickSize:       minPriceTickSize,
 			MinQuantityTickSize:    minQuantityTickSize,
+			MinNotional:            minNotional,
 		}
 
 		assistant.derivativeMarkets[market.Id] = market

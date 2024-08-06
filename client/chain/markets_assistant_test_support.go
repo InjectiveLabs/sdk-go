@@ -66,6 +66,7 @@ func createINJUSDTSpotMarketInfo() *spotExchangePB.SpotMarketInfo {
 		ServiceProviderFee:  "0.4",
 		MinPriceTickSize:    "0.000000000000001",
 		MinQuantityTickSize: "1000000000000000",
+		MinNotional:         "1000000",
 	}
 
 	return &marketInfo
@@ -87,6 +88,7 @@ func createAPEUSDTSpotMarketInfo() *spotExchangePB.SpotMarketInfo {
 		ServiceProviderFee:  "0.4",
 		MinPriceTickSize:    "0.000000000000001",
 		MinQuantityTickSize: "1000000000000000",
+		MinNotional:         "1000000",
 	}
 
 	return &marketInfo
@@ -128,6 +130,7 @@ func createBTCUSDTDerivativeMarketInfo() *derivativeExchangePB.DerivativeMarketI
 		MinQuantityTickSize:    "0.0001",
 		PerpetualMarketInfo:    &perpetualMarketInfo,
 		PerpetualMarketFunding: &perpetualmarketFunding,
+		MinNotional:            "1000000",
 	}
 
 	return &marketInfo
