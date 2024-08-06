@@ -18,4 +18,4 @@ jobs:
       - name: Run test and calculate coverage
         run: make coverage
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4

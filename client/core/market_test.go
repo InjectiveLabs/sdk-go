@@ -18,6 +18,7 @@ func createINJUSDTSpotMarket() SpotMarket {
 	serviceProviderFee := decimal.RequireFromString("0.4")
 	minPriceTickSize := decimal.RequireFromString("0.000000000000001")
 	minQuantityTickSize := decimal.RequireFromString("1000000000000000")
+	minNotional := decimal.RequireFromString("1000000")
 
 	market := SpotMarket{
 		Id:                  "0x7a57e705bb4e09c88aecfc295569481dbf2fe1d5efe364651fbe72385938e9b0",
@@ -30,6 +31,7 @@ func createINJUSDTSpotMarket() SpotMarket {
 		ServiceProviderFee:  serviceProviderFee,
 		MinPriceTickSize:    minPriceTickSize,
 		MinQuantityTickSize: minQuantityTickSize,
+		MinNotional:         minNotional,
 	}
 	return market
 }
@@ -44,6 +46,7 @@ func createBTCUSDTPerpMarket() DerivativeMarket {
 	serviceProviderFee := decimal.RequireFromString("0.4")
 	minPriceTickSize := decimal.RequireFromString("1000000")
 	minQuantityTickSize := decimal.RequireFromString("0.0001")
+	minNotional := decimal.RequireFromString("1000000")
 
 	market := DerivativeMarket{
 		Id:                     "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce",
@@ -61,6 +64,7 @@ func createBTCUSDTPerpMarket() DerivativeMarket {
 		ServiceProviderFee:     serviceProviderFee,
 		MinPriceTickSize:       minPriceTickSize,
 		MinQuantityTickSize:    minQuantityTickSize,
+		MinNotional:            minNotional,
 	}
 	return market
 }
@@ -92,6 +96,18 @@ func TestConvertPriceToChainFormatForSpotMarket(t *testing.T) {
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
 
+func TestConvertNotionalToChainFormatForSpotMarket(t *testing.T) {
+	spotMarket := createINJUSDTSpotMarket()
+	originalNotional := decimal.RequireFromString("123.456789")
+
+	chainValue := spotMarket.NotionalToChainFormat(originalNotional)
+	notionalDecimals := spotMarket.QuoteToken.Decimals
+	expectedValue := originalNotional.Mul(decimal.New(1, notionalDecimals))
+	chainFormatValue := sdkmath.LegacyMustNewDecFromStr(expectedValue.String())
+
+	assert.Assert(t, chainFormatValue.Equal(chainValue))
+}
+
 func TestConvertQuantityFromChainFormatForSpotMarket(t *testing.T) {
 	spotMarket := createINJUSDTSpotMarket()
 	expectedQuantity := decimal.RequireFromString("123.456")
@@ -113,6 +129,17 @@ func TestConvertPriceFromChainFormatForSpotMarket(t *testing.T) {
 	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
 }
 
+func TestConvertNotionalFromChainFormatForSpotMarket(t *testing.T) {
+	spotMarket := createINJUSDTSpotMarket()
+	expectedNotional := decimal.RequireFromString("123.456")
+
+	notionalDecimals := spotMarket.QuoteToken.Decimals
+	chainFormatPrice := expectedNotional.Mul(decimal.New(1, notionalDecimals))
+	humanReadableNotional := spotMarket.NotionalFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
+
+	assert.Assert(t, expectedNotional.Equal(humanReadableNotional))
+}
+
 func TestConvertQuantityFromExtendedChainFormatForSpotMarket(t *testing.T) {
 	spotMarket := createINJUSDTSpotMarket()
 	expectedQuantity := decimal.RequireFromString("123.456")
@@ -132,6 +159,17 @@ func TestConvertPriceFromExtendedChainFormatForSpotMarket(t *testing.T) {
 	humanReadablePrice := spotMarket.PriceFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
 
 	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
+}
+
+func TestConvertNotionalFromExtendedChainFormatForSpotMarket(t *testing.T) {
+	spotMarket := createINJUSDTSpotMarket()
+	expectedNotional := decimal.RequireFromString("123.456")
+
+	notionalDecimals := spotMarket.QuoteToken.Decimals
+	chainFormatNotional := expectedNotional.Mul(decimal.New(1, notionalDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadableNotional := spotMarket.NotionalFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatNotional.String()))
+
+	assert.Assert(t, expectedNotional.Equal(humanReadableNotional))
 }
 
 // Derivative markets tests
@@ -188,6 +226,18 @@ func TestCalculateMarginInChainFormatForDerivativeMarket(t *testing.T) {
 	assert.Assert(t, chainValue.Equal(legacyDecimalQuantizedValue))
 }
 
+func TestConvertNotionalToChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	originalNotional := decimal.RequireFromString("123.456789")
+
+	chainValue := derivativeMarket.NotionalToChainFormat(originalNotional)
+	notionalDecimals := derivativeMarket.QuoteToken.Decimals
+	expectedValue := originalNotional.Mul(decimal.New(1, notionalDecimals))
+	expectedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(expectedValue.String())
+
+	assert.Assert(t, expectedChainFormatValue.Equal(chainValue))
+}
+
 func TestConvertQuantityFromChainFormatForDerivativeMarket(t *testing.T) {
 	derivativeMarket := createBTCUSDTPerpMarket()
 	expectedQuantity := decimal.RequireFromString("123.456")
@@ -220,6 +270,17 @@ func TestConvertMarginFromChainFormatForDerivativeMarket(t *testing.T) {
 	assert.Assert(t, expectedMargin.Equal(humanReadablePrice))
 }
 
+func TestConvertNotionalFromChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	expectedNotional := decimal.RequireFromString("123.456")
+
+	notionalDecimals := derivativeMarket.QuoteToken.Decimals
+	chainFormatPrice := expectedNotional.Mul(decimal.New(1, notionalDecimals))
+	humanReadableNotional := derivativeMarket.NotionalFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
+
+	assert.Assert(t, expectedNotional.Equal(humanReadableNotional))
+}
+
 func TestConvertQuantityFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
 	derivativeMarket := createBTCUSDTPerpMarket()
 	expectedQuantity := decimal.RequireFromString("123.456")
@@ -250,4 +311,15 @@ func TestConvertMarginFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
 	humanReadablePrice := derivativeMarket.MarginFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatMargin.String()))
 
 	assert.Assert(t, expectedMargin.Equal(humanReadablePrice))
+}
+
+func TestConvertNotionalFromExtendedChainFormatForDerivativeMarket(t *testing.T) {
+	derivativeMarket := createBTCUSDTPerpMarket()
+	expectedNotional := decimal.RequireFromString("123.456")
+
+	notionalDecimals := derivativeMarket.QuoteToken.Decimals
+	chainFormatNotional := expectedNotional.Mul(decimal.New(1, notionalDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
+	humanReadableNotional := derivativeMarket.NotionalFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatNotional.String()))
+
+	assert.Assert(t, expectedNotional.Equal(humanReadableNotional))
 }
