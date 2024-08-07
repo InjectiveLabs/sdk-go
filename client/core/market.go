@@ -19,6 +19,7 @@ type SpotMarket struct {
 	ServiceProviderFee  decimal.Decimal
 	MinPriceTickSize    decimal.Decimal
 	MinQuantityTickSize decimal.Decimal
+	MinNotional         decimal.Decimal
 }
 
 func (spotMarket SpotMarket) QuantityToChainFormat(humanReadableValue decimal.Decimal) sdkmath.LegacyDec {
@@ -38,6 +39,14 @@ func (spotMarket SpotMarket) PriceToChainFormat(humanReadableValue decimal.Decim
 	return valueInChainFormat
 }
 
+func (spotMarket SpotMarket) NotionalToChainFormat(humanReadableValue decimal.Decimal) sdkmath.LegacyDec {
+	decimals := spotMarket.QuoteToken.Decimals
+	chainFormattedValue := humanReadableValue.Mul(decimal.New(1, decimals))
+	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(chainFormattedValue.String())
+
+	return valueInChainFormat
+}
+
 func (spotMarket SpotMarket) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return decimal.RequireFromString(chainValue.String()).Div(decimal.New(1, spotMarket.BaseToken.Decimals))
 }
@@ -47,12 +56,21 @@ func (spotMarket SpotMarket) PriceFromChainFormat(chainValue sdkmath.LegacyDec) 
 	return decimal.RequireFromString(chainValue.String()).Mul(decimal.New(1, decimals))
 }
 
+func (spotMarket SpotMarket) NotionalFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
+	decimals := -spotMarket.QuoteToken.Decimals
+	return decimal.RequireFromString(chainValue.String()).Mul(decimal.New(1, decimals))
+}
+
 func (spotMarket SpotMarket) QuantityFromExtendedChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return common.RemoveExtraDecimals(spotMarket.QuantityFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }
 
 func (spotMarket SpotMarket) PriceFromExtendedChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return common.RemoveExtraDecimals(spotMarket.PriceFromChainFormat(chainValue), AdditionalChainFormatDecimals)
+}
+
+func (spotMarket SpotMarket) NotionalFromExtendedChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
+	return common.RemoveExtraDecimals(spotMarket.NotionalFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }
 
 type DerivativeMarket struct {
@@ -71,6 +89,7 @@ type DerivativeMarket struct {
 	ServiceProviderFee     decimal.Decimal
 	MinPriceTickSize       decimal.Decimal
 	MinQuantityTickSize    decimal.Decimal
+	MinNotional            decimal.Decimal
 }
 
 func (derivativeMarket DerivativeMarket) QuantityToChainFormat(humanReadableValue decimal.Decimal) sdkmath.LegacyDec {
@@ -91,12 +110,7 @@ func (derivativeMarket DerivativeMarket) PriceToChainFormat(humanReadableValue d
 }
 
 func (derivativeMarket DerivativeMarket) MarginToChainFormat(humanReadableValue decimal.Decimal) sdkmath.LegacyDec {
-	decimals := derivativeMarket.QuoteToken.Decimals
-	chainFormattedValue := humanReadableValue.Mul(decimal.New(1, decimals))
-	quantizedValue := chainFormattedValue.DivRound(derivativeMarket.MinQuantityTickSize, 0).Mul(derivativeMarket.MinQuantityTickSize)
-	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(quantizedValue.String())
-
-	return valueInChainFormat
+	return derivativeMarket.NotionalToChainFormat(humanReadableValue)
 }
 
 func (derivativeMarket DerivativeMarket) CalculateMarginInChainFormat(humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal) sdkmath.LegacyDec {
@@ -112,6 +126,14 @@ func (derivativeMarket DerivativeMarket) CalculateMarginInChainFormat(humanReada
 	return valueInChainFormat
 }
 
+func (derivativeMarket DerivativeMarket) NotionalToChainFormat(humanReadableValue decimal.Decimal) sdkmath.LegacyDec {
+	decimals := derivativeMarket.QuoteToken.Decimals
+	chainFormattedValue := humanReadableValue.Mul(decimal.New(1, decimals))
+	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(chainFormattedValue.String())
+
+	return valueInChainFormat
+}
+
 func (derivativeMarket DerivativeMarket) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return decimal.RequireFromString(chainValue.String())
 }
@@ -122,6 +144,10 @@ func (derivativeMarket DerivativeMarket) PriceFromChainFormat(chainValue sdkmath
 }
 
 func (derivativeMarket DerivativeMarket) MarginFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
+	return derivativeMarket.NotionalFromChainFormat(chainValue)
+}
+
+func (derivativeMarket DerivativeMarket) NotionalFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	decimals := -derivativeMarket.QuoteToken.Decimals
 	return decimal.RequireFromString(chainValue.String()).Mul(decimal.New(1, decimals))
 }
@@ -136,4 +162,8 @@ func (derivativeMarket DerivativeMarket) PriceFromExtendedChainFormat(chainValue
 
 func (derivativeMarket DerivativeMarket) MarginFromExtendedChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return common.RemoveExtraDecimals(derivativeMarket.MarginFromChainFormat(chainValue), AdditionalChainFormatDecimals)
+}
+
+func (derivativeMarket DerivativeMarket) NotionalFromExtendedChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
+	return common.RemoveExtraDecimals(derivativeMarket.NotionalFromChainFormat(chainValue), AdditionalChainFormatDecimals)
 }

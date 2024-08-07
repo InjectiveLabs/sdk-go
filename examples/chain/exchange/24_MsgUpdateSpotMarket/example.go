@@ -7,13 +7,14 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 
 	"github.com/InjectiveLabs/sdk-go/client"
-	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+
 	"github.com/InjectiveLabs/sdk-go/client/common"
+
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
@@ -73,8 +74,8 @@ func main() {
 	baseToken := marketsAssistant.AllTokens()["INJ"]
 	quoteToken := marketsAssistant.AllTokens()["USDC"]
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
-	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
-	minNotional := math.LegacyMustNewDecFromStr("1")
+	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.01")
+	minNotional := math.LegacyMustNewDecFromStr("2")
 
 	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
 	chainMinPriceTickSize = chainMinPriceTickSize.Quo(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
@@ -82,14 +83,13 @@ func main() {
 	chainMinQuantityTickSize := minQuantityTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
 	chainMinNotional := minNotional.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
 
-	msg := &exchangetypes.MsgInstantSpotMarketLaunch{
-		Sender:              senderAddress.String(),
-		Ticker:              "INJ/USDC",
-		BaseDenom:           baseToken.Denom,
-		QuoteDenom:          quoteToken.Denom,
-		MinPriceTickSize:    chainMinPriceTickSize,
-		MinQuantityTickSize: chainMinQuantityTickSize,
-		MinNotional:         chainMinNotional,
+	msg := &exchangetypes.MsgUpdateSpotMarket{
+		Admin:                  senderAddress.String(),
+		MarketId:               "0x215970bfdea5c94d8e964a759d3ce6eae1d113900129cc8428267db5ccdb3d1a",
+		NewTicker:              "INJ/USDC 2",
+		NewMinPriceTickSize:    chainMinPriceTickSize,
+		NewMinQuantityTickSize: chainMinQuantityTickSize,
+		NewMinNotional:         chainMinNotional,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

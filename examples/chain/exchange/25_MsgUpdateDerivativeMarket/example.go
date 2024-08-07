@@ -70,26 +70,24 @@ func main() {
 		panic(err)
 	}
 
-	baseToken := marketsAssistant.AllTokens()["INJ"]
-	quoteToken := marketsAssistant.AllTokens()["USDC"]
-	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
-	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
-	minNotional := math.LegacyMustNewDecFromStr("1")
+	quoteToken := marketsAssistant.AllTokens()["USDT"]
+	minPriceTickSize := math.LegacyMustNewDecFromStr("0.1")
+	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.1")
+	minNotional := math.LegacyMustNewDecFromStr("2")
 
 	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-	chainMinPriceTickSize = chainMinPriceTickSize.Quo(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
-
-	chainMinQuantityTickSize := minQuantityTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
+	chainMinQuantityTickSize := minQuantityTickSize
 	chainMinNotional := minNotional.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
 
-	msg := &exchangetypes.MsgInstantSpotMarketLaunch{
-		Sender:              senderAddress.String(),
-		Ticker:              "INJ/USDC",
-		BaseDenom:           baseToken.Denom,
-		QuoteDenom:          quoteToken.Denom,
-		MinPriceTickSize:    chainMinPriceTickSize,
-		MinQuantityTickSize: chainMinQuantityTickSize,
-		MinNotional:         chainMinNotional,
+	msg := &exchangetypes.MsgUpdateDerivativeMarket{
+		Admin:                     senderAddress.String(),
+		MarketId:                  "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6",
+		NewTicker:                 "INJ/USDT PERP 2",
+		NewMinPriceTickSize:       chainMinPriceTickSize,
+		NewMinQuantityTickSize:    chainMinQuantityTickSize,
+		NewMinNotional:            chainMinNotional,
+		NewInitialMarginRatio:     math.LegacyMustNewDecFromStr("0.4"),
+		NewMaintenanceMarginRatio: math.LegacyMustNewDecFromStr("0.085"),
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
