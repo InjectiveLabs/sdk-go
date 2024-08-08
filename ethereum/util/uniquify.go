@@ -8,7 +8,7 @@ import (
 // Uniquify is a type of advanced mutex. It allows to create named resource locks.
 type Uniquify interface {
 	// Call executes only one callable with same id at a time.
-	// Multilpe asynchronous calls with same id will be executed sequentally.
+	// Multiple asynchronous calls with same id will be executed sequentally.
 	Call(id string, callable func() error) error
 }
 
