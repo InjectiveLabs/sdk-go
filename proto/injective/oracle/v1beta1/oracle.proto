@@ -107,7 +107,7 @@ message CoinbasePriceState {
 message StorkPriceState {
   // timestamp of the when the price was signed by stork
   uint64 timestamp = 1;
-  // the symbol of the price, e.g. BTC
+  // the symbol of the price, e.g. BTCUSDT
   string symbol = 2;
   // the value of the price scaled by 1e18
   string value = 3 [
