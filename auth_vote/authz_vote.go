@@ -22,10 +22,6 @@ func main() {
 		panic(err)
 	}
 
-	if err != nil {
-		panic(err)
-	}
-
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		os.Getenv("HOME")+"/.injectived",
 		"injectived",
