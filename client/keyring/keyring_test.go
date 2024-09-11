@@ -18,6 +18,8 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client/chain"
 )
 
+const KeyringAppName = "keyring_test"
+
 type KeyringTestSuite struct {
 	suite.Suite
 
@@ -151,7 +153,7 @@ func (s *KeyringTestSuite) TestKeyringOsWithAppName() {
 	requireT := require.New(s.T())
 
 	osKeyring, err := cosmkeyring.New(
-		"keyring_test",
+		KeyringAppName,
 		cosmkeyring.BackendOS,
 		"",
 		nil,
@@ -188,7 +190,7 @@ func (s *KeyringTestSuite) TestKeyringOsWithAppName() {
 	accAddr, kb, err := NewCosmosKeyring(
 		s.cdc,
 		WithKeyringBackend(BackendOS),
-		WithKeyringAppName("keyring_test"),
+		WithKeyringAppName(KeyringAppName),
 		WithKey(
 			WithKeyFrom("test"),
 		),
