@@ -44,7 +44,7 @@ func NewCosmosKeyring(cdc codec.Codec, opts ...ConfigOpt) (sdk.AccAddress, cosmk
 
 	for keyIdx, keyConfig := range config.Keys {
 		switch {
-		case len(keyConfig.Mnemonic) > 0:
+		case keyConfig.Mnemonic != "":
 			if usingRealKeyring {
 				return emptyCosmosAddress, nil, ErrMultipleKeysWithDifferentSecurity
 			} else if kb == nil {
@@ -65,7 +65,7 @@ func NewCosmosKeyring(cdc codec.Codec, opts ...ConfigOpt) (sdk.AccAddress, cosmk
 				firstKey = &addr
 			}
 
-		case len(keyConfig.PrivKeyHex) > 0:
+		case keyConfig.PrivKeyHex != "":
 			if usingRealKeyring {
 				return emptyCosmosAddress, nil, ErrMultipleKeysWithDifferentSecurity
 			} else if kb == nil {
@@ -86,7 +86,7 @@ func NewCosmosKeyring(cdc codec.Codec, opts ...ConfigOpt) (sdk.AccAddress, cosmk
 				firstKey = &addr
 			}
 
-		case len(keyConfig.KeyFrom) > 0:
+		case keyConfig.KeyFrom != "":
 			if kb != nil {
 				return emptyCosmosAddress, nil, ErrMultipleKeysWithDifferentSecurity
 			} else {
@@ -117,7 +117,7 @@ func NewCosmosKeyring(cdc codec.Codec, opts ...ConfigOpt) (sdk.AccAddress, cosmk
 	}
 
 	if realKB != nil {
-		if len(config.DefaultKey) > 0 {
+		if config.DefaultKey != "" {
 			defaultKeyAddr, err := findKeyInKeyring(realKB, config, config.DefaultKey)
 			if err != nil {
 				return emptyCosmosAddress, nil, err
@@ -129,7 +129,7 @@ func NewCosmosKeyring(cdc codec.Codec, opts ...ConfigOpt) (sdk.AccAddress, cosmk
 		return *firstKey, realKB, nil
 	}
 
-	if len(config.DefaultKey) > 0 {
+	if config.DefaultKey != "" {
 		defaultKeyAddr, err := findKeyInKeyring(kb, config, config.DefaultKey)
 		if err != nil {
 			return emptyCosmosAddress, nil, err
@@ -157,9 +157,11 @@ func fromPrivkeyHex(
 	keyName := keyConfig.Name
 
 	// check that if cosmos 'From' specified separately, it must match the provided privkey
-	if len(keyConfig.KeyFrom) > 0 {
+	if keyConfig.KeyFrom != "" {
 		addressFrom, err := sdk.AccAddressFromBech32(keyConfig.KeyFrom)
-		if err == nil {
+
+		switch {
+		case err == nil:
 			if !bytes.Equal(addressFrom.Bytes(), addressFromPk.Bytes()) {
 				err = errors.Wrapf(
 					ErrUnexpectedAddress,
@@ -169,19 +171,22 @@ func fromPrivkeyHex(
 
 				return emptyCosmosAddress, err
 			}
-		} else if len(keyName) == 0 {
+
+		case keyName == "":
 			// use it as a name then
 			keyName = keyConfig.KeyFrom
-		} else if keyName != keyConfig.KeyFrom {
+
+		case keyName != keyConfig.KeyFrom:
 			err := errors.Errorf(
 				"key 'from' opt is a name, but doesn't match given key name: %s != %s",
 				keyConfig.KeyFrom, keyName,
 			)
+
 			return emptyCosmosAddress, err
 		}
 	}
 
-	if len(keyName) == 0 {
+	if keyName == "" {
 		keyName = defaultKeyringKeyName
 	}
 
@@ -216,9 +221,10 @@ func fromMnemonic(
 	keyName := keyConfig.Name
 
 	// check that if cosmos 'From' specified separately, it must match the derived privkey
-	if len(keyConfig.KeyFrom) > 0 {
+	if keyConfig.KeyFrom != "" {
 		addressFrom, err := sdk.AccAddressFromBech32(keyConfig.KeyFrom)
-		if err == nil {
+		switch {
+		case err == nil:
 			if !bytes.Equal(addressFrom.Bytes(), addressFromPk.Bytes()) {
 				err = errors.Wrapf(
 					ErrUnexpectedAddress,
@@ -228,10 +234,10 @@ func fromMnemonic(
 
 				return emptyCosmosAddress, err
 			}
-		} else if len(keyName) == 0 {
+		case keyName == "":
 			// use it as a name then
 			keyName = keyConfig.KeyFrom
-		} else if keyName != keyConfig.KeyFrom {
+		case keyName != keyConfig.KeyFrom:
 			err := errors.Errorf(
 				"key 'from' opt is a name, but doesn't match given key name: %s != %s",
 				keyConfig.KeyFrom, keyName,
@@ -241,13 +247,13 @@ func fromMnemonic(
 	}
 
 	// check that if 'PrivKeyHex' specified separately, it must match the derived privkey too
-	if len(keyConfig.PrivKeyHex) > 0 {
+	if keyConfig.PrivKeyHex != "" {
 		if err := checkPrivkeyHexMatchesMnemonic(keyConfig.PrivKeyHex, pkBytes); err != nil {
 			return emptyCosmosAddress, err
 		}
 	}
 
-	if len(keyName) == 0 {
+	if keyName == "" {
 		keyName = defaultKeyringKeyName
 	}
 
@@ -286,7 +292,7 @@ func fromCosmosKeyring(
 	fromIsAddress bool,
 ) (sdk.AccAddress, cosmkeyring.Keyring, error) {
 	var passReader io.Reader = os.Stdin
-	if len(keyConfig.KeyPassphrase) > 0 {
+	if keyConfig.KeyPassphrase != "" {
 		passReader = newPassReader(keyConfig.KeyPassphrase)
 	}
 
@@ -318,7 +324,7 @@ func fromCosmosKeyring(
 		keyRecord, err = kb.KeyByAddress(fromAddress)
 	} else {
 		keyName := keyConfig.Name
-		if len(keyName) > 0 && keyConfig.KeyFrom != keyName {
+		if keyName != "" && keyConfig.KeyFrom != keyName {
 			err := errors.Errorf(
 				"key 'from' opt is a name, but doesn't match given key name: %s != %s",
 				keyConfig.KeyFrom, keyName,

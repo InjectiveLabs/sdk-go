@@ -32,7 +32,7 @@ const (
 // WithKeyringDir option sets keyring path in the filesystem, useful when keyring backend is `file`.
 func WithKeyringDir(v string) ConfigOpt {
 	return func(c *cosmosKeyringConfig) error {
-		if len(v) > 0 {
+		if v != "" {
 			c.KeyringDir = v
 		}
 
@@ -43,7 +43,7 @@ func WithKeyringDir(v string) ConfigOpt {
 // WithKeyringAppName option sets keyring application name (used by Cosmos to separate keyrings).
 func WithKeyringAppName(v string) ConfigOpt {
 	return func(c *cosmosKeyringConfig) error {
-		if len(v) > 0 {
+		if v != "" {
 			c.KeyringAppName = v
 		}
 
@@ -111,7 +111,7 @@ func WithNamedKey(name string, opts ...KeyConfigOpt) ConfigOpt {
 // This key must exist in specified keys.
 func WithDefaultKey(v string) ConfigOpt {
 	return func(c *cosmosKeyringConfig) error {
-		if len(v) > 0 {
+		if v != "" {
 			c.DefaultKey = v
 		}
 
