@@ -1,8 +1,8 @@
 # Injective Chain Keyring Helper
 
-Creates a new keyring from a variety of options. See `ConfigOpt` and related options. This keyring helper allows to initialize Cosmos SDK keyring used for signing transactions.
+Creates a new keyring from a variety of options. See `ConfigOpt` and related options. This keyring helper allows initializing the Cosmos SDK keyring used for signing transactions.
 
-It allows flexibly define a static configuration of keys, supports multiple pre-defined keys in the same keyring and allows to load keys from a file, derive from mnemonic or read plain private key bytes from a HEX string. Extremely useful for testing and local development, but also robust for production use cases.
+It allows flexibly defining a static configuration of keys, supports multiple pre-defined keys in the same keyring, and allows loading keys from a file, deriving from mnemonic, or reading plain private key bytes from a HEX string. Extremely useful for testing and local development, but also robust for production use cases.
 
 ## Usage
 
@@ -19,7 +19,7 @@ These options are global on the keyring level.
 * `WithKeyringBackend` sets the keyring backend. Expected values: `test`, `file`, `os`.
 * `WithUseLedger` sets the option to use hardware wallet, if available on the system.
 
-These options allow to add keys to the keyring during initialization.
+These options allow adding keys to the keyring during initialization.
 
 * `WithKey` adds a single key to the keyring, without having alias name.
 * `WithNamedKey` addes a single key to the keyring, with a name.
@@ -31,8 +31,8 @@ These options are set per key.
 
 * `WithKeyFrom` sets the key name to use for signing. Must exist in the provided keyring.
 * `WithKeyPassphrase` sets the passphrase for keyring files. The package will fallback to `os.Stdin` if this option was not provided, but passphrase is required.
-* `WithPrivKeyHex` allows to specify a private key as plain-text hex. Insecure option, use for testing only. The package will create a virtual keyring holding that key, to meet all the interfaces.
-* `WithMnemonic` allows to specify a mnemonic pharse as plain-text hex. Insecure option, use for testing only. The package will create a virtual keyring to derive the keys and meet all the interfaces.
+* `WithPrivKeyHex` allows specifying a private key as plain-text hex. Insecure option, use for testing only. The package will create a virtual keyring holding that key, to meet all the interfaces.
+* `WithMnemonic` allows specifying a mnemonic phrase as plain-text hex. Insecure option, use for testing only. The package will create a virtual keyring to derive the keys and meet all the interfaces.
 
 ## Examples
 
