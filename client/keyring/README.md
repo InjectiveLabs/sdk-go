@@ -68,7 +68,6 @@ NewCosmosKeyring(
     WithKeyringDir(*keyringDir),
     WithKeyringAppName(*keyringAppName),
     WithKeyringBackend(Backend(*keyringBackend)),
-    
     WithNamedKey(
         "dispatcher",
         WithKeyFrom(*dispatcherKeyFrom),
@@ -76,7 +75,6 @@ NewCosmosKeyring(
         WithPrivKeyHex(*dispatcherKeyPrivateHex),
         WithMnemonic(*dispatcherKeyMnemonic),
     ),
-
     WithDefaultKey(
         "dispatcher",
     ),
