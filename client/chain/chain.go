@@ -442,8 +442,6 @@ func NewChainClient(
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
 	}
 
-	_ = NewTxFactory(ctx).WithSequence(0).WithAccountNumber(0).WithGas(0)
-
 	cc.ofacChecker, err = NewOfacChecker()
 	if err != nil {
 		return nil, errors.Wrap(err, "Error creating OFAC checker")
@@ -465,7 +463,6 @@ func NewChainClient(
 
 	return cc, nil
 }
-
 func (c *chainClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
 	if err != nil {
