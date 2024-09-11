@@ -112,7 +112,7 @@ func (s *KeyringTestSuite) TestErrKeyIncompatible() {
 	})
 
 	testKeyring, err := cosmkeyring.New(
-		"keyring_test",
+		KeyringAppName,
 		cosmkeyring.BackendTest,
 		kbDir,
 		nil,
@@ -128,7 +128,7 @@ func (s *KeyringTestSuite) TestErrKeyIncompatible() {
 		s.cdc,
 		WithKeyringBackend(BackendTest),
 		WithKeyringDir(kbDir),
-		WithKeyringAppName("keyring_test"),
+		WithKeyringAppName(KeyringAppName),
 		WithKey(
 			WithKeyFrom("test_pubkey"),
 		),
