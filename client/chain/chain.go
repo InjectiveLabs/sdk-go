@@ -321,6 +321,8 @@ type chainClient struct {
 
 	sessionEnabled bool
 
+	ofacChecker *OfacChecker
+
 	authQueryClient          authtypes.QueryClient
 	authzQueryClient         authztypes.QueryClient
 	bankQueryClient          banktypes.QueryClient
@@ -440,22 +442,27 @@ func NewChainClient(
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
 	}
 
+	cc.ofacChecker, err = NewOfacChecker()
+	if err != nil {
+		return nil, errors.Wrap(err, "Error creating OFAC checker")
+	}
 	if cc.canSign {
 		var err error
-
-		cc.accNum, cc.accSeq, err = cc.txFactory.AccountRetriever().GetAccountNumberSequence(ctx, ctx.GetFromAddress())
+		account, err := cc.txFactory.AccountRetriever().GetAccount(ctx, ctx.GetFromAddress())
 		if err != nil {
-			err = errors.Wrap(err, "failed to get initial account num and seq")
+			err = errors.Wrapf(err, "failed to get account")
 			return nil, err
 		}
-
+		if cc.ofacChecker.IsBlacklisted(account.GetAddress().String()) {
+			return nil, errors.Errorf("Address %s is in the OFAC list", account.GetAddress())
+		}
+		cc.accNum, cc.accSeq = account.GetAccountNumber(), account.GetSequence()
 		go cc.runBatchBroadcast()
 		go cc.syncTimeoutHeight()
 	}
 
 	return cc, nil
 }
-
 func (c *chainClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
 	if err != nil {
@@ -1153,6 +1160,9 @@ func (c *chainClient) GetAuthzGrants(ctx context.Context, req authztypes.QueryGr
 }
 
 func (c *chainClient) BuildGenericAuthz(granter, grantee, msgtype string, expireIn time.Time) *authztypes.MsgGrant {
+	if c.ofacChecker.IsBlacklisted(granter) {
+		panic("Address is in the OFAC list") // panics should generally be avoided, but otherwise function signature should be changed
+	}
 	authz := authztypes.NewGenericAuthorization(msgtype)
 	authzAny := codectypes.UnsafePackAny(authz)
 	return &authztypes.MsgGrant{
@@ -1184,6 +1194,9 @@ var (
 )
 
 func (c *chainClient) BuildExchangeAuthz(granter, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant {
+	if c.ofacChecker.IsBlacklisted(granter) {
+		panic("Address is in the OFAC list") // panics should generally be avoided, but otherwise function signature should be changed
+	}
 	var typedAuthzAny codectypes.Any
 	var typedAuthzBytes []byte
 	switch authzType {
@@ -1279,6 +1292,9 @@ func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 	derivativeMarkets []string,
 	expireIn time.Time,
 ) *authztypes.MsgGrant {
+	if c.ofacChecker.IsBlacklisted(granter) {
+		panic("Address is in the OFAC list") // panics should generally be avoided, but otherwise function signature should be changed
+	}
 	typedAuthz := &exchangetypes.BatchUpdateOrdersAuthz{
 		SubaccountId:      subaccountId,
 		SpotMarkets:       spotMarkets,
