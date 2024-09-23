@@ -40,7 +40,7 @@ func NewOfacChecker() (*OfacChecker, error) {
 
 func getOfacListPath() string {
 	currentDirectory, _ := os.Getwd()
-	return filepath.Join(currentDirectory, filepath.Join("../metadata", ofacListFilename))
+	return filepath.Join(currentDirectory, "..", "metadata", ofacListFilename)
 }
 
 func DownloadOfacList() error {
