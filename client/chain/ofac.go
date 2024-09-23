@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 const (
@@ -41,10 +40,7 @@ func NewOfacChecker() (*OfacChecker, error) {
 
 func getOfacListPath() string {
 	currentDirectory, _ := os.Getwd()
-	for !strings.HasSuffix(currentDirectory, "sdk-go") {
-		currentDirectory = filepath.Dir(currentDirectory)
-	}
-	return filepath.Join(filepath.Join(filepath.Join(currentDirectory, "client"), "metadata"), ofacListFilename)
+	return filepath.Join(currentDirectory, filepath.Join("../metadata", ofacListFilename))
 }
 
 func DownloadOfacList() error {
