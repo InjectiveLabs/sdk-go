@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 )
 
 const (
@@ -38,7 +39,7 @@ func NewOfacChecker() (*OfacChecker, error) {
 }
 
 func getOfacListPath() string {
-	return getFileAbsPath(fmt.Sprintf("../metadata/%s", ofacListFilename))
+	return getFileAbsPath(path.Join("..", "metadata", ofacListFilename))
 }
 
 func DownloadOfacList() error {
