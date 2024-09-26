@@ -14,11 +14,14 @@ func main() {
 	clientCtx, cancelFn := context.WithCancel(context.Background())
 	defer cancelFn()
 
-	res, err := tmClient.GetBlock(clientCtx, 15478013)
+	latestBlockHeight, err := tmClient.GetLatestBlockHeight(clientCtx)
+	if err != nil {
+		fmt.Println(err)
+	}
+	res, err := tmClient.GetBlock(clientCtx, int64(float64(latestBlockHeight)*0.99))
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	fmt.Println(res.Block.Txs)
-
 }
