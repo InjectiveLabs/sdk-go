@@ -10,20 +10,16 @@ import (
 )
 
 func main() {
-	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("testnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
 		panic(err)
 	}
-
 	ctx := context.Background()
-	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
-	res, err := exchangeClient.GetDerivativeMarket(ctx, marketId)
+	res, err := exchangeClient.GetDerivativeMarket(ctx, "0x95698a9d8ba11660f44d7001d8c6fb191552ece5d9141a05c5d9128711cdc2e0")
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
-
 	str, _ := json.MarshalIndent(res, "", " ")
 	fmt.Print(string(str))
 }
