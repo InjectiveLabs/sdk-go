@@ -15,8 +15,7 @@ import (
 )
 
 func main() {
-	// network := common.LoadNetwork("mainnet", "k8s")
-	network := common.LoadNetwork("mainnet", "lb")
+	network := common.LoadNetwork("testnet", "lb")
 	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
 
 	if err != nil {
@@ -64,7 +63,7 @@ func main() {
 	timeOutCtx, cancelFn := context.WithTimeout(ctx, 30*time.Second)
 	defer cancelFn()
 
-	resp, err := chainClient.GetTx(timeOutCtx, "A2B2B971C690AE7977451D24D6F450AECE6BCCB271E91E32C2563342DDA5254B")
+	resp, err := chainClient.GetTx(timeOutCtx, "4446C993253F02F1ECF563477C48611859A36615C05262C2C74826E795BBF586")
 	if err != nil {
 		panic(err)
 	}
