@@ -10,14 +10,14 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("mainnet", "sentry")
+	network := common.LoadNetwork("testnet", "lb")
 	explorerClient, err := explorerclient.NewExplorerClient(network)
 	if err != nil {
 		panic(err)
 	}
 
 	ctx := context.Background()
-	hash := "E5DCF04CC670A0567F58683409F7DAFC49754278DAAD507FE6EB40DFBFD71830"
+	hash := "4446C993253F02F1ECF563477C48611859A36615C05262C2C74826E795BBF586"
 	res, err := explorerClient.GetTxByTxHash(ctx, hash)
 	if err != nil {
 		fmt.Println(err)
