@@ -8,6 +8,7 @@ import (
 	"os"
 
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -86,7 +87,15 @@ func main() {
 	}
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
-	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
+	marketResponse, err := exchangeClient.GetSpotMarkets(ctx, &spotExchangePB.MarketsRequest{})
+	if err != nil {
+		panic(err)
+	}
+	var marketId string
+	for _, market := range marketResponse.Markets {
+		marketId = market.MarketId
+		break
+	}
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(1.02)
 
