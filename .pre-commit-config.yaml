@@ -2,7 +2,8 @@ exclude: |
   (?x)^(
       chain/.*|
       exchange/.*|
-      proto/.*
+      proto/.*|
+      client/keyring/testdata/.*
   )$
 repos:
   -   repo: https://github.com/pre-commit/pre-commit-hooks

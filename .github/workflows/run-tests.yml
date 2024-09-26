@@ -15,6 +15,13 @@ jobs:
         with:
           go-version-file: "go.mod"
           check-latest: true
+      - name: Install pass helper
+        run: sudo apt-get update && sudo apt-get install -y pass
+      - name: Generate GPG key
+        run: "
+          echo \"%no-protection\nKey-Type: 1\nKey-Length: 4096\nSubkey-Type: 1\nSubkey-Length: 4096\nName-Comment: keyring_test\nExpire-Date: 0\" > genkey && gpg --gen-key --batch genkey"
+      - name: Setup OS keystore
+        run: pass init keyring_test
       - name: Run test and calculate coverage
         run: make coverage
       - name: Upload coverage to Codecov
