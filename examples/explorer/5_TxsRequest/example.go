@@ -20,10 +20,8 @@ func main() {
 
 	ctx := context.Background()
 
-	before := uint64(7158400)
-
 	req := explorerPB.GetTxsRequest{
-		Before: before,
+		Limit: 10,
 	}
 
 	res, err := explorerClient.GetTxs(ctx, &req)
