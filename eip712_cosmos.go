@@ -20,8 +20,16 @@ import (
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/pkg/errors"
 
+	injcodectypes "github.com/InjectiveLabs/sdk-go/chain/codec/types"
+
 	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
+
+var legacyAmino *codec.LegacyAmino
+
+func init() {
+	legacyAmino = injcodectypes.MakeEncodingConfig().Amino
+}
 
 type EIP712Wrapper func(
 	cdc codec.ProtoCodecMarshaler,
@@ -46,6 +54,7 @@ func WrapTxToEIP712(
 	msgs []cosmtypes.Msg,
 	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
+	legacytx.RegressionTestingAminoCodec = legacyAmino
 	data := legacytx.StdSignBytes(
 		signerData.ChainID,
 		signerData.AccountNumber,
