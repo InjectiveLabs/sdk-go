@@ -846,11 +846,13 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 		if errRes := client.CheckCometError(err, txBytes); errRes != nil {
 			return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 		}
-	} else if resultTx.TxResult.Code != 0 {
+	}
+	if resultTx.TxResult.Code != 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 		res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 		return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
-	} else if resultTx.Height > 0 {
+	}
+	if resultTx.Height > 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 		res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 		return res, err
@@ -878,11 +880,13 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 				t.Reset(defaultBroadcastStatusPoll)
 				continue
 
-			} else if resultTx.TxResult.Code != 0 {
+			}
+			if resultTx.TxResult.Code != 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 				return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
-			} else if resultTx.Height > 0 {
+			}
+			if resultTx.Height > 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 				return res, err
@@ -940,11 +944,13 @@ func (c *chainClient) broadcastTx(
 		if errRes := client.CheckCometError(err, txBytes); errRes != nil {
 			return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 		}
-	} else if resultTx.TxResult.Code != 0 {
+	}
+	if resultTx.TxResult.Code != 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 		res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 		return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
-	} else if resultTx.Height > 0 {
+	}
+	if resultTx.Height > 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 		res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 		return res, err
@@ -973,12 +979,14 @@ func (c *chainClient) broadcastTx(
 				t.Reset(defaultBroadcastStatusPoll)
 				continue
 
-			} else if resultTx.TxResult.Code != 0 {
+			}
+			if resultTx.TxResult.Code != 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 				t.Stop()
 				return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
-			} else if resultTx.Height > 0 {
+			}
+			if resultTx.Height > 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
 				t.Stop()
