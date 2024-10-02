@@ -836,6 +836,7 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 	if err != nil || res.TxResponse.Code != 0 {
 		return res, err
 	}
+	fixedSeq := c.accSeq
 
 	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
 	defer cancelFn()
@@ -850,6 +851,10 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 			t.Stop()
 			return nil, err
 		case <-t.C:
+			if fixedSeq != c.getAccSeq() {
+				fmt.Println(fixedSeq, c.getAccSeq())
+				return nil, errors.New("Account sequence mismatch during the broadcast")
+			}
 			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
 				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
@@ -907,11 +912,28 @@ func (c *chainClient) broadcastTx(
 	if err != nil || res.TxResponse.Code != 0 || !await {
 		return res, err
 	}
+	fixedSeq := txf.Sequence()
 
 	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
 	defer cancelFn()
 
 	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
+	resultTx, err := clientCtx.Client.Tx(awaitCtx, txHash, false)
+	if err != nil {
+		if errRes := client.CheckCometError(err, txBytes); errRes != nil {
+			return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
+		}
+	} else if resultTx.TxResult.Code != 0 {
+		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
+		res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
+		panic(errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code)))
+		return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
+	} else if resultTx.Height > 0 {
+		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
+		res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
+		return res, err
+	}
+
 	t := time.NewTimer(defaultBroadcastStatusPoll)
 
 	for {
@@ -921,6 +943,11 @@ func (c *chainClient) broadcastTx(
 			t.Stop()
 			return nil, err
 		case <-t.C:
+			c.syncNonce()
+			if fixedSeq != c.getAccSeq() {
+				fmt.Println(fixedSeq, c.getAccSeq())
+				return nil, errors.New("Account sequence mismatch during the broadcast")
+			}
 			resultTx, err := clientCtx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
 				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
@@ -930,6 +957,11 @@ func (c *chainClient) broadcastTx(
 				t.Reset(defaultBroadcastStatusPoll)
 				continue
 
+			} else if resultTx.TxResult.Code != 0 {
+				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
+				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
+				t.Stop()
+				return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
 			} else if resultTx.Height > 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
