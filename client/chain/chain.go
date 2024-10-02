@@ -849,7 +849,6 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 	} else if resultTx.TxResult.Code != 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 		res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
-		panic(errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code)))
 		return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
 	} else if resultTx.Height > 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
@@ -882,7 +881,6 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 			} else if resultTx.TxResult.Code != 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
-				panic(errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code)))
 				return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
 			} else if resultTx.Height > 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
@@ -945,7 +943,6 @@ func (c *chainClient) broadcastTx(
 	} else if resultTx.TxResult.Code != 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 		res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
-		panic(errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code)))
 		return res, errors.New(fmt.Sprintf("Failed with non-zero code %d", resultTx.TxResult.Code))
 	} else if resultTx.Height > 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
