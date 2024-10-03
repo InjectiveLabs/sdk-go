@@ -833,7 +833,7 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 	ctx := context.Background()
 
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
-	if err != nil {
+	if err != nil || res.TxResponse.Code != 0 {
 		return res, err
 	}
 
@@ -904,7 +904,7 @@ func (c *chainClient) broadcastTx(
 	}
 
 	res, err := common.ExecuteCall(context.Background(), c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
-	if !await || err != nil {
+	if err != nil || res.TxResponse.Code != 0 || !await {
 		return res, err
 	}
 
