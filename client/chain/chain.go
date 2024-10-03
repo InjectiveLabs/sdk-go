@@ -845,7 +845,7 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 		if errRes := client.CheckCometError(err, txBytes); errRes != nil {
 			return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 		}
-		return nil, err
+		return res, err
 	}
 	if resultTx.TxResult.Code != 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
@@ -939,6 +939,7 @@ func (c *chainClient) broadcastTx(
 		if errRes := client.CheckCometError(err, txBytes); errRes != nil {
 			return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 		}
+		return res, err
 	}
 	if resultTx.TxResult.Code != 0 {
 		resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
