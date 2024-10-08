@@ -27,14 +27,14 @@ func NewOfacChecker() (*OfacChecker, error) {
 	checker := &OfacChecker{
 		ofacListPath: getOfacListPath(),
 	}
-	if _, err := os.Stat(checker.ofacListPath); os.IsNotExist(err) {
-		if err := DownloadOfacList(); err != nil {
-			return nil, err
-		}
-	}
-	if err := checker.loadOfacList(); err != nil {
-		return nil, err
-	}
+	//if _, err := os.Stat(checker.ofacListPath); os.IsNotExist(err) {
+	//	if err := DownloadOfacList(); err != nil {
+	//		return nil, err
+	//	}
+	//}
+	//if err := checker.loadOfacList(); err != nil {
+	//	return nil, err
+	//}
 	return checker, nil
 }
 
