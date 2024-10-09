@@ -25,7 +25,7 @@ type OfacChecker struct {
 
 func NewOfacChecker() (*OfacChecker, error) {
 	checker := &OfacChecker{
-		ofacListPath: getOfacListPath(),
+		ofacListPath: ofacListFilename,
 	}
 	if _, err := os.Stat(checker.ofacListPath); os.IsNotExist(err) {
 		if err := DownloadOfacList(); err != nil {
@@ -53,7 +53,7 @@ func DownloadOfacList() error {
 		return fmt.Errorf("failed to download OFAC list, status code: %d", resp.StatusCode)
 	}
 
-	outFile, err := os.Create(getOfacListPath())
+	outFile, err := os.Create(ofacListFilename)
 	if err != nil {
 		return err
 	}
