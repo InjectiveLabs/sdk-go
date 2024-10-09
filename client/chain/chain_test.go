@@ -1,23 +1,20 @@
-package chain
+package chain_test
 
 import (
-	"encoding/json"
-	"io"
-	"os"
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-
-	"github.com/InjectiveLabs/sdk-go/client"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	eth "github.com/ethereum/go-ethereum/common"
+	"os"
+	"testing"
+
+	"github.com/InjectiveLabs/sdk-go/client"
+	"github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func accountForTests() (cosmtypes.AccAddress, keyring.Keyring, error) {
-	senderAddress, cosmosKeyring, err := InitCosmosKeyring(
+	senderAddress, cosmosKeyring, err := chain.InitCosmosKeyring(
 		os.Getenv("HOME")+"/.injectived",
 		"injectived",
 		"file",
@@ -30,9 +27,9 @@ func accountForTests() (cosmtypes.AccAddress, keyring.Keyring, error) {
 	return senderAddress, cosmosKeyring, err
 }
 
-func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyring, network common.Network) (ChainClient, error) {
+func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyring, network common.Network) (chain.ChainClient, error) {
 	tmClient, _ := rpchttp.New(network.TmEndpoint, "/websocket")
-	clientCtx, err := NewClientContext(
+	clientCtx, err := chain.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),
 		cosmosKeyring,
@@ -46,79 +43,13 @@ func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyr
 	// configure Keyring as nil to avoid the account initialization request when running unit tests
 	clientCtx.Keyring = nil
 
-	chainClient, err := NewChainClient(
+	chainClient, err := chain.NewChainClient(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	return chainClient, err
-}
-
-type OfacTestSuite struct {
-	suite.Suite
-	network       common.Network
-	tmClient      *rpchttp.HTTP
-	senderAddress cosmtypes.AccAddress
-	cosmosKeyring keyring.Keyring
-}
-
-func (suite *OfacTestSuite) SetupTest() {
-	var err error
-	suite.network = common.LoadNetwork("testnet", "lb")
-	suite.tmClient, err = rpchttp.New(suite.network.TmEndpoint, "/websocket")
-	suite.NoError(err)
-
-	suite.senderAddress, suite.cosmosKeyring, err = accountForTests()
-	suite.NoError(err)
-
-	// Prepare OFAC list file
-	testList := []string{
-		suite.senderAddress.String(),
-	}
-	jsonData, err := json.Marshal(testList)
-	suite.NoError(err)
-
-	ofacListFilename = "ofac_test.json"
-	file, err := os.Create(getOfacListPath())
-	suite.NoError(err)
-
-	_, err = io.WriteString(file, string(jsonData))
-	suite.NoError(err)
-
-	err = file.Close()
-	suite.NoError(err)
-}
-
-func (suite *OfacTestSuite) TearDownTest() {
-	err := os.Remove(getOfacListPath())
-	suite.NoError(err)
-	ofacListFilename = defaultofacListFilename
-}
-
-func (suite *OfacTestSuite) TestOfacList() {
-	clientCtx, err := NewClientContext(
-		suite.network.ChainId,
-		suite.senderAddress.String(),
-		suite.cosmosKeyring,
-	)
-	suite.NoError(err)
-
-	clientCtx = clientCtx.WithNodeURI(suite.network.TmEndpoint).WithClient(suite.tmClient)
-	testChecker, err := NewOfacChecker()
-	suite.NoError(err)
-	suite.Equal(1, len(testChecker.ofacList))
-
-	_, err = NewChainClient(
-		clientCtx,
-		suite.network,
-		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
-	)
-	suite.Error(err)
-}
-
-func TestOfacTestSuite(t *testing.T) {
-	suite.Run(t, new(OfacTestSuite))
 }
 
 func TestDefaultSubaccount(t *testing.T) {
