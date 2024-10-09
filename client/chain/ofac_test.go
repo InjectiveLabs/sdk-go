@@ -2,6 +2,10 @@ package chain_test
 
 import (
 	"encoding/json"
+	"io"
+	"os"
+	"testing"
+
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -9,9 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
-	"io"
-	"os"
-	"testing"
 )
 
 type OfacTestSuite struct {

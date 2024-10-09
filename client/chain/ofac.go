@@ -53,7 +53,7 @@ func DownloadOfacList() error {
 		return fmt.Errorf("failed to download OFAC list, status code: %d", resp.StatusCode)
 	}
 
-	if err := os.MkdirAll(OfacListPath, 0755); err != nil {
+	if err := os.MkdirAll(OfacListPath, 0755); err != nil { // nolint:gocritic // 0755 is the correct permission
 		return err
 	}
 	outFile, err := os.Create(GetOfacListPath())
