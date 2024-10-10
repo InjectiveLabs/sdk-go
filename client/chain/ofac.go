@@ -10,12 +10,12 @@ import (
 )
 
 const (
-	defaultOfacListURL      = "https://raw.githubusercontent.com/InjectiveLabs/injective-lists/master/wallets/ofac.json"
-	defaultofacListFilename = "ofac.json"
+	DefaultOfacListURL = "https://raw.githubusercontent.com/InjectiveLabs/injective-lists/master/wallets/ofac.json"
 )
 
 var (
-	ofacListFilename = defaultofacListFilename
+	OfacListPath     = "injective_data"
+	OfacListFilename = "ofac.json"
 )
 
 type OfacChecker struct {
@@ -25,7 +25,7 @@ type OfacChecker struct {
 
 func NewOfacChecker() (*OfacChecker, error) {
 	checker := &OfacChecker{
-		ofacListPath: getOfacListPath(),
+		ofacListPath: GetOfacListPath(),
 	}
 	if _, err := os.Stat(checker.ofacListPath); os.IsNotExist(err) {
 		if err := DownloadOfacList(); err != nil {
@@ -38,12 +38,12 @@ func NewOfacChecker() (*OfacChecker, error) {
 	return checker, nil
 }
 
-func getOfacListPath() string {
-	return getFileAbsPath(path.Join("..", "metadata", ofacListFilename))
+func GetOfacListPath() string {
+	return path.Join(OfacListPath, OfacListFilename)
 }
 
 func DownloadOfacList() error {
-	resp, err := http.Get(defaultOfacListURL)
+	resp, err := http.Get(DefaultOfacListURL)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,10 @@ func DownloadOfacList() error {
 		return fmt.Errorf("failed to download OFAC list, status code: %d", resp.StatusCode)
 	}
 
-	outFile, err := os.Create(getOfacListPath())
+	if err := os.MkdirAll(OfacListPath, 0755); err != nil { // nolint:gocritic // 0755 is the correct permission
+		return err
+	}
+	outFile, err := os.Create(GetOfacListPath())
 	if err != nil {
 		return err
 	}
