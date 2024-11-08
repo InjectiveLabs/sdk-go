@@ -1,21 +1,18 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
 
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/google/uuid"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -52,17 +49,6 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
@@ -80,20 +66,19 @@ func main() {
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(22.5)
 
-	order := chainClient.CreateSpotOrder(
+	order := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),
 			MarketId:     marketId,
 			Cid:          uuid.NewString(),
-		},
-		marketsAssistant)
-	msg := new(exchangetypes.MsgBatchCreateSpotLimitOrders)
+		})
+	msg := new(exchangev2types.MsgBatchCreateSpotLimitOrders)
 	msg.Sender = senderAddress.String()
-	msg.Orders = []exchangetypes.SpotOrder{*order}
+	msg.Orders = []exchangev2types.SpotOrder{*order}
 
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 
@@ -102,7 +87,7 @@ func main() {
 		return
 	}
 
-	msgBatchCreateSpotLimitOrdersResponse := exchangetypes.MsgBatchCreateSpotLimitOrdersResponse{}
+	msgBatchCreateSpotLimitOrdersResponse := exchangev2types.MsgBatchCreateSpotLimitOrdersResponse{}
 	err = msgBatchCreateSpotLimitOrdersResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {

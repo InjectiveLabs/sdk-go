@@ -60,7 +60,7 @@ func main() {
 
 	status := "Active"
 
-	res, err := chainClient.FetchChainBinaryOptionsMarkets(ctx, status)
+	res, err := chainClient.FetchChainBinaryOptionsMarketsV2(ctx, status)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -7,15 +7,14 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
 func main() {
@@ -75,10 +74,7 @@ func main() {
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-	chainMinQuantityTickSize := minQuantityTickSize
-
-	msg := &exchangetypes.MsgInstantPerpetualMarketLaunch{
+	msg := &exchangev2types.MsgInstantPerpetualMarketLaunch{
 		Sender:                 senderAddress.String(),
 		Ticker:                 "INJ/USDC PERP",
 		QuoteDenom:             quoteToken.Denom,
@@ -90,8 +86,8 @@ func main() {
 		TakerFeeRate:           math.LegacyMustNewDecFromStr("0.001"),
 		InitialMarginRatio:     math.LegacyMustNewDecFromStr("0.33"),
 		MaintenanceMarginRatio: math.LegacyMustNewDecFromStr("0.095"),
-		MinPriceTickSize:       chainMinPriceTickSize,
-		MinQuantityTickSize:    chainMinQuantityTickSize,
+		MinPriceTickSize:       minPriceTickSize,
+		MinQuantityTickSize:    minQuantityTickSize,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

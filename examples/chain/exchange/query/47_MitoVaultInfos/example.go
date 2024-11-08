@@ -57,7 +57,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchMitoVaultInfos(ctx)
+	res, err := chainClient.FetchMitoVaultInfosV2(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}

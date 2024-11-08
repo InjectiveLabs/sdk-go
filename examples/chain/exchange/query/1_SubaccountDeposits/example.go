@@ -59,7 +59,7 @@ func main() {
 	subaccountId := chainClient.Subaccount(senderAddress, 0)
 	ctx := context.Background()
 
-	res, err := chainClient.FetchSubaccountDeposits(ctx, subaccountId.Hex())
+	res, err := chainClient.FetchSubaccountDepositsV2(ctx, subaccountId.Hex())
 	if err != nil {
 		fmt.Println(err)
 	}

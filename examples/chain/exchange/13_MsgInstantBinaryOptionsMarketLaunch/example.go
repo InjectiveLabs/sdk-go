@@ -7,15 +7,14 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
 func main() {
@@ -75,10 +74,7 @@ func main() {
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-	chainMinQuantityTickSize := minQuantityTickSize
-
-	msg := &exchangetypes.MsgInstantBinaryOptionsMarketLaunch{
+	msg := &exchangev2types.MsgInstantBinaryOptionsMarketLaunch{
 		Sender:              senderAddress.String(),
 		Ticker:              "UFC-KHABIB-TKO-05/30/2023",
 		OracleSymbol:        "UFC-KHABIB-TKO-05/30/2023",
@@ -91,8 +87,8 @@ func main() {
 		SettlementTimestamp: 1690730982,
 		Admin:               senderAddress.String(),
 		QuoteDenom:          quoteToken.Denom,
-		MinPriceTickSize:    chainMinPriceTickSize,
-		MinQuantityTickSize: chainMinQuantityTickSize,
+		MinPriceTickSize:    minPriceTickSize,
+		MinQuantityTickSize: minQuantityTickSize,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

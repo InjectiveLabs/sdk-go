@@ -60,7 +60,7 @@ func main() {
 
 	marketId := "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"
 
-	res, err := chainClient.FetchChainDerivativeMarket(ctx, marketId)
+	res, err := chainClient.FetchChainDerivativeMarketV2(ctx, marketId)
 	if err != nil {
 		fmt.Println(err)
 	}

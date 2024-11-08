@@ -6,14 +6,12 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
-
-	"github.com/InjectiveLabs/sdk-go/client"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	"github.com/InjectiveLabs/sdk-go/client"
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -61,7 +59,7 @@ func main() {
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
-	msg := &exchangetypes.MsgDecreasePositionMargin{
+	msg := &exchangev2types.MsgDecreasePositionMargin{
 		Sender:                  senderAddress.String(),
 		MarketId:                "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6",
 		SourceSubaccountId:      defaultSubaccountID.String(),

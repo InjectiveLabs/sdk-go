@@ -1,21 +1,18 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
 
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/google/uuid"
-
-	"github.com/InjectiveLabs/sdk-go/client"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -52,17 +49,6 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
@@ -81,17 +67,16 @@ func main() {
 	sprice := decimal.NewFromFloat(22.5)
 	smarketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
 
-	spot_order := chainClient.CreateSpotOrder(
+	spot_order := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     samount,
 			Price:        sprice,
 			FeeRecipient: senderAddress.String(),
 			MarketId:     smarketId,
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
 	dmarketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
@@ -100,10 +85,10 @@ func main() {
 	dleverage := decimal.RequireFromString("2")
 	dmarketIds := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
 
-	derivative_order := chainClient.CreateDerivativeOrder(
+	derivative_order := chainClient.CreateDerivativeOrderV2(
 		defaultSubaccountID,
 		&chainclient.DerivativeOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     damount,
 			Price:        dprice,
 			Leverage:     dleverage,
@@ -112,14 +97,13 @@ func main() {
 			IsReduceOnly: false,
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgBatchUpdateOrders)
+	msg := new(exchangev2types.MsgBatchUpdateOrders)
 	msg.Sender = senderAddress.String()
 	msg.SubaccountId = defaultSubaccountID.Hex()
-	msg.SpotOrdersToCreate = []*exchangetypes.SpotOrder{spot_order}
-	msg.DerivativeOrdersToCreate = []*exchangetypes.DerivativeOrder{derivative_order}
+	msg.SpotOrdersToCreate = []*exchangev2types.SpotOrder{spot_order}
+	msg.DerivativeOrdersToCreate = []*exchangev2types.DerivativeOrder{derivative_order}
 	msg.SpotMarketIdsToCancelAll = smarketIds
 	msg.DerivativeMarketIdsToCancelAll = dmarketIds
 
@@ -130,7 +114,7 @@ func main() {
 		return
 	}
 
-	MsgBatchUpdateOrdersResponse := exchangetypes.MsgBatchUpdateOrdersResponse{}
+	MsgBatchUpdateOrdersResponse := exchangev2types.MsgBatchUpdateOrdersResponse{}
 	MsgBatchUpdateOrdersResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	fmt.Println("simulated spot order hashes", MsgBatchUpdateOrdersResponse.SpotOrderHashes)

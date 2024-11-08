@@ -57,7 +57,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchBalanceWithBalanceHolds(ctx)
+	res, err := chainClient.FetchBalanceWithBalanceHoldsV2(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}

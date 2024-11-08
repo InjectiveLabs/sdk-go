@@ -42,6 +42,8 @@ copy-chain-types:
 	rm -rf chain/auction/types/*test.go  rm -rf chain/auction/types/*gw.go
 	cp ../injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types
 	rm -rf chain/exchange/types/*test.go  rm -rf chain/exchange/types/*gw.go
+	cp ../injective-core/injective-chain/modules/exchange/types/v2/*.go chain/exchange/types/v2
+	rm -rf chain/exchange/types/v2/*test.go  rm -rf chain/exchange/types/v2/*gw.go
 	cp ../injective-core/injective-chain/modules/insurance/types/*.go chain/insurance/types
 	rm -rf chain/insurance/types/*test.go  rm -rf chain/insurance/types/*gw.go
 	cp ../injective-core/injective-chain/modules/ocr/types/*.go chain/ocr/types

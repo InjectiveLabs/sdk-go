@@ -59,7 +59,7 @@ func main() {
 
 	accounts := []string{senderAddress.String()}
 
-	res, err := chainClient.FetchTradeRewardPoints(ctx, accounts)
+	res, err := chainClient.FetchTradeRewardPointsV2(ctx, accounts)
 	if err != nil {
 		fmt.Println(err)
 	}

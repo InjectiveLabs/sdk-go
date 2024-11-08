@@ -60,7 +60,7 @@ func main() {
 
 	subaccountId := chainClient.Subaccount(senderAddress, 0)
 
-	res, err := chainClient.FetchAggregateVolume(ctx, senderAddress.String())
+	res, err := chainClient.FetchAggregateVolumeV2(ctx, senderAddress.String())
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -68,7 +68,7 @@ func main() {
 	str, _ := json.MarshalIndent(res, "", " ")
 	fmt.Print(string(str))
 
-	res, err = chainClient.FetchAggregateVolume(ctx, subaccountId.Hex())
+	res, err = chainClient.FetchAggregateVolumeV2(ctx, subaccountId.Hex())
 	if err != nil {
 		fmt.Println(err)
 	}

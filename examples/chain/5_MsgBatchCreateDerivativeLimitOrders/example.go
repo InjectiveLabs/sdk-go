@@ -1,21 +1,18 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
 
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/google/uuid"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -52,17 +49,6 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
@@ -81,10 +67,10 @@ func main() {
 	price := decimal.NewFromFloat(5)
 	leverage := decimal.NewFromFloat(1)
 
-	order := chainClient.CreateDerivativeOrder(
+	order := chainClient.CreateDerivativeOrderV2(
 		defaultSubaccountID,
 		&chainclient.DerivativeOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     amount,
 			Price:        price,
 			Leverage:     leverage,
@@ -93,12 +79,11 @@ func main() {
 			IsReduceOnly: false,
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgBatchCreateDerivativeLimitOrders)
+	msg := new(exchangev2types.MsgBatchCreateDerivativeLimitOrders)
 	msg.Sender = senderAddress.String()
-	msg.Orders = []exchangetypes.DerivativeOrder{*order}
+	msg.Orders = []exchangev2types.DerivativeOrder{*order}
 
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 
@@ -107,7 +92,7 @@ func main() {
 		return
 	}
 
-	msgBatchCreateDerivativeLimitOrdersResponse := exchangetypes.MsgBatchCreateDerivativeLimitOrdersResponse{}
+	msgBatchCreateDerivativeLimitOrdersResponse := exchangev2types.MsgBatchCreateDerivativeLimitOrdersResponse{}
 	err = msgBatchCreateDerivativeLimitOrdersResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {

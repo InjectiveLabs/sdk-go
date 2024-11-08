@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"path"
 	"runtime"
 	"strings"
@@ -15,7 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/shopspring/decimal"
-	"gopkg.in/ini.v1"
 )
 
 var legacyMarketAssistantLazyInitialization sync.Once
@@ -44,111 +42,6 @@ func newMarketsAssistant() MarketsAssistant {
 		spotMarkets:       make(map[string]core.SpotMarket),
 		derivativeMarkets: make(map[string]core.DerivativeMarket),
 	}
-}
-
-// Deprecated: use NewMarketsAssistantInitializedFromChain instead
-func NewMarketsAssistant(networkName string) (MarketsAssistant, error) {
-
-	legacyMarketAssistantLazyInitialization.Do(func() {
-		assistant := newMarketsAssistant()
-		fileName := getFileAbsPath(fmt.Sprintf("../metadata/assets/%s.ini", networkName))
-		metadataFile, err := ini.Load(fileName)
-
-		if err == nil {
-			for _, section := range metadataFile.Sections() {
-				sectionName := section.Name()
-				if strings.HasPrefix(sectionName, "0x") {
-					description := section.Key("description").Value()
-
-					decimals, _ := section.Key("quote").Int()
-					quoteToken := core.Token{
-						Name:     "",
-						Symbol:   "",
-						Denom:    "",
-						Address:  "",
-						Decimals: int32(decimals),
-						Logo:     "",
-						Updated:  -1,
-					}
-
-					minPriceTickSize := decimal.RequireFromString(section.Key("min_price_tick_size").String())
-					minQuantityTickSize := decimal.RequireFromString(section.Key("min_quantity_tick_size").String())
-					minNotional := decimal.Zero
-					if section.HasKey("min_notional") {
-						minNotional = decimal.RequireFromString(section.Key("min_notional").String())
-					}
-
-					if strings.Contains(description, "Spot") {
-						baseDecimals, _ := section.Key("quote").Int()
-						baseToken := core.Token{
-							Name:     "",
-							Symbol:   "",
-							Denom:    "",
-							Address:  "",
-							Decimals: int32(baseDecimals),
-							Logo:     "",
-							Updated:  -1,
-						}
-
-						market := core.SpotMarket{
-							Id:                  sectionName,
-							Status:              "",
-							Ticker:              description,
-							BaseToken:           baseToken,
-							QuoteToken:          quoteToken,
-							MakerFeeRate:        decimal.NewFromInt32(0),
-							TakerFeeRate:        decimal.NewFromInt32(0),
-							ServiceProviderFee:  decimal.NewFromInt32(0),
-							MinPriceTickSize:    minPriceTickSize,
-							MinQuantityTickSize: minQuantityTickSize,
-							MinNotional:         minNotional,
-						}
-
-						assistant.spotMarkets[market.Id] = market
-					} else {
-						market := core.DerivativeMarket{
-							Id:                     sectionName,
-							Status:                 "",
-							Ticker:                 description,
-							OracleBase:             "",
-							OracleQuote:            "",
-							OracleType:             "",
-							OracleScaleFactor:      1,
-							InitialMarginRatio:     decimal.NewFromInt32(0),
-							MaintenanceMarginRatio: decimal.NewFromInt32(0),
-							QuoteToken:             quoteToken,
-							MakerFeeRate:           decimal.NewFromInt32(0),
-							TakerFeeRate:           decimal.NewFromInt32(0),
-							ServiceProviderFee:     decimal.NewFromInt32(0),
-							MinPriceTickSize:       minPriceTickSize,
-							MinQuantityTickSize:    minQuantityTickSize,
-							MinNotional:            minNotional,
-						}
-
-						assistant.derivativeMarkets[market.Id] = market
-					}
-				} else if sectionName != "DEFAULT" {
-					tokenDecimals, _ := section.Key("decimals").Int()
-					newToken := core.Token{
-						Name:     sectionName,
-						Symbol:   sectionName,
-						Denom:    section.Key("peggy_denom").String(),
-						Address:  "",
-						Decimals: int32(tokenDecimals),
-						Logo:     "",
-						Updated:  -1,
-					}
-
-					assistant.tokensByDenom[newToken.Denom] = newToken
-					assistant.tokensBySymbol[newToken.Symbol] = newToken
-				}
-			}
-		}
-
-		legacyMarketAssistant = assistant
-	})
-
-	return legacyMarketAssistant, nil
 }
 
 func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {

@@ -59,7 +59,7 @@ func main() {
 
 	vaultAddress := "inj1qg5ega6dykkxc307y25pecuufrjkxkag6xhp6y"
 
-	res, err := chainClient.FetchMarketIDFromVault(ctx, vaultAddress)
+	res, err := chainClient.FetchMarketIDFromVaultV2(ctx, vaultAddress)
 	if err != nil {
 		fmt.Println(err)
 	}

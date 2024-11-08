@@ -60,7 +60,7 @@ func main() {
 	marketId := "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"
 	subaccountId := chainClient.Subaccount(senderAddress, 0)
 
-	res, err := chainClient.FetchTraderDerivativeConditionalOrders(ctx, subaccountId.Hex(), marketId)
+	res, err := chainClient.FetchTraderDerivativeConditionalOrdersV2(ctx, subaccountId.Hex(), marketId)
 	if err != nil {
 		fmt.Println(err)
 	}

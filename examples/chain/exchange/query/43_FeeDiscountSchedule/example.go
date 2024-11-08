@@ -57,7 +57,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchFeeDiscountSchedule(ctx)
+	res, err := chainClient.FetchFeeDiscountScheduleV2(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -213,7 +213,7 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 }
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
-func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec, status MarketStatus, ticker string) *SpotMarketParamUpdateProposal {
+func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec, status MarketStatus, ticker string, baseDecimals, quoteDecimals uint32) *SpotMarketParamUpdateProposal {
 	return &SpotMarketParamUpdateProposal{
 		title,
 		description,
@@ -227,6 +227,8 @@ func NewSpotMarketParamUpdateProposal(title, description string, marketID common
 		ticker,
 		minNotional,
 		nil,
+		baseDecimals,
+		quoteDecimals,
 	}
 }
 
@@ -326,6 +328,13 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidMarketStatus, p.Status.String())
 	}
 
+	if p.BaseDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "base decimals is invalid")
+	}
+	if p.QuoteDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "quote decimals is invalid")
+	}
+
 	return govtypes.ValidateAbstract(p)
 }
 
@@ -341,6 +350,8 @@ func NewSpotMarketLaunchProposal(
 	minNotional math.LegacyDec,
 	makerFeeRate *math.LegacyDec,
 	takerFeeRate *math.LegacyDec,
+	baseDecimals uint32,
+	quoteDecimals uint32,
 ) *SpotMarketLaunchProposal {
 	return &SpotMarketLaunchProposal{
 		Title:               title,
@@ -353,6 +364,8 @@ func NewSpotMarketLaunchProposal(
 		MinNotional:         minNotional,
 		MakerFeeRate:        makerFeeRate,
 		TakerFeeRate:        takerFeeRate,
+		BaseDecimals:        baseDecimals,
+		QuoteDecimals:       quoteDecimals,
 	}
 }
 
@@ -422,6 +435,13 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 		if p.MakerFeeRate.GT(*p.TakerFeeRate) {
 			return ErrFeeRatesRelation
 		}
+	}
+
+	if p.BaseDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "base decimals is invalid")
+	}
+	if p.QuoteDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "quote decimals is invalid")
 	}
 
 	return govtypes.ValidateAbstract(p)
@@ -697,7 +717,7 @@ func (d *DenomDecimals) Validate() error {
 		return errors.Wrap(sdkerrors.ErrInvalidCoins, d.Denom)
 	}
 
-	if d.Decimals <= 0 || d.Decimals > uint64(MaxOracleScaleFactor) {
+	if d.Decimals > uint64(MaxDecimals) {
 		return errors.Wrapf(ErrInvalidDenomDecimal, "invalid decimals passed: %d", d.Decimals)
 	}
 	return nil
@@ -1241,7 +1261,7 @@ func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign quote denoms cannot be nil")
 	}
 
-	hasTradingRewardBoostInfoDefined := c != nil && c.TradingRewardBoostInfo != nil
+	hasTradingRewardBoostInfoDefined := c.TradingRewardBoostInfo != nil
 	if hasTradingRewardBoostInfoDefined {
 		if err := c.TradingRewardBoostInfo.ValidateBasic(); err != nil {
 			return err
@@ -1254,7 +1274,7 @@ func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 		}
 	}
 
-	hasDuplicatesInDisqualifiedMarkets := c != nil && HasDuplicates(c.DisqualifiedMarketIds)
+	hasDuplicatesInDisqualifiedMarkets := HasDuplicates(c.DisqualifiedMarketIds)
 	if hasDuplicatesInDisqualifiedMarkets {
 		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate disqualified market ids")
 	}

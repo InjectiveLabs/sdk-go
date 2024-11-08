@@ -13,43 +13,38 @@ import (
 	"sync/atomic"
 	"time"
 
-	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
-
 	sdkmath "cosmossdk.io/math"
-
-	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
-
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-
-	"github.com/cosmos/cosmos-sdk/types/query"
-
-	"google.golang.org/grpc/credentials/insecure"
-
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/gogoproto/proto"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
-	ethcommon "github.com/ethereum/go-ethereum/common"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 type OrderbookType string
@@ -120,24 +115,33 @@ type ChainClient interface {
 	DefaultSubaccount(acc sdk.AccAddress) ethcommon.Hash
 	Subaccount(account sdk.AccAddress, index int) ethcommon.Hash
 
+	// Deprecated: use GetSubAccountNonceV2 instead
 	GetSubAccountNonce(ctx context.Context, subaccountId ethcommon.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
+	// Deprecated: use GetFeeDiscountInfoV2 instead
 	GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
 
 	UpdateSubaccountNonceFromChain() error
 	SynchronizeSubaccountNonce(subaccountId ethcommon.Hash) error
-	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId ethcommon.Hash) (OrderHashes, error)
+	ComputeOrderHashes(spotOrders []exchangev2types.SpotOrder, derivativeOrders []exchangev2types.DerivativeOrder, subaccountId ethcommon.Hash) (OrderHashes, error)
 
-	SpotOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
+	// Deprecated: use CreateSpotOrderV2 instead
 	CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
-	DerivativeOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
+	// Deprecated: use CreateDerivativeOrderV2 instead
 	CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
+	// Deprecated: use OrderCancelV2 instead
 	OrderCancel(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangetypes.OrderData
+
+	CreateSpotOrderV2(defaultSubaccountID ethcommon.Hash, d *SpotOrderData) *exchangev2types.SpotOrder
+	CreateDerivativeOrderV2(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData) *exchangev2types.DerivativeOrder
+	OrderCancelV2(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangev2types.OrderData
 
 	GetGasFee() (string, error)
 
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
 	StreamEventOrderFailWithWebsocket(sender string, websocket *rpchttp.HTTP, failEventCh chan map[string]uint)
+	// Deprecated: use the chain stream instead
 	StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIDs []string, orderbookCh chan exchangetypes.Orderbook)
+	// Deprecated: use the chain stream instead
 	StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIDs []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook)
 
 	ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error)
@@ -182,61 +186,179 @@ type ChainClient interface {
 	FetchCommunityPool(ctx context.Context) (*distributiontypes.QueryCommunityPoolResponse, error)
 
 	// chain exchange module
+
+	// Deprecated: use FetchSubaccountDepositsV2 instead
 	FetchSubaccountDeposits(ctx context.Context, subaccountID string) (*exchangetypes.QuerySubaccountDepositsResponse, error)
+	// Deprecated: use FetchSubaccountDepositV2 instead
 	FetchSubaccountDeposit(ctx context.Context, subaccountId string, denom string) (*exchangetypes.QuerySubaccountDepositResponse, error)
+	// Deprecated: use FetchExchangeBalancesV2 instead
 	FetchExchangeBalances(ctx context.Context) (*exchangetypes.QueryExchangeBalancesResponse, error)
+	// Deprecated: use FetchAggregateVolumeV2 instead
 	FetchAggregateVolume(ctx context.Context, account string) (*exchangetypes.QueryAggregateVolumeResponse, error)
+	// Deprecated: use FetchAggregateVolumesV2 instead
 	FetchAggregateVolumes(ctx context.Context, accounts []string, marketIDs []string) (*exchangetypes.QueryAggregateVolumesResponse, error)
+	// Deprecated: use FetchAggregateMarketVolumeV2 instead
 	FetchAggregateMarketVolume(ctx context.Context, marketId string) (*exchangetypes.QueryAggregateMarketVolumeResponse, error)
+	// Deprecated: use FetchAggregateMarketVolumesV2 instead
 	FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangetypes.QueryAggregateMarketVolumesResponse, error)
+	// Deprecated: use FetchDenomDecimalV2 instead
 	FetchDenomDecimal(ctx context.Context, denom string) (*exchangetypes.QueryDenomDecimalResponse, error)
+	// Deprecated: use FetchDenomDecimalsV2 instead
 	FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangetypes.QueryDenomDecimalsResponse, error)
+	// Deprecated: use FetchChainSpotMarketsV2 instead
 	FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error)
+	// Deprecated: use FetchChainSpotMarketV2 instead
 	FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMarketResponse, error)
+	// Deprecated: use FetchChainFullSpotMarketsV2 instead
 	FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error)
+	// Deprecated: use FetchChainFullSpotMarketV2 instead
 	FetchChainFullSpotMarket(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketResponse, error)
+	// Deprecated: use FetchChainSpotOrderbookV2 instead
 	FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional sdkmath.LegacyDec, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangetypes.QuerySpotOrderbookResponse, error)
+	// Deprecated: use FetchChainTraderSpotOrdersV2 instead
 	FetchChainTraderSpotOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error)
+	// Deprecated: use FetchChainAccountAddressSpotOrdersV2 instead
 	FetchChainAccountAddressSpotOrders(ctx context.Context, marketId string, address string) (*exchangetypes.QueryAccountAddressSpotOrdersResponse, error)
+	// Deprecated: use FetchChainSpotOrdersByHashesV2 instead
 	FetchChainSpotOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangetypes.QuerySpotOrdersByHashesResponse, error)
+	// Deprecated: use FetchChainSubaccountOrdersV2 instead
 	FetchChainSubaccountOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountOrdersResponse, error)
+	// Deprecated: use FetchChainTraderSpotTransientOrdersV2 instead
 	FetchChainTraderSpotTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error)
+	// Deprecated: use FetchSpotMidPriceAndTOBV2 instead
 	FetchSpotMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMidPriceAndTOBResponse, error)
+	// Deprecated: use FetchDerivativeMidPriceAndTOBV2 instead
 	FetchDerivativeMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMidPriceAndTOBResponse, error)
+	// Deprecated: use FetchChainDerivativeOrderbookV2 instead
 	FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangetypes.QueryDerivativeOrderbookResponse, error)
+	// Deprecated: use FetchChainTraderDerivativeOrdersV2 instead
 	FetchChainTraderDerivativeOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error)
+	// Deprecated: use FetchChainAccountAddressDerivativeOrdersV2 instead
 	FetchChainAccountAddressDerivativeOrders(ctx context.Context, marketId string, address string) (*exchangetypes.QueryAccountAddressDerivativeOrdersResponse, error)
+	// Deprecated: use FetchChainDerivativeOrdersByHashesV2 instead
 	FetchChainDerivativeOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangetypes.QueryDerivativeOrdersByHashesResponse, error)
+	// Deprecated: use FetchChainTraderDerivativeTransientOrdersV2 instead
 	FetchChainTraderDerivativeTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error)
+	// Deprecated: use FetchChainDerivativeMarketV2 instead
 	FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error)
+	// Deprecated: use FetchChainDerivativeMarketV2 instead
 	FetchChainDerivativeMarket(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketResponse, error)
+	// Deprecated: use FetchDerivativeMarketAddressV2 instead
 	FetchDerivativeMarketAddress(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketAddressResponse, error)
+	// Deprecated: use FetchSubaccountTradeNonceV2 instead
 	FetchSubaccountTradeNonce(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountTradeNonceResponse, error)
+	// Deprecated: use FetchChainPositionsV2 instead
 	FetchChainPositions(ctx context.Context) (*exchangetypes.QueryPositionsResponse, error)
+	// Deprecated: use FetchChainSubaccountPositionsV2 instead
 	FetchChainSubaccountPositions(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountPositionsResponse, error)
+	// Deprecated: use FetchChainSubaccountPositionInMarketV2 instead
 	FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error)
+	// Deprecated: use FetchChainSubaccountEffectivePositionInMarketV2 instead
 	FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error)
+	// Deprecated: use FetchChainPerpetualMarketInfoV2 instead
 	FetchChainPerpetualMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketInfoResponse, error)
+	// Deprecated: use FetchChainExpiryFuturesMarketInfoV2 instead
 	FetchChainExpiryFuturesMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryExpiryFuturesMarketInfoResponse, error)
+	// Deprecated: use FetchChainPerpetualMarketFundingV2 instead
 	FetchChainPerpetualMarketFunding(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketFundingResponse, error)
+	// Deprecated: use FetchSubaccountOrderMetadataV2 instead
 	FetchSubaccountOrderMetadata(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountOrderMetadataResponse, error)
+	// Deprecated: use FetchTradeRewardPointsV2 instead
 	FetchTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error)
+	// Deprecated: use FetchPendingTradeRewardPointsV2 instead
 	FetchPendingTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error)
+	// Deprecated: use FetchFeeDiscountAccountInfoV2 instead
 	FetchFeeDiscountAccountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
+	// Deprecated: use FetchTradeRewardCampaignV2 instead
 	FetchTradeRewardCampaign(ctx context.Context) (*exchangetypes.QueryTradeRewardCampaignResponse, error)
+	// Deprecated: use FetchFeeDiscountScheduleV2 instead
 	FetchFeeDiscountSchedule(ctx context.Context) (*exchangetypes.QueryFeeDiscountScheduleResponse, error)
+	// Deprecated: use FetchBalanceMismatchesV2 instead
 	FetchBalanceMismatches(ctx context.Context, dustFactor int64) (*exchangetypes.QueryBalanceMismatchesResponse, error)
+	// Deprecated: use FetchBalanceWithBalanceHoldsV2 instead
 	FetchBalanceWithBalanceHolds(ctx context.Context) (*exchangetypes.QueryBalanceWithBalanceHoldsResponse, error)
+	// Deprecated: use FetchFeeDiscountTierStatisticsV2 instead
 	FetchFeeDiscountTierStatistics(ctx context.Context) (*exchangetypes.QueryFeeDiscountTierStatisticsResponse, error)
+	// Deprecated: use FetchMitoVaultInfosV2 instead
 	FetchMitoVaultInfos(ctx context.Context) (*exchangetypes.MitoVaultInfosResponse, error)
+	// Deprecated: use FetchMarketIDFromVaultV2 instead
 	FetchMarketIDFromVault(ctx context.Context, vaultAddress string) (*exchangetypes.QueryMarketIDFromVaultResponse, error)
+	// Deprecated: use FetchHistoricalTradeRecordsV2 instead
 	FetchHistoricalTradeRecords(ctx context.Context, marketId string) (*exchangetypes.QueryHistoricalTradeRecordsResponse, error)
+	// Deprecated: use FetchIsOptedOutOfRewardsV2 instead
 	FetchIsOptedOutOfRewards(ctx context.Context, account string) (*exchangetypes.QueryIsOptedOutOfRewardsResponse, error)
+	// Deprecated: use FetchOptedOutOfRewardsAccountsV2 instead
 	FetchOptedOutOfRewardsAccounts(ctx context.Context) (*exchangetypes.QueryOptedOutOfRewardsAccountsResponse, error)
+	// Deprecated: use FetchMarketVolatilityV2 instead
 	FetchMarketVolatility(ctx context.Context, marketId string, tradeHistoryOptions *exchangetypes.TradeHistoryOptions) (*exchangetypes.QueryMarketVolatilityResponse, error)
+	// Deprecated: use FetchChainBinaryOptionsMarketsV2 instead
 	FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error)
+	// Deprecated: use FetchTraderDerivativeConditionalOrdersV2 instead
 	FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error)
+	// Deprecated: use FetchMarketAtomicExecutionFeeMultiplierV2 instead
 	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
+
+	// chain exchange v2 module
+	FetchSubaccountDepositsV2(ctx context.Context, subaccountID string) (*exchangev2types.QuerySubaccountDepositsResponse, error)
+	FetchSubaccountDepositV2(ctx context.Context, subaccountId string, denom string) (*exchangev2types.QuerySubaccountDepositResponse, error)
+	FetchExchangeBalancesV2(ctx context.Context) (*exchangev2types.QueryExchangeBalancesResponse, error)
+	FetchAggregateVolumeV2(ctx context.Context, account string) (*exchangev2types.QueryAggregateVolumeResponse, error)
+	FetchAggregateVolumesV2(ctx context.Context, accounts []string, marketIDs []string) (*exchangev2types.QueryAggregateVolumesResponse, error)
+	FetchAggregateMarketVolumeV2(ctx context.Context, marketId string) (*exchangev2types.QueryAggregateMarketVolumeResponse, error)
+	FetchAggregateMarketVolumesV2(ctx context.Context, marketIDs []string) (*exchangev2types.QueryAggregateMarketVolumesResponse, error)
+	FetchDenomDecimalV2(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error)
+	FetchDenomDecimalsV2(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error)
+	FetchChainSpotMarketsV2(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error)
+	FetchChainSpotMarketV2(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMarketResponse, error)
+	FetchChainFullSpotMarketsV2(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketsResponse, error)
+	FetchChainFullSpotMarketV2(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketResponse, error)
+	FetchChainSpotOrderbookV2(ctx context.Context, marketId string, limit uint64, orderSide exchangev2types.OrderSide, limitCumulativeNotional sdkmath.LegacyDec, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangev2types.QuerySpotOrderbookResponse, error)
+	FetchChainTraderSpotOrdersV2(ctx context.Context, marketId string, subaccountId string) (*exchangev2types.QueryTraderSpotOrdersResponse, error)
+	FetchChainAccountAddressSpotOrdersV2(ctx context.Context, marketId string, address string) (*exchangev2types.QueryAccountAddressSpotOrdersResponse, error)
+	FetchChainSpotOrdersByHashesV2(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangev2types.QuerySpotOrdersByHashesResponse, error)
+	FetchChainSubaccountOrdersV2(ctx context.Context, subaccountId string, marketId string) (*exchangev2types.QuerySubaccountOrdersResponse, error)
+	FetchChainTraderSpotTransientOrdersV2(ctx context.Context, marketId string, subaccountId string) (*exchangev2types.QueryTraderSpotOrdersResponse, error)
+	FetchSpotMidPriceAndTOBV2(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMidPriceAndTOBResponse, error)
+	FetchDerivativeMidPriceAndTOBV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMidPriceAndTOBResponse, error)
+	FetchChainDerivativeOrderbookV2(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangev2types.QueryDerivativeOrderbookResponse, error)
+	FetchChainTraderDerivativeOrdersV2(ctx context.Context, marketId string, subaccountId string) (*exchangev2types.QueryTraderDerivativeOrdersResponse, error)
+	FetchChainAccountAddressDerivativeOrdersV2(ctx context.Context, marketId string, address string) (*exchangev2types.QueryAccountAddressDerivativeOrdersResponse, error)
+	FetchChainDerivativeOrdersByHashesV2(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangev2types.QueryDerivativeOrdersByHashesResponse, error)
+	FetchChainTraderDerivativeTransientOrdersV2(ctx context.Context, marketId string, subaccountId string) (*exchangev2types.QueryTraderDerivativeOrdersResponse, error)
+	FetchChainDerivativeMarketsV2(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryDerivativeMarketsResponse, error)
+	FetchChainDerivativeMarketV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketResponse, error)
+	FetchDerivativeMarketAddressV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketAddressResponse, error)
+	FetchSubaccountTradeNonceV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountTradeNonceResponse, error)
+	FetchChainPositionsV2(ctx context.Context) (*exchangev2types.QueryPositionsResponse, error)
+	FetchChainSubaccountPositionsV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountPositionsResponse, error)
+	FetchChainSubaccountPositionInMarketV2(ctx context.Context, subaccountId string, marketId string) (*exchangev2types.QuerySubaccountPositionInMarketResponse, error)
+	FetchChainSubaccountEffectivePositionInMarketV2(ctx context.Context, subaccountId string, marketId string) (*exchangev2types.QuerySubaccountEffectivePositionInMarketResponse, error)
+	FetchChainPerpetualMarketInfoV2(ctx context.Context, marketId string) (*exchangev2types.QueryPerpetualMarketInfoResponse, error)
+	FetchChainExpiryFuturesMarketInfoV2(ctx context.Context, marketId string) (*exchangev2types.QueryExpiryFuturesMarketInfoResponse, error)
+	FetchChainPerpetualMarketFundingV2(ctx context.Context, marketId string) (*exchangev2types.QueryPerpetualMarketFundingResponse, error)
+	FetchSubaccountOrderMetadataV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountOrderMetadataResponse, error)
+	FetchTradeRewardPointsV2(ctx context.Context, accounts []string) (*exchangev2types.QueryTradeRewardPointsResponse, error)
+	FetchPendingTradeRewardPointsV2(ctx context.Context, accounts []string) (*exchangev2types.QueryTradeRewardPointsResponse, error)
+	FetchFeeDiscountAccountInfoV2(ctx context.Context, account string) (*exchangev2types.QueryFeeDiscountAccountInfoResponse, error)
+	FetchTradeRewardCampaignV2(ctx context.Context) (*exchangev2types.QueryTradeRewardCampaignResponse, error)
+	FetchFeeDiscountScheduleV2(ctx context.Context) (*exchangev2types.QueryFeeDiscountScheduleResponse, error)
+	FetchBalanceMismatchesV2(ctx context.Context, dustFactor int64) (*exchangev2types.QueryBalanceMismatchesResponse, error)
+	FetchBalanceWithBalanceHoldsV2(ctx context.Context) (*exchangev2types.QueryBalanceWithBalanceHoldsResponse, error)
+	FetchFeeDiscountTierStatisticsV2(ctx context.Context) (*exchangev2types.QueryFeeDiscountTierStatisticsResponse, error)
+	FetchMitoVaultInfosV2(ctx context.Context) (*exchangev2types.MitoVaultInfosResponse, error)
+	FetchMarketIDFromVaultV2(ctx context.Context, vaultAddress string) (*exchangev2types.QueryMarketIDFromVaultResponse, error)
+	FetchHistoricalTradeRecordsV2(ctx context.Context, marketId string) (*exchangev2types.QueryHistoricalTradeRecordsResponse, error)
+	FetchIsOptedOutOfRewardsV2(ctx context.Context, account string) (*exchangev2types.QueryIsOptedOutOfRewardsResponse, error)
+	FetchOptedOutOfRewardsAccountsV2(ctx context.Context) (*exchangev2types.QueryOptedOutOfRewardsAccountsResponse, error)
+	FetchMarketVolatilityV2(ctx context.Context, marketId string, tradeHistoryOptions *exchangev2types.TradeHistoryOptions) (*exchangev2types.QueryMarketVolatilityResponse, error)
+	FetchChainBinaryOptionsMarketsV2(ctx context.Context, status string) (*exchangev2types.QueryBinaryMarketsResponse, error)
+	FetchTraderDerivativeConditionalOrdersV2(ctx context.Context, subaccountId string, marketId string) (*exchangev2types.QueryTraderDerivativeConditionalOrdersResponse, error)
+	FetchMarketAtomicExecutionFeeMultiplierV2(ctx context.Context, marketId string) (*exchangev2types.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
+	FetchActiveStakeGrantV2(ctx context.Context, grantee string) (*exchangev2types.QueryActiveStakeGrantResponse, error)
+	FetchGrantAuthorizationV2(ctx context.Context, granter, grantee string) (*exchangev2types.QueryGrantAuthorizationResponse, error)
+	FetchGrantAuthorizationsV2(ctx context.Context, granter string) (*exchangev2types.QueryGrantAuthorizationsResponse, error)
+	FetchL3DerivativeOrderbookV2(ctx context.Context, marketId string) (*exchangev2types.QueryFullDerivativeOrderbookResponse, error)
+	FetchL3SpotOrderbookV2(ctx context.Context, marketId string) (*exchangev2types.QueryFullSpotOrderbookResponse, error)
 
 	// Tendermint module
 	FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error)
@@ -298,6 +420,8 @@ type ChainClient interface {
 	Close()
 }
 
+var _ ChainClient = &chainClient{}
+
 type chainClient struct {
 	ctx             client.Context
 	network         common.Network
@@ -329,6 +453,7 @@ type chainClient struct {
 	chainStreamClient        chainstreamtypes.StreamClient
 	distributionQueryClient  distributiontypes.QueryClient
 	exchangeQueryClient      exchangetypes.QueryClient
+	exchangeV2QueryClient    exchangev2types.QueryClient
 	ibcChannelQueryClient    ibcchanneltypes.QueryClient
 	ibcClientQueryClient     ibcclienttypes.QueryClient
 	ibcConnectionQueryClient ibcconnectiontypes.QueryClient
@@ -430,6 +555,7 @@ func NewChainClient(
 		chainStreamClient:        chainstreamtypes.NewStreamClient(chainStreamConn),
 		distributionQueryClient:  distributiontypes.NewQueryClient(conn),
 		exchangeQueryClient:      exchangetypes.NewQueryClient(conn),
+		exchangeV2QueryClient:    exchangev2types.NewQueryClient(conn),
 		ibcChannelQueryClient:    ibcchanneltypes.NewQueryClient(conn),
 		ibcClientQueryClient:     ibcclienttypes.NewQueryClient(conn),
 		ibcConnectionQueryClient: ibcconnectiontypes.NewQueryClient(conn),
@@ -463,6 +589,7 @@ func NewChainClient(
 
 	return cc, nil
 }
+
 func (c *chainClient) syncNonce() {
 	num, seq, err := c.txFactory.AccountRetriever().GetAccountNumberSequence(c.ctx, c.ctx.GetFromAddress())
 	if err != nil {
@@ -707,15 +834,6 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 	}
 
 	return res, nil
-}
-
-func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error) {
-	req := &exchangetypes.QueryFeeDiscountAccountInfoRequest{
-		Account: account,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FeeDiscountAccountInfo, req)
-
-	return res, err
 }
 
 func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
@@ -1065,6 +1183,7 @@ func (c *chainClient) Subaccount(account sdk.AccAddress, index int) ethcommon.Ha
 	return ethcommon.HexToHash(subaccountId)
 }
 
+// Deprecated: use GetSubAccountNonceV2 instead
 func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId ethcommon.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
 	req := &exchangetypes.QuerySubaccountTradeNonceRequest{SubaccountId: subaccountId.String()}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.SubaccountTradeNonce, req)
@@ -1072,16 +1191,33 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId ethco
 	return res, err
 }
 
-// Deprecated: Use CreateSpotOrder instead
-func (c *chainClient) SpotOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
-	assistant, err := NewMarketsAssistant(network.Name)
-	if err != nil {
-		panic(err)
+// Deprecated: use GetFeeDiscountInfoV2 instead
+func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error) {
+	req := &exchangetypes.QueryFeeDiscountAccountInfoRequest{
+		Account: account,
 	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FeeDiscountAccountInfo, req)
 
-	return c.CreateSpotOrder(defaultSubaccountID, d, assistant)
+	return res, err
 }
 
+func (c *chainClient) GetSubAccountNonceV2(ctx context.Context, subaccountId ethcommon.Hash) (*exchangev2types.QuerySubaccountTradeNonceResponse, error) {
+	req := &exchangev2types.QuerySubaccountTradeNonceRequest{SubaccountId: subaccountId.String()}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountTradeNonce, req)
+
+	return res, err
+}
+
+func (c *chainClient) GetFeeDiscountInfoV2(ctx context.Context, account string) (*exchangev2types.QueryFeeDiscountAccountInfoResponse, error) {
+	req := &exchangev2types.QueryFeeDiscountAccountInfoRequest{
+		Account: account,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.FeeDiscountAccountInfo, req)
+
+	return res, err
+}
+
+// Deprecated: use CreateSpotOrderV2 instead
 func (c *chainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 
 	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
@@ -1094,7 +1230,7 @@ func (c *chainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *Spo
 
 	return &exchangetypes.SpotOrder{
 		MarketId:  d.MarketId,
-		OrderType: d.OrderType,
+		OrderType: exchangetypes.OrderType(d.OrderType),
 		OrderInfo: exchangetypes.OrderInfo{
 			SubaccountId: defaultSubaccountID.Hex(),
 			FeeRecipient: d.FeeRecipient,
@@ -1105,17 +1241,7 @@ func (c *chainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *Spo
 	}
 }
 
-// Deprecated: Use CreateDerivativeOrder instead
-func (c *chainClient) DerivativeOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
-
-	assistant, err := NewMarketsAssistant(network.Name)
-	if err != nil {
-		panic(err)
-	}
-
-	return c.CreateDerivativeOrder(defaultSubaccountID, d, assistant)
-}
-
+// Deprecated: use CreateDerivativeOrderV2 instead
 func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
 	market, isPresent := marketAssistant.AllDerivativeMarkets()[d.MarketId]
 	if !isPresent {
@@ -1132,7 +1258,7 @@ func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, 
 
 	return &exchangetypes.DerivativeOrder{
 		MarketId:  d.MarketId,
-		OrderType: d.OrderType,
+		OrderType: exchangetypes.OrderType(d.OrderType),
 		Margin:    orderMargin,
 		OrderInfo: exchangetypes.OrderInfo{
 			SubaccountId: defaultSubaccountID.Hex(),
@@ -1144,8 +1270,53 @@ func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, 
 	}
 }
 
+// Deprecated: use OrderCancelV2 instead
 func (c *chainClient) OrderCancel(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangetypes.OrderData {
 	return &exchangetypes.OrderData{
+		MarketId:     d.MarketId,
+		OrderHash:    d.OrderHash,
+		SubaccountId: defaultSubaccountID.Hex(),
+		Cid:          d.Cid,
+	}
+}
+
+func (c *chainClient) CreateSpotOrderV2(defaultSubaccountID ethcommon.Hash, d *SpotOrderData) *exchangev2types.SpotOrder {
+	return &exchangev2types.SpotOrder{
+		MarketId:  d.MarketId,
+		OrderType: d.OrderType,
+		OrderInfo: exchangev2types.OrderInfo{
+			SubaccountId: defaultSubaccountID.Hex(),
+			FeeRecipient: d.FeeRecipient,
+			Price:        sdkmath.LegacyMustNewDecFromStr(d.Price.String()),
+			Quantity:     sdkmath.LegacyMustNewDecFromStr(d.Quantity.String()),
+			Cid:          d.Cid,
+		},
+	}
+}
+
+func (c *chainClient) CreateDerivativeOrderV2(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData) *exchangev2types.DerivativeOrder {
+	orderMargin := sdkmath.LegacyMustNewDecFromStr("0")
+
+	if !d.IsReduceOnly {
+		orderMargin = sdkmath.LegacyMustNewDecFromStr(d.Quantity.Mul(d.Price).Div(d.Leverage).String())
+	}
+
+	return &exchangev2types.DerivativeOrder{
+		MarketId:  d.MarketId,
+		OrderType: d.OrderType,
+		Margin:    orderMargin,
+		OrderInfo: exchangev2types.OrderInfo{
+			SubaccountId: defaultSubaccountID.Hex(),
+			FeeRecipient: d.FeeRecipient,
+			Price:        sdkmath.LegacyMustNewDecFromStr(d.Price.String()),
+			Quantity:     sdkmath.LegacyMustNewDecFromStr(d.Quantity.String()),
+			Cid:          d.Cid,
+		},
+	}
+}
+
+func (c *chainClient) OrderCancelV2(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangev2types.OrderData {
+	return &exchangev2types.OrderData{
 		MarketId:     d.MarketId,
 		OrderHash:    d.OrderHash,
 		SubaccountId: defaultSubaccountID.Hex(),
@@ -1178,19 +1349,19 @@ func (c *chainClient) BuildGenericAuthz(granter, grantee, msgtype string, expire
 type ExchangeAuthz string
 
 var (
-	CreateSpotLimitOrderAuthz       = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateSpotLimitOrderAuthz{}))
-	CreateSpotMarketOrderAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateSpotMarketOrderAuthz{}))
-	BatchCreateSpotLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCreateSpotLimitOrdersAuthz{}))
-	CancelSpotOrderAuthz            = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CancelSpotOrderAuthz{}))
-	BatchCancelSpotOrdersAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCancelSpotOrdersAuthz{}))
+	CreateSpotLimitOrderAuthz       = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.CreateSpotLimitOrderAuthz{}))
+	CreateSpotMarketOrderAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.CreateSpotMarketOrderAuthz{}))
+	BatchCreateSpotLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.BatchCreateSpotLimitOrdersAuthz{}))
+	CancelSpotOrderAuthz            = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.CancelSpotOrderAuthz{}))
+	BatchCancelSpotOrdersAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.BatchCancelSpotOrdersAuthz{}))
 
-	CreateDerivativeLimitOrderAuthz       = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateDerivativeLimitOrderAuthz{}))
-	CreateDerivativeMarketOrderAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CreateDerivativeMarketOrderAuthz{}))
-	BatchCreateDerivativeLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCreateDerivativeLimitOrdersAuthz{}))
-	CancelDerivativeOrderAuthz            = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.CancelDerivativeOrderAuthz{}))
-	BatchCancelDerivativeOrdersAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchCancelDerivativeOrdersAuthz{}))
+	CreateDerivativeLimitOrderAuthz       = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.CreateDerivativeLimitOrderAuthz{}))
+	CreateDerivativeMarketOrderAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.CreateDerivativeMarketOrderAuthz{}))
+	BatchCreateDerivativeLimitOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.BatchCreateDerivativeLimitOrdersAuthz{}))
+	CancelDerivativeOrderAuthz            = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.CancelDerivativeOrderAuthz{}))
+	BatchCancelDerivativeOrdersAuthz      = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.BatchCancelDerivativeOrdersAuthz{}))
 
-	BatchUpdateOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangetypes.BatchUpdateOrdersAuthz{}))
+	BatchUpdateOrdersAuthz = ExchangeAuthz("/" + proto.MessageName(&exchangev2types.BatchUpdateOrdersAuthz{}))
 )
 
 func (c *chainClient) BuildExchangeAuthz(granter, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant {
@@ -1202,62 +1373,62 @@ func (c *chainClient) BuildExchangeAuthz(granter, grantee string, authzType Exch
 	switch authzType {
 	// spot msgs
 	case CreateSpotLimitOrderAuthz:
-		typedAuthz := &exchangetypes.CreateSpotLimitOrderAuthz{
+		typedAuthz := &exchangev2types.CreateSpotLimitOrderAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	case CreateSpotMarketOrderAuthz:
-		typedAuthz := &exchangetypes.CreateSpotMarketOrderAuthz{
+		typedAuthz := &exchangev2types.CreateSpotMarketOrderAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	case BatchCreateSpotLimitOrdersAuthz:
-		typedAuthz := &exchangetypes.BatchCreateSpotLimitOrdersAuthz{
+		typedAuthz := &exchangev2types.BatchCreateSpotLimitOrdersAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	case CancelSpotOrderAuthz:
-		typedAuthz := &exchangetypes.CancelSpotOrderAuthz{
+		typedAuthz := &exchangev2types.CancelSpotOrderAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	case BatchCancelSpotOrdersAuthz:
-		typedAuthz := &exchangetypes.BatchCancelSpotOrdersAuthz{
+		typedAuthz := &exchangev2types.BatchCancelSpotOrdersAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	// derivative msgs
 	case CreateDerivativeLimitOrderAuthz:
-		typedAuthz := &exchangetypes.CreateDerivativeLimitOrderAuthz{
+		typedAuthz := &exchangev2types.CreateDerivativeLimitOrderAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	case CreateDerivativeMarketOrderAuthz:
-		typedAuthz := &exchangetypes.CreateDerivativeMarketOrderAuthz{
+		typedAuthz := &exchangev2types.CreateDerivativeMarketOrderAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	case BatchCreateDerivativeLimitOrdersAuthz:
-		typedAuthz := &exchangetypes.BatchCreateDerivativeLimitOrdersAuthz{
+		typedAuthz := &exchangev2types.BatchCreateDerivativeLimitOrdersAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	case CancelDerivativeOrderAuthz:
-		typedAuthz := &exchangetypes.CancelDerivativeOrderAuthz{
+		typedAuthz := &exchangev2types.CancelDerivativeOrderAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
 		typedAuthzBytes, _ = typedAuthz.Marshal()
 	case BatchCancelDerivativeOrdersAuthz:
-		typedAuthz := &exchangetypes.BatchCancelDerivativeOrdersAuthz{
+		typedAuthz := &exchangev2types.BatchCancelDerivativeOrdersAuthz{
 			SubaccountId: subaccountId,
 			MarketIds:    markets,
 		}
@@ -1295,7 +1466,7 @@ func (c *chainClient) BuildExchangeBatchUpdateOrdersAuthz(
 	if c.ofacChecker.IsBlacklisted(granter) {
 		panic("Address is in the OFAC list") // panics should generally be avoided, but otherwise function signature should be changed
 	}
-	typedAuthz := &exchangetypes.BatchUpdateOrdersAuthz{
+	typedAuthz := &exchangev2types.BatchUpdateOrdersAuthz{
 		SubaccountId:      subaccountId,
 		SpotMarkets:       spotMarkets,
 		DerivativeMarkets: derivativeMarkets,
@@ -1374,6 +1545,7 @@ func (c *chainClient) StreamEventOrderFailWithWebsocket(sender string, websocket
 	}
 }
 
+// Deprecated: use the chain stream instead
 func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, marketIDs []string, orderbookCh chan exchangetypes.Orderbook) {
 	var cometbftClient *rpchttp.HTTP
 	var err error
@@ -1400,6 +1572,7 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 
 }
 
+// Deprecated: use the chain stream instead
 func (c *chainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIDs []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook) {
 	filter := fmt.Sprintf("tm.event='NewBlock' AND %s EXISTS", orderbookType)
 	eventCh, err := websocket.Subscribe(context.Background(), "OrderbookUpdate", filter, 10000)
@@ -1611,7 +1784,7 @@ func (c *chainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenf
 }
 
 type DerivativeOrderData struct {
-	OrderType    exchangetypes.OrderType
+	OrderType    exchangev2types.OrderType
 	Price        decimal.Decimal
 	Quantity     decimal.Decimal
 	Leverage     decimal.Decimal
@@ -1622,7 +1795,7 @@ type DerivativeOrderData struct {
 }
 
 type SpotOrderData struct {
-	OrderType    exchangetypes.OrderType
+	OrderType    exchangev2types.OrderType
 	Price        decimal.Decimal
 	Quantity     decimal.Decimal
 	FeeRecipient string
@@ -1721,6 +1894,8 @@ func (c *chainClient) FetchCommunityPool(ctx context.Context) (*distributiontype
 }
 
 // Chain exchange module
+
+// Deprecated: use FetchSubaccountDepositsV2 instead
 func (c *chainClient) FetchSubaccountDeposits(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountDepositsResponse, error) {
 	req := &exchangetypes.QuerySubaccountDepositsRequest{
 		SubaccountId: subaccountId,
@@ -1730,6 +1905,7 @@ func (c *chainClient) FetchSubaccountDeposits(ctx context.Context, subaccountId 
 	return res, err
 }
 
+// Deprecated: use FetchSubaccountDepositV2 instead
 func (c *chainClient) FetchSubaccountDeposit(ctx context.Context, subaccountId, denom string) (*exchangetypes.QuerySubaccountDepositResponse, error) {
 	req := &exchangetypes.QuerySubaccountDepositRequest{
 		SubaccountId: subaccountId,
@@ -1740,6 +1916,7 @@ func (c *chainClient) FetchSubaccountDeposit(ctx context.Context, subaccountId, 
 	return res, err
 }
 
+// Deprecated: use FetchExchangeBalancesV2 instead
 func (c *chainClient) FetchExchangeBalances(ctx context.Context) (*exchangetypes.QueryExchangeBalancesResponse, error) {
 	req := &exchangetypes.QueryExchangeBalancesRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.ExchangeBalances, req)
@@ -1747,6 +1924,7 @@ func (c *chainClient) FetchExchangeBalances(ctx context.Context) (*exchangetypes
 	return res, err
 }
 
+// Deprecated: use FetchAggregateVolumeV2 instead
 func (c *chainClient) FetchAggregateVolume(ctx context.Context, account string) (*exchangetypes.QueryAggregateVolumeResponse, error) {
 	req := &exchangetypes.QueryAggregateVolumeRequest{
 		Account: account,
@@ -1756,6 +1934,7 @@ func (c *chainClient) FetchAggregateVolume(ctx context.Context, account string) 
 	return res, err
 }
 
+// Deprecated: use FetchAggregateVolumesV2 instead
 func (c *chainClient) FetchAggregateVolumes(ctx context.Context, accounts, marketIDs []string) (*exchangetypes.QueryAggregateVolumesResponse, error) {
 	req := &exchangetypes.QueryAggregateVolumesRequest{
 		Accounts:  accounts,
@@ -1766,6 +1945,7 @@ func (c *chainClient) FetchAggregateVolumes(ctx context.Context, accounts, marke
 	return res, err
 }
 
+// Deprecated: use FetchAggregateMarketVolumeV2 instead
 func (c *chainClient) FetchAggregateMarketVolume(ctx context.Context, marketId string) (*exchangetypes.QueryAggregateMarketVolumeResponse, error) {
 	req := &exchangetypes.QueryAggregateMarketVolumeRequest{
 		MarketId: marketId,
@@ -1775,6 +1955,7 @@ func (c *chainClient) FetchAggregateMarketVolume(ctx context.Context, marketId s
 	return res, err
 }
 
+// Deprecated: use FetchAggregateMarketVolumesV2 instead
 func (c *chainClient) FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangetypes.QueryAggregateMarketVolumesResponse, error) {
 	req := &exchangetypes.QueryAggregateMarketVolumesRequest{
 		MarketIds: marketIDs,
@@ -1784,6 +1965,7 @@ func (c *chainClient) FetchAggregateMarketVolumes(ctx context.Context, marketIDs
 	return res, err
 }
 
+// Deprecated: use FetchDenomDecimalV2 instead
 func (c *chainClient) FetchDenomDecimal(ctx context.Context, denom string) (*exchangetypes.QueryDenomDecimalResponse, error) {
 	req := &exchangetypes.QueryDenomDecimalRequest{
 		Denom: denom,
@@ -1793,6 +1975,7 @@ func (c *chainClient) FetchDenomDecimal(ctx context.Context, denom string) (*exc
 	return res, err
 }
 
+// Deprecated: use FetchDenomDecimalsV2 instead
 func (c *chainClient) FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangetypes.QueryDenomDecimalsResponse, error) {
 	req := &exchangetypes.QueryDenomDecimalsRequest{
 		Denoms: denoms,
@@ -1802,6 +1985,7 @@ func (c *chainClient) FetchDenomDecimals(ctx context.Context, denoms []string) (
 	return res, err
 }
 
+// Deprecated: use FetchChainSpotMarketsV2 instead
 func (c *chainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
 	req := &exchangetypes.QuerySpotMarketsRequest{
 		MarketIds: marketIDs,
@@ -1814,6 +1998,7 @@ func (c *chainClient) FetchChainSpotMarkets(ctx context.Context, status string, 
 	return res, err
 }
 
+// Deprecated: use FetchChainSpotMarketV2 instead
 func (c *chainClient) FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMarketResponse, error) {
 	req := &exchangetypes.QuerySpotMarketRequest{
 		MarketId: marketId,
@@ -1823,6 +2008,7 @@ func (c *chainClient) FetchChainSpotMarket(ctx context.Context, marketId string)
 	return res, err
 }
 
+// Deprecated: use FetchChainFullSpotMarketsV2 instead
 func (c *chainClient) FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketsResponse, error) {
 	req := &exchangetypes.QueryFullSpotMarketsRequest{
 		MarketIds:          marketIDs,
@@ -1836,6 +2022,7 @@ func (c *chainClient) FetchChainFullSpotMarkets(ctx context.Context, status stri
 	return res, err
 }
 
+// Deprecated: use FetchChainFullSpotMarketV2 instead
 func (c *chainClient) FetchChainFullSpotMarket(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangetypes.QueryFullSpotMarketResponse, error) {
 	req := &exchangetypes.QueryFullSpotMarketRequest{
 		MarketId:           marketId,
@@ -1846,6 +2033,7 @@ func (c *chainClient) FetchChainFullSpotMarket(ctx context.Context, marketId str
 	return res, err
 }
 
+// Deprecated: use FetchChainSpotOrderbookV2 instead
 func (c *chainClient) FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangetypes.OrderSide, limitCumulativeNotional, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangetypes.QuerySpotOrderbookResponse, error) {
 	req := &exchangetypes.QuerySpotOrderbookRequest{
 		MarketId:                marketId,
@@ -1859,6 +2047,7 @@ func (c *chainClient) FetchChainSpotOrderbook(ctx context.Context, marketId stri
 	return res, err
 }
 
+// Deprecated: use FetchChainTraderSpotOrdersV2 instead
 func (c *chainClient) FetchChainTraderSpotOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error) {
 	req := &exchangetypes.QueryTraderSpotOrdersRequest{
 		MarketId:     marketId,
@@ -1869,6 +2058,7 @@ func (c *chainClient) FetchChainTraderSpotOrders(ctx context.Context, marketId, 
 	return res, err
 }
 
+// Deprecated: use FetchChainAccountAddressSpotOrdersV2 instead
 func (c *chainClient) FetchChainAccountAddressSpotOrders(ctx context.Context, marketId, address string) (*exchangetypes.QueryAccountAddressSpotOrdersResponse, error) {
 	req := &exchangetypes.QueryAccountAddressSpotOrdersRequest{
 		MarketId:       marketId,
@@ -1879,6 +2069,7 @@ func (c *chainClient) FetchChainAccountAddressSpotOrders(ctx context.Context, ma
 	return res, err
 }
 
+// Deprecated: use FetchChainSpotOrdersByHashesV2 instead
 func (c *chainClient) FetchChainSpotOrdersByHashes(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangetypes.QuerySpotOrdersByHashesResponse, error) {
 	req := &exchangetypes.QuerySpotOrdersByHashesRequest{
 		MarketId:     marketId,
@@ -1890,6 +2081,7 @@ func (c *chainClient) FetchChainSpotOrdersByHashes(ctx context.Context, marketId
 	return res, err
 }
 
+// Deprecated: use FetchChainSubaccountOrdersV2 instead
 func (c *chainClient) FetchChainSubaccountOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountOrdersResponse, error) {
 	req := &exchangetypes.QuerySubaccountOrdersRequest{
 		SubaccountId: subaccountId,
@@ -1900,6 +2092,7 @@ func (c *chainClient) FetchChainSubaccountOrders(ctx context.Context, subaccount
 	return res, err
 }
 
+// Deprecated: use FetchChainTraderSpotTransientOrdersV2 instead
 func (c *chainClient) FetchChainTraderSpotTransientOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderSpotOrdersResponse, error) {
 	req := &exchangetypes.QueryTraderSpotOrdersRequest{
 		MarketId:     marketId,
@@ -1910,6 +2103,7 @@ func (c *chainClient) FetchChainTraderSpotTransientOrders(ctx context.Context, m
 	return res, err
 }
 
+// Deprecated: use FetchSpotMidPriceAndTOBV2 instead
 func (c *chainClient) FetchSpotMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMidPriceAndTOBResponse, error) {
 	req := &exchangetypes.QuerySpotMidPriceAndTOBRequest{
 		MarketId: marketId,
@@ -1919,6 +2113,7 @@ func (c *chainClient) FetchSpotMidPriceAndTOB(ctx context.Context, marketId stri
 	return res, err
 }
 
+// Deprecated: use FetchDerivativeMidPriceAndTOBV2 instead
 func (c *chainClient) FetchDerivativeMidPriceAndTOB(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMidPriceAndTOBResponse, error) {
 	req := &exchangetypes.QueryDerivativeMidPriceAndTOBRequest{
 		MarketId: marketId,
@@ -1928,6 +2123,7 @@ func (c *chainClient) FetchDerivativeMidPriceAndTOB(ctx context.Context, marketI
 	return res, err
 }
 
+// Deprecated: use FetchChainDerivativeOrderbookV2 instead
 func (c *chainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangetypes.QueryDerivativeOrderbookResponse, error) {
 	req := &exchangetypes.QueryDerivativeOrderbookRequest{
 		MarketId:                marketId,
@@ -1939,6 +2135,7 @@ func (c *chainClient) FetchChainDerivativeOrderbook(ctx context.Context, marketI
 	return res, err
 }
 
+// Deprecated: use FetchChainTraderDerivativeOrdersV2 instead
 func (c *chainClient) FetchChainTraderDerivativeOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error) {
 	req := &exchangetypes.QueryTraderDerivativeOrdersRequest{
 		MarketId:     marketId,
@@ -1949,6 +2146,7 @@ func (c *chainClient) FetchChainTraderDerivativeOrders(ctx context.Context, mark
 	return res, err
 }
 
+// Deprecated: use FetchChainAccountAddressDerivativeOrdersV2 instead
 func (c *chainClient) FetchChainAccountAddressDerivativeOrders(ctx context.Context, marketId, address string) (*exchangetypes.QueryAccountAddressDerivativeOrdersResponse, error) {
 	req := &exchangetypes.QueryAccountAddressDerivativeOrdersRequest{
 		MarketId:       marketId,
@@ -1959,6 +2157,7 @@ func (c *chainClient) FetchChainAccountAddressDerivativeOrders(ctx context.Conte
 	return res, err
 }
 
+// Deprecated: use FetchChainDerivativeOrdersByHashesV2 instead
 func (c *chainClient) FetchChainDerivativeOrdersByHashes(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangetypes.QueryDerivativeOrdersByHashesResponse, error) {
 	req := &exchangetypes.QueryDerivativeOrdersByHashesRequest{
 		MarketId:     marketId,
@@ -1970,6 +2169,7 @@ func (c *chainClient) FetchChainDerivativeOrdersByHashes(ctx context.Context, ma
 	return res, err
 }
 
+// Deprecated: use FetchChainTraderDerivativeTransientOrdersV2 instead
 func (c *chainClient) FetchChainTraderDerivativeTransientOrders(ctx context.Context, marketId, subaccountId string) (*exchangetypes.QueryTraderDerivativeOrdersResponse, error) {
 	req := &exchangetypes.QueryTraderDerivativeOrdersRequest{
 		MarketId:     marketId,
@@ -1980,6 +2180,7 @@ func (c *chainClient) FetchChainTraderDerivativeTransientOrders(ctx context.Cont
 	return res, err
 }
 
+// Deprecated: use FetchChainDerivativeMarketsV2 instead
 func (c *chainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
 	req := &exchangetypes.QueryDerivativeMarketsRequest{
 		MarketIds:          marketIDs,
@@ -1993,6 +2194,7 @@ func (c *chainClient) FetchChainDerivativeMarkets(ctx context.Context, status st
 	return res, err
 }
 
+// Deprecated: use FetchChainDerivativeMarketV2 instead
 func (c *chainClient) FetchChainDerivativeMarket(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketResponse, error) {
 	req := &exchangetypes.QueryDerivativeMarketRequest{
 		MarketId: marketId,
@@ -2002,6 +2204,7 @@ func (c *chainClient) FetchChainDerivativeMarket(ctx context.Context, marketId s
 	return res, err
 }
 
+// Deprecated: use FetchDerivativeMarketAddressV2 instead
 func (c *chainClient) FetchDerivativeMarketAddress(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketAddressResponse, error) {
 	req := &exchangetypes.QueryDerivativeMarketAddressRequest{
 		MarketId: marketId,
@@ -2011,6 +2214,7 @@ func (c *chainClient) FetchDerivativeMarketAddress(ctx context.Context, marketId
 	return res, err
 }
 
+// Deprecated: use FetchSubaccountTradeNonceV2 instead
 func (c *chainClient) FetchSubaccountTradeNonce(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
 	req := &exchangetypes.QuerySubaccountTradeNonceRequest{
 		SubaccountId: subaccountId,
@@ -2020,6 +2224,7 @@ func (c *chainClient) FetchSubaccountTradeNonce(ctx context.Context, subaccountI
 	return res, err
 }
 
+// Deprecated: use FetchChainPositionsV2 instead
 func (c *chainClient) FetchChainPositions(ctx context.Context) (*exchangetypes.QueryPositionsResponse, error) {
 	req := &exchangetypes.QueryPositionsRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.Positions, req)
@@ -2027,6 +2232,7 @@ func (c *chainClient) FetchChainPositions(ctx context.Context) (*exchangetypes.Q
 	return res, err
 }
 
+// Deprecated: use FetchChainSubaccountPositionsV2 instead
 func (c *chainClient) FetchChainSubaccountPositions(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountPositionsResponse, error) {
 	req := &exchangetypes.QuerySubaccountPositionsRequest{
 		SubaccountId: subaccountId,
@@ -2036,6 +2242,7 @@ func (c *chainClient) FetchChainSubaccountPositions(ctx context.Context, subacco
 	return res, err
 }
 
+// Deprecated: use FetchChainSubaccountPositionInMarketV2 instead
 func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
 	req := &exchangetypes.QuerySubaccountPositionInMarketRequest{
 		SubaccountId: subaccountId,
@@ -2046,6 +2253,7 @@ func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, 
 	return res, err
 }
 
+// Deprecated: use FetchChainSubaccountEffectivePositionInMarketV2 instead
 func (c *chainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error) {
 	req := &exchangetypes.QuerySubaccountEffectivePositionInMarketRequest{
 		SubaccountId: subaccountId,
@@ -2056,6 +2264,7 @@ func (c *chainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.
 	return res, err
 }
 
+// Deprecated: use FetchChainPerpetualMarketInfoV2 instead
 func (c *chainClient) FetchChainPerpetualMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketInfoResponse, error) {
 	req := &exchangetypes.QueryPerpetualMarketInfoRequest{
 		MarketId: marketId,
@@ -2065,6 +2274,7 @@ func (c *chainClient) FetchChainPerpetualMarketInfo(ctx context.Context, marketI
 	return res, err
 }
 
+// Deprecated: use FetchChainExpiryFuturesMarketInfoV2 instead
 func (c *chainClient) FetchChainExpiryFuturesMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryExpiryFuturesMarketInfoResponse, error) {
 	req := &exchangetypes.QueryExpiryFuturesMarketInfoRequest{
 		MarketId: marketId,
@@ -2074,6 +2284,7 @@ func (c *chainClient) FetchChainExpiryFuturesMarketInfo(ctx context.Context, mar
 	return res, err
 }
 
+// Deprecated: use FetchChainPerpetualMarketFundingV2 instead
 func (c *chainClient) FetchChainPerpetualMarketFunding(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketFundingResponse, error) {
 	req := &exchangetypes.QueryPerpetualMarketFundingRequest{
 		MarketId: marketId,
@@ -2083,6 +2294,7 @@ func (c *chainClient) FetchChainPerpetualMarketFunding(ctx context.Context, mark
 	return res, err
 }
 
+// Deprecated: use FetchSubaccountOrderMetadataV2 instead
 func (c *chainClient) FetchSubaccountOrderMetadata(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountOrderMetadataResponse, error) {
 	req := &exchangetypes.QuerySubaccountOrderMetadataRequest{
 		SubaccountId: subaccountId,
@@ -2092,6 +2304,7 @@ func (c *chainClient) FetchSubaccountOrderMetadata(ctx context.Context, subaccou
 	return res, err
 }
 
+// Deprecated: use FetchTradeRewardPointsV2 instead
 func (c *chainClient) FetchTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error) {
 	req := &exchangetypes.QueryTradeRewardPointsRequest{
 		Accounts: accounts,
@@ -2101,6 +2314,7 @@ func (c *chainClient) FetchTradeRewardPoints(ctx context.Context, accounts []str
 	return res, err
 }
 
+// Deprecated: use FetchPendingTradeRewardPointsV2 instead
 func (c *chainClient) FetchPendingTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error) {
 	req := &exchangetypes.QueryTradeRewardPointsRequest{
 		Accounts: accounts,
@@ -2110,6 +2324,7 @@ func (c *chainClient) FetchPendingTradeRewardPoints(ctx context.Context, account
 	return res, err
 }
 
+// Deprecated: use FetchTradeRewardCampaignV2 instead
 func (c *chainClient) FetchTradeRewardCampaign(ctx context.Context) (*exchangetypes.QueryTradeRewardCampaignResponse, error) {
 	req := &exchangetypes.QueryTradeRewardCampaignRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TradeRewardCampaign, req)
@@ -2117,6 +2332,7 @@ func (c *chainClient) FetchTradeRewardCampaign(ctx context.Context) (*exchangety
 	return res, err
 }
 
+// Deprecated: use FetchFeeDiscountAccountInfoV2 instead
 func (c *chainClient) FetchFeeDiscountAccountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error) {
 	req := &exchangetypes.QueryFeeDiscountAccountInfoRequest{
 		Account: account,
@@ -2126,6 +2342,7 @@ func (c *chainClient) FetchFeeDiscountAccountInfo(ctx context.Context, account s
 	return res, err
 }
 
+// Deprecated: use FetchFeeDiscountScheduleV2 instead
 func (c *chainClient) FetchFeeDiscountSchedule(ctx context.Context) (*exchangetypes.QueryFeeDiscountScheduleResponse, error) {
 	req := &exchangetypes.QueryFeeDiscountScheduleRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FeeDiscountSchedule, req)
@@ -2133,6 +2350,7 @@ func (c *chainClient) FetchFeeDiscountSchedule(ctx context.Context) (*exchangety
 	return res, err
 }
 
+// Deprecated: use FetchBalanceMismatchesV2 instead
 func (c *chainClient) FetchBalanceMismatches(ctx context.Context, dustFactor int64) (*exchangetypes.QueryBalanceMismatchesResponse, error) {
 	req := &exchangetypes.QueryBalanceMismatchesRequest{
 		DustFactor: dustFactor,
@@ -2142,6 +2360,7 @@ func (c *chainClient) FetchBalanceMismatches(ctx context.Context, dustFactor int
 	return res, err
 }
 
+// Deprecated: use FetchBalanceWithBalanceHoldsV2 instead
 func (c *chainClient) FetchBalanceWithBalanceHolds(ctx context.Context) (*exchangetypes.QueryBalanceWithBalanceHoldsResponse, error) {
 	req := &exchangetypes.QueryBalanceWithBalanceHoldsRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.BalanceWithBalanceHolds, req)
@@ -2149,6 +2368,7 @@ func (c *chainClient) FetchBalanceWithBalanceHolds(ctx context.Context) (*exchan
 	return res, err
 }
 
+// Deprecated: use FetchFeeDiscountTierStatisticsV2 instead
 func (c *chainClient) FetchFeeDiscountTierStatistics(ctx context.Context) (*exchangetypes.QueryFeeDiscountTierStatisticsResponse, error) {
 	req := &exchangetypes.QueryFeeDiscountTierStatisticsRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.FeeDiscountTierStatistics, req)
@@ -2156,6 +2376,7 @@ func (c *chainClient) FetchFeeDiscountTierStatistics(ctx context.Context) (*exch
 	return res, err
 }
 
+// Deprecated: use FetchMitoVaultInfosV2 instead
 func (c *chainClient) FetchMitoVaultInfos(ctx context.Context) (*exchangetypes.MitoVaultInfosResponse, error) {
 	req := &exchangetypes.MitoVaultInfosRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MitoVaultInfos, req)
@@ -2163,6 +2384,7 @@ func (c *chainClient) FetchMitoVaultInfos(ctx context.Context) (*exchangetypes.M
 	return res, err
 }
 
+// Deprecated: use FetchMarketIDFromVaultV2 instead
 func (c *chainClient) FetchMarketIDFromVault(ctx context.Context, vaultAddress string) (*exchangetypes.QueryMarketIDFromVaultResponse, error) {
 	req := &exchangetypes.QueryMarketIDFromVaultRequest{
 		VaultAddress: vaultAddress,
@@ -2172,6 +2394,7 @@ func (c *chainClient) FetchMarketIDFromVault(ctx context.Context, vaultAddress s
 	return res, err
 }
 
+// Deprecated: use FetchHistoricalTradeRecordsV2 instead
 func (c *chainClient) FetchHistoricalTradeRecords(ctx context.Context, marketId string) (*exchangetypes.QueryHistoricalTradeRecordsResponse, error) {
 	req := &exchangetypes.QueryHistoricalTradeRecordsRequest{
 		MarketId: marketId,
@@ -2181,6 +2404,7 @@ func (c *chainClient) FetchHistoricalTradeRecords(ctx context.Context, marketId 
 	return res, err
 }
 
+// Deprecated: use FetchIsOptedOutOfRewardsV2 instead
 func (c *chainClient) FetchIsOptedOutOfRewards(ctx context.Context, account string) (*exchangetypes.QueryIsOptedOutOfRewardsResponse, error) {
 	req := &exchangetypes.QueryIsOptedOutOfRewardsRequest{
 		Account: account,
@@ -2190,6 +2414,7 @@ func (c *chainClient) FetchIsOptedOutOfRewards(ctx context.Context, account stri
 	return res, err
 }
 
+// Deprecated: use FetchOptedOutOfRewardsAccountsV2 instead
 func (c *chainClient) FetchOptedOutOfRewardsAccounts(ctx context.Context) (*exchangetypes.QueryOptedOutOfRewardsAccountsResponse, error) {
 	req := &exchangetypes.QueryOptedOutOfRewardsAccountsRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.OptedOutOfRewardsAccounts, req)
@@ -2197,6 +2422,7 @@ func (c *chainClient) FetchOptedOutOfRewardsAccounts(ctx context.Context) (*exch
 	return res, err
 }
 
+// Deprecated: use FetchMarketVolatilityV2 instead
 func (c *chainClient) FetchMarketVolatility(ctx context.Context, marketId string, tradeHistoryOptions *exchangetypes.TradeHistoryOptions) (*exchangetypes.QueryMarketVolatilityResponse, error) {
 	req := &exchangetypes.QueryMarketVolatilityRequest{
 		MarketId:            marketId,
@@ -2207,6 +2433,7 @@ func (c *chainClient) FetchMarketVolatility(ctx context.Context, marketId string
 	return res, err
 }
 
+// Deprecated: use FetchChainBinaryOptionsMarketsV2 instead
 func (c *chainClient) FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error) {
 	req := &exchangetypes.QueryBinaryMarketsRequest{}
 	if status != "" {
@@ -2217,6 +2444,7 @@ func (c *chainClient) FetchChainBinaryOptionsMarkets(ctx context.Context, status
 	return res, err
 }
 
+// Deprecated: use FetchTraderDerivativeConditionalOrdersV2 instead
 func (c *chainClient) FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error) {
 	req := &exchangetypes.QueryTraderDerivativeConditionalOrdersRequest{
 		SubaccountId: subaccountId,
@@ -2227,11 +2455,574 @@ func (c *chainClient) FetchTraderDerivativeConditionalOrders(ctx context.Context
 	return res, err
 }
 
+// Deprecated: use FetchMarketAtomicExecutionFeeMultiplierV2 instead
 func (c *chainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error) {
 	req := &exchangetypes.QueryMarketAtomicExecutionFeeMultiplierRequest{
 		MarketId: marketId,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketAtomicExecutionFeeMultiplier, req)
+
+	return res, err
+}
+
+// Chain exchange V2 module
+func (c *chainClient) FetchSubaccountDepositsV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountDepositsResponse, error) {
+	req := &exchangev2types.QuerySubaccountDepositsRequest{
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountDeposits, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSubaccountDepositV2(ctx context.Context, subaccountId, denom string) (*exchangev2types.QuerySubaccountDepositResponse, error) {
+	req := &exchangev2types.QuerySubaccountDepositRequest{
+		SubaccountId: subaccountId,
+		Denom:        denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountDeposit, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchExchangeBalancesV2(ctx context.Context) (*exchangev2types.QueryExchangeBalancesResponse, error) {
+	req := &exchangev2types.QueryExchangeBalancesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.ExchangeBalances, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAggregateVolumeV2(ctx context.Context, account string) (*exchangev2types.QueryAggregateVolumeResponse, error) {
+	req := &exchangev2types.QueryAggregateVolumeRequest{
+		Account: account,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AggregateVolume, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAggregateVolumesV2(ctx context.Context, accounts, marketIDs []string) (*exchangev2types.QueryAggregateVolumesResponse, error) {
+	req := &exchangev2types.QueryAggregateVolumesRequest{
+		Accounts:  accounts,
+		MarketIds: marketIDs,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AggregateVolumes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAggregateMarketVolumeV2(ctx context.Context, marketId string) (*exchangev2types.QueryAggregateMarketVolumeResponse, error) {
+	req := &exchangev2types.QueryAggregateMarketVolumeRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AggregateMarketVolume, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchAggregateMarketVolumesV2(ctx context.Context, marketIDs []string) (*exchangev2types.QueryAggregateMarketVolumesResponse, error) {
+	req := &exchangev2types.QueryAggregateMarketVolumesRequest{
+		MarketIds: marketIDs,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AggregateMarketVolumes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomDecimalV2(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error) {
+	req := &exchangev2types.QueryDenomDecimalRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DenomDecimal, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomDecimalsV2(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error) {
+	req := &exchangev2types.QueryDenomDecimalsRequest{
+		Denoms: denoms,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DenomDecimals, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSpotMarketsV2(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error) {
+	req := &exchangev2types.QuerySpotMarketsRequest{
+		MarketIds: marketIDs,
+	}
+	if status != "" {
+		req.Status = status
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SpotMarkets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSpotMarketV2(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMarketResponse, error) {
+	req := &exchangev2types.QuerySpotMarketRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SpotMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainFullSpotMarketsV2(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketsResponse, error) {
+	req := &exchangev2types.QueryFullSpotMarketsRequest{
+		MarketIds:          marketIDs,
+		WithMidPriceAndTob: withMidPriceAndTob,
+	}
+	if status != "" {
+		req.Status = status
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.FullSpotMarkets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainFullSpotMarketV2(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketResponse, error) {
+	req := &exchangev2types.QueryFullSpotMarketRequest{
+		MarketId:           marketId,
+		WithMidPriceAndTob: withMidPriceAndTob,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.FullSpotMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSpotOrderbookV2(ctx context.Context, marketId string, limit uint64, orderSide exchangev2types.OrderSide, limitCumulativeNotional, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangev2types.QuerySpotOrderbookResponse, error) {
+	req := &exchangev2types.QuerySpotOrderbookRequest{
+		MarketId:                marketId,
+		Limit:                   limit,
+		OrderSide:               orderSide,
+		LimitCumulativeNotional: &limitCumulativeNotional,
+		LimitCumulativeQuantity: &limitCumulativeQuantity,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SpotOrderbook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainTraderSpotOrdersV2(ctx context.Context, marketId, subaccountId string) (*exchangev2types.QueryTraderSpotOrdersResponse, error) {
+	req := &exchangev2types.QueryTraderSpotOrdersRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.TraderSpotOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainAccountAddressSpotOrdersV2(ctx context.Context, marketId, address string) (*exchangev2types.QueryAccountAddressSpotOrdersResponse, error) {
+	req := &exchangev2types.QueryAccountAddressSpotOrdersRequest{
+		MarketId:       marketId,
+		AccountAddress: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AccountAddressSpotOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSpotOrdersByHashesV2(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangev2types.QuerySpotOrdersByHashesResponse, error) {
+	req := &exchangev2types.QuerySpotOrdersByHashesRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+		OrderHashes:  orderHashes,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SpotOrdersByHashes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSubaccountOrdersV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QuerySubaccountOrdersResponse, error) {
+	req := &exchangev2types.QuerySubaccountOrdersRequest{
+		SubaccountId: subaccountId,
+		MarketId:     marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainTraderSpotTransientOrdersV2(ctx context.Context, marketId, subaccountId string) (*exchangev2types.QueryTraderSpotOrdersResponse, error) {
+	req := &exchangev2types.QueryTraderSpotOrdersRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.TraderSpotTransientOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSpotMidPriceAndTOBV2(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMidPriceAndTOBResponse, error) {
+	req := &exchangev2types.QuerySpotMidPriceAndTOBRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SpotMidPriceAndTOB, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDerivativeMidPriceAndTOBV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMidPriceAndTOBResponse, error) {
+	req := &exchangev2types.QueryDerivativeMidPriceAndTOBRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DerivativeMidPriceAndTOB, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainDerivativeOrderbookV2(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangev2types.QueryDerivativeOrderbookResponse, error) {
+	req := &exchangev2types.QueryDerivativeOrderbookRequest{
+		MarketId:                marketId,
+		Limit:                   limit,
+		LimitCumulativeNotional: &limitCumulativeNotional,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DerivativeOrderbook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainTraderDerivativeOrdersV2(ctx context.Context, marketId, subaccountId string) (*exchangev2types.QueryTraderDerivativeOrdersResponse, error) {
+	req := &exchangev2types.QueryTraderDerivativeOrdersRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.TraderDerivativeOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainAccountAddressDerivativeOrdersV2(ctx context.Context, marketId, address string) (*exchangev2types.QueryAccountAddressDerivativeOrdersResponse, error) {
+	req := &exchangev2types.QueryAccountAddressDerivativeOrdersRequest{
+		MarketId:       marketId,
+		AccountAddress: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AccountAddressDerivativeOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainDerivativeOrdersByHashesV2(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangev2types.QueryDerivativeOrdersByHashesResponse, error) {
+	req := &exchangev2types.QueryDerivativeOrdersByHashesRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+		OrderHashes:  orderHashes,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DerivativeOrdersByHashes, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainTraderDerivativeTransientOrdersV2(ctx context.Context, marketId, subaccountId string) (*exchangev2types.QueryTraderDerivativeOrdersResponse, error) {
+	req := &exchangev2types.QueryTraderDerivativeOrdersRequest{
+		MarketId:     marketId,
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.TraderDerivativeTransientOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainDerivativeMarketsV2(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryDerivativeMarketsResponse, error) {
+	req := &exchangev2types.QueryDerivativeMarketsRequest{
+		MarketIds:          marketIDs,
+		WithMidPriceAndTob: withMidPriceAndTob,
+	}
+	if status != "" {
+		req.Status = status
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DerivativeMarkets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainDerivativeMarketV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketResponse, error) {
+	req := &exchangev2types.QueryDerivativeMarketRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DerivativeMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDerivativeMarketAddressV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketAddressResponse, error) {
+	req := &exchangev2types.QueryDerivativeMarketAddressRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DerivativeMarketAddress, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSubaccountTradeNonceV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountTradeNonceResponse, error) {
+	req := &exchangev2types.QuerySubaccountTradeNonceRequest{
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountTradeNonce, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainPositionsV2(ctx context.Context) (*exchangev2types.QueryPositionsResponse, error) {
+	req := &exchangev2types.QueryPositionsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.Positions, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSubaccountPositionsV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountPositionsResponse, error) {
+	req := &exchangev2types.QuerySubaccountPositionsRequest{
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountPositions, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSubaccountPositionInMarketV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QuerySubaccountPositionInMarketResponse, error) {
+	req := &exchangev2types.QuerySubaccountPositionInMarketRequest{
+		SubaccountId: subaccountId,
+		MarketId:     marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountPositionInMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainSubaccountEffectivePositionInMarketV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QuerySubaccountEffectivePositionInMarketResponse, error) {
+	req := &exchangev2types.QuerySubaccountEffectivePositionInMarketRequest{
+		SubaccountId: subaccountId,
+		MarketId:     marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountEffectivePositionInMarket, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainPerpetualMarketInfoV2(ctx context.Context, marketId string) (*exchangev2types.QueryPerpetualMarketInfoResponse, error) {
+	req := &exchangev2types.QueryPerpetualMarketInfoRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.PerpetualMarketInfo, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainExpiryFuturesMarketInfoV2(ctx context.Context, marketId string) (*exchangev2types.QueryExpiryFuturesMarketInfoResponse, error) {
+	req := &exchangev2types.QueryExpiryFuturesMarketInfoRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.ExpiryFuturesMarketInfo, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainPerpetualMarketFundingV2(ctx context.Context, marketId string) (*exchangev2types.QueryPerpetualMarketFundingResponse, error) {
+	req := &exchangev2types.QueryPerpetualMarketFundingRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.PerpetualMarketFunding, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchSubaccountOrderMetadataV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountOrderMetadataResponse, error) {
+	req := &exchangev2types.QuerySubaccountOrderMetadataRequest{
+		SubaccountId: subaccountId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.SubaccountOrderMetadata, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTradeRewardPointsV2(ctx context.Context, accounts []string) (*exchangev2types.QueryTradeRewardPointsResponse, error) {
+	req := &exchangev2types.QueryTradeRewardPointsRequest{
+		Accounts: accounts,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.TradeRewardPoints, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPendingTradeRewardPointsV2(ctx context.Context, accounts []string) (*exchangev2types.QueryTradeRewardPointsResponse, error) {
+	req := &exchangev2types.QueryTradeRewardPointsRequest{
+		Accounts: accounts,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.PendingTradeRewardPoints, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTradeRewardCampaignV2(ctx context.Context) (*exchangev2types.QueryTradeRewardCampaignResponse, error) {
+	req := &exchangev2types.QueryTradeRewardCampaignRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.TradeRewardCampaign, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchFeeDiscountAccountInfoV2(ctx context.Context, account string) (*exchangev2types.QueryFeeDiscountAccountInfoResponse, error) {
+	req := &exchangev2types.QueryFeeDiscountAccountInfoRequest{
+		Account: account,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.FeeDiscountAccountInfo, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchFeeDiscountScheduleV2(ctx context.Context) (*exchangev2types.QueryFeeDiscountScheduleResponse, error) {
+	req := &exchangev2types.QueryFeeDiscountScheduleRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.FeeDiscountSchedule, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchBalanceMismatchesV2(ctx context.Context, dustFactor int64) (*exchangev2types.QueryBalanceMismatchesResponse, error) {
+	req := &exchangev2types.QueryBalanceMismatchesRequest{
+		DustFactor: dustFactor,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.BalanceMismatches, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchBalanceWithBalanceHoldsV2(ctx context.Context) (*exchangev2types.QueryBalanceWithBalanceHoldsResponse, error) {
+	req := &exchangev2types.QueryBalanceWithBalanceHoldsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.BalanceWithBalanceHolds, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchFeeDiscountTierStatisticsV2(ctx context.Context) (*exchangev2types.QueryFeeDiscountTierStatisticsResponse, error) {
+	req := &exchangev2types.QueryFeeDiscountTierStatisticsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.FeeDiscountTierStatistics, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMitoVaultInfosV2(ctx context.Context) (*exchangev2types.MitoVaultInfosResponse, error) {
+	req := &exchangev2types.MitoVaultInfosRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.MitoVaultInfos, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketIDFromVaultV2(ctx context.Context, vaultAddress string) (*exchangev2types.QueryMarketIDFromVaultResponse, error) {
+	req := &exchangev2types.QueryMarketIDFromVaultRequest{
+		VaultAddress: vaultAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.QueryMarketIDFromVault, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchHistoricalTradeRecordsV2(ctx context.Context, marketId string) (*exchangev2types.QueryHistoricalTradeRecordsResponse, error) {
+	req := &exchangev2types.QueryHistoricalTradeRecordsRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.HistoricalTradeRecords, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchIsOptedOutOfRewardsV2(ctx context.Context, account string) (*exchangev2types.QueryIsOptedOutOfRewardsResponse, error) {
+	req := &exchangev2types.QueryIsOptedOutOfRewardsRequest{
+		Account: account,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.IsOptedOutOfRewards, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchOptedOutOfRewardsAccountsV2(ctx context.Context) (*exchangev2types.QueryOptedOutOfRewardsAccountsResponse, error) {
+	req := &exchangev2types.QueryOptedOutOfRewardsAccountsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.OptedOutOfRewardsAccounts, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketVolatilityV2(ctx context.Context, marketId string, tradeHistoryOptions *exchangev2types.TradeHistoryOptions) (*exchangev2types.QueryMarketVolatilityResponse, error) {
+	req := &exchangev2types.QueryMarketVolatilityRequest{
+		MarketId:            marketId,
+		TradeHistoryOptions: tradeHistoryOptions,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.MarketVolatility, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainBinaryOptionsMarketsV2(ctx context.Context, status string) (*exchangev2types.QueryBinaryMarketsResponse, error) {
+	req := &exchangev2types.QueryBinaryMarketsRequest{}
+	if status != "" {
+		req.Status = status
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.BinaryOptionsMarkets, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTraderDerivativeConditionalOrdersV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QueryTraderDerivativeConditionalOrdersResponse, error) {
+	req := &exchangev2types.QueryTraderDerivativeConditionalOrdersRequest{
+		SubaccountId: subaccountId,
+		MarketId:     marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.TraderDerivativeConditionalOrders, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketAtomicExecutionFeeMultiplierV2(ctx context.Context, marketId string) (*exchangev2types.QueryMarketAtomicExecutionFeeMultiplierResponse, error) {
+	req := &exchangev2types.QueryMarketAtomicExecutionFeeMultiplierRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.MarketAtomicExecutionFeeMultiplier, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchActiveStakeGrantV2(ctx context.Context, grantee string) (*exchangev2types.QueryActiveStakeGrantResponse, error) {
+	req := &exchangev2types.QueryActiveStakeGrantRequest{
+		Grantee: grantee,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.ActiveStakeGrant, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchGrantAuthorizationV2(ctx context.Context, granter, grantee string) (*exchangev2types.QueryGrantAuthorizationResponse, error) {
+	req := &exchangev2types.QueryGrantAuthorizationRequest{
+		Granter: granter,
+		Grantee: grantee,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.GrantAuthorization, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchGrantAuthorizationsV2(ctx context.Context, granter string) (*exchangev2types.QueryGrantAuthorizationsResponse, error) {
+	req := &exchangev2types.QueryGrantAuthorizationsRequest{
+		Granter: granter,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.GrantAuthorizations, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchL3DerivativeOrderbookV2(ctx context.Context, marketId string) (*exchangev2types.QueryFullDerivativeOrderbookResponse, error) {
+	req := &exchangev2types.QueryFullDerivativeOrderbookRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.L3DerivativeOrderBook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchL3SpotOrderbookV2(ctx context.Context, marketId string) (*exchangev2types.QueryFullSpotOrderbookResponse, error) {
+	req := &exchangev2types.QueryFullSpotOrderbookRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.L3SpotOrderBook, req)
 
 	return res, err
 }

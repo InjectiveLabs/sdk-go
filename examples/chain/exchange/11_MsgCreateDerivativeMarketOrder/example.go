@@ -1,21 +1,18 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
 
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/google/uuid"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -52,17 +49,6 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
@@ -80,10 +66,10 @@ func main() {
 	price := decimal.RequireFromString("33000") //33,000
 	leverage := decimal.RequireFromString("2.5")
 
-	order := chainClient.CreateDerivativeOrder(
+	order := chainClient.CreateDerivativeOrderV2(
 		defaultSubaccountID,
 		&chainclient.DerivativeOrderData{
-			OrderType:    exchangetypes.OrderType_SELL, //BUY SELL
+			OrderType:    exchangev2types.OrderType_SELL, //BUY SELL
 			Quantity:     amount,
 			Price:        price,
 			Leverage:     leverage,
@@ -92,12 +78,11 @@ func main() {
 			IsReduceOnly: true,
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
+	msg := new(exchangev2types.MsgCreateDerivativeMarketOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.DerivativeOrder(*order)
+	msg.Order = exchangev2types.DerivativeOrder(*order)
 
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 
@@ -105,7 +90,7 @@ func main() {
 		panic(err)
 	}
 
-	msgCreateDerivativeMarketOrderResponse := exchangetypes.MsgCreateDerivativeMarketOrderResponse{}
+	msgCreateDerivativeMarketOrderResponse := exchangev2types.MsgCreateDerivativeMarketOrderResponse{}
 	err = msgCreateDerivativeMarketOrderResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {

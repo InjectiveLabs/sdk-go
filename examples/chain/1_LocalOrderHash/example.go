@@ -1,20 +1,18 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
 
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	"github.com/shopspring/decimal"
 )
 
 func main() {
@@ -50,17 +48,6 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
@@ -74,23 +61,22 @@ func main() {
 	// prepare tx msg
 	defaultSubaccountID := chainClient.Subaccount(senderAddress, 1)
 
-	spotOrder := chainClient.CreateSpotOrder(
+	spotOrder := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangetypes.OrderType_BUY,
+			OrderType:    exchangev2types.OrderType_BUY,
 			Quantity:     decimal.NewFromFloat(2),
 			Price:        decimal.NewFromFloat(22.55),
 			FeeRecipient: senderAddress.String(),
 			MarketId:     "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe",
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	derivativeOrder := chainClient.CreateDerivativeOrder(
+	derivativeOrder := chainClient.CreateDerivativeOrderV2(
 		defaultSubaccountID,
 		&chainclient.DerivativeOrderData{
-			OrderType:    exchangetypes.OrderType_BUY,
+			OrderType:    exchangev2types.OrderType_BUY,
 			Quantity:     decimal.NewFromFloat(2),
 			Price:        decimal.RequireFromString("31"),
 			Leverage:     decimal.RequireFromString("2.5"),
@@ -98,16 +84,15 @@ func main() {
 			MarketId:     "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6",
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgBatchCreateSpotLimitOrders)
+	msg := new(exchangev2types.MsgBatchCreateSpotLimitOrders)
 	msg.Sender = senderAddress.String()
-	msg.Orders = []exchangetypes.SpotOrder{*spotOrder}
+	msg.Orders = []exchangev2types.SpotOrder{*spotOrder}
 
-	msg1 := new(exchangetypes.MsgBatchCreateDerivativeLimitOrders)
+	msg1 := new(exchangev2types.MsgBatchCreateDerivativeLimitOrders)
 	msg1.Sender = senderAddress.String()
-	msg1.Orders = []exchangetypes.DerivativeOrder{*derivativeOrder, *derivativeOrder}
+	msg1.Orders = []exchangev2types.DerivativeOrder{*derivativeOrder}
 
 	// compute local order hashes
 	orderHashes, err := chainClient.ComputeOrderHashes(msg.Orders, msg1.Orders, defaultSubaccountID)

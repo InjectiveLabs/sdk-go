@@ -1,19 +1,17 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 
-	"github.com/InjectiveLabs/sdk-go/client"
-	"github.com/InjectiveLabs/sdk-go/client/common"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -48,17 +46,6 @@ func main() {
 	}
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient).WithSimulation(false)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
 	txFactory := chainclient.NewTxFactory(clientCtx)
 	txFactory = txFactory.WithGasPrices(client.DefaultGasPriceWithDenom)
 	txFactory = txFactory.WithGas(uint64(txFactory.GasAdjustment() * 140000))
@@ -80,22 +67,21 @@ func main() {
 	amount := decimal.NewFromFloat(1)
 	price := decimal.NewFromFloat(4.55)
 
-	order := clientInstance.CreateSpotOrder(
+	order := clientInstance.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),
 			MarketId:     marketId,
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgCreateSpotLimitOrder)
+	msg := new(exchangev2types.MsgCreateSpotLimitOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.SpotOrder(*order)
+	msg.Order = *order
 
 	result, err := clientInstance.SyncBroadcastMsg(msg)
 

@@ -6,14 +6,12 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-
-	"github.com/InjectiveLabs/sdk-go/client"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	"github.com/InjectiveLabs/sdk-go/client"
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -59,7 +57,7 @@ func main() {
 		panic(err)
 	}
 
-	msg := &exchangetypes.MsgIncreasePositionMargin{
+	msg := &exchangev2types.MsgIncreasePositionMargin{
 		Sender:                  senderAddress.String(),
 		MarketId:                "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce",
 		SourceSubaccountId:      "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000",

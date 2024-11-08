@@ -46,7 +46,10 @@
         "style",
       ],
       "disabled-checks": [
+        "dupImport",
         "hugeParam",
+        "singleCaseSwitch",
+        "unnamedResult",
       ]
     }
   },

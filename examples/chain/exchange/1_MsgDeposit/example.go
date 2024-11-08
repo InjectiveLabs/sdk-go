@@ -6,16 +6,13 @@ import (
 	"time"
 
 	"cosmossdk.io/math"
-
-	"github.com/InjectiveLabs/sdk-go/client"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -59,7 +56,7 @@ func main() {
 		panic(err)
 	}
 
-	msg := &exchangetypes.MsgDeposit{
+	msg := &exchangev2types.MsgDeposit{
 		Sender:       senderAddress.String(),
 		SubaccountId: "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000",
 		Amount: sdktypes.Coin{

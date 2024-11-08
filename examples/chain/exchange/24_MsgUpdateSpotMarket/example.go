@@ -1,20 +1,16 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
 	"cosmossdk.io/math"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
@@ -60,36 +56,17 @@ func main() {
 		panic(err)
 	}
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
-	baseToken := marketsAssistant.AllTokens()["INJ"]
-	quoteToken := marketsAssistant.AllTokens()["USDC"]
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minNotional := math.LegacyMustNewDecFromStr("2")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-	chainMinPriceTickSize = chainMinPriceTickSize.Quo(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
-
-	chainMinQuantityTickSize := minQuantityTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
-	chainMinNotional := minNotional.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-
-	msg := &exchangetypes.MsgUpdateSpotMarket{
+	msg := &exchangev2types.MsgUpdateSpotMarket{
 		Admin:                  senderAddress.String(),
 		MarketId:               "0x215970bfdea5c94d8e964a759d3ce6eae1d113900129cc8428267db5ccdb3d1a",
 		NewTicker:              "INJ/USDC 2",
-		NewMinPriceTickSize:    chainMinPriceTickSize,
-		NewMinQuantityTickSize: chainMinQuantityTickSize,
-		NewMinNotional:         chainMinNotional,
+		NewMinPriceTickSize:    minPriceTickSize,
+		NewMinQuantityTickSize: minQuantityTickSize,
+		NewMinNotional:         minNotional,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

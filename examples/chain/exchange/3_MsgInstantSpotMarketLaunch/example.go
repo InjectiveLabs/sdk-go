@@ -7,14 +7,13 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
 func main() {
@@ -76,20 +75,14 @@ func main() {
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
 	minNotional := math.LegacyMustNewDecFromStr("1")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-	chainMinPriceTickSize = chainMinPriceTickSize.Quo(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
-
-	chainMinQuantityTickSize := minQuantityTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
-	chainMinNotional := minNotional.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-
-	msg := &exchangetypes.MsgInstantSpotMarketLaunch{
+	msg := &exchangev2types.MsgInstantSpotMarketLaunch{
 		Sender:              senderAddress.String(),
 		Ticker:              "INJ/USDC",
 		BaseDenom:           baseToken.Denom,
 		QuoteDenom:          quoteToken.Denom,
-		MinPriceTickSize:    chainMinPriceTickSize,
-		MinQuantityTickSize: chainMinQuantityTickSize,
-		MinNotional:         chainMinNotional,
+		MinPriceTickSize:    minPriceTickSize,
+		MinQuantityTickSize: minQuantityTickSize,
+		MinNotional:         minNotional,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

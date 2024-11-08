@@ -60,7 +60,7 @@ func main() {
 
 	subaccountId := chainClient.Subaccount(senderAddress, 0)
 
-	res, err := chainClient.FetchChainSubaccountPositions(ctx, subaccountId.Hex())
+	res, err := chainClient.FetchChainSubaccountPositionsV2(ctx, subaccountId.Hex())
 	if err != nil {
 		fmt.Println(err)
 	}

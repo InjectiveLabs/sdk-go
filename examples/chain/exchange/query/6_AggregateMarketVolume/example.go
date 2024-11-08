@@ -60,7 +60,7 @@ func main() {
 
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 
-	res, err := chainClient.FetchAggregateMarketVolume(ctx, marketId)
+	res, err := chainClient.FetchAggregateMarketVolumeV2(ctx, marketId)
 	if err != nil {
 		fmt.Println(err)
 	}

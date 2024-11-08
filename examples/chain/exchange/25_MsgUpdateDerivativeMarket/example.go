@@ -1,20 +1,17 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
 	"cosmossdk.io/math"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
@@ -59,33 +56,17 @@ func main() {
 		panic(err)
 	}
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
-	quoteToken := marketsAssistant.AllTokens()["USDT"]
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.1")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.1")
 	minNotional := math.LegacyMustNewDecFromStr("2")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-	chainMinQuantityTickSize := minQuantityTickSize
-	chainMinNotional := minNotional.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-
-	msg := &exchangetypes.MsgUpdateDerivativeMarket{
+	msg := &exchangev2types.MsgUpdateDerivativeMarket{
 		Admin:                     senderAddress.String(),
 		MarketId:                  "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6",
 		NewTicker:                 "INJ/USDT PERP 2",
-		NewMinPriceTickSize:       chainMinPriceTickSize,
-		NewMinQuantityTickSize:    chainMinQuantityTickSize,
-		NewMinNotional:            chainMinNotional,
+		NewMinPriceTickSize:       minPriceTickSize,
+		NewMinQuantityTickSize:    minQuantityTickSize,
+		NewMinNotional:            minNotional,
 		NewInitialMarginRatio:     math.LegacyMustNewDecFromStr("0.4"),
 		NewMaintenanceMarginRatio: math.LegacyMustNewDecFromStr("0.085"),
 	}
