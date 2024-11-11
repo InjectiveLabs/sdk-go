@@ -127,9 +127,7 @@ type ChainClient interface {
 	SynchronizeSubaccountNonce(subaccountId ethcommon.Hash) error
 	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId ethcommon.Hash) (OrderHashes, error)
 
-	SpotOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
 	CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
-	DerivativeOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
 	CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
@@ -295,8 +293,11 @@ type ChainClient interface {
 	FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error)
 	FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error)
 
+	GetNetwork() common.Network
 	Close()
 }
+
+var _ ChainClient = &chainClient{}
 
 type chainClient struct {
 	ctx             client.Context
@@ -1072,16 +1073,6 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId ethco
 	return res, err
 }
 
-// Deprecated: Use CreateSpotOrder instead
-func (c *chainClient) SpotOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
-	assistant, err := NewMarketsAssistant(network.Name)
-	if err != nil {
-		panic(err)
-	}
-
-	return c.CreateSpotOrder(defaultSubaccountID, d, assistant)
-}
-
 func (c *chainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 
 	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
@@ -1103,17 +1094,6 @@ func (c *chainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *Spo
 			Cid:          d.Cid,
 		},
 	}
-}
-
-// Deprecated: Use CreateDerivativeOrder instead
-func (c *chainClient) DerivativeOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
-
-	assistant, err := NewMarketsAssistant(network.Name)
-	if err != nil {
-		panic(err)
-	}
-
-	return c.CreateDerivativeOrder(defaultSubaccountID, d, assistant)
 }
 
 func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
@@ -2666,4 +2646,8 @@ func (c *chainClient) FetchVouchersForAddress(ctx context.Context, address strin
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.VouchersForAddress, req)
 
 	return res, err
+}
+
+func (c *chainClient) GetNetwork() common.Network {
+	return c.network
 }

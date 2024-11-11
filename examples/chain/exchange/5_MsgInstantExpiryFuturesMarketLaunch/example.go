@@ -1,21 +1,18 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
 	"cosmossdk.io/math"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
@@ -60,28 +57,16 @@ func main() {
 		panic(err)
 	}
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
-	quoteToken := marketsAssistant.AllTokens()["USDC"]
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
+	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(6)))
 	chainMinQuantityTickSize := minQuantityTickSize
 
 	msg := &exchangetypes.MsgInstantExpiryFuturesMarketLaunch{
 		Sender:                 senderAddress.String(),
 		Ticker:                 "INJ/USDC FUT",
-		QuoteDenom:             quoteToken.Denom,
+		QuoteDenom:             "factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/usdc",
 		OracleBase:             "INJ",
 		OracleQuote:            "USDC",
 		OracleScaleFactor:      6,

@@ -5,20 +5,11 @@ import (
 	"errors"
 	"time"
 
-	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
-
 	sdkmath "cosmossdk.io/math"
-
-	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
-	"google.golang.org/grpc"
-
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
@@ -31,10 +22,23 @@ import (
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
+	"google.golang.org/grpc"
+
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
+var _ ChainClient = &MockChainClient{}
+
 type MockChainClient struct {
-	DenomsMetadataResponses []*banktypes.QueryDenomsMetadataResponse
+	Network                         common.Network
+	DenomsMetadataResponses         []*banktypes.QueryDenomsMetadataResponse
+	QuerySpotMarketsResponses       []*exchangetypes.QuerySpotMarketsResponse
+	QueryDerivativeMarketsResponses []*exchangetypes.QueryDerivativeMarketsResponse
+	QueryBinaryMarketsResponses     []*exchangetypes.QueryBinaryMarketsResponse
 }
 
 func (c *MockChainClient) CanSignTransactions() bool {
@@ -191,16 +195,8 @@ func (c *MockChainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrde
 	return OrderHashes{}, nil
 }
 
-func (c *MockChainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
-	return c.CreateSpotOrder(defaultSubaccountID, d, MarketsAssistant{})
-}
-
 func (c *MockChainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 	return &exchangetypes.SpotOrder{}
-}
-
-func (c *MockChainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
-	return c.CreateDerivativeOrder(defaultSubaccountID, d, MarketsAssistant{})
 }
 
 func (c *MockChainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
@@ -371,7 +367,18 @@ func (c *MockChainClient) FetchDenomDecimals(ctx context.Context, denoms []strin
 }
 
 func (c *MockChainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
-	return &exchangetypes.QuerySpotMarketsResponse{}, nil
+	var response *exchangetypes.QuerySpotMarketsResponse
+	var localError error
+	if len(c.QuerySpotMarketsResponses) > 0 {
+		response = c.QuerySpotMarketsResponses[0]
+		c.QuerySpotMarketsResponses = c.QuerySpotMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QuerySpotMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMarketResponse, error) {
@@ -439,7 +446,18 @@ func (c *MockChainClient) FetchChainTraderDerivativeTransientOrders(ctx context.
 }
 
 func (c *MockChainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
-	return &exchangetypes.QueryDerivativeMarketsResponse{}, nil
+	var response *exchangetypes.QueryDerivativeMarketsResponse
+	var localError error
+	if len(c.QueryDerivativeMarketsResponses) > 0 {
+		response = c.QueryDerivativeMarketsResponses[0]
+		c.QueryDerivativeMarketsResponses = c.QueryDerivativeMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QueryDerivativeMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchChainDerivativeMarket(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketResponse, error) {
@@ -543,7 +561,18 @@ func (c *MockChainClient) FetchMarketVolatility(ctx context.Context, marketId st
 }
 
 func (c *MockChainClient) FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error) {
-	return &exchangetypes.QueryBinaryMarketsResponse{}, nil
+	var response *exchangetypes.QueryBinaryMarketsResponse
+	var localError error
+	if len(c.QueryBinaryMarketsResponses) > 0 {
+		response = c.QueryBinaryMarketsResponses[0]
+		c.QueryBinaryMarketsResponses = c.QueryBinaryMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QueryBinaryMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error) {
@@ -740,4 +769,8 @@ func (c *MockChainClient) FetchAddressesByRole(ctx context.Context, denom, role 
 
 func (c *MockChainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
 	return &permissionstypes.QueryVouchersForAddressResponse{}, nil
+}
+
+func (c *MockChainClient) GetNetwork() common.Network {
+	return c.Network
 }
