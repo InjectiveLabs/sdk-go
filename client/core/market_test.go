@@ -358,63 +358,63 @@ func TestConvertNotionalFromExtendedChainFormatForDerivativeMarket(t *testing.T)
 // Binary Option markets tests
 
 func TestConvertQuantityToChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	originalQuantity := decimal.RequireFromString("123.456789")
 
-	chainValue := derivativeMarket.QuantityToChainFormat(originalQuantity)
-	quantizedValue := originalQuantity.DivRound(derivativeMarket.MinQuantityTickSize, 0).Mul(derivativeMarket.MinQuantityTickSize)
+	chainValue := binaryOptionMarket.QuantityToChainFormat(originalQuantity)
+	quantizedValue := originalQuantity.DivRound(binaryOptionMarket.MinQuantityTickSize, 0).Mul(binaryOptionMarket.MinQuantityTickSize)
 	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
 
 func TestConvertPriceToChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	originalPrice := decimal.RequireFromString("123.456789")
 
-	chainValue := derivativeMarket.PriceToChainFormat(originalPrice)
-	priceDecimals := derivativeMarket.QuoteToken.Decimals
+	chainValue := binaryOptionMarket.PriceToChainFormat(originalPrice)
+	priceDecimals := binaryOptionMarket.QuoteToken.Decimals
 	expectedValue := originalPrice.Mul(decimal.New(1, priceDecimals))
-	quantizedValue := expectedValue.DivRound(derivativeMarket.MinPriceTickSize, 0).Mul(derivativeMarket.MinPriceTickSize)
+	quantizedValue := expectedValue.DivRound(binaryOptionMarket.MinPriceTickSize, 0).Mul(binaryOptionMarket.MinPriceTickSize)
 	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
 
 func TestConvertMarginToChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	originalPrice := decimal.RequireFromString("123.456789")
 
-	chainValue := derivativeMarket.MarginToChainFormat(originalPrice)
-	marginDecimals := derivativeMarket.QuoteToken.Decimals
+	chainValue := binaryOptionMarket.MarginToChainFormat(originalPrice)
+	marginDecimals := binaryOptionMarket.QuoteToken.Decimals
 	expectedValue := originalPrice.Mul(decimal.New(1, marginDecimals))
-	quantizedValue := expectedValue.DivRound(derivativeMarket.MinQuantityTickSize, 0).Mul(derivativeMarket.MinQuantityTickSize)
+	quantizedValue := expectedValue.DivRound(binaryOptionMarket.MinQuantityTickSize, 0).Mul(binaryOptionMarket.MinQuantityTickSize)
 	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
 
 func TestCalculateMarginInChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	originalQuantity := decimal.RequireFromString("10")
 	originalPrice := decimal.RequireFromString("123.456789")
 	originalLeverage := decimal.RequireFromString("2.5")
 
-	chainValue := derivativeMarket.CalculateMarginInChainFormat(originalQuantity, originalPrice, originalLeverage)
-	decimals := derivativeMarket.QuoteToken.Decimals
+	chainValue := binaryOptionMarket.CalculateMarginInChainFormat(originalQuantity, originalPrice, originalLeverage)
+	decimals := binaryOptionMarket.QuoteToken.Decimals
 	expectedValue := originalQuantity.Mul(originalPrice).Div(originalLeverage).Mul(decimal.New(1, decimals))
-	quantizedValue := expectedValue.DivRound(derivativeMarket.MinQuantityTickSize, 0).Mul(derivativeMarket.MinQuantityTickSize)
+	quantizedValue := expectedValue.DivRound(binaryOptionMarket.MinQuantityTickSize, 0).Mul(binaryOptionMarket.MinQuantityTickSize)
 	legacyDecimalQuantizedValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
 
 	assert.Assert(t, chainValue.Equal(legacyDecimalQuantizedValue))
 }
 
 func TestConvertNotionalToChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	originalNotional := decimal.RequireFromString("123.456789")
 
-	chainValue := derivativeMarket.NotionalToChainFormat(originalNotional)
-	notionalDecimals := derivativeMarket.QuoteToken.Decimals
+	chainValue := binaryOptionMarket.NotionalToChainFormat(originalNotional)
+	notionalDecimals := binaryOptionMarket.QuoteToken.Decimals
 	expectedValue := originalNotional.Mul(decimal.New(1, notionalDecimals))
 	expectedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(expectedValue.String())
 
@@ -422,87 +422,87 @@ func TestConvertNotionalToChainFormatForBinaryOptionMarket(t *testing.T) {
 }
 
 func TestConvertQuantityFromChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	expectedQuantity := decimal.RequireFromString("123.456")
 
 	chainFormatQuantity := expectedQuantity
-	humanReadableQuantity := derivativeMarket.QuantityFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatQuantity.String()))
+	humanReadableQuantity := binaryOptionMarket.QuantityFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatQuantity.String()))
 
 	assert.Assert(t, expectedQuantity.Equal(humanReadableQuantity))
 }
 
 func TestConvertPriceFromChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	expectedPrice := decimal.RequireFromString("123.456")
 
-	priceDecimals := derivativeMarket.QuoteToken.Decimals
+	priceDecimals := binaryOptionMarket.QuoteToken.Decimals
 	chainFormatPrice := expectedPrice.Mul(decimal.New(1, priceDecimals))
-	humanReadablePrice := derivativeMarket.PriceFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
+	humanReadablePrice := binaryOptionMarket.PriceFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
 
 	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
 }
 
 func TestConvertMarginFromChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	expectedMargin := decimal.RequireFromString("123.456")
 
-	marginDecimals := derivativeMarket.QuoteToken.Decimals
+	marginDecimals := binaryOptionMarket.QuoteToken.Decimals
 	chainFormatMargin := expectedMargin.Mul(decimal.New(1, marginDecimals))
-	humanReadablePrice := derivativeMarket.MarginFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatMargin.String()))
+	humanReadablePrice := binaryOptionMarket.MarginFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatMargin.String()))
 
 	assert.Assert(t, expectedMargin.Equal(humanReadablePrice))
 }
 
 func TestConvertNotionalFromChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	expectedNotional := decimal.RequireFromString("123.456")
 
-	notionalDecimals := derivativeMarket.QuoteToken.Decimals
+	notionalDecimals := binaryOptionMarket.QuoteToken.Decimals
 	chainFormatPrice := expectedNotional.Mul(decimal.New(1, notionalDecimals))
-	humanReadableNotional := derivativeMarket.NotionalFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
+	humanReadableNotional := binaryOptionMarket.NotionalFromChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
 
 	assert.Assert(t, expectedNotional.Equal(humanReadableNotional))
 }
 
 func TestConvertQuantityFromExtendedChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	expectedQuantity := decimal.RequireFromString("123.456")
 
 	chainFormatQuantity := expectedQuantity.Mul(decimal.New(1, AdditionalChainFormatDecimals))
-	humanReadableQuantity := derivativeMarket.QuantityFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatQuantity.String()))
+	humanReadableQuantity := binaryOptionMarket.QuantityFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatQuantity.String()))
 
 	assert.Assert(t, expectedQuantity.Equal(humanReadableQuantity))
 }
 
 func TestConvertPriceFromExtendedChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	expectedPrice := decimal.RequireFromString("123.456")
 
-	priceDecimals := derivativeMarket.QuoteToken.Decimals
+	priceDecimals := binaryOptionMarket.QuoteToken.Decimals
 	chainFormatPrice := expectedPrice.Mul(decimal.New(1, priceDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
-	humanReadablePrice := derivativeMarket.PriceFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
+	humanReadablePrice := binaryOptionMarket.PriceFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatPrice.String()))
 
 	assert.Assert(t, expectedPrice.Equal(humanReadablePrice))
 }
 
 func TestConvertMarginFromExtendedChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	expectedMargin := decimal.RequireFromString("123.456")
 
-	marginDecimals := derivativeMarket.QuoteToken.Decimals
+	marginDecimals := binaryOptionMarket.QuoteToken.Decimals
 	chainFormatMargin := expectedMargin.Mul(decimal.New(1, marginDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
-	humanReadablePrice := derivativeMarket.MarginFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatMargin.String()))
+	humanReadablePrice := binaryOptionMarket.MarginFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatMargin.String()))
 
 	assert.Assert(t, expectedMargin.Equal(humanReadablePrice))
 }
 
 func TestConvertNotionalFromExtendedChainFormatForBinaryOptionMarket(t *testing.T) {
-	derivativeMarket := createBetBinaryOptionMarket()
+	binaryOptionMarket := createBetBinaryOptionMarket()
 	expectedNotional := decimal.RequireFromString("123.456")
 
-	notionalDecimals := derivativeMarket.QuoteToken.Decimals
+	notionalDecimals := binaryOptionMarket.QuoteToken.Decimals
 	chainFormatNotional := expectedNotional.Mul(decimal.New(1, notionalDecimals)).Mul(decimal.New(1, AdditionalChainFormatDecimals))
-	humanReadableNotional := derivativeMarket.NotionalFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatNotional.String()))
+	humanReadableNotional := binaryOptionMarket.NotionalFromExtendedChainFormat(sdkmath.LegacyMustNewDecFromStr(chainFormatNotional.String()))
 
 	assert.Assert(t, expectedNotional.Equal(humanReadableNotional))
 }
