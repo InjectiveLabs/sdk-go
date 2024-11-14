@@ -29,12 +29,20 @@ import (
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 var _ ChainClient = &MockChainClient{}
 
 type MockChainClient struct {
-	DenomsMetadataResponses []*banktypes.QueryDenomsMetadataResponse
+	Network                           common.Network
+	DenomsMetadataResponses           []*banktypes.QueryDenomsMetadataResponse
+	QuerySpotMarketsResponses         []*exchangetypes.QuerySpotMarketsResponse
+	QueryDerivativeMarketsResponses   []*exchangetypes.QueryDerivativeMarketsResponse
+	QueryBinaryMarketsResponses       []*exchangetypes.QueryBinaryMarketsResponse
+	QuerySpotMarketsV2Responses       []*exchangev2types.QuerySpotMarketsResponse
+	QueryDerivativeMarketsV2Responses []*exchangev2types.QueryDerivativeMarketsResponse
+	QueryBinaryMarketsV2Responses     []*exchangev2types.QueryBinaryMarketsResponse
 }
 
 func (c *MockChainClient) CanSignTransactions() bool {
@@ -383,7 +391,18 @@ func (c *MockChainClient) FetchDenomDecimals(ctx context.Context, denoms []strin
 }
 
 func (c *MockChainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
-	return &exchangetypes.QuerySpotMarketsResponse{}, nil
+	var response *exchangetypes.QuerySpotMarketsResponse
+	var localError error
+	if len(c.QuerySpotMarketsResponses) > 0 {
+		response = c.QuerySpotMarketsResponses[0]
+		c.QuerySpotMarketsResponses = c.QuerySpotMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QuerySpotMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMarketResponse, error) {
@@ -451,7 +470,18 @@ func (c *MockChainClient) FetchChainTraderDerivativeTransientOrders(ctx context.
 }
 
 func (c *MockChainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
-	return &exchangetypes.QueryDerivativeMarketsResponse{}, nil
+	var response *exchangetypes.QueryDerivativeMarketsResponse
+	var localError error
+	if len(c.QueryDerivativeMarketsResponses) > 0 {
+		response = c.QueryDerivativeMarketsResponses[0]
+		c.QueryDerivativeMarketsResponses = c.QueryDerivativeMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QueryDerivativeMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchChainDerivativeMarket(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketResponse, error) {
@@ -555,7 +585,18 @@ func (c *MockChainClient) FetchMarketVolatility(ctx context.Context, marketId st
 }
 
 func (c *MockChainClient) FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error) {
-	return &exchangetypes.QueryBinaryMarketsResponse{}, nil
+	var response *exchangetypes.QueryBinaryMarketsResponse
+	var localError error
+	if len(c.QueryBinaryMarketsResponses) > 0 {
+		response = c.QueryBinaryMarketsResponses[0]
+		c.QueryBinaryMarketsResponses = c.QueryBinaryMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QueryBinaryMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error) {
@@ -604,7 +645,18 @@ func (c *MockChainClient) FetchDenomDecimalsV2(ctx context.Context, denoms []str
 }
 
 func (c *MockChainClient) FetchChainSpotMarketsV2(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error) {
-	return &exchangev2types.QuerySpotMarketsResponse{}, nil
+	var response *exchangev2types.QuerySpotMarketsResponse
+	var localError error
+	if len(c.QuerySpotMarketsV2Responses) > 0 {
+		response = c.QuerySpotMarketsV2Responses[0]
+		c.QuerySpotMarketsV2Responses = c.QuerySpotMarketsV2Responses[1:]
+		localError = nil
+	} else {
+		response = &exchangev2types.QuerySpotMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchChainSpotMarketV2(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMarketResponse, error) {
@@ -672,7 +724,18 @@ func (c *MockChainClient) FetchChainTraderDerivativeTransientOrdersV2(ctx contex
 }
 
 func (c *MockChainClient) FetchChainDerivativeMarketsV2(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryDerivativeMarketsResponse, error) {
-	return &exchangev2types.QueryDerivativeMarketsResponse{}, nil
+	var response *exchangev2types.QueryDerivativeMarketsResponse
+	var localError error
+	if len(c.QueryDerivativeMarketsV2Responses) > 0 {
+		response = c.QueryDerivativeMarketsV2Responses[0]
+		c.QueryDerivativeMarketsV2Responses = c.QueryDerivativeMarketsV2Responses[1:]
+		localError = nil
+	} else {
+		response = &exchangev2types.QueryDerivativeMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchChainDerivativeMarketV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketResponse, error) {
@@ -776,7 +839,18 @@ func (c *MockChainClient) FetchMarketVolatilityV2(ctx context.Context, marketId 
 }
 
 func (c *MockChainClient) FetchChainBinaryOptionsMarketsV2(ctx context.Context, status string) (*exchangev2types.QueryBinaryMarketsResponse, error) {
-	return &exchangev2types.QueryBinaryMarketsResponse{}, nil
+	var response *exchangev2types.QueryBinaryMarketsResponse
+	var localError error
+	if len(c.QueryBinaryMarketsV2Responses) > 0 {
+		response = c.QueryBinaryMarketsV2Responses[0]
+		c.QueryBinaryMarketsV2Responses = c.QueryBinaryMarketsV2Responses[1:]
+		localError = nil
+	} else {
+		response = &exchangev2types.QueryBinaryMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchTraderDerivativeConditionalOrdersV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QueryTraderDerivativeConditionalOrdersResponse, error) {
@@ -993,4 +1067,8 @@ func (c *MockChainClient) FetchAddressesByRole(ctx context.Context, denom, role 
 
 func (c *MockChainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
 	return &permissionstypes.QueryVouchersForAddressResponse{}, nil
+}
+
+func (c *MockChainClient) GetNetwork() common.Network {
+	return c.Network
 }

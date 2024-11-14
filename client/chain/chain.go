@@ -15,7 +15,6 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	log "github.com/InjectiveLabs/suplog"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
@@ -45,6 +44,7 @@ import (
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	log "github.com/InjectiveLabs/suplog"
 )
 
 type OrderbookType string
@@ -417,6 +417,7 @@ type ChainClient interface {
 	FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error)
 	FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error)
 
+	GetNetwork() common.Network
 	Close()
 }
 
@@ -3457,4 +3458,8 @@ func (c *chainClient) FetchVouchersForAddress(ctx context.Context, address strin
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.VouchersForAddress, req)
 
 	return res, err
+}
+
+func (c *chainClient) GetNetwork() common.Network {
+	return c.network
 }
