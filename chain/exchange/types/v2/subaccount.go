@@ -1,8 +1,6 @@
-package types
+package v2
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 )
 
@@ -32,25 +30,6 @@ func NewSubaccountOrder(o *DerivativeLimitOrder) *SubaccountOrder {
 
 func (o *SubaccountOrder) IsVanilla() bool {
 	return !o.IsReduceOnly
-}
-
-func (m *SubaccountOrderbookMetadata) AssertValid() {
-	errStr := ""
-	if m.AggregateVanillaQuantity.IsNegative() {
-		errStr += "m.AggregateVanillaQuantity is negative with " + m.AggregateVanillaQuantity.String() + "\n"
-	}
-	if m.AggregateReduceOnlyQuantity.IsNegative() {
-		errStr += "m.AggregateReduceOnlyQuantity is negative with " + m.AggregateReduceOnlyQuantity.String() + "\n"
-	}
-	if m.VanillaLimitOrderCount > 20 {
-		errStr += fmt.Sprintf("m.AggregateVanillaQuantity is GT 20 %d\n", m.VanillaLimitOrderCount)
-	}
-	if m.ReduceOnlyLimitOrderCount > 20 {
-		errStr += fmt.Sprintf("m.ReduceOnlyLimitOrderCount is GT 20 %d\n", m.ReduceOnlyLimitOrderCount)
-	}
-	if errStr != "" {
-		panic(errStr)
-	}
 }
 
 func (m *SubaccountOrderbookMetadata) ApplyDelta(d *SubaccountOrderbookMetadata) {

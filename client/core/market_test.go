@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-
 	"github.com/huandu/go-assert"
 	"github.com/shopspring/decimal"
 )

@@ -59,7 +59,7 @@ func main() {
 
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 
-	res, err := chainClient.FetchChainAccountAddressSpotOrders(ctx, marketId, senderAddress.String())
+	res, err := chainClient.FetchChainAccountAddressSpotOrdersV2(ctx, marketId, senderAddress.String())
 	if err != nil {
 		fmt.Println(err)
 	}

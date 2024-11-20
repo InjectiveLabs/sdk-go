@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	chainStreamModule "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	chainStreamModule "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -79,7 +79,7 @@ func main() {
 
 	ctx := context.Background()
 
-	stream, err := chainClient.ChainStream(ctx, req)
+	stream, err := chainClient.ChainStreamV2(ctx, req)
 	if err != nil {
 		panic(err)
 	}

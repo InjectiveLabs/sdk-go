@@ -6,12 +6,14 @@ import (
 )
 
 func IsAllowed(accessConfig types.AccessConfig, actor sdktypes.AccAddress) bool {
-	if accessConfig.Permission == types.AccessTypeAnyOfAddresses {
+	switch accessConfig.Permission {
+	case types.AccessTypeAnyOfAddresses:
 		for _, v := range accessConfig.Addresses {
 			if v == actor.String() {
 				return true
 			}
 		}
+		return false
 	}
 	return false
 }

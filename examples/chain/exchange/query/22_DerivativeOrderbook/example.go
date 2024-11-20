@@ -64,7 +64,7 @@ func main() {
 	limit := uint64(2)
 	limitCumulativeNotional := math.LegacyDec{}
 
-	res, err := chainClient.FetchChainDerivativeOrderbook(ctx, marketId, limit, limitCumulativeNotional)
+	res, err := chainClient.FetchChainDerivativeOrderbookV2(ctx, marketId, limit, limitCumulativeNotional)
 	if err != nil {
 		fmt.Println(err)
 	}

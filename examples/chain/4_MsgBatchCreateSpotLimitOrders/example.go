@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -10,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -61,32 +60,25 @@ func main() {
 		return
 	}
 
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, chainClient)
-	if err != nil {
-		panic(err)
-	}
-
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(22.5)
 
-	order := chainClient.CreateSpotOrder(
+	order := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),
 			MarketId:     marketId,
 			Cid:          uuid.NewString(),
-		},
-		marketsAssistant)
-	msg := new(exchangetypes.MsgBatchCreateSpotLimitOrders)
+		})
+	msg := new(exchangev2types.MsgBatchCreateSpotLimitOrders)
 	msg.Sender = senderAddress.String()
-	msg.Orders = []exchangetypes.SpotOrder{*order}
+	msg.Orders = []exchangev2types.SpotOrder{*order}
 
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 
@@ -95,7 +87,7 @@ func main() {
 		return
 	}
 
-	msgBatchCreateSpotLimitOrdersResponse := exchangetypes.MsgBatchCreateSpotLimitOrdersResponse{}
+	msgBatchCreateSpotLimitOrdersResponse := exchangev2types.MsgBatchCreateSpotLimitOrdersResponse{}
 	err = msgBatchCreateSpotLimitOrdersResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {

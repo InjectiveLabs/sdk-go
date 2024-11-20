@@ -1,4 +1,4 @@
-package types
+package v2
 
 func (b *ConditionalDerivativeOrderBook) HasLimitBuyOrders() bool {
 	return len(b.LimitBuyOrders) > 0

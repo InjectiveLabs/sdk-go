@@ -91,12 +91,25 @@ const (
 	TypeMsgActivateStakeGrant               = "acceptStakeGrant"
 )
 
+type UpdateSpotMarketMessage interface {
+	GetAdmin() string
+	GetMarketId() string
+	GetNewTicker() string
+	GetNewMinPriceTickSize() math.LegacyDec
+	GetNewMinQuantityTickSize() math.LegacyDec
+	GetNewMinNotional() math.LegacyDec
+	HasTickerUpdate() bool
+	HasMinPriceTickSizeUpdate() bool
+	HasMinQuantityTickSizeUpdate() bool
+	HasMinNotionalUpdate() bool
+}
+
 func (msg MsgUpdateParams) Route() string { return RouterKey }
 
 func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 func (msg MsgUpdateParams) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+	if err := ValidateAddress(msg.Authority); err != nil {
 		return errors.Wrap(err, "invalid authority address")
 	}
 
@@ -116,47 +129,23 @@ func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{addr}
 }
 
+// Declaration to validate adherence to interface
+var _ UpdateSpotMarketMessage = &MsgUpdateSpotMarket{}
+
+func (msg MsgUpdateSpotMarket) GetNewMinPriceTickSize() math.LegacyDec {
+	return msg.NewMinPriceTickSize
+}
+
+func (msg MsgUpdateSpotMarket) GetNewMinQuantityTickSize() math.LegacyDec {
+	return msg.NewMinQuantityTickSize
+}
+
+func (msg MsgUpdateSpotMarket) GetNewMinNotional() math.LegacyDec {
+	return msg.NewMinNotional
+}
+
 func (msg *MsgUpdateSpotMarket) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Admin); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Admin)
-	}
-
-	if !IsHexHash(msg.MarketId) {
-		return errors.Wrap(ErrMarketInvalid, msg.MarketId)
-	}
-
-	hasNoUpdate := !msg.HasTickerUpdate() &&
-		!msg.HasMinPriceTickSizeUpdate() &&
-		!msg.HasMinQuantityTickSizeUpdate() &&
-		!msg.HasMinNotionalUpdate()
-
-	if hasNoUpdate {
-		return errors.Wrap(ErrBadField, "no update value present")
-	}
-
-	if len(msg.NewTicker) > MaxTickerLength {
-		return errors.Wrapf(ErrInvalidTicker, "ticker should not exceed %d characters", MaxTickerLength)
-	}
-
-	if msg.HasMinPriceTickSizeUpdate() {
-		if err := ValidateTickSize(msg.NewMinPriceTickSize); err != nil {
-			return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
-		}
-	}
-
-	if msg.HasMinQuantityTickSizeUpdate() {
-		if err := ValidateTickSize(msg.NewMinQuantityTickSize); err != nil {
-			return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
-		}
-	}
-
-	if msg.HasMinNotionalUpdate() {
-		if err := ValidateMinNotional(msg.NewMinNotional); err != nil {
-			return errors.Wrap(ErrInvalidNotional, err.Error())
-		}
-	}
-
-	return nil
+	return UpdateSpotMarketMessageValidateBasic(msg)
 }
 
 func (msg *MsgUpdateSpotMarket) GetSigners() []sdk.AccAddress {
@@ -192,7 +181,7 @@ func (msg *MsgUpdateSpotMarket) HasMinNotionalUpdate() bool {
 }
 
 func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Admin); err != nil {
+	if err := ValidateAddress(msg.Admin); err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Admin)
 	}
 
@@ -298,6 +287,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	if !IsHexHash(o.MarketId) {
 		return errors.Wrap(ErrMarketInvalid, o.MarketId)
 	}
+
 	switch o.OrderType {
 	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_BUY_ATOMIC, OrderType_SELL_ATOMIC:
 		// do nothing
@@ -311,8 +301,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	}
 
 	if o.OrderInfo.FeeRecipient != "" {
-		_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
-		if err != nil {
+		if err := ValidateAddress(o.OrderInfo.FeeRecipient); err != nil {
 			return errors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
 		}
 	}
@@ -377,8 +366,8 @@ func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 		return ErrInvalidTriggerPrice
 	}
 
-	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
-		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
+	if o.OrderType.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
+		!o.OrderType.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return errors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
 	}
 
@@ -560,6 +549,13 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 	}
 	if err := ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(ErrInvalidNotional, err.Error())
+	}
+
+	if msg.BaseDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "base decimals is invalid")
+	}
+	if msg.QuoteDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "quote decimals is invalid")
 	}
 
 	return nil
@@ -1027,7 +1023,7 @@ func NewMsgCreateBinaryOptionsLimitOrder(
 	orderType OrderType,
 	isReduceOnly bool,
 ) *MsgCreateBinaryOptionsLimitOrder {
-	margin := GetRequiredBinaryOptionsOrderMargin(price, quantity, market.OracleScaleFactor, orderType, isReduceOnly)
+	margin := GetRequiredBinaryOptionsOrderMargin(price, quantity, market.OracleScaleFactor, orderType.IsBuy(), isReduceOnly)
 
 	return &MsgCreateBinaryOptionsLimitOrder{
 		Sender: sender.String(),
@@ -1163,6 +1159,35 @@ func (msg MsgCreateDerivativeMarketOrder) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
+func NewMsgCreateBinaryOptionsMarketOrderWithScaleFactor(
+	sender sdk.AccAddress,
+	market *BinaryOptionsMarket,
+	subaccountID string,
+	feeRecipient string,
+	price, quantity math.LegacyDec,
+	orderType OrderType,
+	isReduceOnly bool,
+	scaleFactor uint32,
+) *MsgCreateBinaryOptionsMarketOrder {
+	margin := GetRequiredBinaryOptionsOrderMargin(price, quantity, scaleFactor, orderType.IsBuy(), isReduceOnly)
+
+	return &MsgCreateBinaryOptionsMarketOrder{
+		Sender: sender.String(),
+		Order: DerivativeOrder{
+			MarketId: market.MarketId,
+			OrderInfo: OrderInfo{
+				SubaccountId: subaccountID,
+				FeeRecipient: feeRecipient,
+				Price:        price,
+				Quantity:     quantity,
+			},
+			OrderType:    orderType,
+			Margin:       margin,
+			TriggerPrice: nil,
+		},
+	}
+}
+
 func NewMsgCreateBinaryOptionsMarketOrder(
 	sender sdk.AccAddress,
 	market *BinaryOptionsMarket,
@@ -1172,7 +1197,7 @@ func NewMsgCreateBinaryOptionsMarketOrder(
 	orderType OrderType,
 	isReduceOnly bool,
 ) *MsgCreateBinaryOptionsMarketOrder {
-	margin := GetRequiredBinaryOptionsOrderMargin(price, quantity, market.OracleScaleFactor, orderType, isReduceOnly)
+	margin := GetRequiredBinaryOptionsOrderMargin(price, quantity, market.OracleScaleFactor, orderType.IsBuy(), isReduceOnly)
 
 	return &MsgCreateBinaryOptionsMarketOrder{
 		Sender: sender.String(),
@@ -1852,17 +1877,17 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg is empty")
 	}
 
-	hasDuplicateSpotOrderToCancel := HasDuplicatesOrder(msg.SpotOrdersToCancel)
+	hasDuplicateSpotOrderToCancel := hasDuplicatesOrder(msg.SpotOrdersToCancel)
 	if hasDuplicateSpotOrderToCancel {
 		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate spot order to cancel")
 	}
 
-	hasDuplicateDerivativeOrderToCancel := HasDuplicatesOrder(msg.DerivativeOrdersToCancel)
+	hasDuplicateDerivativeOrderToCancel := hasDuplicatesOrder(msg.DerivativeOrdersToCancel)
 	if hasDuplicateDerivativeOrderToCancel {
 		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate derivative order to cancel")
 	}
 
-	hasDuplicateBinaryOptionsOrderToCancel := HasDuplicatesOrder(msg.BinaryOptionsOrdersToCancel)
+	hasDuplicateBinaryOptionsOrderToCancel := hasDuplicatesOrder(msg.BinaryOptionsOrdersToCancel)
 	if hasDuplicateBinaryOptionsOrderToCancel {
 		return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate binary options order to cancel")
 	}
@@ -2102,4 +2127,28 @@ func (msg *MsgActivateStakeGrant) GetSigners() []sdk.AccAddress {
 
 func (msg *MsgActivateStakeGrant) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func ValidateAddress(address string) error {
+	_, err := sdk.AccAddressFromBech32(address)
+
+	return err
+}
+
+func hasDuplicatesOrder(slice []*OrderData) bool {
+	seenHashes := make(map[string]struct{})
+	seenCids := make(map[string]struct{})
+	for _, item := range slice {
+		var hash, cid string
+		hash, cid = item.GetOrderHash(), item.GetCid()
+		_, hashExists := seenHashes[hash]
+		_, cidExists := seenCids[cid]
+
+		if (hash != "" && hashExists) || (cid != "" && cidExists) {
+			return true
+		}
+		seenHashes[hash] = struct{}{}
+		seenCids[cid] = struct{}{}
+	}
+	return false
 }

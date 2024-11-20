@@ -6,14 +6,12 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
-
-	"github.com/InjectiveLabs/sdk-go/client"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	"github.com/InjectiveLabs/sdk-go/client"
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -59,14 +57,14 @@ func main() {
 		panic(err)
 	}
 
-	grantAuthorization := &exchangetypes.GrantAuthorization{
+	grantAuthorization := &exchangev2types.GrantAuthorization{
 		Grantee: "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
 		Amount:  math.NewIntWithDecimal(1, 18),
 	}
 
-	msg := &exchangetypes.MsgAuthorizeStakeGrants{
+	msg := &exchangev2types.MsgAuthorizeStakeGrants{
 		Sender: senderAddress.String(),
-		Grants: []*exchangetypes.GrantAuthorization{grantAuthorization},
+		Grants: []*exchangev2types.GrantAuthorization{grantAuthorization},
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

@@ -1,7 +1,6 @@
-package types
+package v2
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -46,6 +45,12 @@ func NewStreamResponseMap() *StreamResponseMap {
 	}
 }
 
+func (m *StreamResponseMap) NextTradeEventNumber() (tradeNumber uint64) {
+	currentTradesNumber := m.tradeEventsCounter
+	m.tradeEventsCounter++
+	return currentTradesNumber
+}
+
 func NewChainStreamResponse() *StreamResponse {
 	return &StreamResponse{
 		BankBalances:               []*BankBalance{},
@@ -59,26 +64,4 @@ func NewChainStreamResponse() *StreamResponse {
 		Positions:                  []*Position{},
 		OraclePrices:               []*OraclePrice{},
 	}
-}
-
-func (m *StreamRequest) Validate() error {
-	if m.BankBalancesFilter == nil &&
-		m.SubaccountDepositsFilter == nil &&
-		m.SpotTradesFilter == nil &&
-		m.DerivativeTradesFilter == nil &&
-		m.SpotOrdersFilter == nil &&
-		m.DerivativeOrdersFilter == nil &&
-		m.SpotOrderbooksFilter == nil &&
-		m.DerivativeOrderbooksFilter == nil &&
-		m.PositionsFilter == nil &&
-		m.OraclePriceFilter == nil {
-		return fmt.Errorf("at least one filter must be set")
-	}
-	return nil
-}
-
-func (m *StreamResponseMap) NextTradeEventNumber() (tradeNumber uint64) {
-	currentTradesNumber := m.tradeEventsCounter
-	m.tradeEventsCounter++
-	return currentTradesNumber
 }

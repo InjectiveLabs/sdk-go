@@ -60,7 +60,7 @@ func main() {
 
 	denom := "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5"
 
-	res, err := chainClient.FetchDenomDecimal(ctx, denom)
+	res, err := chainClient.FetchDenomDecimalV2(ctx, denom)
 	if err != nil {
 		fmt.Println(err)
 	}

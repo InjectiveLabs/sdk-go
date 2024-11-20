@@ -4,10 +4,10 @@ import (
 	"strconv"
 
 	"cosmossdk.io/math"
-	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	"github.com/gogo/protobuf/proto"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -16,14 +16,14 @@ func GetRequiredBinaryOptionsOrderMargin(
 	price math.LegacyDec,
 	quantity math.LegacyDec,
 	oracleScaleFactor uint32,
-	orderType OrderType,
+	isBuy bool,
 	isReduceOnly bool,
 ) math.LegacyDec {
 	if isReduceOnly {
 		return math.LegacyZeroDec()
 	}
 
-	if orderType.IsBuy() {
+	if isBuy {
 		return price.Mul(quantity)
 	}
 	return GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor).Sub(price).Mul(quantity)
@@ -80,6 +80,14 @@ func (m *OrderInfo) IsFromDefaultSubaccount() bool {
 	return IsDefaultSubaccountID(common.HexToHash(m.SubaccountId))
 }
 
+func (m *OrderInfo) GetPrice() math.LegacyDec {
+	return m.Price
+}
+
+func (m *OrderInfo) GetQuantity() math.LegacyDec {
+	return m.Quantity
+}
+
 var eip712OrderTypes = apitypes.Types{
 	"EIP712Domain": {
 		{Name: "name", Type: "string"},
@@ -111,7 +119,7 @@ var eip712OrderTypes = apitypes.Types{
 	},
 }
 
-func computeOrderHash(marketId, subaccountId, feeRecipient, price, quantity, margin, triggerPrice, orderType string, nonce uint32) (common.Hash, error) {
+func ComputeOrderHash(marketId, subaccountId, feeRecipient, price, quantity, margin, triggerPrice, orderType string, nonce uint32) (common.Hash, error) {
 	chainID := ethmath.NewHexOrDecimal256(888)
 	var domain = apitypes.TypedDataDomain{
 		Name:              "Injective Protocol",
