@@ -3,6 +3,7 @@ package chain
 import (
 	"context"
 	"errors"
+	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -243,6 +244,10 @@ func (c *MockChainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType
 }
 
 func (c *MockChainClient) ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error) {
+	return nil, nil
+}
+
+func (c *MockChainClient) ChainStreamV2(ctx context.Context, req chainstreamv2types.StreamRequest) (chainstreamv2types.Stream_StreamV2Client, error) {
 	return nil, nil
 }
 

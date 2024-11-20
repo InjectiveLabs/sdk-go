@@ -1,6 +1,8 @@
-package types
+package v2
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func NewFullStreamRequest() *StreamRequest {
 	return &StreamRequest{

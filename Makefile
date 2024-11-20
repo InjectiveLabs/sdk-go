@@ -61,6 +61,8 @@ copy-chain-types:
 	rm -rf chain/wasmx/types/*test.go  rm -rf chain/wasmx/types/*gw.go
 	cp ../injective-core/injective-chain/stream/types/*.go chain/stream/types
 	rm -rf chain/stream/types/*test.go  rm -rf chain/stream/types/*gw.go
+	cp ../injective-core/injective-chain/stream/types/v2/*.go chain/stream/types/v2
+	rm -rf chain/stream/types/v2/*test.go  rm -rf chain/stream/types/v2/*gw.go
 	cp ../injective-core/injective-chain/types/*.go chain/types
 	rm -rf chain/types/*test.go rm -rf chain/types/*gw.go
 
@@ -69,6 +71,7 @@ copy-chain-types:
 	@echo "👉 Replace injective-core/injective-chain/codec/types with sdk-go/chain/codec/types"
 	@echo "👉 Replace injective-core/injective-chain/types with sdk-go/chain/types"
 	@echo "👉 Replace injective-core/injective-chain/crypto with sdk-go/chain/crypto"
+	@echo "👉 Replace injective-core/injective-chain/stream/types with sdk-go/chain/stream/types"
 
 tests:
 	go test -race ./client/... ./ethereum/...

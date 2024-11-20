@@ -41,39 +41,6 @@ var (
 	KeyPostOnlyModeHeightThreshold                 = []byte("PostOnlyModeHeightThreshold")
 )
 
-func NewV1ExchangeParamsFromV2(params Params) types.Params {
-	return types.Params{
-		SpotMarketInstantListingFee:                  params.SpotMarketInstantListingFee,
-		DerivativeMarketInstantListingFee:            params.DerivativeMarketInstantListingFee,
-		DefaultSpotMakerFeeRate:                      params.DefaultSpotMakerFeeRate,
-		DefaultSpotTakerFeeRate:                      params.DefaultSpotTakerFeeRate,
-		DefaultDerivativeMakerFeeRate:                params.DefaultDerivativeMakerFeeRate,
-		DefaultDerivativeTakerFeeRate:                params.DefaultDerivativeTakerFeeRate,
-		DefaultInitialMarginRatio:                    params.DefaultInitialMarginRatio,
-		DefaultMaintenanceMarginRatio:                params.DefaultMaintenanceMarginRatio,
-		DefaultFundingInterval:                       params.DefaultFundingInterval,
-		FundingMultiple:                              params.FundingMultiple,
-		RelayerFeeShareRate:                          params.RelayerFeeShareRate,
-		DefaultHourlyFundingRateCap:                  params.DefaultHourlyFundingRateCap,
-		DefaultHourlyInterestRate:                    params.DefaultHourlyInterestRate,
-		MaxDerivativeOrderSideCount:                  params.MaxDerivativeOrderSideCount,
-		InjRewardStakedRequirementThreshold:          params.InjRewardStakedRequirementThreshold,
-		TradingRewardsVestingDuration:                params.TradingRewardsVestingDuration,
-		LiquidatorRewardShareRate:                    params.LiquidatorRewardShareRate,
-		BinaryOptionsMarketInstantListingFee:         params.BinaryOptionsMarketInstantListingFee,
-		AtomicMarketOrderAccessLevel:                 types.AtomicMarketOrderAccessLevel(params.AtomicMarketOrderAccessLevel),
-		SpotAtomicMarketOrderFeeMultiplier:           params.SpotAtomicMarketOrderFeeMultiplier,
-		DerivativeAtomicMarketOrderFeeMultiplier:     params.DerivativeAtomicMarketOrderFeeMultiplier,
-		BinaryOptionsAtomicMarketOrderFeeMultiplier:  params.BinaryOptionsAtomicMarketOrderFeeMultiplier,
-		MinimalProtocolFeeRate:                       params.MinimalProtocolFeeRate,
-		IsInstantDerivativeMarketLaunchEnabled:       params.IsInstantDerivativeMarketLaunchEnabled,
-		PostOnlyModeHeightThreshold:                  params.PostOnlyModeHeightThreshold,
-		MarginDecreasePriceTimestampThresholdSeconds: params.MarginDecreasePriceTimestampThresholdSeconds,
-		ExchangeAdmins:                               params.ExchangeAdmins,
-		InjAuctionMaxCap:                             params.InjAuctionMaxCap,
-	}
-}
-
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{

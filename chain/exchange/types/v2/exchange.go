@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-	v1 "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -201,28 +200,4 @@ func (al AtomicMarketOrderAccessLevel) IsValid() bool {
 	default:
 		return false
 	}
-}
-
-func NewV1TradeRecordsFromV2(market MarketInterface, tradeRecords TradeRecords) v1.TradeRecords {
-	v1TradeRecords := v1.TradeRecords{
-		MarketId:           tradeRecords.MarketId,
-		LatestTradeRecords: make([]*v1.TradeRecord, 0, len(tradeRecords.LatestTradeRecords)),
-	}
-
-	for _, tradeRecord := range tradeRecords.LatestTradeRecords {
-		v1TradeRecord := NewV1TradeRecordFromV2(market, *tradeRecord)
-		v1TradeRecords.LatestTradeRecords = append(v1TradeRecords.LatestTradeRecords, &v1TradeRecord)
-	}
-
-	return v1TradeRecords
-}
-
-func NewV1TradeRecordFromV2(market MarketInterface, record TradeRecord) v1.TradeRecord {
-	v1TradeRecord := v1.TradeRecord{
-		Timestamp: record.Timestamp,
-		Price:     market.PriceToChainFormat(record.Price),
-		Quantity:  market.QuantityToChainFormat(record.Quantity),
-	}
-
-	return v1TradeRecord
 }

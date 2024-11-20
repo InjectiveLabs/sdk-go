@@ -388,42 +388,6 @@ func (o *DerivativeOrder) IsVanilla() bool {
 	return !o.IsReduceOnly()
 }
 
-func NewV1DerivativeMarketOrderFromV2(market DerivativeMarket, order DerivativeMarketOrder) v1.DerivativeMarketOrder {
-	v1OrderInfo := NewV1OrderInfoFromV2(&market, order.OrderInfo)
-	v1Order := v1.DerivativeMarketOrder{
-		OrderInfo:  v1OrderInfo,
-		OrderType:  v1.OrderType(order.OrderType),
-		Margin:     market.NotionalToChainFormat(order.Margin),
-		MarginHold: market.NotionalToChainFormat(order.MarginHold),
-		OrderHash:  order.OrderHash,
-	}
-
-	if order.TriggerPrice != nil {
-		chainFormatTriggerPrice := market.PriceToChainFormat(*order.TriggerPrice)
-		v1Order.TriggerPrice = &chainFormatTriggerPrice
-	}
-
-	return v1Order
-}
-
-func NewV1DerivativeLimitOrderFromV2(market MarketInterface, order DerivativeLimitOrder) v1.DerivativeLimitOrder {
-	v1OrderInfo := NewV1OrderInfoFromV2(market, order.OrderInfo)
-	v1Order := v1.DerivativeLimitOrder{
-		OrderInfo: v1OrderInfo,
-		OrderType: v1.OrderType(order.OrderType),
-		Margin:    market.NotionalToChainFormat(order.Margin),
-		Fillable:  order.Fillable,
-		OrderHash: order.OrderHash,
-	}
-
-	if order.TriggerPrice != nil {
-		chainFormatTriggerPrice := market.PriceToChainFormat(*order.TriggerPrice)
-		v1Order.TriggerPrice = &chainFormatTriggerPrice
-	}
-
-	return v1Order
-}
-
 func (o *DerivativeMarketOrder) IsVanilla() bool {
 	return !o.IsReduceOnly()
 }
@@ -482,24 +446,6 @@ func (m *DerivativeLimitOrder) Cid() string {
 
 func (o *DerivativeMarketOrder) Cid() string {
 	return o.OrderInfo.GetCid()
-}
-
-func NewV2DerivativeOrderFromV1(market MarketInterface, order v1.DerivativeOrder) *DerivativeOrder {
-	humanMargin := market.NotionalFromChainFormat(order.Margin)
-	v2OrderInfo := NewV2OrderInfoFromV1(market, order.OrderInfo)
-	v2Order := DerivativeOrder{
-		MarketId:  order.MarketId,
-		OrderInfo: *v2OrderInfo,
-		OrderType: OrderType(order.OrderType),
-		Margin:    humanMargin,
-	}
-
-	if order.TriggerPrice != nil && !order.TriggerPrice.IsNil() {
-		humanPrice := market.PriceFromChainFormat(*order.TriggerPrice)
-		v2Order.TriggerPrice = &humanPrice
-	}
-
-	return &v2Order
 }
 
 func (o *DerivativeOrder) SubaccountID() common.Hash {

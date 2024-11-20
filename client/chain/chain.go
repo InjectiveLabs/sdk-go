@@ -42,6 +42,7 @@ import (
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
@@ -144,7 +145,9 @@ type ChainClient interface {
 	// Deprecated: use the chain stream instead
 	StreamOrderbookUpdateEventsWithWebsocket(orderbookType OrderbookType, marketIDs []string, websocket *rpchttp.HTTP, orderbookCh chan exchangetypes.Orderbook)
 
+	// Deprecated: use ChainStreamV2 instead
 	ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error)
+	ChainStreamV2(ctx context.Context, req chainstreamv2types.StreamRequest) (chainstreamv2types.Stream_StreamV2Client, error)
 
 	// get tx from chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
@@ -452,6 +455,7 @@ type chainClient struct {
 	authzQueryClient         authztypes.QueryClient
 	bankQueryClient          banktypes.QueryClient
 	chainStreamClient        chainstreamtypes.StreamClient
+	chainStreamV2Client      chainstreamv2types.StreamClient
 	distributionQueryClient  distributiontypes.QueryClient
 	exchangeQueryClient      exchangetypes.QueryClient
 	exchangeV2QueryClient    exchangev2types.QueryClient
@@ -1633,8 +1637,20 @@ func (c *chainClient) GetTx(ctx context.Context, txHash string) (*txtypes.GetTxR
 	return res, err
 }
 
+// Deprecated: use ChainStreamV2 instead
 func (c *chainClient) ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error) {
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ChainCookieAssistant, c.chainStreamClient.Stream, &req)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
+}
+
+func (c *chainClient) ChainStreamV2(ctx context.Context, req chainstreamv2types.StreamRequest) (chainstreamv2types.Stream_StreamV2Client, error) {
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ChainCookieAssistant, c.chainStreamV2Client.StreamV2, &req)
 
 	if err != nil {
 		fmt.Println(err)

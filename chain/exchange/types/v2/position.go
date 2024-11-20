@@ -7,25 +7,6 @@ import (
 	v1 "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 )
 
-func NewV1DerivativePositonFromV2(market MarketInterface, position DerivativePosition) v1.DerivativePosition {
-	v1Position := NewV1PositionFromV2(market, *position.Position)
-	return v1.DerivativePosition{
-		SubaccountId: position.SubaccountId,
-		MarketId:     position.MarketId,
-		Position:     &v1Position,
-	}
-}
-
-func NewV1PositionFromV2(market MarketInterface, position Position) v1.Position {
-	return v1.Position{
-		IsLong:                 position.IsLong,
-		Quantity:               market.QuantityToChainFormat(position.Quantity),
-		EntryPrice:             market.PriceToChainFormat(position.EntryPrice),
-		Margin:                 market.NotionalToChainFormat(position.Margin),
-		CumulativeFundingEntry: market.NotionalFromChainFormat(position.CumulativeFundingEntry),
-	}
-}
-
 func (p *DerivativePosition) Copy() *DerivativePosition {
 	return &DerivativePosition{
 		SubaccountId: p.SubaccountId,

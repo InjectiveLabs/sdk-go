@@ -1,7 +1,6 @@
 package v2
 
 import (
-	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"os"
 	"sort"
 	"strings"
@@ -155,11 +154,4 @@ func (l *Level) GetPrice() math.LegacyDec {
 
 func (l *Level) GetQuantity() math.LegacyDec {
 	return l.Q
-}
-
-func NewV1LevelFromV2(market MarketInterface, level *Level) *types.Level {
-	return &types.Level{
-		P: market.PriceToChainFormat(level.P),
-		Q: market.QuantityToChainFormat(level.Q),
-	}
 }

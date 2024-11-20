@@ -6,7 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	v1 "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 )
 
 func (t OrderType) IsBuy() bool {
@@ -46,19 +45,6 @@ func (t OrderType) IsAtomic() bool {
 		return true
 	}
 	return false
-}
-
-func NewV2OrderInfoFromV1(market MarketInterface, orderInfo v1.OrderInfo) *OrderInfo {
-	humanPrice := market.PriceFromChainFormat(orderInfo.Price)
-	humanQuantity := market.QuantityFromChainFormat(orderInfo.Quantity)
-
-	return &OrderInfo{
-		SubaccountId: orderInfo.SubaccountId,
-		FeeRecipient: orderInfo.FeeRecipient,
-		Price:        humanPrice,
-		Quantity:     humanQuantity,
-		Cid:          orderInfo.Cid,
-	}
 }
 
 func (m *OrderInfo) GetNotional() math.LegacyDec {

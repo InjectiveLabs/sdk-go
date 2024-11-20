@@ -81,39 +81,6 @@ func (o *SpotMarketOrder) SdkAccAddress() sdk.AccAddress {
 	return o.SubaccountID().Bytes()[:common.AddressLength]
 }
 
-func NewV1SpotLimitOrderFromV2(market SpotMarket, order SpotLimitOrder) types.SpotLimitOrder {
-	v1OrderInfo := NewV1OrderInfoFromV2(&market, order.OrderInfo)
-	v1Order := types.SpotLimitOrder{
-		OrderInfo: v1OrderInfo,
-		OrderType: types.OrderType(order.OrderType),
-		Fillable:  market.QuantityToChainFormat(order.Fillable),
-		OrderHash: order.OrderHash,
-	}
-
-	if order.TriggerPrice != nil {
-		chainFormatTriggerPrice := market.PriceToChainFormat(*order.TriggerPrice)
-		v1Order.TriggerPrice = &chainFormatTriggerPrice
-	}
-
-	return v1Order
-}
-
-func NewV2SpotOrderFromV1(market MarketInterface, order types.SpotOrder) *SpotOrder {
-	v2OrderInfo := NewV2OrderInfoFromV1(market, order.OrderInfo)
-	v2Order := SpotOrder{
-		MarketId:  order.MarketId,
-		OrderInfo: *v2OrderInfo,
-		OrderType: OrderType(order.OrderType),
-	}
-
-	if order.TriggerPrice != nil && !order.TriggerPrice.IsNil() {
-		humanPrice := market.PriceFromChainFormat(*order.TriggerPrice)
-		v2Order.TriggerPrice = &humanPrice
-	}
-
-	return &v2Order
-}
-
 func (m *SpotLimitOrder) SdkAccAddress() sdk.AccAddress {
 	return m.SubaccountID().Bytes()[:common.AddressLength]
 }
@@ -207,7 +174,9 @@ func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (math.Legac
 	return balanceHold, denom
 }
 
-func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (balanceHold math.LegacyDec, denom string) {
+func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket, isTransient bool) (math.LegacyDec, string) {
+	var denom string
+	var balanceHold math.LegacyDec
 	if m.IsBuy() {
 		var tradeFeeRate math.LegacyDec
 

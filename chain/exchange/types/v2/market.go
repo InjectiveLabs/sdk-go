@@ -24,45 +24,6 @@ type MarketInterface interface {
 	NotionalToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec
 }
 
-func NewV1MarketVolumeFromV2(market MarketInterface, v2MarketVolume MarketVolume) types.MarketVolume {
-	return types.MarketVolume{
-		MarketId: v2MarketVolume.MarketId,
-		Volume:   NewV1VolumeRecordFromV2(market, v2MarketVolume.Volume),
-	}
-}
-
-func NewV1VolumeRecordFromV2(market MarketInterface, v2VolumeRecord VolumeRecord) types.VolumeRecord {
-	chainFormatMakerVolume := market.NotionalToChainFormat(v2VolumeRecord.MakerVolume)
-	chainFormatTakerVolume := market.NotionalToChainFormat(v2VolumeRecord.TakerVolume)
-	return types.VolumeRecord{
-		MakerVolume: chainFormatMakerVolume,
-		TakerVolume: chainFormatTakerVolume,
-	}
-}
-
-func NewV1SpotMarketFromV2(spotMarket SpotMarket) types.SpotMarket {
-	chainFormattedMinPriceTickSize := spotMarket.PriceToChainFormat(spotMarket.MinPriceTickSize)
-	chainFormattedMinQuantityTickSize := spotMarket.QuantityToChainFormat(spotMarket.MinQuantityTickSize)
-	chainFormattedMinNotional := spotMarket.NotionalToChainFormat(spotMarket.MinNotional)
-	return types.SpotMarket{
-		Ticker:              spotMarket.Ticker,
-		BaseDenom:           spotMarket.BaseDenom,
-		QuoteDenom:          spotMarket.QuoteDenom,
-		MakerFeeRate:        spotMarket.MakerFeeRate,
-		TakerFeeRate:        spotMarket.TakerFeeRate,
-		RelayerFeeShareRate: spotMarket.RelayerFeeShareRate,
-		MarketId:            spotMarket.MarketId,
-		Status:              types.MarketStatus(spotMarket.Status),
-		MinPriceTickSize:    chainFormattedMinPriceTickSize,
-		MinQuantityTickSize: chainFormattedMinQuantityTickSize,
-		MinNotional:         chainFormattedMinNotional,
-		Admin:               spotMarket.Admin,
-		AdminPermissions:    spotMarket.AdminPermissions,
-		BaseDecimals:        spotMarket.BaseDecimals,
-		QuoteDecimals:       spotMarket.QuoteDecimals,
-	}
-}
-
 func (m *SpotMarket) IsActive() bool {
 	return m.Status == MarketStatus_Active
 }
@@ -138,24 +99,6 @@ func (m *SpotMarket) NotionalToChainFormat(humanReadableValue math.LegacyDec) ma
 	return types.NotionalToChainFormat(humanReadableValue, m.QuoteDecimals)
 }
 
-func NewV1ExpiryFuturesMarketInfoStateFromV2(market DerivativeMarket, marketInfoState ExpiryFuturesMarketInfoState) types.ExpiryFuturesMarketInfoState {
-	v1MarketInfo := NewV1ExpiryFuturesMarketInfoFromV2(market, *marketInfoState.MarketInfo)
-	return types.ExpiryFuturesMarketInfoState{
-		MarketId:   marketInfoState.MarketId,
-		MarketInfo: &v1MarketInfo,
-	}
-}
-
-func NewV1ExpiryFuturesMarketInfoFromV2(market DerivativeMarket, marketInfo ExpiryFuturesMarketInfo) types.ExpiryFuturesMarketInfo {
-	return types.ExpiryFuturesMarketInfo{
-		MarketId:                           marketInfo.MarketId,
-		ExpirationTimestamp:                marketInfo.ExpirationTimestamp,
-		TwapStartTimestamp:                 marketInfo.TwapStartTimestamp,
-		ExpirationTwapStartPriceCumulative: market.PriceToChainFormat(marketInfo.ExpirationTwapStartPriceCumulative),
-		SettlementPrice:                    market.PriceToChainFormat(marketInfo.SettlementPrice),
-	}
-}
-
 func (m *ExpiryFuturesMarketInfo) IsPremature(currBlockTime int64) bool {
 	return currBlockTime < m.TwapStartTimestamp
 }
@@ -166,31 +109,6 @@ func (m *ExpiryFuturesMarketInfo) IsStartingMaturation(currBlockTime int64) bool
 
 func (m *ExpiryFuturesMarketInfo) IsMatured(currBlockTime int64) bool {
 	return currBlockTime >= m.ExpirationTimestamp
-}
-
-func NewV1DerivativeMarketFromV2(derivativeMarket DerivativeMarket) types.DerivativeMarket {
-	return types.DerivativeMarket{
-		Ticker:                 derivativeMarket.Ticker,
-		OracleBase:             derivativeMarket.OracleBase,
-		OracleQuote:            derivativeMarket.OracleQuote,
-		OracleType:             derivativeMarket.OracleType,
-		OracleScaleFactor:      derivativeMarket.OracleScaleFactor + derivativeMarket.QuoteDecimals,
-		QuoteDenom:             derivativeMarket.QuoteDenom,
-		MarketId:               derivativeMarket.MarketId,
-		InitialMarginRatio:     derivativeMarket.InitialMarginRatio,
-		MaintenanceMarginRatio: derivativeMarket.MaintenanceMarginRatio,
-		MakerFeeRate:           derivativeMarket.MakerFeeRate,
-		TakerFeeRate:           derivativeMarket.TakerFeeRate,
-		RelayerFeeShareRate:    derivativeMarket.RelayerFeeShareRate,
-		IsPerpetual:            derivativeMarket.IsPerpetual,
-		Status:                 types.MarketStatus(derivativeMarket.Status),
-		MinPriceTickSize:       derivativeMarket.PriceToChainFormat(derivativeMarket.MinPriceTickSize),
-		MinQuantityTickSize:    derivativeMarket.QuantityToChainFormat(derivativeMarket.MinQuantityTickSize),
-		MinNotional:            derivativeMarket.NotionalToChainFormat(derivativeMarket.MinNotional),
-		Admin:                  derivativeMarket.Admin,
-		AdminPermissions:       derivativeMarket.AdminPermissions,
-		QuoteDecimals:          derivativeMarket.QuoteDecimals,
-	}
 }
 
 func (m *DerivativeMarket) MarketID() common.Hash {
@@ -303,37 +221,6 @@ func (m *DerivativeMarket) NotionalToChainFormat(humanReadableValue math.LegacyD
 /// Binary Options Markets
 //
 
-func NewV1BinaryOptionsMarketFromV2(market BinaryOptionsMarket) types.BinaryOptionsMarket {
-	v1Market := types.BinaryOptionsMarket{
-		Ticker:              market.Ticker,
-		OracleSymbol:        market.OracleSymbol,
-		OracleProvider:      market.OracleProvider,
-		OracleType:          market.OracleType,
-		OracleScaleFactor:   market.OracleScaleFactor + market.QuoteDecimals,
-		ExpirationTimestamp: market.ExpirationTimestamp,
-		SettlementTimestamp: market.SettlementTimestamp,
-		Admin:               market.Admin,
-		QuoteDenom:          market.QuoteDenom,
-		MarketId:            market.MarketId,
-		MakerFeeRate:        market.MakerFeeRate,
-		TakerFeeRate:        market.TakerFeeRate,
-		RelayerFeeShareRate: market.RelayerFeeShareRate,
-		Status:              types.MarketStatus(market.Status),
-		MinPriceTickSize:    market.PriceToChainFormat(market.MinPriceTickSize),
-		MinQuantityTickSize: market.QuantityToChainFormat(market.MinQuantityTickSize),
-		MinNotional:         market.NotionalToChainFormat(market.MinNotional),
-		AdminPermissions:    market.AdminPermissions,
-		QuoteDecimals:       market.QuoteDecimals,
-	}
-
-	if market.SettlementPrice != nil {
-		chainFormatSettlementPrice := market.PriceToChainFormat(*market.SettlementPrice)
-		v1Market.SettlementPrice = &chainFormatSettlementPrice
-	}
-
-	return v1Market
-}
-
 func (m *BinaryOptionsMarket) GetMarketType() types.MarketType {
 	return types.MarketType_BinaryOption
 }
@@ -430,27 +317,4 @@ func (m *BinaryOptionsMarket) QuantityToChainFormat(humanReadableValue math.Lega
 
 func (m *BinaryOptionsMarket) NotionalToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec {
 	return types.NotionalToChainFormat(humanReadableValue, m.QuoteDecimals)
-}
-
-func NewV1PerpetualMarketFundingStateFromV2(market DerivativeMarket, fundingState PerpetualMarketFundingState) types.PerpetualMarketFundingState {
-	v1Funding := NewV1PerpetualMarketFundingFromV2(market, *fundingState.Funding)
-	return types.PerpetualMarketFundingState{
-		MarketId: fundingState.MarketId,
-		Funding:  &v1Funding,
-	}
-}
-
-func NewV1PerpetualMarketFundingFromV2(market DerivativeMarket, funding PerpetualMarketFunding) types.PerpetualMarketFunding {
-	return types.PerpetualMarketFunding{
-		CumulativeFunding: market.NotionalToChainFormat(funding.CumulativeFunding),
-		CumulativePrice:   market.PriceToChainFormat(funding.CumulativePrice),
-		LastTimestamp:     funding.LastTimestamp,
-	}
-}
-
-func NewV1DerivativeMarketSettlementInfoFromV2(market DerivativeMarket, settlementInfo DerivativeMarketSettlementInfo) types.DerivativeMarketSettlementInfo {
-	return types.DerivativeMarketSettlementInfo{
-		MarketId:        settlementInfo.MarketId,
-		SettlementPrice: market.PriceToChainFormat(settlementInfo.SettlementPrice),
-	}
 }
