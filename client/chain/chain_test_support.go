@@ -3,7 +3,6 @@ package chain
 import (
 	"context"
 	"errors"
-	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -29,6 +28,7 @@ import (
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
