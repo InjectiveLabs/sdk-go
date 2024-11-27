@@ -61,6 +61,10 @@ copy-chain-types:
 	rm -rf chain/stream/types/*test.go  rm -rf chain/stream/types/*gw.go
 	cp ../injective-core/injective-chain/types/*.go chain/types
 	rm -rf chain/types/*test.go rm -rf chain/types/*gw.go
+	cp ../injective-core/injective-chain/modules/evm/types/*.go chain/evm/types
+	rm -rf chain/evm/types/*test.go  rm -rf chain/evm/types/*gw.go
+	cp ../injective-core/injective-chain/modules/feemarket/types/*.go chain/feemarket/types
+	rm -rf chain/feemarket/types/*test.go  rm -rf chain/feemarket/types/*gw.go
 
 	@echo "👉 Replace injective-core/injective-chain/modules with sdk-go/chain"
 	@echo "👉 Replace injective-core/injective-chain/codec with sdk-go/chain/codec"
