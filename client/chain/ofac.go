@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultOfacListURL = "https://raw.githubusercontent.com/InjectiveLabs/injective-lists/refs/heads/master/json/wallets/ofac.json"
+	DefaultOfacListURL = "https://raw.githubusercontent.com/InjectiveLabs/injective-lists/refs/heads/master/json/wallets/ofacAndRestricted.json"
 )
 
 var (
