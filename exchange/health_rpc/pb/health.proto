@@ -38,4 +38,6 @@ message HealthStatus {
 	sint32 horacle_height = 3;
 	// block timestamp from Horacle service.
 	sint32 horacle_timestamp = 4;
+	// Migration version of the database.
+	sint32 migration_last_version = 5;
 }

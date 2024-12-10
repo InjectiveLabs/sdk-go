@@ -25,23 +25,23 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-type EventCreateTFDenom struct {
+type EventCreateDenom struct {
 	Account string `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
 	Denom   string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
-func (m *EventCreateTFDenom) Reset()         { *m = EventCreateTFDenom{} }
-func (m *EventCreateTFDenom) String() string { return proto.CompactTextString(m) }
-func (*EventCreateTFDenom) ProtoMessage()    {}
-func (*EventCreateTFDenom) Descriptor() ([]byte, []int) {
+func (m *EventCreateDenom) Reset()         { *m = EventCreateDenom{} }
+func (m *EventCreateDenom) String() string { return proto.CompactTextString(m) }
+func (*EventCreateDenom) ProtoMessage()    {}
+func (*EventCreateDenom) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b9fd0c5434c2a5b7, []int{0}
 }
-func (m *EventCreateTFDenom) XXX_Unmarshal(b []byte) error {
+func (m *EventCreateDenom) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventCreateTFDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventCreateDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventCreateTFDenom.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventCreateDenom.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -51,49 +51,50 @@ func (m *EventCreateTFDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-func (m *EventCreateTFDenom) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventCreateTFDenom.Merge(m, src)
+func (m *EventCreateDenom) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventCreateDenom.Merge(m, src)
 }
-func (m *EventCreateTFDenom) XXX_Size() int {
+func (m *EventCreateDenom) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventCreateTFDenom) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventCreateTFDenom.DiscardUnknown(m)
+func (m *EventCreateDenom) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventCreateDenom.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventCreateTFDenom proto.InternalMessageInfo
+var xxx_messageInfo_EventCreateDenom proto.InternalMessageInfo
 
-func (m *EventCreateTFDenom) GetAccount() string {
+func (m *EventCreateDenom) GetAccount() string {
 	if m != nil {
 		return m.Account
 	}
 	return ""
 }
 
-func (m *EventCreateTFDenom) GetDenom() string {
+func (m *EventCreateDenom) GetDenom() string {
 	if m != nil {
 		return m.Denom
 	}
 	return ""
 }
 
-type EventMintTFDenom struct {
-	RecipientAddress string     `protobuf:"bytes,1,opt,name=recipient_address,json=recipientAddress,proto3" json:"recipient_address,omitempty"`
-	Amount           types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount"`
+type EventMint struct {
+	Minter   string     `protobuf:"bytes,1,opt,name=minter,proto3" json:"minter,omitempty"`
+	Amount   types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount"`
+	Receiver string     `protobuf:"bytes,3,opt,name=receiver,proto3" json:"receiver,omitempty"`
 }
 
-func (m *EventMintTFDenom) Reset()         { *m = EventMintTFDenom{} }
-func (m *EventMintTFDenom) String() string { return proto.CompactTextString(m) }
-func (*EventMintTFDenom) ProtoMessage()    {}
-func (*EventMintTFDenom) Descriptor() ([]byte, []int) {
+func (m *EventMint) Reset()         { *m = EventMint{} }
+func (m *EventMint) String() string { return proto.CompactTextString(m) }
+func (*EventMint) ProtoMessage()    {}
+func (*EventMint) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b9fd0c5434c2a5b7, []int{1}
 }
-func (m *EventMintTFDenom) XXX_Unmarshal(b []byte) error {
+func (m *EventMint) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventMintTFDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventMint) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventMintTFDenom.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventMint.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -103,49 +104,57 @@ func (m *EventMintTFDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-func (m *EventMintTFDenom) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventMintTFDenom.Merge(m, src)
+func (m *EventMint) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventMint.Merge(m, src)
 }
-func (m *EventMintTFDenom) XXX_Size() int {
+func (m *EventMint) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventMintTFDenom) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventMintTFDenom.DiscardUnknown(m)
+func (m *EventMint) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventMint.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventMintTFDenom proto.InternalMessageInfo
+var xxx_messageInfo_EventMint proto.InternalMessageInfo
 
-func (m *EventMintTFDenom) GetRecipientAddress() string {
+func (m *EventMint) GetMinter() string {
 	if m != nil {
-		return m.RecipientAddress
+		return m.Minter
 	}
 	return ""
 }
 
-func (m *EventMintTFDenom) GetAmount() types.Coin {
+func (m *EventMint) GetAmount() types.Coin {
 	if m != nil {
 		return m.Amount
 	}
 	return types.Coin{}
 }
 
-type EventBurnDenom struct {
-	BurnerAddress string     `protobuf:"bytes,1,opt,name=burner_address,json=burnerAddress,proto3" json:"burner_address,omitempty"`
-	Amount        types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount"`
+func (m *EventMint) GetReceiver() string {
+	if m != nil {
+		return m.Receiver
+	}
+	return ""
 }
 
-func (m *EventBurnDenom) Reset()         { *m = EventBurnDenom{} }
-func (m *EventBurnDenom) String() string { return proto.CompactTextString(m) }
-func (*EventBurnDenom) ProtoMessage()    {}
-func (*EventBurnDenom) Descriptor() ([]byte, []int) {
+type EventBurn struct {
+	Burner   string     `protobuf:"bytes,1,opt,name=burner,proto3" json:"burner,omitempty"`
+	Amount   types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount"`
+	BurnFrom string     `protobuf:"bytes,3,opt,name=burn_from,json=burnFrom,proto3" json:"burn_from,omitempty"`
+}
+
+func (m *EventBurn) Reset()         { *m = EventBurn{} }
+func (m *EventBurn) String() string { return proto.CompactTextString(m) }
+func (*EventBurn) ProtoMessage()    {}
+func (*EventBurn) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b9fd0c5434c2a5b7, []int{2}
 }
-func (m *EventBurnDenom) XXX_Unmarshal(b []byte) error {
+func (m *EventBurn) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventBurnDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventBurn) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventBurnDenom.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventBurn.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -155,49 +164,56 @@ func (m *EventBurnDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-func (m *EventBurnDenom) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventBurnDenom.Merge(m, src)
+func (m *EventBurn) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventBurn.Merge(m, src)
 }
-func (m *EventBurnDenom) XXX_Size() int {
+func (m *EventBurn) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventBurnDenom) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventBurnDenom.DiscardUnknown(m)
+func (m *EventBurn) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventBurn.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventBurnDenom proto.InternalMessageInfo
+var xxx_messageInfo_EventBurn proto.InternalMessageInfo
 
-func (m *EventBurnDenom) GetBurnerAddress() string {
+func (m *EventBurn) GetBurner() string {
 	if m != nil {
-		return m.BurnerAddress
+		return m.Burner
 	}
 	return ""
 }
 
-func (m *EventBurnDenom) GetAmount() types.Coin {
+func (m *EventBurn) GetAmount() types.Coin {
 	if m != nil {
 		return m.Amount
 	}
 	return types.Coin{}
 }
 
-type EventChangeTFAdmin struct {
+func (m *EventBurn) GetBurnFrom() string {
+	if m != nil {
+		return m.BurnFrom
+	}
+	return ""
+}
+
+type EventChangeAdmin struct {
 	Denom           string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 	NewAdminAddress string `protobuf:"bytes,2,opt,name=new_admin_address,json=newAdminAddress,proto3" json:"new_admin_address,omitempty"`
 }
 
-func (m *EventChangeTFAdmin) Reset()         { *m = EventChangeTFAdmin{} }
-func (m *EventChangeTFAdmin) String() string { return proto.CompactTextString(m) }
-func (*EventChangeTFAdmin) ProtoMessage()    {}
-func (*EventChangeTFAdmin) Descriptor() ([]byte, []int) {
+func (m *EventChangeAdmin) Reset()         { *m = EventChangeAdmin{} }
+func (m *EventChangeAdmin) String() string { return proto.CompactTextString(m) }
+func (*EventChangeAdmin) ProtoMessage()    {}
+func (*EventChangeAdmin) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b9fd0c5434c2a5b7, []int{3}
 }
-func (m *EventChangeTFAdmin) XXX_Unmarshal(b []byte) error {
+func (m *EventChangeAdmin) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventChangeTFAdmin) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventChangeAdmin) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventChangeTFAdmin.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventChangeAdmin.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -207,49 +223,49 @@ func (m *EventChangeTFAdmin) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-func (m *EventChangeTFAdmin) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventChangeTFAdmin.Merge(m, src)
+func (m *EventChangeAdmin) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventChangeAdmin.Merge(m, src)
 }
-func (m *EventChangeTFAdmin) XXX_Size() int {
+func (m *EventChangeAdmin) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventChangeTFAdmin) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventChangeTFAdmin.DiscardUnknown(m)
+func (m *EventChangeAdmin) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventChangeAdmin.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventChangeTFAdmin proto.InternalMessageInfo
+var xxx_messageInfo_EventChangeAdmin proto.InternalMessageInfo
 
-func (m *EventChangeTFAdmin) GetDenom() string {
+func (m *EventChangeAdmin) GetDenom() string {
 	if m != nil {
 		return m.Denom
 	}
 	return ""
 }
 
-func (m *EventChangeTFAdmin) GetNewAdminAddress() string {
+func (m *EventChangeAdmin) GetNewAdminAddress() string {
 	if m != nil {
 		return m.NewAdminAddress
 	}
 	return ""
 }
 
-type EventSetTFDenomMetadata struct {
+type EventSetDenomMetadata struct {
 	Denom    string          `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 	Metadata types1.Metadata `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata"`
 }
 
-func (m *EventSetTFDenomMetadata) Reset()         { *m = EventSetTFDenomMetadata{} }
-func (m *EventSetTFDenomMetadata) String() string { return proto.CompactTextString(m) }
-func (*EventSetTFDenomMetadata) ProtoMessage()    {}
-func (*EventSetTFDenomMetadata) Descriptor() ([]byte, []int) {
+func (m *EventSetDenomMetadata) Reset()         { *m = EventSetDenomMetadata{} }
+func (m *EventSetDenomMetadata) String() string { return proto.CompactTextString(m) }
+func (*EventSetDenomMetadata) ProtoMessage()    {}
+func (*EventSetDenomMetadata) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b9fd0c5434c2a5b7, []int{4}
 }
-func (m *EventSetTFDenomMetadata) XXX_Unmarshal(b []byte) error {
+func (m *EventSetDenomMetadata) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventSetTFDenomMetadata) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventSetDenomMetadata) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventSetTFDenomMetadata.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventSetDenomMetadata.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -259,26 +275,26 @@ func (m *EventSetTFDenomMetadata) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *EventSetTFDenomMetadata) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventSetTFDenomMetadata.Merge(m, src)
+func (m *EventSetDenomMetadata) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventSetDenomMetadata.Merge(m, src)
 }
-func (m *EventSetTFDenomMetadata) XXX_Size() int {
+func (m *EventSetDenomMetadata) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventSetTFDenomMetadata) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventSetTFDenomMetadata.DiscardUnknown(m)
+func (m *EventSetDenomMetadata) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventSetDenomMetadata.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventSetTFDenomMetadata proto.InternalMessageInfo
+var xxx_messageInfo_EventSetDenomMetadata proto.InternalMessageInfo
 
-func (m *EventSetTFDenomMetadata) GetDenom() string {
+func (m *EventSetDenomMetadata) GetDenom() string {
 	if m != nil {
 		return m.Denom
 	}
 	return ""
 }
 
-func (m *EventSetTFDenomMetadata) GetMetadata() types1.Metadata {
+func (m *EventSetDenomMetadata) GetMetadata() types1.Metadata {
 	if m != nil {
 		return m.Metadata
 	}
@@ -286,11 +302,11 @@ func (m *EventSetTFDenomMetadata) GetMetadata() types1.Metadata {
 }
 
 func init() {
-	proto.RegisterType((*EventCreateTFDenom)(nil), "injective.tokenfactory.v1beta1.EventCreateTFDenom")
-	proto.RegisterType((*EventMintTFDenom)(nil), "injective.tokenfactory.v1beta1.EventMintTFDenom")
-	proto.RegisterType((*EventBurnDenom)(nil), "injective.tokenfactory.v1beta1.EventBurnDenom")
-	proto.RegisterType((*EventChangeTFAdmin)(nil), "injective.tokenfactory.v1beta1.EventChangeTFAdmin")
-	proto.RegisterType((*EventSetTFDenomMetadata)(nil), "injective.tokenfactory.v1beta1.EventSetTFDenomMetadata")
+	proto.RegisterType((*EventCreateDenom)(nil), "injective.tokenfactory.v1beta1.EventCreateDenom")
+	proto.RegisterType((*EventMint)(nil), "injective.tokenfactory.v1beta1.EventMint")
+	proto.RegisterType((*EventBurn)(nil), "injective.tokenfactory.v1beta1.EventBurn")
+	proto.RegisterType((*EventChangeAdmin)(nil), "injective.tokenfactory.v1beta1.EventChangeAdmin")
+	proto.RegisterType((*EventSetDenomMetadata)(nil), "injective.tokenfactory.v1beta1.EventSetDenomMetadata")
 }
 
 func init() {
@@ -298,38 +314,39 @@ func init() {
 }
 
 var fileDescriptor_b9fd0c5434c2a5b7 = []byte{
-	// 442 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x52, 0xc1, 0x6a, 0x14, 0x41,
-	0x10, 0xdd, 0x11, 0x8d, 0xda, 0x62, 0x4c, 0x86, 0x80, 0x6b, 0xc0, 0x51, 0x16, 0x04, 0x31, 0x38,
-	0x43, 0x14, 0xf4, 0x28, 0xd9, 0xc4, 0x80, 0x60, 0x2e, 0x6b, 0xf0, 0xe0, 0x25, 0xf4, 0xf4, 0x94,
-	0xbb, 0xed, 0x66, 0xaa, 0x86, 0xee, 0x9a, 0x8d, 0xfb, 0x17, 0x7e, 0x56, 0x8e, 0x39, 0x7a, 0x12,
-	0xd9, 0xfd, 0x11, 0x99, 0x99, 0xee, 0xce, 0xaa, 0x88, 0x87, 0xdc, 0xa6, 0xba, 0x5e, 0xbd, 0x57,
-	0xef, 0x4d, 0x89, 0x1d, 0x8d, 0x5f, 0x40, 0xb1, 0x9e, 0x41, 0xc6, 0x34, 0x05, 0xfc, 0x2c, 0x15,
-	0x93, 0x99, 0x67, 0xb3, 0xdd, 0x1c, 0x58, 0xee, 0x66, 0x30, 0x03, 0x64, 0x9b, 0x56, 0x86, 0x98,
-	0xe2, 0x24, 0x80, 0xd3, 0x55, 0x70, 0xea, 0xc0, 0xdb, 0x5b, 0x63, 0x1a, 0x53, 0x0b, 0xcd, 0x9a,
-	0xaf, 0x6e, 0x6a, 0x3b, 0x51, 0x64, 0x4b, 0xb2, 0x59, 0x2e, 0x2d, 0x04, 0x5e, 0x45, 0x1a, 0xff,
-	0xea, 0xe3, 0x34, 0xf4, 0x9b, 0xc2, 0xf5, 0x5f, 0xfd, 0x67, 0x45, 0x59, 0xf3, 0x84, 0x8c, 0xe6,
-	0xf9, 0x11, 0xb0, 0x2c, 0x24, 0xcb, 0x6e, 0x6e, 0x70, 0x20, 0xe2, 0xb7, 0xcd, 0xf6, 0xfb, 0x06,
-	0x24, 0xc3, 0xf1, 0xe1, 0x01, 0x20, 0x95, 0x71, 0x5f, 0xdc, 0x94, 0x4a, 0x51, 0x8d, 0xdc, 0x8f,
-	0x1e, 0x47, 0x4f, 0x6f, 0x8f, 0x7c, 0x19, 0x6f, 0x89, 0x1b, 0x45, 0x03, 0xe9, 0x5f, 0x6b, 0xdf,
-	0xbb, 0x62, 0xf0, 0x55, 0x6c, 0xb4, 0x2c, 0x47, 0x1a, 0xd9, 0x73, 0xec, 0x88, 0x4d, 0x03, 0x4a,
-	0x57, 0x1a, 0x90, 0x4f, 0x64, 0x51, 0x18, 0xb0, 0xd6, 0xb1, 0x6d, 0x84, 0xc6, 0x5e, 0xf7, 0x1e,
-	0xbf, 0x16, 0x6b, 0xb2, 0x6c, 0xf5, 0x1a, 0xde, 0x3b, 0x2f, 0x1e, 0xa4, 0x9d, 0xdf, 0xb4, 0xc9,
-	0xc3, 0x47, 0x97, 0xee, 0x93, 0xc6, 0xe1, 0xf5, 0xf3, 0x1f, 0x8f, 0x7a, 0x23, 0x07, 0x1f, 0x54,
-	0x62, 0xbd, 0x55, 0x1e, 0xd6, 0x06, 0x3b, 0xdd, 0x27, 0x62, 0x3d, 0xaf, 0x0d, 0x82, 0xf9, 0x43,
-	0xf4, 0x6e, 0xf7, 0x7a, 0x65, 0xc5, 0x8f, 0x3e, 0xb1, 0x89, 0xc4, 0x31, 0x1c, 0x1f, 0xee, 0x15,
-	0xa5, 0xc6, 0xcb, 0x5c, 0xa2, 0x95, 0x5c, 0xe2, 0x67, 0x62, 0x13, 0xe1, 0xec, 0x44, 0x36, 0x90,
-	0xb0, 0x4e, 0x97, 0xdc, 0x3d, 0x84, 0xb3, 0x76, 0xd4, 0x2d, 0x34, 0xa8, 0xc4, 0xfd, 0x96, 0xf7,
-	0x03, 0xf8, 0x08, 0xfd, 0xaf, 0xfa, 0x07, 0xf9, 0x1b, 0x71, 0xab, 0x74, 0x08, 0xe7, 0xe1, 0xe1,
-	0xa5, 0x07, 0x9c, 0x06, 0x0f, 0x9e, 0xc6, 0xf9, 0x08, 0x43, 0xc3, 0xd3, 0xf3, 0x45, 0x12, 0x5d,
-	0x2c, 0x92, 0xe8, 0xe7, 0x22, 0x89, 0xbe, 0x2d, 0x93, 0xde, 0xc5, 0x32, 0xe9, 0x7d, 0x5f, 0x26,
-	0xbd, 0x4f, 0xa3, 0xb1, 0xe6, 0x49, 0x9d, 0xa7, 0x8a, 0xca, 0xec, 0x9d, 0x3f, 0xac, 0xf7, 0x32,
-	0xb7, 0x59, 0x38, 0xb3, 0xe7, 0x8a, 0x0c, 0xac, 0x96, 0x13, 0xa9, 0x31, 0x2b, 0xa9, 0xa8, 0x4f,
-	0xc1, 0xfe, 0x7e, 0x83, 0x3c, 0xaf, 0xc0, 0xe6, 0x6b, 0xed, 0xc1, 0xbd, 0xfc, 0x15, 0x00, 0x00,
-	0xff, 0xff, 0x0f, 0x75, 0x34, 0xbb, 0x4d, 0x03, 0x00, 0x00,
+	// 449 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x52, 0x4d, 0x6f, 0xd3, 0x40,
+	0x10, 0x8d, 0xf9, 0x08, 0xcd, 0x72, 0x00, 0xac, 0x82, 0x42, 0x10, 0x06, 0xf9, 0x84, 0x40, 0xd8,
+	0x2a, 0x48, 0x70, 0x44, 0x4d, 0x01, 0x09, 0x89, 0x5e, 0x02, 0x27, 0x2e, 0xd1, 0x7a, 0x3d, 0x4d,
+	0x96, 0x74, 0x67, 0xaa, 0xdd, 0x75, 0x8a, 0xff, 0x05, 0x3f, 0xab, 0xc7, 0x1c, 0x39, 0x21, 0x94,
+	0xfc, 0x11, 0xb4, 0xeb, 0xb5, 0x13, 0x84, 0x10, 0x52, 0x6f, 0x7e, 0x33, 0xef, 0xbd, 0xf1, 0x9b,
+	0x1d, 0xf6, 0x4c, 0xe2, 0x57, 0x10, 0x56, 0x2e, 0x21, 0xb7, 0xb4, 0x00, 0x3c, 0xe1, 0xc2, 0x92,
+	0xae, 0xf3, 0xe5, 0x41, 0x01, 0x96, 0x1f, 0xe4, 0xb0, 0x04, 0xb4, 0x26, 0x3b, 0xd3, 0x64, 0x29,
+	0x4e, 0x3a, 0x72, 0xb6, 0x4b, 0xce, 0x02, 0x79, 0xb4, 0x3f, 0xa3, 0x19, 0x79, 0x6a, 0xee, 0xbe,
+	0x1a, 0xd5, 0x28, 0x11, 0x64, 0x14, 0x99, 0xbc, 0xe0, 0x06, 0x3a, 0x5f, 0x41, 0x12, 0xff, 0xea,
+	0xe3, 0xa2, 0xeb, 0x3b, 0x10, 0xfa, 0xaf, 0xfe, 0xf3, 0x8b, 0xbc, 0xb2, 0x73, 0xd2, 0xd2, 0xd6,
+	0xc7, 0x60, 0x79, 0xc9, 0x2d, 0x6f, 0x74, 0xe9, 0x98, 0xdd, 0x7e, 0xe7, 0xfe, 0xfe, 0x48, 0x03,
+	0xb7, 0xf0, 0x16, 0x90, 0x54, 0x3c, 0x64, 0x37, 0xb8, 0x10, 0x54, 0xa1, 0x1d, 0x46, 0x8f, 0xa3,
+	0x27, 0x83, 0x49, 0x0b, 0xe3, 0x7d, 0x76, 0xbd, 0x74, 0x94, 0xe1, 0x15, 0x5f, 0x6f, 0x40, 0xfa,
+	0x8d, 0x0d, 0xbc, 0xc7, 0xb1, 0x44, 0x1b, 0xdf, 0x63, 0x7d, 0x25, 0xd1, 0x82, 0x0e, 0xda, 0x80,
+	0xe2, 0xd7, 0xac, 0xcf, 0x95, 0xf7, 0x74, 0xda, 0x9b, 0x2f, 0xee, 0x67, 0x4d, 0xa2, 0xcc, 0x25,
+	0x6e, 0x97, 0x93, 0x1d, 0x91, 0xc4, 0xf1, 0xb5, 0x8b, 0x9f, 0x8f, 0x7a, 0x93, 0x40, 0x8f, 0x47,
+	0x6c, 0x4f, 0x83, 0x00, 0xb9, 0x04, 0x3d, 0xbc, 0xea, 0x2d, 0x3b, 0x9c, 0xd6, 0x61, 0xf2, 0xb8,
+	0xd2, 0xe8, 0x26, 0x17, 0x95, 0xc6, 0xed, 0xe4, 0x06, 0x5d, 0x7e, 0xf2, 0x03, 0x36, 0x70, 0x16,
+	0xd3, 0x13, 0x4d, 0xaa, 0x1d, 0xed, 0x0a, 0xef, 0x35, 0xa9, 0xf4, 0x73, 0xbb, 0xb8, 0x39, 0xc7,
+	0x19, 0x1c, 0x96, 0x4a, 0xe2, 0x76, 0x3d, 0xd1, 0xce, 0x7a, 0xe2, 0xa7, 0xec, 0x0e, 0xc2, 0xf9,
+	0x94, 0x3b, 0xca, 0x94, 0x97, 0xa5, 0x06, 0x63, 0xc2, 0x02, 0x6f, 0x21, 0x9c, 0x7b, 0xe9, 0x61,
+	0x53, 0x4e, 0x91, 0xdd, 0xf5, 0xae, 0x9f, 0xc0, 0xfa, 0xb7, 0x68, 0x5f, 0xeb, 0x1f, 0xd6, 0x6f,
+	0xd8, 0x9e, 0x0a, 0x8c, 0x10, 0xee, 0xe1, 0x36, 0x1c, 0x2e, 0xba, 0x70, 0xad, 0x4d, 0x08, 0xd8,
+	0x89, 0xc6, 0xa7, 0x17, 0xeb, 0x24, 0x5a, 0xad, 0x93, 0xe8, 0xd7, 0x3a, 0x89, 0xbe, 0x6f, 0x92,
+	0xde, 0x6a, 0x93, 0xf4, 0x7e, 0x6c, 0x92, 0xde, 0x97, 0xc9, 0x4c, 0xda, 0x79, 0x55, 0x64, 0x82,
+	0x54, 0xfe, 0xa1, 0xbd, 0xad, 0x8f, 0xbc, 0x30, 0x79, 0x77, 0x69, 0xcf, 0x05, 0x69, 0xd8, 0x85,
+	0x73, 0x2e, 0x31, 0x57, 0x54, 0x56, 0xa7, 0x60, 0xfe, 0x3c, 0x43, 0x5b, 0x9f, 0x81, 0x29, 0xfa,
+	0xfe, 0xe6, 0x5e, 0xfe, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x69, 0xd3, 0xee, 0x9b, 0x50, 0x03, 0x00,
+	0x00,
 }
 
-func (m *EventCreateTFDenom) Marshal() (dAtA []byte, err error) {
+func (m *EventCreateDenom) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -339,12 +356,12 @@ func (m *EventCreateTFDenom) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventCreateTFDenom) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventCreateDenom) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventCreateTFDenom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventCreateDenom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -366,7 +383,7 @@ func (m *EventCreateTFDenom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventMintTFDenom) Marshal() (dAtA []byte, err error) {
+func (m *EventMint) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -376,16 +393,23 @@ func (m *EventMintTFDenom) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventMintTFDenom) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventMint) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventMintTFDenom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventMint) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if len(m.Receiver) > 0 {
+		i -= len(m.Receiver)
+		copy(dAtA[i:], m.Receiver)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Receiver)))
+		i--
+		dAtA[i] = 0x1a
+	}
 	{
 		size, err := m.Amount.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
@@ -396,17 +420,17 @@ func (m *EventMintTFDenom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0x12
-	if len(m.RecipientAddress) > 0 {
-		i -= len(m.RecipientAddress)
-		copy(dAtA[i:], m.RecipientAddress)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.RecipientAddress)))
+	if len(m.Minter) > 0 {
+		i -= len(m.Minter)
+		copy(dAtA[i:], m.Minter)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Minter)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *EventBurnDenom) Marshal() (dAtA []byte, err error) {
+func (m *EventBurn) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -416,16 +440,23 @@ func (m *EventBurnDenom) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventBurnDenom) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventBurn) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventBurnDenom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventBurn) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if len(m.BurnFrom) > 0 {
+		i -= len(m.BurnFrom)
+		copy(dAtA[i:], m.BurnFrom)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.BurnFrom)))
+		i--
+		dAtA[i] = 0x1a
+	}
 	{
 		size, err := m.Amount.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
@@ -436,17 +467,17 @@ func (m *EventBurnDenom) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0x12
-	if len(m.BurnerAddress) > 0 {
-		i -= len(m.BurnerAddress)
-		copy(dAtA[i:], m.BurnerAddress)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.BurnerAddress)))
+	if len(m.Burner) > 0 {
+		i -= len(m.Burner)
+		copy(dAtA[i:], m.Burner)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Burner)))
 		i--
 		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *EventChangeTFAdmin) Marshal() (dAtA []byte, err error) {
+func (m *EventChangeAdmin) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -456,12 +487,12 @@ func (m *EventChangeTFAdmin) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventChangeTFAdmin) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventChangeAdmin) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventChangeTFAdmin) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventChangeAdmin) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -483,7 +514,7 @@ func (m *EventChangeTFAdmin) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventSetTFDenomMetadata) Marshal() (dAtA []byte, err error) {
+func (m *EventSetDenomMetadata) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -493,12 +524,12 @@ func (m *EventSetTFDenomMetadata) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventSetTFDenomMetadata) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventSetDenomMetadata) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventSetTFDenomMetadata) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventSetDenomMetadata) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -534,7 +565,7 @@ func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *EventCreateTFDenom) Size() (n int) {
+func (m *EventCreateDenom) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -551,37 +582,45 @@ func (m *EventCreateTFDenom) Size() (n int) {
 	return n
 }
 
-func (m *EventMintTFDenom) Size() (n int) {
+func (m *EventMint) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.RecipientAddress)
+	l = len(m.Minter)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
 	l = m.Amount.Size()
 	n += 1 + l + sovEvents(uint64(l))
+	l = len(m.Receiver)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
 	return n
 }
 
-func (m *EventBurnDenom) Size() (n int) {
+func (m *EventBurn) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.BurnerAddress)
+	l = len(m.Burner)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
 	l = m.Amount.Size()
 	n += 1 + l + sovEvents(uint64(l))
+	l = len(m.BurnFrom)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
 	return n
 }
 
-func (m *EventChangeTFAdmin) Size() (n int) {
+func (m *EventChangeAdmin) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -598,7 +637,7 @@ func (m *EventChangeTFAdmin) Size() (n int) {
 	return n
 }
 
-func (m *EventSetTFDenomMetadata) Size() (n int) {
+func (m *EventSetDenomMetadata) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -619,7 +658,7 @@ func sovEvents(x uint64) (n int) {
 func sozEvents(x uint64) (n int) {
 	return sovEvents(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *EventCreateTFDenom) Unmarshal(dAtA []byte) error {
+func (m *EventCreateDenom) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -642,10 +681,10 @@ func (m *EventCreateTFDenom) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventCreateTFDenom: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventCreateDenom: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventCreateTFDenom: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventCreateDenom: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -733,7 +772,7 @@ func (m *EventCreateTFDenom) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventMintTFDenom) Unmarshal(dAtA []byte) error {
+func (m *EventMint) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -756,15 +795,15 @@ func (m *EventMintTFDenom) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventMintTFDenom: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventMint: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventMintTFDenom: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventMint: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RecipientAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Minter", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -792,7 +831,7 @@ func (m *EventMintTFDenom) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RecipientAddress = string(dAtA[iNdEx:postIndex])
+			m.Minter = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -827,59 +866,9 @@ func (m *EventMintTFDenom) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipEvents(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *EventBurnDenom) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowEvents
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: EventBurnDenom: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventBurnDenom: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
+		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BurnerAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Receiver", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -907,7 +896,89 @@ func (m *EventBurnDenom) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BurnerAddress = string(dAtA[iNdEx:postIndex])
+			m.Receiver = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventBurn) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventBurn: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventBurn: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Burner", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Burner = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -942,6 +1013,38 @@ func (m *EventBurnDenom) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BurnFrom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BurnFrom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipEvents(dAtA[iNdEx:])
@@ -963,7 +1066,7 @@ func (m *EventBurnDenom) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventChangeTFAdmin) Unmarshal(dAtA []byte) error {
+func (m *EventChangeAdmin) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -986,10 +1089,10 @@ func (m *EventChangeTFAdmin) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventChangeTFAdmin: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventChangeAdmin: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventChangeTFAdmin: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventChangeAdmin: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1077,7 +1180,7 @@ func (m *EventChangeTFAdmin) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventSetTFDenomMetadata) Unmarshal(dAtA []byte) error {
+func (m *EventSetDenomMetadata) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1100,10 +1203,10 @@ func (m *EventSetTFDenomMetadata) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventSetTFDenomMetadata: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventSetDenomMetadata: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventSetTFDenomMetadata: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventSetDenomMetadata: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

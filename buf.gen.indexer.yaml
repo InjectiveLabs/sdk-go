@@ -1,0 +1,21 @@
+version: v2
+managed:
+  enabled: true
+  disable:
+    - module: buf.build/googleapis/googleapis
+      file_option: go_package_prefix
+plugins:
+  - remote: buf.build/protocolbuffers/go:v1.34.0
+    out: ./exchange/
+    opt: paths=source_relative
+  - remote: buf.build/grpc/go:v1.3.0
+    out: ./exchange/
+    opt: paths=source_relative
+#  - local: protoc-gen-go
+#    out: ./exchange/
+#    opt: paths=source_relative
+#  - local: protoc-gen-go-grpc
+#    out: ./exchange/
+#    opt: paths=source_relative
+inputs:
+  - directory: local_proto
