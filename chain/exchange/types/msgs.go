@@ -10,6 +10,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
+	"github.com/InjectiveLabs/sdk-go/chain/helpers"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
@@ -560,6 +561,13 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 	}
 	if err := ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(ErrInvalidNotional, err.Error())
+	}
+
+	if msg.BaseDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "base decimals is invalid")
+	}
+	if msg.QuoteDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "quote decimals is invalid")
 	}
 
 	return nil
@@ -1827,16 +1835,16 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 			return err
 		}
 
-		hasDuplicateSpotMarketIDs := HasDuplicatesHexHash(msg.SpotMarketIdsToCancelAll)
+		hasDuplicateSpotMarketIDs := helpers.HasDuplicate(msg.SpotMarketIdsToCancelAll)
 		if hasDuplicateSpotMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all spot market ids")
 		}
 
-		hasDuplicateDerivativesMarketIDs := HasDuplicatesHexHash(msg.DerivativeMarketIdsToCancelAll)
+		hasDuplicateDerivativesMarketIDs := helpers.HasDuplicate(msg.DerivativeMarketIdsToCancelAll)
 		if hasDuplicateDerivativesMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
 		}
-		hasDuplicateBinaryOptionsMarketIDs := HasDuplicatesHexHash(msg.BinaryOptionsMarketIdsToCancelAll)
+		hasDuplicateBinaryOptionsMarketIDs := helpers.HasDuplicate(msg.BinaryOptionsMarketIdsToCancelAll)
 		if hasDuplicateBinaryOptionsMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all binary options market ids")
 		}

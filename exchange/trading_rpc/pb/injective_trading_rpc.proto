@@ -16,6 +16,8 @@ option go_package = "/injective_trading_rpcpb";
 service InjectiveTradingRPC {
 	// Lists all trading strategies
 	rpc ListTradingStrategies (ListTradingStrategiesRequest) returns (ListTradingStrategiesResponse);
+	// GetStats returns global statistics in the last 24hs
+	rpc GetTradingStats (GetTradingStatsRequest) returns (GetTradingStatsResponse);
 }
 
 message ListTradingStrategiesRequest {
@@ -40,6 +42,16 @@ message ListTradingStrategiesRequest {
 	repeated string strategy_type = 10;
 	// Filter by market type
 	string market_type = 11;
+	// The last executed timestamp in UNIX milliseconds for the last executed time
+// of the trading strategy
+	sint64 last_executed_time = 12;
+	// Include TVL in the response
+	bool with_tvl = 13;
+	// Indicates whether the trading strategy is a trailing strategy
+	bool is_trailing_strategy = 14;
+	// Indicates whether the trading strategy performance should be included in the
+// response
+	bool with_performance = 15;
 }
 
 message ListTradingStrategiesResponse {
@@ -115,6 +127,28 @@ message TradingStrategy {
 	string contract_name = 32;
 	// Type of the market
 	string market_type = 33;
+	// lastExecutedAt timestamp in UNIX millis.
+	sint64 last_executed_at = 34;
+	// trailing up price
+	string trail_up_price = 35;
+	// trailing down price
+	string trail_down_price = 36;
+	// trailing up counter
+	sint64 trail_up_counter = 37;
+	// trailing down counter
+	sint64 trail_down_counter = 38;
+	// TVL of the trading strategy
+	string tvl = 39;
+	// PnL of the trading strategy
+	string pnl = 40;
+	// PnL percentage of the trading strategy
+	string pnl_perc = 41;
+	// pnlUpdatedAt timestamp in UNIX millis.
+	sint64 pnl_updated_at = 42;
+	// Indicates the performance of the trading strategy
+	string performance = 43;
+	// Return on investment of the trading strategy
+	string roi = 44;
 }
 
 message ExitConfig {
@@ -135,4 +169,25 @@ message Paging {
 	sint64 count_by_subaccount = 4;
 	// array of tokens to navigate to the next pages
 	repeated string next = 5;
+}
+
+message GetTradingStatsRequest {
+}
+
+message GetTradingStatsResponse {
+	// Total of unique active trading strategies
+	uint64 active_trading_strategies = 1;
+	// Total number of created trading strategies
+	uint64 total_trading_strategies_created = 2;
+	// Total TVL of all active trading strategies
+	string total_tvl = 3;
+	// Market stats
+	repeated Market markets = 4;
+}
+
+message Market {
+	// MarketId of the trading strategy
+	string market_id = 1;
+	// Total of unique active trading strategies
+	uint64 active_trading_strategies = 2;
 }

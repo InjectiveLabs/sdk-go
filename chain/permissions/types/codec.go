@@ -14,10 +14,7 @@ const ModuleName = "permissions"
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "permissions/MsgUpdateParams", nil)
 	cdc.RegisterConcrete(&MsgCreateNamespace{}, "permissions/MsgCreateNamespace", nil)
-	cdc.RegisterConcrete(&MsgDeleteNamespace{}, "permissions/MsgDeleteNamespace", nil)
 	cdc.RegisterConcrete(&MsgUpdateNamespace{}, "permissions/MsgUpdateNamespace", nil)
-	cdc.RegisterConcrete(&MsgUpdateNamespaceRoles{}, "permissions/MsgUpdateNamespaceRoles", nil)
-	cdc.RegisterConcrete(&MsgRevokeNamespaceRoles{}, "permissions/MsgRevokeNamespaceRoles", nil)
 	cdc.RegisterConcrete(&MsgClaimVoucher{}, "permissions/MsgClaimVoucher", nil)
 }
 
@@ -25,10 +22,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgUpdateParams{},
 		&MsgCreateNamespace{},
-		&MsgDeleteNamespace{},
 		&MsgUpdateNamespace{},
-		&MsgUpdateNamespaceRoles{},
-		&MsgRevokeNamespaceRoles{},
 		&MsgClaimVoucher{},
 	)
 

@@ -107,7 +107,7 @@ message DerivativeMarketInfo {
 	string maintenance_margin_ratio = 9;
 	// Coin denom used for the quote asset.
 	string quote_denom = 10;
-	// Token metadata for quote asset, only for Ethereum-based assets
+	// Token metadata for quote asset
 	TokenMeta quote_token_meta = 11;
 	// Defines the fee percentage makers pay when trading (in quote asset)
 	string maker_fee_rate = 12;
@@ -131,7 +131,7 @@ message DerivativeMarketInfo {
 message TokenMeta {
 	// Token full name
 	string name = 1;
-	// Token Ethereum contract address
+	// Token contract address (native or not)
 	string address = 2;
 	// Token symbol short name
 	string symbol = 3;
@@ -238,7 +238,7 @@ message BinaryOptionsMarketInfo {
 	sint64 settlement_timestamp = 9;
 	// Coin denom used for the quote asset.
 	string quote_denom = 10;
-	// Token metadata for quote asset, only for Ethereum-based assets
+	// Token metadata for quote asset
 	TokenMeta quote_token_meta = 11;
 	// Defines the fee percentage makers pay when trading (in quote asset)
 	string maker_fee_rate = 12;
@@ -755,6 +755,8 @@ message TradesRequest {
 	string account_address = 13;
 	// Client order ID
 	string cid = 14;
+	// Filter by fee recipient
+	string fee_recipient = 15;
 }
 
 message TradesResponse {
@@ -834,6 +836,8 @@ message TradesV2Request {
 	string account_address = 13;
 	// Client order ID
 	string cid = 14;
+	// Filter by fee recipient
+	string fee_recipient = 15;
 }
 
 message TradesV2Response {
@@ -873,6 +877,8 @@ message StreamTradesRequest {
 	string account_address = 13;
 	// Client order ID
 	string cid = 14;
+	// Filter by fee recipient
+	string fee_recipient = 15;
 }
 
 message StreamTradesResponse {
@@ -915,6 +921,8 @@ message StreamTradesV2Request {
 	string account_address = 13;
 	// Client order ID
 	string cid = 14;
+	// Filter by fee recipient
+	string fee_recipient = 15;
 }
 
 message StreamTradesV2Response {

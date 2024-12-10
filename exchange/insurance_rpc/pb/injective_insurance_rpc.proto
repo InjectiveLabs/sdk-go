@@ -49,14 +49,14 @@ message InsuranceFund {
 	string oracle_type = 10;
 	// Defines the expiry, if any
 	sint64 expiry = 11;
-	// Token metadata for the deposit asset, only for Ethereum-based assets
+	// Token metadata for the deposit asset
 	TokenMeta deposit_token_meta = 12;
 }
 
 message TokenMeta {
 	// Token full name
 	string name = 1;
-	// Token Ethereum contract address
+	// Token contract address (native or not)
 	string address = 2;
 	// Token symbol short name
 	string symbol = 3;

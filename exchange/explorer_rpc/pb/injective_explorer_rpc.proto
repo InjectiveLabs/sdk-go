@@ -61,6 +61,8 @@ service InjectiveExplorerRPC {
 	rpc StreamTxs (StreamTxsRequest) returns (stream StreamTxsResponse);
 	// StreamBlocks returns the latest blocks
 	rpc StreamBlocks (StreamBlocksRequest) returns (stream StreamBlocksResponse);
+	// GetStats returns global exchange statistics in the last 24hs
+	rpc GetStats (GetStatsRequest) returns (GetStatsResponse);
 }
 
 message GetAccountTxsRequest {
@@ -274,6 +276,7 @@ message TxData {
 	bytes logs = 11;
 	// peggy bridge claim id, non-zero if tx contains MsgDepositClaim
 	repeated sint64 claim_ids = 12;
+	repeated Signature signatures = 13;
 }
 
 message GetValidatorsRequest {
@@ -867,4 +870,28 @@ message StreamBlocksResponse {
 	sint64 num_txs = 7;
 	repeated TxDataRPC txs = 8;
 	string timestamp = 9;
+}
+
+message GetStatsRequest {
+}
+
+message GetStatsResponse {
+	// Total of unique addresses
+	uint64 addresses = 1;
+	// Total number of assets
+	uint64 assets = 2;
+	// Total circulating supply of INJ
+	uint64 inj_supply = 3;
+	// Avg of TX per second in the past 24hs
+	uint64 txs_ps24_h = 4;
+	// Avg of TX per second in the 100 blocks
+	uint64 txs_ps100_b = 5;
+	// Total number of TXs
+	uint64 txs_total = 6;
+	// Total number of TXs in the past 24hs
+	uint64 txs24_h = 7;
+	// Total number of TXs in the past 30 days
+	uint64 txs30_d = 8;
+	// Number of blocks produced in the past 24hs
+	uint64 block_count24_h = 9;
 }

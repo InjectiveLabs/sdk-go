@@ -322,39 +322,6 @@ func IntBytesToInt(bz []byte) math.Int {
 	return math.NewIntFromBigInt(new(big.Int).SetBytes(bz))
 }
 
-func HasDuplicates(slice []string) bool {
-	seen := make(map[string]struct{})
-	for _, item := range slice {
-		if _, ok := seen[item]; ok {
-			return true
-		}
-		seen[item] = struct{}{}
-	}
-	return false
-}
-
-func HasDuplicatesHexHash(slice []string) bool {
-	seen := make(map[common.Hash]struct{})
-	for _, item := range slice {
-		if _, ok := seen[common.HexToHash(item)]; ok {
-			return true
-		}
-		seen[common.HexToHash(item)] = struct{}{}
-	}
-	return false
-}
-
-func HasDuplicatesCoin(slice []sdk.Coin) bool {
-	seen := make(map[string]struct{})
-	for _, item := range slice {
-		if _, ok := seen[item.Denom]; ok {
-			return true
-		}
-		seen[item.Denom] = struct{}{}
-	}
-	return false
-}
-
 func HasDuplicatesOrder(slice []*OrderData) bool {
 	seenHashes := make(map[string]struct{})
 	seenCids := make(map[string]struct{})
