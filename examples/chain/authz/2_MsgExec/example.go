@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -12,7 +11,7 @@ import (
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -77,12 +76,6 @@ func main() {
 		panic(err)
 	}
 
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, chainClient)
-	if err != nil {
-		panic(err)
-	}
-
 	// note that we use grantee keyring to send the msg on behalf of granter here
 	// sender, subaccount are from granter
 	granter := granterAddress.String()
@@ -93,20 +86,19 @@ func main() {
 
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(22.55)
-	order := chainClient.CreateSpotOrder(
+	order := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangetypes.OrderType_BUY,
+			OrderType:    exchangev2types.OrderType_BUY,
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),
 			MarketId:     marketId,
 		},
-		marketsAssistant,
 	)
 
 	// manually pack msg into Any type
-	msg0 := exchangetypes.MsgCreateSpotLimitOrder{
+	msg0 := exchangev2types.MsgCreateSpotLimitOrder{
 		Sender: granter,
 		Order:  *order,
 	}

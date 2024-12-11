@@ -4,11 +4,12 @@ import (
 	"context"
 	"strconv"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	gethsigner "github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"golang.org/x/crypto/sha3"
+
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 )
 
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
@@ -68,7 +69,7 @@ func (c *chainClient) UpdateSubaccountNonceFromChain() error {
 }
 
 func (c *chainClient) SynchronizeSubaccountNonce(subaccountId common.Hash) error {
-	res, err := c.GetSubAccountNonce(context.Background(), subaccountId)
+	res, err := c.GetSubAccountNonceV2(context.Background(), subaccountId)
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func (c *chainClient) SynchronizeSubaccountNonce(subaccountId common.Hash) error
 	return nil
 }
 
-func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId common.Hash) (OrderHashes, error) {
+func (c *chainClient) ComputeOrderHashes(spotOrders []exchangev2types.SpotOrder, derivativeOrders []exchangev2types.DerivativeOrder, subaccountId common.Hash) (OrderHashes, error) {
 	if len(spotOrders)+len(derivativeOrders) == 0 {
 		return OrderHashes{}, nil
 	}

@@ -4,7 +4,7 @@ import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
@@ -165,8 +165,8 @@ func createSmartDenomMetadata() types.Metadata {
 	return metadata
 }
 
-func createINJUSDTChainSpotMarket() *exchangetypes.SpotMarket {
-	marketInfo := exchangetypes.SpotMarket{
+func createINJUSDTChainSpotMarket() *exchangev2types.SpotMarket {
+	marketInfo := exchangev2types.SpotMarket{
 		Ticker:              "INJ/USDT",
 		BaseDenom:           "inj",
 		QuoteDenom:          "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5",
@@ -174,7 +174,7 @@ func createINJUSDTChainSpotMarket() *exchangetypes.SpotMarket {
 		TakerFeeRate:        math.LegacyMustNewDecFromStr("0.001"),
 		RelayerFeeShareRate: math.LegacyMustNewDecFromStr("0.4"),
 		MarketId:            "0x7a57e705bb4e09c88aecfc295569481dbf2fe1d5efe364651fbe72385938e9b0",
-		Status:              exchangetypes.MarketStatus_Active,
+		Status:              exchangev2types.MarketStatus_Active,
 		MinPriceTickSize:    math.LegacyMustNewDecFromStr("0.000000000000001"),
 		MinQuantityTickSize: math.LegacyMustNewDecFromStr("1000000000000000"),
 		MinNotional:         math.LegacyMustNewDecFromStr("1000000"),
@@ -183,8 +183,8 @@ func createINJUSDTChainSpotMarket() *exchangetypes.SpotMarket {
 	return &marketInfo
 }
 
-func createAPEUSDTChainSpotMarket() *exchangetypes.SpotMarket {
-	marketInfo := exchangetypes.SpotMarket{
+func createAPEUSDTChainSpotMarket() *exchangev2types.SpotMarket {
+	marketInfo := exchangev2types.SpotMarket{
 		Ticker:              "APE/USDT",
 		BaseDenom:           "peggy0x44C21afAaF20c270EBbF5914Cfc3b5022173FEB7",
 		QuoteDenom:          "factory/inj10vkkttgxdeqcgeppu20x9qtyvuaxxev8qh0awq/usdt",
@@ -192,7 +192,7 @@ func createAPEUSDTChainSpotMarket() *exchangetypes.SpotMarket {
 		TakerFeeRate:        math.LegacyMustNewDecFromStr("0.001"),
 		RelayerFeeShareRate: math.LegacyMustNewDecFromStr("0.4"),
 		MarketId:            "0x8b67e705bb4e09c88aecfc295569481dbf2fe1d5efe364651fbe72385938e000",
-		Status:              exchangetypes.MarketStatus_Active,
+		Status:              exchangev2types.MarketStatus_Active,
 		MinPriceTickSize:    math.LegacyMustNewDecFromStr("0.000000000000001"),
 		MinQuantityTickSize: math.LegacyMustNewDecFromStr("1000000000000000"),
 		MinNotional:         math.LegacyMustNewDecFromStr("1000000"),
@@ -201,8 +201,8 @@ func createAPEUSDTChainSpotMarket() *exchangetypes.SpotMarket {
 	return &marketInfo
 }
 
-func createBTCUSDTChainDerivativeMarket() *exchangetypes.DerivativeMarket {
-	marketInfo := exchangetypes.DerivativeMarket{
+func createBTCUSDTChainDerivativeMarket() *exchangev2types.DerivativeMarket {
+	marketInfo := exchangev2types.DerivativeMarket{
 		Ticker:                 "BTC/USDT PERP",
 		OracleBase:             "BTC",
 		OracleQuote:            "USDT",
@@ -216,7 +216,7 @@ func createBTCUSDTChainDerivativeMarket() *exchangetypes.DerivativeMarket {
 		TakerFeeRate:           math.LegacyMustNewDecFromStr("0.001"),
 		RelayerFeeShareRate:    math.LegacyMustNewDecFromStr("0.4"),
 		IsPerpetual:            true,
-		Status:                 exchangetypes.MarketStatus_Active,
+		Status:                 exchangev2types.MarketStatus_Active,
 		MinPriceTickSize:       math.LegacyMustNewDecFromStr("1000000"),
 		MinQuantityTickSize:    math.LegacyMustNewDecFromStr("0.0001"),
 		MinNotional:            math.LegacyMustNewDecFromStr("1000000"),
@@ -225,8 +225,8 @@ func createBTCUSDTChainDerivativeMarket() *exchangetypes.DerivativeMarket {
 	return &marketInfo
 }
 
-func createFirstMatchBetBinaryOptionsMarket() *exchangetypes.BinaryOptionsMarket {
-	market := exchangetypes.BinaryOptionsMarket{
+func createFirstMatchBetBinaryOptionsMarket() *exchangev2types.BinaryOptionsMarket {
+	market := exchangev2types.BinaryOptionsMarket{
 		Ticker:              "5fdbe0b1-1707800399-WAS",
 		OracleSymbol:        "Frontrunner",
 		OracleProvider:      "Frontrunner",
@@ -240,7 +240,7 @@ func createFirstMatchBetBinaryOptionsMarket() *exchangetypes.BinaryOptionsMarket
 		MakerFeeRate:        math.LegacyMustNewDecFromStr("0"),
 		TakerFeeRate:        math.LegacyMustNewDecFromStr("0"),
 		RelayerFeeShareRate: math.LegacyMustNewDecFromStr("0.4"),
-		Status:              exchangetypes.MarketStatus_Active,
+		Status:              exchangev2types.MarketStatus_Active,
 		MinPriceTickSize:    math.LegacyMustNewDecFromStr("0.01"),
 		MinQuantityTickSize: math.LegacyMustNewDecFromStr("1"),
 		MinNotional:         math.LegacyMustNewDecFromStr("1"),

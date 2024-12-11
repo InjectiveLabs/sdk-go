@@ -104,7 +104,11 @@ func (m MsgMint) ValidateBasic() error {
 		return errors.Wrapf(sdkerrors.ErrInvalidAddress, "Invalid sender address (%s)", err)
 	}
 
-	if !m.Amount.IsValid() || m.Amount.Amount.Equal(math.ZeroInt()) {
+	err = m.Amount.Validate()
+	if err != nil {
+		return err
+	}
+	if m.Amount.Amount.Equal(math.ZeroInt()) {
 		return errors.Wrap(sdkerrors.ErrInvalidCoins, m.Amount.String())
 	}
 

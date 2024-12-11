@@ -2,8 +2,9 @@ package core
 
 import (
 	sdkmath "cosmossdk.io/math"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/shopspring/decimal"
+
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 const AdditionalChainFormatDecimals = 18

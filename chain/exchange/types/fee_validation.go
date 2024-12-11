@@ -7,7 +7,12 @@ import (
 	"cosmossdk.io/math"
 )
 
-func ValidateMakerWithTakerFee(makerFeeRate, takerFeeRate, relayerFeeShareRate, minimalProtocolFeeRate math.LegacyDec) error {
+func ValidateMakerWithTakerFee(
+	makerFeeRate,
+	takerFeeRate,
+	relayerFeeShareRate,
+	minimalProtocolFeeRate math.LegacyDec,
+) error {
 	if makerFeeRate.GT(takerFeeRate) {
 		return ErrFeeRatesRelation
 	}
@@ -29,9 +34,15 @@ func ValidateMakerWithTakerFee(makerFeeRate, takerFeeRate, relayerFeeShareRate, 
 	return nil
 }
 
-func ValidateMakerWithTakerFeeAndDiscounts(makerFeeRate, takerFeeRate, relayerFeeShareRate, minimalProtocolFeeRate math.LegacyDec, discountSchedule *FeeDiscountSchedule) error {
+// Test Code Only (for v1 tests)
+func ValidateMakerWithTakerFeeAndDiscounts(
+	makerFeeRate,
+	takerFeeRate,
+	relayerFeeShareRate,
+	minimalProtocolFeeRate math.LegacyDec,
+	discountSchedule *FeeDiscountSchedule,
+) error {
 	smallestTakerFeeRate := takerFeeRate
-
 	if makerFeeRate.IsNegative() && discountSchedule != nil && len(discountSchedule.TierInfos) > 0 {
 		maxTakerDiscount := discountSchedule.TierInfos[len(discountSchedule.TierInfos)-1].TakerDiscountRate
 		smallestTakerFeeRate = smallestTakerFeeRate.Mul(math.LegacyOneDec().Sub(maxTakerDiscount))

@@ -8,7 +8,7 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
@@ -56,7 +56,7 @@ func main() {
 		panic(err)
 	}
 
-	msg := &exchangetypes.MsgRewardsOptOut{
+	msg := &exchangev2types.MsgRewardsOptOut{
 		Sender: senderAddress.String(),
 	}
 

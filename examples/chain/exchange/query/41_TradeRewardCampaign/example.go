@@ -57,7 +57,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchTradeRewardCampaign(ctx)
+	res, err := chainClient.FetchTradeRewardCampaignV2(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -41,7 +41,6 @@ func newMarketsAssistant() MarketsAssistant {
 	}
 }
 
-// Deprecated: Use NewMarketsAssistant instead
 func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
 
@@ -302,7 +301,7 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 		}
 	}
 
-	spotMarkets, err := chainClient.FetchChainSpotMarkets(ctx, "Active", nil)
+	spotMarkets, err := chainClient.FetchChainSpotMarketsV2(ctx, "Active", nil)
 
 	if err != nil {
 		return err
@@ -341,7 +340,7 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 		assistant.spotMarkets[market.Id] = market
 	}
 
-	derivativeMarkets, err := chainClient.FetchChainDerivativeMarkets(ctx, "Active", nil, false)
+	derivativeMarkets, err := chainClient.FetchChainDerivativeMarketsV2(ctx, "Active", nil, false)
 
 	if err != nil {
 		return err
@@ -387,7 +386,7 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 		assistant.derivativeMarkets[market.Id] = market
 	}
 
-	binaryOptionsMarkets, err := chainClient.FetchChainBinaryOptionsMarkets(ctx, "Active")
+	binaryOptionsMarkets, err := chainClient.FetchChainBinaryOptionsMarketsV2(ctx, "Active")
 
 	if err != nil {
 		return err

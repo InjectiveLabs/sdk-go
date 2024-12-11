@@ -6,12 +6,12 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
@@ -60,19 +60,13 @@ func main() {
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minNotional := math.LegacyMustNewDecFromStr("2")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(6)))
-	chainMinPriceTickSize = chainMinPriceTickSize.Quo(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(18)))
-
-	chainMinQuantityTickSize := minQuantityTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(18)))
-	chainMinNotional := minNotional.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(6)))
-
-	msg := &exchangetypes.MsgUpdateSpotMarket{
+	msg := &exchangev2types.MsgUpdateSpotMarket{
 		Admin:                  senderAddress.String(),
 		MarketId:               "0x215970bfdea5c94d8e964a759d3ce6eae1d113900129cc8428267db5ccdb3d1a",
 		NewTicker:              "INJ/USDC 2",
-		NewMinPriceTickSize:    chainMinPriceTickSize,
-		NewMinQuantityTickSize: chainMinQuantityTickSize,
-		NewMinNotional:         chainMinNotional,
+		NewMinPriceTickSize:    minPriceTickSize,
+		NewMinQuantityTickSize: minQuantityTickSize,
+		NewMinNotional:         minNotional,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

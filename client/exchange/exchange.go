@@ -31,7 +31,6 @@ type ExchangeClient interface {
 	StreamDerivativeMarket(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
 	GetDerivativeOrders(ctx context.Context, req *derivativeExchangePB.OrdersRequest) (*derivativeExchangePB.OrdersResponse, error)
 	GetDerivativeMarkets(ctx context.Context, req *derivativeExchangePB.MarketsRequest) (*derivativeExchangePB.MarketsResponse, error)
-	GetDerivativePositions(ctx context.Context, req *derivativeExchangePB.PositionsRequest) (*derivativeExchangePB.PositionsResponse, error)
 	GetDerivativePositionsV2(ctx context.Context, req *derivativeExchangePB.PositionsV2Request) (*derivativeExchangePB.PositionsV2Response, error)
 	GetDerivativeLiquidablePositions(ctx context.Context, req *derivativeExchangePB.LiquidablePositionsRequest) (*derivativeExchangePB.LiquidablePositionsResponse, error)
 	StreamDerivativePositions(ctx context.Context, req *derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
@@ -82,7 +81,6 @@ type ExchangeClient interface {
 	GetInsuranceFunds(ctx context.Context, req *insurancePB.FundsRequest) (*insurancePB.FundsResponse, error)
 	GetRedemptions(ctx context.Context, req *insurancePB.RedemptionsRequest) (*insurancePB.RedemptionsResponse, error)
 
-	GetAccountPortfolio(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioResponse, error)
 	GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error)
 	StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
 
@@ -172,17 +170,6 @@ func (c *exchangeClient) GetDerivativeOrders(ctx context.Context, req *derivativ
 	if err != nil {
 		fmt.Println(err)
 		return &derivativeExchangePB.OrdersResponse{}, err
-	}
-
-	return res, nil
-}
-
-// Deprecated: Use GetDerivativePositionsV2 instead.
-func (c *exchangeClient) GetDerivativePositions(ctx context.Context, req *derivativeExchangePB.PositionsRequest) (*derivativeExchangePB.PositionsResponse, error) {
-	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.Positions, req)
-	if err != nil {
-		fmt.Println(err)
-		return &derivativeExchangePB.PositionsResponse{}, err
 	}
 
 	return res, nil
@@ -917,20 +904,6 @@ func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveM
 	}
 
 	return stream, nil
-}
-
-// Deprecated: Use GetAccountPortfolioBalances instead.
-func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioResponse, error) {
-	req := &portfolioExchangePB.AccountPortfolioRequest{
-		AccountAddress: accountAddress,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.portfolioExchangeClient.AccountPortfolio, req)
-	if err != nil {
-		fmt.Println(err)
-		return &portfolioExchangePB.AccountPortfolioResponse{}, err
-	}
-
-	return res, nil
 }
 
 func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {

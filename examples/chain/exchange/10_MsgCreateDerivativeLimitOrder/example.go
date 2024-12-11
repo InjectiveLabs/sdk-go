@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -10,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -59,12 +58,6 @@ func main() {
 		panic(err)
 	}
 
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, chainClient)
-	if err != nil {
-		panic(err)
-	}
-
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
 	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
@@ -72,10 +65,10 @@ func main() {
 	price := decimal.RequireFromString("31000") //31,000
 	leverage := decimal.RequireFromString("2.5")
 
-	order := chainClient.CreateDerivativeOrder(
+	order := chainClient.CreateDerivativeOrderV2(
 		defaultSubaccountID,
 		&chainclient.DerivativeOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     amount,
 			Price:        price,
 			Leverage:     leverage,
@@ -84,12 +77,11 @@ func main() {
 			IsReduceOnly: true,
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgCreateDerivativeLimitOrder)
+	msg := new(exchangev2types.MsgCreateDerivativeLimitOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.DerivativeOrder(*order)
+	msg.Order = exchangev2types.DerivativeOrder(*order)
 
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 
@@ -97,7 +89,7 @@ func main() {
 		panic(err)
 	}
 
-	msgCreateDerivativeLimitOrderResponse := exchangetypes.MsgCreateDerivativeLimitOrderResponse{}
+	msgCreateDerivativeLimitOrderResponse := exchangev2types.MsgCreateDerivativeLimitOrderResponse{}
 	err = msgCreateDerivativeLimitOrderResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {
