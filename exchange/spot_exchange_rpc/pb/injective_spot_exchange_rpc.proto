@@ -76,11 +76,11 @@ message SpotMarketInfo {
 	string ticker = 3;
 	// Coin denom used for the base asset.
 	string base_denom = 4;
-	// Token metadata for base asset, only for Ethereum-based assets
+	// Token metadata for base asset
 	TokenMeta base_token_meta = 5;
 	// Coin denom used for the quote asset.
 	string quote_denom = 6;
-	// Token metadata for quote asset, only for Ethereum-based assets
+	// Token metadata for quote asset
 	TokenMeta quote_token_meta = 7;
 	// Defines the fee percentage makers pay when trading (in quote asset)
 	string maker_fee_rate = 8;
@@ -99,7 +99,7 @@ message SpotMarketInfo {
 message TokenMeta {
 	// Token full name
 	string name = 1;
-	// Token Ethereum contract address
+	// Token contract address (native or not)
 	string address = 2;
 	// Token symbol short name
 	string symbol = 3;
@@ -384,6 +384,8 @@ message TradesRequest {
 	string account_address = 13;
 	// Client order ID
 	string cid = 14;
+	// Fee recipient address
+	string fee_recipient = 15;
 }
 
 message TradesResponse {
@@ -450,6 +452,8 @@ message StreamTradesRequest {
 	string account_address = 13;
 	// Client order ID
 	string cid = 14;
+	// Fee recipient address
+	string fee_recipient = 15;
 }
 
 message StreamTradesResponse {
@@ -491,6 +495,8 @@ message TradesV2Request {
 	string account_address = 13;
 	// Client order ID
 	string cid = 14;
+	// Fee recipient address
+	string fee_recipient = 15;
 }
 
 message TradesV2Response {
@@ -530,6 +536,8 @@ message StreamTradesV2Request {
 	string account_address = 13;
 	// Client order ID
 	string cid = 14;
+	// Fee recipient address
+	string fee_recipient = 15;
 }
 
 message StreamTradesV2Response {

@@ -47,6 +47,7 @@
       ],
       "disabled-checks": [
         "hugeParam",
+        "unnamedResult",
       ]
     }
   },

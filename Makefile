@@ -2,6 +2,7 @@ all:
 
 copy-exchange-client:
 	rm -rf exchange/*
+	mkdir -p exchange/event_provider_api
 	mkdir -p exchange/health_rpc
 	mkdir -p exchange/accounts_rpc
 	mkdir -p exchange/auction_rpc
@@ -16,8 +17,8 @@ copy-exchange-client:
 	mkdir -p exchange/spot_exchange_rpc
 	mkdir -p exchange/trading_rpc
 
+	cp -r ../injective-indexer/api/gen/grpc/event_provider_api/pb exchange/event_provider_api/pb
 	cp -r ../injective-indexer/api/gen/grpc/health/pb exchange/health_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_accounts_rpc/pb exchange/accounts_rpc/pb
 	cp -r ../injective-indexer/api/gen/grpc/injective_accounts_rpc/pb exchange/accounts_rpc/pb
 	cp -r ../injective-indexer/api/gen/grpc/injective_auction_rpc/pb exchange/auction_rpc/pb
 	cp -r ../injective-indexer/api/gen/grpc/injective_campaign_rpc/pb exchange/campaign_rpc/pb
@@ -31,44 +32,109 @@ copy-exchange-client:
 	cp -r ../injective-indexer/api/gen/grpc/injective_spot_exchange_rpc/pb exchange/spot_exchange_rpc/pb
 	cp -r ../injective-indexer/api/gen/grpc/injective_trading_rpc/pb exchange/trading_rpc/pb
 
-.PHONY: copy-exchange-client tests coverage
-
 copy-chain-types:
-	cp ../injective-core/injective-chain/crypto/ethsecp256k1/*.go chain/crypto/ethsecp256k1
+	cp -r ../injective-core/injective-chain/codec chain
+	cp -r ../injective-core/injective-chain/helpers chain
+	mkdir -p chain/crypto/codec && cp ../injective-core/injective-chain/crypto/codec/*.go chain/crypto/codec
+	rm -rf chain/crypto/codec/*test.go rm -rf chain/crypto/codec/*gw.go
+	mkdir -p chain/crypto/ethsecp256k1 && cp ../injective-core/injective-chain/crypto/ethsecp256k1/*.go chain/crypto/ethsecp256k1
 	rm -rf chain/crypto/ethsecp256k1/*test.go rm -rf chain/crypto/ethsecp256k1/*gw.go
-	cp ../injective-core/injective-chain/codec/types/*.go chain/codec/types
-	rm -rf chain/codec/types/*test.go rm -rf chain/codec/types/*gw.go
-	cp ../injective-core/injective-chain/modules/auction/types/*.go chain/auction/types
-	rm -rf chain/auction/types/*test.go  rm -rf chain/auction/types/*gw.go
-	cp ../injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types
-	rm -rf chain/exchange/types/*test.go  rm -rf chain/exchange/types/*gw.go
-	cp ../injective-core/injective-chain/modules/insurance/types/*.go chain/insurance/types
-	rm -rf chain/insurance/types/*test.go  rm -rf chain/insurance/types/*gw.go
-	cp ../injective-core/injective-chain/modules/ocr/types/*.go chain/ocr/types
-	rm -rf chain/ocr/types/*test.go  rm -rf chain/ocr/types/*gw.go
-	cp ../injective-core/injective-chain/modules/oracle/types/*.go chain/oracle/types
-	cp -r ../injective-core/injective-chain/modules/oracle/bandchain chain/oracle
-	rm -rf chain/oracle/types/*test.go  rm -rf chain/oracle/types/*gw.go
-	cp ../injective-core/injective-chain/modules/peggy/types/*.go chain/peggy/types
-	rm -rf chain/peggy/types/*test.go  rm -rf chain/peggy/types/*gw.go
-	cp ../injective-core/injective-chain/modules/permissions/types/*.go chain/permissions/types
-	rm -rf chain/permissions/types/*test.go  rm -rf chain/permissions/types/*gw.go
-	cp ../injective-core/injective-chain/modules/tokenfactory/types/*.go chain/tokenfactory/types
-	rm -rf chain/tokenfactory/types/*test.go  rm -rf chain/tokenfactory/types/*gw.go
-	cp ../injective-core/injective-chain/modules/wasmx/types/*.go chain/wasmx/types
-	rm -rf chain/wasmx/types/*test.go  rm -rf chain/wasmx/types/*gw.go
-	cp ../injective-core/injective-chain/stream/types/*.go chain/stream/types
-	rm -rf chain/stream/types/*test.go  rm -rf chain/stream/types/*gw.go
-	cp ../injective-core/injective-chain/types/*.go chain/types
-	rm -rf chain/types/*test.go rm -rf chain/types/*gw.go
+	mkdir -p chain/crypto/hd && cp ../injective-core/injective-chain/crypto/hd/*.go chain/crypto/hd
+	rm -rf chain/crypto/hd/*test.go rm -rf chain/crypto/hd/*gw.go
+	mkdir -p chain/auction/types && \
+		cp ../injective-core/injective-chain/modules/auction/types/*.pb.go chain/auction/types && \
+		cp ../injective-core/injective-chain/modules/auction/types/codec.go chain/auction/types
+	mkdir -p chain/exchange/types && \
+		cp ../injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types && \
+		rm -rf chain/exchange/types/*test.go && rm -rf chain/exchange/types/*gw.go
+	mkdir -p chain/insurance/types && \
+		cp ../injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
+		cp ../injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
+	mkdir -p chain/ocr/types && \
+		cp ../injective-core/injective-chain/modules/ocr/types/*.pb.go chain/ocr/types && \
+		cp ../injective-core/injective-chain/modules/ocr/types/errors.go chain/ocr/types && \
+		cp ../injective-core/injective-chain/modules/ocr/types/key.go chain/ocr/types && \
+		cp ../injective-core/injective-chain/modules/ocr/types/params.go chain/ocr/types && \
+		cp ../injective-core/injective-chain/modules/ocr/types/proposal.go chain/ocr/types && \
+		cp ../injective-core/injective-chain/modules/ocr/types/types.go chain/ocr/types && \
+		cp ../injective-core/injective-chain/modules/ocr/types/codec.go chain/ocr/types
+	mkdir -p chain/oracle/types && \
+		cp ../injective-core/injective-chain/modules/oracle/types/*.pb.go chain/oracle/types && \
+		cp ../injective-core/injective-chain/modules/oracle/types/codec.go chain/oracle/types && \
+		cp ../injective-core/injective-chain/modules/oracle/types/errors.go chain/oracle/types && \
+		cp ../injective-core/injective-chain/modules/oracle/types/msgs.go chain/oracle/types && \
+		cp ../injective-core/injective-chain/modules/oracle/types/oracle.go chain/oracle/types && \
+		cp ../injective-core/injective-chain/modules/oracle/types/params.go chain/oracle/types && \
+		cp ../injective-core/injective-chain/modules/oracle/types/proposal.go chain/oracle/types && \
+		cp ../injective-core/injective-chain/modules/oracle/types/stork_oracle.go chain/oracle/types && \
+		cp -r ../injective-core/injective-chain/modules/oracle/bandchain chain/oracle
+	mkdir -p chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/*.pb.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/abi_json.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/codec.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/ethereum.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/ethereum_signer.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/errors.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/key.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/msgs.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/params.go chain/peggy/types && \
+		cp ../injective-core/injective-chain/modules/peggy/types/types.go chain/peggy/types
+	mkdir -p chain/permissions/types && \
+		cp ../injective-core/injective-chain/modules/permissions/types/*.pb.go chain/permissions/types && \
+		cp ../injective-core/injective-chain/modules/permissions/types/codec.go chain/permissions/types
+	mkdir -p chain/tokenfactory/types && \
+		cp ../injective-core/injective-chain/modules/tokenfactory/types/*.pb.go chain/tokenfactory/types && \
+		cp ../injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types
+	mkdir -p chain/wasmx/types && \
+		cp ../injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
+		cp ../injective-core/injective-chain/modules/wasmx/types/codec.go chain/wasmx/types && \
+		cp ../injective-core/injective-chain/modules/wasmx/types/custom_execution.go chain/wasmx/types && \
+		cp ../injective-core/injective-chain/modules/wasmx/types/errors.go chain/wasmx/types && \
+		cp ../injective-core/injective-chain/modules/wasmx/types/key.go chain/wasmx/types && \
+		cp ../injective-core/injective-chain/modules/wasmx/types/msgs.go chain/wasmx/types && \
+		cp ../injective-core/injective-chain/modules/wasmx/types/params.go chain/wasmx/types && \
+		cp ../injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
+	mkdir -p chain/stream/types && \
+		cp ../injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
+	mkdir -p chain/types && \
+		cp ../injective-core/injective-chain/types/*.pb.go ../injective-core/injective-chain/types/config.go chain/types && \
+		cp ../injective-core/injective-chain/types/codec.go chain/types
 
-	@echo "👉 Replace injective-core/injective-chain/modules with sdk-go/chain"
-	@echo "👉 Replace injective-core/injective-chain/codec with sdk-go/chain/codec"
-	@echo "👉 Replace injective-core/injective-chain/codec/types with sdk-go/chain/codec/types"
-	@echo "👉 Replace injective-core/injective-chain/types with sdk-go/chain/types"
-	@echo "👉 Replace injective-core/injective-chain/crypto with sdk-go/chain/crypto"
+	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
+	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
+
+#gen: gen-proto
+#
+#gen-proto: clone-all copy-proto
+#	buf generate --template buf.gen.chain.yaml
+#	buf generate --template buf.gen.indexer.yaml
+#	rm -rf local_proto
+#	$(call clean_repos)
+#
+#define clean_repos
+#	rm -Rf injective-indexer
+#endef
+#
+#clean-all:
+#	$(call clean_repos)
+#
+#clone-injective-indexer:
+#	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.13.4 --depth 1 --single-branch
+#
+#clone-all: clone-injective-indexer
+#
+#copy-proto:
+#	rm -rf local_proto
+#	mkdir -p local_proto
+#	find ./injective-indexer/api/gen/grpc -type f -name "*.proto" | while read -r file; do \
+#		dest="local_proto/$$(basename $$(dirname $$(dirname "$$file")))/$$(basename $$(dirname "$$file"))"; \
+#		mkdir -p "$$dest"; \
+#		cp "$$file" "$$dest"; \
+#	done
 
 tests:
 	go test -race ./client/... ./ethereum/...
 coverage:
 	go test -race -coverprofile=coverage.out -covermode=atomic ./client/... ./ethereum/...
+
+.PHONY: copy-exchange-client tests coverage

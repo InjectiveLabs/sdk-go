@@ -17,6 +17,8 @@ service InjectiveExchangeRPC {
 	rpc GetTx (GetTxRequest) returns (GetTxResponse);
 	// PrepareTx generates a Web3-signable body for a Cosmos transaction
 	rpc PrepareTx (PrepareTxRequest) returns (PrepareTxResponse);
+	// prepareEip712 generates EIP712 for an Injective Message
+	rpc PrepareEip712 (PrepareEip712Request) returns (PrepareEip712Response);
 	// BroadcastTx broadcasts a signed Web3 transaction
 	rpc BroadcastTx (BroadcastTxRequest) returns (BroadcastTxResponse);
 	// PrepareCosmosTx generates a Web3-signable body for a Cosmos transaction
@@ -67,7 +69,7 @@ message PrepareTxRequest {
 	CosmosTxFee fee = 6;
 	// List of Cosmos proto3-encoded Msgs to include in a single tx
 	repeated bytes msgs = 7;
-	// The wrapper of the EIP712 message, V1 or V2
+	// The wrapper of the EIP712 message, 'v1'/'v2' or 'V1'/'V2'
 	string eip712_wrapper = 8;
 }
 
@@ -101,6 +103,32 @@ message PrepareTxResponse {
 	string fee_payer = 5;
 	// Hex-encoded ethsecp256k1 signature bytes from fee payer
 	string fee_payer_sig = 6;
+}
+
+message PrepareEip712Request {
+	// Specify chainID for the target tx
+	uint64 chain_id = 1;
+	// Specify Ethereum address of a signer
+	string signer_address = 2;
+	// Sequence number of the transaction signer
+	uint64 sequence = 3;
+	// Account number of the transaction signer
+	uint64 account_number = 4;
+	// Textual memo information to attach with tx
+	string memo = 5;
+	// Block height until which the transaction is valid.
+	uint64 timeout_height = 6;
+	// Transaction fee details.
+	CosmosTxFee fee = 7;
+	// List of Cosmos proto3-encoded Msgs to include in a single tx
+	repeated bytes msgs = 8;
+	// The wrapper of the EIP712 message, 'v1'/'v2' or 'V1'/'V2'
+	string eip712_wrapper = 9;
+}
+
+message PrepareEip712Response {
+	// EIP712-compatible message suitable for signing with eth_signTypedData_v4
+	string data = 1;
 }
 
 message BroadcastTxRequest {

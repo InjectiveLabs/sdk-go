@@ -52,6 +52,14 @@ func (m *DerivativeLimitOrder) ToTrimmed() *TrimmedDerivativeLimitOrder {
 		Cid:       m.Cid(),
 	}
 }
+func (m *DerivativeLimitOrder) ToStandardized() *TrimmedLimitOrder {
+	return &TrimmedLimitOrder{
+		Price:        m.OrderInfo.Price,
+		Quantity:     m.OrderInfo.Quantity,
+		OrderHash:    common.BytesToHash(m.OrderHash).Hex(),
+		SubaccountId: m.OrderInfo.SubaccountId,
+	}
+}
 
 func (o *DerivativeMarketOrderCancel) GetCancelDepositDelta() *DepositDelta {
 	order := o.MarketOrder

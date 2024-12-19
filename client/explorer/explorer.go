@@ -50,9 +50,9 @@ func NewExplorerClient(network common.Network, options ...common.ClientOption) (
 	var conn *grpc.ClientConn
 	var err error
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(network.ExplorerGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(network.ExplorerGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		conn, err = grpc.Dial(network.ExplorerGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(network.ExplorerGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {
 		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", network.ExplorerGrpcEndpoint)
