@@ -12,8 +12,8 @@ import (
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/ethereum/go-ethereum/common"
 
-	"github.com/InjectiveLabs/sdk-go/chain/helpers"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 // constants
@@ -1110,7 +1110,7 @@ func (p *TradingRewardPendingPointsUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	hasDuplicateAccountAddresses := helpers.HasDuplicate(accountAddresses)
+	hasDuplicateAccountAddresses := chaintypes.HasDuplicate(accountAddresses)
 	if hasDuplicateAccountAddresses {
 		return errors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "account address cannot have duplicates")
 	}
@@ -1206,7 +1206,7 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
 	}
 
-	hasDuplicatesInMarkets := helpers.HasDuplicate(t.BoostedSpotMarketIds) || helpers.HasDuplicate(t.BoostedDerivativeMarketIds)
+	hasDuplicatesInMarkets := chaintypes.HasDuplicate(t.BoostedSpotMarketIds) || chaintypes.HasDuplicate(t.BoostedDerivativeMarketIds)
 	if hasDuplicatesInMarkets {
 		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate boosted market ids")
 	}
@@ -1275,7 +1275,7 @@ func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 		}
 	}
 
-	hasDuplicatesInDisqualifiedMarkets := helpers.HasDuplicate(c.DisqualifiedMarketIds)
+	hasDuplicatesInDisqualifiedMarkets := chaintypes.HasDuplicate(c.DisqualifiedMarketIds)
 	if hasDuplicatesInDisqualifiedMarkets {
 		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate disqualified market ids")
 	}
@@ -1299,7 +1299,7 @@ func validateCampaignRewardPool(pool *CampaignRewardPool, campaignDurationSecond
 
 	prevStartTimestamp = pool.StartTimestamp
 
-	hasDuplicatesInEpochRewards := helpers.HasDuplicateCoins(pool.MaxCampaignRewards)
+	hasDuplicatesInEpochRewards := chaintypes.HasDuplicateCoins(pool.MaxCampaignRewards)
 	if hasDuplicatesInEpochRewards {
 		return 0, errors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool campaign contains duplicate market coins")
 	}
@@ -1361,7 +1361,7 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have have bucket durations of at least 10 seconds")
 	}
 
-	if helpers.HasDuplicate(p.Schedule.QuoteDenoms) {
+	if chaintypes.HasDuplicate(p.Schedule.QuoteDenoms) {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate quote denoms")
 	}
 
@@ -1371,7 +1371,7 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 		}
 	}
 
-	if helpers.HasDuplicate(p.Schedule.DisqualifiedMarketIds) {
+	if chaintypes.HasDuplicate(p.Schedule.DisqualifiedMarketIds) {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate disqualified market ids")
 	}
 

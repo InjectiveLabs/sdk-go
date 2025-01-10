@@ -12,6 +12,17 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // Query defines the gRPC querier service.
 service Query {
 
+  rpc L3DerivativeOrderBook(QueryFullDerivativeOrderbookRequest)
+      returns (QueryFullDerivativeOrderbookResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/derivative/L3OrderBook/{market_id}";
+  }
+
+  rpc L3SpotOrderBook(QueryFullSpotOrderbookRequest)
+      returns (QueryFullSpotOrderbookResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/spot/L3OrderBook/{market_id}";
+  }
   // Retrieves exchange params
   rpc QueryExchangeParams(QueryExchangeParamsRequest)
       returns (QueryExchangeParamsResponse) {
@@ -1410,7 +1421,39 @@ message TrimmedDerivativeConditionalOrder {
 message QueryTraderDerivativeConditionalOrdersResponse {
   repeated TrimmedDerivativeConditionalOrder orders = 1;
 }
+message QueryFullSpotOrderbookRequest {
+  // market id
+  string market_id = 1;
+}
 
+message QueryFullSpotOrderbookResponse {
+  repeated TrimmedLimitOrder Bids = 1;
+  repeated TrimmedLimitOrder Asks = 2;
+}
+
+message QueryFullDerivativeOrderbookRequest {
+  // market id
+  string market_id = 1;
+}
+
+message QueryFullDerivativeOrderbookResponse {
+  repeated TrimmedLimitOrder Bids = 1;
+  repeated TrimmedLimitOrder Asks = 2;
+}
+message TrimmedLimitOrder {
+  string price = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // quantity of the order
+  string quantity = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  string order_hash = 3;
+  string subaccount_id = 4;
+}
 message QueryMarketAtomicExecutionFeeMultiplierRequest { string market_id = 1; }
 
 message QueryMarketAtomicExecutionFeeMultiplierResponse {

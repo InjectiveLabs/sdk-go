@@ -34,6 +34,7 @@ func DefaultParams() *Params {
 		UnbondSlashingValsetsWindow:   10000,
 		ClaimSlashingEnabled:          false,
 		Admins:                        nil,
+		SegregatedWalletAddress:       "",
 	}
 }
 
@@ -101,6 +102,10 @@ func (p Params) ValidateBasic() error {
 	}
 	if err := validateAdmins(p.Admins); err != nil {
 		return errors.Wrap(err, "admins")
+	}
+
+	if err := validateSegregatedWallet(p.SegregatedWalletAddress); err != nil {
+		return errors.Wrap(err, "segregated wallet address")
 	}
 
 	return nil
@@ -316,6 +321,23 @@ func validateAdmins(i interface{}) error {
 			return fmt.Errorf("duplicate admin: %s", admin)
 		}
 		admins[adminAddr.String()] = struct{}{}
+	}
+
+	return nil
+}
+
+func validateSegregatedWallet(i interface{}) error {
+	str, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if str == "" {
+		return nil
+	}
+
+	if _, err := sdk.AccAddressFromBech32(str); err != nil {
+		return fmt.Errorf("invalid address %s: %w", str, err)
 	}
 
 	return nil

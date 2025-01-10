@@ -7,6 +7,7 @@ import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "injective/exchange/v1beta1/exchange.proto";
+import "injective/exchange/v1beta1/proposal.proto";
 import "injective/oracle/v1beta1/oracle.proto";
 import "amino/amino.proto";
 
@@ -168,6 +169,9 @@ service Msg {
 
   rpc ActivateStakeGrant(MsgActivateStakeGrant)
       returns (MsgActivateStakeGrantResponse);
+
+  rpc BatchExchangeModification(MsgBatchExchangeModification)
+      returns (MsgBatchExchangeModificationResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -381,6 +385,10 @@ message MsgInstantSpotMarketLaunch {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // base token decimals
+  uint32 base_decimals = 8;
+  // quote token decimals
+  uint32 quote_decimals = 9;
 }
 
 // MsgInstantSpotMarketLaunchResponse defines the Msg/InstantSpotMarketLaunch
@@ -1152,3 +1160,16 @@ message MsgActivateStakeGrant {
 }
 
 message MsgActivateStakeGrantResponse {}
+
+message MsgBatchExchangeModification {
+  option (amino.name) = "exchange/MsgBatchExchangeModification";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  BatchExchangeModificationProposal proposal = 2;
+}
+
+message MsgBatchExchangeModificationResponse {}

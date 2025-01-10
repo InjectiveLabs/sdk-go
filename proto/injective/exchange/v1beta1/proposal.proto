@@ -66,6 +66,11 @@ message SpotMarketParamUpdateProposal {
   ];
 
   AdminInfo admin_info = 12;
+
+  // base token decimals
+  uint32 base_decimals = 13;
+  // quote token decimals
+  uint32 quote_decimals = 14;
 }
 
 enum ExchangeType {
@@ -159,6 +164,10 @@ message SpotMarketLaunchProposal {
     (gogoproto.nullable) = false
   ];
   AdminInfo admin_info = 11;
+  // base token decimals
+  uint32 base_decimals = 14;
+  // quote token decimals
+  uint32 quote_decimals = 15;
 }
 
 // PerpetualMarketLaunchProposal defines a SDK message for proposing a new

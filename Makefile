@@ -1,107 +1,120 @@
 all:
 
-copy-exchange-client:
+clone-injective-indexer:
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.13.117 --depth 1 --single-branch
+
+clone-injective-core:
+	git clone https://github.com/InjectiveLabs/injective-core.git -b dev-v1.14 --depth 1 --single-branch
+
+copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
-	mkdir -p exchange/event_provider_api
-	mkdir -p exchange/health_rpc
-	mkdir -p exchange/accounts_rpc
-	mkdir -p exchange/auction_rpc
-	mkdir -p exchange/campaign_rpc
-	mkdir -p exchange/derivative_exchange_rpc
-	mkdir -p exchange/exchange_rpc
-	mkdir -p exchange/explorer_rpc
-	mkdir -p exchange/insurance_rpc
-	mkdir -p exchange/meta_rpc
-	mkdir -p exchange/oracle_rpc
-	mkdir -p exchange/portfolio_rpc
-	mkdir -p exchange/spot_exchange_rpc
-	mkdir -p exchange/trading_rpc
+	mkdir -p exchange/event_provider_api/pb
+	mkdir -p exchange/health_rpc/pb
+	mkdir -p exchange/accounts_rpc/pb
+	mkdir -p exchange/auction_rpc/pb
+	mkdir -p exchange/campaign_rpc/pb
+	mkdir -p exchange/derivative_exchange_rpc/pb
+	mkdir -p exchange/exchange_rpc/pb
+	mkdir -p exchange/explorer_rpc/pb
+	mkdir -p exchange/insurance_rpc/pb
+	mkdir -p exchange/meta_rpc/pb
+	mkdir -p exchange/oracle_rpc/pb
+	mkdir -p exchange/portfolio_rpc/pb
+	mkdir -p exchange/spot_exchange_rpc/pb
+	mkdir -p exchange/trading_rpc/pb
 
-	cp -r ../injective-indexer/api/gen/grpc/event_provider_api/pb exchange/event_provider_api/pb
-	cp -r ../injective-indexer/api/gen/grpc/health/pb exchange/health_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_accounts_rpc/pb exchange/accounts_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_auction_rpc/pb exchange/auction_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_campaign_rpc/pb exchange/campaign_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_derivative_exchange_rpc/pb exchange/derivative_exchange_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_exchange_rpc/pb exchange/exchange_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_explorer_rpc/pb exchange/explorer_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_insurance_rpc/pb exchange/insurance_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_meta_rpc/pb exchange/meta_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_oracle_rpc/pb exchange/oracle_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_portfolio_rpc/pb exchange/portfolio_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_spot_exchange_rpc/pb exchange/spot_exchange_rpc/pb
-	cp -r ../injective-indexer/api/gen/grpc/injective_trading_rpc/pb exchange/trading_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/event_provider_api/pb/*.pb.go exchange/event_provider_api/pb
+	cp -r injective-indexer/api/gen/grpc/health/pb/*.pb.go exchange/health_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_accounts_rpc/pb/*.pb.go exchange/accounts_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_auction_rpc/pb/*.pb.go exchange/auction_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_campaign_rpc/pb/*.pb.go exchange/campaign_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_derivative_exchange_rpc/pb/*.pb.go exchange/derivative_exchange_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_exchange_rpc/pb/*.pb.go exchange/exchange_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_explorer_rpc/pb/*.pb.go exchange/explorer_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_insurance_rpc/pb/*.pb.go exchange/insurance_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_meta_rpc/pb/*.pb.go exchange/meta_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_oracle_rpc/pb/*.pb.go exchange/oracle_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_portfolio_rpc/pb/*.pb.go exchange/portfolio_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_spot_exchange_rpc/pb/*.pb.go exchange/spot_exchange_rpc/pb
+	cp -r injective-indexer/api/gen/grpc/injective_trading_rpc/pb/*.pb.go exchange/trading_rpc/pb
 
-copy-chain-types:
-	cp -r ../injective-core/injective-chain/codec chain
-	cp -r ../injective-core/injective-chain/helpers chain
-	mkdir -p chain/crypto/codec && cp ../injective-core/injective-chain/crypto/codec/*.go chain/crypto/codec
+	rm -rf injective-indexer
+
+copy-chain-types: clone-injective-core
+	cp -r injective-core/injective-chain/codec chain
+	mkdir -p chain/crypto/codec && cp injective-core/injective-chain/crypto/codec/*.go chain/crypto/codec
 	rm -rf chain/crypto/codec/*test.go rm -rf chain/crypto/codec/*gw.go
-	mkdir -p chain/crypto/ethsecp256k1 && cp ../injective-core/injective-chain/crypto/ethsecp256k1/*.go chain/crypto/ethsecp256k1
+	mkdir -p chain/crypto/ethsecp256k1 && cp injective-core/injective-chain/crypto/ethsecp256k1/*.go chain/crypto/ethsecp256k1
 	rm -rf chain/crypto/ethsecp256k1/*test.go rm -rf chain/crypto/ethsecp256k1/*gw.go
-	mkdir -p chain/crypto/hd && cp ../injective-core/injective-chain/crypto/hd/*.go chain/crypto/hd
+	mkdir -p chain/crypto/hd && cp injective-core/injective-chain/crypto/hd/*.go chain/crypto/hd
 	rm -rf chain/crypto/hd/*test.go rm -rf chain/crypto/hd/*gw.go
 	mkdir -p chain/auction/types && \
-		cp ../injective-core/injective-chain/modules/auction/types/*.pb.go chain/auction/types && \
-		cp ../injective-core/injective-chain/modules/auction/types/codec.go chain/auction/types
+		cp injective-core/injective-chain/modules/auction/types/*.pb.go chain/auction/types && \
+		cp injective-core/injective-chain/modules/auction/types/codec.go chain/auction/types
 	mkdir -p chain/exchange/types && \
-		cp ../injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types && \
+		cp injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types && \
 		rm -rf chain/exchange/types/*test.go && rm -rf chain/exchange/types/*gw.go
 	mkdir -p chain/insurance/types && \
-		cp ../injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
-		cp ../injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
+		cp injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
+		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
 	mkdir -p chain/ocr/types && \
-		cp ../injective-core/injective-chain/modules/ocr/types/*.pb.go chain/ocr/types && \
-		cp ../injective-core/injective-chain/modules/ocr/types/errors.go chain/ocr/types && \
-		cp ../injective-core/injective-chain/modules/ocr/types/key.go chain/ocr/types && \
-		cp ../injective-core/injective-chain/modules/ocr/types/params.go chain/ocr/types && \
-		cp ../injective-core/injective-chain/modules/ocr/types/proposal.go chain/ocr/types && \
-		cp ../injective-core/injective-chain/modules/ocr/types/types.go chain/ocr/types && \
-		cp ../injective-core/injective-chain/modules/ocr/types/codec.go chain/ocr/types
+		cp injective-core/injective-chain/modules/ocr/types/*.pb.go chain/ocr/types && \
+		cp injective-core/injective-chain/modules/ocr/types/errors.go chain/ocr/types && \
+		cp injective-core/injective-chain/modules/ocr/types/key.go chain/ocr/types && \
+		cp injective-core/injective-chain/modules/ocr/types/params.go chain/ocr/types && \
+		cp injective-core/injective-chain/modules/ocr/types/proposal.go chain/ocr/types && \
+		cp injective-core/injective-chain/modules/ocr/types/types.go chain/ocr/types && \
+		cp injective-core/injective-chain/modules/ocr/types/codec.go chain/ocr/types
 	mkdir -p chain/oracle/types && \
-		cp ../injective-core/injective-chain/modules/oracle/types/*.pb.go chain/oracle/types && \
-		cp ../injective-core/injective-chain/modules/oracle/types/codec.go chain/oracle/types && \
-		cp ../injective-core/injective-chain/modules/oracle/types/errors.go chain/oracle/types && \
-		cp ../injective-core/injective-chain/modules/oracle/types/msgs.go chain/oracle/types && \
-		cp ../injective-core/injective-chain/modules/oracle/types/oracle.go chain/oracle/types && \
-		cp ../injective-core/injective-chain/modules/oracle/types/params.go chain/oracle/types && \
-		cp ../injective-core/injective-chain/modules/oracle/types/proposal.go chain/oracle/types && \
-		cp ../injective-core/injective-chain/modules/oracle/types/stork_oracle.go chain/oracle/types && \
-		cp -r ../injective-core/injective-chain/modules/oracle/bandchain chain/oracle
+		cp injective-core/injective-chain/modules/oracle/types/*.pb.go chain/oracle/types && \
+		cp injective-core/injective-chain/modules/oracle/types/codec.go chain/oracle/types && \
+		cp injective-core/injective-chain/modules/oracle/types/errors.go chain/oracle/types && \
+		cp injective-core/injective-chain/modules/oracle/types/msgs.go chain/oracle/types && \
+		cp injective-core/injective-chain/modules/oracle/types/oracle.go chain/oracle/types && \
+		cp injective-core/injective-chain/modules/oracle/types/params.go chain/oracle/types && \
+		cp injective-core/injective-chain/modules/oracle/types/proposal.go chain/oracle/types && \
+		cp injective-core/injective-chain/modules/oracle/types/stork_oracle.go chain/oracle/types && \
+		cp -r injective-core/injective-chain/modules/oracle/bandchain chain/oracle
 	mkdir -p chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/*.pb.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/abi_json.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/codec.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/ethereum.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/ethereum_signer.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/errors.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/key.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/msgs.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/params.go chain/peggy/types && \
-		cp ../injective-core/injective-chain/modules/peggy/types/types.go chain/peggy/types
+		cp injective-core/injective-chain/modules/peggy/types/*.pb.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/abi_json.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/codec.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/ethereum.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/ethereum_signer.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/errors.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/key.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/msgs.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/params.go chain/peggy/types && \
+		cp injective-core/injective-chain/modules/peggy/types/types.go chain/peggy/types
 	mkdir -p chain/permissions/types && \
-		cp ../injective-core/injective-chain/modules/permissions/types/*.pb.go chain/permissions/types && \
-		cp ../injective-core/injective-chain/modules/permissions/types/codec.go chain/permissions/types
+		cp injective-core/injective-chain/modules/permissions/types/*.pb.go chain/permissions/types && \
+		cp injective-core/injective-chain/modules/permissions/types/codec.go chain/permissions/types
 	mkdir -p chain/tokenfactory/types && \
-		cp ../injective-core/injective-chain/modules/tokenfactory/types/*.pb.go chain/tokenfactory/types && \
-		cp ../injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types
+		cp injective-core/injective-chain/modules/tokenfactory/types/*.pb.go chain/tokenfactory/types && \
+		cp injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types
 	mkdir -p chain/wasmx/types && \
-		cp ../injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
-		cp ../injective-core/injective-chain/modules/wasmx/types/codec.go chain/wasmx/types && \
-		cp ../injective-core/injective-chain/modules/wasmx/types/custom_execution.go chain/wasmx/types && \
-		cp ../injective-core/injective-chain/modules/wasmx/types/errors.go chain/wasmx/types && \
-		cp ../injective-core/injective-chain/modules/wasmx/types/key.go chain/wasmx/types && \
-		cp ../injective-core/injective-chain/modules/wasmx/types/msgs.go chain/wasmx/types && \
-		cp ../injective-core/injective-chain/modules/wasmx/types/params.go chain/wasmx/types && \
-		cp ../injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
+		cp injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
+		cp injective-core/injective-chain/modules/wasmx/types/codec.go chain/wasmx/types && \
+		cp injective-core/injective-chain/modules/wasmx/types/custom_execution.go chain/wasmx/types && \
+		cp injective-core/injective-chain/modules/wasmx/types/errors.go chain/wasmx/types && \
+		cp injective-core/injective-chain/modules/wasmx/types/key.go chain/wasmx/types && \
+		cp injective-core/injective-chain/modules/wasmx/types/msgs.go chain/wasmx/types && \
+		cp injective-core/injective-chain/modules/wasmx/types/params.go chain/wasmx/types && \
+		cp injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
 	mkdir -p chain/stream/types && \
-		cp ../injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
+		cp injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
 	mkdir -p chain/types && \
-		cp ../injective-core/injective-chain/types/*.pb.go ../injective-core/injective-chain/types/config.go chain/types && \
-		cp ../injective-core/injective-chain/types/codec.go chain/types
+		cp injective-core/injective-chain/types/*.pb.go injective-core/injective-chain/types/config.go chain/types && \
+		cp injective-core/injective-chain/types/codec.go chain/types && \
+		cp injective-core/injective-chain/types/util.go chain/types
 
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
+
+	rm -rf proto
+	cp -r injective-core/proto ./
+
+	rm -rf injective-core
 
 #gen: gen-proto
 #
