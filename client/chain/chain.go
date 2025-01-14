@@ -407,6 +407,8 @@ func NewChainClient(
 		}
 	}()
 
+	fmt.Println("Connected to the chain gRPC: ", network.ChainGrpcEndpoint)
+
 	var chainStreamConn *grpc.ClientConn
 	if opts.TLSCert != nil {
 		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
@@ -422,6 +424,8 @@ func NewChainClient(
 			chainStreamConn.Close()
 		}
 	}()
+
+	fmt.Println("Connected to the chain stream gRPC: ", network.ChainGrpcEndpoint)
 
 	cancelCtx, cancelFn := context.WithCancel(context.Background())
 	// build client

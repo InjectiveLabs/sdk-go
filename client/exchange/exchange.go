@@ -124,6 +124,8 @@ func NewExchangeClient(network common.Network, options ...common.ClientOption) (
 		return nil, err
 	}
 
+	fmt.Println("Connected to exchange client", network.ExchangeGrpcEndpoint)
+
 	// build client
 	cc := &exchangeClient{
 		opts:    opts,
