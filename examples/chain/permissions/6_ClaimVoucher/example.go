@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"os"
 
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
@@ -63,7 +64,7 @@ func main() {
 	}
 
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	response, err := chainClient.SyncBroadcastMsg(msg)
+	_, response, err := chainClient.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msg)
 
 	if err != nil {
 		panic(err)

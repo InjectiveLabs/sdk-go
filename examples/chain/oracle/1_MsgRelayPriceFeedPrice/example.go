@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/math"
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -68,7 +69,7 @@ func main() {
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	result, err := chainClient.SyncBroadcastMsg(msg)
+	_, result, err := chainClient.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msg)
 
 	if err != nil {
 		panic(err)
