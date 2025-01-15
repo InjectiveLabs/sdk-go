@@ -880,14 +880,18 @@ func (c *chainClient) runBatchBroadcast() {
 	submitBatch := func(toSubmit []sdk.Msg) {
 		res, err := c.SyncBroadcastMsg(toSubmit...)
 
-		if res.TxResponse.Code != 0 {
-			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
-			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to broadcast messages batch")
+		if err != nil {
+			c.logger.WithError(err)
 		} else {
-			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch broadcasted successfully at height", res.TxResponse.Height)
+			if res.TxResponse.Code != 0 {
+				err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+				c.logger.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to broadcast messages batch")
+			} else {
+				c.logger.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch broadcasted successfully at height", res.TxResponse.Height)
+			}
 		}
 
-		log.Debugln("gas wanted: ", c.gasWanted)
+		c.logger.Debugln("gas wanted: ", c.gasWanted)
 	}
 
 	for {
@@ -2605,7 +2609,7 @@ func (c *chainClient) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...
 			sequence := c.getAccSeq()
 			c.txFactory = c.txFactory.WithSequence(sequence)
 			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-			log.Debugln("retrying broadcastTx with nonce", sequence)
+			c.logger.Debugln("retrying broadcastTx with nonce", sequence)
 			req, res, err = c.broadcastTx(c.ctx, c.txFactory, broadcastMode, msgs...)
 		}
 		if err != nil {

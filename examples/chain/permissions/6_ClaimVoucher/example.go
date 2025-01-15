@@ -3,14 +3,15 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"os"
+
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
