@@ -73,6 +73,10 @@ func (c *MockChainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastT
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
+func (c *MockChainClient) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxRequest{}, &txtypes.BroadcastTxResponse{}, nil
+}
+
 func (c *MockChainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msg ...sdk.Msg) ([]byte, error) {
 	return []byte(nil), nil
 }
