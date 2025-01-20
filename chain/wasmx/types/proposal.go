@@ -196,17 +196,6 @@ func (p *BatchStoreCodeProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(p)
 }
 
-func HasDuplicates(slice []string) bool {
-	seen := make(map[string]struct{})
-	for _, item := range slice {
-		if _, ok := seen[item]; ok {
-			return true
-		}
-		seen[item] = struct{}{}
-	}
-	return false
-}
-
 func hasDuplicatesContractRegistrationRequest(slice []ContractRegistrationRequest) bool {
 	seen := make(map[string]struct{})
 	for _, item := range slice {

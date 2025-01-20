@@ -8,27 +8,29 @@ import "injective/tokenfactory/v1beta1/authorityMetadata.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/tokenfactory/types";
 
-message EventCreateTFDenom {
+message EventCreateDenom {
   string account = 1;
   string denom = 2;
 }
 
-message EventMintTFDenom {
-  string recipient_address = 1;
+message EventMint {
+  string minter = 1;
   cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
+  string receiver = 3;
 }
 
-message EventBurnDenom {
-  string burner_address = 1;
+message EventBurn {
+  string burner = 1;
   cosmos.base.v1beta1.Coin amount = 2 [ (gogoproto.nullable) = false ];
+  string burn_from = 3;
 }
 
-message EventChangeTFAdmin {
+message EventChangeAdmin {
   string denom = 1;
   string new_admin_address = 2;
 }
 
-message EventSetTFDenomMetadata {
+message EventSetDenomMetadata {
   string denom = 1;
   cosmos.bank.v1beta1.Metadata metadata = 2 [ (gogoproto.nullable) = false ];
 }

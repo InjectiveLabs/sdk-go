@@ -236,6 +236,12 @@ type ChainClient interface {
 	FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error)
 	FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error)
 	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
+	FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error)
+	FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error)
+	FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error)
+	FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error)
+	FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error)
+	FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error)
 
 	// Tendermint module
 	FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error)
@@ -288,11 +294,18 @@ type ChainClient interface {
 	FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error)
 
 	// Permissions module
-	FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error)
-	FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error)
-	FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error)
-	FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error)
-	FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error)
+	FetchPermissionsNamespaceDenoms(ctx context.Context) (*permissionstypes.QueryNamespaceDenomsResponse, error)
+	FetchPermissionsNamespaces(ctx context.Context) (*permissionstypes.QueryNamespacesResponse, error)
+	FetchPermissionsNamespace(ctx context.Context, denom string) (*permissionstypes.QueryNamespaceResponse, error)
+	FetchPermissionsRolesByActor(ctx context.Context, denom, actor string) (*permissionstypes.QueryRolesByActorResponse, error)
+	FetchPermissionsActorsByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryActorsByRoleResponse, error)
+	FetchPermissionsRoleManagers(ctx context.Context, denom string) (*permissionstypes.QueryRoleManagersResponse, error)
+	FetchPermissionsRoleManager(ctx context.Context, denom, manager string) (*permissionstypes.QueryRoleManagerResponse, error)
+	FetchPermissionsPolicyStatuses(ctx context.Context, denom string) (*permissionstypes.QueryPolicyStatusesResponse, error)
+	FetchPermissionsPolicyManagerCapabilities(ctx context.Context, denom string) (*permissionstypes.QueryPolicyManagerCapabilitiesResponse, error)
+	FetchPermissionsVouchers(ctx context.Context, denom string) (*permissionstypes.QueryVouchersResponse, error)
+	FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error)
+	FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error)
 
 	GetNetwork() common.Network
 	Close()
@@ -381,9 +394,9 @@ func NewChainClient(
 	var err error
 	stickySessionEnabled := true
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 		stickySessionEnabled = false
 	}
 	if err != nil {
@@ -393,9 +406,9 @@ func NewChainClient(
 
 	var chainStreamConn *grpc.ClientConn
 	if opts.TLSCert != nil {
-		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.NewClient(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.NewClient(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {
 		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
@@ -2107,6 +2120,56 @@ func (c *chainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Contex
 	return res, err
 }
 
+func (c *chainClient) FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error) {
+	req := &exchangetypes.QueryFullDerivativeOrderbookRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.L3DerivativeOrderBook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error) {
+	req := &exchangetypes.QueryFullSpotOrderbookRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.L3SpotOrderBook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error) {
+	req := &exchangetypes.QueryMarketBalanceRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketBalance, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error) {
+	req := &exchangetypes.QueryMarketBalancesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketBalances, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error) {
+	req := &exchangetypes.QueryDenomMinNotionalRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DenomMinNotional, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error) {
+	req := &exchangetypes.QueryDenomMinNotionalsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DenomMinNotionals, req)
+
+	return res, err
+}
+
 // Tendermint module
 
 func (c *chainClient) FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error) {
@@ -2493,48 +2556,108 @@ func (c *chainClient) FetchIBCConnectionParams(ctx context.Context) (*ibcconnect
 
 // Permissions module
 
-func (c *chainClient) FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error) {
-	req := &permissionstypes.QueryAllNamespacesRequest{}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AllNamespaces, req)
+func (c *chainClient) FetchPermissionsNamespaceDenoms(ctx context.Context) (*permissionstypes.QueryNamespaceDenomsResponse, error) {
+	req := &permissionstypes.QueryNamespaceDenomsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.NamespaceDenoms, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error) {
-	req := &permissionstypes.QueryNamespaceByDenomRequest{
-		Denom:        denom,
-		IncludeRoles: includeRoles,
+func (c *chainClient) FetchPermissionsNamespaces(ctx context.Context) (*permissionstypes.QueryNamespacesResponse, error) {
+	req := &permissionstypes.QueryNamespacesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.Namespaces, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsNamespace(ctx context.Context, denom string) (*permissionstypes.QueryNamespaceResponse, error) {
+	req := &permissionstypes.QueryNamespaceRequest{
+		Denom: denom,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.NamespaceByDenom, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.Namespace, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error) {
-	req := &permissionstypes.QueryAddressRolesRequest{
-		Denom:   denom,
-		Address: address,
+func (c *chainClient) FetchPermissionsRolesByActor(ctx context.Context, denom, actor string) (*permissionstypes.QueryRolesByActorResponse, error) {
+	req := &permissionstypes.QueryRolesByActorRequest{
+		Denom: denom,
+		Actor: actor,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AddressRoles, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.RolesByActor, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error) {
-	req := &permissionstypes.QueryAddressesByRoleRequest{
+func (c *chainClient) FetchPermissionsActorsByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryActorsByRoleResponse, error) {
+	req := &permissionstypes.QueryActorsByRoleRequest{
 		Denom: denom,
 		Role:  role,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AddressesByRole, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.ActorsByRole, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
-	req := &permissionstypes.QueryVouchersForAddressRequest{
+func (c *chainClient) FetchPermissionsRoleManagers(ctx context.Context, denom string) (*permissionstypes.QueryRoleManagersResponse, error) {
+	req := &permissionstypes.QueryRoleManagersRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.RoleManagers, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsRoleManager(ctx context.Context, denom, manager string) (*permissionstypes.QueryRoleManagerResponse, error) {
+	req := &permissionstypes.QueryRoleManagerRequest{
+		Denom:   denom,
+		Manager: manager,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.RoleManager, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsPolicyStatuses(ctx context.Context, denom string) (*permissionstypes.QueryPolicyStatusesResponse, error) {
+	req := &permissionstypes.QueryPolicyStatusesRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PolicyStatuses, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsPolicyManagerCapabilities(ctx context.Context, denom string) (*permissionstypes.QueryPolicyManagerCapabilitiesResponse, error) {
+	req := &permissionstypes.QueryPolicyManagerCapabilitiesRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PolicyManagerCapabilities, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsVouchers(ctx context.Context, denom string) (*permissionstypes.QueryVouchersResponse, error) {
+	req := &permissionstypes.QueryVouchersRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.Vouchers, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error) {
+	req := &permissionstypes.QueryVoucherRequest{
+		Denom:   denom,
 		Address: address,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.VouchersForAddress, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.Voucher, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
+	req := &permissionstypes.QueryModuleStateRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PermissionsModuleState, req)
 
 	return res, err
 }

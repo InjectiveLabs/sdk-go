@@ -317,16 +317,16 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 			continue
 		}
 
-		makerFeeRate := decimal.RequireFromString(marketInfo.GetMakerFeeRate().String())
-		takerFeeRate := decimal.RequireFromString(marketInfo.GetTakerFeeRate().String())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.GetRelayerFeeShareRate().String())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize().String())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize().String())
-		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional().String())
+		makerFeeRate := decimal.RequireFromString(marketInfo.MakerFeeRate.String())
+		takerFeeRate := decimal.RequireFromString(marketInfo.TakerFeeRate.String())
+		serviceProviderFee := decimal.RequireFromString(marketInfo.RelayerFeeShareRate.String())
+		minPriceTickSize := decimal.RequireFromString(marketInfo.MinPriceTickSize.String())
+		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
+		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
 
 		market := core.SpotMarket{
 			Id:                  marketInfo.GetMarketId(),
-			Status:              marketInfo.GetMarketStatus().String(),
+			Status:              marketInfo.Status.String(),
 			Ticker:              marketInfo.GetTicker(),
 			BaseToken:           baseToken,
 			QuoteToken:          quoteToken,
@@ -350,29 +350,29 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 	for _, fullMarket := range derivativeMarkets.GetMarkets() {
 		marketInfo := fullMarket.GetMarket()
 
-		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.GetQuoteDenom()]
+		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.QuoteDenom]
 		if !quoteTokenFound {
 			// Ignore the market because it references a token that is not in the token list
 			continue
 		}
 
-		initialMarginRatio := decimal.RequireFromString(marketInfo.GetInitialMarginRatio().String())
+		initialMarginRatio := decimal.RequireFromString(marketInfo.InitialMarginRatio.String())
 		maintenanceMarginRatio := decimal.RequireFromString(marketInfo.MaintenanceMarginRatio.String())
-		makerFeeRate := decimal.RequireFromString(marketInfo.GetMakerFeeRate().String())
-		takerFeeRate := decimal.RequireFromString(marketInfo.GetTakerFeeRate().String())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.GetRelayerFeeShareRate().String())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize().String())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize().String())
-		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional().String())
+		makerFeeRate := decimal.RequireFromString(marketInfo.MakerFeeRate.String())
+		takerFeeRate := decimal.RequireFromString(marketInfo.TakerFeeRate.String())
+		serviceProviderFee := decimal.RequireFromString(marketInfo.RelayerFeeShareRate.String())
+		minPriceTickSize := decimal.RequireFromString(marketInfo.MinPriceTickSize.String())
+		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
+		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
 
 		market := core.DerivativeMarket{
 			Id:                     marketInfo.MarketId,
-			Status:                 marketInfo.GetMarketStatus().String(),
-			Ticker:                 marketInfo.GetTicker(),
+			Status:                 marketInfo.Status.String(),
+			Ticker:                 marketInfo.Ticker,
 			OracleBase:             marketInfo.OracleBase,
 			OracleQuote:            marketInfo.OracleQuote,
 			OracleType:             marketInfo.OracleType.String(),
-			OracleScaleFactor:      marketInfo.GetOracleScaleFactor(),
+			OracleScaleFactor:      marketInfo.OracleScaleFactor,
 			InitialMarginRatio:     initialMarginRatio,
 			MaintenanceMarginRatio: maintenanceMarginRatio,
 			QuoteToken:             quoteToken,
@@ -394,27 +394,27 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 	}
 
 	for _, marketInfo := range binaryOptionsMarkets.GetMarkets() {
-		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.GetQuoteDenom()]
+		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.QuoteDenom]
 		if !quoteTokenFound {
 			// Ignore the market because it references a token that is not in the token list
 			continue
 		}
 
-		makerFeeRate := decimal.RequireFromString(marketInfo.GetMakerFeeRate().String())
-		takerFeeRate := decimal.RequireFromString(marketInfo.GetTakerFeeRate().String())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.GetRelayerFeeShareRate().String())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize().String())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize().String())
-		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional().String())
+		makerFeeRate := decimal.RequireFromString(marketInfo.MakerFeeRate.String())
+		takerFeeRate := decimal.RequireFromString(marketInfo.TakerFeeRate.String())
+		serviceProviderFee := decimal.RequireFromString(marketInfo.RelayerFeeShareRate.String())
+		minPriceTickSize := decimal.RequireFromString(marketInfo.MinPriceTickSize.String())
+		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
+		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
 
 		market := core.BinaryOptionMarket{
 			Id:                  marketInfo.MarketId,
-			Status:              marketInfo.GetMarketStatus().String(),
-			Ticker:              marketInfo.GetTicker(),
+			Status:              marketInfo.Status.String(),
+			Ticker:              marketInfo.Ticker,
 			OracleSymbol:        marketInfo.OracleSymbol,
 			OracleProvider:      marketInfo.OracleProvider,
 			OracleType:          marketInfo.OracleType.String(),
-			OracleScaleFactor:   marketInfo.GetOracleScaleFactor(),
+			OracleScaleFactor:   marketInfo.OracleScaleFactor,
 			ExpirationTimestamp: marketInfo.ExpirationTimestamp,
 			SettlementTimestamp: marketInfo.SettlementTimestamp,
 			QuoteToken:          quoteToken,

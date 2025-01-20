@@ -269,7 +269,10 @@ message DerivativeMarket {
   string admin = 18;
   // level of admin permissions
   uint32 admin_permissions = 19;
+  // quote token decimals
+  uint32 quote_decimals = 20;
 }
+
 // An object describing a binary options market in Injective Protocol.
 message BinaryOptionsMarket {
   option (gogoproto.goproto_getters) = false;
@@ -337,6 +340,8 @@ message BinaryOptionsMarket {
   ];
   // level of admin permissions
   uint32 admin_permissions = 19;
+  // quote token decimals
+  uint32 quote_decimals = 20;
 }
 
 message ExpiryFuturesMarketInfo {
@@ -481,6 +486,10 @@ message SpotMarket {
   string admin = 12;
   // level of admin permissions
   uint32 admin_permissions = 13;
+  // base token decimals
+  uint32 base_decimals = 14;
+  // quote token decimals
+  uint32 quote_decimals = 15;
 }
 
 // A subaccount's deposit for a given base currency
@@ -981,4 +990,12 @@ message EffectiveGrant {
     (gogoproto.nullable) = false
   ];
   bool is_valid = 3;
+}
+
+message DenomMinNotional {
+  string denom = 1;
+  string min_notional = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }

@@ -12,6 +12,7 @@ import (
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 const RouterKey = ModuleName
@@ -50,6 +51,7 @@ var (
 	_ sdk.Msg = &MsgUpdateParams{}
 	_ sdk.Msg = &MsgUpdateSpotMarket{}
 	_ sdk.Msg = &MsgUpdateDerivativeMarket{}
+	_ sdk.Msg = &MsgBatchExchangeModification{}
 )
 
 // exchange message types
@@ -89,6 +91,7 @@ const (
 	TypeMsgUpdateDerivativeMarket           = "updateDerivativeMarket"
 	TypeMsgAuthorizeStakeGrants             = "authorizeStakeGrant"
 	TypeMsgActivateStakeGrant               = "acceptStakeGrant"
+	TypeMsgBatchExchangeModification        = "batchExchangeModification"
 )
 
 func (msg MsgUpdateParams) Route() string { return RouterKey }
@@ -560,6 +563,13 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 	}
 	if err := ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(ErrInvalidNotional, err.Error())
+	}
+
+	if msg.BaseDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "base decimals is invalid")
+	}
+	if msg.QuoteDecimals > MaxDecimals {
+		return errors.Wrap(ErrInvalidDenomDecimal, "quote decimals is invalid")
 	}
 
 	return nil
@@ -1827,16 +1837,16 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 			return err
 		}
 
-		hasDuplicateSpotMarketIDs := HasDuplicatesHexHash(msg.SpotMarketIdsToCancelAll)
+		hasDuplicateSpotMarketIDs := chaintypes.HasDuplicate(msg.SpotMarketIdsToCancelAll)
 		if hasDuplicateSpotMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all spot market ids")
 		}
 
-		hasDuplicateDerivativesMarketIDs := HasDuplicatesHexHash(msg.DerivativeMarketIdsToCancelAll)
+		hasDuplicateDerivativesMarketIDs := chaintypes.HasDuplicate(msg.DerivativeMarketIdsToCancelAll)
 		if hasDuplicateDerivativesMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
 		}
-		hasDuplicateBinaryOptionsMarketIDs := HasDuplicatesHexHash(msg.BinaryOptionsMarketIdsToCancelAll)
+		hasDuplicateBinaryOptionsMarketIDs := chaintypes.HasDuplicate(msg.BinaryOptionsMarketIdsToCancelAll)
 		if hasDuplicateBinaryOptionsMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all binary options market ids")
 		}
@@ -2102,4 +2112,28 @@ func (msg *MsgActivateStakeGrant) GetSigners() []sdk.AccAddress {
 
 func (msg *MsgActivateStakeGrant) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgBatchExchangeModification) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgBatchExchangeModification) Route() string { return RouterKey }
+
+func (msg *MsgBatchExchangeModification) Type() string { return TypeMsgBatchExchangeModification }
+
+func (msg *MsgBatchExchangeModification) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
 }

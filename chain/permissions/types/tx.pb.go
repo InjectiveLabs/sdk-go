@@ -213,108 +213,21 @@ func (m *MsgCreateNamespaceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgCreateNamespaceResponse proto.InternalMessageInfo
 
-type MsgDeleteNamespace struct {
-	Sender         string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	NamespaceDenom string `protobuf:"bytes,2,opt,name=namespace_denom,json=namespaceDenom,proto3" json:"namespace_denom,omitempty"`
-}
-
-func (m *MsgDeleteNamespace) Reset()         { *m = MsgDeleteNamespace{} }
-func (m *MsgDeleteNamespace) String() string { return proto.CompactTextString(m) }
-func (*MsgDeleteNamespace) ProtoMessage()    {}
-func (*MsgDeleteNamespace) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{4}
-}
-func (m *MsgDeleteNamespace) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgDeleteNamespace) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgDeleteNamespace.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgDeleteNamespace) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgDeleteNamespace.Merge(m, src)
-}
-func (m *MsgDeleteNamespace) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgDeleteNamespace) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgDeleteNamespace.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgDeleteNamespace proto.InternalMessageInfo
-
-func (m *MsgDeleteNamespace) GetSender() string {
-	if m != nil {
-		return m.Sender
-	}
-	return ""
-}
-
-func (m *MsgDeleteNamespace) GetNamespaceDenom() string {
-	if m != nil {
-		return m.NamespaceDenom
-	}
-	return ""
-}
-
-type MsgDeleteNamespaceResponse struct {
-}
-
-func (m *MsgDeleteNamespaceResponse) Reset()         { *m = MsgDeleteNamespaceResponse{} }
-func (m *MsgDeleteNamespaceResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgDeleteNamespaceResponse) ProtoMessage()    {}
-func (*MsgDeleteNamespaceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{5}
-}
-func (m *MsgDeleteNamespaceResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgDeleteNamespaceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgDeleteNamespaceResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgDeleteNamespaceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgDeleteNamespaceResponse.Merge(m, src)
-}
-func (m *MsgDeleteNamespaceResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgDeleteNamespaceResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgDeleteNamespaceResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgDeleteNamespaceResponse proto.InternalMessageInfo
-
 type MsgUpdateNamespace struct {
-	Sender         string                                `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	NamespaceDenom string                                `protobuf:"bytes,2,opt,name=namespace_denom,json=namespaceDenom,proto3" json:"namespace_denom,omitempty"`
-	WasmHook       *MsgUpdateNamespace_MsgSetWasmHook    `protobuf:"bytes,3,opt,name=wasm_hook,json=wasmHook,proto3" json:"wasm_hook,omitempty"`
-	MintsPaused    *MsgUpdateNamespace_MsgSetMintsPaused `protobuf:"bytes,4,opt,name=mints_paused,json=mintsPaused,proto3" json:"mints_paused,omitempty"`
-	SendsPaused    *MsgUpdateNamespace_MsgSetSendsPaused `protobuf:"bytes,5,opt,name=sends_paused,json=sendsPaused,proto3" json:"sends_paused,omitempty"`
-	BurnsPaused    *MsgUpdateNamespace_MsgSetBurnsPaused `protobuf:"bytes,6,opt,name=burns_paused,json=burnsPaused,proto3" json:"burns_paused,omitempty"`
+	Sender                    string                              `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	Denom                     string                              `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	ContractHook              *MsgUpdateNamespace_SetContractHook `protobuf:"bytes,3,opt,name=contract_hook,json=contractHook,proto3" json:"contract_hook,omitempty"`
+	RolePermissions           []*Role                             `protobuf:"bytes,4,rep,name=role_permissions,json=rolePermissions,proto3" json:"role_permissions,omitempty"`
+	RoleManagers              []*RoleManager                      `protobuf:"bytes,5,rep,name=role_managers,json=roleManagers,proto3" json:"role_managers,omitempty"`
+	PolicyStatuses            []*PolicyStatus                     `protobuf:"bytes,6,rep,name=policy_statuses,json=policyStatuses,proto3" json:"policy_statuses,omitempty"`
+	PolicyManagerCapabilities []*PolicyManagerCapability          `protobuf:"bytes,7,rep,name=policy_manager_capabilities,json=policyManagerCapabilities,proto3" json:"policy_manager_capabilities,omitempty"`
 }
 
 func (m *MsgUpdateNamespace) Reset()         { *m = MsgUpdateNamespace{} }
 func (m *MsgUpdateNamespace) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateNamespace) ProtoMessage()    {}
 func (*MsgUpdateNamespace) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{6}
+	return fileDescriptor_ab9bfdcab1d9b6fa, []int{4}
 }
 func (m *MsgUpdateNamespace) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -350,57 +263,64 @@ func (m *MsgUpdateNamespace) GetSender() string {
 	return ""
 }
 
-func (m *MsgUpdateNamespace) GetNamespaceDenom() string {
+func (m *MsgUpdateNamespace) GetDenom() string {
 	if m != nil {
-		return m.NamespaceDenom
+		return m.Denom
 	}
 	return ""
 }
 
-func (m *MsgUpdateNamespace) GetWasmHook() *MsgUpdateNamespace_MsgSetWasmHook {
+func (m *MsgUpdateNamespace) GetContractHook() *MsgUpdateNamespace_SetContractHook {
 	if m != nil {
-		return m.WasmHook
+		return m.ContractHook
 	}
 	return nil
 }
 
-func (m *MsgUpdateNamespace) GetMintsPaused() *MsgUpdateNamespace_MsgSetMintsPaused {
+func (m *MsgUpdateNamespace) GetRolePermissions() []*Role {
 	if m != nil {
-		return m.MintsPaused
+		return m.RolePermissions
 	}
 	return nil
 }
 
-func (m *MsgUpdateNamespace) GetSendsPaused() *MsgUpdateNamespace_MsgSetSendsPaused {
+func (m *MsgUpdateNamespace) GetRoleManagers() []*RoleManager {
 	if m != nil {
-		return m.SendsPaused
+		return m.RoleManagers
 	}
 	return nil
 }
 
-func (m *MsgUpdateNamespace) GetBurnsPaused() *MsgUpdateNamespace_MsgSetBurnsPaused {
+func (m *MsgUpdateNamespace) GetPolicyStatuses() []*PolicyStatus {
 	if m != nil {
-		return m.BurnsPaused
+		return m.PolicyStatuses
 	}
 	return nil
 }
 
-type MsgUpdateNamespace_MsgSetWasmHook struct {
+func (m *MsgUpdateNamespace) GetPolicyManagerCapabilities() []*PolicyManagerCapability {
+	if m != nil {
+		return m.PolicyManagerCapabilities
+	}
+	return nil
+}
+
+type MsgUpdateNamespace_SetContractHook struct {
 	NewValue string `protobuf:"bytes,1,opt,name=new_value,json=newValue,proto3" json:"new_value,omitempty"`
 }
 
-func (m *MsgUpdateNamespace_MsgSetWasmHook) Reset()         { *m = MsgUpdateNamespace_MsgSetWasmHook{} }
-func (m *MsgUpdateNamespace_MsgSetWasmHook) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateNamespace_MsgSetWasmHook) ProtoMessage()    {}
-func (*MsgUpdateNamespace_MsgSetWasmHook) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{6, 0}
+func (m *MsgUpdateNamespace_SetContractHook) Reset()         { *m = MsgUpdateNamespace_SetContractHook{} }
+func (m *MsgUpdateNamespace_SetContractHook) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateNamespace_SetContractHook) ProtoMessage()    {}
+func (*MsgUpdateNamespace_SetContractHook) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ab9bfdcab1d9b6fa, []int{4, 0}
 }
-func (m *MsgUpdateNamespace_MsgSetWasmHook) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateNamespace_SetContractHook) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdateNamespace_MsgSetWasmHook) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateNamespace_SetContractHook) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdateNamespace_MsgSetWasmHook.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateNamespace_SetContractHook.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -410,155 +330,23 @@ func (m *MsgUpdateNamespace_MsgSetWasmHook) XXX_Marshal(b []byte, deterministic 
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdateNamespace_MsgSetWasmHook) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateNamespace_MsgSetWasmHook.Merge(m, src)
+func (m *MsgUpdateNamespace_SetContractHook) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateNamespace_SetContractHook.Merge(m, src)
 }
-func (m *MsgUpdateNamespace_MsgSetWasmHook) XXX_Size() int {
+func (m *MsgUpdateNamespace_SetContractHook) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdateNamespace_MsgSetWasmHook) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateNamespace_MsgSetWasmHook.DiscardUnknown(m)
+func (m *MsgUpdateNamespace_SetContractHook) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateNamespace_SetContractHook.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdateNamespace_MsgSetWasmHook proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateNamespace_SetContractHook proto.InternalMessageInfo
 
-func (m *MsgUpdateNamespace_MsgSetWasmHook) GetNewValue() string {
+func (m *MsgUpdateNamespace_SetContractHook) GetNewValue() string {
 	if m != nil {
 		return m.NewValue
 	}
 	return ""
-}
-
-type MsgUpdateNamespace_MsgSetMintsPaused struct {
-	NewValue bool `protobuf:"varint,1,opt,name=new_value,json=newValue,proto3" json:"new_value,omitempty"`
-}
-
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) Reset()         { *m = MsgUpdateNamespace_MsgSetMintsPaused{} }
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateNamespace_MsgSetMintsPaused) ProtoMessage()    {}
-func (*MsgUpdateNamespace_MsgSetMintsPaused) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{6, 1}
-}
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgUpdateNamespace_MsgSetMintsPaused.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateNamespace_MsgSetMintsPaused.Merge(m, src)
-}
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateNamespace_MsgSetMintsPaused.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgUpdateNamespace_MsgSetMintsPaused proto.InternalMessageInfo
-
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) GetNewValue() bool {
-	if m != nil {
-		return m.NewValue
-	}
-	return false
-}
-
-type MsgUpdateNamespace_MsgSetSendsPaused struct {
-	NewValue bool `protobuf:"varint,1,opt,name=new_value,json=newValue,proto3" json:"new_value,omitempty"`
-}
-
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) Reset()         { *m = MsgUpdateNamespace_MsgSetSendsPaused{} }
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateNamespace_MsgSetSendsPaused) ProtoMessage()    {}
-func (*MsgUpdateNamespace_MsgSetSendsPaused) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{6, 2}
-}
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgUpdateNamespace_MsgSetSendsPaused.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateNamespace_MsgSetSendsPaused.Merge(m, src)
-}
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateNamespace_MsgSetSendsPaused.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgUpdateNamespace_MsgSetSendsPaused proto.InternalMessageInfo
-
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) GetNewValue() bool {
-	if m != nil {
-		return m.NewValue
-	}
-	return false
-}
-
-type MsgUpdateNamespace_MsgSetBurnsPaused struct {
-	NewValue bool `protobuf:"varint,1,opt,name=new_value,json=newValue,proto3" json:"new_value,omitempty"`
-}
-
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) Reset()         { *m = MsgUpdateNamespace_MsgSetBurnsPaused{} }
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateNamespace_MsgSetBurnsPaused) ProtoMessage()    {}
-func (*MsgUpdateNamespace_MsgSetBurnsPaused) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{6, 3}
-}
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgUpdateNamespace_MsgSetBurnsPaused.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateNamespace_MsgSetBurnsPaused.Merge(m, src)
-}
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateNamespace_MsgSetBurnsPaused.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgUpdateNamespace_MsgSetBurnsPaused proto.InternalMessageInfo
-
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) GetNewValue() bool {
-	if m != nil {
-		return m.NewValue
-	}
-	return false
 }
 
 type MsgUpdateNamespaceResponse struct {
@@ -568,7 +356,7 @@ func (m *MsgUpdateNamespaceResponse) Reset()         { *m = MsgUpdateNamespaceRe
 func (m *MsgUpdateNamespaceResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateNamespaceResponse) ProtoMessage()    {}
 func (*MsgUpdateNamespaceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{7}
+	return fileDescriptor_ab9bfdcab1d9b6fa, []int{5}
 }
 func (m *MsgUpdateNamespaceResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -597,25 +385,25 @@ func (m *MsgUpdateNamespaceResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateNamespaceResponse proto.InternalMessageInfo
 
-type MsgUpdateNamespaceRoles struct {
-	Sender          string          `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	NamespaceDenom  string          `protobuf:"bytes,2,opt,name=namespace_denom,json=namespaceDenom,proto3" json:"namespace_denom,omitempty"`
-	RolePermissions []*Role         `protobuf:"bytes,3,rep,name=role_permissions,json=rolePermissions,proto3" json:"role_permissions,omitempty"`
-	AddressRoles    []*AddressRoles `protobuf:"bytes,4,rep,name=address_roles,json=addressRoles,proto3" json:"address_roles,omitempty"`
+type MsgUpdateActorRoles struct {
+	Sender             string        `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	Denom              string        `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	RoleActorsToAdd    []*RoleActors `protobuf:"bytes,3,rep,name=role_actors_to_add,json=roleActorsToAdd,proto3" json:"role_actors_to_add,omitempty"`
+	RoleActorsToRevoke []*RoleActors `protobuf:"bytes,5,rep,name=role_actors_to_revoke,json=roleActorsToRevoke,proto3" json:"role_actors_to_revoke,omitempty"`
 }
 
-func (m *MsgUpdateNamespaceRoles) Reset()         { *m = MsgUpdateNamespaceRoles{} }
-func (m *MsgUpdateNamespaceRoles) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateNamespaceRoles) ProtoMessage()    {}
-func (*MsgUpdateNamespaceRoles) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{8}
+func (m *MsgUpdateActorRoles) Reset()         { *m = MsgUpdateActorRoles{} }
+func (m *MsgUpdateActorRoles) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateActorRoles) ProtoMessage()    {}
+func (*MsgUpdateActorRoles) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ab9bfdcab1d9b6fa, []int{6}
 }
-func (m *MsgUpdateNamespaceRoles) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateActorRoles) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdateNamespaceRoles) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateActorRoles) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdateNamespaceRoles.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateActorRoles.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -625,61 +413,61 @@ func (m *MsgUpdateNamespaceRoles) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdateNamespaceRoles) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateNamespaceRoles.Merge(m, src)
+func (m *MsgUpdateActorRoles) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateActorRoles.Merge(m, src)
 }
-func (m *MsgUpdateNamespaceRoles) XXX_Size() int {
+func (m *MsgUpdateActorRoles) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdateNamespaceRoles) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateNamespaceRoles.DiscardUnknown(m)
+func (m *MsgUpdateActorRoles) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateActorRoles.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdateNamespaceRoles proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateActorRoles proto.InternalMessageInfo
 
-func (m *MsgUpdateNamespaceRoles) GetSender() string {
+func (m *MsgUpdateActorRoles) GetSender() string {
 	if m != nil {
 		return m.Sender
 	}
 	return ""
 }
 
-func (m *MsgUpdateNamespaceRoles) GetNamespaceDenom() string {
+func (m *MsgUpdateActorRoles) GetDenom() string {
 	if m != nil {
-		return m.NamespaceDenom
+		return m.Denom
 	}
 	return ""
 }
 
-func (m *MsgUpdateNamespaceRoles) GetRolePermissions() []*Role {
+func (m *MsgUpdateActorRoles) GetRoleActorsToAdd() []*RoleActors {
 	if m != nil {
-		return m.RolePermissions
+		return m.RoleActorsToAdd
 	}
 	return nil
 }
 
-func (m *MsgUpdateNamespaceRoles) GetAddressRoles() []*AddressRoles {
+func (m *MsgUpdateActorRoles) GetRoleActorsToRevoke() []*RoleActors {
 	if m != nil {
-		return m.AddressRoles
+		return m.RoleActorsToRevoke
 	}
 	return nil
 }
 
-type MsgUpdateNamespaceRolesResponse struct {
+type MsgUpdateActorRolesResponse struct {
 }
 
-func (m *MsgUpdateNamespaceRolesResponse) Reset()         { *m = MsgUpdateNamespaceRolesResponse{} }
-func (m *MsgUpdateNamespaceRolesResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateNamespaceRolesResponse) ProtoMessage()    {}
-func (*MsgUpdateNamespaceRolesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{9}
+func (m *MsgUpdateActorRolesResponse) Reset()         { *m = MsgUpdateActorRolesResponse{} }
+func (m *MsgUpdateActorRolesResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateActorRolesResponse) ProtoMessage()    {}
+func (*MsgUpdateActorRolesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_ab9bfdcab1d9b6fa, []int{7}
 }
-func (m *MsgUpdateNamespaceRolesResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateActorRolesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdateNamespaceRolesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateActorRolesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdateNamespaceRolesResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateActorRolesResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -689,113 +477,17 @@ func (m *MsgUpdateNamespaceRolesResponse) XXX_Marshal(b []byte, deterministic bo
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdateNamespaceRolesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateNamespaceRolesResponse.Merge(m, src)
+func (m *MsgUpdateActorRolesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateActorRolesResponse.Merge(m, src)
 }
-func (m *MsgUpdateNamespaceRolesResponse) XXX_Size() int {
+func (m *MsgUpdateActorRolesResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdateNamespaceRolesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateNamespaceRolesResponse.DiscardUnknown(m)
+func (m *MsgUpdateActorRolesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateActorRolesResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdateNamespaceRolesResponse proto.InternalMessageInfo
-
-type MsgRevokeNamespaceRoles struct {
-	Sender               string          `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	NamespaceDenom       string          `protobuf:"bytes,2,opt,name=namespace_denom,json=namespaceDenom,proto3" json:"namespace_denom,omitempty"`
-	AddressRolesToRevoke []*AddressRoles `protobuf:"bytes,3,rep,name=address_roles_to_revoke,json=addressRolesToRevoke,proto3" json:"address_roles_to_revoke,omitempty"`
-}
-
-func (m *MsgRevokeNamespaceRoles) Reset()         { *m = MsgRevokeNamespaceRoles{} }
-func (m *MsgRevokeNamespaceRoles) String() string { return proto.CompactTextString(m) }
-func (*MsgRevokeNamespaceRoles) ProtoMessage()    {}
-func (*MsgRevokeNamespaceRoles) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{10}
-}
-func (m *MsgRevokeNamespaceRoles) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgRevokeNamespaceRoles) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgRevokeNamespaceRoles.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgRevokeNamespaceRoles) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgRevokeNamespaceRoles.Merge(m, src)
-}
-func (m *MsgRevokeNamespaceRoles) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgRevokeNamespaceRoles) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgRevokeNamespaceRoles.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgRevokeNamespaceRoles proto.InternalMessageInfo
-
-func (m *MsgRevokeNamespaceRoles) GetSender() string {
-	if m != nil {
-		return m.Sender
-	}
-	return ""
-}
-
-func (m *MsgRevokeNamespaceRoles) GetNamespaceDenom() string {
-	if m != nil {
-		return m.NamespaceDenom
-	}
-	return ""
-}
-
-func (m *MsgRevokeNamespaceRoles) GetAddressRolesToRevoke() []*AddressRoles {
-	if m != nil {
-		return m.AddressRolesToRevoke
-	}
-	return nil
-}
-
-type MsgRevokeNamespaceRolesResponse struct {
-}
-
-func (m *MsgRevokeNamespaceRolesResponse) Reset()         { *m = MsgRevokeNamespaceRolesResponse{} }
-func (m *MsgRevokeNamespaceRolesResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgRevokeNamespaceRolesResponse) ProtoMessage()    {}
-func (*MsgRevokeNamespaceRolesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{11}
-}
-func (m *MsgRevokeNamespaceRolesResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *MsgRevokeNamespaceRolesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_MsgRevokeNamespaceRolesResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *MsgRevokeNamespaceRolesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgRevokeNamespaceRolesResponse.Merge(m, src)
-}
-func (m *MsgRevokeNamespaceRolesResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *MsgRevokeNamespaceRolesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgRevokeNamespaceRolesResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_MsgRevokeNamespaceRolesResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateActorRolesResponse proto.InternalMessageInfo
 
 type MsgClaimVoucher struct {
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
@@ -806,7 +498,7 @@ func (m *MsgClaimVoucher) Reset()         { *m = MsgClaimVoucher{} }
 func (m *MsgClaimVoucher) String() string { return proto.CompactTextString(m) }
 func (*MsgClaimVoucher) ProtoMessage()    {}
 func (*MsgClaimVoucher) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{12}
+	return fileDescriptor_ab9bfdcab1d9b6fa, []int{8}
 }
 func (m *MsgClaimVoucher) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -856,7 +548,7 @@ func (m *MsgClaimVoucherResponse) Reset()         { *m = MsgClaimVoucherResponse
 func (m *MsgClaimVoucherResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgClaimVoucherResponse) ProtoMessage()    {}
 func (*MsgClaimVoucherResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ab9bfdcab1d9b6fa, []int{13}
+	return fileDescriptor_ab9bfdcab1d9b6fa, []int{9}
 }
 func (m *MsgClaimVoucherResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -890,18 +582,11 @@ func init() {
 	proto.RegisterType((*MsgUpdateParamsResponse)(nil), "injective.permissions.v1beta1.MsgUpdateParamsResponse")
 	proto.RegisterType((*MsgCreateNamespace)(nil), "injective.permissions.v1beta1.MsgCreateNamespace")
 	proto.RegisterType((*MsgCreateNamespaceResponse)(nil), "injective.permissions.v1beta1.MsgCreateNamespaceResponse")
-	proto.RegisterType((*MsgDeleteNamespace)(nil), "injective.permissions.v1beta1.MsgDeleteNamespace")
-	proto.RegisterType((*MsgDeleteNamespaceResponse)(nil), "injective.permissions.v1beta1.MsgDeleteNamespaceResponse")
 	proto.RegisterType((*MsgUpdateNamespace)(nil), "injective.permissions.v1beta1.MsgUpdateNamespace")
-	proto.RegisterType((*MsgUpdateNamespace_MsgSetWasmHook)(nil), "injective.permissions.v1beta1.MsgUpdateNamespace.MsgSetWasmHook")
-	proto.RegisterType((*MsgUpdateNamespace_MsgSetMintsPaused)(nil), "injective.permissions.v1beta1.MsgUpdateNamespace.MsgSetMintsPaused")
-	proto.RegisterType((*MsgUpdateNamespace_MsgSetSendsPaused)(nil), "injective.permissions.v1beta1.MsgUpdateNamespace.MsgSetSendsPaused")
-	proto.RegisterType((*MsgUpdateNamespace_MsgSetBurnsPaused)(nil), "injective.permissions.v1beta1.MsgUpdateNamespace.MsgSetBurnsPaused")
+	proto.RegisterType((*MsgUpdateNamespace_SetContractHook)(nil), "injective.permissions.v1beta1.MsgUpdateNamespace.SetContractHook")
 	proto.RegisterType((*MsgUpdateNamespaceResponse)(nil), "injective.permissions.v1beta1.MsgUpdateNamespaceResponse")
-	proto.RegisterType((*MsgUpdateNamespaceRoles)(nil), "injective.permissions.v1beta1.MsgUpdateNamespaceRoles")
-	proto.RegisterType((*MsgUpdateNamespaceRolesResponse)(nil), "injective.permissions.v1beta1.MsgUpdateNamespaceRolesResponse")
-	proto.RegisterType((*MsgRevokeNamespaceRoles)(nil), "injective.permissions.v1beta1.MsgRevokeNamespaceRoles")
-	proto.RegisterType((*MsgRevokeNamespaceRolesResponse)(nil), "injective.permissions.v1beta1.MsgRevokeNamespaceRolesResponse")
+	proto.RegisterType((*MsgUpdateActorRoles)(nil), "injective.permissions.v1beta1.MsgUpdateActorRoles")
+	proto.RegisterType((*MsgUpdateActorRolesResponse)(nil), "injective.permissions.v1beta1.MsgUpdateActorRolesResponse")
 	proto.RegisterType((*MsgClaimVoucher)(nil), "injective.permissions.v1beta1.MsgClaimVoucher")
 	proto.RegisterType((*MsgClaimVoucherResponse)(nil), "injective.permissions.v1beta1.MsgClaimVoucherResponse")
 }
@@ -911,68 +596,63 @@ func init() {
 }
 
 var fileDescriptor_ab9bfdcab1d9b6fa = []byte{
-	// 961 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x57, 0x4d, 0x6f, 0xe3, 0x44,
-	0x18, 0xae, 0xb7, 0x1f, 0x34, 0xd3, 0xee, 0x96, 0x5a, 0x91, 0x9a, 0xf5, 0x82, 0x5b, 0xb2, 0x02,
-	0x42, 0x56, 0xb5, 0x49, 0x57, 0xaa, 0x44, 0x0e, 0x08, 0x92, 0x3d, 0x80, 0xb4, 0x59, 0x05, 0x17,
-	0x16, 0x09, 0x09, 0x59, 0xe3, 0x64, 0x70, 0x4c, 0x62, 0x8f, 0xe5, 0x71, 0x12, 0x7a, 0x5a, 0xc4,
-	0x81, 0x03, 0x07, 0xc4, 0x91, 0x2b, 0xff, 0xa0, 0x07, 0xae, 0x70, 0xe2, 0xb0, 0xc7, 0x15, 0x27,
-	0x4e, 0x2b, 0xd4, 0x1e, 0x7a, 0x47, 0xfc, 0x00, 0x34, 0x9e, 0x89, 0xed, 0x4c, 0xd2, 0xd8, 0xe9,
-	0x6a, 0xb9, 0xb4, 0x79, 0xbf, 0x9f, 0xe7, 0xb1, 0xde, 0x19, 0x1b, 0xbc, 0xe5, 0x78, 0x5f, 0xa3,
-	0x4e, 0xe8, 0x8c, 0x90, 0xee, 0xa3, 0xc0, 0x75, 0x08, 0x71, 0xb0, 0x47, 0xf4, 0x51, 0xcd, 0x42,
-	0x21, 0xac, 0xe9, 0xe1, 0x37, 0x9a, 0x1f, 0xe0, 0x10, 0xcb, 0xaf, 0xc7, 0x79, 0x5a, 0x2a, 0x4f,
-	0xe3, 0x79, 0x4a, 0xd1, 0xc6, 0x36, 0x8e, 0x32, 0x75, 0xfa, 0x8b, 0x15, 0x29, 0x6a, 0x07, 0x13,
-	0x17, 0x13, 0xdd, 0x82, 0x04, 0xc5, 0x2d, 0x3b, 0xd8, 0xf1, 0x66, 0xe2, 0x5e, 0x3f, 0x8e, 0x53,
-	0x83, 0xc7, 0xf7, 0x78, 0xdc, 0x25, 0xb6, 0x3e, 0xaa, 0xd1, 0x7f, 0x3c, 0x70, 0x9b, 0x05, 0x4c,
-	0x36, 0x91, 0x19, 0x3c, 0x54, 0x5d, 0x4c, 0xc8, 0x87, 0x01, 0x74, 0x27, 0xb9, 0x7a, 0x46, 0x6e,
-	0x8a, 0x28, 0x2b, 0xd8, 0x85, 0xae, 0xe3, 0x61, 0x3d, 0xfa, 0xcb, 0x5c, 0xe5, 0xdf, 0x25, 0xb0,
-	0xd3, 0x22, 0xf6, 0x67, 0x7e, 0x17, 0x86, 0xa8, 0x1d, 0x75, 0x97, 0x8f, 0x41, 0x01, 0x0e, 0xc3,
-	0x1e, 0x0e, 0x9c, 0xf0, 0xb4, 0x24, 0x1d, 0x48, 0x95, 0x42, 0xa3, 0xf4, 0xe7, 0xaf, 0x87, 0x45,
-	0x0e, 0xf4, 0xc3, 0x6e, 0x37, 0x40, 0x84, 0x9c, 0x84, 0x81, 0xe3, 0xd9, 0x46, 0x92, 0x2a, 0x37,
-	0xc1, 0x06, 0xc3, 0x57, 0xba, 0x71, 0x20, 0x55, 0xb6, 0x8e, 0xde, 0xd4, 0x16, 0xaa, 0xae, 0xb1,
-	0x71, 0x8d, 0xb5, 0xa7, 0xcf, 0xf7, 0x57, 0x0c, 0x5e, 0x5a, 0xd7, 0xbe, 0xbb, 0x3c, 0xab, 0x26,
-	0x4d, 0x7f, 0xb8, 0x3c, 0xab, 0xde, 0x49, 0xb3, 0x13, 0xc0, 0x96, 0x6f, 0x83, 0x3d, 0xc1, 0x65,
-	0x20, 0xe2, 0x63, 0x8f, 0xa0, 0xf2, 0x6f, 0x12, 0x90, 0x5b, 0xc4, 0x6e, 0x06, 0x08, 0x86, 0xe8,
-	0x11, 0x74, 0x11, 0xf1, 0x61, 0x07, 0xc9, 0xef, 0x80, 0x0d, 0x82, 0xbc, 0x2e, 0x0a, 0x38, 0xb7,
-	0xdd, 0x7f, 0x9e, 0xef, 0xdf, 0x3c, 0x85, 0xee, 0xa0, 0x5e, 0x66, 0xfe, 0xb2, 0xc1, 0x13, 0xe4,
-	0x87, 0xa0, 0xe0, 0x4d, 0xea, 0x38, 0xa9, 0x4a, 0x06, 0xa9, 0x78, 0x0e, 0xe7, 0x95, 0x34, 0x60,
-	0xd4, 0x78, 0x6b, 0xca, 0x4b, 0x15, 0x78, 0x09, 0x40, 0xcb, 0xaf, 0x01, 0x65, 0xd6, 0x1b, 0xb3,
-	0xfb, 0x99, 0xb1, 0x7b, 0x80, 0x06, 0xe8, 0x9a, 0xec, 0xde, 0x06, 0x3b, 0x31, 0x38, 0xb3, 0x8b,
-	0x3c, 0xec, 0x46, 0x1c, 0x0b, 0xc6, 0xad, 0xd8, 0xfd, 0x80, 0x7a, 0x33, 0x81, 0x0b, 0x18, 0x38,
-	0x70, 0xc1, 0x1b, 0x03, 0xff, 0x77, 0x3d, 0x02, 0xce, 0x1e, 0xd9, 0x4b, 0x05, 0x2e, 0x7f, 0x09,
-	0x0a, 0x63, 0x48, 0x5c, 0xb3, 0x87, 0x71, 0xbf, 0xb4, 0x1a, 0x3d, 0xbf, 0x0f, 0x32, 0x9e, 0xdf,
-	0x2c, 0x32, 0xea, 0x3a, 0x41, 0xe1, 0xe7, 0x90, 0xb8, 0x1f, 0x61, 0xdc, 0x37, 0x36, 0xc7, 0xfc,
-	0x97, 0xfc, 0x15, 0xd8, 0x76, 0x1d, 0x2f, 0x24, 0xa6, 0x0f, 0x87, 0x04, 0x75, 0x4b, 0x6b, 0xd1,
-	0x84, 0xe6, 0x75, 0x27, 0xb4, 0x68, 0xaf, 0x76, 0xd4, 0xca, 0xd8, 0x72, 0x13, 0x83, 0xce, 0xa1,
-	0xcc, 0xe3, 0x39, 0xeb, 0x2f, 0x36, 0xe7, 0x84, 0xf6, 0x9a, 0xcc, 0x21, 0x89, 0x41, 0xe7, 0x58,
-	0xc3, 0xc0, 0x8b, 0xe7, 0x6c, 0xbc, 0xd8, 0x9c, 0x06, 0xed, 0x35, 0x99, 0x63, 0x25, 0x86, 0x72,
-	0x08, 0x6e, 0x4d, 0x6b, 0x2a, 0xdf, 0x01, 0x05, 0x0f, 0x8d, 0xcd, 0x11, 0x1c, 0x0c, 0x11, 0x7b,
-	0xfe, 0xc6, 0xa6, 0x87, 0xc6, 0x8f, 0xa9, 0xad, 0xbc, 0x0b, 0x76, 0x67, 0x04, 0x9a, 0xad, 0xd8,
-	0x9c, 0x57, 0x91, 0xa2, 0x9a, 0xb3, 0x22, 0x05, 0x7a, 0x61, 0x45, 0xe6, 0x52, 0x08, 0x9a, 0xf0,
-	0xa5, 0x10, 0xbc, 0xf1, 0x52, 0xfc, 0x71, 0x23, 0x75, 0x8e, 0x25, 0x61, 0x3c, 0x40, 0xe4, 0xa5,
-	0x6c, 0xc6, 0x23, 0xf0, 0x6a, 0x80, 0x07, 0xc8, 0x4c, 0x81, 0x2e, 0xad, 0x1e, 0xac, 0x56, 0xb6,
-	0x8e, 0xee, 0x66, 0x3c, 0x6e, 0x8a, 0xc9, 0xd8, 0xa1, 0xc5, 0xed, 0x24, 0x2a, 0xb7, 0xc1, 0x4d,
-	0xc8, 0xee, 0x05, 0x93, 0x86, 0x48, 0x69, 0x2d, 0x6a, 0x76, 0x2f, 0xa3, 0x19, 0xbf, 0x4b, 0x22,
-	0x9e, 0xc6, 0x36, 0x4c, 0x59, 0xf5, 0xfb, 0x82, 0xbe, 0x77, 0x17, 0xeb, 0x1b, 0x15, 0x95, 0xdf,
-	0x00, 0xfb, 0x57, 0x84, 0x62, 0xa5, 0xbf, 0x67, 0x4a, 0x1b, 0x68, 0x84, 0xfb, 0xff, 0x87, 0xd2,
-	0x16, 0xd8, 0x9b, 0x52, 0xc6, 0x0c, 0xb1, 0x19, 0x44, 0xc3, 0xb9, 0xe0, 0x4b, 0x69, 0x54, 0x4c,
-	0x6b, 0xf4, 0x29, 0x66, 0x2c, 0x32, 0xb5, 0x9a, 0x47, 0x96, 0x6b, 0x35, 0x2f, 0x14, 0x6b, 0xf5,
-	0x24, 0x7a, 0x39, 0x68, 0x0e, 0xa0, 0xe3, 0x3e, 0xc6, 0xc3, 0x4e, 0x0f, 0x05, 0xcb, 0x48, 0x54,
-	0x04, 0xeb, 0x69, 0x61, 0x98, 0x51, 0xbf, 0x27, 0x60, 0x15, 0x6f, 0xf7, 0xf4, 0x34, 0x7e, 0xbb,
-	0xa7, 0x5d, 0x13, 0x6c, 0x47, 0xbf, 0xbc, 0x02, 0x56, 0x5b, 0xc4, 0x96, 0x47, 0x60, 0x7b, 0xea,
-	0xed, 0x45, 0xcb, 0x7b, 0x5c, 0xb1, 0x7c, 0xe5, 0x78, 0xb9, 0xfc, 0xc9, 0x7c, 0xf9, 0x09, 0xd8,
-	0x11, 0xdf, 0x2c, 0x6a, 0xd9, 0xad, 0x84, 0x12, 0xe5, 0xbd, 0xa5, 0x4b, 0xd2, 0x00, 0xc4, 0xcb,
-	0x3f, 0x07, 0x00, 0xa1, 0x24, 0x0f, 0x80, 0x2b, 0x2e, 0x72, 0x0a, 0x40, 0xbc, 0xc4, 0x6b, 0x4b,
-	0xdf, 0x15, 0x79, 0x00, 0x5c, 0x71, 0x68, 0xca, 0x3f, 0x4a, 0xa0, 0x38, 0xf7, 0xc4, 0x3c, 0x5e,
-	0xbe, 0x27, 0xad, 0x53, 0xde, 0xbf, 0x5e, 0xdd, 0x14, 0xa0, 0xb9, 0x07, 0x4b, 0x0e, 0x40, 0xf3,
-	0xea, 0xf2, 0x00, 0x5a, 0xb4, 0xc0, 0x74, 0x39, 0xa6, 0xb6, 0x37, 0xc7, 0x72, 0xa4, 0xf3, 0xf3,
-	0x2c, 0xc7, 0xbc, 0xe5, 0x54, 0xd6, 0xbf, 0xbd, 0x3c, 0xab, 0x4a, 0x8d, 0xfe, 0xd3, 0x73, 0x55,
-	0x7a, 0x76, 0xae, 0x4a, 0x7f, 0x9f, 0xab, 0xd2, 0x4f, 0x17, 0xea, 0xca, 0xb3, 0x0b, 0x75, 0xe5,
-	0xaf, 0x0b, 0x75, 0xe5, 0x8b, 0x4f, 0x6c, 0x27, 0xec, 0x0d, 0x2d, 0xad, 0x83, 0x5d, 0xfd, 0xe3,
-	0xc9, 0x88, 0x87, 0xd0, 0x22, 0xc9, 0x47, 0xcd, 0x61, 0x07, 0x07, 0x28, 0x6d, 0xf6, 0xa0, 0xe3,
-	0xe9, 0x2e, 0xee, 0x0e, 0x07, 0x88, 0x4c, 0x7d, 0xf1, 0x84, 0xa7, 0x3e, 0x22, 0xd6, 0x46, 0xf4,
-	0x45, 0x73, 0xff, 0xbf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x72, 0x97, 0x38, 0xd1, 0x14, 0x0e, 0x00,
-	0x00,
+	// 889 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x56, 0xcf, 0x6f, 0x1b, 0x45,
+	0x14, 0xce, 0x36, 0x75, 0xc0, 0xd3, 0x04, 0xb7, 0x43, 0x50, 0x37, 0x0e, 0x75, 0x22, 0x23, 0x50,
+	0xea, 0xaa, 0xbb, 0x72, 0x90, 0x22, 0xe1, 0x5b, 0xe2, 0x0b, 0x48, 0x4d, 0x29, 0x9b, 0x92, 0x03,
+	0x42, 0xb2, 0xc6, 0xbb, 0x8f, 0xf5, 0x60, 0xef, 0xce, 0x6a, 0x66, 0xec, 0xe2, 0x53, 0x51, 0xb9,
+	0x21, 0x0e, 0xfc, 0x29, 0x39, 0x70, 0x85, 0x73, 0x8f, 0x15, 0x27, 0x4e, 0x15, 0x4a, 0x0e, 0xb9,
+	0xf3, 0x17, 0x20, 0xcf, 0x8c, 0xbd, 0x9b, 0x8d, 0xa9, 0xd7, 0xf4, 0x92, 0xf8, 0xfd, 0xfa, 0xde,
+	0xf7, 0xbd, 0x79, 0x3b, 0xbb, 0xe8, 0x13, 0x1a, 0x7f, 0x0f, 0xbe, 0xa4, 0x23, 0x70, 0x13, 0xe0,
+	0x11, 0x15, 0x82, 0xb2, 0x58, 0xb8, 0xa3, 0x66, 0x17, 0x24, 0x69, 0xba, 0xf2, 0x07, 0x27, 0xe1,
+	0x4c, 0x32, 0x7c, 0x6f, 0x96, 0xe7, 0x64, 0xf2, 0x1c, 0x93, 0x57, 0xdd, 0x0c, 0x59, 0xc8, 0x54,
+	0xa6, 0x3b, 0xf9, 0xa5, 0x8b, 0xaa, 0x35, 0x9f, 0x89, 0x88, 0x09, 0xb7, 0x4b, 0x04, 0xcc, 0x20,
+	0x7d, 0x46, 0xe3, 0x6b, 0xf1, 0xb8, 0x3f, 0x8b, 0x4f, 0x0c, 0x13, 0xbf, 0x6b, 0xe2, 0x91, 0x08,
+	0xdd, 0x51, 0x73, 0xf2, 0xcf, 0x04, 0xb6, 0x74, 0xa0, 0xa3, 0x3b, 0x6a, 0xc3, 0x84, 0x1a, 0x6f,
+	0x16, 0x94, 0x10, 0x4e, 0xa2, 0x69, 0xae, 0xbb, 0x20, 0x37, 0x23, 0x54, 0x17, 0xdc, 0x21, 0x11,
+	0x8d, 0x99, 0xab, 0xfe, 0x6a, 0x57, 0xfd, 0x0f, 0x0b, 0x55, 0x8e, 0x45, 0xf8, 0x75, 0x12, 0x10,
+	0x09, 0x4f, 0x14, 0x3a, 0x3e, 0x40, 0x65, 0x32, 0x94, 0x3d, 0xc6, 0xa9, 0x1c, 0xdb, 0xd6, 0xae,
+	0xb5, 0x57, 0x3e, 0xb2, 0xff, 0xfc, 0xed, 0xe1, 0xa6, 0x21, 0x7a, 0x18, 0x04, 0x1c, 0x84, 0x38,
+	0x91, 0x9c, 0xc6, 0xa1, 0x97, 0xa6, 0xe2, 0x36, 0x5a, 0xd3, 0xfc, 0xec, 0x1b, 0xbb, 0xd6, 0xde,
+	0xad, 0xfd, 0x8f, 0x9d, 0x37, 0x4e, 0xdd, 0xd1, 0xed, 0x8e, 0x6e, 0xbe, 0x7c, 0xbd, 0xb3, 0xe2,
+	0x99, 0xd2, 0x96, 0xf3, 0xe2, 0xf2, 0xac, 0x91, 0x82, 0xfe, 0x7c, 0x79, 0xd6, 0xd8, 0xce, 0xaa,
+	0xcb, 0x91, 0xad, 0x6f, 0xa1, 0xbb, 0x39, 0x97, 0x07, 0x22, 0x61, 0xb1, 0x80, 0xfa, 0xef, 0x16,
+	0xc2, 0xc7, 0x22, 0x6c, 0x73, 0x20, 0x12, 0x1e, 0x93, 0x08, 0x44, 0x42, 0x7c, 0xc0, 0xf7, 0xd1,
+	0x9a, 0x80, 0x38, 0x00, 0x6e, 0xb4, 0xdd, 0xf9, 0xe7, 0xf5, 0xce, 0xc6, 0x98, 0x44, 0x83, 0x56,
+	0x5d, 0xfb, 0xeb, 0x9e, 0x49, 0xc0, 0x8f, 0x50, 0x39, 0x9e, 0xd6, 0x19, 0x51, 0x7b, 0x0b, 0x44,
+	0xcd, 0xfa, 0x18, 0x5d, 0x29, 0x80, 0x96, 0x66, 0xa0, 0x27, 0xba, 0x6a, 0x39, 0x5d, 0x39, 0xa2,
+	0xf5, 0x0f, 0x51, 0xf5, 0xba, 0x77, 0xa6, 0xee, 0x97, 0x92, 0x52, 0xa7, 0x95, 0xff, 0x2f, 0x75,
+	0x9b, 0xa8, 0x14, 0x40, 0xcc, 0x22, 0xa5, 0xac, 0xec, 0x69, 0x03, 0x7f, 0x87, 0x36, 0x7c, 0x16,
+	0x4b, 0x4e, 0x7c, 0xd9, 0xe9, 0x31, 0xd6, 0xb7, 0x57, 0x95, 0xee, 0xc3, 0x05, 0xba, 0xaf, 0x53,
+	0x71, 0x4e, 0x40, 0xb6, 0x0d, 0xd2, 0xe7, 0x8c, 0xf5, 0xbd, 0x75, 0x3f, 0x63, 0xe1, 0xc7, 0xe8,
+	0x36, 0x67, 0x03, 0xe8, 0x64, 0xc0, 0xec, 0x9b, 0xbb, 0xab, 0x7b, 0xb7, 0xf6, 0x3f, 0x5a, 0xd0,
+	0xca, 0x63, 0x03, 0xf0, 0x2a, 0x93, 0xe2, 0x27, 0x69, 0x14, 0x7f, 0x89, 0x36, 0x14, 0x5e, 0x44,
+	0x62, 0x12, 0x02, 0x17, 0x76, 0x49, 0x81, 0x35, 0x0a, 0x80, 0x1d, 0xeb, 0x12, 0x6f, 0x9d, 0xa7,
+	0x86, 0xc0, 0x4f, 0x51, 0x25, 0x61, 0x03, 0xea, 0x8f, 0x3b, 0x42, 0x12, 0x39, 0x14, 0x20, 0xec,
+	0x35, 0x05, 0xf9, 0x60, 0xd1, 0x5e, 0xab, 0xaa, 0x13, 0x55, 0xe4, 0xbd, 0x97, 0x64, 0x2c, 0x10,
+	0x78, 0x84, 0xb6, 0x0d, 0xaa, 0x21, 0xda, 0xf1, 0x49, 0x42, 0xba, 0x74, 0x40, 0x25, 0x05, 0x61,
+	0xbf, 0xa3, 0x3a, 0x1c, 0x14, 0xea, 0x60, 0x98, 0xb6, 0xa7, 0xf5, 0x63, 0x6f, 0x2b, 0x99, 0x1b,
+	0xa0, 0x20, 0xaa, 0x0e, 0xaa, 0xe4, 0xce, 0x03, 0x6f, 0xa3, 0x72, 0x0c, 0xcf, 0x3a, 0x23, 0x32,
+	0x18, 0x82, 0xde, 0x16, 0xef, 0xdd, 0x18, 0x9e, 0x9d, 0x4e, 0xec, 0x85, 0xcb, 0x9a, 0x3b, 0x6c,
+	0xb3, 0xac, 0x39, 0x6f, 0xfa, 0x28, 0xde, 0x40, 0xef, 0xcf, 0xc2, 0x87, 0xbe, 0x64, 0x7c, 0x32,
+	0x77, 0xf1, 0xf6, 0xdb, 0x7a, 0x8a, 0xb0, 0x3a, 0x75, 0x32, 0xc1, 0x14, 0x1d, 0xc9, 0x3a, 0x24,
+	0x08, 0xec, 0x55, 0x35, 0xc5, 0xfb, 0x05, 0x8e, 0x5e, 0x71, 0x11, 0x7a, 0x9b, 0xf4, 0xef, 0xa7,
+	0xec, 0x30, 0x08, 0xf0, 0xb7, 0xe8, 0x83, 0x1c, 0x2e, 0x87, 0x11, 0xeb, 0x83, 0xd9, 0xaa, 0x25,
+	0xa0, 0x71, 0x16, 0xda, 0x53, 0x20, 0x2d, 0x37, 0x37, 0xdc, 0x9d, 0xb9, 0xc3, 0x4d, 0xe7, 0x54,
+	0xbf, 0x87, 0xb6, 0xe7, 0xb8, 0x67, 0xe3, 0x7d, 0xae, 0x2e, 0xf1, 0xf6, 0x80, 0xd0, 0xe8, 0x94,
+	0x0d, 0xfd, 0x1e, 0xf0, 0xb7, 0x9e, 0x6c, 0xeb, 0x41, 0x8e, 0x63, 0xfe, 0x16, 0xce, 0x76, 0x33,
+	0xb7, 0x70, 0xd6, 0x35, 0xe5, 0xb6, 0xff, 0x53, 0x09, 0xad, 0x1e, 0x8b, 0x10, 0x8f, 0xd0, 0xfa,
+	0x95, 0xb7, 0x8c, 0x53, 0xf4, 0x42, 0xd1, 0xf9, 0xd5, 0x83, 0xe5, 0xf2, 0xa7, 0xfd, 0xf1, 0x73,
+	0x54, 0xc9, 0xbf, 0x01, 0x9a, 0x8b, 0xa1, 0x72, 0x25, 0xd5, 0xcf, 0x96, 0x2e, 0xc9, 0x12, 0xc8,
+	0x5f, 0xd2, 0xcd, 0xa5, 0x2f, 0xd3, 0x22, 0x04, 0xfe, 0xe3, 0xe1, 0xc3, 0x2f, 0x2c, 0x74, 0xfb,
+	0xda, 0x93, 0xb7, 0x5f, 0x14, 0x2f, 0xad, 0xa9, 0xb6, 0x96, 0xaf, 0x99, 0x91, 0x18, 0xa1, 0xf5,
+	0x2b, 0xfb, 0x59, 0xe0, 0xf8, 0xb3, 0xf9, 0x45, 0x8e, 0x7f, 0xde, 0xfa, 0x55, 0x4b, 0x3f, 0x5e,
+	0x9e, 0x35, 0xac, 0xa3, 0xfe, 0xcb, 0xf3, 0x9a, 0xf5, 0xea, 0xbc, 0x66, 0xfd, 0x7d, 0x5e, 0xb3,
+	0x7e, 0xbd, 0xa8, 0xad, 0xbc, 0xba, 0xa8, 0xad, 0xfc, 0x75, 0x51, 0x5b, 0xf9, 0xe6, 0xab, 0x90,
+	0xca, 0xde, 0xb0, 0xeb, 0xf8, 0x2c, 0x72, 0xbf, 0x98, 0xb6, 0x78, 0x44, 0xba, 0x22, 0xfd, 0xbc,
+	0x7a, 0xe8, 0x33, 0x0e, 0x59, 0xb3, 0x47, 0x68, 0xec, 0x46, 0x2c, 0x18, 0x0e, 0x40, 0x5c, 0xf9,
+	0xf6, 0x92, 0xe3, 0x04, 0x44, 0x77, 0x4d, 0x7d, 0x5b, 0x7d, 0xfa, 0x6f, 0x00, 0x00, 0x00, 0xff,
+	0xff, 0x89, 0x70, 0x57, 0xeb, 0x9e, 0x0a, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -989,10 +669,8 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 	CreateNamespace(ctx context.Context, in *MsgCreateNamespace, opts ...grpc.CallOption) (*MsgCreateNamespaceResponse, error)
-	DeleteNamespace(ctx context.Context, in *MsgDeleteNamespace, opts ...grpc.CallOption) (*MsgDeleteNamespaceResponse, error)
 	UpdateNamespace(ctx context.Context, in *MsgUpdateNamespace, opts ...grpc.CallOption) (*MsgUpdateNamespaceResponse, error)
-	UpdateNamespaceRoles(ctx context.Context, in *MsgUpdateNamespaceRoles, opts ...grpc.CallOption) (*MsgUpdateNamespaceRolesResponse, error)
-	RevokeNamespaceRoles(ctx context.Context, in *MsgRevokeNamespaceRoles, opts ...grpc.CallOption) (*MsgRevokeNamespaceRolesResponse, error)
+	UpdateActorRoles(ctx context.Context, in *MsgUpdateActorRoles, opts ...grpc.CallOption) (*MsgUpdateActorRolesResponse, error)
 	ClaimVoucher(ctx context.Context, in *MsgClaimVoucher, opts ...grpc.CallOption) (*MsgClaimVoucherResponse, error)
 }
 
@@ -1022,15 +700,6 @@ func (c *msgClient) CreateNamespace(ctx context.Context, in *MsgCreateNamespace,
 	return out, nil
 }
 
-func (c *msgClient) DeleteNamespace(ctx context.Context, in *MsgDeleteNamespace, opts ...grpc.CallOption) (*MsgDeleteNamespaceResponse, error) {
-	out := new(MsgDeleteNamespaceResponse)
-	err := c.cc.Invoke(ctx, "/injective.permissions.v1beta1.Msg/DeleteNamespace", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *msgClient) UpdateNamespace(ctx context.Context, in *MsgUpdateNamespace, opts ...grpc.CallOption) (*MsgUpdateNamespaceResponse, error) {
 	out := new(MsgUpdateNamespaceResponse)
 	err := c.cc.Invoke(ctx, "/injective.permissions.v1beta1.Msg/UpdateNamespace", in, out, opts...)
@@ -1040,18 +709,9 @@ func (c *msgClient) UpdateNamespace(ctx context.Context, in *MsgUpdateNamespace,
 	return out, nil
 }
 
-func (c *msgClient) UpdateNamespaceRoles(ctx context.Context, in *MsgUpdateNamespaceRoles, opts ...grpc.CallOption) (*MsgUpdateNamespaceRolesResponse, error) {
-	out := new(MsgUpdateNamespaceRolesResponse)
-	err := c.cc.Invoke(ctx, "/injective.permissions.v1beta1.Msg/UpdateNamespaceRoles", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *msgClient) RevokeNamespaceRoles(ctx context.Context, in *MsgRevokeNamespaceRoles, opts ...grpc.CallOption) (*MsgRevokeNamespaceRolesResponse, error) {
-	out := new(MsgRevokeNamespaceRolesResponse)
-	err := c.cc.Invoke(ctx, "/injective.permissions.v1beta1.Msg/RevokeNamespaceRoles", in, out, opts...)
+func (c *msgClient) UpdateActorRoles(ctx context.Context, in *MsgUpdateActorRoles, opts ...grpc.CallOption) (*MsgUpdateActorRolesResponse, error) {
+	out := new(MsgUpdateActorRolesResponse)
+	err := c.cc.Invoke(ctx, "/injective.permissions.v1beta1.Msg/UpdateActorRoles", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1071,10 +731,8 @@ func (c *msgClient) ClaimVoucher(ctx context.Context, in *MsgClaimVoucher, opts 
 type MsgServer interface {
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 	CreateNamespace(context.Context, *MsgCreateNamespace) (*MsgCreateNamespaceResponse, error)
-	DeleteNamespace(context.Context, *MsgDeleteNamespace) (*MsgDeleteNamespaceResponse, error)
 	UpdateNamespace(context.Context, *MsgUpdateNamespace) (*MsgUpdateNamespaceResponse, error)
-	UpdateNamespaceRoles(context.Context, *MsgUpdateNamespaceRoles) (*MsgUpdateNamespaceRolesResponse, error)
-	RevokeNamespaceRoles(context.Context, *MsgRevokeNamespaceRoles) (*MsgRevokeNamespaceRolesResponse, error)
+	UpdateActorRoles(context.Context, *MsgUpdateActorRoles) (*MsgUpdateActorRolesResponse, error)
 	ClaimVoucher(context.Context, *MsgClaimVoucher) (*MsgClaimVoucherResponse, error)
 }
 
@@ -1088,17 +746,11 @@ func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateP
 func (*UnimplementedMsgServer) CreateNamespace(ctx context.Context, req *MsgCreateNamespace) (*MsgCreateNamespaceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateNamespace not implemented")
 }
-func (*UnimplementedMsgServer) DeleteNamespace(ctx context.Context, req *MsgDeleteNamespace) (*MsgDeleteNamespaceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteNamespace not implemented")
-}
 func (*UnimplementedMsgServer) UpdateNamespace(ctx context.Context, req *MsgUpdateNamespace) (*MsgUpdateNamespaceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateNamespace not implemented")
 }
-func (*UnimplementedMsgServer) UpdateNamespaceRoles(ctx context.Context, req *MsgUpdateNamespaceRoles) (*MsgUpdateNamespaceRolesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateNamespaceRoles not implemented")
-}
-func (*UnimplementedMsgServer) RevokeNamespaceRoles(ctx context.Context, req *MsgRevokeNamespaceRoles) (*MsgRevokeNamespaceRolesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RevokeNamespaceRoles not implemented")
+func (*UnimplementedMsgServer) UpdateActorRoles(ctx context.Context, req *MsgUpdateActorRoles) (*MsgUpdateActorRolesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateActorRoles not implemented")
 }
 func (*UnimplementedMsgServer) ClaimVoucher(ctx context.Context, req *MsgClaimVoucher) (*MsgClaimVoucherResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ClaimVoucher not implemented")
@@ -1144,24 +796,6 @@ func _Msg_CreateNamespace_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_DeleteNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgDeleteNamespace)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).DeleteNamespace(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective.permissions.v1beta1.Msg/DeleteNamespace",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).DeleteNamespace(ctx, req.(*MsgDeleteNamespace))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Msg_UpdateNamespace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MsgUpdateNamespace)
 	if err := dec(in); err != nil {
@@ -1180,38 +814,20 @@ func _Msg_UpdateNamespace_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_UpdateNamespaceRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgUpdateNamespaceRoles)
+func _Msg_UpdateActorRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateActorRoles)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).UpdateNamespaceRoles(ctx, in)
+		return srv.(MsgServer).UpdateActorRoles(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/injective.permissions.v1beta1.Msg/UpdateNamespaceRoles",
+		FullMethod: "/injective.permissions.v1beta1.Msg/UpdateActorRoles",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).UpdateNamespaceRoles(ctx, req.(*MsgUpdateNamespaceRoles))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Msg_RevokeNamespaceRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgRevokeNamespaceRoles)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).RevokeNamespaceRoles(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/injective.permissions.v1beta1.Msg/RevokeNamespaceRoles",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).RevokeNamespaceRoles(ctx, req.(*MsgRevokeNamespaceRoles))
+		return srv.(MsgServer).UpdateActorRoles(ctx, req.(*MsgUpdateActorRoles))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1247,20 +863,12 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_CreateNamespace_Handler,
 		},
 		{
-			MethodName: "DeleteNamespace",
-			Handler:    _Msg_DeleteNamespace_Handler,
-		},
-		{
 			MethodName: "UpdateNamespace",
 			Handler:    _Msg_UpdateNamespace_Handler,
 		},
 		{
-			MethodName: "UpdateNamespaceRoles",
-			Handler:    _Msg_UpdateNamespaceRoles_Handler,
-		},
-		{
-			MethodName: "RevokeNamespaceRoles",
-			Handler:    _Msg_RevokeNamespaceRoles_Handler,
+			MethodName: "UpdateActorRoles",
+			Handler:    _Msg_UpdateActorRoles_Handler,
 		},
 		{
 			MethodName: "ClaimVoucher",
@@ -1397,66 +1005,6 @@ func (m *MsgCreateNamespaceResponse) MarshalToSizedBuffer(dAtA []byte) (int, err
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgDeleteNamespace) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgDeleteNamespace) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgDeleteNamespace) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.NamespaceDenom) > 0 {
-		i -= len(m.NamespaceDenom)
-		copy(dAtA[i:], m.NamespaceDenom)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.NamespaceDenom)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Sender) > 0 {
-		i -= len(m.Sender)
-		copy(dAtA[i:], m.Sender)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Sender)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgDeleteNamespaceResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgDeleteNamespaceResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgDeleteNamespaceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
 func (m *MsgUpdateNamespace) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1477,45 +1025,65 @@ func (m *MsgUpdateNamespace) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.BurnsPaused != nil {
-		{
-			size, err := m.BurnsPaused.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
+	if len(m.PolicyManagerCapabilities) > 0 {
+		for iNdEx := len(m.PolicyManagerCapabilities) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.PolicyManagerCapabilities[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
 			}
-			i -= size
-			i = encodeVarintTx(dAtA, i, uint64(size))
+			i--
+			dAtA[i] = 0x3a
 		}
-		i--
-		dAtA[i] = 0x32
 	}
-	if m.SendsPaused != nil {
-		{
-			size, err := m.SendsPaused.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
+	if len(m.PolicyStatuses) > 0 {
+		for iNdEx := len(m.PolicyStatuses) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.PolicyStatuses[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
 			}
-			i -= size
-			i = encodeVarintTx(dAtA, i, uint64(size))
+			i--
+			dAtA[i] = 0x32
 		}
-		i--
-		dAtA[i] = 0x2a
 	}
-	if m.MintsPaused != nil {
-		{
-			size, err := m.MintsPaused.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
+	if len(m.RoleManagers) > 0 {
+		for iNdEx := len(m.RoleManagers) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RoleManagers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
 			}
-			i -= size
-			i = encodeVarintTx(dAtA, i, uint64(size))
+			i--
+			dAtA[i] = 0x2a
 		}
-		i--
-		dAtA[i] = 0x22
 	}
-	if m.WasmHook != nil {
+	if len(m.RolePermissions) > 0 {
+		for iNdEx := len(m.RolePermissions) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RolePermissions[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if m.ContractHook != nil {
 		{
-			size, err := m.WasmHook.MarshalToSizedBuffer(dAtA[:i])
+			size, err := m.ContractHook.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -1525,10 +1093,10 @@ func (m *MsgUpdateNamespace) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.NamespaceDenom) > 0 {
-		i -= len(m.NamespaceDenom)
-		copy(dAtA[i:], m.NamespaceDenom)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.NamespaceDenom)))
+	if len(m.Denom) > 0 {
+		i -= len(m.Denom)
+		copy(dAtA[i:], m.Denom)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Denom)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1542,7 +1110,7 @@ func (m *MsgUpdateNamespace) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUpdateNamespace_MsgSetWasmHook) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateNamespace_SetContractHook) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1552,12 +1120,12 @@ func (m *MsgUpdateNamespace_MsgSetWasmHook) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdateNamespace_MsgSetWasmHook) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateNamespace_SetContractHook) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdateNamespace_MsgSetWasmHook) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateNamespace_SetContractHook) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1568,105 +1136,6 @@ func (m *MsgUpdateNamespace_MsgSetWasmHook) MarshalToSizedBuffer(dAtA []byte) (i
 		i = encodeVarintTx(dAtA, i, uint64(len(m.NewValue)))
 		i--
 		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.NewValue {
-		i--
-		if m.NewValue {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.NewValue {
-		i--
-		if m.NewValue {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.NewValue {
-		i--
-		if m.NewValue {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -1694,7 +1163,7 @@ func (m *MsgUpdateNamespaceResponse) MarshalToSizedBuffer(dAtA []byte) (int, err
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUpdateNamespaceRoles) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateActorRoles) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1704,20 +1173,20 @@ func (m *MsgUpdateNamespaceRoles) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdateNamespaceRoles) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateActorRoles) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdateNamespaceRoles) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateActorRoles) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.AddressRoles) > 0 {
-		for iNdEx := len(m.AddressRoles) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.RoleActorsToRevoke) > 0 {
+		for iNdEx := len(m.RoleActorsToRevoke) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.AddressRoles[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.RoleActorsToRevoke[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -1725,13 +1194,13 @@ func (m *MsgUpdateNamespaceRoles) MarshalToSizedBuffer(dAtA []byte) (int, error)
 				i = encodeVarintTx(dAtA, i, uint64(size))
 			}
 			i--
-			dAtA[i] = 0x22
+			dAtA[i] = 0x2a
 		}
 	}
-	if len(m.RolePermissions) > 0 {
-		for iNdEx := len(m.RolePermissions) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.RoleActorsToAdd) > 0 {
+		for iNdEx := len(m.RoleActorsToAdd) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.RolePermissions[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.RoleActorsToAdd[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -1742,10 +1211,10 @@ func (m *MsgUpdateNamespaceRoles) MarshalToSizedBuffer(dAtA []byte) (int, error)
 			dAtA[i] = 0x1a
 		}
 	}
-	if len(m.NamespaceDenom) > 0 {
-		i -= len(m.NamespaceDenom)
-		copy(dAtA[i:], m.NamespaceDenom)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.NamespaceDenom)))
+	if len(m.Denom) > 0 {
+		i -= len(m.Denom)
+		copy(dAtA[i:], m.Denom)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Denom)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1759,7 +1228,7 @@ func (m *MsgUpdateNamespaceRoles) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUpdateNamespaceRolesResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateActorRolesResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1769,86 +1238,12 @@ func (m *MsgUpdateNamespaceRolesResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdateNamespaceRolesResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateActorRolesResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdateNamespaceRolesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgRevokeNamespaceRoles) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgRevokeNamespaceRoles) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgRevokeNamespaceRoles) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.AddressRolesToRevoke) > 0 {
-		for iNdEx := len(m.AddressRolesToRevoke) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.AddressRolesToRevoke[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintTx(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x1a
-		}
-	}
-	if len(m.NamespaceDenom) > 0 {
-		i -= len(m.NamespaceDenom)
-		copy(dAtA[i:], m.NamespaceDenom)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.NamespaceDenom)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.Sender) > 0 {
-		i -= len(m.Sender)
-		copy(dAtA[i:], m.Sender)
-		i = encodeVarintTx(dAtA, i, uint64(len(m.Sender)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *MsgRevokeNamespaceRolesResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *MsgRevokeNamespaceRolesResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *MsgRevokeNamespaceRolesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateActorRolesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1975,32 +1370,6 @@ func (m *MsgCreateNamespaceResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgDeleteNamespace) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Sender)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.NamespaceDenom)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgDeleteNamespaceResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
 func (m *MsgUpdateNamespace) Size() (n int) {
 	if m == nil {
 		return 0
@@ -2011,30 +1380,42 @@ func (m *MsgUpdateNamespace) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.NamespaceDenom)
+	l = len(m.Denom)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.WasmHook != nil {
-		l = m.WasmHook.Size()
+	if m.ContractHook != nil {
+		l = m.ContractHook.Size()
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.MintsPaused != nil {
-		l = m.MintsPaused.Size()
-		n += 1 + l + sovTx(uint64(l))
+	if len(m.RolePermissions) > 0 {
+		for _, e := range m.RolePermissions {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
 	}
-	if m.SendsPaused != nil {
-		l = m.SendsPaused.Size()
-		n += 1 + l + sovTx(uint64(l))
+	if len(m.RoleManagers) > 0 {
+		for _, e := range m.RoleManagers {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
 	}
-	if m.BurnsPaused != nil {
-		l = m.BurnsPaused.Size()
-		n += 1 + l + sovTx(uint64(l))
+	if len(m.PolicyStatuses) > 0 {
+		for _, e := range m.PolicyStatuses {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	if len(m.PolicyManagerCapabilities) > 0 {
+		for _, e := range m.PolicyManagerCapabilities {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
 	}
 	return n
 }
 
-func (m *MsgUpdateNamespace_MsgSetWasmHook) Size() (n int) {
+func (m *MsgUpdateNamespace_SetContractHook) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2043,42 +1424,6 @@ func (m *MsgUpdateNamespace_MsgSetWasmHook) Size() (n int) {
 	l = len(m.NewValue)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
-	}
-	return n
-}
-
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.NewValue {
-		n += 2
-	}
-	return n
-}
-
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.NewValue {
-		n += 2
-	}
-	return n
-}
-
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.NewValue {
-		n += 2
 	}
 	return n
 }
@@ -2092,7 +1437,7 @@ func (m *MsgUpdateNamespaceResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgUpdateNamespaceRoles) Size() (n int) {
+func (m *MsgUpdateActorRoles) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2102,50 +1447,18 @@ func (m *MsgUpdateNamespaceRoles) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = len(m.NamespaceDenom)
+	l = len(m.Denom)
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if len(m.RolePermissions) > 0 {
-		for _, e := range m.RolePermissions {
+	if len(m.RoleActorsToAdd) > 0 {
+		for _, e := range m.RoleActorsToAdd {
 			l = e.Size()
 			n += 1 + l + sovTx(uint64(l))
 		}
 	}
-	if len(m.AddressRoles) > 0 {
-		for _, e := range m.AddressRoles {
-			l = e.Size()
-			n += 1 + l + sovTx(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *MsgUpdateNamespaceRolesResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *MsgRevokeNamespaceRoles) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Sender)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	l = len(m.NamespaceDenom)
-	if l > 0 {
-		n += 1 + l + sovTx(uint64(l))
-	}
-	if len(m.AddressRolesToRevoke) > 0 {
-		for _, e := range m.AddressRolesToRevoke {
+	if len(m.RoleActorsToRevoke) > 0 {
+		for _, e := range m.RoleActorsToRevoke {
 			l = e.Size()
 			n += 1 + l + sovTx(uint64(l))
 		}
@@ -2153,7 +1466,7 @@ func (m *MsgRevokeNamespaceRoles) Size() (n int) {
 	return n
 }
 
-func (m *MsgRevokeNamespaceRolesResponse) Size() (n int) {
+func (m *MsgUpdateActorRolesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2524,170 +1837,6 @@ func (m *MsgCreateNamespaceResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgDeleteNamespace) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgDeleteNamespace: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgDeleteNamespace: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Sender = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NamespaceDenom", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.NamespaceDenom = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgDeleteNamespaceResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgDeleteNamespaceResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgDeleteNamespaceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *MsgUpdateNamespace) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2751,7 +1900,7 @@ func (m *MsgUpdateNamespace) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NamespaceDenom", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2779,11 +1928,11 @@ func (m *MsgUpdateNamespace) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.NamespaceDenom = string(dAtA[iNdEx:postIndex])
+			m.Denom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field WasmHook", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractHook", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2810,16 +1959,16 @@ func (m *MsgUpdateNamespace) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.WasmHook == nil {
-				m.WasmHook = &MsgUpdateNamespace_MsgSetWasmHook{}
+			if m.ContractHook == nil {
+				m.ContractHook = &MsgUpdateNamespace_SetContractHook{}
 			}
-			if err := m.WasmHook.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.ContractHook.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MintsPaused", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RolePermissions", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2846,16 +1995,14 @@ func (m *MsgUpdateNamespace) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.MintsPaused == nil {
-				m.MintsPaused = &MsgUpdateNamespace_MsgSetMintsPaused{}
-			}
-			if err := m.MintsPaused.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.RolePermissions = append(m.RolePermissions, &Role{})
+			if err := m.RolePermissions[len(m.RolePermissions)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SendsPaused", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RoleManagers", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2882,16 +2029,14 @@ func (m *MsgUpdateNamespace) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.SendsPaused == nil {
-				m.SendsPaused = &MsgUpdateNamespace_MsgSetSendsPaused{}
-			}
-			if err := m.SendsPaused.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.RoleManagers = append(m.RoleManagers, &RoleManager{})
+			if err := m.RoleManagers[len(m.RoleManagers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BurnsPaused", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PolicyStatuses", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2918,10 +2063,42 @@ func (m *MsgUpdateNamespace) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.BurnsPaused == nil {
-				m.BurnsPaused = &MsgUpdateNamespace_MsgSetBurnsPaused{}
+			m.PolicyStatuses = append(m.PolicyStatuses, &PolicyStatus{})
+			if err := m.PolicyStatuses[len(m.PolicyStatuses)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
 			}
-			if err := m.BurnsPaused.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PolicyManagerCapabilities", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PolicyManagerCapabilities = append(m.PolicyManagerCapabilities, &PolicyManagerCapability{})
+			if err := m.PolicyManagerCapabilities[len(m.PolicyManagerCapabilities)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -2946,7 +2123,7 @@ func (m *MsgUpdateNamespace) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUpdateNamespace_MsgSetWasmHook) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateNamespace_SetContractHook) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2969,10 +2146,10 @@ func (m *MsgUpdateNamespace_MsgSetWasmHook) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetWasmHook: wiretype end group for non-group")
+			return fmt.Errorf("proto: SetContractHook: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetWasmHook: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SetContractHook: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -3007,216 +2184,6 @@ func (m *MsgUpdateNamespace_MsgSetWasmHook) Unmarshal(dAtA []byte) error {
 			}
 			m.NewValue = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgUpdateNamespace_MsgSetMintsPaused) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetMintsPaused: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetMintsPaused: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NewValue", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.NewValue = bool(v != 0)
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgUpdateNamespace_MsgSetSendsPaused) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetSendsPaused: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetSendsPaused: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NewValue", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.NewValue = bool(v != 0)
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgUpdateNamespace_MsgSetBurnsPaused) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSetBurnsPaused: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSetBurnsPaused: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NewValue", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.NewValue = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -3288,7 +2255,7 @@ func (m *MsgUpdateNamespaceResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUpdateNamespaceRoles) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateActorRoles) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3311,10 +2278,10 @@ func (m *MsgUpdateNamespaceRoles) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdateNamespaceRoles: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgUpdateActorRoles: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdateNamespaceRoles: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgUpdateActorRoles: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -3351,7 +2318,7 @@ func (m *MsgUpdateNamespaceRoles) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NamespaceDenom", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Denom", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -3379,11 +2346,11 @@ func (m *MsgUpdateNamespaceRoles) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.NamespaceDenom = string(dAtA[iNdEx:postIndex])
+			m.Denom = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RolePermissions", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RoleActorsToAdd", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -3410,14 +2377,14 @@ func (m *MsgUpdateNamespaceRoles) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RolePermissions = append(m.RolePermissions, &Role{})
-			if err := m.RolePermissions[len(m.RolePermissions)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.RoleActorsToAdd = append(m.RoleActorsToAdd, &RoleActors{})
+			if err := m.RoleActorsToAdd[len(m.RoleActorsToAdd)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
-		case 4:
+		case 5:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AddressRoles", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RoleActorsToRevoke", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -3444,8 +2411,8 @@ func (m *MsgUpdateNamespaceRoles) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.AddressRoles = append(m.AddressRoles, &AddressRoles{})
-			if err := m.AddressRoles[len(m.AddressRoles)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.RoleActorsToRevoke = append(m.RoleActorsToRevoke, &RoleActors{})
+			if err := m.RoleActorsToRevoke[len(m.RoleActorsToRevoke)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -3470,7 +2437,7 @@ func (m *MsgUpdateNamespaceRoles) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUpdateNamespaceRolesResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateActorRolesResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3493,208 +2460,10 @@ func (m *MsgUpdateNamespaceRolesResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdateNamespaceRolesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgUpdateActorRolesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdateNamespaceRolesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgRevokeNamespaceRoles) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgRevokeNamespaceRoles: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgRevokeNamespaceRoles: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Sender = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NamespaceDenom", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.NamespaceDenom = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AddressRolesToRevoke", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthTx
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthTx
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.AddressRolesToRevoke = append(m.AddressRolesToRevoke, &AddressRoles{})
-			if err := m.AddressRolesToRevoke[len(m.AddressRolesToRevoke)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTx(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTx
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *MsgRevokeNamespaceRolesResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTx
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: MsgRevokeNamespaceRolesResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgRevokeNamespaceRolesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgUpdateActorRolesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

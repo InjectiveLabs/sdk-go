@@ -331,7 +331,7 @@ func (msg MsgDepositClaim) GetSignBytes() []byte {
 func (msg MsgDepositClaim) GetClaimer() sdk.AccAddress {
 	err := msg.ValidateBasic()
 	if err != nil {
-		panic("MsgDepositClaim failed ValidateBasic! Should have been handled earlier")
+		panic("MsgDepositClaim failed ValidateBasic! Should have been handled earlier:" + err.Error())
 	}
 
 	val, _ := sdk.AccAddressFromBech32(msg.Orchestrator)

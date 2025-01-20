@@ -66,6 +66,11 @@ message SpotMarketParamUpdateProposal {
   ];
 
   AdminInfo admin_info = 12;
+
+  // base token decimals
+  uint32 base_decimals = 13;
+  // quote token decimals
+  uint32 quote_decimals = 14;
 }
 
 enum ExchangeType {
@@ -114,6 +119,8 @@ message BatchExchangeModificationProposal {
 
   repeated MarketForcedSettlementProposal market_forced_settlement_proposals =
       13;
+
+  DenomMinNotionalProposal denom_min_notional_proposal = 14;
 }
 
 // SpotMarketLaunchProposal defines a SDK message for proposing a new spot
@@ -159,6 +166,10 @@ message SpotMarketLaunchProposal {
     (gogoproto.nullable) = false
   ];
   AdminInfo admin_info = 11;
+  // base token decimals
+  uint32 base_decimals = 14;
+  // quote token decimals
+  uint32 quote_decimals = 15;
 }
 
 // PerpetualMarketLaunchProposal defines a SDK message for proposing a new
@@ -650,4 +661,16 @@ message AtomicMarketOrderFeeMultiplierScheduleProposal {
   string description = 2;
 
   repeated MarketFeeMultiplier market_fee_multipliers = 3;
+}
+
+message DenomMinNotionalProposal {
+  option (amino.name) = "exchange/DenomMinNotionalProposal";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
+
+  string title = 1;
+  string description = 2;
+
+  repeated DenomMinNotional denom_min_notionals = 3;
 }
