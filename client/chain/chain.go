@@ -511,6 +511,11 @@ func (c *chainClient) syncTimeoutHeight() {
 	defer t.Stop()
 
 	for {
+		if c.ctx.Client == nil {
+			c.logger.Errorln("[INJ-GO-SDK] Client is nil in syncTimeoutHeight")
+			continue
+		}
+
 		block, err := c.ctx.Client.Block(c.cancelCtx, nil)
 		if err != nil {
 			c.logger.Errorln("[INJ-GO-SDK] Failed to get current block: ", err)
