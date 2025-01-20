@@ -133,6 +133,8 @@ message GenesisState {
   repeated FullGrantAuthorizations grant_authorizations = 35;
 
   repeated FullActiveGrant active_grants = 36;
+
+  repeated DenomMinNotional denom_min_notionals = 37;
 }
 
 message OrderbookSequence {

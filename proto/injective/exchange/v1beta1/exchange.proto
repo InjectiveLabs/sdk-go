@@ -272,6 +272,7 @@ message DerivativeMarket {
   // quote token decimals
   uint32 quote_decimals = 20;
 }
+
 // An object describing a binary options market in Injective Protocol.
 message BinaryOptionsMarket {
   option (gogoproto.goproto_getters) = false;
@@ -989,4 +990,12 @@ message EffectiveGrant {
     (gogoproto.nullable) = false
   ];
   bool is_valid = 3;
+}
+
+message DenomMinNotional {
+  string denom = 1;
+  string min_notional = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }

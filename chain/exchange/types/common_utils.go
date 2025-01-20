@@ -302,11 +302,49 @@ func EthAddressToSubaccountID(addr common.Address) common.Hash {
 	return common.BytesToHash(common.RightPadBytes(addr.Bytes(), 32))
 }
 
-func DecToDecBytes(dec math.LegacyDec) []byte {
+// SignedDecToSignedDecBytes encodes a Dec to a signed byte slice
+func SignedDecToSignedDecBytes(dec math.LegacyDec) []byte {
+	if dec.IsNil() || dec.IsZero() {
+		return []byte{}
+	}
+
+	sign := byte(0)
+
+	// use sign of 1 for negative numbers
+	if dec.BigInt().Sign() < 0 {
+		sign = 1
+	}
+
+	return append([]byte{sign}, dec.BigInt().Bytes()...)
+}
+
+// SignedDecBytesToDec decodes a signed byte slice back to a Dec.
+func SignedDecBytesToDec(data []byte) math.LegacyDec {
+	if len(data) == 0 {
+		return math.LegacyZeroDec()
+	}
+
+	sign := data[0]
+	magnitude := data[1:]
+	i := new(big.Int).SetBytes(magnitude)
+	if sign == 1 {
+		i = i.Neg(i)
+	}
+
+	dec := math.LegacyNewDecFromBigIntWithPrec(i, math.LegacyPrecision)
+	if dec.IsNil() {
+		return math.LegacyZeroDec()
+	}
+	return dec
+}
+
+// UnsignedDecToUnsignedDecBytes encodes an unsigned Dec to an unsigned byte slice
+func UnsignedDecToUnsignedDecBytes(dec math.LegacyDec) []byte {
 	return dec.BigInt().Bytes()
 }
 
-func DecBytesToDec(bz []byte) math.LegacyDec {
+// UnsignedDecBytesToDec decodes an unsigned byte slice back to a Dec.
+func UnsignedDecBytesToDec(bz []byte) math.LegacyDec {
 	dec := math.LegacyNewDecFromBigIntWithPrec(new(big.Int).SetBytes(bz), math.LegacyPrecision)
 	if dec.IsNil() {
 		return math.LegacyZeroDec()

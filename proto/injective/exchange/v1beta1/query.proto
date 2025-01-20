@@ -448,6 +448,32 @@ service Query {
     option (google.api.http).get =
         "/injective/exchange/v1beta1/grant_authorizations/{granter}";
   }
+
+  // Retrieves a derivative or binary options market's balance
+  rpc MarketBalance(QueryMarketBalanceRequest)
+      returns (QueryMarketBalanceResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/market_balance/{market_id}";
+  }
+  // Retrieves all derivative or binary options market balances
+  rpc MarketBalances(QueryMarketBalancesRequest)
+      returns (QueryMarketBalancesResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/market_balances";
+  }
+  // Retrieves the min notional for a denom
+  rpc DenomMinNotional(QueryDenomMinNotionalRequest)
+      returns (QueryDenomMinNotionalResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/denom_min_notional/{denom}";
+  }
+
+  // Retrieves the min notionals for all denoms
+  rpc DenomMinNotionals(QueryDenomMinNotionalsRequest)
+      returns (QueryDenomMinNotionalsResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v1beta1/denom_min_notionals";
+  }
 }
 
 message Subaccount {
@@ -1490,4 +1516,45 @@ message QueryGrantAuthorizationsResponse {
     (gogoproto.nullable) = false
   ];
   repeated GrantAuthorization grants = 2;
+}
+
+message QueryMarketBalanceRequest {
+  // market id
+  string market_id = 1;
+}
+
+message QueryMarketBalanceResponse {
+  string balance = 1[
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message QueryMarketBalancesRequest {}
+
+message QueryMarketBalancesResponse {
+  repeated MarketBalance balances = 1;
+}
+
+message MarketBalance {
+  string market_id = 1;
+  string balance = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message QueryDenomMinNotionalRequest { string denom = 1; }
+
+message QueryDenomMinNotionalResponse {
+  string amount = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message QueryDenomMinNotionalsRequest {}
+
+message QueryDenomMinNotionalsResponse {
+  repeated DenomMinNotional denom_min_notionals = 1;
 }

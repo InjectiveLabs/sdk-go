@@ -41,13 +41,13 @@ const (
 	Action_SEND Action = 8
 	// 16 is reserved for SUPER_BURN
 	Action_SUPER_BURN Action = 16
-	// 134217728 is reserved for MODIFY_POLICY_MANAGERS
+	// 2^27 is reserved for MODIFY_POLICY_MANAGERS
 	Action_MODIFY_POLICY_MANAGERS Action = 134217728
-	// 268435456 is reserved for MODIFY_CONTRACT_HOOK
+	// 2^28 is reserved for MODIFY_CONTRACT_HOOK
 	Action_MODIFY_CONTRACT_HOOK Action = 268435456
-	// 536870912 is reserved for MODIFY_ROLE_PERMISSIONS
+	// 2^29 is reserved for MODIFY_ROLE_PERMISSIONS
 	Action_MODIFY_ROLE_PERMISSIONS Action = 536870912
-	// 1073741824 is reserved for MODIFY_ROLE_MANAGERS
+	// 2^30 is reserved for MODIFY_ROLE_MANAGERS
 	Action_MODIFY_ROLE_MANAGERS Action = 1073741824
 )
 

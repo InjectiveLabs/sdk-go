@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.13.117 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.13.117_RC1 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b dev-v1.14 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b testnet --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -94,6 +94,7 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types
 	mkdir -p chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
+		cp injective-core/injective-chain/modules/wasmx/types/authz.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/codec.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/custom_execution.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/errors.go chain/wasmx/types && \

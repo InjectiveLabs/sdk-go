@@ -35,6 +35,7 @@ const (
 	ProposalTypeBinaryOptionsMarketLaunch          string = "ProposalTypeBinaryOptionsMarketLaunch"
 	ProposalTypeBinaryOptionsMarketParamUpdate     string = "ProposalTypeBinaryOptionsMarketParamUpdate"
 	ProposalAtomicMarketOrderFeeMultiplierSchedule string = "ProposalAtomicMarketOrderFeeMultiplierSchedule"
+	ProposalDenomMinNotional                       string = "ProposalDenomMinNotional"
 )
 
 func init() {
@@ -55,6 +56,7 @@ func init() {
 	govtypes.RegisterProposalType(ProposalTypeBinaryOptionsMarketLaunch)
 	govtypes.RegisterProposalType(ProposalTypeBinaryOptionsMarketParamUpdate)
 	govtypes.RegisterProposalType(ProposalAtomicMarketOrderFeeMultiplierSchedule)
+	govtypes.RegisterProposalType(ProposalDenomMinNotional)
 }
 
 func SafeIsPositiveInt(v math.Int) bool {
@@ -210,6 +212,11 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 		}
 	}
 
+	if p.DenomMinNotionalProposal != nil {
+		if err := p.DenomMinNotionalProposal.ValidateBasic(); err != nil {
+			return err
+		}
+	}
 	return govtypes.ValidateAbstract(p)
 }
 
@@ -1762,6 +1769,43 @@ func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ValidateBasic() error {
 
 		if multiplier.GT(MaxFeeMultiplier) {
 			return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be bigger than %v: %v", multiplier, MaxFeeMultiplier)
+		}
+	}
+	return govtypes.ValidateAbstract(p)
+}
+
+// Implements Proposal Interface
+var _ govtypes.Content = &DenomMinNotionalProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *DenomMinNotionalProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *DenomMinNotionalProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *DenomMinNotionalProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *DenomMinNotionalProposal) ProposalType() string {
+	return ProposalDenomMinNotional
+}
+
+func (p *DenomMinNotionalProposal) ValidateBasic() error {
+	for _, minNotional := range p.DenomMinNotionals {
+		denom := minNotional.Denom
+		amount := minNotional.MinNotional
+
+		if denom == "" {
+			return fmt.Errorf("denom cannot be empty")
+		}
+
+		if amount.IsNil() || amount.IsNegative() {
+			return fmt.Errorf("min notional must be positive")
 		}
 	}
 	return govtypes.ValidateAbstract(p)

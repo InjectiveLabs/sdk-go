@@ -236,6 +236,12 @@ type ChainClient interface {
 	FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error)
 	FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error)
 	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
+	FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error)
+	FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error)
+	FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error)
+	FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error)
+	FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error)
+	FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error)
 
 	// Tendermint module
 	FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error)
@@ -2110,6 +2116,56 @@ func (c *chainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Contex
 		MarketId: marketId,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketAtomicExecutionFeeMultiplier, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error) {
+	req := &exchangetypes.QueryFullDerivativeOrderbookRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.L3DerivativeOrderBook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error) {
+	req := &exchangetypes.QueryFullSpotOrderbookRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.L3SpotOrderBook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error) {
+	req := &exchangetypes.QueryMarketBalanceRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketBalance, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error) {
+	req := &exchangetypes.QueryMarketBalancesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketBalances, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error) {
+	req := &exchangetypes.QueryDenomMinNotionalRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DenomMinNotional, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error) {
+	req := &exchangetypes.QueryDenomMinNotionalsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DenomMinNotionals, req)
 
 	return res, err
 }

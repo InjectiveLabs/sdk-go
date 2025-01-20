@@ -587,6 +587,30 @@ func (c *MockChainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Co
 	return &exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse{}, nil
 }
 
+func (c *MockChainClient) FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error) {
+	return &exchangetypes.QueryFullDerivativeOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error) {
+	return &exchangetypes.QueryFullSpotOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error) {
+	return &exchangetypes.QueryMarketBalanceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error) {
+	return &exchangetypes.QueryMarketBalancesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error) {
+	return &exchangetypes.QueryDenomMinNotionalResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error) {
+	return &exchangetypes.QueryDenomMinNotionalsResponse{}, nil
+}
+
 // Tendermint module
 
 func (c *MockChainClient) FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error) {

@@ -74,6 +74,8 @@ func main() {
 		MinPriceTickSize:    chainMinPriceTickSize,
 		MinQuantityTickSize: chainMinQuantityTickSize,
 		MinNotional:         chainMinNotional,
+		BaseDecimals:        18,
+		QuoteDecimals:       6,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
