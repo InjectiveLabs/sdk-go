@@ -543,6 +543,11 @@ func (c *chainClient) GetBlockHeight() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
+	if block.Block == nil {
+		return 0, errors.New("block is nil")
+	}
+
 	return block.Block.Height, nil
 }
 
