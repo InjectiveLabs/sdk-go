@@ -5,10 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
-
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	explorerclient "github.com/InjectiveLabs/sdk-go/client/explorer"
+	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
 )
 
 func main() {
