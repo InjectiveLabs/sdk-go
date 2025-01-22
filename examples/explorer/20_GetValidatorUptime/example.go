@@ -24,7 +24,7 @@ func main() {
 	defer cancel()
 
 	// Example validator address (replace with an actual validator address)
-	validatorAddress := "injvaloper1..."
+	validatorAddress := "injvaloper1kk523rsm9pey740cx4plalp40009ncs0wrchfe"
 
 	response, err := explorerClient.FetchValidatorUptime(ctx, validatorAddress)
 	if err != nil {
