@@ -41,7 +41,7 @@ func (c *tmClient) GetBlock(ctx context.Context, height int64) (*ctypes.ResultBl
 	return c.rpcClient.Block(ctx, &height)
 }
 
-// GetBlock queries for a block by height. An error is returned if the query fails.
+// GetBlockResults queries for a block by height. An error is returned if the query fails.
 func (c *tmClient) GetBlockResults(ctx context.Context, height int64) (*ctypes.ResultBlockResults, error) {
 	return c.rpcClient.BlockResults(ctx, &height)
 }
