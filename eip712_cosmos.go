@@ -1,4 +1,4 @@
-package ante
+package sdk_go
 
 import (
 	"bytes"
@@ -16,6 +16,7 @@ import (
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/pkg/errors"
@@ -23,8 +24,16 @@ import (
 	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
+var _ AminoProtoCodecMarshaler = (*codec.ProtoCodec)(nil)
+
+type AminoProtoCodecMarshaler interface {
+	codec.Codec
+
+	MarshalAminoJSON(msg proto.Message) ([]byte, error)
+}
+
 type EIP712Wrapper func(
-	cdc codec.ProtoCodecMarshaler,
+	cdc AminoProtoCodecMarshaler,
 	chainID uint64,
 	signerData *authsigning.SignerData,
 	timeoutHeight uint64,
@@ -37,7 +46,7 @@ type EIP712Wrapper func(
 // WrapTxToEIP712 is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible request. All messages must be of the same type.
 func WrapTxToEIP712(
-	cdc codec.ProtoCodecMarshaler,
+	cdc AminoProtoCodecMarshaler,
 	chainID uint64,
 	signerData *authsigning.SignerData,
 	timeoutHeight uint64,
@@ -52,7 +61,7 @@ func WrapTxToEIP712(
 		signerData.Sequence,
 		timeoutHeight,
 		feeInfo,
-		msgs, memo,
+		[]cosmtypes.Msg{}, memo,
 	)
 
 	txData := make(map[string]interface{})
@@ -60,6 +69,31 @@ func WrapTxToEIP712(
 		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
 		return typeddata.TypedData{}, err
 	}
+
+	msgsJsons := make([]json.RawMessage, len(msgs))
+	for idx, m := range msgs {
+		bzMsg, err := cdc.MarshalAminoJSON(m)
+		if err != nil {
+			return typeddata.TypedData{}, errors.Wrapf(err, "cannot marshal msg JSON at index %d", idx)
+		}
+
+		msgsJsons[idx] = bzMsg
+	}
+
+	bzMsgs, err := json.Marshal(map[string][]json.RawMessage{
+		"msgs": msgsJsons,
+	})
+	if err != nil {
+		return typeddata.TypedData{}, errors.Wrap(err, "marshal msgs JSON")
+	}
+
+	msgsData := make(map[string]interface{})
+	if err := json.Unmarshal(bzMsgs, &msgsData); err != nil {
+		err = errors.Wrap(err, "failed to unmarshal msgs from proto-compatible amino JSON")
+		return typeddata.TypedData{}, err
+	}
+
+	txData["msgs"] = msgsData["msgs"]
 
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
@@ -74,7 +108,7 @@ func WrapTxToEIP712(
 		return typeddata.TypedData{}, err
 	}
 
-	if feeDelegation != nil {
+	if feeDelegation != nil && feeDelegation.FeePayer != nil {
 		feeInfo := txData["fee"].(map[string]interface{})
 		feeInfo["feePayer"] = feeDelegation.FeePayer.String()
 
@@ -488,7 +522,7 @@ func signableTypes() typeddata.Types {
 }
 
 func WrapTxToEIP712V2(
-	cdc codec.ProtoCodecMarshaler,
+	cdc AminoProtoCodecMarshaler,
 	chainID uint64,
 	signerData *authsigning.SignerData,
 	timeoutHeight uint64,
