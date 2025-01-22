@@ -2,13 +2,14 @@ package explorer
 
 import (
 	"context"
+
+	log "github.com/InjectiveLabs/suplog"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
-	log "github.com/InjectiveLabs/suplog"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc"
 )
 
 type ExplorerClient interface {
@@ -31,7 +32,7 @@ type ExplorerClient interface {
 	GetWasmContracts(ctx context.Context, req *explorerPB.GetWasmContractsRequest) (*explorerPB.GetWasmContractsResponse, error)
 	GetWasmContractByAddress(ctx context.Context, req *explorerPB.GetWasmContractByAddressRequest) (*explorerPB.GetWasmContractByAddressResponse, error)
 	GetCW20Balance(ctx context.Context, req *explorerPB.GetCw20BalanceRequest) (*explorerPB.GetCw20BalanceResponse, error)
-	FetchRelayers(ctx context.Context, marketIds []string) (*explorerPB.RelayersResponse, error)
+	FetchRelayers(ctx context.Context, marketIDs []string) (*explorerPB.RelayersResponse, error)
 	FetchBankTransfers(ctx context.Context, req *explorerPB.GetBankTransfersRequest) (*explorerPB.GetBankTransfersResponse, error)
 	StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error)
 	StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error)
