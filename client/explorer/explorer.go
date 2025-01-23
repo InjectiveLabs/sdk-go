@@ -1,35 +1,41 @@
-package exchange
+package explorer
 
 import (
 	"context"
-	"fmt"
 
+	log "github.com/InjectiveLabs/suplog"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	explorerPB "github.com/InjectiveLabs/sdk-go/exchange/explorer_rpc/pb"
-	log "github.com/InjectiveLabs/suplog"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc"
 )
 
 type ExplorerClient interface {
 	QueryClient() *grpc.ClientConn
-	GetTxByTxHash(ctx context.Context, hash string) (*explorerPB.GetTxByTxHashResponse, error)
-	GetTxs(ctx context.Context, req *explorerPB.GetTxsRequest) (*explorerPB.GetTxsResponse, error)
-	GetBlock(ctx context.Context, blockHeight string) (*explorerPB.GetBlockResponse, error)
-	GetBlocks(ctx context.Context) (*explorerPB.GetBlocksResponse, error)
 	GetAccountTxs(ctx context.Context, req *explorerPB.GetAccountTxsRequest) (*explorerPB.GetAccountTxsResponse, error)
+	FetchContractTxs(ctx context.Context, req *explorerPB.GetContractTxsRequest) (*explorerPB.GetContractTxsResponse, error)
+	FetchContractTxsV2(ctx context.Context, req *explorerPB.GetContractTxsV2Request) (*explorerPB.GetContractTxsV2Response, error)
+	GetBlocks(ctx context.Context) (*explorerPB.GetBlocksResponse, error)
+	GetBlock(ctx context.Context, blockHeight string) (*explorerPB.GetBlockResponse, error)
+	FetchValidators(ctx context.Context) (*explorerPB.GetValidatorsResponse, error)
+	FetchValidator(ctx context.Context, address string) (*explorerPB.GetValidatorResponse, error)
+	FetchValidatorUptime(ctx context.Context, address string) (*explorerPB.GetValidatorUptimeResponse, error)
+	GetTxs(ctx context.Context, req *explorerPB.GetTxsRequest) (*explorerPB.GetTxsResponse, error)
+	GetTxByTxHash(ctx context.Context, hash string) (*explorerPB.GetTxByTxHashResponse, error)
 	GetPeggyDeposits(ctx context.Context, req *explorerPB.GetPeggyDepositTxsRequest) (*explorerPB.GetPeggyDepositTxsResponse, error)
 	GetPeggyWithdrawals(ctx context.Context, req *explorerPB.GetPeggyWithdrawalTxsRequest) (*explorerPB.GetPeggyWithdrawalTxsResponse, error)
 	GetIBCTransfers(ctx context.Context, req *explorerPB.GetIBCTransferTxsRequest) (*explorerPB.GetIBCTransferTxsResponse, error)
-	StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error)
-	StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error)
 	GetWasmCodes(ctx context.Context, req *explorerPB.GetWasmCodesRequest) (*explorerPB.GetWasmCodesResponse, error)
 	GetWasmCodeByID(ctx context.Context, req *explorerPB.GetWasmCodeByIDRequest) (*explorerPB.GetWasmCodeByIDResponse, error)
 	GetWasmContracts(ctx context.Context, req *explorerPB.GetWasmContractsRequest) (*explorerPB.GetWasmContractsResponse, error)
 	GetWasmContractByAddress(ctx context.Context, req *explorerPB.GetWasmContractByAddressRequest) (*explorerPB.GetWasmContractByAddressResponse, error)
 	GetCW20Balance(ctx context.Context, req *explorerPB.GetCw20BalanceRequest) (*explorerPB.GetCw20BalanceResponse, error)
+	FetchRelayers(ctx context.Context, marketIDs []string) (*explorerPB.RelayersResponse, error)
+	FetchBankTransfers(ctx context.Context, req *explorerPB.GetBankTransfersRequest) (*explorerPB.GetBankTransfersResponse, error)
+	StreamTxs(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamTxsClient, error)
+	StreamBlocks(ctx context.Context) (explorerPB.InjectiveExplorerRPC_StreamBlocksClient, error)
 	Close()
 }
 
@@ -96,7 +102,6 @@ func (c *explorerClient) GetTxByTxHash(ctx context.Context, hash string) (*explo
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetTxByTxHash, &req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetTxByTxHashResponse{}, err
 	}
 
@@ -107,7 +112,6 @@ func (c *explorerClient) GetAccountTxs(ctx context.Context, req *explorerPB.GetA
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetAccountTxs, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetAccountTxsResponse{}, err
 	}
 
@@ -120,7 +124,6 @@ func (c *explorerClient) GetBlocks(ctx context.Context) (*explorerPB.GetBlocksRe
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetBlocks, &req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetBlocksResponse{}, err
 	}
 
@@ -135,8 +138,53 @@ func (c *explorerClient) GetBlock(ctx context.Context, blockHeight string) (*exp
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetBlock, &req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetBlockResponse{}, err
+	}
+
+	return res, nil
+}
+
+func (c *explorerClient) FetchValidators(ctx context.Context) (*explorerPB.GetValidatorsResponse, error) {
+	req := &explorerPB.GetValidatorsRequest{}
+
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetValidators, req)
+
+	if err != nil {
+		return &explorerPB.GetValidatorsResponse{}, err
+	}
+
+	return res, nil
+}
+
+func (c *explorerClient) FetchValidator(
+	ctx context.Context,
+	address string,
+) (*explorerPB.GetValidatorResponse, error) {
+	req := &explorerPB.GetValidatorRequest{
+		Address: address,
+	}
+
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetValidator, req)
+
+	if err != nil {
+		return &explorerPB.GetValidatorResponse{}, err
+	}
+
+	return res, nil
+}
+
+func (c *explorerClient) FetchValidatorUptime(
+	ctx context.Context,
+	address string,
+) (*explorerPB.GetValidatorUptimeResponse, error) {
+	req := &explorerPB.GetValidatorUptimeRequest{
+		Address: address,
+	}
+
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetValidatorUptime, req)
+
+	if err != nil {
+		return &explorerPB.GetValidatorUptimeResponse{}, err
 	}
 
 	return res, nil
@@ -146,7 +194,6 @@ func (c *explorerClient) GetTxs(ctx context.Context, req *explorerPB.GetTxsReque
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetTxs, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetTxsResponse{}, err
 	}
 
@@ -157,7 +204,6 @@ func (c *explorerClient) GetPeggyDeposits(ctx context.Context, req *explorerPB.G
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetPeggyDepositTxs, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetPeggyDepositTxsResponse{}, err
 	}
 
@@ -168,7 +214,6 @@ func (c *explorerClient) GetPeggyWithdrawals(ctx context.Context, req *explorerP
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetPeggyWithdrawalTxs, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetPeggyWithdrawalTxsResponse{}, err
 	}
 
@@ -179,7 +224,6 @@ func (c *explorerClient) GetIBCTransfers(ctx context.Context, req *explorerPB.Ge
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetIBCTransferTxs, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetIBCTransferTxsResponse{}, err
 	}
 
@@ -192,7 +236,6 @@ func (c *explorerClient) StreamTxs(ctx context.Context) (explorerPB.InjectiveExp
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.StreamTxs, &req)
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -205,7 +248,6 @@ func (c *explorerClient) StreamBlocks(ctx context.Context) (explorerPB.Injective
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.StreamBlocks, &req)
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 
@@ -216,7 +258,6 @@ func (c *explorerClient) GetWasmCodes(ctx context.Context, req *explorerPB.GetWa
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetWasmCodes, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetWasmCodesResponse{}, err
 	}
 
@@ -227,7 +268,6 @@ func (c *explorerClient) GetWasmCodeByID(ctx context.Context, req *explorerPB.Ge
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetWasmCodeByID, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetWasmCodeByIDResponse{}, err
 	}
 
@@ -238,7 +278,6 @@ func (c *explorerClient) GetWasmContracts(ctx context.Context, req *explorerPB.G
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetWasmContracts, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetWasmContractsResponse{}, err
 	}
 
@@ -249,7 +288,6 @@ func (c *explorerClient) GetWasmContractByAddress(ctx context.Context, req *expl
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetWasmContractByAddress, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetWasmContractByAddressResponse{}, err
 	}
 
@@ -260,8 +298,63 @@ func (c *explorerClient) GetCW20Balance(ctx context.Context, req *explorerPB.Get
 	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetCw20Balance, req)
 
 	if err != nil {
-		fmt.Println(err)
 		return &explorerPB.GetCw20BalanceResponse{}, err
+	}
+
+	return res, nil
+}
+
+func (c *explorerClient) FetchContractTxs(
+	ctx context.Context,
+	req *explorerPB.GetContractTxsRequest,
+) (*explorerPB.GetContractTxsResponse, error) {
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetContractTxs, req)
+
+	if err != nil {
+		return &explorerPB.GetContractTxsResponse{}, err
+	}
+
+	return res, nil
+}
+
+func (c *explorerClient) FetchContractTxsV2(
+	ctx context.Context,
+	req *explorerPB.GetContractTxsV2Request,
+) (*explorerPB.GetContractTxsV2Response, error) {
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetContractTxsV2, req)
+
+	if err != nil {
+		return &explorerPB.GetContractTxsV2Response{}, err
+	}
+
+	return res, nil
+}
+
+func (c *explorerClient) FetchRelayers(
+	ctx context.Context,
+	marketIDs []string,
+) (*explorerPB.RelayersResponse, error) {
+	req := &explorerPB.RelayersRequest{
+		MarketIDs: marketIDs,
+	}
+
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.Relayers, req)
+
+	if err != nil {
+		return &explorerPB.RelayersResponse{}, err
+	}
+
+	return res, nil
+}
+
+func (c *explorerClient) FetchBankTransfers(
+	ctx context.Context,
+	req *explorerPB.GetBankTransfersRequest,
+) (*explorerPB.GetBankTransfersResponse, error) {
+	res, err := common.ExecuteCall(ctx, c.network.ExplorerCookieAssistant, c.explorerClient.GetBankTransfers, req)
+
+	if err != nil {
+		return &explorerPB.GetBankTransfersResponse{}, err
 	}
 
 	return res, nil
