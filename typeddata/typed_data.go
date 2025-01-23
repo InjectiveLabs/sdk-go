@@ -3,18 +3,26 @@ package typeddata
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
 	"regexp"
 	"runtime/debug"
+	"runtime/debug"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
+	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -120,6 +128,8 @@ func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
 
 // ComputeTypedDataAndHash computes the typed data and its keccak hash for signing
 func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error) {
+// ComputeTypedDataAndHash computes the typed data and its keccak hash for signing
+func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error) {
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
@@ -127,7 +137,7 @@ func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error)
 
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData primary type")
+		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
 	}
 
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
