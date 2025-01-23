@@ -1,4 +1,4 @@
-package sdk_go
+package sdk
 
 import (
 	"encoding/json"
