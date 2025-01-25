@@ -984,7 +984,7 @@ func (m *MsgERC20DeployedClaimResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgERC20DeployedClaimResponse proto.InternalMessageInfo
 
 // This call allows the sender (and only the sender)
-// to cancel a given MsgSendToEth and recieve a refund
+// to cancel a given MsgSendToEth and receive a refund
 // of the tokens
 type MsgCancelSendToEth struct {
 	TransactionId uint64 `protobuf:"varint,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
