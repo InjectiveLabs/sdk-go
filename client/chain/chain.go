@@ -2614,7 +2614,7 @@ func (c *chainClient) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to asynchronously broadcast messagess:", string(resJSON))
+			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to asynchronously broadcast messages:", string(resJSON))
 			return nil, nil, err
 		}
 	}
