@@ -475,7 +475,7 @@ func typToEth(typ reflect.Type) string {
 	return ""
 }
 
-//nolint:gocritic // this is a handy way to return err in defered funcs
+//nolint:gocritic // this is a handy way to return err in deferred funcs
 func doRecover(err *error) {
 	if r := recover(); r != nil {
 		debug.PrintStack()
