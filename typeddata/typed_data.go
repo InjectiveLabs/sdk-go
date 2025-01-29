@@ -966,7 +966,7 @@ func walkFields(cdc codec.ProtoCodecMarshaler, typeMap Types, rootType string, i
 	return
 }
 
-//nolint:gocritic // this is a handy way to return err in defered funcs
+//nolint:gocritic // this is a handy way to return err in deferred funcs
 func doRecover(err *error) {
 	if r := recover(); r != nil {
 		debug.PrintStack()
