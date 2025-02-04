@@ -39,8 +39,8 @@ github.com/99designs/keyring v1.2.2 h1:pZd3neh/EmUzWONb35LxQfvuY7kiSXAq3HQd97+XB
 github.com/99designs/keyring v1.2.2/go.mod h1:wes/FrByc8j7lFOAGLGSNEg8f/PaI3cgTBqhFkHUrPk=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/CosmWasm/wasmvm/v2 v2.0.0 h1:IqNCI2G0mvs7K6ej17/I28805rVqnu+Y1cWDqIdwb08=
-github.com/CosmWasm/wasmvm/v2 v2.0.0/go.mod h1:su9lg5qLr7adV95eOfzjZWkGiky8WNaNIHDr7Fpu7Ck=
+github.com/CosmWasm/wasmvm/v2 v2.0.6 h1:+uO7hg3HPB8wZ2uTxbDG1zhzT2MviNvnnlC/Bw3mlL8=
+github.com/CosmWasm/wasmvm/v2 v2.0.6/go.mod h1:su9lg5qLr7adV95eOfzjZWkGiky8WNaNIHDr7Fpu7Ck=
 github.com/DataDog/appsec-internal-go v1.5.0 h1:8kS5zSx5T49uZ8dZTdT19QVAvC/B8ByyZdhQKYQWHno=
 github.com/DataDog/appsec-internal-go v1.5.0/go.mod h1:pEp8gjfNLtEOmz+iZqC8bXhu0h4k7NUsW/qiQb34k1U=
 github.com/DataDog/datadog-agent/pkg/obfuscate v0.48.0 h1:bUMSNsw1iofWiju9yc1f+kBd33E3hMJtq9GuU602Iy8=
