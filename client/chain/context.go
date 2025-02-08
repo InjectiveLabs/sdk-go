@@ -25,6 +25,7 @@ import (
 	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
+	permissions "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	tokenfactory "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	wasmx "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
@@ -112,6 +113,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	feegranttypes.RegisterInterfaces(interfaceRegistry)
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 	icatypes.RegisterInterfaces(interfaceRegistry)
+	permissions.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	return tx.NewTxConfig(marshaler, signModes)
@@ -162,6 +164,7 @@ func NewClientContext(
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 	icatypes.RegisterInterfaces(interfaceRegistry)
 	ibcfeetypes.RegisterInterfaces(interfaceRegistry)
+	permissions.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{
