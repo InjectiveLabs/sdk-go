@@ -164,6 +164,7 @@ func NewClientContext(
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 	icatypes.RegisterInterfaces(interfaceRegistry)
 	ibcfeetypes.RegisterInterfaces(interfaceRegistry)
+	permissions.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{
