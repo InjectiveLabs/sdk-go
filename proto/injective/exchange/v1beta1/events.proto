@@ -53,6 +53,16 @@ message EventDerivativeMarketPaused {
   string missing_funds_rate = 4;
 }
 
+message EventSettledMarketBalance {
+  string market_id = 1;
+  string amount = 2;
+}
+
+message EventNotSettledMarketBalance {
+  string market_id = 1;
+  string amount = 2;
+}
+
 message EventMarketBeyondBankruptcy {
   string market_id = 1;
   string settle_price = 2;

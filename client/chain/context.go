@@ -25,6 +25,7 @@ import (
 	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
+	permissions "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	tokenfactory "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	wasmx "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
@@ -38,10 +39,12 @@ import (
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1types "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	paramproposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -105,9 +108,12 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	slashingtypes.RegisterInterfaces(interfaceRegistry)
 	stakingtypes.RegisterInterfaces(interfaceRegistry)
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
+	consensustypes.RegisterInterfaces(interfaceRegistry)
+	minttypes.RegisterInterfaces(interfaceRegistry)
 	feegranttypes.RegisterInterfaces(interfaceRegistry)
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 	icatypes.RegisterInterfaces(interfaceRegistry)
+	permissions.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	return tx.NewTxConfig(marshaler, signModes)
@@ -152,10 +158,13 @@ func NewClientContext(
 	slashingtypes.RegisterInterfaces(interfaceRegistry)
 	stakingtypes.RegisterInterfaces(interfaceRegistry)
 	upgradetypes.RegisterInterfaces(interfaceRegistry)
+	consensustypes.RegisterInterfaces(interfaceRegistry)
+	minttypes.RegisterInterfaces(interfaceRegistry)
 	feegranttypes.RegisterInterfaces(interfaceRegistry)
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 	icatypes.RegisterInterfaces(interfaceRegistry)
 	ibcfeetypes.RegisterInterfaces(interfaceRegistry)
+	permissions.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{

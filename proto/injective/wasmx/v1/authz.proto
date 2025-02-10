@@ -1,0 +1,21 @@
+syntax = "proto3";
+package injective.wasmx.v1;
+
+import "cosmwasm/wasm/v1/authz.proto";
+import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
+
+// ContractExecutionAuthorization defines authorization for wasm execute.
+// Since: wasmd 0.30
+message ContractExecutionCompatAuthorization {
+  option (amino.name) = "wasmx/ContractExecutionCompatAuthorization";
+  option (cosmos_proto.implements_interface) =
+      "cosmos.authz.v1beta1.Authorization";
+
+  // Grants for contract executions
+  repeated cosmwasm.wasm.v1.ContractGrant grants = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
+}

@@ -113,7 +113,7 @@ var typedDataReferenceTypeRegexp = regexp.MustCompile(`^[A-Z](\w*)(\[\])?$`)
 // SignTextWithValidator signs the given message which can be further recovered
 // with the given validator.
 // hash = keccak256("\x19\x00"${address}${data}).
-func SignTextValidator(validatorData ValidatorData) (signature hexutil.Bytes, message string) {
+func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
 	msg := fmt.Sprintf("\x19\x00%s%s", string(validatorData.Address.Bytes()), string(validatorData.Message))
 	return crypto.Keccak256([]byte(msg)), msg
 }
@@ -127,7 +127,7 @@ func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error)
 
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
+		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData primary type")
 	}
 
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
@@ -233,6 +233,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 	for _, field := range typedData.Types[primaryType] {
 		encType := field.Type
 		encValue := data[field.Name]
+
 		switch {
 		case encType[len(encType)-1:] == "]":
 			arrayValue, ok := encValue.([]interface{})

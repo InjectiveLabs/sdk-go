@@ -19,45 +19,89 @@ service Query {
     option (google.api.http).get = "/injective/permissions/v1beta1/params";
   }
 
-  // AllNamespaces defines a gRPC query method that returns the permissions
+  // NamespaceDenoms defines a gRPC query method that returns the denoms for which a namespace exists
+  rpc NamespaceDenoms(QueryNamespaceDenomsRequest)
+      returns (QueryNamespaceDenomsResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/namespace_denoms";
+  }
+
+  // Namespaces defines a gRPC query method that returns the permissions
   // module's created namespaces.
-  rpc AllNamespaces(QueryAllNamespacesRequest)
-      returns (QueryAllNamespacesResponse) {
+  rpc Namespaces(QueryNamespacesRequest)
+      returns (QueryNamespacesResponse) {
     option (google.api.http).get =
-        "/injective/permissions/v1beta1/all_namespaces";
+        "/injective/permissions/v1beta1/namespaces";
   }
 
-  // NamespaceByDenom defines a gRPC query method that returns the permissions
+  // Namespace defines a gRPC query method that returns the permissions
   // module's namespace associated with the provided denom.
-  rpc NamespaceByDenom(QueryNamespaceByDenomRequest)
-      returns (QueryNamespaceByDenomResponse) {
+  rpc Namespace(QueryNamespaceRequest)
+      returns (QueryNamespaceResponse) {
     option (google.api.http).get =
-        "/injective/permissions/v1beta1/namespace_by_denom";
+        "/injective/permissions/v1beta1/namespace/{denom}";
   }
 
-  // AddressRoles defines a gRPC query method that returns address roles in the
-  // namespace
-  rpc AddressRoles(QueryAddressRolesRequest)
-      returns (QueryAddressRolesResponse) {
+  // RolesByActor defines a gRPC query method that returns roles for the actor in the namespace
+  rpc RolesByActor(QueryRolesByActorRequest)
+      returns (QueryRolesByActorResponse) {
     option (google.api.http).get =
-        "/injective/permissions/v1beta1/addresses_by_role";
+        "/injective/permissions/v1beta1/roles_by_actor/{denom}/{actor}";
   }
 
-  // AddressesByRole defines a gRPC query method that returns a namespace's
-  // roles associated with the provided address.
-  rpc AddressesByRole(QueryAddressesByRoleRequest)
-      returns (QueryAddressesByRoleResponse) {
+  // ActorsByRole defines a gRPC query method that returns a namespace's roles associated with the provided actor.
+  rpc ActorsByRole(QueryActorsByRoleRequest)
+      returns (QueryActorsByRoleResponse) {
     option (google.api.http).get =
-        "/injective/permissions/v1beta1/addresses_by_role";
+        "/injective/permissions/v1beta1/actors_by_role/{denom}/{role}";
   }
 
-  // VouchersForAddress defines a gRPC query method that returns a map of
-  // vouchers that are held by permissions module for this address, keyed by the
-  // originator address
-  rpc VouchersForAddress(QueryVouchersForAddressRequest)
-      returns (QueryVouchersForAddressResponse) {
+  // RoleManagers defines a gRPC query method that returns a namespace's role managers
+  rpc RoleManagers(QueryRoleManagersRequest)
+      returns (QueryRoleManagersResponse) {
     option (google.api.http).get =
-        "/injective/permissions/v1beta1/vouchers_for_address";
+        "/injective/permissions/v1beta1/role_managers/{denom}";
+  }
+
+  // RoleManager defines a gRPC query method that returns the roles a given role manager manages for a given namespace
+  rpc RoleManager(QueryRoleManagerRequest)
+      returns (QueryRoleManagerResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/role_manager/{denom}/{manager}";
+  }
+
+  // PolicyStatuses defines a gRPC query method that returns a namespace's policy statuses
+  rpc PolicyStatuses(QueryPolicyStatusesRequest)
+      returns (QueryPolicyStatusesResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/policy_statuses/{denom}";
+  }
+
+  // PolicyManagerCapabilities defines a gRPC query method that returns a namespace's policy manager capabilities
+  rpc PolicyManagerCapabilities(QueryPolicyManagerCapabilitiesRequest)
+      returns (QueryPolicyManagerCapabilitiesResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/policy_manager_capabilities/{denom}";
+  }
+
+  // Vouchers defines a gRPC query method for the vouchers for a given denom
+  rpc Vouchers(QueryVouchersRequest)
+      returns (QueryVouchersResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/vouchers/{denom}";
+  }
+
+  // Voucher defines a gRPC query method for the vouchers for a given denom and address
+  rpc Voucher(QueryVoucherRequest)
+      returns (QueryVoucherResponse) {
+    option (google.api.http).get =
+        "/injective/permissions/v1beta1/voucher/{denom}/{address}";
+  }
+
+  // Retrieves the entire permissions module's state
+  rpc PermissionsModuleState(QueryModuleStateRequest)
+      returns (QueryModuleStateResponse) {
+    option (google.api.http).get = "/injective/permissions/v1beta1/module_state";
   }
 }
 
@@ -70,49 +114,118 @@ message QueryParamsResponse {
   Params params = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryAllNamespacesRequest is the request type for the Query/AllNamespaces RPC
+// QueryNamespaceDenomsRequest is the request type for the Query/NamespaceDenoms RPC
 // method.
-message QueryAllNamespacesRequest {}
+message QueryNamespaceDenomsRequest {}
 
-// QueryAllNamespacesResponse is the response type for the Query/AllNamespaces
+// QueryNamespaceDenomsResponse is the response type for the Query/NamespaceDenoms
 // RPC method.
-message QueryAllNamespacesResponse { repeated Namespace namespaces = 1; }
+message QueryNamespaceDenomsResponse { repeated string denoms = 1; }
 
-// QueryNamespaceByDenomRequest is the request type for the
-// Query/NamespaceByDenom RPC method.
-message QueryNamespaceByDenomRequest {
+// QueryNamespacesRequest is the request type for the Query/Namespaces RPC
+// method.
+message QueryNamespacesRequest {}
+
+// QueryNamespacesResponse is the response type for the Query/Namespaces
+// RPC method.
+message QueryNamespacesResponse { repeated Namespace namespaces = 1; }
+
+// QueryNamespaceRequest is the request type for the
+// Query/Namespace RPC method.
+message QueryNamespaceRequest {
   string denom = 1;
-  bool include_roles = 2;
 }
 
-// QueryNamespaceByDenomResponse is the response type for the
+// QueryNamespaceResponse is the response type for the
 // Query/NamespaceByDenom RPC method.
-message QueryNamespaceByDenomResponse { Namespace namespace = 1; }
+message QueryNamespaceResponse { Namespace namespace = 1; }
 
 // QueryAddressesByRoleRequest is the request type for the Query/AddressesByRole
 // RPC method.
-message QueryAddressesByRoleRequest {
+message QueryActorsByRoleRequest {
   string denom = 1;
   string role = 2;
 }
 
 // QueryAddressesByRoleResponse is the response type for the
 // Query/AddressesByRole RPC method.
-message QueryAddressesByRoleResponse { repeated string addresses = 1; }
+message QueryActorsByRoleResponse { repeated string actors = 1; }
 
-message QueryAddressRolesRequest {
+// QueryRolesByActorRequest is the request type for the
+// Query/RolesByActor RPC method.
+message QueryRolesByActorRequest {
+  string denom = 1;
+  string actor = 2;
+}
+
+// QueryRolesByActorResponse is the response type for the
+// Query/RolesByActor RPC method.
+message QueryRolesByActorResponse { repeated string roles = 1; }
+
+// QueryRoleManagersRequest is the request type for the Query/RoleManagers
+// RPC method.
+message QueryRoleManagersRequest {
+  string denom = 1;
+}
+
+// QueryRoleManagersResponse is the response type for the
+// Query/RoleManagers RPC method.
+message QueryRoleManagersResponse { repeated RoleManager role_managers = 1; }
+
+// QueryRoleManagerRequest is the request type for the Query/RoleManager
+// RPC method.
+message QueryRoleManagerRequest {
+  string denom = 1;
+  string manager = 2;
+}
+
+// QueryRoleManagerResponse is the response type for the
+// Query/RoleManager RPC method.
+message QueryRoleManagerResponse { RoleManager role_manager = 1; }
+
+// QueryPolicyStatusesRequest is the request type for the Query/PolicyStatuses
+// RPC method.
+message QueryPolicyStatusesRequest {
+  string denom = 1;
+}
+
+// QueryRoleManagerResponse is the response type for the
+// Query/RoleManager RPC method.
+message QueryPolicyStatusesResponse { repeated PolicyStatus policy_statuses = 1; }
+
+// QueryPolicyManagerCapabilitiesRequest is the request type for the Query/PolicyManagerCapabilities
+// RPC method.
+message QueryPolicyManagerCapabilitiesRequest {
+  string denom = 1;
+}
+
+// QueryPolicyManagerCapabilitiesResponse is the response type for the
+// Query/PolicyManagerCapabilities RPC method.
+message QueryPolicyManagerCapabilitiesResponse { repeated PolicyManagerCapability policy_manager_capabilities = 1; }
+
+message QueryVouchersRequest { string denom = 1; }
+
+message QueryVouchersResponse {
+  repeated AddressVoucher vouchers = 1;
+}
+
+message QueryVoucherRequest {
   string denom = 1;
   string address = 2;
 }
 
-message QueryAddressRolesResponse { repeated string roles = 1; }
-
-message QueryVouchersForAddressRequest { string address = 1; }
-
-message QueryVouchersForAddressResponse {
-  repeated cosmos.base.v1beta1.Coin vouchers = 1 [
+message QueryVoucherResponse {
+  cosmos.base.v1beta1.Coin voucher = 1 [
     (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-    (gogoproto.jsontag) = "vouchers,omitempty"
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.jsontag) = "voucher,omitempty"
   ];
 }
+
+// QueryModuleStateRequest is the request type for the Query/PermissionsModuleState
+// RPC method.
+message QueryModuleStateRequest {}
+
+// QueryModuleStateResponse is the response type for the Query/PermissionsModuleState
+// RPC method.
+message QueryModuleStateResponse { GenesisState state = 1; }

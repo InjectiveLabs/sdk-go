@@ -1,0 +1,20 @@
+version: v2
+managed:
+  enabled: true
+  disable:
+    - module: buf.build/googleapis/googleapis
+      file_option: go_package_prefix
+plugins:
+  - local: protoc-gen-go-grpc
+    out: ./chain/
+    opt: paths=source_relative
+  - local: protoc-gen-gogo
+    out: ./chain/
+    opt: paths=source_relative
+inputs:
+#  - git_repo: https://github.com/InjectiveLabs/injective-core
+#    tag: v1.13.0
+#    subdir: proto
+  - git_repo: https://github.com/InjectiveLabs/injective-core
+    branch: f/permissions-rework
+    subdir: proto

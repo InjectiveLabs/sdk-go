@@ -34,7 +34,9 @@ type ExchangeClient interface {
 	GetDerivativePositions(ctx context.Context, req *derivativeExchangePB.PositionsRequest) (*derivativeExchangePB.PositionsResponse, error)
 	GetDerivativePositionsV2(ctx context.Context, req *derivativeExchangePB.PositionsV2Request) (*derivativeExchangePB.PositionsV2Response, error)
 	GetDerivativeLiquidablePositions(ctx context.Context, req *derivativeExchangePB.LiquidablePositionsRequest) (*derivativeExchangePB.LiquidablePositionsResponse, error)
+	// Deprecated: Use StreamDerivativePositionsV2 instead. This method will be removed in a future version.
 	StreamDerivativePositions(ctx context.Context, req *derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error)
+	StreamDerivativePositionsV2(ctx context.Context, req *derivativeExchangePB.StreamPositionsV2Request) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsV2Client, error)
 	StreamDerivativeOrders(ctx context.Context, req *derivativeExchangePB.StreamOrdersRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrdersClient, error)
 	GetDerivativeTrades(ctx context.Context, req *derivativeExchangePB.TradesRequest) (*derivativeExchangePB.TradesResponse, error)
 	GetDerivativeTradesV2(ctx context.Context, req *derivativeExchangePB.TradesV2Request) (*derivativeExchangePB.TradesV2Response, error)
@@ -52,6 +54,7 @@ type ExchangeClient interface {
 	GetAuction(ctx context.Context, round int64) (*auctionPB.AuctionEndpointResponse, error)
 	GetAuctions(ctx context.Context) (*auctionPB.AuctionsResponse, error)
 	StreamBids(ctx context.Context) (auctionPB.InjectiveAuctionRPC_StreamBidsClient, error)
+	FetchInjBurnt(ctx context.Context) (*auctionPB.InjBurntEndpointResponse, error)
 	GetSubaccountsList(ctx context.Context, accountAddress string) (*accountPB.SubaccountsListResponse, error)
 	GetSubaccountBalance(ctx context.Context, subaccountId string, denom string) (*accountPB.SubaccountBalanceEndpointResponse, error)
 	StreamSubaccountBalance(ctx context.Context, subaccountId string) (accountPB.InjectiveAccountsRPC_StreamSubaccountBalanceClient, error)
@@ -111,10 +114,10 @@ func NewExchangeClient(network common.Network, options ...common.ClientOption) (
 	var conn *grpc.ClientConn
 	var err error
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(network.ExchangeGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(network.ExchangeGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
 
-		conn, err = grpc.Dial(network.ExchangeGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(network.ExchangeGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {
 		err := errors.Wrapf(err, "failed to connect to the gRPC: %s", network.ExchangeGrpcEndpoint)
@@ -305,8 +308,20 @@ func (c *exchangeClient) StreamDerivativeMarket(ctx context.Context, marketIDs [
 	return stream, nil
 }
 
+// Deprecated: Use StreamDerivativePositionsV2 instead. This method will be removed in a future version.
 func (c *exchangeClient) StreamDerivativePositions(ctx context.Context, req *derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error) {
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamPositions, req)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamDerivativePositionsV2(ctx context.Context, req *derivativeExchangePB.StreamPositionsV2Request) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsV2Client, error) {
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.StreamPositionsV2, req)
 
 	if err != nil {
 		fmt.Println(err)
@@ -519,6 +534,18 @@ func (c *exchangeClient) StreamBids(ctx context.Context) (auctionPB.InjectiveAuc
 	}
 
 	return stream, nil
+}
+
+func (c *exchangeClient) FetchInjBurnt(ctx context.Context) (*auctionPB.InjBurntEndpointResponse, error) {
+	req := auctionPB.InjBurntEndpointRequest{}
+
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.auctionClient.InjBurntEndpoint, &req)
+	if err != nil {
+		fmt.Println(err)
+		return &auctionPB.InjBurntEndpointResponse{}, err
+	}
+
+	return res, nil
 }
 
 // Accounts RPC
