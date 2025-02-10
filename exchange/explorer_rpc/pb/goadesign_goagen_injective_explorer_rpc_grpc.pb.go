@@ -30,6 +30,8 @@ type InjectiveExplorerRPCClient interface {
 	GetContractTxsV2(ctx context.Context, in *GetContractTxsV2Request, opts ...grpc.CallOption) (*GetContractTxsV2Response, error)
 	// GetBlocks returns blocks based upon the request params
 	GetBlocks(ctx context.Context, in *GetBlocksRequest, opts ...grpc.CallOption) (*GetBlocksResponse, error)
+	// GetBlocks returns blocks based upon the request params
+	GetBlocksV2(ctx context.Context, in *GetBlocksV2Request, opts ...grpc.CallOption) (*GetBlocksV2Response, error)
 	// GetBlock returns block based upon the height or hash
 	GetBlock(ctx context.Context, in *GetBlockRequest, opts ...grpc.CallOption) (*GetBlockResponse, error)
 	// GetValidators returns validators on the active chain
@@ -40,6 +42,8 @@ type InjectiveExplorerRPCClient interface {
 	GetValidatorUptime(ctx context.Context, in *GetValidatorUptimeRequest, opts ...grpc.CallOption) (*GetValidatorUptimeResponse, error)
 	// GetTxs returns transactions based upon the request params
 	GetTxs(ctx context.Context, in *GetTxsRequest, opts ...grpc.CallOption) (*GetTxsResponse, error)
+	// GetTxs returns transactions based upon the request params
+	GetTxsV2(ctx context.Context, in *GetTxsV2Request, opts ...grpc.CallOption) (*GetTxsV2Response, error)
 	// GetTxByTxHash returns certain transaction information by its tx hash.
 	GetTxByTxHash(ctx context.Context, in *GetTxByTxHashRequest, opts ...grpc.CallOption) (*GetTxByTxHashResponse, error)
 	// GetPeggyDepositTxs returns the peggy deposit transactions based upon the
@@ -118,6 +122,15 @@ func (c *injectiveExplorerRPCClient) GetBlocks(ctx context.Context, in *GetBlock
 	return out, nil
 }
 
+func (c *injectiveExplorerRPCClient) GetBlocksV2(ctx context.Context, in *GetBlocksV2Request, opts ...grpc.CallOption) (*GetBlocksV2Response, error) {
+	out := new(GetBlocksV2Response)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetBlocksV2", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *injectiveExplorerRPCClient) GetBlock(ctx context.Context, in *GetBlockRequest, opts ...grpc.CallOption) (*GetBlockResponse, error) {
 	out := new(GetBlockResponse)
 	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetBlock", in, out, opts...)
@@ -157,6 +170,15 @@ func (c *injectiveExplorerRPCClient) GetValidatorUptime(ctx context.Context, in 
 func (c *injectiveExplorerRPCClient) GetTxs(ctx context.Context, in *GetTxsRequest, opts ...grpc.CallOption) (*GetTxsResponse, error) {
 	out := new(GetTxsResponse)
 	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetTxs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetTxsV2(ctx context.Context, in *GetTxsV2Request, opts ...grpc.CallOption) (*GetTxsV2Response, error) {
+	out := new(GetTxsV2Response)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetTxsV2", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -347,6 +369,8 @@ type InjectiveExplorerRPCServer interface {
 	GetContractTxsV2(context.Context, *GetContractTxsV2Request) (*GetContractTxsV2Response, error)
 	// GetBlocks returns blocks based upon the request params
 	GetBlocks(context.Context, *GetBlocksRequest) (*GetBlocksResponse, error)
+	// GetBlocks returns blocks based upon the request params
+	GetBlocksV2(context.Context, *GetBlocksV2Request) (*GetBlocksV2Response, error)
 	// GetBlock returns block based upon the height or hash
 	GetBlock(context.Context, *GetBlockRequest) (*GetBlockResponse, error)
 	// GetValidators returns validators on the active chain
@@ -357,6 +381,8 @@ type InjectiveExplorerRPCServer interface {
 	GetValidatorUptime(context.Context, *GetValidatorUptimeRequest) (*GetValidatorUptimeResponse, error)
 	// GetTxs returns transactions based upon the request params
 	GetTxs(context.Context, *GetTxsRequest) (*GetTxsResponse, error)
+	// GetTxs returns transactions based upon the request params
+	GetTxsV2(context.Context, *GetTxsV2Request) (*GetTxsV2Response, error)
 	// GetTxByTxHash returns certain transaction information by its tx hash.
 	GetTxByTxHash(context.Context, *GetTxByTxHashRequest) (*GetTxByTxHashResponse, error)
 	// GetPeggyDepositTxs returns the peggy deposit transactions based upon the
@@ -408,6 +434,9 @@ func (UnimplementedInjectiveExplorerRPCServer) GetContractTxsV2(context.Context,
 func (UnimplementedInjectiveExplorerRPCServer) GetBlocks(context.Context, *GetBlocksRequest) (*GetBlocksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlocks not implemented")
 }
+func (UnimplementedInjectiveExplorerRPCServer) GetBlocksV2(context.Context, *GetBlocksV2Request) (*GetBlocksV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBlocksV2 not implemented")
+}
 func (UnimplementedInjectiveExplorerRPCServer) GetBlock(context.Context, *GetBlockRequest) (*GetBlockResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetBlock not implemented")
 }
@@ -422,6 +451,9 @@ func (UnimplementedInjectiveExplorerRPCServer) GetValidatorUptime(context.Contex
 }
 func (UnimplementedInjectiveExplorerRPCServer) GetTxs(context.Context, *GetTxsRequest) (*GetTxsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxs not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetTxsV2(context.Context, *GetTxsV2Request) (*GetTxsV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTxsV2 not implemented")
 }
 func (UnimplementedInjectiveExplorerRPCServer) GetTxByTxHash(context.Context, *GetTxByTxHashRequest) (*GetTxByTxHashResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxByTxHash not implemented")
@@ -550,6 +582,24 @@ func _InjectiveExplorerRPC_GetBlocks_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveExplorerRPC_GetBlocksV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBlocksV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetBlocksV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetBlocksV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetBlocksV2(ctx, req.(*GetBlocksV2Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _InjectiveExplorerRPC_GetBlock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetBlockRequest)
 	if err := dec(in); err != nil {
@@ -636,6 +686,24 @@ func _InjectiveExplorerRPC_GetTxs_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveExplorerRPCServer).GetTxs(ctx, req.(*GetTxsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_GetTxsV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTxsV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetTxsV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetTxsV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetTxsV2(ctx, req.(*GetTxsV2Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -922,6 +990,10 @@ var InjectiveExplorerRPC_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _InjectiveExplorerRPC_GetBlocks_Handler,
 		},
 		{
+			MethodName: "GetBlocksV2",
+			Handler:    _InjectiveExplorerRPC_GetBlocksV2_Handler,
+		},
+		{
 			MethodName: "GetBlock",
 			Handler:    _InjectiveExplorerRPC_GetBlock_Handler,
 		},
@@ -940,6 +1012,10 @@ var InjectiveExplorerRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTxs",
 			Handler:    _InjectiveExplorerRPC_GetTxs_Handler,
+		},
+		{
+			MethodName: "GetTxsV2",
+			Handler:    _InjectiveExplorerRPC_GetTxsV2_Handler,
 		},
 		{
 			MethodName: "GetTxByTxHash",
