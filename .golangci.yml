@@ -1,6 +1,12 @@
 {
   "run": {
     "tests": false,
+    "skip-dirs": [
+      "chain",
+      "exchange",
+      "proto",
+      "client/keyring/testdata"
+    ]
   },
   "linters": {
     "fast": false,
