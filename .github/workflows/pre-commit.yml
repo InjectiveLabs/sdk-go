@@ -18,4 +18,4 @@ jobs:
           check-latest: true
       - run: go install golang.org/x/tools/cmd/goimports@latest
       - run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.0
-      - uses: pre-commit/action@v2.0.2
+      - uses: pre-commit/action@v3.0.1
