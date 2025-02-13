@@ -66,7 +66,7 @@ func WrapTxToEIP712(
 	)
 
 	if chainID > uint64(math.MaxInt64) {
-		err := fmt.Errorf("chainID is too large: %s (max supported value is %s)", chainID, math.MaxInt64)
+		err := fmt.Errorf("chainID is too large: %v (max supported value is %v)", chainID, math.MaxInt64)
 		return typeddata.TypedData{}, err
 	}
 	intChainId := int64(chainID)
@@ -540,7 +540,7 @@ func WrapTxToEIP712V2(
 ) (typeddata.TypedData, error) {
 
 	if chainID > uint64(math.MaxInt64) {
-		err := fmt.Errorf("chainID is too large: %s (max supported value is %s)", chainID, math.MaxInt64)
+		err := fmt.Errorf("chainID is too large: %v (max supported value is %v)", chainID, math.MaxInt64)
 		return typeddata.TypedData{}, err
 	}
 	intChainId := int64(chainID)
