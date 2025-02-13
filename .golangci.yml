@@ -9,6 +9,8 @@
       "errorlint",
       "gas",
       "gocritic",
+      "gofmt",
+      "goimports",
       "gosimple",
       "govet",
       "ineffassign",
