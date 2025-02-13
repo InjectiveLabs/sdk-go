@@ -1,6 +1,7 @@
 package util
 
 import (
+	"math"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -127,7 +128,12 @@ func (n nonceCache) Sync(account common.Address, syncFn func() (uint64, error)) 
 		}
 		if nonce, err := syncFn(); err == nil {
 			n.mux.Lock()
-			n.nonces[account] = int64(nonce)
+			if nonce > uint64(math.MaxInt64) {
+				// Handle overflow case - could log error or take other action
+				n.nonces[account] = math.MaxInt64
+			} else {
+				n.nonces[account] = int64(nonce)
+			}
 			n.mux.Unlock()
 		}
 	}

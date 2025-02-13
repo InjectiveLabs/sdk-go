@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 	"reflect"
 	"runtime/debug"
 	"strings"
 	"time"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
@@ -64,6 +65,12 @@ func WrapTxToEIP712(
 		[]cosmtypes.Msg{}, memo,
 	)
 
+	if chainID > uint64(math.MaxInt64) {
+		err := fmt.Errorf("chainID is too large: %s (max supported value is %s)", chainID, math.MaxInt64)
+		return typeddata.TypedData{}, err
+	}
+	intChainId := int64(chainID)
+
 	txData := make(map[string]interface{})
 	if err := json.Unmarshal(data, &txData); err != nil {
 		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
@@ -98,7 +105,7 @@ func WrapTxToEIP712(
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(intChainId),
 		VerifyingContract: "cosmos",
 		Salt:              "0",
 	}
@@ -413,7 +420,7 @@ var (
 	hashType      = reflect.TypeOf(common.Hash{})
 	addressType   = reflect.TypeOf(common.Address{})
 	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(math.Int{})
+	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
 	timeType      = reflect.TypeOf(time.Time{})
 )
@@ -531,10 +538,17 @@ func WrapTxToEIP712V2(
 	msgs []cosmtypes.Msg,
 	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
+
+	if chainID > uint64(math.MaxInt64) {
+		err := fmt.Errorf("chainID is too large: %s (max supported value is %s)", chainID, math.MaxInt64)
+		return typeddata.TypedData{}, err
+	}
+	intChainId := int64(chainID)
+
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(intChainId),
 		VerifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
 		Salt:              "0",
 	}
