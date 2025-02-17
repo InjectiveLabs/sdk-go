@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
@@ -15,7 +16,7 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("testnet", "lb")
+	network := common.LoadNetwork("mainnet", "lb")
 	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		panic(err)
@@ -65,7 +66,7 @@ func main() {
 		panic(err)
 	}
 
-	market := marketsAssistant.AllDerivativeMarkets()["0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"]
+	market := marketsAssistant.AllDerivativeMarkets()["0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"]
 
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
@@ -74,7 +75,11 @@ func main() {
 
 	baseSymbol := market.OracleBase
 	quoteSymbol := market.OracleQuote
-	oracleType := market.OracleType
+	oracleType := strings.ToLower(market.OracleType)
+	fmt.Println("baseSymbol", baseSymbol)
+	fmt.Println("quoteSymbol", quoteSymbol)
+	fmt.Println("oracleType", oracleType)
+
 	stream, err := exchangeClient.StreamPrices(ctx, baseSymbol, quoteSymbol, oracleType)
 	if err != nil {
 		panic(err)
