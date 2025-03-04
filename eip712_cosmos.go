@@ -272,7 +272,7 @@ func traverseFields(
 
 			err = cdc.UnpackAny(any, &anyWrapper.Value)
 			if err != nil {
-				err = errors.Wrap(err, "failed to unpack Any in msg struct")
+				err = errors.Wrapf(err, "failed to unpack Any in msg struct at field %s", fieldName)
 				return err
 			}
 
@@ -395,8 +395,9 @@ func jsonNameFromTag(tag reflect.StructTag) string {
 }
 
 // _.foo_bar.baz -> TypeFooBarBaz
-// this is needed for Geth's own signing code which doesn't
-// tolerate complex type names
+// sanitizeTypedef ensures that complex type names are simplified and
+// conform to the format expected by Geth's signing code, which requires
+// PascalCase for compatibility with EIP-712.
 func sanitizeTypedef(str string) string {
 	buf := new(bytes.Buffer)
 	parts := strings.Split(str, ".")
