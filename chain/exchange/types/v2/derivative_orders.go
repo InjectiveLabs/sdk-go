@@ -210,111 +210,153 @@ func (m *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) mat
 	return marginHoldRefund
 }
 
-func (o *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
-	if types.BreachesMinimumTickSize(o.OrderInfo.Price, minPriceTickSize) {
-		return errors.Wrapf(types.ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", o.OrderInfo.Price.String(), minPriceTickSize.String())
+func (m *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
+	if types.BreachesMinimumTickSize(m.OrderInfo.Price, minPriceTickSize) {
+		return errors.Wrapf(
+			types.ErrInvalidPrice,
+			"price %s must be a multiple of the minimum price tick size %s",
+			m.OrderInfo.Price.String(),
+			minPriceTickSize.String(),
+		)
 	}
-	if types.BreachesMinimumTickSize(o.OrderInfo.Quantity, minQuantityTickSize) {
-		return errors.Wrapf(types.ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", o.OrderInfo.Quantity.String(), minQuantityTickSize.String())
+	if types.BreachesMinimumTickSize(m.OrderInfo.Quantity, minQuantityTickSize) {
+		return errors.Wrapf(
+			types.ErrInvalidQuantity,
+			"quantity %s must be a multiple of the minimum quantity tick size %s",
+			m.OrderInfo.Quantity.String(),
+			minQuantityTickSize.String(),
+		)
 	}
 	return nil
 }
 
-func (o *DerivativeOrder) CheckNotional(minNotional math.LegacyDec) error {
-	orderNotional := o.GetQuantity().Mul(o.GetPrice())
+func (m *DerivativeOrder) CheckNotional(minNotional math.LegacyDec) error {
+	orderNotional := m.GetQuantity().Mul(m.GetPrice())
 	if !minNotional.IsNil() && orderNotional.LT(minNotional) {
-		return errors.Wrapf(types.ErrInvalidNotional, "order notional (%s) is less than the minimum notional for the market (%s)", orderNotional.String(), minNotional.String())
+		return errors.Wrapf(
+			types.ErrInvalidNotional,
+			"order notional (%s) is less than the minimum notional for the market (%s)",
+			orderNotional.String(),
+			minNotional.String(),
+		)
 	}
 	return nil
 }
 
-func (o *DerivativeOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) math.LegacyDec {
+func (m *DerivativeOrder) GetRequiredBinaryOptionsMargin(oracleScaleFactor uint32) math.LegacyDec {
 	// Margin = Price * Quantity for buys
-	if o.IsBuy() {
-		notional := o.Price().Mul(o.OrderInfo.Quantity)
+	if m.IsBuy() {
+		notional := m.Price().Mul(m.OrderInfo.Quantity)
 		return notional
 	}
 	// Margin = (scaled(1) - Price) * Quantity for sells
-	return o.OrderInfo.Quantity.Mul(types.GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor).Sub(o.Price()))
+	return m.OrderInfo.Quantity.Mul(types.GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor).Sub(m.Price()))
 }
 
-func (o *DerivativeOrder) CheckMarginAndGetMarginHold(initialMarginRatio, executionMarkPrice, feeRate math.LegacyDec, marketType v1.MarketType, oracleScaleFactor uint32) (marginHold math.LegacyDec, err error) {
-	notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
+func (m *DerivativeOrder) CheckMarginAndGetMarginHold(
+	initialMarginRatio, executionMarkPrice, feeRate math.LegacyDec, marketType v1.MarketType, oracleScaleFactor uint32,
+) (marginHold math.LegacyDec, err error) {
+	notional := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity)
 	positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
 	feeAmount := notional.Mul(positiveFeeRatePart)
 
-	marginHold = o.Margin.Add(feeAmount)
+	marginHold = m.Margin.Add(feeAmount)
 	if marketType == v1.MarketType_BinaryOption {
-		requiredMargin := o.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
-		if !o.Margin.Equal(requiredMargin) {
-			return math.LegacyDec{}, errors.Wrapf(types.ErrInsufficientMargin, "margin check: need %s but got %s", requiredMargin.String(), o.Margin.String())
+		requiredMargin := m.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
+		if !m.Margin.Equal(requiredMargin) {
+			return math.LegacyDec{}, errors.Wrapf(
+				types.ErrInsufficientMargin,
+				"margin check: need %s but got %s",
+				requiredMargin.String(),
+				m.Margin.String(),
+			)
 		}
 		return marginHold, nil
 	}
 
 	// For perpetual and expiry futures margins
 	// Enforce that Margin ≥ InitialMarginRatio * Price * Quantity
-	if o.Margin.LT(initialMarginRatio.Mul(notional)) {
-		return math.LegacyDec{}, errors.Wrapf(types.ErrInsufficientMargin, "InitialMarginRatio Check: need at least %s but got %s", initialMarginRatio.Mul(notional).String(), o.Margin.String())
+	if m.Margin.LT(initialMarginRatio.Mul(notional)) {
+		return math.LegacyDec{}, errors.Wrapf(
+			types.ErrInsufficientMargin,
+			"InitialMarginRatio Check: need at least %s but got %s",
+			initialMarginRatio.Mul(notional).String(),
+			m.Margin.String(),
+		)
 	}
 
-	if err := o.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, executionMarkPrice); err != nil {
+	if err := m.CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, executionMarkPrice); err != nil {
 		return math.LegacyDec{}, err
 	}
 
 	return marginHold, nil
 }
 
-func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice math.LegacyDec) (err error) {
+func (m *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice math.LegacyDec) (err error) {
 	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
 	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1 + InitialMarginRatio) * Quantity)
-	markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio)
-	return CheckInitialMarginMarkPriceRequirement(o.IsBuy(), markPriceThreshold, markPrice)
+	markPriceThreshold := m.ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio)
+	return CheckInitialMarginMarkPriceRequirement(m.IsBuy(), markPriceThreshold, markPrice)
 }
 
 func CheckInitialMarginMarkPriceRequirement(isBuyOrLong bool, markPriceThreshold, markPrice math.LegacyDec) error {
 	if isBuyOrLong && markPrice.LT(markPriceThreshold) {
-		return errors.Wrapf(types.ErrInsufficientMargin, "Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
+		return errors.Wrapf(
+			types.ErrInsufficientMargin, "Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s",
+			markPrice.String(),
+			markPriceThreshold.String(),
+		)
 	} else if !isBuyOrLong && markPrice.GT(markPriceThreshold) {
-		return errors.Wrapf(types.ErrInsufficientMargin, "Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
+		return errors.Wrapf(
+			types.ErrInsufficientMargin,
+			"Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s",
+			markPrice.String(),
+			markPriceThreshold.String(),
+		)
 	}
 	return nil
 }
 
 // CheckValidConditionalPrice checks that conditional order type (STOP or TAKE) actually valid for current relation between triggerPrice and markPrice
-func (o *DerivativeOrder) CheckValidConditionalPrice(markPrice math.LegacyDec) (err error) {
-	if !o.IsConditional() {
+func (m *DerivativeOrder) CheckValidConditionalPrice(markPrice math.LegacyDec) (err error) {
+	if !m.IsConditional() {
 		return nil
 	}
 
 	ok := true
-	switch o.OrderType {
+	switch m.OrderType {
 	case OrderType_STOP_BUY, OrderType_TAKE_SELL: // higher
-		ok = o.TriggerPrice.GT(markPrice)
+		ok = m.TriggerPrice.GT(markPrice)
 	case OrderType_STOP_SELL, OrderType_TAKE_BUY: // lower
-		ok = o.TriggerPrice.LT(markPrice)
+		ok = m.TriggerPrice.LT(markPrice)
 	}
 	if !ok {
-		return errors.Wrapf(types.ErrInvalidTriggerPrice, "order type %s incompatible with trigger price %s and markPrice %s", o.OrderType.String(), o.TriggerPrice.String(), markPrice.String())
+		return errors.Wrapf(
+			types.ErrInvalidTriggerPrice,
+			"order type %s incompatible with trigger price %s and markPrice %s",
+			m.OrderType.String(),
+			m.TriggerPrice.String(),
+			markPrice.String(),
+		)
 	}
 	return nil
 }
 
 // CheckBinaryOptionsPricesWithinBounds checks that binary options order prices don't exceed 1 (scaled)
-func (o *DerivativeOrder) CheckBinaryOptionsPricesWithinBounds(oracleScaleFactor uint32) (err error) {
+func (m *DerivativeOrder) CheckBinaryOptionsPricesWithinBounds(oracleScaleFactor uint32) (err error) {
 	maxScaledPrice := types.GetScaledPrice(math.LegacyOneDec(), oracleScaleFactor)
-	if o.Price().GTE(maxScaledPrice) {
+	if m.Price().GTE(maxScaledPrice) {
 		return errors.Wrapf(types.ErrInvalidPrice, "price must be less than %s", maxScaledPrice.String())
 	}
 
-	if o.IsConditional() && o.TriggerPrice.GTE(maxScaledPrice) {
+	if m.IsConditional() && m.TriggerPrice.GTE(maxScaledPrice) {
 		return errors.Wrapf(types.ErrInvalidTriggerPrice, "trigger price must be less than %s", maxScaledPrice.String())
 	}
 	return nil
 }
 
-func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio math.LegacyDec) math.LegacyDec {
-	return ComputeMarkPriceThreshold(o.IsBuy(), o.Price(), o.GetQuantity(), o.Margin, initialMarginRatio)
+func (m *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio math.LegacyDec) math.LegacyDec {
+	return ComputeMarkPriceThreshold(m.IsBuy(), m.Price(), m.GetQuantity(), m.Margin, initialMarginRatio)
 }
 
 func ComputeMarkPriceThreshold(isBuyOrLong bool, price, quantity, margin, initialMarginRatio math.LegacyDec) math.LegacyDec {
@@ -344,20 +386,40 @@ func (o *DerivativeMarketOrder) ComputeOrderHash(nonce uint32, marketId string) 
 		triggerPrice = o.TriggerPrice.String()
 	}
 
-	return types.ComputeOrderHash(marketId, o.OrderInfo.SubaccountId, o.OrderInfo.FeeRecipient, o.OrderInfo.Price.String(), o.OrderInfo.Quantity.String(), o.Margin.String(), triggerPrice, string(o.OrderType), nonce)
+	return types.ComputeOrderHash(
+		marketId,
+		o.OrderInfo.SubaccountId,
+		o.OrderInfo.FeeRecipient,
+		o.OrderInfo.Price.String(),
+		o.OrderInfo.Quantity.String(),
+		o.Margin.String(),
+		triggerPrice,
+		string(o.OrderType),
+		nonce,
+	)
 }
 
 // ComputeOrderHash computes the order hash for given derivative limit order
-func (o *DerivativeOrder) ComputeOrderHash(nonce uint32) (common.Hash, error) {
+func (m *DerivativeOrder) ComputeOrderHash(nonce uint32) (common.Hash, error) {
 	triggerPrice := ""
-	if o.TriggerPrice != nil {
-		triggerPrice = o.TriggerPrice.String()
+	if m.TriggerPrice != nil {
+		triggerPrice = m.TriggerPrice.String()
 	}
-	return types.ComputeOrderHash(o.MarketId, o.OrderInfo.SubaccountId, o.OrderInfo.FeeRecipient, o.OrderInfo.Price.String(), o.OrderInfo.Quantity.String(), o.Margin.String(), triggerPrice, string(o.OrderType), nonce)
+	return types.ComputeOrderHash(
+		m.MarketId,
+		m.OrderInfo.SubaccountId,
+		m.OrderInfo.FeeRecipient,
+		m.OrderInfo.Price.String(),
+		m.OrderInfo.Quantity.String(),
+		m.Margin.String(),
+		triggerPrice,
+		string(m.OrderType),
+		nonce,
+	)
 }
 
-func (o *DerivativeOrder) IsReduceOnly() bool {
-	return o.Margin.IsZero()
+func (m *DerivativeOrder) IsReduceOnly() bool {
+	return m.Margin.IsZero()
 }
 
 func (o *DerivativeMarketOrder) IsReduceOnly() bool {
@@ -428,8 +490,8 @@ func (m *DerivativeOrder) Price() math.LegacyDec {
 	return m.OrderInfo.Price
 }
 
-func (o *DerivativeOrder) IsConditional() bool {
-	return o.OrderType.IsConditional()
+func (m *DerivativeOrder) IsConditional() bool {
+	return m.OrderType.IsConditional()
 }
 
 func (o *DerivativeMarketOrder) IsConditional() bool {
@@ -448,20 +510,20 @@ func (o *DerivativeMarketOrder) Cid() string {
 	return o.OrderInfo.GetCid()
 }
 
-func (o *DerivativeOrder) SubaccountID() common.Hash {
-	return o.OrderInfo.SubaccountID()
+func (m *DerivativeOrder) SubaccountID() common.Hash {
+	return m.OrderInfo.SubaccountID()
 }
 
-func (o *DerivativeOrder) Cid() string {
-	return o.OrderInfo.GetCid()
+func (m *DerivativeOrder) Cid() string {
+	return m.OrderInfo.GetCid()
 }
 
-func (o *DerivativeOrder) IsFromDefaultSubaccount() bool {
-	return o.OrderInfo.IsFromDefaultSubaccount()
+func (m *DerivativeOrder) IsFromDefaultSubaccount() bool {
+	return m.OrderInfo.IsFromDefaultSubaccount()
 }
 
-func (o *DerivativeOrder) MarketID() common.Hash {
-	return common.HexToHash(o.MarketId)
+func (m *DerivativeOrder) MarketID() common.Hash {
+	return common.HexToHash(m.MarketId)
 }
 
 func (o *DerivativeMarketOrder) SubaccountID() common.Hash {

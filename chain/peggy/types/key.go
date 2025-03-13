@@ -113,6 +113,9 @@ var (
 	PastEthSignatureCheckpointKey = []byte{0x1b}
 
 	EthereumBlacklistKey = []byte{0x1c}
+
+	// FakeCheckpointKey indexes eth signature checkpoints that never existed
+	FakeCheckpointKey = []byte{0x1d}
 )
 
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
@@ -290,4 +293,9 @@ func GetERC20ToCosmosDenomKey(tokenContract common.Address) []byte {
 // [0x0][ checkpoint bytes ]
 func GetPastEthSignatureCheckpointKey(checkpoint common.Hash) []byte {
 	return append(PastEthSignatureCheckpointKey, checkpoint[:]...)
+}
+
+// GetFakeCheckpointKey indexes fake checkpoints previously signed by a validator
+func GetFakeCheckpointKey(signature []byte) []byte {
+	return append(FakeCheckpointKey, signature...)
 }

@@ -146,3 +146,39 @@ message EventValidatorSlash {
   string operator_address = 4;
   string moniker = 5;
 }
+
+message EventDepositReceived {
+  // Ethereum sender address
+  string sender = 1;
+
+  // Injective receiver address
+  string receiver = 2;
+
+  // Coin deposited to Injective
+  string amount = 3 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventWithdrawalsCompleted {
+  // token denom of each withdrawal
+  string denom = 1;
+
+  // individual withdrawals
+  repeated Withdrawal withdrawals = 2;
+}
+
+message Withdrawal {
+  // Injective sender address
+  string sender = 1;
+
+  // Ethereum receiver address
+  string receiver = 2;
+
+  // Amount of tokens withdrawn to Ethereum
+  string amount = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}

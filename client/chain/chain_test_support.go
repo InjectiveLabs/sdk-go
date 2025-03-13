@@ -78,6 +78,10 @@ func (c *MockChainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastT
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
+func (c *MockChainClient) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxRequest{}, &txtypes.BroadcastTxResponse{}, nil
+}
+
 func (c *MockChainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msg ...sdk.Msg) ([]byte, error) {
 	return []byte(nil), nil
 }
@@ -612,6 +616,30 @@ func (c *MockChainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Co
 	return &exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse{}, nil
 }
 
+func (c *MockChainClient) FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error) {
+	return &exchangetypes.QueryFullDerivativeOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error) {
+	return &exchangetypes.QueryFullSpotOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error) {
+	return &exchangetypes.QueryMarketBalanceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error) {
+	return &exchangetypes.QueryMarketBalancesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error) {
+	return &exchangetypes.QueryDenomMinNotionalResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error) {
+	return &exchangetypes.QueryDenomMinNotionalsResponse{}, nil
+}
+
 // Chain exchange V2 module
 func (c *MockChainClient) FetchSubaccountDepositsV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountDepositsResponse, error) {
 	return &exchangev2types.QuerySubaccountDepositsResponse{}, nil
@@ -886,6 +914,22 @@ func (c *MockChainClient) FetchL3SpotOrderbookV2(ctx context.Context, marketId s
 	return &exchangev2types.QueryFullSpotOrderbookResponse{}, nil
 }
 
+func (c *MockChainClient) FetchMarketBalanceV2(ctx context.Context, marketId string) (*exchangev2types.QueryMarketBalanceResponse, error) {
+	return &exchangev2types.QueryMarketBalanceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalancesV2(ctx context.Context) (*exchangev2types.QueryMarketBalancesResponse, error) {
+	return &exchangev2types.QueryMarketBalancesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotionalV2(ctx context.Context, denom string) (*exchangev2types.QueryDenomMinNotionalResponse, error) {
+	return &exchangev2types.QueryDenomMinNotionalResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotionalsV2(ctx context.Context) (*exchangev2types.QueryDenomMinNotionalsResponse, error) {
+	return &exchangev2types.QueryDenomMinNotionalsResponse{}, nil
+}
+
 // Tendermint module
 
 func (c *MockChainClient) FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error) {
@@ -1054,24 +1098,52 @@ func (c *MockChainClient) FetchIBCConnectionParams(ctx context.Context) (*ibccon
 
 // Permissions module
 
-func (c *MockChainClient) FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error) {
-	return &permissionstypes.QueryAllNamespacesResponse{}, nil
+func (c *MockChainClient) FetchPermissionsNamespaceDenoms(ctx context.Context) (*permissionstypes.QueryNamespaceDenomsResponse, error) {
+	return &permissionstypes.QueryNamespaceDenomsResponse{}, nil
 }
 
-func (c *MockChainClient) FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error) {
-	return &permissionstypes.QueryNamespaceByDenomResponse{}, nil
+func (c *MockChainClient) FetchPermissionsNamespaces(ctx context.Context) (*permissionstypes.QueryNamespacesResponse, error) {
+	return &permissionstypes.QueryNamespacesResponse{}, nil
 }
 
-func (c *MockChainClient) FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error) {
-	return &permissionstypes.QueryAddressRolesResponse{}, nil
+func (c *MockChainClient) FetchPermissionsNamespace(ctx context.Context, denom string) (*permissionstypes.QueryNamespaceResponse, error) {
+	return &permissionstypes.QueryNamespaceResponse{}, nil
 }
 
-func (c *MockChainClient) FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error) {
-	return &permissionstypes.QueryAddressesByRoleResponse{}, nil
+func (c *MockChainClient) FetchPermissionsRolesByActor(ctx context.Context, denom, actor string) (*permissionstypes.QueryRolesByActorResponse, error) {
+	return &permissionstypes.QueryRolesByActorResponse{}, nil
 }
 
-func (c *MockChainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
-	return &permissionstypes.QueryVouchersForAddressResponse{}, nil
+func (c *MockChainClient) FetchPermissionsActorsByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryActorsByRoleResponse, error) {
+	return &permissionstypes.QueryActorsByRoleResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsRoleManagers(ctx context.Context, denom string) (*permissionstypes.QueryRoleManagersResponse, error) {
+	return &permissionstypes.QueryRoleManagersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsRoleManager(ctx context.Context, denom, manager string) (*permissionstypes.QueryRoleManagerResponse, error) {
+	return &permissionstypes.QueryRoleManagerResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsPolicyStatuses(ctx context.Context, denom string) (*permissionstypes.QueryPolicyStatusesResponse, error) {
+	return &permissionstypes.QueryPolicyStatusesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsPolicyManagerCapabilities(ctx context.Context, denom string) (*permissionstypes.QueryPolicyManagerCapabilitiesResponse, error) {
+	return &permissionstypes.QueryPolicyManagerCapabilitiesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsVouchers(ctx context.Context, denom string) (*permissionstypes.QueryVouchersResponse, error) {
+	return &permissionstypes.QueryVouchersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error) {
+	return &permissionstypes.QueryVoucherResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
+	return &permissionstypes.QueryModuleStateResponse{}, nil
 }
 
 func (c *MockChainClient) GetNetwork() common.Network {

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultOfacListURL = "https://raw.githubusercontent.com/InjectiveLabs/injective-lists/refs/heads/master/json/wallets/ofac.json"
+	DefaultOfacListURL = "https://raw.githubusercontent.com/InjectiveLabs/injective-lists/refs/heads/master/json/wallets/ofacAndRestricted.json"
 )
 
 var (
@@ -53,6 +53,7 @@ func DownloadOfacList() error {
 		return fmt.Errorf("failed to download OFAC list, status code: %d", resp.StatusCode)
 	}
 
+	fmt.Printf("Writing OFAC list to file to %s\n", OfacListPath)
 	if err := os.MkdirAll(OfacListPath, 0755); err != nil { // nolint:gocritic // 0755 is the correct permission
 		return err
 	}

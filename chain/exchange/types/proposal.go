@@ -8,11 +8,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
+	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/ethereum/go-ethereum/common"
-
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 )
 
 // constants
@@ -34,6 +33,7 @@ const (
 	ProposalTypeBinaryOptionsMarketLaunch          string = "ProposalTypeBinaryOptionsMarketLaunch"
 	ProposalTypeBinaryOptionsMarketParamUpdate     string = "ProposalTypeBinaryOptionsMarketParamUpdate"
 	ProposalAtomicMarketOrderFeeMultiplierSchedule string = "ProposalAtomicMarketOrderFeeMultiplierSchedule"
+	ProposalDenomMinNotional                       string = "ProposalDenomMinNotional"
 )
 
 func init() {
@@ -54,6 +54,7 @@ func init() {
 	govtypes.RegisterProposalType(ProposalTypeBinaryOptionsMarketLaunch)
 	govtypes.RegisterProposalType(ProposalTypeBinaryOptionsMarketParamUpdate)
 	govtypes.RegisterProposalType(ProposalAtomicMarketOrderFeeMultiplierSchedule)
+	govtypes.RegisterProposalType(ProposalDenomMinNotional)
 }
 
 func SafeIsPositiveInt(v math.Int) bool {
@@ -209,27 +210,12 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 		}
 	}
 
-	return govtypes.ValidateAbstract(p)
-}
-
-// NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
-func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec, status MarketStatus, ticker string, baseDecimals, quoteDecimals uint32) *SpotMarketParamUpdateProposal {
-	return &SpotMarketParamUpdateProposal{
-		title,
-		description,
-		marketID.Hex(),
-		makerFeeRate,
-		takerFeeRate,
-		relayerFeeShareRate,
-		minPriceTickSize,
-		minQuantityTickSize,
-		status,
-		ticker,
-		minNotional,
-		nil,
-		baseDecimals,
-		quoteDecimals,
+	if p.DenomMinNotionalProposal != nil {
+		if err := p.DenomMinNotionalProposal.ValidateBasic(); err != nil {
+			return err
+		}
 	}
+	return govtypes.ValidateAbstract(p)
 }
 
 // Implements Proposal Interface
@@ -447,47 +433,6 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(p)
 }
 
-// NewDerivativeMarketParamUpdateProposal returns new instance of DerivativeMarketParamUpdateProposal
-func NewDerivativeMarketParamUpdateProposal(
-	title string,
-	description string,
-	marketID string,
-	initialMarginRatio *math.LegacyDec,
-	maintenanceMarginRatio *math.LegacyDec,
-	makerFeeRate *math.LegacyDec,
-	takerFeeRate *math.LegacyDec,
-	relayerFeeShareRate *math.LegacyDec,
-	minPriceTickSize *math.LegacyDec,
-	minQuantityTickSize *math.LegacyDec,
-	minNotional *math.LegacyDec,
-	hourlyInterestRate *math.LegacyDec,
-	hourlyFundingRateCap *math.LegacyDec,
-	status MarketStatus,
-	oracleParams *OracleParams,
-	ticker string,
-	adminInfo *AdminInfo,
-) *DerivativeMarketParamUpdateProposal {
-	return &DerivativeMarketParamUpdateProposal{
-		Title:                  title,
-		Description:            description,
-		MarketId:               marketID,
-		InitialMarginRatio:     initialMarginRatio,
-		MaintenanceMarginRatio: maintenanceMarginRatio,
-		MakerFeeRate:           makerFeeRate,
-		TakerFeeRate:           takerFeeRate,
-		RelayerFeeShareRate:    relayerFeeShareRate,
-		MinPriceTickSize:       minPriceTickSize,
-		MinQuantityTickSize:    minQuantityTickSize,
-		HourlyInterestRate:     hourlyInterestRate,
-		HourlyFundingRateCap:   hourlyFundingRateCap,
-		Status:                 status,
-		OracleParams:           oracleParams,
-		Ticker:                 ticker,
-		MinNotional:            minNotional,
-		AdminInfo:              adminInfo,
-	}
-}
-
 // Implements Proposal Interface
 var _ govtypes.Content = &DerivativeMarketParamUpdateProposal{}
 
@@ -669,18 +614,6 @@ func (p *MarketForcedSettlementProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(p)
 }
 
-// NewUpdateDenomDecimalsProposal returns new instance of UpdateDenomDecimalsProposal
-func NewUpdateDenomDecimalsProposal(
-	title, description string,
-	denomDecimals []*DenomDecimals,
-) *UpdateDenomDecimalsProposal {
-	return &UpdateDenomDecimalsProposal{
-		Title:         title,
-		Description:   description,
-		DenomDecimals: denomDecimals,
-	}
-}
-
 // Implements Proposal Interface
 var _ govtypes.Content = &UpdateDenomDecimalsProposal{}
 
@@ -761,20 +694,6 @@ func (p *OracleParams) ValidateBasic() error {
 	}
 
 	return nil
-}
-
-func NewProviderOracleParams(
-	symbol string,
-	oracleProvider string,
-	oracleScaleFactor uint32,
-	oracleType oracletypes.OracleType,
-) *ProviderOracleParams {
-	return &ProviderOracleParams{
-		Symbol:            symbol,
-		Provider:          oracleProvider,
-		OracleScaleFactor: oracleScaleFactor,
-		OracleType:        oracleType,
-	}
 }
 
 func (p *ProviderOracleParams) ValidateBasic() error {
@@ -982,26 +901,6 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(p)
 }
 
-// NewTradingRewardCampaignUpdateProposal returns new instance of TradingRewardCampaignLaunchProposal
-func NewTradingRewardCampaignUpdateProposal(
-	title, description string,
-	campaignInfo *TradingRewardCampaignInfo,
-	rewardPoolsAdditions []*CampaignRewardPool,
-	rewardPoolsUpdates []*CampaignRewardPool,
-) *TradingRewardCampaignUpdateProposal {
-	p := &TradingRewardCampaignUpdateProposal{
-		Title:                        title,
-		Description:                  description,
-		CampaignInfo:                 campaignInfo,
-		CampaignRewardPoolsAdditions: rewardPoolsAdditions,
-		CampaignRewardPoolsUpdates:   rewardPoolsUpdates,
-	}
-	if err := p.ValidateBasic(); err != nil {
-		panic(err)
-	}
-	return p
-}
-
 // Implements Proposal Interface
 var _ govtypes.Content = &TradingRewardCampaignUpdateProposal{}
 
@@ -1109,30 +1008,12 @@ func (p *TradingRewardPendingPointsUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	hasDuplicateAccountAddresses := HasDuplicates(accountAddresses)
+	hasDuplicateAccountAddresses := chaintypes.HasDuplicate(accountAddresses)
 	if hasDuplicateAccountAddresses {
 		return errors.Wrap(ErrInvalidTradingRewardsPendingPointsUpdate, "account address cannot have duplicates")
 	}
 
 	return govtypes.ValidateAbstract(p)
-}
-
-// NewTradingRewardCampaignLaunchProposal returns new instance of TradingRewardCampaignLaunchProposal
-func NewTradingRewardCampaignLaunchProposal(
-	title, description string,
-	campaignInfo *TradingRewardCampaignInfo,
-	campaignRewardPools []*CampaignRewardPool,
-) *TradingRewardCampaignLaunchProposal {
-	p := &TradingRewardCampaignLaunchProposal{
-		Title:               title,
-		Description:         description,
-		CampaignInfo:        campaignInfo,
-		CampaignRewardPools: campaignRewardPools,
-	}
-	if err := p.ValidateBasic(); err != nil {
-		panic(err)
-	}
-	return p
 }
 
 // Implements Proposal Interface
@@ -1205,7 +1086,7 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
 	}
 
-	hasDuplicatesInMarkets := HasDuplicates(t.BoostedSpotMarketIds) || HasDuplicates(t.BoostedDerivativeMarketIds)
+	hasDuplicatesInMarkets := chaintypes.HasDuplicate(t.BoostedSpotMarketIds) || chaintypes.HasDuplicate(t.BoostedDerivativeMarketIds)
 	if hasDuplicatesInMarkets {
 		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate boosted market ids")
 	}
@@ -1274,7 +1155,7 @@ func (c *TradingRewardCampaignInfo) ValidateBasic() error {
 		}
 	}
 
-	hasDuplicatesInDisqualifiedMarkets := HasDuplicates(c.DisqualifiedMarketIds)
+	hasDuplicatesInDisqualifiedMarkets := chaintypes.HasDuplicate(c.DisqualifiedMarketIds)
 	if hasDuplicatesInDisqualifiedMarkets {
 		return errors.Wrap(ErrInvalidTradingRewardCampaign, "campaign contains duplicate disqualified market ids")
 	}
@@ -1298,7 +1179,7 @@ func validateCampaignRewardPool(pool *CampaignRewardPool, campaignDurationSecond
 
 	prevStartTimestamp = pool.StartTimestamp
 
-	hasDuplicatesInEpochRewards := HasDuplicatesCoin(pool.MaxCampaignRewards)
+	hasDuplicatesInEpochRewards := chaintypes.HasDuplicateCoins(pool.MaxCampaignRewards)
 	if hasDuplicatesInEpochRewards {
 		return 0, errors.Wrap(ErrInvalidTradingRewardCampaign, "reward pool campaign contains duplicate market coins")
 	}
@@ -1314,15 +1195,6 @@ func validateCampaignRewardPool(pool *CampaignRewardPool, campaignDurationSecond
 	}
 
 	return prevStartTimestamp, nil
-}
-
-// NewFeeDiscountProposal returns new instance of FeeDiscountProposal
-func NewFeeDiscountProposal(title, description string, schedule *FeeDiscountSchedule) *FeeDiscountProposal {
-	return &FeeDiscountProposal{
-		Title:       title,
-		Description: description,
-		Schedule:    schedule,
-	}
 }
 
 // Implements Proposal Interface
@@ -1360,7 +1232,7 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have have bucket durations of at least 10 seconds")
 	}
 
-	if HasDuplicates(p.Schedule.QuoteDenoms) {
+	if chaintypes.HasDuplicate(p.Schedule.QuoteDenoms) {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate quote denoms")
 	}
 
@@ -1370,7 +1242,7 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 		}
 	}
 
-	if HasDuplicates(p.Schedule.DisqualifiedMarketIds) {
+	if chaintypes.HasDuplicate(p.Schedule.DisqualifiedMarketIds) {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate disqualified market ids")
 	}
 
@@ -1562,37 +1434,6 @@ func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(p)
 }
 
-// NewBinaryOptionsMarketParamUpdateProposal returns new instance of BinaryOptionsMarketParamUpdateProposal
-func NewBinaryOptionsMarketParamUpdateProposal(
-	title string,
-	description string,
-	marketID string,
-	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec,
-	expirationTimestamp, settlementTimestamp int64,
-	admin string,
-	status MarketStatus,
-	oracleParams *ProviderOracleParams,
-	ticker string,
-) *BinaryOptionsMarketParamUpdateProposal {
-	return &BinaryOptionsMarketParamUpdateProposal{
-		Title:               title,
-		Description:         description,
-		MarketId:            marketID,
-		MakerFeeRate:        makerFeeRate,
-		TakerFeeRate:        takerFeeRate,
-		RelayerFeeShareRate: relayerFeeShareRate,
-		MinPriceTickSize:    minPriceTickSize,
-		MinQuantityTickSize: minQuantityTickSize,
-		MinNotional:         minNotional,
-		ExpirationTimestamp: expirationTimestamp,
-		SettlementTimestamp: settlementTimestamp,
-		Admin:               admin,
-		Status:              status,
-		OracleParams:        oracleParams,
-		Ticker:              ticker,
-	}
-}
-
 // Implements Proposal Interface
 var _ govtypes.Content = &BinaryOptionsMarketParamUpdateProposal{}
 
@@ -1761,6 +1602,43 @@ func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ValidateBasic() error {
 
 		if multiplier.GT(MaxFeeMultiplier) {
 			return fmt.Errorf("atomicMarketOrderFeeMultiplier cannot be bigger than %v: %v", multiplier, MaxFeeMultiplier)
+		}
+	}
+	return govtypes.ValidateAbstract(p)
+}
+
+// Implements Proposal Interface
+var _ govtypes.Content = &DenomMinNotionalProposal{}
+
+// GetTitle returns the title of this proposal
+func (p *DenomMinNotionalProposal) GetTitle() string {
+	return p.Title
+}
+
+// GetDescription returns the description of this proposal
+func (p *DenomMinNotionalProposal) GetDescription() string {
+	return p.Description
+}
+
+// ProposalRoute returns router key of this proposal.
+func (p *DenomMinNotionalProposal) ProposalRoute() string { return RouterKey }
+
+// ProposalType returns proposal type of this proposal.
+func (p *DenomMinNotionalProposal) ProposalType() string {
+	return ProposalDenomMinNotional
+}
+
+func (p *DenomMinNotionalProposal) ValidateBasic() error {
+	for _, minNotional := range p.DenomMinNotionals {
+		denom := minNotional.Denom
+		amount := minNotional.MinNotional
+
+		if denom == "" {
+			return fmt.Errorf("denom cannot be empty")
+		}
+
+		if amount.IsNil() || amount.IsNegative() {
+			return fmt.Errorf("min notional must be positive")
 		}
 	}
 	return govtypes.ValidateAbstract(p)

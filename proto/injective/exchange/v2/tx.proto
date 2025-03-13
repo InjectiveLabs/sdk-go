@@ -1,0 +1,1415 @@
+syntax = "proto3";
+package injective.exchange.v2;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/distribution/v1beta1/distribution.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "injective/exchange/v2/exchange.proto";
+import "injective/exchange/v2/order.proto";
+import "injective/exchange/v2/market.proto";
+import "injective/exchange/v2/proposal.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
+
+// Msg defines the exchange Msg service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // Deposit defines a method for transferring coins from the sender's bank
+  // balance into the subaccount's exchange deposits
+  rpc Deposit(MsgDeposit) returns (MsgDepositResponse);
+
+  // Withdraw defines a method for withdrawing coins from a subaccount's
+  // deposits to the user's bank balance
+  rpc Withdraw(MsgWithdraw) returns (MsgWithdrawResponse);
+
+  // InstantSpotMarketLaunch defines method for creating a spot market by paying
+  // listing fee without governance
+  rpc InstantSpotMarketLaunch(MsgInstantSpotMarketLaunch)
+      returns (MsgInstantSpotMarketLaunchResponse);
+
+  // InstantPerpetualMarketLaunch defines a method for creating a new perpetual
+  // futures market by paying listing fee without governance
+  rpc InstantPerpetualMarketLaunch(MsgInstantPerpetualMarketLaunch)
+      returns (MsgInstantPerpetualMarketLaunchResponse);
+
+  // InstantExpiryFuturesMarketLaunch defines a method for creating a new expiry
+  // futures market by paying listing fee without governance
+  rpc InstantExpiryFuturesMarketLaunch(MsgInstantExpiryFuturesMarketLaunch)
+      returns (MsgInstantExpiryFuturesMarketLaunchResponse);
+
+  // CreateSpotLimitOrder defines a method for creating a new spot limit order.
+  rpc CreateSpotLimitOrder(MsgCreateSpotLimitOrder)
+      returns (MsgCreateSpotLimitOrderResponse);
+
+  // BatchCreateSpotLimitOrder defines a method for creating a new batch of spot
+  // limit orders.
+  rpc BatchCreateSpotLimitOrders(MsgBatchCreateSpotLimitOrders)
+      returns (MsgBatchCreateSpotLimitOrdersResponse);
+
+  // CreateSpotMarketOrder defines a method for creating a new spot market
+  // order.
+  rpc CreateSpotMarketOrder(MsgCreateSpotMarketOrder)
+      returns (MsgCreateSpotMarketOrderResponse);
+
+  // MsgCancelSpotOrder defines a method for cancelling a spot order.
+  rpc CancelSpotOrder(MsgCancelSpotOrder) returns (MsgCancelSpotOrderResponse);
+
+  // BatchCancelSpotOrders defines a method for cancelling a batch of spot
+  // orders in a given market.
+  rpc BatchCancelSpotOrders(MsgBatchCancelSpotOrders)
+      returns (MsgBatchCancelSpotOrdersResponse);
+
+  // BatchUpdateOrders defines a method for updating a batch of orders.
+  rpc BatchUpdateOrders(MsgBatchUpdateOrders)
+      returns (MsgBatchUpdateOrdersResponse);
+
+  // PrivilegedExecuteContract defines a method for executing a Cosmwasm
+  // contract from the exchange module with privileged capabilities.
+  rpc PrivilegedExecuteContract(MsgPrivilegedExecuteContract)
+      returns (MsgPrivilegedExecuteContractResponse);
+
+  // CreateDerivativeLimitOrder defines a method for creating a new derivative
+  // limit order.
+  rpc CreateDerivativeLimitOrder(MsgCreateDerivativeLimitOrder)
+      returns (MsgCreateDerivativeLimitOrderResponse);
+
+  // BatchCreateDerivativeLimitOrders defines a method for creating a new batch
+  // of derivative limit orders.
+  rpc BatchCreateDerivativeLimitOrders(MsgBatchCreateDerivativeLimitOrders)
+      returns (MsgBatchCreateDerivativeLimitOrdersResponse);
+
+  // MsgCreateDerivativeLimitOrder defines a method for creating a new
+  // derivative market order.
+  rpc CreateDerivativeMarketOrder(MsgCreateDerivativeMarketOrder)
+      returns (MsgCreateDerivativeMarketOrderResponse);
+
+  // MsgCancelDerivativeOrder defines a method for cancelling a derivative
+  // order.
+  rpc CancelDerivativeOrder(MsgCancelDerivativeOrder)
+      returns (MsgCancelDerivativeOrderResponse);
+
+  // MsgBatchCancelDerivativeOrders defines a method for cancelling a batch of
+  // derivative limit orders.
+  rpc BatchCancelDerivativeOrders(MsgBatchCancelDerivativeOrders)
+      returns (MsgBatchCancelDerivativeOrdersResponse);
+
+  // InstantBinaryOptionsMarketLaunch defines method for creating a binary
+  // options market by paying listing fee without governance
+  rpc InstantBinaryOptionsMarketLaunch(MsgInstantBinaryOptionsMarketLaunch)
+      returns (MsgInstantBinaryOptionsMarketLaunchResponse);
+
+  // CreateBinaryOptionsLimitOrder defines a method for creating a new binary
+  // options limit order.
+  rpc CreateBinaryOptionsLimitOrder(MsgCreateBinaryOptionsLimitOrder)
+      returns (MsgCreateBinaryOptionsLimitOrderResponse);
+
+  // CreateBinaryOptionsMarketOrder defines a method for creating a new binary
+  // options market order.
+  rpc CreateBinaryOptionsMarketOrder(MsgCreateBinaryOptionsMarketOrder)
+      returns (MsgCreateBinaryOptionsMarketOrderResponse);
+
+  // MsgCancelBinaryOptionsOrder defines a method for cancelling a binary
+  // options order.
+  rpc CancelBinaryOptionsOrder(MsgCancelBinaryOptionsOrder)
+      returns (MsgCancelBinaryOptionsOrderResponse);
+
+  // BatchCancelBinaryOptionsOrders defines a method for cancelling a batch of
+  // binary options limit orders.
+  rpc BatchCancelBinaryOptionsOrders(MsgBatchCancelBinaryOptionsOrders)
+      returns (MsgBatchCancelBinaryOptionsOrdersResponse);
+
+  // SubaccountTransfer defines a method for transfer between subaccounts
+  rpc SubaccountTransfer(MsgSubaccountTransfer)
+      returns (MsgSubaccountTransferResponse);
+
+  // ExternalTransfer defines a method for transfer between external accounts
+  rpc ExternalTransfer(MsgExternalTransfer)
+      returns (MsgExternalTransferResponse);
+
+  // LiquidatePosition defines a method for liquidating a position
+  rpc LiquidatePosition(MsgLiquidatePosition)
+      returns (MsgLiquidatePositionResponse);
+
+  // EmergencySettleMarket defines a method for emergency settling a market
+  rpc EmergencySettleMarket(MsgEmergencySettleMarket)
+      returns (MsgEmergencySettleMarketResponse);
+
+  // IncreasePositionMargin defines a method for increasing margin of a position
+  rpc IncreasePositionMargin(MsgIncreasePositionMargin)
+      returns (MsgIncreasePositionMarginResponse);
+
+  // DecreasePositionMargin defines a method for decreasing margin of a position
+  rpc DecreasePositionMargin(MsgDecreasePositionMargin)
+      returns (MsgDecreasePositionMarginResponse);
+
+  // RewardsOptOut defines a method for opting out of rewards
+  rpc RewardsOptOut(MsgRewardsOptOut) returns (MsgRewardsOptOutResponse);
+
+  // AdminUpdateBinaryOptionsMarket defines method for updating a binary options
+  // market by admin
+  rpc AdminUpdateBinaryOptionsMarket(MsgAdminUpdateBinaryOptionsMarket)
+      returns (MsgAdminUpdateBinaryOptionsMarketResponse);
+
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // UpdateSpotMarket modifies certain spot market fields (admin only)
+  rpc UpdateSpotMarket(MsgUpdateSpotMarket)
+      returns (MsgUpdateSpotMarketResponse);
+
+  // UpdateDerivativeMarket modifies certain derivative market fields (admin
+  // only)
+  rpc UpdateDerivativeMarket(MsgUpdateDerivativeMarket)
+      returns (MsgUpdateDerivativeMarketResponse);
+
+  rpc AuthorizeStakeGrants(MsgAuthorizeStakeGrants)
+      returns (MsgAuthorizeStakeGrantsResponse);
+
+  rpc ActivateStakeGrant(MsgActivateStakeGrant)
+      returns (MsgActivateStakeGrantResponse);
+
+  rpc BatchExchangeModification(MsgBatchExchangeModification)
+      returns (MsgBatchExchangeModificationResponse);
+
+  rpc LaunchSpotMarket(MsgSpotMarketLaunch)
+      returns (MsgSpotMarketLaunchResponse);
+
+  rpc LaunchPerpetualMarket(MsgPerpetualMarketLaunch)
+      returns (MsgPerpetualMarketLaunchResponse);
+
+  rpc LaunchExpiryFuturesMarket(MsgExpiryFuturesMarketLaunch)
+      returns (MsgExpiryFuturesMarketLaunchResponse);
+
+  rpc LaunchBinaryOptionsMarket(MsgBinaryOptionsMarketLaunch)
+      returns (MsgBinaryOptionsMarketLaunchResponse);
+
+  rpc BatchSpendCommunityPool(MsgBatchCommunityPoolSpend)
+      returns (MsgBatchCommunityPoolSpendResponse);
+
+  rpc SpotMarketParamUpdate(MsgSpotMarketParamUpdate)
+      returns (MsgSpotMarketParamUpdateResponse);
+
+  rpc DerivativeMarketParamUpdate(MsgDerivativeMarketParamUpdate)
+      returns (MsgDerivativeMarketParamUpdateResponse);
+
+  rpc BinaryOptionsMarketParamUpdate(MsgBinaryOptionsMarketParamUpdate)
+      returns (MsgBinaryOptionsMarketParamUpdateResponse);
+
+  rpc ForceSettleMarket(MsgMarketForcedSettlement)
+      returns (MsgMarketForcedSettlementResponse);
+
+  rpc LaunchTradingRewardCampaign(MsgTradingRewardCampaignLaunch)
+      returns (MsgTradingRewardCampaignLaunchResponse);
+
+  rpc EnableExchange(MsgExchangeEnable) returns (MsgExchangeEnableResponse);
+
+  rpc UpdateTradingRewardCampaign(MsgTradingRewardCampaignUpdate)
+      returns (MsgTradingRewardCampaignUpdateResponse);
+
+  rpc UpdateTradingRewardPendingPoints(MsgTradingRewardPendingPointsUpdate)
+      returns (MsgTradingRewardPendingPointsUpdateResponse);
+
+  rpc UpdateFeeDiscount(MsgFeeDiscount) returns (MsgFeeDiscountResponse);
+
+  rpc UpdateAtomicMarketOrderFeeMultiplierSchedule(
+      MsgAtomicMarketOrderFeeMultiplierSchedule)
+      returns (MsgAtomicMarketOrderFeeMultiplierScheduleResponse);
+}
+
+message MsgUpdateSpotMarket {
+  option (amino.name) = "exchange/MsgUpdateSpotMarket";
+  option (gogoproto.equal) = false;
+  option (cosmos.msg.v1.signer) = "admin";
+
+  // current admin address of the associated market
+  string admin = 1;
+
+  // id of the market to be updated
+  string market_id = 2;
+
+  // (optional) updated ticker value
+  string new_ticker = 3;
+
+  // (optional) updated min price tick size value
+  string new_min_price_tick_size = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // (optional) updated min quantity tick size value
+  string new_min_quantity_tick_size = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // (optional) updated min notional
+  string new_min_notional = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MsgUpdateSpotMarketResponse {}
+
+message MsgUpdateDerivativeMarket {
+  option (amino.name) = "exchange/MsgUpdateDerivativeMarket";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "admin";
+
+  // current admin address of the associated market
+  string admin = 1;
+
+  // id of the market to be updated
+  string market_id = 2;
+
+  // (optional) updated value for ticker
+  string new_ticker = 3;
+
+  // (optional) updated value for min_price_tick_size
+  string new_min_price_tick_size = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // (optional) updated value min_quantity_tick_size
+  string new_min_quantity_tick_size = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // (optional) updated min notional
+  string new_min_notional = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // (optional) updated value for initial_margin_ratio
+  string new_initial_margin_ratio = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // (optional) updated value for maintenance_margin_ratio
+  string new_maintenance_margin_ratio = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MsgUpdateDerivativeMarketResponse {}
+
+message MsgUpdateParams {
+  option (amino.name) = "exchange/MsgUpdateParams";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // params defines the exchange parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateParamsResponse {}
+
+// MsgDeposit defines a SDK message for transferring coins from the sender's
+// bank balance into the subaccount's exchange deposits
+message MsgDeposit {
+  option (amino.name) = "exchange/MsgDeposit";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  // (Optional) bytes32 subaccount ID to deposit funds into. If empty, the coin
+  // will be deposited to the sender's default subaccount address.
+  string subaccount_id = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+}
+
+// MsgDepositResponse defines the Msg/Deposit response type.
+message MsgDepositResponse {}
+
+// MsgWithdraw defines a SDK message for withdrawing coins from a subaccount's
+// deposits to the user's bank balance
+message MsgWithdraw {
+  option (amino.name) = "exchange/MsgWithdraw";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  // bytes32 subaccount ID to withdraw funds from
+  string subaccount_id = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+}
+
+// MsgWithdraw defines the Msg/Withdraw response type.
+message MsgWithdrawResponse {}
+
+// MsgCreateSpotLimitOrder defines a SDK message for creating a new spot limit
+// order.
+message MsgCreateSpotLimitOrder {
+  option (amino.name) = "exchange/MsgCreateSpotLimitOrder";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  SpotOrder order = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgCreateSpotLimitOrderResponse defines the Msg/CreateSpotOrder response
+// type.
+message MsgCreateSpotLimitOrderResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string order_hash = 1;
+  string cid = 2;
+}
+
+// MsgBatchCreateSpotLimitOrders defines a SDK message for creating a new batch
+// of spot limit orders.
+message MsgBatchCreateSpotLimitOrders {
+  option (amino.name) = "exchange/MsgBatchCreateSpotLimitOrders";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  repeated SpotOrder orders = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgBatchCreateSpotLimitOrdersResponse defines the
+// Msg/BatchCreateSpotLimitOrders response type.
+message MsgBatchCreateSpotLimitOrdersResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated string order_hashes = 1;
+  repeated string created_orders_cids = 2;
+  repeated string failed_orders_cids = 3;
+}
+
+// MsgInstantSpotMarketLaunch defines a SDK message for creating a new spot
+// market by paying listing fee without governance
+message MsgInstantSpotMarketLaunch {
+  option (amino.name) = "exchange/MsgInstantSpotMarketLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  // Ticker for the spot market.
+  string ticker = 2;
+  // type of coin to use as the base currency
+  string base_denom = 3;
+  // type of coin to use as the quote currency
+  string quote_denom = 4;
+  // min_price_tick_size defines the minimum tick size of the order's price
+  string min_price_tick_size = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the order's
+  // quantity
+  string min_quantity_tick_size = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // base token decimals
+  uint32 base_decimals = 8;
+  // quote token decimals
+  uint32 quote_decimals = 9;
+}
+
+// MsgInstantSpotMarketLaunchResponse defines the Msg/InstantSpotMarketLaunch
+// response type.
+message MsgInstantSpotMarketLaunchResponse {}
+
+// MsgInstantPerpetualMarketLaunch defines a SDK message for creating a new
+// perpetual futures market by paying listing fee without governance
+message MsgInstantPerpetualMarketLaunch {
+  option (amino.name) = "exchange/MsgInstantPerpetualMarketLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  // Ticker for the derivative market.
+  string ticker = 2;
+  // type of coin to use as the base currency
+  string quote_denom = 3;
+  // Oracle base currency
+  string oracle_base = 4;
+  // Oracle quote currency
+  string oracle_quote = 5;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 6;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 7;
+  // maker_fee_rate defines the trade fee rate for makers on the perpetual
+  // market
+  string maker_fee_rate = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // taker_fee_rate defines the trade fee rate for takers on the perpetual
+  // market
+  string taker_fee_rate = 9 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // initial_margin_ratio defines the initial margin ratio for the perpetual
+  // market
+  string initial_margin_ratio = 10 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // maintenance_margin_ratio defines the maintenance margin ratio for the
+  // perpetual market
+  string maintenance_margin_ratio = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_price_tick_size defines the minimum tick size of the order's price and
+  // margin
+  string min_price_tick_size = 12 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the order's
+  // quantity
+  string min_quantity_tick_size = 13 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 14 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgInstantPerpetualMarketLaunchResponse defines the
+// Msg/InstantPerpetualMarketLaunchResponse response type.
+message MsgInstantPerpetualMarketLaunchResponse {}
+
+// MsgInstantBinaryOptionsMarketLaunch defines a SDK message for creating a new
+// perpetual futures market by paying listing fee without governance
+message MsgInstantBinaryOptionsMarketLaunch {
+  option (amino.name) = "exchange/MsgInstantBinaryOptionsMarketLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  // Ticker for the derivative contract.
+  string ticker = 2;
+  // Oracle symbol
+  string oracle_symbol = 3;
+  // Oracle Provider
+  string oracle_provider = 4;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 5;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 6;
+  // maker_fee_rate defines the trade fee rate for makers on the perpetual
+  // market
+  string maker_fee_rate = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // taker_fee_rate defines the trade fee rate for takers on the perpetual
+  // market
+  string taker_fee_rate = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // expiration timestamp
+  int64 expiration_timestamp = 9;
+  // expiration timestamp
+  int64 settlement_timestamp = 10;
+  // admin of the market
+  string admin = 11;
+  // Address of the quote currency denomination for the binary options contract
+  string quote_denom = 12;
+  // min_price_tick_size defines the minimum tick size that the price and margin
+  // required for orders in the market
+  string min_price_tick_size = 13 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity
+  // required for orders in the market
+  string min_quantity_tick_size = 14 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgInstantBinaryOptionsMarketLaunchResponse defines the
+// Msg/InstantBinaryOptionsMarketLaunchResponse response type.
+message MsgInstantBinaryOptionsMarketLaunchResponse {}
+
+// MsgInstantExpiryFuturesMarketLaunch defines a SDK message for creating a new
+// expiry futures market by paying listing fee without governance
+message MsgInstantExpiryFuturesMarketLaunch {
+  option (amino.name) = "exchange/MsgInstantExpiryFuturesMarketLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  // Ticker for the derivative market.
+  string ticker = 2;
+  // type of coin to use as the quote currency
+  string quote_denom = 3;
+  // Oracle base currency
+  string oracle_base = 4;
+  // Oracle quote currency
+  string oracle_quote = 5;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 6;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 7;
+  // Expiration time of the market
+  int64 expiry = 8;
+  // maker_fee_rate defines the trade fee rate for makers on the expiry futures
+  // market
+  string maker_fee_rate = 9 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // taker_fee_rate defines the trade fee rate for takers on the expiry futures
+  // market
+  string taker_fee_rate = 10 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // initial_margin_ratio defines the initial margin ratio for the derivative
+  // market
+  string initial_margin_ratio = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // maintenance_margin_ratio defines the maintenance margin ratio for the
+  // derivative market
+  string maintenance_margin_ratio = 12 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_price_tick_size defines the minimum tick size of the order's price and
+  // margin
+  string min_price_tick_size = 13 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the order's
+  // quantity
+  string min_quantity_tick_size = 14 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgInstantExpiryFuturesMarketLaunchResponse defines the
+// Msg/InstantExpiryFuturesMarketLaunch response type.
+message MsgInstantExpiryFuturesMarketLaunchResponse {}
+
+// MsgCreateSpotMarketOrder defines a SDK message for creating a new spot market
+// order.
+message MsgCreateSpotMarketOrder {
+  option (amino.name) = "exchange/MsgCreateSpotMarketOrder";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  SpotOrder order = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgCreateSpotMarketOrderResponse defines the Msg/CreateSpotMarketLimitOrder
+// response type.
+message MsgCreateSpotMarketOrderResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string order_hash = 1;
+
+  SpotMarketOrderResults results = 2 [ (gogoproto.nullable) = true ];
+
+  string cid = 3;
+}
+
+message SpotMarketOrderResults {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string quantity = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string price = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string fee = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// A Cosmos-SDK MsgCreateDerivativeLimitOrder
+message MsgCreateDerivativeLimitOrder {
+  option (amino.name) = "exchange/MsgCreateDerivativeLimitOrder";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  DerivativeOrder order = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgCreateDerivativeLimitOrderResponse defines the
+// Msg/CreateDerivativeMarketOrder response type.
+message MsgCreateDerivativeLimitOrderResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string order_hash = 1;
+  string cid = 2;
+}
+
+// A Cosmos-SDK MsgCreateBinaryOptionsLimitOrder
+message MsgCreateBinaryOptionsLimitOrder {
+  option (amino.name) = "exchange/MsgCreateBinaryOptionsLimitOrder";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  DerivativeOrder order = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgCreateBinaryOptionsLimitOrderResponse defines the
+// Msg/CreateBinaryOptionsLimitOrder response type.
+message MsgCreateBinaryOptionsLimitOrderResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string order_hash = 1;
+  string cid = 2;
+}
+
+// A Cosmos-SDK MsgBatchCreateDerivativeLimitOrders
+message MsgBatchCreateDerivativeLimitOrders {
+  option (amino.name) = "exchange/MsgBatchCreateDerivativeLimitOrders";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  repeated DerivativeOrder orders = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgBatchCreateDerivativeLimitOrdersResponse defines the
+// Msg/BatchCreateDerivativeLimitOrders response type.
+message MsgBatchCreateDerivativeLimitOrdersResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated string order_hashes = 1;
+  repeated string created_orders_cids = 2;
+  repeated string failed_orders_cids = 3;
+}
+
+// MsgCancelSpotOrder defines the Msg/CancelSpotOrder response type.
+message MsgCancelSpotOrder {
+  option (amino.name) = "exchange/MsgCancelSpotOrder";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string market_id = 2;
+  string subaccount_id = 3;
+  string order_hash = 4;
+  string cid = 5;
+}
+
+// MsgCancelSpotOrderResponse defines the Msg/CancelSpotOrder response type.
+message MsgCancelSpotOrderResponse {}
+
+// MsgBatchCancelSpotOrders defines the Msg/BatchCancelSpotOrders response type.
+message MsgBatchCancelSpotOrders {
+  option (amino.name) = "exchange/MsgBatchCancelSpotOrders";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  repeated OrderData data = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgBatchCancelSpotOrdersResponse defines the Msg/BatchCancelSpotOrders
+// response type.
+message MsgBatchCancelSpotOrdersResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated bool success = 1;
+}
+
+// MsgBatchCancelBinaryOptionsOrders defines the
+// Msg/BatchCancelBinaryOptionsOrders response type.
+message MsgBatchCancelBinaryOptionsOrders {
+  option (amino.name) = "exchange/MsgBatchCancelBinaryOptionsOrders";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  repeated OrderData data = 2 [ (gogoproto.nullable) = false ];
+}
+
+// BatchCancelBinaryOptionsOrdersResponse defines the
+// Msg/BatchCancelBinaryOptionsOrders response type.
+message MsgBatchCancelBinaryOptionsOrdersResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated bool success = 1;
+}
+
+// MsgBatchUpdateOrders defines the Msg/BatchUpdateOrders response type.
+message MsgBatchUpdateOrders {
+  option (amino.name) = "exchange/MsgBatchUpdateOrders";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  // subaccount_id only used for the spot_market_ids_to_cancel_all and
+  // derivative_market_ids_to_cancel_all.
+  string subaccount_id = 2;
+  repeated string spot_market_ids_to_cancel_all = 3;
+  repeated string derivative_market_ids_to_cancel_all = 4;
+  repeated OrderData spot_orders_to_cancel = 5 [ (gogoproto.nullable) = true ];
+  repeated OrderData derivative_orders_to_cancel = 6
+      [ (gogoproto.nullable) = true ];
+  repeated SpotOrder spot_orders_to_create = 7 [ (gogoproto.nullable) = true ];
+  repeated DerivativeOrder derivative_orders_to_create = 8
+      [ (gogoproto.nullable) = true ];
+  repeated OrderData binary_options_orders_to_cancel = 9
+      [ (gogoproto.nullable) = true ];
+  repeated string binary_options_market_ids_to_cancel_all = 10;
+  repeated DerivativeOrder binary_options_orders_to_create = 11
+      [ (gogoproto.nullable) = true ];
+}
+
+// MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
+message MsgBatchUpdateOrdersResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated bool spot_cancel_success = 1;
+  repeated bool derivative_cancel_success = 2;
+  repeated string spot_order_hashes = 3;
+  repeated string derivative_order_hashes = 4;
+  repeated bool binary_options_cancel_success = 5;
+  repeated string binary_options_order_hashes = 6;
+  repeated string created_spot_orders_cids = 7;
+  repeated string failed_spot_orders_cids = 8;
+  repeated string created_derivative_orders_cids = 9;
+  repeated string failed_derivative_orders_cids = 10;
+  repeated string created_binary_options_orders_cids = 11;
+  repeated string failed_binary_options_orders_cids = 12;
+}
+
+// A Cosmos-SDK MsgCreateDerivativeMarketOrder
+message MsgCreateDerivativeMarketOrder {
+  option (amino.name) = "exchange/MsgCreateDerivativeMarketOrder";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  DerivativeOrder order = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgCreateDerivativeMarketOrderResponse defines the
+// Msg/CreateDerivativeMarketOrder response type.
+message MsgCreateDerivativeMarketOrderResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string order_hash = 1;
+
+  DerivativeMarketOrderResults results = 2 [ (gogoproto.nullable) = true ];
+
+  string cid = 3;
+}
+
+message DerivativeMarketOrderResults {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string quantity = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string price = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string fee = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  PositionDelta position_delta = 4 [ (gogoproto.nullable) = false ];
+  string payout = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// A Cosmos-SDK MsgCreateBinaryOptionsMarketOrder
+message MsgCreateBinaryOptionsMarketOrder {
+  option (amino.name) = "exchange/MsgCreateBinaryOptionsMarketOrder";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  DerivativeOrder order = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgCreateBinaryOptionsMarketOrderResponse defines the
+// Msg/CreateBinaryOptionsMarketOrder response type.
+message MsgCreateBinaryOptionsMarketOrderResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string order_hash = 1;
+
+  DerivativeMarketOrderResults results = 2 [ (gogoproto.nullable) = true ];
+
+  string cid = 3;
+}
+
+// MsgCancelDerivativeOrder defines the Msg/CancelDerivativeOrder response type.
+message MsgCancelDerivativeOrder {
+  option (amino.name) = "exchange/MsgCancelDerivativeOrder";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string market_id = 2;
+  string subaccount_id = 3;
+  string order_hash = 4;
+  int32 order_mask = 5; // bitwise combination of OrderMask enum values
+  string cid = 6;
+}
+
+// MsgCancelDerivativeOrderResponse defines the
+// Msg/CancelDerivativeOrderResponse response type.
+message MsgCancelDerivativeOrderResponse {}
+
+// MsgCancelBinaryOptionsOrder defines the Msg/CancelBinaryOptionsOrder response
+// type.
+message MsgCancelBinaryOptionsOrder {
+  option (amino.name) = "exchange/MsgCancelBinaryOptionsOrder";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string market_id = 2;
+  string subaccount_id = 3;
+  string order_hash = 4;
+  int32 order_mask = 5; // bitwise combination of OrderMask enum values
+  string cid = 6;
+}
+
+// MsgCancelBinaryOptionsOrderResponse defines the
+// Msg/CancelBinaryOptionsOrderResponse response type.
+message MsgCancelBinaryOptionsOrderResponse {}
+
+message OrderData {
+  string market_id = 1;
+  string subaccount_id = 2;
+  string order_hash = 3;
+  int32 order_mask = 4; // bitwise combination of OrderMask enum values
+  string cid = 5;
+}
+
+// MsgBatchCancelDerivativeOrders defines the Msg/CancelDerivativeOrders
+// response type.
+message MsgBatchCancelDerivativeOrders {
+  option (amino.name) = "exchange/MsgBatchCancelDerivativeOrders";
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  repeated OrderData data = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgBatchCancelDerivativeOrdersResponse defines the
+// Msg/CancelDerivativeOrderResponse response type.
+message MsgBatchCancelDerivativeOrdersResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  repeated bool success = 1;
+}
+
+// A Cosmos-SDK MsgSubaccountTransfer
+message MsgSubaccountTransfer {
+  option (amino.name) = "exchange/MsgSubaccountTransfer";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string source_subaccount_id = 2;
+  string destination_subaccount_id = 3;
+  cosmos.base.v1beta1.Coin amount = 4 [ (gogoproto.nullable) = false ];
+}
+
+// MsgSubaccountTransferResponse defines the Msg/SubaccountTransfer response
+// type.
+message MsgSubaccountTransferResponse {}
+
+// A Cosmos-SDK MsgExternalTransfer
+message MsgExternalTransfer {
+  option (amino.name) = "exchange/MsgExternalTransfer";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string source_subaccount_id = 2;
+  string destination_subaccount_id = 3;
+  cosmos.base.v1beta1.Coin amount = 4 [ (gogoproto.nullable) = false ];
+}
+
+// MsgExternalTransferResponse defines the Msg/ExternalTransfer response type.
+message MsgExternalTransferResponse {}
+
+// A Cosmos-SDK MsgLiquidatePosition
+message MsgLiquidatePosition {
+  option (amino.name) = "exchange/MsgLiquidatePosition";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string subaccount_id = 2;
+  string market_id = 3;
+
+  // optional order to provide for liquidation
+  DerivativeOrder order = 4 [ (gogoproto.nullable) = true ];
+}
+
+// MsgLiquidatePositionResponse defines the Msg/LiquidatePosition response type.
+message MsgLiquidatePositionResponse {}
+
+// A Cosmos-SDK MsgEmergencySettleMarket
+message MsgEmergencySettleMarket {
+  option (amino.name) = "exchange/MsgEmergencySettleMarket";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string subaccount_id = 2;
+  string market_id = 3;
+}
+
+// MsgEmergencySettleMarketResponse defines the Msg/EmergencySettleMarket
+// response type.
+message MsgEmergencySettleMarketResponse {}
+
+// A Cosmos-SDK MsgIncreasePositionMargin
+message MsgIncreasePositionMargin {
+  option (amino.name) = "exchange/MsgIncreasePositionMargin";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string source_subaccount_id = 2;
+  string destination_subaccount_id = 3;
+  string market_id = 4;
+  // amount defines the amount of margin to add to the position
+  string amount = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgIncreasePositionMarginResponse defines the Msg/IncreasePositionMargin
+// response type.
+message MsgIncreasePositionMarginResponse {
+} // A Cosmos-SDK MsgIncreasePositionMargin
+
+// A Cosmos-SDK MsgDecreasePositionMargin
+message MsgDecreasePositionMargin {
+  option (amino.name) = "exchange/MsgDecreasePositionMargin";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string source_subaccount_id = 2;
+  string destination_subaccount_id = 3;
+  string market_id = 4;
+  // amount defines the amount of margin to withdraw from the position
+  string amount = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgDecreasePositionMarginResponse defines the Msg/MsgDecreasePositionMargin
+// response type.
+message MsgDecreasePositionMarginResponse {}
+
+// MsgPrivilegedExecuteContract defines the Msg/Exec message type
+message MsgPrivilegedExecuteContract {
+  option (amino.name) = "exchange/MsgPrivilegedExecuteContract";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  string sender = 1;
+
+  // funds defines the user's bank coins used to fund the execution (e.g.
+  // 100inj).
+  string funds = 2;
+
+  // contract_address defines the contract address to execute
+  string contract_address = 3;
+
+  // data defines the call data used when executing the contract
+  string data = 4;
+}
+
+// MsgPrivilegedExecuteContractResponse defines the Msg/Exec response type.
+message MsgPrivilegedExecuteContractResponse {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  repeated cosmos.base.v1beta1.Coin funds_diff = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// A Cosmos-SDK MsgRewardsOptOut
+message MsgRewardsOptOut {
+  option (amino.name) = "exchange/MsgRewardsOptOut";
+  option (cosmos.msg.v1.signer) = "sender";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string sender = 1;
+}
+
+// MsgRewardsOptOutResponse defines the Msg/RewardsOptOut response type.
+message MsgRewardsOptOutResponse {}
+
+// A Cosmos-SDK MsgReclaimLockedFunds
+message MsgReclaimLockedFunds {
+  option (amino.name) = "exchange/MsgReclaimLockedFunds";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  bytes lockedAccountPubKey = 2;
+  bytes signature = 3;
+}
+
+// MsgReclaimLockedFundsResponse defines the Msg/ReclaimLockedFunds response
+// type.
+message MsgReclaimLockedFundsResponse {}
+
+// MsgSignData defines an arbitrary, general-purpose, off-chain message
+message MsgSignData {
+  // Signer is the sdk.AccAddress of the message signer
+  bytes Signer = 1 [
+    (gogoproto.jsontag) = "signer",
+    (gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"
+  ];
+  // Data represents the raw bytes of the content that is signed (text, json,
+  // etc)
+  bytes Data = 2 [ (gogoproto.jsontag) = "data" ];
+}
+
+// MsgSignDoc defines an arbitrary, general-purpose, off-chain message
+message MsgSignDoc {
+  string sign_type = 1 [ (gogoproto.jsontag) = "type" ];
+  MsgSignData value = 2 [ (gogoproto.nullable) = false ];
+}
+
+// MsgAdminUpdateBinaryOptionsMarket is used by the market Admin to operate the
+// market
+message MsgAdminUpdateBinaryOptionsMarket {
+  option (amino.name) = "exchange/MsgAdminUpdateBinaryOptionsMarket";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string market_id = 2;
+  // new price at which market will be settled
+  string settlement_price = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // expiration timestamp
+  int64 expiration_timestamp = 4;
+  // expiration timestamp
+  int64 settlement_timestamp = 5;
+  // Status of the market
+  MarketStatus status = 6;
+}
+
+// MsgAdminUpdateBinaryOptionsMarketResponse is the response for
+// AdminUpdateBinaryOptionsMarket rpc method
+message MsgAdminUpdateBinaryOptionsMarketResponse {}
+
+// MsgAuthorizeStakeGrants grants stakes to grantees.
+message MsgAuthorizeStakeGrants {
+  option (amino.name) = "exchange/MsgAuthorizeStakeGrants";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  repeated GrantAuthorization grants = 2;
+}
+
+message MsgAuthorizeStakeGrantsResponse {}
+
+// MsgActivateStakeGrant allows a grantee to activate a stake grant.
+message MsgActivateStakeGrant {
+  option (amino.name) = "exchange/MsgActivateStakeGrant";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string granter = 2;
+}
+
+message MsgActivateStakeGrantResponse {}
+
+message MsgBatchExchangeModification {
+  option (amino.name) = "exchange/MsgBatchExchangeModification";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  BatchExchangeModificationProposal proposal = 2;
+}
+
+message MsgBatchExchangeModificationResponse {}
+
+message MsgSpotMarketLaunch {
+  option (amino.name) = "exchange/MsgSpotMarketLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  SpotMarketLaunchProposal proposal = 2;
+}
+
+message MsgSpotMarketLaunchResponse {}
+
+message MsgPerpetualMarketLaunch {
+  option (amino.name) = "exchange/MsgPerpetualMarketLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  PerpetualMarketLaunchProposal proposal = 2;
+}
+
+message MsgPerpetualMarketLaunchResponse {}
+
+message MsgExpiryFuturesMarketLaunch {
+  option (amino.name) = "exchange/MsgExpiryFuturesMarketLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  ExpiryFuturesMarketLaunchProposal proposal = 2;
+}
+
+message MsgExpiryFuturesMarketLaunchResponse {}
+
+message MsgBinaryOptionsMarketLaunch {
+  option (amino.name) = "exchange/MsgBinaryOptionsMarketLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  BinaryOptionsMarketLaunchProposal proposal = 2;
+}
+
+message MsgBinaryOptionsMarketLaunchResponse {}
+
+message MsgBatchCommunityPoolSpend {
+  option (amino.name) = "exchange/MsgBatchCommunityPoolSpend";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  BatchCommunityPoolSpendProposal proposal = 2;
+}
+
+message MsgBatchCommunityPoolSpendResponse {}
+
+message MsgSpotMarketParamUpdate {
+  option (amino.name) = "exchange/MsgSpotMarketParamUpdate";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  SpotMarketParamUpdateProposal proposal = 2;
+}
+
+message MsgSpotMarketParamUpdateResponse {}
+
+message MsgDerivativeMarketParamUpdate {
+  option (amino.name) = "exchange/MsgDerivativeMarketParamUpdate";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  DerivativeMarketParamUpdateProposal proposal = 2;
+}
+
+message MsgDerivativeMarketParamUpdateResponse {}
+
+message MsgBinaryOptionsMarketParamUpdate {
+  option (amino.name) = "exchange/MsgBinaryOptionsMarketParamUpdate";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  BinaryOptionsMarketParamUpdateProposal proposal = 2;
+}
+
+message MsgBinaryOptionsMarketParamUpdateResponse {}
+
+message MsgMarketForcedSettlement {
+  option (amino.name) = "exchange/MsgMarketForcedSettlement";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  MarketForcedSettlementProposal proposal = 2;
+}
+
+message MsgMarketForcedSettlementResponse {}
+
+message MsgTradingRewardCampaignLaunch {
+  option (amino.name) = "exchange/MsgTradingRewardCampaignLaunch";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  TradingRewardCampaignLaunchProposal proposal = 2;
+}
+
+message MsgTradingRewardCampaignLaunchResponse {}
+
+message MsgExchangeEnable {
+  option (amino.name) = "exchange/MsgExchangeEnable";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  ExchangeEnableProposal proposal = 2;
+}
+
+message MsgExchangeEnableResponse {}
+
+message MsgTradingRewardCampaignUpdate {
+  option (amino.name) = "exchange/MsgTradingRewardCampaignUpdate";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  TradingRewardCampaignUpdateProposal proposal = 2;
+}
+
+message MsgTradingRewardCampaignUpdateResponse {}
+
+message MsgTradingRewardPendingPointsUpdate {
+  option (amino.name) = "exchange/MsgTradingRewardPendingPointsUpdate";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  TradingRewardPendingPointsUpdateProposal proposal = 2;
+}
+
+message MsgTradingRewardPendingPointsUpdateResponse {}
+
+message MsgFeeDiscount {
+  option (amino.name) = "exchange/MsgFeeDiscount";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  FeeDiscountProposal proposal = 2;
+}
+
+message MsgFeeDiscountResponse {}
+
+message MsgAtomicMarketOrderFeeMultiplierSchedule {
+  option (amino.name) = "exchange/MsgAtomicMarketOrderFeeMultiplierSchedule";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // message sender, that is also the TX signer
+  string sender = 1;
+  AtomicMarketOrderFeeMultiplierScheduleProposal proposal = 2;
+}
+
+message MsgAtomicMarketOrderFeeMultiplierScheduleResponse {}

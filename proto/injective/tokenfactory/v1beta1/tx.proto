@@ -11,7 +11,7 @@ import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/tokenfactory/types";
 
-// Msg defines the tokefactory module's gRPC message service.
+// Msg defines the tokenfactory module's gRPC message service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
 
@@ -22,10 +22,6 @@ service Msg {
   rpc SetDenomMetadata(MsgSetDenomMetadata)
       returns (MsgSetDenomMetadataResponse);
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
-
-  // ForceTransfer is deactivated for now because we need to think through edge
-  // cases rpc ForceTransfer(MsgForceTransfer) returns
-  // (MsgForceTransferResponse);
 }
 
 // MsgCreateDenom defines the message structure for the CreateDenom gRPC service
@@ -47,6 +43,9 @@ message MsgCreateDenom {
   string name = 3 [ (gogoproto.moretags) = "yaml:\"name\"" ];
   string symbol = 4 [ (gogoproto.moretags) = "yaml:\"symbol\"" ];
   uint32 decimals = 5 [ (gogoproto.moretags) = "yaml:\"decimals\"" ];
+  // true if admins are allowed to burn tokens from other addresses
+  bool allow_admin_burn = 6
+      [ (gogoproto.moretags) = "yaml:\"allow_admin_burn\"" ];
 }
 
 // MsgCreateDenomResponse is the return value of MsgCreateDenom
@@ -56,8 +55,8 @@ message MsgCreateDenomResponse {
       [ (gogoproto.moretags) = "yaml:\"new_token_denom\"" ];
 }
 
-// MsgMint is the sdk.Msg type for allowing an admin account to mint
-// more of a token.  For now, we only support minting to the sender account
+// MsgMint is the sdk.Msg type for allowing an admin account or other permitted
+// accounts to mint more of a token.
 message MsgMint {
   option (amino.name) = "injective/tokenfactory/mint";
   option (cosmos.msg.v1.signer) = "sender";
@@ -67,12 +66,13 @@ message MsgMint {
     (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.nullable) = false
   ];
+  string receiver = 3 [ (gogoproto.moretags) = "yaml:\"receiver\"" ];
 }
 
 message MsgMintResponse {}
 
 // MsgBurn is the sdk.Msg type for allowing an admin account to burn
-// a token.  For now, we only support burning from the sender account.
+// a token.
 message MsgBurn {
   option (amino.name) = "injective/tokenfactory/burn";
   option (cosmos.msg.v1.signer) = "sender";
@@ -81,6 +81,10 @@ message MsgBurn {
   cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.nullable) = false
+  ];
+  string burnFromAddress = 3 [
+    (gogoproto.moretags) = "yaml:\"burn_from_address\"",
+    (amino.dont_omitempty) = true
   ];
 }
 
@@ -101,20 +105,6 @@ message MsgChangeAdmin {
 // MsgChangeAdmin message.
 message MsgChangeAdminResponse {}
 
-// message MsgForceTransfer {
-//   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
-//   cosmos.base.v1beta1.Coin amount = 2 [
-//     (gogoproto.moretags) = "yaml:\"amount\"",
-//     (gogoproto.nullable) = false
-//   ];
-//   string transferFromAddress = 3
-//       [ (gogoproto.moretags) = "yaml:\"transfer_from_address\"" ];
-//   string transferToAddress = 4
-//       [ (gogoproto.moretags) = "yaml:\"transfer_to_address\"" ];
-// }
-
-// message MsgForceTransferResponse {}
-
 // MsgSetDenomMetadata is the sdk.Msg type for allowing an admin account to set
 // the denom's bank metadata
 message MsgSetDenomMetadata {
@@ -126,6 +116,14 @@ message MsgSetDenomMetadata {
     (gogoproto.moretags) = "yaml:\"metadata\"",
     (gogoproto.nullable) = false
   ];
+
+  message AdminBurnDisabled {
+    // true if the admin burn capability should be disabled
+    bool should_disable = 1
+        [ (gogoproto.moretags) = "yaml:\"should_disable\"" ];
+  }
+  AdminBurnDisabled admin_burn_disabled = 3
+      [ (gogoproto.moretags) = "yaml:\"admin_burn_disabled\"" ];
 }
 
 // MsgSetDenomMetadataResponse defines the response structure for an executed

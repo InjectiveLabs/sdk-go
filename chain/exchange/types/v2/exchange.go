@@ -47,34 +47,34 @@ func (p *PointsMultiplier) GetMultiplier(e ExecutionType) math.LegacyDec {
 
 // DerivativeOrder - IMutableDerivativeOrder implementation
 
-func (o *DerivativeOrder) GetPrice() math.LegacyDec {
-	return o.OrderInfo.Price
+func (m *DerivativeOrder) GetPrice() math.LegacyDec {
+	return m.OrderInfo.Price
 }
 
-func (o *DerivativeOrder) GetQuantity() math.LegacyDec {
-	return o.OrderInfo.Quantity
+func (m *DerivativeOrder) GetQuantity() math.LegacyDec {
+	return m.OrderInfo.Quantity
 }
-func (o *DerivativeOrder) GetFillable() math.LegacyDec {
-	return o.GetQuantity()
-}
-
-func (o *DerivativeOrder) GetMargin() math.LegacyDec {
-	return o.Margin
-}
-func (o *DerivativeOrder) GetSubaccountID() common.Hash {
-	return o.OrderInfo.SubaccountID()
+func (m *DerivativeOrder) GetFillable() math.LegacyDec {
+	return m.GetQuantity()
 }
 
-func (o *DerivativeOrder) SetPrice(price math.LegacyDec) {
-	o.OrderInfo.Price = price
+func (m *DerivativeOrder) GetMargin() math.LegacyDec {
+	return m.Margin
+}
+func (m *DerivativeOrder) GetSubaccountID() common.Hash {
+	return m.OrderInfo.SubaccountID()
 }
 
-func (o *DerivativeOrder) SetQuantity(quantity math.LegacyDec) {
-	o.OrderInfo.Quantity = quantity
+func (m *DerivativeOrder) SetPrice(price math.LegacyDec) {
+	m.OrderInfo.Price = price
 }
 
-func (o *DerivativeOrder) SetMargin(margin math.LegacyDec) {
-	o.Margin = margin
+func (m *DerivativeOrder) SetQuantity(quantity math.LegacyDec) {
+	m.OrderInfo.Quantity = quantity
+}
+
+func (m *DerivativeOrder) SetMargin(margin math.LegacyDec) {
+	m.Margin = margin
 }
 
 // DerivativeLimitOrder - IMutableDerivativeOrder implementation

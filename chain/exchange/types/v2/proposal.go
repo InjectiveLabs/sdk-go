@@ -213,7 +213,14 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 }
 
 // NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
-func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec, status MarketStatus, ticker string, baseDecimals, quoteDecimals uint32) *SpotMarketParamUpdateProposal {
+func NewSpotMarketParamUpdateProposal(
+	title, description string,
+	marketID common.Hash,
+	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec,
+	status MarketStatus,
+	ticker string,
+	baseDecimals, quoteDecimals uint32,
+) *SpotMarketParamUpdateProposal {
 	return &SpotMarketParamUpdateProposal{
 		title,
 		description,
@@ -748,9 +755,10 @@ func (p *OracleParams) ValidateBasic() error {
 		return types.ErrSameOracles
 	}
 	switch p.OracleType {
-	case oracletypes.OracleType_Band, oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor,
-		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC, oracletypes.OracleType_Provider,
-		oracletypes.OracleType_Stork:
+	case oracletypes.OracleType_Band, oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase,
+		oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor, oracletypes.OracleType_Dia,
+		oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth,
+		oracletypes.OracleType_BandIBC, oracletypes.OracleType_Provider, oracletypes.OracleType_Stork:
 
 	default:
 		return errors.Wrap(types.ErrInvalidOracleType, p.OracleType.String())
@@ -800,7 +808,8 @@ func (p *ProviderOracleParams) ValidateBasic() error {
 func NewPerpetualMarketLaunchProposal(
 	title, description, ticker, quoteDenom,
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType,
-	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
+	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate,
+	minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
 ) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
 		Title:                  title,
@@ -891,7 +900,8 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 func NewExpiryFuturesMarketLaunchProposal(
 	title, description, ticker, quoteDenom,
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, expiry int64,
-	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate, minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
+	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate,
+	minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
 ) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
 		Title:                  title,
@@ -1185,10 +1195,43 @@ func (p *TradingRewardCampaignLaunchProposal) ValidateBasic() error {
 }
 
 func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
+	if err := t.validateMarketIdsAndMultipliers(); err != nil {
+		return err
+	}
+
+	if err := t.validateMarketIds(); err != nil {
+		return err
+	}
+
+	hasDuplicatesInMarkets := types.HasDuplicates(t.BoostedSpotMarketIds) || types.HasDuplicates(t.BoostedDerivativeMarketIds)
+	if hasDuplicatesInMarkets {
+		return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "campaign contains duplicate boosted market ids")
+	}
+
+	if err := t.validateSpotMultipliers(); err != nil {
+		return err
+	}
+
+	if err := t.validateDerivativeMultipliers(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TradingRewardCampaignBoostInfo) validateMarketIdsAndMultipliers() error {
 	if len(t.BoostedSpotMarketIds) != len(t.SpotMarketMultipliers) {
 		return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "boosted spot market ids is not matching spot market multipliers")
 	}
 
+	if len(t.BoostedDerivativeMarketIds) != len(t.DerivativeMarketMultipliers) {
+		return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
+	}
+
+	return nil
+}
+
+func (t *TradingRewardCampaignBoostInfo) validateMarketIds() error {
 	for _, marketID := range t.BoostedSpotMarketIds {
 		if !types.IsHexHash(marketID) {
 			return errors.Wrap(types.ErrMarketInvalid, marketID)
@@ -1201,15 +1244,10 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 		}
 	}
 
-	if len(t.BoostedDerivativeMarketIds) != len(t.DerivativeMarketMultipliers) {
-		return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
-	}
+	return nil
+}
 
-	hasDuplicatesInMarkets := types.HasDuplicates(t.BoostedSpotMarketIds) || types.HasDuplicates(t.BoostedDerivativeMarketIds)
-	if hasDuplicatesInMarkets {
-		return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "campaign contains duplicate boosted market ids")
-	}
-
+func (t *TradingRewardCampaignBoostInfo) validateSpotMultipliers() error {
 	for _, multiplier := range t.SpotMarketMultipliers {
 		if IsZeroOrNilDec(multiplier.MakerPointsMultiplier) {
 			return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "spot market maker multiplier cannot be zero or nil")
@@ -1228,6 +1266,10 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 		}
 	}
 
+	return nil
+}
+
+func (t *TradingRewardCampaignBoostInfo) validateDerivativeMultipliers() error {
 	for _, multiplier := range t.DerivativeMarketMultipliers {
 		if IsZeroOrNilDec(multiplier.MakerPointsMultiplier) {
 			return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "derivative market maker multiplier cannot be zero or nil")
@@ -1245,6 +1287,7 @@ func (t *TradingRewardCampaignBoostInfo) ValidateBasic() error {
 			return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "derivative market taker multiplier cannot be negative")
 		}
 	}
+
 	return nil
 }
 

@@ -43,7 +43,7 @@ func (m *SpotMarket) StatusSupportsOrderCancellations() bool {
 	return m.Status.SupportsOrderCancellations()
 }
 
-func (m *SpotMarket) GetMarketType() types.MarketType {
+func (*SpotMarket) GetMarketType() types.MarketType {
 	return types.MarketType_Spot
 }
 
@@ -198,7 +198,7 @@ func (m *DerivativeMarket) PriceFromChainFormat(price math.LegacyDec) math.Legac
 	return types.PriceFromChainFormat(price, 0, m.QuoteDecimals)
 }
 
-func (m *DerivativeMarket) QuantityFromChainFormat(quantity math.LegacyDec) math.LegacyDec {
+func (*DerivativeMarket) QuantityFromChainFormat(quantity math.LegacyDec) math.LegacyDec {
 	return types.QuantityFromChainFormat(quantity, 0)
 }
 
@@ -210,7 +210,7 @@ func (m *DerivativeMarket) PriceToChainFormat(humanReadableValue math.LegacyDec)
 	return types.PriceToChainFormat(humanReadableValue, 0, m.QuoteDecimals)
 }
 
-func (m *DerivativeMarket) QuantityToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec {
+func (*DerivativeMarket) QuantityToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec {
 	return types.QuantityToChainFormat(humanReadableValue, 0)
 }
 

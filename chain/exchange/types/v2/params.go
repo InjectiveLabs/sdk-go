@@ -45,7 +45,9 @@ var (
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeySpotMarketInstantListingFee, &p.SpotMarketInstantListingFee, types.ValidateSpotMarketInstantListingFee),
-		paramtypes.NewParamSetPair(KeyDerivativeMarketInstantListingFee, &p.DerivativeMarketInstantListingFee, types.ValidateDerivativeMarketInstantListingFee),
+		paramtypes.NewParamSetPair(
+			KeyDerivativeMarketInstantListingFee, &p.DerivativeMarketInstantListingFee, types.ValidateDerivativeMarketInstantListingFee,
+		),
 		paramtypes.NewParamSetPair(KeyDefaultSpotMakerFeeRate, &p.DefaultSpotMakerFeeRate, types.ValidateMakerFee),
 		paramtypes.NewParamSetPair(KeyDefaultSpotTakerFeeRate, &p.DefaultSpotTakerFeeRate, types.ValidateFee),
 		paramtypes.NewParamSetPair(KeyDefaultDerivativeMakerFeeRate, &p.DefaultDerivativeMakerFeeRate, types.ValidateMakerFee),
@@ -58,14 +60,40 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyDefaultHourlyFundingRateCap, &p.DefaultHourlyFundingRateCap, types.ValidateFee),
 		paramtypes.NewParamSetPair(KeyDefaultHourlyInterestRate, &p.DefaultHourlyInterestRate, types.ValidateFee),
 		paramtypes.NewParamSetPair(KeyMaxDerivativeOrderSideCount, &p.MaxDerivativeOrderSideCount, types.ValidateDerivativeOrderSideCount),
-		paramtypes.NewParamSetPair(KeyInjRewardStakedRequirementThreshold, &p.InjRewardStakedRequirementThreshold, types.ValidateInjRewardStakedRequirementThreshold),
-		paramtypes.NewParamSetPair(KeyTradingRewardsVestingDuration, &p.TradingRewardsVestingDuration, types.ValidateTradingRewardsVestingDuration),
-		paramtypes.NewParamSetPair(KeyLiquidatorRewardShareRate, &p.LiquidatorRewardShareRate, types.ValidateLiquidatorRewardShareRate),
-		paramtypes.NewParamSetPair(KeyBinaryOptionsMarketInstantListingFee, &p.BinaryOptionsMarketInstantListingFee, types.ValidateBinaryOptionsMarketInstantListingFee),
-		paramtypes.NewParamSetPair(KeyAtomicMarketOrderAccessLevel, &p.AtomicMarketOrderAccessLevel, ValidateAtomicMarketOrderAccessLevel),
-		paramtypes.NewParamSetPair(KeySpotAtomicMarketOrderFeeMultiplier, &p.SpotAtomicMarketOrderFeeMultiplier, types.ValidateAtomicMarketOrderFeeMultiplier),
-		paramtypes.NewParamSetPair(KeyDerivativeAtomicMarketOrderFeeMultiplier, &p.DerivativeAtomicMarketOrderFeeMultiplier, types.ValidateAtomicMarketOrderFeeMultiplier),
-		paramtypes.NewParamSetPair(KeyBinaryOptionsAtomicMarketOrderFeeMultiplier, &p.BinaryOptionsAtomicMarketOrderFeeMultiplier, types.ValidateAtomicMarketOrderFeeMultiplier),
+		paramtypes.NewParamSetPair(
+			KeyInjRewardStakedRequirementThreshold,
+			&p.InjRewardStakedRequirementThreshold,
+			types.ValidateInjRewardStakedRequirementThreshold,
+		),
+		paramtypes.NewParamSetPair(
+			KeyTradingRewardsVestingDuration,
+			&p.TradingRewardsVestingDuration,
+			types.ValidateTradingRewardsVestingDuration,
+		),
+		paramtypes.NewParamSetPair(
+			KeyLiquidatorRewardShareRate,
+			&p.LiquidatorRewardShareRate,
+			types.ValidateLiquidatorRewardShareRate,
+		),
+		paramtypes.NewParamSetPair(
+			KeyBinaryOptionsMarketInstantListingFee,
+			&p.BinaryOptionsMarketInstantListingFee, types.ValidateBinaryOptionsMarketInstantListingFee),
+		paramtypes.NewParamSetPair(KeyAtomicMarketOrderAccessLevel, &p.AtomicMarketOrderAccessLevel, types.ValidateAtomicMarketOrderAccessLevel),
+		paramtypes.NewParamSetPair(
+			KeySpotAtomicMarketOrderFeeMultiplier,
+			&p.SpotAtomicMarketOrderFeeMultiplier,
+			types.ValidateAtomicMarketOrderFeeMultiplier,
+		),
+		paramtypes.NewParamSetPair(
+			KeyDerivativeAtomicMarketOrderFeeMultiplier,
+			&p.DerivativeAtomicMarketOrderFeeMultiplier,
+			types.ValidateAtomicMarketOrderFeeMultiplier,
+		),
+		paramtypes.NewParamSetPair(
+			KeyBinaryOptionsAtomicMarketOrderFeeMultiplier,
+			&p.BinaryOptionsAtomicMarketOrderFeeMultiplier,
+			types.ValidateAtomicMarketOrderFeeMultiplier,
+		),
 		paramtypes.NewParamSetPair(KeyMinimalProtocolFeeRate, &p.MinimalProtocolFeeRate, types.ValidateFee),
 		paramtypes.NewParamSetPair(KeyIsInstantDerivativeMarketLaunchEnabled, &p.IsInstantDerivativeMarketLaunchEnabled, types.ValidateBool),
 		paramtypes.NewParamSetPair(KeyPostOnlyModeHeightThreshold, &p.PostOnlyModeHeightThreshold, types.ValidatePostOnlyModeHeightThreshold),
@@ -103,6 +131,7 @@ func DefaultParams() Params {
 		MarginDecreasePriceTimestampThresholdSeconds: 60,
 		ExchangeAdmins:                               []string{},
 		InjAuctionMaxCap:                             types.DefaultInjAuctionMaxCap,
+		FixedGasEnabled:                              false,
 	}
 }
 
@@ -159,7 +188,7 @@ func (p Params) Validate() error {
 	if err := types.ValidateBinaryOptionsMarketInstantListingFee(p.BinaryOptionsMarketInstantListingFee); err != nil {
 		return fmt.Errorf("binary_options_market_instant_listing_fee is incorrect: %w", err)
 	}
-	if err := ValidateAtomicMarketOrderAccessLevel(p.AtomicMarketOrderAccessLevel); err != nil {
+	if err := types.ValidateAtomicMarketOrderAccessLevel(p.AtomicMarketOrderAccessLevel); err != nil {
 		return fmt.Errorf("atomic_market_order_access_level is incorrect: %w", err)
 	}
 	if err := types.ValidateAtomicMarketOrderFeeMultiplier(p.SpotAtomicMarketOrderFeeMultiplier); err != nil {
@@ -177,42 +206,13 @@ func (p Params) Validate() error {
 	if err := types.ValidatePostOnlyModeHeightThreshold(p.PostOnlyModeHeightThreshold); err != nil {
 		return fmt.Errorf("post_only_mode_height_threshold is incorrect: %w", err)
 	}
-	if err := validateAdmins(p.ExchangeAdmins); err != nil {
+	if err := types.ValidateAdmins(p.ExchangeAdmins); err != nil {
 		return fmt.Errorf("ExchangeAdmins is incorrect: %w", err)
 	}
-	return nil
-}
 
-func validateAdmins(i interface{}) error {
-	v, ok := i.([]string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+	if err := types.ValidateFixedGasFlag(p.FixedGasEnabled); err != nil {
+		return fmt.Errorf("fixed_gas_enabled is incorrect: %w", err)
 	}
 
-	admins := make(map[string]struct{})
-
-	for _, admin := range v {
-		adminAddr, err := sdk.AccAddressFromBech32(admin)
-		if err != nil {
-			return fmt.Errorf("invalid admin address: %s", admin)
-		}
-
-		if _, found := admins[adminAddr.String()]; found {
-			return fmt.Errorf("duplicate admin: %s", admin)
-		}
-		admins[adminAddr.String()] = struct{}{}
-	}
-
-	return nil
-}
-
-func ValidateAtomicMarketOrderAccessLevel(i interface{}) error {
-	v, ok := i.(AtomicMarketOrderAccessLevel)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	if !v.IsValid() {
-		return fmt.Errorf("invalid AtomicMarketOrderAccessLevel value: %v", v)
-	}
 	return nil
 }

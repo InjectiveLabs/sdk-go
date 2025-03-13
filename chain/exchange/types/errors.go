@@ -110,4 +110,5 @@ var (
 	ErrInsufficientStake                        = errors.Register(ModuleName, 103, "insufficient stake for grant")
 	ErrInvalidPermissions                       = errors.Register(ModuleName, 104, "invalid permissions")
 	ErrDenomDecimalsDoNotMatch                  = errors.Register(ModuleName, 105, "the decimals specified for the denom is incorrect")
+	ErrInsufficientMarketBalance                = errors.Register(ModuleName, 106, "insufficient market balance")
 )

@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
@@ -83,12 +85,13 @@ func main() {
 	msg.Sender = senderAddress.String()
 	msg.Order = *order
 
-	result, err := clientInstance.SyncBroadcastMsg(msg)
+	_, response, err := clientInstance.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msg)
 
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("Broadcast result: %s\n", result)
+	str, _ := json.MarshalIndent(response, "", " ")
+	fmt.Print(string(str))
 
 }

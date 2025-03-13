@@ -61,15 +61,15 @@ type TradingRewardAccountPoints struct {
 	Points  math.LegacyDec
 }
 
-func (o *DerivativeOrder) GetQuantity() math.LegacyDec {
-	return o.OrderInfo.Quantity
+func (m *DerivativeOrder) GetQuantity() math.LegacyDec {
+	return m.OrderInfo.Quantity
 }
-func (o *DerivativeOrder) GetFillable() math.LegacyDec {
-	return o.GetQuantity()
+func (m *DerivativeOrder) GetFillable() math.LegacyDec {
+	return m.GetQuantity()
 }
 
-func (o *DerivativeOrder) GetMargin() math.LegacyDec {
-	return o.Margin
+func (m *DerivativeOrder) GetMargin() math.LegacyDec {
+	return m.Margin
 }
 
 func (m *SpotOrder) GetQuantity() math.LegacyDec {

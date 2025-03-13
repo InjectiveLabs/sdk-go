@@ -1,56 +1,103 @@
 syntax = "proto3";
 package injective.permissions.v1beta1;
 
-import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/permissions/types";
 
 // Namespace defines a permissions namespace
 message Namespace {
   string denom = 1; // tokenfactory denom to which this namespace applies to
-  string wasm_hook =
+  string contract_hook =
       2; // address of smart contract to apply code-based restrictions
 
-  bool mints_paused = 3;
-  bool sends_paused = 4;
-  bool burns_paused = 5;
-
-  repeated Role role_permissions = 6; // permissions for each role
-
-  repeated AddressRoles address_roles = 7;
+  repeated Role role_permissions = 3;        // permissions for each role
+  repeated ActorRoles actor_roles = 4;       // roles for each actor
+  repeated RoleManager role_managers = 5;    //  managers for each role
+  repeated PolicyStatus policy_statuses = 6; // status for each policy
+  repeated PolicyManagerCapability policy_manager_capabilities =
+      7; // capabilities for each manager for each policy
 }
 
-message AddressRoles {
-  string address = 1;
+// AddressRoles defines roles for an actor
+message ActorRoles {
+  string actor = 1;
+  repeated string roles = 2;
+}
+
+// RoleActors defines actors for a role
+message RoleActors {
+  string role = 1;
+  repeated string actors = 2;
+}
+
+// RoleManager defines roles for a manager address
+message RoleManager {
+  string manager = 1;
   repeated string roles = 2;
 }
 
 // each Action enum value should be a power of two
 enum Action {
+  // 0 is reserved for ACTION_UNSPECIFIED
   UNSPECIFIED = 0;
+  // 1 is reserved for MINT
   MINT = 1;
+  // 2 is reserved for RECEIVE
   RECEIVE = 2;
+  // 4 is reserved for BURN
   BURN = 4;
+  // 8 is reserved for SEND
+  SEND = 8;
+  // 16 is reserved for SUPER_BURN
+  SUPER_BURN = 16;
+
+  //
+  // MANAGER ACTIONS BELOW
+  //
+
+  // 2^27 is reserved for MODIFY_POLICY_MANAGERS
+  MODIFY_POLICY_MANAGERS = 0x8000000; // 2^27 or 134217728
+  // 2^28 is reserved for MODIFY_CONTRACT_HOOK
+  MODIFY_CONTRACT_HOOK = 0x10000000; // 2^28 or 268435456
+  // 2^29 is reserved for MODIFY_ROLE_PERMISSIONS
+  MODIFY_ROLE_PERMISSIONS = 0x20000000; // 2^29 or 536870912
+  // 2^30 is reserved for MODIFY_ROLE_MANAGERS
+  MODIFY_ROLE_MANAGERS = 0x40000000; // 2^30 or 1073741824
+}
+
+// PolicyStatus defines the status of a policy
+message PolicyStatus {
+  Action action = 1;
+  bool is_disabled = 2;
+  bool is_sealed = 3;
 }
 
 // Role is only used for storage
 message Role {
-  string role = 1;
-  uint32 permissions = 2;
+  string name = 1;
+  uint32 role_id = 2;
+  uint32 permissions = 3;
+}
+
+// PolicyManagerCapability defines the capabilities of a manager for a policy
+message PolicyManagerCapability {
+  string manager = 1;
+  Action action = 2;
+  bool can_disable = 3;
+  bool can_seal = 4;
 }
 
 // used in storage
 message RoleIDs { repeated uint32 role_ids = 1; }
 
-message Voucher {
-  repeated cosmos.base.v1beta1.Coin coins = 1 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-}
-
+// AddressVoucher is used to represent a voucher for a specific address
 message AddressVoucher {
   string address = 1;
-  Voucher voucher = 2;
+  cosmos.base.v1beta1.Coin voucher = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.jsontag) = "voucher,omitempty"
+  ];
 }

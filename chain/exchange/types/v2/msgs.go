@@ -51,50 +51,82 @@ var (
 	_ sdk.Msg = &MsgUpdateParams{}
 	_ sdk.Msg = &MsgUpdateSpotMarket{}
 	_ sdk.Msg = &MsgUpdateDerivativeMarket{}
+	_ sdk.Msg = &MsgBatchExchangeModification{}
+	_ sdk.Msg = &MsgSpotMarketLaunch{}
+	_ sdk.Msg = &MsgPerpetualMarketLaunch{}
+	_ sdk.Msg = &MsgExpiryFuturesMarketLaunch{}
+	_ sdk.Msg = &MsgBinaryOptionsMarketLaunch{}
+	_ sdk.Msg = &MsgBatchCommunityPoolSpend{}
+	_ sdk.Msg = &MsgSpotMarketParamUpdate{}
+	_ sdk.Msg = &MsgDerivativeMarketParamUpdate{}
+	_ sdk.Msg = &MsgBinaryOptionsMarketParamUpdate{}
+	_ sdk.Msg = &MsgMarketForcedSettlement{}
+	_ sdk.Msg = &MsgTradingRewardCampaignLaunch{}
+	_ sdk.Msg = &MsgExchangeEnable{}
+	_ sdk.Msg = &MsgTradingRewardCampaignUpdate{}
+	_ sdk.Msg = &MsgTradingRewardPendingPointsUpdate{}
+	_ sdk.Msg = &MsgFeeDiscount{}
+	_ sdk.Msg = &MsgAtomicMarketOrderFeeMultiplierSchedule{}
 )
 
 // exchange message types
 const (
-	TypeMsgDeposit                          = "msgDeposit"
-	TypeMsgWithdraw                         = "msgWithdraw"
-	TypeMsgCreateSpotLimitOrder             = "createSpotLimitOrder"
-	TypeMsgBatchCreateSpotLimitOrders       = "batchCreateSpotLimitOrders"
-	TypeMsgCreateSpotMarketOrder            = "createSpotMarketOrder"
-	TypeMsgCancelSpotOrder                  = "cancelSpotOrder"
-	TypeMsgBatchCancelSpotOrders            = "batchCancelSpotOrders"
-	TypeMsgCreateDerivativeLimitOrder       = "createDerivativeLimitOrder"
-	TypeMsgBatchCreateDerivativeLimitOrders = "batchCreateDerivativeLimitOrder"
-	TypeMsgCreateDerivativeMarketOrder      = "createDerivativeMarketOrder"
-	TypeMsgCancelDerivativeOrder            = "cancelDerivativeOrder"
-	TypeMsgBatchCancelDerivativeOrders      = "batchCancelDerivativeOrder"
-	TypeMsgSubaccountTransfer               = "subaccountTransfer"
-	TypeMsgExternalTransfer                 = "externalTransfer"
-	TypeMsgIncreasePositionMargin           = "increasePositionMargin"
-	TypeMsgDecreasePositionMargin           = "decreasePositionMargin"
-	TypeMsgLiquidatePosition                = "liquidatePosition"
-	TypeMsgEmergencySettleMarket            = "emergencySettleMarket"
-	TypeMsgInstantSpotMarketLaunch          = "instantSpotMarketLaunch"
-	TypeMsgInstantPerpetualMarketLaunch     = "instantPerpetualMarketLaunch"
-	TypeMsgInstantExpiryFuturesMarketLaunch = "instantExpiryFuturesMarketLaunch"
-	TypeMsgBatchUpdateOrders                = "batchUpdateOrders"
-	TypeMsgPrivilegedExecuteContract        = "privilegedExecuteContract"
-	TypeMsgRewardsOptOut                    = "rewardsOptOut"
-	TypeMsgInstantBinaryOptionsMarketLaunch = "instantBinaryOptionsMarketLaunch"
-	TypeMsgCreateBinaryOptionsLimitOrder    = "createBinaryOptionsLimitOrder"
-	TypeMsgCreateBinaryOptionsMarketOrder   = "createBinaryOptionsMarketOrder"
-	TypeMsgCancelBinaryOptionsOrder         = "cancelBinaryOptionsOrder"
-	TypeMsgAdminUpdateBinaryOptionsMarket   = "adminUpdateBinaryOptionsMarket"
-	TypeMsgBatchCancelBinaryOptionsOrders   = "batchCancelBinaryOptionsOrders"
-	TypeMsgUpdateParams                     = "updateParams"
-	TypeMsgUpdateSpotMarket                 = "updateSpotMarket"
-	TypeMsgUpdateDerivativeMarket           = "updateDerivativeMarket"
-	TypeMsgAuthorizeStakeGrants             = "authorizeStakeGrant"
-	TypeMsgActivateStakeGrant               = "acceptStakeGrant"
+	TypeMsgDeposit                                = "msgDeposit"
+	TypeMsgWithdraw                               = "msgWithdraw"
+	TypeMsgCreateSpotLimitOrder                   = "createSpotLimitOrder"
+	TypeMsgBatchCreateSpotLimitOrders             = "batchCreateSpotLimitOrders"
+	TypeMsgCreateSpotMarketOrder                  = "createSpotMarketOrder"
+	TypeMsgCancelSpotOrder                        = "cancelSpotOrder"
+	TypeMsgBatchCancelSpotOrders                  = "batchCancelSpotOrders"
+	TypeMsgCreateDerivativeLimitOrder             = "createDerivativeLimitOrder"
+	TypeMsgBatchCreateDerivativeLimitOrders       = "batchCreateDerivativeLimitOrder"
+	TypeMsgCreateDerivativeMarketOrder            = "createDerivativeMarketOrder"
+	TypeMsgCancelDerivativeOrder                  = "cancelDerivativeOrder"
+	TypeMsgBatchCancelDerivativeOrders            = "batchCancelDerivativeOrder"
+	TypeMsgSubaccountTransfer                     = "subaccountTransfer"
+	TypeMsgExternalTransfer                       = "externalTransfer"
+	TypeMsgIncreasePositionMargin                 = "increasePositionMargin"
+	TypeMsgDecreasePositionMargin                 = "decreasePositionMargin"
+	TypeMsgLiquidatePosition                      = "liquidatePosition"
+	TypeMsgEmergencySettleMarket                  = "emergencySettleMarket"
+	TypeMsgInstantSpotMarketLaunch                = "instantSpotMarketLaunch"
+	TypeMsgInstantPerpetualMarketLaunch           = "instantPerpetualMarketLaunch"
+	TypeMsgInstantExpiryFuturesMarketLaunch       = "instantExpiryFuturesMarketLaunch"
+	TypeMsgBatchUpdateOrders                      = "batchUpdateOrders"
+	TypeMsgPrivilegedExecuteContract              = "privilegedExecuteContract"
+	TypeMsgRewardsOptOut                          = "rewardsOptOut"
+	TypeMsgInstantBinaryOptionsMarketLaunch       = "instantBinaryOptionsMarketLaunch"
+	TypeMsgCreateBinaryOptionsLimitOrder          = "createBinaryOptionsLimitOrder"
+	TypeMsgCreateBinaryOptionsMarketOrder         = "createBinaryOptionsMarketOrder"
+	TypeMsgCancelBinaryOptionsOrder               = "cancelBinaryOptionsOrder"
+	TypeMsgAdminUpdateBinaryOptionsMarket         = "adminUpdateBinaryOptionsMarket"
+	TypeMsgBatchCancelBinaryOptionsOrders         = "batchCancelBinaryOptionsOrders"
+	TypeMsgUpdateParams                           = "updateParams"
+	TypeMsgUpdateSpotMarket                       = "updateSpotMarket"
+	TypeMsgUpdateDerivativeMarket                 = "updateDerivativeMarket"
+	TypeMsgAuthorizeStakeGrants                   = "authorizeStakeGrant"
+	TypeMsgActivateStakeGrant                     = "acceptStakeGrant"
+	TypeMsgBatchExchangeModification              = "batchExchangeModification"
+	TypeMsgSpotMarketLaunch                       = "spotMarketLaunch"
+	TypeMsgPerpetualMarketLaunch                  = "perpetualMarketLaunch"
+	TypeMsgExpiryFuturesMarketLaunch              = "expiryFuturesMarketLaunch"
+	TypeMsgBinaryOptionsMarketLaunch              = "binaryOptionsMarketLaunch"
+	TypeMsgBatchCommunityPoolSpend                = "batchCommunityPoolSpend"
+	TypeMsgSpotMarketParamUpdate                  = "spotMarketParamUpdate"
+	TypeMsgDerivativeMarketParamUpdate            = "derivativeMarketParamUpdate"
+	TypeMsgBinaryOptionsMarketParamUpdate         = "binaryOptionsMarketParamUpdate"
+	TypeMsgMarketForcedSettlement                 = "marketForcedSettlement"
+	TypeMsgTradingRewardCampaignLaunch            = "tradingRewardCampaignLaunch"
+	TypeMsgExchangeEnable                         = "exchangeEnable"
+	TypeMsgTradingRewardCampaignUpdate            = "tradingRewardCampaignUpdate"
+	TypeMsgTradingRewardPendingPointsUpdate       = "tradingRewardPendingPointsUpdate"
+	TypeMsgFeeDiscount                            = "feeDiscount"
+	TypeMsgAtomicMarketOrderFeeMultiplierSchedule = "atomicMarketOrderFeeMultiplierSchedule"
 )
 
-func (msg MsgUpdateParams) Route() string { return RouterKey }
+func (MsgUpdateParams) Route() string { return RouterKey }
 
-func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
+func (MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 func (msg MsgUpdateParams) ValidateBasic() error {
 	if err := types.ValidateAddress(msg.Authority); err != nil {
@@ -144,7 +176,7 @@ func (msg *MsgUpdateSpotMarket) GetSignBytes() []byte {
 	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
 }
 
-func (msg *MsgUpdateSpotMarket) Route() string {
+func (*MsgUpdateSpotMarket) Route() string {
 	return RouterKey
 }
 
@@ -328,43 +360,57 @@ func (m *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand,
 	return nil
 }
 
-func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand bool) error {
-	if !types.IsHexHash(o.MarketId) {
-		return errors.Wrap(types.ErrMarketInvalid, o.MarketId)
+func (m *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand bool) error {
+	if !types.IsHexHash(m.MarketId) {
+		return errors.Wrap(types.ErrMarketInvalid, m.MarketId)
 	}
 
-	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_STOP_BUY, OrderType_STOP_SELL, OrderType_TAKE_BUY, OrderType_TAKE_SELL, OrderType_BUY_ATOMIC, OrderType_SELL_ATOMIC:
+	switch m.OrderType {
+	case OrderType_BUY,
+		OrderType_SELL,
+		OrderType_BUY_PO,
+		OrderType_SELL_PO,
+		OrderType_STOP_BUY,
+		OrderType_STOP_SELL,
+		OrderType_TAKE_BUY,
+		OrderType_TAKE_SELL,
+		OrderType_BUY_ATOMIC,
+		OrderType_SELL_ATOMIC:
 		// do nothing
 	default:
-		return errors.Wrap(types.ErrUnrecognizedOrderType, string(o.OrderType))
+		return errors.Wrap(types.ErrUnrecognizedOrderType, string(m.OrderType))
 	}
 
-	if o.Margin.IsNil() || o.Margin.LT(math.LegacyZeroDec()) {
-		return errors.Wrap(types.ErrInsufficientMargin, o.Margin.String())
+	if m.Margin.IsNil() || m.Margin.LT(math.LegacyZeroDec()) {
+		return errors.Wrap(types.ErrInsufficientMargin, m.Margin.String())
 	}
 
-	if o.Margin.GT(types.MaxOrderMargin) {
-		return errors.Wrap(types.ErrTooMuchOrderMargin, o.Margin.String())
+	if m.Margin.GT(types.MaxOrderMargin) {
+		return errors.Wrap(types.ErrTooMuchOrderMargin, m.Margin.String())
 	}
 
 	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
-	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.IsNegative() || o.TriggerPrice.GT(types.MaxOrderPrice)) {
+	if m.TriggerPrice != nil && (m.TriggerPrice.IsNil() || m.TriggerPrice.IsNegative() || m.TriggerPrice.GT(types.MaxOrderPrice)) {
 		return types.ErrInvalidTriggerPrice
 	}
 
-	if o.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(types.MinDerivativeOrderPrice)) { /*||
-		!o.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
-		return errors.Wrapf(types.ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
+	if m.IsConditional() && (m.TriggerPrice == nil || m.TriggerPrice.LT(types.MinDerivativeOrderPrice)) {
+		/*||!o.IsConditional() && o.TriggerPrice != nil */
+		// commented out this check since FE is sending to us 0.0 trigger price for all orders
+		return errors.Wrapf(
+			types.ErrInvalidTriggerPrice,
+			"Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect",
+			m.TriggerPrice, m.OrderType,
+		)
 	}
 
-	if o.OrderInfo.FeeRecipient != "" {
-		_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
+	if m.OrderInfo.FeeRecipient != "" {
+		_, err := sdk.AccAddressFromBech32(m.OrderInfo.FeeRecipient)
 		if err != nil {
-			return errors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
+			return errors.Wrap(sdkerrors.ErrInvalidAddress, m.OrderInfo.FeeRecipient)
 		}
 	}
-	return o.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand, !hasBinaryPriceBand)
+	return m.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand, !hasBinaryPriceBand)
 }
 
 func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -1436,7 +1482,10 @@ func (msg *MsgSubaccountTransfer) ValidateBasic() error {
 		return errors.Wrap(types.ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 
-	if !bytes.Equal(types.SubaccountIDToSdkAddress(sourceSubaccount).Bytes(), types.SubaccountIDToSdkAddress(destinationSubaccount).Bytes()) {
+	if !bytes.Equal(
+		types.SubaccountIDToSdkAddress(sourceSubaccount).Bytes(),
+		types.SubaccountIDToSdkAddress(destinationSubaccount).Bytes(),
+	) {
 		return errors.Wrap(types.ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 
@@ -1798,7 +1847,9 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	hasCancelAllMarketId := len(msg.SpotMarketIdsToCancelAll) > 0 || len(msg.DerivativeMarketIdsToCancelAll) > 0 || len(msg.BinaryOptionsMarketIdsToCancelAll) > 0
+	hasCancelAllMarketId := len(msg.SpotMarketIdsToCancelAll) > 0 ||
+		len(msg.DerivativeMarketIdsToCancelAll) > 0 ||
+		len(msg.BinaryOptionsMarketIdsToCancelAll) > 0
 
 	// for MsgBatchUpdateOrders, empty subaccountIDs do not count as the default subaccount
 	hasSubaccountIdForCancelAll := msg.SubaccountId != ""
@@ -1867,7 +1918,10 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 
 		for idx := range msg.SpotOrdersToCancel {
 			if _, ok := seen[common.HexToHash(msg.SpotOrdersToCancel[idx].MarketId)]; ok {
-				return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a spot market that is also in cancel all")
+				return errors.Wrap(
+					types.ErrInvalidBatchMsgUpdate,
+					"msg contains order to cancel in a spot market that is also in cancel all",
+				)
 			}
 		}
 	}
@@ -1883,7 +1937,10 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 
 		for idx := range msg.DerivativeOrdersToCancel {
 			if _, ok := seen[common.HexToHash(msg.DerivativeOrdersToCancel[idx].MarketId)]; ok {
-				return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a derivative market that is also in cancel all")
+				return errors.Wrap(
+					types.ErrInvalidBatchMsgUpdate,
+					"msg contains order to cancel in a derivative market that is also in cancel all",
+				)
 			}
 		}
 	}
@@ -1899,7 +1956,10 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 
 		for idx := range msg.BinaryOptionsOrdersToCancel {
 			if _, ok := seen[common.HexToHash(msg.BinaryOptionsOrdersToCancel[idx].MarketId)]; ok {
-				return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a binary options market that is also in cancel all")
+				return errors.Wrap(
+					types.ErrInvalidBatchMsgUpdate,
+					"msg contains order to cancel in a binary options market that is also in cancel all",
+				)
 			}
 		}
 	}
@@ -1925,7 +1985,8 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		if err := msg.SpotOrdersToCreate[idx].ValidateBasic(sender); err != nil {
 			return err
 		}
-		if msg.SpotOrdersToCreate[idx].OrderType.IsAtomic() { // must be checked separately as type is SpotOrder, so it won't check for atomic orders properly
+		if msg.SpotOrdersToCreate[idx].OrderType.IsAtomic() {
+			// must be checked separately as type is SpotOrder, so it won't check for atomic orders properly
 			return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "Spot limit orders can't be atomic orders")
 		}
 	}
@@ -1999,7 +2060,10 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) ValidateBasic() error {
 	case msg.SettlementPrice.Equal(types.BinaryOptionsMarketRefundFlagPrice),
 		msg.SettlementPrice.GTE(math.LegacyZeroDec()) && msg.SettlementPrice.LTE(types.MaxBinaryOptionsOrderPrice):
 		if msg.Status != MarketStatus_Demolished {
-			return errors.Wrapf(types.ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", msg.Status.String())
+			return errors.Wrapf(
+				types.ErrInvalidMarketStatus,
+				"status should be set to demolished when the settlement price is set, status: %s", msg.Status.String(),
+			)
 		}
 		// ok
 	default:
@@ -2091,6 +2155,406 @@ func (msg *MsgActivateStakeGrant) GetSigners() []sdk.AccAddress {
 
 func (msg *MsgActivateStakeGrant) GetSignBytes() []byte {
 	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgBatchExchangeModification) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgBatchExchangeModification) Route() string { return RouterKey }
+
+func (msg *MsgBatchExchangeModification) Type() string { return TypeMsgBatchExchangeModification }
+
+func (msg *MsgBatchExchangeModification) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgSpotMarketLaunch) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgSpotMarketLaunch) Route() string { return RouterKey }
+
+func (msg *MsgSpotMarketLaunch) Type() string { return TypeMsgSpotMarketLaunch }
+
+func (msg *MsgSpotMarketLaunch) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgPerpetualMarketLaunch) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgPerpetualMarketLaunch) Route() string { return RouterKey }
+
+func (msg *MsgPerpetualMarketLaunch) Type() string { return TypeMsgPerpetualMarketLaunch }
+
+func (msg *MsgPerpetualMarketLaunch) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgExpiryFuturesMarketLaunch) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgExpiryFuturesMarketLaunch) Route() string { return RouterKey }
+
+func (msg *MsgExpiryFuturesMarketLaunch) Type() string { return TypeMsgExpiryFuturesMarketLaunch }
+
+func (msg *MsgExpiryFuturesMarketLaunch) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgBinaryOptionsMarketLaunch) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgBinaryOptionsMarketLaunch) Route() string { return RouterKey }
+
+func (msg *MsgBinaryOptionsMarketLaunch) Type() string { return TypeMsgBinaryOptionsMarketLaunch }
+
+func (msg *MsgBinaryOptionsMarketLaunch) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgBatchCommunityPoolSpend) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgBatchCommunityPoolSpend) Route() string { return RouterKey }
+
+func (msg *MsgBatchCommunityPoolSpend) Type() string { return TypeMsgBatchCommunityPoolSpend }
+
+func (msg *MsgBatchCommunityPoolSpend) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgSpotMarketParamUpdate) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgSpotMarketParamUpdate) Route() string { return RouterKey }
+
+func (msg *MsgSpotMarketParamUpdate) Type() string { return TypeMsgSpotMarketParamUpdate }
+
+func (msg *MsgSpotMarketParamUpdate) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgDerivativeMarketParamUpdate) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgDerivativeMarketParamUpdate) Route() string { return RouterKey }
+
+func (msg *MsgDerivativeMarketParamUpdate) Type() string { return TypeMsgDerivativeMarketParamUpdate }
+
+func (msg *MsgDerivativeMarketParamUpdate) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgBinaryOptionsMarketParamUpdate) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgBinaryOptionsMarketParamUpdate) Route() string { return RouterKey }
+
+func (msg *MsgBinaryOptionsMarketParamUpdate) Type() string {
+	return TypeMsgBinaryOptionsMarketParamUpdate
+}
+
+func (msg *MsgBinaryOptionsMarketParamUpdate) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgMarketForcedSettlement) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgMarketForcedSettlement) Route() string { return RouterKey }
+
+func (msg *MsgMarketForcedSettlement) Type() string {
+	return TypeMsgMarketForcedSettlement
+}
+
+func (msg *MsgMarketForcedSettlement) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgTradingRewardCampaignLaunch) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgTradingRewardCampaignLaunch) Route() string { return RouterKey }
+
+func (msg *MsgTradingRewardCampaignLaunch) Type() string {
+	return TypeMsgTradingRewardCampaignLaunch
+}
+
+func (msg *MsgTradingRewardCampaignLaunch) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgExchangeEnable) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgExchangeEnable) Route() string { return RouterKey }
+
+func (msg *MsgExchangeEnable) Type() string {
+	return TypeMsgExchangeEnable
+}
+
+func (msg *MsgExchangeEnable) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgTradingRewardCampaignUpdate) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgTradingRewardCampaignUpdate) Route() string { return RouterKey }
+
+func (msg *MsgTradingRewardCampaignUpdate) Type() string {
+	return TypeMsgTradingRewardCampaignUpdate
+}
+
+func (msg *MsgTradingRewardCampaignUpdate) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgTradingRewardPendingPointsUpdate) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgTradingRewardPendingPointsUpdate) Route() string { return RouterKey }
+
+func (msg *MsgTradingRewardPendingPointsUpdate) Type() string {
+	return TypeMsgTradingRewardPendingPointsUpdate
+}
+
+func (msg *MsgTradingRewardPendingPointsUpdate) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgFeeDiscount) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgFeeDiscount) Route() string { return RouterKey }
+
+func (msg *MsgFeeDiscount) Type() string {
+	return TypeMsgFeeDiscount
+}
+
+func (msg *MsgFeeDiscount) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (msg *MsgAtomicMarketOrderFeeMultiplierSchedule) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgAtomicMarketOrderFeeMultiplierSchedule) Route() string { return RouterKey }
+
+func (msg *MsgAtomicMarketOrderFeeMultiplierSchedule) Type() string {
+	return TypeMsgAtomicMarketOrderFeeMultiplierSchedule
+}
+
+func (msg *MsgAtomicMarketOrderFeeMultiplierSchedule) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func hasDuplicatesOrder(slice []*OrderData) bool {

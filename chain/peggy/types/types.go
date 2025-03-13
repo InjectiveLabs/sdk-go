@@ -252,7 +252,7 @@ func (v Valsets) Swap(i, j int) {
 func (b OutgoingTxBatch) GetFees() sdkmath.Int {
 	sum := sdkmath.ZeroInt()
 	for _, t := range b.Transactions {
-		sum.Add(t.Erc20Fee.Amount)
+		sum = sum.Add(t.Erc20Fee.Amount)
 	}
 	return sum
 }

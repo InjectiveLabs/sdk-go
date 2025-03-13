@@ -1,0 +1,205 @@
+syntax = "proto3";
+package injective.stream.v2;
+
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
+import "injective/exchange/v2/events.proto";
+import "injective/exchange/v2/exchange.proto";
+import "injective/exchange/v2/order.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/stream/types/v2";
+
+// ChainStream defines the gRPC streaming service.
+service Stream { rpc StreamV2(StreamRequest) returns (stream StreamResponse); }
+
+message StreamRequest {
+  BankBalancesFilter bank_balances_filter = 1 [ (gogoproto.nullable) = true ];
+  SubaccountDepositsFilter subaccount_deposits_filter = 2
+      [ (gogoproto.nullable) = true ];
+  TradesFilter spot_trades_filter = 3 [ (gogoproto.nullable) = true ];
+  TradesFilter derivative_trades_filter = 4 [ (gogoproto.nullable) = true ];
+  OrdersFilter spot_orders_filter = 5 [ (gogoproto.nullable) = true ];
+  OrdersFilter derivative_orders_filter = 6 [ (gogoproto.nullable) = true ];
+  OrderbookFilter spot_orderbooks_filter = 7 [ (gogoproto.nullable) = true ];
+  OrderbookFilter derivative_orderbooks_filter = 8
+      [ (gogoproto.nullable) = true ];
+  PositionsFilter positions_filter = 9 [ (gogoproto.nullable) = true ];
+  OraclePriceFilter oracle_price_filter = 10 [ (gogoproto.nullable) = true ];
+}
+
+message StreamResponse {
+  uint64 block_height = 1;
+  int64 block_time = 2;
+  repeated BankBalance bank_balances = 3;
+  repeated SubaccountDeposits subaccount_deposits = 4;
+  repeated SpotTrade spot_trades = 5;
+  repeated DerivativeTrade derivative_trades = 6;
+  repeated SpotOrderUpdate spot_orders = 7;
+  repeated DerivativeOrderUpdate derivative_orders = 8;
+  repeated OrderbookUpdate spot_orderbook_updates = 9;
+  repeated OrderbookUpdate derivative_orderbook_updates = 10;
+  repeated Position positions = 11;
+  repeated OraclePrice oracle_prices = 12;
+}
+
+message OrderbookUpdate {
+  uint64 seq = 1;
+  Orderbook orderbook = 2;
+}
+
+message Orderbook {
+  string market_id = 1;
+  repeated injective.exchange.v2.Level buy_levels = 2;
+  repeated injective.exchange.v2.Level sell_levels = 3;
+}
+
+message BankBalance {
+  string account = 1;
+  repeated cosmos.base.v1beta1.Coin balances = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+message SubaccountDeposits {
+  string subaccount_id = 1;
+  repeated SubaccountDeposit deposits = 2 [ (gogoproto.nullable) = false ];
+}
+
+message SubaccountDeposit {
+  string denom = 1;
+  injective.exchange.v2.Deposit deposit = 2 [ (gogoproto.nullable) = false ];
+}
+
+enum OrderUpdateStatus {
+  Unspecified = 0;
+  Booked = 1;
+  Matched = 2;
+  Cancelled = 3;
+}
+
+message SpotOrderUpdate {
+  OrderUpdateStatus status = 1;
+  string order_hash = 2;
+  string cid = 3;
+  SpotOrder order = 4;
+}
+
+message SpotOrder {
+  string market_id = 1;
+  injective.exchange.v2.SpotLimitOrder order = 2
+      [ (gogoproto.nullable) = false ];
+}
+
+message DerivativeOrderUpdate {
+  OrderUpdateStatus status = 1;
+  string order_hash = 2;
+  string cid = 3;
+  DerivativeOrder order = 4;
+}
+
+message DerivativeOrder {
+  string market_id = 1;
+  injective.exchange.v2.DerivativeLimitOrder order = 2
+      [ (gogoproto.nullable) = false ];
+  bool is_market = 3;
+}
+
+message Position {
+  string market_id = 1;
+  string subaccount_id = 2;
+  bool isLong = 3;
+  string quantity = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string entry_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string margin = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string cumulative_funding_entry = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message OraclePrice {
+  string symbol = 1;
+  string price = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string type = 3;
+}
+
+message SpotTrade {
+  string market_id = 1;
+  bool is_buy = 2;
+  string executionType = 3;
+
+  string quantity = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // bytes32 subaccount ID that executed the trade
+  string subaccount_id = 6;
+  string fee = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string order_hash = 8;
+  string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
+  string cid = 10;
+  string trade_id = 11;
+}
+
+message DerivativeTrade {
+  string market_id = 1;
+  bool is_buy = 2;
+  string executionType = 3;
+  string subaccount_id = 4;
+  injective.exchange.v2.PositionDelta position_delta = 5;
+  string payout = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string fee = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string order_hash = 8;
+  string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
+  string cid = 10;
+  string trade_id = 11;
+}
+
+message TradesFilter {
+  repeated string subaccount_ids = 1;
+  repeated string market_ids = 2;
+}
+
+message PositionsFilter {
+  repeated string subaccount_ids = 1;
+  repeated string market_ids = 2;
+}
+
+message OrdersFilter {
+  repeated string subaccount_ids = 1;
+  repeated string market_ids = 2;
+}
+
+message OrderbookFilter { repeated string market_ids = 1; }
+
+message BankBalancesFilter { repeated string accounts = 1; }
+
+message SubaccountDepositsFilter { repeated string subaccount_ids = 1; }
+
+message OraclePriceFilter { repeated string symbol = 1; }

@@ -80,7 +80,7 @@ enum OrderUpdateStatus {
 
 message SpotOrderUpdate {
   OrderUpdateStatus status = 1;
-  bytes order_hash = 2;
+  string order_hash = 2;
   string cid = 3;
   SpotOrder order = 4;
 }
@@ -93,7 +93,7 @@ message SpotOrder {
 
 message DerivativeOrderUpdate {
   OrderUpdateStatus status = 1;
-  bytes order_hash = 2;
+  string order_hash = 2;
   string cid = 3;
   DerivativeOrder order = 4;
 }
@@ -155,7 +155,7 @@ message SpotTrade {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  bytes order_hash = 8;
+  string order_hash = 8;
   string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
   string cid = 10;
   string trade_id = 11;

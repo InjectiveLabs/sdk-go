@@ -12,6 +12,7 @@ import (
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 const RouterKey = ModuleName
@@ -50,6 +51,7 @@ var (
 	_ sdk.Msg = &MsgUpdateParams{}
 	_ sdk.Msg = &MsgUpdateSpotMarket{}
 	_ sdk.Msg = &MsgUpdateDerivativeMarket{}
+	_ sdk.Msg = &MsgBatchExchangeModification{}
 )
 
 // exchange message types
@@ -89,6 +91,7 @@ const (
 	TypeMsgUpdateDerivativeMarket           = "updateDerivativeMarket"
 	TypeMsgAuthorizeStakeGrants             = "authorizeStakeGrant"
 	TypeMsgActivateStakeGrant               = "acceptStakeGrant"
+	TypeMsgBatchExchangeModification        = "batchExchangeModification"
 )
 
 type UpdateSpotMarketMessage interface {
@@ -341,43 +344,57 @@ func (o *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand,
 	return nil
 }
 
-func (o *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand bool) error {
-	if !IsHexHash(o.MarketId) {
-		return errors.Wrap(ErrMarketInvalid, o.MarketId)
+func (m *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand bool) error {
+	if !IsHexHash(m.MarketId) {
+		return errors.Wrap(ErrMarketInvalid, m.MarketId)
 	}
 
-	switch o.OrderType {
-	case OrderType_BUY, OrderType_SELL, OrderType_BUY_PO, OrderType_SELL_PO, OrderType_STOP_BUY, OrderType_STOP_SELL, OrderType_TAKE_BUY, OrderType_TAKE_SELL, OrderType_BUY_ATOMIC, OrderType_SELL_ATOMIC:
+	switch m.OrderType {
+	case OrderType_BUY,
+		OrderType_SELL,
+		OrderType_BUY_PO,
+		OrderType_SELL_PO,
+		OrderType_STOP_BUY,
+		OrderType_STOP_SELL,
+		OrderType_TAKE_BUY,
+		OrderType_TAKE_SELL,
+		OrderType_BUY_ATOMIC,
+		OrderType_SELL_ATOMIC:
 		// do nothing
 	default:
-		return errors.Wrap(ErrUnrecognizedOrderType, string(o.OrderType))
+		return errors.Wrap(ErrUnrecognizedOrderType, string(m.OrderType))
 	}
 
-	if o.Margin.IsNil() || o.Margin.LT(math.LegacyZeroDec()) {
-		return errors.Wrap(ErrInsufficientMargin, o.Margin.String())
+	if m.Margin.IsNil() || m.Margin.LT(math.LegacyZeroDec()) {
+		return errors.Wrap(ErrInsufficientMargin, m.Margin.String())
 	}
 
-	if o.Margin.GT(MaxOrderMargin) {
-		return errors.Wrap(ErrTooMuchOrderMargin, o.Margin.String())
+	if m.Margin.GT(MaxOrderMargin) {
+		return errors.Wrap(ErrTooMuchOrderMargin, m.Margin.String())
 	}
 
 	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
-	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.IsNegative() || o.TriggerPrice.GT(MaxOrderPrice)) {
+	if m.TriggerPrice != nil && (m.TriggerPrice.IsNil() || m.TriggerPrice.IsNegative() || m.TriggerPrice.GT(MaxOrderPrice)) {
 		return ErrInvalidTriggerPrice
 	}
 
-	if o.OrderType.IsConditional() && (o.TriggerPrice == nil || o.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
+	if m.OrderType.IsConditional() && (m.TriggerPrice == nil || m.TriggerPrice.LT(MinDerivativeOrderPrice)) { /*||
 		!o.OrderType.IsConditional() && o.TriggerPrice != nil */ // commented out this check since FE is sending to us 0.0 trigger price for all orders
-		return errors.Wrapf(ErrInvalidTriggerPrice, "Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect", o.TriggerPrice, o.OrderType)
+		return errors.Wrapf(
+			ErrInvalidTriggerPrice,
+			"Mismatch between triggerPrice: %v and orderType: %v, or triggerPrice is incorrect",
+			m.TriggerPrice,
+			m.OrderType,
+		)
 	}
 
-	if o.OrderInfo.FeeRecipient != "" {
-		_, err := sdk.AccAddressFromBech32(o.OrderInfo.FeeRecipient)
+	if m.OrderInfo.FeeRecipient != "" {
+		_, err := sdk.AccAddressFromBech32(m.OrderInfo.FeeRecipient)
 		if err != nil {
-			return errors.Wrap(sdkerrors.ErrInvalidAddress, o.OrderInfo.FeeRecipient)
+			return errors.Wrap(sdkerrors.ErrInvalidAddress, m.OrderInfo.FeeRecipient)
 		}
 	}
-	return o.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand, !hasBinaryPriceBand)
+	return m.OrderInfo.ValidateBasic(senderAddr, hasBinaryPriceBand, !hasBinaryPriceBand)
 }
 
 func (o *OrderData) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -1852,16 +1869,16 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 			return err
 		}
 
-		hasDuplicateSpotMarketIDs := HasDuplicatesHexHash(msg.SpotMarketIdsToCancelAll)
+		hasDuplicateSpotMarketIDs := chaintypes.HasDuplicate(msg.SpotMarketIdsToCancelAll)
 		if hasDuplicateSpotMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all spot market ids")
 		}
 
-		hasDuplicateDerivativesMarketIDs := HasDuplicatesHexHash(msg.DerivativeMarketIdsToCancelAll)
+		hasDuplicateDerivativesMarketIDs := chaintypes.HasDuplicate(msg.DerivativeMarketIdsToCancelAll)
 		if hasDuplicateDerivativesMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all derivative market ids")
 		}
-		hasDuplicateBinaryOptionsMarketIDs := HasDuplicatesHexHash(msg.BinaryOptionsMarketIdsToCancelAll)
+		hasDuplicateBinaryOptionsMarketIDs := chaintypes.HasDuplicate(msg.BinaryOptionsMarketIdsToCancelAll)
 		if hasDuplicateBinaryOptionsMarketIDs {
 			return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains duplicate cancel all binary options market ids")
 		}
@@ -2151,4 +2168,28 @@ func hasDuplicatesOrder(slice []*OrderData) bool {
 		seenCids[cid] = struct{}{}
 	}
 	return false
+}
+
+func (msg *MsgBatchExchangeModification) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (msg *MsgBatchExchangeModification) Route() string { return RouterKey }
+
+func (msg *MsgBatchExchangeModification) Type() string { return TypeMsgBatchExchangeModification }
+
+func (msg *MsgBatchExchangeModification) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if err := msg.Proposal.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
 }

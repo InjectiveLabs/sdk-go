@@ -99,7 +99,9 @@ func (p *Position) ApplyProfitHaircutForBinaryOptions(deficitAmount, totalAssets
 	}
 }
 
-func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate math.LegacyDec) (payout, closeTradingFee math.LegacyDec, positionDelta *PositionDelta, pnl math.LegacyDec) {
+func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate math.LegacyDec) (
+	payout, closeTradingFee math.LegacyDec, positionDelta *PositionDelta, pnl math.LegacyDec,
+) {
 	closingDirection := !p.IsLong
 	fullyClosingQuantity := p.Quantity
 
@@ -129,7 +131,9 @@ func (p *Position) ClosePositionWithoutPayouts() {
 	p.CumulativeFundingEntry = math.LegacyZeroDec()
 }
 
-func (p *Position) ClosePositionByRefunding(closingFeeRate math.LegacyDec) (payout, closeTradingFee math.LegacyDec, positionDelta *PositionDelta, pnl math.LegacyDec) {
+func (p *Position) ClosePositionByRefunding(closingFeeRate math.LegacyDec) (
+	payout, closeTradingFee math.LegacyDec, positionDelta *PositionDelta, pnl math.LegacyDec,
+) {
 	return p.ClosePositionWithSettlePrice(p.EntryPrice, closingFeeRate)
 }
 
@@ -164,7 +168,9 @@ func (p *Position) CheckValidPositionToReduce(
 	return nil
 }
 
-func (p *Position) checkValidClosingPrice(closingPrice, tradeFeeRate math.LegacyDec, funding *PerpetualMarketFunding, orderMargin math.LegacyDec) error {
+func (p *Position) checkValidClosingPrice(
+	closingPrice, tradeFeeRate math.LegacyDec, funding *PerpetualMarketFunding, orderMargin math.LegacyDec,
+) error {
 	bankruptcyPrice := p.GetBankruptcyPriceWithAddedMargin(funding, orderMargin)
 
 	if p.IsLong {
@@ -200,7 +206,9 @@ func (p *Position) GetBankruptcyPrice(funding *PerpetualMarketFunding) (bankrupt
 	return p.GetLiquidationPrice(math.LegacyZeroDec(), funding)
 }
 
-func (p *Position) GetBankruptcyPriceWithAddedMargin(funding *PerpetualMarketFunding, addedMargin math.LegacyDec) (bankruptcyPrice math.LegacyDec) {
+func (p *Position) GetBankruptcyPriceWithAddedMargin(
+	funding *PerpetualMarketFunding, addedMargin math.LegacyDec,
+) (bankruptcyPrice math.LegacyDec) {
 	return p.getLiquidationPriceWithAddedMargin(math.LegacyZeroDec(), funding, addedMargin)
 }
 
@@ -208,7 +216,9 @@ func (p *Position) GetLiquidationPrice(maintenanceMarginRatio math.LegacyDec, fu
 	return p.getLiquidationPriceWithAddedMargin(maintenanceMarginRatio, funding, math.LegacyZeroDec())
 }
 
-func (p *Position) getLiquidationPriceWithAddedMargin(maintenanceMarginRatio math.LegacyDec, funding *PerpetualMarketFunding, addedMargin math.LegacyDec) math.LegacyDec {
+func (p *Position) getLiquidationPriceWithAddedMargin(
+	maintenanceMarginRatio math.LegacyDec, funding *PerpetualMarketFunding, addedMargin math.LegacyDec,
+) math.LegacyDec {
 	adjustedUnitMargin := p.getFundingAdjustedUnitMarginWithAddedMargin(funding, addedMargin)
 
 	// TODO include closing fee for reduce only ?

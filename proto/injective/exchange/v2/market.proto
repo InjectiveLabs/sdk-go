@@ -1,0 +1,329 @@
+syntax = "proto3";
+package injective.exchange.v2;
+
+import "gogoproto/gogo.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
+
+enum MarketStatus {
+  Unspecified = 0;
+  Active = 1;
+  Paused = 2;
+  Demolished = 3;
+  Expired = 4;
+}
+
+message MarketFeeMultiplier {
+  option (gogoproto.goproto_getters) = false;
+
+  string market_id = 1;
+
+  string fee_multiplier = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// An object describing trade pair of two assets.
+message SpotMarket {
+  // A name of the pair in format AAA/BBB, where AAA is base asset, BBB is quote
+  // asset.
+  string ticker = 1;
+  // Coin denom used for the base asset
+  string base_denom = 2;
+  // Coin used for the quote asset
+  string quote_denom = 3;
+  // maker_fee_rate defines the fee percentage makers pay when trading
+  string maker_fee_rate = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // taker_fee_rate defines the fee percentage takers pay when trading
+  string taker_fee_rate = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // relayer_fee_share_rate defines the percentage of the transaction fee shared
+  // with the relayer in a derivative market
+  string relayer_fee_share_rate = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // Unique market ID.
+  string market_id = 7;
+  // Status of the market
+  MarketStatus status = 8;
+  // min_price_tick_size defines the minimum tick size that the price required
+  // for orders in the market
+  string min_price_tick_size = 9 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity
+  // required for orders in the market
+  string min_quantity_tick_size = 10 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // current market admin
+  string admin = 12;
+  // level of admin permissions
+  uint32 admin_permissions = 13;
+  // base token decimals
+  uint32 base_decimals = 14;
+  // quote token decimals
+  uint32 quote_decimals = 15;
+}
+
+// An object describing a binary options market in Injective Protocol.
+message BinaryOptionsMarket {
+  option (gogoproto.goproto_getters) = false;
+
+  // Ticker for the derivative contract.
+  string ticker = 1;
+  // Oracle symbol
+  string oracle_symbol = 2;
+  // Oracle Provider
+  string oracle_provider = 3;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 4;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 5;
+  // expiration timestamp
+  int64 expiration_timestamp = 6;
+  // expiration timestamp
+  int64 settlement_timestamp = 7;
+  // admin of the market
+  string admin = 8;
+  // Address of the quote currency denomination for the binary options contract
+  string quote_denom = 9;
+  // Unique market ID.
+  string market_id = 10;
+  // maker_fee_rate defines the maker fee rate of a binary options market
+  string maker_fee_rate = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // taker_fee_rate defines the taker fee rate of a derivative market
+  string taker_fee_rate = 12 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // relayer_fee_share_rate defines the percentage of the transaction fee shared
+  // with the relayer in a derivative market
+  string relayer_fee_share_rate = 13 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // Status of the market
+  MarketStatus status = 14;
+  // min_price_tick_size defines the minimum tick size that the price and margin
+  // required for orders in the market
+  string min_price_tick_size = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity
+  // required for orders in the market
+  string min_quantity_tick_size = 16 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  string settlement_price = 17 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 18 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // level of admin permissions
+  uint32 admin_permissions = 19;
+  // quote token decimals
+  uint32 quote_decimals = 20;
+}
+
+// An object describing a derivative market in the Injective Futures Protocol.
+message DerivativeMarket {
+  option (gogoproto.goproto_getters) = false;
+
+  // Ticker for the derivative contract.
+  string ticker = 1;
+  // Oracle base currency
+  string oracle_base = 2;
+  // Oracle quote currency
+  string oracle_quote = 3;
+  // Oracle type
+  injective.oracle.v1beta1.OracleType oracle_type = 4;
+  // Scale factor for oracle prices.
+  uint32 oracle_scale_factor = 5;
+  // Address of the quote currency denomination for the derivative contract
+  string quote_denom = 6;
+  // Unique market ID.
+  string market_id = 7;
+  // initial_margin_ratio defines the initial margin ratio of a derivative
+  // market
+  string initial_margin_ratio = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // maintenance_margin_ratio defines the maintenance margin ratio of a
+  // derivative market
+  string maintenance_margin_ratio = 9 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // maker_fee_rate defines the maker fee rate of a derivative market
+  string maker_fee_rate = 10 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // taker_fee_rate defines the taker fee rate of a derivative market
+  string taker_fee_rate = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // relayer_fee_share_rate defines the percentage of the transaction fee shared
+  // with the relayer in a derivative market
+  string relayer_fee_share_rate = 12 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // true if the market is a perpetual market. false if the market is an expiry
+  // futures market
+  bool isPerpetual = 13;
+  // Status of the market
+  MarketStatus status = 14;
+  // min_price_tick_size defines the minimum tick size that the price and margin
+  // required for orders in the market
+  string min_price_tick_size = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_quantity_tick_size defines the minimum tick size of the quantity
+  // required for orders in the market
+  string min_quantity_tick_size = 16 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // min_notional defines the minimum notional (in quote asset) required for
+  // orders in the market
+  string min_notional = 17 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // current market admin
+  string admin = 18;
+  // level of admin permissions
+  uint32 admin_permissions = 19;
+  // quote token decimals
+  uint32 quote_decimals = 20;
+}
+
+message DerivativeMarketSettlementInfo {
+  // market ID.
+  string market_id = 1;
+  // settlement_price defines the settlement price
+  string settlement_price = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MarketVolume {
+  string market_id = 1;
+  VolumeRecord volume = 2 [ (gogoproto.nullable) = false ];
+}
+
+message VolumeRecord {
+  string maker_volume = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string taker_volume = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message ExpiryFuturesMarketInfoState {
+  string market_id = 1;
+  ExpiryFuturesMarketInfo market_info = 2;
+}
+
+message PerpetualMarketFundingState {
+  string market_id = 1;
+  PerpetualMarketFunding funding = 2;
+}
+
+message ExpiryFuturesMarketInfo {
+  // market ID.
+  string market_id = 1;
+  // expiration_timestamp defines the expiration time for a time expiry futures
+  // market.
+  int64 expiration_timestamp = 2;
+  // expiration_twap_start_timestamp defines the start time of the TWAP
+  // calculation window
+  int64 twap_start_timestamp = 3;
+  // expiration_twap_start_price_cumulative defines the cumulative price for the
+  // start of the TWAP window
+  string expiration_twap_start_price_cumulative = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // settlement_price defines the settlement price for a time expiry futures
+  // market.
+  string settlement_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message PerpetualMarketInfo {
+  // market ID.
+  string market_id = 1;
+  // hourly_funding_rate_cap defines the maximum absolute value of the hourly
+  // funding rate
+  string hourly_funding_rate_cap = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // hourly_interest_rate defines the hourly interest rate
+  string hourly_interest_rate = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // next_funding_timestamp defines the next funding timestamp in seconds of a
+  // perpetual market
+  int64 next_funding_timestamp = 4;
+  // funding_interval defines the next funding interval in seconds of a
+  // perpetual market.
+  int64 funding_interval = 5;
+}
+
+message PerpetualMarketFunding {
+  // cumulative_funding defines the cumulative funding of a perpetual market.
+  string cumulative_funding = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // cumulative_price defines the cumulative price for the current hour up to
+  // the last timestamp
+  string cumulative_price = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  int64 last_timestamp = 3;
+}

@@ -18,6 +18,12 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // inj_basket_max_cap defines the maximum cap for INJ contained in an auction
+  // basket
+  string inj_basket_max_cap = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message Bid {
@@ -26,7 +32,7 @@ message Bid {
     (gogoproto.moretags) = "yaml:\"bidder\""
   ];
 
-  string amount = 2 [
+  cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
@@ -36,7 +42,7 @@ message LastAuctionResult {
   // winner describes the address of the winner
   string winner = 1;
   // amount describes the amount the winner get from the auction
-  string amount = 2 [
+  cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
@@ -48,7 +54,7 @@ message EventBid {
   // bidder describes the address of bidder
   string bidder = 1;
   // amount describes the amount the bidder put on the auction
-  string amount = 2 [
+  cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
@@ -60,7 +66,7 @@ message EventAuctionResult {
   // winner describes the address of the winner
   string winner = 1;
   // amount describes the amount the winner get from the auction
-  string amount = 2 [
+  cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];

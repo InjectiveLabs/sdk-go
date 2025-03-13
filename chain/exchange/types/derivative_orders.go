@@ -10,20 +10,20 @@ func GetScaledPrice(price math.LegacyDec, scaleFactor uint32) math.LegacyDec {
 	return price.Mul(math.LegacyNewDec(10).Power(uint64(scaleFactor)))
 }
 
-func (o *DerivativeOrder) MarketID() common.Hash {
-	return common.HexToHash(o.MarketId)
+func (m *DerivativeOrder) MarketID() common.Hash {
+	return common.HexToHash(m.MarketId)
 }
 
-func (o *DerivativeLimitOrder) Cid() string {
-	return o.OrderInfo.GetCid()
+func (m *DerivativeLimitOrder) Cid() string {
+	return m.OrderInfo.GetCid()
 }
 
 func (o *DerivativeMarketOrder) Cid() string {
 	return o.OrderInfo.GetCid()
 }
 
-func (o *DerivativeOrder) Cid() string {
-	return o.OrderInfo.GetCid()
+func (m *DerivativeOrder) Cid() string {
+	return m.OrderInfo.GetCid()
 }
 
 func (m *DerivativeMarketOrder) Price() math.LegacyDec {
@@ -38,8 +38,8 @@ func (m *DerivativeOrder) Price() math.LegacyDec {
 	return m.OrderInfo.Price
 }
 
-func (o *DerivativeOrder) SubaccountID() common.Hash {
-	return o.OrderInfo.SubaccountID()
+func (m *DerivativeOrder) SubaccountID() common.Hash {
+	return m.OrderInfo.SubaccountID()
 }
 
 func (o *DerivativeMarketOrder) SubaccountID() common.Hash {
@@ -61,62 +61,85 @@ func (o *DerivativeMarketOrder) ComputeOrderHash(nonce uint32, marketId string) 
 		triggerPrice = o.TriggerPrice.String()
 	}
 
-	return ComputeOrderHash(marketId, o.OrderInfo.SubaccountId, o.OrderInfo.FeeRecipient, o.OrderInfo.Price.String(), o.OrderInfo.Quantity.String(), o.Margin.String(), triggerPrice, string(o.OrderType), nonce)
+	return ComputeOrderHash(
+		marketId,
+		o.OrderInfo.SubaccountId,
+		o.OrderInfo.FeeRecipient,
+		o.OrderInfo.Price.String(),
+		o.OrderInfo.Quantity.String(),
+		o.Margin.String(),
+		triggerPrice,
+		string(o.OrderType),
+		nonce,
+	)
 }
 
 // Test Code Only (for v1 tests)
-func (o *DerivativeOrder) ComputeOrderHash(nonce, scaleFactor uint32) (common.Hash, error) {
+func (m *DerivativeOrder) ComputeOrderHash(nonce, scaleFactor uint32) (common.Hash, error) {
 	triggerPrice := ""
-	if o.TriggerPrice != nil {
-		triggerPrice = o.TriggerPrice.String()
+	if m.TriggerPrice != nil {
+		triggerPrice = m.TriggerPrice.String()
 	}
 
-	o.OrderInfo.Price = PriceFromChainFormat(o.OrderInfo.Price, 0, scaleFactor)
-	o.Margin = NotionalFromChainFormat(o.Margin, scaleFactor)
+	m.OrderInfo.Price = PriceFromChainFormat(m.OrderInfo.Price, 0, scaleFactor)
+	m.Margin = NotionalFromChainFormat(m.Margin, scaleFactor)
 
-	return ComputeOrderHash(o.MarketId, o.OrderInfo.SubaccountId, o.OrderInfo.FeeRecipient, o.OrderInfo.Price.String(), o.OrderInfo.Quantity.String(), o.Margin.String(), triggerPrice, string(o.OrderType), nonce)
+	return ComputeOrderHash(
+		m.MarketId,
+		m.OrderInfo.SubaccountId,
+		m.OrderInfo.FeeRecipient,
+		m.OrderInfo.Price.String(),
+		m.OrderInfo.Quantity.String(),
+		m.Margin.String(),
+		triggerPrice,
+		string(m.OrderType),
+		nonce)
 }
 
 // Test Code Only (for v1 tests)
-func (o *DerivativeLimitOrder) GetCancelDepositDelta(feeRate math.LegacyDec) *DepositDelta {
+func (m *DerivativeLimitOrder) GetCancelDepositDelta(feeRate math.LegacyDec) *DepositDelta {
 	return &DepositDelta{
-		AvailableBalanceDelta: o.GetCancelRefundAmount(feeRate),
+		AvailableBalanceDelta: m.GetCancelRefundAmount(feeRate),
 		TotalBalanceDelta:     math.LegacyZeroDec(),
 	}
 }
 
 // Test Code Only (for v1 tests)
-func (o *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) math.LegacyDec {
+func (m *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) math.LegacyDec {
 	marginHoldRefund := math.LegacyZeroDec()
-	if !o.Margin.IsZero() {
+	if !m.Margin.IsZero() {
 		positiveFeePart := math.LegacyMaxDec(math.LegacyZeroDec(), feeRate)
-		notional := o.OrderInfo.Price.Mul(o.OrderInfo.Quantity)
-		marginHoldRefund = o.Fillable.Mul(o.Margin.Add(notional.Mul(positiveFeePart))).Quo(o.OrderInfo.Quantity)
+		notional := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity)
+		marginHoldRefund = m.Fillable.Mul(m.Margin.Add(notional.Mul(positiveFeePart))).Quo(m.OrderInfo.Quantity)
 	}
 	return marginHoldRefund
 }
 
 // Test Code Only (for v1 tests)
-func (o *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice math.LegacyDec) (err error) {
+func (m *DerivativeOrder) CheckInitialMarginRequirementMarkPriceThreshold(initialMarginRatio, markPrice math.LegacyDec) (err error) {
 	// For Buys: MarkPrice ≥ (Margin - Price * Quantity) / ((InitialMarginRatio - 1) * Quantity)
 	// For Sells: MarkPrice ≤ (Margin + Price * Quantity) / ((1 + InitialMarginRatio) * Quantity)
-	markPriceThreshold := o.ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio)
-	return CheckInitialMarginMarkPriceRequirement(o.OrderType.IsBuy(), markPriceThreshold, markPrice)
+	markPriceThreshold := m.ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio)
+	return CheckInitialMarginMarkPriceRequirement(m.OrderType.IsBuy(), markPriceThreshold, markPrice)
 }
 
 // Test Code Only (for v1 tests)
 func CheckInitialMarginMarkPriceRequirement(isBuyOrLong bool, markPriceThreshold, markPrice math.LegacyDec) error {
 	if isBuyOrLong && markPrice.LT(markPriceThreshold) {
-		return errors.Wrapf(ErrInsufficientMargin, "Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
+		return errors.Wrapf(
+			ErrInsufficientMargin,
+			"Buy MarkPriceThreshold Check: mark/trigger price %s must be GTE %s", markPrice.String(), markPriceThreshold.String())
 	} else if !isBuyOrLong && markPrice.GT(markPriceThreshold) {
-		return errors.Wrapf(ErrInsufficientMargin, "Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
+		return errors.Wrapf(
+			ErrInsufficientMargin,
+			"Sell MarkPriceThreshold Check: mark/trigger price %s must be LTE %s", markPrice.String(), markPriceThreshold.String())
 	}
 	return nil
 }
 
 // Test Code Only (for v1 tests)
-func (o *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio math.LegacyDec) math.LegacyDec {
-	return ComputeMarkPriceThreshold(o.OrderType.IsBuy(), o.Price(), o.OrderInfo.Quantity, o.Margin, initialMarginRatio)
+func (m *DerivativeOrder) ComputeInitialMarginRequirementMarkPriceThreshold(initialMarginRatio math.LegacyDec) math.LegacyDec {
+	return ComputeMarkPriceThreshold(m.OrderType.IsBuy(), m.Price(), m.OrderInfo.Quantity, m.Margin, initialMarginRatio)
 }
 
 // Test Code Only (for v1 tests)
