@@ -61,7 +61,7 @@ message QueryCurrentAuctionBasketResponse {
   // auctionRound describes current auction round
   uint64 auctionRound = 2;
   // auctionClosingTime describes auction close time for the round
-  int64 auctionClosingTime = 3;
+  uint64 auctionClosingTime = 3;
   // highestBidder describes highest bidder on current round
   string highestBidder = 4;
   // highestBidAmount describes highest bid amount on current round

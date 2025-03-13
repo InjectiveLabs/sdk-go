@@ -58,7 +58,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchOptedOutOfRewardsAccounts(ctx)
+	res, err := chainClient.FetchOptedOutOfRewardsAccountsV2(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}

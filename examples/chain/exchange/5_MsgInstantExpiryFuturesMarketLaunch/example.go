@@ -8,7 +8,7 @@ import (
 	"cosmossdk.io/math"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -60,10 +60,7 @@ func main() {
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(6)))
-	chainMinQuantityTickSize := minQuantityTickSize
-
-	msg := &exchangetypes.MsgInstantExpiryFuturesMarketLaunch{
+	msg := &exchangev2types.MsgInstantExpiryFuturesMarketLaunch{
 		Sender:                 senderAddress.String(),
 		Ticker:                 "INJ/USDC FUT",
 		QuoteDenom:             "factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/usdc",
@@ -76,8 +73,8 @@ func main() {
 		TakerFeeRate:           math.LegacyMustNewDecFromStr("0.001"),
 		InitialMarginRatio:     math.LegacyMustNewDecFromStr("0.33"),
 		MaintenanceMarginRatio: math.LegacyMustNewDecFromStr("0.095"),
-		MinPriceTickSize:       chainMinPriceTickSize,
-		MinQuantityTickSize:    chainMinQuantityTickSize,
+		MinPriceTickSize:       minPriceTickSize,
+		MinQuantityTickSize:    minQuantityTickSize,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

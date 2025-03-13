@@ -57,7 +57,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchFeeDiscountAccountInfo(ctx, senderAddress.String())
+	res, err := chainClient.FetchFeeDiscountAccountInfoV2(ctx, senderAddress.String())
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -58,7 +58,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchChainPositions(ctx)
+	res, err := chainClient.FetchChainPositionsV2(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}

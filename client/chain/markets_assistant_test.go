@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/InjectiveLabs/sdk-go/client/core"
 	"github.com/InjectiveLabs/sdk-go/client/exchange"
@@ -172,9 +172,9 @@ func TestMarketAssistantCreation(t *testing.T) {
 
 	mockChain := MockChainClient{}
 	mockChain.Network = network
-	var spotMarketInfos []*exchangetypes.SpotMarket
-	var fullDerivativeMarkets []*exchangetypes.FullDerivativeMarket
-	var binaryOptionsMarkets []*exchangetypes.BinaryOptionsMarket
+	var spotMarketInfos []*exchangev2types.SpotMarket
+	var fullDerivativeMarkets []*exchangev2types.FullDerivativeMarket
+	var binaryOptionsMarkets []*exchangev2types.BinaryOptionsMarket
 	injUsdtSpotMarketInfo := createINJUSDTChainSpotMarket()
 	apeUsdtSpotMarketInfo := createAPEUSDTChainSpotMarket()
 	btcUsdtDerivativeMarketInfo := createBTCUSDTChainDerivativeMarket()
@@ -182,18 +182,18 @@ func TestMarketAssistantCreation(t *testing.T) {
 
 	spotMarketInfos = append(spotMarketInfos, injUsdtSpotMarketInfo)
 	spotMarketInfos = append(spotMarketInfos, apeUsdtSpotMarketInfo)
-	fullDerivativeMarkets = append(fullDerivativeMarkets, &exchangetypes.FullDerivativeMarket{
+	fullDerivativeMarkets = append(fullDerivativeMarkets, &exchangev2types.FullDerivativeMarket{
 		Market: btcUsdtDerivativeMarketInfo,
 	})
 	binaryOptionsMarkets = append(binaryOptionsMarkets, betBinaryOptionsMarket)
 
-	mockChain.QuerySpotMarketsResponses = append(mockChain.QuerySpotMarketsResponses, &exchangetypes.QuerySpotMarketsResponse{
+	mockChain.QuerySpotMarketsV2Responses = append(mockChain.QuerySpotMarketsV2Responses, &exchangev2types.QuerySpotMarketsResponse{
 		Markets: spotMarketInfos,
 	})
-	mockChain.QueryDerivativeMarketsResponses = append(mockChain.QueryDerivativeMarketsResponses, &exchangetypes.QueryDerivativeMarketsResponse{
+	mockChain.QueryDerivativeMarketsV2Responses = append(mockChain.QueryDerivativeMarketsV2Responses, &exchangev2types.QueryDerivativeMarketsResponse{
 		Markets: fullDerivativeMarkets,
 	})
-	mockChain.QueryBinaryMarketsResponses = append(mockChain.QueryBinaryMarketsResponses, &exchangetypes.QueryBinaryMarketsResponse{
+	mockChain.QueryBinaryMarketsV2Responses = append(mockChain.QueryBinaryMarketsV2Responses, &exchangev2types.QueryBinaryMarketsResponse{
 		Markets: binaryOptionsMarkets,
 	})
 
@@ -256,9 +256,9 @@ func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
 	mockChain := MockChainClient{}
 	smartDenomMetadata := createSmartDenomMetadata()
 
-	mockChain.QuerySpotMarketsResponses = append(mockChain.QuerySpotMarketsResponses, &exchangetypes.QuerySpotMarketsResponse{})
-	mockChain.QueryDerivativeMarketsResponses = append(mockChain.QueryDerivativeMarketsResponses, &exchangetypes.QueryDerivativeMarketsResponse{})
-	mockChain.QueryBinaryMarketsResponses = append(mockChain.QueryBinaryMarketsResponses, &exchangetypes.QueryBinaryMarketsResponse{})
+	mockChain.QuerySpotMarketsV2Responses = append(mockChain.QuerySpotMarketsV2Responses, &exchangev2types.QuerySpotMarketsResponse{})
+	mockChain.QueryDerivativeMarketsV2Responses = append(mockChain.QueryDerivativeMarketsV2Responses, &exchangev2types.QueryDerivativeMarketsResponse{})
+	mockChain.QueryBinaryMarketsV2Responses = append(mockChain.QueryBinaryMarketsV2Responses, &exchangev2types.QueryBinaryMarketsResponse{})
 
 	mockChain.DenomsMetadataResponses = append(mockChain.DenomsMetadataResponses, &banktypes.QueryDenomsMetadataResponse{
 		Metadatas: []banktypes.Metadata{smartDenomMetadata},

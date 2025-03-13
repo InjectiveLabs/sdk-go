@@ -53,7 +53,11 @@ func main() {
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
-	res, err := chainClient.FetchMarketBalances(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	res, err := chainClient.FetchMarketBalancesV2(context.Background())
 	if err != nil {
 		log.Fatalf("Failed to fetch market balances: %v", err)
 	}

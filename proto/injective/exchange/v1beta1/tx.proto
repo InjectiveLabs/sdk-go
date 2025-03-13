@@ -177,7 +177,6 @@ service Msg {
 message MsgUpdateSpotMarket {
   option (amino.name) = "exchange/MsgUpdateSpotMarket";
   option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "admin";
 
   // current admin address of the associated market

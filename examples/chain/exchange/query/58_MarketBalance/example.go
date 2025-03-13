@@ -53,9 +53,13 @@ func main() {
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
+	if err != nil {
+		panic(err)
+	}
+
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe" // Example derivative market ID
 
-	res, err := chainClient.FetchMarketBalance(context.Background(), marketId)
+	res, err := chainClient.FetchMarketBalanceV2(context.Background(), marketId)
 	if err != nil {
 		log.Fatalf("Failed to fetch market balance: %v", err)
 	}

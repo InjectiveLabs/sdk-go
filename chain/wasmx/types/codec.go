@@ -28,7 +28,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&ContractExecutionCompatAuthorization{}, "wasmx/ContractExecutionCompatAuthorization", nil)
 
 	cdc.RegisterConcrete(&Params{}, "wasmx/Params", nil)
-
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

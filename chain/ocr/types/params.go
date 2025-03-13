@@ -65,7 +65,7 @@ func (p Params) Validate() error {
 	return nil
 }
 
-func validateLinkDenom(i interface{}) error {
+func validateLinkDenom(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return errors.Errorf("invalid parameter type: %T", i)
@@ -78,7 +78,7 @@ func validateLinkDenom(i interface{}) error {
 	return nil
 }
 
-func validatePayoutInterval(i interface{}) error {
+func validatePayoutInterval(i any) error {
 	v, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -91,7 +91,7 @@ func validatePayoutInterval(i interface{}) error {
 	return nil
 }
 
-func validateModuleAdmin(i interface{}) error {
+func validateModuleAdmin(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -101,9 +101,6 @@ func validateModuleAdmin(i interface{}) error {
 		return nil
 	}
 
-	if _, err := sdk.AccAddressFromBech32(v); err != nil {
-		return err
-	}
-
-	return nil
+	_, err := sdk.AccAddressFromBech32(v)
+	return err
 }

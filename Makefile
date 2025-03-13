@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.14.1-RC.6 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.14.0 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b feat/exchange-v2-types --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -54,6 +54,9 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/exchange/types && \
 		cp injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types && \
 		rm -rf chain/exchange/types/*test.go && rm -rf chain/exchange/types/*gw.go
+	mkdir -p chain/exchange/types/v2 && \
+    		cp injective-core/injective-chain/modules/exchange/types/v2/*.go chain/exchange/types/v2 && \
+    		rm -rf chain/exchange/types/v2/*test.go && rm -rf chain/exchange/types/v2/*gw.go
 	mkdir -p chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
@@ -151,4 +154,12 @@ tests:
 coverage:
 	go test -race -coverprofile=coverage.out -covermode=atomic ./client/... ./ethereum/...
 
-.PHONY: copy-exchange-client tests coverage
+lint-from-dev: export GOPROXY=direct
+lint-from-dev:
+	golangci-lint run --timeout=15m -v --new-from-rev=dev
+
+lint-last-commit: export GOPROXY=direct
+lint-last-commit:
+	golangci-lint run --timeout=15m -v --new-from-rev=HEAD~
+
+.PHONY: copy-exchange-client tests coverage lint-from-dev lint-last-commit

@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/InjectiveLabs/sdk-go/client"
-
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	"github.com/InjectiveLabs/sdk-go/client"
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -57,7 +56,7 @@ func main() {
 		panic(err)
 	}
 
-	msg := &exchangetypes.MsgActivateStakeGrant{
+	msg := &exchangev2types.MsgActivateStakeGrant{
 		Sender:  senderAddress.String(),
 		Granter: "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
 	}

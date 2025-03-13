@@ -31,10 +31,10 @@ func (p *SetConfigProposal) GetDescription() string {
 }
 
 // ProposalRoute returns router key of this proposal.
-func (p *SetConfigProposal) ProposalRoute() string { return RouterKey }
+func (*SetConfigProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type of this proposal.
-func (p *SetConfigProposal) ProposalType() string {
+func (*SetConfigProposal) ProposalType() string {
 	return ProposalTypeOcrSetConfig
 }
 
@@ -62,10 +62,10 @@ func (p *SetBatchConfigProposal) GetDescription() string {
 }
 
 // ProposalRoute returns router key of this proposal.
-func (p *SetBatchConfigProposal) ProposalRoute() string { return RouterKey }
+func (*SetBatchConfigProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type of this proposal.
-func (p *SetBatchConfigProposal) ProposalType() string {
+func (*SetBatchConfigProposal) ProposalType() string {
 	return ProposalTypeOcrBatchSetConfig
 }
 

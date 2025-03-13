@@ -1,0 +1,88 @@
+syntax = "proto3";
+package injective.exchange.v2;
+
+import "cosmos_proto/cosmos.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
+
+// spot authz messages
+message CreateSpotLimitOrderAuthz {
+  option (amino.name) = "exchange/CreateSpotLimitOrderAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+message CreateSpotMarketOrderAuthz {
+  option (amino.name) = "exchange/CreateSpotMarketOrderAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+message BatchCreateSpotLimitOrdersAuthz {
+  option (amino.name) = "exchange/BatchCreateSpotLimitOrdersAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+message CancelSpotOrderAuthz {
+  option (amino.name) = "exchange/CancelSpotOrderAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+message BatchCancelSpotOrdersAuthz {
+  option (amino.name) = "exchange/BatchCancelSpotOrdersAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+// derivative authz messages
+message CreateDerivativeLimitOrderAuthz {
+  option (amino.name) = "exchange/CreateDerivativeLimitOrderAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+message CreateDerivativeMarketOrderAuthz {
+  option (amino.name) = "exchange/CreateDerivativeMarketOrderAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+message BatchCreateDerivativeLimitOrdersAuthz {
+  option (amino.name) = "exchange/BatchCreateDerivativeLimitOrdersAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+message CancelDerivativeOrderAuthz {
+  option (amino.name) = "exchange/CancelDerivativeOrderAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+message BatchCancelDerivativeOrdersAuthz {
+  option (amino.name) = "exchange/BatchCancelDerivativeOrdersAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string market_ids = 2;
+}
+
+// common authz message used in both spot & derivative markets
+message BatchUpdateOrdersAuthz {
+  option (amino.name) = "exchange/BatchUpdateOrdersAuthz";
+  option (cosmos_proto.implements_interface) = "Authorization";
+  string subaccount_id = 1;
+  repeated string spot_markets = 2;
+  repeated string derivative_markets = 3;
+}

@@ -6,6 +6,7 @@ import (
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 )
 
@@ -22,18 +23,21 @@ func NewContractExecutionCompatAuthorization(grants ...wasmtypes.ContractGrant) 
 }
 
 // MsgTypeURL implements Authorization.MsgTypeURL.
-func (a ContractExecutionCompatAuthorization) MsgTypeURL() string {
+func (ContractExecutionCompatAuthorization) MsgTypeURL() string {
 	return sdk.MsgTypeURL(&MsgExecuteContractCompat{})
 }
 
 // NewAuthz factory method to create an Authorization with updated grants
-func (a ContractExecutionCompatAuthorization) NewAuthz(g []wasmtypes.ContractGrant) authztypes.Authorization {
+func (ContractExecutionCompatAuthorization) NewAuthz(g []wasmtypes.ContractGrant) authztypes.Authorization {
 	return NewContractExecutionCompatAuthorization(g...)
 }
 
 // Accept implements Authorization.Accept.
 func (a *ContractExecutionCompatAuthorization) Accept(goCtx context.Context, msg sdk.Msg) (authztypes.AcceptResponse, error) {
-	wasmxMsg := msg.(*MsgExecuteContractCompat)
+	wasmxMsg, ok := msg.(*MsgExecuteContractCompat)
+	if !ok {
+		return authztypes.AcceptResponse{}, sdkerrors.ErrInvalidRequest.Wrap("msg is not a MsgExecuteContractCompat")
+	}
 
 	// convert MsgExecuteContractCompat to MsgExecuteContract
 	funds := sdk.Coins{}

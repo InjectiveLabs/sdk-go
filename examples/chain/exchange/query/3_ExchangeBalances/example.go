@@ -58,7 +58,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchExchangeBalances(ctx)
+	res, err := chainClient.FetchExchangeBalancesV2(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}

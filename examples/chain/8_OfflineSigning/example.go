@@ -2,7 +2,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -10,7 +9,7 @@ import (
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -72,32 +71,25 @@ func main() {
 		panic(err)
 	}
 
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, chainClient)
-	if err != nil {
-		panic(err)
-	}
-
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(1.02)
 
-	order := chainClient.CreateSpotOrder(
+	order := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),
 			MarketId:     marketId,
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgCreateSpotLimitOrder)
+	msg := new(exchangev2types.MsgCreateSpotLimitOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.SpotOrder(*order)
+	msg.Order = exchangev2types.SpotOrder(*order)
 
 	accNum, accSeq := chainClient.GetAccNonce()
 	signedTx, err := chainClient.BuildSignedTx(clientCtx, accNum, accSeq, 20000, msg)

@@ -60,7 +60,7 @@ func main() {
 	denom := "inj"
 	ctx := context.Background()
 
-	res, err := chainClient.FetchSubaccountDeposit(ctx, subaccountId.Hex(), denom)
+	res, err := chainClient.FetchSubaccountDepositV2(ctx, subaccountId.Hex(), denom)
 	if err != nil {
 		fmt.Println(err)
 	}

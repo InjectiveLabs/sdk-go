@@ -117,9 +117,8 @@ func (cfg *FeedConfig) ValidateBasic() error {
 
 		if _, ok := seenTransmitters[addr.String()]; ok {
 			return ErrRepeatedAddress
-		} else {
-			seenTransmitters[addr.String()] = struct{}{}
 		}
+		seenTransmitters[addr.String()] = struct{}{}
 	}
 
 	seenSigners := make(map[string]struct{}, len(cfg.Signers))
@@ -131,9 +130,8 @@ func (cfg *FeedConfig) ValidateBasic() error {
 
 		if _, ok := seenSigners[addr.String()]; ok {
 			return ErrRepeatedAddress
-		} else {
-			seenSigners[addr.String()] = struct{}{}
 		}
+		seenSigners[addr.String()] = struct{}{}
 	}
 
 	if cfg.ModuleParams.LinkDenom == "" {

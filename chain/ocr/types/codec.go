@@ -26,7 +26,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&SetConfigProposal{}, "ocr/SetConfigProposal", nil)
 	cdc.RegisterConcrete(&SetBatchConfigProposal{}, "ocr/SetBatchConfigProposal", nil)
 	cdc.RegisterConcrete(&Params{}, "ocr/Params", nil)
-
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {

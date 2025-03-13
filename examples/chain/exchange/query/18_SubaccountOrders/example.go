@@ -60,7 +60,7 @@ func main() {
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 	subaccountId := chainClient.Subaccount(senderAddress, 0)
 
-	res, err := chainClient.FetchChainSubaccountOrders(ctx, subaccountId.Hex(), marketId)
+	res, err := chainClient.FetchChainSubaccountOrdersV2(ctx, subaccountId.Hex(), marketId)
 	if err != nil {
 		fmt.Println(err)
 	}
