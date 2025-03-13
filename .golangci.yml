@@ -31,6 +31,11 @@ linters-settings:
       - name: var-naming
         arguments:
           - ["ID"]
+      - name: add-constant
+        disabled: true
+      - name: line-length-limit
+        arguments:
+          - 140
   gocritic:
     enabled-tags:
       - diagnostic
@@ -39,9 +44,11 @@ linters-settings:
       - performance
       - style
     disabled-checks:
+      - singleCaseSwitch
+      - deferInLoop
       - hugeParam
       - unnamedResult
-
+      - dupImport
 issues:
   exclude-dirs:
     - chain
