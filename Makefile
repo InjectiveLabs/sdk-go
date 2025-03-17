@@ -151,4 +151,16 @@ tests:
 coverage:
 	go test -race -coverprofile=coverage.out -covermode=atomic ./client/... ./ethereum/...
 
-.PHONY: copy-exchange-client tests coverage
+lint: export GOPROXY=direct
+lint:
+	golangci-lint run --timeout=15m -v --new-from-rev=dev
+
+lint-last-commit: export GOPROXY=direct
+lint-last-commit:
+	golangci-lint run --timeout=15m -v --new-from-rev=HEAD~
+
+lint-master: export GOPROXY=direct
+lint-master:
+	golangci-lint run --timeout=15m -v --new-from-rev=master
+
+.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master
