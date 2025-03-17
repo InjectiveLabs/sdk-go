@@ -24,24 +24,6 @@ type uniquify struct {
 	tasks map[string]*sync.WaitGroup
 }
 
-func (u *uniquify) executeTask(id string, wg *sync.WaitGroup, callable func() error, errC chan<- error) {
-	var err error
-	defer func() { errC <- err }()
-	defer u.lock.Lock()
-	defer func() { u.lock.Unlock(); delete(u.tasks, id) }()
-	defer wg.Done()
-	defer func() {
-		if panicData := recover(); panicData != nil {
-			if e, ok := panicData.(error); ok {
-				err = e
-				return
-			}
-			err = fmt.Errorf("%+v", panicData)
-		}
-	}()
-	err = callable()
-}
-
 func (u *uniquify) Call(id string, callable func() error) error {
 	var errC = make(chan error)
 	func() {
@@ -62,7 +44,25 @@ func (u *uniquify) Call(id string, callable func() error) error {
 		u.tasks[id] = wg
 
 		go func() {
-			u.executeTask(id, wg, callable, errC)
+			var err error
+			defer func() {
+				errC <- err
+
+				u.lock.Lock()
+				defer u.lock.Unlock()
+				delete(u.tasks, id)
+			}()
+			defer wg.Done()
+			defer func(err *error) {
+				if panicData := recover(); panicData != nil {
+					if e, ok := panicData.(error); ok {
+						*err = e
+						return
+					}
+					*err = fmt.Errorf("%+v", panicData)
+				}
+			}(&err)
+			err = callable()
 		}()
 	}()
 
