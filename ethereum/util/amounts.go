@@ -39,9 +39,9 @@ func (w *Wei) Scan(v interface{}) error {
 	if err != nil {
 		err := fmt.Errorf("failed to parse decimal.Decimal from %s, error: %w", source, err)
 		return err
-	} else {
-		*w = Wei(d)
 	}
+	*w = Wei(d)
+
 	return nil
 }
 
