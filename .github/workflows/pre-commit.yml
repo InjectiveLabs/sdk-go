@@ -15,4 +15,4 @@ jobs:
         with:
           go-version-file: "go.mod"
           check-latest: true
-      - uses: pre-commit/action@v2.0.2
+      - uses: pre-commit/action@v3.0.1
