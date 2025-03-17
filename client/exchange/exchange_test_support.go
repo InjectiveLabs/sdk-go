@@ -292,7 +292,7 @@ func (e *MockExchangeClient) GetAccountPortfolio(ctx context.Context, accountAdd
 	return &portfolioExchangePB.AccountPortfolioResponse{}, nil
 }
 
-func (e *MockExchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
+func (e *MockExchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string, usd bool) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
 	return &portfolioExchangePB.AccountPortfolioBalancesResponse{}, nil
 }
 
