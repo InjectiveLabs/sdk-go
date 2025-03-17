@@ -23,7 +23,8 @@ service Msg {
       returns (MsgUpdateActorRolesResponse);
   rpc ClaimVoucher(MsgClaimVoucher) returns (MsgClaimVoucherResponse);
 
-  //  rpc DeleteNamespace(MsgDeleteNamespace) returns (MsgDeleteNamespaceResponse);
+  //  rpc DeleteNamespace(MsgDeleteNamespace) returns
+  //  (MsgDeleteNamespaceResponse);
 }
 
 message MsgUpdateParams {
@@ -59,12 +60,14 @@ message MsgUpdateNamespace {
   string denom = 2; // denom whose namespace updates are to be applied
 
   message SetContractHook { string new_value = 1; }
-  SetContractHook contract_hook = 3; // address of smart contract to apply code-based restrictions
+  SetContractHook contract_hook =
+      3; // address of smart contract to apply code-based restrictions
 
-  repeated Role role_permissions = 4; // role permissions to update
-  repeated RoleManager role_managers = 5; //  role managers to update
+  repeated Role role_permissions = 4;        // role permissions to update
+  repeated RoleManager role_managers = 5;    //  role managers to update
   repeated PolicyStatus policy_statuses = 6; // policy statuses to update
-  repeated PolicyManagerCapability policy_manager_capabilities = 7; // policy manager capabilities to update
+  repeated PolicyManagerCapability policy_manager_capabilities =
+      7; // policy manager capabilities to update
 }
 
 message MsgUpdateNamespaceResponse {}
@@ -77,7 +80,8 @@ message MsgUpdateActorRoles {
   string denom = 2; // namespace denom to which this updates are applied
 
   repeated RoleActors role_actors_to_add = 3; // roles to add for given actors
-  repeated RoleActors role_actors_to_revoke = 5; // roles to revoke from given actors
+  repeated RoleActors role_actors_to_revoke =
+      5; // roles to revoke from given actors
 }
 
 message MsgUpdateActorRolesResponse {}

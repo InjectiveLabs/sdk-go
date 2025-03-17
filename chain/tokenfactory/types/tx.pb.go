@@ -174,8 +174,8 @@ func (m *MsgCreateDenomResponse) GetNewTokenDenom() string {
 	return ""
 }
 
-// MsgMint is the sdk.Msg type for allowing an admin account or other permitted accounts to mint
-// more of a token.
+// MsgMint is the sdk.Msg type for allowing an admin account or other permitted
+// accounts to mint more of a token.
 type MsgMint struct {
 	Sender   string     `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
 	Amount   types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount" yaml:"amount"`

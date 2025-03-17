@@ -44,7 +44,8 @@ message MsgCreateDenom {
   string symbol = 4 [ (gogoproto.moretags) = "yaml:\"symbol\"" ];
   uint32 decimals = 5 [ (gogoproto.moretags) = "yaml:\"decimals\"" ];
   // true if admins are allowed to burn tokens from other addresses
-  bool allow_admin_burn = 6 [ (gogoproto.moretags) = "yaml:\"allow_admin_burn\"" ];
+  bool allow_admin_burn = 6
+      [ (gogoproto.moretags) = "yaml:\"allow_admin_burn\"" ];
 }
 
 // MsgCreateDenomResponse is the return value of MsgCreateDenom
@@ -54,8 +55,8 @@ message MsgCreateDenomResponse {
       [ (gogoproto.moretags) = "yaml:\"new_token_denom\"" ];
 }
 
-// MsgMint is the sdk.Msg type for allowing an admin account or other permitted accounts to mint
-// more of a token.
+// MsgMint is the sdk.Msg type for allowing an admin account or other permitted
+// accounts to mint more of a token.
 message MsgMint {
   option (amino.name) = "injective/tokenfactory/mint";
   option (cosmos.msg.v1.signer) = "sender";
@@ -118,9 +119,11 @@ message MsgSetDenomMetadata {
 
   message AdminBurnDisabled {
     // true if the admin burn capability should be disabled
-    bool should_disable = 1 [ (gogoproto.moretags) = "yaml:\"should_disable\"" ];
+    bool should_disable = 1
+        [ (gogoproto.moretags) = "yaml:\"should_disable\"" ];
   }
-  AdminBurnDisabled admin_burn_disabled = 3 [ (gogoproto.moretags) = "yaml:\"admin_burn_disabled\"" ];
+  AdminBurnDisabled admin_burn_disabled = 3
+      [ (gogoproto.moretags) = "yaml:\"admin_burn_disabled\"" ];
 }
 
 // MsgSetDenomMetadataResponse defines the response structure for an executed

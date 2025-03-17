@@ -115,8 +115,8 @@ func (m *QueryParamsResponse) GetParams() Params {
 	return Params{}
 }
 
-// QueryNamespaceDenomsRequest is the request type for the Query/NamespaceDenoms RPC
-// method.
+// QueryNamespaceDenomsRequest is the request type for the Query/NamespaceDenoms
+// RPC method.
 type QueryNamespaceDenomsRequest struct {
 }
 
@@ -153,8 +153,8 @@ func (m *QueryNamespaceDenomsRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryNamespaceDenomsRequest proto.InternalMessageInfo
 
-// QueryNamespaceDenomsResponse is the response type for the Query/NamespaceDenoms
-// RPC method.
+// QueryNamespaceDenomsResponse is the response type for the
+// Query/NamespaceDenoms RPC method.
 type QueryNamespaceDenomsResponse struct {
 	Denoms []string `protobuf:"bytes,1,rep,name=denoms,proto3" json:"denoms,omitempty"`
 }
@@ -859,8 +859,8 @@ func (m *QueryPolicyStatusesResponse) GetPolicyStatuses() []*PolicyStatus {
 	return nil
 }
 
-// QueryPolicyManagerCapabilitiesRequest is the request type for the Query/PolicyManagerCapabilities
-// RPC method.
+// QueryPolicyManagerCapabilitiesRequest is the request type for the
+// Query/PolicyManagerCapabilities RPC method.
 type QueryPolicyManagerCapabilitiesRequest struct {
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
@@ -1130,8 +1130,8 @@ func (m *QueryVoucherResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryVoucherResponse proto.InternalMessageInfo
 
-// QueryModuleStateRequest is the request type for the Query/PermissionsModuleState
-// RPC method.
+// QueryModuleStateRequest is the request type for the
+// Query/PermissionsModuleState RPC method.
 type QueryModuleStateRequest struct {
 }
 
@@ -1168,8 +1168,8 @@ func (m *QueryModuleStateRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 
-// QueryModuleStateResponse is the response type for the Query/PermissionsModuleState
-// RPC method.
+// QueryModuleStateResponse is the response type for the
+// Query/PermissionsModuleState RPC method.
 type QueryModuleStateResponse struct {
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }
@@ -1345,7 +1345,8 @@ type QueryClient interface {
 	// Params defines a gRPC query method that returns the permissions module's
 	// parameters.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// NamespaceDenoms defines a gRPC query method that returns the denoms for which a namespace exists
+	// NamespaceDenoms defines a gRPC query method that returns the denoms for
+	// which a namespace exists
 	NamespaceDenoms(ctx context.Context, in *QueryNamespaceDenomsRequest, opts ...grpc.CallOption) (*QueryNamespaceDenomsResponse, error)
 	// Namespaces defines a gRPC query method that returns the permissions
 	// module's created namespaces.
@@ -1353,21 +1354,28 @@ type QueryClient interface {
 	// Namespace defines a gRPC query method that returns the permissions
 	// module's namespace associated with the provided denom.
 	Namespace(ctx context.Context, in *QueryNamespaceRequest, opts ...grpc.CallOption) (*QueryNamespaceResponse, error)
-	// RolesByActor defines a gRPC query method that returns roles for the actor in the namespace
+	// RolesByActor defines a gRPC query method that returns roles for the actor
+	// in the namespace
 	RolesByActor(ctx context.Context, in *QueryRolesByActorRequest, opts ...grpc.CallOption) (*QueryRolesByActorResponse, error)
-	// ActorsByRole defines a gRPC query method that returns a namespace's roles associated with the provided actor.
+	// ActorsByRole defines a gRPC query method that returns a namespace's roles
+	// associated with the provided actor.
 	ActorsByRole(ctx context.Context, in *QueryActorsByRoleRequest, opts ...grpc.CallOption) (*QueryActorsByRoleResponse, error)
-	// RoleManagers defines a gRPC query method that returns a namespace's role managers
+	// RoleManagers defines a gRPC query method that returns a namespace's role
+	// managers
 	RoleManagers(ctx context.Context, in *QueryRoleManagersRequest, opts ...grpc.CallOption) (*QueryRoleManagersResponse, error)
-	// RoleManager defines a gRPC query method that returns the roles a given role manager manages for a given namespace
+	// RoleManager defines a gRPC query method that returns the roles a given role
+	// manager manages for a given namespace
 	RoleManager(ctx context.Context, in *QueryRoleManagerRequest, opts ...grpc.CallOption) (*QueryRoleManagerResponse, error)
-	// PolicyStatuses defines a gRPC query method that returns a namespace's policy statuses
+	// PolicyStatuses defines a gRPC query method that returns a namespace's
+	// policy statuses
 	PolicyStatuses(ctx context.Context, in *QueryPolicyStatusesRequest, opts ...grpc.CallOption) (*QueryPolicyStatusesResponse, error)
-	// PolicyManagerCapabilities defines a gRPC query method that returns a namespace's policy manager capabilities
+	// PolicyManagerCapabilities defines a gRPC query method that returns a
+	// namespace's policy manager capabilities
 	PolicyManagerCapabilities(ctx context.Context, in *QueryPolicyManagerCapabilitiesRequest, opts ...grpc.CallOption) (*QueryPolicyManagerCapabilitiesResponse, error)
 	// Vouchers defines a gRPC query method for the vouchers for a given denom
 	Vouchers(ctx context.Context, in *QueryVouchersRequest, opts ...grpc.CallOption) (*QueryVouchersResponse, error)
-	// Voucher defines a gRPC query method for the vouchers for a given denom and address
+	// Voucher defines a gRPC query method for the vouchers for a given denom and
+	// address
 	Voucher(ctx context.Context, in *QueryVoucherRequest, opts ...grpc.CallOption) (*QueryVoucherResponse, error)
 	// Retrieves the entire permissions module's state
 	PermissionsModuleState(ctx context.Context, in *QueryModuleStateRequest, opts ...grpc.CallOption) (*QueryModuleStateResponse, error)
@@ -1503,7 +1511,8 @@ type QueryServer interface {
 	// Params defines a gRPC query method that returns the permissions module's
 	// parameters.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// NamespaceDenoms defines a gRPC query method that returns the denoms for which a namespace exists
+	// NamespaceDenoms defines a gRPC query method that returns the denoms for
+	// which a namespace exists
 	NamespaceDenoms(context.Context, *QueryNamespaceDenomsRequest) (*QueryNamespaceDenomsResponse, error)
 	// Namespaces defines a gRPC query method that returns the permissions
 	// module's created namespaces.
@@ -1511,21 +1520,28 @@ type QueryServer interface {
 	// Namespace defines a gRPC query method that returns the permissions
 	// module's namespace associated with the provided denom.
 	Namespace(context.Context, *QueryNamespaceRequest) (*QueryNamespaceResponse, error)
-	// RolesByActor defines a gRPC query method that returns roles for the actor in the namespace
+	// RolesByActor defines a gRPC query method that returns roles for the actor
+	// in the namespace
 	RolesByActor(context.Context, *QueryRolesByActorRequest) (*QueryRolesByActorResponse, error)
-	// ActorsByRole defines a gRPC query method that returns a namespace's roles associated with the provided actor.
+	// ActorsByRole defines a gRPC query method that returns a namespace's roles
+	// associated with the provided actor.
 	ActorsByRole(context.Context, *QueryActorsByRoleRequest) (*QueryActorsByRoleResponse, error)
-	// RoleManagers defines a gRPC query method that returns a namespace's role managers
+	// RoleManagers defines a gRPC query method that returns a namespace's role
+	// managers
 	RoleManagers(context.Context, *QueryRoleManagersRequest) (*QueryRoleManagersResponse, error)
-	// RoleManager defines a gRPC query method that returns the roles a given role manager manages for a given namespace
+	// RoleManager defines a gRPC query method that returns the roles a given role
+	// manager manages for a given namespace
 	RoleManager(context.Context, *QueryRoleManagerRequest) (*QueryRoleManagerResponse, error)
-	// PolicyStatuses defines a gRPC query method that returns a namespace's policy statuses
+	// PolicyStatuses defines a gRPC query method that returns a namespace's
+	// policy statuses
 	PolicyStatuses(context.Context, *QueryPolicyStatusesRequest) (*QueryPolicyStatusesResponse, error)
-	// PolicyManagerCapabilities defines a gRPC query method that returns a namespace's policy manager capabilities
+	// PolicyManagerCapabilities defines a gRPC query method that returns a
+	// namespace's policy manager capabilities
 	PolicyManagerCapabilities(context.Context, *QueryPolicyManagerCapabilitiesRequest) (*QueryPolicyManagerCapabilitiesResponse, error)
 	// Vouchers defines a gRPC query method for the vouchers for a given denom
 	Vouchers(context.Context, *QueryVouchersRequest) (*QueryVouchersResponse, error)
-	// Voucher defines a gRPC query method for the vouchers for a given denom and address
+	// Voucher defines a gRPC query method for the vouchers for a given denom and
+	// address
 	Voucher(context.Context, *QueryVoucherRequest) (*QueryVoucherResponse, error)
 	// Retrieves the entire permissions module's state
 	PermissionsModuleState(context.Context, *QueryModuleStateRequest) (*QueryModuleStateResponse, error)
