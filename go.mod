@@ -2,11 +2,11 @@ module github.com/InjectiveLabs/sdk-go
 
 go 1.22.11
 
-toolchain go1.23.5
+toolchain go1.23.1
 
 require (
 	cosmossdk.io/errors v1.0.1
-	cosmossdk.io/math v1.3.0
+	cosmossdk.io/math v1.4.0
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
 	cosmossdk.io/x/tx v0.13.4
@@ -45,7 +45,7 @@ require (
 	cosmossdk.io/depinject v1.0.0 // indirect
 	cosmossdk.io/log v1.4.1 // indirect
 	cosmossdk.io/store v1.1.0 // indirect
-	filippo.io/edwards25519 v1.0.0 // indirect
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.2 // indirect
 	github.com/CosmWasm/wasmvm/v2 v2.1.5 // indirect
@@ -86,7 +86,7 @@ require (
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v1.2.0 // indirect
 	github.com/cosmos/ibc-go/modules/capability v1.0.1 // indirect
-	github.com/cosmos/ics23/go v0.10.0 // indirect
+	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.3 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -216,7 +216,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.23.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
-	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
+	google.golang.org/genproto v0.0.0-20240701130421-f6361c86f094 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241202173237-19429a94021a // indirect
 	gopkg.in/DataDog/dd-trace-go.v1 v1.62.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -234,13 +234,15 @@ replace (
 	cosmossdk.io/x/feegrant => github.com/InjectiveLabs/cosmos-sdk/x/feegrant v0.50.6-inj-0
 	cosmossdk.io/x/upgrade => github.com/InjectiveLabs/cosmos-sdk/x/upgrade v0.50.6-inj-0
 
-	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.53.2-inj-1
+	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.53.2-inj.2
 	github.com/bandprotocol/bandchain-packet => github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1
 	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v0.38.17-inj-0
 
-	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.50.9-inj-2
-	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/InjectiveLabs/ibc-apps/modules/ibc-hooks/v8 v8.0.0-inj-0
-	github.com/cosmos/ibc-go/v8 => github.com/InjectiveLabs/ibc-go/v8 v8.3.2-inj-0
+	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.50.9-inj-4
+	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/InjectiveLabs/ibc-apps/modules/ibc-hooks/v8 v8.0.0-inj
+	github.com/cosmos/ibc-go/modules/capability => github.com/InjectiveLabs/ibc-go/modules/capability v1.0.0-inj
+	github.com/cosmos/ibc-go/v8 => github.com/InjectiveLabs/ibc-go/v8 v8.6.1-inj
+
 	github.com/miguelmota/go-ethereum-hdwallet => github.com/InjectiveLabs/go-ethereum-hdwallet v0.1.2
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
