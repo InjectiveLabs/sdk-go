@@ -110,7 +110,7 @@ type TypedDataDomain struct {
 
 var typedDataReferenceTypeRegexp = regexp.MustCompile(`^[A-Z](\w*)(\[\])?$`)
 
-// SignTextWithValidator signs the given message which can be further recovered
+// SignTextValidator signs the given message which can be further recovered
 // with the given validator.
 // hash = keccak256("\x19\x00"${address}${data}).
 func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
