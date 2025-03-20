@@ -3,38 +3,21 @@ package chain
 import (
 	"os"
 
+	evidencetypes "cosmossdk.io/x/evidence/types"
+	feegranttypes "cosmossdk.io/x/feegrant"
 	"cosmossdk.io/x/tx/signing"
-	"github.com/cosmos/cosmos-sdk/codec/address"
-	"github.com/cosmos/gogoproto/proto"
-
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/std"
-	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-	"github.com/pkg/errors"
-
-	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
-
-	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-
-	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
-	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
-	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
-	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
-	permissions "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
-	tokenfactory "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
-	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
-	wasmx "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
-
-	evidencetypes "cosmossdk.io/x/evidence/types"
-	feegranttypes "cosmossdk.io/x/feegrant"
-	upgradetypes "cosmossdk.io/x/upgrade/types"
 	cosmostypes "github.com/cosmos/cosmos-sdk/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
@@ -48,12 +31,27 @@ import (
 	paramproposaltypes "github.com/cosmos/cosmos-sdk/x/params/types/proposal"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/gogoproto/proto"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
 	ibcapplicationtypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibccoretypes "github.com/cosmos/ibc-go/v8/modules/core/types"
 	ibclightclienttypes "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
 	ibctenderminttypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	"github.com/pkg/errors"
+
+	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
+	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
+	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
+	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
+	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
+	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
+	permissions "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+	tokenfactory "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
+	wasmx "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
 // NewInterfaceRegistry returns a new InterfaceRegistry
@@ -89,6 +87,8 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
 	tokenfactory.RegisterInterfaces(interfaceRegistry)
+	permissions.RegisterInterfaces(interfaceRegistry)
+	txfeestypes.RegisterInterfaces(interfaceRegistry)
 
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
@@ -113,7 +113,6 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	feegranttypes.RegisterInterfaces(interfaceRegistry)
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 	icatypes.RegisterInterfaces(interfaceRegistry)
-	permissions.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	return tx.NewTxConfig(marshaler, signModes)
@@ -139,7 +138,11 @@ func NewClientContext(
 	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
 	tokenfactory.RegisterInterfaces(interfaceRegistry)
-
+	permissions.RegisterInterfaces(interfaceRegistry)
+	txfeestypes.RegisterInterfaces(interfaceRegistry)
+	interfaceRegistry.RegisterImplementations((*sdk.Msg)(nil),
+		&txfeestypes.QueryEipBaseFeeResponse{},
+	)
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
 	authztypes.RegisterInterfaces(interfaceRegistry)
@@ -164,7 +167,6 @@ func NewClientContext(
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 	icatypes.RegisterInterfaces(interfaceRegistry)
 	ibcfeetypes.RegisterInterfaces(interfaceRegistry)
-	permissions.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{

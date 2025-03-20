@@ -28,6 +28,7 @@ import (
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
@@ -825,6 +826,15 @@ func (c *MockChainClient) FetchPermissionsVoucher(ctx context.Context, denom, ad
 
 func (c *MockChainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
 	return &permissionstypes.QueryModuleStateResponse{}, nil
+}
+
+// TxFees module
+func (c *MockChainClient) FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error) {
+	return &txfeestypes.QueryParamsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
+	return &txfeestypes.QueryEipBaseFeeResponse{}, nil
 }
 
 func (c *MockChainClient) GetNetwork() common.Network {

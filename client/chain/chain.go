@@ -13,43 +13,38 @@ import (
 	"sync/atomic"
 	"time"
 
-	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
-
 	sdkmath "cosmossdk.io/math"
-
-	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
-
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-
-	"github.com/cosmos/cosmos-sdk/types/query"
-
-	"google.golang.org/grpc/credentials/insecure"
-
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/gogoproto/proto"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
-	ethcommon "github.com/ethereum/go-ethereum/common"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
 )
 
 type OrderbookType string
@@ -307,6 +302,10 @@ type ChainClient interface {
 	FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error)
 	FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error)
 
+	// TxFees module
+	FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error)
+	FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
+
 	GetNetwork() common.Network
 	Close()
 }
@@ -351,6 +350,7 @@ type chainClient struct {
 	permissionsQueryClient   permissionstypes.QueryClient
 	tendermintQueryClient    cmtservice.ServiceClient
 	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
+	txfeesQueryClient        txfeestypes.QueryClient
 	txClient                 txtypes.ServiceClient
 	wasmQueryClient          wasmtypes.QueryClient
 	subaccountToNonce        map[ethcommon.Hash]uint32
@@ -452,6 +452,7 @@ func NewChainClient(
 		permissionsQueryClient:   permissionstypes.NewQueryClient(conn),
 		tendermintQueryClient:    cmtservice.NewServiceClient(conn),
 		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
+		txfeesQueryClient:        txfeestypes.NewQueryClient(conn),
 		txClient:                 txtypes.NewServiceClient(conn),
 		wasmQueryClient:          wasmtypes.NewQueryClient(conn),
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
@@ -2658,6 +2659,21 @@ func (c *chainClient) FetchPermissionsVoucher(ctx context.Context, denom, addres
 func (c *chainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
 	req := &permissionstypes.QueryModuleStateRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PermissionsModuleState, req)
+
+	return res, err
+}
+
+// TxFees module
+func (c *chainClient) FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error) {
+	req := &txfeestypes.QueryParamsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txfeesQueryClient.Params, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
+	req := &txfeestypes.QueryEipBaseFeeRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txfeesQueryClient.GetEipBaseFee, req)
 
 	return res, err
 }

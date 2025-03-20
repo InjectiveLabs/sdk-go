@@ -92,6 +92,11 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/tokenfactory/types && \
 		cp injective-core/injective-chain/modules/tokenfactory/types/*.pb.go chain/tokenfactory/types && \
 		cp injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types
+	mkdir -p chain/txfees/types && \
+		cp injective-core/injective-chain/modules/txfees/types/*.pb.go chain/txfees/types && \
+		cp injective-core/injective-chain/modules/txfees/types/codec.go chain/txfees/types
+	mkdir -p chain/txfees/osmosis/types && \
+		cp injective-core/injective-chain/modules/txfees/osmosis/types/*.pb.go chain/txfees/osmosis/types
 	mkdir -p chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/authz.go chain/wasmx/types && \

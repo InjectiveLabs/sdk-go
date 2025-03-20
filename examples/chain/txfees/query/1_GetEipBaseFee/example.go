@@ -4,14 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"os"
 
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"os"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
@@ -57,13 +56,14 @@ func main() {
 		panic(err)
 	}
 
-	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe" // Example derivative market ID
+	ctx := context.Background()
 
-	res, err := chainClient.FetchMarketBalance(context.Background(), marketId)
+	res, err := chainClient.FetchEipBaseFee(ctx)
 	if err != nil {
-		log.Fatalf("Failed to fetch market balance: %v", err)
+		fmt.Println(err)
 	}
 
 	str, _ := json.MarshalIndent(res, "", " ")
 	fmt.Print(string(str))
+
 }
