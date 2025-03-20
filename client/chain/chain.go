@@ -43,6 +43,7 @@ import (
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
@@ -303,6 +304,10 @@ type ChainClient interface {
 	FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error)
 	FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error)
 
+	// TxFees module
+	FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error)
+	FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
+
 	GetNetwork() common.Network
 	Close()
 }
@@ -347,6 +352,7 @@ type chainClient struct {
 	permissionsQueryClient   permissionstypes.QueryClient
 	tendermintQueryClient    cmtservice.ServiceClient
 	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
+	txfeesQueryClient        txfeestypes.QueryClient
 	txClient                 txtypes.ServiceClient
 	wasmQueryClient          wasmtypes.QueryClient
 	subaccountToNonce        map[ethcommon.Hash]uint32
@@ -448,6 +454,7 @@ func NewChainClient(
 		permissionsQueryClient:   permissionstypes.NewQueryClient(conn),
 		tendermintQueryClient:    cmtservice.NewServiceClient(conn),
 		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
+		txfeesQueryClient:        txfeestypes.NewQueryClient(conn),
 		txClient:                 txtypes.NewServiceClient(conn),
 		wasmQueryClient:          wasmtypes.NewQueryClient(conn),
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
@@ -2656,6 +2663,21 @@ func (c *chainClient) FetchPermissionsVoucher(ctx context.Context, denom, addres
 func (c *chainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
 	req := &permissionstypes.QueryModuleStateRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PermissionsModuleState, req)
+
+	return res, err
+}
+
+// TxFees module
+func (c *chainClient) FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error) {
+	req := &txfeestypes.QueryParamsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txfeesQueryClient.Params, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
+	req := &txfeestypes.QueryEipBaseFeeRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txfeesQueryClient.GetEipBaseFee, req)
 
 	return res, err
 }
