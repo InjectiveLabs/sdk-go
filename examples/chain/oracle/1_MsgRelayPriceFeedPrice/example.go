@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
-	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 
@@ -50,12 +49,16 @@ func main() {
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
 		panic(err)
 	}
+
+	gasPrice := chainClient.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	chainClient.SetGasPrice(gasPrice)
 
 	price := []math.LegacyDec{math.LegacyMustNewDecFromStr("100")}
 	base := []string{"BAYC"}
@@ -76,4 +79,9 @@ func main() {
 	}
 
 	fmt.Printf("Broadcast result: %s\n", result)
+
+	gasPrice = chainClient.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	chainClient.SetGasPrice(gasPrice)
 }

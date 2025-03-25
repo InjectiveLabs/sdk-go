@@ -29,6 +29,7 @@ import (
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
+	injectiveclient "github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
@@ -839,6 +840,14 @@ func (c *MockChainClient) FetchTxFeesParams(ctx context.Context) (*txfeestypes.Q
 
 func (c *MockChainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
 	return &txfeestypes.QueryEipBaseFeeResponse{}, nil
+}
+
+func (c *MockChainClient) CurrentChainGasPrice() int64 {
+	return int64(injectiveclient.DefaultGasPrice)
+}
+
+func (c *MockChainClient) SetGasPrice(gasPrice int64) {
+	// do nothing
 }
 
 func (c *MockChainClient) GetNetwork() common.Network {
