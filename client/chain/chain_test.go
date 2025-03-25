@@ -133,7 +133,7 @@ func accountForTests() (cosmtypes.AccAddress, keyring.Keyring, error) {
 }
 
 func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyring, network common.Network) (chain.ChainClient, error) {
-	tmClient, _ := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, _ := rpchttp.New(network.TmEndpoint)
 	clientCtx, err := chain.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),
