@@ -75,6 +75,14 @@ var (
 	ErrReadOnly       = errors.New("client is in read-only mode")
 )
 
+type TXOpts struct {
+	Emergency bool
+}
+
+type TXConfigurable interface {
+	GetTXOpts() *TXOpts
+}
+
 type ChainClient interface {
 	CanSignTransactions() bool
 	FromAddress() sdk.AccAddress
@@ -356,6 +364,7 @@ type chainClient struct {
 	canSign bool
 
 	isDynamicGasPrices bool
+	gasEstimator       *GasEstimator
 }
 
 func NewChainClient(
@@ -466,6 +475,7 @@ func NewChainClient(
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
 
 		isDynamicGasPrices: opts.IsDynamicGasPrices,
+		gasEstimator:       newGasEstimator(),
 	}
 	defer func() {
 		if err != nil {
@@ -1078,33 +1088,45 @@ func (c *chainClient) broadcastTxAsync(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxResponse, []byte, error) {
-	txf, err := PrepareFactory(clientCtx, txf)
-	if err != nil {
-		err = errors.Wrap(err, "failed to prepareFactory")
-		return nil, nil, err
+	emergency_msgs := []sdk.Msg{}
+	normal_msgs := []sdk.Msg{}
+	for _, msg := range msgs {
+		if wrapped_msg, ok := msg.(TXConfigurable); ok {
+			if wrapped_msg.GetTXOpts().Emergency {
+				emergency_msgs = append(emergency_msgs, msg)
+				continue
+			}
+		}
+		normal_msgs = append(normal_msgs, msg)
 	}
+	c.logger.Infof("[INJ-GO-SDK] Emergency Msgs: %d", len(emergency_msgs))
+	c.logger.Infof("[INJ-GO-SDK] Normal Msgs: %d", len(normal_msgs))
+
 	ctx := context.Background()
-	if clientCtx.Simulate {
-		simTxBytes, err := txf.BuildSimTx(msgs...)
+
+	// sned the emergency tx first
+	if len(emergency_msgs) > 0 {
+		emergency_txf, err := c.constructTxAsyncWithoutSimulation(ctx, clientCtx, txf, emergency_msgs...)
 		if err != nil {
-			err = errors.Wrap(err, "failed to build sim tx bytes")
 			return nil, nil, err
 		}
-		var header metadata.MD
-		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
-		if err != nil {
-			err = errors.Wrap(err, "failed to CalculateGas")
-			return nil, nil, err
-		}
-
-		adjustedGas := uint64(txf.GasAdjustment()*float64(simRes.GasInfo.GasUsed)) * 12 / 10
-		txf = txf.WithGas(adjustedGas)
-
-		c.gasWanted = adjustedGas
-	} else {
-		txf = txf.WithGas(c.gasWanted)
+		res, txBytes, err := c.signNbroadcastTxAsync(ctx, &clientCtx, emergency_txf, emergency_msgs...)
+		return res, txBytes, err
 	}
 
+	if len(normal_msgs) > 0 {
+		normal_txf, err := c.constructTxAsyncWithSimulation(ctx, clientCtx, txf, normal_msgs...)
+		if err != nil {
+			return nil, nil, err
+		}
+		res, txBytes, err := c.signNbroadcastTxAsync(ctx, &clientCtx, normal_txf, normal_msgs...)
+		return res, txBytes, err
+	}
+
+	return nil, nil, errors.New("no msgs to broadcast")
+}
+
+func (c *chainClient) signNbroadcastTxAsync(ctx context.Context, clientCtx *client.Context, txf *tx.Factory, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, []byte, error) {
 	txn, err := txf.BuildUnsignedTx(msgs...)
 
 	if err != nil {
@@ -1113,7 +1135,7 @@ func (c *chainClient) broadcastTxAsync(
 	}
 
 	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
+	err = tx.Sign(ctx, *txf, clientCtx.GetFromName(), txn, true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to Sign Tx")
 		return nil, nil, err
@@ -1133,7 +1155,40 @@ func (c *chainClient) broadcastTxAsync(
 	var header metadata.MD
 	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
 	return res, txBytes, err
+}
 
+func (c *chainClient) constructTxAsyncWithSimulation(ctx context.Context, clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) (*tx.Factory, error) {
+	var err error
+	txf, err = PrepareFactory(clientCtx, txf)
+	if err != nil {
+		err = errors.Wrap(err, "failed to prepareFactory")
+		return nil, err
+	}
+	if clientCtx.Simulate {
+		simTxBytes, err := txf.BuildSimTx(msgs...)
+		if err != nil {
+			err = errors.Wrap(err, "failed to build sim tx bytes")
+			return nil, err
+		}
+		var header metadata.MD
+		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+		if err != nil {
+			err = errors.Wrap(err, "failed to CalculateGas")
+			return nil, err
+		}
+
+		adjustedGas := uint64(txf.GasAdjustment()*float64(simRes.GasInfo.GasUsed)) * 12 / 10
+		txf = txf.WithGas(adjustedGas)
+
+		c.gasWanted = adjustedGas
+	} else {
+		txf = txf.WithGas(c.gasWanted)
+	}
+	return &txf, nil
+}
+
+func (c *chainClient) constructTxAsyncWithoutSimulation(ctx context.Context, clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) (*tx.Factory, error) {
+	return nil, nil
 }
 
 func (c *chainClient) PollTxResults(res *txtypes.BroadcastTxResponse, clientCtx client.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
