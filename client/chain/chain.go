@@ -94,6 +94,8 @@ type ChainClient interface {
 	GetBlockHeight() (int64, error)
 
 	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
+	// AsyncBroadcastMsgWithoutSim(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	AsyncBroadcastMsgSupportEmergency(msg ...sdk.Msg) ([]*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 
@@ -879,6 +881,72 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	return res, nil
 }
 
+func (c *chainClient) AsyncBroadcastMsgSupportEmergency(msgs ...sdk.Msg) ([]*txtypes.BroadcastTxResponse, error) {
+	broadcastFunc := func() ([]txRes, error) {
+		c.syncMux.Lock()
+		defer c.syncMux.Unlock()
+
+		c.txFactory = c.txFactory.WithSequence(c.accSeq)
+		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+
+		c.logger.Infoln("[INJ-GO-SDK] Sending chain msg: ", time.Now().Format("2006-01-02 15:04:05"))
+
+		res, err := c.broadcastTxsAsync(c.ctx, c.txFactory, false, msgs...)
+		if err != nil {
+			if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
+				c.syncNonce()
+
+				c.txFactory = c.txFactory.WithSequence(c.accSeq)
+				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+				c.logger.Infof("[INJ-GO-SDK] Retrying broadcastTx with nonce: %d ,err: %v", c.accSeq, err)
+				res, err = c.broadcastTxsAsync(c.ctx, c.txFactory, false, msgs...)
+			}
+			if err != nil {
+				resJSON, _ := json.MarshalIndent(res, "", "\t")
+				c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch: %s, size: %d: %v", string(resJSON), len(msgs), err)
+				return nil, err
+			}
+		}
+
+		c.accSeq++
+
+		c.logger.Debugln("[INJ-GO-SDK] Nonce incremented to ", c.accSeq)
+		c.logger.Debugln("[INJ-GO-SDK] Gas wanted: ", c.gasWanted)
+
+		return res, nil
+	}
+
+	txResults, err := broadcastFunc()
+	if err != nil {
+		return nil, err
+	}
+
+	polledResults := make([]*txtypes.BroadcastTxResponse, len(txResults))
+	for i := range txResults {
+		res, err := c.PollTxResults(txResults[i].Response, c.ctx, txResults[i].TxBytes)
+		polledResults[i] = res
+		if err != nil {
+			c.accSeq--
+			if strings.Contains(err.Error(), ErrTimedOut.Error()) && c.isDynamicGasPrices {
+				c.logger.Debugln("[INJ-GO-SDK] Update gas to max gas price")
+				c.txFactory = c.txFactory.WithGasPrices(MaxGasFee)
+			}
+			return polledResults, err
+		} else if res != nil && res.TxResponse != nil {
+			c.txFactory = c.txFactory.WithGasPrices(c.opts.GasPrices)
+			if res.TxResponse.Code != 0 {
+				err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+				c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
+				return polledResults, err
+			} else {
+				c.logger.Debugln("[INJ-GO-SDK] Msg batch committed successfully at height: ", res.TxResponse.Height)
+			}
+		}
+	}
+
+	return polledResults, nil
+}
+
 func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
 	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
 	return c.buildSignedTx(clientCtx, txf, msgs...)
@@ -1088,6 +1156,75 @@ func (c *chainClient) broadcastTxAsync(
 	await bool,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxResponse, []byte, error) {
+	txf, err := PrepareFactory(clientCtx, txf)
+	if err != nil {
+		err = errors.Wrap(err, "failed to prepareFactory")
+		return nil, nil, err
+	}
+	ctx := context.Background()
+	if clientCtx.Simulate {
+		simTxBytes, err := txf.BuildSimTx(msgs...)
+		if err != nil {
+			err = errors.Wrap(err, "failed to build sim tx bytes")
+			return nil, nil, err
+		}
+		var header metadata.MD
+		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
+		if err != nil {
+			err = errors.Wrap(err, "failed to CalculateGas")
+			return nil, nil, err
+		}
+
+		adjustedGas := uint64(txf.GasAdjustment()*float64(simRes.GasInfo.GasUsed)) * 12 / 10
+		txf = txf.WithGas(adjustedGas)
+
+		c.gasWanted = adjustedGas
+	} else {
+		txf = txf.WithGas(c.gasWanted)
+	}
+
+	txn, err := txf.BuildUnsignedTx(msgs...)
+
+	if err != nil {
+		err = errors.Wrap(err, "failed to BuildUnsignedTx")
+		return nil, nil, err
+	}
+
+	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
+	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
+	if err != nil {
+		err = errors.Wrap(err, "failed to Sign Tx")
+		return nil, nil, err
+	}
+
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txn.GetTx())
+	if err != nil {
+		err = errors.Wrap(err, "failed TxEncoder to encode Tx")
+		return nil, nil, err
+	}
+
+	req := txtypes.BroadcastTxRequest{
+		txBytes,
+		txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+	}
+	// use our own client to broadcast tx
+	var header metadata.MD
+	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
+	return res, txBytes, err
+
+}
+
+type txRes struct {
+	Response *txtypes.BroadcastTxResponse
+	TxBytes  []byte
+}
+
+func (c *chainClient) broadcastTxsAsync(
+	clientCtx client.Context,
+	txf tx.Factory,
+	await bool,
+	msgs ...sdk.Msg,
+) ([]txRes, error) {
 	emergency_msgs := []sdk.Msg{}
 	normal_msgs := []sdk.Msg{}
 	for _, msg := range msgs {
@@ -1105,25 +1242,26 @@ func (c *chainClient) broadcastTxAsync(
 	ctx := context.Background()
 
 	// sned the emergency tx first
+	var results []txRes
 	if len(emergency_msgs) > 0 {
 		emergency_txf, err := c.constructTxAsyncWithoutSimulation(ctx, clientCtx, txf, emergency_msgs...)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		res, txBytes, err := c.signNbroadcastTxAsync(ctx, &clientCtx, emergency_txf, emergency_msgs...)
-		return res, txBytes, err
+		results = append(results, txRes{Response: res, TxBytes: txBytes})
 	}
 
 	if len(normal_msgs) > 0 {
 		normal_txf, err := c.constructTxAsyncWithSimulation(ctx, clientCtx, txf, normal_msgs...)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		res, txBytes, err := c.signNbroadcastTxAsync(ctx, &clientCtx, normal_txf, normal_msgs...)
-		return res, txBytes, err
+		results = append(results, txRes{Response: res, TxBytes: txBytes})
 	}
 
-	return nil, nil, errors.New("no msgs to broadcast")
+	return results, nil
 }
 
 func (c *chainClient) signNbroadcastTxAsync(ctx context.Context, clientCtx *client.Context, txf *tx.Factory, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, []byte, error) {
