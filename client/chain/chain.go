@@ -94,8 +94,7 @@ type ChainClient interface {
 	GetBlockHeight() (int64, error)
 
 	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
-	// AsyncBroadcastMsgWithoutSim(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
-	AsyncBroadcastMsgSupportEmergency(msg ...sdk.Msg) ([]*txtypes.BroadcastTxResponse, error)
+	AsyncBroadcastMsgWithOpts(opts *TXOpts, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 
@@ -366,7 +365,7 @@ type chainClient struct {
 	canSign bool
 
 	isDynamicGasPrices bool
-	gasEstimator       *GasEstimator
+	gasEstimator       *TXGasEstimator
 }
 
 func NewChainClient(
@@ -477,7 +476,7 @@ func NewChainClient(
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
 
 		isDynamicGasPrices: opts.IsDynamicGasPrices,
-		gasEstimator:       newGasEstimator(),
+		gasEstimator:       newTXGasEstimator(),
 	}
 	defer func() {
 		if err != nil {
@@ -881,8 +880,8 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	return res, nil
 }
 
-func (c *chainClient) AsyncBroadcastMsgSupportEmergency(msgs ...sdk.Msg) ([]*txtypes.BroadcastTxResponse, error) {
-	broadcastFunc := func() ([]txRes, error) {
+func (c *chainClient) AsyncBroadcastMsgWithOpts(opts *TXOpts, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	broadcastFunc := func() (*txtypes.BroadcastTxResponse, []byte, error) {
 		c.syncMux.Lock()
 		defer c.syncMux.Unlock()
 
@@ -891,7 +890,7 @@ func (c *chainClient) AsyncBroadcastMsgSupportEmergency(msgs ...sdk.Msg) ([]*txt
 
 		c.logger.Infoln("[INJ-GO-SDK] Sending chain msg: ", time.Now().Format("2006-01-02 15:04:05"))
 
-		res, err := c.broadcastTxsAsync(c.ctx, c.txFactory, false, msgs...)
+		res, txBytes, err := c.broadcastTxAsyncWithOpts(c.ctx, c.txFactory, false, opts, msgs...)
 		if err != nil {
 			if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
@@ -899,12 +898,12 @@ func (c *chainClient) AsyncBroadcastMsgSupportEmergency(msgs ...sdk.Msg) ([]*txt
 				c.txFactory = c.txFactory.WithSequence(c.accSeq)
 				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 				c.logger.Infof("[INJ-GO-SDK] Retrying broadcastTx with nonce: %d ,err: %v", c.accSeq, err)
-				res, err = c.broadcastTxsAsync(c.ctx, c.txFactory, false, msgs...)
+				res, txBytes, err = c.broadcastTxAsyncWithOpts(c.ctx, c.txFactory, false, opts, msgs...)
 			}
 			if err != nil {
 				resJSON, _ := json.MarshalIndent(res, "", "\t")
 				c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch: %s, size: %d: %v", string(resJSON), len(msgs), err)
-				return nil, err
+				return nil, nil, err
 			}
 		}
 
@@ -913,38 +912,34 @@ func (c *chainClient) AsyncBroadcastMsgSupportEmergency(msgs ...sdk.Msg) ([]*txt
 		c.logger.Debugln("[INJ-GO-SDK] Nonce incremented to ", c.accSeq)
 		c.logger.Debugln("[INJ-GO-SDK] Gas wanted: ", c.gasWanted)
 
-		return res, nil
+		return res, txBytes, nil
 	}
 
-	txResults, err := broadcastFunc()
+	res, txBytes, err := broadcastFunc()
 	if err != nil {
 		return nil, err
 	}
 
-	polledResults := make([]*txtypes.BroadcastTxResponse, len(txResults))
-	for i := range txResults {
-		res, err := c.PollTxResults(txResults[i].Response, c.ctx, txResults[i].TxBytes)
-		polledResults[i] = res
-		if err != nil {
-			c.accSeq--
-			if strings.Contains(err.Error(), ErrTimedOut.Error()) && c.isDynamicGasPrices {
-				c.logger.Debugln("[INJ-GO-SDK] Update gas to max gas price")
-				c.txFactory = c.txFactory.WithGasPrices(MaxGasFee)
-			}
-			return polledResults, err
-		} else if res != nil && res.TxResponse != nil {
-			c.txFactory = c.txFactory.WithGasPrices(c.opts.GasPrices)
-			if res.TxResponse.Code != 0 {
-				err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
-				c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
-				return polledResults, err
-			} else {
-				c.logger.Debugln("[INJ-GO-SDK] Msg batch committed successfully at height: ", res.TxResponse.Height)
-			}
+	res, err = c.PollTxResults(res, c.ctx, txBytes)
+	if err != nil {
+		c.accSeq--
+		if strings.Contains(err.Error(), ErrTimedOut.Error()) && c.isDynamicGasPrices {
+			c.logger.Debugln("[INJ-GO-SDK] Update gas to max gas price")
+			c.txFactory = c.txFactory.WithGasPrices(MaxGasFee)
+		}
+		return res, err
+	} else if res != nil && res.TxResponse != nil {
+		c.txFactory = c.txFactory.WithGasPrices(c.opts.GasPrices)
+		if res.TxResponse.Code != 0 {
+			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+			c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
+			return res, err
+		} else {
+			c.logger.Debugln("[INJ-GO-SDK] Msg batch committed successfully at height: ", res.TxResponse.Height)
 		}
 	}
 
-	return polledResults, nil
+	return res, nil
 }
 
 func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
@@ -1150,6 +1145,7 @@ func (c *chainClient) broadcastTx(
 	}
 }
 
+// with simulation while based on clientctx.simulate
 func (c *chainClient) broadcastTxAsync(
 	clientCtx client.Context,
 	txf tx.Factory,
@@ -1214,57 +1210,24 @@ func (c *chainClient) broadcastTxAsync(
 
 }
 
-type txRes struct {
-	Response *txtypes.BroadcastTxResponse
-	TxBytes  []byte
-}
-
-func (c *chainClient) broadcastTxsAsync(
+func (c *chainClient) broadcastTxAsyncWithoutSimulation(
 	clientCtx client.Context,
 	txf tx.Factory,
 	await bool,
 	msgs ...sdk.Msg,
-) ([]txRes, error) {
-	emergency_msgs := []sdk.Msg{}
-	normal_msgs := []sdk.Msg{}
-	for _, msg := range msgs {
-		if wrapped_msg, ok := msg.(TXConfigurable); ok {
-			if wrapped_msg.GetTXOpts().Emergency {
-				emergency_msgs = append(emergency_msgs, msg)
-				continue
-			}
-		}
-		normal_msgs = append(normal_msgs, msg)
-	}
-	c.logger.Infof("[INJ-GO-SDK] Emergency Msgs: %d", len(emergency_msgs))
-	c.logger.Infof("[INJ-GO-SDK] Normal Msgs: %d", len(normal_msgs))
+) (*txtypes.BroadcastTxResponse, []byte, error) {
 
+	txf, err := PrepareFactory(clientCtx, txf)
+	if err != nil {
+		err = errors.Wrap(err, "failed to prepareFactory")
+		return nil, nil, err
+	}
 	ctx := context.Background()
 
-	// sned the emergency tx first
-	var results []txRes
-	if len(emergency_msgs) > 0 {
-		emergency_txf, err := c.constructTxAsyncWithoutSimulation(ctx, clientCtx, txf, emergency_msgs...)
-		if err != nil {
-			return nil, err
-		}
-		res, txBytes, err := c.signNbroadcastTxAsync(ctx, &clientCtx, emergency_txf, emergency_msgs...)
-		results = append(results, txRes{Response: res, TxBytes: txBytes})
-	}
+	gas_wanted := c.gasEstimator.EstimateTXGas(msgs...)
+	txf = txf.WithGas(gas_wanted)
+	c.gasWanted = gas_wanted
 
-	if len(normal_msgs) > 0 {
-		normal_txf, err := c.constructTxAsyncWithSimulation(ctx, clientCtx, txf, normal_msgs...)
-		if err != nil {
-			return nil, err
-		}
-		res, txBytes, err := c.signNbroadcastTxAsync(ctx, &clientCtx, normal_txf, normal_msgs...)
-		results = append(results, txRes{Response: res, TxBytes: txBytes})
-	}
-
-	return results, nil
-}
-
-func (c *chainClient) signNbroadcastTxAsync(ctx context.Context, clientCtx *client.Context, txf *tx.Factory, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, []byte, error) {
 	txn, err := txf.BuildUnsignedTx(msgs...)
 
 	if err != nil {
@@ -1273,7 +1236,7 @@ func (c *chainClient) signNbroadcastTxAsync(ctx context.Context, clientCtx *clie
 	}
 
 	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(ctx, *txf, clientCtx.GetFromName(), txn, true)
+	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to Sign Tx")
 		return nil, nil, err
@@ -1295,38 +1258,20 @@ func (c *chainClient) signNbroadcastTxAsync(ctx context.Context, clientCtx *clie
 	return res, txBytes, err
 }
 
-func (c *chainClient) constructTxAsyncWithSimulation(ctx context.Context, clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) (*tx.Factory, error) {
-	var err error
-	txf, err = PrepareFactory(clientCtx, txf)
-	if err != nil {
-		err = errors.Wrap(err, "failed to prepareFactory")
-		return nil, err
+// broadcastTxAsyncWithOpts
+// --> broadcastTxAsyncWithoutSimulation
+// --> broadcastTxAsync
+func (c *chainClient) broadcastTxAsyncWithOpts(
+	clientCtx client.Context,
+	txf tx.Factory,
+	await bool,
+	opts *TXOpts,
+	msgs ...sdk.Msg,
+) (*txtypes.BroadcastTxResponse, []byte, error) {
+	if opts != nil && opts.Emergency {
+		return c.broadcastTxAsyncWithoutSimulation(clientCtx, txf, await, msgs...)
 	}
-	if clientCtx.Simulate {
-		simTxBytes, err := txf.BuildSimTx(msgs...)
-		if err != nil {
-			err = errors.Wrap(err, "failed to build sim tx bytes")
-			return nil, err
-		}
-		var header metadata.MD
-		simRes, err := c.txClient.Simulate(ctx, &txtypes.SimulateRequest{TxBytes: simTxBytes}, grpc.Header(&header))
-		if err != nil {
-			err = errors.Wrap(err, "failed to CalculateGas")
-			return nil, err
-		}
-
-		adjustedGas := uint64(txf.GasAdjustment()*float64(simRes.GasInfo.GasUsed)) * 12 / 10
-		txf = txf.WithGas(adjustedGas)
-
-		c.gasWanted = adjustedGas
-	} else {
-		txf = txf.WithGas(c.gasWanted)
-	}
-	return &txf, nil
-}
-
-func (c *chainClient) constructTxAsyncWithoutSimulation(ctx context.Context, clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) (*tx.Factory, error) {
-	return nil, nil
+	return c.broadcastTxAsync(clientCtx, txf, await, msgs...)
 }
 
 func (c *chainClient) PollTxResults(res *txtypes.BroadcastTxResponse, clientCtx client.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
