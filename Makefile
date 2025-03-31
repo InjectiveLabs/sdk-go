@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.14.1-RC.6 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b feat/exchange-v2-types --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b cp-202/gtb_orders --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*

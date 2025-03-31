@@ -37,11 +37,12 @@ func (m *SpotOrder) GetNewSpotLimitOrder(sender sdk.AccAddress, orderHash common
 		m.OrderInfo.FeeRecipient = sender.String()
 	}
 	return &SpotLimitOrder{
-		OrderInfo:    m.OrderInfo,
-		OrderType:    m.OrderType,
-		Fillable:     m.OrderInfo.Quantity,
-		TriggerPrice: m.TriggerPrice,
-		OrderHash:    orderHash.Bytes(),
+		OrderInfo:       m.OrderInfo,
+		OrderType:       m.OrderType,
+		Fillable:        m.OrderInfo.Quantity,
+		TriggerPrice:    m.TriggerPrice,
+		OrderHash:       orderHash.Bytes(),
+		ExpirationBlock: m.ExpirationBlock,
 	}
 }
 

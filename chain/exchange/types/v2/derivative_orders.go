@@ -103,12 +103,13 @@ func NewDerivativeLimitOrder(o *DerivativeOrder, sender sdk.AccAddress, orderHas
 		o.OrderInfo.FeeRecipient = sender.String()
 	}
 	return &DerivativeLimitOrder{
-		OrderInfo:    o.OrderInfo,
-		OrderType:    o.OrderType,
-		Margin:       o.Margin,
-		Fillable:     o.OrderInfo.Quantity,
-		TriggerPrice: o.TriggerPrice,
-		OrderHash:    orderHash.Bytes(),
+		OrderInfo:       o.OrderInfo,
+		OrderType:       o.OrderType,
+		Margin:          o.Margin,
+		Fillable:        o.OrderInfo.Quantity,
+		TriggerPrice:    o.TriggerPrice,
+		OrderHash:       orderHash.Bytes(),
+		ExpirationBlock: o.ExpirationBlock,
 	}
 }
 

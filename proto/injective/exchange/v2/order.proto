@@ -72,6 +72,8 @@ message SpotOrder {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+  // expiration block is the block number at which the order will expire
+  int64 expiration_block = 5 [ (gogoproto.nullable) = true ];
 }
 
 // A valid Spot market order with Metadata.
@@ -108,7 +110,10 @@ message SpotLimitOrder {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+  // order hash
   bytes order_hash = 5;
+  // expiration block is the block number at which the order will expire
+  int64 expiration_block = 6 [ (gogoproto.nullable) = true ];
 }
 
 message DerivativeOrder {
@@ -128,6 +133,8 @@ message DerivativeOrder {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+  // expiration block is the block number at which the order will expire
+  int64 expiration_block = 6 [ (gogoproto.nullable) = true ];
 }
 
 // A valid Derivative market order with Metadata.
@@ -174,4 +181,6 @@ message DerivativeLimitOrder {
     (gogoproto.nullable) = true
   ];
   bytes order_hash = 6;
+  // expiration block is the block number at which the order will expire
+  int64 expiration_block = 7 [ (gogoproto.nullable) = true ];
 }

@@ -1537,12 +1537,7 @@ message QueryMarketBalanceRequest {
   string market_id = 1;
 }
 
-message QueryMarketBalanceResponse {
-  string balance = 1 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-}
+message QueryMarketBalanceResponse { MarketBalance balance = 1; }
 
 message QueryMarketBalancesRequest {}
 
