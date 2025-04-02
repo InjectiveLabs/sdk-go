@@ -13,43 +13,38 @@ import (
 	"sync/atomic"
 	"time"
 
-	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
-
 	sdkmath "cosmossdk.io/math"
-
-	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
-
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-
-	"github.com/cosmos/cosmos-sdk/types/query"
-
-	"google.golang.org/grpc/credentials/insecure"
-
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	"github.com/cosmos/cosmos-sdk/client"
+	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/gogoproto/proto"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
-	ethcommon "github.com/ethereum/go-ethereum/common"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	"github.com/InjectiveLabs/sdk-go/client"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 type OrderbookType string
@@ -76,20 +71,21 @@ type ChainClient interface {
 	CanSignTransactions() bool
 	FromAddress() sdk.AccAddress
 	QueryClient() *grpc.ClientConn
-	ClientContext() client.Context
+	ClientContext() sdkclient.Context
 	// return account number and sequence without increasing sequence
 	GetAccNonce() (accNum uint64, accSeq uint64)
 
-	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
+	SimulateMsg(clientCtx sdkclient.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
 
 	// Build signed tx with given accNum and accSeq, useful for offline siging
 	// If simulate is set to false, initialGas will be used
-	BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msg ...sdk.Msg) ([]byte, error)
+	BuildSignedTx(clientCtx sdkclient.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error)
 	SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
+	BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
 	// Bank Module
@@ -314,7 +310,7 @@ type ChainClient interface {
 var _ ChainClient = &chainClient{}
 
 type chainClient struct {
-	ctx             client.Context
+	ctx             sdkclient.Context
 	network         common.Network
 	opts            *common.ClientOptions
 	logger          log.Logger
@@ -360,7 +356,7 @@ type chainClient struct {
 }
 
 func NewChainClient(
-	ctx client.Context,
+	ctx sdkclient.Context,
 	network common.Network,
 	options ...common.ClientOption,
 ) (ChainClient, error) {
@@ -518,7 +514,7 @@ func (c *chainClient) syncTimeoutHeight() {
 // if the account number and/or the account sequence number are zero (not set),
 // they will be queried for and set on the provided Factory. A new Factory with
 // the updated fields will be returned.
-func PrepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+func PrepareFactory(clientCtx sdkclient.Context, txf tx.Factory) (tx.Factory, error) {
 	from := clientCtx.GetFromAddress()
 
 	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
@@ -559,7 +555,7 @@ func (c *chainClient) QueryClient() *grpc.ClientConn {
 	return c.conn
 }
 
-func (c *chainClient) ClientContext() client.Context {
+func (c *chainClient) ClientContext() sdkclient.Context {
 	return c.ctx
 }
 
@@ -704,7 +700,7 @@ func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*
 	return res, err
 }
 
-func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
+func (c *chainClient) SimulateMsg(clientCtx sdkclient.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 	txf, err := PrepareFactory(clientCtx, c.txFactory)
@@ -731,12 +727,17 @@ func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*t
 	return simRes, nil
 }
 
-func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
-	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
+func (c *chainClient) BuildSignedTx(clientCtx sdkclient.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msgs ...sdk.Msg) ([]byte, error) {
+	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum)
+	txf = txf.WithGas(initialGas)
+
+	gasPriceWithDenom := fmt.Sprintf("%d%s", gasPrice, client.InjDenom)
+	txf = txf.WithGasPrices(gasPriceWithDenom)
+
 	return c.buildSignedTx(clientCtx, txf, msgs...)
 }
 
-func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
+func (c *chainClient) buildSignedTx(clientCtx sdkclient.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
 	ctx := context.Background()
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
@@ -781,14 +782,7 @@ func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, ms
 }
 
 func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
-	req := txtypes.BroadcastTxRequest{
-		TxBytes: txBytes,
-		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
-	}
-
-	ctx := context.Background()
-
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
+	res, err := c.BroadcastSignedTx(txBytes, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
 	if err != nil || res.TxResponse.Code != 0 {
 		return res, err
 	}
@@ -808,7 +802,7 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 		case <-t.C:
 			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
-				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
+				if errRes := sdkclient.CheckCometError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
@@ -828,9 +822,13 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 }
 
 func (c *chainClient) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+	return c.BroadcastSignedTx(txBytes, txtypes.BroadcastMode_BROADCAST_MODE_ASYNC)
+}
+
+func (c *chainClient) BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
 	req := txtypes.BroadcastTxRequest{
 		TxBytes: txBytes,
-		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+		Mode:    broadcastMode,
 	}
 
 	ctx := context.Background()
@@ -843,7 +841,7 @@ func (c *chainClient) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.Broadcast
 }
 
 func (c *chainClient) broadcastTx(
-	clientCtx client.Context,
+	clientCtx sdkclient.Context,
 	txf tx.Factory,
 	broadcastMode txtypes.BroadcastMode,
 	msgs ...sdk.Msg,
@@ -2689,7 +2687,7 @@ func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRes
 		case <-t.C:
 			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
-				if errRes := client.CheckCometError(err, req.TxBytes); errRes != nil {
+				if errRes := sdkclient.CheckCometError(err, req.TxBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 

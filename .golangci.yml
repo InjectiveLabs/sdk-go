@@ -1,11 +1,3 @@
-run:
-  tests: false
-  skip-dirs:
-    - chain
-    - exchange
-    - injective_data
-    - proto
-
 linters:
   fast: false
   enable:
@@ -31,18 +23,40 @@ linters:
 
 linters-settings:
   revive:
-    enableAllRules: true
+    enable-all-rules: true
     rules:
       - name: var-naming
         arguments:
           - ["ID"]
+      - name: add-constant
+        disabled: true
+      - name: line-length-limit
+        arguments:
+          - 140
   gocritic:
     enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
       - performance
+      - diagnostic
       - style
+      - opinionated
+      - experimental
     disabled-checks:
+      - singleCaseSwitch
+      - deferInLoop
       - hugeParam
       - unnamedResult
+issues:
+  exclude-rules:
+    - linters:
+        - revive
+      text: ALL_CAPS
+  exclude-dirs:
+    - chain
+    - exchange
+    - injective_data
+    - proto
+    - client/keyring/testdata
+  max-issues-per-linter: 0
+
+run:
+  tests: false

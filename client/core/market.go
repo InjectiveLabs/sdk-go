@@ -42,7 +42,8 @@ func (spotMarket SpotMarket) PriceToChainFormat(humanReadableValue decimal.Decim
 func (spotMarket SpotMarket) NotionalToChainFormat(humanReadableValue decimal.Decimal) sdkmath.LegacyDec {
 	decimals := spotMarket.QuoteToken.Decimals
 	chainFormattedValue := humanReadableValue.Mul(decimal.New(1, decimals))
-	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(chainFormattedValue.String())
+	quantizedValue := chainFormattedValue.Ceil()
+	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(quantizedValue.String())
 
 	return valueInChainFormat
 }
@@ -129,7 +130,8 @@ func (derivativeMarket DerivativeMarket) CalculateMarginInChainFormat(humanReada
 func (derivativeMarket DerivativeMarket) NotionalToChainFormat(humanReadableValue decimal.Decimal) sdkmath.LegacyDec {
 	decimals := derivativeMarket.QuoteToken.Decimals
 	chainFormattedValue := humanReadableValue.Mul(decimal.New(1, decimals))
-	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(chainFormattedValue.String())
+	quantizedValue := chainFormattedValue.Ceil()
+	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(quantizedValue.String())
 
 	return valueInChainFormat
 }
@@ -225,7 +227,8 @@ func (market BinaryOptionMarket) CalculateMarginInChainFormat(humanReadableQuant
 func (market BinaryOptionMarket) NotionalToChainFormat(humanReadableValue decimal.Decimal) sdkmath.LegacyDec {
 	decimals := market.QuoteToken.Decimals
 	chainFormattedValue := humanReadableValue.Mul(decimal.New(1, decimals))
-	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(chainFormattedValue.String())
+	quantizedValue := chainFormattedValue.Ceil()
+	valueInChainFormat, _ := sdkmath.LegacyNewDecFromStr(quantizedValue.String())
 
 	return valueInChainFormat
 }

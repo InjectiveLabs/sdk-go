@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
@@ -74,7 +75,8 @@ func main() {
 
 	baseSymbol := market.OracleBase
 	quoteSymbol := market.OracleQuote
-	oracleType := market.OracleType
+	oracleType := strings.ToLower(market.OracleType)
+
 	stream, err := exchangeClient.StreamPrices(ctx, baseSymbol, quoteSymbol, oracleType)
 	if err != nil {
 		panic(err)
