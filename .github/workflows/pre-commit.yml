@@ -8,11 +8,11 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@master
         with:
           fetch-depth: 2
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
           check-latest: true
-      - uses: pre-commit/action@v2.0.2
+      - uses: pre-commit/action@v3.0.1
