@@ -1928,7 +1928,7 @@ func (c *chainClient) FetchChainSubaccountPositions(ctx context.Context, subacco
 	return res, err
 }
 
-func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
+func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
 	req := &exchangetypes.QuerySubaccountPositionInMarketRequest{
 		SubaccountId: subaccountId,
 		MarketId:     marketId,

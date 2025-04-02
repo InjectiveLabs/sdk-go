@@ -3,26 +3,18 @@ package typeddata
 import (
 	"bytes"
 	"encoding/json"
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
 	"regexp"
 	"runtime/debug"
-	"runtime/debug"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"time"
 	"unicode"
 	"unicode/utf8"
 
-	sdkmath "cosmossdk.io/math"
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	cosmtypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -126,8 +118,6 @@ func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
 	return crypto.Keccak256([]byte(msg)), msg
 }
 
-// ComputeTypedDataAndHash computes the typed data and its keccak hash for signing
-func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error) {
 // ComputeTypedDataAndHash computes the typed data and its keccak hash for signing
 func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error) {
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
