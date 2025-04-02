@@ -16,5 +16,6 @@ message DenomAuthorityMetadata {
   string admin = 1 [ (gogoproto.moretags) = "yaml:\"admin\"" ];
 
   // true if the admin can burn tokens from other addresses
-  bool admin_burn_allowed = 2 [ (gogoproto.moretags) = "yaml:\"admin_burn_allowed\"" ];
+  bool admin_burn_allowed = 2
+      [ (gogoproto.moretags) = "yaml:\"admin_burn_allowed\"" ];
 }

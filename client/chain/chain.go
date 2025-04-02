@@ -43,6 +43,7 @@ import (
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
 	"github.com/InjectiveLabs/sdk-go/client"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
@@ -303,6 +304,13 @@ type ChainClient interface {
 	FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error)
 	FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error)
 
+	// TxFees module
+	FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error)
+	FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
+
+	CurrentChainGasPrice() int64
+	SetGasPrice(gasPrice int64)
+
 	GetNetwork() common.Network
 	Close()
 }
@@ -347,6 +355,7 @@ type chainClient struct {
 	permissionsQueryClient   permissionstypes.QueryClient
 	tendermintQueryClient    cmtservice.ServiceClient
 	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
+	txfeesQueryClient        txfeestypes.QueryClient
 	txClient                 txtypes.ServiceClient
 	wasmQueryClient          wasmtypes.QueryClient
 	subaccountToNonce        map[ethcommon.Hash]uint32
@@ -448,6 +457,7 @@ func NewChainClient(
 		permissionsQueryClient:   permissionstypes.NewQueryClient(conn),
 		tendermintQueryClient:    cmtservice.NewServiceClient(conn),
 		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
+		txfeesQueryClient:        txfeestypes.NewQueryClient(conn),
 		txClient:                 txtypes.NewServiceClient(conn),
 		wasmQueryClient:          wasmtypes.NewQueryClient(conn),
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
@@ -1918,7 +1928,7 @@ func (c *chainClient) FetchChainSubaccountPositions(ctx context.Context, subacco
 	return res, err
 }
 
-func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
+func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
 	req := &exchangetypes.QuerySubaccountPositionInMarketRequest{
 		SubaccountId: subaccountId,
 		MarketId:     marketId,
@@ -1928,7 +1938,7 @@ func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, 
 	return res, err
 }
 
-func (c *chainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error) {
+func (c *chainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error) {
 	req := &exchangetypes.QuerySubaccountEffectivePositionInMarketRequest{
 		SubaccountId: subaccountId,
 		MarketId:     marketId,
@@ -2660,6 +2670,21 @@ func (c *chainClient) FetchPermissionsModuleState(ctx context.Context) (*permiss
 	return res, err
 }
 
+// TxFees module
+func (c *chainClient) FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error) {
+	req := &txfeestypes.QueryParamsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txfeesQueryClient.Params, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
+	req := &txfeestypes.QueryEipBaseFeeRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txfeesQueryClient.GetEipBaseFee, req)
+
+	return res, err
+}
+
 func (c *chainClient) GetNetwork() common.Network {
 	return c.network
 }
@@ -2741,4 +2766,26 @@ func (c *chainClient) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...
 	}
 
 	return req, res, nil
+}
+
+func (c *chainClient) CurrentChainGasPrice() int64 {
+	gasPrice := int64(client.DefaultGasPrice)
+	eipBaseFee, err := c.FetchEipBaseFee(context.Background())
+
+	if err != nil {
+		c.logger.Error("an error occurred when querying the gas price from the chain, using the default gas price")
+		c.logger.Debugf("error querying the gas price from chain %s", err)
+	} else {
+		if !eipBaseFee.BaseFee.BaseFee.IsNil() {
+			gasPrice = eipBaseFee.BaseFee.BaseFee.TruncateInt64()
+		}
+	}
+
+	return gasPrice
+}
+
+func (c *chainClient) SetGasPrice(gasPrice int64) {
+	gasPrices := fmt.Sprintf("%v%s", gasPrice, client.InjDenom)
+
+	c.txFactory = c.txFactory.WithGasPrices(gasPrices)
 }

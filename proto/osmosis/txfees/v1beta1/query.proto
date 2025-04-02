@@ -1,0 +1,25 @@
+syntax = "proto3";
+package osmosis.txfees.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/txfees/osmosis/types";
+
+service Query {
+  // Returns the current fee market EIP fee.
+  rpc GetEipBaseFee(QueryEipBaseFeeRequest) returns (QueryEipBaseFeeResponse) {
+    option (google.api.http).get = "/osmosis/txfees/v1beta1/cur_eip_base_fee";
+  }
+}
+
+message QueryEipBaseFeeRequest {}
+message QueryEipBaseFeeResponse {
+  string base_fee = 1 [
+    (gogoproto.moretags) = "yaml:\"base_fee\"",
+
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

@@ -1,0 +1,42 @@
+syntax = "proto3";
+package injective.txfees.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "injective/txfees/v1beta1/txfees.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/txfees/types";
+
+service Query {
+  // Params defines a gRPC query method that returns the tokenfactory module's
+  // parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/injective/txfees/v1beta1/params";
+  }
+
+  // Returns the current fee market EIP fee.
+  rpc GetEipBaseFee(QueryEipBaseFeeRequest) returns (QueryEipBaseFeeResponse) {
+    option (google.api.http) = {
+      get : "/injective/txfees/v1beta1/cur_eip_base_fee"
+    };
+  }
+}
+
+message EipBaseFee {
+  string base_fee = 1 [
+    (gogoproto.moretags) = "yaml:\"base_fee\"",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+message QueryEipBaseFeeRequest {}
+message QueryEipBaseFeeResponse { EipBaseFee base_fee = 1; }
