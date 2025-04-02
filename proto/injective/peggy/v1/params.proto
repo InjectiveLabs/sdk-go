@@ -73,7 +73,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 //
 // The unbond slashing valsets window is used to determine how many blocks after
 // starting to unbond a validator needs to continue signing blocks. The goal of
-// this paramater is that when a validator leaves the set, if their leaving
+// this parameter is that when a validator leaves the set, if their leaving
 // creates enough change in the validator set to justify an update they will
 // sign a validator set update for the Ethereum bridge that does not include
 // themselves. Allowing us to remove them from the Ethereum bridge and replace
@@ -86,7 +86,7 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 // advised that chains use only Cosmos originated tokens, which the bridge
 // effectively mints on Ethereum. If you run out of the token you are using for
 // validator set rewards valset updates will fail and the bridge will be
-// vulnerable to highjacking. For these paramaters the zero values are special
+// vulnerable to highjacking. For these parameters the zero values are special
 // and indicate not to attempt any reward. This is the default for
 // bootstrapping.
 
