@@ -1,60 +1,49 @@
-{
-  "run": {
-    "tests": false,
-    "skip-dirs": [
-      "chain",
-      "exchange",
-      "proto",
-      "client/keyring/testdata"
-    ]
-  },
-  "linters": {
-    "fast": false,
-    "enable": [
-      "errcheck",
-      "errorlint",
-      "gas",
-      "gocritic",
-      "gosimple",
-      "govet",
-      "ineffassign",
-      "megacheck",
-      "misspell",
-      "nakedret",
-      "prealloc",
-      "revive",
-      "staticcheck",
-      "unconvert",
-      "unparam",
-    ],
-    "disable": [
-      "unused",
-    ]
-  },
-  "linters-settings": {
-    "revive": {
-      "enableAllRules": true,
-      "rules": [
-        {
-          "name": "var-naming",
-          "arguments": [
-            ["ID"]
-          ]
-        }
-      ]
-    },
-    "gocritic": {
-      "enabled-tags": [
-        "diagnostic",
-        "experimental",
-        "opinionated",
-        "performance",
-        "style",
-      ],
-      "disabled-checks": [
-        "hugeParam",
-        "unnamedResult",
-      ]
-    }
-  },
-}
+run:
+  tests: false
+  skip-dirs:
+    - chain
+    - exchange
+    - injective_data
+    - proto
+    - client/keyring/testdata
+
+linters:
+  fast: false
+  enable:
+    - errcheck
+    - errorlint
+    - gas
+    - gocritic
+    - gofmt
+    - goimports
+    - gosimple
+    - govet
+    - ineffassign
+    - megacheck
+    - misspell
+    - nakedret
+    - prealloc
+    - revive
+    - staticcheck
+    - unconvert
+    - unparam
+  disable:
+    - unused
+
+linters-settings:
+  revive:
+    enableAllRules: true
+    rules:
+      - name: var-naming
+        arguments:
+          - ["ID"]
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - hugeParam
+      - unnamedResult
