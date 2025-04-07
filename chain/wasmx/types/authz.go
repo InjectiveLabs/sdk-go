@@ -52,7 +52,15 @@ func (a *ContractExecutionCompatAuthorization) Accept(goCtx context.Context, msg
 	wasmAuth := wasmtypes.NewContractExecutionAuthorization(a.Grants...)
 
 	// and check via converted values
-	return wasmAuth.Accept(goCtx, wasmMsg)
+	res, err := wasmAuth.Accept(goCtx, wasmMsg)
+
+	if res.Updated != nil { // hot-patch the updated authorization type back to "Compat" version
+		res.Updated = &ContractExecutionCompatAuthorization{
+			Grants: res.Updated.(*wasmtypes.ContractExecutionAuthorization).Grants,
+		}
+	}
+
+	return res, err
 }
 
 // ValidateBasic implements Authorization.ValidateBasic.
