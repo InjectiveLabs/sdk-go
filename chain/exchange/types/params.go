@@ -222,6 +222,7 @@ func DefaultParams() Params {
 		MarginDecreasePriceTimestampThresholdSeconds: 60,
 		ExchangeAdmins:                               []string{},
 		InjAuctionMaxCap:                             DefaultInjAuctionMaxCap,
+		FixedGasEnabled:                              false,
 	}
 }
 
@@ -299,6 +300,19 @@ func (p Params) Validate() error {
 	if err := validateAdmins(p.ExchangeAdmins); err != nil {
 		return fmt.Errorf("ExchangeAdmins is incorrect: %w", err)
 	}
+
+	if err := validateFixedGasFlag(p.FixedGasEnabled); err != nil {
+		return fmt.Errorf("fixed_gas_enabled is incorrect: %w", err)
+	}
+
+	return nil
+}
+
+func validateFixedGasFlag(enabled any) error {
+	if _, ok := enabled.(bool); !ok {
+		return fmt.Errorf("invalid parameter type: %T", enabled)
+	}
+
 	return nil
 }
 
