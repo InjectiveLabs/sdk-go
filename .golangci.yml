@@ -1,53 +1,62 @@
-{
-  "run": {
-    "tests": false,
-  },
-  "linters": {
-    "fast": false,
-    "enable": [
-      "errcheck",
-      "errorlint",
-      "gas",
-      "gocritic",
-      "gosimple",
-      "govet",
-      "ineffassign",
-      "megacheck",
-      "misspell",
-      "nakedret",
-      "prealloc",
-      "revive",
-      "staticcheck",
-      "unconvert",
-      "unparam",
-    ],
-    "disable": [
-      "unused",
-    ]
-  },
-  "linters-settings": {
-    "revive": {
-      "enableAllRules": true,
-      "rules": [
-        {
-          "name": "var-naming",
-          "arguments": [
-            ["ID"]
-          ]
-        }
-      ]
-    },
-    "gocritic": {
-      "enabled-tags": [
-        "diagnostic",
-        "experimental",
-        "opinionated",
-        "performance",
-        "style",
-      ],
-      "disabled-checks": [
-        "hugeParam",
-      ]
-    }
-  },
-}
+linters:
+  fast: false
+  enable:
+    - errcheck
+    - errorlint
+    - gas
+    - gocritic
+    - gofmt
+    - goimports
+    - gosimple
+    - govet
+    - ineffassign
+    - megacheck
+    - misspell
+    - nakedret
+    - prealloc
+    - revive
+    - staticcheck
+    - unconvert
+    - unparam
+  disable:
+    - unused
+
+linters-settings:
+  revive:
+    enable-all-rules: true
+    rules:
+      - name: var-naming
+        arguments:
+          - ["ID"]
+      - name: add-constant
+        disabled: true
+      - name: line-length-limit
+        arguments:
+          - 140
+  gocritic:
+    enabled-tags:
+      - performance
+      - diagnostic
+      - style
+      - opinionated
+      - experimental
+    disabled-checks:
+      - singleCaseSwitch
+      - deferInLoop
+      - hugeParam
+      - unnamedResult
+issues:
+  exclude-rules:
+    - linters:
+        - revive
+      text: ALL_CAPS
+  exclude-dirs:
+    - chain
+    - exchange
+    - injective_data
+    - proto
+    - client/keyring/testdata
+  max-issues-per-linter: 0
+
+run:
+  tests: false

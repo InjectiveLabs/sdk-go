@@ -2,18 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/InjectiveLabs/sdk-go/client"
-	"github.com/InjectiveLabs/sdk-go/client/common"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
@@ -48,19 +48,7 @@ func main() {
 	}
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient).WithSimulation(false)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
 	txFactory := chainclient.NewTxFactory(clientCtx)
-	txFactory = txFactory.WithGasPrices(client.DefaultGasPriceWithDenom)
 	txFactory = txFactory.WithGas(uint64(txFactory.GasAdjustment() * 140000))
 
 	clientInstance, err := chainclient.NewChainClient(
@@ -69,6 +57,17 @@ func main() {
 		common.OptionTxFactory(&txFactory),
 	)
 
+	if err != nil {
+		panic(err)
+	}
+
+	gasPrice := clientInstance.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	clientInstance.SetGasPrice(gasPrice)
+
+	ctx := context.Background()
+	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, clientInstance)
 	if err != nil {
 		panic(err)
 	}
@@ -97,12 +96,18 @@ func main() {
 	msg.Sender = senderAddress.String()
 	msg.Order = exchangetypes.SpotOrder(*order)
 
-	result, err := clientInstance.SyncBroadcastMsg(msg)
+	_, response, err := clientInstance.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msg)
 
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("Broadcast result: %s\n", result)
+	str, _ := json.MarshalIndent(response, "", " ")
+	fmt.Print(string(str))
+
+	gasPrice = clientInstance.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	clientInstance.SetGasPrice(gasPrice)
 
 }

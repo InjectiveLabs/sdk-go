@@ -5,20 +5,11 @@ import (
 	"errors"
 	"time"
 
-	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
-
 	sdkmath "cosmossdk.io/math"
-
-	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
-	"google.golang.org/grpc"
-
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
@@ -31,10 +22,25 @@ import (
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	eth "github.com/ethereum/go-ethereum/common"
+	"google.golang.org/grpc"
+
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
+	injectiveclient "github.com/InjectiveLabs/sdk-go/client"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
+var _ ChainClient = &MockChainClient{}
+
 type MockChainClient struct {
-	DenomsMetadataResponses []*banktypes.QueryDenomsMetadataResponse
+	Network                         common.Network
+	DenomsMetadataResponses         []*banktypes.QueryDenomsMetadataResponse
+	QuerySpotMarketsResponses       []*exchangetypes.QuerySpotMarketsResponse
+	QueryDerivativeMarketsResponses []*exchangetypes.QueryDerivativeMarketsResponse
+	QueryBinaryMarketsResponses     []*exchangetypes.QueryBinaryMarketsResponse
 }
 
 func (c *MockChainClient) CanSignTransactions() bool {
@@ -69,7 +75,11 @@ func (c *MockChainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastT
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
-func (c *MockChainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msg ...sdk.Msg) ([]byte, error) {
+func (c *MockChainClient) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxRequest{}, &txtypes.BroadcastTxResponse{}, nil
+}
+
+func (c *MockChainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error) {
 	return []byte(nil), nil
 }
 
@@ -78,6 +88,10 @@ func (c *MockChainClient) SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.Broadc
 }
 
 func (c *MockChainClient) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxResponse{}, nil
+}
+
+func (c *MockChainClient) BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
@@ -191,16 +205,8 @@ func (c *MockChainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrde
 	return OrderHashes{}, nil
 }
 
-func (c *MockChainClient) SpotOrder(defaultSubaccountID eth.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
-	return c.CreateSpotOrder(defaultSubaccountID, d, MarketsAssistant{})
-}
-
 func (c *MockChainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 	return &exchangetypes.SpotOrder{}
-}
-
-func (c *MockChainClient) DerivativeOrder(defaultSubaccountID eth.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
-	return c.CreateDerivativeOrder(defaultSubaccountID, d, MarketsAssistant{})
 }
 
 func (c *MockChainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
@@ -371,7 +377,18 @@ func (c *MockChainClient) FetchDenomDecimals(ctx context.Context, denoms []strin
 }
 
 func (c *MockChainClient) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangetypes.QuerySpotMarketsResponse, error) {
-	return &exchangetypes.QuerySpotMarketsResponse{}, nil
+	var response *exchangetypes.QuerySpotMarketsResponse
+	var localError error
+	if len(c.QuerySpotMarketsResponses) > 0 {
+		response = c.QuerySpotMarketsResponses[0]
+		c.QuerySpotMarketsResponses = c.QuerySpotMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QuerySpotMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangetypes.QuerySpotMarketResponse, error) {
@@ -439,7 +456,18 @@ func (c *MockChainClient) FetchChainTraderDerivativeTransientOrders(ctx context.
 }
 
 func (c *MockChainClient) FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangetypes.QueryDerivativeMarketsResponse, error) {
-	return &exchangetypes.QueryDerivativeMarketsResponse{}, nil
+	var response *exchangetypes.QueryDerivativeMarketsResponse
+	var localError error
+	if len(c.QueryDerivativeMarketsResponses) > 0 {
+		response = c.QueryDerivativeMarketsResponses[0]
+		c.QueryDerivativeMarketsResponses = c.QueryDerivativeMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QueryDerivativeMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchChainDerivativeMarket(ctx context.Context, marketId string) (*exchangetypes.QueryDerivativeMarketResponse, error) {
@@ -543,7 +571,18 @@ func (c *MockChainClient) FetchMarketVolatility(ctx context.Context, marketId st
 }
 
 func (c *MockChainClient) FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error) {
-	return &exchangetypes.QueryBinaryMarketsResponse{}, nil
+	var response *exchangetypes.QueryBinaryMarketsResponse
+	var localError error
+	if len(c.QueryBinaryMarketsResponses) > 0 {
+		response = c.QueryBinaryMarketsResponses[0]
+		c.QueryBinaryMarketsResponses = c.QueryBinaryMarketsResponses[1:]
+		localError = nil
+	} else {
+		response = &exchangetypes.QueryBinaryMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
 }
 
 func (c *MockChainClient) FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error) {
@@ -552,6 +591,30 @@ func (c *MockChainClient) FetchTraderDerivativeConditionalOrders(ctx context.Con
 
 func (c *MockChainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error) {
 	return &exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse{}, nil
+}
+
+func (c *MockChainClient) FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error) {
+	return &exchangetypes.QueryFullDerivativeOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error) {
+	return &exchangetypes.QueryFullSpotOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error) {
+	return &exchangetypes.QueryMarketBalanceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error) {
+	return &exchangetypes.QueryMarketBalancesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error) {
+	return &exchangetypes.QueryDenomMinNotionalResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error) {
+	return &exchangetypes.QueryDenomMinNotionalsResponse{}, nil
 }
 
 // Tendermint module
@@ -722,22 +785,71 @@ func (c *MockChainClient) FetchIBCConnectionParams(ctx context.Context) (*ibccon
 
 // Permissions module
 
-func (c *MockChainClient) FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error) {
-	return &permissionstypes.QueryAllNamespacesResponse{}, nil
+func (c *MockChainClient) FetchPermissionsNamespaceDenoms(ctx context.Context) (*permissionstypes.QueryNamespaceDenomsResponse, error) {
+	return &permissionstypes.QueryNamespaceDenomsResponse{}, nil
 }
 
-func (c *MockChainClient) FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error) {
-	return &permissionstypes.QueryNamespaceByDenomResponse{}, nil
+func (c *MockChainClient) FetchPermissionsNamespaces(ctx context.Context) (*permissionstypes.QueryNamespacesResponse, error) {
+	return &permissionstypes.QueryNamespacesResponse{}, nil
 }
 
-func (c *MockChainClient) FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error) {
-	return &permissionstypes.QueryAddressRolesResponse{}, nil
+func (c *MockChainClient) FetchPermissionsNamespace(ctx context.Context, denom string) (*permissionstypes.QueryNamespaceResponse, error) {
+	return &permissionstypes.QueryNamespaceResponse{}, nil
 }
 
-func (c *MockChainClient) FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error) {
-	return &permissionstypes.QueryAddressesByRoleResponse{}, nil
+func (c *MockChainClient) FetchPermissionsRolesByActor(ctx context.Context, denom, actor string) (*permissionstypes.QueryRolesByActorResponse, error) {
+	return &permissionstypes.QueryRolesByActorResponse{}, nil
 }
 
-func (c *MockChainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
-	return &permissionstypes.QueryVouchersForAddressResponse{}, nil
+func (c *MockChainClient) FetchPermissionsActorsByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryActorsByRoleResponse, error) {
+	return &permissionstypes.QueryActorsByRoleResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsRoleManagers(ctx context.Context, denom string) (*permissionstypes.QueryRoleManagersResponse, error) {
+	return &permissionstypes.QueryRoleManagersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsRoleManager(ctx context.Context, denom, manager string) (*permissionstypes.QueryRoleManagerResponse, error) {
+	return &permissionstypes.QueryRoleManagerResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsPolicyStatuses(ctx context.Context, denom string) (*permissionstypes.QueryPolicyStatusesResponse, error) {
+	return &permissionstypes.QueryPolicyStatusesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsPolicyManagerCapabilities(ctx context.Context, denom string) (*permissionstypes.QueryPolicyManagerCapabilitiesResponse, error) {
+	return &permissionstypes.QueryPolicyManagerCapabilitiesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsVouchers(ctx context.Context, denom string) (*permissionstypes.QueryVouchersResponse, error) {
+	return &permissionstypes.QueryVouchersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error) {
+	return &permissionstypes.QueryVoucherResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
+	return &permissionstypes.QueryModuleStateResponse{}, nil
+}
+
+// TxFees module
+func (c *MockChainClient) FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error) {
+	return &txfeestypes.QueryParamsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
+	return &txfeestypes.QueryEipBaseFeeResponse{}, nil
+}
+
+func (c *MockChainClient) CurrentChainGasPrice() int64 {
+	return int64(injectiveclient.DefaultGasPrice)
+}
+
+func (c *MockChainClient) SetGasPrice(gasPrice int64) {
+	// do nothing
+}
+
+func (c *MockChainClient) GetNetwork() common.Network {
+	return c.Network
 }

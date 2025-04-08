@@ -1,21 +1,23 @@
-package ante
+package sdk
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 	"reflect"
 	"runtime/debug"
 	"strings"
 	"time"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/pkg/errors"
@@ -23,8 +25,16 @@ import (
 	"github.com/InjectiveLabs/sdk-go/typeddata"
 )
 
+var _ AminoProtoCodecMarshaler = (*codec.ProtoCodec)(nil)
+
+type AminoProtoCodecMarshaler interface {
+	codec.Codec
+
+	MarshalAminoJSON(msg proto.Message) ([]byte, error)
+}
+
 type EIP712Wrapper func(
-	cdc codec.ProtoCodecMarshaler,
+	cdc AminoProtoCodecMarshaler,
 	chainID uint64,
 	signerData *authsigning.SignerData,
 	timeoutHeight uint64,
@@ -37,7 +47,7 @@ type EIP712Wrapper func(
 // WrapTxToEIP712 is an ultimate method that wraps Amino-encoded Cosmos Tx JSON data
 // into an EIP712-compatible request. All messages must be of the same type.
 func WrapTxToEIP712(
-	cdc codec.ProtoCodecMarshaler,
+	cdc AminoProtoCodecMarshaler,
 	chainID uint64,
 	signerData *authsigning.SignerData,
 	timeoutHeight uint64,
@@ -52,8 +62,14 @@ func WrapTxToEIP712(
 		signerData.Sequence,
 		timeoutHeight,
 		feeInfo,
-		msgs, memo,
+		[]cosmtypes.Msg{}, memo,
 	)
+
+	if chainID > uint64(math.MaxInt64) {
+		err := fmt.Errorf("chainID is too large: %v (max supported value is %v)", chainID, math.MaxInt64)
+		return typeddata.TypedData{}, err
+	}
+	intChainId := int64(chainID)
 
 	txData := make(map[string]interface{})
 	if err := json.Unmarshal(data, &txData); err != nil {
@@ -61,10 +77,35 @@ func WrapTxToEIP712(
 		return typeddata.TypedData{}, err
 	}
 
+	msgsJsons := make([]json.RawMessage, len(msgs))
+	for idx, m := range msgs {
+		bzMsg, err := cdc.MarshalAminoJSON(m)
+		if err != nil {
+			return typeddata.TypedData{}, errors.Wrapf(err, "cannot marshal msg JSON at index %d", idx)
+		}
+
+		msgsJsons[idx] = bzMsg
+	}
+
+	bzMsgs, err := json.Marshal(map[string][]json.RawMessage{
+		"msgs": msgsJsons,
+	})
+	if err != nil {
+		return typeddata.TypedData{}, errors.Wrap(err, "marshal msgs JSON")
+	}
+
+	msgsData := make(map[string]interface{})
+	if err := json.Unmarshal(bzMsgs, &msgsData); err != nil {
+		err = errors.Wrap(err, "failed to unmarshal msgs from proto-compatible amino JSON")
+		return typeddata.TypedData{}, err
+	}
+
+	txData["msgs"] = msgsData["msgs"]
+
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(intChainId),
 		VerifyingContract: "cosmos",
 		Salt:              "0",
 	}
@@ -74,7 +115,7 @@ func WrapTxToEIP712(
 		return typeddata.TypedData{}, err
 	}
 
-	if feeDelegation != nil {
+	if feeDelegation != nil && feeDelegation.FeePayer != nil {
 		feeInfo := txData["fee"].(map[string]interface{})
 		feeInfo["feePayer"] = feeDelegation.FeePayer.String()
 
@@ -380,7 +421,7 @@ var (
 	hashType      = reflect.TypeOf(common.Hash{})
 	addressType   = reflect.TypeOf(common.Address{})
 	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(math.Int{})
+	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
 	timeType      = reflect.TypeOf(time.Time{})
 )
@@ -489,7 +530,7 @@ func signableTypes() typeddata.Types {
 }
 
 func WrapTxToEIP712V2(
-	cdc codec.ProtoCodecMarshaler,
+	cdc AminoProtoCodecMarshaler,
 	chainID uint64,
 	signerData *authsigning.SignerData,
 	timeoutHeight uint64,
@@ -498,10 +539,17 @@ func WrapTxToEIP712V2(
 	msgs []cosmtypes.Msg,
 	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
+
+	if chainID > uint64(math.MaxInt64) {
+		err := fmt.Errorf("chainID is too large: %v (max supported value is %v)", chainID, math.MaxInt64)
+		return typeddata.TypedData{}, err
+	}
+	intChainId := int64(chainID)
+
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(intChainId),
 		VerifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
 		Salt:              "0",
 	}

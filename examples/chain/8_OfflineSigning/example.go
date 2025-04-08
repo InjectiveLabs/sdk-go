@@ -3,36 +3,30 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
-	"github.com/InjectiveLabs/sdk-go/client"
-	"github.com/InjectiveLabs/sdk-go/client/common"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/shopspring/decimal"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func StoreTxToFile(fileName string, txBytes []byte) error {
-	return ioutil.WriteFile(fileName, txBytes, 0755)
+	return os.WriteFile(fileName, txBytes, 0755)
 }
 
 func LoadTxFromFile(fileName string) ([]byte, error) {
-	f, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-
-	return ioutil.ReadAll(f)
+	return os.ReadFile(fileName)
 }
 
 func main() {
-	network := common.LoadNetwork("devnet", "")
+	network := common.LoadNetwork("testnet", "lb")
 	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
 	if err != nil {
 		panic(err)
@@ -64,29 +58,28 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
 	if err != nil {
 		panic(err)
 	}
 
+	gasPrice := chainClient.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	chainClient.SetGasPrice(gasPrice)
+
+	ctx := context.Background()
+	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, chainClient)
+	if err != nil {
+		panic(err)
+	}
+
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
-	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
+	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(1.02)
 
@@ -107,7 +100,7 @@ func main() {
 	msg.Order = exchangetypes.SpotOrder(*order)
 
 	accNum, accSeq := chainClient.GetAccNonce()
-	signedTx, err := chainClient.BuildSignedTx(clientCtx, accNum, accSeq, 20000, msg)
+	signedTx, err := chainClient.BuildSignedTx(clientCtx, accNum, accSeq, 20000, client.DefaultGasPrice, msg)
 	if err != nil {
 		panic(err)
 	}
@@ -118,16 +111,20 @@ func main() {
 		panic(err)
 	}
 
-	// load from file and broadcast the signed tx
-	signedTxBytesFromFile, err := LoadTxFromFile("msg.dat")
+	// Broadcast the signed tx using BroadcastSignedTx, AsyncBroadcastSignedTx, or SyncBroadcastSignedTx
+	response, err := chainClient.BroadcastSignedTx(signedTx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
 	if err != nil {
 		panic(err)
 	}
 
-	txResult, err := chainClient.SyncBroadcastSignedTx(signedTxBytesFromFile)
-	if err != nil {
-		panic(err)
-	}
+	fmt.Printf("tx hash: %s\n", response.TxResponse.TxHash)
+	fmt.Printf("tx code: %v\n\n", response.TxResponse.Code)
 
-	fmt.Println("txResult:", txResult)
+	str, _ := json.MarshalIndent(response, "", " ")
+	fmt.Print(string(str))
+
+	gasPrice = chainClient.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	chainClient.SetGasPrice(gasPrice)
 }

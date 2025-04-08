@@ -23,6 +23,8 @@ type MockExchangeClient struct {
 	DerivativeMarketsResponses []*derivativeExchangePB.MarketsResponse
 }
 
+var _ ExchangeClient = &MockExchangeClient{}
+
 func (e *MockExchangeClient) QueryClient() *grpc.ClientConn {
 	dummyConnection := grpc.ClientConn{}
 	return &dummyConnection
@@ -84,6 +86,10 @@ func (e *MockExchangeClient) GetDerivativeLiquidablePositions(ctx context.Contex
 }
 
 func (e *MockExchangeClient) StreamDerivativePositions(ctx context.Context, req *derivativeExchangePB.StreamPositionsRequest) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsClient, error) {
+	return nil, nil
+}
+
+func (e *MockExchangeClient) StreamDerivativePositionsV2(ctx context.Context, req *derivativeExchangePB.StreamPositionsV2Request) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamPositionsV2Client, error) {
 	return nil, nil
 }
 
@@ -153,6 +159,10 @@ func (e *MockExchangeClient) GetAuctions(ctx context.Context) (*auctionPB.Auctio
 
 func (e *MockExchangeClient) StreamBids(ctx context.Context) (auctionPB.InjectiveAuctionRPC_StreamBidsClient, error) {
 	return nil, nil
+}
+
+func (e *MockExchangeClient) FetchInjBurnt(ctx context.Context) (*auctionPB.InjBurntEndpointResponse, error) {
+	return &auctionPB.InjBurntEndpointResponse{}, nil
 }
 
 func (e *MockExchangeClient) GetSubaccountsList(ctx context.Context, accountAddress string) (*accountPB.SubaccountsListResponse, error) {
@@ -282,7 +292,7 @@ func (e *MockExchangeClient) GetAccountPortfolio(ctx context.Context, accountAdd
 	return &portfolioExchangePB.AccountPortfolioResponse{}, nil
 }
 
-func (e *MockExchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
+func (e *MockExchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string, usd bool) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
 	return &portfolioExchangePB.AccountPortfolioBalancesResponse{}, nil
 }
 

@@ -14,4 +14,8 @@ message DenomAuthorityMetadata {
 
   // Can be empty for no admin, or a valid injective address
   string admin = 1 [ (gogoproto.moretags) = "yaml:\"admin\"" ];
+
+  // true if the admin can burn tokens from other addresses
+  bool admin_burn_allowed = 2
+      [ (gogoproto.moretags) = "yaml:\"admin_burn_allowed\"" ];
 }

@@ -35,6 +35,8 @@ const (
 
 	MaxOracleScaleFactor uint32 = 18
 
+	MaxDecimals uint32 = 18
+
 	MaxTickerLength int = 40
 
 	// MaxHistoricalTradeRecordAge is the maximum age of trade records to track.
@@ -46,6 +48,8 @@ const (
 	// MaxGranterDelegations is the maximum number of delegations that are checked for stake granter
 	MaxGranterDelegations = 25
 )
+
+var DefaultInjAuctionMaxCap = math.NewIntWithDecimal(10_000, 18)
 
 var MaxBinaryOptionsOrderPrice = math.LegacyOneDec()
 
@@ -190,31 +194,35 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		SpotMarketInstantListingFee:                 sdk.NewCoin("inj", math.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
-		DerivativeMarketInstantListingFee:           sdk.NewCoin("inj", math.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
-		DefaultSpotMakerFeeRate:                     math.LegacyNewDecWithPrec(-1, 4), // default -0.01% maker fees
-		DefaultSpotTakerFeeRate:                     math.LegacyNewDecWithPrec(1, 3),  // default 0.1% taker fees
-		DefaultDerivativeMakerFeeRate:               math.LegacyNewDecWithPrec(-1, 4), // default -0.01% maker fees
-		DefaultDerivativeTakerFeeRate:               math.LegacyNewDecWithPrec(1, 3),  // default 0.1% taker fees
-		DefaultInitialMarginRatio:                   math.LegacyNewDecWithPrec(5, 2),  // default 5% initial margin ratio
-		DefaultMaintenanceMarginRatio:               math.LegacyNewDecWithPrec(2, 2),  // default 2% maintenance margin ratio
-		DefaultFundingInterval:                      DefaultFundingIntervalSeconds,
-		FundingMultiple:                             DefaultFundingMultipleSeconds,
-		RelayerFeeShareRate:                         math.LegacyNewDecWithPrec(40, 2),      // default 40% relayer fee share
-		DefaultHourlyFundingRateCap:                 math.LegacyNewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
-		DefaultHourlyInterestRate:                   math.LegacyNewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
-		MaxDerivativeOrderSideCount:                 MaxDerivativeOrderSideCount,
-		InjRewardStakedRequirementThreshold:         math.NewIntWithDecimal(100, 18), // 100 INJ
-		TradingRewardsVestingDuration:               604800,                          // 7 days
-		LiquidatorRewardShareRate:                   math.LegacyNewDecWithPrec(5, 2), // 5% liquidator reward
-		BinaryOptionsMarketInstantListingFee:        sdk.NewCoin("inj", math.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
-		AtomicMarketOrderAccessLevel:                AtomicMarketOrderAccessLevel_SmartContractsOnly,
-		SpotAtomicMarketOrderFeeMultiplier:          math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
-		DerivativeAtomicMarketOrderFeeMultiplier:    math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
-		BinaryOptionsAtomicMarketOrderFeeMultiplier: math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
-		MinimalProtocolFeeRate:                      math.LegacyMustNewDecFromStr("0.00005"), // default 0.005% minimal fee rate
-		IsInstantDerivativeMarketLaunchEnabled:      false,
-		PostOnlyModeHeightThreshold:                 0,
+		SpotMarketInstantListingFee:                  sdk.NewCoin("inj", math.NewIntWithDecimal(SpotMarketInstantListingFee, 18)),
+		DerivativeMarketInstantListingFee:            sdk.NewCoin("inj", math.NewIntWithDecimal(DerivativeMarketInstantListingFee, 18)),
+		DefaultSpotMakerFeeRate:                      math.LegacyNewDecWithPrec(-1, 4), // default -0.01% maker fees
+		DefaultSpotTakerFeeRate:                      math.LegacyNewDecWithPrec(1, 3),  // default 0.1% taker fees
+		DefaultDerivativeMakerFeeRate:                math.LegacyNewDecWithPrec(-1, 4), // default -0.01% maker fees
+		DefaultDerivativeTakerFeeRate:                math.LegacyNewDecWithPrec(1, 3),  // default 0.1% taker fees
+		DefaultInitialMarginRatio:                    math.LegacyNewDecWithPrec(5, 2),  // default 5% initial margin ratio
+		DefaultMaintenanceMarginRatio:                math.LegacyNewDecWithPrec(2, 2),  // default 2% maintenance margin ratio
+		DefaultFundingInterval:                       DefaultFundingIntervalSeconds,
+		FundingMultiple:                              DefaultFundingMultipleSeconds,
+		RelayerFeeShareRate:                          math.LegacyNewDecWithPrec(40, 2),      // default 40% relayer fee share
+		DefaultHourlyFundingRateCap:                  math.LegacyNewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
+		DefaultHourlyInterestRate:                    math.LegacyNewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
+		MaxDerivativeOrderSideCount:                  MaxDerivativeOrderSideCount,
+		InjRewardStakedRequirementThreshold:          math.NewIntWithDecimal(100, 18), // 100 INJ
+		TradingRewardsVestingDuration:                604800,                          // 7 days
+		LiquidatorRewardShareRate:                    math.LegacyNewDecWithPrec(5, 2), // 5% liquidator reward
+		BinaryOptionsMarketInstantListingFee:         sdk.NewCoin("inj", math.NewIntWithDecimal(BinaryOptionsMarketInstantListingFee, 18)),
+		AtomicMarketOrderAccessLevel:                 AtomicMarketOrderAccessLevel_SmartContractsOnly,
+		SpotAtomicMarketOrderFeeMultiplier:           math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
+		DerivativeAtomicMarketOrderFeeMultiplier:     math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
+		BinaryOptionsAtomicMarketOrderFeeMultiplier:  math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
+		MinimalProtocolFeeRate:                       math.LegacyMustNewDecFromStr("0.00005"), // default 0.005% minimal fee rate
+		IsInstantDerivativeMarketLaunchEnabled:       false,
+		PostOnlyModeHeightThreshold:                  0,
+		MarginDecreasePriceTimestampThresholdSeconds: 60,
+		ExchangeAdmins:                               []string{},
+		InjAuctionMaxCap:                             DefaultInjAuctionMaxCap,
+		FixedGasEnabled:                              false,
 	}
 }
 
@@ -292,6 +300,19 @@ func (p Params) Validate() error {
 	if err := validateAdmins(p.ExchangeAdmins); err != nil {
 		return fmt.Errorf("ExchangeAdmins is incorrect: %w", err)
 	}
+
+	if err := validateFixedGasFlag(p.FixedGasEnabled); err != nil {
+		return fmt.Errorf("fixed_gas_enabled is incorrect: %w", err)
+	}
+
+	return nil
+}
+
+func validateFixedGasFlag(enabled any) error {
+	if _, ok := enabled.(bool); !ok {
+		return fmt.Errorf("invalid parameter type: %T", enabled)
+	}
+
 	return nil
 }
 

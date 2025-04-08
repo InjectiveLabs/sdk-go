@@ -40,6 +40,7 @@ var (
 	MarketVolumePrefix                   = []byte{0x0c} // prefix for each key to the aggregate volume for a market
 	ParamsKey                            = []byte{0x0d} // prefix for module params
 	SubaccountCidPrefix                  = []byte{0x0e} // prefix for each
+	DenomMinNotionalPrefix               = []byte{0x0f} // prefix for each denom min notional
 
 	DenomDecimalsPrefix              = []byte{0x10} // prefix for denom decimals
 	SpotMarketsPrefix                = []byte{0x11} // prefix for each key to a spot market by (isEnabled, marketID)
@@ -116,6 +117,8 @@ var (
 	TotalGrantAmountPrefix               = []byte{0x81} // prefix to store the total granted amount by granter
 	LastGranterDelegationCheckTimePrefix = []byte{0x82} // prefix to store the last timestamp that the granter's delegations were checked
 	ActiveGrantPrefix                    = []byte{0x83} // prefix to store the grantee's active grant
+
+	MarketBalanceKey = []byte{0x84} // key for each key to a MarketBalance
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
@@ -551,4 +554,8 @@ func GetActiveGrantKey(grantee sdk.AccAddress) []byte {
 
 func GetLastValidGrantDelegationCheckTimeKey(granter sdk.AccAddress) []byte {
 	return append(LastGranterDelegationCheckTimePrefix, granter.Bytes()...)
+}
+
+func GetDerivativeMarketBalanceKey(marketID common.Hash) []byte {
+	return append(MarketBalanceKey, marketID.Bytes()...)
 }

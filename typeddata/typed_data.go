@@ -2,16 +2,24 @@ package typeddata
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
 	"regexp"
+	"runtime/debug"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 	"unicode/utf8"
 
+	sdkmath "cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -105,27 +113,25 @@ var typedDataReferenceTypeRegexp = regexp.MustCompile(`^[A-Z](\w*)(\[\])?$`)
 // SignTextWithValidator signs the given message which can be further recovered
 // with the given validator.
 // hash = keccak256("\x19\x00"${address}${data}).
-func SignTextValidator(validatorData ValidatorData) (signature hexutil.Bytes, message string) {
+func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
 	msg := fmt.Sprintf("\x19\x00%s%s", string(validatorData.Address.Bytes()), string(validatorData.Message))
 	return crypto.Keccak256([]byte(msg)), msg
 }
 
-// ComputeTypedDataHash computes keccak hash of typed data for signing.
-func ComputeTypedDataHash(typedData TypedData) ([]byte, error) {
+// ComputeTypedDataAndHash computes the typed data and its keccak hash for signing
+func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error) {
 	domainSeparator, err := typedData.HashStruct("EIP712Domain", typedData.Domain.Map())
 	if err != nil {
-		err = errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
-		return nil, err
+		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
 	}
 
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
-		err = errors.Wrap(err, "failed to pack and hash typedData primary type")
-		return nil, err
+		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
 	}
 
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
-	return crypto.Keccak256(rawData), nil
+	return crypto.Keccak256(rawData), rawData, nil
 }
 
 // HashStruct generates a keccak256 hash of the encoding of the provided data
@@ -227,6 +233,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 	for _, field := range typedData.Types[primaryType] {
 		encType := field.Type
 		encValue := data[field.Name]
+
 		switch {
 		case encType[len(encType)-1:] == "]":
 			arrayValue, ok := encValue.([]interface{})
@@ -800,4 +807,508 @@ func (domain *TypedDataDomain) Map() map[string]interface{} {
 		dataMap["salt"] = domain.Salt
 	}
 	return dataMap
+}
+
+var (
+	LegacyAminoCodec *codec.LegacyAmino
+	ProtoCodec       *codec.ProtoCodec
+)
+
+func SetCodec(amino *codec.LegacyAmino, proto *codec.ProtoCodec) {
+	LegacyAminoCodec, ProtoCodec = amino, proto
+}
+
+func GetEIP712TypedDataForMsg(signDocBytes []byte) (TypedData, error) {
+	txData := make(map[string]interface{})
+	if err := json.Unmarshal(signDocBytes, &txData); err != nil {
+		return TypedData{}, errors.Wrap(err, "failed to unmarshal signDocBytes")
+	}
+
+	// parse txData to StdSignDoc in order to parse the msg for ExtractMsgTypes
+	var signDoc legacytx.StdSignDoc
+	if err := LegacyAminoCodec.UnmarshalJSON(signDocBytes, &signDoc); err != nil {
+		return TypedData{}, err
+	}
+
+	var msg cosmtypes.Msg
+	if err := LegacyAminoCodec.UnmarshalJSON(signDoc.Msgs[0], &msg); err != nil {
+		return TypedData{}, errors.Wrap(err, "failed to unmarshal msg")
+	}
+
+	// For some reason this type cast does not work during UnmarshalJSON above
+	// If the underlying msg does implement the UnpackInterfacesMessage interface (MsgGrant, MsgExec...),
+	// we explicitly call the method here to ensure potential Any fields within the message are correctly parsed
+	if unpacker, ok := msg.(codectypes.UnpackInterfacesMessage); ok {
+		if err := unpacker.UnpackInterfaces(codectypes.AminoJSONUnpacker{Cdc: LegacyAminoCodec.Amino}); err != nil {
+			return TypedData{}, errors.Wrap(err, "failed to unpack msg")
+		}
+	}
+
+	msgTypes, err := ExtractMsgTypes(ProtoCodec, "MsgValue", msg)
+	if err != nil {
+		return TypedData{}, errors.Wrap(err, "failed to extract msg types")
+	}
+
+	if txData["fee"] != nil {
+		msgTypes["Fee"] = []Type{
+			{Name: "amount", Type: "Coin[]"},
+			{Name: "gas", Type: "string"},
+		}
+	}
+
+	// set timeout_height to 0 in case the user forgot to provide the flag
+	if txData["timeout_height"] == nil {
+		txData["timeout_height"] = "0"
+	}
+
+	chainID, err := ParseCosmosChainID(txData["chain_id"].(string))
+	if err != nil {
+		return TypedData{}, err
+	}
+
+	// see VerifySignatureEIP712 func and its handling of chain id
+	switch chainID.Int64() {
+	case 777, 888:
+		chainID = big.NewInt(11155111) // Sepolia
+	default:
+		chainID = big.NewInt(1)
+	}
+
+	domain := TypedDataDomain{
+		Name:              "Injective Web3",
+		Version:           "1.0.0",
+		ChainId:           math.NewHexOrDecimal256(chainID.Int64()),
+		VerifyingContract: "cosmos",
+		Salt:              "0",
+	}
+
+	td := TypedData{
+		Types:       msgTypes,
+		PrimaryType: "Tx",
+		Domain:      domain,
+		Message:     txData,
+	}
+
+	return td, nil
+}
+
+func ExtractMsgTypes(cdc codec.ProtoCodecMarshaler, msgTypeName string, msg cosmtypes.Msg) (Types, error) {
+	rootTypes := Types{
+		"EIP712Domain": {
+			{
+				Name: "name",
+				Type: "string",
+			},
+			{
+				Name: "version",
+				Type: "string",
+			},
+			{
+				Name: "chainId",
+				Type: "uint256",
+			},
+			{
+				Name: "verifyingContract",
+				Type: "string",
+			},
+			{
+				Name: "salt",
+				Type: "string",
+			},
+		},
+		"Tx": {
+			{Name: "account_number", Type: "string"},
+			{Name: "chain_id", Type: "string"},
+			{Name: "fee", Type: "Fee"},
+			{Name: "memo", Type: "string"},
+			{Name: "msgs", Type: "Msg[]"},
+			{Name: "sequence", Type: "string"},
+			{Name: "timeout_height", Type: "string"},
+		},
+		"Fee": {
+			{Name: "amount", Type: "Coin[]"},
+			{Name: "gas", Type: "string"},
+		},
+		"Coin": {
+			{Name: "denom", Type: "string"},
+			{Name: "amount", Type: "string"},
+		},
+		"Msg": {
+			{Name: "type", Type: "string"},
+			{Name: "value", Type: msgTypeName},
+		},
+		msgTypeName: {},
+	}
+
+	err := walkFields(cdc, rootTypes, msgTypeName, msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return rootTypes, nil
+}
+
+func walkFields(cdc codec.ProtoCodecMarshaler, typeMap Types, rootType string, in interface{}) (err error) {
+	defer doRecover(&err)
+
+	t := reflect.TypeOf(in)
+	v := reflect.ValueOf(in)
+
+	for {
+		if t.Kind() == reflect.Ptr || t.Kind() == reflect.Interface {
+			t = t.Elem()
+			v = v.Elem()
+			continue
+		}
+		break
+	}
+
+	err = traverseFields(cdc, typeMap, rootType, typeDefPrefix, t, v)
+	return
+}
+
+//nolint:gocritic // this is a handy way to return err in defered funcs
+func doRecover(err *error) {
+	if r := recover(); r != nil {
+		debug.PrintStack()
+
+		if e, ok := r.(error); ok {
+			e = errors.Wrap(e, "panicked with error")
+			*err = e
+			return
+		}
+
+		*err = errors.Errorf("%v", r)
+	}
+}
+
+const typeDefPrefix = "_"
+
+func traverseFields(
+	cdc codec.ProtoCodecMarshaler,
+	typeMap Types,
+	rootType string,
+	prefix string,
+	t reflect.Type,
+	v reflect.Value,
+) (err error) {
+	n := t.NumField()
+
+	if prefix == typeDefPrefix {
+		if len(typeMap[rootType]) == n {
+			return nil
+		}
+	} else {
+		typeDef := sanitizeTypedef(prefix)
+		if len(typeMap[typeDef]) == n {
+			return nil
+		}
+	}
+
+	for i := 0; i < n; i++ {
+		var field reflect.Value
+		if v.IsValid() {
+			field = v.Field(i)
+		}
+
+		fieldType := t.Field(i).Type
+		fieldName := jsonNameFromTag(t.Field(i).Tag)
+		var isCollection bool
+		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
+			if field.Len() == 0 {
+				// skip empty collections from type mapping
+				continue
+			}
+
+			fieldType = fieldType.Elem()
+			field = field.Index(0)
+			isCollection = true
+		}
+
+		if fieldType == cosmosAnyType {
+			any := field.Interface().(*codectypes.Any)
+			anyWrapper := &cosmosAnyWrapper{
+				Type: any.TypeUrl,
+			}
+
+			err = cdc.UnpackAny(any, &anyWrapper.Value)
+			if err != nil {
+				err = errors.Wrap(err, "failed to unpack Any in msg struct")
+				return err
+			}
+
+			fieldType = reflect.TypeOf(anyWrapper)
+			field = reflect.ValueOf(anyWrapper)
+			// then continue as normal
+		}
+
+		for {
+			if fieldType.Kind() == reflect.Ptr {
+				fieldType = fieldType.Elem()
+
+				if field.IsValid() {
+					field = field.Elem()
+				}
+
+				continue
+			}
+
+			if fieldType.Kind() == reflect.Interface {
+				fieldType = reflect.TypeOf(field.Interface())
+				continue
+			}
+
+			if field.Kind() == reflect.Ptr {
+				field = field.Elem()
+				continue
+			}
+
+			break
+		}
+
+		for {
+			if fieldType.Kind() == reflect.Ptr {
+				fieldType = fieldType.Elem()
+
+				if field.IsValid() {
+					field = field.Elem()
+				}
+
+				continue
+			}
+
+			if fieldType.Kind() == reflect.Interface {
+				fieldType = reflect.TypeOf(field.Interface())
+				continue
+			}
+
+			if field.Kind() == reflect.Ptr {
+				field = field.Elem()
+				continue
+			}
+
+			break
+		}
+
+		fieldPrefix := fmt.Sprintf("%s.%s", prefix, fieldName)
+		ethTyp := typToEth(fieldType)
+		if ethTyp != "" {
+			if isCollection {
+				ethTyp += "[]"
+			}
+
+			if field.Kind() == reflect.String && field.Len() == 0 {
+				// skip empty strings from type mapping
+				continue
+			}
+
+			if prefix == typeDefPrefix {
+				typeMap[rootType] = append(typeMap[rootType], Type{
+					Name: fieldName,
+					Type: ethTyp,
+				})
+			} else {
+				typeDef := sanitizeTypedef(prefix)
+				typeMap[typeDef] = append(typeMap[typeDef], Type{
+					Name: fieldName,
+					Type: ethTyp,
+				})
+			}
+
+			continue
+		}
+
+		if fieldType.Kind() == reflect.Struct {
+			var fieldTypedef string
+			if isCollection {
+				fieldTypedef = sanitizeTypedef(fieldPrefix) + "[]"
+			} else {
+				fieldTypedef = sanitizeTypedef(fieldPrefix)
+			}
+
+			if prefix == typeDefPrefix {
+				typeMap[rootType] = append(typeMap[rootType], Type{
+					Name: fieldName,
+					Type: fieldTypedef,
+				})
+			} else {
+				typeDef := sanitizeTypedef(prefix)
+				typeMap[typeDef] = append(typeMap[typeDef], Type{
+					Name: fieldName,
+					Type: fieldTypedef,
+				})
+			}
+
+			err = traverseFields(cdc, typeMap, rootType, fieldPrefix, fieldType, field)
+			if err != nil {
+				return errors.WithStack(err)
+			}
+
+			continue
+		}
+	}
+
+	return nil
+}
+
+// _.foo_bar.baz -> TypeFooBarBaz
+// this is needed for Geth's own signing code which doesn't
+// tolerate complex type names
+func sanitizeTypedef(str string) string {
+	buf := new(bytes.Buffer)
+	parts := strings.Split(str, ".")
+
+	for _, part := range parts {
+		if part == "_" {
+			buf.WriteString("Type")
+			continue
+		}
+
+		subparts := strings.Split(part, "_")
+		for _, subpart := range subparts {
+			buf.WriteString(strings.Title(subpart)) //nolint // strings is used for compat
+		}
+	}
+
+	return buf.String()
+}
+
+func jsonNameFromTag(tag reflect.StructTag) string {
+	jsonTags := tag.Get("json")
+	parts := strings.Split(jsonTags, ",")
+	return parts[0]
+}
+
+var (
+	hashType      = reflect.TypeOf(common.Hash{})
+	addressType   = reflect.TypeOf(common.Address{})
+	bigIntType    = reflect.TypeOf(big.Int{})
+	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
+	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
+	timeType      = reflect.TypeOf(time.Time{})
+)
+
+type cosmosAnyWrapper struct {
+	Type  string      `json:"type"`
+	Value interface{} `json:"value"`
+}
+
+// typToEth supports only basic types and arrays of basic types.
+// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-712.md
+func typToEth(typ reflect.Type) string {
+	switch typ.Kind() {
+	case reflect.String:
+		return "string"
+	case reflect.Bool:
+		return "bool"
+	case reflect.Int:
+		return "int64"
+	case reflect.Int8:
+		return "int8"
+	case reflect.Int16:
+		return "int16"
+	case reflect.Int32:
+		return "int32"
+	case reflect.Int64:
+		return "int64"
+	case reflect.Uint:
+		return "uint64"
+	case reflect.Uint8:
+		return "uint8"
+	case reflect.Uint16:
+		return "uint16"
+	case reflect.Uint32:
+		return "uint32"
+	case reflect.Uint64:
+		return "uint64"
+	case reflect.Slice:
+		ethName := typToEth(typ.Elem())
+		if ethName != "" {
+			return ethName + "[]"
+		}
+	case reflect.Array:
+		ethName := typToEth(typ.Elem())
+		if ethName != "" {
+			return ethName + "[]"
+		}
+	case reflect.Ptr:
+		if typ.Elem().ConvertibleTo(bigIntType) ||
+			typ.Elem().ConvertibleTo(timeType) ||
+			typ.Elem().ConvertibleTo(cosmIntType) {
+			return "string"
+		}
+	case reflect.Struct:
+		if typ.ConvertibleTo(hashType) ||
+			typ.ConvertibleTo(addressType) ||
+			typ.ConvertibleTo(bigIntType) ||
+			typ.ConvertibleTo(timeType) ||
+			typ.ConvertibleTo(cosmIntType) {
+			return "string"
+		}
+	}
+
+	return ""
+}
+
+func SignableTypes() Types {
+	return Types{
+		"EIP712Domain": {
+			{
+				Name: "name",
+				Type: "string",
+			},
+			{
+				Name: "version",
+				Type: "string",
+			},
+			{
+				Name: "chainId",
+				Type: "uint256",
+			},
+			{
+				Name: "verifyingContract",
+				Type: "address",
+			},
+			{
+				Name: "salt",
+				Type: "string",
+			},
+		},
+		"Tx": {
+			{Name: "context", Type: "string"},
+			{Name: "msgs", Type: "string"},
+		},
+	}
+}
+
+var (
+	ErrInvalidChainID = errors.New("invalid chain-id")
+
+	regexChainID   = `[a-z]*`
+	regexSeparator = `-{1}`
+	regexEpoch     = `[1-9][0-9]*`
+
+	cosmosChainID = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, regexChainID, regexSeparator, regexEpoch))
+)
+
+// ParseCosmosChainID parses a string chain identifier's epoch to an Ethereum-compatible
+// chain-id in *big.Int format. The function returns an error if the chain-id has an invalid format
+func ParseCosmosChainID(chainID string) (*big.Int, error) {
+	chainID = strings.TrimSpace(chainID)
+	if len(chainID) > 48 {
+		return nil, errors.Wrapf(ErrInvalidChainID, "chain-id '%s' cannot exceed 48 chars", chainID)
+	}
+
+	matches := cosmosChainID.FindStringSubmatch(chainID)
+	if matches == nil || len(matches) != 3 || matches[1] == "" {
+		return nil, errors.Wrap(ErrInvalidChainID, chainID)
+	}
+
+	// verify that the chain-id entered is a base 10 integer
+	chainIDInt, ok := new(big.Int).SetString(matches[2], 10)
+	if !ok {
+		return nil, errors.Wrapf(ErrInvalidChainID, "epoch %s must be base-10 integer format", matches[2])
+	}
+
+	return chainIDInt, nil
 }

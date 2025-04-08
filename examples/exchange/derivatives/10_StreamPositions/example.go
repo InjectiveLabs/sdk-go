@@ -18,14 +18,14 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
+	marketId := "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"
 	subaccountId := "0xc6fe5d33615a1c52c08018c47e8bc53646a0e101000000000000000000000000"
 
-	req := derivativeExchangePB.StreamPositionsRequest{
+	req := derivativeExchangePB.StreamPositionsV2Request{
 		MarketId:     marketId,
 		SubaccountId: subaccountId,
 	}
-	stream, err := exchangeClient.StreamDerivativePositions(ctx, &req)
+	stream, err := exchangeClient.StreamDerivativePositionsV2(ctx, &req)
 	if err != nil {
 		panic(err)
 	}

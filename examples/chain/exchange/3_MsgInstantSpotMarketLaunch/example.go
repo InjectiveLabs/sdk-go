@@ -1,20 +1,16 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
 
 	"cosmossdk.io/math"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
-
-	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
@@ -53,43 +49,36 @@ func main() {
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
-		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	exchangeClient, err := exchangeclient.NewExchangeClient(network)
-	if err != nil {
-		panic(err)
-	}
+	gasPrice := chainClient.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	chainClient.SetGasPrice(gasPrice)
 
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistantInitializedFromChain(ctx, exchangeClient)
-	if err != nil {
-		panic(err)
-	}
-
-	baseToken := marketsAssistant.AllTokens()["INJ"]
-	quoteToken := marketsAssistant.AllTokens()["USDC"]
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
 	minNotional := math.LegacyMustNewDecFromStr("1")
 
-	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
-	chainMinPriceTickSize = chainMinPriceTickSize.Quo(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
+	chainMinPriceTickSize := minPriceTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(6)))
+	chainMinPriceTickSize = chainMinPriceTickSize.Quo(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(18)))
 
-	chainMinQuantityTickSize := minQuantityTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(baseToken.Decimals)))
-	chainMinNotional := minNotional.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(quoteToken.Decimals)))
+	chainMinQuantityTickSize := minQuantityTickSize.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(18)))
+	chainMinNotional := minNotional.Mul(math.LegacyNewDecFromIntWithPrec(math.NewInt(1), int64(6)))
 
 	msg := &exchangetypes.MsgInstantSpotMarketLaunch{
 		Sender:              senderAddress.String(),
 		Ticker:              "INJ/USDC",
-		BaseDenom:           baseToken.Denom,
-		QuoteDenom:          quoteToken.Denom,
+		BaseDenom:           "inj",
+		QuoteDenom:          "factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/usdc",
 		MinPriceTickSize:    chainMinPriceTickSize,
 		MinQuantityTickSize: chainMinQuantityTickSize,
 		MinNotional:         chainMinNotional,
+		BaseDecimals:        18,
+		QuoteDecimals:       6,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
@@ -101,4 +90,9 @@ func main() {
 
 	str, _ := json.MarshalIndent(response, "", " ")
 	fmt.Print(string(str))
+
+	gasPrice = chainClient.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	chainClient.SetGasPrice(gasPrice)
 }

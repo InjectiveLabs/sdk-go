@@ -1,0 +1,9 @@
+syntax = "proto3";
+package injective.txfees.v1beta1;
+
+import "injective/txfees/v1beta1/txfees.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/txfees/types";
+
+message GenesisState { Params params = 1 [ (gogoproto.nullable) = false ]; }

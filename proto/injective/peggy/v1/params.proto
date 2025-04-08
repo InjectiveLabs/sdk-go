@@ -133,4 +133,7 @@ message Params {
   cosmos.base.v1beta1.Coin valset_reward = 21 [ (gogoproto.nullable) = false ];
 
   repeated string admins = 22;
+
+  // address for receiving Peggy Deposits from sanctioned Ethereum addresses
+  string segregated_wallet_address = 23;
 }

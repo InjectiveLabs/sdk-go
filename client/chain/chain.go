@@ -13,43 +13,39 @@ import (
 	"sync/atomic"
 	"time"
 
-	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
-
 	sdkmath "cosmossdk.io/math"
-
-	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
-
-	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-
-	"github.com/cosmos/cosmos-sdk/types/query"
-
-	"google.golang.org/grpc/credentials/insecure"
-
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
-	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
-	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	"github.com/cosmos/cosmos-sdk/client"
+	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authztypes "github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/cosmos/gogoproto/proto"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/pkg/errors"
 	"github.com/shopspring/decimal"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
-	ethcommon "github.com/ethereum/go-ethereum/common"
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
+	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
+	"github.com/InjectiveLabs/sdk-go/client"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 type OrderbookType string
@@ -76,19 +72,21 @@ type ChainClient interface {
 	CanSignTransactions() bool
 	FromAddress() sdk.AccAddress
 	QueryClient() *grpc.ClientConn
-	ClientContext() client.Context
+	ClientContext() sdkclient.Context
 	// return account number and sequence without increasing sequence
 	GetAccNonce() (accNum uint64, accSeq uint64)
 
-	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
+	SimulateMsg(clientCtx sdkclient.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
 
 	// Build signed tx with given accNum and accSeq, useful for offline siging
 	// If simulate is set to false, initialGas will be used
-	BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msg ...sdk.Msg) ([]byte, error)
+	BuildSignedTx(clientCtx sdkclient.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error)
 	SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
+	BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
 
 	// Bank Module
@@ -127,9 +125,7 @@ type ChainClient interface {
 	SynchronizeSubaccountNonce(subaccountId ethcommon.Hash) error
 	ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId ethcommon.Hash) (OrderHashes, error)
 
-	SpotOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder
 	CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder
-	DerivativeOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder
 	CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder
 	OrderCancel(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangetypes.OrderData
 
@@ -237,6 +233,12 @@ type ChainClient interface {
 	FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error)
 	FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error)
 	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
+	FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error)
+	FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error)
+	FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error)
+	FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error)
+	FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error)
+	FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error)
 
 	// Tendermint module
 	FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error)
@@ -289,17 +291,34 @@ type ChainClient interface {
 	FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error)
 
 	// Permissions module
-	FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error)
-	FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error)
-	FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error)
-	FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error)
-	FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error)
+	FetchPermissionsNamespaceDenoms(ctx context.Context) (*permissionstypes.QueryNamespaceDenomsResponse, error)
+	FetchPermissionsNamespaces(ctx context.Context) (*permissionstypes.QueryNamespacesResponse, error)
+	FetchPermissionsNamespace(ctx context.Context, denom string) (*permissionstypes.QueryNamespaceResponse, error)
+	FetchPermissionsRolesByActor(ctx context.Context, denom, actor string) (*permissionstypes.QueryRolesByActorResponse, error)
+	FetchPermissionsActorsByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryActorsByRoleResponse, error)
+	FetchPermissionsRoleManagers(ctx context.Context, denom string) (*permissionstypes.QueryRoleManagersResponse, error)
+	FetchPermissionsRoleManager(ctx context.Context, denom, manager string) (*permissionstypes.QueryRoleManagerResponse, error)
+	FetchPermissionsPolicyStatuses(ctx context.Context, denom string) (*permissionstypes.QueryPolicyStatusesResponse, error)
+	FetchPermissionsPolicyManagerCapabilities(ctx context.Context, denom string) (*permissionstypes.QueryPolicyManagerCapabilitiesResponse, error)
+	FetchPermissionsVouchers(ctx context.Context, denom string) (*permissionstypes.QueryVouchersResponse, error)
+	FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error)
+	FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error)
 
+	// TxFees module
+	FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error)
+	FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
+
+	CurrentChainGasPrice() int64
+	SetGasPrice(gasPrice int64)
+
+	GetNetwork() common.Network
 	Close()
 }
 
+var _ ChainClient = &chainClient{}
+
 type chainClient struct {
-	ctx             client.Context
+	ctx             sdkclient.Context
 	network         common.Network
 	opts            *common.ClientOptions
 	logger          log.Logger
@@ -336,6 +355,7 @@ type chainClient struct {
 	permissionsQueryClient   permissionstypes.QueryClient
 	tendermintQueryClient    cmtservice.ServiceClient
 	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
+	txfeesQueryClient        txfeestypes.QueryClient
 	txClient                 txtypes.ServiceClient
 	wasmQueryClient          wasmtypes.QueryClient
 	subaccountToNonce        map[ethcommon.Hash]uint32
@@ -345,7 +365,7 @@ type chainClient struct {
 }
 
 func NewChainClient(
-	ctx client.Context,
+	ctx sdkclient.Context,
 	network common.Network,
 	options ...common.ClientOption,
 ) (ChainClient, error) {
@@ -379,9 +399,9 @@ func NewChainClient(
 	var err error
 	stickySessionEnabled := true
 	if opts.TLSCert != nil {
-		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		conn, err = grpc.Dial(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 		stickySessionEnabled = false
 	}
 	if err != nil {
@@ -391,9 +411,9 @@ func NewChainClient(
 
 	var chainStreamConn *grpc.ClientConn
 	if opts.TLSCert != nil {
-		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.NewClient(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
 	} else {
-		chainStreamConn, err = grpc.Dial(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.NewClient(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
 	}
 	if err != nil {
 		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
@@ -437,6 +457,7 @@ func NewChainClient(
 		permissionsQueryClient:   permissionstypes.NewQueryClient(conn),
 		tendermintQueryClient:    cmtservice.NewServiceClient(conn),
 		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
+		txfeesQueryClient:        txfeestypes.NewQueryClient(conn),
 		txClient:                 txtypes.NewServiceClient(conn),
 		wasmQueryClient:          wasmtypes.NewQueryClient(conn),
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
@@ -503,7 +524,7 @@ func (c *chainClient) syncTimeoutHeight() {
 // if the account number and/or the account sequence number are zero (not set),
 // they will be queried for and set on the provided Factory. A new Factory with
 // the updated fields will be returned.
-func PrepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+func PrepareFactory(clientCtx sdkclient.Context, txf tx.Factory) (tx.Factory, error) {
 	from := clientCtx.GetFromAddress()
 
 	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
@@ -544,7 +565,7 @@ func (c *chainClient) QueryClient() *grpc.ClientConn {
 	return c.conn
 }
 
-func (c *chainClient) ClientContext() client.Context {
+func (c *chainClient) ClientContext() sdkclient.Context {
 	return c.ctx
 }
 
@@ -680,35 +701,6 @@ func (c *chainClient) GetAccount(ctx context.Context, address string) (*authtype
 	return res, err
 }
 
-// SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
-func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
-	c.syncMux.Lock()
-	defer c.syncMux.Unlock()
-
-	sequence := c.getAccSeq()
-	c.txFactory = c.txFactory.WithSequence(sequence)
-	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-	res, err := c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
-
-	if err != nil {
-		if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
-			c.syncNonce()
-			sequence := c.getAccSeq()
-			c.txFactory = c.txFactory.WithSequence(sequence)
-			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-			log.Debugln("retrying broadcastTx with nonce", sequence)
-			res, err = c.broadcastTx(c.ctx, c.txFactory, true, msgs...)
-		}
-		if err != nil {
-			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed synchronously broadcast messages:", string(resJSON))
-			return nil, err
-		}
-	}
-
-	return res, nil
-}
-
 func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error) {
 	req := &exchangetypes.QueryFeeDiscountAccountInfoRequest{
 		Account: account,
@@ -718,7 +710,7 @@ func (c *chainClient) GetFeeDiscountInfo(ctx context.Context, account string) (*
 	return res, err
 }
 
-func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
+func (c *chainClient) SimulateMsg(clientCtx sdkclient.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 	txf, err := PrepareFactory(clientCtx, c.txFactory)
@@ -745,42 +737,17 @@ func (c *chainClient) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*t
 	return simRes, nil
 }
 
-// AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
-// cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
-// external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
-func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
-	c.syncMux.Lock()
-	defer c.syncMux.Unlock()
+func (c *chainClient) BuildSignedTx(clientCtx sdkclient.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msgs ...sdk.Msg) ([]byte, error) {
+	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum)
+	txf = txf.WithGas(initialGas)
 
-	sequence := c.getAccSeq()
-	c.txFactory = c.txFactory.WithSequence(sequence)
-	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-	res, err := c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
-	if err != nil {
-		if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
-			c.syncNonce()
-			sequence := c.getAccSeq()
-			c.txFactory = c.txFactory.WithSequence(sequence)
-			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-			log.Debugln("retrying broadcastTx with nonce", sequence)
-			res, err = c.broadcastTx(c.ctx, c.txFactory, false, msgs...)
-		}
-		if err != nil {
-			resJSON, _ := json.MarshalIndent(res, "", "\t")
-			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to asynchronously broadcast messagess:", string(resJSON))
-			return nil, err
-		}
-	}
+	gasPriceWithDenom := fmt.Sprintf("%d%s", gasPrice, client.InjDenom)
+	txf = txf.WithGasPrices(gasPriceWithDenom)
 
-	return res, nil
-}
-
-func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
-	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
 	return c.buildSignedTx(clientCtx, txf, msgs...)
 }
 
-func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
+func (c *chainClient) buildSignedTx(clientCtx sdkclient.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
 	ctx := context.Background()
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
@@ -825,15 +792,8 @@ func (c *chainClient) buildSignedTx(clientCtx client.Context, txf tx.Factory, ms
 }
 
 func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
-	req := txtypes.BroadcastTxRequest{
-		TxBytes: txBytes,
-		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
-	}
-
-	ctx := context.Background()
-
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
-	if err != nil {
+	res, err := c.BroadcastSignedTx(txBytes, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
+	if err != nil || res.TxResponse.Code != 0 {
 		return res, err
 	}
 
@@ -852,7 +812,7 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 		case <-t.C:
 			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
 			if err != nil {
-				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
+				if errRes := sdkclient.CheckCometError(err, txBytes); errRes != nil {
 					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
 				}
 
@@ -872,9 +832,13 @@ func (c *chainClient) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastT
 }
 
 func (c *chainClient) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+	return c.BroadcastSignedTx(txBytes, txtypes.BroadcastMode_BROADCAST_MODE_ASYNC)
+}
+
+func (c *chainClient) BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
 	req := txtypes.BroadcastTxRequest{
 		TxBytes: txBytes,
-		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+		Mode:    broadcastMode,
 	}
 
 	ctx := context.Background()
@@ -887,59 +851,25 @@ func (c *chainClient) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.Broadcast
 }
 
 func (c *chainClient) broadcastTx(
-	clientCtx client.Context,
+	clientCtx sdkclient.Context,
 	txf tx.Factory,
-	await bool,
+	broadcastMode txtypes.BroadcastMode,
 	msgs ...sdk.Msg,
-) (*txtypes.BroadcastTxResponse, error) {
+) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
 	txBytes, err := c.buildSignedTx(clientCtx, txf, msgs...)
 	if err != nil {
 		err = errors.Wrap(err, "failed to build signed Tx")
-		return nil, err
+		return nil, nil, err
 	}
 
 	req := txtypes.BroadcastTxRequest{
 		TxBytes: txBytes,
-		Mode:    txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+		Mode:    broadcastMode,
 	}
 
 	res, err := common.ExecuteCall(context.Background(), c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
-	if !await || err != nil {
-		return res, err
-	}
+	return &req, res, err
 
-	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
-	defer cancelFn()
-
-	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
-	t := time.NewTimer(defaultBroadcastStatusPoll)
-
-	for {
-		select {
-		case <-awaitCtx.Done():
-			err := errors.Wrapf(ErrTimedOut, "%s", res.TxResponse.TxHash)
-			t.Stop()
-			return nil, err
-		case <-t.C:
-			resultTx, err := clientCtx.Client.Tx(awaitCtx, txHash, false)
-			if err != nil {
-				if errRes := client.CheckCometError(err, txBytes); errRes != nil {
-					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
-				}
-
-				t.Reset(defaultBroadcastStatusPoll)
-				continue
-
-			} else if resultTx.Height > 0 {
-				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
-				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
-				t.Stop()
-				return res, err
-			}
-
-			t.Reset(defaultBroadcastStatusPoll)
-		}
-	}
 }
 
 // QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
@@ -969,37 +899,20 @@ func (c *chainClient) runBatchBroadcast() {
 	msgBatch := make([]sdk.Msg, 0, msgCommitBatchSizeLimit)
 
 	submitBatch := func(toSubmit []sdk.Msg) {
-		c.syncMux.Lock()
-		defer c.syncMux.Unlock()
-		sequence := c.getAccSeq()
-		c.txFactory = c.txFactory.WithSequence(sequence)
-		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-		log.Debugln("broadcastTx with nonce", sequence)
-		res, err := c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
+		res, err := c.SyncBroadcastMsg(toSubmit...)
+
 		if err != nil {
-			if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
-				c.syncNonce()
-				sequence := c.getAccSeq()
-				c.txFactory = c.txFactory.WithSequence(sequence)
-				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-				log.Debugln("retrying broadcastTx with nonce", sequence)
-				res, err = c.broadcastTx(c.ctx, c.txFactory, true, toSubmit...)
-			}
-			if err != nil {
-				resJSON, _ := json.MarshalIndent(res, "", "\t")
-				c.logger.WithField("size", len(toSubmit)).WithError(err).Errorln("failed to broadcast messages batch:", string(resJSON))
-				return
-			}
-		}
-
-		if res.TxResponse.Code != 0 {
-			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
-			log.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to broadcast messages batch")
+			c.logger.WithError(err)
 		} else {
-			log.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch broadcasted successfully at height", res.TxResponse.Height)
+			if res.TxResponse.Code != 0 {
+				err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+				c.logger.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to broadcast messages batch")
+			} else {
+				c.logger.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch broadcasted successfully at height", res.TxResponse.Height)
+			}
 		}
 
-		log.Debugln("gas wanted: ", c.gasWanted)
+		c.logger.Debugln("gas wanted: ", c.gasWanted)
 	}
 
 	for {
@@ -1072,16 +985,6 @@ func (c *chainClient) GetSubAccountNonce(ctx context.Context, subaccountId ethco
 	return res, err
 }
 
-// Deprecated: Use CreateSpotOrder instead
-func (c *chainClient) SpotOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *SpotOrderData) *exchangetypes.SpotOrder {
-	assistant, err := NewMarketsAssistant(network.Name)
-	if err != nil {
-		panic(err)
-	}
-
-	return c.CreateSpotOrder(defaultSubaccountID, d, assistant)
-}
-
 func (c *chainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 
 	market, isPresent := marketsAssistant.AllSpotMarkets()[d.MarketId]
@@ -1103,17 +1006,6 @@ func (c *chainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *Spo
 			Cid:          d.Cid,
 		},
 	}
-}
-
-// Deprecated: Use CreateDerivativeOrder instead
-func (c *chainClient) DerivativeOrder(defaultSubaccountID ethcommon.Hash, network common.Network, d *DerivativeOrderData) *exchangetypes.DerivativeOrder {
-
-	assistant, err := NewMarketsAssistant(network.Name)
-	if err != nil {
-		panic(err)
-	}
-
-	return c.CreateDerivativeOrder(defaultSubaccountID, d, assistant)
 }
 
 func (c *chainClient) CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
@@ -2036,7 +1928,7 @@ func (c *chainClient) FetchChainSubaccountPositions(ctx context.Context, subacco
 	return res, err
 }
 
-func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
+func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountPositionInMarketResponse, error) {
 	req := &exchangetypes.QuerySubaccountPositionInMarketRequest{
 		SubaccountId: subaccountId,
 		MarketId:     marketId,
@@ -2046,7 +1938,7 @@ func (c *chainClient) FetchChainSubaccountPositionInMarket(ctx context.Context, 
 	return res, err
 }
 
-func (c *chainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error) {
+func (c *chainClient) FetchChainSubaccountEffectivePositionInMarket(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QuerySubaccountEffectivePositionInMarketResponse, error) {
 	req := &exchangetypes.QuerySubaccountEffectivePositionInMarketRequest{
 		SubaccountId: subaccountId,
 		MarketId:     marketId,
@@ -2232,6 +2124,56 @@ func (c *chainClient) FetchMarketAtomicExecutionFeeMultiplier(ctx context.Contex
 		MarketId: marketId,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketAtomicExecutionFeeMultiplier, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error) {
+	req := &exchangetypes.QueryFullDerivativeOrderbookRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.L3DerivativeOrderBook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchL3SpotOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullSpotOrderbookResponse, error) {
+	req := &exchangetypes.QueryFullSpotOrderbookRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.L3SpotOrderBook, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketBalance(ctx context.Context, marketId string) (*exchangetypes.QueryMarketBalanceResponse, error) {
+	req := &exchangetypes.QueryMarketBalanceRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketBalance, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchMarketBalances(ctx context.Context) (*exchangetypes.QueryMarketBalancesResponse, error) {
+	req := &exchangetypes.QueryMarketBalancesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketBalances, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomMinNotional(ctx context.Context, denom string) (*exchangetypes.QueryDenomMinNotionalResponse, error) {
+	req := &exchangetypes.QueryDenomMinNotionalRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DenomMinNotional, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error) {
+	req := &exchangetypes.QueryDenomMinNotionalsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.DenomMinNotionals, req)
 
 	return res, err
 }
@@ -2622,48 +2564,228 @@ func (c *chainClient) FetchIBCConnectionParams(ctx context.Context) (*ibcconnect
 
 // Permissions module
 
-func (c *chainClient) FetchAllNamespaces(ctx context.Context) (*permissionstypes.QueryAllNamespacesResponse, error) {
-	req := &permissionstypes.QueryAllNamespacesRequest{}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AllNamespaces, req)
+func (c *chainClient) FetchPermissionsNamespaceDenoms(ctx context.Context) (*permissionstypes.QueryNamespaceDenomsResponse, error) {
+	req := &permissionstypes.QueryNamespaceDenomsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.NamespaceDenoms, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchNamespaceByDenom(ctx context.Context, denom string, includeRoles bool) (*permissionstypes.QueryNamespaceByDenomResponse, error) {
-	req := &permissionstypes.QueryNamespaceByDenomRequest{
-		Denom:        denom,
-		IncludeRoles: includeRoles,
+func (c *chainClient) FetchPermissionsNamespaces(ctx context.Context) (*permissionstypes.QueryNamespacesResponse, error) {
+	req := &permissionstypes.QueryNamespacesRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.Namespaces, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsNamespace(ctx context.Context, denom string) (*permissionstypes.QueryNamespaceResponse, error) {
+	req := &permissionstypes.QueryNamespaceRequest{
+		Denom: denom,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.NamespaceByDenom, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.Namespace, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchAddressRoles(ctx context.Context, denom, address string) (*permissionstypes.QueryAddressRolesResponse, error) {
-	req := &permissionstypes.QueryAddressRolesRequest{
-		Denom:   denom,
-		Address: address,
+func (c *chainClient) FetchPermissionsRolesByActor(ctx context.Context, denom, actor string) (*permissionstypes.QueryRolesByActorResponse, error) {
+	req := &permissionstypes.QueryRolesByActorRequest{
+		Denom: denom,
+		Actor: actor,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AddressRoles, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.RolesByActor, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchAddressesByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryAddressesByRoleResponse, error) {
-	req := &permissionstypes.QueryAddressesByRoleRequest{
+func (c *chainClient) FetchPermissionsActorsByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryActorsByRoleResponse, error) {
+	req := &permissionstypes.QueryActorsByRoleRequest{
 		Denom: denom,
 		Role:  role,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.AddressesByRole, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.ActorsByRole, req)
 
 	return res, err
 }
 
-func (c *chainClient) FetchVouchersForAddress(ctx context.Context, address string) (*permissionstypes.QueryVouchersForAddressResponse, error) {
-	req := &permissionstypes.QueryVouchersForAddressRequest{
-		Address: address,
+func (c *chainClient) FetchPermissionsRoleManagers(ctx context.Context, denom string) (*permissionstypes.QueryRoleManagersResponse, error) {
+	req := &permissionstypes.QueryRoleManagersRequest{
+		Denom: denom,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.VouchersForAddress, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.RoleManagers, req)
 
 	return res, err
+}
+
+func (c *chainClient) FetchPermissionsRoleManager(ctx context.Context, denom, manager string) (*permissionstypes.QueryRoleManagerResponse, error) {
+	req := &permissionstypes.QueryRoleManagerRequest{
+		Denom:   denom,
+		Manager: manager,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.RoleManager, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsPolicyStatuses(ctx context.Context, denom string) (*permissionstypes.QueryPolicyStatusesResponse, error) {
+	req := &permissionstypes.QueryPolicyStatusesRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PolicyStatuses, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsPolicyManagerCapabilities(ctx context.Context, denom string) (*permissionstypes.QueryPolicyManagerCapabilitiesResponse, error) {
+	req := &permissionstypes.QueryPolicyManagerCapabilitiesRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PolicyManagerCapabilities, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsVouchers(ctx context.Context, denom string) (*permissionstypes.QueryVouchersResponse, error) {
+	req := &permissionstypes.QueryVouchersRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.Vouchers, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error) {
+	req := &permissionstypes.QueryVoucherRequest{
+		Denom:   denom,
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.Voucher, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
+	req := &permissionstypes.QueryModuleStateRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PermissionsModuleState, req)
+
+	return res, err
+}
+
+// TxFees module
+func (c *chainClient) FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error) {
+	req := &txfeestypes.QueryParamsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txfeesQueryClient.Params, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
+	req := &txfeestypes.QueryEipBaseFeeRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txfeesQueryClient.GetEipBaseFee, req)
+
+	return res, err
+}
+
+func (c *chainClient) GetNetwork() common.Network {
+	return c.network
+}
+
+// SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
+func (c *chainClient) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	req, res, err := c.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msgs...)
+
+	if err != nil || res.TxResponse.Code != 0 {
+		return res, err
+	}
+
+	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
+	defer cancelFn()
+
+	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
+	t := time.NewTimer(defaultBroadcastStatusPoll)
+
+	for {
+		select {
+		case <-awaitCtx.Done():
+			err := errors.Wrapf(ErrTimedOut, "%s", res.TxResponse.TxHash)
+			t.Stop()
+			return nil, err
+		case <-t.C:
+			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
+			if err != nil {
+				if errRes := sdkclient.CheckCometError(err, req.TxBytes); errRes != nil {
+					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
+				}
+
+				t.Reset(defaultBroadcastStatusPoll)
+				continue
+
+			} else if resultTx.Height > 0 {
+				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
+				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
+				t.Stop()
+				return res, err
+			}
+
+			t.Reset(defaultBroadcastStatusPoll)
+		}
+	}
+}
+
+// AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
+// cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
+// external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
+func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	_, res, err := c.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_ASYNC, msgs...)
+	return res, err
+}
+
+// BroadcastMsg submits a group of messages in one transaction to the chain
+// The function uses the broadcast mode specified with the broadcastMode parameter
+func (c *chainClient) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
+	c.syncMux.Lock()
+	defer c.syncMux.Unlock()
+
+	sequence := c.getAccSeq()
+	c.txFactory = c.txFactory.WithSequence(sequence)
+	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+	req, res, err := c.broadcastTx(c.ctx, c.txFactory, broadcastMode, msgs...)
+	if err != nil {
+		if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
+			c.syncNonce()
+			sequence := c.getAccSeq()
+			c.txFactory = c.txFactory.WithSequence(sequence)
+			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+			c.logger.Debugln("retrying broadcastTx with nonce", sequence)
+			req, res, err = c.broadcastTx(c.ctx, c.txFactory, broadcastMode, msgs...)
+		}
+		if err != nil {
+			resJSON, _ := json.MarshalIndent(res, "", "\t")
+			c.logger.WithField("size", len(msgs)).WithError(err).Errorln("failed to asynchronously broadcast messagess:", string(resJSON))
+			return nil, nil, err
+		}
+	}
+
+	return req, res, nil
+}
+
+func (c *chainClient) CurrentChainGasPrice() int64 {
+	gasPrice := int64(client.DefaultGasPrice)
+	eipBaseFee, err := c.FetchEipBaseFee(context.Background())
+
+	if err != nil {
+		c.logger.Error("an error occurred when querying the gas price from the chain, using the default gas price")
+		c.logger.Debugf("error querying the gas price from chain %s", err)
+	} else {
+		if !eipBaseFee.BaseFee.BaseFee.IsNil() {
+			gasPrice = eipBaseFee.BaseFee.BaseFee.TruncateInt64()
+		}
+	}
+
+	return gasPrice
+}
+
+func (c *chainClient) SetGasPrice(gasPrice int64) {
+	gasPrices := fmt.Sprintf("%v%s", gasPrice, client.InjDenom)
+
+	c.txFactory = c.txFactory.WithGasPrices(gasPrices)
 }
