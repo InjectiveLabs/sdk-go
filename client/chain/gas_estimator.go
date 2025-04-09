@@ -46,6 +46,7 @@ func newTXGasEstimator() *TXGasEstimator {
 			newMsgBatchCreateSpotLimitOrdersGasEstimator(),
 			newMsgBatchCancelSpotOrdersGasEstimator(),
 			newMsgCancelSpotOrderGasEstimator(),
+			newMsgBatchUpdateOrdersGasEstimator(),
 		},
 	}
 }
@@ -94,10 +95,22 @@ func (g *TXGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
 	return GENERAL_MESSAGE_GAS_LIMIT
 }
 
-func selectPostOnlyOrders(orders []exchangetypes.SpotOrder) []exchangetypes.SpotOrder {
-	var filtered []exchangetypes.SpotOrder
+func toPointer[T any](slice []T) []*T {
+	ptrs := make([]*T, len(slice))
+	for i := range slice {
+		ptrs[i] = &slice[i]
+	}
+	return ptrs
+}
+
+// [T interface { GetOrderType() exchangetypes.OrderType}]
+// [T exchangetypes.SpotOrder | exchangetypes.DerivativeOrder]
+func selectPostOnlyOrders[T interface {
+	GetOrderType() exchangetypes.OrderType
+}](orders []T) []T {
+	var filtered []T
 	for _, order := range orders {
-		if order.OrderType == exchangetypes.OrderType_BUY_PO || order.OrderType == exchangetypes.OrderType_SELL_PO {
+		if order.GetOrderType() == exchangetypes.OrderType_BUY_PO || order.GetOrderType() == exchangetypes.OrderType_SELL_PO {
 			filtered = append(filtered, order)
 		}
 	}
@@ -118,7 +131,8 @@ func (e *MsgCreateSpotLimitOrderGasEstimator) appliesTo(msg sdk.Msg) bool {
 }
 
 func (e *MsgCreateSpotLimitOrderGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
-	postOnlyOrder := selectPostOnlyOrders([]exchangetypes.SpotOrder{msg.(*exchangetypes.MsgCreateSpotLimitOrder).Order})
+	// postOnlyOrder := selectPostOnlyOrders([]exchangetypes.SpotOrder{msg.(*exchangetypes.MsgCreateSpotLimitOrder).Order})
+	postOnlyOrder := selectPostOnlyOrders([]*exchangetypes.SpotOrder{&msg.(*exchangetypes.MsgCreateSpotLimitOrder).Order})
 	total := uint64(SPOT_ORDER_CREATION_GAS_LIMIT)
 	if len(postOnlyOrder) > 0 {
 		total += uint64(math.Ceil(SPOT_ORDER_CREATION_GAS_LIMIT * SPOT_POST_ONLY_ORDER_MULTIPLIER))
@@ -144,7 +158,7 @@ func (e *MsgBatchCreateSpotLimitOrdersGasEstimator) estimateMsgGas(msg sdk.Msg) 
 	// type assert exchangetypes.MsgBatchCreateSpotLimitOrders
 	batchCreateMsg := msg.(*exchangetypes.MsgBatchCreateSpotLimitOrders)
 	var total uint64
-	postOnlyOrders := selectPostOnlyOrders(batchCreateMsg.Orders)
+	postOnlyOrders := selectPostOnlyOrders(toPointer(batchCreateMsg.Orders))
 	total += GENERAL_MESSAGE_GAS_LIMIT
 	total += uint64(len(batchCreateMsg.Orders)) * SPOT_ORDER_CREATION_GAS_LIMIT
 	total += uint64(math.Ceil(float64(len(postOnlyOrders)) * float64(SPOT_ORDER_CREATION_GAS_LIMIT) * SPOT_POST_ONLY_ORDER_MULTIPLIER))
@@ -187,5 +201,48 @@ func (e *MsgBatchCancelSpotOrdersGasEstimator) estimateMsgGas(msg sdk.Msg) uint6
 	var total uint64
 	total += GENERAL_MESSAGE_GAS_LIMIT
 	total += uint64(len(batchCancelMsg.Data)) * SPOT_ORDER_CANCELATION_GAS_LIMIT // Calculate gas based on number of orders to cancel
+	return total
+}
+
+// MsgBatchUpdateOrdersGasEstimator
+type MsgBatchUpdateOrdersGasEstimator struct {
+}
+
+func newMsgBatchUpdateOrdersGasEstimator() *MsgBatchUpdateOrdersGasEstimator {
+	return &MsgBatchUpdateOrdersGasEstimator{}
+}
+
+func (e *MsgBatchUpdateOrdersGasEstimator) appliesTo(msg sdk.Msg) bool {
+	_, ok := msg.(*exchangetypes.MsgBatchUpdateOrders)
+	return ok
+}
+
+func (e *MsgBatchUpdateOrdersGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
+	// type assert exchangetypes.MsgBatchUpdateOrders
+	batchUpdateMsg := msg.(*exchangetypes.MsgBatchUpdateOrders)
+
+	// Helper functions to count post-only orders for different order types
+	postOnlySpotOrders := selectPostOnlyOrders(batchUpdateMsg.SpotOrdersToCreate)
+	postOnlyDerivativeOrders := selectPostOnlyOrders(batchUpdateMsg.DerivativeOrdersToCreate)
+	postOnlyBinaryOptionsOrders := selectPostOnlyOrders(batchUpdateMsg.BinaryOptionsOrdersToCreate)
+
+	var total uint64
+	total += MESSAGE_GAS_LIMIT
+	total += uint64(len(batchUpdateMsg.SpotOrdersToCreate)) * SPOT_ORDER_CREATION_GAS_LIMIT
+	total += uint64(len(batchUpdateMsg.DerivativeOrdersToCreate)) * DERIVATIVE_ORDER_CREATION_GAS_LIMIT
+	total += uint64(len(batchUpdateMsg.BinaryOptionsOrdersToCreate)) * DERIVATIVE_ORDER_CREATION_GAS_LIMIT
+
+	total += uint64(math.Ceil(float64(len(postOnlySpotOrders)) * float64(SPOT_ORDER_CREATION_GAS_LIMIT) * SPOT_POST_ONLY_ORDER_MULTIPLIER))
+	total += uint64(math.Ceil(float64(len(postOnlyDerivativeOrders)) * float64(DERIVATIVE_ORDER_CREATION_GAS_LIMIT) * DERIVATIVE_POST_ONLY_ORDER_MULTIPLIER))
+	total += uint64(math.Ceil(float64(len(postOnlyBinaryOptionsOrders)) * float64(DERIVATIVE_ORDER_CREATION_GAS_LIMIT) * DERIVATIVE_POST_ONLY_ORDER_MULTIPLIER))
+
+	total += uint64(len(batchUpdateMsg.SpotOrdersToCancel)) * SPOT_ORDER_CANCELATION_GAS_LIMIT
+	total += uint64(len(batchUpdateMsg.DerivativeOrdersToCancel)) * DERIVATIVE_ORDER_CANCELATION_GAS_LIMIT
+	total += uint64(len(batchUpdateMsg.BinaryOptionsOrdersToCancel)) * DERIVATIVE_ORDER_CANCELATION_GAS_LIMIT
+
+	total += uint64(len(batchUpdateMsg.SpotMarketIdsToCancelAll)) * CANCEL_ALL_SPOT_MARKET_GAS_LIMIT * AVERAGE_CANCEL_ALL_AFFECTED_ORDERS
+	total += uint64(len(batchUpdateMsg.DerivativeMarketIdsToCancelAll)) * CANCEL_ALL_DERIVATIVE_MARKET_GAS_LIMIT * AVERAGE_CANCEL_ALL_AFFECTED_ORDERS
+	total += uint64(len(batchUpdateMsg.BinaryOptionsMarketIdsToCancelAll)) * CANCEL_ALL_DERIVATIVE_MARKET_GAS_LIMIT * AVERAGE_CANCEL_ALL_AFFECTED_ORDERS
+
 	return total
 }
