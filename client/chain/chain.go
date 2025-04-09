@@ -79,6 +79,18 @@ type TXOpts struct {
 	Emergency bool
 }
 
+type TXStatus struct {
+	*TXOpts
+	BroadCastDoneNotifier chan struct{}
+}
+
+func NewTXStatus(c *TXOpts) *TXStatus {
+	return &TXStatus{
+		TXOpts:                c,
+		BroadCastDoneNotifier: make(chan struct{}, 1),
+	}
+}
+
 type TXConfigurable interface {
 	GetTXOpts() *TXOpts
 }
@@ -94,7 +106,7 @@ type ChainClient interface {
 	GetBlockHeight() (int64, error)
 
 	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
-	AsyncBroadcastMsgWithOpts(opts *TXOpts, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	AsyncBroadcastMsgWithOpts(opts *TXStatus, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 
@@ -880,17 +892,22 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	return res, nil
 }
 
-func (c *chainClient) AsyncBroadcastMsgWithOpts(opts *TXOpts, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+func (c *chainClient) AsyncBroadcastMsgWithOpts(opts *TXStatus, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	broadcastFunc := func() (*txtypes.BroadcastTxResponse, []byte, error) {
 		c.syncMux.Lock()
 		defer c.syncMux.Unlock()
+		defer func() {
+			if opts != nil {
+				opts.BroadCastDoneNotifier <- struct{}{}
+			}
+		}()
 
 		c.txFactory = c.txFactory.WithSequence(c.accSeq)
 		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 
 		c.logger.Infoln("[INJ-GO-SDK] Sending chain msg: ", time.Now().Format("2006-01-02 15:04:05"))
 
-		res, txBytes, err := c.broadcastTxAsyncWithOpts(c.ctx, c.txFactory, false, opts, msgs...)
+		res, txBytes, err := c.broadcastTxAsyncWithOpts(c.ctx, c.txFactory, false, opts.TXOpts, msgs...)
 		if err != nil {
 			if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 				c.syncNonce()
@@ -898,7 +915,7 @@ func (c *chainClient) AsyncBroadcastMsgWithOpts(opts *TXOpts, msgs ...sdk.Msg) (
 				c.txFactory = c.txFactory.WithSequence(c.accSeq)
 				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 				c.logger.Infof("[INJ-GO-SDK] Retrying broadcastTx with nonce: %d ,err: %v", c.accSeq, err)
-				res, txBytes, err = c.broadcastTxAsyncWithOpts(c.ctx, c.txFactory, false, opts, msgs...)
+				res, txBytes, err = c.broadcastTxAsyncWithOpts(c.ctx, c.txFactory, false, opts.TXOpts, msgs...)
 			}
 			if err != nil {
 				resJSON, _ := json.MarshalIndent(res, "", "\t")
