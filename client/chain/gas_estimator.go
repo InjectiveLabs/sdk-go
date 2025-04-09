@@ -94,6 +94,16 @@ func (g *TXGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
 	return GENERAL_MESSAGE_GAS_LIMIT
 }
 
+func selectPostOnlyOrders(orders []exchangetypes.SpotOrder) []exchangetypes.SpotOrder {
+	var filtered []exchangetypes.SpotOrder
+	for _, order := range orders {
+		if order.OrderType == exchangetypes.OrderType_BUY_PO || order.OrderType == exchangetypes.OrderType_SELL_PO {
+			filtered = append(filtered, order)
+		}
+	}
+	return filtered
+}
+
 // MsgCreateSpotLimitOrder
 type MsgCreateSpotLimitOrderGasEstimator struct {
 }
@@ -108,17 +118,12 @@ func (e *MsgCreateSpotLimitOrderGasEstimator) appliesTo(msg sdk.Msg) bool {
 }
 
 func (e *MsgCreateSpotLimitOrderGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
-	return SPOT_ORDER_CREATION_GAS_LIMIT
-}
-
-func selectPostOnlyOrders(orders []exchangetypes.SpotOrder) []exchangetypes.SpotOrder {
-	var filtered []exchangetypes.SpotOrder
-	for _, order := range orders {
-		if order.OrderType == exchangetypes.OrderType_BUY_PO || order.OrderType == exchangetypes.OrderType_SELL_PO {
-			filtered = append(filtered, order)
-		}
+	postOnlyOrder := selectPostOnlyOrders([]exchangetypes.SpotOrder{msg.(*exchangetypes.MsgCreateSpotLimitOrder).Order})
+	total := uint64(SPOT_ORDER_CREATION_GAS_LIMIT)
+	if len(postOnlyOrder) > 0 {
+		total += uint64(math.Ceil(SPOT_ORDER_CREATION_GAS_LIMIT * SPOT_POST_ONLY_ORDER_MULTIPLIER))
 	}
-	return filtered
+	return total
 }
 
 // MsgBatchCreateSpotLimitOrders
