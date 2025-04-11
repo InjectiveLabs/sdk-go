@@ -75,8 +75,14 @@ var (
 	ErrReadOnly       = errors.New("client is in read-only mode")
 )
 
+var _ TXConfigurable = &TXOpts{}
+
 type TXOpts struct {
 	Emergency bool
+}
+
+func (opt *TXOpts) GetTXOpts() *TXOpts {
+	return opt
 }
 
 type TXStatus struct {
