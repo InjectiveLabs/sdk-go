@@ -28,6 +28,8 @@ const (
 	AVERAGE_CANCEL_ALL_AFFECTED_ORDERS = 20
 
 	TRANSACTION_GAS_LIMIT = 60_000
+
+	TRANSACTION_PRESERVED_MULTIPLIER = 0.2
 )
 
 type msgGasEstimator interface {
@@ -76,6 +78,7 @@ func (g *TXGasEstimator) EstimateTXGas(msgs ...sdk.Msg) uint64 {
 		totalMsgGas += g.estimateMsgGas(msg)
 	}
 	txGas := totalMsgGas + TRANSACTION_GAS_LIMIT
+	txGas += uint64(math.Ceil(float64(txGas) * TRANSACTION_PRESERVED_MULTIPLIER))
 
 	// for i := range msgs {
 	// 	msg := msgs[i]
