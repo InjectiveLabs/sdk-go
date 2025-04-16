@@ -1,8 +1,7 @@
 module github.com/InjectiveLabs/sdk-go
 
 go 1.22.11
-
-toolchain go1.23.1
+toolchain go1.24.1
 
 require (
 	cosmossdk.io/errors v1.0.1
@@ -31,7 +30,7 @@ require (
 	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.10.0
 	github.com/tyler-smith/go-bip39 v1.1.0
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.35.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241209162323-e6fa225c2576
 	google.golang.org/grpc v1.70.0
 	google.golang.org/protobuf v1.36.4
