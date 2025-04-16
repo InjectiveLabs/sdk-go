@@ -127,7 +127,7 @@ func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error)
 
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData primary type")
+		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
 	}
 
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))

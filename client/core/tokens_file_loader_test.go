@@ -11,7 +11,7 @@ import (
 )
 
 func TestLoadTokensFromUrl(t *testing.T) {
-	tokensMetadata := make([]TokenMetadata, 2)
+	tokensMetadata := make([]TokenMetadata, 0, 2)
 	tokensMetadata = append(tokensMetadata, TokenMetadata{
 		Address:           "",
 		IsNative:          true,

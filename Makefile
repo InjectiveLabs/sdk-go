@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.14.1-RC.6 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.15.6 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.14.0 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.15.0 --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -92,6 +92,11 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/tokenfactory/types && \
 		cp injective-core/injective-chain/modules/tokenfactory/types/*.pb.go chain/tokenfactory/types && \
 		cp injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types
+	mkdir -p chain/txfees/types && \
+		cp injective-core/injective-chain/modules/txfees/types/*.pb.go chain/txfees/types && \
+		cp injective-core/injective-chain/modules/txfees/types/codec.go chain/txfees/types
+	mkdir -p chain/txfees/osmosis/types && \
+		cp injective-core/injective-chain/modules/txfees/osmosis/types/*.pb.go chain/txfees/osmosis/types
 	mkdir -p chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/authz.go chain/wasmx/types && \

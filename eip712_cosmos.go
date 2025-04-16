@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 	"reflect"
 	"runtime/debug"
 	"strings"
 	"time"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
@@ -64,6 +65,12 @@ func WrapTxToEIP712(
 		[]cosmtypes.Msg{}, memo,
 	)
 
+	if chainID > uint64(math.MaxInt64) {
+		err := fmt.Errorf("chainID is too large: %v (max supported value is %v)", chainID, math.MaxInt64)
+		return typeddata.TypedData{}, err
+	}
+	intChainId := int64(chainID)
+
 	txData := make(map[string]interface{})
 	if err := json.Unmarshal(data, &txData); err != nil {
 		err = errors.Wrap(err, "failed to unmarshal data provided into WrapTxToEIP712")
@@ -98,7 +105,7 @@ func WrapTxToEIP712(
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(intChainId),
 		VerifyingContract: "cosmos",
 		Salt:              "0",
 	}
@@ -265,7 +272,7 @@ func traverseFields(
 
 			err = cdc.UnpackAny(any, &anyWrapper.Value)
 			if err != nil {
-				err = errors.Wrap(err, "failed to unpack Any in msg struct")
+				err = errors.Wrapf(err, "failed to unpack Any in msg struct at field %s", fieldName)
 				return err
 			}
 
@@ -388,8 +395,9 @@ func jsonNameFromTag(tag reflect.StructTag) string {
 }
 
 // _.foo_bar.baz -> TypeFooBarBaz
-// this is needed for Geth's own signing code which doesn't
-// tolerate complex type names
+// sanitizeTypedef ensures that complex type names are simplified and
+// conform to the format expected by Geth's signing code, which requires
+// PascalCase for compatibility with EIP-712.
 func sanitizeTypedef(str string) string {
 	buf := new(bytes.Buffer)
 	parts := strings.Split(str, ".")
@@ -413,7 +421,7 @@ var (
 	hashType      = reflect.TypeOf(common.Hash{})
 	addressType   = reflect.TypeOf(common.Address{})
 	bigIntType    = reflect.TypeOf(big.Int{})
-	cosmIntType   = reflect.TypeOf(math.Int{})
+	cosmIntType   = reflect.TypeOf(sdkmath.Int{})
 	cosmosAnyType = reflect.TypeOf(&codectypes.Any{})
 	timeType      = reflect.TypeOf(time.Time{})
 )
@@ -531,10 +539,17 @@ func WrapTxToEIP712V2(
 	msgs []cosmtypes.Msg,
 	feeDelegation *FeeDelegationOptions,
 ) (typeddata.TypedData, error) {
+
+	if chainID > uint64(math.MaxInt64) {
+		err := fmt.Errorf("chainID is too large: %v (max supported value is %v)", chainID, math.MaxInt64)
+		return typeddata.TypedData{}, err
+	}
+	intChainId := int64(chainID)
+
 	domain := typeddata.TypedDataDomain{
 		Name:              "Injective Web3",
 		Version:           "1.0.0",
-		ChainId:           ethmath.NewHexOrDecimal256(int64(chainID)),
+		ChainId:           ethmath.NewHexOrDecimal256(intChainId),
 		VerifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
 		Salt:              "0",
 	}
