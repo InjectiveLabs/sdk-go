@@ -1518,10 +1518,7 @@ message QueryGrantAuthorizationsResponse {
   repeated GrantAuthorization grants = 2;
 }
 
-message QueryMarketBalanceRequest {
-  // market id
-  string market_id = 1;
-}
+message QueryMarketBalanceResponse { MarketBalance balance = 1; }
 
 message QueryMarketBalanceResponse {
   string balance = 1[
