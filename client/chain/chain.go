@@ -29,6 +29,7 @@ import (
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	log "github.com/InjectiveLabs/suplog"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -307,6 +308,9 @@ type ChainClient interface {
 	FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error)
 	FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error)
 
+	// TxFees module
+	GetEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
+
 	GetNetwork() common.Network
 	Close()
 }
@@ -349,6 +353,7 @@ type chainClient struct {
 	ibcConnectionQueryClient ibcconnectiontypes.QueryClient
 	ibcTransferQueryClient   ibctransfertypes.QueryClient
 	permissionsQueryClient   permissionstypes.QueryClient
+	txFeesQueryClient        txfeestypes.QueryClient
 	tendermintQueryClient    cmtservice.ServiceClient
 	tokenfactoryQueryClient  tokenfactorytypes.QueryClient
 	txClient                 txtypes.ServiceClient
@@ -450,6 +455,7 @@ func NewChainClient(
 		ibcConnectionQueryClient: ibcconnectiontypes.NewQueryClient(conn),
 		ibcTransferQueryClient:   ibctransfertypes.NewQueryClient(conn),
 		permissionsQueryClient:   permissionstypes.NewQueryClient(conn),
+		txFeesQueryClient:        txfeestypes.NewQueryClient(conn),
 		tendermintQueryClient:    cmtservice.NewServiceClient(conn),
 		tokenfactoryQueryClient:  tokenfactorytypes.NewQueryClient(conn),
 		txClient:                 txtypes.NewServiceClient(conn),
@@ -2658,6 +2664,13 @@ func (c *chainClient) FetchPermissionsVoucher(ctx context.Context, denom, addres
 func (c *chainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
 	req := &permissionstypes.QueryModuleStateRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PermissionsModuleState, req)
+
+	return res, err
+}
+
+func (c *chainClient) GetEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
+	req := &txfeestypes.QueryEipBaseFeeRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txFeesQueryClient.GetEipBaseFee, req)
 
 	return res, err
 }

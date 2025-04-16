@@ -21,6 +21,7 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
 	eth "github.com/ethereum/go-ethereum/common"
 	"google.golang.org/grpc"
 
@@ -825,6 +826,10 @@ func (c *MockChainClient) FetchPermissionsVoucher(ctx context.Context, denom, ad
 
 func (c *MockChainClient) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
 	return &permissionstypes.QueryModuleStateResponse{}, nil
+}
+
+func (c *MockChainClient) GetEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
+	return &txfeestypes.QueryEipBaseFeeResponse{}, nil
 }
 
 func (c *MockChainClient) GetNetwork() common.Network {
