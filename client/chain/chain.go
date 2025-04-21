@@ -75,6 +75,32 @@ var (
 	ErrReadOnly       = errors.New("client is in read-only mode")
 )
 
+var _ TXConfigurable = &TXOpts{}
+
+type TXOpts struct {
+	Emergency bool
+}
+
+func (opt *TXOpts) GetTXOpts() *TXOpts {
+	return opt
+}
+
+type TXStatus struct {
+	*TXOpts
+	BroadCastDoneNotifier chan struct{}
+}
+
+func NewTXStatus(c *TXOpts) *TXStatus {
+	return &TXStatus{
+		TXOpts:                c,
+		BroadCastDoneNotifier: make(chan struct{}, 1),
+	}
+}
+
+type TXConfigurable interface {
+	GetTXOpts() *TXOpts
+}
+
 type ChainClient interface {
 	CanSignTransactions() bool
 	FromAddress() sdk.AccAddress
@@ -86,6 +112,7 @@ type ChainClient interface {
 	GetBlockHeight() (int64, error)
 
 	SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
+	AsyncBroadcastMsgWithOpts(opts *TXStatus, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 
@@ -356,6 +383,7 @@ type chainClient struct {
 	canSign bool
 
 	isDynamicGasPrices bool
+	gasEstimator       *TXGasEstimator
 }
 
 func NewChainClient(
@@ -466,6 +494,7 @@ func NewChainClient(
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
 
 		isDynamicGasPrices: opts.IsDynamicGasPrices,
+		gasEstimator:       newTXGasEstimator(),
 	}
 	defer func() {
 		if err != nil {
@@ -869,6 +898,73 @@ func (c *chainClient) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxRe
 	return res, nil
 }
 
+func (c *chainClient) AsyncBroadcastMsgWithOpts(opts *TXStatus, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	broadcastFunc := func() (*txtypes.BroadcastTxResponse, []byte, error) {
+		c.syncMux.Lock()
+		defer c.syncMux.Unlock()
+		defer func() {
+			if opts != nil {
+				opts.BroadCastDoneNotifier <- struct{}{}
+			}
+		}()
+
+		c.txFactory = c.txFactory.WithSequence(c.accSeq)
+		c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+
+		c.logger.Infoln("[INJ-GO-SDK] Sending chain msg: ", time.Now().Format("2006-01-02 15:04:05"))
+
+		res, txBytes, err := c.broadcastTxAsyncWithOpts(c.ctx, c.txFactory, false, opts.TXOpts, msgs...)
+		if err != nil {
+			if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
+				c.syncNonce()
+
+				c.txFactory = c.txFactory.WithSequence(c.accSeq)
+				c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
+				c.logger.Infof("[INJ-GO-SDK] Retrying broadcastTx with nonce: %d ,err: %v", c.accSeq, err)
+				res, txBytes, err = c.broadcastTxAsyncWithOpts(c.ctx, c.txFactory, false, opts.TXOpts, msgs...)
+			}
+			if err != nil {
+				resJSON, _ := json.MarshalIndent(res, "", "\t")
+				c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch: %s, size: %d: %v", string(resJSON), len(msgs), err)
+				return nil, nil, err
+			}
+		}
+
+		c.accSeq++
+
+		c.logger.Debugln("[INJ-GO-SDK] Nonce incremented to ", c.accSeq)
+		c.logger.Debugln("[INJ-GO-SDK] Gas wanted: ", c.gasWanted)
+
+		return res, txBytes, nil
+	}
+
+	res, txBytes, err := broadcastFunc()
+	if err != nil {
+		return nil, err
+	}
+
+	res, err = c.PollTxResults(res, c.ctx, txBytes)
+	if err != nil {
+		c.accSeq--
+		if strings.Contains(err.Error(), ErrTimedOut.Error()) && c.isDynamicGasPrices {
+			c.logger.Debugln("[INJ-GO-SDK] Update gas to max gas price")
+			c.txFactory = c.txFactory.WithGasPrices(MaxGasFee)
+		}
+		return res, err
+	} else if res != nil && res.TxResponse != nil {
+		c.txFactory = c.txFactory.WithGasPrices(c.opts.GasPrices)
+		if res.TxResponse.Code != 0 {
+			err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
+			c.logger.Errorf("[INJ-GO-SDK] Failed to commit msg batch, txHash: %s with err: %v", res.TxResponse.TxHash, err)
+			return res, err
+		} else {
+			c.logger.Debugln("[INJ-GO-SDK] Msg batch committed successfully at height: ", res.TxResponse.Height)
+		}
+	}
+
+	return res, nil
+}
+
 func (c *chainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, msgs ...sdk.Msg) ([]byte, error) {
 	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum).WithGas(initialGas)
 	return c.buildSignedTx(clientCtx, txf, msgs...)
@@ -1072,6 +1168,7 @@ func (c *chainClient) broadcastTx(
 	}
 }
 
+// with simulation while based on clientctx.simulate
 func (c *chainClient) broadcastTxAsync(
 	clientCtx client.Context,
 	txf tx.Factory,
@@ -1134,6 +1231,70 @@ func (c *chainClient) broadcastTxAsync(
 	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
 	return res, txBytes, err
 
+}
+
+func (c *chainClient) broadcastTxAsyncWithoutSimulation(
+	clientCtx client.Context,
+	txf tx.Factory,
+	await bool,
+	msgs ...sdk.Msg,
+) (*txtypes.BroadcastTxResponse, []byte, error) {
+
+	txf, err := PrepareFactory(clientCtx, txf)
+	if err != nil {
+		err = errors.Wrap(err, "failed to prepareFactory")
+		return nil, nil, err
+	}
+	ctx := context.Background()
+
+	gas_wanted := c.gasEstimator.EstimateTXGas(msgs...)
+	txf = txf.WithGas(gas_wanted)
+	c.gasWanted = gas_wanted
+
+	txn, err := txf.BuildUnsignedTx(msgs...)
+
+	if err != nil {
+		err = errors.Wrap(err, "failed to BuildUnsignedTx")
+		return nil, nil, err
+	}
+
+	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
+	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
+	if err != nil {
+		err = errors.Wrap(err, "failed to Sign Tx")
+		return nil, nil, err
+	}
+
+	txBytes, err := clientCtx.TxConfig.TxEncoder()(txn.GetTx())
+	if err != nil {
+		err = errors.Wrap(err, "failed TxEncoder to encode Tx")
+		return nil, nil, err
+	}
+
+	req := txtypes.BroadcastTxRequest{
+		txBytes,
+		txtypes.BroadcastMode_BROADCAST_MODE_SYNC,
+	}
+	// use our own client to broadcast tx
+	var header metadata.MD
+	res, err := c.txClient.BroadcastTx(ctx, &req, grpc.Header(&header))
+	return res, txBytes, err
+}
+
+// broadcastTxAsyncWithOpts
+// --> broadcastTxAsyncWithoutSimulation
+// --> broadcastTxAsync
+func (c *chainClient) broadcastTxAsyncWithOpts(
+	clientCtx client.Context,
+	txf tx.Factory,
+	await bool,
+	opts *TXOpts,
+	msgs ...sdk.Msg,
+) (*txtypes.BroadcastTxResponse, []byte, error) {
+	if opts != nil && opts.Emergency {
+		return c.broadcastTxAsyncWithoutSimulation(clientCtx, txf, await, msgs...)
+	}
+	return c.broadcastTxAsync(clientCtx, txf, await, msgs...)
 }
 
 func (c *chainClient) PollTxResults(res *txtypes.BroadcastTxResponse, clientCtx client.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
