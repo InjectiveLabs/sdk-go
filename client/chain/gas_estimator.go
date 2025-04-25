@@ -45,9 +45,13 @@ func newTXGasEstimator() *TXGasEstimator {
 	return &TXGasEstimator{
 		msg_gas_estimators: []msgGasEstimator{
 			newMsgCreateSpotLimitOrderGasEstimator(),
+			newMsgCreateDerivativeLimitOrderGasEstimator(),
 			newMsgBatchCreateSpotLimitOrdersGasEstimator(),
+			newMsgBatchCreateDerivativeLimitOrdersGasEstimator(),
 			newMsgBatchCancelSpotOrdersGasEstimator(),
+			newMsgBatchCancelDerivativeOrdersGasEstimator(),
 			newMsgCancelSpotOrderGasEstimator(),
+			newMsgCancelDerivativeOrderGasEstimator(),
 			newMsgBatchUpdateOrdersGasEstimator(),
 		},
 	}
@@ -120,7 +124,7 @@ func selectPostOnlyOrders[T interface {
 	return filtered
 }
 
-// MsgCreateSpotLimitOrder
+// MsgCreate[Spot/Derivative]LimitOrder
 type MsgCreateSpotLimitOrderGasEstimator struct {
 }
 
@@ -143,7 +147,29 @@ func (e *MsgCreateSpotLimitOrderGasEstimator) estimateMsgGas(msg sdk.Msg) uint64
 	return total
 }
 
-// MsgBatchCreateSpotLimitOrders
+type MsgCreateDerivativeLimitOrderGasEstimator struct {
+}
+
+func newMsgCreateDerivativeLimitOrderGasEstimator() *MsgCreateDerivativeLimitOrderGasEstimator {
+	return &MsgCreateDerivativeLimitOrderGasEstimator{}
+}
+
+func (e *MsgCreateDerivativeLimitOrderGasEstimator) appliesTo(msg sdk.Msg) bool {
+	_, ok := msg.(*exchangetypes.MsgCreateDerivativeLimitOrder)
+	return ok
+}
+
+func (e *MsgCreateDerivativeLimitOrderGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
+	// type assert exchangetypes.MsgCreateDerivativeLimitOrder
+	postOnlyOrder := selectPostOnlyOrders([]*exchangetypes.DerivativeOrder{&msg.(*exchangetypes.MsgCreateDerivativeLimitOrder).Order})
+	total := uint64(DERIVATIVE_ORDER_CREATION_GAS_LIMIT)
+	if len(postOnlyOrder) > 0 {
+		total += uint64(math.Ceil(DERIVATIVE_ORDER_CREATION_GAS_LIMIT * DERIVATIVE_POST_ONLY_ORDER_MULTIPLIER))
+	}
+	return total
+}
+
+// MsgBatchCreate[Spot/Derivative]LimitOrders
 
 type MsgBatchCreateSpotLimitOrdersGasEstimator struct {
 }
@@ -168,7 +194,30 @@ func (e *MsgBatchCreateSpotLimitOrdersGasEstimator) estimateMsgGas(msg sdk.Msg) 
 	return total
 }
 
-// MsgCancelSpotOrderGasEstimator
+type MsgBatchCreateDerivativeLimitOrdersGasEstimator struct {
+}
+
+func newMsgBatchCreateDerivativeLimitOrdersGasEstimator() *MsgBatchCreateDerivativeLimitOrdersGasEstimator {
+	return &MsgBatchCreateDerivativeLimitOrdersGasEstimator{}
+}
+
+func (e *MsgBatchCreateDerivativeLimitOrdersGasEstimator) appliesTo(msg sdk.Msg) bool {
+	_, ok := msg.(*exchangetypes.MsgBatchCreateDerivativeLimitOrders)
+	return ok
+}
+
+func (e *MsgBatchCreateDerivativeLimitOrdersGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
+	// type assert exchangetypes.MsgBatchCreateDerivativeLimitOrders
+	batchCreateMsg := msg.(*exchangetypes.MsgBatchCreateDerivativeLimitOrders)
+	var total uint64
+	postOnlyOrders := selectPostOnlyOrders(toPointer(batchCreateMsg.Orders))
+	total += GENERAL_MESSAGE_GAS_LIMIT
+	total += uint64(len(batchCreateMsg.Orders)) * DERIVATIVE_ORDER_CREATION_GAS_LIMIT
+	total += uint64(math.Ceil(float64(len(postOnlyOrders)) * float64(DERIVATIVE_ORDER_CREATION_GAS_LIMIT) * DERIVATIVE_POST_ONLY_ORDER_MULTIPLIER))
+	return total
+}
+
+// MsgCancel[Spot/Derivative]OrderGasEstimator
 type MsgCancelSpotOrderGasEstimator struct {
 }
 
@@ -185,7 +234,23 @@ func (e *MsgCancelSpotOrderGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
 	return SPOT_ORDER_CANCELATION_GAS_LIMIT
 }
 
-// MsgBatchCancelSpotOrdersGasEstimator
+type MsgCancelDerivativeOrderGasEstimator struct {
+}
+
+func newMsgCancelDerivativeOrderGasEstimator() *MsgCancelDerivativeOrderGasEstimator {
+	return &MsgCancelDerivativeOrderGasEstimator{}
+}
+
+func (e *MsgCancelDerivativeOrderGasEstimator) appliesTo(msg sdk.Msg) bool {
+	_, ok := msg.(*exchangetypes.MsgCancelDerivativeOrder)
+	return ok
+}
+
+func (e *MsgCancelDerivativeOrderGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
+	return DERIVATIVE_ORDER_CANCELATION_GAS_LIMIT
+}
+
+// MsgBatchCancel[Spot/Derivative]OrdersGasEstimator
 type MsgBatchCancelSpotOrdersGasEstimator struct {
 }
 
@@ -204,6 +269,27 @@ func (e *MsgBatchCancelSpotOrdersGasEstimator) estimateMsgGas(msg sdk.Msg) uint6
 	var total uint64
 	total += GENERAL_MESSAGE_GAS_LIMIT
 	total += uint64(len(batchCancelMsg.Data)) * SPOT_ORDER_CANCELATION_GAS_LIMIT // Calculate gas based on number of orders to cancel
+	return total
+}
+
+type MsgBatchCancelDerivativeOrdersGasEstimator struct {
+}
+
+func newMsgBatchCancelDerivativeOrdersGasEstimator() *MsgBatchCancelDerivativeOrdersGasEstimator {
+	return &MsgBatchCancelDerivativeOrdersGasEstimator{}
+}
+
+func (e *MsgBatchCancelDerivativeOrdersGasEstimator) appliesTo(msg sdk.Msg) bool {
+	_, ok := msg.(*exchangetypes.MsgBatchCancelDerivativeOrders)
+	return ok
+}
+
+func (e *MsgBatchCancelDerivativeOrdersGasEstimator) estimateMsgGas(msg sdk.Msg) uint64 {
+	// type assert exchangetypes.MsgBatchCancelDerivativeOrders
+	batchCancelMsg := msg.(*exchangetypes.MsgBatchCancelDerivativeOrders)
+	var total uint64
+	total += GENERAL_MESSAGE_GAS_LIMIT
+	total += uint64(len(batchCancelMsg.Data)) * DERIVATIVE_ORDER_CANCELATION_GAS_LIMIT // Calculate gas based on number of orders to cancel
 	return total
 }
 
