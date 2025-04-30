@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.14.1-RC.6 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.15.6 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b feat/exchange-v2-types --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b cp-253/reduce-margin-ratio --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -95,6 +95,11 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/tokenfactory/types && \
 		cp injective-core/injective-chain/modules/tokenfactory/types/*.pb.go chain/tokenfactory/types && \
 		cp injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types
+	mkdir -p chain/txfees/types && \
+		cp injective-core/injective-chain/modules/txfees/types/*.pb.go chain/txfees/types && \
+		cp injective-core/injective-chain/modules/txfees/types/codec.go chain/txfees/types
+	mkdir -p chain/txfees/osmosis/types && \
+		cp injective-core/injective-chain/modules/txfees/osmosis/types/*.pb.go chain/txfees/osmosis/types
 	mkdir -p chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/authz.go chain/wasmx/types && \
@@ -107,6 +112,8 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
 	mkdir -p chain/stream/types && \
 		cp injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
+	mkdir -p chain/stream/types/v2 && \
+    		cp injective-core/injective-chain/stream/types/v2/*.pb.go chain/stream/types/v2
 	mkdir -p chain/types && \
 		cp injective-core/injective-chain/types/*.pb.go injective-core/injective-chain/types/config.go chain/types && \
 		cp injective-core/injective-chain/types/codec.go chain/types && \
@@ -154,12 +161,16 @@ tests:
 coverage:
 	go test -race -coverprofile=coverage.out -covermode=atomic ./client/... ./ethereum/...
 
-lint-from-dev: export GOPROXY=direct
-lint-from-dev:
+lint: export GOPROXY=direct
+lint:
 	golangci-lint run --timeout=15m -v --new-from-rev=dev
 
 lint-last-commit: export GOPROXY=direct
 lint-last-commit:
 	golangci-lint run --timeout=15m -v --new-from-rev=HEAD~
 
-.PHONY: copy-exchange-client tests coverage lint-from-dev lint-last-commit
+lint-master: export GOPROXY=direct
+lint-master:
+	golangci-lint run --timeout=15m -v --new-from-rev=master
+
+.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master

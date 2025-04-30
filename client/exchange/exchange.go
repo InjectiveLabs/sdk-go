@@ -84,7 +84,7 @@ type ExchangeClient interface {
 	GetInsuranceFunds(ctx context.Context, req *insurancePB.FundsRequest) (*insurancePB.FundsResponse, error)
 	GetRedemptions(ctx context.Context, req *insurancePB.RedemptionsRequest) (*insurancePB.RedemptionsResponse, error)
 
-	GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error)
+	GetAccountPortfolioBalances(ctx context.Context, accountAddress string, usd bool) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error)
 	StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
 
 	StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error)
@@ -933,9 +933,10 @@ func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveM
 	return stream, nil
 }
 
-func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
+func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string, usd bool) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
 	req := &portfolioExchangePB.AccountPortfolioBalancesRequest{
 		AccountAddress: accountAddress,
+		Usd:            usd,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.portfolioExchangeClient.AccountPortfolioBalances, req)
 	if err != nil {

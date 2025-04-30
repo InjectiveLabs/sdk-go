@@ -293,6 +293,28 @@ message EventSpotOrdersV2Migration {
   repeated SpotOrderV2Changes sell_order_changes = 3;
 }
 
+message EventTriggerConditionalMarketOrderFailed {
+  string market_id = 1;
+  string subaccount_id = 2;
+  string mark_price = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  bytes order_hash = 4;
+  string trigger_err = 5;
+}
+
+message EventTriggerConditionalLimitOrderFailed {
+  string market_id = 1;
+  string subaccount_id = 2;
+  string mark_price = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  bytes order_hash = 4;
+  string trigger_err = 5;
+}
+
 message SpotOrderV2Changes {
   string cid = 1;
   bytes hash = 2;

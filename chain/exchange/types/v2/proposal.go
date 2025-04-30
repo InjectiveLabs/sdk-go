@@ -461,6 +461,7 @@ func NewDerivativeMarketParamUpdateProposal(
 	marketID string,
 	initialMarginRatio *math.LegacyDec,
 	maintenanceMarginRatio *math.LegacyDec,
+	reduceMarginRatio *math.LegacyDec,
 	makerFeeRate *math.LegacyDec,
 	takerFeeRate *math.LegacyDec,
 	relayerFeeShareRate *math.LegacyDec,
@@ -480,6 +481,7 @@ func NewDerivativeMarketParamUpdateProposal(
 		MarketId:               marketID,
 		InitialMarginRatio:     initialMarginRatio,
 		MaintenanceMarginRatio: maintenanceMarginRatio,
+		ReduceMarginRatio:      reduceMarginRatio,
 		MakerFeeRate:           makerFeeRate,
 		TakerFeeRate:           takerFeeRate,
 		RelayerFeeShareRate:    relayerFeeShareRate,
@@ -808,7 +810,7 @@ func (p *ProviderOracleParams) ValidateBasic() error {
 func NewPerpetualMarketLaunchProposal(
 	title, description, ticker, quoteDenom,
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType,
-	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate,
+	initialMarginRatio, maintenanceMarginRatio, reduceMarginRatio, makerFeeRate, takerFeeRate,
 	minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
 ) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
@@ -822,6 +824,7 @@ func NewPerpetualMarketLaunchProposal(
 		OracleType:             oracleType,
 		InitialMarginRatio:     initialMarginRatio,
 		MaintenanceMarginRatio: maintenanceMarginRatio,
+		ReduceMarginRatio:      reduceMarginRatio,
 		MakerFeeRate:           makerFeeRate,
 		TakerFeeRate:           takerFeeRate,
 		MinPriceTickSize:       minPriceTickSize,
@@ -876,10 +879,16 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := types.ValidateMarginRatio(p.MaintenanceMarginRatio); err != nil {
 		return err
 	}
+	if err := types.ValidateMarginRatio(p.ReduceMarginRatio); err != nil {
+		return err
+	}
 	if p.MakerFeeRate.GT(p.TakerFeeRate) {
 		return types.ErrFeeRatesRelation
 	}
 	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
+		return types.ErrMarginsRelation
+	}
+	if p.ReduceMarginRatio.LT(p.InitialMarginRatio) {
 		return types.ErrMarginsRelation
 	}
 
@@ -900,7 +909,7 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 func NewExpiryFuturesMarketLaunchProposal(
 	title, description, ticker, quoteDenom,
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, expiry int64,
-	initialMarginRatio, maintenanceMarginRatio, makerFeeRate, takerFeeRate,
+	initialMarginRatio, maintenanceMarginRatio, reduceMarginRatio, makerFeeRate, takerFeeRate,
 	minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
 ) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
@@ -915,6 +924,7 @@ func NewExpiryFuturesMarketLaunchProposal(
 		Expiry:                 expiry,
 		InitialMarginRatio:     initialMarginRatio,
 		MaintenanceMarginRatio: maintenanceMarginRatio,
+		ReduceMarginRatio:      reduceMarginRatio,
 		MakerFeeRate:           makerFeeRate,
 		TakerFeeRate:           takerFeeRate,
 		MinPriceTickSize:       minPriceTickSize,
@@ -972,10 +982,16 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	if err := types.ValidateMarginRatio(p.MaintenanceMarginRatio); err != nil {
 		return err
 	}
+	if err := types.ValidateMarginRatio(p.ReduceMarginRatio); err != nil {
+		return err
+	}
 	if p.MakerFeeRate.GT(p.TakerFeeRate) {
 		return types.ErrFeeRatesRelation
 	}
 	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
+		return types.ErrMarginsRelation
+	}
+	if p.ReduceMarginRatio.LT(p.InitialMarginRatio) {
 		return types.ErrMarginsRelation
 	}
 
@@ -1225,7 +1241,10 @@ func (t *TradingRewardCampaignBoostInfo) validateMarketIdsAndMultipliers() error
 	}
 
 	if len(t.BoostedDerivativeMarketIds) != len(t.DerivativeMarketMultipliers) {
-		return errors.Wrap(types.ErrInvalidTradingRewardCampaign, "boosted derivative market ids is not matching derivative market multipliers")
+		return errors.Wrap(
+			types.ErrInvalidTradingRewardCampaign,
+			"boosted derivative market ids is not matching derivative market multipliers",
+		)
 	}
 
 	return nil
@@ -1400,7 +1419,10 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 	}
 
 	if p.Schedule.BucketDuration < 10 {
-		return errors.Wrap(types.ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have have bucket durations of at least 10 seconds")
+		return errors.Wrap(
+			types.ErrInvalidFeeDiscountSchedule,
+			"new fee discount schedule must have have bucket durations of at least 10 seconds",
+		)
 	}
 
 	if types.HasDuplicates(p.Schedule.QuoteDenoms) {
@@ -1430,19 +1452,31 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 			prevTierInfo := p.Schedule.TierInfos[idx-1]
 
 			if prevTierInfo.MakerDiscountRate.GT(tierInfo.MakerDiscountRate) {
-				return errors.Wrap(types.ErrInvalidFeeDiscountSchedule, "successive MakerDiscountRates must be equal or larger than those of lower tiers")
+				return errors.Wrap(
+					types.ErrInvalidFeeDiscountSchedule,
+					"successive MakerDiscountRates must be equal or larger than those of lower tiers",
+				)
 			}
 
 			if prevTierInfo.TakerDiscountRate.GT(tierInfo.TakerDiscountRate) {
-				return errors.Wrap(types.ErrInvalidFeeDiscountSchedule, "successive TakerDiscountRates must be equal or larger than those of lower tiers")
+				return errors.Wrap(
+					types.ErrInvalidFeeDiscountSchedule,
+					"successive TakerDiscountRates must be equal or larger than those of lower tiers",
+				)
 			}
 
 			if prevTierInfo.StakedAmount.GT(tierInfo.StakedAmount) {
-				return errors.Wrap(types.ErrInvalidFeeDiscountSchedule, "successive StakedAmount must be equal or larger than those of lower tiers")
+				return errors.Wrap(
+					types.ErrInvalidFeeDiscountSchedule,
+					"successive StakedAmount must be equal or larger than those of lower tiers",
+				)
 			}
 
 			if prevTierInfo.Volume.GT(tierInfo.Volume) {
-				return errors.Wrap(types.ErrInvalidFeeDiscountSchedule, "successive Volume must be equal or larger than those of lower tiers")
+				return errors.Wrap(
+					types.ErrInvalidFeeDiscountSchedule,
+					"successive Volume must be equal or larger than those of lower tiers",
+				)
 			}
 		}
 	}
@@ -1740,7 +1774,11 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 	case p.SettlementPrice.Equal(BinaryOptionsMarketRefundFlagPrice),
 		p.SettlementPrice.GTE(math.LegacyZeroDec()) && p.SettlementPrice.LTE(types.MaxBinaryOptionsOrderPrice):
 		if p.Status != MarketStatus_Demolished {
-			return errors.Wrapf(types.ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", p.Status.String())
+			return errors.Wrapf(
+				types.ErrInvalidMarketStatus,
+				"status should be set to demolished when the settlement price is set, status: %s",
+				p.Status.String(),
+			)
 		}
 		// ok
 	default:

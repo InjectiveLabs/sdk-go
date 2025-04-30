@@ -238,7 +238,7 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 	}
 
 	if msg.HasInitialMarginRatioUpdate() && msg.HasMaintenanceMarginRatioUpdate() {
-		if msg.NewInitialMarginRatio.LT(msg.NewMaintenanceMarginRatio) {
+		if msg.NewInitialMarginRatio.LTE(msg.NewMaintenanceMarginRatio) {
 			return ErrMarginsRelation
 		}
 	}
@@ -629,7 +629,7 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
 		return ErrFeeRatesRelation
 	}
-	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
+	if msg.InitialMarginRatio.LTE(msg.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
 	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
@@ -779,7 +779,7 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
 		return ErrFeeRatesRelation
 	}
-	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
+	if msg.InitialMarginRatio.LTE(msg.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
 	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {

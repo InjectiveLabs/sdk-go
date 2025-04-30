@@ -152,8 +152,8 @@ func (m *SpotOrder) GetPrice() math.LegacyDec {
 func (m *SpotLimitOrder) GetPrice() math.LegacyDec {
 	return m.OrderInfo.Price
 }
-func (o *SpotMarketOrder) GetPrice() math.LegacyDec {
-	return o.OrderInfo.Price
+func (m *SpotMarketOrder) GetPrice() math.LegacyDec {
+	return m.OrderInfo.Price
 }
 
 func (m *SpotOrder) GetQuantity() math.LegacyDec {
@@ -163,18 +163,18 @@ func (m *SpotLimitOrder) GetQuantity() math.LegacyDec {
 	return m.OrderInfo.Quantity
 }
 
-func (o *SpotMarketOrder) GetQuantity() math.LegacyDec {
-	return o.OrderInfo.Quantity
+func (m *SpotMarketOrder) GetQuantity() math.LegacyDec {
+	return m.OrderInfo.Quantity
 }
-func (o *SpotMarketOrder) IsBuy() bool {
-	return o.OrderType.IsBuy()
+func (m *SpotMarketOrder) IsBuy() bool {
+	return m.OrderType.IsBuy()
 }
 func (m *SpotOrder) GetFillable() math.LegacyDec {
 	return m.OrderInfo.Quantity
 }
-func (o *SpotMarketOrder) GetFillable() math.LegacyDec {
+func (m *SpotMarketOrder) GetFillable() math.LegacyDec {
 	// no fillable for market order, but quantity works same in this case
-	return o.OrderInfo.Quantity
+	return m.OrderInfo.Quantity
 }
 func (m *SpotLimitOrder) GetFillable() math.LegacyDec {
 	return m.Fillable
@@ -183,8 +183,8 @@ func (m *SpotLimitOrder) GetFillable() math.LegacyDec {
 func (m *SpotOrder) GetSubaccountID() common.Hash {
 	return m.OrderInfo.SubaccountID()
 }
-func (o *SpotMarketOrder) GetSubaccountID() common.Hash {
-	return o.OrderInfo.SubaccountID()
+func (m *SpotMarketOrder) GetSubaccountID() common.Hash {
+	return m.OrderInfo.SubaccountID()
 }
 func (m *SpotLimitOrder) GetSubaccountID() common.Hash {
 	return m.OrderInfo.SubaccountID()

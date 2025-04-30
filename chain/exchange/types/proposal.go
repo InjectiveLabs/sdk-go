@@ -789,7 +789,7 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if p.MakerFeeRate.GT(p.TakerFeeRate) {
 		return ErrFeeRatesRelation
 	}
-	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
+	if p.InitialMarginRatio.LTE(p.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
 
@@ -884,7 +884,7 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	if p.MakerFeeRate.GT(p.TakerFeeRate) {
 		return ErrFeeRatesRelation
 	}
-	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
+	if p.InitialMarginRatio.LTE(p.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
 

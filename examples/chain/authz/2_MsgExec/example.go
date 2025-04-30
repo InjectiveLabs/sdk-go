@@ -12,7 +12,6 @@ import (
 	"github.com/shopspring/decimal"
 
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
-	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
@@ -65,7 +64,6 @@ func main() {
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	txFactory := chainclient.NewTxFactory(clientCtx)
-	txFactory = txFactory.WithGasPrices(client.DefaultGasPriceWithDenom)
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,
@@ -75,6 +73,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	gasPrice := chainClient.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	chainClient.SetGasPrice(gasPrice)
 
 	// note that we use grantee keyring to send the msg on behalf of granter here
 	// sender, subaccount are from granter
@@ -128,4 +131,9 @@ func main() {
 	}
 
 	fmt.Println("gas fee:", gasFee, "INJ")
+
+	gasPrice = chainClient.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	chainClient.SetGasPrice(gasPrice)
 }

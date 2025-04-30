@@ -37,11 +37,12 @@ func (m *SpotOrder) GetNewSpotLimitOrder(sender sdk.AccAddress, orderHash common
 		m.OrderInfo.FeeRecipient = sender.String()
 	}
 	return &SpotLimitOrder{
-		OrderInfo:    m.OrderInfo,
-		OrderType:    m.OrderType,
-		Fillable:     m.OrderInfo.Quantity,
-		TriggerPrice: m.TriggerPrice,
-		OrderHash:    orderHash.Bytes(),
+		OrderInfo:       m.OrderInfo,
+		OrderType:       m.OrderType,
+		Fillable:        m.OrderInfo.Quantity,
+		TriggerPrice:    m.TriggerPrice,
+		OrderHash:       orderHash.Bytes(),
+		ExpirationBlock: m.ExpirationBlock,
 	}
 }
 
@@ -61,24 +62,24 @@ func (m *SpotLimitOrder) Cid() string {
 	return m.OrderInfo.GetCid()
 }
 
-func (o *SpotMarketOrder) Cid() string {
-	return o.OrderInfo.GetCid()
+func (m *SpotMarketOrder) Cid() string {
+	return m.OrderInfo.GetCid()
 }
 
 func (m *SpotLimitOrder) SubaccountID() common.Hash {
 	return m.OrderInfo.SubaccountID()
 }
 
-func (o *SpotMarketOrder) SubaccountID() common.Hash {
-	return o.OrderInfo.SubaccountID()
+func (m *SpotMarketOrder) SubaccountID() common.Hash {
+	return m.OrderInfo.SubaccountID()
 }
 
-func (o *SpotMarketOrder) IsFromDefaultSubaccount() bool {
-	return o.OrderInfo.IsFromDefaultSubaccount()
+func (m *SpotMarketOrder) IsFromDefaultSubaccount() bool {
+	return m.OrderInfo.IsFromDefaultSubaccount()
 }
 
-func (o *SpotMarketOrder) SdkAccAddress() sdk.AccAddress {
-	return o.SubaccountID().Bytes()[:common.AddressLength]
+func (m *SpotMarketOrder) SdkAccAddress() sdk.AccAddress {
+	return m.SubaccountID().Bytes()[:common.AddressLength]
 }
 
 func (m *SpotLimitOrder) SdkAccAddress() sdk.AccAddress {
@@ -89,16 +90,26 @@ func (m *SpotLimitOrder) FeeRecipient() common.Address {
 	return m.OrderInfo.FeeRecipientAddress()
 }
 
-func (o *SpotMarketOrder) FeeRecipient() common.Address {
-	return o.OrderInfo.FeeRecipientAddress()
+func (m *SpotMarketOrder) FeeRecipient() common.Address {
+	return m.OrderInfo.FeeRecipientAddress()
 }
 
 func (m *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
 	if types.BreachesMinimumTickSize(m.OrderInfo.Price, minPriceTickSize) {
-		return errors.Wrapf(types.ErrInvalidPrice, "price %s must be a multiple of the minimum price tick size %s", m.OrderInfo.Price.String(), minPriceTickSize.String())
+		return errors.Wrapf(
+			types.ErrInvalidPrice,
+			"price %s must be a multiple of the minimum price tick size %s",
+			m.OrderInfo.Price.String(),
+			minPriceTickSize.String(),
+		)
 	}
 	if types.BreachesMinimumTickSize(m.OrderInfo.Quantity, minQuantityTickSize) {
-		return errors.Wrapf(types.ErrInvalidQuantity, "quantity %s must be a multiple of the minimum quantity tick size %s", m.OrderInfo.Quantity.String(), minQuantityTickSize.String())
+		return errors.Wrapf(
+			types.ErrInvalidQuantity,
+			"quantity %s must be a multiple of the minimum quantity tick size %s",
+			m.OrderInfo.Quantity.String(),
+			minQuantityTickSize.String(),
+		)
 	}
 	return nil
 }
@@ -106,7 +117,12 @@ func (m *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.Leg
 func (m *SpotOrder) CheckNotional(minNotional math.LegacyDec) error {
 	orderNotional := m.GetQuantity().Mul(m.GetPrice())
 	if !minNotional.IsNil() && orderNotional.LT(minNotional) {
-		return errors.Wrapf(types.ErrInvalidNotional, "order notional (%s) is less than the minimum notional for the market (%s)", orderNotional.String(), minNotional.String())
+		return errors.Wrapf(
+			types.ErrInvalidNotional,
+			"order notional (%s) is less than the minimum notional for the market (%s)",
+			orderNotional.String(),
+			minNotional.String(),
+		)
 	}
 	return nil
 }
@@ -139,8 +155,8 @@ func (m *SpotLimitOrder) IsConditional() bool {
 	return m.OrderType.IsConditional()
 }
 
-func (o *SpotMarketOrder) IsConditional() bool {
-	return o.OrderType.IsConditional()
+func (m *SpotMarketOrder) IsConditional() bool {
+	return m.OrderType.IsConditional()
 }
 
 func (m *SpotLimitOrder) GetUnfilledNotional() math.LegacyDec {
@@ -186,7 +202,8 @@ func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket,
 			tradeFeeRate = math.LegacyMaxDec(math.LegacyZeroDec(), market.MakerFeeRate)
 		}
 
-		// for a resting limit buy in the ETH/USDT market, denom is USDT and fillable amount is BalanceHold is (1 + makerFee)*(price * quantity) since (takerFee - makerFee) is already refunded
+		// for a resting limit buy in the ETH/USDT market, denom is USDT and fillable amount is BalanceHold is
+		// (1 + makerFee)*(price * quantity) since (takerFee - makerFee) is already refunded
 		denom = market.QuoteDenom
 		balanceHold = m.GetUnfilledNotional().Add(m.GetUnfilledFeeAmount(tradeFeeRate))
 	} else {

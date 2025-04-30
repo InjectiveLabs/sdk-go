@@ -183,6 +183,17 @@ message Params {
   // fixed_gas_enabled indicates if msg server will consume fixed gas amount for
   // certain msg types
   bool fixed_gas_enabled = 29;
+
+  // emit_legacy_version_events indicates if events of legacy version types
+  // should be emitted in parallel to the new version events
+  bool emit_legacy_version_events = 30;
+
+  // default_reduce_margin_ratio defines the default reduce margin ratio on a
+  // new derivative market
+  string default_reduce_margin_ratio = 31 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }

@@ -22,6 +22,7 @@ var (
 	KeyDefaultDerivativeTakerFeeRate               = []byte("DefaultDerivativeTakerFeeRate")
 	KeyDefaultInitialMarginRatio                   = []byte("DefaultInitialMarginRatio")
 	KeyDefaultMaintenanceMarginRatio               = []byte("DefaultMaintenanceMarginRatio")
+	KeyDefaultReduceMarginRatio                    = []byte("DefaultReduceMarginRatio")
 	KeyDefaultFundingInterval                      = []byte("DefaultFundingInterval")
 	KeyFundingMultiple                             = []byte("FundingMultiple")
 	KeyRelayerFeeShareRate                         = []byte("RelayerFeeShareRate")
@@ -54,6 +55,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyDefaultDerivativeTakerFeeRate, &p.DefaultDerivativeTakerFeeRate, types.ValidateFee),
 		paramtypes.NewParamSetPair(KeyDefaultInitialMarginRatio, &p.DefaultInitialMarginRatio, types.ValidateMarginRatio),
 		paramtypes.NewParamSetPair(KeyDefaultMaintenanceMarginRatio, &p.DefaultMaintenanceMarginRatio, types.ValidateMarginRatio),
+		paramtypes.NewParamSetPair(KeyDefaultReduceMarginRatio, &p.DefaultReduceMarginRatio, types.ValidateMarginRatio),
 		paramtypes.NewParamSetPair(KeyDefaultFundingInterval, &p.DefaultFundingInterval, types.ValidateFundingInterval),
 		paramtypes.NewParamSetPair(KeyFundingMultiple, &p.FundingMultiple, types.ValidateFundingMultiple),
 		paramtypes.NewParamSetPair(KeyRelayerFeeShareRate, &p.RelayerFeeShareRate, types.ValidateFee),
@@ -132,6 +134,7 @@ func DefaultParams() Params {
 		ExchangeAdmins:                               []string{},
 		InjAuctionMaxCap:                             types.DefaultInjAuctionMaxCap,
 		FixedGasEnabled:                              false,
+		EmitLegacyVersionEvents:                      true,
 	}
 }
 
@@ -188,7 +191,7 @@ func (p Params) Validate() error {
 	if err := types.ValidateBinaryOptionsMarketInstantListingFee(p.BinaryOptionsMarketInstantListingFee); err != nil {
 		return fmt.Errorf("binary_options_market_instant_listing_fee is incorrect: %w", err)
 	}
-	if err := types.ValidateAtomicMarketOrderAccessLevel(p.AtomicMarketOrderAccessLevel); err != nil {
+	if err := ValidateAtomicMarketOrderAccessLevel(p.AtomicMarketOrderAccessLevel); err != nil {
 		return fmt.Errorf("atomic_market_order_access_level is incorrect: %w", err)
 	}
 	if err := types.ValidateAtomicMarketOrderFeeMultiplier(p.SpotAtomicMarketOrderFeeMultiplier); err != nil {
@@ -214,5 +217,16 @@ func (p Params) Validate() error {
 		return fmt.Errorf("fixed_gas_enabled is incorrect: %w", err)
 	}
 
+	return nil
+}
+
+func ValidateAtomicMarketOrderAccessLevel(i interface{}) error {
+	v, ok := i.(AtomicMarketOrderAccessLevel)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if !v.IsValid() {
+		return fmt.Errorf("invalid AtomicMarketOrderAccessLevel value: %v", v)
+	}
 	return nil
 }

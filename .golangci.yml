@@ -1,6 +1,3 @@
-run:
-  tests: false
-
 linters:
   fast: false
   enable:
@@ -38,21 +35,28 @@ linters-settings:
           - 140
   gocritic:
     enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
       - performance
+      - diagnostic
       - style
+      - opinionated
+      - experimental
     disabled-checks:
       - singleCaseSwitch
       - deferInLoop
       - hugeParam
       - unnamedResult
-      - dupImport
 issues:
+  exclude-rules:
+    - linters:
+        - revive
+      text: ALL_CAPS
   exclude-dirs:
     - chain
     - exchange
     - injective_data
     - proto
+    - client/keyring/testdata
   max-issues-per-linter: 0
+
+run:
+  tests: false

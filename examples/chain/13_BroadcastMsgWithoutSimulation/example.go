@@ -11,7 +11,6 @@ import (
 	"github.com/shopspring/decimal"
 
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
-	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
@@ -49,7 +48,6 @@ func main() {
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient).WithSimulation(false)
 
 	txFactory := chainclient.NewTxFactory(clientCtx)
-	txFactory = txFactory.WithGasPrices(client.DefaultGasPriceWithDenom)
 	txFactory = txFactory.WithGas(uint64(txFactory.GasAdjustment() * 140000))
 
 	clientInstance, err := chainclient.NewChainClient(
@@ -61,6 +59,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	gasPrice := clientInstance.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	clientInstance.SetGasPrice(gasPrice)
 
 	defaultSubaccountID := clientInstance.DefaultSubaccount(senderAddress)
 
@@ -93,5 +96,10 @@ func main() {
 
 	str, _ := json.MarshalIndent(response, "", " ")
 	fmt.Print(string(str))
+
+	gasPrice = clientInstance.CurrentChainGasPrice()
+	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
+	gasPrice = int64(float64(gasPrice) * 1.1)
+	clientInstance.SetGasPrice(gasPrice)
 
 }

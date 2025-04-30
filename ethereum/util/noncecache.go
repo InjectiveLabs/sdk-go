@@ -115,35 +115,31 @@ func (n nonceCache) Sync(account common.Address, syncFn func() (uint64, error)) 
 	n.mux.Unlock()
 
 	prevNonce, prevOk := n.nonces[account]
-
 	n.mux.RLock()
 	nextNonce, nextOk := n.nonces[account]
 	n.mux.RUnlock()
 
-	// Early return conditions
 	if !prevOk && nextOk {
-		// we're not fist here to sync - skip
 		lock.Unlock()
 		return
 	}
-
 	if nextNonce != prevNonce {
 		lock.Unlock()
 		return
 	}
 
-	// Perform sync
 	nonce, err := syncFn()
-	if err == nil {
-		n.mux.Lock()
-		if nonce > uint64(math.MaxInt64) {
-			// Handle overflow case - could log error or take other action
-			n.nonces[account] = math.MaxInt64
-		} else {
-			n.nonces[account] = int64(nonce)
-		}
-		n.mux.Unlock()
+	if err != nil {
+		lock.Unlock()
+		return
 	}
 
+	n.mux.Lock()
+	if nonce > uint64(math.MaxInt64) {
+		n.nonces[account] = math.MaxInt64
+	} else {
+		n.nonces[account] = int64(nonce)
+	}
+	n.mux.Unlock()
 	lock.Unlock()
 }

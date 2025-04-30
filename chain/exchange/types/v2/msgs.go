@@ -254,7 +254,17 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 		}
 	}
 
+	if msg.HasReduceMarginRatioUpdate() {
+		if err := types.ValidateMarginRatio(msg.NewReduceMarginRatio); err != nil {
+			return err
+		}
+	}
+
 	if msg.HasInitialMarginRatioUpdate() && msg.HasMaintenanceMarginRatioUpdate() {
+		if msg.NewInitialMarginRatio.LTE(msg.NewMaintenanceMarginRatio) {
+			return types.ErrMarginsRelation
+		}
+
 		if msg.NewInitialMarginRatio.LT(msg.NewMaintenanceMarginRatio) {
 			return types.ErrMarginsRelation
 		}
@@ -297,6 +307,10 @@ func (msg *MsgUpdateDerivativeMarket) HasInitialMarginRatioUpdate() bool {
 
 func (msg *MsgUpdateDerivativeMarket) HasMaintenanceMarginRatioUpdate() bool {
 	return !msg.NewMaintenanceMarginRatio.IsNil() && !msg.NewMaintenanceMarginRatio.IsZero()
+}
+
+func (msg *MsgUpdateDerivativeMarket) HasReduceMarginRatioUpdate() bool {
+	return !msg.NewReduceMarginRatio.IsNil() && !msg.NewReduceMarginRatio.IsZero()
 }
 
 func (msg *MsgUpdateDerivativeMarket) HasMinNotionalUpdate() bool {
@@ -645,7 +659,10 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
 		return types.ErrFeeRatesRelation
 	}
-	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
+	if msg.InitialMarginRatio.LTE(msg.MaintenanceMarginRatio) {
+		return types.ErrMarginsRelation
+	}
+	if msg.ReduceMarginRatio.LT(msg.InitialMarginRatio) {
 		return types.ErrMarginsRelation
 	}
 	if err := types.ValidateTickSize(msg.MinPriceTickSize); err != nil {
@@ -795,7 +812,10 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
 		return types.ErrFeeRatesRelation
 	}
-	if msg.InitialMarginRatio.LT(msg.MaintenanceMarginRatio) {
+	if msg.InitialMarginRatio.LTE(msg.MaintenanceMarginRatio) {
+		return types.ErrMarginsRelation
+	}
+	if msg.ReduceMarginRatio.LT(msg.InitialMarginRatio) {
 		return types.ErrMarginsRelation
 	}
 	if err := types.ValidateTickSize(msg.MinPriceTickSize); err != nil {

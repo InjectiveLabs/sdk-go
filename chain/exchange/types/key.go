@@ -118,7 +118,9 @@ var (
 	LastGranterDelegationCheckTimePrefix = []byte{0x82} // prefix to store the last timestamp that the granter's delegations were checked
 	ActiveGrantPrefix                    = []byte{0x83} // prefix to store the grantee's active grant
 
-	MarketBalanceKey = []byte{0x84} // key for each key to a MarketBalance
+	MarketBalanceKey             = []byte{0x84} // key for each key to a MarketBalance
+	OrderExpirationsPrefix       = []byte{0x85} // prefix to store order expirations
+	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
@@ -558,4 +560,26 @@ func GetLastValidGrantDelegationCheckTimeKey(granter sdk.AccAddress) []byte {
 
 func GetDerivativeMarketBalanceKey(marketID common.Hash) []byte {
 	return append(MarketBalanceKey, marketID.Bytes()...)
+}
+
+func GetOrderExpirationPrefix(blockNumber int64, marketID common.Hash) []byte {
+	blockNumberBz := sdk.Uint64ToBigEndian(uint64(blockNumber))
+	marketIDBz := marketID.Bytes()
+
+	buf := make([]byte, 0, len(OrderExpirationsPrefix)+len(blockNumberBz)+len(marketIDBz))
+	buf = append(buf, OrderExpirationsPrefix...)
+	buf = append(buf, blockNumberBz...)
+	buf = append(buf, marketIDBz...)
+
+	return buf
+}
+
+func GetOrderExpirationMarketPrefix(blockNumber int64) []byte {
+	blockNumberBz := sdk.Uint64ToBigEndian(uint64(blockNumber))
+
+	buf := make([]byte, 0, len(OrderExpirationsPrefix)+len(blockNumberBz))
+	buf = append(buf, OrderExpirationMarketsPrefix...)
+	buf = append(buf, blockNumberBz...)
+
+	return buf
 }

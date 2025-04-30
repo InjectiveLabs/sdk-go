@@ -299,6 +299,12 @@ message MsgUpdateDerivativeMarket {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // (optional) updated value for reduce_margin_ratio
+  string new_reduce_margin_ratio = 9 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message MsgUpdateDerivativeMarketResponse {}
@@ -504,6 +510,12 @@ message MsgInstantPerpetualMarketLaunch {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // reduce_margin_ratio defines the ratio of the margin that is reduced
+  string reduce_margin_ratio = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgInstantPerpetualMarketLaunchResponse defines the
@@ -636,6 +648,12 @@ message MsgInstantExpiryFuturesMarketLaunch {
   // min_notional defines the minimum notional (in quote asset) required for
   // orders in the market
   string min_notional = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // reduce_margin_ratio defines the ratio of the margin that is reduced
+  string reduce_margin_ratio = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];

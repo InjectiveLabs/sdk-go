@@ -242,6 +242,12 @@ message PerpetualMarketLaunchProposal {
     (gogoproto.nullable) = false
   ];
   AdminInfo admin_info = 16;
+
+  // reduce_margin_ratio defines the ratio of the margin that is reduced
+  string reduce_margin_ratio = 17 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message BinaryOptionsMarketLaunchProposal {
@@ -372,6 +378,12 @@ message ExpiryFuturesMarketLaunchProposal {
   ];
 
   AdminInfo admin_info = 17;
+
+  // reduce_margin_ratio defines the ratio of the margin that is reduced
+  string reduce_margin_ratio = 18 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message DerivativeMarketParamUpdateProposal {
@@ -458,6 +470,12 @@ message DerivativeMarketParamUpdateProposal {
   ];
 
   AdminInfo admin_info = 17;
+
+  // reduce_margin_ratio defines the ratio of the margin that is reduced
+  string reduce_margin_ratio = 18 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message AdminInfo {
