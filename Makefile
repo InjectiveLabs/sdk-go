@@ -100,6 +100,41 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/txfees/types/codec.go chain/txfees/types
 	mkdir -p chain/txfees/osmosis/types && \
 		cp injective-core/injective-chain/modules/txfees/osmosis/types/*.pb.go chain/txfees/osmosis/types
+	mkdir -p chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/*.pb.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/codec.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/errors.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/key.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/msg.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/params.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/tx_args.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/tx_data.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/utils.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/storage.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/query.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/params.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/logs.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/legacy_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/key.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/events.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/eth.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/dynamic_fee_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/compiled_contract.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/ERC20Contract.json chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/SimpleStorageContract.json chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/TestMessageCall.json chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/access_list.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/access_list_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/chain_config.go chain/evm/types && \
+		cp injective-core/injective-chain/types/validation.go chain/evm/types
+	mkdir -p chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/*.pb.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/codec.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/errors.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/msgs.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/params.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/types.go chain/erc20/types
 	mkdir -p chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/authz.go chain/wasmx/types && \
