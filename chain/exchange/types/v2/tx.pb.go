@@ -7039,6 +7039,7 @@ func _Msg_UpdateAtomicMarketOrderFeeMultiplierSchedule_Handler(srv interface{}, 
 	return interceptor(ctx, in, info, handler)
 }
 
+var Msg_serviceDesc = _Msg_serviceDesc
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.exchange.v2.Msg",
 	HandlerType: (*MsgServer)(nil),

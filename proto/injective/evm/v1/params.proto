@@ -1,0 +1,34 @@
+syntax = "proto3";
+package injective.evm.v1;
+
+import "gogoproto/gogo.proto";
+import "injective/evm/v1/chain_config.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/evm/types";
+
+// Params defines the EVM module parameters
+message Params {
+  // evm_denom represents the token denomination used to run the EVM state
+  // transitions.
+  string evm_denom = 1 [ (gogoproto.moretags) = "yaml:\"evm_denom\"" ];
+  // enable_create toggles state transitions that use the vm.Create function
+  bool enable_create = 2 [ (gogoproto.moretags) = "yaml:\"enable_create\"" ];
+  // enable_call toggles state transitions that use the vm.Call function
+  bool enable_call = 3 [ (gogoproto.moretags) = "yaml:\"enable_call\"" ];
+  // extra_eips defines the additional EIPs for the vm.Config
+  repeated int64 extra_eips = 4 [
+    (gogoproto.customname) = "ExtraEIPs",
+    (gogoproto.moretags) = "yaml:\"extra_eips\""
+  ];
+  // chain_config defines the EVM chain configuration parameters
+  ChainConfig chain_config = 5 [ (gogoproto.nullable) = false ];
+  // allow_unprotected_txs defines if replay-protected (i.e non EIP155
+  // signed) transactions can be executed on the state machine.
+  bool allow_unprotected_txs = 6;
+  // list of ETH addresses that are allowed to deploy contracts. Only relevant
+  // if permissioned is true.
+  repeated string authorized_deployers = 7;
+  // make contract deployment permissioned, such that only accounts listed in
+  // authorized_deployers are allowed to deploy contracts.
+  bool permissioned = 8;
+}

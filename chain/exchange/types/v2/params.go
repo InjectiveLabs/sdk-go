@@ -113,6 +113,7 @@ func DefaultParams() Params {
 		DefaultDerivativeTakerFeeRate:                math.LegacyNewDecWithPrec(1, 3),  // default 0.1% taker fees
 		DefaultInitialMarginRatio:                    math.LegacyNewDecWithPrec(5, 2),  // default 5% initial margin ratio
 		DefaultMaintenanceMarginRatio:                math.LegacyNewDecWithPrec(2, 2),  // default 2% maintenance margin ratio
+		DefaultReduceMarginRatio:                     math.LegacyNewDecWithPrec(8, 2),  // default 8% maintenance margin ratio
 		DefaultFundingInterval:                       types.DefaultFundingIntervalSeconds,
 		FundingMultiple:                              types.DefaultFundingMultipleSeconds,
 		RelayerFeeShareRate:                          math.LegacyNewDecWithPrec(40, 2),      // default 40% relayer fee share

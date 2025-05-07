@@ -30,16 +30,6 @@ service Msg {
   rpc InstantSpotMarketLaunch(MsgInstantSpotMarketLaunch)
       returns (MsgInstantSpotMarketLaunchResponse);
 
-  // InstantPerpetualMarketLaunch defines a method for creating a new perpetual
-  // futures market by paying listing fee without governance
-  rpc InstantPerpetualMarketLaunch(MsgInstantPerpetualMarketLaunch)
-      returns (MsgInstantPerpetualMarketLaunchResponse);
-
-  // InstantExpiryFuturesMarketLaunch defines a method for creating a new expiry
-  // futures market by paying listing fee without governance
-  rpc InstantExpiryFuturesMarketLaunch(MsgInstantExpiryFuturesMarketLaunch)
-      returns (MsgInstantExpiryFuturesMarketLaunchResponse);
-
   // CreateSpotLimitOrder defines a method for creating a new spot limit order.
   rpc CreateSpotLimitOrder(MsgCreateSpotLimitOrder)
       returns (MsgCreateSpotLimitOrderResponse);
@@ -394,76 +384,6 @@ message MsgInstantSpotMarketLaunch {
 // response type.
 message MsgInstantSpotMarketLaunchResponse {}
 
-// MsgInstantPerpetualMarketLaunch defines a SDK message for creating a new
-// perpetual futures market by paying listing fee without governance
-message MsgInstantPerpetualMarketLaunch {
-  option (amino.name) = "exchange/MsgInstantPerpetualMarketLaunch";
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-  option (cosmos.msg.v1.signer) = "sender";
-
-  string sender = 1;
-  // Ticker for the derivative market.
-  string ticker = 2;
-  // type of coin to use as the base currency
-  string quote_denom = 3;
-  // Oracle base currency
-  string oracle_base = 4;
-  // Oracle quote currency
-  string oracle_quote = 5;
-  // Scale factor for oracle prices.
-  uint32 oracle_scale_factor = 6;
-  // Oracle type
-  injective.oracle.v1beta1.OracleType oracle_type = 7;
-  // maker_fee_rate defines the trade fee rate for makers on the perpetual
-  // market
-  string maker_fee_rate = 8 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-
-  // taker_fee_rate defines the trade fee rate for takers on the perpetual
-  // market
-  string taker_fee_rate = 9 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // initial_margin_ratio defines the initial margin ratio for the perpetual
-  // market
-  string initial_margin_ratio = 10 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // maintenance_margin_ratio defines the maintenance margin ratio for the
-  // perpetual market
-  string maintenance_margin_ratio = 11 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // min_price_tick_size defines the minimum tick size of the order's price and
-  // margin
-  string min_price_tick_size = 12 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // min_quantity_tick_size defines the minimum tick size of the order's
-  // quantity
-  string min_quantity_tick_size = 13 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // min_notional defines the minimum notional (in quote asset) required for
-  // orders in the market
-  string min_notional = 14 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-}
-
-// MsgInstantPerpetualMarketLaunchResponse defines the
-// Msg/InstantPerpetualMarketLaunchResponse response type.
-message MsgInstantPerpetualMarketLaunchResponse {}
-
 // MsgInstantBinaryOptionsMarketLaunch defines a SDK message for creating a new
 // perpetual futures market by paying listing fee without governance
 message MsgInstantBinaryOptionsMarketLaunch {
@@ -528,76 +448,6 @@ message MsgInstantBinaryOptionsMarketLaunch {
 // Msg/InstantBinaryOptionsMarketLaunchResponse response type.
 message MsgInstantBinaryOptionsMarketLaunchResponse {}
 
-// MsgInstantExpiryFuturesMarketLaunch defines a SDK message for creating a new
-// expiry futures market by paying listing fee without governance
-message MsgInstantExpiryFuturesMarketLaunch {
-  option (amino.name) = "exchange/MsgInstantExpiryFuturesMarketLaunch";
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-  option (cosmos.msg.v1.signer) = "sender";
-
-  string sender = 1;
-  // Ticker for the derivative market.
-  string ticker = 2;
-  // type of coin to use as the quote currency
-  string quote_denom = 3;
-  // Oracle base currency
-  string oracle_base = 4;
-  // Oracle quote currency
-  string oracle_quote = 5;
-  // Oracle type
-  injective.oracle.v1beta1.OracleType oracle_type = 6;
-  // Scale factor for oracle prices.
-  uint32 oracle_scale_factor = 7;
-  // Expiration time of the market
-  int64 expiry = 8;
-  // maker_fee_rate defines the trade fee rate for makers on the expiry futures
-  // market
-  string maker_fee_rate = 9 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // taker_fee_rate defines the trade fee rate for takers on the expiry futures
-  // market
-  string taker_fee_rate = 10 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // initial_margin_ratio defines the initial margin ratio for the derivative
-  // market
-  string initial_margin_ratio = 11 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // maintenance_margin_ratio defines the maintenance margin ratio for the
-  // derivative market
-  string maintenance_margin_ratio = 12 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // min_price_tick_size defines the minimum tick size of the order's price and
-  // margin
-  string min_price_tick_size = 13 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // min_quantity_tick_size defines the minimum tick size of the order's
-  // quantity
-  string min_quantity_tick_size = 14 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // min_notional defines the minimum notional (in quote asset) required for
-  // orders in the market
-  string min_notional = 15 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-}
-
-// MsgInstantExpiryFuturesMarketLaunchResponse defines the
-// Msg/InstantExpiryFuturesMarketLaunch response type.
-message MsgInstantExpiryFuturesMarketLaunchResponse {}
 
 // MsgCreateSpotMarketOrder defines a SDK message for creating a new spot market
 // order.

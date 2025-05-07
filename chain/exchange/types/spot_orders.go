@@ -67,3 +67,31 @@ func ComputeSpotOrderHash(marketId, orderType, triggerPrice string, orderInfo IO
 	hash := common.BytesToHash(w.Sum(nil))
 	return hash, nil
 }
+
+func (m *SpotOrder) IsBuy() bool {
+	return m.OrderType.IsBuy()
+}
+
+func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (math.LegacyDec, string) {
+	var denom string
+	var balanceHold math.LegacyDec
+	if m.IsBuy() {
+		denom = market.QuoteDenom
+		if m.OrderType.IsPostOnly() {
+			// for a PO limit buy in the ETH/USDT market, denom is USDT and balanceHold is (1 + makerFee)*(price * quantity)
+			balanceHold = m.OrderInfo.GetNotional()
+			if market.MakerFeeRate.IsPositive() {
+				balanceHold = balanceHold.Add(m.OrderInfo.GetFeeAmount(market.MakerFeeRate))
+			}
+		} else {
+			// for a normal limit buy in the ETH/USDT market, denom is USDT and balanceHold is (1 + takerFee)*(price * quantity)
+			balanceHold = m.OrderInfo.GetNotional().Add(m.OrderInfo.GetFeeAmount(market.TakerFeeRate))
+		}
+	} else {
+		// for a limit sell in the ETH/USDT market, denom is ETH and balanceHold is just quantity
+		denom = market.BaseDenom
+		balanceHold = m.OrderInfo.Quantity
+	}
+
+	return balanceHold, denom
+}

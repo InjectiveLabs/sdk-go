@@ -1,0 +1,15 @@
+syntax = "proto3";
+package injective.erc20.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "injective/erc20/v1beta1/params.proto";
+import "injective/erc20/v1beta1/erc20.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/erc20/types";
+
+// GenesisState defines the erc20 module's genesis state.
+message GenesisState {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  repeated TokenPair token_pairs = 2 [ (gogoproto.nullable) = false ];
+}

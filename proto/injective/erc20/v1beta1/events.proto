@@ -1,0 +1,11 @@
+syntax = "proto3";
+package injective.erc20.v1beta1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/erc20/types";
+
+message EventCreateTokenPair {
+  string bank_denom = 1;
+  string erc20_address = 2;
+}
+
+message EventDeleteTokenPair { string bank_denom = 1; }

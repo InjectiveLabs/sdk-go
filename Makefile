@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.15.6 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b cp-253/reduce-margin-ratio --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -51,6 +51,12 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/*.pb.go chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/codec.go chain/auction/types
+	mkdir -p chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/*.go chain/erc20/types && \
+		rm -rf chain/erc20/types/*test.go && rm -rf chain/erc20/types/*gw.go
+	mkdir -p chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/*.go chain/evm/types && \
+		rm -rf chain/evm/types/*test.go && rm -rf chain/evm/types/*gw.go
 	mkdir -p chain/exchange/types && \
 		cp injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types && \
 		rm -rf chain/exchange/types/*test.go && rm -rf chain/exchange/types/*gw.go

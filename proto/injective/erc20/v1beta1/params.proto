@@ -1,0 +1,14 @@
+syntax = "proto3";
+package injective.erc20.v1beta1;
+
+import "gogoproto/gogo.proto";
+;
+import "amino/amino.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/erc20/types";
+
+// Params defines the parameters for the erc20 module.
+message Params {
+  option (gogoproto.equal) = true;
+  option (amino.name) = "erc20/Params";
+}

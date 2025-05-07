@@ -260,12 +260,14 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 		}
 	}
 
-	if msg.HasInitialMarginRatioUpdate() && msg.HasMaintenanceMarginRatioUpdate() {
+	if msg.HasInitialMarginRatioUpdate() || msg.HasMaintenanceMarginRatioUpdate() {
 		if msg.NewInitialMarginRatio.LTE(msg.NewMaintenanceMarginRatio) {
 			return types.ErrMarginsRelation
 		}
+	}
 
-		if msg.NewInitialMarginRatio.LT(msg.NewMaintenanceMarginRatio) {
+	if msg.HasInitialMarginRatioUpdate() || msg.HasReduceMarginRatioUpdate() {
+		if msg.NewReduceMarginRatio.LT(msg.NewInitialMarginRatio) {
 			return types.ErrMarginsRelation
 		}
 	}

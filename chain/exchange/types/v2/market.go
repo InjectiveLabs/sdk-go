@@ -15,15 +15,6 @@ type DerivativeMarketInfo struct {
 	Funding   *PerpetualMarketFunding
 }
 
-type MarketInterface interface {
-	PriceFromChainFormat(price math.LegacyDec) math.LegacyDec
-	QuantityFromChainFormat(quantity math.LegacyDec) math.LegacyDec
-	NotionalFromChainFormat(notional math.LegacyDec) math.LegacyDec
-	PriceToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec
-	QuantityToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec
-	NotionalToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec
-}
-
 func (m *SpotMarket) IsActive() bool {
 	return m.Status == MarketStatus_Active
 }

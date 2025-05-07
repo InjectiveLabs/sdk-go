@@ -1720,6 +1720,7 @@ func (x *streamStreamServer) Send(m *StreamResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+var Stream_serviceDesc = _Stream_serviceDesc
 var _Stream_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.stream.v1beta1.Stream",
 	HandlerType: (*StreamServer)(nil),

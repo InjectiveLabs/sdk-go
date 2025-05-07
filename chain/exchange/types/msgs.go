@@ -37,8 +37,6 @@ var (
 	_ sdk.Msg = &MsgLiquidatePosition{}
 	_ sdk.Msg = &MsgEmergencySettleMarket{}
 	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}
-	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
-	_ sdk.Msg = &MsgInstantExpiryFuturesMarketLaunch{}
 	_ sdk.Msg = &MsgBatchUpdateOrders{}
 	_ sdk.Msg = &MsgPrivilegedExecuteContract{}
 	_ sdk.Msg = &MsgRewardsOptOut{}
@@ -237,7 +235,7 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 		}
 	}
 
-	if msg.HasInitialMarginRatioUpdate() && msg.HasMaintenanceMarginRatioUpdate() {
+	if msg.HasInitialMarginRatioUpdate() || msg.HasMaintenanceMarginRatioUpdate() {
 		if msg.NewInitialMarginRatio.LTE(msg.NewMaintenanceMarginRatio) {
 			return ErrMarginsRelation
 		}
@@ -593,73 +591,6 @@ func (msg MsgInstantSpotMarketLaunch) GetSigners() []sdk.AccAddress {
 }
 
 // Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgInstantPerpetualMarketLaunch) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgInstantPerpetualMarketLaunch) Type() string { return TypeMsgInstantPerpetualMarketLaunch }
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if msg.Ticker == "" || len(msg.Ticker) > MaxTickerLength {
-		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed %d characters", MaxTickerLength)
-	}
-	if msg.QuoteDenom == "" {
-		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
-	}
-	oracleParams := NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
-	if err := oracleParams.ValidateBasic(); err != nil {
-		return err
-	}
-	if err := ValidateMakerFee(msg.MakerFeeRate); err != nil {
-		return err
-	}
-	if err := ValidateFee(msg.TakerFeeRate); err != nil {
-		return err
-	}
-	if err := ValidateMarginRatio(msg.InitialMarginRatio); err != nil {
-		return err
-	}
-	if err := ValidateMarginRatio(msg.MaintenanceMarginRatio); err != nil {
-		return err
-	}
-	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
-		return ErrFeeRatesRelation
-	}
-	if msg.InitialMarginRatio.LTE(msg.MaintenanceMarginRatio) {
-		return ErrMarginsRelation
-	}
-	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
-	}
-	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
-	}
-	if err := ValidateMinNotional(msg.MinNotional); err != nil {
-		return errors.Wrap(ErrInvalidNotional, err.Error())
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgInstantPerpetualMarketLaunch) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgInstantPerpetualMarketLaunch) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
 func (msg MsgInstantBinaryOptionsMarketLaunch) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
@@ -729,79 +660,6 @@ func (msg *MsgInstantBinaryOptionsMarketLaunch) GetSignBytes() []byte {
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
 func (msg MsgInstantBinaryOptionsMarketLaunch) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgInstantExpiryFuturesMarketLaunch) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgInstantExpiryFuturesMarketLaunch) Type() string {
-	return TypeMsgInstantExpiryFuturesMarketLaunch
-}
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
-func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if msg.Ticker == "" || len(msg.Ticker) > MaxTickerLength {
-		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed %d characters", MaxTickerLength)
-	}
-	if msg.QuoteDenom == "" {
-		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
-	}
-
-	oracleParams := NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
-	if err := oracleParams.ValidateBasic(); err != nil {
-		return err
-	}
-	if msg.Expiry <= 0 {
-		return errors.Wrap(ErrInvalidExpiry, "expiry should not be empty")
-	}
-	if err := ValidateMakerFee(msg.MakerFeeRate); err != nil {
-		return err
-	}
-	if err := ValidateFee(msg.TakerFeeRate); err != nil {
-		return err
-	}
-	if err := ValidateMarginRatio(msg.InitialMarginRatio); err != nil {
-		return err
-	}
-	if err := ValidateMarginRatio(msg.MaintenanceMarginRatio); err != nil {
-		return err
-	}
-	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
-		return ErrFeeRatesRelation
-	}
-	if msg.InitialMarginRatio.LTE(msg.MaintenanceMarginRatio) {
-		return ErrMarginsRelation
-	}
-	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
-	}
-	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
-	}
-	if err := ValidateMinNotional(msg.MinNotional); err != nil {
-		return errors.Wrap(ErrInvalidNotional, err.Error())
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgInstantExpiryFuturesMarketLaunch) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgInstantExpiryFuturesMarketLaunch) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
