@@ -96,6 +96,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&CancelDerivativeOrderAuthz{}, "exchange/v2/CancelDerivativeOrderAuthz", nil)
 	cdc.RegisterConcrete(&BatchCancelDerivativeOrdersAuthz{}, "exchange/v2/BatchCancelDerivativeOrdersAuthz", nil)
 	cdc.RegisterConcrete(&BatchUpdateOrdersAuthz{}, "exchange/v2/BatchUpdateOrdersAuthz", nil)
+	cdc.RegisterConcrete(&GenericExchangeAuthorization{}, "exchange/v2/GenericExchangeAuthorization", nil)
 
 	cdc.RegisterConcrete(&Params{}, "exchange/v2/Params", nil)
 }
@@ -185,6 +186,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&BatchCancelDerivativeOrdersAuthz{},
 		// common spot, derivative authz
 		&BatchUpdateOrdersAuthz{},
+		// generic authz
+		&GenericExchangeAuthorization{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

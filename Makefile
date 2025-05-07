@@ -52,11 +52,27 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/auction/types/*.pb.go chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/codec.go chain/auction/types
 	mkdir -p chain/erc20/types && \
-		cp injective-core/injective-chain/modules/erc20/types/*.go chain/erc20/types && \
-		rm -rf chain/erc20/types/*test.go && rm -rf chain/erc20/types/*gw.go
+		cp injective-core/injective-chain/modules/erc20/types/*.pb.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/codec.go chain/erc20/types
 	mkdir -p chain/evm/types && \
-		cp injective-core/injective-chain/modules/evm/types/*.go chain/evm/types && \
-		rm -rf chain/evm/types/*test.go && rm -rf chain/evm/types/*gw.go
+		cp injective-core/injective-chain/modules/evm/types/*.pb.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/access_list.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/access_list_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/chain_config.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/codec.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/dynamic_fee_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/errors.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/eth.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/events.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/key.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/legacy_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/logs.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/msg.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/params.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/storage.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/tx_data.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/utils.go chain/evm/types
 	mkdir -p chain/exchange/types && \
 		cp injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types && \
 		rm -rf chain/exchange/types/*test.go && rm -rf chain/exchange/types/*gw.go
@@ -123,7 +139,9 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/types && \
 		cp injective-core/injective-chain/types/*.pb.go injective-core/injective-chain/types/config.go chain/types && \
 		cp injective-core/injective-chain/types/codec.go chain/types && \
-		cp injective-core/injective-chain/types/util.go chain/types
+		cp injective-core/injective-chain/types/int.go chain/types && \
+		cp injective-core/injective-chain/types/util.go chain/types && \
+		cp injective-core/injective-chain/types/validation.go chain/types
 
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;

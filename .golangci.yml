@@ -1,21 +1,16 @@
+version: "2"
 linters:
   fast: false
   enable:
     - errcheck
     - errorlint
-    - gas
     - gocritic
-    - gofmt
-    - goimports
-    - gosimple
     - govet
     - ineffassign
-    - megacheck
     - misspell
     - nakedret
     - prealloc
     - revive
-    - staticcheck
     - unconvert
     - unparam
   disable:
@@ -27,12 +22,16 @@ linters-settings:
     rules:
       - name: var-naming
         arguments:
-          - ["ID"]
+          - - ID
       - name: add-constant
         disabled: true
       - name: line-length-limit
         arguments:
           - 140
+      - name: cognitive-complexity
+        arguments:
+          - 20
+        disabled: false
   gocritic:
     enabled-tags:
       - performance
@@ -57,6 +56,11 @@ issues:
     - proto
     - client/keyring/testdata
   max-issues-per-linter: 0
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - chain$
 
 run:
   tests: false

@@ -448,7 +448,6 @@ message MsgInstantBinaryOptionsMarketLaunch {
 // Msg/InstantBinaryOptionsMarketLaunchResponse response type.
 message MsgInstantBinaryOptionsMarketLaunchResponse {}
 
-
 // MsgCreateSpotMarketOrder defines a SDK message for creating a new spot market
 // order.
 message MsgCreateSpotMarketOrder {

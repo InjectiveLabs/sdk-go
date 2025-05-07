@@ -1,8 +1,10 @@
 syntax = "proto3";
 package injective.exchange.v2;
 
-import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
 import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
 
@@ -85,4 +87,23 @@ message BatchUpdateOrdersAuthz {
   string subaccount_id = 1;
   repeated string spot_markets = 2;
   repeated string derivative_markets = 3;
+}
+
+// GenericExchangeAuthorization gives the grantee permissions to execute
+// the provided Exchange method on behalf of the granter's account.
+message GenericExchangeAuthorization {
+  option (amino.name) = "exchange/GenericExchangeAuthorization";
+  option (cosmos_proto.implements_interface) = "Authorization";
+
+  // Msg, identified by it's type URL, to grant permissions to the grantee
+  string msg = 1;
+
+  // SpendLimit is the maximum amount of tokens that the grantee can spend on
+  // behalf of the granter. If not set, there is no spend limit.
+  repeated cosmos.base.v1beta1.Coin spend_limit = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (amino.encoding) = "legacy_coins",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }
