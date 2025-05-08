@@ -614,6 +614,7 @@ func _Query_TokenPairByERC20Address_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+var Query_serviceDesc = _Query_serviceDesc
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.erc20.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
