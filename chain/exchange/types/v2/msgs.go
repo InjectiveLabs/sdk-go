@@ -129,7 +129,7 @@ func (MsgUpdateParams) Route() string { return RouterKey }
 func (MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 func (msg MsgUpdateParams) ValidateBasic() error {
-	if err := types.ValidateAddress(msg.Authority); err != nil {
+	if err := ValidateAddress(msg.Authority); err != nil {
 		return errors.Wrap(err, "invalid authority address")
 	}
 
@@ -201,7 +201,7 @@ func (msg *MsgUpdateSpotMarket) HasMinNotionalUpdate() bool {
 }
 
 func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
-	if err := types.ValidateAddress(msg.Admin); err != nil {
+	if err := ValidateAddress(msg.Admin); err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Admin)
 	}
 
@@ -334,7 +334,7 @@ func (m *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	}
 
 	if m.OrderInfo.FeeRecipient != "" {
-		if err := types.ValidateAddress(m.OrderInfo.FeeRecipient); err != nil {
+		if err := ValidateAddress(m.OrderInfo.FeeRecipient); err != nil {
 			return errors.Wrap(sdkerrors.ErrInvalidAddress, m.OrderInfo.FeeRecipient)
 		}
 	}

@@ -14,8 +14,8 @@ import (
 const (
 	// DefaultEVMDenom defines the default EVM denomination on Injective
 	DefaultEVMDenom = "inj"
-	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
-	DefaultAllowUnprotectedTxs = false
+	// DefaultAllowUnprotectedTxs rejects all unprotected txs (true = allow, false = reject)
+	DefaultAllowUnprotectedTxs = true
 	// DefaultEnableCreate enables contract creation (i.e true)
 	DefaultEnableCreate = true
 	// DefaultEnableCall enables contract calls (i.e true)
