@@ -593,7 +593,7 @@ func NewChainClient(
 		authzQueryClient:         authztypes.NewQueryClient(conn),
 		bankQueryClient:          banktypes.NewQueryClient(conn),
 		chainStreamClient:        chainstreamtypes.NewStreamClient(chainStreamConn),
-		chainStreamV2Client: chainstreamv2types.NewStreamClient(chainStreamConn),
+		chainStreamV2Client:      chainstreamv2types.NewStreamClient(chainStreamConn),
 		distributionQueryClient:  distributiontypes.NewQueryClient(conn),
 		exchangeQueryClient:      exchangetypes.NewQueryClient(conn),
 		exchangeV2QueryClient:    exchangev2types.NewQueryClient(conn),
@@ -1424,7 +1424,7 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 	var cometbftClient *rpchttp.HTTP
 	var err error
 
-	cometbftClient, err = rpchttp.New(c.network.TmEndpoint, "/websocket")
+	cometbftClient, err = rpchttp.New(c.network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -1484,7 +1484,7 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 	var cometbftClient *rpchttp.HTTP
 	var err error
 
-	cometbftClient, err = rpchttp.New(c.network.TmEndpoint, "/websocket")
+	cometbftClient, err = rpchttp.New(c.network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}

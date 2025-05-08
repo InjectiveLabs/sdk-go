@@ -27,7 +27,7 @@ type OfacTestSuite struct {
 func (suite *OfacTestSuite) SetupTest() {
 	var err error
 	suite.network = common.LoadNetwork("testnet", "lb")
-	suite.tmClient, err = rpchttp.New(suite.network.TmEndpoint, "/websocket")
+	suite.tmClient, err = rpchttp.New(suite.network.TmEndpoint)
 	suite.NoError(err)
 
 	suite.senderAddress, suite.cosmosKeyring, err = accountForTests()

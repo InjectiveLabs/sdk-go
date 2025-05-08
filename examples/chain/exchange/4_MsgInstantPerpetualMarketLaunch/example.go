@@ -16,7 +16,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
