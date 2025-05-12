@@ -2,6 +2,7 @@ package chain_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 
@@ -133,7 +134,8 @@ func accountForTests() (cosmtypes.AccAddress, keyring.Keyring, error) {
 }
 
 func createClient(senderAddress cosmtypes.AccAddress, cosmosKeyring keyring.Keyring, network common.Network) (chain.ChainClient, error) {
-	tmClient, _ := rpchttp.New(network.TmEndpoint, "/websocket")
+	remoteAddress := fmt.Sprintf("%s/websocket", network.TmEndpoint)
+	tmClient, _ := rpchttp.New(remoteAddress)
 	clientCtx, err := chain.NewClientContext(
 		network.ChainId,
 		senderAddress.String(),

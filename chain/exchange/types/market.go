@@ -68,33 +68,51 @@ func NewDerivativesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, 
 }
 
 func PriceFromChainFormat(price math.LegacyDec, baseDecimals, quoteDecimals uint32) math.LegacyDec {
+	if price.IsNil() {
+		return price
+	}
 	baseMultiplier := math.LegacyNewDec(10).Power(uint64(baseDecimals))
 	quoteMultiplier := math.LegacyNewDec(10).Power(uint64(quoteDecimals))
 	return price.Mul(baseMultiplier).Quo(quoteMultiplier)
 }
 
 func QuantityFromChainFormat(quantity math.LegacyDec, decimals uint32) math.LegacyDec {
+	if quantity.IsNil() {
+		return quantity
+	}
 	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
 	return quantity.Quo(multiplier)
 }
 
 func NotionalFromChainFormat(notional math.LegacyDec, decimals uint32) math.LegacyDec {
+	if notional.IsNil() {
+		return notional
+	}
 	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
 	return notional.Quo(multiplier)
 }
 
 func PriceToChainFormat(humanReadableValue math.LegacyDec, baseDecimals, quoteDecimals uint32) math.LegacyDec {
+	if humanReadableValue.IsNil() {
+		return humanReadableValue
+	}
 	baseMultiplier := math.LegacyNewDec(10).Power(uint64(baseDecimals))
 	quoteMultiplier := math.LegacyNewDec(10).Power(uint64(quoteDecimals))
 	return humanReadableValue.Mul(quoteMultiplier).Quo(baseMultiplier)
 }
 
 func QuantityToChainFormat(humanReadableValue math.LegacyDec, decimals uint32) math.LegacyDec {
+	if humanReadableValue.IsNil() {
+		return humanReadableValue
+	}
 	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
 	return humanReadableValue.Mul(multiplier)
 }
 
 func NotionalToChainFormat(humanReadableValue math.LegacyDec, decimals uint32) math.LegacyDec {
+	if humanReadableValue.IsNil() {
+		return humanReadableValue
+	}
 	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
 	return humanReadableValue.Mul(multiplier)
 }

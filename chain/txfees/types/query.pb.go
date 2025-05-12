@@ -380,7 +380,6 @@ func _Query_GetEipBaseFee_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-var Query_serviceDesc = _Query_serviceDesc
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.txfees.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),

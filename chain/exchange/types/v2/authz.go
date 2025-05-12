@@ -2,6 +2,7 @@ package v2
 
 import (
 	"context"
+	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -11,7 +12,8 @@ import (
 )
 
 var (
-	AuthorizedMarketsLimit = 200
+	authorizedMarketsLimit    = 200
+	authorizedMarketsLimitMux = new(sync.RWMutex)
 
 	_ authz.Authorization = &CreateSpotLimitOrderAuthz{}
 	_ authz.Authorization = &CreateSpotMarketOrderAuthz{}
@@ -27,6 +29,20 @@ var (
 
 	_ authz.Authorization = &BatchUpdateOrdersAuthz{}
 )
+
+// AuthorizedMarketsLimit returns the authorized markets limit.
+func AuthorizedMarketsLimit() int {
+	authorizedMarketsLimitMux.RLock()
+	defer authorizedMarketsLimitMux.RUnlock()
+	return authorizedMarketsLimit
+}
+
+// SetAuthorizedMarketsLimit sets the authorized markets limit.
+func SetAuthorizedMarketsLimit(limit int) {
+	authorizedMarketsLimitMux.Lock()
+	authorizedMarketsLimit = limit
+	authorizedMarketsLimitMux.Unlock()
+}
 
 func find(slice []string, val string) bool {
 	for _, item := range slice {
@@ -127,7 +143,7 @@ func (a *BatchUpdateOrdersAuthz) ValidateBasic() error {
 	if len(a.SpotMarkets) == 0 && len(a.DerivativeMarkets) == 0 {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
-	if len(a.SpotMarkets) > AuthorizedMarketsLimit || len(a.DerivativeMarkets) > AuthorizedMarketsLimit {
+	if len(a.SpotMarkets) > AuthorizedMarketsLimit() || len(a.DerivativeMarkets) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	spotMarketsSet := reduceToSet(a.SpotMarkets)
@@ -172,7 +188,7 @@ func (a *CreateDerivativeLimitOrderAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -211,7 +227,7 @@ func (a *CreateDerivativeMarketOrderAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -252,7 +268,7 @@ func (a *BatchCreateDerivativeLimitOrdersAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -291,7 +307,7 @@ func (a *CancelDerivativeOrderAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -332,7 +348,7 @@ func (a *BatchCancelDerivativeOrdersAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -371,7 +387,7 @@ func (a *CreateSpotLimitOrderAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -410,7 +426,7 @@ func (a *CreateSpotMarketOrderAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -451,7 +467,7 @@ func (a *BatchCreateSpotLimitOrdersAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -490,7 +506,7 @@ func (a *CancelSpotOrderAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -531,7 +547,7 @@ func (a *BatchCancelSpotOrdersAuthz) ValidateBasic() error {
 	if !types.IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
