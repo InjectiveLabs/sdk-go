@@ -34,7 +34,7 @@ func main() {
 
 	response, err := explorerClient.FetchContractTxsV2(ctx, req)
 	if err != nil {
-		log.Fatalf("Failed to fetch contract transactions V2: %v", err)
+		log.Panicf("Failed to fetch contract transactions V2: %v", err)
 	}
 
 	fmt.Println("Total Contract Transactions:", len(response.Data))

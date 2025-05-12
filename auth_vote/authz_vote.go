@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 )
 
+//revive:disable:function-length // this is an example script
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
 	remoteAddress := fmt.Sprintf("%s/websocket", network.TmEndpoint)
