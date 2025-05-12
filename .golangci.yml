@@ -1,17 +1,7 @@
 version: "2"
 run:
   tests: false
-skip-dirs:
-  - ^chain
-  - ^chain/.*
-  - ^exchange
-  - ^injective_data
-  - ^proto
-  - client/keyring/testdata
-skip-files:
-  - '**/chain_test_support.go'
 linters:
-  fast: false
   enable:
     - errcheck
     - errorlint
