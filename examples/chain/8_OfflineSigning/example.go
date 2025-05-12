@@ -26,7 +26,8 @@ func LoadTxFromFile(fileName string) ([]byte, error) {
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	remoteAddress := fmt.Sprintf("%s/websocket", network.TmEndpoint)
+	tmClient, err := rpchttp.New(remoteAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +90,7 @@ func main() {
 
 	msg := new(exchangev2types.MsgCreateSpotLimitOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangev2types.SpotOrder(*order)
+	msg.Order = *order
 
 	accNum, accSeq := chainClient.GetAccNonce()
 	signedTx, err := chainClient.BuildSignedTx(clientCtx, accNum, accSeq, 20000, client.DefaultGasPrice, msg)

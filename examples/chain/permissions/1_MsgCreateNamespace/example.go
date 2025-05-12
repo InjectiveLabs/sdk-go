@@ -13,7 +13,8 @@ import (
 
 func main() {
 	network := common.LoadNetwork("devnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	remoteAddress := fmt.Sprintf("%s/websocket", network.TmEndpoint)
+	tmClient, err := rpchttp.New(remoteAddress)
 	if err != nil {
 		panic(err)
 	}

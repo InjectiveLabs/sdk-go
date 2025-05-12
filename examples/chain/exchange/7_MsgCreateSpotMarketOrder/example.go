@@ -16,7 +16,8 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	remoteAddress := fmt.Sprintf("%s/websocket", network.TmEndpoint)
+	tmClient, err := rpchttp.New(remoteAddress)
 	if err != nil {
 		panic(err)
 	}
@@ -81,7 +82,7 @@ func main() {
 
 	msg := new(exchangev2types.MsgCreateSpotMarketOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangev2types.SpotOrder(*order)
+	msg.Order = *order
 
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 	if err != nil {

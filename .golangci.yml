@@ -1,4 +1,13 @@
 version: "2"
+skip-dirs:
+  - ^chain
+  - ^chain/.*
+  - ^exchange
+  - ^injective_data
+  - ^proto
+  - client/keyring/testdata
+skip-files:
+  - '**/chain_test_support.go'
 linters:
   fast: false
   enable:
@@ -49,18 +58,10 @@ issues:
     - linters:
         - revive
       text: ALL_CAPS
-  exclude-dirs:
-    - chain
-    - exchange
-    - injective_data
-    - proto
-    - client/keyring/testdata
+    - linters:
+        - revive
+      path: ^chain/.*
   max-issues-per-linter: 0
-formatters:
-  exclusions:
-    generated: lax
-    paths:
-      - chain$
 
 run:
   tests: false
