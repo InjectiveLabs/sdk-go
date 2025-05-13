@@ -154,7 +154,7 @@ func (assistant *BareMetalLoadBalancedCookieAssistant) ProcessResponseMetadata(h
 
 type DisabledCookieAssistant struct{}
 
-func (assistant *DisabledCookieAssistant) Metadata(_ MetadataProvider) (string, error) {
+func (*DisabledCookieAssistant) Metadata(_ MetadataProvider) (string, error) {
 	return "", nil
 }
 
@@ -162,4 +162,4 @@ func (*DisabledCookieAssistant) RealMetadata() metadata.MD {
 	return metadata.Pairs()
 }
 
-func (*DisabledCookieAssistant) ProcessResponseMetadata(header metadata.MD) {}
+func (*DisabledCookieAssistant) ProcessResponseMetadata(metadata.MD) {}
