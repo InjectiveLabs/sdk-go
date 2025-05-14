@@ -1424,8 +1424,7 @@ func (c *chainClient) StreamEventOrderFail(sender string, failEventCh chan map[s
 	var cometbftClient *rpchttp.HTTP
 	var err error
 
-	remoteAddress := fmt.Sprintf("%s/websocket", c.network.TmEndpoint)
-	cometbftClient, err = rpchttp.New(remoteAddress)
+	cometbftClient, err = rpchttp.New(c.network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -1485,8 +1484,7 @@ func (c *chainClient) StreamOrderbookUpdateEvents(orderbookType OrderbookType, m
 	var cometbftClient *rpchttp.HTTP
 	var err error
 
-	remoteAddress := fmt.Sprintf("%s/websocket", c.network.TmEndpoint)
-	cometbftClient, err = rpchttp.New(remoteAddress)
+	cometbftClient, err = rpchttp.New(c.network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}

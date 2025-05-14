@@ -2,7 +2,6 @@ package chain_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -28,8 +27,7 @@ type OfacTestSuite struct {
 func (suite *OfacTestSuite) SetupTest() {
 	var err error
 	suite.network = common.LoadNetwork("testnet", "lb")
-	remoteAddress := fmt.Sprintf("%s/websocket", suite.network.TmEndpoint)
-	suite.tmClient, err = rpchttp.New(remoteAddress)
+	suite.tmClient, err = rpchttp.New(suite.network.TmEndpoint)
 	suite.NoError(err)
 
 	suite.senderAddress, suite.cosmosKeyring, err = accountForTests()

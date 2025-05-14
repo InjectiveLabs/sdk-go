@@ -2,7 +2,6 @@ package tm
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	log "github.com/InjectiveLabs/suplog"
@@ -27,8 +26,7 @@ type tmClient struct {
 }
 
 func NewRPCClient(rpcNodeAddr string) TendermintClient {
-	remoteAddress := fmt.Sprintf("%s/websocket", rpcNodeAddr)
-	rpcClient, err := rpchttp.NewWithTimeout(remoteAddress, 10)
+	rpcClient, err := rpchttp.NewWithTimeout(rpcNodeAddr, 10)
 	if err != nil {
 		log.WithError(err).Fatalln("failed to init rpcClient")
 	}
