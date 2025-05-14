@@ -2,7 +2,6 @@ package tm
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	log "github.com/InjectiveLabs/suplog"
@@ -35,10 +34,6 @@ func NewRPCClient(rpcNodeAddr string) TendermintClient {
 	return &tmClient{
 		rpcClient: rpcClient,
 	}
-}
-
-func NewRPCWebSocketClient(rpcNodeAddr string) TendermintClient {
-	return NewRPCClient(fmt.Sprintf("%s/websocket", rpcNodeAddr))
 }
 
 // GetBlock queries for a block by height. An error is returned if the query fails.
