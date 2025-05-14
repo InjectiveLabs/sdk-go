@@ -27,8 +27,7 @@ type tmClient struct {
 }
 
 func NewRPCClient(rpcNodeAddr string) TendermintClient {
-	remoteAddress := fmt.Sprintf("%s/websocket", rpcNodeAddr)
-	rpcClient, err := rpchttp.NewWithTimeout(remoteAddress, 10)
+	rpcClient, err := rpchttp.NewWithTimeout(rpcNodeAddr, 10)
 	if err != nil {
 		log.WithError(err).Fatalln("failed to init rpcClient")
 	}
@@ -36,6 +35,10 @@ func NewRPCClient(rpcNodeAddr string) TendermintClient {
 	return &tmClient{
 		rpcClient: rpcClient,
 	}
+}
+
+func NewRPCWebSocketClient(rpcNodeAddr string) TendermintClient {
+	return NewRPCClient(fmt.Sprintf("%s/websocket", rpcNodeAddr))
 }
 
 // GetBlock queries for a block by height. An error is returned if the query fails.
