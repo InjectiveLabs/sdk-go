@@ -137,7 +137,7 @@ func (derivativeMarket DerivativeMarket) NotionalToChainFormat(humanReadableValu
 	return valueInChainFormat
 }
 
-func (derivativeMarket DerivativeMarket) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
+func (DerivativeMarket) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return decimal.RequireFromString(chainValue.String())
 }
 
@@ -234,7 +234,7 @@ func (market BinaryOptionMarket) NotionalToChainFormat(humanReadableValue decima
 	return valueInChainFormat
 }
 
-func (market BinaryOptionMarket) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
+func (BinaryOptionMarket) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return decimal.RequireFromString(chainValue.String())
 }
 

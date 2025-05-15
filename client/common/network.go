@@ -12,9 +12,12 @@ import (
 )
 
 const (
-	MainnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json" // nolint:gosec // not credentials, just the link to the public tokens list
-	TestnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json" // nolint:gosec // not credentials, just the link to the public tokens list
-	DevnetTokensListURL  = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"  // nolint:gosec // not credentials, just the link to the public tokens list
+	// nolint:gosec // not credentials, just the link to the public tokens list
+	MainnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json"
+	// nolint:gosec // not credentials, just the link to the public tokens list
+	TestnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json"
+	// nolint:gosec // not credentials, just the link to the public tokens list
+	DevnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"
 )
 
 func cookieByName(cookies []*http.Cookie, key string) *http.Cookie {
@@ -46,6 +49,7 @@ type Network struct {
 }
 
 // nolint:cyclomatic // we leave the function as it is for clarity
+// revive:disable:function-length // we leave the function as it is for clarity
 func LoadNetwork(name, node string) Network {
 	switch name {
 	case "local":

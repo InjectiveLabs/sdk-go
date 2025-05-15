@@ -197,4 +197,8 @@ lint-master: export GOPROXY=direct
 lint-master:
 	golangci-lint run --timeout=15m -v --new-from-rev=master
 
-.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master
+lint-all: export GOPROXY=direct
+lint-all:
+	golangci-lint run --timeout=15m -v
+
+.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master lint-all
