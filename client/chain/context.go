@@ -44,6 +44,7 @@ import (
 	erc20types "github.com/InjectiveLabs/sdk-go/chain/erc20/types"
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2 "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
@@ -82,6 +83,7 @@ func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
 	erc20types.RegisterInterfaces(interfaceRegistry)
 	evmtypes.RegisterInterfaces(interfaceRegistry)
 	exchange.RegisterInterfaces(interfaceRegistry)
+	exchangev2.RegisterInterfaces(interfaceRegistry)
 	oracle.RegisterInterfaces(interfaceRegistry)
 	insurance.RegisterInterfaces(interfaceRegistry)
 	auction.RegisterInterfaces(interfaceRegistry)
@@ -133,6 +135,7 @@ func NewClientContext(
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
 	exchange.RegisterInterfaces(interfaceRegistry)
+	exchangev2.RegisterInterfaces(interfaceRegistry)
 	insurance.RegisterInterfaces(interfaceRegistry)
 	auction.RegisterInterfaces(interfaceRegistry)
 	oracle.RegisterInterfaces(interfaceRegistry)
