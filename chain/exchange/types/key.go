@@ -101,10 +101,11 @@ var (
 	BinaryOptionsMarketSettlementSchedulePrefix  = []byte{0x64} // prefix for a key to save scheduled binary options marketID for settlement
 	BinaryOptionsMarketParamUpdateSchedulePrefix = []byte{0x65} // prefix for a key to save scheduled binary options market params update
 
-	SpotConditionalMarketOrdersPrefix            = []byte{0x70} // prefix for a key to save conditional spot market orders: marketID + direction + triggerPrice + orderHash ⇒ spotMarketOrder
-	SpotConditionalMarketOrdersIndexPrefix       = []byte{0x71} // prefix for a key to save conditional spot market orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
-	SpotConditionalLimitOrdersPrefix             = []byte{0x72} // prefix for a key to save conditional spot limit orders: marketID + direction + triggerPrice + orderHash ⇒ spotLimitOrder
-	SpotConditionalLimitOrdersIndexPrefix        = []byte{0x73} // prefix for a key to save conditional spot limit orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
+	// old legacy prefixes
+	// SpotConditionalMarketOrdersPrefix            = []byte{0x70} // prefix for a key to save conditional spot market orders: marketID + direction + triggerPrice + orderHash ⇒ spotMarketOrder
+	// SpotConditionalMarketOrdersIndexPrefix       = []byte{0x71} // prefix for a key to save conditional spot market orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
+	// SpotConditionalLimitOrdersPrefix             = []byte{0x72} // prefix for a key to save conditional spot limit orders: marketID + direction + triggerPrice + orderHash ⇒ spotLimitOrder
+	// SpotConditionalLimitOrdersIndexPrefix        = []byte{0x73} // prefix for a key to save conditional spot limit orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
 	DerivativeConditionalMarketOrdersPrefix      = []byte{0x74} // prefix for a key to save conditional derivative market orders: marketID + direction + triggerPrice + orderHash ⇒ derivativeMarketOrder
 	DerivativeConditionalMarketOrdersIndexPrefix = []byte{0x75} // prefix for a key to save conditional derivative market orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
 	DerivativeConditionalLimitOrdersPrefix       = []byte{0x76} // prefix for a key to save conditional derivative limit orders: marketID + direction + triggerPrice + orderHash ⇒ derivativeLimitOrder
