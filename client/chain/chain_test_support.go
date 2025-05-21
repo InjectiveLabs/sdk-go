@@ -793,6 +793,10 @@ func (c *MockChainClient) FetchChainPositionsV2(ctx context.Context) (*exchangev
 	return &exchangev2types.QueryPositionsResponse{}, nil
 }
 
+func (c *MockChainClient) FetchChainPositionsInMarketV2(ctx context.Context, marketId string) (*exchangev2types.QueryPositionsInMarketResponse, error) {
+	return &exchangev2types.QueryPositionsInMarketResponse{}, nil
+}
+
 func (c *MockChainClient) FetchChainSubaccountPositionsV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountPositionsResponse, error) {
 	return &exchangev2types.QuerySubaccountPositionsResponse{}, nil
 }

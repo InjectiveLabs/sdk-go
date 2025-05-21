@@ -76,6 +76,7 @@ func main() {
 		TakerFeeRate:           math.LegacyMustNewDecFromStr("0.001"),
 		InitialMarginRatio:     math.LegacyMustNewDecFromStr("0.33"),
 		MaintenanceMarginRatio: math.LegacyMustNewDecFromStr("0.095"),
+		ReduceMarginRatio:      math.LegacyMustNewDecFromStr("0.3"),
 		MinPriceTickSize:       minPriceTickSize,
 		MinQuantityTickSize:    minQuantityTickSize,
 	}

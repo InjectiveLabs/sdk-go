@@ -72,6 +72,7 @@ func main() {
 		NewMinNotional:            minNotional,
 		NewInitialMarginRatio:     math.LegacyMustNewDecFromStr("0.4"),
 		NewMaintenanceMarginRatio: math.LegacyMustNewDecFromStr("0.085"),
+		NewReduceMarginRatio:      math.LegacyMustNewDecFromStr("0.3"),
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

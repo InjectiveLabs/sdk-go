@@ -349,6 +349,7 @@ type ChainClient interface {
 	FetchDerivativeMarketAddressV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketAddressResponse, error)
 	FetchSubaccountTradeNonceV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountTradeNonceResponse, error)
 	FetchChainPositionsV2(ctx context.Context) (*exchangev2types.QueryPositionsResponse, error)
+	FetchChainPositionsInMarketV2(ctx context.Context, marketId string) (*exchangev2types.QueryPositionsInMarketResponse, error)
 	FetchChainSubaccountPositionsV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountPositionsResponse, error)
 	FetchChainSubaccountPositionInMarketV2(ctx context.Context, subaccountId string, marketId string) (*exchangev2types.QuerySubaccountPositionInMarketResponse, error)
 	FetchChainSubaccountEffectivePositionInMarketV2(ctx context.Context, subaccountId string, marketId string) (*exchangev2types.QuerySubaccountEffectivePositionInMarketResponse, error)
@@ -1225,6 +1226,7 @@ func (c *chainClient) CreateSpotOrderV2(defaultSubaccountID ethcommon.Hash, d *S
 			Quantity:     sdkmath.LegacyMustNewDecFromStr(d.Quantity.String()),
 			Cid:          d.Cid,
 		},
+		ExpirationBlock: d.ExpirationBlock,
 	}
 }
 
@@ -1246,6 +1248,7 @@ func (c *chainClient) CreateDerivativeOrderV2(defaultSubaccountID ethcommon.Hash
 			Quantity:     sdkmath.LegacyMustNewDecFromStr(d.Quantity.String()),
 			Cid:          d.Cid,
 		},
+		ExpirationBlock: d.ExpirationBlock,
 	}
 }
 
@@ -1730,23 +1733,25 @@ func (c *chainClient) FetchTokenfactoryModuleState(ctx context.Context) (*tokenf
 }
 
 type DerivativeOrderData struct {
-	OrderType    exchangev2types.OrderType
-	Price        decimal.Decimal
-	Quantity     decimal.Decimal
-	Leverage     decimal.Decimal
-	FeeRecipient string
-	MarketId     string
-	IsReduceOnly bool
-	Cid          string
+	OrderType       exchangev2types.OrderType
+	Price           decimal.Decimal
+	Quantity        decimal.Decimal
+	Leverage        decimal.Decimal
+	FeeRecipient    string
+	MarketId        string
+	IsReduceOnly    bool
+	Cid             string
+	ExpirationBlock int64
 }
 
 type SpotOrderData struct {
-	OrderType    exchangev2types.OrderType
-	Price        decimal.Decimal
-	Quantity     decimal.Decimal
-	FeeRecipient string
-	MarketId     string
-	Cid          string
+	OrderType       exchangev2types.OrderType
+	Price           decimal.Decimal
+	Quantity        decimal.Decimal
+	FeeRecipient    string
+	MarketId        string
+	Cid             string
+	ExpirationBlock int64
 }
 
 type OrderCancelData struct {
@@ -2770,6 +2775,15 @@ func (c *chainClient) FetchSubaccountTradeNonceV2(ctx context.Context, subaccoun
 func (c *chainClient) FetchChainPositionsV2(ctx context.Context) (*exchangev2types.QueryPositionsResponse, error) {
 	req := &exchangev2types.QueryPositionsRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.Positions, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchChainPositionsInMarketV2(ctx context.Context, marketId string) (*exchangev2types.QueryPositionsInMarketResponse, error) {
+	req := &exchangev2types.QueryPositionsInMarketRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.PositionsInMarket, req)
 
 	return res, err
 }
