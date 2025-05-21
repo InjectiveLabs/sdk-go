@@ -214,7 +214,8 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 		!msg.HasMinNotionalUpdate() &&
 		!msg.HasMinQuantityTickSizeUpdate() &&
 		!msg.HasInitialMarginRatioUpdate() &&
-		!msg.HasMaintenanceMarginRatioUpdate()
+		!msg.HasMaintenanceMarginRatioUpdate() &&
+		!msg.HasReduceMarginRatioUpdate()
 
 	if hasNoUpdate {
 		return errors.Wrap(types.ErrBadField, "no update value present")
@@ -260,14 +261,21 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 		}
 	}
 
-	if msg.HasInitialMarginRatioUpdate() || msg.HasMaintenanceMarginRatioUpdate() {
+
+	if msg.HasInitialMarginRatioUpdate() && msg.HasMaintenanceMarginRatioUpdate() {
 		if msg.NewInitialMarginRatio.LTE(msg.NewMaintenanceMarginRatio) {
 			return types.ErrMarginsRelation
 		}
 	}
 
-	if msg.HasInitialMarginRatioUpdate() || msg.HasReduceMarginRatioUpdate() {
+	if msg.HasInitialMarginRatioUpdate() && msg.HasReduceMarginRatioUpdate() {
 		if msg.NewReduceMarginRatio.LT(msg.NewInitialMarginRatio) {
+			return types.ErrMarginsRelation
+		}
+	}
+
+	if msg.HasMaintenanceMarginRatioUpdate() && msg.HasReduceMarginRatioUpdate() {
+		if msg.NewReduceMarginRatio.LT(msg.NewMaintenanceMarginRatio) {
 			return types.ErrMarginsRelation
 		}
 	}
@@ -656,6 +664,9 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 		return err
 	}
 	if err := types.ValidateMarginRatio(msg.MaintenanceMarginRatio); err != nil {
+		return err
+	}
+	if err := types.ValidateMarginRatio(msg.ReduceMarginRatio); err != nil {
 		return err
 	}
 	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {

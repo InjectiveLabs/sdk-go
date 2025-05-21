@@ -297,7 +297,7 @@ func (o *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	}
 
 	// for legacy support purposes, allow non-conditional orders to send a 0 trigger price
-	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || o.TriggerPrice.IsNegative() || o.TriggerPrice.GT(MaxOrderPrice)) {
+	if o.TriggerPrice != nil && (o.TriggerPrice.IsNil() || !o.TriggerPrice.IsZero()) {
 		return ErrInvalidTriggerPrice
 	}
 
@@ -1392,7 +1392,7 @@ func (msg *MsgExternalTransfer) ValidateBasic() error {
 		return err
 	}
 
-	sourceSubaccountId, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SourceSubaccountId)
+	sourceSubaccountID, err := GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.SourceSubaccountId)
 	if err != nil {
 		return errors.Wrap(ErrBadSubaccountID, msg.SourceSubaccountId)
 	}
@@ -1405,7 +1405,7 @@ func (msg *MsgExternalTransfer) ValidateBasic() error {
 		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 
-	if !bytes.Equal(SubaccountIDToSdkAddress(sourceSubaccountId).Bytes(), senderAddr.Bytes()) {
+	if !bytes.Equal(SubaccountIDToSdkAddress(sourceSubaccountID).Bytes(), senderAddr.Bytes()) {
 		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
 	}
 	return nil

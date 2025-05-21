@@ -275,6 +275,12 @@ message DerivativeMarket {
   uint32 admin_permissions = 19;
   // quote token decimals
   uint32 quote_decimals = 20;
+
+  // reduce_margin_ratio defines the ratio of the margin that is reduced
+  string reduce_margin_ratio = 21 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // An object describing a binary options market in Injective Protocol.
