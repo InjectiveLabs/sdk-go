@@ -47,15 +47,6 @@ type MatchedMarketDirection struct {
 	SellsExists bool
 }
 
-type TriggeredOrdersInMarket struct {
-	Market             *DerivativeMarket
-	MarkPrice          math.LegacyDec
-	MarketOrders       []*DerivativeMarketOrder
-	LimitOrders        []*DerivativeLimitOrder
-	HasLimitBuyOrders  bool
-	HasLimitSellOrders bool
-}
-
 type TradingRewardAccountPoints struct {
 	Account sdk.AccAddress
 	Points  math.LegacyDec

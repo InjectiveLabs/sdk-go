@@ -339,6 +339,10 @@ func GetPriceFromPaddedPrice(paddedPrice string) math.LegacyDec {
 	if strings.HasPrefix(priceString, ".") {
 		priceString = "0" + priceString
 	}
+	// If the string is empty after trimming, it represents zero
+	if priceString == "" {
+		priceString = "0"
+	}
 	return math.LegacyMustNewDecFromStr(priceString)
 }
 

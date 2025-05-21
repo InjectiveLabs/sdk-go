@@ -40,6 +40,7 @@ message StreamResponse {
   repeated OrderbookUpdate derivative_orderbook_updates = 10;
   repeated Position positions = 11;
   repeated OraclePrice oracle_prices = 12;
+  string gas_price = 13;
 }
 
 message OrderbookUpdate {

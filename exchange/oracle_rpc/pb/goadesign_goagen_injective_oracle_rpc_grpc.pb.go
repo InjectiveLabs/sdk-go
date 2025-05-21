@@ -26,6 +26,8 @@ type InjectiveOracleRPCClient interface {
 	OracleList(ctx context.Context, in *OracleListRequest, opts ...grpc.CallOption) (*OracleListResponse, error)
 	// Gets the price of the oracle
 	Price(ctx context.Context, in *PriceRequest, opts ...grpc.CallOption) (*PriceResponse, error)
+	// Gets prices of the oracle
+	PriceV2(ctx context.Context, in *PriceV2Request, opts ...grpc.CallOption) (*PriceV2Response, error)
 	// StreamPrices streams new price changes for a specified oracle. If no oracles
 	// are provided, all price changes are streamed.
 	StreamPrices(ctx context.Context, in *StreamPricesRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamPricesClient, error)
@@ -53,6 +55,15 @@ func (c *injectiveOracleRPCClient) OracleList(ctx context.Context, in *OracleLis
 func (c *injectiveOracleRPCClient) Price(ctx context.Context, in *PriceRequest, opts ...grpc.CallOption) (*PriceResponse, error) {
 	out := new(PriceResponse)
 	err := c.cc.Invoke(ctx, "/injective_oracle_rpc.InjectiveOracleRPC/Price", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveOracleRPCClient) PriceV2(ctx context.Context, in *PriceV2Request, opts ...grpc.CallOption) (*PriceV2Response, error) {
+	out := new(PriceV2Response)
+	err := c.cc.Invoke(ctx, "/injective_oracle_rpc.InjectiveOracleRPC/PriceV2", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +142,8 @@ type InjectiveOracleRPCServer interface {
 	OracleList(context.Context, *OracleListRequest) (*OracleListResponse, error)
 	// Gets the price of the oracle
 	Price(context.Context, *PriceRequest) (*PriceResponse, error)
+	// Gets prices of the oracle
+	PriceV2(context.Context, *PriceV2Request) (*PriceV2Response, error)
 	// StreamPrices streams new price changes for a specified oracle. If no oracles
 	// are provided, all price changes are streamed.
 	StreamPrices(*StreamPricesRequest, InjectiveOracleRPC_StreamPricesServer) error
@@ -148,6 +161,9 @@ func (UnimplementedInjectiveOracleRPCServer) OracleList(context.Context, *Oracle
 }
 func (UnimplementedInjectiveOracleRPCServer) Price(context.Context, *PriceRequest) (*PriceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Price not implemented")
+}
+func (UnimplementedInjectiveOracleRPCServer) PriceV2(context.Context, *PriceV2Request) (*PriceV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PriceV2 not implemented")
 }
 func (UnimplementedInjectiveOracleRPCServer) StreamPrices(*StreamPricesRequest, InjectiveOracleRPC_StreamPricesServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPrices not implemented")
@@ -200,6 +216,24 @@ func _InjectiveOracleRPC_Price_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveOracleRPCServer).Price(ctx, req.(*PriceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveOracleRPC_PriceV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PriceV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveOracleRPCServer).PriceV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_oracle_rpc.InjectiveOracleRPC/PriceV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveOracleRPCServer).PriceV2(ctx, req.(*PriceV2Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -260,6 +294,10 @@ var InjectiveOracleRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Price",
 			Handler:    _InjectiveOracleRPC_Price_Handler,
+		},
+		{
+			MethodName: "PriceV2",
+			Handler:    _InjectiveOracleRPC_PriceV2_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
