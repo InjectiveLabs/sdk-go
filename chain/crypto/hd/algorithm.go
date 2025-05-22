@@ -20,11 +20,11 @@ const (
 )
 
 var (
-	// SupportedAlgorithms defines the list of signing algorithms used on Ethermint:
+	// SupportedAlgorithms defines the list of signing algorithms used on Injective:
 	//  - eth_secp256k1 (Ethereum)
 	//  - secp256k1 (Tendermint)
 	SupportedAlgorithms = keyring.SigningAlgoList{EthSecp256k1, hd.Secp256k1}
-	// SupportedAlgorithmsLedger defines the list of signing algorithms used on Ethermint for the Ledger device:
+	// SupportedAlgorithmsLedger defines the list of signing algorithms used on Injective for the Ledger device:
 	//  - eth_secp256k1 (Ethereum)
 	//  - secp256k1 (Tendermint)
 	SupportedAlgorithmsLedger = keyring.SigningAlgoList{EthSecp256k1, hd.Secp256k1}
@@ -49,7 +49,7 @@ type ethSecp256k1Algo struct {
 }
 
 // Name returns eth_secp256k1
-func (s ethSecp256k1Algo) Name() hd.PubKeyType {
+func (ethSecp256k1Algo) Name() hd.PubKeyType {
 	return EthSecp256k1Type
 }
 
@@ -94,7 +94,7 @@ func (s ethSecp256k1Algo) Derive() hd.DeriveFn {
 }
 
 // Generate generates a secp256k1 private key from the given bytes.
-func (s ethSecp256k1Algo) Generate() hd.GenerateFn {
+func (ethSecp256k1Algo) Generate() hd.GenerateFn {
 	return func(bz []byte) cryptotypes.PrivKey {
 		var bzArr = make([]byte, ethsecp256k1.PrivKeySize)
 		copy(bzArr, bz)

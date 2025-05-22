@@ -1,3 +1,4 @@
+//revive:disable:line-length-limit // long error messages are OK in this table
 package types
 
 import (
@@ -49,7 +50,7 @@ var (
 	ErrSameDenoms                               = errors.Register(ModuleName, 42, "base denom cannot be same with quote denom")
 	ErrSameOracles                              = errors.Register(ModuleName, 43, "oracle base cannot be same with oracle quote")
 	ErrFeeRatesRelation                         = errors.Register(ModuleName, 44, "MakerFeeRate does not match TakerFeeRate requirements")
-	ErrMarginsRelation                          = errors.Register(ModuleName, 45, "MaintenanceMarginRatio cannot be greater than InitialMarginRatio")
+	ErrMarginsRelation                          = errors.Register(ModuleName, 45, "Ensure that MaintenanceMarginRatio < InitialMarginRatio <= ReduceMarginRatio")
 	ErrExceedsMaxOracleScaleFactor              = errors.Register(ModuleName, 46, "OracleScaleFactor cannot be greater than MaxOracleScaleFactor")
 	ErrSpotExchangeNotEnabled                   = errors.Register(ModuleName, 47, "Spot exchange is not enabled yet")
 	ErrDerivativesExchangeNotEnabled            = errors.Register(ModuleName, 48, "Derivatives exchange is not enabled yet")
@@ -111,4 +112,6 @@ var (
 	ErrInvalidPermissions                       = errors.Register(ModuleName, 104, "invalid permissions")
 	ErrDenomDecimalsDoNotMatch                  = errors.Register(ModuleName, 105, "the decimals specified for the denom is incorrect")
 	ErrInsufficientMarketBalance                = errors.Register(ModuleName, 106, "insufficient market balance")
+	ErrInvalidExpirationBlock                   = errors.Register(ModuleName, 107, "invalid expiration block")
+	ErrV1DerivativeMarketLaunch                 = errors.Register(ModuleName, 108, "v1 perpetual and expiry market launch proposal is not supported")
 )

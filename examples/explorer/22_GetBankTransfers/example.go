@@ -31,7 +31,7 @@ func main() {
 
 	response, err := explorerClient.FetchBankTransfers(ctx, req)
 	if err != nil {
-		log.Fatalf("Failed to fetch bank transfers: %v", err)
+		log.Panicf("Failed to fetch bank transfers: %v", err)
 	}
 
 	fmt.Println("Bank transfers:")

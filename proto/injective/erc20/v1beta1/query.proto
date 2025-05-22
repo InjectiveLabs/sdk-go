@@ -1,0 +1,73 @@
+syntax = "proto3";
+package injective.erc20.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "injective/erc20/v1beta1/params.proto";
+import "injective/erc20/v1beta1/genesis.proto";
+import "injective/erc20/v1beta1/erc20.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/erc20/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Params defines a gRPC query method that returns the erc20 module's
+  // parameters.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/injective/erc20/v1beta1/params";
+  }
+
+  // AllTokenPairs defines a gRPC query method that returns the erc20
+  // module's created token pairs.
+  rpc AllTokenPairs(QueryAllTokenPairsRequest)
+      returns (QueryAllTokenPairsResponse) {
+    option (google.api.http).get = "/injective/erc20/v1beta1/all_token_pairs";
+  }
+
+  // TokenPairByDenom defines a gRPC query method that returns the erc20
+  // module's token pair associated with the provided bank denom.
+  rpc TokenPairByDenom(QueryTokenPairByDenomRequest)
+      returns (QueryTokenPairByDenomResponse) {
+    option (google.api.http).get =
+        "/injective/erc20/v1beta1/token_pair_by_denom";
+  }
+
+  // TokenPairByERC20Address defines a gRPC query method that returns the erc20
+  // module's token pair associated with the provided erc20 contract address.
+  rpc TokenPairByERC20Address(QueryTokenPairByERC20AddressRequest)
+      returns (QueryTokenPairByERC20AddressResponse) {
+    option (google.api.http).get =
+        "/injective/erc20/v1beta1/token_pair_by_erc20_address";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params defines the parameters of the module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryAllTokenPairsRequest is the request type for the Query/AllTokenPairs RPC
+// method.
+message QueryAllTokenPairsRequest {}
+
+// QueryAllTokenPairsResponse is the response type for the Query/AllTokenPairs
+// RPC method.
+message QueryAllTokenPairsResponse { repeated TokenPair token_pairs = 1; }
+
+// QueryTokenPairByDenomRequest is the request type for the
+// Query/TokenPairByDenom RPC method.
+message QueryTokenPairByDenomRequest { string bank_denom = 1; }
+
+// QueryTokenPairByDenomResponse is the response type for the
+// Query/TokenPairByDenom RPC method.
+message QueryTokenPairByDenomResponse { TokenPair token_pair = 1; }
+
+message QueryTokenPairByERC20AddressRequest { string erc20_address = 1; }
+
+message QueryTokenPairByERC20AddressResponse { TokenPair token_pair = 1; }

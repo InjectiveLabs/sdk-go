@@ -101,10 +101,11 @@ var (
 	BinaryOptionsMarketSettlementSchedulePrefix  = []byte{0x64} // prefix for a key to save scheduled binary options marketID for settlement
 	BinaryOptionsMarketParamUpdateSchedulePrefix = []byte{0x65} // prefix for a key to save scheduled binary options market params update
 
-	SpotConditionalMarketOrdersPrefix            = []byte{0x70} // prefix for a key to save conditional spot market orders: marketID + direction + triggerPrice + orderHash ⇒ spotMarketOrder
-	SpotConditionalMarketOrdersIndexPrefix       = []byte{0x71} // prefix for a key to save conditional spot market orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
-	SpotConditionalLimitOrdersPrefix             = []byte{0x72} // prefix for a key to save conditional spot limit orders: marketID + direction + triggerPrice + orderHash ⇒ spotLimitOrder
-	SpotConditionalLimitOrdersIndexPrefix        = []byte{0x73} // prefix for a key to save conditional spot limit orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
+	// old legacy prefixes
+	// SpotConditionalMarketOrdersPrefix            = []byte{0x70} // prefix for a key to save conditional spot market orders: marketID + direction + triggerPrice + orderHash ⇒ spotMarketOrder
+	// SpotConditionalMarketOrdersIndexPrefix       = []byte{0x71} // prefix for a key to save conditional spot market orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
+	// SpotConditionalLimitOrdersPrefix             = []byte{0x72} // prefix for a key to save conditional spot limit orders: marketID + direction + triggerPrice + orderHash ⇒ spotLimitOrder
+	// SpotConditionalLimitOrdersIndexPrefix        = []byte{0x73} // prefix for a key to save conditional spot limit orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
 	DerivativeConditionalMarketOrdersPrefix      = []byte{0x74} // prefix for a key to save conditional derivative market orders: marketID + direction + triggerPrice + orderHash ⇒ derivativeMarketOrder
 	DerivativeConditionalMarketOrdersIndexPrefix = []byte{0x75} // prefix for a key to save conditional derivative market orders index: marketID + direction + subaccountID + orderHash ⇒ triggerPrice
 	DerivativeConditionalLimitOrdersPrefix       = []byte{0x76} // prefix for a key to save conditional derivative limit orders: marketID + direction + triggerPrice + orderHash ⇒ derivativeLimitOrder
@@ -118,7 +119,9 @@ var (
 	LastGranterDelegationCheckTimePrefix = []byte{0x82} // prefix to store the last timestamp that the granter's delegations were checked
 	ActiveGrantPrefix                    = []byte{0x83} // prefix to store the grantee's active grant
 
-	MarketBalanceKey = []byte{0x84} // key for each key to a MarketBalance
+	MarketBalanceKey             = []byte{0x84} // key for each key to a MarketBalance
+	OrderExpirationsPrefix       = []byte{0x85} // prefix to store order expirations
+	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
@@ -335,6 +338,10 @@ func GetPriceFromPaddedPrice(paddedPrice string) math.LegacyDec {
 	// edge case when no natural component, prepend 0
 	if strings.HasPrefix(priceString, ".") {
 		priceString = "0" + priceString
+	}
+	// If the string is empty after trimming, it represents zero
+	if priceString == "" {
+		priceString = "0"
 	}
 	return math.LegacyMustNewDecFromStr(priceString)
 }
@@ -558,4 +565,26 @@ func GetLastValidGrantDelegationCheckTimeKey(granter sdk.AccAddress) []byte {
 
 func GetDerivativeMarketBalanceKey(marketID common.Hash) []byte {
 	return append(MarketBalanceKey, marketID.Bytes()...)
+}
+
+func GetOrderExpirationPrefix(blockNumber int64, marketID common.Hash) []byte {
+	blockNumberBz := sdk.Uint64ToBigEndian(uint64(blockNumber))
+	marketIDBz := marketID.Bytes()
+
+	buf := make([]byte, 0, len(OrderExpirationsPrefix)+len(blockNumberBz)+len(marketIDBz))
+	buf = append(buf, OrderExpirationsPrefix...)
+	buf = append(buf, blockNumberBz...)
+	buf = append(buf, marketIDBz...)
+
+	return buf
+}
+
+func GetOrderExpirationMarketPrefix(blockNumber int64) []byte {
+	blockNumberBz := sdk.Uint64ToBigEndian(uint64(blockNumber))
+
+	buf := make([]byte, 0, len(OrderExpirationsPrefix)+len(blockNumberBz))
+	buf = append(buf, OrderExpirationMarketsPrefix...)
+	buf = append(buf, blockNumberBz...)
+
+	return buf
 }

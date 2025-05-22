@@ -12,84 +12,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/InjectiveLabs/sdk-go/client/core"
 	"github.com/InjectiveLabs/sdk-go/client/exchange"
-	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
-	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 )
-
-func TestMarketAssistantCreationUsingMarketsFromExchange(t *testing.T) {
-	httpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("[]"))
-	}))
-	defer httpServer.Close()
-
-	network := common.NewNetwork()
-	network.OfficialTokensListURL = httpServer.URL
-
-	mockExchange := exchange.MockExchangeClient{}
-	mockExchange.Network = network
-	var spotMarketInfos []*spotExchangePB.SpotMarketInfo
-	var derivativeMarketInfos []*derivativeExchangePB.DerivativeMarketInfo
-	injUsdtSpotMarketInfo := createINJUSDTSpotMarketInfo()
-	apeUsdtSpotMarketInfo := createAPEUSDTSpotMarketInfo()
-	btcUsdtDerivativeMarketInfo := createBTCUSDTDerivativeMarketInfo()
-
-	spotMarketInfos = append(spotMarketInfos, injUsdtSpotMarketInfo)
-	spotMarketInfos = append(spotMarketInfos, apeUsdtSpotMarketInfo)
-	derivativeMarketInfos = append(derivativeMarketInfos, btcUsdtDerivativeMarketInfo)
-
-	mockExchange.SpotMarketsResponses = append(mockExchange.SpotMarketsResponses, &spotExchangePB.MarketsResponse{
-		Markets: spotMarketInfos,
-	})
-	mockExchange.DerivativeMarketsResponses = append(mockExchange.DerivativeMarketsResponses, &derivativeExchangePB.MarketsResponse{
-		Markets: derivativeMarketInfos,
-	})
-
-	ctx := context.Background()
-	assistant, err := NewMarketsAssistantInitializedFromChain(ctx, &mockExchange)
-
-	assert.NoError(t, err)
-
-	tokens := assistant.AllTokens()
-
-	assert.Len(t, tokens, 5)
-
-	symbols := strings.Split(injUsdtSpotMarketInfo.Ticker, "/")
-	injSymbol, usdtSymbol := symbols[0], symbols[1]
-	symbols = strings.Split(apeUsdtSpotMarketInfo.Ticker, "/")
-	apeSymbol := symbols[0]
-	alternativeUSDTName := apeUsdtSpotMarketInfo.QuoteTokenMeta.Name
-	usdtPerpSymbol := btcUsdtDerivativeMarketInfo.QuoteTokenMeta.Symbol
-
-	_, isPresent := tokens[injSymbol]
-	assert.True(t, isPresent)
-	_, isPresent = tokens[usdtSymbol]
-	assert.True(t, isPresent)
-	_, isPresent = tokens[alternativeUSDTName]
-	assert.True(t, isPresent)
-	_, isPresent = tokens[apeSymbol]
-	assert.True(t, isPresent)
-	_, isPresent = tokens[usdtPerpSymbol]
-	assert.True(t, isPresent)
-
-	spotMarkets := assistant.AllSpotMarkets()
-	assert.Len(t, spotMarkets, 2)
-
-	_, isPresent = spotMarkets[injUsdtSpotMarketInfo.MarketId]
-	assert.True(t, isPresent)
-	_, isPresent = spotMarkets[apeUsdtSpotMarketInfo.MarketId]
-	assert.True(t, isPresent)
-
-	derivativeMarkets := assistant.AllDerivativeMarkets()
-	assert.Len(t, derivativeMarkets, 1)
-
-	_, isPresent = derivativeMarkets[btcUsdtDerivativeMarketInfo.MarketId]
-	assert.True(t, isPresent)
-}
 
 func TestMarketAssistantCreation(t *testing.T) {
 	tokensList := []core.TokenMetadata{
@@ -172,9 +99,9 @@ func TestMarketAssistantCreation(t *testing.T) {
 
 	mockChain := MockChainClient{}
 	mockChain.Network = network
-	var spotMarketInfos []*exchangetypes.SpotMarket
-	var fullDerivativeMarkets []*exchangetypes.FullDerivativeMarket
-	var binaryOptionsMarkets []*exchangetypes.BinaryOptionsMarket
+	var spotMarketInfos []*exchangev2types.SpotMarket
+	var fullDerivativeMarkets []*exchangev2types.FullDerivativeMarket
+	var binaryOptionsMarkets []*exchangev2types.BinaryOptionsMarket
 	injUsdtSpotMarketInfo := createINJUSDTChainSpotMarket()
 	apeUsdtSpotMarketInfo := createAPEUSDTChainSpotMarket()
 	btcUsdtDerivativeMarketInfo := createBTCUSDTChainDerivativeMarket()
@@ -182,18 +109,18 @@ func TestMarketAssistantCreation(t *testing.T) {
 
 	spotMarketInfos = append(spotMarketInfos, injUsdtSpotMarketInfo)
 	spotMarketInfos = append(spotMarketInfos, apeUsdtSpotMarketInfo)
-	fullDerivativeMarkets = append(fullDerivativeMarkets, &exchangetypes.FullDerivativeMarket{
+	fullDerivativeMarkets = append(fullDerivativeMarkets, &exchangev2types.FullDerivativeMarket{
 		Market: btcUsdtDerivativeMarketInfo,
 	})
 	binaryOptionsMarkets = append(binaryOptionsMarkets, betBinaryOptionsMarket)
 
-	mockChain.QuerySpotMarketsResponses = append(mockChain.QuerySpotMarketsResponses, &exchangetypes.QuerySpotMarketsResponse{
+	mockChain.QuerySpotMarketsV2Responses = append(mockChain.QuerySpotMarketsV2Responses, &exchangev2types.QuerySpotMarketsResponse{
 		Markets: spotMarketInfos,
 	})
-	mockChain.QueryDerivativeMarketsResponses = append(mockChain.QueryDerivativeMarketsResponses, &exchangetypes.QueryDerivativeMarketsResponse{
+	mockChain.QueryDerivativeMarketsV2Responses = append(mockChain.QueryDerivativeMarketsV2Responses, &exchangev2types.QueryDerivativeMarketsResponse{
 		Markets: fullDerivativeMarkets,
 	})
-	mockChain.QueryBinaryMarketsResponses = append(mockChain.QueryBinaryMarketsResponses, &exchangetypes.QueryBinaryMarketsResponse{
+	mockChain.QueryBinaryMarketsV2Responses = append(mockChain.QueryBinaryMarketsV2Responses, &exchangev2types.QueryBinaryMarketsResponse{
 		Markets: binaryOptionsMarkets,
 	})
 
@@ -256,9 +183,9 @@ func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
 	mockChain := MockChainClient{}
 	smartDenomMetadata := createSmartDenomMetadata()
 
-	mockChain.QuerySpotMarketsResponses = append(mockChain.QuerySpotMarketsResponses, &exchangetypes.QuerySpotMarketsResponse{})
-	mockChain.QueryDerivativeMarketsResponses = append(mockChain.QueryDerivativeMarketsResponses, &exchangetypes.QueryDerivativeMarketsResponse{})
-	mockChain.QueryBinaryMarketsResponses = append(mockChain.QueryBinaryMarketsResponses, &exchangetypes.QueryBinaryMarketsResponse{})
+	mockChain.QuerySpotMarketsV2Responses = append(mockChain.QuerySpotMarketsV2Responses, &exchangev2types.QuerySpotMarketsResponse{})
+	mockChain.QueryDerivativeMarketsV2Responses = append(mockChain.QueryDerivativeMarketsV2Responses, &exchangev2types.QueryDerivativeMarketsResponse{})
+	mockChain.QueryBinaryMarketsV2Responses = append(mockChain.QueryBinaryMarketsV2Responses, &exchangev2types.QueryBinaryMarketsResponse{})
 
 	mockChain.DenomsMetadataResponses = append(mockChain.DenomsMetadataResponses, &banktypes.QueryDenomsMetadataResponse{
 		Metadatas: []banktypes.Metadata{smartDenomMetadata},

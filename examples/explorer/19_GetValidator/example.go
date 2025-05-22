@@ -28,7 +28,7 @@ func main() {
 
 	response, err := explorerClient.FetchValidator(ctx, validatorAddress)
 	if err != nil {
-		log.Fatalf("Failed to fetch validator: %v", err)
+		log.Panicf("Failed to fetch validator: %v", err)
 	}
 
 	fmt.Println("Validator:")

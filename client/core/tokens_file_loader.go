@@ -41,7 +41,7 @@ func (tm TokenMetadata) GetDecimals() int32 {
 	return tm.Decimals
 }
 
-func (tm TokenMetadata) GetUpdatedAt() int64 {
+func (TokenMetadata) GetUpdatedAt() int64 {
 	return -1
 }
 

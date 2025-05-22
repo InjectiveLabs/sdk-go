@@ -25,7 +25,7 @@ func main() {
 
 	response, err := explorerClient.FetchValidators(ctx)
 	if err != nil {
-		log.Fatalf("Failed to fetch validators: %v", err)
+		log.Panicf("Failed to fetch validators: %v", err)
 	}
 
 	fmt.Println("Full response:")

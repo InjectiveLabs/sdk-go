@@ -17,7 +17,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -64,7 +64,7 @@ func main() {
 	limit := uint64(2)
 	limitCumulativeNotional := math.LegacyDec{}
 
-	res, err := chainClient.FetchChainDerivativeOrderbook(ctx, marketId, limit, limitCumulativeNotional)
+	res, err := chainClient.FetchChainDerivativeOrderbookV2(ctx, marketId, limit, limitCumulativeNotional)
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -16,7 +16,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -53,9 +53,13 @@ func main() {
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
+	if err != nil {
+		panic(err)
+	}
+
 	denom := "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5"
 
-	res, err := chainClient.FetchDenomMinNotional(context.Background(), denom)
+	res, err := chainClient.FetchDenomMinNotionalV2(context.Background(), denom)
 	if err != nil {
 		log.Fatalf("Failed to fetch denom min notional for %s: %v", denom, err)
 	}

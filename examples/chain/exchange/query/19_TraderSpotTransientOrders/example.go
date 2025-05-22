@@ -14,7 +14,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +60,7 @@ func main() {
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 	subaccountId := chainClient.Subaccount(senderAddress, 0)
 
-	res, err := chainClient.FetchChainTraderSpotTransientOrders(ctx, marketId, subaccountId.Hex())
+	res, err := chainClient.FetchChainTraderSpotTransientOrdersV2(ctx, marketId, subaccountId.Hex())
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -14,7 +14,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -59,7 +59,7 @@ func main() {
 
 	accounts := []string{senderAddress.String()}
 
-	res, err := chainClient.FetchTradeRewardPoints(ctx, accounts)
+	res, err := chainClient.FetchTradeRewardPointsV2(ctx, accounts)
 	if err != nil {
 		fmt.Println(err)
 	}

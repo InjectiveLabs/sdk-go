@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
@@ -10,14 +9,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -63,12 +62,6 @@ func main() {
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
 
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, chainClient)
-	if err != nil {
-		panic(err)
-	}
-
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
 	marketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
@@ -76,10 +69,10 @@ func main() {
 	price := decimal.RequireFromString("33000") //33,000
 	leverage := decimal.RequireFromString("2.5")
 
-	order := chainClient.CreateDerivativeOrder(
+	order := chainClient.CreateDerivativeOrderV2(
 		defaultSubaccountID,
 		&chainclient.DerivativeOrderData{
-			OrderType:    exchangetypes.OrderType_SELL, //BUY SELL
+			OrderType:    exchangev2types.OrderType_SELL, //BUY SELL
 			Quantity:     amount,
 			Price:        price,
 			Leverage:     leverage,
@@ -88,12 +81,11 @@ func main() {
 			IsReduceOnly: true,
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgCreateDerivativeMarketOrder)
+	msg := new(exchangev2types.MsgCreateDerivativeMarketOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.DerivativeOrder(*order)
+	msg.Order = *order
 
 	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
 
@@ -101,7 +93,7 @@ func main() {
 		panic(err)
 	}
 
-	msgCreateDerivativeMarketOrderResponse := exchangetypes.MsgCreateDerivativeMarketOrderResponse{}
+	msgCreateDerivativeMarketOrderResponse := exchangev2types.MsgCreateDerivativeMarketOrderResponse{}
 	err = msgCreateDerivativeMarketOrderResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
 
 	if err != nil {

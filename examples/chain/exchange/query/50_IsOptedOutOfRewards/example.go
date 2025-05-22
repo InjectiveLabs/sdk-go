@@ -15,7 +15,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +58,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchIsOptedOutOfRewards(ctx, senderAddress.String())
+	res, err := chainClient.FetchIsOptedOutOfRewardsV2(ctx, senderAddress.String())
 	if err != nil {
 		fmt.Println(err)
 	}

@@ -21,12 +21,14 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	eth "github.com/ethereum/go-ethereum/common"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"google.golang.org/grpc"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
+	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
 	injectiveclient "github.com/InjectiveLabs/sdk-go/client"
@@ -36,11 +38,14 @@ import (
 var _ ChainClient = &MockChainClient{}
 
 type MockChainClient struct {
-	Network                         common.Network
-	DenomsMetadataResponses         []*banktypes.QueryDenomsMetadataResponse
-	QuerySpotMarketsResponses       []*exchangetypes.QuerySpotMarketsResponse
-	QueryDerivativeMarketsResponses []*exchangetypes.QueryDerivativeMarketsResponse
-	QueryBinaryMarketsResponses     []*exchangetypes.QueryBinaryMarketsResponse
+	Network                           common.Network
+	DenomsMetadataResponses           []*banktypes.QueryDenomsMetadataResponse
+	QuerySpotMarketsResponses         []*exchangetypes.QuerySpotMarketsResponse
+	QueryDerivativeMarketsResponses   []*exchangetypes.QueryDerivativeMarketsResponse
+	QueryBinaryMarketsResponses       []*exchangetypes.QueryBinaryMarketsResponse
+	QuerySpotMarketsV2Responses       []*exchangev2types.QuerySpotMarketsResponse
+	QueryDerivativeMarketsV2Responses []*exchangev2types.QueryDerivativeMarketsResponse
+	QueryBinaryMarketsV2Responses     []*exchangev2types.QueryBinaryMarketsResponse
 }
 
 func (c *MockChainClient) CanSignTransactions() bool {
@@ -177,15 +182,15 @@ func (c *MockChainClient) BuildExchangeBatchUpdateOrdersAuthz(
 	return &authztypes.MsgGrant{}
 }
 
-func (c *MockChainClient) DefaultSubaccount(acc sdk.AccAddress) eth.Hash {
-	return eth.HexToHash("")
+func (c *MockChainClient) DefaultSubaccount(acc sdk.AccAddress) ethcommon.Hash {
+	return ethcommon.HexToHash("")
 }
 
-func (c *MockChainClient) Subaccount(account sdk.AccAddress, index int) eth.Hash {
-	return eth.HexToHash("")
+func (c *MockChainClient) Subaccount(account sdk.AccAddress, index int) ethcommon.Hash {
+	return ethcommon.HexToHash("")
 }
 
-func (c *MockChainClient) GetSubAccountNonce(ctx context.Context, subaccountId eth.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
+func (c *MockChainClient) GetSubAccountNonce(ctx context.Context, subaccountId ethcommon.Hash) (*exchangetypes.QuerySubaccountTradeNonceResponse, error) {
 	return &exchangetypes.QuerySubaccountTradeNonceResponse{}, nil
 }
 
@@ -193,28 +198,48 @@ func (c *MockChainClient) GetFeeDiscountInfo(ctx context.Context, account string
 	return &exchangetypes.QueryFeeDiscountAccountInfoResponse{}, nil
 }
 
+func (c *MockChainClient) GetSubAccountNonceV2(ctx context.Context, subaccountId ethcommon.Hash) (*exchangev2types.QuerySubaccountTradeNonceResponse, error) {
+	return &exchangev2types.QuerySubaccountTradeNonceResponse{}, nil
+}
+
+func (c *MockChainClient) GetFeeDiscountInfoV2(ctx context.Context, account string) (*exchangev2types.QueryFeeDiscountAccountInfoResponse, error) {
+	return &exchangev2types.QueryFeeDiscountAccountInfoResponse{}, nil
+}
+
 func (c *MockChainClient) UpdateSubaccountNonceFromChain() error {
 	return nil
 }
 
-func (c *MockChainClient) SynchronizeSubaccountNonce(subaccountId eth.Hash) error {
+func (c *MockChainClient) SynchronizeSubaccountNonce(subaccountId ethcommon.Hash) error {
 	return nil
 }
 
-func (c *MockChainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, derivativeOrders []exchangetypes.DerivativeOrder, subaccountId eth.Hash) (OrderHashes, error) {
+func (c *MockChainClient) ComputeOrderHashes(spotOrders []exchangev2types.SpotOrder, derivativeOrders []exchangev2types.DerivativeOrder, subaccountId ethcommon.Hash) (OrderHashes, error) {
 	return OrderHashes{}, nil
 }
 
-func (c *MockChainClient) CreateSpotOrder(defaultSubaccountID eth.Hash, d *SpotOrderData, marketsAssistant MarketsAssistant) *exchangetypes.SpotOrder {
+func (c *MockChainClient) CreateSpotOrder(defaultSubaccountID ethcommon.Hash, d *SpotOrderData, marketAssistant MarketsAssistant) *exchangetypes.SpotOrder {
 	return &exchangetypes.SpotOrder{}
 }
 
-func (c *MockChainClient) CreateDerivativeOrder(defaultSubaccountID eth.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
+func (c *MockChainClient) CreateDerivativeOrder(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData, marketAssistant MarketsAssistant) *exchangetypes.DerivativeOrder {
 	return &exchangetypes.DerivativeOrder{}
 }
 
-func (c *MockChainClient) OrderCancel(defaultSubaccountID eth.Hash, d *OrderCancelData) *exchangetypes.OrderData {
+func (c *MockChainClient) OrderCancel(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangetypes.OrderData {
 	return &exchangetypes.OrderData{}
+}
+
+func (c *MockChainClient) CreateSpotOrderV2(defaultSubaccountID ethcommon.Hash, d *SpotOrderData) *exchangev2types.SpotOrder {
+	return &exchangev2types.SpotOrder{}
+}
+
+func (c *MockChainClient) CreateDerivativeOrderV2(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData) *exchangev2types.DerivativeOrder {
+	return &exchangev2types.DerivativeOrder{}
+}
+
+func (c *MockChainClient) OrderCancelV2(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangev2types.OrderData {
+	return &exchangev2types.OrderData{}
 }
 
 func (c *MockChainClient) StreamEventOrderFail(sender string, failEventCh chan map[string]uint) {}
@@ -229,6 +254,10 @@ func (c *MockChainClient) StreamOrderbookUpdateEventsWithWebsocket(orderbookType
 }
 
 func (c *MockChainClient) ChainStream(ctx context.Context, req chainstreamtypes.StreamRequest) (chainstreamtypes.Stream_StreamClient, error) {
+	return nil, nil
+}
+
+func (c *MockChainClient) ChainStreamV2(ctx context.Context, req chainstreamv2types.StreamRequest) (chainstreamv2types.Stream_StreamV2Client, error) {
 	return nil, nil
 }
 
@@ -615,6 +644,300 @@ func (c *MockChainClient) FetchDenomMinNotional(ctx context.Context, denom strin
 
 func (c *MockChainClient) FetchDenomMinNotionals(ctx context.Context) (*exchangetypes.QueryDenomMinNotionalsResponse, error) {
 	return &exchangetypes.QueryDenomMinNotionalsResponse{}, nil
+}
+
+// Chain exchange V2 module
+func (c *MockChainClient) FetchSubaccountDepositsV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountDepositsResponse, error) {
+	return &exchangev2types.QuerySubaccountDepositsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchSubaccountDepositV2(ctx context.Context, subaccountId, denom string) (*exchangev2types.QuerySubaccountDepositResponse, error) {
+	return &exchangev2types.QuerySubaccountDepositResponse{}, nil
+}
+
+func (c *MockChainClient) FetchExchangeBalancesV2(_ context.Context) (*exchangev2types.QueryExchangeBalancesResponse, error) {
+	return &exchangev2types.QueryExchangeBalancesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAggregateVolumeV2(ctx context.Context, account string) (*exchangev2types.QueryAggregateVolumeResponse, error) {
+	return &exchangev2types.QueryAggregateVolumeResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAggregateVolumesV2(ctx context.Context, accounts, marketIDs []string) (*exchangev2types.QueryAggregateVolumesResponse, error) {
+	return &exchangev2types.QueryAggregateVolumesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAggregateMarketVolumeV2(ctx context.Context, marketId string) (*exchangev2types.QueryAggregateMarketVolumeResponse, error) {
+	return &exchangev2types.QueryAggregateMarketVolumeResponse{}, nil
+}
+
+func (c *MockChainClient) FetchAggregateMarketVolumesV2(ctx context.Context, marketIDs []string) (*exchangev2types.QueryAggregateMarketVolumesResponse, error) {
+	return &exchangev2types.QueryAggregateMarketVolumesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomDecimalV2(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error) {
+	return &exchangev2types.QueryDenomDecimalResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomDecimalsV2(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error) {
+	return &exchangev2types.QueryDenomDecimalsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainSpotMarketsV2(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error) {
+	var response *exchangev2types.QuerySpotMarketsResponse
+	var localError error
+	if len(c.QuerySpotMarketsV2Responses) > 0 {
+		response = c.QuerySpotMarketsV2Responses[0]
+		c.QuerySpotMarketsV2Responses = c.QuerySpotMarketsV2Responses[1:]
+		localError = nil
+	} else {
+		response = &exchangev2types.QuerySpotMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
+}
+
+func (c *MockChainClient) FetchChainSpotMarketV2(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMarketResponse, error) {
+	return &exchangev2types.QuerySpotMarketResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainFullSpotMarketsV2(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketsResponse, error) {
+	return &exchangev2types.QueryFullSpotMarketsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainFullSpotMarketV2(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketResponse, error) {
+	return &exchangev2types.QueryFullSpotMarketResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainSpotOrderbookV2(ctx context.Context, marketId string, limit uint64, orderSide exchangev2types.OrderSide, limitCumulativeNotional, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangev2types.QuerySpotOrderbookResponse, error) {
+	return &exchangev2types.QuerySpotOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainTraderSpotOrdersV2(ctx context.Context, marketId, subaccountId string) (*exchangev2types.QueryTraderSpotOrdersResponse, error) {
+	return &exchangev2types.QueryTraderSpotOrdersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainAccountAddressSpotOrdersV2(ctx context.Context, marketId, address string) (*exchangev2types.QueryAccountAddressSpotOrdersResponse, error) {
+	return &exchangev2types.QueryAccountAddressSpotOrdersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainSpotOrdersByHashesV2(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangev2types.QuerySpotOrdersByHashesResponse, error) {
+	return &exchangev2types.QuerySpotOrdersByHashesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainSubaccountOrdersV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QuerySubaccountOrdersResponse, error) {
+	return &exchangev2types.QuerySubaccountOrdersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainTraderSpotTransientOrdersV2(ctx context.Context, marketId, subaccountId string) (*exchangev2types.QueryTraderSpotOrdersResponse, error) {
+	return &exchangev2types.QueryTraderSpotOrdersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchSpotMidPriceAndTOBV2(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMidPriceAndTOBResponse, error) {
+	return &exchangev2types.QuerySpotMidPriceAndTOBResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDerivativeMidPriceAndTOBV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMidPriceAndTOBResponse, error) {
+	return &exchangev2types.QueryDerivativeMidPriceAndTOBResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainDerivativeOrderbookV2(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangev2types.QueryDerivativeOrderbookResponse, error) {
+	return &exchangev2types.QueryDerivativeOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainTraderDerivativeOrdersV2(ctx context.Context, marketId, subaccountId string) (*exchangev2types.QueryTraderDerivativeOrdersResponse, error) {
+	return &exchangev2types.QueryTraderDerivativeOrdersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainAccountAddressDerivativeOrdersV2(ctx context.Context, marketId, address string) (*exchangev2types.QueryAccountAddressDerivativeOrdersResponse, error) {
+	return &exchangev2types.QueryAccountAddressDerivativeOrdersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainDerivativeOrdersByHashesV2(ctx context.Context, marketId, subaccountId string, orderHashes []string) (*exchangev2types.QueryDerivativeOrdersByHashesResponse, error) {
+	return &exchangev2types.QueryDerivativeOrdersByHashesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainTraderDerivativeTransientOrdersV2(ctx context.Context, marketId, subaccountId string) (*exchangev2types.QueryTraderDerivativeOrdersResponse, error) {
+	return &exchangev2types.QueryTraderDerivativeOrdersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainDerivativeMarketsV2(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryDerivativeMarketsResponse, error) {
+	var response *exchangev2types.QueryDerivativeMarketsResponse
+	var localError error
+	if len(c.QueryDerivativeMarketsV2Responses) > 0 {
+		response = c.QueryDerivativeMarketsV2Responses[0]
+		c.QueryDerivativeMarketsV2Responses = c.QueryDerivativeMarketsV2Responses[1:]
+		localError = nil
+	} else {
+		response = &exchangev2types.QueryDerivativeMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
+}
+
+func (c *MockChainClient) FetchChainDerivativeMarketV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketResponse, error) {
+	return &exchangev2types.QueryDerivativeMarketResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDerivativeMarketAddressV2(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketAddressResponse, error) {
+	return &exchangev2types.QueryDerivativeMarketAddressResponse{}, nil
+}
+
+func (c *MockChainClient) FetchSubaccountTradeNonceV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountTradeNonceResponse, error) {
+	return &exchangev2types.QuerySubaccountTradeNonceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainPositionsV2(ctx context.Context) (*exchangev2types.QueryPositionsResponse, error) {
+	return &exchangev2types.QueryPositionsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainPositionsInMarketV2(ctx context.Context, marketId string) (*exchangev2types.QueryPositionsInMarketResponse, error) {
+	return &exchangev2types.QueryPositionsInMarketResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainSubaccountPositionsV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountPositionsResponse, error) {
+	return &exchangev2types.QuerySubaccountPositionsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainSubaccountPositionInMarketV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QuerySubaccountPositionInMarketResponse, error) {
+	return &exchangev2types.QuerySubaccountPositionInMarketResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainSubaccountEffectivePositionInMarketV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QuerySubaccountEffectivePositionInMarketResponse, error) {
+	return &exchangev2types.QuerySubaccountEffectivePositionInMarketResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainPerpetualMarketInfoV2(ctx context.Context, marketId string) (*exchangev2types.QueryPerpetualMarketInfoResponse, error) {
+	return &exchangev2types.QueryPerpetualMarketInfoResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainExpiryFuturesMarketInfoV2(ctx context.Context, marketId string) (*exchangev2types.QueryExpiryFuturesMarketInfoResponse, error) {
+	return &exchangev2types.QueryExpiryFuturesMarketInfoResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainPerpetualMarketFundingV2(ctx context.Context, marketId string) (*exchangev2types.QueryPerpetualMarketFundingResponse, error) {
+	return &exchangev2types.QueryPerpetualMarketFundingResponse{}, nil
+}
+
+func (c *MockChainClient) FetchSubaccountOrderMetadataV2(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountOrderMetadataResponse, error) {
+	return &exchangev2types.QuerySubaccountOrderMetadataResponse{}, nil
+}
+
+func (c *MockChainClient) FetchTradeRewardPointsV2(ctx context.Context, accounts []string) (*exchangev2types.QueryTradeRewardPointsResponse, error) {
+	return &exchangev2types.QueryTradeRewardPointsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPendingTradeRewardPointsV2(ctx context.Context, accounts []string) (*exchangev2types.QueryTradeRewardPointsResponse, error) {
+	return &exchangev2types.QueryTradeRewardPointsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchTradeRewardCampaignV2(ctx context.Context) (*exchangev2types.QueryTradeRewardCampaignResponse, error) {
+	return &exchangev2types.QueryTradeRewardCampaignResponse{}, nil
+}
+
+func (c *MockChainClient) FetchFeeDiscountAccountInfoV2(ctx context.Context, account string) (*exchangev2types.QueryFeeDiscountAccountInfoResponse, error) {
+	return &exchangev2types.QueryFeeDiscountAccountInfoResponse{}, nil
+}
+
+func (c *MockChainClient) FetchFeeDiscountScheduleV2(ctx context.Context) (*exchangev2types.QueryFeeDiscountScheduleResponse, error) {
+	return &exchangev2types.QueryFeeDiscountScheduleResponse{}, nil
+}
+
+func (c *MockChainClient) FetchBalanceMismatchesV2(ctx context.Context, dustFactor int64) (*exchangev2types.QueryBalanceMismatchesResponse, error) {
+	return &exchangev2types.QueryBalanceMismatchesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchBalanceWithBalanceHoldsV2(ctx context.Context) (*exchangev2types.QueryBalanceWithBalanceHoldsResponse, error) {
+	return &exchangev2types.QueryBalanceWithBalanceHoldsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchFeeDiscountTierStatisticsV2(ctx context.Context) (*exchangev2types.QueryFeeDiscountTierStatisticsResponse, error) {
+	return &exchangev2types.QueryFeeDiscountTierStatisticsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMitoVaultInfosV2(ctx context.Context) (*exchangev2types.MitoVaultInfosResponse, error) {
+	return &exchangev2types.MitoVaultInfosResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketIDFromVaultV2(ctx context.Context, vaultAddress string) (*exchangev2types.QueryMarketIDFromVaultResponse, error) {
+	return &exchangev2types.QueryMarketIDFromVaultResponse{}, nil
+}
+
+func (c *MockChainClient) FetchHistoricalTradeRecordsV2(ctx context.Context, marketId string) (*exchangev2types.QueryHistoricalTradeRecordsResponse, error) {
+	return &exchangev2types.QueryHistoricalTradeRecordsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchIsOptedOutOfRewardsV2(ctx context.Context, account string) (*exchangev2types.QueryIsOptedOutOfRewardsResponse, error) {
+	return &exchangev2types.QueryIsOptedOutOfRewardsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchOptedOutOfRewardsAccountsV2(ctx context.Context) (*exchangev2types.QueryOptedOutOfRewardsAccountsResponse, error) {
+	return &exchangev2types.QueryOptedOutOfRewardsAccountsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketVolatilityV2(ctx context.Context, marketId string, tradeHistoryOptions *exchangev2types.TradeHistoryOptions) (*exchangev2types.QueryMarketVolatilityResponse, error) {
+	return &exchangev2types.QueryMarketVolatilityResponse{}, nil
+}
+
+func (c *MockChainClient) FetchChainBinaryOptionsMarketsV2(ctx context.Context, status string) (*exchangev2types.QueryBinaryMarketsResponse, error) {
+	var response *exchangev2types.QueryBinaryMarketsResponse
+	var localError error
+	if len(c.QueryBinaryMarketsV2Responses) > 0 {
+		response = c.QueryBinaryMarketsV2Responses[0]
+		c.QueryBinaryMarketsV2Responses = c.QueryBinaryMarketsV2Responses[1:]
+		localError = nil
+	} else {
+		response = &exchangev2types.QueryBinaryMarketsResponse{}
+		localError = errors.New("there are no responses configured")
+	}
+
+	return response, localError
+}
+
+func (c *MockChainClient) FetchTraderDerivativeConditionalOrdersV2(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QueryTraderDerivativeConditionalOrdersResponse, error) {
+	return &exchangev2types.QueryTraderDerivativeConditionalOrdersResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketAtomicExecutionFeeMultiplierV2(ctx context.Context, marketId string) (*exchangev2types.QueryMarketAtomicExecutionFeeMultiplierResponse, error) {
+	return &exchangev2types.QueryMarketAtomicExecutionFeeMultiplierResponse{}, nil
+}
+
+func (c *MockChainClient) FetchActiveStakeGrantV2(ctx context.Context, grantee string) (*exchangev2types.QueryActiveStakeGrantResponse, error) {
+	return &exchangev2types.QueryActiveStakeGrantResponse{}, nil
+}
+
+func (c *MockChainClient) FetchGrantAuthorizationV2(ctx context.Context, granter, grantee string) (*exchangev2types.QueryGrantAuthorizationResponse, error) {
+	return &exchangev2types.QueryGrantAuthorizationResponse{}, nil
+}
+
+func (c *MockChainClient) FetchGrantAuthorizationsV2(ctx context.Context, granter string) (*exchangev2types.QueryGrantAuthorizationsResponse, error) {
+	return &exchangev2types.QueryGrantAuthorizationsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchL3DerivativeOrderbookV2(ctx context.Context, marketId string) (*exchangev2types.QueryFullDerivativeOrderbookResponse, error) {
+	return &exchangev2types.QueryFullDerivativeOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchL3SpotOrderbookV2(ctx context.Context, marketId string) (*exchangev2types.QueryFullSpotOrderbookResponse, error) {
+	return &exchangev2types.QueryFullSpotOrderbookResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalanceV2(ctx context.Context, marketId string) (*exchangev2types.QueryMarketBalanceResponse, error) {
+	return &exchangev2types.QueryMarketBalanceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchMarketBalancesV2(ctx context.Context) (*exchangev2types.QueryMarketBalancesResponse, error) {
+	return &exchangev2types.QueryMarketBalancesResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotionalV2(ctx context.Context, denom string) (*exchangev2types.QueryDenomMinNotionalResponse, error) {
+	return &exchangev2types.QueryDenomMinNotionalResponse{}, nil
+}
+
+func (c *MockChainClient) FetchDenomMinNotionalsV2(ctx context.Context) (*exchangev2types.QueryDenomMinNotionalsResponse, error) {
+	return &exchangev2types.QueryDenomMinNotionalsResponse{}, nil
 }
 
 // Tendermint module

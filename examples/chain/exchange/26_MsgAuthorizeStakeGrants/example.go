@@ -6,16 +6,16 @@ import (
 	"os"
 
 	"cosmossdk.io/math"
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -60,14 +60,14 @@ func main() {
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
 
-	grantAuthorization := &exchangetypes.GrantAuthorization{
+	grantAuthorization := &exchangev2types.GrantAuthorization{
 		Grantee: "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r",
 		Amount:  math.NewIntWithDecimal(1, 18),
 	}
 
-	msg := &exchangetypes.MsgAuthorizeStakeGrants{
+	msg := &exchangev2types.MsgAuthorizeStakeGrants{
 		Sender: senderAddress.String(),
-		Grants: []*exchangetypes.GrantAuthorization{grantAuthorization},
+		Grants: []*exchangev2types.GrantAuthorization{grantAuthorization},
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

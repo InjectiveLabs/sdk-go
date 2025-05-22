@@ -5,17 +5,17 @@ import (
 	"os"
 	"time"
 
-	"github.com/InjectiveLabs/sdk-go/client/common"
-
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
+
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
+	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -66,19 +66,19 @@ func main() {
 	orderHash := "0x7b35e8d3c6e5d1210a83615a935a74349c2c8c5e73a591015729adad3c70af2d"
 	cid := "666C5452-B563-445F-977B-539D79C482EE"
 
-	orderWithHash := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
+	orderWithHash := chainClient.OrderCancelV2(defaultSubaccountID, &chainclient.OrderCancelData{
 		MarketId:  marketId,
 		OrderHash: orderHash,
 	})
 
-	orderWithCid := chainClient.OrderCancel(defaultSubaccountID, &chainclient.OrderCancelData{
+	orderWithCid := chainClient.OrderCancelV2(defaultSubaccountID, &chainclient.OrderCancelData{
 		MarketId: marketId,
 		Cid:      cid,
 	})
 
-	msg := new(exchangetypes.MsgBatchCancelDerivativeOrders)
+	msg := new(exchangev2types.MsgBatchCancelDerivativeOrders)
 	msg.Sender = senderAddress.String()
-	msg.Data = []exchangetypes.OrderData{*orderWithHash, *orderWithCid}
+	msg.Data = []exchangev2types.OrderData{*orderWithHash, *orderWithCid}
 	CosMsgs := []cosmtypes.Msg{msg}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

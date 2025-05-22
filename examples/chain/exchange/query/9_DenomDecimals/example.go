@@ -15,7 +15,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +60,7 @@ func main() {
 
 	denoms := []string{"inj", "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5"}
 
-	res, err := chainClient.FetchDenomDecimals(ctx, denoms)
+	res, err := chainClient.FetchDenomDecimalsV2(ctx, denoms)
 	if err != nil {
 		fmt.Println(err)
 	}

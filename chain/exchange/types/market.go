@@ -13,12 +13,6 @@ import (
 
 var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
 
-type DerivativeMarketInfo struct {
-	Market    *DerivativeMarket
-	MarkPrice math.LegacyDec
-	Funding   *PerpetualMarketFunding
-}
-
 func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {
 	basePeggyDenom, err := peggytypes.NewPeggyDenomFromString(baseDenom)
 	if err == nil {
@@ -67,98 +61,54 @@ func NewDerivativesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, 
 	}
 }
 
-func (m *SpotMarket) IsActive() bool {
-	return m.Status == MarketStatus_Active
-}
-
-func (m *SpotMarket) IsInactive() bool {
-	return !m.IsActive()
-}
-
-func (m *SpotMarket) MarketID() common.Hash {
-	return common.HexToHash(m.MarketId)
-}
-
-func (m *SpotMarket) StatusSupportsOrderCancellations() bool {
-	if m == nil {
-		return false
+func PriceFromChainFormat(price math.LegacyDec, baseDecimals, quoteDecimals uint32) math.LegacyDec {
+	if price.IsNil() {
+		return price
 	}
-	return m.Status.SupportsOrderCancellations()
+	baseMultiplier := math.LegacyNewDec(10).Power(uint64(baseDecimals))
+	quoteMultiplier := math.LegacyNewDec(10).Power(uint64(quoteDecimals))
+	return price.Mul(baseMultiplier).Quo(quoteMultiplier)
 }
 
-func (m *SpotMarket) GetMarketType() MarketType {
-	return MarketType_Spot
-}
-
-func (m *SpotMarket) GetMakerFeeRate() math.LegacyDec {
-	return m.MakerFeeRate
-}
-
-func (m *SpotMarket) GetTakerFeeRate() math.LegacyDec {
-	return m.TakerFeeRate
-}
-
-func (m *SpotMarket) GetRelayerFeeShareRate() math.LegacyDec {
-	return m.RelayerFeeShareRate
-}
-
-func (m *SpotMarket) GetMinPriceTickSize() math.LegacyDec {
-	return m.MinPriceTickSize
-}
-
-func (m *SpotMarket) GetMinQuantityTickSize() math.LegacyDec {
-	return m.MinQuantityTickSize
-}
-
-func (m *SpotMarket) GetMinNotional() math.LegacyDec {
-	return m.MinNotional
-}
-
-func (m *SpotMarket) GetMarketStatus() MarketStatus {
-	return m.Status
-}
-
-func (m *ExpiryFuturesMarketInfo) IsPremature(currBlockTime int64) bool {
-	return currBlockTime < m.TwapStartTimestamp
-}
-
-func (m *ExpiryFuturesMarketInfo) IsStartingMaturation(currBlockTime int64) bool {
-	return currBlockTime >= m.TwapStartTimestamp && (m.ExpirationTwapStartPriceCumulative.IsNil() || m.ExpirationTwapStartPriceCumulative.IsZero())
-}
-
-func (m *ExpiryFuturesMarketInfo) IsMatured(currBlockTime int64) bool {
-	return currBlockTime >= m.ExpirationTimestamp
-}
-
-func (m *DerivativeMarket) MarketID() common.Hash {
-	return common.HexToHash(m.MarketId)
-}
-
-func (m *DerivativeMarket) StatusSupportsOrderCancellations() bool {
-	if m == nil {
-		return false
+func QuantityFromChainFormat(quantity math.LegacyDec, decimals uint32) math.LegacyDec {
+	if quantity.IsNil() {
+		return quantity
 	}
-	return m.Status.SupportsOrderCancellations()
+	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
+	return quantity.Quo(multiplier)
 }
 
-func (m *DerivativeMarket) IsTimeExpiry() bool {
-	return !m.IsPerpetual
+func NotionalFromChainFormat(notional math.LegacyDec, decimals uint32) math.LegacyDec {
+	if notional.IsNil() {
+		return notional
+	}
+	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
+	return notional.Quo(multiplier)
 }
 
-func (m *DerivativeMarket) IsActive() bool {
-	return m.Status == MarketStatus_Active
+func PriceToChainFormat(humanReadableValue math.LegacyDec, baseDecimals, quoteDecimals uint32) math.LegacyDec {
+	if humanReadableValue.IsNil() {
+		return humanReadableValue
+	}
+	baseMultiplier := math.LegacyNewDec(10).Power(uint64(baseDecimals))
+	quoteMultiplier := math.LegacyNewDec(10).Power(uint64(quoteDecimals))
+	return humanReadableValue.Mul(quoteMultiplier).Quo(baseMultiplier)
 }
 
-func (m *DerivativeMarket) IsInactive() bool {
-	return !m.IsActive()
+func QuantityToChainFormat(humanReadableValue math.LegacyDec, decimals uint32) math.LegacyDec {
+	if humanReadableValue.IsNil() {
+		return humanReadableValue
+	}
+	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
+	return humanReadableValue.Mul(multiplier)
 }
 
-func (m *DerivativeMarket) GetMinQuantityTickSize() math.LegacyDec {
-	return m.MinQuantityTickSize
-}
-
-func (m *DerivativeMarket) GetMinNotional() math.LegacyDec {
-	return m.MinNotional
+func NotionalToChainFormat(humanReadableValue math.LegacyDec, decimals uint32) math.LegacyDec {
+	if humanReadableValue.IsNil() {
+		return humanReadableValue
+	}
+	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
+	return humanReadableValue.Mul(multiplier)
 }
 
 type MarketType byte
@@ -171,154 +121,18 @@ const (
 	MarketType_BinaryOption
 )
 
-func (m MarketType) String() string {
-	switch m {
-	case MarketType_Spot:
-		return "spot"
-	case MarketType_Perpetual:
-		return "perpetual"
-	case MarketType_BinaryOption:
-		return "binary_option"
-	case MarketType_Expiry:
-		return "expiry"
-	default:
-		return ""
-	}
-}
-
-func (m MarketType) IsSpot() bool {
-	return m == MarketType_Spot
-}
-
 func (m MarketType) IsPerpetual() bool {
 	return m == MarketType_Perpetual
-}
-
-func (m MarketType) IsExpiry() bool {
-	return m == MarketType_Expiry
 }
 
 func (m MarketType) IsBinaryOptions() bool {
 	return m == MarketType_BinaryOption
 }
 
-func (m *DerivativeMarket) GetMarketType() MarketType {
-	if m.IsPerpetual {
-		return MarketType_Perpetual
-	} else {
-		return MarketType_Expiry
-	}
-}
-
-func (m *DerivativeMarket) GetMakerFeeRate() math.LegacyDec {
-	return m.MakerFeeRate
-}
-
-func (m *DerivativeMarket) GetTakerFeeRate() math.LegacyDec {
-	return m.TakerFeeRate
-}
-
-func (m *DerivativeMarket) GetRelayerFeeShareRate() math.LegacyDec {
-	return m.RelayerFeeShareRate
-}
-
-func (m *DerivativeMarket) GetInitialMarginRatio() math.LegacyDec {
-	return m.InitialMarginRatio
-}
-
-func (m *DerivativeMarket) GetMinPriceTickSize() math.LegacyDec {
-	return m.MinPriceTickSize
-}
-
-func (m *DerivativeMarket) GetQuoteDenom() string {
-	return m.QuoteDenom
-}
-
-func (m *DerivativeMarket) GetTicker() string {
-	return m.Ticker
-}
-
-func (m *DerivativeMarket) GetIsPerpetual() bool {
-	return m.IsPerpetual
-}
-
-func (m *DerivativeMarket) GetOracleScaleFactor() uint32 {
-	return m.OracleScaleFactor
-}
-
-func (m *DerivativeMarket) GetMarketStatus() MarketStatus {
-	return m.Status
-}
-
-/// Binary Options Markets
-//
-
-func (m *BinaryOptionsMarket) GetMarketType() MarketType {
-	return MarketType_BinaryOption
-}
-
-func (m *BinaryOptionsMarket) GetInitialMarginRatio() math.LegacyDec {
-	return math.LegacyOneDec()
-}
-func (m *BinaryOptionsMarket) IsInactive() bool {
-	return !m.IsActive()
-}
-
-func (m *BinaryOptionsMarket) IsActive() bool {
-	return m.Status == MarketStatus_Active
-}
-
 func (m *BinaryOptionsMarket) MarketID() common.Hash {
 	return common.HexToHash(m.MarketId)
 }
 
-func (m *BinaryOptionsMarket) GetMinPriceTickSize() math.LegacyDec {
-	return m.MinPriceTickSize
-}
-
-func (m *BinaryOptionsMarket) GetMinQuantityTickSize() math.LegacyDec {
-	return m.MinQuantityTickSize
-}
-
-func (m *BinaryOptionsMarket) GetMinNotional() math.LegacyDec {
-	return m.MinNotional
-}
-
-func (m *BinaryOptionsMarket) GetTicker() string {
-	return m.Ticker
-}
-
-func (m *BinaryOptionsMarket) GetQuoteDenom() string {
-	return m.QuoteDenom
-}
-
-func (m *BinaryOptionsMarket) GetMakerFeeRate() math.LegacyDec {
-	return m.MakerFeeRate
-}
-
-func (m *BinaryOptionsMarket) GetTakerFeeRate() math.LegacyDec {
-	return m.TakerFeeRate
-}
-
-func (m *BinaryOptionsMarket) GetRelayerFeeShareRate() math.LegacyDec {
-	return m.RelayerFeeShareRate
-}
-
-func (m *BinaryOptionsMarket) GetIsPerpetual() bool {
-	return false
-}
-
-func (m *BinaryOptionsMarket) StatusSupportsOrderCancellations() bool {
-	if m == nil {
-		return false
-	}
-	return m.Status.SupportsOrderCancellations()
-}
-
 func (m *BinaryOptionsMarket) GetOracleScaleFactor() uint32 {
 	return m.OracleScaleFactor
-}
-
-func (m *BinaryOptionsMarket) GetMarketStatus() MarketStatus {
-	return m.Status
 }

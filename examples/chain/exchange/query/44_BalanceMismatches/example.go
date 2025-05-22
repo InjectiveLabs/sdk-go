@@ -14,7 +14,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -57,7 +57,7 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchBalanceMismatches(ctx, 1)
+	res, err := chainClient.FetchBalanceMismatchesV2(ctx, 1)
 	if err != nil {
 		fmt.Println(err)
 	}

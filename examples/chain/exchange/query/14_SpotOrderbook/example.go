@@ -4,22 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"cosmossdk.io/math"
-
 	"os"
 
-	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	"cosmossdk.io/math"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
+	v2 "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -64,11 +62,11 @@ func main() {
 
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 	limit := uint64(2)
-	orderSide := types.OrderSide_Buy
+	orderSide := v2.OrderSide_Buy
 	limitCumulativeNotional := math.LegacyDec{}
 	limitCumulativeQuantity := math.LegacyDec{}
 
-	res, err := chainClient.FetchChainSpotOrderbook(ctx, marketId, limit, orderSide, limitCumulativeNotional, limitCumulativeQuantity)
+	res, err := chainClient.FetchChainSpotOrderbookV2(ctx, marketId, limit, orderSide, limitCumulativeNotional, limitCumulativeQuantity)
 	if err != nil {
 		fmt.Println(err)
 	}

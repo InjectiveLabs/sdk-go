@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-
 	"github.com/huandu/go-assert"
 	"github.com/shopspring/decimal"
 )
@@ -16,9 +15,9 @@ func createINJUSDTSpotMarket() SpotMarket {
 	makerFeeRate := decimal.RequireFromString("-0.0001")
 	takerFeeRate := decimal.RequireFromString("0.001")
 	serviceProviderFee := decimal.RequireFromString("0.4")
-	minPriceTickSize := decimal.RequireFromString("0.000000000000001")
-	minQuantityTickSize := decimal.RequireFromString("1000000000000000")
-	minNotional := decimal.RequireFromString("1000000")
+	minPriceTickSize := decimal.RequireFromString("0.01")
+	minQuantityTickSize := decimal.RequireFromString("0.000001")
+	minNotional := decimal.RequireFromString("1")
 
 	market := SpotMarket{
 		Id:                  "0x7a57e705bb4e09c88aecfc295569481dbf2fe1d5efe364651fbe72385938e9b0",
@@ -44,9 +43,9 @@ func createBTCUSDTPerpMarket() DerivativeMarket {
 	makerFeeRate := decimal.RequireFromString("-0.0001")
 	takerFeeRate := decimal.RequireFromString("0.001")
 	serviceProviderFee := decimal.RequireFromString("0.4")
-	minPriceTickSize := decimal.RequireFromString("1000000")
+	minPriceTickSize := decimal.RequireFromString("0.01")
 	minQuantityTickSize := decimal.RequireFromString("0.0001")
-	minNotional := decimal.RequireFromString("1000000")
+	minNotional := decimal.RequireFromString("1")
 
 	market := DerivativeMarket{
 		Id:                     "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce",
@@ -55,7 +54,7 @@ func createBTCUSDTPerpMarket() DerivativeMarket {
 		OracleBase:             "BTC",
 		OracleQuote:            usdtToken.Symbol,
 		OracleType:             "bandibc",
-		OracleScaleFactor:      6,
+		OracleScaleFactor:      0,
 		InitialMarginRatio:     initialMarginRatio,
 		MaintenanceMarginRatio: maintenanceMarginRatio,
 		QuoteToken:             usdtToken,
@@ -75,7 +74,7 @@ func createBetBinaryOptionMarket() BinaryOptionMarket {
 	makerFeeRate := decimal.Zero
 	takerFeeRate := decimal.Zero
 	serviceProviderFee := decimal.RequireFromString("0.4")
-	minPriceTickSize := decimal.RequireFromString("10000")
+	minPriceTickSize := decimal.RequireFromString("0.001")
 	minQuantityTickSize := decimal.RequireFromString("1")
 	minNotional := decimal.RequireFromString("0.00001")
 
@@ -86,7 +85,7 @@ func createBetBinaryOptionMarket() BinaryOptionMarket {
 		OracleSymbol:        "Frontrunner",
 		OracleProvider:      "Frontrunner",
 		OracleType:          "provider",
-		OracleScaleFactor:   6,
+		OracleScaleFactor:   0,
 		ExpirationTimestamp: 1707800399,
 		SettlementTimestamp: 1707843599,
 		QuoteToken:          usdtToken,
@@ -119,10 +118,10 @@ func TestConvertPriceToChainFormatForSpotMarket(t *testing.T) {
 	originalPrice := decimal.RequireFromString("123.456789")
 
 	chainValue := spotMarket.PriceToChainFormat(originalPrice)
+	quantizedValue := originalPrice.DivRound(spotMarket.MinPriceTickSize, 0).Mul(spotMarket.MinPriceTickSize)
 	priceDecimals := spotMarket.QuoteToken.Decimals - spotMarket.BaseToken.Decimals
-	expectedValue := originalPrice.Mul(decimal.New(1, priceDecimals))
-	quantizedValue := expectedValue.DivRound(spotMarket.MinPriceTickSize, 0).Mul(spotMarket.MinPriceTickSize)
-	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
+	expectedValue := quantizedValue.Mul(decimal.New(1, priceDecimals))
+	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(expectedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
@@ -222,9 +221,9 @@ func TestConvertPriceToChainFormatForDerivativeMarket(t *testing.T) {
 
 	chainValue := derivativeMarket.PriceToChainFormat(originalPrice)
 	priceDecimals := derivativeMarket.QuoteToken.Decimals
-	expectedValue := originalPrice.Mul(decimal.New(1, priceDecimals))
-	quantizedValue := expectedValue.DivRound(derivativeMarket.MinPriceTickSize, 0).Mul(derivativeMarket.MinPriceTickSize)
-	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
+	quantizedValue := originalPrice.DivRound(derivativeMarket.MinPriceTickSize, 0).Mul(derivativeMarket.MinPriceTickSize)
+	expectedValue := quantizedValue.Mul(decimal.New(1, priceDecimals))
+	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(expectedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
@@ -250,9 +249,10 @@ func TestCalculateMarginInChainFormatForDerivativeMarket(t *testing.T) {
 
 	chainValue := derivativeMarket.CalculateMarginInChainFormat(originalQuantity, originalPrice, originalLeverage)
 	decimals := derivativeMarket.QuoteToken.Decimals
-	expectedValue := originalQuantity.Mul(originalPrice).Div(originalLeverage).Mul(decimal.New(1, decimals))
+	expectedValue := originalQuantity.Mul(originalPrice).Div(originalLeverage)
 	quantizedValue := expectedValue.DivRound(derivativeMarket.MinQuantityTickSize, 0).Mul(derivativeMarket.MinQuantityTickSize)
-	legacyDecimalQuantizedValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
+	chainFormatValue := quantizedValue.Mul(decimal.New(1, decimals)).BigInt()
+	legacyDecimalQuantizedValue := sdkmath.LegacyMustNewDecFromStr(chainFormatValue.String())
 
 	assert.Assert(t, chainValue.Equal(legacyDecimalQuantizedValue))
 }
@@ -374,9 +374,9 @@ func TestConvertPriceToChainFormatForBinaryOptionMarket(t *testing.T) {
 
 	chainValue := binaryOptionMarket.PriceToChainFormat(originalPrice)
 	priceDecimals := binaryOptionMarket.QuoteToken.Decimals
-	expectedValue := originalPrice.Mul(decimal.New(1, priceDecimals))
-	quantizedValue := expectedValue.DivRound(binaryOptionMarket.MinPriceTickSize, 0).Mul(binaryOptionMarket.MinPriceTickSize)
-	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
+	quantizedValue := originalPrice.DivRound(binaryOptionMarket.MinPriceTickSize, 0).Mul(binaryOptionMarket.MinPriceTickSize)
+	expectedValue := quantizedValue.Mul(decimal.New(1, priceDecimals))
+	quantizedChainFormatValue := sdkmath.LegacyMustNewDecFromStr(expectedValue.String())
 
 	assert.Assert(t, quantizedChainFormatValue.Equal(chainValue))
 }
@@ -402,9 +402,10 @@ func TestCalculateMarginInChainFormatForBinaryOptionMarket(t *testing.T) {
 
 	chainValue := binaryOptionMarket.CalculateMarginInChainFormat(originalQuantity, originalPrice, originalLeverage)
 	decimals := binaryOptionMarket.QuoteToken.Decimals
-	expectedValue := originalQuantity.Mul(originalPrice).Div(originalLeverage).Mul(decimal.New(1, decimals))
+	expectedValue := originalQuantity.Mul(originalPrice).Div(originalLeverage)
 	quantizedValue := expectedValue.DivRound(binaryOptionMarket.MinQuantityTickSize, 0).Mul(binaryOptionMarket.MinQuantityTickSize)
-	legacyDecimalQuantizedValue := sdkmath.LegacyMustNewDecFromStr(quantizedValue.String())
+	chainFormatValue := quantizedValue.Mul(decimal.New(1, decimals)).BigInt()
+	legacyDecimalQuantizedValue := sdkmath.LegacyMustNewDecFromStr(chainFormatValue.String())
 
 	assert.Assert(t, chainValue.Equal(legacyDecimalQuantizedValue))
 }

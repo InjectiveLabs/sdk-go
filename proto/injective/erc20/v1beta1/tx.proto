@@ -1,0 +1,59 @@
+syntax = "proto3";
+package injective.erc20.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/bank/v1beta1/bank.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "injective/erc20/v1beta1/params.proto";
+import "injective/erc20/v1beta1/erc20.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/erc20/types";
+
+// Msg defines the erc20 module's gRPC message service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+  rpc CreateTokenPair(MsgCreateTokenPair) returns (MsgCreateTokenPairResponse);
+  rpc DeleteTokenPair(MsgDeleteTokenPair) returns (MsgDeleteTokenPairResponse);
+}
+
+message MsgUpdateParams {
+  option (amino.name) = "erc20/MsgUpdateParams";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of the governance account.
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // params defines the erc20 parameters to update.
+  //
+  // NOTE: All parameters must be supplied.
+  Params params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateParamsResponse {}
+
+message MsgCreateTokenPair {
+  option (amino.name) = "erc20/MsgCreateTokenPair";
+  option (cosmos.msg.v1.signer) = "sender";
+  string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
+
+  TokenPair token_pair = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgCreateTokenPairResponse {
+  TokenPair token_pair = 1 [ (gogoproto.nullable) = false ];
+}
+
+message MsgDeleteTokenPair {
+  option (amino.name) = "erc20/MsgDeleteTokenPair";
+  option (cosmos.msg.v1.signer) = "sender";
+  string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
+
+  string bank_denom = 2; // bank denom of the pair to be deleted
+}
+
+message MsgDeleteTokenPairResponse {}

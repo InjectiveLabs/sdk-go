@@ -26,6 +26,8 @@ type InjectiveTradingRPCClient interface {
 	ListTradingStrategies(ctx context.Context, in *ListTradingStrategiesRequest, opts ...grpc.CallOption) (*ListTradingStrategiesResponse, error)
 	// GetStats returns global statistics in the last 24hs
 	GetTradingStats(ctx context.Context, in *GetTradingStatsRequest, opts ...grpc.CallOption) (*GetTradingStatsResponse, error)
+	// StreamStrategy streams the trading strategies on state change
+	StreamStrategy(ctx context.Context, in *StreamStrategyRequest, opts ...grpc.CallOption) (InjectiveTradingRPC_StreamStrategyClient, error)
 }
 
 type injectiveTradingRPCClient struct {
@@ -54,6 +56,38 @@ func (c *injectiveTradingRPCClient) GetTradingStats(ctx context.Context, in *Get
 	return out, nil
 }
 
+func (c *injectiveTradingRPCClient) StreamStrategy(ctx context.Context, in *StreamStrategyRequest, opts ...grpc.CallOption) (InjectiveTradingRPC_StreamStrategyClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveTradingRPC_ServiceDesc.Streams[0], "/injective_trading_rpc.InjectiveTradingRPC/StreamStrategy", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &injectiveTradingRPCStreamStrategyClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type InjectiveTradingRPC_StreamStrategyClient interface {
+	Recv() (*StreamStrategyResponse, error)
+	grpc.ClientStream
+}
+
+type injectiveTradingRPCStreamStrategyClient struct {
+	grpc.ClientStream
+}
+
+func (x *injectiveTradingRPCStreamStrategyClient) Recv() (*StreamStrategyResponse, error) {
+	m := new(StreamStrategyResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // InjectiveTradingRPCServer is the server API for InjectiveTradingRPC service.
 // All implementations must embed UnimplementedInjectiveTradingRPCServer
 // for forward compatibility
@@ -62,6 +96,8 @@ type InjectiveTradingRPCServer interface {
 	ListTradingStrategies(context.Context, *ListTradingStrategiesRequest) (*ListTradingStrategiesResponse, error)
 	// GetStats returns global statistics in the last 24hs
 	GetTradingStats(context.Context, *GetTradingStatsRequest) (*GetTradingStatsResponse, error)
+	// StreamStrategy streams the trading strategies on state change
+	StreamStrategy(*StreamStrategyRequest, InjectiveTradingRPC_StreamStrategyServer) error
 	mustEmbedUnimplementedInjectiveTradingRPCServer()
 }
 
@@ -74,6 +110,9 @@ func (UnimplementedInjectiveTradingRPCServer) ListTradingStrategies(context.Cont
 }
 func (UnimplementedInjectiveTradingRPCServer) GetTradingStats(context.Context, *GetTradingStatsRequest) (*GetTradingStatsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTradingStats not implemented")
+}
+func (UnimplementedInjectiveTradingRPCServer) StreamStrategy(*StreamStrategyRequest, InjectiveTradingRPC_StreamStrategyServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamStrategy not implemented")
 }
 func (UnimplementedInjectiveTradingRPCServer) mustEmbedUnimplementedInjectiveTradingRPCServer() {}
 
@@ -124,6 +163,27 @@ func _InjectiveTradingRPC_GetTradingStats_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveTradingRPC_StreamStrategy_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamStrategyRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveTradingRPCServer).StreamStrategy(m, &injectiveTradingRPCStreamStrategyServer{stream})
+}
+
+type InjectiveTradingRPC_StreamStrategyServer interface {
+	Send(*StreamStrategyResponse) error
+	grpc.ServerStream
+}
+
+type injectiveTradingRPCStreamStrategyServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveTradingRPCStreamStrategyServer) Send(m *StreamStrategyResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // InjectiveTradingRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveTradingRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -140,6 +200,12 @@ var InjectiveTradingRPC_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _InjectiveTradingRPC_GetTradingStats_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamStrategy",
+			Handler:       _InjectiveTradingRPC_StreamStrategy_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "goadesign_goagen_injective_trading_rpc.proto",
 }

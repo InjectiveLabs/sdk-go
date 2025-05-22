@@ -14,7 +14,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -59,7 +59,7 @@ func main() {
 
 	vaultAddress := "inj1qg5ega6dykkxc307y25pecuufrjkxkag6xhp6y"
 
-	res, err := chainClient.FetchMarketIDFromVault(ctx, vaultAddress)
+	res, err := chainClient.FetchMarketIDFromVaultV2(ctx, vaultAddress)
 	if err != nil {
 		fmt.Println(err)
 	}

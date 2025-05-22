@@ -16,7 +16,7 @@ import (
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +53,11 @@ func main() {
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
 	)
 
-	res, err := chainClient.FetchMarketBalances(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	res, err := chainClient.FetchMarketBalancesV2(context.Background())
 	if err != nil {
 		log.Fatalf("Failed to fetch market balances: %v", err)
 	}

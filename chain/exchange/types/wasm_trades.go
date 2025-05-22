@@ -74,12 +74,3 @@ func (t *SyntheticTrade) Validate() error {
 
 	return nil
 }
-
-func (t *SyntheticTrade) ToPositionDelta() *PositionDelta {
-	return &PositionDelta{
-		IsLong:            t.IsBuy,
-		ExecutionQuantity: t.Quantity,
-		ExecutionMargin:   t.Margin,
-		ExecutionPrice:    t.Price,
-	}
-}

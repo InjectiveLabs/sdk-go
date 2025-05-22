@@ -4,20 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-
 	"os"
 
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -61,14 +60,14 @@ func main() {
 	ctx := context.Background()
 
 	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
-	tradeHistoryOptions := types.TradeHistoryOptions{
+	tradeHistoryOptions := exchangev2types.TradeHistoryOptions{
 		TradeGroupingSec:  10,
 		MaxAge:            0,
 		IncludeRawHistory: true,
 		IncludeMetadata:   true,
 	}
 
-	res, err := chainClient.FetchMarketVolatility(ctx, marketId, &tradeHistoryOptions)
+	res, err := chainClient.FetchMarketVolatilityV2(ctx, marketId, &tradeHistoryOptions)
 	if err != nil {
 		fmt.Println(err)
 	}
