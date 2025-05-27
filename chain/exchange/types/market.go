@@ -13,6 +13,12 @@ import (
 
 var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
 
+type DerivativeMarketInfo struct {
+	Market    *DerivativeMarket
+	MarkPrice math.LegacyDec
+	Funding   *PerpetualMarketFunding
+}
+
 func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {
 	basePeggyDenom, err := peggytypes.NewPeggyDenomFromString(baseDenom)
 	if err == nil {
