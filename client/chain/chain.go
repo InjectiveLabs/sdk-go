@@ -39,6 +39,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	erc20types "github.com/InjectiveLabs/sdk-go/chain/erc20/types"
+	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
@@ -452,6 +454,20 @@ type ChainClient interface {
 	FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error)
 	FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
 
+	// ERC20 module
+	FetchAllTokenPairs(ctx context.Context) (*erc20types.QueryAllTokenPairsResponse, error)
+	FetchTokenPairByDenom(ctx context.Context, bankDenom string) (*erc20types.QueryTokenPairByDenomResponse, error)
+	FetchTokenPairByERC20Address(ctx context.Context, erc20Address string) (*erc20types.QueryTokenPairByERC20AddressResponse, error)
+
+	// EVM module
+	FetchEVMAccount(ctx context.Context, evmAddress string) (*evmtypes.QueryAccountResponse, error)
+	FetchEVMCosmosAccount(ctx context.Context, address string) (*evmtypes.QueryCosmosAccountResponse, error)
+	FetchEVMValidatorAccount(ctx context.Context, consAddress string) (*evmtypes.QueryValidatorAccountResponse, error)
+	FetchEVMBalance(ctx context.Context, address string) (*evmtypes.QueryBalanceResponse, error)
+	FetchEVMStorage(ctx context.Context, address string, key *string) (*evmtypes.QueryStorageResponse, error)
+	FetchEVMCode(ctx context.Context, address string) (*evmtypes.QueryCodeResponse, error)
+	FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBaseFeeResponse, error)
+
 	CurrentChainGasPrice() int64
 	SetGasPrice(gasPrice int64)
 
@@ -492,6 +508,8 @@ type chainClient struct {
 	chainStreamClient        chainstreamtypes.StreamClient
 	chainStreamV2Client      chainstreamv2types.StreamClient
 	distributionQueryClient  distributiontypes.QueryClient
+	erc20QueryClient         erc20types.QueryClient
+	evmQueryClient           evmtypes.QueryClient
 	exchangeQueryClient      exchangetypes.QueryClient
 	exchangeV2QueryClient    exchangev2types.QueryClient
 	ibcChannelQueryClient    ibcchanneltypes.QueryClient
@@ -596,6 +614,8 @@ func NewChainClient(
 		chainStreamClient:        chainstreamtypes.NewStreamClient(chainStreamConn),
 		chainStreamV2Client:      chainstreamv2types.NewStreamClient(chainStreamConn),
 		distributionQueryClient:  distributiontypes.NewQueryClient(conn),
+		erc20QueryClient:         erc20types.NewQueryClient(conn),
+		evmQueryClient:           evmtypes.NewQueryClient(conn),
 		exchangeQueryClient:      exchangetypes.NewQueryClient(conn),
 		exchangeV2QueryClient:    exchangev2types.NewQueryClient(conn),
 		ibcChannelQueryClient:    ibcchanneltypes.NewQueryClient(conn),
@@ -3584,6 +3604,94 @@ func (c *chainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEi
 
 func (c *chainClient) GetNetwork() common.Network {
 	return c.network
+}
+
+// ERC20 module
+
+func (c *chainClient) FetchAllTokenPairs(ctx context.Context) (*erc20types.QueryAllTokenPairsResponse, error) {
+	req := &erc20types.QueryAllTokenPairsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.erc20QueryClient.AllTokenPairs, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTokenPairByDenom(ctx context.Context, bankDenom string) (*erc20types.QueryTokenPairByDenomResponse, error) {
+	req := &erc20types.QueryTokenPairByDenomRequest{
+		BankDenom: bankDenom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.erc20QueryClient.TokenPairByDenom, req)
+
+	return res, err
+}
+
+func (c *chainClient) FetchTokenPairByERC20Address(ctx context.Context, erc20Address string) (*erc20types.QueryTokenPairByERC20AddressResponse, error) {
+	req := &erc20types.QueryTokenPairByERC20AddressRequest{
+		Erc20Address: erc20Address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.erc20QueryClient.TokenPairByERC20Address, req)
+
+	return res, err
+}
+
+// EVM module
+
+func (c *chainClient) FetchEVMAccount(ctx context.Context, address string) (*evmtypes.QueryAccountResponse, error) {
+	req := &evmtypes.QueryAccountRequest{
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.evmQueryClient.Account, req)
+	return res, err
+}
+
+func (c *chainClient) FetchEVMCosmosAccount(ctx context.Context, address string) (*evmtypes.QueryCosmosAccountResponse, error) {
+	req := &evmtypes.QueryCosmosAccountRequest{
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.evmQueryClient.CosmosAccount, req)
+	return res, err
+}
+
+func (c *chainClient) FetchEVMValidatorAccount(ctx context.Context, consAddress string) (*evmtypes.QueryValidatorAccountResponse, error) {
+	req := &evmtypes.QueryValidatorAccountRequest{
+		ConsAddress: consAddress,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.evmQueryClient.ValidatorAccount, req)
+	return res, err
+}
+
+func (c *chainClient) FetchEVMBalance(ctx context.Context, address string) (*evmtypes.QueryBalanceResponse, error) {
+	req := &evmtypes.QueryBalanceRequest{
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.evmQueryClient.Balance, req)
+	return res, err
+}
+
+func (c *chainClient) FetchEVMStorage(ctx context.Context, address string, key *string) (*evmtypes.QueryStorageResponse, error) {
+	req := &evmtypes.QueryStorageRequest{
+		Address: address,
+	}
+
+	if key != nil {
+		req.Key = *key
+	}
+
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.evmQueryClient.Storage, req)
+	return res, err
+}
+
+func (c *chainClient) FetchEVMCode(ctx context.Context, address string) (*evmtypes.QueryCodeResponse, error) {
+	req := &evmtypes.QueryCodeRequest{
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.evmQueryClient.Code, req)
+	return res, err
+}
+
+func (c *chainClient) FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBaseFeeResponse, error) {
+	req := &evmtypes.QueryBaseFeeRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.evmQueryClient.BaseFee, req)
+	return res, err
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.

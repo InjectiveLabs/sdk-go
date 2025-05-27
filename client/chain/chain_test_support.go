@@ -24,6 +24,8 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"google.golang.org/grpc"
 
+	erc20types "github.com/InjectiveLabs/sdk-go/chain/erc20/types"
+	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
@@ -1163,6 +1165,48 @@ func (c *MockChainClient) FetchTxFeesParams(ctx context.Context) (*txfeestypes.Q
 
 func (c *MockChainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error) {
 	return &txfeestypes.QueryEipBaseFeeResponse{}, nil
+}
+
+// ERC20 module
+func (c *MockChainClient) FetchAllTokenPairs(ctx context.Context) (*erc20types.QueryAllTokenPairsResponse, error) {
+	return &erc20types.QueryAllTokenPairsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchTokenPairByDenom(ctx context.Context, bankDenom string) (*erc20types.QueryTokenPairByDenomResponse, error) {
+	return &erc20types.QueryTokenPairByDenomResponse{}, nil
+}
+
+func (c *MockChainClient) FetchTokenPairByERC20Address(ctx context.Context, erc20Address string) (*erc20types.QueryTokenPairByERC20AddressResponse, error) {
+	return &erc20types.QueryTokenPairByERC20AddressResponse{}, nil
+}
+
+// EVM module
+func (c *MockChainClient) FetchEVMAccount(ctx context.Context, address string) (*evmtypes.QueryAccountResponse, error) {
+	return &evmtypes.QueryAccountResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEVMCosmosAccount(ctx context.Context, address string) (*evmtypes.QueryCosmosAccountResponse, error) {
+	return &evmtypes.QueryCosmosAccountResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEVMValidatorAccount(ctx context.Context, consAddress string) (*evmtypes.QueryValidatorAccountResponse, error) {
+	return &evmtypes.QueryValidatorAccountResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEVMBalance(ctx context.Context, address string) (*evmtypes.QueryBalanceResponse, error) {
+	return &evmtypes.QueryBalanceResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEVMStorage(ctx context.Context, address string, key *string) (*evmtypes.QueryStorageResponse, error) {
+	return &evmtypes.QueryStorageResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEVMCode(ctx context.Context, address string) (*evmtypes.QueryCodeResponse, error) {
+	return &evmtypes.QueryCodeResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBaseFeeResponse, error) {
+	return &evmtypes.QueryBaseFeeResponse{}, nil
 }
 
 func (c *MockChainClient) CurrentChainGasPrice() int64 {
