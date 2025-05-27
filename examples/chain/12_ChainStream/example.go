@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	chainStreamModule "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
+	chainstreamv2 "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -39,40 +39,40 @@ func main() {
 	injUsdtMarket := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 	injUsdtPerpMarket := "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"
 
-	req := chainStreamModule.StreamRequest{
-		BankBalancesFilter: &chainStreamModule.BankBalancesFilter{
+	req := chainstreamv2.StreamRequest{
+		BankBalancesFilter: &chainstreamv2.BankBalancesFilter{
 			Accounts: []string{"*"},
 		},
-		SpotOrdersFilter: &chainStreamModule.OrdersFilter{
+		SpotOrdersFilter: &chainstreamv2.OrdersFilter{
 			MarketIds:     []string{injUsdtMarket},
 			SubaccountIds: []string{subaccountId},
 		},
-		DerivativeOrdersFilter: &chainStreamModule.OrdersFilter{
+		DerivativeOrdersFilter: &chainstreamv2.OrdersFilter{
 			MarketIds:     []string{injUsdtPerpMarket},
 			SubaccountIds: []string{subaccountId},
 		},
-		SpotTradesFilter: &chainStreamModule.TradesFilter{
+		SpotTradesFilter: &chainstreamv2.TradesFilter{
 			MarketIds:     []string{injUsdtMarket},
 			SubaccountIds: []string{"*"},
 		},
-		SubaccountDepositsFilter: &chainStreamModule.SubaccountDepositsFilter{
+		SubaccountDepositsFilter: &chainstreamv2.SubaccountDepositsFilter{
 			SubaccountIds: []string{subaccountId},
 		},
-		DerivativeOrderbooksFilter: &chainStreamModule.OrderbookFilter{
+		DerivativeOrderbooksFilter: &chainstreamv2.OrderbookFilter{
 			MarketIds: []string{injUsdtPerpMarket},
 		},
-		SpotOrderbooksFilter: &chainStreamModule.OrderbookFilter{
+		SpotOrderbooksFilter: &chainstreamv2.OrderbookFilter{
 			MarketIds: []string{injUsdtMarket},
 		},
-		PositionsFilter: &chainStreamModule.PositionsFilter{
+		PositionsFilter: &chainstreamv2.PositionsFilter{
 			SubaccountIds: []string{subaccountId},
 			MarketIds:     []string{injUsdtPerpMarket},
 		},
-		DerivativeTradesFilter: &chainStreamModule.TradesFilter{
+		DerivativeTradesFilter: &chainstreamv2.TradesFilter{
 			SubaccountIds: []string{"*"},
 			MarketIds:     []string{injUsdtPerpMarket},
 		},
-		OraclePriceFilter: &chainStreamModule.OraclePriceFilter{
+		OraclePriceFilter: &chainstreamv2.OraclePriceFilter{
 			Symbol: []string{"INJ", "USDT"},
 		},
 	}
