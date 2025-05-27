@@ -58,9 +58,9 @@ func main() {
 
 	ctx := context.Background()
 
-	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
+	marketId := "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"
 
-	res, err := chainClient.FetchL3SpotOrderbookV2(ctx, marketId)
+	res, err := chainClient.FetchChainPositionsInMarketV2(ctx, marketId)
 	if err != nil {
 		fmt.Println(err)
 	}

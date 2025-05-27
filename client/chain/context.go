@@ -146,6 +146,8 @@ func NewClientContext(
 	tokenfactory.RegisterInterfaces(interfaceRegistry)
 	permissions.RegisterInterfaces(interfaceRegistry)
 	txfeestypes.RegisterInterfaces(interfaceRegistry)
+	erc20types.RegisterInterfaces(interfaceRegistry)
+	evmtypes.RegisterInterfaces(interfaceRegistry)
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
 	authztypes.RegisterInterfaces(interfaceRegistry)

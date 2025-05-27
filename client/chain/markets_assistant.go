@@ -41,6 +41,7 @@ func newMarketsAssistant() MarketsAssistant {
 	}
 }
 
+// Deprecated: this function that initializes markets from the Indexer is deprecated since Indexer is not always correctly synced.
 func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
 

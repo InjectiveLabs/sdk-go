@@ -18,11 +18,11 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketIds := []string{"0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"}
-	depth := int32(10)
-	res, err := exchangeClient.GetSpotOrderbooksV2(ctx, marketIds, depth)
+	marketIDs := []string{"0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"}
+
+	res, err := exchangeClient.FetchOpenInterest(ctx, marketIDs)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	str, _ := json.MarshalIndent(res, "", " ")

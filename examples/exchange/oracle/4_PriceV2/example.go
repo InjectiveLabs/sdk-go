@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
@@ -12,6 +11,8 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
+	oraclepb "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
 )
 
 func main() {
@@ -42,7 +43,8 @@ func main() {
 	)
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return
 	}
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
@@ -54,14 +56,39 @@ func main() {
 	)
 
 	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	ctx := context.Background()
+	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, chainClient)
+	if err != nil {
 		panic(err)
 	}
 
-	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe" // Example derivative market ID
-
-	res, err := chainClient.FetchMarketBalanceV2(context.Background(), marketId)
+	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
-		log.Fatalf("Failed to fetch market balance: %v", err)
+		panic(err)
+	}
+
+	market := marketsAssistant.AllDerivativeMarkets()["0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"]
+
+	baseSymbol := market.OracleBase
+	quoteSymbol := market.OracleQuote
+	oracleType := market.OracleType
+	oracleScaleFactor := uint32(0)
+	filters := []*oraclepb.PricePayloadV2{
+		{
+			BaseSymbol:        baseSymbol,
+			QuoteSymbol:       quoteSymbol,
+			OracleType:        oracleType,
+			OracleScaleFactor: oracleScaleFactor,
+		},
+	}
+
+	res, err := exchangeClient.FetchPriceV2(ctx, filters)
+	if err != nil {
+		fmt.Println(err)
 	}
 
 	str, _ := json.MarshalIndent(res, "", " ")
