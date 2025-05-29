@@ -150,6 +150,18 @@ copy-chain-types: clone-injective-core
 	cp -r injective-core/proto ./
 
 	rm -rf injective-core
+	make extract-message-names
+
+extract-message-names:
+	@echo "Extracting message names from tx.pb.go files..."
+	@mkdir -p injective_data
+	@find ./chain -name "tx.pb.go" -exec grep -h "proto\.RegisterType" {} \; | \
+		sed -n 's/.*proto\.RegisterType([^"]*"\([^"]*\)".*/\1/p' | \
+		grep -v 'Response$$' | \
+		sort -u | \
+		jq -R -s 'split("\n")[:-1]' > injective_data/chain_messages_list.json
+	@echo "Message names extracted to injective_data/chain_messages_list.json (excluding Response messages)"
+	@echo "Total messages found: $$(jq length injective_data/chain_messages_list.json)"
 
 #gen: gen-proto
 #
@@ -201,4 +213,4 @@ lint-all: export GOPROXY=direct
 lint-all:
 	golangci-lint run --timeout=15m -v
 
-.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master lint-all
+.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master lint-all extract-message-names
