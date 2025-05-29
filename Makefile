@@ -154,9 +154,10 @@ copy-chain-types: clone-injective-core
 
 extract-message-names:
 	@echo "Extracting message names from tx.pb.go files..."
+	@mkdir -p injective_data
 	@find ./chain -name "tx.pb.go" -exec grep -h "proto\.RegisterType" {} \; | \
 		sed -n 's/.*proto\.RegisterType([^"]*"\([^"]*\)".*/\1/p' | \
-		grep -v "Response$$" | \
+		grep -v 'Response$$' | \
 		sort -u | \
 		jq -R -s 'split("\n")[:-1]' > injective_data/chain_messages_list.json
 	@echo "Message names extracted to injective_data/chain_messages_list.json (excluding Response messages)"
