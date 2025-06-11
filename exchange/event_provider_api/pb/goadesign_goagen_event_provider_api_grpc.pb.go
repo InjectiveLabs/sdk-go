@@ -24,6 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 type EventProviderAPIClient interface {
 	// Get latest block from event provider
 	GetLatestHeight(ctx context.Context, in *GetLatestHeightRequest, opts ...grpc.CallOption) (*GetLatestHeightResponse, error)
+	// Stream latest block information
+	StreamLatestHeight(ctx context.Context, in *StreamLatestHeightRequest, opts ...grpc.CallOption) (EventProviderAPI_StreamLatestHeightClient, error)
 	// Stream processed block events for selected backend
 	StreamBlockEvents(ctx context.Context, in *StreamBlockEventsRequest, opts ...grpc.CallOption) (EventProviderAPI_StreamBlockEventsClient, error)
 	// Get processed block events for selected backend
@@ -53,8 +55,40 @@ func (c *eventProviderAPIClient) GetLatestHeight(ctx context.Context, in *GetLat
 	return out, nil
 }
 
+func (c *eventProviderAPIClient) StreamLatestHeight(ctx context.Context, in *StreamLatestHeightRequest, opts ...grpc.CallOption) (EventProviderAPI_StreamLatestHeightClient, error) {
+	stream, err := c.cc.NewStream(ctx, &EventProviderAPI_ServiceDesc.Streams[0], "/event_provider_api.EventProviderAPI/StreamLatestHeight", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &eventProviderAPIStreamLatestHeightClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type EventProviderAPI_StreamLatestHeightClient interface {
+	Recv() (*StreamLatestHeightResponse, error)
+	grpc.ClientStream
+}
+
+type eventProviderAPIStreamLatestHeightClient struct {
+	grpc.ClientStream
+}
+
+func (x *eventProviderAPIStreamLatestHeightClient) Recv() (*StreamLatestHeightResponse, error) {
+	m := new(StreamLatestHeightResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *eventProviderAPIClient) StreamBlockEvents(ctx context.Context, in *StreamBlockEventsRequest, opts ...grpc.CallOption) (EventProviderAPI_StreamBlockEventsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &EventProviderAPI_ServiceDesc.Streams[0], "/event_provider_api.EventProviderAPI/StreamBlockEvents", opts...)
+	stream, err := c.cc.NewStream(ctx, &EventProviderAPI_ServiceDesc.Streams[1], "/event_provider_api.EventProviderAPI/StreamBlockEvents", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,6 +161,8 @@ func (c *eventProviderAPIClient) GetABCIBlockEventsAtHeight(ctx context.Context,
 type EventProviderAPIServer interface {
 	// Get latest block from event provider
 	GetLatestHeight(context.Context, *GetLatestHeightRequest) (*GetLatestHeightResponse, error)
+	// Stream latest block information
+	StreamLatestHeight(*StreamLatestHeightRequest, EventProviderAPI_StreamLatestHeightServer) error
 	// Stream processed block events for selected backend
 	StreamBlockEvents(*StreamBlockEventsRequest, EventProviderAPI_StreamBlockEventsServer) error
 	// Get processed block events for selected backend
@@ -146,6 +182,9 @@ type UnimplementedEventProviderAPIServer struct {
 
 func (UnimplementedEventProviderAPIServer) GetLatestHeight(context.Context, *GetLatestHeightRequest) (*GetLatestHeightResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLatestHeight not implemented")
+}
+func (UnimplementedEventProviderAPIServer) StreamLatestHeight(*StreamLatestHeightRequest, EventProviderAPI_StreamLatestHeightServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamLatestHeight not implemented")
 }
 func (UnimplementedEventProviderAPIServer) StreamBlockEvents(*StreamBlockEventsRequest, EventProviderAPI_StreamBlockEventsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamBlockEvents not implemented")
@@ -191,6 +230,27 @@ func _EventProviderAPI_GetLatestHeight_Handler(srv interface{}, ctx context.Cont
 		return srv.(EventProviderAPIServer).GetLatestHeight(ctx, req.(*GetLatestHeightRequest))
 	}
 	return interceptor(ctx, in, info, handler)
+}
+
+func _EventProviderAPI_StreamLatestHeight_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamLatestHeightRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(EventProviderAPIServer).StreamLatestHeight(m, &eventProviderAPIStreamLatestHeightServer{stream})
+}
+
+type EventProviderAPI_StreamLatestHeightServer interface {
+	Send(*StreamLatestHeightResponse) error
+	grpc.ServerStream
+}
+
+type eventProviderAPIStreamLatestHeightServer struct {
+	grpc.ServerStream
+}
+
+func (x *eventProviderAPIStreamLatestHeightServer) Send(m *StreamLatestHeightResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _EventProviderAPI_StreamBlockEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -315,6 +375,11 @@ var EventProviderAPI_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "StreamLatestHeight",
+			Handler:       _EventProviderAPI_StreamLatestHeight_Handler,
+			ServerStreams: true,
+		},
 		{
 			StreamName:    "StreamBlockEvents",
 			Handler:       _EventProviderAPI_StreamBlockEvents_Handler,
