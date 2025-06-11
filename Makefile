@@ -1,44 +1,7 @@
 all:
 
-clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.20 --depth 1 --single-branch
-
 clone-injective-core:
 	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.0-beta.2 --depth 1 --single-branch
-
-copy-exchange-client: clone-injective-indexer
-	rm -rf exchange/*
-	mkdir -p exchange/event_provider_api/pb
-	mkdir -p exchange/health_rpc/pb
-	mkdir -p exchange/accounts_rpc/pb
-	mkdir -p exchange/auction_rpc/pb
-	mkdir -p exchange/campaign_rpc/pb
-	mkdir -p exchange/derivative_exchange_rpc/pb
-	mkdir -p exchange/exchange_rpc/pb
-	mkdir -p exchange/explorer_rpc/pb
-	mkdir -p exchange/insurance_rpc/pb
-	mkdir -p exchange/meta_rpc/pb
-	mkdir -p exchange/oracle_rpc/pb
-	mkdir -p exchange/portfolio_rpc/pb
-	mkdir -p exchange/spot_exchange_rpc/pb
-	mkdir -p exchange/trading_rpc/pb
-
-	cp -r injective-indexer/api/gen/grpc/event_provider_api/pb/*.pb.go exchange/event_provider_api/pb
-	cp -r injective-indexer/api/gen/grpc/health/pb/*.pb.go exchange/health_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_accounts_rpc/pb/*.pb.go exchange/accounts_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_auction_rpc/pb/*.pb.go exchange/auction_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_campaign_rpc/pb/*.pb.go exchange/campaign_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_derivative_exchange_rpc/pb/*.pb.go exchange/derivative_exchange_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_exchange_rpc/pb/*.pb.go exchange/exchange_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_explorer_rpc/pb/*.pb.go exchange/explorer_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_insurance_rpc/pb/*.pb.go exchange/insurance_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_meta_rpc/pb/*.pb.go exchange/meta_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_oracle_rpc/pb/*.pb.go exchange/oracle_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_portfolio_rpc/pb/*.pb.go exchange/portfolio_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_spot_exchange_rpc/pb/*.pb.go exchange/spot_exchange_rpc/pb
-	cp -r injective-indexer/api/gen/grpc/injective_trading_rpc/pb/*.pb.go exchange/trading_rpc/pb
-
-	rm -rf injective-indexer
 
 copy-chain-types: clone-injective-core
 	cp -r injective-core/injective-chain/codec chain
@@ -213,4 +176,4 @@ lint-all: export GOPROXY=direct
 lint-all:
 	golangci-lint run --timeout=15m -v
 
-.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master lint-all extract-message-names
+.PHONY: tests coverage lint lint-last-commit lint-master lint-all extract-message-names

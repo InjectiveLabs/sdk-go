@@ -2,16 +2,11 @@ package chain
 
 import (
 	"context"
-	"strings"
 
+	"github.com/InjectiveLabs/sdk-go/client/core"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/shopspring/decimal"
-
-	"github.com/InjectiveLabs/sdk-go/client/core"
-	"github.com/InjectiveLabs/sdk-go/client/exchange"
-	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
-	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 )
 
 type TokenMetadata interface {
@@ -41,133 +36,8 @@ func newMarketsAssistant() MarketsAssistant {
 	}
 }
 
-// Deprecated: this function that initializes markets from the Indexer is deprecated since Indexer is not always correctly synced.
-func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
-	assistant := newMarketsAssistant()
-
-	officialTokens, err := core.LoadTokens(exchangeClient.GetNetwork().OfficialTokensListURL)
-	if err == nil {
-		for i := range officialTokens {
-			tokenMetadata := officialTokens[i]
-			if tokenMetadata.Denom != "" {
-				// add tokens to the assistant ensuring all of them get assigned a unique symbol
-				tokenRepresentation(tokenMetadata.GetSymbol(), tokenMetadata, tokenMetadata.Denom, &assistant)
-			}
-		}
-	}
-
-	spotMarketsRequest := spotExchangePB.MarketsRequest{
-		MarketStatus: "active",
-	}
-	spotMarkets, err := exchangeClient.GetSpotMarkets(ctx, &spotMarketsRequest)
-
-	if err != nil {
-		return assistant, err
-	}
-
-	for _, marketInfo := range spotMarkets.GetMarkets() {
-		if marketInfo.GetBaseTokenMeta().GetSymbol() == "" || marketInfo.GetQuoteTokenMeta().GetSymbol() == "" {
-			continue
-		}
-
-		var baseTokenSymbol, quoteTokenSymbol string
-		if strings.Contains(marketInfo.GetTicker(), "/") {
-			baseAndQuote := strings.Split(marketInfo.GetTicker(), "/")
-			baseTokenSymbol, quoteTokenSymbol = baseAndQuote[0], baseAndQuote[1]
-		} else {
-			baseTokenSymbol = marketInfo.GetBaseTokenMeta().GetSymbol()
-			quoteTokenSymbol = marketInfo.GetQuoteTokenMeta().GetSymbol()
-		}
-
-		baseToken := tokenRepresentation(baseTokenSymbol, marketInfo.GetBaseTokenMeta(), marketInfo.GetBaseDenom(), &assistant)
-		quoteToken := tokenRepresentation(quoteTokenSymbol, marketInfo.GetQuoteTokenMeta(), marketInfo.GetQuoteDenom(), &assistant)
-
-		makerFeeRate := decimal.RequireFromString(marketInfo.GetMakerFeeRate())
-		takerFeeRate := decimal.RequireFromString(marketInfo.GetTakerFeeRate())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.GetServiceProviderFee())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize())
-		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional())
-
-		market := core.SpotMarket{
-			Id:                  marketInfo.GetMarketId(),
-			Status:              marketInfo.GetMarketStatus(),
-			Ticker:              marketInfo.GetTicker(),
-			BaseToken:           baseToken,
-			QuoteToken:          quoteToken,
-			MakerFeeRate:        makerFeeRate,
-			TakerFeeRate:        takerFeeRate,
-			ServiceProviderFee:  serviceProviderFee,
-			MinPriceTickSize:    minPriceTickSize,
-			MinQuantityTickSize: minQuantityTickSize,
-			MinNotional:         minNotional,
-		}
-
-		assistant.spotMarkets[market.Id] = market
-	}
-
-	derivativeMarketsRequest := derivativeExchangePB.MarketsRequest{
-		MarketStatus: "active",
-	}
-	derivativeMarkets, err := exchangeClient.GetDerivativeMarkets(ctx, &derivativeMarketsRequest)
-
-	if err != nil {
-		return assistant, err
-	}
-
-	for _, marketInfo := range derivativeMarkets.GetMarkets() {
-		if marketInfo.GetQuoteTokenMeta().GetSymbol() == "" {
-			continue
-		}
-
-		quoteTokenSymbol := marketInfo.GetQuoteTokenMeta().GetSymbol()
-
-		quoteToken := tokenRepresentation(quoteTokenSymbol, marketInfo.GetQuoteTokenMeta(), marketInfo.GetQuoteDenom(), &assistant)
-
-		initialMarginRatio := decimal.RequireFromString(marketInfo.GetInitialMarginRatio())
-		maintenanceMarginRatio := decimal.RequireFromString(marketInfo.GetMaintenanceMarginRatio())
-		makerFeeRate := decimal.RequireFromString(marketInfo.GetMakerFeeRate())
-		takerFeeRate := decimal.RequireFromString(marketInfo.GetTakerFeeRate())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.GetServiceProviderFee())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize())
-		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional())
-
-		market := core.DerivativeMarket{
-			Id:                     marketInfo.GetMarketId(),
-			Status:                 marketInfo.GetMarketStatus(),
-			Ticker:                 marketInfo.GetTicker(),
-			OracleBase:             marketInfo.GetOracleBase(),
-			OracleQuote:            marketInfo.GetOracleQuote(),
-			OracleType:             marketInfo.GetOracleType(),
-			OracleScaleFactor:      marketInfo.GetOracleScaleFactor(),
-			InitialMarginRatio:     initialMarginRatio,
-			MaintenanceMarginRatio: maintenanceMarginRatio,
-			QuoteToken:             quoteToken,
-			MakerFeeRate:           makerFeeRate,
-			TakerFeeRate:           takerFeeRate,
-			ServiceProviderFee:     serviceProviderFee,
-			MinPriceTickSize:       minPriceTickSize,
-			MinQuantityTickSize:    minQuantityTickSize,
-			MinNotional:            minNotional,
-		}
-
-		assistant.derivativeMarkets[market.Id] = market
-	}
-
-	return assistant, nil
-}
-
 func NewMarketsAssistant(ctx context.Context, chainClient ChainClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
-	err := assistant.initializeFromChain(ctx, chainClient)
-
-	return assistant, err
-}
-
-func NewMarketsAssistantWithAllTokens(ctx context.Context, exchangeClient exchange.ExchangeClient, chainClient ChainClient) (MarketsAssistant, error) {
-	assistant := newMarketsAssistant()
-	assistant.initializeTokensFromChainDenoms(ctx, chainClient)
 	err := assistant.initializeFromChain(ctx, chainClient)
 
 	return assistant, err
