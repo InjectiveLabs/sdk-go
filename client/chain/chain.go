@@ -43,6 +43,7 @@ import (
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
@@ -468,6 +469,12 @@ type ChainClient interface {
 	FetchEVMCode(ctx context.Context, address string) (*evmtypes.QueryCodeResponse, error)
 	FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBaseFeeResponse, error)
 
+	// Insurance module
+	FetchInsuranceFund(ctx context.Context, marketId string) (*insurancetypes.QueryInsuranceFundResponse, error)
+	FetchInsuranceFunds(ctx context.Context) (*insurancetypes.QueryInsuranceFundsResponse, error)
+	FetchPendingRedemptions(ctx context.Context, marketId string, address string) (*insurancetypes.QueryPendingRedemptionsResponse, error)
+	FetchEstimatedRedemptions(ctx context.Context, marketId string, address string) (*insurancetypes.QueryEstimatedRedemptionsResponse, error)
+
 	CurrentChainGasPrice() int64
 	SetGasPrice(gasPrice int64)
 
@@ -522,6 +529,7 @@ type chainClient struct {
 	txfeesQueryClient        txfeestypes.QueryClient
 	txClient                 txtypes.ServiceClient
 	wasmQueryClient          wasmtypes.QueryClient
+	insuranceQueryClient     insurancetypes.QueryClient
 	subaccountToNonce        map[ethcommon.Hash]uint32
 
 	closed  int64
@@ -628,6 +636,7 @@ func NewChainClient(
 		txfeesQueryClient:        txfeestypes.NewQueryClient(conn),
 		txClient:                 txtypes.NewServiceClient(conn),
 		wasmQueryClient:          wasmtypes.NewQueryClient(conn),
+		insuranceQueryClient:     insurancetypes.NewQueryClient(conn),
 		subaccountToNonce:        make(map[ethcommon.Hash]uint32),
 	}
 
@@ -3691,6 +3700,40 @@ func (c *chainClient) FetchEVMCode(ctx context.Context, address string) (*evmtyp
 func (c *chainClient) FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBaseFeeResponse, error) {
 	req := &evmtypes.QueryBaseFeeRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.evmQueryClient.BaseFee, req)
+	return res, err
+}
+
+// Insurance module
+
+func (c *chainClient) FetchInsuranceFund(ctx context.Context, marketId string) (*insurancetypes.QueryInsuranceFundResponse, error) {
+	req := &insurancetypes.QueryInsuranceFundRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.insuranceQueryClient.InsuranceFund, req)
+	return res, err
+}
+
+func (c *chainClient) FetchInsuranceFunds(ctx context.Context) (*insurancetypes.QueryInsuranceFundsResponse, error) {
+	req := &insurancetypes.QueryInsuranceFundsRequest{}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.insuranceQueryClient.InsuranceFunds, req)
+	return res, err
+}
+
+func (c *chainClient) FetchPendingRedemptions(ctx context.Context, marketId string, address string) (*insurancetypes.QueryPendingRedemptionsResponse, error) {
+	req := &insurancetypes.QueryPendingRedemptionsRequest{
+		MarketId: marketId,
+		Address:  address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.insuranceQueryClient.PendingRedemptions, req)
+	return res, err
+}
+
+func (c *chainClient) FetchEstimatedRedemptions(ctx context.Context, marketId string, address string) (*insurancetypes.QueryEstimatedRedemptionsResponse, error) {
+	req := &insurancetypes.QueryEstimatedRedemptionsRequest{
+		MarketId: marketId,
+		Address:  address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.insuranceQueryClient.EstimatedRedemptions, req)
 	return res, err
 }
 

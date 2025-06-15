@@ -28,6 +28,7 @@ import (
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
@@ -1207,6 +1208,24 @@ func (c *MockChainClient) FetchEVMCode(ctx context.Context, address string) (*ev
 
 func (c *MockChainClient) FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBaseFeeResponse, error) {
 	return &evmtypes.QueryBaseFeeResponse{}, nil
+}
+
+// Insurance module
+
+func (c *MockChainClient) FetchInsuranceFund(ctx context.Context, marketId string) (*insurancetypes.QueryInsuranceFundResponse, error) {
+	return &insurancetypes.QueryInsuranceFundResponse{}, nil
+}
+
+func (c *MockChainClient) FetchInsuranceFunds(ctx context.Context) (*insurancetypes.QueryInsuranceFundsResponse, error) {
+	return &insurancetypes.QueryInsuranceFundsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchPendingRedemptions(ctx context.Context, marketId string, address string) (*insurancetypes.QueryPendingRedemptionsResponse, error) {
+	return &insurancetypes.QueryPendingRedemptionsResponse{}, nil
+}
+
+func (c *MockChainClient) FetchEstimatedRedemptions(ctx context.Context, marketId string, address string) (*insurancetypes.QueryEstimatedRedemptionsResponse, error) {
+	return &insurancetypes.QueryEstimatedRedemptionsResponse{}, nil
 }
 
 func (c *MockChainClient) CurrentChainGasPrice() int64 {
