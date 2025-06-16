@@ -11,12 +11,18 @@ type APICall[Q any, R any] func(ctx context.Context, in *Q, opts ...grpc.CallOpt
 type APIStreamCall[Q any, S grpc.ClientStream] func(ctx context.Context, in *Q, opts ...grpc.CallOption) (S, error)
 
 func ExecuteCall[Q any, R any](ctx context.Context, cookieAssistant CookieAssistant, call APICall[Q, R], in *Q) (*R, error) {
-	var header metadata.MD
-	localCtx := metadata.NewOutgoingContext(ctx, cookieAssistant.RealMetadata())
+	md := cookieAssistant.RealMetadata()
 
-	response, err := call(localCtx, in, grpc.Header(&header))
+	if upstreamMetadata, ok := metadata.FromOutgoingContext(ctx); ok {
+		// If metadata already exists in the context, merge it with the cookie metadata
+		md = metadata.Join(md, upstreamMetadata)
+	}
 
-	cookieAssistant.ProcessResponseMetadata(header)
+	localCtx := metadata.NewOutgoingContext(ctx, md)
+
+	response, err := call(localCtx, in, grpc.Header(&md))
+
+	cookieAssistant.ProcessResponseMetadata(md)
 
 	return response, err
 }
