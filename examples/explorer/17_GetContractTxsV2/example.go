@@ -29,7 +29,7 @@ func main() {
 
 	req := &explorerPB.GetContractTxsV2Request{
 		Address: contractAddress,
-		Limit:   10, // Fetch 10 transactions
+		PerPage: 10, // Fetch 10 transactions
 	}
 
 	response, err := explorerClient.FetchContractTxsV2(ctx, req)

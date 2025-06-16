@@ -874,7 +874,7 @@ func (c *MockChainClientV2) FetchEipBaseFee(ctx context.Context) (*txfeestypes.Q
 }
 
 // ERC20 module
-func (c *MockChainClientV2) FetchAllTokenPairs(ctx context.Context) (*erc20types.QueryAllTokenPairsResponse, error) {
+func (c *MockChainClientV2) FetchAllTokenPairs(ctx context.Context, pagination *query.PageRequest) (*erc20types.QueryAllTokenPairsResponse, error) {
 	return &erc20types.QueryAllTokenPairsResponse{}, nil
 }
 

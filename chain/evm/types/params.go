@@ -1,12 +1,12 @@
 package types
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
-	"slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
 )
@@ -98,13 +98,19 @@ func (p Params) WithPermissioned(permissioned bool) Params {
 	return p
 }
 
-func (p Params) WithAuthorizedDeployers(authorizedDeployer []string) Params {
-	p.AuthorizedDeployers = authorizedDeployer
+func (p Params) WithAuthorizedDeployers(authorizedDeployers []string) Params {
+	p.AuthorizedDeployers = authorizedDeployers
 	return p
 }
 
-func (p Params) IsAuthorisedDeployer(addr common.Address) bool {
-	return slices.Contains(p.AuthorizedDeployers, addr.Hex())
+func (p Params) IsAuthorisedDeployer(addr ethcommon.Address) bool {
+	for _, addrStr := range p.AuthorizedDeployers {
+		if bytes.Equal(ethcommon.HexToAddress(addrStr).Bytes(), addr.Bytes()) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func ValidateEVMDenom(i interface{}) error {
@@ -151,24 +157,21 @@ func IsLondon(ethConfig *params.ChainConfig, height int64) bool {
 	return ethConfig.IsLondon(big.NewInt(height))
 }
 
-func validateAuthorizedDeployers(i interface{}) error {
-	v, ok := i.([]string)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
+func validateAuthorizedDeployers(hexAddresses []string) error {
 	authorisedAddresses := make(map[string]struct{})
 
-	for _, addrStr := range v {
-		if !common.IsHexAddress(addrStr) {
+	for _, addrStr := range hexAddresses {
+		if !ethcommon.IsHexAddress(addrStr) {
 			return fmt.Errorf("invalid address: %s", addrStr)
 		}
 
-		if _, found := authorisedAddresses[addrStr]; found {
+		addr := ethcommon.HexToAddress(addrStr)
+
+		if _, found := authorisedAddresses[string(addr.Bytes())]; found {
 			return fmt.Errorf("duplicate authorised address: %s", addrStr)
 		}
 
-		authorisedAddresses[addrStr] = struct{}{}
+		authorisedAddresses[string(addr.Bytes())] = struct{}{}
 	}
 
 	return nil

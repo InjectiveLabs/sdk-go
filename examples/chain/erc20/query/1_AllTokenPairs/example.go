@@ -7,6 +7,7 @@ import (
 	"os"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -58,7 +59,9 @@ func main() {
 
 	ctx := context.Background()
 
-	res, err := chainClient.FetchAllTokenPairs(ctx)
+	pagination := query.PageRequest{Limit: 10}
+
+	res, err := chainClient.FetchAllTokenPairs(ctx, &pagination)
 	if err != nil {
 		fmt.Println(err)
 	}

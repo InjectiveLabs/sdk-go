@@ -135,4 +135,22 @@ message ChainConfig {
     (gogoproto.customname) = "EIP155ChainID",
     (gogoproto.jsontag) = "eip155ChainID"
   ];
+  // eip7840: per-fork schedule of max and target blob counts in client
+  // configuration files
+  BlobScheduleConfig blob_schedule_config = 26
+      [ (gogoproto.moretags) = "yaml:\"blob_schedule_config\"" ];
+}
+
+message BlobScheduleConfig {
+  BlobConfig cancun = 1;
+  BlobConfig prague = 2;
+  BlobConfig osaka = 3;
+  BlobConfig verkle = 4;
+}
+
+message BlobConfig {
+  uint64 target = 1;
+  uint64 max = 2;
+  uint64 base_fee_update_fraction = 3
+      [ (gogoproto.moretags) = "yaml:\"base_fee_update_fraction\"" ];
 }

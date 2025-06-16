@@ -292,7 +292,7 @@ type ChainClientV2 interface {
 	FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
 
 	// ERC20 module
-	FetchAllTokenPairs(ctx context.Context) (*erc20types.QueryAllTokenPairsResponse, error)
+	FetchAllTokenPairs(ctx context.Context, pagination *query.PageRequest) (*erc20types.QueryAllTokenPairsResponse, error)
 	FetchTokenPairByDenom(ctx context.Context, bankDenom string) (*erc20types.QueryTokenPairByDenomResponse, error)
 	FetchTokenPairByERC20Address(ctx context.Context, erc20Address string) (*erc20types.QueryTokenPairByERC20AddressResponse, error)
 
@@ -2571,8 +2571,10 @@ func (c *chainClientV2) GetNetwork() common.Network {
 
 // ERC20 module
 
-func (c *chainClientV2) FetchAllTokenPairs(ctx context.Context) (*erc20types.QueryAllTokenPairsResponse, error) {
-	req := &erc20types.QueryAllTokenPairsRequest{}
+func (c *chainClientV2) FetchAllTokenPairs(ctx context.Context, pagination *query.PageRequest) (*erc20types.QueryAllTokenPairsResponse, error) {
+	req := &erc20types.QueryAllTokenPairsRequest{
+		Pagination: pagination,
+	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.erc20QueryClient.AllTokenPairs, req)
 
 	return res, err

@@ -62,5 +62,8 @@ linters:
       - proto
       - client/keyring/testdata
       - client/chain/chain_test_support.go
+      - typeddata
+      - eip712_cosmos.go
+      - eip712.go
 issues:
   max-issues-per-linter: 0

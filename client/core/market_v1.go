@@ -106,7 +106,9 @@ func (derivativeMarket DerivativeMarketV1) MarginToChainFormat(humanReadableValu
 	return derivativeMarket.NotionalToChainFormat(humanReadableValue)
 }
 
-func (derivativeMarket DerivativeMarketV1) CalculateMarginInChainFormat(humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal) sdkmath.LegacyDec {
+func (derivativeMarket DerivativeMarketV1) CalculateMarginInChainFormat(
+	humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal,
+) sdkmath.LegacyDec {
 	chainFormattedQuantity := humanReadableQuantity
 	chainFormattedPrice := humanReadablePrice.Mul(decimal.New(1, int32(derivativeMarket.QuoteDecimals)))
 
@@ -128,7 +130,7 @@ func (derivativeMarket DerivativeMarketV1) NotionalToChainFormat(humanReadableVa
 	return valueInChainFormat
 }
 
-func (derivativeMarket DerivativeMarketV1) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
+func (DerivativeMarketV1) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return decimal.RequireFromString(chainValue.String())
 }
 
@@ -190,7 +192,9 @@ func (market BinaryOptionMarketV1) MarginToChainFormat(humanReadableValue decima
 	return market.NotionalToChainFormat(humanReadableValue)
 }
 
-func (market BinaryOptionMarketV1) CalculateMarginInChainFormat(humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal) sdkmath.LegacyDec {
+func (market BinaryOptionMarketV1) CalculateMarginInChainFormat(
+	humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal,
+) sdkmath.LegacyDec {
 	chainFormattedQuantity := humanReadableQuantity
 	chainFormattedPrice := humanReadablePrice.Mul(decimal.New(1, int32(market.QuoteDecimals)))
 
@@ -212,7 +216,7 @@ func (market BinaryOptionMarketV1) NotionalToChainFormat(humanReadableValue deci
 	return valueInChainFormat
 }
 
-func (market BinaryOptionMarketV1) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
+func (BinaryOptionMarketV1) QuantityFromChainFormat(chainValue sdkmath.LegacyDec) decimal.Decimal {
 	return decimal.RequireFromString(chainValue.String())
 }
 

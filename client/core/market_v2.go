@@ -107,7 +107,9 @@ func (derivativeMarket DerivativeMarketV2) MarginToChainFormat(humanReadableValu
 	return derivativeMarket.NotionalToChainFormat(humanReadableValue)
 }
 
-func (derivativeMarket DerivativeMarketV2) CalculateMarginInChainFormat(humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal) sdkmath.LegacyDec {
+func (derivativeMarket DerivativeMarketV2) CalculateMarginInChainFormat(
+	humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal,
+) sdkmath.LegacyDec {
 	margin := humanReadableQuantity.Mul(humanReadablePrice).Div(leverage)
 	// We are using the min_quantity_tick_size to quantize the margin because that is the way margin is validated
 	// in the chain (it might be changed to a min_notional in the future)
@@ -187,7 +189,9 @@ func (market BinaryOptionMarketV2) MarginToChainFormat(humanReadableValue decima
 	return market.NotionalToChainFormat(humanReadableValue)
 }
 
-func (market BinaryOptionMarketV2) CalculateMarginInChainFormat(humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal) sdkmath.LegacyDec {
+func (market BinaryOptionMarketV2) CalculateMarginInChainFormat(
+	humanReadableQuantity, humanReadablePrice, leverage decimal.Decimal,
+) sdkmath.LegacyDec {
 	margin := humanReadableQuantity.Mul(humanReadablePrice).Div(leverage)
 	// We are using the min_quantity_tick_size to quantize the margin because that is the way margin is validated
 	// in the chain (it might be changed to a min_notional in the future)

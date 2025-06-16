@@ -42,6 +42,7 @@ func (cc ChainConfig) EthereumConfig() *params.ChainConfig {
 		ShanghaiTime:            getTimeValue(cc.ShanghaiTime),
 		CancunTime:              getTimeValue(cc.CancunTime),
 		PragueTime:              getTimeValue(cc.PragueTime),
+		BlobScheduleConfig:      cc.BlobScheduleConfig.ToEthereumBlobScheduleConfig(),
 	}
 	return cfg
 }
@@ -67,6 +68,7 @@ func DefaultChainConfig() ChainConfig {
 	pragueTime := sdkmath.ZeroInt()
 	cancunTime := sdkmath.ZeroInt()
 	chainID := sdkmath.NewInt(DefaultEIP155ChainID)
+	defaultBlobSchedule := FromEthereumBlobScheduleConfig(params.DefaultBlobSchedule)
 
 	return ChainConfig{
 		HomesteadBlock:      &homesteadBlock,
@@ -90,6 +92,7 @@ func DefaultChainConfig() ChainConfig {
 		CancunTime:          &cancunTime,
 		PragueTime:          &pragueTime,
 		EIP155ChainID:       &chainID,
+		BlobScheduleConfig:  defaultBlobSchedule,
 	}
 }
 
@@ -211,4 +214,54 @@ func ValidateTime(time *sdkmath.Int) error {
 	}
 
 	return nil
+}
+
+func FromEthereumBlobScheduleConfig(ebsc *params.BlobScheduleConfig) *BlobScheduleConfig {
+	if ebsc == nil {
+		return nil
+	}
+
+	return &BlobScheduleConfig{
+		Cancun: FromEthereumBlobConfig(ebsc.Cancun),
+		Prague: FromEthereumBlobConfig(ebsc.Prague),
+		Osaka:  FromEthereumBlobConfig(ebsc.Osaka),
+		Verkle: FromEthereumBlobConfig(ebsc.Verkle),
+	}
+}
+
+func (bsc *BlobScheduleConfig) ToEthereumBlobScheduleConfig() *params.BlobScheduleConfig {
+	if bsc == nil {
+		return nil
+	}
+
+	return &params.BlobScheduleConfig{
+		Cancun: bsc.Cancun.ToEthereumBlobConfig(),
+		Prague: bsc.Prague.ToEthereumBlobConfig(),
+		Osaka:  bsc.Osaka.ToEthereumBlobConfig(),
+		Verkle: bsc.Verkle.ToEthereumBlobConfig(),
+	}
+}
+
+func FromEthereumBlobConfig(ebc *params.BlobConfig) *BlobConfig {
+	if ebc == nil {
+		return nil
+	}
+
+	return &BlobConfig{
+		Target:                uint64(ebc.Target),
+		Max:                   uint64(ebc.Max),
+		BaseFeeUpdateFraction: ebc.UpdateFraction,
+	}
+}
+
+func (bc *BlobConfig) ToEthereumBlobConfig() *params.BlobConfig {
+	if bc == nil {
+		return nil
+	}
+
+	return &params.BlobConfig{
+		Target:         int(bc.Target),
+		Max:            int(bc.Max),
+		UpdateFraction: bc.BaseFeeUpdateFraction,
+	}
 }
