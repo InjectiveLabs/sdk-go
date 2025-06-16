@@ -46,7 +46,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -60,12 +60,12 @@ func main() {
 
 	denoms := []string{"inj", "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5"}
 
-	res, err := chainClient.FetchDenomDecimalsV2(ctx, denoms)
+	res, err := chainClient.FetchDenomDecimals(ctx, denoms)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 
 }

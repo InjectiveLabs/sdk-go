@@ -48,7 +48,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -64,12 +64,12 @@ func main() {
 	limit := uint64(2)
 	limitCumulativeNotional := math.LegacyDec{}
 
-	res, err := chainClient.FetchChainDerivativeOrderbookV2(ctx, marketId, limit, limitCumulativeNotional)
+	res, err := chainClient.FetchChainDerivativeOrderbook(ctx, marketId, limit, limitCumulativeNotional)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 
 }

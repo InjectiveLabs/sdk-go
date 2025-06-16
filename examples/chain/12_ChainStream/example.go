@@ -24,7 +24,7 @@ func main() {
 	}
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -94,7 +94,7 @@ func main() {
 				panic(err)
 				return
 			}
-			str, _ := json.MarshalIndent(res, "", " ")
+			str, _ := json.MarshalIndent(res, "", "\t")
 			fmt.Print(string(str))
 		}
 	}

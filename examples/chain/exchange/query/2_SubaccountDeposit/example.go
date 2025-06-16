@@ -46,7 +46,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -60,12 +60,12 @@ func main() {
 	denom := "inj"
 	ctx := context.Background()
 
-	res, err := chainClient.FetchSubaccountDepositV2(ctx, subaccountId.Hex(), denom)
+	res, err := chainClient.FetchSubaccountDeposit(ctx, subaccountId.Hex(), denom)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 
 }

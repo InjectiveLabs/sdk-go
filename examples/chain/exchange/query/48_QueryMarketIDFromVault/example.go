@@ -45,7 +45,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -59,12 +59,12 @@ func main() {
 
 	vaultAddress := "inj1qg5ega6dykkxc307y25pecuufrjkxkag6xhp6y"
 
-	res, err := chainClient.FetchMarketIDFromVaultV2(ctx, vaultAddress)
+	res, err := chainClient.FetchMarketIDFromVault(ctx, vaultAddress)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 
 }

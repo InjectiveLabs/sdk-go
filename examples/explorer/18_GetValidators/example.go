@@ -29,6 +29,6 @@ func main() {
 	}
 
 	fmt.Println("Full response:")
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 }

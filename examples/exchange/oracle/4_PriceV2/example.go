@@ -11,6 +11,7 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
+	"github.com/InjectiveLabs/sdk-go/client/core"
 	exchangeclient "github.com/InjectiveLabs/sdk-go/client/exchange"
 	oraclepb "github.com/InjectiveLabs/sdk-go/exchange/oracle_rpc/pb"
 )
@@ -49,7 +50,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -61,7 +62,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, chainClient)
+	marketsAssistant, err := chainclient.NewHumanReadableMarketsAssistant(ctx, chainClient)
 	if err != nil {
 		panic(err)
 	}
@@ -72,10 +73,14 @@ func main() {
 	}
 
 	market := marketsAssistant.AllDerivativeMarkets()["0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"]
+	derivativeMarket, ok := market.(core.DerivativeMarketV2)
+	if !ok {
+		panic("market is not a derivative market")
+	}
 
-	baseSymbol := market.OracleBase
-	quoteSymbol := market.OracleQuote
-	oracleType := market.OracleType
+	baseSymbol := derivativeMarket.OracleBase
+	quoteSymbol := derivativeMarket.OracleQuote
+	oracleType := derivativeMarket.OracleType
 	oracleScaleFactor := uint32(0)
 	filters := []*oraclepb.PricePayloadV2{
 		{
@@ -91,6 +96,6 @@ func main() {
 		fmt.Println(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 }

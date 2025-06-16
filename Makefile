@@ -138,7 +138,9 @@ copy-chain-types: clone-injective-core
     		cp injective-core/injective-chain/stream/types/v2/*.pb.go chain/stream/types/v2
 	mkdir -p chain/types && \
 		cp injective-core/injective-chain/types/*.pb.go injective-core/injective-chain/types/config.go chain/types && \
+		cp injective-core/injective-chain/types/chain_id.go chain/types && \
 		cp injective-core/injective-chain/types/codec.go chain/types && \
+		cp injective-core/injective-chain/types/errors.go chain/types && \
 		cp injective-core/injective-chain/types/int.go chain/types && \
 		cp injective-core/injective-chain/types/util.go chain/types && \
 		cp injective-core/injective-chain/types/validation.go chain/types

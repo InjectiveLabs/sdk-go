@@ -47,7 +47,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 	)
@@ -71,7 +71,7 @@ func main() {
 	order := chainClient.CreateDerivativeOrderV2(
 		defaultSubaccountID,
 		&chainclient.DerivativeOrderData{
-			OrderType:    exchangev2types.OrderType_SELL,
+			OrderType:    int32(exchangev2types.OrderType_SELL),
 			Quantity:     amount,
 			Price:        price,
 			Leverage:     leverage,
@@ -95,7 +95,7 @@ func main() {
 		panic(err)
 	}
 
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 
 	gasPrice = chainClient.CurrentChainGasPrice()
