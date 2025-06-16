@@ -47,7 +47,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 	)
@@ -70,7 +70,7 @@ func main() {
 	order := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangev2types.OrderType_SELL, //BUY SELL
+			OrderType:    int32(exchangev2types.OrderType_SELL), //BUY SELL
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),

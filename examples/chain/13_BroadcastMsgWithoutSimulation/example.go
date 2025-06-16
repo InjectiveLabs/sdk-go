@@ -50,7 +50,7 @@ func main() {
 	txFactory := chainclient.NewTxFactory(clientCtx)
 	txFactory = txFactory.WithGas(uint64(txFactory.GasAdjustment() * 140000))
 
-	clientInstance, err := chainclient.NewChainClient(
+	clientInstance, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionTxFactory(&txFactory),
@@ -75,7 +75,7 @@ func main() {
 	order := clientInstance.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangev2types.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    int32(exchangev2types.OrderType_BUY), //BUY SELL BUY_PO SELL_PO
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),
@@ -94,7 +94,7 @@ func main() {
 		panic(err)
 	}
 
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 
 	gasPrice = clientInstance.CurrentChainGasPrice()

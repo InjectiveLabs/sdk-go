@@ -49,7 +49,7 @@ func main() {
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	txFactory := chainclient.NewTxFactory(clientCtx)
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionTxFactory(&txFactory),
@@ -99,7 +99,7 @@ func main() {
 		panic(err)
 	}
 
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 
 	gasPrice = chainClient.CurrentChainGasPrice()

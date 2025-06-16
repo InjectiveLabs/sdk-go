@@ -71,7 +71,7 @@ func (suite *OfacTestSuite) TestOfacList() {
 	suite.True(testChecker.IsBlacklisted(suite.senderAddress.String()))
 	suite.False(testChecker.IsBlacklisted("inj1"))
 
-	_, err = chain.NewChainClient(
+	_, err = chain.NewChainClientV2(
 		clientCtx,
 		suite.network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),

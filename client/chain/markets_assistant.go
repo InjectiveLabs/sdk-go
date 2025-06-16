@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -10,8 +9,6 @@ import (
 
 	"github.com/InjectiveLabs/sdk-go/client/core"
 	"github.com/InjectiveLabs/sdk-go/client/exchange"
-	derivativeExchangePB "github.com/InjectiveLabs/sdk-go/exchange/derivative_exchange_rpc/pb"
-	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 )
 
 type TokenMetadata interface {
@@ -28,7 +25,7 @@ type MarketsAssistant struct {
 	tokensByDenom       map[string]core.Token
 	spotMarkets         map[string]core.SpotMarket
 	derivativeMarkets   map[string]core.DerivativeMarket
-	binaryOptionMarkets map[string]core.BinaryOptionMarket
+	binaryOptionMarkets map[string]core.DerivativeMarket
 }
 
 func newMarketsAssistant() MarketsAssistant {
@@ -37,130 +34,24 @@ func newMarketsAssistant() MarketsAssistant {
 		tokensByDenom:       make(map[string]core.Token),
 		spotMarkets:         make(map[string]core.SpotMarket),
 		derivativeMarkets:   make(map[string]core.DerivativeMarket),
-		binaryOptionMarkets: make(map[string]core.BinaryOptionMarket),
+		binaryOptionMarkets: make(map[string]core.DerivativeMarket),
 	}
 }
 
-// Deprecated: this function that initializes markets from the Indexer is deprecated since Indexer is not always correctly synced.
-func NewMarketsAssistantInitializedFromChain(ctx context.Context, exchangeClient exchange.ExchangeClient) (MarketsAssistant, error) {
-	assistant := newMarketsAssistant()
-
-	officialTokens, err := core.LoadTokens(exchangeClient.GetNetwork().OfficialTokensListURL)
-	if err == nil {
-		for i := range officialTokens {
-			tokenMetadata := officialTokens[i]
-			if tokenMetadata.Denom != "" {
-				// add tokens to the assistant ensuring all of them get assigned a unique symbol
-				tokenRepresentation(tokenMetadata.GetSymbol(), tokenMetadata, tokenMetadata.Denom, &assistant)
-			}
-		}
-	}
-
-	spotMarketsRequest := spotExchangePB.MarketsRequest{
-		MarketStatus: "active",
-	}
-	spotMarkets, err := exchangeClient.GetSpotMarkets(ctx, &spotMarketsRequest)
-
-	if err != nil {
-		return assistant, err
-	}
-
-	for _, marketInfo := range spotMarkets.GetMarkets() {
-		if marketInfo.GetBaseTokenMeta().GetSymbol() == "" || marketInfo.GetQuoteTokenMeta().GetSymbol() == "" {
-			continue
-		}
-
-		var baseTokenSymbol, quoteTokenSymbol string
-		if strings.Contains(marketInfo.GetTicker(), "/") {
-			baseAndQuote := strings.Split(marketInfo.GetTicker(), "/")
-			baseTokenSymbol, quoteTokenSymbol = baseAndQuote[0], baseAndQuote[1]
-		} else {
-			baseTokenSymbol = marketInfo.GetBaseTokenMeta().GetSymbol()
-			quoteTokenSymbol = marketInfo.GetQuoteTokenMeta().GetSymbol()
-		}
-
-		baseToken := tokenRepresentation(baseTokenSymbol, marketInfo.GetBaseTokenMeta(), marketInfo.GetBaseDenom(), &assistant)
-		quoteToken := tokenRepresentation(quoteTokenSymbol, marketInfo.GetQuoteTokenMeta(), marketInfo.GetQuoteDenom(), &assistant)
-
-		makerFeeRate := decimal.RequireFromString(marketInfo.GetMakerFeeRate())
-		takerFeeRate := decimal.RequireFromString(marketInfo.GetTakerFeeRate())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.GetServiceProviderFee())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize())
-		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional())
-
-		market := core.SpotMarket{
-			Id:                  marketInfo.GetMarketId(),
-			Status:              marketInfo.GetMarketStatus(),
-			Ticker:              marketInfo.GetTicker(),
-			BaseToken:           baseToken,
-			QuoteToken:          quoteToken,
-			MakerFeeRate:        makerFeeRate,
-			TakerFeeRate:        takerFeeRate,
-			ServiceProviderFee:  serviceProviderFee,
-			MinPriceTickSize:    minPriceTickSize,
-			MinQuantityTickSize: minQuantityTickSize,
-			MinNotional:         minNotional,
-		}
-
-		assistant.spotMarkets[market.Id] = market
-	}
-
-	derivativeMarketsRequest := derivativeExchangePB.MarketsRequest{
-		MarketStatus: "active",
-	}
-	derivativeMarkets, err := exchangeClient.GetDerivativeMarkets(ctx, &derivativeMarketsRequest)
-
-	if err != nil {
-		return assistant, err
-	}
-
-	for _, marketInfo := range derivativeMarkets.GetMarkets() {
-		if marketInfo.GetQuoteTokenMeta().GetSymbol() == "" {
-			continue
-		}
-
-		quoteTokenSymbol := marketInfo.GetQuoteTokenMeta().GetSymbol()
-
-		quoteToken := tokenRepresentation(quoteTokenSymbol, marketInfo.GetQuoteTokenMeta(), marketInfo.GetQuoteDenom(), &assistant)
-
-		initialMarginRatio := decimal.RequireFromString(marketInfo.GetInitialMarginRatio())
-		maintenanceMarginRatio := decimal.RequireFromString(marketInfo.GetMaintenanceMarginRatio())
-		makerFeeRate := decimal.RequireFromString(marketInfo.GetMakerFeeRate())
-		takerFeeRate := decimal.RequireFromString(marketInfo.GetTakerFeeRate())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.GetServiceProviderFee())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.GetMinPriceTickSize())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.GetMinQuantityTickSize())
-		minNotional := decimal.RequireFromString(marketInfo.GetMinNotional())
-
-		market := core.DerivativeMarket{
-			Id:                     marketInfo.GetMarketId(),
-			Status:                 marketInfo.GetMarketStatus(),
-			Ticker:                 marketInfo.GetTicker(),
-			OracleBase:             marketInfo.GetOracleBase(),
-			OracleQuote:            marketInfo.GetOracleQuote(),
-			OracleType:             marketInfo.GetOracleType(),
-			OracleScaleFactor:      marketInfo.GetOracleScaleFactor(),
-			InitialMarginRatio:     initialMarginRatio,
-			MaintenanceMarginRatio: maintenanceMarginRatio,
-			QuoteToken:             quoteToken,
-			MakerFeeRate:           makerFeeRate,
-			TakerFeeRate:           takerFeeRate,
-			ServiceProviderFee:     serviceProviderFee,
-			MinPriceTickSize:       minPriceTickSize,
-			MinQuantityTickSize:    minQuantityTickSize,
-			MinNotional:            minNotional,
-		}
-
-		assistant.derivativeMarkets[market.Id] = market
-	}
-
-	return assistant, nil
+type DenomsMetadataProvider interface {
+	GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error)
 }
 
 func NewMarketsAssistant(ctx context.Context, chainClient ChainClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
-	err := assistant.initializeFromChain(ctx, chainClient)
+	err := assistant.initializeFromChainV1Markets(ctx, chainClient)
+
+	return assistant, err
+}
+
+func NewHumanReadableMarketsAssistant(ctx context.Context, chainClient ChainClientV2) (MarketsAssistant, error) {
+	assistant := newMarketsAssistant()
+	err := assistant.initializeFromChainV2Markets(ctx, chainClient)
 
 	return assistant, err
 }
@@ -168,18 +59,26 @@ func NewMarketsAssistant(ctx context.Context, chainClient ChainClient) (MarketsA
 func NewMarketsAssistantWithAllTokens(ctx context.Context, exchangeClient exchange.ExchangeClient, chainClient ChainClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
 	assistant.initializeTokensFromChainDenoms(ctx, chainClient)
-	err := assistant.initializeFromChain(ctx, chainClient)
+	err := assistant.initializeFromChainV1Markets(ctx, chainClient)
 
 	return assistant, err
 }
 
-func uniqueSymbol(symbol, denom, tokenMetaSymbol, tokenMetaName string, assistant MarketsAssistant) string {
+func NewHumanReadableMarketsAssistantWithAllTokens(ctx context.Context, exchangeClient exchange.ExchangeClient, chainClient ChainClientV2) (MarketsAssistant, error) {
+	assistant := newMarketsAssistant()
+	assistant.initializeTokensFromChainDenoms(ctx, chainClient)
+	err := assistant.initializeFromChainV2Markets(ctx, chainClient)
+
+	return assistant, err
+}
+
+func uniqueSymbol(symbol, denom, tokenMetaSymbol, tokenMetaName string, tokensBySymbol map[string]core.Token) string {
 	uniqueSymbol := denom
-	_, isSymbolPresent := assistant.tokensBySymbol[symbol]
+	_, isSymbolPresent := tokensBySymbol[symbol]
 	if isSymbolPresent {
-		_, isSymbolPresent = assistant.tokensBySymbol[tokenMetaSymbol]
+		_, isSymbolPresent = tokensBySymbol[tokenMetaSymbol]
 		if isSymbolPresent {
-			_, isSymbolPresent = assistant.tokensBySymbol[tokenMetaName]
+			_, isSymbolPresent = tokensBySymbol[tokenMetaName]
 			if !isSymbolPresent {
 				uniqueSymbol = tokenMetaName
 			}
@@ -197,7 +96,7 @@ func tokenRepresentation(symbol string, tokenMeta TokenMetadata, denom string, a
 	_, isPresent := assistant.tokensByDenom[denom]
 
 	if !isPresent {
-		uniqueSymbol := uniqueSymbol(symbol, denom, tokenMeta.GetSymbol(), tokenMeta.GetName(), *assistant)
+		uniqueSymbol := uniqueSymbol(symbol, denom, tokenMeta.GetSymbol(), tokenMeta.GetName(), assistant.tokensBySymbol)
 
 		newToken := core.Token{
 			Name:     tokenMeta.GetName(),
@@ -232,22 +131,23 @@ func (assistant *MarketsAssistant) AllDerivativeMarkets() map[string]core.Deriva
 	return assistant.derivativeMarkets
 }
 
-func (assistant *MarketsAssistant) AllBinaryOptionMarkets() map[string]core.BinaryOptionMarket {
+func (assistant *MarketsAssistant) AllBinaryOptionMarkets() map[string]core.DerivativeMarket {
 	return assistant.binaryOptionMarkets
 }
 
-func (assistant *MarketsAssistant) initializeTokensFromChainDenoms(ctx context.Context, chainClient ChainClient) {
+func (assistant *MarketsAssistant) initializeTokensFromChainDenoms(ctx context.Context, denomsProvider DenomsMetadataProvider) {
 	var denomsMetadata []banktypes.Metadata
 	var nextKey []byte
 
 	for readNextPage := true; readNextPage; readNextPage = len(nextKey) > 0 {
 		pagination := query.PageRequest{Key: nextKey}
-		result, err := chainClient.GetDenomsMetadata(ctx, &pagination)
+		result, err := denomsProvider.GetDenomsMetadata(ctx, &pagination)
 
 		if err != nil {
 			panic(err)
 		}
 
+		nextKey = result.GetPagination().GetNextKey()
 		denomsMetadata = append(denomsMetadata, result.GetMetadatas()...)
 	}
 
@@ -272,7 +172,7 @@ func (assistant *MarketsAssistant) initializeTokensFromChainDenoms(ctx context.C
 				}
 			}
 
-			uniqueSymbol := uniqueSymbol(symbol, denom, symbol, name, *assistant)
+			uniqueSymbol := uniqueSymbol(symbol, denom, symbol, name, assistant.tokensBySymbol)
 
 			newToken := core.Token{
 				Name:     name,
@@ -290,7 +190,7 @@ func (assistant *MarketsAssistant) initializeTokensFromChainDenoms(ctx context.C
 	}
 }
 
-func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chainClient ChainClient) error {
+func (assistant *MarketsAssistant) initializeFromChainV1Markets(ctx context.Context, chainClient ChainClient) error {
 	officialTokens, err := core.LoadTokens(chainClient.GetNetwork().OfficialTokensListURL)
 	if err == nil {
 		for i := range officialTokens {
@@ -302,7 +202,7 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 		}
 	}
 
-	spotMarkets, err := chainClient.FetchChainSpotMarketsV2(ctx, "Active", nil)
+	spotMarkets, err := chainClient.FetchChainSpotMarkets(ctx, "Active", nil)
 
 	if err != nil {
 		return err
@@ -324,7 +224,7 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
 		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
 
-		market := core.SpotMarket{
+		market := core.SpotMarketV1{
 			Id:                  marketInfo.GetMarketId(),
 			Status:              marketInfo.Status.String(),
 			Ticker:              marketInfo.GetTicker(),
@@ -336,12 +236,14 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 			MinPriceTickSize:    minPriceTickSize,
 			MinQuantityTickSize: minQuantityTickSize,
 			MinNotional:         minNotional,
+			BaseDecimals:        marketInfo.BaseDecimals,
+			QuoteDecimals:       marketInfo.QuoteDecimals,
 		}
 
 		assistant.spotMarkets[market.Id] = market
 	}
 
-	derivativeMarkets, err := chainClient.FetchChainDerivativeMarketsV2(ctx, "Active", nil, false)
+	derivativeMarkets, err := chainClient.FetchChainDerivativeMarkets(ctx, "Active", nil, false)
 
 	if err != nil {
 		return err
@@ -365,7 +267,7 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
 		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
 
-		market := core.DerivativeMarket{
+		market := core.DerivativeMarketV1{
 			Id:                     marketInfo.MarketId,
 			Status:                 marketInfo.Status.String(),
 			Ticker:                 marketInfo.Ticker,
@@ -382,12 +284,13 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 			MinPriceTickSize:       minPriceTickSize,
 			MinQuantityTickSize:    minQuantityTickSize,
 			MinNotional:            minNotional,
+			QuoteDecimals:          marketInfo.QuoteDecimals,
 		}
 
 		assistant.derivativeMarkets[market.Id] = market
 	}
 
-	binaryOptionsMarkets, err := chainClient.FetchChainBinaryOptionsMarketsV2(ctx, "Active")
+	binaryOptionsMarkets, err := chainClient.FetchChainBinaryOptionsMarkets(ctx, "Active")
 
 	if err != nil {
 		return err
@@ -407,7 +310,7 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
 		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
 
-		market := core.BinaryOptionMarket{
+		market := core.BinaryOptionMarketV1{
 			Id:                  marketInfo.MarketId,
 			Status:              marketInfo.Status.String(),
 			Ticker:              marketInfo.Ticker,
@@ -424,6 +327,160 @@ func (assistant *MarketsAssistant) initializeFromChain(ctx context.Context, chai
 			MinPriceTickSize:    minPriceTickSize,
 			MinQuantityTickSize: minQuantityTickSize,
 			MinNotional:         minNotional,
+			QuoteDecimals:       marketInfo.QuoteDecimals,
+		}
+
+		if marketInfo.SettlementPrice != nil {
+			settlementPrice := decimal.RequireFromString(marketInfo.SettlementPrice.String())
+			market.SettlementPrice = &settlementPrice
+		}
+
+		assistant.binaryOptionMarkets[market.Id] = market
+	}
+
+	return nil
+}
+
+func (assistant *MarketsAssistant) initializeFromChainV2Markets(ctx context.Context, chainClient ChainClientV2) error {
+	officialTokens, err := core.LoadTokens(chainClient.GetNetwork().OfficialTokensListURL)
+	if err == nil {
+		for i := range officialTokens {
+			tokenMetadata := officialTokens[i]
+			if tokenMetadata.Denom != "" {
+				// add tokens to the assistant ensuring all of them get assigned a unique symbol
+				tokenRepresentation(tokenMetadata.GetSymbol(), tokenMetadata, tokenMetadata.Denom, assistant)
+			}
+		}
+	}
+
+	spotMarkets, err := chainClient.FetchChainSpotMarkets(ctx, "Active", nil)
+
+	if err != nil {
+		return err
+	}
+
+	for _, marketInfo := range spotMarkets.GetMarkets() {
+		baseToken, baseTokenFound := assistant.tokensByDenom[marketInfo.GetBaseDenom()]
+		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.GetQuoteDenom()]
+
+		if !baseTokenFound || !quoteTokenFound {
+			// Ignore the market because it references tokens that are not in the token list
+			continue
+		}
+
+		makerFeeRate := decimal.RequireFromString(marketInfo.MakerFeeRate.String())
+		takerFeeRate := decimal.RequireFromString(marketInfo.TakerFeeRate.String())
+		serviceProviderFee := decimal.RequireFromString(marketInfo.RelayerFeeShareRate.String())
+		minPriceTickSize := decimal.RequireFromString(marketInfo.MinPriceTickSize.String())
+		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
+		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
+
+		market := core.SpotMarketV2{
+			Id:                  marketInfo.GetMarketId(),
+			Status:              marketInfo.Status.String(),
+			Ticker:              marketInfo.GetTicker(),
+			BaseToken:           baseToken,
+			QuoteToken:          quoteToken,
+			MakerFeeRate:        makerFeeRate,
+			TakerFeeRate:        takerFeeRate,
+			ServiceProviderFee:  serviceProviderFee,
+			MinPriceTickSize:    minPriceTickSize,
+			MinQuantityTickSize: minQuantityTickSize,
+			MinNotional:         minNotional,
+			BaseDecimals:        marketInfo.BaseDecimals,
+			QuoteDecimals:       marketInfo.QuoteDecimals,
+		}
+
+		assistant.spotMarkets[market.Id] = market
+	}
+
+	derivativeMarkets, err := chainClient.FetchChainDerivativeMarkets(ctx, "Active", nil, false)
+
+	if err != nil {
+		return err
+	}
+
+	for _, fullMarket := range derivativeMarkets.GetMarkets() {
+		marketInfo := fullMarket.GetMarket()
+
+		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.QuoteDenom]
+		if !quoteTokenFound {
+			// Ignore the market because it references a token that is not in the token list
+			continue
+		}
+
+		initialMarginRatio := decimal.RequireFromString(marketInfo.InitialMarginRatio.String())
+		maintenanceMarginRatio := decimal.RequireFromString(marketInfo.MaintenanceMarginRatio.String())
+		reduceMarginRatio := decimal.RequireFromString(marketInfo.ReduceMarginRatio.String())
+		makerFeeRate := decimal.RequireFromString(marketInfo.MakerFeeRate.String())
+		takerFeeRate := decimal.RequireFromString(marketInfo.TakerFeeRate.String())
+		serviceProviderFee := decimal.RequireFromString(marketInfo.RelayerFeeShareRate.String())
+		minPriceTickSize := decimal.RequireFromString(marketInfo.MinPriceTickSize.String())
+		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
+		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
+
+		market := core.DerivativeMarketV2{
+			Id:                     marketInfo.MarketId,
+			Status:                 marketInfo.Status.String(),
+			Ticker:                 marketInfo.Ticker,
+			OracleBase:             marketInfo.OracleBase,
+			OracleQuote:            marketInfo.OracleQuote,
+			OracleType:             marketInfo.OracleType.String(),
+			OracleScaleFactor:      marketInfo.OracleScaleFactor,
+			InitialMarginRatio:     initialMarginRatio,
+			MaintenanceMarginRatio: maintenanceMarginRatio,
+			ReduceMarginRatio:      reduceMarginRatio,
+			QuoteToken:             quoteToken,
+			MakerFeeRate:           makerFeeRate,
+			TakerFeeRate:           takerFeeRate,
+			ServiceProviderFee:     serviceProviderFee,
+			MinPriceTickSize:       minPriceTickSize,
+			MinQuantityTickSize:    minQuantityTickSize,
+			MinNotional:            minNotional,
+			QuoteDecimals:          marketInfo.QuoteDecimals,
+		}
+
+		assistant.derivativeMarkets[market.Id] = market
+	}
+
+	binaryOptionsMarkets, err := chainClient.FetchChainBinaryOptionsMarkets(ctx, "Active")
+
+	if err != nil {
+		return err
+	}
+
+	for _, marketInfo := range binaryOptionsMarkets.GetMarkets() {
+		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.QuoteDenom]
+		if !quoteTokenFound {
+			// Ignore the market because it references a token that is not in the token list
+			continue
+		}
+
+		makerFeeRate := decimal.RequireFromString(marketInfo.MakerFeeRate.String())
+		takerFeeRate := decimal.RequireFromString(marketInfo.TakerFeeRate.String())
+		serviceProviderFee := decimal.RequireFromString(marketInfo.RelayerFeeShareRate.String())
+		minPriceTickSize := decimal.RequireFromString(marketInfo.MinPriceTickSize.String())
+		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
+		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
+
+		market := core.BinaryOptionMarketV2{
+			Id:                  marketInfo.MarketId,
+			Status:              marketInfo.Status.String(),
+			Ticker:              marketInfo.Ticker,
+			OracleSymbol:        marketInfo.OracleSymbol,
+			OracleProvider:      marketInfo.OracleProvider,
+			OracleType:          marketInfo.OracleType.String(),
+			OracleScaleFactor:   marketInfo.OracleScaleFactor,
+			ExpirationTimestamp: marketInfo.ExpirationTimestamp,
+			SettlementTimestamp: marketInfo.SettlementTimestamp,
+			QuoteToken:          quoteToken,
+			MakerFeeRate:        makerFeeRate,
+			TakerFeeRate:        takerFeeRate,
+			ServiceProviderFee:  serviceProviderFee,
+			MinPriceTickSize:    minPriceTickSize,
+			MinQuantityTickSize: minQuantityTickSize,
+			MinNotional:         minNotional,
+			QuoteDecimals:       marketInfo.QuoteDecimals,
 		}
 
 		if marketInfo.SettlementPrice != nil {

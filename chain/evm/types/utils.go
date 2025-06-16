@@ -13,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -226,7 +225,11 @@ func BinSearch(lo, hi uint64, executable func(uint64) (bool, *MsgEthereumTxRespo
 // EffectiveGasPrice compute the effective gas price based on eip-1159 rules
 // `effectiveGasPrice = min(baseFee + tipCap, feeCap)`
 func EffectiveGasPrice(baseFee, feeCap, tipCap *big.Int) *big.Int {
-	return math.BigMin(new(big.Int).Add(tipCap, baseFee), feeCap)
+	gasPrice := new(big.Int).Add(tipCap, baseFee)
+	if gasPrice.Cmp(feeCap) > 0 {
+		return feeCap
+	}
+	return gasPrice
 }
 
 // HexAddress encode ethereum address without checksum, faster to run for state machine

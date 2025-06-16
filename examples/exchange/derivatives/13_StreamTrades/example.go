@@ -41,7 +41,7 @@ func main() {
 				panic(err)
 				return
 			}
-			str, _ := json.MarshalIndent(res, "", " ")
+			str, _ := json.MarshalIndent(res, "", "\t")
 			fmt.Print(string(str))
 		}
 	}

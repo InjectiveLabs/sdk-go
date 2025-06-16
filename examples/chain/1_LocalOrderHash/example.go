@@ -47,7 +47,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 	)
@@ -67,7 +67,7 @@ func main() {
 	spotOrder := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangev2types.OrderType_BUY,
+			OrderType:    int32(exchangev2types.OrderType_BUY),
 			Quantity:     decimal.NewFromFloat(2),
 			Price:        decimal.NewFromFloat(22.55),
 			FeeRecipient: senderAddress.String(),
@@ -79,7 +79,7 @@ func main() {
 	derivativeOrder := chainClient.CreateDerivativeOrderV2(
 		defaultSubaccountID,
 		&chainclient.DerivativeOrderData{
-			OrderType:    exchangev2types.OrderType_BUY,
+			OrderType:    int32(exchangev2types.OrderType_BUY),
 			Quantity:     decimal.NewFromFloat(2),
 			Price:        decimal.RequireFromString("31"),
 			Leverage:     decimal.RequireFromString("2.5"),

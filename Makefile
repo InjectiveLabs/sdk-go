@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.3 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.16 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.0-beta.2 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.0-beta.3 --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -138,13 +138,20 @@ copy-chain-types: clone-injective-core
     		cp injective-core/injective-chain/stream/types/v2/*.pb.go chain/stream/types/v2
 	mkdir -p chain/types && \
 		cp injective-core/injective-chain/types/*.pb.go injective-core/injective-chain/types/config.go chain/types && \
+		cp injective-core/injective-chain/types/chain_id.go chain/types && \
 		cp injective-core/injective-chain/types/codec.go chain/types && \
+		cp injective-core/injective-chain/types/errors.go chain/types && \
 		cp injective-core/injective-chain/types/int.go chain/types && \
 		cp injective-core/injective-chain/types/util.go chain/types && \
 		cp injective-core/injective-chain/types/validation.go chain/types
 
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
+
+	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.go chain/evm/precompiles/bank && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/exchange/*.go chain/evm/precompiles/exchange && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.go chain/evm/precompiles/staking
 
 	rm -rf proto
 	cp -r injective-core/proto ./

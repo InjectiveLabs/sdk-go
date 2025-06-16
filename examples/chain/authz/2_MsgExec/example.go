@@ -64,7 +64,7 @@ func main() {
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
 	txFactory := chainclient.NewTxFactory(clientCtx)
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionTxFactory(&txFactory),
@@ -92,7 +92,7 @@ func main() {
 	order := chainClient.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangev2types.OrderType_BUY,
+			OrderType:    int32(exchangev2types.OrderType_BUY),
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),

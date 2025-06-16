@@ -45,7 +45,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -59,12 +59,12 @@ func main() {
 
 	grantee := "inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r"
 
-	res, err := chainClient.FetchActiveStakeGrantV2(ctx, grantee)
+	res, err := chainClient.FetchActiveStakeGrant(ctx, grantee)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 
 }

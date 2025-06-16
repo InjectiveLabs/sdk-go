@@ -47,7 +47,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -57,11 +57,11 @@ func main() {
 		panic(err)
 	}
 
-	res, err := chainClient.FetchMarketBalancesV2(context.Background())
+	res, err := chainClient.FetchMarketBalances(context.Background())
 	if err != nil {
 		log.Fatalf("Failed to fetch market balances: %v", err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 }

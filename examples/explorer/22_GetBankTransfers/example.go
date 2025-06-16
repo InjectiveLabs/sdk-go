@@ -35,6 +35,6 @@ func main() {
 	}
 
 	fmt.Println("Bank transfers:")
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 }

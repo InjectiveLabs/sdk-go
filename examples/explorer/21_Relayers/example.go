@@ -32,6 +32,6 @@ func main() {
 	}
 
 	fmt.Println("Relayers:")
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 }

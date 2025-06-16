@@ -30,9 +30,6 @@ const (
 	// BinaryOptionsMarketInstantListingFee is 100 INJ
 	BinaryOptionsMarketInstantListingFee int64 = 100
 
-	// MaxDerivativeOrderSideCount is 20
-	MaxDerivativeOrderSideCount uint32 = 20
-
 	MaxOracleScaleFactor uint32 = 18
 
 	MaxDecimals uint32 = 18

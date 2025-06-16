@@ -119,7 +119,7 @@ func DefaultParams() Params {
 		RelayerFeeShareRate:                          math.LegacyNewDecWithPrec(40, 2),      // default 40% relayer fee share
 		DefaultHourlyFundingRateCap:                  math.LegacyNewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
 		DefaultHourlyInterestRate:                    math.LegacyNewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
-		MaxDerivativeOrderSideCount:                  types.MaxDerivativeOrderSideCount,
+		MaxDerivativeOrderSideCount:                  100,
 		InjRewardStakedRequirementThreshold:          math.NewIntWithDecimal(100, 18), // 100 INJ
 		TradingRewardsVestingDuration:                604800,                          // 7 days
 		LiquidatorRewardShareRate:                    math.LegacyNewDecWithPrec(5, 2), // 5% liquidator reward

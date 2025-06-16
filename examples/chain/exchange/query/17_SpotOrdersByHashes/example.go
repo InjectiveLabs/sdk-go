@@ -45,7 +45,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -61,12 +61,12 @@ func main() {
 	subaccountId := chainClient.Subaccount(senderAddress, 0)
 	orderHashes := []string{"0x57a01cd26f1e2080860af3264e865d7c9c034a701e30946d01c1dc7a303cf2c1"}
 
-	res, err := chainClient.FetchChainSpotOrdersByHashesV2(ctx, marketId, subaccountId.Hex(), orderHashes)
+	res, err := chainClient.FetchChainSpotOrdersByHashes(ctx, marketId, subaccountId.Hex(), orderHashes)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 
 }
