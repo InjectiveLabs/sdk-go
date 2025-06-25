@@ -134,6 +134,7 @@ func NewClientContext(
 	interfaceRegistry := NewInterfaceRegistry()
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
+	evmtypes.RegisterInterfaces(interfaceRegistry)
 	exchange.RegisterInterfaces(interfaceRegistry)
 	exchangev2.RegisterInterfaces(interfaceRegistry)
 	insurance.RegisterInterfaces(interfaceRegistry)
