@@ -116,6 +116,8 @@ var (
 
 	// FakeCheckpointKey indexes eth signature checkpoints that never existed
 	FakeCheckpointKey = []byte{0x1d}
+
+	RateLimitsKey = []byte{0x1e}
 )
 
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {

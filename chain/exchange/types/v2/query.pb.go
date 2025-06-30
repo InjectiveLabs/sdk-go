@@ -93,7 +93,9 @@ func (CancellationStrategy) EnumDescriptor() ([]byte, []int) {
 }
 
 type Subaccount struct {
-	Trader          string `protobuf:"bytes,1,opt,name=trader,proto3" json:"trader,omitempty"`
+	// the subaccount's trader address
+	Trader string `protobuf:"bytes,1,opt,name=trader,proto3" json:"trader,omitempty"`
+	// the subaccount's nonce number
 	SubaccountNonce uint32 `protobuf:"varint,2,opt,name=subaccount_nonce,json=subaccountNonce,proto3" json:"subaccount_nonce,omitempty"`
 }
 
@@ -145,8 +147,10 @@ func (m *Subaccount) GetSubaccountNonce() uint32 {
 }
 
 type QuerySubaccountOrdersRequest struct {
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketId     string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 }
 
 func (m *QuerySubaccountOrdersRequest) Reset()         { *m = QuerySubaccountOrdersRequest{} }
@@ -249,9 +253,12 @@ func (m *QuerySubaccountOrdersResponse) GetSellOrders() []*SubaccountOrderData {
 }
 
 type SubaccountOrderbookMetadataWithMarket struct {
+	// the subaccount orderbook details
 	Metadata *SubaccountOrderbookMetadata `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	MarketId string                       `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	IsBuy    bool                         `protobuf:"varint,3,opt,name=isBuy,proto3" json:"isBuy,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// true if the orderbook is for a buy orders
+	IsBuy bool `protobuf:"varint,3,opt,name=isBuy,proto3" json:"isBuy,omitempty"`
 }
 
 func (m *SubaccountOrderbookMetadataWithMarket) Reset()         { *m = SubaccountOrderbookMetadataWithMarket{} }
@@ -395,8 +402,10 @@ func (m *QueryExchangeParamsResponse) GetParams() Params {
 // QuerySubaccountDepositsRequest is the request type for the
 // Query/SubaccountDeposits RPC method.
 type QuerySubaccountDepositsRequest struct {
-	SubaccountId string      `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Subaccount   *Subaccount `protobuf:"bytes,2,opt,name=subaccount,proto3" json:"subaccount,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount details
+	Subaccount *Subaccount `protobuf:"bytes,2,opt,name=subaccount,proto3" json:"subaccount,omitempty"`
 }
 
 func (m *QuerySubaccountDepositsRequest) Reset()         { *m = QuerySubaccountDepositsRequest{} }
@@ -1154,8 +1163,10 @@ func (m *QueryAggregateMarketVolumesResponse) GetVolumes() []*MarketVolume {
 // QuerySubaccountDepositsRequest is the request type for the
 // Query/SubaccountDeposits RPC method.
 type QuerySubaccountDepositRequest struct {
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Denom        string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the token denom
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
 func (m *QuerySubaccountDepositRequest) Reset()         { *m = QuerySubaccountDepositRequest{} }
@@ -1450,10 +1461,16 @@ func (m *QuerySpotMarketResponse) GetMarket() *SpotMarket {
 // method.
 type QuerySpotOrderbookRequest struct {
 	// Market ID for the market
-	MarketId                string                       `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Limit                   uint64                       `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	OrderSide               OrderSide                    `protobuf:"varint,3,opt,name=order_side,json=orderSide,proto3,enum=injective.exchange.v2.OrderSide" json:"order_side,omitempty"`
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the maximum number of orderbook entries to return per side (optional)
+	Limit uint64 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	// the order side to return the orderbook entries for (optional)
+	OrderSide OrderSide `protobuf:"varint,3,opt,name=order_side,json=orderSide,proto3,enum=injective.exchange.v2.OrderSide" json:"order_side,omitempty"`
+	// limits the number of entries to return per side based on the cumulative
+	// notional (in human readable format)
 	LimitCumulativeNotional *cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=limit_cumulative_notional,json=limitCumulativeNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"limit_cumulative_notional,omitempty"`
+	// limits the number of entries to return per side based on the cumulative
+	// quantity (in human readable format)
 	LimitCumulativeQuantity *cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=limit_cumulative_quantity,json=limitCumulativeQuantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"limit_cumulative_quantity,omitempty"`
 }
 
@@ -1566,6 +1583,7 @@ func (m *QuerySpotOrderbookResponse) GetSellsPriceLevel() []*Level {
 }
 
 type FullSpotMarket struct {
+	// spot market details
 	Market *SpotMarket `protobuf:"bytes,1,opt,name=market,proto3" json:"market,omitempty"`
 	// mid_price_and_tob defines the mid price for this market and the best ask
 	// and bid orders
@@ -2058,16 +2076,18 @@ func (m *QueryAccountAddressSpotOrdersRequest) GetAccountAddress() string {
 }
 
 type TrimmedSpotLimitOrder struct {
-	// price of the order
+	// price of the order (in human readable format)
 	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	// quantity of the order
+	// quantity of the order (in human readable format)
 	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	// the amount of the quantity remaining fillable
+	// the amount of the quantity remaining fillable (in human readable format)
 	Fillable cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=fillable,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fillable"`
 	// true if the order is a buy
-	IsBuy     bool   `protobuf:"varint,4,opt,name=isBuy,proto3" json:"isBuy,omitempty"`
+	IsBuy bool `protobuf:"varint,4,opt,name=isBuy,proto3" json:"isBuy,omitempty"`
+	// the order hash (optional)
 	OrderHash string `protobuf:"bytes,5,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	Cid       string `protobuf:"bytes,6,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the client order ID (optional)
+	Cid string `protobuf:"bytes,6,opt,name=cid,proto3" json:"cid,omitempty"`
 }
 
 func (m *TrimmedSpotLimitOrder) Reset()         { *m = TrimmedSpotLimitOrder{} }
@@ -2266,9 +2286,9 @@ func (m *QuerySpotMidPriceAndTOBRequest) GetMarketId() string {
 // QuerySpotMidPriceAndTOBResponse is the response type for the
 // Query/SpotMidPriceAndTOB RPC method.
 type QuerySpotMidPriceAndTOBResponse struct {
-	// mid price of the market
+	// mid price of the market (in human readable format)
 	MidPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=mid_price,json=midPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"mid_price,omitempty"`
-	// best buy price of the market
+	// best buy price of the market (in human readable format)
 	BestBuyPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=best_buy_price,json=bestBuyPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"best_buy_price,omitempty"`
 	// best sell price of the market
 	BestSellPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=best_sell_price,json=bestSellPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"best_sell_price,omitempty"`
@@ -2775,18 +2795,20 @@ func (m *QueryAccountAddressDerivativeOrdersRequest) GetAccountAddress() string 
 }
 
 type TrimmedDerivativeLimitOrder struct {
-	// price of the order
+	// price of the order (in human readable format)
 	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	// quantity of the order
+	// quantity of the order (in human readable format)
 	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	// margin of the order
+	// margin of the order (in human readable format)
 	Margin cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
-	// the amount of the quantity remaining fillable
+	// the amount of the quantity remaining fillable (in human readable format)
 	Fillable cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=fillable,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fillable"`
 	// true if the order is a buy
-	IsBuy     bool   `protobuf:"varint,5,opt,name=isBuy,proto3" json:"isBuy"`
+	IsBuy bool `protobuf:"varint,5,opt,name=isBuy,proto3" json:"isBuy"`
+	// the order hash (optional)
 	OrderHash string `protobuf:"bytes,6,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	Cid       string `protobuf:"bytes,7,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the client order ID (optional)
+	Cid string `protobuf:"bytes,7,opt,name=cid,proto3" json:"cid,omitempty"`
 }
 
 func (m *TrimmedDerivativeLimitOrder) Reset()         { *m = TrimmedDerivativeLimitOrder{} }
@@ -3208,11 +3230,15 @@ func (m *PerpetualMarketState) GetFundingInfo() *PerpetualMarketFunding {
 }
 
 type FullDerivativeMarket struct {
+	// derivative market details
 	Market *DerivativeMarket `protobuf:"bytes,1,opt,name=market,proto3" json:"market,omitempty"`
+	// perpetual market state or expiry futures market state
+	//
 	// Types that are valid to be assigned to Info:
 	//	*FullDerivativeMarket_PerpetualInfo
 	//	*FullDerivativeMarket_FuturesInfo
-	Info      isFullDerivativeMarket_Info `protobuf_oneof:"info"`
+	Info isFullDerivativeMarket_Info `protobuf_oneof:"info"`
+	// mark price (in human readable format)
 	MarkPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=mark_price,json=markPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"mark_price"`
 	// mid_price_and_tob defines the mid price for this market and the best ask
 	// and bid orders
@@ -3556,6 +3582,7 @@ func (m *QueryDerivativeMarketAddressResponse) GetSubaccountId() string {
 // QuerySubaccountTradeNonceRequest is the request type for the
 // Query/SubaccountTradeNonce RPC method.
 type QuerySubaccountTradeNonceRequest struct {
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
 }
 
@@ -3694,6 +3721,7 @@ func (m *QueryPositionsInMarketResponse) GetState() []*DerivativePosition {
 // QuerySubaccountPositionsRequest is the request type for the
 // Query/SubaccountPositions RPC method.
 type QuerySubaccountPositionsRequest struct {
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
 }
 
@@ -3740,8 +3768,10 @@ func (m *QuerySubaccountPositionsRequest) GetSubaccountId() string {
 // QuerySubaccountPositionInMarketRequest is the request type for the
 // Query/SubaccountPositionInMarket RPC method.
 type QuerySubaccountPositionInMarketRequest struct {
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketId     string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 }
 
 func (m *QuerySubaccountPositionInMarketRequest) Reset() {
@@ -3796,8 +3826,10 @@ func (m *QuerySubaccountPositionInMarketRequest) GetMarketId() string {
 // QuerySubaccountEffectivePositionInMarketRequest is the request type for the
 // Query/SubaccountEffectivePositionInMarket RPC method.
 type QuerySubaccountEffectivePositionInMarketRequest struct {
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketId     string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 }
 
 func (m *QuerySubaccountEffectivePositionInMarketRequest) Reset() {
@@ -3854,6 +3886,7 @@ func (m *QuerySubaccountEffectivePositionInMarketRequest) GetMarketId() string {
 // QuerySubaccountOrderMetadataRequest is the request type for the
 // Query/SubaccountOrderMetadata RPC method.
 type QuerySubaccountOrderMetadataRequest struct {
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
 }
 
@@ -3992,9 +4025,13 @@ func (m *QuerySubaccountPositionInMarketResponse) GetState() *Position {
 }
 
 type EffectivePosition struct {
-	IsLong          bool                        `protobuf:"varint,1,opt,name=is_long,json=isLong,proto3" json:"is_long,omitempty"`
-	Quantity        cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	EntryPrice      cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
+	// whether the position is long or short
+	IsLong bool `protobuf:"varint,1,opt,name=is_long,json=isLong,proto3" json:"is_long,omitempty"`
+	// the quantity of the position (in human readable format)
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// the entry price of the position (in human readable format)
+	EntryPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
+	// the effective margin of the position (in human readable format)
 	EffectiveMargin cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=effective_margin,json=effectiveMargin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"effective_margin"`
 }
 
@@ -5235,13 +5272,20 @@ func (m *QueryBalanceMismatchesRequest) GetDustFactor() int64 {
 }
 
 type BalanceMismatch struct {
-	SubaccountId  string                      `protobuf:"bytes,1,opt,name=subaccountId,proto3" json:"subaccountId,omitempty"`
-	Denom         string                      `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
-	Available     cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=available,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"available"`
-	Total         cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=total,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"total"`
-	BalanceHold   cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=balance_hold,json=balanceHold,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"balance_hold"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccountId,proto3" json:"subaccountId,omitempty"`
+	// the denom of the balance
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the available balance
+	Available cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=available,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"available"`
+	// the total balance
+	Total cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=total,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"total"`
+	// the balance hold
+	BalanceHold cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=balance_hold,json=balanceHold,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"balance_hold"`
+	// the expected total balance
 	ExpectedTotal cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=expected_total,json=expectedTotal,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"expected_total"`
-	Difference    cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=difference,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"difference"`
+	// the difference between the total balance and the expected total balance
+	Difference cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=difference,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"difference"`
 }
 
 func (m *BalanceMismatch) Reset()         { *m = BalanceMismatch{} }
@@ -5376,11 +5420,16 @@ func (m *QueryBalanceWithBalanceHoldsRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_QueryBalanceWithBalanceHoldsRequest proto.InternalMessageInfo
 
 type BalanceWithMarginHold struct {
-	SubaccountId string                      `protobuf:"bytes,1,opt,name=subaccountId,proto3" json:"subaccountId,omitempty"`
-	Denom        string                      `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
-	Available    cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=available,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"available"`
-	Total        cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=total,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"total"`
-	BalanceHold  cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=balance_hold,json=balanceHold,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"balance_hold"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccountId,proto3" json:"subaccountId,omitempty"`
+	// the denom of the balance
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the available balance
+	Available cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=available,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"available"`
+	// the total balance
+	Total cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=total,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"total"`
+	// the balance on hold
+	BalanceHold cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=balance_hold,json=balanceHold,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"balance_hold"`
 }
 
 func (m *BalanceWithMarginHold) Reset()         { *m = BalanceWithMarginHold{} }
@@ -5655,10 +5704,14 @@ var xxx_messageInfo_MitoVaultInfosRequest proto.InternalMessageInfo
 // MitoVaultInfosResponse is the response type for the Query/MitoVaultInfos RPC
 // method.
 type MitoVaultInfosResponse struct {
-	MasterAddresses     []string `protobuf:"bytes,1,rep,name=master_addresses,json=masterAddresses,proto3" json:"master_addresses,omitempty"`
+	// list of master addresses
+	MasterAddresses []string `protobuf:"bytes,1,rep,name=master_addresses,json=masterAddresses,proto3" json:"master_addresses,omitempty"`
+	// list of derivative addresses
 	DerivativeAddresses []string `protobuf:"bytes,2,rep,name=derivative_addresses,json=derivativeAddresses,proto3" json:"derivative_addresses,omitempty"`
-	SpotAddresses       []string `protobuf:"bytes,3,rep,name=spot_addresses,json=spotAddresses,proto3" json:"spot_addresses,omitempty"`
-	Cw20Addresses       []string `protobuf:"bytes,4,rep,name=cw20_addresses,json=cw20Addresses,proto3" json:"cw20_addresses,omitempty"`
+	// list of spot addresses
+	SpotAddresses []string `protobuf:"bytes,3,rep,name=spot_addresses,json=spotAddresses,proto3" json:"spot_addresses,omitempty"`
+	// list of cw20 addresses
+	Cw20Addresses []string `protobuf:"bytes,4,rep,name=cw20_addresses,json=cw20Addresses,proto3" json:"cw20_addresses,omitempty"`
 }
 
 func (m *MitoVaultInfosResponse) Reset()         { *m = MitoVaultInfosResponse{} }
@@ -5983,7 +6036,9 @@ func (m *TradeHistoryOptions) GetIncludeMetadata() bool {
 // QueryMarketVolatilityRequest are the request params for the
 // Query/MarketVolatility RPC method.
 type QueryMarketVolatilityRequest struct {
-	MarketId            string               `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the market ID to query volatility for
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the trade history options
 	TradeHistoryOptions *TradeHistoryOptions `protobuf:"bytes,2,opt,name=trade_history_options,json=tradeHistoryOptions,proto3" json:"trade_history_options,omitempty"`
 }
 
@@ -6185,8 +6240,10 @@ func (m *QueryBinaryMarketsResponse) GetMarkets() []*BinaryOptionsMarket {
 // QueryConditionalOrdersRequest is the request type for the
 // Query/ConditionalOrders RPC method.
 type QueryTraderDerivativeConditionalOrdersRequest struct {
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketId     string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 }
 
 func (m *QueryTraderDerivativeConditionalOrdersRequest) Reset() {
@@ -6241,19 +6298,22 @@ func (m *QueryTraderDerivativeConditionalOrdersRequest) GetMarketId() string {
 }
 
 type TrimmedDerivativeConditionalOrder struct {
-	// price of the order
+	// price of the order (in human readable format)
 	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	// quantity of the order
+	// quantity of the order (in human readable format)
 	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	// margin of the order
+	// margin of the order (in human readable format)
 	Margin cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
-	// price to trigger the order
+	// price to trigger the order (in human readable format)
 	TriggerPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=triggerPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"triggerPrice"`
 	// true if the order is a buy
-	IsBuy     bool   `protobuf:"varint,5,opt,name=isBuy,proto3" json:"isBuy"`
-	IsLimit   bool   `protobuf:"varint,6,opt,name=isLimit,proto3" json:"isLimit"`
+	IsBuy bool `protobuf:"varint,5,opt,name=isBuy,proto3" json:"isBuy"`
+	// true if the order is a limit order
+	IsLimit bool `protobuf:"varint,6,opt,name=isLimit,proto3" json:"isLimit"`
+	// the order hash
 	OrderHash string `protobuf:"bytes,7,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	Cid       string `protobuf:"bytes,8,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the client ID
+	Cid string `protobuf:"bytes,8,opt,name=cid,proto3" json:"cid,omitempty"`
 }
 
 func (m *TrimmedDerivativeConditionalOrder) Reset()         { *m = TrimmedDerivativeConditionalOrder{} }
@@ -6562,11 +6622,14 @@ func (m *QueryFullDerivativeOrderbookResponse) GetAsks() []*TrimmedLimitOrder {
 }
 
 type TrimmedLimitOrder struct {
+	// price of the order (in human readable format)
 	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	// quantity of the order
-	Quantity     cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	OrderHash    string                      `protobuf:"bytes,3,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	SubaccountId string                      `protobuf:"bytes,4,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// quantity of the order (in human readable format)
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,3,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,4,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
 }
 
 func (m *TrimmedLimitOrder) Reset()         { *m = TrimmedLimitOrder{} }
@@ -7149,8 +7212,10 @@ func (m *QueryMarketBalancesResponse) GetBalances() []*MarketBalance {
 }
 
 type MarketBalance struct {
-	MarketId string                      `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Balance  cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=balance,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"balance"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the current balance of the market
+	Balance cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=balance,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"balance"`
 }
 
 func (m *MarketBalance) Reset()         { *m = MarketBalance{} }
@@ -7238,6 +7303,7 @@ func (m *QueryDenomMinNotionalRequest) GetDenom() string {
 }
 
 type QueryDenomMinNotionalResponse struct {
+	// the minimum notional amount for the denom (in human readable format)
 	Amount cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=amount,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"amount"`
 }
 

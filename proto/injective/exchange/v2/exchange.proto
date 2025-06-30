@@ -199,17 +199,17 @@ message Params {
 message NextFundingTimestamp { int64 next_timestamp = 1; }
 
 message MidPriceAndTOB {
-  // mid price of the market
+  // mid price of the market (in human readable format)
   string mid_price = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
-  // best buy price of the market
+  // best buy price of the market (in human readable format)
   string best_buy_price = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
-  // best sell price of the market
+  // best sell price of the market (in human readable format)
   string best_sell_price = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
@@ -218,10 +218,12 @@ message MidPriceAndTOB {
 
 // A subaccount's deposit for a given base currency
 message Deposit {
+  // the available balance (in chain format)
   string available_balance = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the total balance (in chain format)
   string total_balance = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -251,19 +253,24 @@ message SubaccountOrderData {
 }
 
 message Position {
+  // True if the position is long. False if the position is short.
   bool isLong = 1;
+  // The quantity of the position (in human readable format)
   string quantity = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // The entry price of the position (in human readable format)
   string entry_price = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // The margin of the position (in human readable format)
   string margin = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // The cumulative funding
   string cumulative_funding_entry = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -274,8 +281,11 @@ message Balance {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  // the subaccount ID
   string subaccount_id = 1;
+  // the denom of the balance
   string denom = 2;
+  // the token deposits details
   Deposit deposits = 3;
 }
 
@@ -283,8 +293,11 @@ message DerivativePosition {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market ID
   string market_id = 2;
+  // the position details
   Position position = 3;
 }
 
@@ -386,6 +399,7 @@ message TradingRewardCampaignBoostInfo {
 }
 
 message CampaignRewardPool {
+  // the campaign start timestamp in seconds
   int64 start_timestamp = 1;
   // max_campaign_rewards are the maximum reward amounts to be disbursed at the
   // end of the campaign
@@ -407,18 +421,22 @@ message TradingRewardCampaignInfo {
 }
 
 message FeeDiscountTierInfo {
+  // the maker discount rate
   string maker_discount_rate = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the taker discount rate
   string taker_discount_rate = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the staked amount required to qualify for the discount (in chain format)
   string staked_amount = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
+  // the volume required to qualify for the discount (in human readable format)
   string volume = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -426,7 +444,9 @@ message FeeDiscountTierInfo {
 }
 
 message FeeDiscountSchedule {
+  // the bucket number
   uint64 bucket_count = 1;
+  // the bucket duration in seconds
   int64 bucket_duration = 2;
   // the trading fee quote denoms which will be counted for the fee paid
   // contribution
@@ -439,7 +459,9 @@ message FeeDiscountSchedule {
 }
 
 message FeeDiscountTierTTL {
+  // the tier number
   uint64 tier = 1;
+  // the TTL timestamp in seconds
   int64 ttl_timestamp = 2;
 }
 
@@ -459,13 +481,16 @@ message TradeRecords {
 message SubaccountIDs { repeated bytes subaccount_ids = 1; }
 
 message TradeRecord {
+  // the timestamp of the trade
   int64 timestamp = 1;
 
+  // the price of the trade (in human readable format)
   string price = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
+  // the quantity of the trade (in human readable format)
   string quantity = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -473,12 +498,12 @@ message TradeRecord {
 }
 
 message Level {
-  // price
+  // price (in human readable format)
   string p = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // quantity
+  // quantity (in human readable format)
   string q = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -486,22 +511,30 @@ message Level {
 }
 
 message AggregateSubaccountVolumeRecord {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the subaccount volumes for each market
   repeated MarketVolume market_volumes = 2;
 }
 
 message AggregateAccountVolumeRecord {
+  // account the volume belongs to
   string account = 1;
+  // the aggregate volumes for each market
   repeated MarketVolume market_volumes = 2;
 }
 
 message DenomDecimals {
+  // the denom of the token
   string denom = 1;
+  // the decimals of the token
   uint64 decimals = 2;
 }
 
 message GrantAuthorization {
+  // the grantee address
   string grantee = 1;
+  // the amount of stake granted (INJ in chain format)
   string amount = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
@@ -526,7 +559,9 @@ message EffectiveGrant {
 }
 
 message DenomMinNotional {
+  // the denom of the token
   string denom = 1;
+  // the minimum notional value for the token (in human readable format)
   string min_notional = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false

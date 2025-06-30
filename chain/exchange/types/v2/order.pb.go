@@ -156,11 +156,12 @@ type OrderInfo struct {
 	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
 	// address fee_recipient address that will receive fees for the order
 	FeeRecipient string `protobuf:"bytes,2,opt,name=fee_recipient,json=feeRecipient,proto3" json:"fee_recipient,omitempty"`
-	// price of the order
+	// price of the order (in human readable format)
 	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	// quantity of the order
+	// quantity of the order (in human readable format)
 	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	Cid      string                      `protobuf:"bytes,5,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the client order ID (optional)
+	Cid string `protobuf:"bytes,5,opt,name=cid,proto3" json:"cid,omitempty"`
 }
 
 func (m *OrderInfo) Reset()         { *m = OrderInfo{} }
@@ -224,7 +225,8 @@ type SpotOrder struct {
 	OrderInfo OrderInfo `protobuf:"bytes,2,opt,name=order_info,json=orderInfo,proto3" json:"order_info"`
 	// order types
 	OrderType OrderType `protobuf:"varint,3,opt,name=order_type,json=orderType,proto3,enum=injective.exchange.v2.OrderType" json:"order_type,omitempty"`
-	// trigger_price is the trigger price used by stop/take orders
+	// trigger_price is the trigger price used by stop/take orders (in human
+	// readable format) (optional)
 	TriggerPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=trigger_price,json=triggerPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"trigger_price,omitempty"`
 	// expiration block is the block number at which the order will expire
 	ExpirationBlock int64 `protobuf:"varint,5,opt,name=expiration_block,json=expirationBlock,proto3" json:"expiration_block,omitempty"`
@@ -441,9 +443,10 @@ type DerivativeOrder struct {
 	OrderInfo OrderInfo `protobuf:"bytes,2,opt,name=order_info,json=orderInfo,proto3" json:"order_info"`
 	// order types
 	OrderType OrderType `protobuf:"varint,3,opt,name=order_type,json=orderType,proto3,enum=injective.exchange.v2.OrderType" json:"order_type,omitempty"`
-	// margin is the margin used by the limit order
+	// margin is the margin used by the limit order (in human readable format)
 	Margin cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
-	// trigger_price is the trigger price used by stop/take orders
+	// trigger_price is the trigger price used by stop/take orders (in human
+	// readable format) (optional)
 	TriggerPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=trigger_price,json=triggerPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"trigger_price,omitempty"`
 	// expiration block is the block number at which the order will expire
 	ExpirationBlock int64 `protobuf:"varint,6,opt,name=expiration_block,json=expirationBlock,proto3" json:"expiration_block,omitempty"`

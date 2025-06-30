@@ -127,3 +127,14 @@ func NewLogFromEth(log *ethtypes.Log) *Log {
 		Removed:     log.Removed,
 	}
 }
+
+func LogsBloom(logs []*ethtypes.Log) []byte {
+	var bin ethtypes.Bloom
+	for _, log := range logs {
+		bin.Add(log.Address.Bytes())
+		for _, b := range log.Topics {
+			bin.Add(b[:])
+		}
+	}
+	return bin[:]
+}

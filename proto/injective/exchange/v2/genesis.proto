@@ -180,7 +180,9 @@ message SubaccountNonce {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  // the subaccount ID
   string subaccount_id = 1;
+  // the subaccount trade nonce
   SubaccountTradeNonce subaccount_trade_nonce = 2
       [ (gogoproto.nullable) = false ];
 }

@@ -54,11 +54,18 @@ message QueryParamsResponse {
 
 // QueryAllTokenPairsRequest is the request type for the Query/AllTokenPairs RPC
 // method.
-message QueryAllTokenPairsRequest {}
+message QueryAllTokenPairsRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
 
 // QueryAllTokenPairsResponse is the response type for the Query/AllTokenPairs
 // RPC method.
-message QueryAllTokenPairsResponse { repeated TokenPair token_pairs = 1; }
+message QueryAllTokenPairsResponse {
+  repeated TokenPair token_pairs = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
 
 // QueryTokenPairByDenomRequest is the request type for the
 // Query/TokenPairByDenom RPC method.

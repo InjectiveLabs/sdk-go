@@ -3,8 +3,9 @@ all:
 clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.3 --depth 1 --single-branch
 
+# todo(dusan): update after official chain rc
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.0-beta.2 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b cp-477/peggy-ratelimits --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*

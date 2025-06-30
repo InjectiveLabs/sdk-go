@@ -17,7 +17,7 @@ func (b *ConditionalDerivativeOrderBook) HasMarketSellOrders() bool {
 }
 
 func (b *ConditionalDerivativeOrderBook) IsEmpty() bool {
-	return !b.HasLimitBuyOrders() && !b.HasLimitSellOrders() && !b.HasMarketBuyOrders() && b.HasMarketSellOrders()
+	return !b.HasLimitBuyOrders() && !b.HasLimitSellOrders() && !b.HasMarketBuyOrders() && !b.HasMarketSellOrders()
 }
 
 func (b *ConditionalDerivativeOrderBook) GetMarketOrders() []*DerivativeMarketOrder {
