@@ -29,8 +29,10 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // spot authz messages
 type CreateSpotLimitOrderAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *CreateSpotLimitOrderAuthz) Reset()         { *m = CreateSpotLimitOrderAuthz{} }
@@ -81,8 +83,10 @@ func (m *CreateSpotLimitOrderAuthz) GetMarketIds() []string {
 }
 
 type CreateSpotMarketOrderAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *CreateSpotMarketOrderAuthz) Reset()         { *m = CreateSpotMarketOrderAuthz{} }
@@ -133,8 +137,10 @@ func (m *CreateSpotMarketOrderAuthz) GetMarketIds() []string {
 }
 
 type BatchCreateSpotLimitOrdersAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *BatchCreateSpotLimitOrdersAuthz) Reset()         { *m = BatchCreateSpotLimitOrdersAuthz{} }
@@ -185,8 +191,10 @@ func (m *BatchCreateSpotLimitOrdersAuthz) GetMarketIds() []string {
 }
 
 type CancelSpotOrderAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *CancelSpotOrderAuthz) Reset()         { *m = CancelSpotOrderAuthz{} }
@@ -237,8 +245,10 @@ func (m *CancelSpotOrderAuthz) GetMarketIds() []string {
 }
 
 type BatchCancelSpotOrdersAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *BatchCancelSpotOrdersAuthz) Reset()         { *m = BatchCancelSpotOrdersAuthz{} }
@@ -290,8 +300,10 @@ func (m *BatchCancelSpotOrdersAuthz) GetMarketIds() []string {
 
 // derivative authz messages
 type CreateDerivativeLimitOrderAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *CreateDerivativeLimitOrderAuthz) Reset()         { *m = CreateDerivativeLimitOrderAuthz{} }
@@ -342,8 +354,10 @@ func (m *CreateDerivativeLimitOrderAuthz) GetMarketIds() []string {
 }
 
 type CreateDerivativeMarketOrderAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *CreateDerivativeMarketOrderAuthz) Reset()         { *m = CreateDerivativeMarketOrderAuthz{} }
@@ -394,8 +408,10 @@ func (m *CreateDerivativeMarketOrderAuthz) GetMarketIds() []string {
 }
 
 type BatchCreateDerivativeLimitOrdersAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *BatchCreateDerivativeLimitOrdersAuthz) Reset()         { *m = BatchCreateDerivativeLimitOrdersAuthz{} }
@@ -498,8 +514,10 @@ func (m *CancelDerivativeOrderAuthz) GetMarketIds() []string {
 }
 
 type BatchCancelDerivativeOrdersAuthz struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketIds    []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *BatchCancelDerivativeOrdersAuthz) Reset()         { *m = BatchCancelDerivativeOrdersAuthz{} }
@@ -551,8 +569,11 @@ func (m *BatchCancelDerivativeOrdersAuthz) GetMarketIds() []string {
 
 // common authz message used in both spot & derivative markets
 type BatchUpdateOrdersAuthz struct {
-	SubaccountId      string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	SpotMarkets       []string `protobuf:"bytes,2,rep,name=spot_markets,json=spotMarkets,proto3" json:"spot_markets,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the spot market IDs
+	SpotMarkets []string `protobuf:"bytes,2,rep,name=spot_markets,json=spotMarkets,proto3" json:"spot_markets,omitempty"`
+	// the derivative market IDs
 	DerivativeMarkets []string `protobuf:"bytes,3,rep,name=derivative_markets,json=derivativeMarkets,proto3" json:"derivative_markets,omitempty"`
 }
 
