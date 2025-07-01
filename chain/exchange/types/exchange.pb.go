@@ -510,13 +510,13 @@ type DerivativeMarket struct {
 	// Status of the market
 	Status MarketStatus `protobuf:"varint,14,opt,name=status,proto3,enum=injective.exchange.v1beta1.MarketStatus" json:"status,omitempty"`
 	// min_price_tick_size defines the minimum tick size that the price and margin
-	// required for orders in the market
+	// required for orders in the market (in chain format)
 	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the quantity
-	// required for orders in the market
+	// required for orders in the market (in chain format)
 	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
 	// min_notional defines the minimum notional (in quote asset) required for
-	// orders in the market
+	// orders in the market (in chain format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,17,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 	// current market admin
 	Admin string `protobuf:"bytes,18,opt,name=admin,proto3" json:"admin,omitempty"`
@@ -651,10 +651,10 @@ type ExpiryFuturesMarketInfo struct {
 	// calculation window
 	TwapStartTimestamp int64 `protobuf:"varint,3,opt,name=twap_start_timestamp,json=twapStartTimestamp,proto3" json:"twap_start_timestamp,omitempty"`
 	// expiration_twap_start_price_cumulative defines the cumulative price for the
-	// start of the TWAP window
+	// start of the TWAP window (in chain format)
 	ExpirationTwapStartPriceCumulative cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=expiration_twap_start_price_cumulative,json=expirationTwapStartPriceCumulative,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"expiration_twap_start_price_cumulative"`
 	// settlement_price defines the settlement price for a time expiry futures
-	// market.
+	// market (in chain format)
 	SettlementPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=settlement_price,json=settlementPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"settlement_price"`
 }
 
@@ -786,9 +786,10 @@ type PerpetualMarketFunding struct {
 	// cumulative_funding defines the cumulative funding of a perpetual market.
 	CumulativeFunding cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=cumulative_funding,json=cumulativeFunding,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_funding"`
 	// cumulative_price defines the cumulative price for the current hour up to
-	// the last timestamp
+	// the last timestamp (in chain format)
 	CumulativePrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=cumulative_price,json=cumulativePrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_price"`
-	LastTimestamp   int64                       `protobuf:"varint,3,opt,name=last_timestamp,json=lastTimestamp,proto3" json:"last_timestamp,omitempty"`
+	// the last timestamp in seconds
+	LastTimestamp int64 `protobuf:"varint,3,opt,name=last_timestamp,json=lastTimestamp,proto3" json:"last_timestamp,omitempty"`
 }
 
 func (m *PerpetualMarketFunding) Reset()         { *m = PerpetualMarketFunding{} }
@@ -923,11 +924,11 @@ func (m *NextFundingTimestamp) GetNextTimestamp() int64 {
 }
 
 type MidPriceAndTOB struct {
-	// mid price of the market
+	// mid price of the market (in chain format)
 	MidPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=mid_price,json=midPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"mid_price,omitempty"`
-	// best buy price of the market
+	// best buy price of the market (in chain format)
 	BestBuyPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=best_buy_price,json=bestBuyPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"best_buy_price,omitempty"`
-	// best sell price of the market
+	// best sell price of the market (in chain format)
 	BestSellPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=best_sell_price,json=bestSellPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"best_sell_price,omitempty"`
 }
 
@@ -985,13 +986,13 @@ type SpotMarket struct {
 	// Status of the market
 	Status MarketStatus `protobuf:"varint,8,opt,name=status,proto3,enum=injective.exchange.v1beta1.MarketStatus" json:"status,omitempty"`
 	// min_price_tick_size defines the minimum tick size that the price required
-	// for orders in the market
+	// for orders in the market (in chain format)
 	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,9,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the quantity
-	// required for orders in the market
+	// required for orders in the market (in chain format)
 	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,10,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
 	// min_notional defines the minimum notional (in quote asset) required for
-	// orders in the market
+	// orders in the market (in chain format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 	// current market admin
 	Admin string `protobuf:"bytes,12,opt,name=admin,proto3" json:"admin,omitempty"`
@@ -1514,16 +1515,20 @@ func (m *DerivativeOrder) GetOrderType() OrderType {
 }
 
 type SubaccountOrderbookMetadata struct {
-	VanillaLimitOrderCount    uint32 `protobuf:"varint,1,opt,name=vanilla_limit_order_count,json=vanillaLimitOrderCount,proto3" json:"vanilla_limit_order_count,omitempty"`
+	// The number of vanilla limit orders
+	VanillaLimitOrderCount uint32 `protobuf:"varint,1,opt,name=vanilla_limit_order_count,json=vanillaLimitOrderCount,proto3" json:"vanilla_limit_order_count,omitempty"`
+	// The number of reduce-only limit orders
 	ReduceOnlyLimitOrderCount uint32 `protobuf:"varint,2,opt,name=reduce_only_limit_order_count,json=reduceOnlyLimitOrderCount,proto3" json:"reduce_only_limit_order_count,omitempty"`
-	// AggregateReduceOnlyQuantity is the aggregate fillable quantity of the
-	// subaccount's reduce-only limit orders in the given direction.
+	// The aggregate quantity of the subaccount's reduce-only limit orders (in
+	// chain format)
 	AggregateReduceOnlyQuantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=aggregate_reduce_only_quantity,json=aggregateReduceOnlyQuantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"aggregate_reduce_only_quantity"`
-	// AggregateVanillaQuantity is the aggregate fillable quantity of the
-	// subaccount's vanilla limit orders in the given direction.
-	AggregateVanillaQuantity        cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=aggregate_vanilla_quantity,json=aggregateVanillaQuantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"aggregate_vanilla_quantity"`
-	VanillaConditionalOrderCount    uint32                      `protobuf:"varint,5,opt,name=vanilla_conditional_order_count,json=vanillaConditionalOrderCount,proto3" json:"vanilla_conditional_order_count,omitempty"`
-	ReduceOnlyConditionalOrderCount uint32                      `protobuf:"varint,6,opt,name=reduce_only_conditional_order_count,json=reduceOnlyConditionalOrderCount,proto3" json:"reduce_only_conditional_order_count,omitempty"`
+	// The aggregate quantity of the subaccount's vanilla limit orders (in chain
+	// format)
+	AggregateVanillaQuantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=aggregate_vanilla_quantity,json=aggregateVanillaQuantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"aggregate_vanilla_quantity"`
+	// The number of vanilla conditional orders
+	VanillaConditionalOrderCount uint32 `protobuf:"varint,5,opt,name=vanilla_conditional_order_count,json=vanillaConditionalOrderCount,proto3" json:"vanilla_conditional_order_count,omitempty"`
+	// The number of reduce-only conditional orders
+	ReduceOnlyConditionalOrderCount uint32 `protobuf:"varint,6,opt,name=reduce_only_conditional_order_count,json=reduceOnlyConditionalOrderCount,proto3" json:"reduce_only_conditional_order_count,omitempty"`
 }
 
 func (m *SubaccountOrderbookMetadata) Reset()         { *m = SubaccountOrderbookMetadata{} }
@@ -1832,10 +1837,15 @@ func (m *DerivativeMarketOrder) GetOrderHash() []byte {
 }
 
 type Position struct {
-	IsLong                 bool                        `protobuf:"varint,1,opt,name=isLong,proto3" json:"isLong,omitempty"`
-	Quantity               cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	EntryPrice             cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
-	Margin                 cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
+	// True if the position is long. False if the position is short.
+	IsLong bool `protobuf:"varint,1,opt,name=isLong,proto3" json:"isLong,omitempty"`
+	// The quantity of the position (in chain format)
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// The entry price of the position (in chain format)
+	EntryPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
+	// The margin of the position (in chain format)
+	Margin cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
+	// The cumulative funding
 	CumulativeFundingEntry cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=cumulative_funding_entry,json=cumulativeFundingEntry,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_funding_entry"`
 }
 
@@ -2519,10 +2529,14 @@ func (m *TradingRewardCampaignInfo) GetDisqualifiedMarketIds() []string {
 }
 
 type FeeDiscountTierInfo struct {
+	// the maker discount rate
 	MakerDiscountRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=maker_discount_rate,json=makerDiscountRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_discount_rate"`
+	// the taker discount rate
 	TakerDiscountRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=taker_discount_rate,json=takerDiscountRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_discount_rate"`
-	StakedAmount      cosmossdk_io_math.Int       `protobuf:"bytes,3,opt,name=staked_amount,json=stakedAmount,proto3,customtype=cosmossdk.io/math.Int" json:"staked_amount"`
-	Volume            cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=volume,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"volume"`
+	// the staked amount required to qualify for the discount (in chain format)
+	StakedAmount cosmossdk_io_math.Int `protobuf:"bytes,3,opt,name=staked_amount,json=stakedAmount,proto3,customtype=cosmossdk.io/math.Int" json:"staked_amount"`
+	// the volume required to qualify for the discount (in chain format)
+	Volume cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=volume,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"volume"`
 }
 
 func (m *FeeDiscountTierInfo) Reset()         { *m = FeeDiscountTierInfo{} }
@@ -2878,9 +2892,12 @@ func (m *SubaccountIDs) GetSubaccountIds() [][]byte {
 }
 
 type TradeRecord struct {
-	Timestamp int64                       `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Price     cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	Quantity  cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// the timestamp of the trade
+	Timestamp int64 `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// the price of the trade (in chain format)
+	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
+	// the quantity of the trade (in chain format)
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
 }
 
 func (m *TradeRecord) Reset()         { *m = TradeRecord{} }
@@ -2924,9 +2941,9 @@ func (m *TradeRecord) GetTimestamp() int64 {
 }
 
 type Level struct {
-	// price
+	// price (in chain format)
 	P cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=p,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"p"`
-	// quantity
+	// quantity (in chain format)
 	Q cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=q,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"q"`
 }
 
@@ -2964,7 +2981,9 @@ func (m *Level) XXX_DiscardUnknown() {
 var xxx_messageInfo_Level proto.InternalMessageInfo
 
 type AggregateSubaccountVolumeRecord struct {
-	SubaccountId  string          `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount volumes for each market
 	MarketVolumes []*MarketVolume `protobuf:"bytes,2,rep,name=market_volumes,json=marketVolumes,proto3" json:"market_volumes,omitempty"`
 }
 
@@ -3315,7 +3334,9 @@ func (m *EffectiveGrant) GetIsValid() bool {
 }
 
 type DenomMinNotional struct {
-	Denom       string                      `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the denom of the token
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the minimum notional value for the token (in chain format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 }
 

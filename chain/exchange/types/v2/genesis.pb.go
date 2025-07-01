@@ -701,7 +701,9 @@ func (m *TradingRewardCampaignAccountPendingPoints) GetAccountPoints() []*Tradin
 }
 
 type SubaccountNonce struct {
-	SubaccountId         string               `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount trade nonce
 	SubaccountTradeNonce SubaccountTradeNonce `protobuf:"bytes,2,opt,name=subaccount_trade_nonce,json=subaccountTradeNonce,proto3" json:"subaccount_trade_nonce"`
 }
 

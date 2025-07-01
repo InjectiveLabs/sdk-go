@@ -43,11 +43,11 @@ type MsgUpdateSpotMarket struct {
 	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// (optional) updated ticker value
 	NewTicker string `protobuf:"bytes,3,opt,name=new_ticker,json=newTicker,proto3" json:"new_ticker,omitempty"`
-	// (optional) updated min price tick size value
+	// (optional) updated min price tick size value (in human readable format)
 	NewMinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=new_min_price_tick_size,json=newMinPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"new_min_price_tick_size"`
-	// (optional) updated min quantity tick size value
+	// (optional) updated min quantity tick size value (in human readable format)
 	NewMinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=new_min_quantity_tick_size,json=newMinQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"new_min_quantity_tick_size"`
-	// (optional) updated min notional
+	// (optional) updated min notional (in human readable format)
 	NewMinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=new_min_notional,json=newMinNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"new_min_notional"`
 }
 
@@ -148,11 +148,11 @@ type MsgUpdateDerivativeMarket struct {
 	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// (optional) updated value for ticker
 	NewTicker string `protobuf:"bytes,3,opt,name=new_ticker,json=newTicker,proto3" json:"new_ticker,omitempty"`
-	// (optional) updated value for min_price_tick_size
+	// (optional) updated value for min_price_tick_size (in human readable format)
 	NewMinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=new_min_price_tick_size,json=newMinPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"new_min_price_tick_size"`
-	// (optional) updated value min_quantity_tick_size
+	// (optional) updated value min_quantity_tick_size (in human readable format)
 	NewMinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=new_min_quantity_tick_size,json=newMinQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"new_min_quantity_tick_size"`
-	// (optional) updated min notional
+	// (optional) updated min notional (in human readable format)
 	NewMinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=new_min_notional,json=newMinNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"new_min_notional"`
 	// (optional) updated value for initial_margin_ratio
 	NewInitialMarginRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=new_initial_margin_ratio,json=newInitialMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"new_initial_margin_ratio"`
@@ -326,11 +326,13 @@ var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 // MsgDeposit defines a SDK message for transferring coins from the sender's
 // bank balance into the subaccount's exchange deposits
 type MsgDeposit struct {
+	// the sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	// (Optional) bytes32 subaccount ID to deposit funds into. If empty, the coin
+	// (Optional) the subaccount ID to deposit funds into. If empty, the coin
 	// will be deposited to the sender's default subaccount address.
-	SubaccountId string     `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Amount       types.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
+	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the amount of the deposit (in chain format)
+	Amount types.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
 }
 
 func (m *MsgDeposit) Reset()         { *m = MsgDeposit{} }
@@ -406,10 +408,12 @@ var xxx_messageInfo_MsgDepositResponse proto.InternalMessageInfo
 // MsgWithdraw defines a SDK message for withdrawing coins from a subaccount's
 // deposits to the user's bank balance
 type MsgWithdraw struct {
+	// the sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	// bytes32 subaccount ID to withdraw funds from
-	SubaccountId string     `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Amount       types.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
+	// the subaccount ID to withdraw funds from
+	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the amount of the withdrawal (in chain format)
+	Amount types.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
 }
 
 func (m *MsgWithdraw) Reset()         { *m = MsgWithdraw{} }
@@ -485,8 +489,10 @@ var xxx_messageInfo_MsgWithdrawResponse proto.InternalMessageInfo
 // MsgCreateSpotLimitOrder defines a SDK message for creating a new spot limit
 // order.
 type MsgCreateSpotLimitOrder struct {
-	Sender string    `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	Order  SpotOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the order details
+	Order SpotOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
 }
 
 func (m *MsgCreateSpotLimitOrder) Reset()         { *m = MsgCreateSpotLimitOrder{} }
@@ -646,6 +652,7 @@ var xxx_messageInfo_MsgBatchCreateSpotLimitOrdersResponse proto.InternalMessageI
 // MsgInstantSpotMarketLaunch defines a SDK message for creating a new spot
 // market by paying listing fee without governance
 type MsgInstantSpotMarketLaunch struct {
+	// the sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 	// Ticker for the spot market.
 	Ticker string `protobuf:"bytes,2,opt,name=ticker,proto3" json:"ticker,omitempty"`
@@ -653,13 +660,14 @@ type MsgInstantSpotMarketLaunch struct {
 	BaseDenom string `protobuf:"bytes,3,opt,name=base_denom,json=baseDenom,proto3" json:"base_denom,omitempty"`
 	// type of coin to use as the quote currency
 	QuoteDenom string `protobuf:"bytes,4,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
-	// min_price_tick_size defines the minimum tick size of the order's price
+	// min_price_tick_size defines the minimum tick size of the order's price (in
+	// human readable format)
 	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the order's
-	// quantity
+	// quantity (in human readable format)
 	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
 	// min_notional defines the minimum notional (in quote asset) required for
-	// orders in the market
+	// orders in the market (in human readable format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 	// base token decimals
 	BaseDecimals uint32 `protobuf:"varint,8,opt,name=base_decimals,json=baseDecimals,proto3" json:"base_decimals,omitempty"`
@@ -741,6 +749,7 @@ var xxx_messageInfo_MsgInstantSpotMarketLaunchResponse proto.InternalMessageInfo
 // MsgInstantPerpetualMarketLaunch defines a SDK message for creating a new
 // perpetual futures market by paying listing fee without governance
 type MsgInstantPerpetualMarketLaunch struct {
+	// the sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 	// Ticker for the derivative market.
 	Ticker string `protobuf:"bytes,2,opt,name=ticker,proto3" json:"ticker,omitempty"`
@@ -767,13 +776,13 @@ type MsgInstantPerpetualMarketLaunch struct {
 	// perpetual market
 	MaintenanceMarginRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=maintenance_margin_ratio,json=maintenanceMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maintenance_margin_ratio"`
 	// min_price_tick_size defines the minimum tick size of the order's price and
-	// margin
+	// margin (in human readable format)
 	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,12,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the order's
-	// quantity
+	// quantity (in human readable format)
 	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,13,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
 	// min_notional defines the minimum notional (in quote asset) required for
-	// orders in the market
+	// orders in the market (in human readable format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,14,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 	// reduce_margin_ratio defines the ratio of the margin that is reduced
 	ReduceMarginRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=reduce_margin_ratio,json=reduceMarginRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"reduce_margin_ratio"`
@@ -881,13 +890,13 @@ type MsgInstantBinaryOptionsMarketLaunch struct {
 	// Address of the quote currency denomination for the binary options contract
 	QuoteDenom string `protobuf:"bytes,12,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
 	// min_price_tick_size defines the minimum tick size that the price and margin
-	// required for orders in the market
+	// required for orders in the market (in human readable format)
 	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,13,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the quantity
-	// required for orders in the market
+	// required for orders in the market (in human readable format)
 	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,14,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
 	// min_notional defines the minimum notional (in quote asset) required for
-	// orders in the market
+	// orders in the market (in human readable format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 }
 
@@ -1087,8 +1096,10 @@ var xxx_messageInfo_MsgInstantExpiryFuturesMarketLaunchResponse proto.InternalMe
 // MsgCreateSpotMarketOrder defines a SDK message for creating a new spot market
 // order.
 type MsgCreateSpotMarketOrder struct {
-	Sender string    `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	Order  SpotOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the order details
+	Order SpotOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
 }
 
 func (m *MsgCreateSpotMarketOrder) Reset()         { *m = MsgCreateSpotMarketOrder{} }
@@ -1206,8 +1217,10 @@ var xxx_messageInfo_SpotMarketOrderResults proto.InternalMessageInfo
 
 // A Cosmos-SDK MsgCreateDerivativeLimitOrder
 type MsgCreateDerivativeLimitOrder struct {
-	Sender string          `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	Order  DerivativeOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the order details
+	Order DerivativeOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
 }
 
 func (m *MsgCreateDerivativeLimitOrder) Reset()         { *m = MsgCreateDerivativeLimitOrder{} }
@@ -1285,8 +1298,10 @@ var xxx_messageInfo_MsgCreateDerivativeLimitOrderResponse proto.InternalMessageI
 
 // A Cosmos-SDK MsgCreateBinaryOptionsLimitOrder
 type MsgCreateBinaryOptionsLimitOrder struct {
-	Sender string          `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	Order  DerivativeOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the order details
+	Order DerivativeOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
 }
 
 func (m *MsgCreateBinaryOptionsLimitOrder) Reset()         { *m = MsgCreateBinaryOptionsLimitOrder{} }
@@ -1366,7 +1381,9 @@ var xxx_messageInfo_MsgCreateBinaryOptionsLimitOrderResponse proto.InternalMessa
 
 // A Cosmos-SDK MsgBatchCreateDerivativeLimitOrders
 type MsgBatchCreateDerivativeLimitOrders struct {
-	Sender string            `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the orders to create
 	Orders []DerivativeOrder `protobuf:"bytes,2,rep,name=orders,proto3" json:"orders"`
 }
 
@@ -1450,11 +1467,16 @@ var xxx_messageInfo_MsgBatchCreateDerivativeLimitOrdersResponse proto.InternalMe
 
 // MsgCancelSpotOrder defines the Msg/CancelSpotOrder response type.
 type MsgCancelSpotOrder struct {
-	Sender       string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	MarketId     string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,3,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	OrderHash    string `protobuf:"bytes,4,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	Cid          string `protobuf:"bytes,5,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the order hash (optional)
+	OrderHash string `protobuf:"bytes,4,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the client order ID (optional)
+	Cid string `protobuf:"bytes,5,opt,name=cid,proto3" json:"cid,omitempty"`
 }
 
 func (m *MsgCancelSpotOrder) Reset()         { *m = MsgCancelSpotOrder{} }
@@ -1690,19 +1712,29 @@ var xxx_messageInfo_MsgBatchCancelBinaryOptionsOrdersResponse proto.InternalMess
 
 // MsgBatchUpdateOrders defines the Msg/BatchUpdateOrders response type.
 type MsgBatchUpdateOrders struct {
+	// the sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 	// subaccount_id only used for the spot_market_ids_to_cancel_all and
-	// derivative_market_ids_to_cancel_all.
-	SubaccountId                      string             `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	SpotMarketIdsToCancelAll          []string           `protobuf:"bytes,3,rep,name=spot_market_ids_to_cancel_all,json=spotMarketIdsToCancelAll,proto3" json:"spot_market_ids_to_cancel_all,omitempty"`
-	DerivativeMarketIdsToCancelAll    []string           `protobuf:"bytes,4,rep,name=derivative_market_ids_to_cancel_all,json=derivativeMarketIdsToCancelAll,proto3" json:"derivative_market_ids_to_cancel_all,omitempty"`
-	SpotOrdersToCancel                []*OrderData       `protobuf:"bytes,5,rep,name=spot_orders_to_cancel,json=spotOrdersToCancel,proto3" json:"spot_orders_to_cancel,omitempty"`
-	DerivativeOrdersToCancel          []*OrderData       `protobuf:"bytes,6,rep,name=derivative_orders_to_cancel,json=derivativeOrdersToCancel,proto3" json:"derivative_orders_to_cancel,omitempty"`
-	SpotOrdersToCreate                []*SpotOrder       `protobuf:"bytes,7,rep,name=spot_orders_to_create,json=spotOrdersToCreate,proto3" json:"spot_orders_to_create,omitempty"`
-	DerivativeOrdersToCreate          []*DerivativeOrder `protobuf:"bytes,8,rep,name=derivative_orders_to_create,json=derivativeOrdersToCreate,proto3" json:"derivative_orders_to_create,omitempty"`
-	BinaryOptionsOrdersToCancel       []*OrderData       `protobuf:"bytes,9,rep,name=binary_options_orders_to_cancel,json=binaryOptionsOrdersToCancel,proto3" json:"binary_options_orders_to_cancel,omitempty"`
-	BinaryOptionsMarketIdsToCancelAll []string           `protobuf:"bytes,10,rep,name=binary_options_market_ids_to_cancel_all,json=binaryOptionsMarketIdsToCancelAll,proto3" json:"binary_options_market_ids_to_cancel_all,omitempty"`
-	BinaryOptionsOrdersToCreate       []*DerivativeOrder `protobuf:"bytes,11,rep,name=binary_options_orders_to_create,json=binaryOptionsOrdersToCreate,proto3" json:"binary_options_orders_to_create,omitempty"`
+	// derivative_market_ids_to_cancel_all (optional)
+	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market IDs to cancel all spot orders for (optional)
+	SpotMarketIdsToCancelAll []string `protobuf:"bytes,3,rep,name=spot_market_ids_to_cancel_all,json=spotMarketIdsToCancelAll,proto3" json:"spot_market_ids_to_cancel_all,omitempty"`
+	// the market IDs to cancel all derivative orders for (optional)
+	DerivativeMarketIdsToCancelAll []string `protobuf:"bytes,4,rep,name=derivative_market_ids_to_cancel_all,json=derivativeMarketIdsToCancelAll,proto3" json:"derivative_market_ids_to_cancel_all,omitempty"`
+	// the spot orders to cancel
+	SpotOrdersToCancel []*OrderData `protobuf:"bytes,5,rep,name=spot_orders_to_cancel,json=spotOrdersToCancel,proto3" json:"spot_orders_to_cancel,omitempty"`
+	// the derivative orders to cancel
+	DerivativeOrdersToCancel []*OrderData `protobuf:"bytes,6,rep,name=derivative_orders_to_cancel,json=derivativeOrdersToCancel,proto3" json:"derivative_orders_to_cancel,omitempty"`
+	// the spot orders to create
+	SpotOrdersToCreate []*SpotOrder `protobuf:"bytes,7,rep,name=spot_orders_to_create,json=spotOrdersToCreate,proto3" json:"spot_orders_to_create,omitempty"`
+	// the derivative orders to create
+	DerivativeOrdersToCreate []*DerivativeOrder `protobuf:"bytes,8,rep,name=derivative_orders_to_create,json=derivativeOrdersToCreate,proto3" json:"derivative_orders_to_create,omitempty"`
+	// the binary options orders to cancel
+	BinaryOptionsOrdersToCancel []*OrderData `protobuf:"bytes,9,rep,name=binary_options_orders_to_cancel,json=binaryOptionsOrdersToCancel,proto3" json:"binary_options_orders_to_cancel,omitempty"`
+	// the market IDs to cancel all binary options orders for (optional)
+	BinaryOptionsMarketIdsToCancelAll []string `protobuf:"bytes,10,rep,name=binary_options_market_ids_to_cancel_all,json=binaryOptionsMarketIdsToCancelAll,proto3" json:"binary_options_market_ids_to_cancel_all,omitempty"`
+	// the binary options orders to create
+	BinaryOptionsOrdersToCreate []*DerivativeOrder `protobuf:"bytes,11,rep,name=binary_options_orders_to_create,json=binaryOptionsOrdersToCreate,proto3" json:"binary_options_orders_to_create,omitempty"`
 }
 
 func (m *MsgBatchUpdateOrders) Reset()         { *m = MsgBatchUpdateOrders{} }
@@ -1789,8 +1821,10 @@ var xxx_messageInfo_MsgBatchUpdateOrdersResponse proto.InternalMessageInfo
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder
 type MsgCreateDerivativeMarketOrder struct {
-	Sender string          `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	Order  DerivativeOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the order details
+	Order DerivativeOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
 }
 
 func (m *MsgCreateDerivativeMarketOrder) Reset()         { *m = MsgCreateDerivativeMarketOrder{} }
@@ -1912,8 +1946,10 @@ var xxx_messageInfo_DerivativeMarketOrderResults proto.InternalMessageInfo
 
 // A Cosmos-SDK MsgCreateBinaryOptionsMarketOrder
 type MsgCreateBinaryOptionsMarketOrder struct {
-	Sender string          `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	Order  DerivativeOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the order details
+	Order DerivativeOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
 }
 
 func (m *MsgCreateBinaryOptionsMarketOrder) Reset()         { *m = MsgCreateBinaryOptionsMarketOrder{} }
@@ -1996,12 +2032,18 @@ var xxx_messageInfo_MsgCreateBinaryOptionsMarketOrderResponse proto.InternalMess
 
 // MsgCancelDerivativeOrder defines the Msg/CancelDerivativeOrder response type.
 type MsgCancelDerivativeOrder struct {
-	Sender       string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	MarketId     string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,3,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	OrderHash    string `protobuf:"bytes,4,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	OrderMask    int32  `protobuf:"varint,5,opt,name=order_mask,json=orderMask,proto3" json:"order_mask,omitempty"`
-	Cid          string `protobuf:"bytes,6,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the order hash (optional)
+	OrderHash string `protobuf:"bytes,4,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the order mask (bitwise combination of OrderMask enum values) (optional)
+	OrderMask int32 `protobuf:"varint,5,opt,name=order_mask,json=orderMask,proto3" json:"order_mask,omitempty"`
+	// the client order ID (optional)
+	Cid string `protobuf:"bytes,6,opt,name=cid,proto3" json:"cid,omitempty"`
 }
 
 func (m *MsgCancelDerivativeOrder) Reset()         { *m = MsgCancelDerivativeOrder{} }
@@ -2078,12 +2120,18 @@ var xxx_messageInfo_MsgCancelDerivativeOrderResponse proto.InternalMessageInfo
 // MsgCancelBinaryOptionsOrder defines the Msg/CancelBinaryOptionsOrder response
 // type.
 type MsgCancelBinaryOptionsOrder struct {
-	Sender       string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	MarketId     string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,3,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	OrderHash    string `protobuf:"bytes,4,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	OrderMask    int32  `protobuf:"varint,5,opt,name=order_mask,json=orderMask,proto3" json:"order_mask,omitempty"`
-	Cid          string `protobuf:"bytes,6,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the order hash (optional)
+	OrderHash string `protobuf:"bytes,4,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the order mask (bitwise combination of OrderMask enum values) (optional)
+	OrderMask int32 `protobuf:"varint,5,opt,name=order_mask,json=orderMask,proto3" json:"order_mask,omitempty"`
+	// the client order ID (optional)
+	Cid string `protobuf:"bytes,6,opt,name=cid,proto3" json:"cid,omitempty"`
 }
 
 func (m *MsgCancelBinaryOptionsOrder) Reset()         { *m = MsgCancelBinaryOptionsOrder{} }
@@ -2158,11 +2206,18 @@ func (m *MsgCancelBinaryOptionsOrderResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgCancelBinaryOptionsOrderResponse proto.InternalMessageInfo
 
 type OrderData struct {
-	MarketId     string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	OrderHash    string `protobuf:"bytes,3,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	OrderMask    int32  `protobuf:"varint,4,opt,name=order_mask,json=orderMask,proto3" json:"order_mask,omitempty"`
-	Cid          string `protobuf:"bytes,5,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the order hash (optional - either the order_hash or the cid should be
+	// provided)
+	OrderHash string `protobuf:"bytes,3,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the order mask (bitwise combination of OrderMask enum values)
+	OrderMask int32 `protobuf:"varint,4,opt,name=order_mask,json=orderMask,proto3" json:"order_mask,omitempty"`
+	// the client order ID (optional - either the order_hash or the cid should be
+	// provided)
+	Cid string `protobuf:"bytes,5,opt,name=cid,proto3" json:"cid,omitempty"`
 }
 
 func (m *OrderData) Reset()         { *m = OrderData{} }
@@ -2316,10 +2371,14 @@ var xxx_messageInfo_MsgBatchCancelDerivativeOrdersResponse proto.InternalMessage
 
 // A Cosmos-SDK MsgSubaccountTransfer
 type MsgSubaccountTransfer struct {
-	Sender                  string     `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	SourceSubaccountId      string     `protobuf:"bytes,2,opt,name=source_subaccount_id,json=sourceSubaccountId,proto3" json:"source_subaccount_id,omitempty"`
-	DestinationSubaccountId string     `protobuf:"bytes,3,opt,name=destination_subaccount_id,json=destinationSubaccountId,proto3" json:"destination_subaccount_id,omitempty"`
-	Amount                  types.Coin `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the source subaccount ID
+	SourceSubaccountId string `protobuf:"bytes,2,opt,name=source_subaccount_id,json=sourceSubaccountId,proto3" json:"source_subaccount_id,omitempty"`
+	// the destination subaccount ID
+	DestinationSubaccountId string `protobuf:"bytes,3,opt,name=destination_subaccount_id,json=destinationSubaccountId,proto3" json:"destination_subaccount_id,omitempty"`
+	// the amount to transfer (in chain format)
+	Amount types.Coin `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount"`
 }
 
 func (m *MsgSubaccountTransfer) Reset()         { *m = MsgSubaccountTransfer{} }
@@ -2423,10 +2482,14 @@ var xxx_messageInfo_MsgSubaccountTransferResponse proto.InternalMessageInfo
 
 // A Cosmos-SDK MsgExternalTransfer
 type MsgExternalTransfer struct {
-	Sender                  string     `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	SourceSubaccountId      string     `protobuf:"bytes,2,opt,name=source_subaccount_id,json=sourceSubaccountId,proto3" json:"source_subaccount_id,omitempty"`
-	DestinationSubaccountId string     `protobuf:"bytes,3,opt,name=destination_subaccount_id,json=destinationSubaccountId,proto3" json:"destination_subaccount_id,omitempty"`
-	Amount                  types.Coin `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the source subaccount ID
+	SourceSubaccountId string `protobuf:"bytes,2,opt,name=source_subaccount_id,json=sourceSubaccountId,proto3" json:"source_subaccount_id,omitempty"`
+	// the destination subaccount ID
+	DestinationSubaccountId string `protobuf:"bytes,3,opt,name=destination_subaccount_id,json=destinationSubaccountId,proto3" json:"destination_subaccount_id,omitempty"`
+	// the amount to transfer (in chain format)
+	Amount types.Coin `protobuf:"bytes,4,opt,name=amount,proto3" json:"amount"`
 }
 
 func (m *MsgExternalTransfer) Reset()         { *m = MsgExternalTransfer{} }
@@ -2529,9 +2592,12 @@ var xxx_messageInfo_MsgExternalTransferResponse proto.InternalMessageInfo
 
 // A Cosmos-SDK MsgLiquidatePosition
 type MsgLiquidatePosition struct {
-	Sender       string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the subaccount ID the position belongs to
 	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketId     string `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the position's market ID
+	MarketId string `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// optional order to provide for liquidation
 	Order *DerivativeOrder `protobuf:"bytes,4,opt,name=order,proto3" json:"order,omitempty"`
 }
@@ -2636,9 +2702,12 @@ var xxx_messageInfo_MsgLiquidatePositionResponse proto.InternalMessageInfo
 
 // A Cosmos-SDK MsgEmergencySettleMarket
 type MsgEmergencySettleMarket struct {
-	Sender       string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the subaccount ID
 	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketId     string `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,3,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 }
 
 func (m *MsgEmergencySettleMarket) Reset()         { *m = MsgEmergencySettleMarket{} }
@@ -2735,11 +2804,16 @@ var xxx_messageInfo_MsgEmergencySettleMarketResponse proto.InternalMessageInfo
 
 // A Cosmos-SDK MsgIncreasePositionMargin
 type MsgIncreasePositionMargin struct {
-	Sender                  string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	SourceSubaccountId      string `protobuf:"bytes,2,opt,name=source_subaccount_id,json=sourceSubaccountId,proto3" json:"source_subaccount_id,omitempty"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the subaccount ID sending the funds
+	SourceSubaccountId string `protobuf:"bytes,2,opt,name=source_subaccount_id,json=sourceSubaccountId,proto3" json:"source_subaccount_id,omitempty"`
+	// the subaccount ID the position belongs to
 	DestinationSubaccountId string `protobuf:"bytes,3,opt,name=destination_subaccount_id,json=destinationSubaccountId,proto3" json:"destination_subaccount_id,omitempty"`
-	MarketId                string `protobuf:"bytes,4,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	// amount defines the amount of margin to add to the position
+	// the market ID
+	MarketId string `protobuf:"bytes,4,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// amount defines the amount of margin to add to the position (in human
+	// readable format)
 	Amount cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=amount,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"amount"`
 }
 
@@ -2844,11 +2918,16 @@ var xxx_messageInfo_MsgIncreasePositionMarginResponse proto.InternalMessageInfo
 
 // A Cosmos-SDK MsgDecreasePositionMargin
 type MsgDecreasePositionMargin struct {
-	Sender                  string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	SourceSubaccountId      string `protobuf:"bytes,2,opt,name=source_subaccount_id,json=sourceSubaccountId,proto3" json:"source_subaccount_id,omitempty"`
+	// the sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// the subaccount ID the position belongs to
+	SourceSubaccountId string `protobuf:"bytes,2,opt,name=source_subaccount_id,json=sourceSubaccountId,proto3" json:"source_subaccount_id,omitempty"`
+	// the destination subaccount ID
 	DestinationSubaccountId string `protobuf:"bytes,3,opt,name=destination_subaccount_id,json=destinationSubaccountId,proto3" json:"destination_subaccount_id,omitempty"`
-	MarketId                string `protobuf:"bytes,4,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	// amount defines the amount of margin to withdraw from the position
+	// the market ID
+	MarketId string `protobuf:"bytes,4,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// amount defines the amount of margin to withdraw from the position (in human
+	// readable format)
 	Amount cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=amount,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"amount"`
 }
 
@@ -3036,6 +3115,7 @@ var xxx_messageInfo_MsgPrivilegedExecuteContractResponse proto.InternalMessageIn
 
 // A Cosmos-SDK MsgRewardsOptOut
 type MsgRewardsOptOut struct {
+	// the sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -3320,7 +3400,9 @@ func (m *MsgSignDoc) GetValue() MsgSignData {
 // MsgAdminUpdateBinaryOptionsMarket is used by the market Admin to operate the
 // market
 type MsgAdminUpdateBinaryOptionsMarket struct {
-	Sender   string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// The sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// The market ID
 	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
 	// new price at which market will be settled
 	SettlementPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=settlement_price,json=settlementPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"settlement_price,omitempty"`
@@ -3444,7 +3526,9 @@ var xxx_messageInfo_MsgAdminUpdateBinaryOptionsMarketResponse proto.InternalMess
 
 // MsgAuthorizeStakeGrants grants stakes to grantees.
 type MsgAuthorizeStakeGrants struct {
-	Sender string                `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// Injective address of the stake granter
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// list of stake grants to authorize (mandatory)
 	Grants []*GrantAuthorization `protobuf:"bytes,2,rep,name=grants,proto3" json:"grants,omitempty"`
 }
 
@@ -3533,7 +3617,9 @@ var xxx_messageInfo_MsgAuthorizeStakeGrantsResponse proto.InternalMessageInfo
 
 // MsgActivateStakeGrant allows a grantee to activate a stake grant.
 type MsgActivateStakeGrant struct {
-	Sender  string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// Injective address of the stake grantee
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
+	// Injective address of the stake granter
 	Granter string `protobuf:"bytes,2,opt,name=granter,proto3" json:"granter,omitempty"`
 }
 

@@ -55,19 +55,19 @@ message SpotMarket {
   // Status of the market
   MarketStatus status = 8;
   // min_price_tick_size defines the minimum tick size that the price required
-  // for orders in the market
+  // for orders in the market (in human readable format)
   string min_price_tick_size = 9 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_quantity_tick_size defines the minimum tick size of the quantity
-  // required for orders in the market
+  // required for orders in the market (in human readable format)
   string min_quantity_tick_size = 10 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_notional defines the minimum notional (in quote asset) required for
-  // orders in the market
+  // orders in the market (in human readable format)
   string min_notional = 11 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -126,24 +126,25 @@ message BinaryOptionsMarket {
   // Status of the market
   MarketStatus status = 14;
   // min_price_tick_size defines the minimum tick size that the price and margin
-  // required for orders in the market
+  // required for orders in the market (in human readable format)
   string min_price_tick_size = 15 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_quantity_tick_size defines the minimum tick size of the quantity
-  // required for orders in the market
+  // required for orders in the market (in human readable format)
   string min_quantity_tick_size = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-
+  // settlement_price defines the settlement price of the binary options market
+  // (in human readable format)
   string settlement_price = 17 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
   // min_notional defines the minimum notional (in quote asset) required for
-  // orders in the market
+  // orders in the market (in human readable format)
   string min_notional = 18 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -206,19 +207,19 @@ message DerivativeMarket {
   // Status of the market
   MarketStatus status = 14;
   // min_price_tick_size defines the minimum tick size that the price and margin
-  // required for orders in the market
+  // required for orders in the market (in human readable format)
   string min_price_tick_size = 15 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_quantity_tick_size defines the minimum tick size of the quantity
-  // required for orders in the market
+  // required for orders in the market (in human readable format)
   string min_quantity_tick_size = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // min_notional defines the minimum notional (in quote asset) required for
-  // orders in the market
+  // orders in the market (in human readable format)
   string min_notional = 17 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -249,15 +250,19 @@ message DerivativeMarketSettlementInfo {
 }
 
 message MarketVolume {
+  // the market ID
   string market_id = 1;
+  // the market volume
   VolumeRecord volume = 2 [ (gogoproto.nullable) = false ];
 }
 
 message VolumeRecord {
+  // the market's maker volume (in human readable format)
   string maker_volume = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the market's taker volume (in human readable format)
   string taker_volume = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -284,13 +289,13 @@ message ExpiryFuturesMarketInfo {
   // calculation window
   int64 twap_start_timestamp = 3;
   // expiration_twap_start_price_cumulative defines the cumulative price for the
-  // start of the TWAP window
+  // start of the TWAP window (in human readable format)
   string expiration_twap_start_price_cumulative = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // settlement_price defines the settlement price for a time expiry futures
-  // market.
+  // market (in human readable format)
   string settlement_price = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -326,10 +331,11 @@ message PerpetualMarketFunding {
     (gogoproto.nullable) = false
   ];
   // cumulative_price defines the cumulative price for the current hour up to
-  // the last timestamp
+  // the last timestamp (in human readable format)
   string cumulative_price = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the last funding timestamp in seconds
   int64 last_timestamp = 3;
 }

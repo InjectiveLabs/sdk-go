@@ -209,8 +209,11 @@ message Balance {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  // the subaccount ID
   string subaccount_id = 1;
+  // the denom of the balance
   string denom = 2;
+  // the token deposits details
   Deposit deposits = 3;
 }
 
@@ -218,8 +221,11 @@ message DerivativePosition {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market ID
   string market_id = 2;
+  // the position details
   Position position = 3;
 }
 
@@ -227,7 +233,9 @@ message SubaccountNonce {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  // the subaccount ID
   string subaccount_id = 1;
+  // the subaccount trade nonce
   SubaccountTradeNonce subaccount_trade_nonce = 2
       [ (gogoproto.nullable) = false ];
 }
