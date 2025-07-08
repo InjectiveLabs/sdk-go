@@ -92,7 +92,6 @@ func main() {
 			res, err := stream.Recv()
 			if err != nil {
 				panic(err)
-				return
 			}
 			str, _ := json.MarshalIndent(res, "", "\t")
 			fmt.Print(string(str))

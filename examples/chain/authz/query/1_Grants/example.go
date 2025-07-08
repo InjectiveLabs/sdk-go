@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/InjectiveLabs/sdk-go/client"
@@ -72,10 +71,13 @@ func main() {
 
 	res, err := chainClient.GetAuthzGrants(ctx, req)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", "\t")
-	fmt.Print(string(str))
+	jsonResponse, err := clientCtx.Codec.MarshalJSON(res)
+	if err != nil {
+		panic(err)
+	}
 
+	fmt.Print(string(jsonResponse))
 }

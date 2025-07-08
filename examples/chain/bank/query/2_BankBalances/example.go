@@ -61,7 +61,7 @@ func main() {
 
 	res, err := chainClient.GetBankBalances(ctx, address)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	str, _ := json.MarshalIndent(res, "", "\t")
