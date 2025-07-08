@@ -20,6 +20,7 @@ import (
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -42,10 +43,8 @@ import (
 
 	erc20types "github.com/InjectiveLabs/sdk-go/chain/erc20/types"
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
-	chainstreamtypes "github.com/InjectiveLabs/sdk-go/chain/stream/types"
 	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	txfeestypes "github.com/InjectiveLabs/sdk-go/chain/txfees/types"
@@ -342,12 +341,10 @@ type chainClientV2 struct {
 	authQueryClient          authtypes.QueryClient
 	authzQueryClient         authztypes.QueryClient
 	bankQueryClient          banktypes.QueryClient
-	chainStreamClient        chainstreamtypes.StreamClient
 	chainStreamV2Client      chainstreamv2types.StreamClient
 	distributionQueryClient  distributiontypes.QueryClient
 	erc20QueryClient         erc20types.QueryClient
 	evmQueryClient           evmtypes.QueryClient
-	exchangeQueryClient      exchangetypes.QueryClient
 	exchangeV2QueryClient    exchangev2types.QueryClient
 	ibcChannelQueryClient    ibcchanneltypes.QueryClient
 	ibcClientQueryClient     ibcclienttypes.QueryClient
@@ -396,13 +393,28 @@ func NewChainClientV2(
 	}
 
 	// init grpc connection
+	protoCodec, ok := ctx.Codec.(*codec.ProtoCodec)
+	if !ok {
+		return nil, errors.New("codec is not a proto codec")
+	}
+
 	var conn *grpc.ClientConn
 	var err error
 	stickySessionEnabled := true
 	if opts.TLSCert != nil {
-		conn, err = grpc.NewClient(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(
+			network.ChainGrpcEndpoint,
+			grpc.WithTransportCredentials(opts.TLSCert),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithDefaultCallOptions(grpc.ForceCodec(protoCodec.GRPCCodec())),
+		)
 	} else {
-		conn, err = grpc.NewClient(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(
+			network.ChainGrpcEndpoint,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithDefaultCallOptions(grpc.ForceCodec(protoCodec.GRPCCodec())),
+		)
 		stickySessionEnabled = false
 	}
 	if err != nil {
@@ -412,9 +424,20 @@ func NewChainClientV2(
 
 	var chainStreamConn *grpc.ClientConn
 	if opts.TLSCert != nil {
-		chainStreamConn, err = grpc.NewClient(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.NewClient(
+			network.ChainStreamGrpcEndpoint,
+			grpc.WithTransportCredentials(opts.TLSCert),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithDefaultCallOptions(grpc.ForceCodec(protoCodec.GRPCCodec())),
+		)
+
 	} else {
-		chainStreamConn, err = grpc.NewClient(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.NewClient(
+			network.ChainStreamGrpcEndpoint,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithDefaultCallOptions(grpc.ForceCodec(protoCodec.GRPCCodec())),
+		)
 	}
 	if err != nil {
 		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
@@ -448,12 +471,10 @@ func NewChainClientV2(
 		authQueryClient:          authtypes.NewQueryClient(conn),
 		authzQueryClient:         authztypes.NewQueryClient(conn),
 		bankQueryClient:          banktypes.NewQueryClient(conn),
-		chainStreamClient:        chainstreamtypes.NewStreamClient(chainStreamConn),
 		chainStreamV2Client:      chainstreamv2types.NewStreamClient(chainStreamConn),
 		distributionQueryClient:  distributiontypes.NewQueryClient(conn),
 		erc20QueryClient:         erc20types.NewQueryClient(conn),
 		evmQueryClient:           evmtypes.NewQueryClient(conn),
-		exchangeQueryClient:      exchangetypes.NewQueryClient(conn),
 		exchangeV2QueryClient:    exchangev2types.NewQueryClient(conn),
 		ibcChannelQueryClient:    ibcchanneltypes.NewQueryClient(conn),
 		ibcClientQueryClient:     ibcclienttypes.NewQueryClient(conn),
@@ -918,7 +939,7 @@ func (c *chainClientV2) runBatchBroadcast() {
 }
 
 func (c *chainClientV2) GetGasFee() (string, error) {
-	gasPrices := strings.Trim(c.opts.GasPrices, "inj")
+	gasPrices := strings.TrimSuffix(c.txFactory.GasPrices().String(), client.InjDenom)
 
 	gas, err := strconv.ParseFloat(gasPrices, 64)
 

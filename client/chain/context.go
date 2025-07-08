@@ -33,7 +33,10 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	ibcapplicationtypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	ibcchanneltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibccoretypes "github.com/cosmos/ibc-go/v8/modules/core/types"
 	ibclightclienttypes "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
 	ibctenderminttypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
@@ -75,54 +78,6 @@ func NewInterfaceRegistry() types.InterfaceRegistry {
 	return registry
 }
 
-// NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
-func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
-	interfaceRegistry := NewInterfaceRegistry()
-	keyscodec.RegisterInterfaces(interfaceRegistry)
-	std.RegisterInterfaces(interfaceRegistry)
-	erc20types.RegisterInterfaces(interfaceRegistry)
-	evmtypes.RegisterInterfaces(interfaceRegistry)
-	exchange.RegisterInterfaces(interfaceRegistry)
-	exchangev2.RegisterInterfaces(interfaceRegistry)
-	oracle.RegisterInterfaces(interfaceRegistry)
-	insurance.RegisterInterfaces(interfaceRegistry)
-	auction.RegisterInterfaces(interfaceRegistry)
-	peggy.RegisterInterfaces(interfaceRegistry)
-	ocr.RegisterInterfaces(interfaceRegistry)
-	wasmx.RegisterInterfaces(interfaceRegistry)
-	chaintypes.RegisterInterfaces(interfaceRegistry)
-	tokenfactory.RegisterInterfaces(interfaceRegistry)
-	permissions.RegisterInterfaces(interfaceRegistry)
-	txfeestypes.RegisterInterfaces(interfaceRegistry)
-
-	// more cosmos types
-	authtypes.RegisterInterfaces(interfaceRegistry)
-	authztypes.RegisterInterfaces(interfaceRegistry)
-	vestingtypes.RegisterInterfaces(interfaceRegistry)
-	banktypes.RegisterInterfaces(interfaceRegistry)
-	crisistypes.RegisterInterfaces(interfaceRegistry)
-	distributiontypes.RegisterInterfaces(interfaceRegistry)
-	evidencetypes.RegisterInterfaces(interfaceRegistry)
-	govtypes.RegisterInterfaces(interfaceRegistry)
-	govv1types.RegisterInterfaces(interfaceRegistry)
-	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
-	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
-	ibccoretypes.RegisterInterfaces(interfaceRegistry)
-	ibclightclienttypes.RegisterInterfaces(interfaceRegistry)
-	ibctenderminttypes.RegisterInterfaces(interfaceRegistry)
-	slashingtypes.RegisterInterfaces(interfaceRegistry)
-	stakingtypes.RegisterInterfaces(interfaceRegistry)
-	upgradetypes.RegisterInterfaces(interfaceRegistry)
-	consensustypes.RegisterInterfaces(interfaceRegistry)
-	minttypes.RegisterInterfaces(interfaceRegistry)
-	feegranttypes.RegisterInterfaces(interfaceRegistry)
-	wasmtypes.RegisterInterfaces(interfaceRegistry)
-	icatypes.RegisterInterfaces(interfaceRegistry)
-
-	marshaler := codec.NewProtoCodec(interfaceRegistry)
-	return tx.NewTxConfig(marshaler, signModes)
-}
-
 // NewClientContext creates a new Cosmos Client context, where chainID
 // corresponds to Cosmos chain ID, fromSpec is either name of the key, or bech32-address
 // of the Cosmos account. Keyring is required to contain the specified key.
@@ -159,7 +114,6 @@ func NewClientContext(
 	govtypes.RegisterInterfaces(interfaceRegistry)
 	govv1types.RegisterInterfaces(interfaceRegistry)
 	paramproposaltypes.RegisterInterfaces(interfaceRegistry)
-	ibcapplicationtypes.RegisterInterfaces(interfaceRegistry)
 	ibccoretypes.RegisterInterfaces(interfaceRegistry)
 	ibclightclienttypes.RegisterInterfaces(interfaceRegistry)
 	ibctenderminttypes.RegisterInterfaces(interfaceRegistry)
@@ -172,12 +126,16 @@ func NewClientContext(
 	wasmtypes.RegisterInterfaces(interfaceRegistry)
 	icatypes.RegisterInterfaces(interfaceRegistry)
 	ibcfeetypes.RegisterInterfaces(interfaceRegistry)
+	ibcchanneltypes.RegisterInterfaces(interfaceRegistry)
+	ibcclienttypes.RegisterInterfaces(interfaceRegistry)
+	ibcconnectiontypes.RegisterInterfaces(interfaceRegistry)
+	ibctransfertypes.RegisterInterfaces(interfaceRegistry)
 
 	marshaler := codec.NewProtoCodec(interfaceRegistry)
 	encodingConfig := EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Marshaler:         marshaler,
-		TxConfig: NewTxConfig([]signingtypes.SignMode{
+		TxConfig: tx.NewTxConfig(marshaler, []signingtypes.SignMode{
 			signingtypes.SignMode_SIGN_MODE_DIRECT,
 		}),
 	}

@@ -20,6 +20,7 @@ import (
 	sdkclient "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -397,13 +398,28 @@ func NewChainClient(
 	}
 
 	// init grpc connection
+	protoCodec, ok := ctx.Codec.(*codec.ProtoCodec)
+	if !ok {
+		return nil, errors.New("codec is not a proto codec")
+	}
+
 	var conn *grpc.ClientConn
 	var err error
 	stickySessionEnabled := true
 	if opts.TLSCert != nil {
-		conn, err = grpc.NewClient(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(
+			network.ChainGrpcEndpoint,
+			grpc.WithTransportCredentials(opts.TLSCert),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithDefaultCallOptions(grpc.ForceCodec(protoCodec.GRPCCodec())),
+		)
 	} else {
-		conn, err = grpc.NewClient(network.ChainGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		conn, err = grpc.NewClient(
+			network.ChainGrpcEndpoint,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithDefaultCallOptions(grpc.ForceCodec(protoCodec.GRPCCodec())),
+		)
 		stickySessionEnabled = false
 	}
 	if err != nil {
@@ -413,9 +429,19 @@ func NewChainClient(
 
 	var chainStreamConn *grpc.ClientConn
 	if opts.TLSCert != nil {
-		chainStreamConn, err = grpc.NewClient(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(opts.TLSCert), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.NewClient(
+			network.ChainStreamGrpcEndpoint,
+			grpc.WithTransportCredentials(opts.TLSCert),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithDefaultCallOptions(grpc.ForceCodec(protoCodec.GRPCCodec())),
+		)
 	} else {
-		chainStreamConn, err = grpc.NewClient(network.ChainStreamGrpcEndpoint, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(common.DialerFunc))
+		chainStreamConn, err = grpc.NewClient(
+			network.ChainStreamGrpcEndpoint,
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+			grpc.WithContextDialer(common.DialerFunc),
+			grpc.WithDefaultCallOptions(grpc.ForceCodec(protoCodec.GRPCCodec())),
+		)
 	}
 	if err != nil {
 		err = errors.Wrapf(err, "failed to connect to the chain stream gRPC: %s", network.ChainStreamGrpcEndpoint)
@@ -953,7 +979,7 @@ func (c *chainClient) runBatchBroadcast() {
 }
 
 func (c *chainClient) GetGasFee() (string, error) {
-	gasPrices := strings.Trim(c.opts.GasPrices, "inj")
+	gasPrices := strings.TrimSuffix(c.txFactory.GasPrices().String(), client.InjDenom)
 
 	gas, err := strconv.ParseFloat(gasPrices, 64)
 

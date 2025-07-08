@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("mainnet", "lb")
+	network := common.LoadNetwork("testnet", "lb")
 	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
@@ -71,7 +71,7 @@ func main() {
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
 
-	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
+	marketId := "0x0611780ba69656949525013d947713300f56c37b6175e02f26bffa495c3208fe"
 
 	amount := decimal.NewFromFloat(2)
 	price := decimal.NewFromFloat(22.55)
