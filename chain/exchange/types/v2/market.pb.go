@@ -118,13 +118,13 @@ type SpotMarket struct {
 	// Status of the market
 	Status MarketStatus `protobuf:"varint,8,opt,name=status,proto3,enum=injective.exchange.v2.MarketStatus" json:"status,omitempty"`
 	// min_price_tick_size defines the minimum tick size that the price required
-	// for orders in the market
+	// for orders in the market (in human readable format)
 	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,9,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the quantity
-	// required for orders in the market
+	// required for orders in the market (in human readable format)
 	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,10,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
 	// min_notional defines the minimum notional (in quote asset) required for
-	// orders in the market
+	// orders in the market (in human readable format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,11,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 	// current market admin
 	Admin string `protobuf:"bytes,12,opt,name=admin,proto3" json:"admin,omitempty"`
@@ -264,14 +264,16 @@ type BinaryOptionsMarket struct {
 	// Status of the market
 	Status MarketStatus `protobuf:"varint,14,opt,name=status,proto3,enum=injective.exchange.v2.MarketStatus" json:"status,omitempty"`
 	// min_price_tick_size defines the minimum tick size that the price and margin
-	// required for orders in the market
+	// required for orders in the market (in human readable format)
 	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the quantity
-	// required for orders in the market
-	MinQuantityTickSize cosmossdk_io_math.LegacyDec  `protobuf:"bytes,16,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
-	SettlementPrice     *cosmossdk_io_math.LegacyDec `protobuf:"bytes,17,opt,name=settlement_price,json=settlementPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"settlement_price,omitempty"`
+	// required for orders in the market (in human readable format)
+	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
+	// settlement_price defines the settlement price of the binary options market
+	// (in human readable format)
+	SettlementPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,17,opt,name=settlement_price,json=settlementPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"settlement_price,omitempty"`
 	// min_notional defines the minimum notional (in quote asset) required for
-	// orders in the market
+	// orders in the market (in human readable format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,18,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 	// level of admin permissions
 	AdminPermissions uint32 `protobuf:"varint,19,opt,name=admin_permissions,json=adminPermissions,proto3" json:"admin_permissions,omitempty"`
@@ -347,13 +349,13 @@ type DerivativeMarket struct {
 	// Status of the market
 	Status MarketStatus `protobuf:"varint,14,opt,name=status,proto3,enum=injective.exchange.v2.MarketStatus" json:"status,omitempty"`
 	// min_price_tick_size defines the minimum tick size that the price and margin
-	// required for orders in the market
+	// required for orders in the market (in human readable format)
 	MinPriceTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,15,opt,name=min_price_tick_size,json=minPriceTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_price_tick_size"`
 	// min_quantity_tick_size defines the minimum tick size of the quantity
-	// required for orders in the market
+	// required for orders in the market (in human readable format)
 	MinQuantityTickSize cosmossdk_io_math.LegacyDec `protobuf:"bytes,16,opt,name=min_quantity_tick_size,json=minQuantityTickSize,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_quantity_tick_size"`
 	// min_notional defines the minimum notional (in quote asset) required for
-	// orders in the market
+	// orders in the market (in human readable format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,17,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 	// current market admin
 	Admin string `protobuf:"bytes,18,opt,name=admin,proto3" json:"admin,omitempty"`
@@ -446,8 +448,10 @@ func (m *DerivativeMarketSettlementInfo) GetMarketId() string {
 }
 
 type MarketVolume struct {
-	MarketId string       `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Volume   VolumeRecord `protobuf:"bytes,2,opt,name=volume,proto3" json:"volume"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the market volume
+	Volume VolumeRecord `protobuf:"bytes,2,opt,name=volume,proto3" json:"volume"`
 }
 
 func (m *MarketVolume) Reset()         { *m = MarketVolume{} }
@@ -498,7 +502,9 @@ func (m *MarketVolume) GetVolume() VolumeRecord {
 }
 
 type VolumeRecord struct {
+	// the market's maker volume (in human readable format)
 	MakerVolume cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=maker_volume,json=makerVolume,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_volume"`
+	// the market's taker volume (in human readable format)
 	TakerVolume cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=taker_volume,json=takerVolume,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_volume"`
 }
 
@@ -649,10 +655,10 @@ type ExpiryFuturesMarketInfo struct {
 	// calculation window
 	TwapStartTimestamp int64 `protobuf:"varint,3,opt,name=twap_start_timestamp,json=twapStartTimestamp,proto3" json:"twap_start_timestamp,omitempty"`
 	// expiration_twap_start_price_cumulative defines the cumulative price for the
-	// start of the TWAP window
+	// start of the TWAP window (in human readable format)
 	ExpirationTwapStartPriceCumulative cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=expiration_twap_start_price_cumulative,json=expirationTwapStartPriceCumulative,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"expiration_twap_start_price_cumulative"`
 	// settlement_price defines the settlement price for a time expiry futures
-	// market.
+	// market (in human readable format)
 	SettlementPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=settlement_price,json=settlementPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"settlement_price"`
 }
 
@@ -784,9 +790,10 @@ type PerpetualMarketFunding struct {
 	// cumulative_funding defines the cumulative funding of a perpetual market.
 	CumulativeFunding cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=cumulative_funding,json=cumulativeFunding,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_funding"`
 	// cumulative_price defines the cumulative price for the current hour up to
-	// the last timestamp
+	// the last timestamp (in human readable format)
 	CumulativePrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=cumulative_price,json=cumulativePrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_price"`
-	LastTimestamp   int64                       `protobuf:"varint,3,opt,name=last_timestamp,json=lastTimestamp,proto3" json:"last_timestamp,omitempty"`
+	// the last funding timestamp in seconds
+	LastTimestamp int64 `protobuf:"varint,3,opt,name=last_timestamp,json=lastTimestamp,proto3" json:"last_timestamp,omitempty"`
 }
 
 func (m *PerpetualMarketFunding) Reset()         { *m = PerpetualMarketFunding{} }

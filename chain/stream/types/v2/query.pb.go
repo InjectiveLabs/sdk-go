@@ -64,16 +64,29 @@ func (OrderUpdateStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 type StreamRequest struct {
-	BankBalancesFilter         *BankBalancesFilter       `protobuf:"bytes,1,opt,name=bank_balances_filter,json=bankBalancesFilter,proto3" json:"bank_balances_filter,omitempty"`
-	SubaccountDepositsFilter   *SubaccountDepositsFilter `protobuf:"bytes,2,opt,name=subaccount_deposits_filter,json=subaccountDepositsFilter,proto3" json:"subaccount_deposits_filter,omitempty"`
-	SpotTradesFilter           *TradesFilter             `protobuf:"bytes,3,opt,name=spot_trades_filter,json=spotTradesFilter,proto3" json:"spot_trades_filter,omitempty"`
-	DerivativeTradesFilter     *TradesFilter             `protobuf:"bytes,4,opt,name=derivative_trades_filter,json=derivativeTradesFilter,proto3" json:"derivative_trades_filter,omitempty"`
-	SpotOrdersFilter           *OrdersFilter             `protobuf:"bytes,5,opt,name=spot_orders_filter,json=spotOrdersFilter,proto3" json:"spot_orders_filter,omitempty"`
-	DerivativeOrdersFilter     *OrdersFilter             `protobuf:"bytes,6,opt,name=derivative_orders_filter,json=derivativeOrdersFilter,proto3" json:"derivative_orders_filter,omitempty"`
-	SpotOrderbooksFilter       *OrderbookFilter          `protobuf:"bytes,7,opt,name=spot_orderbooks_filter,json=spotOrderbooksFilter,proto3" json:"spot_orderbooks_filter,omitempty"`
-	DerivativeOrderbooksFilter *OrderbookFilter          `protobuf:"bytes,8,opt,name=derivative_orderbooks_filter,json=derivativeOrderbooksFilter,proto3" json:"derivative_orderbooks_filter,omitempty"`
-	PositionsFilter            *PositionsFilter          `protobuf:"bytes,9,opt,name=positions_filter,json=positionsFilter,proto3" json:"positions_filter,omitempty"`
-	OraclePriceFilter          *OraclePriceFilter        `protobuf:"bytes,10,opt,name=oracle_price_filter,json=oraclePriceFilter,proto3" json:"oracle_price_filter,omitempty"`
+	// filter for bank balances events
+	BankBalancesFilter *BankBalancesFilter `protobuf:"bytes,1,opt,name=bank_balances_filter,json=bankBalancesFilter,proto3" json:"bank_balances_filter,omitempty"`
+	// filter for subaccount deposits events
+	SubaccountDepositsFilter *SubaccountDepositsFilter `protobuf:"bytes,2,opt,name=subaccount_deposits_filter,json=subaccountDepositsFilter,proto3" json:"subaccount_deposits_filter,omitempty"`
+	// filter for spot trades events
+	SpotTradesFilter *TradesFilter `protobuf:"bytes,3,opt,name=spot_trades_filter,json=spotTradesFilter,proto3" json:"spot_trades_filter,omitempty"`
+	// filter for derivative trades events
+	DerivativeTradesFilter *TradesFilter `protobuf:"bytes,4,opt,name=derivative_trades_filter,json=derivativeTradesFilter,proto3" json:"derivative_trades_filter,omitempty"`
+	// filter for spot orders events
+	SpotOrdersFilter *OrdersFilter `protobuf:"bytes,5,opt,name=spot_orders_filter,json=spotOrdersFilter,proto3" json:"spot_orders_filter,omitempty"`
+	// filter for derivative orders events
+	DerivativeOrdersFilter *OrdersFilter `protobuf:"bytes,6,opt,name=derivative_orders_filter,json=derivativeOrdersFilter,proto3" json:"derivative_orders_filter,omitempty"`
+	// filter for spot orderbooks events
+	SpotOrderbooksFilter *OrderbookFilter `protobuf:"bytes,7,opt,name=spot_orderbooks_filter,json=spotOrderbooksFilter,proto3" json:"spot_orderbooks_filter,omitempty"`
+	// filter for derivative orderbooks events
+	DerivativeOrderbooksFilter *OrderbookFilter `protobuf:"bytes,8,opt,name=derivative_orderbooks_filter,json=derivativeOrderbooksFilter,proto3" json:"derivative_orderbooks_filter,omitempty"`
+	// filter for positions events
+	PositionsFilter *PositionsFilter `protobuf:"bytes,9,opt,name=positions_filter,json=positionsFilter,proto3" json:"positions_filter,omitempty"`
+	// filter for oracle prices events
+	OraclePriceFilter *OraclePriceFilter `protobuf:"bytes,10,opt,name=oracle_price_filter,json=oraclePriceFilter,proto3" json:"oracle_price_filter,omitempty"`
+	// filter for order failures events
+	OrderFailuresFilter                   *OrderFailuresFilter                   `protobuf:"bytes,11,opt,name=order_failures_filter,json=orderFailuresFilter,proto3" json:"order_failures_filter,omitempty"`
+	ConditionalOrderTriggerFailuresFilter *ConditionalOrderTriggerFailuresFilter `protobuf:"bytes,12,opt,name=conditional_order_trigger_failures_filter,json=conditionalOrderTriggerFailuresFilter,proto3" json:"conditional_order_trigger_failures_filter,omitempty"`
 }
 
 func (m *StreamRequest) Reset()         { *m = StreamRequest{} }
@@ -179,20 +192,51 @@ func (m *StreamRequest) GetOraclePriceFilter() *OraclePriceFilter {
 	return nil
 }
 
+func (m *StreamRequest) GetOrderFailuresFilter() *OrderFailuresFilter {
+	if m != nil {
+		return m.OrderFailuresFilter
+	}
+	return nil
+}
+
+func (m *StreamRequest) GetConditionalOrderTriggerFailuresFilter() *ConditionalOrderTriggerFailuresFilter {
+	if m != nil {
+		return m.ConditionalOrderTriggerFailuresFilter
+	}
+	return nil
+}
+
 type StreamResponse struct {
-	BlockHeight                uint64                   `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
-	BlockTime                  int64                    `protobuf:"varint,2,opt,name=block_time,json=blockTime,proto3" json:"block_time,omitempty"`
-	BankBalances               []*BankBalance           `protobuf:"bytes,3,rep,name=bank_balances,json=bankBalances,proto3" json:"bank_balances,omitempty"`
-	SubaccountDeposits         []*SubaccountDeposits    `protobuf:"bytes,4,rep,name=subaccount_deposits,json=subaccountDeposits,proto3" json:"subaccount_deposits,omitempty"`
-	SpotTrades                 []*SpotTrade             `protobuf:"bytes,5,rep,name=spot_trades,json=spotTrades,proto3" json:"spot_trades,omitempty"`
-	DerivativeTrades           []*DerivativeTrade       `protobuf:"bytes,6,rep,name=derivative_trades,json=derivativeTrades,proto3" json:"derivative_trades,omitempty"`
-	SpotOrders                 []*SpotOrderUpdate       `protobuf:"bytes,7,rep,name=spot_orders,json=spotOrders,proto3" json:"spot_orders,omitempty"`
-	DerivativeOrders           []*DerivativeOrderUpdate `protobuf:"bytes,8,rep,name=derivative_orders,json=derivativeOrders,proto3" json:"derivative_orders,omitempty"`
-	SpotOrderbookUpdates       []*OrderbookUpdate       `protobuf:"bytes,9,rep,name=spot_orderbook_updates,json=spotOrderbookUpdates,proto3" json:"spot_orderbook_updates,omitempty"`
-	DerivativeOrderbookUpdates []*OrderbookUpdate       `protobuf:"bytes,10,rep,name=derivative_orderbook_updates,json=derivativeOrderbookUpdates,proto3" json:"derivative_orderbook_updates,omitempty"`
-	Positions                  []*Position              `protobuf:"bytes,11,rep,name=positions,proto3" json:"positions,omitempty"`
-	OraclePrices               []*OraclePrice           `protobuf:"bytes,12,rep,name=oracle_prices,json=oraclePrices,proto3" json:"oracle_prices,omitempty"`
-	GasPrice                   string                   `protobuf:"bytes,13,opt,name=gas_price,json=gasPrice,proto3" json:"gas_price,omitempty"`
+	// the block height
+	BlockHeight uint64 `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
+	// the block time
+	BlockTime int64 `protobuf:"varint,2,opt,name=block_time,json=blockTime,proto3" json:"block_time,omitempty"`
+	// list of bank balances updates
+	BankBalances []*BankBalance `protobuf:"bytes,3,rep,name=bank_balances,json=bankBalances,proto3" json:"bank_balances,omitempty"`
+	// list of subaccount deposits updates
+	SubaccountDeposits []*SubaccountDeposits `protobuf:"bytes,4,rep,name=subaccount_deposits,json=subaccountDeposits,proto3" json:"subaccount_deposits,omitempty"`
+	// list of spot trades updates
+	SpotTrades []*SpotTrade `protobuf:"bytes,5,rep,name=spot_trades,json=spotTrades,proto3" json:"spot_trades,omitempty"`
+	// list of derivative trades updates
+	DerivativeTrades []*DerivativeTrade `protobuf:"bytes,6,rep,name=derivative_trades,json=derivativeTrades,proto3" json:"derivative_trades,omitempty"`
+	// list of spot orders updates
+	SpotOrders []*SpotOrderUpdate `protobuf:"bytes,7,rep,name=spot_orders,json=spotOrders,proto3" json:"spot_orders,omitempty"`
+	// list of derivative orders updates
+	DerivativeOrders []*DerivativeOrderUpdate `protobuf:"bytes,8,rep,name=derivative_orders,json=derivativeOrders,proto3" json:"derivative_orders,omitempty"`
+	// list of spot orderbook updates
+	SpotOrderbookUpdates []*OrderbookUpdate `protobuf:"bytes,9,rep,name=spot_orderbook_updates,json=spotOrderbookUpdates,proto3" json:"spot_orderbook_updates,omitempty"`
+	// list of derivative orderbook updates
+	DerivativeOrderbookUpdates []*OrderbookUpdate `protobuf:"bytes,10,rep,name=derivative_orderbook_updates,json=derivativeOrderbookUpdates,proto3" json:"derivative_orderbook_updates,omitempty"`
+	// list of positions updates
+	Positions []*Position `protobuf:"bytes,11,rep,name=positions,proto3" json:"positions,omitempty"`
+	// list of oracle prices updates
+	OraclePrices []*OraclePrice `protobuf:"bytes,12,rep,name=oracle_prices,json=oraclePrices,proto3" json:"oracle_prices,omitempty"`
+	// the current gas price when the block was processed (in chain format)
+	GasPrice string `protobuf:"bytes,13,opt,name=gas_price,json=gasPrice,proto3" json:"gas_price,omitempty"`
+	// list of order failures updates
+	OrderFailures []*OrderFailureUpdate `protobuf:"bytes,14,rep,name=order_failures,json=orderFailures,proto3" json:"order_failures,omitempty"`
+	// list of conditional order trigger failures updates
+	ConditionalOrderTriggerFailures []*ConditionalOrderTriggerFailureUpdate `protobuf:"bytes,15,rep,name=conditional_order_trigger_failures,json=conditionalOrderTriggerFailures,proto3" json:"conditional_order_trigger_failures,omitempty"`
 }
 
 func (m *StreamResponse) Reset()         { *m = StreamResponse{} }
@@ -319,8 +363,24 @@ func (m *StreamResponse) GetGasPrice() string {
 	return ""
 }
 
+func (m *StreamResponse) GetOrderFailures() []*OrderFailureUpdate {
+	if m != nil {
+		return m.OrderFailures
+	}
+	return nil
+}
+
+func (m *StreamResponse) GetConditionalOrderTriggerFailures() []*ConditionalOrderTriggerFailureUpdate {
+	if m != nil {
+		return m.ConditionalOrderTriggerFailures
+	}
+	return nil
+}
+
 type OrderbookUpdate struct {
-	Seq       uint64     `protobuf:"varint,1,opt,name=seq,proto3" json:"seq,omitempty"`
+	// the sequence number of the orderbook update
+	Seq uint64 `protobuf:"varint,1,opt,name=seq,proto3" json:"seq,omitempty"`
+	// the orderbook details
 	Orderbook *Orderbook `protobuf:"bytes,2,opt,name=orderbook,proto3" json:"orderbook,omitempty"`
 }
 
@@ -372,8 +432,11 @@ func (m *OrderbookUpdate) GetOrderbook() *Orderbook {
 }
 
 type Orderbook struct {
-	MarketId   string      `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	BuyLevels  []*v2.Level `protobuf:"bytes,2,rep,name=buy_levels,json=buyLevels,proto3" json:"buy_levels,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// list of buy levels
+	BuyLevels []*v2.Level `protobuf:"bytes,2,rep,name=buy_levels,json=buyLevels,proto3" json:"buy_levels,omitempty"`
+	// list of sell levels
 	SellLevels []*v2.Level `protobuf:"bytes,3,rep,name=sell_levels,json=sellLevels,proto3" json:"sell_levels,omitempty"`
 }
 
@@ -432,7 +495,9 @@ func (m *Orderbook) GetSellLevels() []*v2.Level {
 }
 
 type BankBalance struct {
-	Account  string                                   `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	// the account address
+	Account string `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	// list of account balances
 	Balances github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=balances,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"balances"`
 }
 
@@ -484,8 +549,10 @@ func (m *BankBalance) GetBalances() github_com_cosmos_cosmos_sdk_types.Coins {
 }
 
 type SubaccountDeposits struct {
-	SubaccountId string              `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Deposits     []SubaccountDeposit `protobuf:"bytes,2,rep,name=deposits,proto3" json:"deposits"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the deposits details
+	Deposits []SubaccountDeposit `protobuf:"bytes,2,rep,name=deposits,proto3" json:"deposits"`
 }
 
 func (m *SubaccountDeposits) Reset()         { *m = SubaccountDeposits{} }
@@ -588,10 +655,14 @@ func (m *SubaccountDeposit) GetDeposit() v2.Deposit {
 }
 
 type SpotOrderUpdate struct {
-	Status    OrderUpdateStatus `protobuf:"varint,1,opt,name=status,proto3,enum=injective.stream.v2.OrderUpdateStatus" json:"status,omitempty"`
-	OrderHash string            `protobuf:"bytes,2,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	Cid       string            `protobuf:"bytes,3,opt,name=cid,proto3" json:"cid,omitempty"`
-	Order     *SpotOrder        `protobuf:"bytes,4,opt,name=order,proto3" json:"order,omitempty"`
+	// the status of the order
+	Status OrderUpdateStatus `protobuf:"varint,1,opt,name=status,proto3,enum=injective.stream.v2.OrderUpdateStatus" json:"status,omitempty"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,2,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the client order ID
+	Cid string `protobuf:"bytes,3,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the order details
+	Order *SpotOrder `protobuf:"bytes,4,opt,name=order,proto3" json:"order,omitempty"`
 }
 
 func (m *SpotOrderUpdate) Reset()         { *m = SpotOrderUpdate{} }
@@ -656,8 +727,10 @@ func (m *SpotOrderUpdate) GetOrder() *SpotOrder {
 }
 
 type SpotOrder struct {
-	MarketId string            `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Order    v2.SpotLimitOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the order details
+	Order v2.SpotLimitOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
 }
 
 func (m *SpotOrder) Reset()         { *m = SpotOrder{} }
@@ -708,10 +781,14 @@ func (m *SpotOrder) GetOrder() v2.SpotLimitOrder {
 }
 
 type DerivativeOrderUpdate struct {
-	Status    OrderUpdateStatus `protobuf:"varint,1,opt,name=status,proto3,enum=injective.stream.v2.OrderUpdateStatus" json:"status,omitempty"`
-	OrderHash string            `protobuf:"bytes,2,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	Cid       string            `protobuf:"bytes,3,opt,name=cid,proto3" json:"cid,omitempty"`
-	Order     *DerivativeOrder  `protobuf:"bytes,4,opt,name=order,proto3" json:"order,omitempty"`
+	// the status of the order
+	Status OrderUpdateStatus `protobuf:"varint,1,opt,name=status,proto3,enum=injective.stream.v2.OrderUpdateStatus" json:"status,omitempty"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,2,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the client order ID
+	Cid string `protobuf:"bytes,3,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the order details
+	Order *DerivativeOrder `protobuf:"bytes,4,opt,name=order,proto3" json:"order,omitempty"`
 }
 
 func (m *DerivativeOrderUpdate) Reset()         { *m = DerivativeOrderUpdate{} }
@@ -776,9 +853,12 @@ func (m *DerivativeOrderUpdate) GetOrder() *DerivativeOrder {
 }
 
 type DerivativeOrder struct {
-	MarketId string                  `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Order    v2.DerivativeLimitOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
-	IsMarket bool                    `protobuf:"varint,3,opt,name=is_market,json=isMarket,proto3" json:"is_market,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the order details
+	Order v2.DerivativeLimitOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// whether the order is a market order
+	IsMarket bool `protobuf:"varint,3,opt,name=is_market,json=isMarket,proto3" json:"is_market,omitempty"`
 }
 
 func (m *DerivativeOrder) Reset()         { *m = DerivativeOrder{} }
@@ -836,12 +916,19 @@ func (m *DerivativeOrder) GetIsMarket() bool {
 }
 
 type Position struct {
-	MarketId               string                      `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	SubaccountId           string                      `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	IsLong                 bool                        `protobuf:"varint,3,opt,name=isLong,proto3" json:"isLong,omitempty"`
-	Quantity               cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	EntryPrice             cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
-	Margin                 cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// whether the position is long or short
+	IsLong bool `protobuf:"varint,3,opt,name=isLong,proto3" json:"isLong,omitempty"`
+	// the quantity of the position (in human readable format)
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// the entry price of the position (in human readable format)
+	EntryPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
+	// the margin of the position (in human readable format)
+	Margin cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
+	// the cumulative funding entry of the position (in human readable format)
 	CumulativeFundingEntry cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=cumulative_funding_entry,json=cumulativeFundingEntry,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_funding_entry"`
 }
 
@@ -900,9 +987,12 @@ func (m *Position) GetIsLong() bool {
 }
 
 type OraclePrice struct {
-	Symbol string                      `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Price  cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	Type   string                      `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
+	// the symbol of the oracle price
+	Symbol string `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	// the updated price
+	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
+	// the oracle type
+	Type string `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
 }
 
 func (m *OraclePrice) Reset()         { *m = OraclePrice{} }
@@ -953,18 +1043,28 @@ func (m *OraclePrice) GetType() string {
 }
 
 type SpotTrade struct {
-	MarketId      string                      `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	IsBuy         bool                        `protobuf:"varint,2,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
-	ExecutionType string                      `protobuf:"bytes,3,opt,name=executionType,proto3" json:"executionType,omitempty"`
-	Quantity      cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	Price         cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	// bytes32 subaccount ID that executed the trade
-	SubaccountId        string                      `protobuf:"bytes,6,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Fee                 cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fee"`
-	OrderHash           string                      `protobuf:"bytes,8,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	FeeRecipientAddress string                      `protobuf:"bytes,9,opt,name=fee_recipient_address,json=feeRecipientAddress,proto3" json:"fee_recipient_address,omitempty"`
-	Cid                 string                      `protobuf:"bytes,10,opt,name=cid,proto3" json:"cid,omitempty"`
-	TradeId             string                      `protobuf:"bytes,11,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// whether the trade is a buy or sell
+	IsBuy bool `protobuf:"varint,2,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
+	// the execution type
+	ExecutionType string `protobuf:"bytes,3,opt,name=executionType,proto3" json:"executionType,omitempty"`
+	// the quantity of the trade (in human readable format)
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// the price of the trade (in human readable format)
+	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
+	// the subaccount ID that executed the trade
+	SubaccountId string `protobuf:"bytes,6,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the fee of the trade (in human readable format)
+	Fee cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fee"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,8,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the fee recipient address
+	FeeRecipientAddress string `protobuf:"bytes,9,opt,name=fee_recipient_address,json=feeRecipientAddress,proto3" json:"fee_recipient_address,omitempty"`
+	// the client order ID
+	Cid string `protobuf:"bytes,10,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the trade ID
+	TradeId string `protobuf:"bytes,11,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
 }
 
 func (m *SpotTrade) Reset()         { *m = SpotTrade{} }
@@ -1057,17 +1157,28 @@ func (m *SpotTrade) GetTradeId() string {
 }
 
 type DerivativeTrade struct {
-	MarketId            string                      `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	IsBuy               bool                        `protobuf:"varint,2,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
-	ExecutionType       string                      `protobuf:"bytes,3,opt,name=executionType,proto3" json:"executionType,omitempty"`
-	SubaccountId        string                      `protobuf:"bytes,4,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	PositionDelta       *v2.PositionDelta           `protobuf:"bytes,5,opt,name=position_delta,json=positionDelta,proto3" json:"position_delta,omitempty"`
-	Payout              cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=payout,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"payout"`
-	Fee                 cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fee"`
-	OrderHash           string                      `protobuf:"bytes,8,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	FeeRecipientAddress string                      `protobuf:"bytes,9,opt,name=fee_recipient_address,json=feeRecipientAddress,proto3" json:"fee_recipient_address,omitempty"`
-	Cid                 string                      `protobuf:"bytes,10,opt,name=cid,proto3" json:"cid,omitempty"`
-	TradeId             string                      `protobuf:"bytes,11,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// whether the trade is a buy or sell
+	IsBuy bool `protobuf:"varint,2,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
+	// the execution type
+	ExecutionType string `protobuf:"bytes,3,opt,name=executionType,proto3" json:"executionType,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,4,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the position delta of the trade (in human readable format)
+	PositionDelta *v2.PositionDelta `protobuf:"bytes,5,opt,name=position_delta,json=positionDelta,proto3" json:"position_delta,omitempty"`
+	// the payout of the trade (in human readable format)
+	Payout cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=payout,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"payout"`
+	// the fee of the trade (in human readable format)
+	Fee cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fee"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,8,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the fee recipient address
+	FeeRecipientAddress string `protobuf:"bytes,9,opt,name=fee_recipient_address,json=feeRecipientAddress,proto3" json:"fee_recipient_address,omitempty"`
+	// the client order ID
+	Cid string `protobuf:"bytes,10,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the trade ID
+	TradeId string `protobuf:"bytes,11,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
 }
 
 func (m *DerivativeTrade) Reset()         { *m = DerivativeTrade{} }
@@ -1166,16 +1277,173 @@ func (m *DerivativeTrade) GetTradeId() string {
 	return ""
 }
 
+type OrderFailureUpdate struct {
+	// the account address
+	Account string `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,2,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the client order ID
+	Cid string `protobuf:"bytes,3,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the error code
+	ErrorCode uint32 `protobuf:"varint,4,opt,name=error_code,json=errorCode,proto3" json:"error_code,omitempty"`
+}
+
+func (m *OrderFailureUpdate) Reset()         { *m = OrderFailureUpdate{} }
+func (m *OrderFailureUpdate) String() string { return proto.CompactTextString(m) }
+func (*OrderFailureUpdate) ProtoMessage()    {}
+func (*OrderFailureUpdate) Descriptor() ([]byte, []int) {
+	return fileDescriptor_63d15adfde4eb6f9, []int{15}
+}
+func (m *OrderFailureUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *OrderFailureUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_OrderFailureUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *OrderFailureUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OrderFailureUpdate.Merge(m, src)
+}
+func (m *OrderFailureUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *OrderFailureUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_OrderFailureUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OrderFailureUpdate proto.InternalMessageInfo
+
+func (m *OrderFailureUpdate) GetAccount() string {
+	if m != nil {
+		return m.Account
+	}
+	return ""
+}
+
+func (m *OrderFailureUpdate) GetOrderHash() string {
+	if m != nil {
+		return m.OrderHash
+	}
+	return ""
+}
+
+func (m *OrderFailureUpdate) GetCid() string {
+	if m != nil {
+		return m.Cid
+	}
+	return ""
+}
+
+func (m *OrderFailureUpdate) GetErrorCode() uint32 {
+	if m != nil {
+		return m.ErrorCode
+	}
+	return 0
+}
+
+type ConditionalOrderTriggerFailureUpdate struct {
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the mark price
+	MarkPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=mark_price,json=markPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"mark_price"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,4,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the client order ID
+	Cid string `protobuf:"bytes,5,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the error code
+	ErrorDescription string `protobuf:"bytes,6,opt,name=error_description,json=errorDescription,proto3" json:"error_description,omitempty"`
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) Reset()         { *m = ConditionalOrderTriggerFailureUpdate{} }
+func (m *ConditionalOrderTriggerFailureUpdate) String() string { return proto.CompactTextString(m) }
+func (*ConditionalOrderTriggerFailureUpdate) ProtoMessage()    {}
+func (*ConditionalOrderTriggerFailureUpdate) Descriptor() ([]byte, []int) {
+	return fileDescriptor_63d15adfde4eb6f9, []int{16}
+}
+func (m *ConditionalOrderTriggerFailureUpdate) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ConditionalOrderTriggerFailureUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ConditionalOrderTriggerFailureUpdate.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ConditionalOrderTriggerFailureUpdate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConditionalOrderTriggerFailureUpdate.Merge(m, src)
+}
+func (m *ConditionalOrderTriggerFailureUpdate) XXX_Size() int {
+	return m.Size()
+}
+func (m *ConditionalOrderTriggerFailureUpdate) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConditionalOrderTriggerFailureUpdate.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConditionalOrderTriggerFailureUpdate proto.InternalMessageInfo
+
+func (m *ConditionalOrderTriggerFailureUpdate) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) GetSubaccountId() string {
+	if m != nil {
+		return m.SubaccountId
+	}
+	return ""
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) GetOrderHash() string {
+	if m != nil {
+		return m.OrderHash
+	}
+	return ""
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) GetCid() string {
+	if m != nil {
+		return m.Cid
+	}
+	return ""
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) GetErrorDescription() string {
+	if m != nil {
+		return m.ErrorDescription
+	}
+	return ""
+}
+
 type TradesFilter struct {
+	// list of subaccount IDs to filter by
 	SubaccountIds []string `protobuf:"bytes,1,rep,name=subaccount_ids,json=subaccountIds,proto3" json:"subaccount_ids,omitempty"`
-	MarketIds     []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// list of market IDs to filter by
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *TradesFilter) Reset()         { *m = TradesFilter{} }
 func (m *TradesFilter) String() string { return proto.CompactTextString(m) }
 func (*TradesFilter) ProtoMessage()    {}
 func (*TradesFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_63d15adfde4eb6f9, []int{15}
+	return fileDescriptor_63d15adfde4eb6f9, []int{17}
 }
 func (m *TradesFilter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1219,15 +1487,17 @@ func (m *TradesFilter) GetMarketIds() []string {
 }
 
 type PositionsFilter struct {
+	// list of subaccount IDs to filter by
 	SubaccountIds []string `protobuf:"bytes,1,rep,name=subaccount_ids,json=subaccountIds,proto3" json:"subaccount_ids,omitempty"`
-	MarketIds     []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// list of market IDs to filter by
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *PositionsFilter) Reset()         { *m = PositionsFilter{} }
 func (m *PositionsFilter) String() string { return proto.CompactTextString(m) }
 func (*PositionsFilter) ProtoMessage()    {}
 func (*PositionsFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_63d15adfde4eb6f9, []int{16}
+	return fileDescriptor_63d15adfde4eb6f9, []int{18}
 }
 func (m *PositionsFilter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1271,15 +1541,17 @@ func (m *PositionsFilter) GetMarketIds() []string {
 }
 
 type OrdersFilter struct {
+	// list of subaccount IDs to filter by
 	SubaccountIds []string `protobuf:"bytes,1,rep,name=subaccount_ids,json=subaccountIds,proto3" json:"subaccount_ids,omitempty"`
-	MarketIds     []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+	// list of market IDs to filter by
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
 func (m *OrdersFilter) Reset()         { *m = OrdersFilter{} }
 func (m *OrdersFilter) String() string { return proto.CompactTextString(m) }
 func (*OrdersFilter) ProtoMessage()    {}
 func (*OrdersFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_63d15adfde4eb6f9, []int{17}
+	return fileDescriptor_63d15adfde4eb6f9, []int{19}
 }
 func (m *OrdersFilter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1323,6 +1595,7 @@ func (m *OrdersFilter) GetMarketIds() []string {
 }
 
 type OrderbookFilter struct {
+	// list of market IDs to filter by
 	MarketIds []string `protobuf:"bytes,1,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
 }
 
@@ -1330,7 +1603,7 @@ func (m *OrderbookFilter) Reset()         { *m = OrderbookFilter{} }
 func (m *OrderbookFilter) String() string { return proto.CompactTextString(m) }
 func (*OrderbookFilter) ProtoMessage()    {}
 func (*OrderbookFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_63d15adfde4eb6f9, []int{18}
+	return fileDescriptor_63d15adfde4eb6f9, []int{20}
 }
 func (m *OrderbookFilter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1367,6 +1640,7 @@ func (m *OrderbookFilter) GetMarketIds() []string {
 }
 
 type BankBalancesFilter struct {
+	// list of account addresses to filter by
 	Accounts []string `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty"`
 }
 
@@ -1374,7 +1648,7 @@ func (m *BankBalancesFilter) Reset()         { *m = BankBalancesFilter{} }
 func (m *BankBalancesFilter) String() string { return proto.CompactTextString(m) }
 func (*BankBalancesFilter) ProtoMessage()    {}
 func (*BankBalancesFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_63d15adfde4eb6f9, []int{19}
+	return fileDescriptor_63d15adfde4eb6f9, []int{21}
 }
 func (m *BankBalancesFilter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1411,6 +1685,7 @@ func (m *BankBalancesFilter) GetAccounts() []string {
 }
 
 type SubaccountDepositsFilter struct {
+	// list of subaccount IDs to filter by
 	SubaccountIds []string `protobuf:"bytes,1,rep,name=subaccount_ids,json=subaccountIds,proto3" json:"subaccount_ids,omitempty"`
 }
 
@@ -1418,7 +1693,7 @@ func (m *SubaccountDepositsFilter) Reset()         { *m = SubaccountDepositsFilt
 func (m *SubaccountDepositsFilter) String() string { return proto.CompactTextString(m) }
 func (*SubaccountDepositsFilter) ProtoMessage()    {}
 func (*SubaccountDepositsFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_63d15adfde4eb6f9, []int{20}
+	return fileDescriptor_63d15adfde4eb6f9, []int{22}
 }
 func (m *SubaccountDepositsFilter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1455,6 +1730,7 @@ func (m *SubaccountDepositsFilter) GetSubaccountIds() []string {
 }
 
 type OraclePriceFilter struct {
+	// list of symbols to filter by
 	Symbol []string `protobuf:"bytes,1,rep,name=symbol,proto3" json:"symbol,omitempty"`
 }
 
@@ -1462,7 +1738,7 @@ func (m *OraclePriceFilter) Reset()         { *m = OraclePriceFilter{} }
 func (m *OraclePriceFilter) String() string { return proto.CompactTextString(m) }
 func (*OraclePriceFilter) ProtoMessage()    {}
 func (*OraclePriceFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_63d15adfde4eb6f9, []int{21}
+	return fileDescriptor_63d15adfde4eb6f9, []int{23}
 }
 func (m *OraclePriceFilter) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1498,6 +1774,105 @@ func (m *OraclePriceFilter) GetSymbol() []string {
 	return nil
 }
 
+type OrderFailuresFilter struct {
+	// list of account addresses to filter by
+	Accounts []string `protobuf:"bytes,1,rep,name=accounts,proto3" json:"accounts,omitempty"`
+}
+
+func (m *OrderFailuresFilter) Reset()         { *m = OrderFailuresFilter{} }
+func (m *OrderFailuresFilter) String() string { return proto.CompactTextString(m) }
+func (*OrderFailuresFilter) ProtoMessage()    {}
+func (*OrderFailuresFilter) Descriptor() ([]byte, []int) {
+	return fileDescriptor_63d15adfde4eb6f9, []int{24}
+}
+func (m *OrderFailuresFilter) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *OrderFailuresFilter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_OrderFailuresFilter.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *OrderFailuresFilter) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OrderFailuresFilter.Merge(m, src)
+}
+func (m *OrderFailuresFilter) XXX_Size() int {
+	return m.Size()
+}
+func (m *OrderFailuresFilter) XXX_DiscardUnknown() {
+	xxx_messageInfo_OrderFailuresFilter.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OrderFailuresFilter proto.InternalMessageInfo
+
+func (m *OrderFailuresFilter) GetAccounts() []string {
+	if m != nil {
+		return m.Accounts
+	}
+	return nil
+}
+
+type ConditionalOrderTriggerFailuresFilter struct {
+	// list of subaccount IDs to filter by
+	SubaccountIds []string `protobuf:"bytes,1,rep,name=subaccount_ids,json=subaccountIds,proto3" json:"subaccount_ids,omitempty"`
+	// list of market IDs to filter by
+	MarketIds []string `protobuf:"bytes,2,rep,name=market_ids,json=marketIds,proto3" json:"market_ids,omitempty"`
+}
+
+func (m *ConditionalOrderTriggerFailuresFilter) Reset()         { *m = ConditionalOrderTriggerFailuresFilter{} }
+func (m *ConditionalOrderTriggerFailuresFilter) String() string { return proto.CompactTextString(m) }
+func (*ConditionalOrderTriggerFailuresFilter) ProtoMessage()    {}
+func (*ConditionalOrderTriggerFailuresFilter) Descriptor() ([]byte, []int) {
+	return fileDescriptor_63d15adfde4eb6f9, []int{25}
+}
+func (m *ConditionalOrderTriggerFailuresFilter) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ConditionalOrderTriggerFailuresFilter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ConditionalOrderTriggerFailuresFilter.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ConditionalOrderTriggerFailuresFilter) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConditionalOrderTriggerFailuresFilter.Merge(m, src)
+}
+func (m *ConditionalOrderTriggerFailuresFilter) XXX_Size() int {
+	return m.Size()
+}
+func (m *ConditionalOrderTriggerFailuresFilter) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConditionalOrderTriggerFailuresFilter.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConditionalOrderTriggerFailuresFilter proto.InternalMessageInfo
+
+func (m *ConditionalOrderTriggerFailuresFilter) GetSubaccountIds() []string {
+	if m != nil {
+		return m.SubaccountIds
+	}
+	return nil
+}
+
+func (m *ConditionalOrderTriggerFailuresFilter) GetMarketIds() []string {
+	if m != nil {
+		return m.MarketIds
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterEnum("injective.stream.v2.OrderUpdateStatus", OrderUpdateStatus_name, OrderUpdateStatus_value)
 	proto.RegisterType((*StreamRequest)(nil), "injective.stream.v2.StreamRequest")
@@ -1515,6 +1890,8 @@ func init() {
 	proto.RegisterType((*OraclePrice)(nil), "injective.stream.v2.OraclePrice")
 	proto.RegisterType((*SpotTrade)(nil), "injective.stream.v2.SpotTrade")
 	proto.RegisterType((*DerivativeTrade)(nil), "injective.stream.v2.DerivativeTrade")
+	proto.RegisterType((*OrderFailureUpdate)(nil), "injective.stream.v2.OrderFailureUpdate")
+	proto.RegisterType((*ConditionalOrderTriggerFailureUpdate)(nil), "injective.stream.v2.ConditionalOrderTriggerFailureUpdate")
 	proto.RegisterType((*TradesFilter)(nil), "injective.stream.v2.TradesFilter")
 	proto.RegisterType((*PositionsFilter)(nil), "injective.stream.v2.PositionsFilter")
 	proto.RegisterType((*OrdersFilter)(nil), "injective.stream.v2.OrdersFilter")
@@ -1522,117 +1899,132 @@ func init() {
 	proto.RegisterType((*BankBalancesFilter)(nil), "injective.stream.v2.BankBalancesFilter")
 	proto.RegisterType((*SubaccountDepositsFilter)(nil), "injective.stream.v2.SubaccountDepositsFilter")
 	proto.RegisterType((*OraclePriceFilter)(nil), "injective.stream.v2.OraclePriceFilter")
+	proto.RegisterType((*OrderFailuresFilter)(nil), "injective.stream.v2.OrderFailuresFilter")
+	proto.RegisterType((*ConditionalOrderTriggerFailuresFilter)(nil), "injective.stream.v2.ConditionalOrderTriggerFailuresFilter")
 }
 
 func init() { proto.RegisterFile("injective/stream/v2/query.proto", fileDescriptor_63d15adfde4eb6f9) }
 
 var fileDescriptor_63d15adfde4eb6f9 = []byte{
-	// 1673 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x58, 0xcd, 0x6f, 0xdb, 0xca,
-	0x11, 0x37, 0x2d, 0x4b, 0x16, 0x47, 0xfe, 0x90, 0xd7, 0x8e, 0xc1, 0x38, 0x89, 0xec, 0x30, 0x4e,
-	0x62, 0x24, 0x88, 0x94, 0xa8, 0x2d, 0xd0, 0x36, 0x6d, 0x82, 0x28, 0xce, 0x87, 0x51, 0x07, 0x4d,
-	0x69, 0xbb, 0x29, 0x82, 0x16, 0xec, 0x8a, 0x5c, 0x4b, 0xac, 0x24, 0x52, 0xe6, 0x92, 0x42, 0x74,
-	0xee, 0xa1, 0x97, 0x1e, 0x72, 0xe8, 0x9f, 0xd0, 0x53, 0xff, 0x82, 0xde, 0xdb, 0x43, 0x8e, 0xb9,
-	0xb5, 0x28, 0x8a, 0xbc, 0x87, 0xe4, 0x1f, 0x79, 0xd8, 0x0f, 0x52, 0xa4, 0xbe, 0x22, 0xe3, 0xe5,
-	0x3d, 0xe0, 0x9d, 0xb4, 0xbb, 0x9c, 0xf9, 0xfd, 0x66, 0x67, 0x67, 0x66, 0x47, 0x0b, 0xdb, 0x8e,
-	0xfb, 0x27, 0x62, 0x05, 0x4e, 0x8f, 0x54, 0x68, 0xe0, 0x13, 0xdc, 0xa9, 0xf4, 0xaa, 0x95, 0xb3,
-	0x90, 0xf8, 0xfd, 0x72, 0xd7, 0xf7, 0x02, 0x0f, 0xad, 0xc7, 0x02, 0x65, 0x21, 0x50, 0xee, 0x55,
-	0xb7, 0x4a, 0x96, 0x47, 0x3b, 0x1e, 0xad, 0xd4, 0x31, 0x25, 0x95, 0xde, 0xbd, 0x3a, 0x09, 0xf0,
-	0xbd, 0x8a, 0xe5, 0x39, 0xae, 0x50, 0xda, 0xda, 0x68, 0x78, 0x0d, 0x8f, 0x0f, 0x2b, 0x6c, 0x24,
-	0x57, 0xf5, 0x01, 0x17, 0x79, 0x63, 0x35, 0xb1, 0xdb, 0x20, 0x8c, 0x8d, 0xf4, 0x88, 0x1b, 0x50,
-	0x29, 0xb3, 0x3b, 0x41, 0x46, 0x8e, 0xa5, 0xd4, 0xd5, 0xf1, 0x52, 0x9e, 0x6f, 0x13, 0x5f, 0x88,
-	0xe8, 0xff, 0x5f, 0x84, 0xe5, 0x23, 0x6e, 0xb0, 0x41, 0xce, 0x42, 0x42, 0x03, 0x64, 0xc2, 0x46,
-	0x1d, 0xbb, 0x2d, 0xb3, 0x8e, 0xdb, 0xd8, 0xb5, 0x08, 0x35, 0x4f, 0x9d, 0x76, 0x40, 0x7c, 0x4d,
-	0xd9, 0x51, 0xf6, 0x0a, 0xd5, 0x9b, 0xe5, 0x31, 0x1b, 0x2d, 0xd7, 0xb0, 0xdb, 0xaa, 0x49, 0xf9,
-	0xa7, 0x5c, 0xbc, 0xb6, 0xf0, 0xee, 0xc3, 0xb6, 0x62, 0xa0, 0xfa, 0xc8, 0x17, 0x74, 0x06, 0x5b,
-	0x34, 0xac, 0x63, 0xcb, 0xf2, 0x42, 0x37, 0x30, 0x6d, 0xd2, 0xf5, 0xa8, 0x13, 0xc4, 0x34, 0xf3,
-	0x9c, 0xe6, 0xce, 0x58, 0x9a, 0xa3, 0x58, 0x6d, 0x5f, 0x6a, 0xa5, 0xc8, 0x34, 0x3a, 0xe1, 0x3b,
-	0x3a, 0x01, 0x44, 0xbb, 0x5e, 0x60, 0x06, 0x3e, 0xb6, 0x07, 0x3b, 0xca, 0x70, 0xaa, 0xab, 0x63,
-	0xa9, 0x8e, 0xb9, 0x64, 0x0a, 0xbe, 0xc8, 0x20, 0x92, 0xeb, 0x08, 0x83, 0x66, 0x13, 0xdf, 0xe9,
-	0x61, 0xa6, 0x3c, 0x04, 0xbe, 0x70, 0x3e, 0xf0, 0xcd, 0x01, 0x50, 0x8a, 0x22, 0xb2, 0x9c, 0x9f,
-	0x59, 0x0c, 0x9e, 0x9d, 0x02, 0xfe, 0x6b, 0x2e, 0x39, 0x6a, 0x79, 0x72, 0x7d, 0xc8, 0xf2, 0x34,
-	0x78, 0xee, 0x7c, 0xe0, 0x09, 0xcb, 0x53, 0x14, 0x7f, 0x84, 0xcd, 0x81, 0xe5, 0x75, 0xcf, 0x6b,
-	0xc5, 0x04, 0x8b, 0x9c, 0x60, 0x77, 0x32, 0x01, 0x93, 0x4e, 0x71, 0x6c, 0xc4, 0x1b, 0xe0, 0x40,
-	0x92, 0xa1, 0x0d, 0x97, 0x87, 0x37, 0x91, 0xe2, 0xc9, 0x9f, 0x9b, 0x67, 0x6b, 0x68, 0x2f, 0x49,
-	0xb6, 0x13, 0x28, 0xf2, 0x98, 0x72, 0x3c, 0x37, 0x66, 0x50, 0xa7, 0x30, 0xbc, 0x8c, 0x84, 0x53,
-	0x0c, 0xab, 0xdd, 0xf4, 0x32, 0xfa, 0x3d, 0xac, 0x7b, 0x3e, 0xb6, 0xda, 0xc4, 0xec, 0xfa, 0x8e,
-	0x45, 0x22, 0x64, 0xe0, 0xc8, 0x37, 0x26, 0xd8, 0xce, 0xe4, 0x5f, 0x32, 0xf1, 0x14, 0xf6, 0x9a,
-	0x37, 0xfc, 0x41, 0xff, 0xeb, 0x22, 0xac, 0x44, 0xe9, 0x4d, 0xbb, 0x9e, 0x4b, 0x09, 0xba, 0x0a,
-	0x4b, 0xf5, 0xb6, 0x67, 0xb5, 0xcc, 0x26, 0x71, 0x1a, 0xcd, 0x80, 0xe7, 0xf5, 0x82, 0x51, 0xe0,
-	0x6b, 0xcf, 0xf9, 0x12, 0xba, 0x02, 0x20, 0x44, 0x02, 0xa7, 0x43, 0x78, 0x46, 0x66, 0x0c, 0x95,
-	0xaf, 0x1c, 0x3b, 0x1d, 0x82, 0x9e, 0xc0, 0x72, 0xaa, 0x42, 0x68, 0x99, 0x9d, 0xcc, 0x5e, 0xa1,
-	0xba, 0xf3, 0xb9, 0xd2, 0x60, 0x2c, 0x25, 0xab, 0x01, 0xfa, 0x1d, 0xac, 0x8f, 0xa9, 0x03, 0xda,
-	0x02, 0x07, 0xbb, 0x39, 0x63, 0x01, 0x30, 0xd0, 0x68, 0xd2, 0xa3, 0x87, 0x50, 0x48, 0xa4, 0xbb,
-	0x96, 0xe5, 0x88, 0xa5, 0xf1, 0x88, 0x51, 0x4e, 0x1b, 0x30, 0x48, 0x6f, 0xf4, 0x1b, 0x58, 0x1b,
-	0x49, 0x6c, 0x2d, 0xc7, 0x61, 0xc6, 0x1f, 0xf6, 0x7e, 0x3a, 0x7b, 0x8d, 0xe2, 0x70, 0x3a, 0xa3,
-	0x27, 0xd2, 0x26, 0x91, 0x6b, 0xda, 0xe2, 0x14, 0xb0, 0xa3, 0x28, 0xd8, 0x4f, 0xba, 0x36, 0x0e,
-	0xa4, 0x65, 0x22, 0xb7, 0xd0, 0xab, 0x94, 0x65, 0x12, 0x2c, 0xcf, 0xc1, 0x6e, 0x7d, 0xc6, 0xb2,
-	0x24, 0x64, 0x71, 0x38, 0x69, 0xd1, 0xeb, 0xe1, 0x74, 0x35, 0x43, 0x2e, 0x4a, 0x35, 0x75, 0x8a,
-	0xa9, 0x71, 0x96, 0x48, 0xdc, 0x74, 0xa2, 0x8a, 0x45, 0x8a, 0x4e, 0xc7, 0x27, 0x6a, 0xcc, 0x00,
-	0xe7, 0x60, 0x18, 0x97, 0xa2, 0x11, 0xcf, 0x7d, 0x50, 0xe3, 0xf4, 0xd2, 0x0a, 0x1c, 0xf4, 0xca,
-	0xd4, 0xdc, 0x34, 0x06, 0xf2, 0x2c, 0xaa, 0x93, 0x89, 0x48, 0xb5, 0xa5, 0x29, 0x51, 0x9d, 0x48,
-	0x41, 0x63, 0x29, 0x91, 0x76, 0x14, 0x5d, 0x02, 0xb5, 0x81, 0xa9, 0xc0, 0xd0, 0x96, 0x77, 0x94,
-	0x3d, 0xd5, 0xc8, 0x37, 0x30, 0xe5, 0x5f, 0x75, 0x0c, 0xab, 0x43, 0x46, 0xa3, 0x22, 0x64, 0x28,
-	0x39, 0x93, 0x59, 0xc8, 0x86, 0xe8, 0x17, 0xa0, 0xc6, 0x2e, 0x92, 0xd7, 0x61, 0x69, 0xba, 0x6b,
-	0x8c, 0x81, 0x82, 0xfe, 0x77, 0x05, 0xd4, 0xf8, 0x03, 0xb3, 0xa6, 0x83, 0xfd, 0x16, 0x09, 0x4c,
-	0xc7, 0xe6, 0x1c, 0xaa, 0x91, 0x17, 0x0b, 0x07, 0x36, 0xba, 0x0f, 0x50, 0x0f, 0xfb, 0x66, 0x9b,
-	0xf4, 0x48, 0x9b, 0x6a, 0xf3, 0x7c, 0xbb, 0x97, 0x13, 0x4c, 0x71, 0x37, 0xd1, 0xab, 0x96, 0x0f,
-	0x99, 0x90, 0xa1, 0xd6, 0xc3, 0x3e, 0x1f, 0x51, 0xf4, 0x4b, 0x28, 0x50, 0xd2, 0x6e, 0x47, 0xda,
-	0x99, 0x19, 0xb4, 0x81, 0x29, 0x08, 0x75, 0xfd, 0xad, 0x02, 0x85, 0x44, 0x69, 0x40, 0x1a, 0x2c,
-	0xca, 0x2c, 0x96, 0x66, 0x46, 0x53, 0xd4, 0x80, 0x7c, 0x5c, 0x68, 0x84, 0x8d, 0x17, 0xcb, 0xa2,
-	0xaf, 0x2a, 0xb3, 0xbe, 0xaa, 0x2c, 0xfb, 0xaa, 0xf2, 0x63, 0xcf, 0x71, 0x6b, 0x77, 0xdf, 0x7d,
-	0xd8, 0x9e, 0xfb, 0xc7, 0x57, 0xdb, 0x7b, 0x0d, 0x27, 0x68, 0x86, 0xf5, 0xb2, 0xe5, 0x75, 0x2a,
-	0xb2, 0x09, 0x13, 0x3f, 0x77, 0xa8, 0xdd, 0xaa, 0x04, 0xfd, 0x2e, 0xa1, 0x5c, 0x81, 0x1a, 0x31,
-	0xb8, 0xfe, 0x67, 0x05, 0xd0, 0x68, 0x81, 0x41, 0xd7, 0x60, 0x39, 0x51, 0xa6, 0x62, 0x37, 0x2e,
-	0x0d, 0x16, 0x0f, 0x6c, 0xf4, 0x1c, 0xf2, 0x71, 0x01, 0x13, 0x46, 0xde, 0x98, 0xad, 0x80, 0xf1,
-	0xd2, 0x3d, 0x67, 0xc4, 0xda, 0xba, 0x03, 0x6b, 0x23, 0x42, 0x68, 0x03, 0xb2, 0x36, 0x71, 0xbd,
-	0x8e, 0xe4, 0x16, 0x13, 0xf4, 0x00, 0x16, 0xa5, 0xda, 0x98, 0x30, 0x49, 0xba, 0x3f, 0xcd, 0x15,
-	0x29, 0xe9, 0xff, 0x54, 0x60, 0x75, 0xa8, 0xd6, 0xa0, 0x07, 0x90, 0xa3, 0x01, 0x0e, 0x42, 0xca,
-	0xa9, 0x56, 0x26, 0xde, 0x40, 0xb1, 0xc6, 0x11, 0x97, 0x36, 0xa4, 0x16, 0xbb, 0x3a, 0x78, 0x2c,
-	0x9a, 0x4d, 0x4c, 0x9b, 0xdc, 0x2c, 0x55, 0x46, 0xe7, 0x73, 0x4c, 0x9b, 0x2c, 0xda, 0x2d, 0xc7,
-	0xe6, 0x9d, 0x97, 0x6a, 0xb0, 0x21, 0xfa, 0x31, 0x64, 0xf9, 0x67, 0xd9, 0x30, 0x95, 0xa6, 0x57,
-	0x44, 0x43, 0x08, 0xeb, 0x2d, 0x50, 0xe3, 0xb5, 0xe9, 0x41, 0xfe, 0x28, 0xc2, 0x17, 0x2e, 0xba,
-	0x3e, 0xc1, 0x45, 0x0c, 0xed, 0xd0, 0xe9, 0x38, 0x02, 0x52, 0x7a, 0x4a, 0x92, 0xfd, 0x5b, 0x81,
-	0x0b, 0x63, 0xcb, 0xe8, 0xf7, 0xef, 0xad, 0x9f, 0xa7, 0xbd, 0xb5, 0x3b, 0x4b, 0xc9, 0x8f, 0xb6,
-	0xf1, 0x37, 0x05, 0x56, 0x87, 0x3e, 0x4d, 0x77, 0xdd, 0xb3, 0xb4, 0xeb, 0x6e, 0x4f, 0x8c, 0xae,
-	0x08, 0x73, 0x82, 0x03, 0x19, 0x8b, 0x43, 0x4d, 0x81, 0xcb, 0x77, 0x93, 0x37, 0xf2, 0x0e, 0x7d,
-	0xc1, 0xe7, 0xfa, 0x5f, 0x32, 0x90, 0x8f, 0xea, 0xf1, 0x74, 0x7b, 0x46, 0x32, 0x71, 0x7e, 0x4c,
-	0x26, 0x6e, 0x42, 0xce, 0xa1, 0x87, 0x9e, 0xdb, 0x90, 0x44, 0x72, 0x86, 0x1e, 0x42, 0xfe, 0x2c,
-	0xc4, 0x6e, 0xe0, 0x04, 0x7d, 0xee, 0x3c, 0xb5, 0x76, 0x8d, 0x99, 0xf8, 0xbf, 0x0f, 0xdb, 0x97,
-	0x44, 0x65, 0xa0, 0x76, 0xab, 0xec, 0x78, 0x95, 0x0e, 0x0e, 0x9a, 0xe5, 0x43, 0xd2, 0xc0, 0x56,
-	0x7f, 0x9f, 0x58, 0x46, 0xac, 0x84, 0xf6, 0xa1, 0x40, 0xdc, 0xc0, 0xef, 0xcb, 0xd2, 0x9e, 0x9d,
-	0x1d, 0x03, 0xb8, 0x1e, 0xbf, 0x01, 0xd0, 0x7d, 0xc8, 0x75, 0xb0, 0xdf, 0x70, 0x5c, 0xde, 0x66,
-	0xcf, 0x08, 0x20, 0x55, 0xd0, 0x1f, 0x40, 0xb3, 0xc2, 0x4e, 0xd8, 0x16, 0xf7, 0xe8, 0x69, 0xe8,
-	0xda, 0x8e, 0xdb, 0x30, 0x39, 0x3a, 0x6f, 0xaa, 0x67, 0x84, 0xdb, 0x1c, 0x80, 0x3c, 0x15, 0x18,
-	0x4f, 0x18, 0x84, 0x1e, 0x40, 0x21, 0x71, 0xaf, 0x31, 0x4f, 0xd2, 0x7e, 0xa7, 0xee, 0xb5, 0xe5,
-	0x41, 0xc8, 0x19, 0xfa, 0x19, 0x64, 0x85, 0x0b, 0xe6, 0x67, 0xa7, 0x14, 0x1a, 0x08, 0xc1, 0x02,
-	0xab, 0xbd, 0x32, 0xa2, 0xf9, 0x58, 0xff, 0x57, 0x46, 0xe4, 0x32, 0xef, 0x93, 0xa6, 0x07, 0xc0,
-	0x05, 0x76, 0xb6, 0x66, 0x3d, 0xec, 0x73, 0xea, 0xbc, 0x91, 0x75, 0x68, 0x2d, 0xec, 0xa3, 0x5d,
-	0x58, 0x26, 0x6f, 0x88, 0x15, 0xb2, 0x08, 0x3a, 0x1e, 0xc0, 0xa7, 0x17, 0xbf, 0x7d, 0x00, 0xc4,
-	0xfb, 0xce, 0x9e, 0x7b, 0xdf, 0x23, 0x91, 0x9b, 0x1b, 0x13, 0xb9, 0x3f, 0x81, 0xcc, 0x29, 0x21,
-	0xe7, 0x39, 0x48, 0x26, 0x3f, 0x54, 0x43, 0xf2, 0xc3, 0x35, 0xe4, 0xa7, 0x70, 0xe1, 0x94, 0x10,
-	0xd3, 0x27, 0x96, 0xd3, 0x75, 0x88, 0x1b, 0x98, 0xd8, 0xb6, 0x7d, 0x42, 0x29, 0xff, 0xef, 0xa2,
-	0xca, 0x7f, 0x0e, 0xeb, 0xa7, 0x84, 0x18, 0x91, 0xc4, 0x23, 0x21, 0x10, 0x55, 0x1f, 0x18, 0x54,
-	0x9f, 0x8b, 0x90, 0xe7, 0xbd, 0x30, 0xdb, 0x41, 0x41, 0xdc, 0xd2, 0x7c, 0x7e, 0x60, 0xeb, 0xff,
-	0xc9, 0x24, 0x8b, 0xcb, 0x77, 0x7d, 0x96, 0x23, 0xfe, 0x5c, 0x18, 0xe3, 0xcf, 0x5f, 0xc1, 0x4a,
-	0xd4, 0xdd, 0x99, 0x36, 0x69, 0x07, 0x58, 0xfe, 0x6d, 0xde, 0x9d, 0x50, 0xc7, 0xa2, 0x22, 0xb4,
-	0xcf, 0x64, 0x8d, 0xe5, 0x6e, 0x72, 0xca, 0xf2, 0xb6, 0x8b, 0xfb, 0x5e, 0x18, 0x9c, 0x2b, 0x6f,
-	0x85, 0xca, 0x0f, 0xfb, 0x64, 0x8f, 0x61, 0x29, 0xf5, 0x22, 0x71, 0x1d, 0x56, 0x52, 0xbe, 0x67,
-	0x77, 0x5f, 0x86, 0x1d, 0x51, 0xd2, 0xf9, 0xfc, 0x6a, 0x8b, 0x0f, 0x5f, 0xf4, 0x44, 0xaa, 0xa1,
-	0x46, 0xa7, 0x4f, 0xf5, 0x57, 0xb0, 0x3a, 0xf4, 0x07, 0xf9, 0x0b, 0x01, 0x1f, 0xc3, 0x52, 0xea,
-	0x19, 0xe2, 0xcb, 0xa0, 0xde, 0x4d, 0x34, 0xee, 0x12, 0x38, 0xad, 0xa1, 0x8c, 0x6a, 0xa0, 0xd1,
-	0x57, 0x31, 0xb4, 0x05, 0x79, 0x49, 0x1a, 0xa9, 0xc4, 0x73, 0xfd, 0x11, 0x68, 0x93, 0x1e, 0xb8,
-	0x66, 0xdc, 0x85, 0x7e, 0x1b, 0xd6, 0x46, 0x1e, 0x07, 0x52, 0x75, 0x3c, 0x33, 0xa8, 0xe3, 0xb7,
-	0x0e, 0x99, 0xf0, 0x50, 0x67, 0x82, 0x56, 0xa1, 0x70, 0xe2, 0xd2, 0x2e, 0xb1, 0x9c, 0x53, 0x87,
-	0xd8, 0xc5, 0x39, 0x04, 0x90, 0xab, 0x79, 0x5e, 0x8b, 0xd8, 0x45, 0x05, 0x15, 0x60, 0xf1, 0x05,
-	0x0e, 0xac, 0x26, 0xb1, 0x8b, 0xf3, 0x68, 0x19, 0xd4, 0xc7, 0x6c, 0x6b, 0xed, 0x36, 0xb1, 0x8b,
-	0x99, 0xaa, 0x09, 0x39, 0xf1, 0xd0, 0x80, 0x4e, 0x20, 0x2f, 0x46, 0xbf, 0xad, 0x22, 0x7d, 0x7c,
-	0x3b, 0x97, 0x7c, 0x70, 0xdc, 0xba, 0x36, 0x55, 0x46, 0xbc, 0x5a, 0xdc, 0x55, 0x6a, 0xf8, 0xdd,
-	0xc7, 0x92, 0xf2, 0xfe, 0x63, 0x49, 0xf9, 0xfa, 0x63, 0x49, 0x79, 0xfb, 0xa9, 0x34, 0xf7, 0xfe,
-	0x53, 0x69, 0xee, 0xbf, 0x9f, 0x4a, 0x73, 0xaf, 0x9f, 0x25, 0x9a, 0xfd, 0x83, 0x08, 0xea, 0x10,
-	0xd7, 0x69, 0x25, 0x06, 0xbe, 0x63, 0x79, 0x3e, 0x49, 0x4e, 0x9b, 0xd8, 0x71, 0xa3, 0xa7, 0x5c,
-	0xfe, 0x77, 0xa0, 0xd2, 0xab, 0xd6, 0x73, 0xfc, 0x4d, 0xf4, 0x47, 0xdf, 0x04, 0x00, 0x00, 0xff,
-	0xff, 0x06, 0x95, 0x51, 0x5c, 0xee, 0x15, 0x00, 0x00,
+	// 1885 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x59, 0x4f, 0x6f, 0xdb, 0xc8,
+	0x15, 0x37, 0x2d, 0x4b, 0x16, 0x9f, 0x2c, 0x5b, 0x1e, 0x27, 0x01, 0xd7, 0xbb, 0x91, 0x13, 0xc6,
+	0xd9, 0x75, 0x37, 0x88, 0x94, 0xb8, 0x2d, 0xd0, 0xdd, 0xb4, 0xbb, 0x88, 0xe2, 0x64, 0x13, 0xd4,
+	0xdb, 0x6e, 0x19, 0xbb, 0x5b, 0x2c, 0x5a, 0xb0, 0x23, 0x72, 0x2c, 0x4d, 0x25, 0x91, 0x32, 0x87,
+	0x14, 0x56, 0x97, 0x5e, 0x0a, 0xb4, 0x40, 0x4f, 0x7b, 0xd8, 0x8f, 0xd0, 0x53, 0x3f, 0x41, 0xef,
+	0xed, 0x21, 0xc7, 0xbd, 0xa5, 0xe8, 0x21, 0x2d, 0x12, 0xf4, 0x7b, 0x14, 0xf3, 0x87, 0x14, 0x29,
+	0x51, 0x8a, 0xdc, 0xa6, 0x05, 0x7a, 0x12, 0x39, 0x7c, 0xef, 0xf7, 0x7b, 0xef, 0xcd, 0xf0, 0x37,
+	0x8f, 0x23, 0xd8, 0xa3, 0xde, 0xaf, 0x88, 0x13, 0xd2, 0x11, 0x69, 0xb2, 0x30, 0x20, 0x78, 0xd0,
+	0x1c, 0x1d, 0x36, 0xcf, 0x23, 0x12, 0x8c, 0x1b, 0xc3, 0xc0, 0x0f, 0x7d, 0xb4, 0x93, 0x18, 0x34,
+	0xa4, 0x41, 0x63, 0x74, 0xb8, 0x5b, 0x77, 0x7c, 0x36, 0xf0, 0x59, 0xb3, 0x8d, 0x19, 0x69, 0x8e,
+	0xee, 0xb6, 0x49, 0x88, 0xef, 0x36, 0x1d, 0x9f, 0x7a, 0xd2, 0x69, 0xf7, 0x52, 0xc7, 0xef, 0xf8,
+	0xe2, 0xb2, 0xc9, 0xaf, 0xd4, 0xa8, 0x39, 0xe1, 0x22, 0x5f, 0x3a, 0x5d, 0xec, 0x75, 0x08, 0x67,
+	0x23, 0x23, 0xe2, 0x85, 0x4c, 0xd9, 0xec, 0xcf, 0xb1, 0x51, 0xd7, 0xca, 0xea, 0x7a, 0xbe, 0x95,
+	0x1f, 0xb8, 0x24, 0x90, 0x26, 0xe6, 0x73, 0x1d, 0xaa, 0x4f, 0x45, 0xc0, 0x16, 0x39, 0x8f, 0x08,
+	0x0b, 0x91, 0x0d, 0x97, 0xda, 0xd8, 0xeb, 0xd9, 0x6d, 0xdc, 0xc7, 0x9e, 0x43, 0x98, 0x7d, 0x46,
+	0xfb, 0x21, 0x09, 0x0c, 0xed, 0x9a, 0x76, 0x50, 0x39, 0x7c, 0xaf, 0x91, 0x93, 0x68, 0xa3, 0x85,
+	0xbd, 0x5e, 0x4b, 0xd9, 0x3f, 0x12, 0xe6, 0xad, 0xb5, 0x67, 0x2f, 0xf6, 0x34, 0x0b, 0xb5, 0x67,
+	0x9e, 0xa0, 0x73, 0xd8, 0x65, 0x51, 0x1b, 0x3b, 0x8e, 0x1f, 0x79, 0xa1, 0xed, 0x92, 0xa1, 0xcf,
+	0x68, 0x98, 0xd0, 0xac, 0x0a, 0x9a, 0xdb, 0xb9, 0x34, 0x4f, 0x13, 0xb7, 0x23, 0xe5, 0x95, 0x21,
+	0x33, 0xd8, 0x9c, 0xe7, 0xe8, 0x14, 0x10, 0x1b, 0xfa, 0xa1, 0x1d, 0x06, 0xd8, 0x9d, 0x64, 0x54,
+	0x10, 0x54, 0xd7, 0x73, 0xa9, 0x4e, 0x84, 0x65, 0x06, 0xbe, 0xc6, 0x21, 0xd2, 0xe3, 0x08, 0x83,
+	0xe1, 0x92, 0x80, 0x8e, 0x30, 0x77, 0x9e, 0x02, 0x5f, 0xbb, 0x18, 0xf8, 0x95, 0x09, 0x50, 0x86,
+	0x22, 0x8e, 0x5c, 0xcc, 0x59, 0x02, 0x5e, 0x5c, 0x00, 0xfe, 0x63, 0x61, 0x39, 0x1b, 0x79, 0x7a,
+	0x7c, 0x2a, 0xf2, 0x2c, 0x78, 0xe9, 0x62, 0xe0, 0xa9, 0xc8, 0x33, 0x14, 0xbf, 0x84, 0x2b, 0x93,
+	0xc8, 0xdb, 0xbe, 0xdf, 0x4b, 0x08, 0xd6, 0x05, 0xc1, 0xfe, 0x7c, 0x02, 0x6e, 0x9d, 0xe1, 0xb8,
+	0x94, 0x24, 0x20, 0x80, 0x14, 0x43, 0x1f, 0xde, 0x99, 0x4e, 0x22, 0xc3, 0x53, 0xbe, 0x30, 0xcf,
+	0xee, 0x54, 0x2e, 0x69, 0xb6, 0x53, 0xa8, 0x89, 0x35, 0x45, 0x7d, 0x2f, 0x61, 0xd0, 0x17, 0x30,
+	0x7c, 0x16, 0x1b, 0x67, 0x18, 0xb6, 0x86, 0xd9, 0x61, 0xf4, 0x73, 0xd8, 0xf1, 0x03, 0xec, 0xf4,
+	0x89, 0x3d, 0x0c, 0xa8, 0x43, 0x62, 0x64, 0x10, 0xc8, 0xef, 0xce, 0x89, 0x9d, 0xdb, 0x7f, 0xc6,
+	0xcd, 0x33, 0xd8, 0xdb, 0xfe, 0xf4, 0x03, 0xd4, 0x86, 0xcb, 0xa2, 0x2e, 0xf6, 0x19, 0xa6, 0xfd,
+	0x28, 0x98, 0x2c, 0xcf, 0x8a, 0xc0, 0x3f, 0x98, 0x5f, 0x9b, 0x47, 0xca, 0x21, 0xc3, 0xb0, 0xe3,
+	0xcf, 0x3e, 0x42, 0x5f, 0x6b, 0xf0, 0x2d, 0xc7, 0xf7, 0x5c, 0x91, 0x16, 0xee, 0xcb, 0x89, 0xb0,
+	0xc3, 0x80, 0x76, 0x3a, 0x39, 0xc4, 0x1b, 0x82, 0xf8, 0xc3, 0x5c, 0xe2, 0x07, 0x13, 0x14, 0x11,
+	0xc3, 0x89, 0xc4, 0xc8, 0xf2, 0x59, 0x37, 0x9d, 0x65, 0xcc, 0xcc, 0x7f, 0x96, 0x61, 0x33, 0x56,
+	0x36, 0x36, 0xf4, 0x3d, 0x46, 0xd0, 0x75, 0xd8, 0x68, 0xf7, 0x7d, 0xa7, 0x67, 0x77, 0x09, 0xed,
+	0x74, 0x43, 0x21, 0x69, 0x6b, 0x56, 0x45, 0x8c, 0x3d, 0x16, 0x43, 0xe8, 0x2a, 0x80, 0x34, 0x09,
+	0xe9, 0x80, 0x08, 0x31, 0x2a, 0x58, 0xba, 0x18, 0x39, 0xa1, 0x03, 0x82, 0x1e, 0x42, 0x35, 0x23,
+	0x8e, 0x46, 0xe1, 0x5a, 0xe1, 0xa0, 0x72, 0x78, 0xed, 0x75, 0xaa, 0x68, 0x6d, 0xa4, 0x85, 0x10,
+	0xfd, 0x0c, 0x76, 0x72, 0x24, 0xd0, 0x58, 0x13, 0x60, 0xef, 0x2d, 0xa9, 0x7d, 0x16, 0x9a, 0xd5,
+	0x3b, 0xf4, 0x31, 0x54, 0x52, 0x4a, 0x67, 0x14, 0x05, 0x62, 0x3d, 0x1f, 0x31, 0x96, 0x33, 0x0b,
+	0x26, 0xca, 0x86, 0x7e, 0x02, 0xdb, 0x33, 0x9a, 0x66, 0x94, 0x04, 0x4c, 0xfe, 0x3a, 0x3f, 0xca,
+	0x0a, 0x97, 0x55, 0x9b, 0x56, 0x32, 0xf4, 0x50, 0xc5, 0x24, 0x65, 0xc6, 0x58, 0x5f, 0x00, 0xf6,
+	0x34, 0x7e, 0xcf, 0x4f, 0x87, 0x2e, 0x0e, 0x55, 0x64, 0x52, 0x56, 0xd0, 0xe7, 0x99, 0xc8, 0x14,
+	0x58, 0x59, 0x80, 0xbd, 0xff, 0x9a, 0xc8, 0xd2, 0x90, 0xb5, 0x69, 0xbd, 0x42, 0x5f, 0x4c, 0x2b,
+	0x95, 0x1d, 0x09, 0x53, 0x66, 0xe8, 0x0b, 0x42, 0x4d, 0x04, 0x42, 0xe1, 0x66, 0x35, 0x4a, 0x0e,
+	0x32, 0x74, 0x96, 0xaf, 0x51, 0x09, 0x03, 0x5c, 0x80, 0x21, 0x4f, 0x9d, 0x62, 0x9e, 0x7b, 0xa0,
+	0x27, 0xca, 0x62, 0x54, 0x04, 0xe8, 0xd5, 0x85, 0xb2, 0x64, 0x4d, 0xec, 0xf9, 0xaa, 0x4e, 0x6b,
+	0x10, 0x33, 0x36, 0x16, 0xac, 0xea, 0x94, 0xfa, 0x58, 0x1b, 0x29, 0xc5, 0x61, 0xe8, 0x6d, 0xd0,
+	0x3b, 0x98, 0x49, 0x0c, 0xa3, 0x7a, 0x4d, 0x3b, 0xd0, 0xad, 0x72, 0x07, 0x33, 0xf1, 0x14, 0xfd,
+	0x08, 0x36, 0xb3, 0x4a, 0x64, 0x6c, 0x2e, 0x58, 0xed, 0x69, 0x09, 0x52, 0xd9, 0x57, 0x33, 0xda,
+	0x83, 0x7e, 0xab, 0x81, 0xf9, 0x7a, 0xd5, 0x31, 0xb6, 0x04, 0xc9, 0x07, 0xff, 0x86, 0xdc, 0x28,
+	0xda, 0xbd, 0xd7, 0xa8, 0x8d, 0x89, 0x61, 0x6b, 0x6a, 0x36, 0x50, 0x0d, 0x0a, 0x8c, 0x9c, 0x2b,
+	0x79, 0xe1, 0x97, 0xe8, 0xfb, 0xa0, 0x27, 0x73, 0xaf, 0x5a, 0x9c, 0xfa, 0xe2, 0x39, 0xb7, 0x26,
+	0x0e, 0xe6, 0x1f, 0x34, 0xd0, 0x93, 0x07, 0xbc, 0xcc, 0x03, 0x1c, 0xf4, 0x48, 0x68, 0x53, 0x57,
+	0x70, 0xe8, 0x56, 0x59, 0x0e, 0x3c, 0x71, 0xd1, 0x3d, 0x80, 0x76, 0x34, 0xb6, 0xfb, 0x64, 0x44,
+	0xfa, 0xcc, 0x58, 0x15, 0xd9, 0xbf, 0x93, 0x62, 0x4a, 0x3a, 0xc4, 0xd1, 0x61, 0xe3, 0x98, 0x1b,
+	0x59, 0x7a, 0x3b, 0x1a, 0x8b, 0x2b, 0x86, 0x7e, 0x00, 0x15, 0x46, 0xfa, 0xfd, 0xd8, 0xbb, 0xb0,
+	0x84, 0x37, 0x70, 0x07, 0xe9, 0x6e, 0x7e, 0xa5, 0x41, 0x25, 0xa5, 0x79, 0xc8, 0x80, 0x75, 0x25,
+	0x4f, 0x2a, 0xcc, 0xf8, 0x16, 0x75, 0xa0, 0x9c, 0x28, 0xa8, 0x8c, 0xf1, 0xad, 0x86, 0xec, 0x95,
+	0x1b, 0xbc, 0x57, 0x6e, 0xa8, 0x5e, 0xb9, 0xf1, 0xc0, 0xa7, 0x5e, 0xeb, 0xce, 0xb3, 0x17, 0x7b,
+	0x2b, 0x7f, 0xfc, 0xfb, 0xde, 0x41, 0x87, 0x86, 0xdd, 0xa8, 0xdd, 0x70, 0xfc, 0x41, 0x53, 0x35,
+	0xd6, 0xf2, 0xe7, 0x36, 0x73, 0x7b, 0xcd, 0x70, 0x3c, 0x24, 0x4c, 0x38, 0x30, 0x2b, 0x01, 0x37,
+	0x7f, 0xa3, 0x01, 0x9a, 0x55, 0x4e, 0x74, 0x03, 0xaa, 0x29, 0xfd, 0x4d, 0xca, 0xb8, 0x31, 0x19,
+	0x7c, 0xe2, 0xa2, 0xc7, 0x50, 0x4e, 0x94, 0x59, 0x06, 0xf9, 0xee, 0x72, 0xca, 0x2c, 0x36, 0xcb,
+	0x15, 0x2b, 0xf1, 0x36, 0x29, 0x6c, 0xcf, 0x18, 0xa1, 0x4b, 0x50, 0x74, 0x89, 0xe7, 0x0f, 0x14,
+	0xb7, 0xbc, 0x41, 0x1f, 0xc1, 0xba, 0x72, 0xcb, 0x59, 0x26, 0xe9, 0xf2, 0x67, 0xb9, 0x62, 0x27,
+	0xf3, 0x4f, 0x1a, 0x6c, 0x4d, 0x89, 0x28, 0xfa, 0x08, 0x4a, 0x2c, 0xc4, 0x61, 0xc4, 0x04, 0xd5,
+	0xe6, 0xdc, 0xae, 0x22, 0xf1, 0x78, 0x2a, 0xac, 0x2d, 0xe5, 0xc5, 0xf7, 0x44, 0xf9, 0x76, 0x75,
+	0x31, 0xeb, 0x8a, 0xb0, 0x74, 0xb5, 0x3a, 0x1f, 0x63, 0xd6, 0xe5, 0xab, 0xdd, 0xa1, 0xae, 0xe8,
+	0xa6, 0x75, 0x8b, 0x5f, 0xa2, 0xef, 0x40, 0x51, 0x3c, 0x56, 0x4d, 0x70, 0x7d, 0xb1, 0xd4, 0x5b,
+	0xd2, 0xd8, 0xec, 0x81, 0x9e, 0x8c, 0x2d, 0x5e, 0xe4, 0xf7, 0x63, 0x7c, 0x59, 0xa2, 0x9b, 0x73,
+	0x4a, 0xc4, 0xd1, 0x8e, 0xe9, 0x80, 0x4a, 0x48, 0x55, 0x29, 0x45, 0xf6, 0x17, 0x0d, 0x2e, 0xe7,
+	0xee, 0x0f, 0xff, 0xfb, 0x6a, 0x7d, 0x98, 0xad, 0xd6, 0xfe, 0x32, 0x7b, 0x59, 0x9c, 0xc6, 0xd7,
+	0x1a, 0x6c, 0x4d, 0x3d, 0x5a, 0x5c, 0xba, 0x4f, 0xb2, 0xa5, 0xbb, 0x35, 0x77, 0x75, 0xc5, 0x98,
+	0x73, 0x0a, 0xc8, 0x59, 0x28, 0xb3, 0x25, 0xae, 0xc8, 0xa6, 0x6c, 0x95, 0x29, 0xfb, 0x54, 0xdc,
+	0x9b, 0xbf, 0x2b, 0x40, 0x39, 0xde, 0x68, 0x16, 0xc7, 0x33, 0xf3, 0x26, 0xae, 0xe6, 0xbc, 0x89,
+	0x57, 0xa0, 0x44, 0xd9, 0xb1, 0xef, 0x75, 0x14, 0x91, 0xba, 0x43, 0x1f, 0x43, 0xf9, 0x3c, 0xc2,
+	0x5e, 0x48, 0xc3, 0xb1, 0x28, 0x9e, 0xde, 0xba, 0xc1, 0x43, 0xfc, 0xdb, 0x8b, 0xbd, 0xb7, 0xa5,
+	0x32, 0x30, 0xb7, 0xd7, 0xa0, 0x7e, 0x73, 0x80, 0xc3, 0x6e, 0xe3, 0x98, 0x74, 0xb0, 0x33, 0x3e,
+	0x22, 0x8e, 0x95, 0x38, 0xa1, 0x23, 0xa8, 0x10, 0x2f, 0x0c, 0xc6, 0x6a, 0xcf, 0x2a, 0x2e, 0x8f,
+	0x01, 0xc2, 0x4f, 0x6e, 0x6d, 0xf7, 0xa0, 0x34, 0xc0, 0x41, 0x87, 0x7a, 0xe2, 0xd3, 0x69, 0x49,
+	0x00, 0xe5, 0x82, 0x7e, 0x01, 0x86, 0x13, 0x0d, 0xa2, 0xbe, 0x6c, 0x10, 0xce, 0x22, 0xcf, 0xa5,
+	0x5e, 0xc7, 0x16, 0xe8, 0xe2, 0x43, 0x69, 0x49, 0xb8, 0x2b, 0x13, 0x90, 0x47, 0x12, 0xe3, 0x21,
+	0x87, 0x30, 0x43, 0xa8, 0xa4, 0x36, 0x6c, 0x5e, 0x49, 0x36, 0x1e, 0xb4, 0xfd, 0xbe, 0x9a, 0x08,
+	0x75, 0x87, 0x3e, 0x80, 0xa2, 0x2c, 0xc1, 0xea, 0xf2, 0x94, 0xd2, 0x03, 0x21, 0x58, 0xe3, 0xda,
+	0xab, 0x56, 0xb4, 0xb8, 0x36, 0xff, 0x5c, 0x90, 0xef, 0xb2, 0x68, 0x00, 0x17, 0x2f, 0x80, 0xcb,
+	0x7c, 0x6e, 0xed, 0x76, 0x34, 0x16, 0xd4, 0x65, 0xab, 0x48, 0x59, 0x2b, 0x1a, 0xa3, 0x7d, 0xa8,
+	0x92, 0x2f, 0x89, 0x13, 0xf1, 0x15, 0x74, 0x32, 0x81, 0xcf, 0x0e, 0xfe, 0xe7, 0x0b, 0x20, 0xc9,
+	0xbb, 0x78, 0xe1, 0xbc, 0x67, 0x56, 0x6e, 0x29, 0x67, 0xe5, 0x7e, 0x17, 0x0a, 0x67, 0x84, 0x5c,
+	0x64, 0x22, 0xb9, 0xfd, 0x94, 0x86, 0x94, 0xa7, 0x35, 0xe4, 0x7b, 0x70, 0xf9, 0x8c, 0x10, 0x3b,
+	0x20, 0x0e, 0x1d, 0x52, 0xe2, 0x85, 0x36, 0x76, 0xdd, 0x80, 0x30, 0x26, 0xbe, 0x47, 0xf5, 0xf8,
+	0x5b, 0xed, 0x8c, 0x10, 0x2b, 0xb6, 0xb8, 0x2f, 0x0d, 0x62, 0xf5, 0x81, 0x89, 0xfa, 0xbc, 0x05,
+	0x65, 0xd1, 0xe4, 0xf3, 0x0c, 0x2a, 0x72, 0x97, 0x16, 0xf7, 0x4f, 0x5c, 0xf3, 0x79, 0x21, 0x2d,
+	0x2e, 0xff, 0xed, 0xb9, 0x9c, 0xa9, 0xe7, 0x5a, 0x4e, 0x3d, 0x7f, 0x08, 0x9b, 0x71, 0xdb, 0x6a,
+	0xbb, 0xa4, 0x1f, 0x62, 0x75, 0x14, 0xb2, 0x3f, 0x47, 0xc7, 0x62, 0x11, 0x3a, 0xe2, 0xb6, 0x56,
+	0x75, 0x98, 0xbe, 0xe5, 0xef, 0xed, 0x10, 0x8f, 0xfd, 0x28, 0xbc, 0xd0, 0x7b, 0x2b, 0x5d, 0xfe,
+	0xbf, 0x67, 0xf6, 0xd7, 0x80, 0x66, 0x3b, 0xec, 0x05, 0xfd, 0xda, 0x85, 0xf7, 0xb4, 0xab, 0x00,
+	0x24, 0x08, 0xfc, 0xc0, 0x76, 0x7c, 0x97, 0x88, 0x99, 0xac, 0x5a, 0xba, 0x18, 0x79, 0xe0, 0xbb,
+	0xc4, 0xfc, 0xfd, 0x2a, 0xec, 0x2f, 0xd3, 0x7d, 0xbf, 0x81, 0xbd, 0xa3, 0x05, 0xc0, 0x1d, 0x94,
+	0xc2, 0x17, 0x96, 0x9f, 0x2e, 0x41, 0x2c, 0x55, 0x33, 0x9b, 0xfe, 0xda, 0x9c, 0xf4, 0x8b, 0x93,
+	0xf4, 0x6f, 0xc1, 0xb6, 0x4c, 0xdf, 0x25, 0xcc, 0x09, 0xe8, 0x90, 0xa7, 0xa9, 0xf4, 0xa1, 0x26,
+	0x1e, 0x1c, 0x4d, 0xc6, 0xcd, 0x13, 0xd8, 0xc8, 0x1c, 0xf9, 0xdd, 0x84, 0xcd, 0x4c, 0x5a, 0xbc,
+	0x11, 0x29, 0xf0, 0xf7, 0x25, 0x9d, 0x97, 0xe8, 0x33, 0x92, 0xd2, 0xc8, 0x06, 0x55, 0xb7, 0xf4,
+	0xb8, 0x36, 0xcc, 0xfc, 0x1c, 0xb6, 0xa6, 0x4e, 0xa0, 0xde, 0x10, 0xf0, 0x09, 0x6c, 0x64, 0xce,
+	0xf9, 0xde, 0x0c, 0xea, 0x9d, 0xd4, 0x57, 0x94, 0x02, 0xce, 0x7a, 0x68, 0xb3, 0x1e, 0x68, 0xf6,
+	0xd8, 0x19, 0xed, 0x42, 0x59, 0x91, 0xc6, 0x2e, 0xc9, 0xbd, 0x79, 0x1f, 0x8c, 0x79, 0x27, 0xc8,
+	0x4b, 0x66, 0x61, 0xde, 0x82, 0xed, 0x99, 0xd3, 0xb7, 0xcc, 0xa6, 0x5a, 0x98, 0x6c, 0xaa, 0xe6,
+	0x5d, 0xd8, 0xc9, 0x39, 0x4a, 0x5b, 0x18, 0xe2, 0x00, 0x6e, 0x2e, 0x75, 0x08, 0xf6, 0x66, 0xaa,
+	0xfe, 0xfe, 0x31, 0x4f, 0x67, 0xaa, 0x91, 0x45, 0x5b, 0x50, 0x39, 0xf5, 0xd8, 0x90, 0x38, 0xf4,
+	0x8c, 0x12, 0xb7, 0xb6, 0x82, 0x00, 0x4a, 0x2d, 0xdf, 0xef, 0x11, 0xb7, 0xa6, 0xa1, 0x0a, 0xac,
+	0x7f, 0x8a, 0x43, 0xa7, 0x4b, 0xdc, 0xda, 0x2a, 0xaa, 0x82, 0xfe, 0x80, 0x17, 0xbf, 0xdf, 0x27,
+	0x6e, 0xad, 0x70, 0x68, 0x43, 0x49, 0x1e, 0xb8, 0xa1, 0x53, 0x28, 0xcb, 0xab, 0x9f, 0x1e, 0x22,
+	0x33, 0xbf, 0xfb, 0x4f, 0xff, 0xe7, 0xb0, 0x7b, 0x63, 0xa1, 0x8d, 0x3c, 0xbd, 0xbb, 0xa3, 0xb5,
+	0xf0, 0xb3, 0x97, 0x75, 0xed, 0x9b, 0x97, 0x75, 0xed, 0x1f, 0x2f, 0xeb, 0xda, 0x57, 0xaf, 0xea,
+	0x2b, 0xdf, 0xbc, 0xaa, 0xaf, 0xfc, 0xf5, 0x55, 0x7d, 0xe5, 0x8b, 0x4f, 0x52, 0xdf, 0x86, 0x4f,
+	0x62, 0xa8, 0x63, 0xdc, 0x66, 0xcd, 0x04, 0xf8, 0xb6, 0xe3, 0x07, 0x24, 0x7d, 0xdb, 0xc5, 0xd4,
+	0x8b, 0xff, 0xcd, 0x11, 0x5f, 0x8f, 0xcd, 0xd1, 0x61, 0xbb, 0x24, 0xfe, 0x16, 0xf9, 0xf6, 0xbf,
+	0x02, 0x00, 0x00, 0xff, 0xff, 0xe9, 0x10, 0x97, 0x86, 0xf1, 0x19, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1762,6 +2154,30 @@ func (m *StreamRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.ConditionalOrderTriggerFailuresFilter != nil {
+		{
+			size, err := m.ConditionalOrderTriggerFailuresFilter.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x62
+	}
+	if m.OrderFailuresFilter != nil {
+		{
+			size, err := m.OrderFailuresFilter.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x5a
+	}
 	if m.OraclePriceFilter != nil {
 		{
 			size, err := m.OraclePriceFilter.MarshalToSizedBuffer(dAtA[:i])
@@ -1905,6 +2321,34 @@ func (m *StreamResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.ConditionalOrderTriggerFailures) > 0 {
+		for iNdEx := len(m.ConditionalOrderTriggerFailures) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ConditionalOrderTriggerFailures[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x7a
+		}
+	}
+	if len(m.OrderFailures) > 0 {
+		for iNdEx := len(m.OrderFailures) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.OrderFailures[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x72
+		}
+	}
 	if len(m.GasPrice) > 0 {
 		i -= len(m.GasPrice)
 		copy(dAtA[i:], m.GasPrice)
@@ -2849,6 +3293,123 @@ func (m *DerivativeTrade) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *OrderFailureUpdate) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *OrderFailureUpdate) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *OrderFailureUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.ErrorCode != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.ErrorCode))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.Cid) > 0 {
+		i -= len(m.Cid)
+		copy(dAtA[i:], m.Cid)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Cid)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.OrderHash) > 0 {
+		i -= len(m.OrderHash)
+		copy(dAtA[i:], m.OrderHash)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.OrderHash)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Account) > 0 {
+		i -= len(m.Account)
+		copy(dAtA[i:], m.Account)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Account)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ErrorDescription) > 0 {
+		i -= len(m.ErrorDescription)
+		copy(dAtA[i:], m.ErrorDescription)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.ErrorDescription)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.Cid) > 0 {
+		i -= len(m.Cid)
+		copy(dAtA[i:], m.Cid)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Cid)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.OrderHash) > 0 {
+		i -= len(m.OrderHash)
+		copy(dAtA[i:], m.OrderHash)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.OrderHash)))
+		i--
+		dAtA[i] = 0x22
+	}
+	{
+		size := m.MarkPrice.Size()
+		i -= size
+		if _, err := m.MarkPrice.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if len(m.SubaccountId) > 0 {
+		i -= len(m.SubaccountId)
+		copy(dAtA[i:], m.SubaccountId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.SubaccountId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *TradesFilter) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -3100,6 +3661,79 @@ func (m *OraclePriceFilter) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *OrderFailuresFilter) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *OrderFailuresFilter) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *OrderFailuresFilter) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Accounts) > 0 {
+		for iNdEx := len(m.Accounts) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Accounts[iNdEx])
+			copy(dAtA[i:], m.Accounts[iNdEx])
+			i = encodeVarintQuery(dAtA, i, uint64(len(m.Accounts[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ConditionalOrderTriggerFailuresFilter) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ConditionalOrderTriggerFailuresFilter) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ConditionalOrderTriggerFailuresFilter) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.MarketIds) > 0 {
+		for iNdEx := len(m.MarketIds) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.MarketIds[iNdEx])
+			copy(dAtA[i:], m.MarketIds[iNdEx])
+			i = encodeVarintQuery(dAtA, i, uint64(len(m.MarketIds[iNdEx])))
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.SubaccountIds) > 0 {
+		for iNdEx := len(m.SubaccountIds) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.SubaccountIds[iNdEx])
+			copy(dAtA[i:], m.SubaccountIds[iNdEx])
+			i = encodeVarintQuery(dAtA, i, uint64(len(m.SubaccountIds[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -3155,6 +3789,14 @@ func (m *StreamRequest) Size() (n int) {
 	}
 	if m.OraclePriceFilter != nil {
 		l = m.OraclePriceFilter.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.OrderFailuresFilter != nil {
+		l = m.OrderFailuresFilter.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.ConditionalOrderTriggerFailuresFilter != nil {
+		l = m.ConditionalOrderTriggerFailuresFilter.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
@@ -3235,6 +3877,18 @@ func (m *StreamResponse) Size() (n int) {
 	l = len(m.GasPrice)
 	if l > 0 {
 		n += 1 + l + sovQuery(uint64(l))
+	}
+	if len(m.OrderFailures) > 0 {
+		for _, e := range m.OrderFailures {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if len(m.ConditionalOrderTriggerFailures) > 0 {
+		for _, e := range m.ConditionalOrderTriggerFailures {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
 	}
 	return n
 }
@@ -3555,6 +4209,61 @@ func (m *DerivativeTrade) Size() (n int) {
 	return n
 }
 
+func (m *OrderFailureUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Account)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.OrderHash)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.Cid)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.ErrorCode != 0 {
+		n += 1 + sovQuery(uint64(m.ErrorCode))
+	}
+	return n
+}
+
+func (m *ConditionalOrderTriggerFailureUpdate) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.SubaccountId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = m.MarkPrice.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = len(m.OrderHash)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.Cid)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	l = len(m.ErrorDescription)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
 func (m *TradesFilter) Size() (n int) {
 	if m == nil {
 		return 0
@@ -3671,6 +4380,42 @@ func (m *OraclePriceFilter) Size() (n int) {
 	_ = l
 	if len(m.Symbol) > 0 {
 		for _, s := range m.Symbol {
+			l = len(s)
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *OrderFailuresFilter) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Accounts) > 0 {
+		for _, s := range m.Accounts {
+			l = len(s)
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *ConditionalOrderTriggerFailuresFilter) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.SubaccountIds) > 0 {
+		for _, s := range m.SubaccountIds {
+			l = len(s)
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if len(m.MarketIds) > 0 {
+		for _, s := range m.MarketIds {
 			l = len(s)
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -4070,6 +4815,78 @@ func (m *StreamRequest) Unmarshal(dAtA []byte) error {
 				m.OraclePriceFilter = &OraclePriceFilter{}
 			}
 			if err := m.OraclePriceFilter.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrderFailuresFilter", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.OrderFailuresFilter == nil {
+				m.OrderFailuresFilter = &OrderFailuresFilter{}
+			}
+			if err := m.OrderFailuresFilter.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ConditionalOrderTriggerFailuresFilter", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ConditionalOrderTriggerFailuresFilter == nil {
+				m.ConditionalOrderTriggerFailuresFilter = &ConditionalOrderTriggerFailuresFilter{}
+			}
+			if err := m.ConditionalOrderTriggerFailuresFilter.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -4532,6 +5349,74 @@ func (m *StreamResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.GasPrice = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 14:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrderFailures", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrderFailures = append(m.OrderFailures, &OrderFailureUpdate{})
+			if err := m.OrderFailures[len(m.OrderFailures)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 15:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ConditionalOrderTriggerFailures", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ConditionalOrderTriggerFailures = append(m.ConditionalOrderTriggerFailures, &ConditionalOrderTriggerFailureUpdate{})
+			if err := m.ConditionalOrderTriggerFailures[len(m.ConditionalOrderTriggerFailures)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -6956,6 +7841,415 @@ func (m *DerivativeTrade) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *OrderFailureUpdate) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: OrderFailureUpdate: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: OrderFailureUpdate: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Account", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Account = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrderHash", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrderHash = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Cid", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Cid = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ErrorCode", wireType)
+			}
+			m.ErrorCode = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ErrorCode |= uint32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ConditionalOrderTriggerFailureUpdate) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ConditionalOrderTriggerFailureUpdate: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ConditionalOrderTriggerFailureUpdate: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SubaccountId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SubaccountId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarkPrice", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MarkPrice.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OrderHash", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.OrderHash = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Cid", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Cid = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ErrorDescription", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ErrorDescription = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *TradesFilter) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -7604,6 +8898,202 @@ func (m *OraclePriceFilter) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Symbol = append(m.Symbol, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *OrderFailuresFilter) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: OrderFailuresFilter: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: OrderFailuresFilter: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Accounts", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Accounts = append(m.Accounts, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ConditionalOrderTriggerFailuresFilter) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ConditionalOrderTriggerFailuresFilter: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ConditionalOrderTriggerFailuresFilter: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SubaccountIds", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SubaccountIds = append(m.SubaccountIds, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketIds", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketIds = append(m.MarketIds, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

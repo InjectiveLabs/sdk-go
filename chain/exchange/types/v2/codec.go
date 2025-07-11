@@ -75,7 +75,11 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&ExpiryFuturesMarketLaunchProposal{}, "exchange/v2/ExpiryFuturesMarketLaunchProposal", nil)
 	cdc.RegisterConcrete(&DerivativeMarketParamUpdateProposal{}, "exchange/v2/DerivativeMarketParamUpdateProposal", nil)
 	cdc.RegisterConcrete(&MarketForcedSettlementProposal{}, "exchange/v2/MarketForcedSettlementProposal", nil)
-	cdc.RegisterConcrete(&UpdateDenomDecimalsProposal{}, "exchange/v2/UpdateDenomDecimalsProposal", nil)
+	cdc.RegisterConcrete(
+		&UpdateAuctionExchangeTransferDenomDecimalsProposal{},
+		"exchange/v2/UpdateAuctionExchangeTransferDenomDecimalsProposal",
+		nil,
+	)
 	cdc.RegisterConcrete(&TradingRewardCampaignLaunchProposal{}, "exchange/v2/TradingRewardCampaignLaunchProposal", nil)
 	cdc.RegisterConcrete(&TradingRewardCampaignUpdateProposal{}, "exchange/v2/TradingRewardCampaignUpdateProposal", nil)
 	cdc.RegisterConcrete(&TradingRewardPendingPointsUpdateProposal{}, "exchange/v2/TradingRewardPendingPointsUpdateProposal", nil)
@@ -83,7 +87,11 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&BatchCommunityPoolSpendProposal{}, "exchange/v2/BatchCommunityPoolSpendProposal", nil)
 	cdc.RegisterConcrete(&BinaryOptionsMarketParamUpdateProposal{}, "exchange/v2/BinaryOptionsMarketParamUpdateProposal", nil)
 	cdc.RegisterConcrete(&BinaryOptionsMarketLaunchProposal{}, "exchange/v2/BinaryOptionsMarketLaunchProposal", nil)
-	cdc.RegisterConcrete(&AtomicMarketOrderFeeMultiplierScheduleProposal{}, "exchange/v2/AtomicMarketOrderFeeMultiplierScheduleProposal", nil)
+	cdc.RegisterConcrete(
+		&AtomicMarketOrderFeeMultiplierScheduleProposal{},
+		"exchange/v2/AtomicMarketOrderFeeMultiplierScheduleProposal",
+		nil,
+	)
 
 	cdc.RegisterConcrete(&CreateSpotLimitOrderAuthz{}, "exchange/v2/CreateSpotLimitOrderAuthz", nil)
 	cdc.RegisterConcrete(&CreateSpotMarketOrderAuthz{}, "exchange/v2/CreateSpotMarketOrderAuthz", nil)
@@ -159,7 +167,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&ExpiryFuturesMarketLaunchProposal{},
 		&DerivativeMarketParamUpdateProposal{},
 		&MarketForcedSettlementProposal{},
-		&UpdateDenomDecimalsProposal{},
+		&UpdateAuctionExchangeTransferDenomDecimalsProposal{},
 		&TradingRewardCampaignLaunchProposal{},
 		&TradingRewardCampaignUpdateProposal{},
 		&TradingRewardPendingPointsUpdateProposal{},

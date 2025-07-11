@@ -116,7 +116,8 @@ message GenesisState {
   repeated string spot_market_ids_scheduled_to_force_close = 28;
 
   // denom_decimals defines the denom decimals for the exchange.
-  repeated DenomDecimals denom_decimals = 29 [ (gogoproto.nullable) = false ];
+  repeated DenomDecimals auction_exchange_transfer_denom_decimals = 29
+      [ (gogoproto.nullable) = false ];
 
   // conditional_derivative_orderbook contains conditional orderbooks for all
   // markets (both lmit and market conditional orders)
@@ -180,7 +181,9 @@ message SubaccountNonce {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
+  // the subaccount ID
   string subaccount_id = 1;
+  // the subaccount trade nonce
   SubaccountTradeNonce subaccount_trade_nonce = 2
       [ (gogoproto.nullable) = false ];
 }

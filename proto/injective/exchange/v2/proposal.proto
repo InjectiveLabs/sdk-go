@@ -115,7 +115,8 @@ message BatchExchangeModificationProposal {
       binary_options_market_launch_proposals = 9;
   repeated BinaryOptionsMarketParamUpdateProposal
       binary_options_param_update_proposals = 10;
-  UpdateDenomDecimalsProposal denom_decimals_update_proposal = 11;
+  UpdateAuctionExchangeTransferDenomDecimalsProposal
+      auction_exchange_transfer_denom_decimals_update_proposal = 11;
 
   FeeDiscountProposal fee_discount_proposal = 12;
 
@@ -498,8 +499,9 @@ message MarketForcedSettlementProposal {
   ];
 }
 
-message UpdateDenomDecimalsProposal {
-  option (amino.name) = "exchange/UpdateDenomDecimalsProposal";
+message UpdateAuctionExchangeTransferDenomDecimalsProposal {
+  option (amino.name) =
+      "exchange/UpdateAuctionExchangeTransferDenomDecimalsProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
