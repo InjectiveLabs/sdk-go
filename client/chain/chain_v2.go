@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	sdkmath "cosmossdk.io/math"
@@ -60,18 +59,17 @@ type ChainClientV2 interface {
 	// return account number and sequence without increasing sequence
 	GetAccNonce() (accNum uint64, accSeq uint64)
 
-	SimulateMsg(clientCtx sdkclient.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
-	AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
-	SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
-	BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
+	SimulateMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
+	AsyncBroadcastMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries int, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	BroadcastMsg(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
 
 	// Build signed tx with given accNum and accSeq, useful for offline siging
 	// If simulate is set to false, initialGas will be used
-	BuildSignedTx(clientCtx sdkclient.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error)
-	SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error)
-	AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error)
-	BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error)
-	QueueBroadcastMsg(msgs ...sdk.Msg) error
+	BuildSignedTx(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error)
+	SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries int) (*txtypes.BroadcastTxResponse, error)
+	AsyncBroadcastSignedTx(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error)
+	BroadcastSignedTx(ctx context.Context, txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error)
 
 	// Bank Module
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
@@ -304,7 +302,7 @@ type ChainClientV2 interface {
 	FetchEVMCode(ctx context.Context, address string) (*evmtypes.QueryCodeResponse, error)
 	FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBaseFeeResponse, error)
 
-	CurrentChainGasPrice() int64
+	CurrentChainGasPrice(ctx context.Context) int64
 	SetGasPrice(gasPrice int64)
 
 	GetNetwork() common.Network
@@ -322,8 +320,6 @@ type chainClientV2 struct {
 	chainStreamConn *grpc.ClientConn
 	txFactory       tx.Factory
 
-	doneC   chan bool
-	msgC    chan sdk.Msg
 	syncMux *sync.Mutex
 
 	cancelCtx context.Context
@@ -461,8 +457,6 @@ func NewChainClientV2(
 		txFactory:       txFactory,
 		canSign:         ctx.Keyring != nil,
 		syncMux:         new(sync.Mutex),
-		msgC:            make(chan sdk.Msg, msgCommitBatchSizeLimit),
-		doneC:           make(chan bool, 1),
 		cancelCtx:       cancelCtx,
 		cancelFn:        cancelFn,
 
@@ -504,7 +498,6 @@ func NewChainClientV2(
 			return nil, errors.Errorf("Address %s is in the OFAC list", account.GetAddress())
 		}
 		cc.accNum, cc.accSeq = account.GetAccountNumber(), account.GetSequence()
-		go cc.runBatchBroadcast()
 		go cc.syncTimeoutHeight()
 	}
 
@@ -582,14 +575,11 @@ func (c *chainClientV2) Close() {
 	if !c.canSign {
 		return
 	}
-	if atomic.CompareAndSwapInt64(&c.closed, 0, 1) {
-		close(c.msgC)
-	}
 
 	if c.cancelFn != nil {
 		c.cancelFn()
 	}
-	<-c.doneC
+
 	if c.conn != nil {
 		c.conn.Close()
 	}
@@ -698,10 +688,10 @@ func (c *chainClientV2) GetAccount(ctx context.Context, address string) (*authty
 	return res, err
 }
 
-func (c *chainClientV2) SimulateMsg(clientCtx sdkclient.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
+func (c *chainClientV2) SimulateMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
 	c.txFactory = c.txFactory.WithSequence(c.accSeq)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-	txf, err := PrepareFactory(clientCtx, c.txFactory)
+	txf, err := PrepareFactory(c.ctx, c.txFactory)
 	if err != nil {
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, err
@@ -713,7 +703,6 @@ func (c *chainClientV2) SimulateMsg(clientCtx sdkclient.Context, msgs ...sdk.Msg
 		return nil, err
 	}
 
-	ctx := context.Background()
 	req := &txtypes.SimulateRequest{TxBytes: simTxBytes}
 	simRes, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.Simulate, req)
 
@@ -725,19 +714,18 @@ func (c *chainClientV2) SimulateMsg(clientCtx sdkclient.Context, msgs ...sdk.Msg
 	return simRes, nil
 }
 
-func (c *chainClientV2) BuildSignedTx(clientCtx sdkclient.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msgs ...sdk.Msg) ([]byte, error) {
-	txf := NewTxFactory(clientCtx).WithSequence(accSeq).WithAccountNumber(accNum)
+func (c *chainClientV2) BuildSignedTx(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msgs ...sdk.Msg) ([]byte, error) {
+	txf := NewTxFactory(c.ctx).WithSequence(accSeq).WithAccountNumber(accNum)
 	txf = txf.WithGas(initialGas)
 
 	gasPriceWithDenom := fmt.Sprintf("%d%s", gasPrice, client.InjDenom)
 	txf = txf.WithGasPrices(gasPriceWithDenom)
 
-	return c.buildSignedTx(clientCtx, txf, msgs...)
+	return c.buildSignedTx(ctx, txf, msgs...)
 }
 
-func (c *chainClientV2) buildSignedTx(clientCtx sdkclient.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
-	ctx := context.Background()
-	if clientCtx.Simulate {
+func (c *chainClientV2) buildSignedTx(ctx context.Context, txf tx.Factory, msgs ...sdk.Msg) ([]byte, error) {
+	if c.ctx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
 		if err != nil {
 			err = errors.Wrap(err, "failed to build sim tx bytes")
@@ -758,7 +746,7 @@ func (c *chainClientV2) buildSignedTx(clientCtx sdkclient.Context, txf tx.Factor
 		c.gasWanted = adjustedGas
 	}
 
-	txf, err := PrepareFactory(clientCtx, txf)
+	txf, err := PrepareFactory(c.ctx, txf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepareFactory")
 	}
@@ -769,44 +757,57 @@ func (c *chainClientV2) buildSignedTx(clientCtx sdkclient.Context, txf tx.Factor
 		return nil, err
 	}
 
-	txn.SetFeeGranter(clientCtx.GetFeeGranterAddress())
-	err = tx.Sign(ctx, txf, clientCtx.GetFromName(), txn, true)
+	txn.SetFeeGranter(c.ctx.GetFeeGranterAddress())
+	err = tx.Sign(ctx, txf, c.ctx.GetFromName(), txn, true)
 	if err != nil {
 		err = errors.Wrap(err, "failed to Sign Tx")
 		return nil, err
 	}
 
-	return clientCtx.TxConfig.TxEncoder()(txn.GetTx())
+	return c.ctx.TxConfig.TxEncoder()(txn.GetTx())
 }
 
-func (c *chainClientV2) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
-	res, err := c.BroadcastSignedTx(txBytes, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
+func (c *chainClientV2) SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries int) (*txtypes.BroadcastTxResponse, error) {
+	res, err := c.BroadcastSignedTx(ctx, txBytes, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
 	if err != nil || res.TxResponse.Code != 0 {
 		return res, err
 	}
 
-	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
-	defer cancelFn()
-
 	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
-	t := time.NewTimer(defaultBroadcastStatusPoll)
+
+	statusPollInterval := defaultBroadcastStatusPoll
+	if pollInterval != nil {
+		statusPollInterval = *pollInterval
+	}
+
+	totalAttempts := 0
+	t := time.NewTimer(statusPollInterval)
 
 	for {
 		select {
-		case <-awaitCtx.Done():
+		case <-ctx.Done():
 			err := errors.Wrapf(ErrTimedOut, "%s", res.TxResponse.TxHash)
 			t.Stop()
 			return nil, err
 		case <-t.C:
-			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
-			if err != nil {
-				if errRes := sdkclient.CheckCometError(err, txBytes); errRes != nil {
-					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
+			totalAttempts++
+			resultTx, txErr := c.ctx.Client.Tx(ctx, txHash, false)
+
+			if txErr != nil {
+				// Check if this is a fatal error that shouldn't be retried
+				if errRes := sdkclient.CheckCometError(txErr, txBytes); errRes != nil {
+					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, txErr
 				}
 
-				t.Reset(defaultBroadcastStatusPoll)
-				continue
+				// If we've reached max retries, return error
+				if totalAttempts >= maxRetries {
+					t.Stop()
+					return nil, errors.Wrapf(txErr, "failed to get transaction after %d retries: %s", maxRetries, res.TxResponse.TxHash)
+				}
 
+				// Continue retrying with same interval
+				t.Reset(statusPollInterval)
+				continue
 			} else if resultTx.Height > 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
@@ -814,22 +815,22 @@ func (c *chainClientV2) SyncBroadcastSignedTx(txBytes []byte) (*txtypes.Broadcas
 				return res, err
 			}
 
-			t.Reset(defaultBroadcastStatusPoll)
+			// Transaction not yet in block, continue polling
+			t.Reset(statusPollInterval)
 		}
 	}
 }
 
-func (c *chainClientV2) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
-	return c.BroadcastSignedTx(txBytes, txtypes.BroadcastMode_BROADCAST_MODE_ASYNC)
+func (c *chainClientV2) AsyncBroadcastSignedTx(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+	return c.BroadcastSignedTx(ctx, txBytes, txtypes.BroadcastMode_BROADCAST_MODE_ASYNC)
 }
 
-func (c *chainClientV2) BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
+func (c *chainClientV2) BroadcastSignedTx(ctx context.Context, txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
 	req := txtypes.BroadcastTxRequest{
 		TxBytes: txBytes,
 		Mode:    broadcastMode,
 	}
 
-	ctx := context.Background()
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
 	if err != nil {
 		return nil, err
@@ -839,12 +840,12 @@ func (c *chainClientV2) BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.
 }
 
 func (c *chainClientV2) broadcastTx(
-	clientCtx sdkclient.Context,
+	ctx context.Context,
 	txf tx.Factory,
 	broadcastMode txtypes.BroadcastMode,
 	msgs ...sdk.Msg,
 ) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
-	txBytes, err := c.buildSignedTx(clientCtx, txf, msgs...)
+	txBytes, err := c.buildSignedTx(ctx, txf, msgs...)
 	if err != nil {
 		err = errors.Wrap(err, "failed to build signed Tx")
 		return nil, nil, err
@@ -855,87 +856,9 @@ func (c *chainClientV2) broadcastTx(
 		Mode:    broadcastMode,
 	}
 
-	res, err := common.ExecuteCall(context.Background(), c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.txClient.BroadcastTx, &req)
 	return &req, res, err
 
-}
-
-// QueueBroadcastMsg enqueues a list of messages. Messages will added to the queue
-// and grouped into Txns in chunks. Use this method to mass broadcast Txns with efficiency.
-func (c *chainClientV2) QueueBroadcastMsg(msgs ...sdk.Msg) error {
-	if !c.canSign {
-		return ErrReadOnly
-	} else if atomic.LoadInt64(&c.closed) == 1 {
-		return ErrQueueClosed
-	}
-
-	t := time.NewTimer(10 * time.Second)
-	for _, msg := range msgs {
-		select {
-		case <-t.C:
-			return ErrEnqueueTimeout
-		case c.msgC <- msg:
-		}
-	}
-	t.Stop()
-
-	return nil
-}
-
-func (c *chainClientV2) runBatchBroadcast() {
-	expirationTimer := time.NewTimer(msgCommitBatchTimeLimit)
-	msgBatch := make([]sdk.Msg, 0, msgCommitBatchSizeLimit)
-
-	submitBatch := func(toSubmit []sdk.Msg) {
-		res, err := c.SyncBroadcastMsg(toSubmit...)
-
-		if err != nil {
-			c.logger.WithError(err)
-		} else {
-			if res.TxResponse.Code != 0 {
-				err = errors.Errorf("error %d (%s): %s", res.TxResponse.Code, res.TxResponse.Codespace, res.TxResponse.RawLog)
-				c.logger.WithField("txHash", res.TxResponse.TxHash).WithError(err).Errorln("failed to broadcast messages batch")
-			} else {
-				c.logger.WithField("txHash", res.TxResponse.TxHash).Debugln("msg batch broadcasted successfully at height", res.TxResponse.Height)
-			}
-		}
-
-		c.logger.Debugln("gas wanted: ", c.gasWanted)
-	}
-
-	for {
-		select {
-		case msg, ok := <-c.msgC:
-			if !ok {
-				// exit required
-				if len(msgBatch) > 0 {
-					submitBatch(msgBatch)
-				}
-
-				close(c.doneC)
-				return
-			}
-
-			msgBatch = append(msgBatch, msg)
-
-			if len(msgBatch) >= msgCommitBatchSizeLimit {
-				toSubmit := msgBatch
-				msgBatch = msgBatch[:0]
-				expirationTimer.Reset(msgCommitBatchTimeLimit)
-
-				submitBatch(toSubmit)
-			}
-		case <-expirationTimer.C:
-			if len(msgBatch) > 0 {
-				toSubmit := msgBatch
-				msgBatch = msgBatch[:0]
-				expirationTimer.Reset(msgCommitBatchTimeLimit)
-				submitBatch(toSubmit)
-			} else {
-				expirationTimer.Reset(msgCommitBatchTimeLimit)
-			}
-		}
-	}
 }
 
 func (c *chainClientV2) GetGasFee() (string, error) {
@@ -2681,35 +2604,48 @@ func (c *chainClientV2) FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBas
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
-func (c *chainClientV2) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
-	req, res, err := c.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msgs...)
+func (c *chainClientV2) SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries int, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	req, res, err := c.BroadcastMsg(ctx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msgs...)
 
 	if err != nil || res.TxResponse.Code != 0 {
 		return res, err
 	}
 
-	awaitCtx, cancelFn := context.WithTimeout(context.Background(), defaultBroadcastTimeout)
-	defer cancelFn()
-
 	txHash, _ := hex.DecodeString(res.TxResponse.TxHash)
-	t := time.NewTimer(defaultBroadcastStatusPoll)
+
+	statusPollInterval := defaultBroadcastStatusPoll
+	if pollInterval != nil {
+		statusPollInterval = *pollInterval
+	}
+
+	totalAttempts := 0
+	t := time.NewTimer(statusPollInterval)
 
 	for {
 		select {
-		case <-awaitCtx.Done():
+		case <-ctx.Done():
 			err := errors.Wrapf(ErrTimedOut, "%s", res.TxResponse.TxHash)
 			t.Stop()
 			return nil, err
 		case <-t.C:
-			resultTx, err := c.ctx.Client.Tx(awaitCtx, txHash, false)
-			if err != nil {
-				if errRes := sdkclient.CheckCometError(err, req.TxBytes); errRes != nil {
-					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, err
+			totalAttempts++
+			resultTx, txErr := c.ctx.Client.Tx(ctx, txHash, false)
+
+			if txErr != nil {
+				// Check if this is a fatal error that shouldn't be retried
+				if errRes := sdkclient.CheckCometError(txErr, req.TxBytes); errRes != nil {
+					return &txtypes.BroadcastTxResponse{TxResponse: errRes}, txErr
 				}
 
-				t.Reset(defaultBroadcastStatusPoll)
-				continue
+				// If we've reached max retries, return error
+				if totalAttempts >= maxRetries {
+					t.Stop()
+					return nil, errors.Wrapf(txErr, "failed to get transaction after %d retries: %s", maxRetries, res.TxResponse.TxHash)
+				}
 
+				// Continue retrying with same interval
+				t.Reset(statusPollInterval)
+				continue
 			} else if resultTx.Height > 0 {
 				resResultTx := sdk.NewResponseResultTx(resultTx, res.TxResponse.Tx, res.TxResponse.Timestamp)
 				res = &txtypes.BroadcastTxResponse{TxResponse: resResultTx}
@@ -2717,7 +2653,8 @@ func (c *chainClientV2) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxR
 				return res, err
 			}
 
-			t.Reset(defaultBroadcastStatusPoll)
+			// Transaction not yet in block, continue polling
+			t.Reset(statusPollInterval)
 		}
 	}
 }
@@ -2725,21 +2662,21 @@ func (c *chainClientV2) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxR
 // AsyncBroadcastMsg sends Tx to chain and doesn't wait until Tx is included in block. This method
 // cannot be used for rapid Tx sending, it is expected that you wait for transaction status with
 // external tools. If you want sdk to wait for it, use SyncBroadcastMsg.
-func (c *chainClientV2) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
-	_, res, err := c.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_ASYNC, msgs...)
+func (c *chainClientV2) AsyncBroadcastMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	_, res, err := c.BroadcastMsg(ctx, txtypes.BroadcastMode_BROADCAST_MODE_ASYNC, msgs...)
 	return res, err
 }
 
 // BroadcastMsg submits a group of messages in one transaction to the chain
 // The function uses the broadcast mode specified with the broadcastMode parameter
-func (c *chainClientV2) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
+func (c *chainClientV2) BroadcastMsg(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
 	c.syncMux.Lock()
 	defer c.syncMux.Unlock()
 
 	sequence := c.getAccSeq()
 	c.txFactory = c.txFactory.WithSequence(sequence)
 	c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
-	req, res, err := c.broadcastTx(c.ctx, c.txFactory, broadcastMode, msgs...)
+	req, res, err := c.broadcastTx(ctx, c.txFactory, broadcastMode, msgs...)
 	if err != nil {
 		if c.opts.ShouldFixSequenceMismatch && strings.Contains(err.Error(), "account sequence mismatch") {
 			c.syncNonce()
@@ -2747,7 +2684,7 @@ func (c *chainClientV2) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs .
 			c.txFactory = c.txFactory.WithSequence(sequence)
 			c.txFactory = c.txFactory.WithAccountNumber(c.accNum)
 			c.logger.Debugln("retrying broadcastTx with nonce", sequence)
-			req, res, err = c.broadcastTx(c.ctx, c.txFactory, broadcastMode, msgs...)
+			req, res, err = c.broadcastTx(ctx, c.txFactory, broadcastMode, msgs...)
 		}
 		if err != nil {
 			resJSON, _ := json.MarshalIndent(res, "", "\t")
@@ -2882,9 +2819,9 @@ func (c *chainClientV2) ComputeOrderHashes(spotOrders []exchangev2types.SpotOrde
 	return orderHashes, nil
 }
 
-func (c *chainClientV2) CurrentChainGasPrice() int64 {
+func (c *chainClientV2) CurrentChainGasPrice(ctx context.Context) int64 {
 	gasPrice := int64(client.DefaultGasPrice)
-	eipBaseFee, err := c.FetchEipBaseFee(context.Background())
+	eipBaseFee, err := c.FetchEipBaseFee(ctx)
 
 	if err != nil {
 		c.logger.Error("an error occurred when querying the gas price from the chain, using the default gas price")

@@ -79,6 +79,22 @@ func (c *MockChainClient) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs
 	return &txtypes.BroadcastTxRequest{}, &txtypes.BroadcastTxResponse{}, nil
 }
 
+func (c *MockChainClient) SimulateMsgWithContext(ctx context.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
+	return &txtypes.SimulateResponse{}, nil
+}
+
+func (c *MockChainClient) AsyncBroadcastMsgWithContext(ctx context.Context, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxResponse{}, nil
+}
+
+func (c *MockChainClient) SyncBroadcastMsgWithContext(ctx context.Context, pollInterval *time.Duration, maxRetries int, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxResponse{}, nil
+}
+
+func (c *MockChainClient) BroadcastMsgWithContext(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxRequest{}, &txtypes.BroadcastTxResponse{}, nil
+}
+
 func (c *MockChainClient) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error) {
 	return []byte(nil), nil
 }
@@ -92,6 +108,22 @@ func (c *MockChainClient) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.Broad
 }
 
 func (c *MockChainClient) BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxResponse{}, nil
+}
+
+func (c *MockChainClient) BuildSignedTxWithContext(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msgs ...sdk.Msg) ([]byte, error) {
+	return []byte(nil), nil
+}
+
+func (c *MockChainClient) SyncBroadcastSignedTxWithContext(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries int) (*txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxResponse{}, nil
+}
+
+func (c *MockChainClient) AsyncBroadcastSignedTxWithContext(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+	return &txtypes.BroadcastTxResponse{}, nil
+}
+
+func (c *MockChainClient) BroadcastSignedTxWithContext(ctx context.Context, txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
@@ -843,6 +875,10 @@ func (c *MockChainClient) FetchEipBaseFee(ctx context.Context) (*txfeestypes.Que
 }
 
 func (c *MockChainClient) CurrentChainGasPrice() int64 {
+	return int64(injectiveclient.DefaultGasPrice)
+}
+
+func (c *MockChainClient) CurrentChainGasPriceWithContext(ctx context.Context) int64 {
 	return int64(injectiveclient.DefaultGasPrice)
 }
 

@@ -2,9 +2,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
@@ -66,7 +68,10 @@ func main() {
 		panic(err)
 	}
 
-	gasPrice := chainClient.CurrentChainGasPrice()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	gasPrice := chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
@@ -92,7 +97,7 @@ func main() {
 	msg.Order = *order
 
 	accNum, accSeq := chainClient.GetAccNonce()
-	signedTx, err := chainClient.BuildSignedTx(clientCtx, accNum, accSeq, 20000, client.DefaultGasPrice, msg)
+	signedTx, err := chainClient.BuildSignedTx(ctx, accNum, accSeq, 20000, client.DefaultGasPrice, msg)
 	if err != nil {
 		panic(err)
 	}
@@ -104,7 +109,7 @@ func main() {
 	}
 
 	// Broadcast the signed tx using BroadcastSignedTx, AsyncBroadcastSignedTx, or SyncBroadcastSignedTx
-	response, err := chainClient.BroadcastSignedTx(signedTx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
+	response, err := chainClient.BroadcastSignedTx(ctx, signedTx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
 	if err != nil {
 		panic(err)
 	}
@@ -115,7 +120,7 @@ func main() {
 	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 
-	gasPrice = chainClient.CurrentChainGasPrice()
+	gasPrice = chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
