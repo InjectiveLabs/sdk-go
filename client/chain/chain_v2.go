@@ -61,13 +61,13 @@ type ChainClientV2 interface {
 
 	SimulateMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
-	SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries int, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries uint32, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	BroadcastMsg(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
 
 	// Build signed tx with given accNum and accSeq, useful for offline siging
 	// If simulate is set to false, initialGas will be used
 	BuildSignedTx(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error)
-	SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries int) (*txtypes.BroadcastTxResponse, error)
+	SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTx(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	BroadcastSignedTx(ctx context.Context, txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error)
 
@@ -767,7 +767,7 @@ func (c *chainClientV2) buildSignedTx(ctx context.Context, txf tx.Factory, msgs 
 	return c.ctx.TxConfig.TxEncoder()(txn.GetTx())
 }
 
-func (c *chainClientV2) SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries int) (*txtypes.BroadcastTxResponse, error) {
+func (c *chainClientV2) SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error) {
 	res, err := c.BroadcastSignedTx(ctx, txBytes, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
 	if err != nil || res.TxResponse.Code != 0 {
 		return res, err
@@ -780,7 +780,7 @@ func (c *chainClientV2) SyncBroadcastSignedTx(ctx context.Context, txBytes []byt
 		statusPollInterval = *pollInterval
 	}
 
-	totalAttempts := 0
+	totalAttempts := uint32(0)
 	t := time.NewTimer(statusPollInterval)
 
 	for {
@@ -2604,7 +2604,7 @@ func (c *chainClientV2) FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBas
 }
 
 // SyncBroadcastMsg sends Tx to chain and waits until Tx is included in block.
-func (c *chainClientV2) SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries int, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+func (c *chainClientV2) SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries uint32, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	req, res, err := c.BroadcastMsg(ctx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msgs...)
 
 	if err != nil || res.TxResponse.Code != 0 {
@@ -2618,7 +2618,7 @@ func (c *chainClientV2) SyncBroadcastMsg(ctx context.Context, pollInterval *time
 		statusPollInterval = *pollInterval
 	}
 
-	totalAttempts := 0
+	totalAttempts := uint32(0)
 	t := time.NewTimer(statusPollInterval)
 
 	for {

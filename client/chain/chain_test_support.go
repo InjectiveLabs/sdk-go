@@ -74,7 +74,7 @@ func (c *MockChainClientV2) AsyncBroadcastMsg(ctx context.Context, msgs ...sdk.M
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
-func (c *MockChainClientV2) SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries int, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+func (c *MockChainClientV2) SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries uint32, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
@@ -86,7 +86,7 @@ func (c *MockChainClientV2) BuildSignedTx(ctx context.Context, accNum, accSeq, i
 	return []byte(nil), nil
 }
 
-func (c *MockChainClientV2) SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries int) (*txtypes.BroadcastTxResponse, error) {
+func (c *MockChainClientV2) SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 

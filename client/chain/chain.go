@@ -87,7 +87,7 @@ type ChainClient interface {
 	// Enhanced broadcast methods with context support
 	SimulateMsgWithContext(ctx context.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
 	AsyncBroadcastMsgWithContext(ctx context.Context, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
-	SyncBroadcastMsgWithContext(ctx context.Context, pollInterval *time.Duration, maxRetries int, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	SyncBroadcastMsgWithContext(ctx context.Context, pollInterval *time.Duration, maxRetries uint32, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	BroadcastMsgWithContext(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
 
 	// Build signed tx with given accNum and accSeq, useful for offline siging
@@ -99,7 +99,7 @@ type ChainClient interface {
 
 	// Enhanced signed tx broadcast methods with context support
 	BuildSignedTxWithContext(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msgs ...sdk.Msg) ([]byte, error)
-	SyncBroadcastSignedTxWithContext(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries int) (*txtypes.BroadcastTxResponse, error)
+	SyncBroadcastSignedTxWithContext(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTxWithContext(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error)
 	BroadcastSignedTxWithContext(ctx context.Context, txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error)
 	QueueBroadcastMsg(msgs ...sdk.Msg) error
@@ -3015,7 +3015,7 @@ func (c *chainClient) ComputeOrderHashes(spotOrders []exchangetypes.SpotOrder, d
 
 // SyncBroadcastMsgWithContext sends Tx to chain and waits until Tx is included in block.
 // This is the enhanced version with context support, configurable poll interval, and max retries.
-func (c *chainClient) SyncBroadcastMsgWithContext(ctx context.Context, pollInterval *time.Duration, maxRetries int, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+func (c *chainClient) SyncBroadcastMsgWithContext(ctx context.Context, pollInterval *time.Duration, maxRetries uint32, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	req, res, err := c.BroadcastMsgWithContext(ctx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msgs...)
 
 	if err != nil || res.TxResponse.Code != 0 {
@@ -3029,7 +3029,7 @@ func (c *chainClient) SyncBroadcastMsgWithContext(ctx context.Context, pollInter
 		statusPollInterval = *pollInterval
 	}
 
-	totalAttempts := 0
+	totalAttempts := uint32(0)
 	t := time.NewTimer(statusPollInterval)
 
 	for {
@@ -3130,7 +3130,7 @@ func (c *chainClient) broadcastTxWithContext(
 
 // SyncBroadcastSignedTxWithContext broadcasts a signed transaction and waits until it's included in block.
 // This is the enhanced version with context support, configurable poll interval, and max retries.
-func (c *chainClient) SyncBroadcastSignedTxWithContext(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries int) (*txtypes.BroadcastTxResponse, error) {
+func (c *chainClient) SyncBroadcastSignedTxWithContext(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error) {
 	res, err := c.BroadcastSignedTxWithContext(ctx, txBytes, txtypes.BroadcastMode_BROADCAST_MODE_SYNC)
 	if err != nil || res.TxResponse.Code != 0 {
 		return res, err
@@ -3143,7 +3143,7 @@ func (c *chainClient) SyncBroadcastSignedTxWithContext(ctx context.Context, txBy
 		statusPollInterval = *pollInterval
 	}
 
-	totalAttempts := 0
+	totalAttempts := uint32(0)
 	t := time.NewTimer(statusPollInterval)
 
 	for {
