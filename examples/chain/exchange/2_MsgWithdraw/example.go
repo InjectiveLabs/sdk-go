@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -9,6 +11,7 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -56,12 +59,15 @@ func main() {
 		panic(err)
 	}
 
-	gasPrice := chainClient.CurrentChainGasPrice()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	gasPrice := chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
 
-	msg := &exchangev2types.MsgWithdraw{
+	msg := exchangev2types.MsgWithdraw{
 		Sender:       senderAddress.String(),
 		SubaccountId: "0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000",
 		Amount: sdktypes.Coin{
@@ -70,24 +76,16 @@ func main() {
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	err = chainClient.QueueBroadcastMsg(msg)
+	_, response, err := chainClient.BroadcastMsg(ctx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC, &msg)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
-	time.Sleep(time.Second * 5)
+	str, _ := json.MarshalIndent(response, "", "\t")
+	fmt.Print(string(str))
 
-	gasFee, err := chainClient.GetGasFee()
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("gas fee:", gasFee, "INJ")
-
-	gasPrice = chainClient.CurrentChainGasPrice()
+	gasPrice = chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)

@@ -66,35 +66,35 @@ func (c *MockChainClientV2) GetAccNonce() (accNum, accSeq uint64) {
 	return 1, 2
 }
 
-func (c *MockChainClientV2) SimulateMsg(clientCtx client.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
+func (c *MockChainClientV2) SimulateMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error) {
 	return &txtypes.SimulateResponse{}, nil
 }
 
-func (c *MockChainClientV2) AsyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+func (c *MockChainClientV2) AsyncBroadcastMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
-func (c *MockChainClientV2) SyncBroadcastMsg(msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
+func (c *MockChainClientV2) SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries uint32, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
-func (c *MockChainClientV2) BroadcastMsg(broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
+func (c *MockChainClientV2) BroadcastMsg(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxRequest{}, &txtypes.BroadcastTxResponse{}, nil
 }
 
-func (c *MockChainClientV2) BuildSignedTx(clientCtx client.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error) {
+func (c *MockChainClientV2) BuildSignedTx(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error) {
 	return []byte(nil), nil
 }
 
-func (c *MockChainClientV2) SyncBroadcastSignedTx(tyBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+func (c *MockChainClientV2) SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
-func (c *MockChainClientV2) AsyncBroadcastSignedTx(txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
+func (c *MockChainClientV2) AsyncBroadcastSignedTx(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
-func (c *MockChainClientV2) BroadcastSignedTx(txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
+func (c *MockChainClientV2) BroadcastSignedTx(ctx context.Context, txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error) {
 	return &txtypes.BroadcastTxResponse{}, nil
 }
 
@@ -915,7 +915,7 @@ func (c *MockChainClientV2) FetchEVMBaseFee(ctx context.Context) (*evmtypes.Quer
 	return &evmtypes.QueryBaseFeeResponse{}, nil
 }
 
-func (c *MockChainClientV2) CurrentChainGasPrice() int64 {
+func (c *MockChainClientV2) CurrentChainGasPrice(ctx context.Context) int64 {
 	return int64(injectiveclient.DefaultGasPrice)
 }
 

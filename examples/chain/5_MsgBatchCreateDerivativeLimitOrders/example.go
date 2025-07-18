@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
@@ -58,7 +61,10 @@ func main() {
 		return
 	}
 
-	gasPrice := chainClient.CurrentChainGasPrice()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	gasPrice := chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
@@ -84,47 +90,22 @@ func main() {
 		},
 	)
 
-	msg := new(exchangev2types.MsgBatchCreateDerivativeLimitOrders)
-	msg.Sender = senderAddress.String()
-	msg.Orders = []exchangev2types.DerivativeOrder{*order}
-
-	simRes, err := chainClient.SimulateMsg(clientCtx, msg)
-
-	if err != nil {
-		fmt.Println(err)
-		return
+	msg := exchangev2types.MsgBatchCreateDerivativeLimitOrders{
+		Sender: senderAddress.String(),
+		Orders: []exchangev2types.DerivativeOrder{*order},
 	}
-
-	msgBatchCreateDerivativeLimitOrdersResponse := exchangev2types.MsgBatchCreateDerivativeLimitOrdersResponse{}
-	err = msgBatchCreateDerivativeLimitOrdersResponse.Unmarshal(simRes.Result.MsgResponses[0].Value)
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("simulated order hashes", msgBatchCreateDerivativeLimitOrdersResponse.OrderHashes)
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	err = chainClient.QueueBroadcastMsg(msg)
+	_, response, err := chainClient.BroadcastMsg(ctx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC, &msg)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
-	time.Sleep(time.Second * 5)
+	str, _ := json.MarshalIndent(response, "", "\t")
+	fmt.Print(string(str))
 
-	gasFee, err := chainClient.GetGasFee()
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("gas fee:", gasFee, "INJ")
-
-	gasPrice = chainClient.CurrentChainGasPrice()
+	gasPrice = chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)

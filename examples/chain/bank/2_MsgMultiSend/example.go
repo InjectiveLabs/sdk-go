@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -8,6 +10,7 @@ import (
 	"cosmossdk.io/math"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
@@ -58,14 +61,17 @@ func main() {
 		panic(err)
 	}
 
-	gasPrice := chainClient.CurrentChainGasPrice()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	gasPrice := chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
 
 	// prepare tx msg
 
-	msg := &banktypes.MsgMultiSend{
+	msg := banktypes.MsgMultiSend{
 		Inputs: []banktypes.Input{
 			{
 				Address: senderAddress.String(),
@@ -97,24 +103,16 @@ func main() {
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	err = chainClient.QueueBroadcastMsg(msg)
+	_, response, err := chainClient.BroadcastMsg(ctx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC, &msg)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
-	time.Sleep(time.Second * 5)
+	str, _ := json.MarshalIndent(response, "", "\t")
+	fmt.Print(string(str))
 
-	gasFee, err := chainClient.GetGasFee()
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println("gas fee:", gasFee, "INJ")
-
-	gasPrice = chainClient.CurrentChainGasPrice()
+	gasPrice = chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)

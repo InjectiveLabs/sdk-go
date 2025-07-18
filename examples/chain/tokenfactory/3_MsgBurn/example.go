@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"cosmossdk.io/math"
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-	sdktypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 func main() {
@@ -55,20 +57,24 @@ func main() {
 		panic(err)
 	}
 
-	gasPrice := chainClient.CurrentChainGasPrice()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	gasPrice := chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
 
-	message := new(tokenfactorytypes.MsgBurn)
-	message.Sender = senderAddress.String()
-	message.Amount = sdktypes.Coin{
-		Denom:  "factory/inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r/inj_test",
-		Amount: math.NewInt(100),
+	message := tokenfactorytypes.MsgBurn{
+		Sender: senderAddress.String(),
+		Amount: sdktypes.Coin{
+			Denom:  "factory/inj1hkhdaj2a2clmq5jq6mspsggqs32vynpk228q3r/inj_test",
+			Amount: math.NewInt(100),
+		},
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg
-	response, err := chainClient.AsyncBroadcastMsg(message)
+	response, err := chainClient.AsyncBroadcastMsg(ctx, &message)
 
 	if err != nil {
 		panic(err)
@@ -77,7 +83,7 @@ func main() {
 	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 
-	gasPrice = chainClient.CurrentChainGasPrice()
+	gasPrice = chainClient.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)

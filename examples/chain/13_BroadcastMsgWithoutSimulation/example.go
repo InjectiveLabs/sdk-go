@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
@@ -60,7 +62,10 @@ func main() {
 		panic(err)
 	}
 
-	gasPrice := clientInstance.CurrentChainGasPrice()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	gasPrice := clientInstance.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	clientInstance.SetGasPrice(gasPrice)
@@ -88,7 +93,7 @@ func main() {
 	msg.Sender = senderAddress.String()
 	msg.Order = *order
 
-	_, response, err := clientInstance.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msg)
+	_, response, err := clientInstance.BroadcastMsg(ctx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msg)
 
 	if err != nil {
 		panic(err)
@@ -97,7 +102,7 @@ func main() {
 	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 
-	gasPrice = clientInstance.CurrentChainGasPrice()
+	gasPrice = clientInstance.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	clientInstance.SetGasPrice(gasPrice)
