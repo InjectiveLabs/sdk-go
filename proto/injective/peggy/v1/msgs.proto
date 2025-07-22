@@ -1,15 +1,16 @@
 syntax = "proto3";
 package injective.peggy.v1;
 
-import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
-import "injective/peggy/v1/types.proto";
-import "injective/peggy/v1/params.proto";
 import "google/protobuf/any.proto";
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
-import "amino/amino.proto";
+import "injective/peggy/v1/types.proto";
+import "injective/peggy/v1/params.proto";
+import "injective/peggy/v1/rate_limit.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
 
@@ -19,37 +20,47 @@ service Msg {
   rpc ValsetConfirm(MsgValsetConfirm) returns (MsgValsetConfirmResponse) {
     option (google.api.http).post = "/injective/peggy/v1/valset_confirm";
   }
+
   rpc SendToEth(MsgSendToEth) returns (MsgSendToEthResponse) {
     option (google.api.http).post = "/injective/peggy/v1/send_to_eth";
   }
+
   rpc RequestBatch(MsgRequestBatch) returns (MsgRequestBatchResponse) {
     option (google.api.http).post = "/injective/peggy/v1/request_batch";
   }
+
   rpc ConfirmBatch(MsgConfirmBatch) returns (MsgConfirmBatchResponse) {
     option (google.api.http).post = "/injective/peggy/v1/confirm_batch";
   }
+
   rpc DepositClaim(MsgDepositClaim) returns (MsgDepositClaimResponse) {
     option (google.api.http).post = "/injective/peggy/v1/deposit_claim";
   }
+
   rpc WithdrawClaim(MsgWithdrawClaim) returns (MsgWithdrawClaimResponse) {
     option (google.api.http).post = "/injective/peggy/v1/withdraw_claim";
   }
+
   rpc ValsetUpdateClaim(MsgValsetUpdatedClaim)
       returns (MsgValsetUpdatedClaimResponse) {
     option (google.api.http).post = "/injective/peggy/v1/valset_updated_claim";
   }
+
   rpc ERC20DeployedClaim(MsgERC20DeployedClaim)
       returns (MsgERC20DeployedClaimResponse) {
     option (google.api.http).post = "/injective/peggy/v1/erc20_deployed_claim";
   }
+
   rpc SetOrchestratorAddresses(MsgSetOrchestratorAddresses)
       returns (MsgSetOrchestratorAddressesResponse) {
     option (google.api.http).post =
         "/injective/peggy/v1/set_orchestrator_address";
   }
+
   rpc CancelSendToEth(MsgCancelSendToEth) returns (MsgCancelSendToEthResponse) {
     option (google.api.http).post = "/injective/peggy/v1/cancel_send_to_eth";
   }
+
   rpc SubmitBadSignatureEvidence(MsgSubmitBadSignatureEvidence)
       returns (MsgSubmitBadSignatureEvidenceResponse) {
     option (google.api.http).post =
@@ -66,6 +77,17 @@ service Msg {
   // blacklist.
   rpc RevokeEthereumBlacklist(MsgRevokeEthereumBlacklist)
       returns (MsgRevokeEthereumBlacklistResponse);
+
+  //  CreateRateLimit imposes a (notional) limit on withdrawals for a particular
+  //  Peggy asset
+  rpc CreateRateLimit(MsgCreateRateLimit) returns (MsgCreateRateLimitResponse);
+
+  //  UpdateRateLimit updates the rate limit's metadata for a particular Peggy
+  //  asset
+  rpc UpdateRateLimit(MsgUpdateRateLimit) returns (MsgUpdateRateLimitResponse);
+
+  //  RemoveRateLimit lifts the rate limit for a particular Peggy asset
+  rpc RemoveRateLimit(MsgRemoveRateLimit) returns (MsgRemoveRateLimitResponse);
 }
 
 // MsgSetOrchestratorAddresses
@@ -334,3 +356,78 @@ message MsgRevokeEthereumBlacklist {
 // MsgRevokeEthereumBlacklistResponse defines the MsgRevokeEthereumBlacklist
 // response type.
 message MsgRevokeEthereumBlacklistResponse {}
+
+// MsgCreateRateLimit is used to impose a (withdrawal) limit for specific ERC20
+// token within a sliding window
+message MsgCreateRateLimit {
+  option (amino.name) = "peggy/MsgCreateRateLimit";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // address of peggy admin or governance account
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // address of the ERC20 token
+  string token_address = 2;
+
+  // decimals of the ERC20 token
+  uint32 token_decimals = 3;
+
+  // a Pyth-specific ID used to obtain USD price of the ERC20 token
+  string token_price_id = 4;
+
+  // the notional USD limit imposed on all outgoing traffic (per token)
+  string rate_limit_usd = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // the absolute amount of tokens that can be minted on Injective
+  string absolute_mint_limit = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // length of the sliding window in which inbound (outbound) traffic is
+  // measured
+  uint64 rate_limit_window = 7;
+}
+
+message MsgCreateRateLimitResponse {}
+
+message MsgUpdateRateLimit {
+  option (amino.name) = "peggy/MsgUpdateRateLimit";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of peggy admin or governance account
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // token_address is the address of rate limited token
+  string token_address = 2;
+
+  // new_token_price_id is the new Pyth price ID of the rate limited token
+  string new_token_price_id = 3;
+
+  // new_rate_limit_usd is the new notional limit (on withdrawals) in USD
+  string new_rate_limit_usd = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // new_rate_limit_window is the new length of the sliding window
+  uint64 new_rate_limit_window = 5;
+}
+
+message MsgUpdateRateLimitResponse {}
+
+message MsgRemoveRateLimit {
+  option (amino.name) = "peggy/MsgRemoveRateLimit";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // authority is the address of peggy admin or governance account
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // token_address is the address of rate limited token
+  string token_address = 2;
+}
+
+message MsgRemoveRateLimitResponse {}

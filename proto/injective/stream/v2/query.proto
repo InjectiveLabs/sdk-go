@@ -38,8 +38,10 @@ message StreamRequest {
   // filter for order failures events
   OrderFailuresFilter order_failures_filter = 11
       [ (gogoproto.nullable) = true ];
+  // filter for conditional order trigger failures events
   ConditionalOrderTriggerFailuresFilter
-      conditional_order_trigger_failures_filter = 12;
+      conditional_order_trigger_failures_filter = 12
+      [ (gogoproto.nullable) = true ];
 }
 
 message StreamResponse {
