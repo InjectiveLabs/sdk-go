@@ -147,16 +147,20 @@ func (m *ConditionalDerivativeOrderBook) XXX_DiscardUnknown() {
 var xxx_messageInfo_ConditionalDerivativeOrderBook proto.InternalMessageInfo
 
 type SubaccountOrderbookMetadata struct {
-	VanillaLimitOrderCount    uint32 `protobuf:"varint,1,opt,name=vanilla_limit_order_count,json=vanillaLimitOrderCount,proto3" json:"vanilla_limit_order_count,omitempty"`
+	// The number of vanilla limit orders
+	VanillaLimitOrderCount uint32 `protobuf:"varint,1,opt,name=vanilla_limit_order_count,json=vanillaLimitOrderCount,proto3" json:"vanilla_limit_order_count,omitempty"`
+	// The number of reduce-only limit orders
 	ReduceOnlyLimitOrderCount uint32 `protobuf:"varint,2,opt,name=reduce_only_limit_order_count,json=reduceOnlyLimitOrderCount,proto3" json:"reduce_only_limit_order_count,omitempty"`
-	// AggregateReduceOnlyQuantity is the aggregate fillable quantity of the
-	// subaccount's reduce-only limit orders in the given direction.
+	// The aggregate quantity of the subaccount's reduce-only limit orders (in
+	// human readable format)
 	AggregateReduceOnlyQuantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=aggregate_reduce_only_quantity,json=aggregateReduceOnlyQuantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"aggregate_reduce_only_quantity"`
-	// AggregateVanillaQuantity is the aggregate fillable quantity of the
-	// subaccount's vanilla limit orders in the given direction.
-	AggregateVanillaQuantity        cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=aggregate_vanilla_quantity,json=aggregateVanillaQuantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"aggregate_vanilla_quantity"`
-	VanillaConditionalOrderCount    uint32                      `protobuf:"varint,5,opt,name=vanilla_conditional_order_count,json=vanillaConditionalOrderCount,proto3" json:"vanilla_conditional_order_count,omitempty"`
-	ReduceOnlyConditionalOrderCount uint32                      `protobuf:"varint,6,opt,name=reduce_only_conditional_order_count,json=reduceOnlyConditionalOrderCount,proto3" json:"reduce_only_conditional_order_count,omitempty"`
+	// The aggregate quantity of the subaccount's vanilla limit orders (in human
+	// readable format)
+	AggregateVanillaQuantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=aggregate_vanilla_quantity,json=aggregateVanillaQuantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"aggregate_vanilla_quantity"`
+	// The number of vanilla conditional orders
+	VanillaConditionalOrderCount uint32 `protobuf:"varint,5,opt,name=vanilla_conditional_order_count,json=vanillaConditionalOrderCount,proto3" json:"vanilla_conditional_order_count,omitempty"`
+	// The number of reduce-only conditional orders
+	ReduceOnlyConditionalOrderCount uint32 `protobuf:"varint,6,opt,name=reduce_only_conditional_order_count,json=reduceOnlyConditionalOrderCount,proto3" json:"reduce_only_conditional_order_count,omitempty"`
 }
 
 func (m *SubaccountOrderbookMetadata) Reset()         { *m = SubaccountOrderbookMetadata{} }

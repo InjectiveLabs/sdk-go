@@ -27,7 +27,7 @@ message MsgBid {
   option (amino.name) = "auction/MsgBid";
 
   option (cosmos.msg.v1.signer) = "sender";
-
+  // the sender's Injective address
   string sender = 1;
   // amount of the bid in INJ tokens
   cosmos.base.v1beta1.Coin bid_amount = 2 [ (gogoproto.nullable) = false ];
