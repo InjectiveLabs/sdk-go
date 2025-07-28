@@ -481,12 +481,16 @@ service Query {
 }
 
 message Subaccount {
+  // the subaccount's trader address
   string trader = 1;
+  // the subaccount's nonce number
   uint32 subaccount_nonce = 2;
 }
 
 message QuerySubaccountOrdersRequest {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market ID
   string market_id = 2;
 }
 
@@ -496,8 +500,11 @@ message QuerySubaccountOrdersResponse {
 }
 
 message SubaccountOrderbookMetadataWithMarket {
+  // the subaccount orderbook details
   SubaccountOrderbookMetadata metadata = 1;
+  // the market ID
   string market_id = 2;
+  // true if the orderbook is for a buy orders
   bool isBuy = 3;
 }
 
@@ -514,7 +521,9 @@ message QueryExchangeParamsResponse {
 // QuerySubaccountDepositsRequest is the request type for the
 // Query/SubaccountDeposits RPC method.
 message QuerySubaccountDepositsRequest {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the subaccount details
   Subaccount subaccount = 2 [ (gogoproto.nullable) = true ];
 }
 
@@ -608,7 +617,9 @@ message QueryAggregateMarketVolumesResponse {
 // QuerySubaccountDepositsRequest is the request type for the
 // Query/SubaccountDeposits RPC method.
 message QuerySubaccountDepositRequest {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the token denom
   string denom = 2;
 }
 
@@ -653,12 +664,18 @@ enum OrderSide {
 message QuerySpotOrderbookRequest {
   // Market ID for the market
   string market_id = 1;
+  // the maximum number of orderbook entries to return per side (optional)
   uint64 limit = 2;
+  // the order side to return the orderbook entries for (optional)
   OrderSide order_side = 3;
+  // limits the number of entries to return per side based on the cumulative
+  // notional (in human readable format)
   string limit_cumulative_notional = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+  // limits the number of entries to return per side based on the cumulative
+  // quantity (in human readable format)
   string limit_cumulative_quantity = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
@@ -673,6 +690,7 @@ message QuerySpotOrderbookResponse {
 }
 
 message FullSpotMarket {
+  // spot market details
   SpotMarket market = 1;
   // mid_price_and_tob defines the mid price for this market and the best ask
   // and bid orders
@@ -747,24 +765,26 @@ message QueryAccountAddressSpotOrdersRequest {
 }
 
 message TrimmedSpotLimitOrder {
-  // price of the order
+  // price of the order (in human readable format)
   string price = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // quantity of the order
+  // quantity of the order (in human readable format)
   string quantity = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // the amount of the quantity remaining fillable
+  // the amount of the quantity remaining fillable (in human readable format)
   string fillable = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // true if the order is a buy
   bool isBuy = 4;
+  // the order hash (optional)
   string order_hash = 5;
+  // the client order ID (optional)
   string cid = 6;
 }
 
@@ -790,12 +810,12 @@ message QuerySpotMidPriceAndTOBRequest {
 // QuerySpotMidPriceAndTOBResponse is the response type for the
 // Query/SpotMidPriceAndTOB RPC method.
 message QuerySpotMidPriceAndTOBResponse {
-  // mid price of the market
+  // mid price of the market (in human readable format)
   string mid_price = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
-  // best buy price of the market
+  // best buy price of the market (in human readable format)
   string best_buy_price = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
@@ -934,30 +954,31 @@ message QueryAccountAddressDerivativeOrdersRequest {
 }
 
 message TrimmedDerivativeLimitOrder {
-  // price of the order
+  // price of the order (in human readable format)
   string price = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // quantity of the order
+  // quantity of the order (in human readable format)
   string quantity = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // margin of the order
+  // margin of the order (in human readable format)
   string margin = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // the amount of the quantity remaining fillable
+  // the amount of the quantity remaining fillable (in human readable format)
   string fillable = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // true if the order is a buy
-  bool isBuy = 5
-      [ (gogoproto.jsontag) = "isBuy" ]; // ensure omitempty is not in jsontag
+  bool isBuy = 5 [ (gogoproto.jsontag) = "isBuy" ];
+  // the order hash (optional)
   string order_hash = 6;
+  // the client order ID (optional)
   string cid = 7;
 }
 
@@ -1022,11 +1043,16 @@ message PerpetualMarketState {
 }
 
 message FullDerivativeMarket {
+  // derivative market details
   DerivativeMarket market = 1;
+  // perpetual market state or expiry futures market state
   oneof info {
+    // perpetual market info
     PerpetualMarketState perpetual_info = 2;
+    // expiry futures market info
     ExpiryFuturesMarketInfo futures_info = 3;
   }
+  // mark price (in human readable format)
   string mark_price = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -1072,7 +1098,10 @@ message QueryDerivativeMarketAddressResponse {
 
 // QuerySubaccountTradeNonceRequest is the request type for the
 // Query/SubaccountTradeNonce RPC method.
-message QuerySubaccountTradeNonceRequest { string subaccount_id = 1; }
+message QuerySubaccountTradeNonceRequest {
+  // the subaccount ID
+  string subaccount_id = 1;
+}
 
 // QueryPositionsInMarketRequest is the request type for the
 // Query/PositionsInMarket RPC method.
@@ -1086,25 +1115,35 @@ message QueryPositionsInMarketResponse {
 
 // QuerySubaccountPositionsRequest is the request type for the
 // Query/SubaccountPositions RPC method.
-message QuerySubaccountPositionsRequest { string subaccount_id = 1; }
+message QuerySubaccountPositionsRequest {
+  // the subaccount ID
+  string subaccount_id = 1;
+}
 
 // QuerySubaccountPositionInMarketRequest is the request type for the
 // Query/SubaccountPositionInMarket RPC method.
 message QuerySubaccountPositionInMarketRequest {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market ID
   string market_id = 2;
 }
 
 // QuerySubaccountEffectivePositionInMarketRequest is the request type for the
 // Query/SubaccountEffectivePositionInMarket RPC method.
 message QuerySubaccountEffectivePositionInMarketRequest {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market ID
   string market_id = 2;
 }
 
 // QuerySubaccountOrderMetadataRequest is the request type for the
 // Query/SubaccountOrderMetadata RPC method.
-message QuerySubaccountOrderMetadataRequest { string subaccount_id = 1; }
+message QuerySubaccountOrderMetadataRequest {
+  // the subaccount ID
+  string subaccount_id = 1;
+}
 
 // QuerySubaccountPositionsResponse is the response type for the
 // Query/SubaccountPositions RPC method.
@@ -1119,15 +1158,19 @@ message QuerySubaccountPositionInMarketResponse {
 }
 
 message EffectivePosition {
+  // whether the position is long or short
   bool is_long = 1;
+  // the quantity of the position (in human readable format)
   string quantity = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the entry price of the position (in human readable format)
   string entry_price = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the effective margin of the position (in human readable format)
   string effective_margin = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -1277,24 +1320,31 @@ message QueryFeeDiscountScheduleResponse {
 message QueryBalanceMismatchesRequest { int64 dust_factor = 1; }
 
 message BalanceMismatch {
+  // the subaccount ID
   string subaccountId = 1;
+  // the denom of the balance
   string denom = 2;
+  // the available balance
   string available = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the total balance
   string total = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the balance hold
   string balance_hold = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the expected total balance
   string expected_total = 6 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the difference between the total balance and the expected total balance
   string difference = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -1312,16 +1362,21 @@ message QueryBalanceMismatchesResponse {
 message QueryBalanceWithBalanceHoldsRequest {}
 
 message BalanceWithMarginHold {
+  // the subaccount ID
   string subaccountId = 1;
+  // the denom of the balance
   string denom = 2;
+  // the available balance
   string available = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the total balance
   string total = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the balance on hold
   string balance_hold = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -1356,9 +1411,13 @@ message MitoVaultInfosRequest {}
 // MitoVaultInfosResponse is the response type for the Query/MitoVaultInfos RPC
 // method.
 message MitoVaultInfosResponse {
+  // list of master addresses
   repeated string master_addresses = 1;
+  // list of derivative addresses
   repeated string derivative_addresses = 2;
+  // list of spot addresses
   repeated string spot_addresses = 3;
+  // list of cw20 addresses
   repeated string cw20_addresses = 4;
 }
 
@@ -1396,7 +1455,9 @@ message TradeHistoryOptions {
 // QueryMarketVolatilityRequest are the request params for the
 // Query/MarketVolatility RPC method.
 message QueryMarketVolatilityRequest {
+  // the market ID to query volatility for
   string market_id = 1;
+  // the trade history options
   TradeHistoryOptions trade_history_options = 2;
 }
 
@@ -1423,36 +1484,40 @@ message QueryBinaryMarketsResponse { repeated BinaryOptionsMarket markets = 1; }
 // QueryConditionalOrdersRequest is the request type for the
 // Query/ConditionalOrders RPC method.
 message QueryTraderDerivativeConditionalOrdersRequest {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market ID
   string market_id = 2;
 }
 
 message TrimmedDerivativeConditionalOrder {
-  // price of the order
+  // price of the order (in human readable format)
   string price = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // quantity of the order
+  // quantity of the order (in human readable format)
   string quantity = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // margin of the order
+  // margin of the order (in human readable format)
   string margin = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // price to trigger the order
+  // price to trigger the order (in human readable format)
   string triggerPrice = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // true if the order is a buy
-  bool isBuy = 5
-      [ (gogoproto.jsontag) = "isBuy" ]; // ensure omitempty is not in jsontag
+  bool isBuy = 5 [ (gogoproto.jsontag) = "isBuy" ];
+  // true if the order is a limit order
   bool isLimit = 6 [ (gogoproto.jsontag) = "isLimit" ];
+  // the order hash
   string order_hash = 7;
+  // the client ID
   string cid = 8;
 }
 
@@ -1481,17 +1546,19 @@ message QueryFullDerivativeOrderbookResponse {
   repeated TrimmedLimitOrder Asks = 2;
 }
 message TrimmedLimitOrder {
+  // price of the order (in human readable format)
   string price = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // quantity of the order
+  // quantity of the order (in human readable format)
   string quantity = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-
+  // the order hash
   string order_hash = 3;
+  // the subaccount ID
   string subaccount_id = 4;
 }
 message QueryMarketAtomicExecutionFeeMultiplierRequest { string market_id = 1; }
@@ -1544,7 +1611,9 @@ message QueryMarketBalancesRequest {}
 message QueryMarketBalancesResponse { repeated MarketBalance balances = 1; }
 
 message MarketBalance {
+  // the market ID
   string market_id = 1;
+  // the current balance of the market
   string balance = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -1554,6 +1623,7 @@ message MarketBalance {
 message QueryDenomMinNotionalRequest { string denom = 1; }
 
 message QueryDenomMinNotionalResponse {
+  // the minimum notional amount for the denom (in human readable format)
   string amount = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false

@@ -61,7 +61,7 @@ message QueryAllTokenPairsRequest {
 
 // QueryAllTokenPairsResponse is the response type for the Query/AllTokenPairs
 // RPC method.
-message QueryAllTokenPairsResponse { 
+message QueryAllTokenPairsResponse {
   repeated TokenPair token_pairs = 1;
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;

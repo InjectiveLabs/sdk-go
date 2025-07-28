@@ -47,16 +47,17 @@ message OrderInfo {
   string subaccount_id = 1;
   // address fee_recipient address that will receive fees for the order
   string fee_recipient = 2;
-  // price of the order
+  // price of the order (in human readable format)
   string price = 3 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // quantity of the order
+  // quantity of the order (in human readable format)
   string quantity = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the client order ID (optional)
   string cid = 5;
 }
 
@@ -67,7 +68,8 @@ message SpotOrder {
   OrderInfo order_info = 2 [ (gogoproto.nullable) = false ];
   // order types
   OrderType order_type = 3;
-  // trigger_price is the trigger price used by stop/take orders
+  // trigger_price is the trigger price used by stop/take orders (in human
+  // readable format) (optional)
   string trigger_price = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
@@ -123,12 +125,13 @@ message DerivativeOrder {
   OrderInfo order_info = 2 [ (gogoproto.nullable) = false ];
   // order types
   OrderType order_type = 3;
-  // margin is the margin used by the limit order
+  // margin is the margin used by the limit order (in human readable format)
   string margin = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // trigger_price is the trigger price used by stop/take orders
+  // trigger_price is the trigger price used by stop/take orders (in human
+  // readable format) (optional)
   string trigger_price = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true

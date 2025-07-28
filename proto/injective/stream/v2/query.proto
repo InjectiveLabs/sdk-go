@@ -13,49 +13,79 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/str
 service Stream { rpc StreamV2(StreamRequest) returns (stream StreamResponse); }
 
 message StreamRequest {
+  // filter for bank balances events
   BankBalancesFilter bank_balances_filter = 1 [ (gogoproto.nullable) = true ];
+  // filter for subaccount deposits events
   SubaccountDepositsFilter subaccount_deposits_filter = 2
       [ (gogoproto.nullable) = true ];
+  // filter for spot trades events
   TradesFilter spot_trades_filter = 3 [ (gogoproto.nullable) = true ];
+  // filter for derivative trades events
   TradesFilter derivative_trades_filter = 4 [ (gogoproto.nullable) = true ];
+  // filter for spot orders events
   OrdersFilter spot_orders_filter = 5 [ (gogoproto.nullable) = true ];
+  // filter for derivative orders events
   OrdersFilter derivative_orders_filter = 6 [ (gogoproto.nullable) = true ];
+  // filter for spot orderbooks events
   OrderbookFilter spot_orderbooks_filter = 7 [ (gogoproto.nullable) = true ];
+  // filter for derivative orderbooks events
   OrderbookFilter derivative_orderbooks_filter = 8
       [ (gogoproto.nullable) = true ];
+  // filter for positions events
   PositionsFilter positions_filter = 9 [ (gogoproto.nullable) = true ];
+  // filter for oracle prices events
   OraclePriceFilter oracle_price_filter = 10 [ (gogoproto.nullable) = true ];
 }
 
 message StreamResponse {
+  // the block height
   uint64 block_height = 1;
+  // the block time
   int64 block_time = 2;
+  // list of bank balances updates
   repeated BankBalance bank_balances = 3;
+  // list of subaccount deposits updates
   repeated SubaccountDeposits subaccount_deposits = 4;
+  // list of spot trades updates
   repeated SpotTrade spot_trades = 5;
+  // list of derivative trades updates
   repeated DerivativeTrade derivative_trades = 6;
+  // list of spot orders updates
   repeated SpotOrderUpdate spot_orders = 7;
+  // list of derivative orders updates
   repeated DerivativeOrderUpdate derivative_orders = 8;
+  // list of spot orderbook updates
   repeated OrderbookUpdate spot_orderbook_updates = 9;
+  // list of derivative orderbook updates
   repeated OrderbookUpdate derivative_orderbook_updates = 10;
+  // list of positions updates
   repeated Position positions = 11;
+  // list of oracle prices updates
   repeated OraclePrice oracle_prices = 12;
+  // the current gas price when the block was processed (in chain format)
   string gas_price = 13;
 }
 
 message OrderbookUpdate {
+  // the sequence number of the orderbook update
   uint64 seq = 1;
+  // the orderbook details
   Orderbook orderbook = 2;
 }
 
 message Orderbook {
+  // the market ID
   string market_id = 1;
+  // list of buy levels
   repeated injective.exchange.v2.Level buy_levels = 2;
+  // list of sell levels
   repeated injective.exchange.v2.Level sell_levels = 3;
 }
 
 message BankBalance {
+  // the account address
   string account = 1;
+  // list of account balances
   repeated cosmos.base.v1beta1.Coin balances = 2 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
@@ -63,7 +93,9 @@ message BankBalance {
 }
 
 message SubaccountDeposits {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the deposits details
   repeated SubaccountDeposit deposits = 2 [ (gogoproto.nullable) = false ];
 }
 
@@ -80,48 +112,68 @@ enum OrderUpdateStatus {
 }
 
 message SpotOrderUpdate {
+  // the status of the order
   OrderUpdateStatus status = 1;
+  // the order hash
   string order_hash = 2;
+  // the client order ID
   string cid = 3;
+  // the order details
   SpotOrder order = 4;
 }
 
 message SpotOrder {
+  // the market ID
   string market_id = 1;
+  // the order details
   injective.exchange.v2.SpotLimitOrder order = 2
       [ (gogoproto.nullable) = false ];
 }
 
 message DerivativeOrderUpdate {
+  // the status of the order
   OrderUpdateStatus status = 1;
+  // the order hash
   string order_hash = 2;
+  // the client order ID
   string cid = 3;
+  // the order details
   DerivativeOrder order = 4;
 }
 
 message DerivativeOrder {
+  // the market ID
   string market_id = 1;
+  // the order details
   injective.exchange.v2.DerivativeLimitOrder order = 2
       [ (gogoproto.nullable) = false ];
+  // whether the order is a market order
   bool is_market = 3;
 }
 
 message Position {
+  // the market ID
   string market_id = 1;
+  // the subaccount ID
   string subaccount_id = 2;
+  // whether the position is long or short
   bool isLong = 3;
+  // the quantity of the position (in human readable format)
   string quantity = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the entry price of the position (in human readable format)
   string entry_price = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the margin of the position (in human readable format)
   string margin = 6 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the cumulative funding entry of the position (in human readable format)
   string cumulative_funding_entry = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -129,78 +181,119 @@ message Position {
 }
 
 message OraclePrice {
+  // the symbol of the oracle price
   string symbol = 1;
+  // the updated price
   string price = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the oracle type
   string type = 3;
 }
 
 message SpotTrade {
+  // the market ID
   string market_id = 1;
+  // whether the trade is a buy or sell
   bool is_buy = 2;
+  // the execution type
   string executionType = 3;
-
+  // the quantity of the trade (in human readable format)
   string quantity = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the price of the trade (in human readable format)
   string price = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // bytes32 subaccount ID that executed the trade
+  // the subaccount ID that executed the trade
   string subaccount_id = 6;
+  // the fee of the trade (in human readable format)
   string fee = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the order hash
   string order_hash = 8;
+  // the fee recipient address
   string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
+  // the client order ID
   string cid = 10;
+  // the trade ID
   string trade_id = 11;
 }
 
 message DerivativeTrade {
+  // the market ID
   string market_id = 1;
+  // whether the trade is a buy or sell
   bool is_buy = 2;
+  // the execution type
   string executionType = 3;
+  // the subaccount ID
   string subaccount_id = 4;
+  // the position delta of the trade (in human readable format)
   injective.exchange.v2.PositionDelta position_delta = 5;
+  // the payout of the trade (in human readable format)
   string payout = 6 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the fee of the trade (in human readable format)
   string fee = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the order hash
   string order_hash = 8;
+  // the fee recipient address
   string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
+  // the client order ID
   string cid = 10;
+  // the trade ID
   string trade_id = 11;
 }
 
 message TradesFilter {
+  // list of subaccount IDs to filter by
   repeated string subaccount_ids = 1;
+  // list of market IDs to filter by
   repeated string market_ids = 2;
 }
 
 message PositionsFilter {
+  // list of subaccount IDs to filter by
   repeated string subaccount_ids = 1;
+  // list of market IDs to filter by
   repeated string market_ids = 2;
 }
 
 message OrdersFilter {
+  // list of subaccount IDs to filter by
   repeated string subaccount_ids = 1;
+  // list of market IDs to filter by
   repeated string market_ids = 2;
 }
 
-message OrderbookFilter { repeated string market_ids = 1; }
+message OrderbookFilter {
+  // list of market IDs to filter by
+  repeated string market_ids = 1;
+}
 
-message BankBalancesFilter { repeated string accounts = 1; }
+message BankBalancesFilter {
+  // list of account addresses to filter by
+  repeated string accounts = 1;
+}
 
-message SubaccountDepositsFilter { repeated string subaccount_ids = 1; }
+message SubaccountDepositsFilter {
+  // list of subaccount IDs to filter by
+  repeated string subaccount_ids = 1;
+}
 
-message OraclePriceFilter { repeated string symbol = 1; }
+message OraclePriceFilter {
+  // list of symbol to filter by
+  repeated string symbol = 1;
+}

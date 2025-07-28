@@ -34,6 +34,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Bid defines a SDK message for placing a bid for an auction
 type MsgBid struct {
+	// the sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 	// amount of the bid in INJ tokens
 	BidAmount types.Coin `protobuf:"bytes,2,opt,name=bid_amount,json=bidAmount,proto3" json:"bid_amount"`

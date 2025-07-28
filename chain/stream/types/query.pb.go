@@ -64,16 +64,26 @@ func (OrderUpdateStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 type StreamRequest struct {
-	BankBalancesFilter         *BankBalancesFilter       `protobuf:"bytes,1,opt,name=bank_balances_filter,json=bankBalancesFilter,proto3" json:"bank_balances_filter,omitempty"`
-	SubaccountDepositsFilter   *SubaccountDepositsFilter `protobuf:"bytes,2,opt,name=subaccount_deposits_filter,json=subaccountDepositsFilter,proto3" json:"subaccount_deposits_filter,omitempty"`
-	SpotTradesFilter           *TradesFilter             `protobuf:"bytes,3,opt,name=spot_trades_filter,json=spotTradesFilter,proto3" json:"spot_trades_filter,omitempty"`
-	DerivativeTradesFilter     *TradesFilter             `protobuf:"bytes,4,opt,name=derivative_trades_filter,json=derivativeTradesFilter,proto3" json:"derivative_trades_filter,omitempty"`
-	SpotOrdersFilter           *OrdersFilter             `protobuf:"bytes,5,opt,name=spot_orders_filter,json=spotOrdersFilter,proto3" json:"spot_orders_filter,omitempty"`
-	DerivativeOrdersFilter     *OrdersFilter             `protobuf:"bytes,6,opt,name=derivative_orders_filter,json=derivativeOrdersFilter,proto3" json:"derivative_orders_filter,omitempty"`
-	SpotOrderbooksFilter       *OrderbookFilter          `protobuf:"bytes,7,opt,name=spot_orderbooks_filter,json=spotOrderbooksFilter,proto3" json:"spot_orderbooks_filter,omitempty"`
-	DerivativeOrderbooksFilter *OrderbookFilter          `protobuf:"bytes,8,opt,name=derivative_orderbooks_filter,json=derivativeOrderbooksFilter,proto3" json:"derivative_orderbooks_filter,omitempty"`
-	PositionsFilter            *PositionsFilter          `protobuf:"bytes,9,opt,name=positions_filter,json=positionsFilter,proto3" json:"positions_filter,omitempty"`
-	OraclePriceFilter          *OraclePriceFilter        `protobuf:"bytes,10,opt,name=oracle_price_filter,json=oraclePriceFilter,proto3" json:"oracle_price_filter,omitempty"`
+	// filter for bank balances events
+	BankBalancesFilter *BankBalancesFilter `protobuf:"bytes,1,opt,name=bank_balances_filter,json=bankBalancesFilter,proto3" json:"bank_balances_filter,omitempty"`
+	// filter for subaccount deposits events
+	SubaccountDepositsFilter *SubaccountDepositsFilter `protobuf:"bytes,2,opt,name=subaccount_deposits_filter,json=subaccountDepositsFilter,proto3" json:"subaccount_deposits_filter,omitempty"`
+	// filter for spot trades events
+	SpotTradesFilter *TradesFilter `protobuf:"bytes,3,opt,name=spot_trades_filter,json=spotTradesFilter,proto3" json:"spot_trades_filter,omitempty"`
+	// filter for derivative trades events
+	DerivativeTradesFilter *TradesFilter `protobuf:"bytes,4,opt,name=derivative_trades_filter,json=derivativeTradesFilter,proto3" json:"derivative_trades_filter,omitempty"`
+	// filter for spot orders events
+	SpotOrdersFilter *OrdersFilter `protobuf:"bytes,5,opt,name=spot_orders_filter,json=spotOrdersFilter,proto3" json:"spot_orders_filter,omitempty"`
+	// filter for derivative orders events
+	DerivativeOrdersFilter *OrdersFilter `protobuf:"bytes,6,opt,name=derivative_orders_filter,json=derivativeOrdersFilter,proto3" json:"derivative_orders_filter,omitempty"`
+	// filter for spot orderbooks events
+	SpotOrderbooksFilter *OrderbookFilter `protobuf:"bytes,7,opt,name=spot_orderbooks_filter,json=spotOrderbooksFilter,proto3" json:"spot_orderbooks_filter,omitempty"`
+	// filter for derivative orderbooks events
+	DerivativeOrderbooksFilter *OrderbookFilter `protobuf:"bytes,8,opt,name=derivative_orderbooks_filter,json=derivativeOrderbooksFilter,proto3" json:"derivative_orderbooks_filter,omitempty"`
+	// filter for positions events
+	PositionsFilter *PositionsFilter `protobuf:"bytes,9,opt,name=positions_filter,json=positionsFilter,proto3" json:"positions_filter,omitempty"`
+	// filter for oracle prices events
+	OraclePriceFilter *OraclePriceFilter `protobuf:"bytes,10,opt,name=oracle_price_filter,json=oraclePriceFilter,proto3" json:"oracle_price_filter,omitempty"`
 }
 
 func (m *StreamRequest) Reset()         { *m = StreamRequest{} }
@@ -476,8 +486,10 @@ func (m *BankBalance) GetBalances() github_com_cosmos_cosmos_sdk_types.Coins {
 }
 
 type SubaccountDeposits struct {
-	SubaccountId string              `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Deposits     []SubaccountDeposit `protobuf:"bytes,2,rep,name=deposits,proto3" json:"deposits"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the deposits details
+	Deposits []SubaccountDeposit `protobuf:"bytes,2,rep,name=deposits,proto3" json:"deposits"`
 }
 
 func (m *SubaccountDeposits) Reset()         { *m = SubaccountDeposits{} }
@@ -768,9 +780,12 @@ func (m *DerivativeOrderUpdate) GetOrder() *DerivativeOrder {
 }
 
 type DerivativeOrder struct {
-	MarketId string                     `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Order    types.DerivativeLimitOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
-	IsMarket bool                       `protobuf:"varint,3,opt,name=is_market,json=isMarket,proto3" json:"is_market,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the derivative order details
+	Order types.DerivativeLimitOrder `protobuf:"bytes,2,opt,name=order,proto3" json:"order"`
+	// whether the order is a market order
+	IsMarket bool `protobuf:"varint,3,opt,name=is_market,json=isMarket,proto3" json:"is_market,omitempty"`
 }
 
 func (m *DerivativeOrder) Reset()         { *m = DerivativeOrder{} }
@@ -828,12 +843,19 @@ func (m *DerivativeOrder) GetIsMarket() bool {
 }
 
 type Position struct {
-	MarketId               string                      `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	SubaccountId           string                      `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	IsLong                 bool                        `protobuf:"varint,3,opt,name=isLong,proto3" json:"isLong,omitempty"`
-	Quantity               cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	EntryPrice             cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
-	Margin                 cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// whether the position is long or short
+	IsLong bool `protobuf:"varint,3,opt,name=isLong,proto3" json:"isLong,omitempty"`
+	// the quantity of the position
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// the entry price of the position
+	EntryPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
+	// the margin of the position
+	Margin cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
+	// the cumulative funding entry of the position
 	CumulativeFundingEntry cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=cumulative_funding_entry,json=cumulativeFundingEntry,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_funding_entry"`
 }
 
@@ -945,18 +967,28 @@ func (m *OraclePrice) GetType() string {
 }
 
 type SpotTrade struct {
-	MarketId      string                      `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	IsBuy         bool                        `protobuf:"varint,2,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
-	ExecutionType string                      `protobuf:"bytes,3,opt,name=executionType,proto3" json:"executionType,omitempty"`
-	Quantity      cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	Price         cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	// bytes32 subaccount ID that executed the trade
-	SubaccountId        string                      `protobuf:"bytes,6,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Fee                 cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fee"`
-	OrderHash           string                      `protobuf:"bytes,8,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	FeeRecipientAddress string                      `protobuf:"bytes,9,opt,name=fee_recipient_address,json=feeRecipientAddress,proto3" json:"fee_recipient_address,omitempty"`
-	Cid                 string                      `protobuf:"bytes,10,opt,name=cid,proto3" json:"cid,omitempty"`
-	TradeId             string                      `protobuf:"bytes,11,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// whether the trade is a buy or sell
+	IsBuy bool `protobuf:"varint,2,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
+	// the execution type
+	ExecutionType string `protobuf:"bytes,3,opt,name=executionType,proto3" json:"executionType,omitempty"`
+	// the quantity of the trade
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// the price of the trade
+	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
+	// the subaccount ID that executed the trade
+	SubaccountId string `protobuf:"bytes,6,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the fee of the trade
+	Fee cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fee"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,8,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the fee recipient address
+	FeeRecipientAddress string `protobuf:"bytes,9,opt,name=fee_recipient_address,json=feeRecipientAddress,proto3" json:"fee_recipient_address,omitempty"`
+	// the client order ID
+	Cid string `protobuf:"bytes,10,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the trade ID
+	TradeId string `protobuf:"bytes,11,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
 }
 
 func (m *SpotTrade) Reset()         { *m = SpotTrade{} }
@@ -1049,17 +1081,28 @@ func (m *SpotTrade) GetTradeId() string {
 }
 
 type DerivativeTrade struct {
-	MarketId            string                      `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	IsBuy               bool                        `protobuf:"varint,2,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
-	ExecutionType       string                      `protobuf:"bytes,3,opt,name=executionType,proto3" json:"executionType,omitempty"`
-	SubaccountId        string                      `protobuf:"bytes,4,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	PositionDelta       *types.PositionDelta        `protobuf:"bytes,5,opt,name=position_delta,json=positionDelta,proto3" json:"position_delta,omitempty"`
-	Payout              cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=payout,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"payout"`
-	Fee                 cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fee"`
-	OrderHash           string                      `protobuf:"bytes,8,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
-	FeeRecipientAddress string                      `protobuf:"bytes,9,opt,name=fee_recipient_address,json=feeRecipientAddress,proto3" json:"fee_recipient_address,omitempty"`
-	Cid                 string                      `protobuf:"bytes,10,opt,name=cid,proto3" json:"cid,omitempty"`
-	TradeId             string                      `protobuf:"bytes,11,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// whether the trade is a buy or sell
+	IsBuy bool `protobuf:"varint,2,opt,name=is_buy,json=isBuy,proto3" json:"is_buy,omitempty"`
+	// the execution type
+	ExecutionType string `protobuf:"bytes,3,opt,name=executionType,proto3" json:"executionType,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,4,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the position delta of the trade
+	PositionDelta *types.PositionDelta `protobuf:"bytes,5,opt,name=position_delta,json=positionDelta,proto3" json:"position_delta,omitempty"`
+	// the payout of the trade
+	Payout cosmossdk_io_math.LegacyDec `protobuf:"bytes,6,opt,name=payout,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"payout"`
+	// the fee of the trade
+	Fee cosmossdk_io_math.LegacyDec `protobuf:"bytes,7,opt,name=fee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"fee"`
+	// the order hash
+	OrderHash string `protobuf:"bytes,8,opt,name=order_hash,json=orderHash,proto3" json:"order_hash,omitempty"`
+	// the fee recipient address
+	FeeRecipientAddress string `protobuf:"bytes,9,opt,name=fee_recipient_address,json=feeRecipientAddress,proto3" json:"fee_recipient_address,omitempty"`
+	// the client order ID
+	Cid string `protobuf:"bytes,10,opt,name=cid,proto3" json:"cid,omitempty"`
+	// the trade ID
+	TradeId string `protobuf:"bytes,11,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
 }
 
 func (m *DerivativeTrade) Reset()         { *m = DerivativeTrade{} }

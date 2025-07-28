@@ -334,11 +334,11 @@ func (m *NextFundingTimestamp) GetNextTimestamp() int64 {
 }
 
 type MidPriceAndTOB struct {
-	// mid price of the market
+	// mid price of the market (in human readable format)
 	MidPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=mid_price,json=midPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"mid_price,omitempty"`
-	// best buy price of the market
+	// best buy price of the market (in human readable format)
 	BestBuyPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=best_buy_price,json=bestBuyPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"best_buy_price,omitempty"`
-	// best sell price of the market
+	// best sell price of the market (in human readable format)
 	BestSellPrice *cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=best_sell_price,json=bestSellPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"best_sell_price,omitempty"`
 }
 
@@ -377,8 +377,10 @@ var xxx_messageInfo_MidPriceAndTOB proto.InternalMessageInfo
 
 // A subaccount's deposit for a given base currency
 type Deposit struct {
+	// the available balance (in chain format)
 	AvailableBalance cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=available_balance,json=availableBalance,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"available_balance"`
-	TotalBalance     cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=total_balance,json=totalBalance,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"total_balance"`
+	// the total balance (in chain format)
+	TotalBalance cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=total_balance,json=totalBalance,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"total_balance"`
 }
 
 func (m *Deposit) Reset()         { *m = Deposit{} }
@@ -567,10 +569,15 @@ func (m *SubaccountOrderData) GetOrderHash() []byte {
 }
 
 type Position struct {
-	IsLong                 bool                        `protobuf:"varint,1,opt,name=isLong,proto3" json:"isLong,omitempty"`
-	Quantity               cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
-	EntryPrice             cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
-	Margin                 cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
+	// True if the position is long. False if the position is short.
+	IsLong bool `protobuf:"varint,1,opt,name=isLong,proto3" json:"isLong,omitempty"`
+	// The quantity of the position (in human readable format)
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// The entry price of the position (in human readable format)
+	EntryPrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=entry_price,json=entryPrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"entry_price"`
+	// The margin of the position (in human readable format)
+	Margin cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=margin,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"margin"`
+	// The cumulative funding
 	CumulativeFundingEntry cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=cumulative_funding_entry,json=cumulativeFundingEntry,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_funding_entry"`
 }
 
@@ -615,9 +622,12 @@ func (m *Position) GetIsLong() bool {
 }
 
 type Balance struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Denom        string   `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
-	Deposits     *Deposit `protobuf:"bytes,3,opt,name=deposits,proto3" json:"deposits,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the denom of the balance
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the token deposits details
+	Deposits *Deposit `protobuf:"bytes,3,opt,name=deposits,proto3" json:"deposits,omitempty"`
 }
 
 func (m *Balance) Reset()         { *m = Balance{} }
@@ -654,9 +664,12 @@ func (m *Balance) XXX_DiscardUnknown() {
 var xxx_messageInfo_Balance proto.InternalMessageInfo
 
 type DerivativePosition struct {
-	SubaccountId string    `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketId     string    `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Position     *Position `protobuf:"bytes,3,opt,name=position,proto3" json:"position,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the position details
+	Position *Position `protobuf:"bytes,3,opt,name=position,proto3" json:"position,omitempty"`
 }
 
 func (m *DerivativePosition) Reset()         { *m = DerivativePosition{} }
@@ -1206,6 +1219,7 @@ func (m *TradingRewardCampaignBoostInfo) GetDerivativeMarketMultipliers() []Poin
 }
 
 type CampaignRewardPool struct {
+	// the campaign start timestamp in seconds
 	StartTimestamp int64 `protobuf:"varint,1,opt,name=start_timestamp,json=startTimestamp,proto3" json:"start_timestamp,omitempty"`
 	// max_campaign_rewards are the maximum reward amounts to be disbursed at the
 	// end of the campaign
@@ -1332,10 +1346,14 @@ func (m *TradingRewardCampaignInfo) GetDisqualifiedMarketIds() []string {
 }
 
 type FeeDiscountTierInfo struct {
+	// the maker discount rate
 	MakerDiscountRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=maker_discount_rate,json=makerDiscountRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"maker_discount_rate"`
+	// the taker discount rate
 	TakerDiscountRate cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=taker_discount_rate,json=takerDiscountRate,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"taker_discount_rate"`
-	StakedAmount      cosmossdk_io_math.Int       `protobuf:"bytes,3,opt,name=staked_amount,json=stakedAmount,proto3,customtype=cosmossdk.io/math.Int" json:"staked_amount"`
-	Volume            cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=volume,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"volume"`
+	// the staked amount required to qualify for the discount (in chain format)
+	StakedAmount cosmossdk_io_math.Int `protobuf:"bytes,3,opt,name=staked_amount,json=stakedAmount,proto3,customtype=cosmossdk.io/math.Int" json:"staked_amount"`
+	// the volume required to qualify for the discount (in human readable format)
+	Volume cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=volume,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"volume"`
 }
 
 func (m *FeeDiscountTierInfo) Reset()         { *m = FeeDiscountTierInfo{} }
@@ -1372,8 +1390,10 @@ func (m *FeeDiscountTierInfo) XXX_DiscardUnknown() {
 var xxx_messageInfo_FeeDiscountTierInfo proto.InternalMessageInfo
 
 type FeeDiscountSchedule struct {
-	BucketCount    uint64 `protobuf:"varint,1,opt,name=bucket_count,json=bucketCount,proto3" json:"bucket_count,omitempty"`
-	BucketDuration int64  `protobuf:"varint,2,opt,name=bucket_duration,json=bucketDuration,proto3" json:"bucket_duration,omitempty"`
+	// the bucket number
+	BucketCount uint64 `protobuf:"varint,1,opt,name=bucket_count,json=bucketCount,proto3" json:"bucket_count,omitempty"`
+	// the bucket duration in seconds
+	BucketDuration int64 `protobuf:"varint,2,opt,name=bucket_duration,json=bucketDuration,proto3" json:"bucket_duration,omitempty"`
 	// the trading fee quote denoms which will be counted for the fee paid
 	// contribution
 	QuoteDenoms []string `protobuf:"bytes,3,rep,name=quote_denoms,json=quoteDenoms,proto3" json:"quote_denoms,omitempty"`
@@ -1453,8 +1473,10 @@ func (m *FeeDiscountSchedule) GetDisqualifiedMarketIds() []string {
 }
 
 type FeeDiscountTierTTL struct {
-	Tier         uint64 `protobuf:"varint,1,opt,name=tier,proto3" json:"tier,omitempty"`
-	TtlTimestamp int64  `protobuf:"varint,2,opt,name=ttl_timestamp,json=ttlTimestamp,proto3" json:"ttl_timestamp,omitempty"`
+	// the tier number
+	Tier uint64 `protobuf:"varint,1,opt,name=tier,proto3" json:"tier,omitempty"`
+	// the TTL timestamp in seconds
+	TtlTimestamp int64 `protobuf:"varint,2,opt,name=ttl_timestamp,json=ttlTimestamp,proto3" json:"ttl_timestamp,omitempty"`
 }
 
 func (m *FeeDiscountTierTTL) Reset()         { *m = FeeDiscountTierTTL{} }
@@ -1653,9 +1675,12 @@ func (m *SubaccountIDs) GetSubaccountIds() [][]byte {
 }
 
 type TradeRecord struct {
-	Timestamp int64                       `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	Price     cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
-	Quantity  cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
+	// the timestamp of the trade
+	Timestamp int64 `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// the price of the trade (in human readable format)
+	Price cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
+	// the quantity of the trade (in human readable format)
+	Quantity cosmossdk_io_math.LegacyDec `protobuf:"bytes,3,opt,name=quantity,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"quantity"`
 }
 
 func (m *TradeRecord) Reset()         { *m = TradeRecord{} }
@@ -1699,9 +1724,9 @@ func (m *TradeRecord) GetTimestamp() int64 {
 }
 
 type Level struct {
-	// price
+	// price (in human readable format)
 	P cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=p,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"p"`
-	// quantity
+	// quantity (in human readable format)
 	Q cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=q,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"q"`
 }
 
@@ -1739,7 +1764,9 @@ func (m *Level) XXX_DiscardUnknown() {
 var xxx_messageInfo_Level proto.InternalMessageInfo
 
 type AggregateSubaccountVolumeRecord struct {
-	SubaccountId  string          `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount volumes for each market
 	MarketVolumes []*MarketVolume `protobuf:"bytes,2,rep,name=market_volumes,json=marketVolumes,proto3" json:"market_volumes,omitempty"`
 }
 
@@ -1791,7 +1818,9 @@ func (m *AggregateSubaccountVolumeRecord) GetMarketVolumes() []*MarketVolume {
 }
 
 type AggregateAccountVolumeRecord struct {
-	Account       string          `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	// account the volume belongs to
+	Account string `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	// the aggregate volumes for each market
 	MarketVolumes []*MarketVolume `protobuf:"bytes,2,rep,name=market_volumes,json=marketVolumes,proto3" json:"market_volumes,omitempty"`
 }
 
@@ -1843,7 +1872,9 @@ func (m *AggregateAccountVolumeRecord) GetMarketVolumes() []*MarketVolume {
 }
 
 type DenomDecimals struct {
-	Denom    string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the denom of the token
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the decimals of the token
 	Decimals uint64 `protobuf:"varint,2,opt,name=decimals,proto3" json:"decimals,omitempty"`
 }
 
@@ -1895,8 +1926,10 @@ func (m *DenomDecimals) GetDecimals() uint64 {
 }
 
 type GrantAuthorization struct {
-	Grantee string                `protobuf:"bytes,1,opt,name=grantee,proto3" json:"grantee,omitempty"`
-	Amount  cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+	// the grantee address
+	Grantee string `protobuf:"bytes,1,opt,name=grantee,proto3" json:"grantee,omitempty"`
+	// the amount of stake granted (INJ in chain format)
+	Amount cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
 }
 
 func (m *GrantAuthorization) Reset()         { *m = GrantAuthorization{} }
@@ -2038,7 +2071,9 @@ func (m *EffectiveGrant) GetIsValid() bool {
 }
 
 type DenomMinNotional struct {
-	Denom       string                      `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the denom of the token
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the minimum notional value for the token (in human readable format)
 	MinNotional cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=min_notional,json=minNotional,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"min_notional"`
 }
 

@@ -426,7 +426,7 @@ func OrdersByMarketDirectionPriceOrderHashPrefix(marketID, orderHash common.Hash
 	return append(ordersByMarketDirectionPricePrefix(marketID, price, isLong), orderHash.Bytes()...)
 }
 
-// ordersByMarketDirectionPricePrefix allows to obtain prefix of exchange against a particular marketID, direction and price
+// orderIndexByMarketDirectionSubaccountPrefix allows to obtain prefix of exchange against a particular marketID, direction and price
 func ordersByMarketDirectionPricePrefix(marketID common.Hash, price *big.Int, isLong bool) []byte {
 	return append(MarketDirectionPrefix(marketID, isLong), common.LeftPadBytes(price.Bytes(), 32)...)
 }
