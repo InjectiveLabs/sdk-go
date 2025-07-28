@@ -36,57 +36,13 @@ func IsIBCDenom(denom string) bool {
 	return strings.HasPrefix(denom, "ibc/")
 }
 
-type SpotLimitOrderDelta struct {
-	Order        *SpotLimitOrder
-	FillQuantity math.LegacyDec
-}
-
-type DerivativeLimitOrderDelta struct {
-	Order          *DerivativeLimitOrder
-	FillQuantity   math.LegacyDec
-	CancelQuantity math.LegacyDec
-}
-
-type DerivativeMarketOrderDelta struct {
-	Order        *DerivativeMarketOrder
-	FillQuantity math.LegacyDec
-}
-
-func (d *DerivativeMarketOrderDelta) UnfilledQuantity() math.LegacyDec {
-	return d.Order.OrderInfo.Quantity.Sub(d.FillQuantity)
-}
-
-func (d *DerivativeLimitOrderDelta) IsBuy() bool {
-	return d.Order.IsBuy()
-}
-
-func (d *DerivativeLimitOrderDelta) SubaccountID() common.Hash {
-	return d.Order.SubaccountID()
-}
-
-func (d *DerivativeLimitOrderDelta) Price() math.LegacyDec {
-	return d.Order.Price()
-}
-
-func (d *DerivativeLimitOrderDelta) FillableQuantity() math.LegacyDec {
-	return d.Order.Fillable.Sub(d.CancelQuantity)
-}
-
-func (d *DerivativeLimitOrderDelta) OrderHash() common.Hash {
-	return d.Order.Hash()
-}
-
-func (d *DerivativeLimitOrderDelta) Cid() string {
-	return d.Order.Cid()
-}
-
 var AuctionSubaccountID = common.HexToHash("0x1111111111111111111111111111111111111111111111111111111111111111")
 var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000000000000000000000000000000")
 
 // inj1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49
 var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(ZeroSubaccountID.Hex()).Bytes())
 
-// inj1qqq3zyg3zyg3zyg3zyg3zyg3zyg3zyg3c9gg96
+// inj1zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3t5qxqh
 var AuctionFeesAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
 
 var hexRegex = regexp.MustCompile("^(0x)?[0-9a-fA-F]+$")
@@ -181,14 +137,6 @@ func BreachesMinimumTickSize(value, minTickSize math.LegacyDec) bool {
 	// is breaching when value % minTickSize != 0
 	residue := new(big.Int).Mod(value.BigInt(), minTickSize.BigInt())
 	return !bytes.Equal(residue.Bytes(), big.NewInt(0).Bytes())
-}
-
-func (s *Subaccount) GetSubaccountID() (*common.Hash, error) {
-	trader, err := sdk.AccAddressFromBech32(s.Trader)
-	if err != nil {
-		return nil, err
-	}
-	return SdkAddressWithNonceToSubaccountID(trader, s.SubaccountNonce)
 }
 
 type Account [20]byte
@@ -360,19 +308,35 @@ func IntBytesToInt(bz []byte) math.Int {
 	return math.NewIntFromBigInt(new(big.Int).SetBytes(bz))
 }
 
-func HasDuplicatesOrder(slice []*OrderData) bool {
-	seenHashes := make(map[string]struct{})
-	seenCids := make(map[string]struct{})
+func HasDuplicates(slice []string) bool {
+	seen := make(map[string]struct{})
 	for _, item := range slice {
-		hash, cid := item.GetOrderHash(), item.GetCid()
-		_, hashExists := seenHashes[hash]
-		_, cidExists := seenCids[cid]
-
-		if (hash != "" && hashExists) || (cid != "" && cidExists) {
+		if _, ok := seen[item]; ok {
 			return true
 		}
-		seenHashes[hash] = struct{}{}
-		seenCids[cid] = struct{}{}
+		seen[item] = struct{}{}
+	}
+	return false
+}
+
+func HasDuplicatesHexHash(slice []string) bool {
+	seen := make(map[common.Hash]struct{})
+	for _, item := range slice {
+		if _, ok := seen[common.HexToHash(item)]; ok {
+			return true
+		}
+		seen[common.HexToHash(item)] = struct{}{}
+	}
+	return false
+}
+
+func HasDuplicatesCoin(slice []sdk.Coin) bool {
+	seen := make(map[string]struct{})
+	for _, item := range slice {
+		if _, ok := seen[item.Denom]; ok {
+			return true
+		}
+		seen[item.Denom] = struct{}{}
 	}
 	return false
 }

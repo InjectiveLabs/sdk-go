@@ -41,7 +41,7 @@ func (a CreateSpotLimitOrderAuthz) ValidateBasic() error {
 	if !IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -81,7 +81,7 @@ func (a CreateSpotMarketOrderAuthz) ValidateBasic() error {
 	if !IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -123,7 +123,7 @@ func (a BatchCreateSpotLimitOrdersAuthz) ValidateBasic() error {
 	if !IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -163,7 +163,7 @@ func (a CancelSpotOrderAuthz) ValidateBasic() error {
 	if !IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)
@@ -205,7 +205,7 @@ func (a BatchCancelSpotOrdersAuthz) ValidateBasic() error {
 	if !IsHexHash(a.SubaccountId) {
 		return sdkerrors.ErrLogic.Wrap("invalid subaccount id to authorize")
 	}
-	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit {
+	if len(a.MarketIds) == 0 || len(a.MarketIds) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	marketsSet := reduceToSet(a.MarketIds)

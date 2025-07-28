@@ -17,7 +17,7 @@ import (
 func main() {
 	// network := common.LoadNetwork("mainnet", "k8s")
 	network := common.LoadNetwork("mainnet", "lb")
-	tmRPC, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmRPC, err := rpchttp.New(network.TmEndpoint)
 
 	if err != nil {
 		panic(err)
@@ -49,7 +49,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmRPC)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),

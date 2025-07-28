@@ -1,0 +1,12 @@
+syntax = "proto3";
+package injective.erc20.v1beta1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/erc20/types";
+
+// TokenPair defines an association of bank denom <-> EVM token (erc20 contract
+// address)
+message TokenPair {
+  string bank_denom = 1;    // bank denom
+  string erc20_address = 2; // address of erc20 smart contract that is backed by
+                            // associated bank denom
+}

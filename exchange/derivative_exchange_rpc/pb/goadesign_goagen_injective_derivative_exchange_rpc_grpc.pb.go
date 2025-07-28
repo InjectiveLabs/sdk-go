@@ -77,6 +77,8 @@ type InjectiveDerivativeExchangeRPCClient interface {
 	OrdersHistory(ctx context.Context, in *OrdersHistoryRequest, opts ...grpc.CallOption) (*OrdersHistoryResponse, error)
 	// Stream updates to historical orders of a derivative Market
 	StreamOrdersHistory(ctx context.Context, in *StreamOrdersHistoryRequest, opts ...grpc.CallOption) (InjectiveDerivativeExchangeRPC_StreamOrdersHistoryClient, error)
+	// OpenInterest gets the open interest for a derivative market.
+	OpenInterest(ctx context.Context, in *OpenInterestRequest, opts ...grpc.CallOption) (*OpenInterestResponse, error)
 }
 
 type injectiveDerivativeExchangeRPCClient struct {
@@ -528,6 +530,15 @@ func (x *injectiveDerivativeExchangeRPCStreamOrdersHistoryClient) Recv() (*Strea
 	return m, nil
 }
 
+func (c *injectiveDerivativeExchangeRPCClient) OpenInterest(ctx context.Context, in *OpenInterestRequest, opts ...grpc.CallOption) (*OpenInterestResponse, error) {
+	out := new(OpenInterestResponse)
+	err := c.cc.Invoke(ctx, "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/OpenInterest", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InjectiveDerivativeExchangeRPCServer is the server API for InjectiveDerivativeExchangeRPC service.
 // All implementations must embed UnimplementedInjectiveDerivativeExchangeRPCServer
 // for forward compatibility
@@ -587,6 +598,8 @@ type InjectiveDerivativeExchangeRPCServer interface {
 	OrdersHistory(context.Context, *OrdersHistoryRequest) (*OrdersHistoryResponse, error)
 	// Stream updates to historical orders of a derivative Market
 	StreamOrdersHistory(*StreamOrdersHistoryRequest, InjectiveDerivativeExchangeRPC_StreamOrdersHistoryServer) error
+	// OpenInterest gets the open interest for a derivative market.
+	OpenInterest(context.Context, *OpenInterestRequest) (*OpenInterestResponse, error)
 	mustEmbedUnimplementedInjectiveDerivativeExchangeRPCServer()
 }
 
@@ -671,6 +684,9 @@ func (UnimplementedInjectiveDerivativeExchangeRPCServer) OrdersHistory(context.C
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) StreamOrdersHistory(*StreamOrdersHistoryRequest, InjectiveDerivativeExchangeRPC_StreamOrdersHistoryServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamOrdersHistory not implemented")
+}
+func (UnimplementedInjectiveDerivativeExchangeRPCServer) OpenInterest(context.Context, *OpenInterestRequest) (*OpenInterestResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OpenInterest not implemented")
 }
 func (UnimplementedInjectiveDerivativeExchangeRPCServer) mustEmbedUnimplementedInjectiveDerivativeExchangeRPCServer() {
 }
@@ -1181,6 +1197,24 @@ func (x *injectiveDerivativeExchangeRPCStreamOrdersHistoryServer) Send(m *Stream
 	return x.ServerStream.SendMsg(m)
 }
 
+func _InjectiveDerivativeExchangeRPC_OpenInterest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OpenInterestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveDerivativeExchangeRPCServer).OpenInterest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_derivative_exchange_rpc.InjectiveDerivativeExchangeRPC/OpenInterest",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveDerivativeExchangeRPCServer).OpenInterest(ctx, req.(*OpenInterestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InjectiveDerivativeExchangeRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveDerivativeExchangeRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1255,6 +1289,10 @@ var InjectiveDerivativeExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OrdersHistory",
 			Handler:    _InjectiveDerivativeExchangeRPC_OrdersHistory_Handler,
+		},
+		{
+			MethodName: "OpenInterest",
+			Handler:    _InjectiveDerivativeExchangeRPC_OpenInterest_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

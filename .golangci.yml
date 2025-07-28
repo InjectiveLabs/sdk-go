@@ -1,62 +1,69 @@
+version: "2"
+run:
+  tests: false
 linters:
-  fast: false
   enable:
     - errcheck
     - errorlint
-    - gas
     - gocritic
-    - gofmt
-    - goimports
-    - gosimple
     - govet
     - ineffassign
-    - megacheck
     - misspell
     - nakedret
     - prealloc
     - revive
-    - staticcheck
     - unconvert
     - unparam
   disable:
     - unused
-
-linters-settings:
-  revive:
-    enable-all-rules: true
+  settings:
+    gocritic:
+      disabled-checks:
+        - singleCaseSwitch
+        - deferInLoop
+        - hugeParam
+        - unnamedResult
+      enabled-tags:
+        - performance
+        - diagnostic
+        - style
+        - opinionated
+        - experimental
+    revive:
+      enable-all-rules: true
+      rules:
+        - name: var-naming
+          arguments:
+            - - ID
+        - name: add-constant
+          disabled: true
+        - name: line-length-limit
+          arguments:
+            - 140
+        - name: cognitive-complexity
+          arguments:
+            - 20
+          disabled: false
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
     rules:
-      - name: var-naming
-        arguments:
-          - ["ID"]
-      - name: add-constant
-        disabled: true
-      - name: line-length-limit
-        arguments:
-          - 140
-  gocritic:
-    enabled-tags:
-      - performance
-      - diagnostic
-      - style
-      - opinionated
-      - experimental
-    disabled-checks:
-      - singleCaseSwitch
-      - deferInLoop
-      - hugeParam
-      - unnamedResult
+      - linters:
+          - revive
+        text: ALL_CAPS
+    paths:
+      - chain
+      - exchange
+      - injective_data
+      - proto
+      - client/keyring/testdata
+      - client/chain/chain_test_support.go
+      - typeddata
+      - eip712_cosmos.go
+      - eip712.go
 issues:
-  exclude-rules:
-    - linters:
-        - revive
-      text: ALL_CAPS
-  exclude-dirs:
-    - chain
-    - exchange
-    - injective_data
-    - proto
-    - client/keyring/testdata
   max-issues-per-linter: 0
-
-run:
-  tests: false

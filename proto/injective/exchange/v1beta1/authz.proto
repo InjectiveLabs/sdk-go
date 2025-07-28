@@ -3,42 +3,53 @@ package injective.exchange.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
 import "amino/amino.proto";
-
+import "cosmos/base/v1beta1/coin.proto";
+import "gogoproto/gogo.proto";
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types";
 
 // spot authz messages
 message CreateSpotLimitOrderAuthz {
   option (amino.name) = "exchange/CreateSpotLimitOrderAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market IDs
   repeated string market_ids = 2;
 }
 
 message CreateSpotMarketOrderAuthz {
   option (amino.name) = "exchange/CreateSpotMarketOrderAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market IDs
   repeated string market_ids = 2;
 }
 
 message BatchCreateSpotLimitOrdersAuthz {
   option (amino.name) = "exchange/BatchCreateSpotLimitOrdersAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market IDs
   repeated string market_ids = 2;
 }
 
 message CancelSpotOrderAuthz {
   option (amino.name) = "exchange/CancelSpotOrderAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market IDs
   repeated string market_ids = 2;
 }
 
 message BatchCancelSpotOrdersAuthz {
   option (amino.name) = "exchange/BatchCancelSpotOrdersAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market IDs
   repeated string market_ids = 2;
 }
 
@@ -46,21 +57,27 @@ message BatchCancelSpotOrdersAuthz {
 message CreateDerivativeLimitOrderAuthz {
   option (amino.name) = "exchange/CreateDerivativeLimitOrderAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market IDs
   repeated string market_ids = 2;
 }
 
 message CreateDerivativeMarketOrderAuthz {
   option (amino.name) = "exchange/CreateDerivativeMarketOrderAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market IDs
   repeated string market_ids = 2;
 }
 
 message BatchCreateDerivativeLimitOrdersAuthz {
   option (amino.name) = "exchange/BatchCreateDerivativeLimitOrdersAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the market IDs
   repeated string market_ids = 2;
 }
 
@@ -82,7 +99,30 @@ message BatchCancelDerivativeOrdersAuthz {
 message BatchUpdateOrdersAuthz {
   option (amino.name) = "exchange/BatchUpdateOrdersAuthz";
   option (cosmos_proto.implements_interface) = "Authorization";
+  // the subaccount ID
   string subaccount_id = 1;
+  // the spot market IDs
   repeated string spot_markets = 2;
+  // the derivative market IDs
   repeated string derivative_markets = 3;
+}
+
+// GenericExchangeAuthorization gives the grantee permissions to execute
+// the provided Exchange method on behalf of the granter's account.
+message GenericExchangeAuthorization {
+  option (amino.name) = "cosmos-sdk/GenericExchangeAuthorization";
+  option (cosmos_proto.implements_interface) =
+      "cosmos.authz.v1beta1.Authorization";
+
+  // Msg, identified by it's type URL, to grant permissions to the grantee
+  string msg = 1;
+
+  // SpendLimit is the maximum amount of tokens that the grantee can spend on
+  // behalf of the granter. If not set, there is no spend limit.
+  repeated cosmos.base.v1beta1.Coin spend_limit = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (amino.encoding) = "legacy_coins",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
 }

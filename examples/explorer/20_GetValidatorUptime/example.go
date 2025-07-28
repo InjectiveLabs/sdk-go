@@ -28,10 +28,10 @@ func main() {
 
 	response, err := explorerClient.FetchValidatorUptime(ctx, validatorAddress)
 	if err != nil {
-		log.Fatalf("Failed to fetch validator uptime: %v", err)
+		log.Panicf("Failed to fetch validator uptime: %v", err)
 	}
 
 	fmt.Println("Validator uptime:")
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 }

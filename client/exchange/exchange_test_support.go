@@ -34,11 +34,11 @@ func (e *MockExchangeClient) GetDerivativeMarket(ctx context.Context, marketId s
 	return &derivativeExchangePB.MarketResponse{}, nil
 }
 
-func (e *MockExchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId string) (*derivativeExchangePB.OrderbookV2Response, error) {
+func (e *MockExchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId string, depth int32) (*derivativeExchangePB.OrderbookV2Response, error) {
 	return &derivativeExchangePB.OrderbookV2Response{}, nil
 }
 
-func (e *MockExchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
+func (e *MockExchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string, depth int32) (*derivativeExchangePB.OrderbooksV2Response, error) {
 	return &derivativeExchangePB.OrderbooksV2Response{}, nil
 }
 
@@ -141,6 +141,10 @@ func (e *MockExchangeClient) GetPrice(ctx context.Context, baseSymbol, quoteSymb
 	return &oraclePB.PriceResponse{}, nil
 }
 
+func (c *MockExchangeClient) FetchPriceV2(ctx context.Context, filters []*oraclePB.PricePayloadV2) (*oraclePB.PriceV2Response, error) {
+	return &oraclePB.PriceV2Response{}, nil
+}
+
 func (e *MockExchangeClient) GetOracleList(ctx context.Context) (*oraclePB.OracleListResponse, error) {
 	return &oraclePB.OracleListResponse{}, nil
 }
@@ -205,11 +209,11 @@ func (e *MockExchangeClient) GetSpotOrders(ctx context.Context, req *spotExchang
 	return &spotExchangePB.OrdersResponse{}, nil
 }
 
-func (e *MockExchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string) (*spotExchangePB.OrderbookV2Response, error) {
+func (e *MockExchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string, depth int32) (*spotExchangePB.OrderbookV2Response, error) {
 	return &spotExchangePB.OrderbookV2Response{}, nil
 }
 
-func (e *MockExchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error) {
+func (e *MockExchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIDs []string, depth int32) (*spotExchangePB.OrderbooksV2Response, error) {
 	return &spotExchangePB.OrderbooksV2Response{}, nil
 }
 
@@ -310,6 +314,10 @@ func (e *MockExchangeClient) GetInfo(ctx context.Context, req *metaPB.InfoReques
 
 func (e *MockExchangeClient) GetVersion(ctx context.Context, req *metaPB.VersionRequest) (*metaPB.VersionResponse, error) {
 	return &metaPB.VersionResponse{}, nil
+}
+
+func (c *MockExchangeClient) FetchOpenInterest(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OpenInterestResponse, error) {
+	return &derivativeExchangePB.OpenInterestResponse{}, nil
 }
 
 func (e *MockExchangeClient) Ping(ctx context.Context, req *metaPB.PingRequest) (*metaPB.PingResponse, error) {

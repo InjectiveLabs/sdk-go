@@ -1,0 +1,62 @@
+syntax = "proto3";
+package injective.exchange.v2;
+
+import "gogoproto/gogo.proto";
+import "injective/exchange/v2/order.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
+
+// Spot Exchange Limit Orderbook
+message SpotOrderBook {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string market_id = 1;
+  bool isBuySide = 2;
+  repeated SpotLimitOrder orders = 3;
+}
+
+// Derivative Exchange Limit Orderbook
+message DerivativeOrderBook {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string market_id = 1;
+  bool isBuySide = 2;
+  repeated DerivativeLimitOrder orders = 3;
+}
+
+// Orderbook containing limit & market conditional orders
+message ConditionalDerivativeOrderBook {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  string market_id = 1;
+  repeated DerivativeLimitOrder limit_buy_orders = 2;
+  repeated DerivativeMarketOrder market_buy_orders = 3;
+  repeated DerivativeLimitOrder limit_sell_orders = 4;
+  repeated DerivativeMarketOrder market_sell_orders = 5;
+}
+
+message SubaccountOrderbookMetadata {
+  // The number of vanilla limit orders
+  uint32 vanilla_limit_order_count = 1;
+  // The number of reduce-only limit orders
+  uint32 reduce_only_limit_order_count = 2;
+  // The aggregate quantity of the subaccount's reduce-only limit orders (in
+  // human readable format)
+  string aggregate_reduce_only_quantity = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // The aggregate quantity of the subaccount's vanilla limit orders (in human
+  // readable format)
+  string aggregate_vanilla_quantity = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // The number of vanilla conditional orders
+  uint32 vanilla_conditional_order_count = 5;
+  // The number of reduce-only conditional orders
+  uint32 reduce_only_conditional_order_count = 6;
+}

@@ -1,5 +1,6 @@
 .DS_Store
 .idea/
+.vscode/
 .chain_cookie
 .exchange_cookie
 coverage.out

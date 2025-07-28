@@ -1,0 +1,19 @@
+syntax = "proto3";
+package injective.erc20.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "amino/amino.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/erc20/types";
+
+// Params defines the parameters for the erc20 module.
+message Params {
+  option (gogoproto.equal) = true;
+  option (amino.name) = "erc20/Params";
+
+  cosmos.base.v1beta1.Coin denom_creation_fee = 1 [
+    (gogoproto.moretags) = "yaml:\"denom_creation_fee\"",
+    (gogoproto.nullable) = false
+  ];
+}

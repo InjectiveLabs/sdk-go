@@ -33,7 +33,7 @@ func main() {
 
 	response, err := explorerClient.FetchContractTxs(ctx, req)
 	if err != nil {
-		log.Fatalf("Failed to fetch contract transactions: %v", err)
+		log.Panicf("Failed to fetch contract transactions: %v", err)
 	}
 
 	fmt.Println("Total Contract Transactions:", len(response.Data))
@@ -43,6 +43,6 @@ func main() {
 
 	fmt.Printf("\n\n")
 	fmt.Println("Full response:")
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 }

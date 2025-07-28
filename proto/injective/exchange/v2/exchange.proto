@@ -1,0 +1,569 @@
+syntax = "proto3";
+package injective.exchange.v2;
+
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+import "injective/oracle/v1beta1/oracle.proto";
+import "injective/exchange/v2/market.proto";
+import "injective/exchange/v2/order.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
+
+enum ExecutionType {
+  UnspecifiedExecutionType = 0;
+  Market = 1;
+  LimitFill = 2;
+  LimitMatchRestingOrder = 3;
+  LimitMatchNewOrder = 4;
+  MarketLiquidation = 5;
+  ExpiryMarketSettlement = 6;
+}
+
+message Params {
+  option (gogoproto.equal) = true;
+  option (amino.name) = "exchange/Params";
+
+  // spot_market_instant_listing_fee defines the expedited fee in INJ required
+  // to create a spot market by bypassing governance
+  cosmos.base.v1beta1.Coin spot_market_instant_listing_fee = 1
+      [ (gogoproto.nullable) = false ];
+
+  // derivative_market_instant_listing_fee defines the expedited fee in INJ
+  // required to create a derivative market by bypassing governance
+  cosmos.base.v1beta1.Coin derivative_market_instant_listing_fee = 2
+      [ (gogoproto.nullable) = false ];
+
+  // default_spot_maker_fee defines the default exchange trade fee for makers on
+  // a spot market
+  string default_spot_maker_fee_rate = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_spot_taker_fee_rate defines the default exchange trade fee rate for
+  // takers on a new spot market
+  string default_spot_taker_fee_rate = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_derivative_maker_fee defines the default exchange trade fee for
+  // makers on a new derivative market
+  string default_derivative_maker_fee_rate = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_derivative_taker_fee defines the default exchange trade fee for
+  // takers on a new derivative market
+  string default_derivative_taker_fee_rate = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_initial_margin_ratio defines the default initial margin ratio on a
+  // new derivative market
+  string default_initial_margin_ratio = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_maintenance_margin_ratio defines the default maintenance margin
+  // ratio on a new derivative market
+  string default_maintenance_margin_ratio = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_funding_interval defines the default funding interval on a
+  // derivative market
+  int64 default_funding_interval = 9;
+
+  // funding_multiple defines the timestamp multiple that the funding timestamp
+  // should be a multiple of
+  int64 funding_multiple = 10;
+
+  // relayer_fee_share_rate defines the trade fee share percentage that goes to
+  // relayers
+  string relayer_fee_share_rate = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // default_hourly_funding_rate_cap defines the default maximum absolute value
+  // of the hourly funding rate
+  string default_hourly_funding_rate_cap = 12 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // hourly_interest_rate defines the hourly interest rate
+  string default_hourly_interest_rate = 13 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // max_derivative_order_side_count defines the maximum number of derivative
+  // active orders a subaccount can have for a given orderbook side
+  uint32 max_derivative_order_side_count = 14;
+
+  // inj_reward_staked_requirement_threshold defines the threshold on INJ
+  // rewards after which one also needs staked INJ to receive more
+  string inj_reward_staked_requirement_threshold = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // the trading_rewards_vesting_duration defines the vesting times for trading
+  // rewards
+  int64 trading_rewards_vesting_duration = 16;
+
+  // liquidator_reward_share_rate defines the ratio of the split of the surplus
+  // collateral that goes to the liquidator
+  string liquidator_reward_share_rate = 17 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // binary_options_market_instant_listing_fee defines the expedited fee in INJ
+  // required to create a derivative market by bypassing governance
+  cosmos.base.v1beta1.Coin binary_options_market_instant_listing_fee = 18
+      [ (gogoproto.nullable) = false ];
+  // atomic_market_order_access_level defines the required access permissions
+  // for executing atomic market orders
+  AtomicMarketOrderAccessLevel atomic_market_order_access_level = 19;
+
+  // spot_atomic_market_order_fee_multiplier defines the default multiplier for
+  // executing atomic market orders in spot markets
+  string spot_atomic_market_order_fee_multiplier = 20 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // derivative_atomic_market_order_fee_multiplier defines the default
+  // multiplier for executing atomic market orders in derivative markets
+  string derivative_atomic_market_order_fee_multiplier = 21 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // binary_options_atomic_market_order_fee_multiplier defines the default
+  // multiplier for executing atomic market orders in binary markets
+  string binary_options_atomic_market_order_fee_multiplier = 22 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // minimal_protocol_fee_rate defines the minimal protocol fee rate
+  string minimal_protocol_fee_rate = 23 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // is_instant_derivative_market_launch_enabled defines whether instant
+  // derivative market launch is enabled
+  bool is_instant_derivative_market_launch_enabled = 24;
+
+  int64 post_only_mode_height_threshold = 25;
+
+  // Maximum time in seconds since the last mark price update to allow a
+  // decrease in margin
+  int64 margin_decrease_price_timestamp_threshold_seconds = 26;
+
+  // List of addresses that are allowed to perform exchange admin operations
+  repeated string exchange_admins = 27;
+
+  // inj_auction_max_cap defines the maximum cap for INJ sent to auction
+  string inj_auction_max_cap = 28 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // fixed_gas_enabled indicates if msg server will consume fixed gas amount for
+  // certain msg types
+  bool fixed_gas_enabled = 29;
+
+  // emit_legacy_version_events indicates if events of legacy version types
+  // should be emitted in parallel to the new version events
+  bool emit_legacy_version_events = 30;
+
+  // default_reduce_margin_ratio defines the default reduce margin ratio on a
+  // new derivative market
+  string default_reduce_margin_ratio = 31 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message NextFundingTimestamp { int64 next_timestamp = 1; }
+
+message MidPriceAndTOB {
+  // mid price of the market (in human readable format)
+  string mid_price = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // best buy price of the market (in human readable format)
+  string best_buy_price = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // best sell price of the market (in human readable format)
+  string best_sell_price = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+}
+
+// A subaccount's deposit for a given base currency
+message Deposit {
+  // the available balance (in chain format)
+  string available_balance = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the total balance (in chain format)
+  string total_balance = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message SubaccountTradeNonce { uint32 nonce = 1; }
+
+message SubaccountOrder {
+  // price of the order
+  string price = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the amount of the quantity remaining fillable
+  string quantity = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  bool isReduceOnly = 3;
+  string cid = 4;
+}
+
+message SubaccountOrderData {
+  SubaccountOrder order = 1;
+  bytes order_hash = 2;
+}
+
+message Position {
+  // True if the position is long. False if the position is short.
+  bool isLong = 1;
+  // The quantity of the position (in human readable format)
+  string quantity = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // The entry price of the position (in human readable format)
+  string entry_price = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // The margin of the position (in human readable format)
+  string margin = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // The cumulative funding
+  string cumulative_funding_entry = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message Balance {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // the subaccount ID
+  string subaccount_id = 1;
+  // the denom of the balance
+  string denom = 2;
+  // the token deposits details
+  Deposit deposits = 3;
+}
+
+message DerivativePosition {
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  // the subaccount ID
+  string subaccount_id = 1;
+  // the market ID
+  string market_id = 2;
+  // the position details
+  Position position = 3;
+}
+
+message MarketOrderIndicator {
+  // market_id represents the unique ID of the market
+  string market_id = 1;
+  bool isBuy = 2;
+}
+
+message TradeLog {
+  string quantity = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string price = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // bytes32 subaccount ID that executed the trade
+  bytes subaccount_id = 3;
+  string fee = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  bytes order_hash = 5;
+  bytes fee_recipient_address = 6 [ (gogoproto.nullable) = true ];
+  string cid = 7;
+}
+
+message PositionDelta {
+  bool is_long = 1;
+  string execution_quantity = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string execution_margin = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string execution_price = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message DerivativeTradeLog {
+  bytes subaccount_id = 1;
+  PositionDelta position_delta = 2;
+  string payout = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string fee = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  bytes order_hash = 5;
+  bytes fee_recipient_address = 6 [ (gogoproto.nullable) = true ];
+  string cid = 7;
+  string pnl = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message SubaccountPosition {
+  Position position = 1;
+  bytes subaccount_id = 2;
+}
+
+message SubaccountDeposit {
+  bytes subaccount_id = 1;
+  Deposit deposit = 2;
+}
+
+message DepositUpdate {
+  string denom = 1;
+  repeated SubaccountDeposit deposits = 2;
+}
+
+message PointsMultiplier {
+  string maker_points_multiplier = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string taker_points_multiplier = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message TradingRewardCampaignBoostInfo {
+  repeated string boosted_spot_market_ids = 1;
+  repeated PointsMultiplier spot_market_multipliers = 2
+      [ (gogoproto.nullable) = false ];
+  repeated string boosted_derivative_market_ids = 3;
+  repeated PointsMultiplier derivative_market_multipliers = 4
+      [ (gogoproto.nullable) = false ];
+}
+
+message CampaignRewardPool {
+  // the campaign start timestamp in seconds
+  int64 start_timestamp = 1;
+  // max_campaign_rewards are the maximum reward amounts to be disbursed at the
+  // end of the campaign
+  repeated cosmos.base.v1beta1.Coin max_campaign_rewards = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+message TradingRewardCampaignInfo {
+  // number of seconds of the duration of each campaign
+  int64 campaign_duration_seconds = 1;
+  // the trading fee quote denoms which will be counted for the rewards
+  repeated string quote_denoms = 2;
+  // the optional boost info for markets
+  TradingRewardCampaignBoostInfo trading_reward_boost_info = 3;
+  // the marketIDs which are disqualified from being rewarded
+  repeated string disqualified_market_ids = 4;
+}
+
+message FeeDiscountTierInfo {
+  // the maker discount rate
+  string maker_discount_rate = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the taker discount rate
+  string taker_discount_rate = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the staked amount required to qualify for the discount (in chain format)
+  string staked_amount = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // the volume required to qualify for the discount (in human readable format)
+  string volume = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message FeeDiscountSchedule {
+  // the bucket number
+  uint64 bucket_count = 1;
+  // the bucket duration in seconds
+  int64 bucket_duration = 2;
+  // the trading fee quote denoms which will be counted for the fee paid
+  // contribution
+  repeated string quote_denoms = 3;
+  // the fee discount tiers
+  repeated FeeDiscountTierInfo tier_infos = 4;
+  // the marketIDs which are disqualified from contributing to the fee paid
+  // amount
+  repeated string disqualified_market_ids = 5;
+}
+
+message FeeDiscountTierTTL {
+  // the tier number
+  uint64 tier = 1;
+  // the TTL timestamp in seconds
+  int64 ttl_timestamp = 2;
+}
+
+message AccountRewards {
+  string account = 1;
+  repeated cosmos.base.v1beta1.Coin rewards = 2 [
+    (gogoproto.nullable) = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+message TradeRecords {
+  string market_id = 1;
+  repeated TradeRecord latest_trade_records = 2;
+}
+
+message SubaccountIDs { repeated bytes subaccount_ids = 1; }
+
+message TradeRecord {
+  // the timestamp of the trade
+  int64 timestamp = 1;
+
+  // the price of the trade (in human readable format)
+  string price = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // the quantity of the trade (in human readable format)
+  string quantity = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message Level {
+  // price (in human readable format)
+  string p = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // quantity (in human readable format)
+  string q = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message AggregateSubaccountVolumeRecord {
+  // the subaccount ID
+  string subaccount_id = 1;
+  // the subaccount volumes for each market
+  repeated MarketVolume market_volumes = 2;
+}
+
+message AggregateAccountVolumeRecord {
+  // account the volume belongs to
+  string account = 1;
+  // the aggregate volumes for each market
+  repeated MarketVolume market_volumes = 2;
+}
+
+message DenomDecimals {
+  // the denom of the token
+  string denom = 1;
+  // the decimals of the token
+  uint64 decimals = 2;
+}
+
+message GrantAuthorization {
+  // the grantee address
+  string grantee = 1;
+  // the amount of stake granted (INJ in chain format)
+  string amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message ActiveGrant {
+  string granter = 1;
+  string amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EffectiveGrant {
+  string granter = 1;
+  string net_granted_stake = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  bool is_valid = 3;
+}
+
+message DenomMinNotional {
+  // the denom of the token
+  string denom = 1;
+  // the minimum notional value for the token (in human readable format)
+  string min_notional = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

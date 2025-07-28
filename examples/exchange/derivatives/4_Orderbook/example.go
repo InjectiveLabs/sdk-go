@@ -19,11 +19,12 @@ func main() {
 
 	ctx := context.Background()
 	marketId := "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"
-	res, err := exchangeClient.GetDerivativeOrderbookV2(ctx, marketId)
+	depth := int32(10)
+	res, err := exchangeClient.GetDerivativeOrderbookV2(ctx, marketId, depth)
 	if err != nil {
 		panic(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 }

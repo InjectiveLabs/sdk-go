@@ -24,6 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 type InjectiveExplorerRPCClient interface {
 	// GetAccountTxs returns tranctions involving in an account based upon params.
 	GetAccountTxs(ctx context.Context, in *GetAccountTxsRequest, opts ...grpc.CallOption) (*GetAccountTxsResponse, error)
+	// GetAccountTxs returns tranctions involving in an account based upon params.
+	GetAccountTxsV2(ctx context.Context, in *GetAccountTxsV2Request, opts ...grpc.CallOption) (*GetAccountTxsV2Response, error)
 	// GetContractTxs returns contract-related transactions
 	GetContractTxs(ctx context.Context, in *GetContractTxsRequest, opts ...grpc.CallOption) (*GetContractTxsResponse, error)
 	// GetContractTxs returns contract-related transactions
@@ -89,6 +91,15 @@ func NewInjectiveExplorerRPCClient(cc grpc.ClientConnInterface) InjectiveExplore
 func (c *injectiveExplorerRPCClient) GetAccountTxs(ctx context.Context, in *GetAccountTxsRequest, opts ...grpc.CallOption) (*GetAccountTxsResponse, error) {
 	out := new(GetAccountTxsResponse)
 	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetAccountTxs", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveExplorerRPCClient) GetAccountTxsV2(ctx context.Context, in *GetAccountTxsV2Request, opts ...grpc.CallOption) (*GetAccountTxsV2Response, error) {
+	out := new(GetAccountTxsV2Response)
+	err := c.cc.Invoke(ctx, "/injective_explorer_rpc.InjectiveExplorerRPC/GetAccountTxsV2", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -363,6 +374,8 @@ func (c *injectiveExplorerRPCClient) GetStats(ctx context.Context, in *GetStatsR
 type InjectiveExplorerRPCServer interface {
 	// GetAccountTxs returns tranctions involving in an account based upon params.
 	GetAccountTxs(context.Context, *GetAccountTxsRequest) (*GetAccountTxsResponse, error)
+	// GetAccountTxs returns tranctions involving in an account based upon params.
+	GetAccountTxsV2(context.Context, *GetAccountTxsV2Request) (*GetAccountTxsV2Response, error)
 	// GetContractTxs returns contract-related transactions
 	GetContractTxs(context.Context, *GetContractTxsRequest) (*GetContractTxsResponse, error)
 	// GetContractTxs returns contract-related transactions
@@ -424,6 +437,9 @@ type UnimplementedInjectiveExplorerRPCServer struct {
 
 func (UnimplementedInjectiveExplorerRPCServer) GetAccountTxs(context.Context, *GetAccountTxsRequest) (*GetAccountTxsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccountTxs not implemented")
+}
+func (UnimplementedInjectiveExplorerRPCServer) GetAccountTxsV2(context.Context, *GetAccountTxsV2Request) (*GetAccountTxsV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAccountTxsV2 not implemented")
 }
 func (UnimplementedInjectiveExplorerRPCServer) GetContractTxs(context.Context, *GetContractTxsRequest) (*GetContractTxsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContractTxs not implemented")
@@ -524,6 +540,24 @@ func _InjectiveExplorerRPC_GetAccountTxs_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveExplorerRPCServer).GetAccountTxs(ctx, req.(*GetAccountTxsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveExplorerRPC_GetAccountTxsV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAccountTxsV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExplorerRPCServer).GetAccountTxsV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_explorer_rpc.InjectiveExplorerRPC/GetAccountTxsV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExplorerRPCServer).GetAccountTxsV2(ctx, req.(*GetAccountTxsV2Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -976,6 +1010,10 @@ var InjectiveExplorerRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAccountTxs",
 			Handler:    _InjectiveExplorerRPC_GetAccountTxs_Handler,
+		},
+		{
+			MethodName: "GetAccountTxsV2",
+			Handler:    _InjectiveExplorerRPC_GetAccountTxsV2_Handler,
 		},
 		{
 			MethodName: "GetContractTxs",

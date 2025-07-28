@@ -19,11 +19,12 @@ func main() {
 
 	ctx := context.Background()
 	marketId := "0xa508cb32923323679f29a032c70342c147c17d0145625922b0ef22e955c844c0"
-	res, err := exchangeClient.GetSpotOrderbookV2(ctx, marketId)
+	depth := int32(10)
+	res, err := exchangeClient.GetSpotOrderbookV2(ctx, marketId, depth)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	str, _ := json.MarshalIndent(res, "", " ")
+	str, _ := json.MarshalIndent(res, "", "\t")
 	fmt.Print(string(str))
 }

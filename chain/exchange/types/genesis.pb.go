@@ -823,9 +823,12 @@ func (m *ConditionalDerivativeOrderBook) XXX_DiscardUnknown() {
 var xxx_messageInfo_ConditionalDerivativeOrderBook proto.InternalMessageInfo
 
 type Balance struct {
-	SubaccountId string   `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	Denom        string   `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
-	Deposits     *Deposit `protobuf:"bytes,3,opt,name=deposits,proto3" json:"deposits,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the denom of the balance
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	// the token deposits details
+	Deposits *Deposit `protobuf:"bytes,3,opt,name=deposits,proto3" json:"deposits,omitempty"`
 }
 
 func (m *Balance) Reset()         { *m = Balance{} }
@@ -862,9 +865,12 @@ func (m *Balance) XXX_DiscardUnknown() {
 var xxx_messageInfo_Balance proto.InternalMessageInfo
 
 type DerivativePosition struct {
-	SubaccountId string    `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
-	MarketId     string    `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
-	Position     *Position `protobuf:"bytes,3,opt,name=position,proto3" json:"position,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the market ID
+	MarketId string `protobuf:"bytes,2,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	// the position details
+	Position *Position `protobuf:"bytes,3,opt,name=position,proto3" json:"position,omitempty"`
 }
 
 func (m *DerivativePosition) Reset()         { *m = DerivativePosition{} }
@@ -901,7 +907,9 @@ func (m *DerivativePosition) XXX_DiscardUnknown() {
 var xxx_messageInfo_DerivativePosition proto.InternalMessageInfo
 
 type SubaccountNonce struct {
-	SubaccountId         string               `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount ID
+	SubaccountId string `protobuf:"bytes,1,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	// the subaccount trade nonce
 	SubaccountTradeNonce SubaccountTradeNonce `protobuf:"bytes,2,opt,name=subaccount_trade_nonce,json=subaccountTradeNonce,proto3" json:"subaccount_trade_nonce"`
 }
 

@@ -23,15 +23,14 @@ import (
 type ExchangeClient interface {
 	QueryClient() *grpc.ClientConn
 	GetDerivativeMarket(ctx context.Context, marketId string) (*derivativeExchangePB.MarketResponse, error)
-	GetDerivativeOrderbookV2(ctx context.Context, marketId string) (*derivativeExchangePB.OrderbookV2Response, error)
-	GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error)
+	GetDerivativeOrderbookV2(ctx context.Context, marketId string, depth int32) (*derivativeExchangePB.OrderbookV2Response, error)
+	GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string, depth int32) (*derivativeExchangePB.OrderbooksV2Response, error)
 	// StreamDerivativeOrderbook deprecated API
 	StreamDerivativeOrderbookV2(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookV2Client, error)
 	StreamDerivativeOrderbookUpdate(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamOrderbookUpdateClient, error)
 	StreamDerivativeMarket(ctx context.Context, marketIDs []string) (derivativeExchangePB.InjectiveDerivativeExchangeRPC_StreamMarketClient, error)
 	GetDerivativeOrders(ctx context.Context, req *derivativeExchangePB.OrdersRequest) (*derivativeExchangePB.OrdersResponse, error)
 	GetDerivativeMarkets(ctx context.Context, req *derivativeExchangePB.MarketsRequest) (*derivativeExchangePB.MarketsResponse, error)
-	GetDerivativePositions(ctx context.Context, req *derivativeExchangePB.PositionsRequest) (*derivativeExchangePB.PositionsResponse, error)
 	GetDerivativePositionsV2(ctx context.Context, req *derivativeExchangePB.PositionsV2Request) (*derivativeExchangePB.PositionsV2Response, error)
 	GetDerivativeLiquidablePositions(ctx context.Context, req *derivativeExchangePB.LiquidablePositionsRequest) (*derivativeExchangePB.LiquidablePositionsResponse, error)
 	// Deprecated: Use StreamDerivativePositionsV2 instead. This method will be removed in a future version.
@@ -49,6 +48,7 @@ type ExchangeClient interface {
 	GetDerivativeFundingPayments(ctx context.Context, req *derivativeExchangePB.FundingPaymentsRequest) (*derivativeExchangePB.FundingPaymentsResponse, error)
 	GetDerivativeFundingRates(ctx context.Context, req *derivativeExchangePB.FundingRatesRequest) (*derivativeExchangePB.FundingRatesResponse, error)
 	GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (*oraclePB.PriceResponse, error)
+	FetchPriceV2(ctx context.Context, filters []*oraclePB.PricePayloadV2) (*oraclePB.PriceV2Response, error)
 	GetOracleList(ctx context.Context) (*oraclePB.OracleListResponse, error)
 	StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error)
 	GetAuction(ctx context.Context, round int64) (*auctionPB.AuctionEndpointResponse, error)
@@ -65,8 +65,8 @@ type ExchangeClient interface {
 	GetPortfolio(ctx context.Context, accountAddress string) (*accountPB.PortfolioResponse, error)
 	GetRewards(ctx context.Context, req *accountPB.RewardsRequest) (*accountPB.RewardsResponse, error)
 	GetSpotOrders(ctx context.Context, req *spotExchangePB.OrdersRequest) (*spotExchangePB.OrdersResponse, error)
-	GetSpotOrderbookV2(ctx context.Context, marketId string) (*spotExchangePB.OrderbookV2Response, error)
-	GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error)
+	GetSpotOrderbookV2(ctx context.Context, marketId string, depth int32) (*spotExchangePB.OrderbookV2Response, error)
+	GetSpotOrderbooksV2(ctx context.Context, marketIDs []string, depth int32) (*spotExchangePB.OrderbooksV2Response, error)
 	// StreamSpotOrderbook deprecated API
 	StreamSpotOrderbookV2(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookV2Client, error)
 	StreamSpotOrderbookUpdate(ctx context.Context, marketIDs []string) (spotExchangePB.InjectiveSpotExchangeRPC_StreamOrderbookUpdateClient, error)
@@ -85,9 +85,9 @@ type ExchangeClient interface {
 	GetInsuranceFunds(ctx context.Context, req *insurancePB.FundsRequest) (*insurancePB.FundsResponse, error)
 	GetRedemptions(ctx context.Context, req *insurancePB.RedemptionsRequest) (*insurancePB.RedemptionsResponse, error)
 
-	GetAccountPortfolio(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioResponse, error)
 	GetAccountPortfolioBalances(ctx context.Context, accountAddress string, usd bool) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error)
 	StreamAccountPortfolio(ctx context.Context, accountAddress string, subaccountId, balanceType string) (portfolioExchangePB.InjectivePortfolioRPC_StreamAccountPortfolioClient, error)
+	FetchOpenInterest(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OpenInterestResponse, error)
 
 	StreamKeepalive(ctx context.Context) (metaPB.InjectiveMetaRPC_StreamKeepaliveClient, error)
 	GetInfo(ctx context.Context, req *metaPB.InfoRequest) (*metaPB.InfoResponse, error)
@@ -180,17 +180,6 @@ func (c *exchangeClient) GetDerivativeOrders(ctx context.Context, req *derivativ
 	return res, nil
 }
 
-// Deprecated: Use GetDerivativePositionsV2 instead.
-func (c *exchangeClient) GetDerivativePositions(ctx context.Context, req *derivativeExchangePB.PositionsRequest) (*derivativeExchangePB.PositionsResponse, error) {
-	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.Positions, req)
-	if err != nil {
-		fmt.Println(err)
-		return &derivativeExchangePB.PositionsResponse{}, err
-	}
-
-	return res, nil
-}
-
 func (c *exchangeClient) GetDerivativePositionsV2(ctx context.Context, req *derivativeExchangePB.PositionsV2Request) (*derivativeExchangePB.PositionsV2Response, error) {
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.PositionsV2, req)
 	if err != nil {
@@ -211,9 +200,10 @@ func (c *exchangeClient) GetDerivativeLiquidablePositions(ctx context.Context, r
 	return res, nil
 }
 
-func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId string) (*derivativeExchangePB.OrderbookV2Response, error) {
+func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId string, depth int32) (*derivativeExchangePB.OrderbookV2Response, error) {
 	req := derivativeExchangePB.OrderbookV2Request{
 		MarketId: marketId,
+		Depth:    depth,
 	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.OrderbookV2, &req)
@@ -225,9 +215,10 @@ func (c *exchangeClient) GetDerivativeOrderbookV2(ctx context.Context, marketId 
 	return res, nil
 }
 
-func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OrderbooksV2Response, error) {
+func (c *exchangeClient) GetDerivativeOrderbooksV2(ctx context.Context, marketIDs []string, depth int32) (*derivativeExchangePB.OrderbooksV2Response, error) {
 	req := derivativeExchangePB.OrderbooksV2Request{
 		MarketIds: marketIDs,
+		Depth:     depth,
 	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.OrderbooksV2, &req)
@@ -466,6 +457,20 @@ func (c *exchangeClient) GetPrice(ctx context.Context, baseSymbol, quoteSymbol, 
 	return res, nil
 }
 
+func (c *exchangeClient) FetchPriceV2(ctx context.Context, filters []*oraclePB.PricePayloadV2) (*oraclePB.PriceV2Response, error) {
+	req := oraclePB.PriceV2Request{
+		Filters: filters,
+	}
+
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.oracleClient.PriceV2, &req)
+	if err != nil {
+		fmt.Println(err)
+		return &oraclePB.PriceV2Response{}, err
+	}
+
+	return res, nil
+}
+
 func (c *exchangeClient) GetOracleList(ctx context.Context) (*oraclePB.OracleListResponse, error) {
 	req := oraclePB.OracleListRequest{}
 
@@ -682,9 +687,10 @@ func (c *exchangeClient) GetSpotOrders(ctx context.Context, req *spotExchangePB.
 	return res, nil
 }
 
-func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string) (*spotExchangePB.OrderbookV2Response, error) {
+func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string, depth int32) (*spotExchangePB.OrderbookV2Response, error) {
 	req := spotExchangePB.OrderbookV2Request{
 		MarketId: marketId,
+		Depth:    depth,
 	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.OrderbookV2, &req)
@@ -697,9 +703,10 @@ func (c *exchangeClient) GetSpotOrderbookV2(ctx context.Context, marketId string
 	return res, nil
 }
 
-func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIDs []string) (*spotExchangePB.OrderbooksV2Response, error) {
+func (c *exchangeClient) GetSpotOrderbooksV2(ctx context.Context, marketIDs []string, depth int32) (*spotExchangePB.OrderbooksV2Response, error) {
 	req := spotExchangePB.OrderbooksV2Request{
 		MarketIds: marketIDs,
+		Depth:     depth,
 	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.spotExchangeClient.OrderbooksV2, &req)
@@ -946,20 +953,6 @@ func (c *exchangeClient) StreamKeepalive(ctx context.Context) (metaPB.InjectiveM
 	return stream, nil
 }
 
-// Deprecated: Use GetAccountPortfolioBalances instead.
-func (c *exchangeClient) GetAccountPortfolio(ctx context.Context, accountAddress string) (*portfolioExchangePB.AccountPortfolioResponse, error) {
-	req := &portfolioExchangePB.AccountPortfolioRequest{
-		AccountAddress: accountAddress,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.portfolioExchangeClient.AccountPortfolio, req)
-	if err != nil {
-		fmt.Println(err)
-		return &portfolioExchangePB.AccountPortfolioResponse{}, err
-	}
-
-	return res, nil
-}
-
 func (c *exchangeClient) GetAccountPortfolioBalances(ctx context.Context, accountAddress string, usd bool) (*portfolioExchangePB.AccountPortfolioBalancesResponse, error) {
 	req := &portfolioExchangePB.AccountPortfolioBalancesRequest{
 		AccountAddress: accountAddress,
@@ -988,6 +981,19 @@ func (c *exchangeClient) StreamAccountPortfolio(ctx context.Context, accountAddr
 	}
 
 	return stream, nil
+}
+
+func (c *exchangeClient) FetchOpenInterest(ctx context.Context, marketIDs []string) (*derivativeExchangePB.OpenInterestResponse, error) {
+	req := &derivativeExchangePB.OpenInterestRequest{
+		MarketIDs: marketIDs,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.derivativeExchangeClient.OpenInterest, req)
+	if err != nil {
+		fmt.Println(err)
+		return &derivativeExchangePB.OpenInterestResponse{}, err
+	}
+
+	return res, nil
 }
 
 func (c *exchangeClient) GetNetwork() common.Network {

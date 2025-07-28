@@ -3,9 +3,10 @@ name: buf.build/InjectiveLabs/injective-core
 deps:
   - buf.build/googleapis/googleapis
   - buf.build/cosmos/cosmos-proto
-  - buf.build/cosmos/cosmos-sdk:v0.50.5
+  - buf.build/cosmos/cosmos-sdk:v0.50.0
   - buf.build/cosmos/gogo-proto
-  - buf.build/cosmwasm/wasmd:v0.51.0
+  - buf.build/cosmwasm/wasmd:main
+  - buf.build/protocolbuffers/wellknowntypes
 breaking:
   use:
     - FILE

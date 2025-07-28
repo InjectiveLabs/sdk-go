@@ -8,12 +8,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/ethereum/go-ethereum/common"
-
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 // constants
@@ -218,26 +216,6 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 		}
 	}
 	return govtypes.ValidateAbstract(p)
-}
-
-// NewSpotMarketParamUpdateProposal returns new instance of SpotMarketParamUpdateProposal
-func NewSpotMarketParamUpdateProposal(title, description string, marketID common.Hash, makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec, status MarketStatus, ticker string, baseDecimals, quoteDecimals uint32) *SpotMarketParamUpdateProposal {
-	return &SpotMarketParamUpdateProposal{
-		title,
-		description,
-		marketID.Hex(),
-		makerFeeRate,
-		takerFeeRate,
-		relayerFeeShareRate,
-		minPriceTickSize,
-		minQuantityTickSize,
-		status,
-		ticker,
-		minNotional,
-		nil,
-		baseDecimals,
-		quoteDecimals,
-	}
 }
 
 // Implements Proposal Interface
@@ -455,47 +433,6 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(p)
 }
 
-// NewDerivativeMarketParamUpdateProposal returns new instance of DerivativeMarketParamUpdateProposal
-func NewDerivativeMarketParamUpdateProposal(
-	title string,
-	description string,
-	marketID string,
-	initialMarginRatio *math.LegacyDec,
-	maintenanceMarginRatio *math.LegacyDec,
-	makerFeeRate *math.LegacyDec,
-	takerFeeRate *math.LegacyDec,
-	relayerFeeShareRate *math.LegacyDec,
-	minPriceTickSize *math.LegacyDec,
-	minQuantityTickSize *math.LegacyDec,
-	minNotional *math.LegacyDec,
-	hourlyInterestRate *math.LegacyDec,
-	hourlyFundingRateCap *math.LegacyDec,
-	status MarketStatus,
-	oracleParams *OracleParams,
-	ticker string,
-	adminInfo *AdminInfo,
-) *DerivativeMarketParamUpdateProposal {
-	return &DerivativeMarketParamUpdateProposal{
-		Title:                  title,
-		Description:            description,
-		MarketId:               marketID,
-		InitialMarginRatio:     initialMarginRatio,
-		MaintenanceMarginRatio: maintenanceMarginRatio,
-		MakerFeeRate:           makerFeeRate,
-		TakerFeeRate:           takerFeeRate,
-		RelayerFeeShareRate:    relayerFeeShareRate,
-		MinPriceTickSize:       minPriceTickSize,
-		MinQuantityTickSize:    minQuantityTickSize,
-		HourlyInterestRate:     hourlyInterestRate,
-		HourlyFundingRateCap:   hourlyFundingRateCap,
-		Status:                 status,
-		OracleParams:           oracleParams,
-		Ticker:                 ticker,
-		MinNotional:            minNotional,
-		AdminInfo:              adminInfo,
-	}
-}
-
 // Implements Proposal Interface
 var _ govtypes.Content = &DerivativeMarketParamUpdateProposal{}
 
@@ -677,18 +614,6 @@ func (p *MarketForcedSettlementProposal) ValidateBasic() error {
 	return govtypes.ValidateAbstract(p)
 }
 
-// NewUpdateDenomDecimalsProposal returns new instance of UpdateDenomDecimalsProposal
-func NewUpdateDenomDecimalsProposal(
-	title, description string,
-	denomDecimals []*DenomDecimals,
-) *UpdateDenomDecimalsProposal {
-	return &UpdateDenomDecimalsProposal{
-		Title:         title,
-		Description:   description,
-		DenomDecimals: denomDecimals,
-	}
-}
-
 // Implements Proposal Interface
 var _ govtypes.Content = &UpdateDenomDecimalsProposal{}
 
@@ -769,20 +694,6 @@ func (p *OracleParams) ValidateBasic() error {
 	}
 
 	return nil
-}
-
-func NewProviderOracleParams(
-	symbol string,
-	oracleProvider string,
-	oracleScaleFactor uint32,
-	oracleType oracletypes.OracleType,
-) *ProviderOracleParams {
-	return &ProviderOracleParams{
-		Symbol:            symbol,
-		Provider:          oracleProvider,
-		OracleScaleFactor: oracleScaleFactor,
-		OracleType:        oracleType,
-	}
 }
 
 func (p *ProviderOracleParams) ValidateBasic() error {
@@ -878,7 +789,7 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if p.MakerFeeRate.GT(p.TakerFeeRate) {
 		return ErrFeeRatesRelation
 	}
-	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
+	if p.InitialMarginRatio.LTE(p.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
 
@@ -973,7 +884,7 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	if p.MakerFeeRate.GT(p.TakerFeeRate) {
 		return ErrFeeRatesRelation
 	}
-	if p.InitialMarginRatio.LT(p.MaintenanceMarginRatio) {
+	if p.InitialMarginRatio.LTE(p.MaintenanceMarginRatio) {
 		return ErrMarginsRelation
 	}
 
@@ -988,26 +899,6 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 
 	return govtypes.ValidateAbstract(p)
-}
-
-// NewTradingRewardCampaignUpdateProposal returns new instance of TradingRewardCampaignLaunchProposal
-func NewTradingRewardCampaignUpdateProposal(
-	title, description string,
-	campaignInfo *TradingRewardCampaignInfo,
-	rewardPoolsAdditions []*CampaignRewardPool,
-	rewardPoolsUpdates []*CampaignRewardPool,
-) *TradingRewardCampaignUpdateProposal {
-	p := &TradingRewardCampaignUpdateProposal{
-		Title:                        title,
-		Description:                  description,
-		CampaignInfo:                 campaignInfo,
-		CampaignRewardPoolsAdditions: rewardPoolsAdditions,
-		CampaignRewardPoolsUpdates:   rewardPoolsUpdates,
-	}
-	if err := p.ValidateBasic(); err != nil {
-		panic(err)
-	}
-	return p
 }
 
 // Implements Proposal Interface
@@ -1123,24 +1014,6 @@ func (p *TradingRewardPendingPointsUpdateProposal) ValidateBasic() error {
 	}
 
 	return govtypes.ValidateAbstract(p)
-}
-
-// NewTradingRewardCampaignLaunchProposal returns new instance of TradingRewardCampaignLaunchProposal
-func NewTradingRewardCampaignLaunchProposal(
-	title, description string,
-	campaignInfo *TradingRewardCampaignInfo,
-	campaignRewardPools []*CampaignRewardPool,
-) *TradingRewardCampaignLaunchProposal {
-	p := &TradingRewardCampaignLaunchProposal{
-		Title:               title,
-		Description:         description,
-		CampaignInfo:        campaignInfo,
-		CampaignRewardPools: campaignRewardPools,
-	}
-	if err := p.ValidateBasic(); err != nil {
-		panic(err)
-	}
-	return p
 }
 
 // Implements Proposal Interface
@@ -1322,15 +1195,6 @@ func validateCampaignRewardPool(pool *CampaignRewardPool, campaignDurationSecond
 	}
 
 	return prevStartTimestamp, nil
-}
-
-// NewFeeDiscountProposal returns new instance of FeeDiscountProposal
-func NewFeeDiscountProposal(title, description string, schedule *FeeDiscountSchedule) *FeeDiscountProposal {
-	return &FeeDiscountProposal{
-		Title:       title,
-		Description: description,
-		Schedule:    schedule,
-	}
 }
 
 // Implements Proposal Interface
@@ -1568,37 +1432,6 @@ func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	}
 
 	return govtypes.ValidateAbstract(p)
-}
-
-// NewBinaryOptionsMarketParamUpdateProposal returns new instance of BinaryOptionsMarketParamUpdateProposal
-func NewBinaryOptionsMarketParamUpdateProposal(
-	title string,
-	description string,
-	marketID string,
-	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec,
-	expirationTimestamp, settlementTimestamp int64,
-	admin string,
-	status MarketStatus,
-	oracleParams *ProviderOracleParams,
-	ticker string,
-) *BinaryOptionsMarketParamUpdateProposal {
-	return &BinaryOptionsMarketParamUpdateProposal{
-		Title:               title,
-		Description:         description,
-		MarketId:            marketID,
-		MakerFeeRate:        makerFeeRate,
-		TakerFeeRate:        takerFeeRate,
-		RelayerFeeShareRate: relayerFeeShareRate,
-		MinPriceTickSize:    minPriceTickSize,
-		MinQuantityTickSize: minQuantityTickSize,
-		MinNotional:         minNotional,
-		ExpirationTimestamp: expirationTimestamp,
-		SettlementTimestamp: settlementTimestamp,
-		Admin:               admin,
-		Status:              status,
-		OracleParams:        oracleParams,
-		Ticker:              ticker,
-	}
 }
 
 // Implements Proposal Interface

@@ -28,10 +28,10 @@ func main() {
 
 	response, err := explorerClient.FetchValidator(ctx, validatorAddress)
 	if err != nil {
-		log.Fatalf("Failed to fetch validator: %v", err)
+		log.Panicf("Failed to fetch validator: %v", err)
 	}
 
 	fmt.Println("Validator:")
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 }

@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.15.6 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.54 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.15.0 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.0 --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -51,9 +51,34 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/*.pb.go chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/codec.go chain/auction/types
+	mkdir -p chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/*.pb.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/codec.go chain/erc20/types
+	mkdir -p chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/*.pb.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/access_list.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/access_list_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/chain_config.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/codec.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/dynamic_fee_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/errors.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/eth.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/events.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/key.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/legacy_tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/logs.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/msg.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/params.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/storage.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/tx.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/tx_data.go chain/evm/types && \
+		cp injective-core/injective-chain/modules/evm/types/utils.go chain/evm/types
 	mkdir -p chain/exchange/types && \
 		cp injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types && \
 		rm -rf chain/exchange/types/*test.go && rm -rf chain/exchange/types/*gw.go
+	mkdir -p chain/exchange/types/v2 && \
+    		cp injective-core/injective-chain/modules/exchange/types/v2/*.go chain/exchange/types/v2 && \
+    		rm -rf chain/exchange/types/v2/*test.go && rm -rf chain/exchange/types/v2/*gw.go
 	mkdir -p chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
@@ -109,18 +134,41 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
 	mkdir -p chain/stream/types && \
 		cp injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
+	mkdir -p chain/stream/types/v2 && \
+    		cp injective-core/injective-chain/stream/types/v2/*.pb.go chain/stream/types/v2
 	mkdir -p chain/types && \
 		cp injective-core/injective-chain/types/*.pb.go injective-core/injective-chain/types/config.go chain/types && \
+		cp injective-core/injective-chain/types/chain_id.go chain/types && \
 		cp injective-core/injective-chain/types/codec.go chain/types && \
-		cp injective-core/injective-chain/types/util.go chain/types
+		cp injective-core/injective-chain/types/errors.go chain/types && \
+		cp injective-core/injective-chain/types/int.go chain/types && \
+		cp injective-core/injective-chain/types/util.go chain/types && \
+		cp injective-core/injective-chain/types/validation.go chain/types
 
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
+
+	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.go chain/evm/precompiles/bank && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/exchange/*.go chain/evm/precompiles/exchange && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.go chain/evm/precompiles/staking
 
 	rm -rf proto
 	cp -r injective-core/proto ./
 
 	rm -rf injective-core
+	make extract-message-names
+
+extract-message-names:
+	@echo "Extracting message names from tx.pb.go files..."
+	@mkdir -p injective_data
+	@find ./chain -name "tx.pb.go" -exec grep -h "proto\.RegisterType" {} \; | \
+		sed -n 's/.*proto\.RegisterType([^"]*"\([^"]*\)".*/\1/p' | \
+		grep -v 'Response$$' | \
+		sort -u | \
+		jq -R -s 'split("\n")[:-1]' > injective_data/chain_messages_list.json
+	@echo "Message names extracted to injective_data/chain_messages_list.json (excluding Response messages)"
+	@echo "Total messages found: $$(jq length injective_data/chain_messages_list.json)"
 
 #gen: gen-proto
 #
@@ -168,4 +216,8 @@ lint-master: export GOPROXY=direct
 lint-master:
 	golangci-lint run --timeout=15m -v --new-from-rev=master
 
-.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master
+lint-all: export GOPROXY=direct
+lint-all:
+	golangci-lint run --timeout=15m -v
+
+.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master lint-all extract-message-names

@@ -1,0 +1,189 @@
+syntax = "proto3";
+package injective.exchange.v2;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
+
+enum OrderType {
+  UNSPECIFIED = 0 [ (gogoproto.enumvalue_customname) = "UNSPECIFIED" ];
+  BUY = 1 [ (gogoproto.enumvalue_customname) = "BUY" ];
+  SELL = 2 [ (gogoproto.enumvalue_customname) = "SELL" ];
+  STOP_BUY = 3 [ (gogoproto.enumvalue_customname) = "STOP_BUY" ];
+  STOP_SELL = 4 [ (gogoproto.enumvalue_customname) = "STOP_SELL" ];
+  TAKE_BUY = 5 [ (gogoproto.enumvalue_customname) = "TAKE_BUY" ];
+  TAKE_SELL = 6 [ (gogoproto.enumvalue_customname) = "TAKE_SELL" ];
+  BUY_PO = 7 [ (gogoproto.enumvalue_customname) = "BUY_PO" ];
+  SELL_PO = 8 [ (gogoproto.enumvalue_customname) = "SELL_PO" ];
+  BUY_ATOMIC = 9 [ (gogoproto.enumvalue_customname) = "BUY_ATOMIC" ];
+  SELL_ATOMIC = 10 [ (gogoproto.enumvalue_customname) = "SELL_ATOMIC" ];
+}
+
+enum OrderMask {
+  UNUSED = 0 [ (gogoproto.enumvalue_customname) = "UNUSED" ];
+  ANY = 1 [ (gogoproto.enumvalue_customname) = "ANY" ];
+  REGULAR = 2 [ (gogoproto.enumvalue_customname) = "REGULAR" ];
+  CONDITIONAL = 4 [ (gogoproto.enumvalue_customname) = "CONDITIONAL" ];
+  DIRECTION_BUY_OR_HIGHER = 8
+      [ (gogoproto.enumvalue_customname) =
+            "BUY_OR_HIGHER" ]; // for conditional orders means HIGHER
+  DIRECTION_SELL_OR_LOWER = 16
+      [ (gogoproto.enumvalue_customname) =
+            "SELL_OR_LOWER" ]; // for conditional orders means LOWER
+  TYPE_MARKET = 32 [ (gogoproto.enumvalue_customname) = "MARKET" ];
+  TYPE_LIMIT = 64 [ (gogoproto.enumvalue_customname) = "LIMIT" ];
+}
+
+enum AtomicMarketOrderAccessLevel {
+  Nobody = 0;
+  // currently unsupported
+  BeginBlockerSmartContractsOnly = 1;
+  SmartContractsOnly = 2;
+  Everyone = 3;
+}
+
+message OrderInfo {
+  // bytes32 subaccount ID that created the order
+  string subaccount_id = 1;
+  // address fee_recipient address that will receive fees for the order
+  string fee_recipient = 2;
+  // price of the order (in human readable format)
+  string price = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // quantity of the order (in human readable format)
+  string quantity = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the client order ID (optional)
+  string cid = 5;
+}
+
+message SpotOrder {
+  // market_id represents the unique ID of the market
+  string market_id = 1;
+  // order_info contains the information of the order
+  OrderInfo order_info = 2 [ (gogoproto.nullable) = false ];
+  // order types
+  OrderType order_type = 3;
+  // trigger_price is the trigger price used by stop/take orders (in human
+  // readable format) (optional)
+  string trigger_price = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // expiration block is the block number at which the order will expire
+  int64 expiration_block = 5 [ (gogoproto.nullable) = true ];
+}
+
+// A valid Spot market order with Metadata.
+message SpotMarketOrder {
+  // order_info contains the information of the order
+  OrderInfo order_info = 1 [ (gogoproto.nullable) = false ];
+  string balance_hold = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  bytes order_hash = 3;
+  // order types
+  OrderType order_type = 4;
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+}
+
+// A valid Spot limit order with Metadata.
+message SpotLimitOrder {
+  // order_info contains the information of the order
+  OrderInfo order_info = 1 [ (gogoproto.nullable) = false ];
+  // order types
+  OrderType order_type = 2;
+  // the amount of the quantity remaining fillable
+  string fillable = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // order hash
+  bytes order_hash = 5;
+  // expiration block is the block number at which the order will expire
+  int64 expiration_block = 6 [ (gogoproto.nullable) = true ];
+}
+
+message DerivativeOrder {
+  // market_id represents the unique ID of the market
+  string market_id = 1;
+  // order_info contains the information of the order
+  OrderInfo order_info = 2 [ (gogoproto.nullable) = false ];
+  // order types
+  OrderType order_type = 3;
+  // margin is the margin used by the limit order (in human readable format)
+  string margin = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // trigger_price is the trigger price used by stop/take orders (in human
+  // readable format) (optional)
+  string trigger_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // expiration block is the block number at which the order will expire
+  int64 expiration_block = 6 [ (gogoproto.nullable) = true ];
+}
+
+// A valid Derivative market order with Metadata.
+message DerivativeMarketOrder {
+  // order_info contains the information of the order
+  OrderInfo order_info = 1 [ (gogoproto.nullable) = false ];
+  // order types
+  OrderType order_type = 2;
+  string margin = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string margin_hold = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  bytes order_hash = 6;
+}
+
+// A valid Derivative limit order with Metadata.
+message DerivativeLimitOrder {
+  // order_info contains the information of the order
+  OrderInfo order_info = 1 [ (gogoproto.nullable) = false ];
+  // order types
+  OrderType order_type = 2;
+  // margin is the margin used by the limit order
+  string margin = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the amount of the quantity remaining fillable
+  string fillable = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // trigger_price is the trigger price used by stop/take orders
+  string trigger_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  bytes order_hash = 6;
+  // expiration block is the block number at which the order will expire
+  int64 expiration_block = 7 [ (gogoproto.nullable) = true ];
+}

@@ -11,10 +11,6 @@ func NewVolumeRecord(makerVolume, takerVolume math.LegacyDec) VolumeRecord {
 	}
 }
 
-func NewZeroVolumeRecord() VolumeRecord {
-	return NewVolumeRecord(math.LegacyZeroDec(), math.LegacyZeroDec())
-}
-
 func (v VolumeRecord) Add(record VolumeRecord) VolumeRecord {
 	if v.MakerVolume.IsNil() {
 		v.MakerVolume = math.LegacyZeroDec()
@@ -54,11 +50,4 @@ func (v *VolumeRecord) Total() math.LegacyDec {
 		totalVolume = totalVolume.Add(v.MakerVolume)
 	}
 	return totalVolume
-}
-
-func NewVolumeWithSingleType(volume math.LegacyDec, isMaker bool) VolumeRecord {
-	if isMaker {
-		return NewVolumeRecord(volume, math.LegacyZeroDec())
-	}
-	return NewVolumeRecord(math.LegacyZeroDec(), volume)
 }

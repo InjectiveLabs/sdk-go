@@ -5,20 +5,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
 func main() {
 	network := common.LoadNetwork("testnet", "lb")
-	tmClient, err := rpchttp.New(network.TmEndpoint, "/websocket")
+	tmClient, err := rpchttp.New(network.TmEndpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +52,7 @@ func main() {
 	txFactory := chainclient.NewTxFactory(clientCtx)
 	txFactory = txFactory.WithGas(uint64(txFactory.GasAdjustment() * 140000))
 
-	clientInstance, err := chainclient.NewChainClient(
+	clientInstance, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionTxFactory(&txFactory),
@@ -61,16 +62,13 @@ func main() {
 		panic(err)
 	}
 
-	gasPrice := clientInstance.CurrentChainGasPrice()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	gasPrice := clientInstance.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	clientInstance.SetGasPrice(gasPrice)
-
-	ctx := context.Background()
-	marketsAssistant, err := chainclient.NewMarketsAssistant(ctx, clientInstance)
-	if err != nil {
-		panic(err)
-	}
 
 	defaultSubaccountID := clientInstance.DefaultSubaccount(senderAddress)
 
@@ -79,33 +77,32 @@ func main() {
 	amount := decimal.NewFromFloat(1)
 	price := decimal.NewFromFloat(4.55)
 
-	order := clientInstance.CreateSpotOrder(
+	order := clientInstance.CreateSpotOrderV2(
 		defaultSubaccountID,
 		&chainclient.SpotOrderData{
-			OrderType:    exchangetypes.OrderType_BUY, //BUY SELL BUY_PO SELL_PO
+			OrderType:    int32(exchangev2types.OrderType_BUY), //BUY SELL BUY_PO SELL_PO
 			Quantity:     amount,
 			Price:        price,
 			FeeRecipient: senderAddress.String(),
 			MarketId:     marketId,
 			Cid:          uuid.NewString(),
 		},
-		marketsAssistant,
 	)
 
-	msg := new(exchangetypes.MsgCreateSpotLimitOrder)
+	msg := new(exchangev2types.MsgCreateSpotLimitOrder)
 	msg.Sender = senderAddress.String()
-	msg.Order = exchangetypes.SpotOrder(*order)
+	msg.Order = *order
 
-	_, response, err := clientInstance.BroadcastMsg(txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msg)
+	_, response, err := clientInstance.BroadcastMsg(ctx, txtypes.BroadcastMode_BROADCAST_MODE_SYNC, msg)
 
 	if err != nil {
 		panic(err)
 	}
 
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 
-	gasPrice = clientInstance.CurrentChainGasPrice()
+	gasPrice = clientInstance.CurrentChainGasPrice(ctx)
 	// adjust gas price to make it valid even if it changes between the time it is requested and the TX is broadcasted
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	clientInstance.SetGasPrice(gasPrice)

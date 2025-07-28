@@ -12,17 +12,27 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/str
 service Stream { rpc Stream(StreamRequest) returns (stream StreamResponse); }
 
 message StreamRequest {
+  // filter for bank balances events
   BankBalancesFilter bank_balances_filter = 1 [ (gogoproto.nullable) = true ];
+  // filter for subaccount deposits events
   SubaccountDepositsFilter subaccount_deposits_filter = 2
       [ (gogoproto.nullable) = true ];
+  // filter for spot trades events
   TradesFilter spot_trades_filter = 3 [ (gogoproto.nullable) = true ];
+  // filter for derivative trades events
   TradesFilter derivative_trades_filter = 4 [ (gogoproto.nullable) = true ];
+  // filter for spot orders events
   OrdersFilter spot_orders_filter = 5 [ (gogoproto.nullable) = true ];
+  // filter for derivative orders events
   OrdersFilter derivative_orders_filter = 6 [ (gogoproto.nullable) = true ];
+  // filter for spot orderbooks events
   OrderbookFilter spot_orderbooks_filter = 7 [ (gogoproto.nullable) = true ];
+  // filter for derivative orderbooks events
   OrderbookFilter derivative_orderbooks_filter = 8
       [ (gogoproto.nullable) = true ];
+  // filter for positions events
   PositionsFilter positions_filter = 9 [ (gogoproto.nullable) = true ];
+  // filter for oracle prices events
   OraclePriceFilter oracle_price_filter = 10 [ (gogoproto.nullable) = true ];
 }
 
@@ -61,7 +71,9 @@ message BankBalance {
 }
 
 message SubaccountDeposits {
+  // the subaccount ID
   string subaccount_id = 1;
+  // the deposits details
   repeated SubaccountDeposit deposits = 2 [ (gogoproto.nullable) = false ];
 }
 
@@ -99,28 +111,38 @@ message DerivativeOrderUpdate {
 }
 
 message DerivativeOrder {
+  // the market ID
   string market_id = 1;
+  // the derivative order details
   injective.exchange.v1beta1.DerivativeLimitOrder order = 2
       [ (gogoproto.nullable) = false ];
+  // whether the order is a market order
   bool is_market = 3;
 }
 
 message Position {
+  // the market ID
   string market_id = 1;
+  // the subaccount ID
   string subaccount_id = 2;
+  // whether the position is long or short
   bool isLong = 3;
+  // the quantity of the position
   string quantity = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the entry price of the position
   string entry_price = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the margin of the position
   string margin = 6 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the cumulative funding entry of the position
   string cumulative_funding_entry = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -137,47 +159,67 @@ message OraclePrice {
 }
 
 message SpotTrade {
+  // the market ID
   string market_id = 1;
+  // whether the trade is a buy or sell
   bool is_buy = 2;
+  // the execution type
   string executionType = 3;
-
+  // the quantity of the trade
   string quantity = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the price of the trade
   string price = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // bytes32 subaccount ID that executed the trade
+  // the subaccount ID that executed the trade
   string subaccount_id = 6;
+  // the fee of the trade
   string fee = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the order hash
   string order_hash = 8;
+  // the fee recipient address
   string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
+  // the client order ID
   string cid = 10;
+  // the trade ID
   string trade_id = 11;
 }
 
 message DerivativeTrade {
+  // the market ID
   string market_id = 1;
+  // whether the trade is a buy or sell
   bool is_buy = 2;
+  // the execution type
   string executionType = 3;
+  // the subaccount ID
   string subaccount_id = 4;
+  // the position delta of the trade
   injective.exchange.v1beta1.PositionDelta position_delta = 5;
+  // the payout of the trade
   string payout = 6 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the fee of the trade
   string fee = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the order hash
   string order_hash = 8;
+  // the fee recipient address
   string fee_recipient_address = 9 [ (gogoproto.nullable) = true ];
+  // the client order ID
   string cid = 10;
+  // the trade ID
   string trade_id = 11;
 }
 

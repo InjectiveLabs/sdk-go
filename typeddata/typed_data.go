@@ -26,6 +26,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
+
+	"github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 type SigFormat struct {
@@ -98,7 +100,7 @@ type TypePriority struct {
 	Value uint
 }
 
-type TypedDataMessage = map[string]interface{}
+type TypedDataMessage = map[string]any
 
 type TypedDataDomain struct {
 	Name              string                `json:"name"`
@@ -110,7 +112,7 @@ type TypedDataDomain struct {
 
 var typedDataReferenceTypeRegexp = regexp.MustCompile(`^[A-Z](\w*)(\[\])?$`)
 
-// SignTextWithValidator signs the given message which can be further recovered
+// SignTextValidator signs the given message which can be further recovered
 // with the given validator.
 // hash = keccak256("\x19\x00"${address}${data}).
 func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
@@ -127,7 +129,7 @@ func ComputeTypedDataAndHash(typedData TypedData) (hash, data []byte, err error)
 
 	typedDataHash, err := typedData.HashStruct(typedData.PrimaryType, typedData.Message)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData EIP712Domain")
+		return nil, nil, errors.Wrap(err, "failed to pack and hash typedData primary type")
 	}
 
 	rawData := []byte(fmt.Sprintf("\x19\x01%s%s", string(domainSeparator), string(typedDataHash)))
@@ -214,7 +216,7 @@ func (typedData *TypedData) TypeHash(primaryType string) hexutil.Bytes {
 // `enc(value₁) ‖ enc(value₂) ‖ … ‖ enc(valueₙ)`
 //
 // each encoded member is 32-byte long
-func (typedData *TypedData) EncodeData(primaryType string, data map[string]interface{}, depth int) (hexutil.Bytes, error) {
+func (typedData *TypedData) EncodeData(primaryType string, data map[string]any, depth int) (hexutil.Bytes, error) {
 	if err := typedData.validate(); err != nil {
 		return nil, err
 	}
@@ -236,7 +238,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 
 		switch {
 		case encType[len(encType)-1:] == "]":
-			arrayValue, ok := encValue.([]interface{})
+			arrayValue, ok := encValue.([]any)
 			if !ok {
 				return nil, dataMismatchError(encType, encValue)
 			}
@@ -245,7 +247,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 			parsedType := strings.Split(encType, "[")[0]
 			for _, item := range arrayValue {
 				if typedData.Types[parsedType] != nil {
-					mapValue, ok := item.(map[string]interface{})
+					mapValue, ok := item.(map[string]any)
 					if !ok {
 						return nil, dataMismatchError(parsedType, item)
 					}
@@ -275,7 +277,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 
 			buffer.Write(crypto.Keccak256(arrayBuffer.Bytes()))
 		case typedData.Types[field.Type] != nil:
-			mapValue, ok := encValue.(map[string]interface{})
+			mapValue, ok := encValue.(map[string]any)
 			if !ok {
 				return nil, dataMismatchError(encType, encValue)
 			}
@@ -297,7 +299,7 @@ func (typedData *TypedData) EncodeData(primaryType string, data map[string]inter
 }
 
 // Attempt to parse bytes in different formats: byte array, hex string, hexutil.Bytes.
-func parseBytes(encType interface{}) ([]byte, bool) {
+func parseBytes(encType any) ([]byte, bool) {
 	switch v := encType.(type) {
 	case []byte:
 		return v, true
@@ -314,7 +316,7 @@ func parseBytes(encType interface{}) ([]byte, bool) {
 	}
 }
 
-func parseInteger(encType string, encValue interface{}) (*big.Int, error) {
+func parseInteger(encType string, encValue any) (*big.Int, error) {
 	var (
 		length int
 		signed = strings.HasPrefix(encType, "int")
@@ -347,11 +349,10 @@ func parseInteger(encType string, encValue interface{}) (*big.Int, error) {
 	case float64:
 		// JSON parses non-strings as float64. Fail if we cannot
 		// convert it losslessly
-		if float64(int64(v)) == v {
-			b = big.NewInt(int64(v))
-		} else {
+		if float64(int64(v)) != v {
 			return nil, fmt.Errorf("invalid float value %v for type %v", v, encType)
 		}
+		b = big.NewInt(int64(v))
 	}
 	if b == nil {
 		return nil, fmt.Errorf("invalid integer value %v/%v for type %v", encValue, reflect.TypeOf(encValue), encType)
@@ -367,7 +368,7 @@ func parseInteger(encType string, encValue interface{}) (*big.Int, error) {
 
 // EncodePrimitiveValue deals with the primitive values found
 // while searching through the typed data
-func (typedData *TypedData) EncodePrimitiveValue(encType string, encValue interface{}, depth int) ([]byte, error) {
+func (typedData *TypedData) EncodePrimitiveValue(encType string, encValue any, depth int) ([]byte, error) {
 	switch encType {
 	case "address":
 		stringValue, ok := encValue.(string)
@@ -430,15 +431,15 @@ func (typedData *TypedData) EncodePrimitiveValue(encType string, encValue interf
 
 // dataMismatchError generates an error for a mismatch between
 // the provided type and data
-func dataMismatchError(encType string, encValue interface{}) error {
+func dataMismatchError(encType string, encValue any) error {
 	return fmt.Errorf("provided data '%v' doesn't match type '%s'", encValue, encType)
 }
 
 // UnmarshalValidatorData converts the bytes input to typed data
-func UnmarshalValidatorData(data interface{}) (ValidatorData, error) {
-	raw, ok := data.(map[string]interface{})
+func UnmarshalValidatorData(data any) (ValidatorData, error) {
+	raw, ok := data.(map[string]any)
 	if !ok {
-		return ValidatorData{}, errors.New("validator input is not a map[string]interface{}")
+		return ValidatorData{}, errors.New("validator input is not a map[string]any")
 	}
 	addr, ok := raw["address"].(string)
 	if !ok {
@@ -475,15 +476,13 @@ func (typedData *TypedData) validate() error {
 	if err := typedData.Types.validate(); err != nil {
 		return err
 	}
-	if err := typedData.Domain.validate(); err != nil {
-		return err
-	}
-	return nil
+	err := typedData.Domain.validate()
+	return err
 }
 
 // Map generates a map version of the typed data
-func (typedData *TypedData) Map() map[string]interface{} {
-	dataMap := map[string]interface{}{
+func (typedData *TypedData) Map() map[string]any {
+	dataMap := map[string]any{
 		"types":       typedData.Types,
 		"domain":      typedData.Domain.Map(),
 		"primaryType": typedData.PrimaryType,
@@ -516,7 +515,7 @@ func (typedData *TypedData) Format() ([]*NameValueType, error) {
 	return nvts, nil
 }
 
-func (typedData *TypedData) formatData(primaryType string, data map[string]interface{}) ([]*NameValueType, error) {
+func (typedData *TypedData) formatData(primaryType string, data map[string]any) ([]*NameValueType, error) {
 	output := []*NameValueType{}
 
 	// Add field contents. Structs and arrays have special handlers.
@@ -529,11 +528,11 @@ func (typedData *TypedData) formatData(primaryType string, data map[string]inter
 		}
 		switch {
 		case field.isArray():
-			arrayValue, _ := encValue.([]interface{})
+			arrayValue, _ := encValue.([]any)
 			parsedType := field.typeName()
 			for _, v := range arrayValue {
 				if typedData.Types[parsedType] != nil {
-					mapValue, _ := v.(map[string]interface{})
+					mapValue, _ := v.(map[string]any)
 					mapOutput, err := typedData.formatData(parsedType, mapValue)
 					if err != nil {
 						return nil, err
@@ -548,7 +547,7 @@ func (typedData *TypedData) formatData(primaryType string, data map[string]inter
 				}
 			}
 		case typedData.Types[field.Type] != nil:
-			if mapValue, ok := encValue.(map[string]interface{}); ok {
+			if mapValue, ok := encValue.(map[string]any); ok {
 				mapOutput, err := typedData.formatData(field.Type, mapValue)
 				if err != nil {
 					return nil, err
@@ -569,7 +568,7 @@ func (typedData *TypedData) formatData(primaryType string, data map[string]inter
 	return output, nil
 }
 
-func formatPrimitiveValue(encType string, encValue interface{}) (string, error) {
+func formatPrimitiveValue(encType string, encValue any) (string, error) {
 	switch encType {
 	case "address":
 		if stringValue, ok := encValue.(string); !ok {
@@ -603,9 +602,9 @@ func formatPrimitiveValue(encType string, encValue interface{}) (string, error) 
 // NameValueType is a very simple struct with Name, Value and Type. It's meant for simple
 // json structures used to communicate signing-info about typed data with the UI
 type NameValueType struct {
-	Name  string      `json:"name"`
-	Value interface{} `json:"value"`
-	Typ   string      `json:"type"`
+	Name  string `json:"name"`
+	Value any    `json:"value"`
+	Typ   string `json:"type"`
 }
 
 // Pprint returns a pretty-printed version of nvt
@@ -633,7 +632,7 @@ func (nvt *NameValueType) Pprint(depth int) string {
 func (t Types) validate() error {
 	for typeKey, typeArr := range t {
 		if typeKey == "" {
-			return fmt.Errorf("empty type key")
+			return errors.New("empty type key")
 		}
 		for i, typeObj := range typeArr {
 			if typeObj.Type == "" {
@@ -784,8 +783,8 @@ func (domain *TypedDataDomain) validate() error {
 }
 
 // Map is a helper function to generate a map version of the domain
-func (domain *TypedDataDomain) Map() map[string]interface{} {
-	dataMap := map[string]interface{}{}
+func (domain *TypedDataDomain) Map() map[string]any {
+	dataMap := map[string]any{}
 
 	if domain.ChainId != nil {
 		dataMap["chainId"] = domain.ChainId
@@ -819,7 +818,7 @@ func SetCodec(amino *codec.LegacyAmino, proto *codec.ProtoCodec) {
 }
 
 func GetEIP712TypedDataForMsg(signDocBytes []byte) (TypedData, error) {
-	txData := make(map[string]interface{})
+	txData := make(map[string]any)
 	if err := json.Unmarshal(signDocBytes, &txData); err != nil {
 		return TypedData{}, errors.Wrap(err, "failed to unmarshal signDocBytes")
 	}
@@ -861,7 +860,7 @@ func GetEIP712TypedDataForMsg(signDocBytes []byte) (TypedData, error) {
 		txData["timeout_height"] = "0"
 	}
 
-	chainID, err := ParseCosmosChainID(txData["chain_id"].(string))
+	chainID, err := types.ParseChainID(txData["chain_id"].(string))
 	if err != nil {
 		return TypedData{}, err
 	}
@@ -948,7 +947,7 @@ func ExtractMsgTypes(cdc codec.ProtoCodecMarshaler, msgTypeName string, msg cosm
 	return rootTypes, nil
 }
 
-func walkFields(cdc codec.ProtoCodecMarshaler, typeMap Types, rootType string, in interface{}) (err error) {
+func walkFields(cdc codec.ProtoCodecMarshaler, typeMap Types, rootType string, in any) (err error) {
 	defer doRecover(&err)
 
 	t := reflect.TypeOf(in)
@@ -964,7 +963,7 @@ func walkFields(cdc codec.ProtoCodecMarshaler, typeMap Types, rootType string, i
 	}
 
 	err = traverseFields(cdc, typeMap, rootType, typeDefPrefix, t, v)
-	return
+	return err
 }
 
 //nolint:gocritic // this is a handy way to return err in defered funcs
@@ -996,12 +995,12 @@ func traverseFields(
 
 	if prefix == typeDefPrefix {
 		if len(typeMap[rootType]) == n {
-			return nil
+			return err
 		}
 	} else {
 		typeDef := sanitizeTypedef(prefix)
 		if len(typeMap[typeDef]) == n {
-			return nil
+			return err
 		}
 	}
 
@@ -1141,7 +1140,7 @@ func traverseFields(
 
 			err = traverseFields(cdc, typeMap, rootType, fieldPrefix, fieldType, field)
 			if err != nil {
-				return errors.WithStack(err)
+				return err
 			}
 
 			continue
@@ -1189,8 +1188,8 @@ var (
 )
 
 type cosmosAnyWrapper struct {
-	Type  string      `json:"type"`
-	Value interface{} `json:"value"`
+	Type  string `json:"type"`
+	Value any    `json:"value"`
 }
 
 // typToEth supports only basic types and arrays of basic types.
@@ -1279,36 +1278,4 @@ func SignableTypes() Types {
 			{Name: "msgs", Type: "string"},
 		},
 	}
-}
-
-var (
-	ErrInvalidChainID = errors.New("invalid chain-id")
-
-	regexChainID   = `[a-z]*`
-	regexSeparator = `-{1}`
-	regexEpoch     = `[1-9][0-9]*`
-
-	cosmosChainID = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, regexChainID, regexSeparator, regexEpoch))
-)
-
-// ParseCosmosChainID parses a string chain identifier's epoch to an Ethereum-compatible
-// chain-id in *big.Int format. The function returns an error if the chain-id has an invalid format
-func ParseCosmosChainID(chainID string) (*big.Int, error) {
-	chainID = strings.TrimSpace(chainID)
-	if len(chainID) > 48 {
-		return nil, errors.Wrapf(ErrInvalidChainID, "chain-id '%s' cannot exceed 48 chars", chainID)
-	}
-
-	matches := cosmosChainID.FindStringSubmatch(chainID)
-	if matches == nil || len(matches) != 3 || matches[1] == "" {
-		return nil, errors.Wrap(ErrInvalidChainID, chainID)
-	}
-
-	// verify that the chain-id entered is a base 10 integer
-	chainIDInt, ok := new(big.Int).SetString(matches[2], 10)
-	if !ok {
-		return nil, errors.Wrapf(ErrInvalidChainID, "epoch %s must be base-10 integer format", matches[2])
-	}
-
-	return chainIDInt, nil
 }

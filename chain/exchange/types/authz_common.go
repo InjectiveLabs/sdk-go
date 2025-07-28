@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -32,9 +33,24 @@ func reduceToSet(slice []string) []string {
 }
 
 var (
-	_                      authz.Authorization = &BatchUpdateOrdersAuthz{}
-	AuthorizedMarketsLimit                     = 200
+	_                         authz.Authorization = &BatchUpdateOrdersAuthz{}
+	authorizedMarketsLimit                        = 200
+	authorizedMarketsLimitMux                     = new(sync.RWMutex)
 )
+
+// AuthorizedMarketsLimit returns the authorized markets limit.
+func AuthorizedMarketsLimit() int {
+	authorizedMarketsLimitMux.RLock()
+	defer authorizedMarketsLimitMux.RUnlock()
+	return authorizedMarketsLimit
+}
+
+// SetAuthorizedMarketsLimit sets the authorized markets limit.
+func SetAuthorizedMarketsLimit(limit int) {
+	authorizedMarketsLimitMux.Lock()
+	authorizedMarketsLimit = limit
+	authorizedMarketsLimitMux.Unlock()
+}
 
 // BatchUpdateOrdersAuthz impl
 func (a BatchUpdateOrdersAuthz) MsgTypeURL() string {
@@ -113,7 +129,7 @@ func (a BatchUpdateOrdersAuthz) ValidateBasic() error {
 	if len(a.SpotMarkets) == 0 && len(a.DerivativeMarkets) == 0 {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
-	if len(a.SpotMarkets) > AuthorizedMarketsLimit || len(a.DerivativeMarkets) > AuthorizedMarketsLimit {
+	if len(a.SpotMarkets) > AuthorizedMarketsLimit() || len(a.DerivativeMarkets) > AuthorizedMarketsLimit() {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
 	spotMarketsSet := reduceToSet(a.SpotMarkets)

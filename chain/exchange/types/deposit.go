@@ -2,27 +2,11 @@ package types
 
 import (
 	"bytes"
-	"fmt"
 	"sort"
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 )
-
-func NewDeposit() *Deposit {
-	return &Deposit{
-		AvailableBalance: math.LegacyZeroDec(),
-		TotalBalance:     math.LegacyZeroDec(),
-	}
-}
-
-func (d *Deposit) IsEmpty() bool {
-	return d.AvailableBalance.IsZero() && d.TotalBalance.IsZero()
-}
-
-func (d *Deposit) Display() string {
-	return fmt.Sprintf("Deposit Available: %s, Total: %s", getReadableDec(d.AvailableBalance), getReadableDec(d.TotalBalance))
-}
 
 type DepositDelta struct {
 	AvailableBalanceDelta math.LegacyDec

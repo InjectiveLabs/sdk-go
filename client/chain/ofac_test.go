@@ -27,7 +27,7 @@ type OfacTestSuite struct {
 func (suite *OfacTestSuite) SetupTest() {
 	var err error
 	suite.network = common.LoadNetwork("testnet", "lb")
-	suite.tmClient, err = rpchttp.New(suite.network.TmEndpoint, "/websocket")
+	suite.tmClient, err = rpchttp.New(suite.network.TmEndpoint)
 	suite.NoError(err)
 
 	suite.senderAddress, suite.cosmosKeyring, err = accountForTests()
@@ -71,7 +71,7 @@ func (suite *OfacTestSuite) TestOfacList() {
 	suite.True(testChecker.IsBlacklisted(suite.senderAddress.String()))
 	suite.False(testChecker.IsBlacklisted("inj1"))
 
-	_, err = chain.NewChainClient(
+	_, err = chain.NewChainClientV2(
 		clientCtx,
 		suite.network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),

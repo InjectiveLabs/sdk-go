@@ -28,10 +28,10 @@ func main() {
 
 	response, err := explorerClient.FetchRelayers(ctx, marketIds)
 	if err != nil {
-		log.Fatalf("Failed to fetch relayers: %v", err)
+		log.Panicf("Failed to fetch relayers: %v", err)
 	}
 
 	fmt.Println("Relayers:")
-	str, _ := json.MarshalIndent(response, "", " ")
+	str, _ := json.MarshalIndent(response, "", "\t")
 	fmt.Print(string(str))
 }

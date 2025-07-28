@@ -18,8 +18,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgDeposit{}, "exchange/MsgDeposit", nil)
 	cdc.RegisterConcrete(&MsgWithdraw{}, "exchange/MsgWithdraw", nil)
 	cdc.RegisterConcrete(&MsgInstantSpotMarketLaunch{}, "exchange/MsgInstantSpotMarketLaunch", nil)
-	cdc.RegisterConcrete(&MsgInstantPerpetualMarketLaunch{}, "exchange/MsgInstantPerpetualMarketLaunch", nil)
-	cdc.RegisterConcrete(&MsgInstantExpiryFuturesMarketLaunch{}, "exchange/MsgInstantExpiryFuturesMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgCreateSpotLimitOrder{}, "exchange/MsgCreateSpotLimitOrder", nil)
 	cdc.RegisterConcrete(&MsgBatchCreateSpotLimitOrders{}, "exchange/MsgBatchCreateSpotLimitOrders", nil)
 	cdc.RegisterConcrete(&MsgCreateSpotMarketOrder{}, "exchange/MsgCreateSpotMarketOrder", nil)
@@ -87,8 +85,6 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgDeposit{},
 		&MsgWithdraw{},
 		&MsgInstantSpotMarketLaunch{},
-		&MsgInstantPerpetualMarketLaunch{},
-		&MsgInstantExpiryFuturesMarketLaunch{},
 		&MsgCreateSpotLimitOrder{},
 		&MsgBatchCreateSpotLimitOrders{},
 		&MsgCreateSpotMarketOrder{},
@@ -170,6 +166,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&BatchCancelDerivativeOrdersAuthz{},
 		// common spot, derivative authz
 		&BatchUpdateOrdersAuthz{},
+		// generic exchange authz
+		&GenericExchangeAuthorization{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
