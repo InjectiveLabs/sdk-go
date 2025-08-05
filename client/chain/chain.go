@@ -1180,7 +1180,9 @@ func (c *chainClient) broadcastTxAsync(
 		err = errors.Wrap(err, "failed to prepareFactory")
 		return nil, nil, err
 	}
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
 	if clientCtx.Simulate {
 		simTxBytes, err := txf.BuildSimTx(msgs...)
 		if err != nil {
