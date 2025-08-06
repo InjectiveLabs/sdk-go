@@ -78,6 +78,12 @@ func NewInterfaceRegistry() types.InterfaceRegistry {
 	return registry
 }
 
+// NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
+func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
+	marshaler, _ := createInjectiveProtoCodec()
+	return tx.NewTxConfig(marshaler, signModes)
+}
+
 // NewClientContext creates a new Cosmos Client context, where chainID
 // corresponds to Cosmos chain ID, fromSpec is either name of the key, or bech32-address
 // of the Cosmos account. Keyring is required to contain the specified key.
@@ -86,7 +92,51 @@ func NewClientContext(
 ) (client.Context, error) {
 	clientCtx := client.Context{}
 
-	interfaceRegistry := NewInterfaceRegistry()
+	marshaler, interfaceRegistry := createInjectiveProtoCodec()
+
+	encodingConfig := EncodingConfig{
+		InterfaceRegistry: interfaceRegistry,
+		Marshaler:         marshaler,
+		TxConfig: tx.NewTxConfig(marshaler, []signingtypes.SignMode{
+			signingtypes.SignMode_SIGN_MODE_DIRECT,
+		}),
+	}
+
+	var keyInfo keyring.Record
+
+	if kb != nil {
+		addr, err := cosmostypes.AccAddressFromBech32(fromSpec)
+		if err == nil {
+			record, err := kb.KeyByAddress(addr)
+			if err != nil {
+				err = errors.Wrapf(err, "failed to load key info by address %s", addr.String())
+				return clientCtx, err
+			}
+			keyInfo = *record
+		} else {
+			// failed to parse Bech32, is it a name?
+			record, err := kb.Key(fromSpec)
+			if err != nil {
+				err = errors.Wrapf(err, "no key in keyring for name: %s", fromSpec)
+				return clientCtx, err
+			}
+			keyInfo = *record
+		}
+	}
+
+	clientCtx = newContext(
+		chainId,
+		encodingConfig,
+		kb,
+		keyInfo,
+	)
+
+	return clientCtx, nil
+}
+
+func createInjectiveProtoCodec() (injectiveCodec *codec.ProtoCodec, interfaceRegistry types.InterfaceRegistry) {
+	interfaceRegistry = NewInterfaceRegistry()
+
 	keyscodec.RegisterInterfaces(interfaceRegistry)
 	std.RegisterInterfaces(interfaceRegistry)
 	exchange.RegisterInterfaces(interfaceRegistry)
@@ -131,45 +181,9 @@ func NewClientContext(
 	ibcconnectiontypes.RegisterInterfaces(interfaceRegistry)
 	ibctransfertypes.RegisterInterfaces(interfaceRegistry)
 
-	marshaler := codec.NewProtoCodec(interfaceRegistry)
-	encodingConfig := EncodingConfig{
-		InterfaceRegistry: interfaceRegistry,
-		Marshaler:         marshaler,
-		TxConfig: tx.NewTxConfig(marshaler, []signingtypes.SignMode{
-			signingtypes.SignMode_SIGN_MODE_DIRECT,
-		}),
-	}
+	injectiveCodec = codec.NewProtoCodec(interfaceRegistry)
 
-	var keyInfo keyring.Record
-
-	if kb != nil {
-		addr, err := cosmostypes.AccAddressFromBech32(fromSpec)
-		if err == nil {
-			record, err := kb.KeyByAddress(addr)
-			if err != nil {
-				err = errors.Wrapf(err, "failed to load key info by address %s", addr.String())
-				return clientCtx, err
-			}
-			keyInfo = *record
-		} else {
-			// failed to parse Bech32, is it a name?
-			record, err := kb.Key(fromSpec)
-			if err != nil {
-				err = errors.Wrapf(err, "no key in keyring for name: %s", fromSpec)
-				return clientCtx, err
-			}
-			keyInfo = *record
-		}
-	}
-
-	clientCtx = newContext(
-		chainId,
-		encodingConfig,
-		kb,
-		keyInfo,
-	)
-
-	return clientCtx, nil
+	return injectiveCodec, interfaceRegistry
 }
 
 type EncodingConfig struct {
