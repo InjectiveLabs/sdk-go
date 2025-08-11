@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.69 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.3 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b cp-535/add_market_orders_creation_to_batch_update_orders_message --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*

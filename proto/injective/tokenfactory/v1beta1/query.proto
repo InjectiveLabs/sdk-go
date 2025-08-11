@@ -54,13 +54,16 @@ message QueryParamsResponse {
 // QueryDenomAuthorityMetadataRequest defines the request structure for the
 // DenomAuthorityMetadata gRPC query.
 message QueryDenomAuthorityMetadataRequest {
+  // The creator's Injective address
   string creator = 1 [ (gogoproto.moretags) = "yaml:\"denom\"" ];
+  // The sub-denom
   string sub_denom = 2 [ (gogoproto.moretags) = "yaml:\"sub_denom\"" ];
 }
 
 // QueryDenomAuthorityMetadataResponse defines the response structure for the
 // DenomAuthorityMetadata gRPC query.
 message QueryDenomAuthorityMetadataResponse {
+  // The authority metadata
   DenomAuthorityMetadata authority_metadata = 1 [
     (gogoproto.moretags) = "yaml:\"authority_metadata\"",
     (gogoproto.nullable) = false
@@ -70,12 +73,14 @@ message QueryDenomAuthorityMetadataResponse {
 // QueryDenomsFromCreatorRequest defines the request structure for the
 // DenomsFromCreator gRPC query.
 message QueryDenomsFromCreatorRequest {
+  // The creator's Injective address
   string creator = 1 [ (gogoproto.moretags) = "yaml:\"creator\"" ];
 }
 
 // QueryDenomsFromCreatorRequest defines the response structure for the
 // DenomsFromCreator gRPC query.
 message QueryDenomsFromCreatorResponse {
+  // The list of denoms
   repeated string denoms = 1 [ (gogoproto.moretags) = "yaml:\"denoms\"" ];
 }
 
@@ -85,4 +90,7 @@ message QueryModuleStateRequest {}
 
 // QueryModuleStateResponse is the response type for the
 // Query/TokenfactoryModuleState RPC method.
-message QueryModuleStateResponse { GenesisState state = 1; }
+message QueryModuleStateResponse {
+  // The module state
+  GenesisState state = 1;
+}

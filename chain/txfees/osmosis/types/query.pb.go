@@ -68,6 +68,7 @@ func (m *QueryEipBaseFeeRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_QueryEipBaseFeeRequest proto.InternalMessageInfo
 
 type QueryEipBaseFeeResponse struct {
+	// The current chain gas price
 	BaseFee cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=base_fee,json=baseFee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"base_fee" yaml:"base_fee"`
 }
 

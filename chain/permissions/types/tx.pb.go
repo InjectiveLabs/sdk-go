@@ -126,7 +126,9 @@ func (m *MsgUpdateParamsResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 
 type MsgCreateNamespace struct {
-	Sender    string    `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// The sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// The namespace information
 	Namespace Namespace `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace"`
 }
 
@@ -214,13 +216,20 @@ func (m *MsgCreateNamespaceResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgCreateNamespaceResponse proto.InternalMessageInfo
 
 type MsgUpdateNamespace struct {
-	Sender                    string                              `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	Denom                     string                              `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
-	ContractHook              *MsgUpdateNamespace_SetContractHook `protobuf:"bytes,3,opt,name=contract_hook,json=contractHook,proto3" json:"contract_hook,omitempty"`
-	RolePermissions           []*Role                             `protobuf:"bytes,4,rep,name=role_permissions,json=rolePermissions,proto3" json:"role_permissions,omitempty"`
-	RoleManagers              []*RoleManager                      `protobuf:"bytes,5,rep,name=role_managers,json=roleManagers,proto3" json:"role_managers,omitempty"`
-	PolicyStatuses            []*PolicyStatus                     `protobuf:"bytes,6,rep,name=policy_statuses,json=policyStatuses,proto3" json:"policy_statuses,omitempty"`
-	PolicyManagerCapabilities []*PolicyManagerCapability          `protobuf:"bytes,7,rep,name=policy_manager_capabilities,json=policyManagerCapabilities,proto3" json:"policy_manager_capabilities,omitempty"`
+	// The sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// denom whose namespace updates are to be applied
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	// address of smart contract to apply code-based restrictions
+	ContractHook *MsgUpdateNamespace_SetContractHook `protobuf:"bytes,3,opt,name=contract_hook,json=contractHook,proto3" json:"contract_hook,omitempty"`
+	// role permissions to update
+	RolePermissions []*Role `protobuf:"bytes,4,rep,name=role_permissions,json=rolePermissions,proto3" json:"role_permissions,omitempty"`
+	// role managers to update
+	RoleManagers []*RoleManager `protobuf:"bytes,5,rep,name=role_managers,json=roleManagers,proto3" json:"role_managers,omitempty"`
+	// policy statuses to update
+	PolicyStatuses []*PolicyStatus `protobuf:"bytes,6,rep,name=policy_statuses,json=policyStatuses,proto3" json:"policy_statuses,omitempty"`
+	// policy manager capabilities to update
+	PolicyManagerCapabilities []*PolicyManagerCapability `protobuf:"bytes,7,rep,name=policy_manager_capabilities,json=policyManagerCapabilities,proto3" json:"policy_manager_capabilities,omitempty"`
 }
 
 func (m *MsgUpdateNamespace) Reset()         { *m = MsgUpdateNamespace{} }
@@ -386,9 +395,13 @@ func (m *MsgUpdateNamespaceResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgUpdateNamespaceResponse proto.InternalMessageInfo
 
 type MsgUpdateActorRoles struct {
-	Sender             string        `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	Denom              string        `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
-	RoleActorsToAdd    []*RoleActors `protobuf:"bytes,3,rep,name=role_actors_to_add,json=roleActorsToAdd,proto3" json:"role_actors_to_add,omitempty"`
+	// The sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// The namespace denom to which this updates are applied
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	// The roles to add for given actors
+	RoleActorsToAdd []*RoleActors `protobuf:"bytes,3,rep,name=role_actors_to_add,json=roleActorsToAdd,proto3" json:"role_actors_to_add,omitempty"`
+	// The roles to revoke from given actors
 	RoleActorsToRevoke []*RoleActors `protobuf:"bytes,5,rep,name=role_actors_to_revoke,json=roleActorsToRevoke,proto3" json:"role_actors_to_revoke,omitempty"`
 }
 
@@ -490,8 +503,10 @@ func (m *MsgUpdateActorRolesResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgUpdateActorRolesResponse proto.InternalMessageInfo
 
 type MsgClaimVoucher struct {
+	// The sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	Denom  string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+	// The token denom of the voucher to claim
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
 func (m *MsgClaimVoucher) Reset()         { *m = MsgClaimVoucher{} }
