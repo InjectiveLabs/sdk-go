@@ -28,6 +28,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params defines the parameters for the permissions module.
 type Params struct {
+	// Max amount of gas allowed for wasm hook queries
 	WasmHookQueryMaxGas uint64 `protobuf:"varint,1,opt,name=wasm_hook_query_max_gas,json=wasmHookQueryMaxGas,proto3" json:"wasm_hook_query_max_gas,omitempty"`
 }
 

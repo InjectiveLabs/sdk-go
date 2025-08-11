@@ -7,6 +7,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -109,6 +110,11 @@ var (
 	ErrInvalidGasLimit = errorsmod.Register(ModuleName, codeErrInvalidGasLimit, "invalid gas limit")
 
 	ErrConfigOverrides = errorsmod.Register(ModuleName, codeErrConfigOverrides, "failed to apply state override")
+)
+
+var (
+	// RevertSelector is selector of ErrExecutionReverted
+	RevertSelector = crypto.Keccak256([]byte("Error(string)"))[:4]
 )
 
 // VMError is an interface that represents a reverted or failed EVM execution.
@@ -288,4 +294,20 @@ func (e *RevertError) ErrorCode() int {
 // ErrorData returns the hex encoded revert reason.
 func (e *RevertError) ErrorData() interface{} {
 	return e.reason
+}
+
+// RevertReasonBytes converts a message to ABI-encoded revert bytes.
+func RevertReasonBytes(reason string) ([]byte, error) {
+	typ, err := abi.NewType("string", "", nil)
+	if err != nil {
+		return nil, err
+	}
+	packed, err := (abi.Arguments{{Type: typ}}).Pack(reason)
+	if err != nil {
+		return nil, err
+	}
+	bz := make([]byte, 0, len(RevertSelector)+len(packed))
+	bz = append(bz, RevertSelector...)
+	bz = append(bz, packed...)
+	return bz, nil
 }

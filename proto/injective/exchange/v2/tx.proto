@@ -877,6 +877,15 @@ message MsgBatchUpdateOrders {
   // the binary options orders to create
   repeated DerivativeOrder binary_options_orders_to_create = 11
       [ (gogoproto.nullable) = true ];
+  // the spot market orders to create
+  repeated SpotOrder spot_market_orders_to_create = 12
+      [ (gogoproto.nullable) = true ];
+  // the derivative market orders to create
+  repeated DerivativeOrder derivative_market_orders_to_create = 13
+      [ (gogoproto.nullable) = true ];
+  // the binary options market orders to create
+  repeated DerivativeOrder binary_options_market_orders_to_create = 14
+      [ (gogoproto.nullable) = true ];
 }
 
 // MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
@@ -896,6 +905,15 @@ message MsgBatchUpdateOrdersResponse {
   repeated string failed_derivative_orders_cids = 10;
   repeated string created_binary_options_orders_cids = 11;
   repeated string failed_binary_options_orders_cids = 12;
+  repeated string spot_market_order_hashes = 13;
+  repeated string created_spot_market_orders_cids = 14;
+  repeated string failed_spot_market_orders_cids = 15;
+  repeated string derivative_market_order_hashes = 16;
+  repeated string created_derivative_market_orders_cids = 17;
+  repeated string failed_derivative_market_orders_cids = 18;
+  repeated string binary_options_market_order_hashes = 19;
+  repeated string created_binary_options_market_orders_cids = 20;
+  repeated string failed_binary_options_market_orders_cids = 21;
 }
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder

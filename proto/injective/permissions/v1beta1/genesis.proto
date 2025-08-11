@@ -9,8 +9,10 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 
 // GenesisState defines the permissions module's genesis state.
 message GenesisState {
-  // params defines the parameters of the module.
+  // params defines the parameters of the module
   Params params = 1 [ (gogoproto.nullable) = false ];
+  // namespaces defines the namespaces of the module
   repeated Namespace namespaces = 2 [ (gogoproto.nullable) = false ];
+  // vouchers defines the vouchers of the module
   repeated AddressVoucher vouchers = 3;
 }

@@ -81,18 +81,21 @@ service Query {
   }
 
   // Retrieves the denom decimals for a denom.
-  rpc DenomDecimal(QueryDenomDecimalRequest)
-      returns (QueryDenomDecimalResponse) {
+  rpc AuctionExchangeTransferDenomDecimal(
+      QueryAuctionExchangeTransferDenomDecimalRequest)
+      returns (QueryAuctionExchangeTransferDenomDecimalResponse) {
     option (google.api.http).get =
-        "/injective/exchange/v2/exchange/denom_decimal/{denom}";
+        "/injective/exchange/v2/exchange/"
+        "auction_exchange_transfer_denom_decimal/{denom}";
   }
 
   // Retrieves the denom decimals for multiple denoms. Returns all denom
   // decimals if unspecified.
-  rpc DenomDecimals(QueryDenomDecimalsRequest)
-      returns (QueryDenomDecimalsResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v2/exchange/denom_decimals";
+  rpc AuctionExchangeTransferDenomDecimals(
+      QueryAuctionExchangeTransferDenomDecimalsRequest)
+      returns (QueryAuctionExchangeTransferDenomDecimalsResponse) {
+    option (google.api.http).get = "/injective/exchange/v2/exchange/"
+                                   "auction_exchange_transfer_denom_decimals";
   }
 
   // Retrieves a list of spot markets.
@@ -582,24 +585,24 @@ message QueryAggregateMarketVolumeResponse {
   VolumeRecord volume = 1 [ (gogoproto.nullable) = false ];
 }
 
-// QueryDenomDecimalRequest is the request type for the Query/DenomDecimal RPC
-// method.
-message QueryDenomDecimalRequest { string denom = 1; }
+// QueryAuctionExchangeTransferDenomDecimalRequest is the request type for the
+// Query/DenomDecimal RPC method.
+message QueryAuctionExchangeTransferDenomDecimalRequest { string denom = 1; }
 
 // QueryDenomDecimalResponse is the response type for the Query/DenomDecimal RPC
 // method.
-message QueryDenomDecimalResponse { uint64 decimal = 1; }
+message QueryAuctionExchangeTransferDenomDecimalResponse { uint64 decimal = 1; }
 
 // QueryDenomDecimalsRequest is the request type for the Query/DenomDecimals RPC
 // method.
-message QueryDenomDecimalsRequest {
+message QueryAuctionExchangeTransferDenomDecimalsRequest {
   // denoms can be empty to query all denom decimals
   repeated string denoms = 1;
 }
 
 // QueryDenomDecimalsRequest is the response type for the Query/DenomDecimals
 // RPC method.
-message QueryDenomDecimalsResponse {
+message QueryAuctionExchangeTransferDenomDecimalsResponse {
   repeated DenomDecimals denom_decimals = 1 [ (gogoproto.nullable) = false ];
 }
 
@@ -687,6 +690,8 @@ message QuerySpotOrderbookRequest {
 message QuerySpotOrderbookResponse {
   repeated Level buys_price_level = 1;
   repeated Level sells_price_level = 2;
+  // the current orderbook sequence number
+  uint64 seq = 3;
 }
 
 message FullSpotMarket {
@@ -871,6 +876,8 @@ message QueryDerivativeOrderbookRequest {
 message QueryDerivativeOrderbookResponse {
   repeated Level buys_price_level = 1;
   repeated Level sells_price_level = 2;
+  // the current orderbook sequence number
+  uint64 seq = 3;
 }
 
 // CancellationStrategy is the list of cancellation strategies.
@@ -1534,6 +1541,8 @@ message QueryFullSpotOrderbookRequest {
 message QueryFullSpotOrderbookResponse {
   repeated TrimmedLimitOrder Bids = 1;
   repeated TrimmedLimitOrder Asks = 2;
+  // the current orderbook sequence number
+  uint64 seq = 3;
 }
 
 message QueryFullDerivativeOrderbookRequest {
@@ -1544,6 +1553,8 @@ message QueryFullDerivativeOrderbookRequest {
 message QueryFullDerivativeOrderbookResponse {
   repeated TrimmedLimitOrder Bids = 1;
   repeated TrimmedLimitOrder Asks = 2;
+  // the current orderbook sequence number
+  uint64 seq = 3;
 }
 message TrimmedLimitOrder {
   // price of the order (in human readable format)

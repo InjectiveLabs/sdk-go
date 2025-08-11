@@ -37,11 +37,15 @@ message MsgCreateDenom {
   option (amino.name) = "injective/tokenfactory/create-denom";
   option (cosmos.msg.v1.signer) = "sender";
 
+  // The sender's Injective address
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
   // subdenom can be up to 44 "alphanumeric" characters long.
   string subdenom = 2 [ (gogoproto.moretags) = "yaml:\"subdenom\"" ];
+  // The name
   string name = 3 [ (gogoproto.moretags) = "yaml:\"name\"" ];
+  // The symbol
   string symbol = 4 [ (gogoproto.moretags) = "yaml:\"symbol\"" ];
+  // The number of decimals
   uint32 decimals = 5 [ (gogoproto.moretags) = "yaml:\"decimals\"" ];
   // true if admins are allowed to burn tokens from other addresses
   bool allow_admin_burn = 6
@@ -61,11 +65,14 @@ message MsgMint {
   option (amino.name) = "injective/tokenfactory/mint";
   option (cosmos.msg.v1.signer) = "sender";
 
+  // The sender's Injective address
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
+  // The amount of tokens to mint
   cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.nullable) = false
   ];
+  // The Injective address to receive the tokens
   string receiver = 3 [ (gogoproto.moretags) = "yaml:\"receiver\"" ];
 }
 
@@ -77,11 +84,14 @@ message MsgBurn {
   option (amino.name) = "injective/tokenfactory/burn";
   option (cosmos.msg.v1.signer) = "sender";
 
+  // The sender's Injective address
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
+  // The amount of tokens to burn
   cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.moretags) = "yaml:\"amount\"",
     (gogoproto.nullable) = false
   ];
+  // The Injective address to burn the tokens from
   string burnFromAddress = 3 [
     (gogoproto.moretags) = "yaml:\"burn_from_address\"",
     (amino.dont_omitempty) = true
@@ -96,8 +106,11 @@ message MsgChangeAdmin {
   option (amino.name) = "injective/tokenfactory/change-admin";
   option (cosmos.msg.v1.signer) = "sender";
 
+  // The sender's Injective address
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
+  // The denom
   string denom = 2 [ (gogoproto.moretags) = "yaml:\"denom\"" ];
+  // The new admin's Injective address
   string new_admin = 3 [ (gogoproto.moretags) = "yaml:\"new_admin\"" ];
 }
 
@@ -111,7 +124,9 @@ message MsgSetDenomMetadata {
   option (amino.name) = "injective/tokenfactory/set-denom-metadata";
   option (cosmos.msg.v1.signer) = "sender";
 
+  // The sender's Injective address
   string sender = 1 [ (gogoproto.moretags) = "yaml:\"sender\"" ];
+  // The metadata
   cosmos.bank.v1beta1.Metadata metadata = 2 [
     (gogoproto.moretags) = "yaml:\"metadata\"",
     (gogoproto.nullable) = false

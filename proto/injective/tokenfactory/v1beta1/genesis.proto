@@ -24,12 +24,17 @@ message GenesisState {
 message GenesisDenom {
   option (gogoproto.equal) = true;
 
+  // The denom
   string denom = 1 [ (gogoproto.moretags) = "yaml:\"denom\"" ];
+  // The authority metadata
   DenomAuthorityMetadata authority_metadata = 2 [
     (gogoproto.moretags) = "yaml:\"authority_metadata\"",
     (gogoproto.nullable) = false
   ];
+  // The name
   string name = 3 [ (gogoproto.moretags) = "yaml:\"name\"" ];
+  // The symbol
   string symbol = 4 [ (gogoproto.moretags) = "yaml:\"symbol\"" ];
+  // The number of decimals
   uint32 decimals = 5 [ (gogoproto.moretags) = "yaml:\"decimals\"" ];
 }

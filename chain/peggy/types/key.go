@@ -116,6 +116,9 @@ var (
 
 	// FakeCheckpointKey indexes eth signature checkpoints that never existed
 	FakeCheckpointKey = []byte{0x1d}
+
+	RateLimitsKey       = []byte{0x1e}
+	MintAmountsERC20Key = []byte{0x1f}
 )
 
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
@@ -298,4 +301,12 @@ func GetPastEthSignatureCheckpointKey(checkpoint common.Hash) []byte {
 // GetFakeCheckpointKey indexes fake checkpoints previously signed by a validator
 func GetFakeCheckpointKey(signature []byte) []byte {
 	return append(FakeCheckpointKey, signature...)
+}
+
+func GetMintAmountERC20Key(erc20 []byte) []byte {
+	k := make([]byte, 0, len(MintAmountsERC20Key)+len(erc20))
+	k = append(k, MintAmountsERC20Key...)
+	k = append(k, erc20...)
+
+	return k
 }

@@ -116,7 +116,9 @@ func (m *QueryParamsResponse) GetParams() Params {
 // QueryDenomAuthorityMetadataRequest defines the request structure for the
 // DenomAuthorityMetadata gRPC query.
 type QueryDenomAuthorityMetadataRequest struct {
-	Creator  string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty" yaml:"denom"`
+	// The creator's Injective address
+	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty" yaml:"denom"`
+	// The sub-denom
 	SubDenom string `protobuf:"bytes,2,opt,name=sub_denom,json=subDenom,proto3" json:"sub_denom,omitempty" yaml:"sub_denom"`
 }
 
@@ -170,6 +172,7 @@ func (m *QueryDenomAuthorityMetadataRequest) GetSubDenom() string {
 // QueryDenomAuthorityMetadataResponse defines the response structure for the
 // DenomAuthorityMetadata gRPC query.
 type QueryDenomAuthorityMetadataResponse struct {
+	// The authority metadata
 	AuthorityMetadata DenomAuthorityMetadata `protobuf:"bytes,1,opt,name=authority_metadata,json=authorityMetadata,proto3" json:"authority_metadata" yaml:"authority_metadata"`
 }
 
@@ -216,6 +219,7 @@ func (m *QueryDenomAuthorityMetadataResponse) GetAuthorityMetadata() DenomAuthor
 // QueryDenomsFromCreatorRequest defines the request structure for the
 // DenomsFromCreator gRPC query.
 type QueryDenomsFromCreatorRequest struct {
+	// The creator's Injective address
 	Creator string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty" yaml:"creator"`
 }
 
@@ -262,6 +266,7 @@ func (m *QueryDenomsFromCreatorRequest) GetCreator() string {
 // QueryDenomsFromCreatorRequest defines the response structure for the
 // DenomsFromCreator gRPC query.
 type QueryDenomsFromCreatorResponse struct {
+	// The list of denoms
 	Denoms []string `protobuf:"bytes,1,rep,name=denoms,proto3" json:"denoms,omitempty" yaml:"denoms"`
 }
 
@@ -346,6 +351,7 @@ var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 // QueryModuleStateResponse is the response type for the
 // Query/TokenfactoryModuleState RPC method.
 type QueryModuleStateResponse struct {
+	// The module state
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }
 
