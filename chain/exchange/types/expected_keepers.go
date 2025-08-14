@@ -67,6 +67,7 @@ type DistributionKeeper interface {
 type StakingKeeper interface {
 	GetDelegatorDelegations(ctx context.Context, delegator sdk.AccAddress, maxRetrieve uint16) (delegations []stakingtypes.Delegation, err error)
 	Validator(context.Context, sdk.ValAddress) (stakingtypes.ValidatorI, error) // get a particular validator by operator address
+	SetDelegationTransferReceiver(ctx context.Context, receiver sdk.AccAddress)
 }
 
 type WasmViewKeeper interface {

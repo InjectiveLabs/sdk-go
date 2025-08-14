@@ -261,7 +261,6 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 		}
 	}
 
-
 	if msg.HasInitialMarginRatioUpdate() && msg.HasMaintenanceMarginRatioUpdate() {
 		if msg.NewInitialMarginRatio.LTE(msg.NewMaintenanceMarginRatio) {
 			return types.ErrMarginsRelation
@@ -2607,3 +2606,35 @@ func hasDuplicatesOrder(slice []*OrderData) bool {
 	}
 	return false
 }
+
+func (msg *MsgSetDelegationTransferReceivers) Route() string { return RouterKey }
+func (msg *MsgSetDelegationTransferReceivers) Type() string  { return "setDelegationTransferReceivers" }
+func (msg *MsgSetDelegationTransferReceivers) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if len(msg.Receivers) == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "receivers list cannot be empty")
+	}
+
+	for _, receiver := range msg.Receivers {
+		if _, err := sdk.AccAddressFromBech32(receiver); err != nil {
+			return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address: %s", receiver)
+		}
+	}
+
+	return nil
+}
+
+func (msg *MsgSetDelegationTransferReceivers) GetSignBytes() []byte {
+	bz, _ := json.Marshal(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgSetDelegationTransferReceivers) GetSigners() []sdk.AccAddress {
+	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
+	return []sdk.AccAddress{sender}
+}
+
+var _ sdk.Msg = &MsgSetDelegationTransferReceivers{}

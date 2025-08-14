@@ -785,8 +785,9 @@ func (m *PerpetualMarketInfo) GetFundingInterval() int64 {
 type PerpetualMarketFunding struct {
 	// cumulative_funding defines the cumulative funding of a perpetual market.
 	CumulativeFunding cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=cumulative_funding,json=cumulativeFunding,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_funding"`
-	// cumulative_price defines the cumulative price for the current hour up to
-	// the last timestamp (in chain format)
+	// cumulative_price defines the running time-integral of the perp premium
+	// ((VWAP - mark_price) / mark_price) i.e., sum(premium * seconds)
+	// used to compute the interval’s average premium for funding
 	CumulativePrice cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=cumulative_price,json=cumulativePrice,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cumulative_price"`
 	// the last timestamp in seconds
 	LastTimestamp int64 `protobuf:"varint,3,opt,name=last_timestamp,json=lastTimestamp,proto3" json:"last_timestamp,omitempty"`
