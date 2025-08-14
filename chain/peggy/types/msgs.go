@@ -392,7 +392,7 @@ func (msg *MsgWithdrawClaim) ValidateBasic() error {
 
 // Hash implements WithdrawBatch.Hash
 func (msg *MsgWithdrawClaim) ClaimHash() []byte {
-	path := fmt.Sprintf("%s/%d/%d/%s", msg.TokenContract, msg.BatchNonce, msg.EventNonce, msg.TokenContract)
+	path := fmt.Sprintf("%s/%d/%d/%d", msg.TokenContract, msg.BatchNonce, msg.EventNonce, msg.BlockHeight)
 	return tmhash.Sum([]byte(path))
 }
 
