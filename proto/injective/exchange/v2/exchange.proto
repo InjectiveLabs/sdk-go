@@ -194,9 +194,6 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // human_readable_upgrade_block_height defines the block height at which the
-  // human readable upgrade took place
-  int64 human_readable_upgrade_block_height = 32;
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }
