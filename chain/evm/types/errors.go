@@ -280,7 +280,7 @@ type RevertError struct {
 }
 
 // ErrorCode returns the JSON error code for a revert.
-// See: https://github.com/ethereum/wiki/wiki/JSON-RPC-Error-Codes-Improvement-Proposal
+// See: https://eips.ethereum.org/EIPS/eip-1474#error-codes
 func (e *RevertError) ErrorCode() int {
 	return 3
 }
