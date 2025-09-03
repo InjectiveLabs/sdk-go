@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/math"
@@ -221,7 +222,7 @@ func (p Params) Validate() error {
 	return nil
 }
 
-func ValidateAtomicMarketOrderAccessLevel(i interface{}) error {
+func ValidateAtomicMarketOrderAccessLevel(i any) error {
 	v, ok := i.(AtomicMarketOrderAccessLevel)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -229,5 +230,32 @@ func ValidateAtomicMarketOrderAccessLevel(i interface{}) error {
 	if !v.IsValid() {
 		return fmt.Errorf("invalid AtomicMarketOrderAccessLevel value: %v", v)
 	}
+	return nil
+}
+
+func ValidateOpenNotionalCap(i any) error {
+	v, ok := i.(OpenNotionalCap)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	capped := v.GetCapped() != nil
+	uncapped := v.GetUncapped() != nil
+
+	if capped && uncapped {
+		return errors.New("open notional cap cannot be both capped and uncapped")
+	}
+	if !capped && !uncapped {
+		return errors.New("open notional cap must be either capped or uncapped")
+	}
+	if capped {
+		if v.GetCapped().Value.IsNil() {
+			return errors.New("cap value cannot be nil")
+		}
+		if v.GetCapped().Value.IsNegative() {
+			return fmt.Errorf("cap value cannot be negative: %s", v)
+		}
+	}
+
 	return nil
 }

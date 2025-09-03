@@ -68,6 +68,7 @@ var (
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
 	ExpiryFuturesMarketInfoPrefix            = []byte{0x33} // prefix for each key to a expiry futures market's market info
 	ExpiryFuturesMarketInfoByTimestampPrefix = []byte{0x34} // prefix for each index key to a expiry futures market's market info
+	DerivativeMarketOpenInterestPrefix       = []byte{0x35} // prefix for each key to a derivative market's open interest
 
 	IsFirstFeeCycleFinishedKey = []byte{0x3c} // key to the fee discount is first cycle finished
 

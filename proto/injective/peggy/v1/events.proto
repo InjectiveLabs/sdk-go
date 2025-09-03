@@ -182,3 +182,16 @@ message Withdrawal {
     (gogoproto.nullable) = false
   ];
 }
+
+enum JailReason {
+  MissingValsetConfirm = 0;
+  MissingBatchConfirm = 1;
+}
+
+message EventValidatorJailed {
+  JailReason reason = 1;
+  int64 power = 2;
+  string consensus_address = 3;
+  string operator_address = 4;
+  string moniker = 5;
+}

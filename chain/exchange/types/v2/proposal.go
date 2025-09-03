@@ -17,23 +17,23 @@ import (
 
 // constants
 const (
-	ProposalTypeExchangeEnable                     string = "ProposalTypeExchangeEnableV2"
-	ProposalTypeBatchExchangeModification          string = "ProposalTypeBatchExchangeModificationV2"
-	ProposalTypeSpotMarketParamUpdate              string = "ProposalTypeSpotMarketParamUpdateV2"
-	ProposalTypeSpotMarketLaunch                   string = "ProposalTypeSpotMarketLaunchV2"
-	ProposalTypePerpetualMarketLaunch              string = "ProposalTypePerpetualMarketLaunchV2"
-	ProposalTypeExpiryFuturesMarketLaunch          string = "ProposalTypeExpiryFuturesMarketLaunchV2"
-	ProposalTypeDerivativeMarketParamUpdate        string = "ProposalTypeDerivativeMarketParamUpdateV2"
-	ProposalTypeMarketForcedSettlement             string = "ProposalTypeMarketForcedSettlementV2"
-	ProposalUpdateDenomDecimals                    string = "ProposalUpdateDenomDecimalsV2"
-	ProposalTypeTradingRewardCampaign              string = "ProposalTypeTradingRewardCampaignV2"
-	ProposalTypeTradingRewardCampaignUpdate        string = "ProposalTypeTradingRewardCampaignUpdateProposalV2"
-	ProposalTypeTradingRewardPointsUpdate          string = "ProposalTypeTradingRewardPointsUpdateProposalV2"
-	ProposalTypeFeeDiscountProposal                string = "ProposalTypeFeeDiscountProposalV2"
-	ProposalTypeBatchCommunityPoolSpendProposal    string = "ProposalTypeBatchCommunityPoolSpendProposalV2"
-	ProposalTypeBinaryOptionsMarketLaunch          string = "ProposalTypeBinaryOptionsMarketLaunchV2"
-	ProposalTypeBinaryOptionsMarketParamUpdate     string = "ProposalTypeBinaryOptionsMarketParamUpdateV2"
-	ProposalAtomicMarketOrderFeeMultiplierSchedule string = "ProposalAtomicMarketOrderFeeMultiplierScheduleV2"
+	ProposalTypeExchangeEnable                         string = "ProposalTypeExchangeEnableV2"
+	ProposalTypeBatchExchangeModification              string = "ProposalTypeBatchExchangeModificationV2"
+	ProposalTypeSpotMarketParamUpdate                  string = "ProposalTypeSpotMarketParamUpdateV2"
+	ProposalTypeSpotMarketLaunch                       string = "ProposalTypeSpotMarketLaunchV2"
+	ProposalTypePerpetualMarketLaunch                  string = "ProposalTypePerpetualMarketLaunchV2"
+	ProposalTypeExpiryFuturesMarketLaunch              string = "ProposalTypeExpiryFuturesMarketLaunchV2"
+	ProposalTypeDerivativeMarketParamUpdate            string = "ProposalTypeDerivativeMarketParamUpdateV2"
+	ProposalTypeMarketForcedSettlement                 string = "ProposalTypeMarketForcedSettlementV2"
+	ProposalUpdateAuctionExchangeTransferDenomDecimals string = "ProposalUpdateAuctionExchangeTransferDenomDecimalsV2"
+	ProposalTypeTradingRewardCampaign                  string = "ProposalTypeTradingRewardCampaignV2"
+	ProposalTypeTradingRewardCampaignUpdate            string = "ProposalTypeTradingRewardCampaignUpdateProposalV2"
+	ProposalTypeTradingRewardPointsUpdate              string = "ProposalTypeTradingRewardPointsUpdateProposalV2"
+	ProposalTypeFeeDiscountProposal                    string = "ProposalTypeFeeDiscountProposalV2"
+	ProposalTypeBatchCommunityPoolSpendProposal        string = "ProposalTypeBatchCommunityPoolSpendProposalV2"
+	ProposalTypeBinaryOptionsMarketLaunch              string = "ProposalTypeBinaryOptionsMarketLaunchV2"
+	ProposalTypeBinaryOptionsMarketParamUpdate         string = "ProposalTypeBinaryOptionsMarketParamUpdateV2"
+	ProposalAtomicMarketOrderFeeMultiplierSchedule     string = "ProposalAtomicMarketOrderFeeMultiplierScheduleV2"
 )
 
 func init() {
@@ -45,7 +45,7 @@ func init() {
 	govtypes.RegisterProposalType(ProposalTypeExpiryFuturesMarketLaunch)
 	govtypes.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
 	govtypes.RegisterProposalType(ProposalTypeMarketForcedSettlement)
-	govtypes.RegisterProposalType(ProposalUpdateDenomDecimals)
+	govtypes.RegisterProposalType(ProposalUpdateAuctionExchangeTransferDenomDecimals)
 	govtypes.RegisterProposalType(ProposalTypeTradingRewardCampaign)
 	govtypes.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
 	govtypes.RegisterProposalType(ProposalTypeTradingRewardPointsUpdate)
@@ -191,8 +191,8 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 		}
 	}
 
-	if p.DenomDecimalsUpdateProposal != nil {
-		if err := p.DenomDecimalsUpdateProposal.ValidateBasic(); err != nil {
+	if p.AuctionExchangeTransferDenomDecimalsUpdateProposal != nil {
+		if err := p.AuctionExchangeTransferDenomDecimalsUpdateProposal.ValidateBasic(); err != nil {
 			return err
 		}
 	}
@@ -470,6 +470,7 @@ func NewDerivativeMarketParamUpdateProposal(
 	minNotional *math.LegacyDec,
 	hourlyInterestRate *math.LegacyDec,
 	hourlyFundingRateCap *math.LegacyDec,
+	openNotionalCap *OpenNotionalCap,
 	status MarketStatus,
 	oracleParams *OracleParams,
 	ticker string,
@@ -489,6 +490,7 @@ func NewDerivativeMarketParamUpdateProposal(
 		MinQuantityTickSize:    minQuantityTickSize,
 		HourlyInterestRate:     hourlyInterestRate,
 		HourlyFundingRateCap:   hourlyFundingRateCap,
+		OpenNotionalCap:        openNotionalCap,
 		Status:                 status,
 		OracleParams:           oracleParams,
 		Ticker:                 ticker,
@@ -533,6 +535,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.MaintenanceMarginRatio == nil &&
 		p.HourlyInterestRate == nil &&
 		p.HourlyFundingRateCap == nil &&
+		p.OpenNotionalCap == nil &&
 		p.Status == MarketStatus_Unspecified &&
 		p.AdminInfo == nil &&
 		p.OracleParams == nil {
@@ -580,6 +583,11 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if p.MinNotional != nil {
 		if err := types.ValidateMinNotional(*p.MinNotional); err != nil {
 			return errors.Wrap(types.ErrInvalidNotional, err.Error())
+		}
+	}
+	if p.OpenNotionalCap != nil {
+		if err := ValidateOpenNotionalCap(*p.OpenNotionalCap); err != nil {
+			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 		}
 	}
 
@@ -682,8 +690,8 @@ func (p *MarketForcedSettlementProposal) ValidateBasic() error {
 func NewUpdateDenomDecimalsProposal(
 	title, description string,
 	denomDecimals []*DenomDecimals,
-) *UpdateDenomDecimalsProposal {
-	return &UpdateDenomDecimalsProposal{
+) *UpdateAuctionExchangeTransferDenomDecimalsProposal {
+	return &UpdateAuctionExchangeTransferDenomDecimalsProposal{
 		Title:         title,
 		Description:   description,
 		DenomDecimals: denomDecimals,
@@ -691,28 +699,28 @@ func NewUpdateDenomDecimalsProposal(
 }
 
 // Implements Proposal Interface
-var _ govtypes.Content = &UpdateDenomDecimalsProposal{}
+var _ govtypes.Content = &UpdateAuctionExchangeTransferDenomDecimalsProposal{}
 
 // GetTitle returns the title of this proposal
-func (p *UpdateDenomDecimalsProposal) GetTitle() string {
+func (p *UpdateAuctionExchangeTransferDenomDecimalsProposal) GetTitle() string {
 	return p.Title
 }
 
 // GetDescription returns the description of this proposal
-func (p *UpdateDenomDecimalsProposal) GetDescription() string {
+func (p *UpdateAuctionExchangeTransferDenomDecimalsProposal) GetDescription() string {
 	return p.Description
 }
 
 // ProposalRoute returns router key of this proposal.
-func (p *UpdateDenomDecimalsProposal) ProposalRoute() string { return RouterKey }
+func (*UpdateAuctionExchangeTransferDenomDecimalsProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type of this proposal.
-func (p *UpdateDenomDecimalsProposal) ProposalType() string {
-	return ProposalUpdateDenomDecimals
+func (*UpdateAuctionExchangeTransferDenomDecimalsProposal) ProposalType() string {
+	return ProposalUpdateAuctionExchangeTransferDenomDecimals
 }
 
 // ValidateBasic returns ValidateBasic result of this proposal.
-func (p *UpdateDenomDecimalsProposal) ValidateBasic() error {
+func (p *UpdateAuctionExchangeTransferDenomDecimalsProposal) ValidateBasic() error {
 	for _, d := range p.DenomDecimals {
 		if err := d.Validate(); err != nil {
 			return err
@@ -812,6 +820,7 @@ func NewPerpetualMarketLaunchProposal(
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType,
 	initialMarginRatio, maintenanceMarginRatio, reduceMarginRatio, makerFeeRate, takerFeeRate,
 	minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
+	openNotionalCap OpenNotionalCap,
 ) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
 		Title:                  title,
@@ -825,6 +834,7 @@ func NewPerpetualMarketLaunchProposal(
 		InitialMarginRatio:     initialMarginRatio,
 		MaintenanceMarginRatio: maintenanceMarginRatio,
 		ReduceMarginRatio:      reduceMarginRatio,
+		OpenNotionalCap:        openNotionalCap,
 		MakerFeeRate:           makerFeeRate,
 		TakerFeeRate:           takerFeeRate,
 		MinPriceTickSize:       minPriceTickSize,
@@ -901,6 +911,9 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := types.ValidateMinNotional(p.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
 	}
+	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
+		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
+	}
 
 	return govtypes.ValidateAbstract(p)
 }
@@ -911,6 +924,7 @@ func NewExpiryFuturesMarketLaunchProposal(
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, expiry int64,
 	initialMarginRatio, maintenanceMarginRatio, reduceMarginRatio, makerFeeRate, takerFeeRate,
 	minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
+	openNotionalCap OpenNotionalCap,
 ) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
 		Title:                  title,
@@ -925,6 +939,7 @@ func NewExpiryFuturesMarketLaunchProposal(
 		InitialMarginRatio:     initialMarginRatio,
 		MaintenanceMarginRatio: maintenanceMarginRatio,
 		ReduceMarginRatio:      reduceMarginRatio,
+		OpenNotionalCap:        openNotionalCap,
 		MakerFeeRate:           makerFeeRate,
 		TakerFeeRate:           takerFeeRate,
 		MinPriceTickSize:       minPriceTickSize,
@@ -1003,6 +1018,9 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := types.ValidateMinNotional(p.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
+	}
+	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
+		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 	}
 
 	return govtypes.ValidateAbstract(p)
@@ -1635,6 +1653,9 @@ func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	if err := types.ValidateMinNotional(p.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
 	}
+	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
+		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
+	}
 
 	return govtypes.ValidateAbstract(p)
 }
@@ -1645,6 +1666,7 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 	description string,
 	marketID string,
 	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec,
+	openNotionalCap *OpenNotionalCap,
 	expirationTimestamp, settlementTimestamp int64,
 	admin string,
 	status MarketStatus,
@@ -1661,6 +1683,7 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 		MinPriceTickSize:    minPriceTickSize,
 		MinQuantityTickSize: minQuantityTickSize,
 		MinNotional:         minNotional,
+		OpenNotionalCap:     openNotionalCap,
 		ExpirationTimestamp: expirationTimestamp,
 		SettlementTimestamp: settlementTimestamp,
 		Admin:               admin,
@@ -1702,6 +1725,7 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		p.MinPriceTickSize == nil &&
 		p.MinQuantityTickSize == nil &&
 		p.MinNotional == nil &&
+		p.OpenNotionalCap == nil &&
 		p.Status == MarketStatus_Unspecified &&
 		p.ExpirationTimestamp == 0 &&
 		p.SettlementTimestamp == 0 &&
@@ -1743,6 +1767,12 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 	if p.MinNotional != nil {
 		if err := types.ValidateMinNotional(*p.MinNotional); err != nil {
 			return errors.Wrap(types.ErrInvalidNotional, err.Error())
+		}
+	}
+
+	if p.OpenNotionalCap != nil {
+		if err := ValidateOpenNotionalCap(*p.OpenNotionalCap); err != nil {
+			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 		}
 	}
 

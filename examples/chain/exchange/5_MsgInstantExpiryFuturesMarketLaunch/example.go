@@ -67,6 +67,14 @@ func main() {
 
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
+	minNotional := math.LegacyMustNewDecFromStr("1")
+	openNotionalCap := exchangev2types.OpenNotionalCap{
+		Cap: &exchangev2types.OpenNotionalCap_Capped{
+			Capped: &exchangev2types.OpenNotionalCapCapped{
+				Value: math.LegacyNewDec(10000),
+			},
+		},
+	}
 
 	msg := &exchangev2types.MsgInstantExpiryFuturesMarketLaunch{
 		Sender:                 senderAddress.String(),
@@ -84,6 +92,8 @@ func main() {
 		ReduceMarginRatio:      math.LegacyMustNewDecFromStr("0.3"),
 		MinPriceTickSize:       minPriceTickSize,
 		MinQuantityTickSize:    minQuantityTickSize,
+		MinNotional:            minNotional,
+		OpenNotionalCap:        openNotionalCap,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

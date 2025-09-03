@@ -93,7 +93,6 @@
   "injective.exchange.v2.MsgPrivilegedExecuteContract",
   "injective.exchange.v2.MsgReclaimLockedFunds",
   "injective.exchange.v2.MsgRewardsOptOut",
-  "injective.exchange.v2.MsgSetDelegationTransferReceivers",
   "injective.exchange.v2.MsgSignData",
   "injective.exchange.v2.MsgSignDoc",
   "injective.exchange.v2.MsgSpotMarketLaunch",

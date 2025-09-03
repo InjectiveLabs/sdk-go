@@ -87,12 +87,19 @@ func (Action) EnumDescriptor() ([]byte, []int) {
 
 // Namespace defines a permissions namespace
 type Namespace struct {
-	Denom                     string                     `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
-	ContractHook              string                     `protobuf:"bytes,2,opt,name=contract_hook,json=contractHook,proto3" json:"contract_hook,omitempty"`
-	RolePermissions           []*Role                    `protobuf:"bytes,3,rep,name=role_permissions,json=rolePermissions,proto3" json:"role_permissions,omitempty"`
-	ActorRoles                []*ActorRoles              `protobuf:"bytes,4,rep,name=actor_roles,json=actorRoles,proto3" json:"actor_roles,omitempty"`
-	RoleManagers              []*RoleManager             `protobuf:"bytes,5,rep,name=role_managers,json=roleManagers,proto3" json:"role_managers,omitempty"`
-	PolicyStatuses            []*PolicyStatus            `protobuf:"bytes,6,rep,name=policy_statuses,json=policyStatuses,proto3" json:"policy_statuses,omitempty"`
+	// The tokenfactory denom to which this namespace applies to
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// The address of smart contract to apply code-based restrictions
+	ContractHook string `protobuf:"bytes,2,opt,name=contract_hook,json=contractHook,proto3" json:"contract_hook,omitempty"`
+	// permissions for each role
+	RolePermissions []*Role `protobuf:"bytes,3,rep,name=role_permissions,json=rolePermissions,proto3" json:"role_permissions,omitempty"`
+	// roles for each actor
+	ActorRoles []*ActorRoles `protobuf:"bytes,4,rep,name=actor_roles,json=actorRoles,proto3" json:"actor_roles,omitempty"`
+	// managers for each role
+	RoleManagers []*RoleManager `protobuf:"bytes,5,rep,name=role_managers,json=roleManagers,proto3" json:"role_managers,omitempty"`
+	// status for each policy
+	PolicyStatuses []*PolicyStatus `protobuf:"bytes,6,rep,name=policy_statuses,json=policyStatuses,proto3" json:"policy_statuses,omitempty"`
+	// capabilities for each manager for each policy
 	PolicyManagerCapabilities []*PolicyManagerCapability `protobuf:"bytes,7,rep,name=policy_manager_capabilities,json=policyManagerCapabilities,proto3" json:"policy_manager_capabilities,omitempty"`
 }
 
@@ -180,7 +187,9 @@ func (m *Namespace) GetPolicyManagerCapabilities() []*PolicyManagerCapability {
 
 // AddressRoles defines roles for an actor
 type ActorRoles struct {
-	Actor string   `protobuf:"bytes,1,opt,name=actor,proto3" json:"actor,omitempty"`
+	// The actor name
+	Actor string `protobuf:"bytes,1,opt,name=actor,proto3" json:"actor,omitempty"`
+	// The roles for the actor
 	Roles []string `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
 }
 
@@ -233,7 +242,9 @@ func (m *ActorRoles) GetRoles() []string {
 
 // RoleActors defines actors for a role
 type RoleActors struct {
-	Role   string   `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"`
+	// The role name
+	Role string `protobuf:"bytes,1,opt,name=role,proto3" json:"role,omitempty"`
+	// List of actor names associated with the role
 	Actors []string `protobuf:"bytes,2,rep,name=actors,proto3" json:"actors,omitempty"`
 }
 
@@ -286,8 +297,10 @@ func (m *RoleActors) GetActors() []string {
 
 // RoleManager defines roles for a manager address
 type RoleManager struct {
-	Manager string   `protobuf:"bytes,1,opt,name=manager,proto3" json:"manager,omitempty"`
-	Roles   []string `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
+	// The manager name
+	Manager string `protobuf:"bytes,1,opt,name=manager,proto3" json:"manager,omitempty"`
+	// List of roles associated with the manager
+	Roles []string `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
 }
 
 func (m *RoleManager) Reset()         { *m = RoleManager{} }
@@ -339,9 +352,12 @@ func (m *RoleManager) GetRoles() []string {
 
 // PolicyStatus defines the status of a policy
 type PolicyStatus struct {
-	Action     Action `protobuf:"varint,1,opt,name=action,proto3,enum=injective.permissions.v1beta1.Action" json:"action,omitempty"`
-	IsDisabled bool   `protobuf:"varint,2,opt,name=is_disabled,json=isDisabled,proto3" json:"is_disabled,omitempty"`
-	IsSealed   bool   `protobuf:"varint,3,opt,name=is_sealed,json=isSealed,proto3" json:"is_sealed,omitempty"`
+	// The action code number
+	Action Action `protobuf:"varint,1,opt,name=action,proto3,enum=injective.permissions.v1beta1.Action" json:"action,omitempty"`
+	// Whether the policy is disabled
+	IsDisabled bool `protobuf:"varint,2,opt,name=is_disabled,json=isDisabled,proto3" json:"is_disabled,omitempty"`
+	// Whether the policy is sealed
+	IsSealed bool `protobuf:"varint,3,opt,name=is_sealed,json=isSealed,proto3" json:"is_sealed,omitempty"`
 }
 
 func (m *PolicyStatus) Reset()         { *m = PolicyStatus{} }
@@ -400,8 +416,12 @@ func (m *PolicyStatus) GetIsSealed() bool {
 
 // Role is only used for storage
 type Role struct {
-	Name        string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	RoleId      uint32 `protobuf:"varint,2,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	// The role name
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// The role ID
+	RoleId uint32 `protobuf:"varint,2,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	// Integer representing the bitwise combination of all actions assigned to the
+	// role
 	Permissions uint32 `protobuf:"varint,3,opt,name=permissions,proto3" json:"permissions,omitempty"`
 }
 
@@ -461,10 +481,14 @@ func (m *Role) GetPermissions() uint32 {
 
 // PolicyManagerCapability defines the capabilities of a manager for a policy
 type PolicyManagerCapability struct {
-	Manager    string `protobuf:"bytes,1,opt,name=manager,proto3" json:"manager,omitempty"`
-	Action     Action `protobuf:"varint,2,opt,name=action,proto3,enum=injective.permissions.v1beta1.Action" json:"action,omitempty"`
-	CanDisable bool   `protobuf:"varint,3,opt,name=can_disable,json=canDisable,proto3" json:"can_disable,omitempty"`
-	CanSeal    bool   `protobuf:"varint,4,opt,name=can_seal,json=canSeal,proto3" json:"can_seal,omitempty"`
+	// The manager name
+	Manager string `protobuf:"bytes,1,opt,name=manager,proto3" json:"manager,omitempty"`
+	// The action code number
+	Action Action `protobuf:"varint,2,opt,name=action,proto3,enum=injective.permissions.v1beta1.Action" json:"action,omitempty"`
+	// Whether the manager can disable the policy
+	CanDisable bool `protobuf:"varint,3,opt,name=can_disable,json=canDisable,proto3" json:"can_disable,omitempty"`
+	// Whether the manager can seal the policy
+	CanSeal bool `protobuf:"varint,4,opt,name=can_seal,json=canSeal,proto3" json:"can_seal,omitempty"`
 }
 
 func (m *PolicyManagerCapability) Reset()         { *m = PolicyManagerCapability{} }
@@ -575,7 +599,9 @@ func (m *RoleIDs) GetRoleIds() []uint32 {
 
 // AddressVoucher is used to represent a voucher for a specific address
 type AddressVoucher struct {
-	Address string                                  `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// The Injective address that the voucher is for
+	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// The voucher amount
 	Voucher github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,2,opt,name=voucher,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"voucher,omitempty"`
 }
 

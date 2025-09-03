@@ -218,9 +218,6 @@ service Msg {
   rpc UpdateAtomicMarketOrderFeeMultiplierSchedule(
       MsgAtomicMarketOrderFeeMultiplierSchedule)
       returns (MsgAtomicMarketOrderFeeMultiplierScheduleResponse);
-
-  rpc SetDelegationTransferReceivers(MsgSetDelegationTransferReceivers)
-      returns (MsgSetDelegationTransferReceiversResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -306,6 +303,11 @@ message MsgUpdateDerivativeMarket {
   // (optional) updated value for reduce_margin_ratio
   string new_reduce_margin_ratio = 9 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // (optional) updated value for open_notional_cap
+  OpenNotionalCap new_open_notional_cap = 10 [
     (gogoproto.nullable) = false
   ];
 }
@@ -528,6 +530,11 @@ message MsgInstantPerpetualMarketLaunch {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // open_notional_cap defines the cap on the open notional
+  OpenNotionalCap open_notional_cap = 16 [
+    (gogoproto.nullable) = false
+  ];
 }
 
 // MsgInstantPerpetualMarketLaunchResponse defines the
@@ -590,6 +597,11 @@ message MsgInstantBinaryOptionsMarketLaunch {
   // orders in the market (in human readable format)
   string min_notional = 15 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // open_notional_cap defines the cap on the open notional
+  OpenNotionalCap open_notional_cap = 16 [
     (gogoproto.nullable) = false
   ];
 }
@@ -667,6 +679,11 @@ message MsgInstantExpiryFuturesMarketLaunch {
   // reduce_margin_ratio defines the ratio of the margin that is reduced
   string reduce_margin_ratio = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // open_notional_cap defines the cap on the open notional
+  OpenNotionalCap open_notional_cap = 17 [
     (gogoproto.nullable) = false
   ];
 }
@@ -880,6 +897,15 @@ message MsgBatchUpdateOrders {
   // the binary options orders to create
   repeated DerivativeOrder binary_options_orders_to_create = 11
       [ (gogoproto.nullable) = true ];
+  // the spot market orders to create
+  repeated SpotOrder spot_market_orders_to_create = 12
+      [ (gogoproto.nullable) = true ];
+  // the derivative market orders to create
+  repeated DerivativeOrder derivative_market_orders_to_create = 13
+      [ (gogoproto.nullable) = true ];
+  // the binary options market orders to create
+  repeated DerivativeOrder binary_options_market_orders_to_create = 14
+      [ (gogoproto.nullable) = true ];
 }
 
 // MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
@@ -899,6 +925,15 @@ message MsgBatchUpdateOrdersResponse {
   repeated string failed_derivative_orders_cids = 10;
   repeated string created_binary_options_orders_cids = 11;
   repeated string failed_binary_options_orders_cids = 12;
+  repeated string spot_market_order_hashes = 13;
+  repeated string created_spot_market_orders_cids = 14;
+  repeated string failed_spot_market_orders_cids = 15;
+  repeated string derivative_market_order_hashes = 16;
+  repeated string created_derivative_market_orders_cids = 17;
+  repeated string failed_derivative_market_orders_cids = 18;
+  repeated string binary_options_market_order_hashes = 19;
+  repeated string created_binary_options_market_orders_cids = 20;
+  repeated string failed_binary_options_market_orders_cids = 21;
 }
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder
@@ -1520,19 +1555,3 @@ message MsgAtomicMarketOrderFeeMultiplierSchedule {
 }
 
 message MsgAtomicMarketOrderFeeMultiplierScheduleResponse {}
-
-// MsgSetDelegationTransferReceivers defines a message for setting delegation
-// transfer receivers
-message MsgSetDelegationTransferReceivers {
-  option (amino.name) = "exchange/MsgSetDelegationTransferReceivers";
-  option (cosmos.msg.v1.signer) = "sender";
-
-  // the sender's Injective address (must be exchange admin)
-  string sender = 1;
-  // list of receiver addresses to set as delegation transfer receivers
-  repeated string receivers = 2;
-}
-
-// MsgSetDelegationTransferReceiversResponse defines the response for
-// MsgSetDelegationTransferReceivers
-message MsgSetDelegationTransferReceiversResponse {}

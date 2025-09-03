@@ -67,6 +67,14 @@ func main() {
 
 	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
 	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
+	minNotional := math.LegacyMustNewDecFromStr("1")
+	openNotionalCap := exchangev2types.OpenNotionalCap{
+		Cap: &exchangev2types.OpenNotionalCap_Capped{
+			Capped: &exchangev2types.OpenNotionalCapCapped{
+				Value: math.LegacyNewDec(10000),
+			},
+		},
+	}
 
 	msg := &exchangev2types.MsgInstantBinaryOptionsMarketLaunch{
 		Sender:              senderAddress.String(),
@@ -83,6 +91,8 @@ func main() {
 		QuoteDenom:          "peggy0xdAC17F958D2ee523a2206206994597C13D831ec7",
 		MinPriceTickSize:    minPriceTickSize,
 		MinQuantityTickSize: minQuantityTickSize,
+		MinNotional:         minNotional,
+		OpenNotionalCap:     openNotionalCap,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

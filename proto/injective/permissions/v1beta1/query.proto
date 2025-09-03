@@ -123,7 +123,10 @@ message QueryNamespaceDenomsRequest {}
 
 // QueryNamespaceDenomsResponse is the response type for the
 // Query/NamespaceDenoms RPC method.
-message QueryNamespaceDenomsResponse { repeated string denoms = 1; }
+message QueryNamespaceDenomsResponse {
+  // List of denoms
+  repeated string denoms = 1;
+}
 
 // QueryNamespacesRequest is the request type for the Query/Namespaces RPC
 // method.
@@ -131,87 +134,134 @@ message QueryNamespacesRequest {}
 
 // QueryNamespacesResponse is the response type for the Query/Namespaces
 // RPC method.
-message QueryNamespacesResponse { repeated Namespace namespaces = 1; }
+message QueryNamespacesResponse {
+  // List of namespaces
+  repeated Namespace namespaces = 1;
+}
 
 // QueryNamespaceRequest is the request type for the
 // Query/Namespace RPC method.
-message QueryNamespaceRequest { string denom = 1; }
+message QueryNamespaceRequest {
+  // The token denom
+  string denom = 1;
+}
 
 // QueryNamespaceResponse is the response type for the
 // Query/NamespaceByDenom RPC method.
-message QueryNamespaceResponse { Namespace namespace = 1; }
+message QueryNamespaceResponse {
+  // The namespace details
+  Namespace namespace = 1;
+}
 
 // QueryAddressesByRoleRequest is the request type for the Query/AddressesByRole
 // RPC method.
 message QueryActorsByRoleRequest {
+  // The token denom
   string denom = 1;
+  // The role to query actors for
   string role = 2;
 }
 
 // QueryAddressesByRoleResponse is the response type for the
 // Query/AddressesByRole RPC method.
-message QueryActorsByRoleResponse { repeated string actors = 1; }
+message QueryActorsByRoleResponse {
+  // List of actors' Injective addresses
+  repeated string actors = 1;
+}
 
 // QueryRolesByActorRequest is the request type for the
 // Query/RolesByActor RPC method.
 message QueryRolesByActorRequest {
+  // The token denom
   string denom = 1;
+  // The actor's Injective address
   string actor = 2;
 }
 
 // QueryRolesByActorResponse is the response type for the
 // Query/RolesByActor RPC method.
-message QueryRolesByActorResponse { repeated string roles = 1; }
+message QueryRolesByActorResponse {
+  // List of roles
+  repeated string roles = 1;
+}
 
 // QueryRoleManagersRequest is the request type for the Query/RoleManagers
 // RPC method.
-message QueryRoleManagersRequest { string denom = 1; }
+message QueryRoleManagersRequest {
+  // The token denom
+  string denom = 1;
+}
 
 // QueryRoleManagersResponse is the response type for the
 // Query/RoleManagers RPC method.
-message QueryRoleManagersResponse { repeated RoleManager role_managers = 1; }
+message QueryRoleManagersResponse {
+  // List of role managers
+  repeated RoleManager role_managers = 1;
+}
 
 // QueryRoleManagerRequest is the request type for the Query/RoleManager
 // RPC method.
 message QueryRoleManagerRequest {
+  // The token denom
   string denom = 1;
+  // The manager Injective address
   string manager = 2;
 }
 
 // QueryRoleManagerResponse is the response type for the
 // Query/RoleManager RPC method.
-message QueryRoleManagerResponse { RoleManager role_manager = 1; }
+message QueryRoleManagerResponse {
+  // The role manager details
+  RoleManager role_manager = 1;
+}
 
 // QueryPolicyStatusesRequest is the request type for the Query/PolicyStatuses
 // RPC method.
-message QueryPolicyStatusesRequest { string denom = 1; }
+message QueryPolicyStatusesRequest {
+  // The token denom
+  string denom = 1;
+}
 
 // QueryRoleManagerResponse is the response type for the
 // Query/RoleManager RPC method.
 message QueryPolicyStatusesResponse {
+  // List of policy statuses
   repeated PolicyStatus policy_statuses = 1;
 }
 
 // QueryPolicyManagerCapabilitiesRequest is the request type for the
 // Query/PolicyManagerCapabilities RPC method.
-message QueryPolicyManagerCapabilitiesRequest { string denom = 1; }
+message QueryPolicyManagerCapabilitiesRequest {
+  // The token denom
+  string denom = 1;
+}
 
 // QueryPolicyManagerCapabilitiesResponse is the response type for the
 // Query/PolicyManagerCapabilities RPC method.
 message QueryPolicyManagerCapabilitiesResponse {
+  // List of policy manager capabilities
   repeated PolicyManagerCapability policy_manager_capabilities = 1;
 }
 
-message QueryVouchersRequest { string denom = 1; }
+message QueryVouchersRequest {
+  // The token denom
+  string denom = 1;
+}
 
-message QueryVouchersResponse { repeated AddressVoucher vouchers = 1; }
+message QueryVouchersResponse {
+  // List of vouchers
+  repeated AddressVoucher vouchers = 1;
+}
 
 message QueryVoucherRequest {
+  // The token denom
   string denom = 1;
+  // The Injective address of the receiver
   string address = 2;
 }
 
 message QueryVoucherResponse {
+  // The voucher amount
   cosmos.base.v1beta1.Coin voucher = 1 [
     (gogoproto.nullable) = false,
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
@@ -225,4 +275,7 @@ message QueryModuleStateRequest {}
 
 // QueryModuleStateResponse is the response type for the
 // Query/PermissionsModuleState RPC method.
-message QueryModuleStateResponse { GenesisState state = 1; }
+message QueryModuleStateResponse {
+  // The module state
+  GenesisState state = 1;
+}

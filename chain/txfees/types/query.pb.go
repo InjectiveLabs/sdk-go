@@ -31,6 +31,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type EipBaseFee struct {
+	// The current chain gas price
 	BaseFee cosmossdk_io_math.LegacyDec `protobuf:"bytes,1,opt,name=base_fee,json=baseFee,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"base_fee" yaml:"base_fee"`
 }
 

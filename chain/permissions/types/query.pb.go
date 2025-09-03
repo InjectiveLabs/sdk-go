@@ -156,6 +156,7 @@ var xxx_messageInfo_QueryNamespaceDenomsRequest proto.InternalMessageInfo
 // QueryNamespaceDenomsResponse is the response type for the
 // Query/NamespaceDenoms RPC method.
 type QueryNamespaceDenomsResponse struct {
+	// List of denoms
 	Denoms []string `protobuf:"bytes,1,rep,name=denoms,proto3" json:"denoms,omitempty"`
 }
 
@@ -240,6 +241,7 @@ var xxx_messageInfo_QueryNamespacesRequest proto.InternalMessageInfo
 // QueryNamespacesResponse is the response type for the Query/Namespaces
 // RPC method.
 type QueryNamespacesResponse struct {
+	// List of namespaces
 	Namespaces []*Namespace `protobuf:"bytes,1,rep,name=namespaces,proto3" json:"namespaces,omitempty"`
 }
 
@@ -286,6 +288,7 @@ func (m *QueryNamespacesResponse) GetNamespaces() []*Namespace {
 // QueryNamespaceRequest is the request type for the
 // Query/Namespace RPC method.
 type QueryNamespaceRequest struct {
+	// The token denom
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
@@ -332,6 +335,7 @@ func (m *QueryNamespaceRequest) GetDenom() string {
 // QueryNamespaceResponse is the response type for the
 // Query/NamespaceByDenom RPC method.
 type QueryNamespaceResponse struct {
+	// The namespace details
 	Namespace *Namespace `protobuf:"bytes,1,opt,name=namespace,proto3" json:"namespace,omitempty"`
 }
 
@@ -378,8 +382,10 @@ func (m *QueryNamespaceResponse) GetNamespace() *Namespace {
 // QueryAddressesByRoleRequest is the request type for the Query/AddressesByRole
 // RPC method.
 type QueryActorsByRoleRequest struct {
+	// The token denom
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
-	Role  string `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	// The role to query actors for
+	Role string `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
 }
 
 func (m *QueryActorsByRoleRequest) Reset()         { *m = QueryActorsByRoleRequest{} }
@@ -432,6 +438,7 @@ func (m *QueryActorsByRoleRequest) GetRole() string {
 // QueryAddressesByRoleResponse is the response type for the
 // Query/AddressesByRole RPC method.
 type QueryActorsByRoleResponse struct {
+	// List of actors' Injective addresses
 	Actors []string `protobuf:"bytes,1,rep,name=actors,proto3" json:"actors,omitempty"`
 }
 
@@ -478,7 +485,9 @@ func (m *QueryActorsByRoleResponse) GetActors() []string {
 // QueryRolesByActorRequest is the request type for the
 // Query/RolesByActor RPC method.
 type QueryRolesByActorRequest struct {
+	// The token denom
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// The actor's Injective address
 	Actor string `protobuf:"bytes,2,opt,name=actor,proto3" json:"actor,omitempty"`
 }
 
@@ -532,6 +541,7 @@ func (m *QueryRolesByActorRequest) GetActor() string {
 // QueryRolesByActorResponse is the response type for the
 // Query/RolesByActor RPC method.
 type QueryRolesByActorResponse struct {
+	// List of roles
 	Roles []string `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
 }
 
@@ -578,6 +588,7 @@ func (m *QueryRolesByActorResponse) GetRoles() []string {
 // QueryRoleManagersRequest is the request type for the Query/RoleManagers
 // RPC method.
 type QueryRoleManagersRequest struct {
+	// The token denom
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
@@ -624,6 +635,7 @@ func (m *QueryRoleManagersRequest) GetDenom() string {
 // QueryRoleManagersResponse is the response type for the
 // Query/RoleManagers RPC method.
 type QueryRoleManagersResponse struct {
+	// List of role managers
 	RoleManagers []*RoleManager `protobuf:"bytes,1,rep,name=role_managers,json=roleManagers,proto3" json:"role_managers,omitempty"`
 }
 
@@ -670,7 +682,9 @@ func (m *QueryRoleManagersResponse) GetRoleManagers() []*RoleManager {
 // QueryRoleManagerRequest is the request type for the Query/RoleManager
 // RPC method.
 type QueryRoleManagerRequest struct {
-	Denom   string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// The token denom
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// The manager Injective address
 	Manager string `protobuf:"bytes,2,opt,name=manager,proto3" json:"manager,omitempty"`
 }
 
@@ -724,6 +738,7 @@ func (m *QueryRoleManagerRequest) GetManager() string {
 // QueryRoleManagerResponse is the response type for the
 // Query/RoleManager RPC method.
 type QueryRoleManagerResponse struct {
+	// The role manager details
 	RoleManager *RoleManager `protobuf:"bytes,1,opt,name=role_manager,json=roleManager,proto3" json:"role_manager,omitempty"`
 }
 
@@ -770,6 +785,7 @@ func (m *QueryRoleManagerResponse) GetRoleManager() *RoleManager {
 // QueryPolicyStatusesRequest is the request type for the Query/PolicyStatuses
 // RPC method.
 type QueryPolicyStatusesRequest struct {
+	// The token denom
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
@@ -816,6 +832,7 @@ func (m *QueryPolicyStatusesRequest) GetDenom() string {
 // QueryRoleManagerResponse is the response type for the
 // Query/RoleManager RPC method.
 type QueryPolicyStatusesResponse struct {
+	// List of policy statuses
 	PolicyStatuses []*PolicyStatus `protobuf:"bytes,1,rep,name=policy_statuses,json=policyStatuses,proto3" json:"policy_statuses,omitempty"`
 }
 
@@ -862,6 +879,7 @@ func (m *QueryPolicyStatusesResponse) GetPolicyStatuses() []*PolicyStatus {
 // QueryPolicyManagerCapabilitiesRequest is the request type for the
 // Query/PolicyManagerCapabilities RPC method.
 type QueryPolicyManagerCapabilitiesRequest struct {
+	// The token denom
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
@@ -908,6 +926,7 @@ func (m *QueryPolicyManagerCapabilitiesRequest) GetDenom() string {
 // QueryPolicyManagerCapabilitiesResponse is the response type for the
 // Query/PolicyManagerCapabilities RPC method.
 type QueryPolicyManagerCapabilitiesResponse struct {
+	// List of policy manager capabilities
 	PolicyManagerCapabilities []*PolicyManagerCapability `protobuf:"bytes,1,rep,name=policy_manager_capabilities,json=policyManagerCapabilities,proto3" json:"policy_manager_capabilities,omitempty"`
 }
 
@@ -954,6 +973,7 @@ func (m *QueryPolicyManagerCapabilitiesResponse) GetPolicyManagerCapabilities() 
 }
 
 type QueryVouchersRequest struct {
+	// The token denom
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
 }
 
@@ -998,6 +1018,7 @@ func (m *QueryVouchersRequest) GetDenom() string {
 }
 
 type QueryVouchersResponse struct {
+	// List of vouchers
 	Vouchers []*AddressVoucher `protobuf:"bytes,1,rep,name=vouchers,proto3" json:"vouchers,omitempty"`
 }
 
@@ -1042,7 +1063,9 @@ func (m *QueryVouchersResponse) GetVouchers() []*AddressVoucher {
 }
 
 type QueryVoucherRequest struct {
-	Denom   string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// The token denom
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+	// The Injective address of the receiver
 	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -1094,6 +1117,7 @@ func (m *QueryVoucherRequest) GetAddress() string {
 }
 
 type QueryVoucherResponse struct {
+	// The voucher amount
 	Voucher github_com_cosmos_cosmos_sdk_types.Coin `protobuf:"bytes,1,opt,name=voucher,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Coin" json:"voucher,omitempty"`
 }
 
@@ -1171,6 +1195,7 @@ var xxx_messageInfo_QueryModuleStateRequest proto.InternalMessageInfo
 // QueryModuleStateResponse is the response type for the
 // Query/PermissionsModuleState RPC method.
 type QueryModuleStateResponse struct {
+	// The module state
 	State *GenesisState `protobuf:"bytes,1,opt,name=state,proto3" json:"state,omitempty"`
 }
 
