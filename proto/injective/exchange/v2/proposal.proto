@@ -243,13 +243,10 @@ message PerpetualMarketLaunchProposal {
     (gogoproto.nullable) = false
   ];
   AdminInfo admin_info = 16;
+
   // reduce_margin_ratio defines the ratio of the margin that is reduced
   string reduce_margin_ratio = 17 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // open_notional_cap defines the maximum open notional for the market
-  OpenNotionalCap open_notional_cap = 18 [
     (gogoproto.nullable) = false
   ];
 }
@@ -309,10 +306,6 @@ message BinaryOptionsMarketLaunchProposal {
     (gogoproto.nullable) = false
   ];
   uint32 admin_permissions = 17;
-  // open_notional_cap defines the maximum open notional for the market
-  OpenNotionalCap open_notional_cap = 18 [
-    (gogoproto.nullable) = false
-  ];
 }
 
 // ExpiryFuturesMarketLaunchProposal defines a SDK message for proposing a new
@@ -384,14 +377,12 @@ message ExpiryFuturesMarketLaunchProposal {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
   AdminInfo admin_info = 17;
+
   // reduce_margin_ratio defines the ratio of the margin that is reduced
   string reduce_margin_ratio = 18 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-  // open_notional_cap defines the maximum open notional for the market
-  OpenNotionalCap open_notional_cap = 19 [
     (gogoproto.nullable) = false
   ];
 }
@@ -465,23 +456,25 @@ message DerivativeMarketParamUpdateProposal {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+
   MarketStatus status = 13;
+
   OracleParams oracle_params = 14;
+
   string ticker = 15 [ (gogoproto.nullable) = true ];
+
   // min_notional defines the minimum notional (in quote asset) required for
   // orders in the market
   string min_notional = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+
   AdminInfo admin_info = 17;
+
   // reduce_margin_ratio defines the ratio of the margin that is reduced
   string reduce_margin_ratio = 18 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = true
-  ];
-  // open_notional_cap defines the maximum open notional for the market
-  OpenNotionalCap open_notional_cap = 19 [
     (gogoproto.nullable) = true
   ];
 }
@@ -528,24 +521,28 @@ message BinaryOptionsMarketParamUpdateProposal {
   string title = 1;
   string description = 2;
   string market_id = 3;
+
   // maker_fee_rate defines the exchange trade fee for makers for the derivative
   // market
   string maker_fee_rate = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+
   // taker_fee_rate defines the exchange trade fee for takers for the derivative
   // market
   string taker_fee_rate = 5 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+
   // relayer_fee_share_rate defines the relayer fee share rate for the
   // derivative market
   string relayer_fee_share_rate = 6 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+
   // min_price_tick_size defines the minimum tick size of the order's price and
   // margin
   string min_price_tick_size = 7 [
@@ -558,6 +555,7 @@ message BinaryOptionsMarketParamUpdateProposal {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = true
   ];
+
   // expiration timestamp
   int64 expiration_timestamp = 9;
   // expiration timestamp
@@ -571,15 +569,13 @@ message BinaryOptionsMarketParamUpdateProposal {
   string admin = 12;
   MarketStatus status = 13;
   ProviderOracleParams oracle_params = 14;
+
   string ticker = 15 [ (gogoproto.nullable) = true ];
+
   // min_notional defines the minimum notional (in quote asset) required for
   // orders in the market
   string min_notional = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = true
-  ];
-  // open_notional_cap defines the maximum open notional for the market
-  OpenNotionalCap open_notional_cap = 17 [
     (gogoproto.nullable) = true
   ];
 }

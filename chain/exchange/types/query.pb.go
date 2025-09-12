@@ -7997,7 +7997,7 @@ type QueryClient interface {
 	// MarketVolatility computes the volatility for spot and derivative markets
 	// trading history.
 	MarketVolatility(ctx context.Context, in *QueryMarketVolatilityRequest, opts ...grpc.CallOption) (*QueryMarketVolatilityResponse, error)
-	// Retrieves a spot market's orderbook by marketID
+	// Retrieves all binary options markets
 	BinaryOptionsMarkets(ctx context.Context, in *QueryBinaryMarketsRequest, opts ...grpc.CallOption) (*QueryBinaryMarketsResponse, error)
 	// Retrieves a trader's derivative conditional orders
 	TraderDerivativeConditionalOrders(ctx context.Context, in *QueryTraderDerivativeConditionalOrdersRequest, opts ...grpc.CallOption) (*QueryTraderDerivativeConditionalOrdersResponse, error)
@@ -8737,7 +8737,7 @@ type QueryServer interface {
 	// MarketVolatility computes the volatility for spot and derivative markets
 	// trading history.
 	MarketVolatility(context.Context, *QueryMarketVolatilityRequest) (*QueryMarketVolatilityResponse, error)
-	// Retrieves a spot market's orderbook by marketID
+	// Retrieves all binary options markets
 	BinaryOptionsMarkets(context.Context, *QueryBinaryMarketsRequest) (*QueryBinaryMarketsResponse, error)
 	// Retrieves a trader's derivative conditional orders
 	TraderDerivativeConditionalOrders(context.Context, *QueryTraderDerivativeConditionalOrdersRequest) (*QueryTraderDerivativeConditionalOrdersResponse, error)

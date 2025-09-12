@@ -114,5 +114,4 @@ var (
 	ErrInsufficientMarketBalance                = errors.Register(ModuleName, 106, "insufficient market balance")
 	ErrInvalidExpirationBlock                   = errors.Register(ModuleName, 107, "invalid expiration block")
 	ErrV1DerivativeMarketLaunch                 = errors.Register(ModuleName, 108, "v1 perpetual and expiry market launch proposal is not supported")
-	ErrInvalidOpenNotionalCap                   = errors.Register(ModuleName, 109, "invalid open notional cap")
 )

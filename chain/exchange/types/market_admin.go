@@ -8,10 +8,9 @@ const (
 	InitialMarginRatioPerm     = 1 << iota
 	MaintenanceMarginRatioPerm = 1 << iota
 	ReduceMarginRatioPerm      = 1 << iota
-	OpenNotionalCapPerm        = 1 << iota
 
 	MaxPerm = TickerPerm | MinPriceTickSizePerm | MinQuantityTickSizePerm | MinNotionalPerm |
-		InitialMarginRatioPerm | MaintenanceMarginRatioPerm | ReduceMarginRatioPerm | OpenNotionalCapPerm
+		InitialMarginRatioPerm | MaintenanceMarginRatioPerm | ReduceMarginRatioPerm
 )
 
 type MarketAdminPermissions int

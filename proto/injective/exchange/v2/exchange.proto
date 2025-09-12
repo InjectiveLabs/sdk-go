@@ -195,6 +195,14 @@ message Params {
     (gogoproto.nullable) = false
   ];
   reserved 32; // This was the field human_readable_upgrade_block_height
+  // post_only_mode_blocks_amount defines the amount of blocks the post only
+  // mode will be enabled
+  uint64 post_only_mode_blocks_amount = 33;
+  // min_post_only_mode_downtime_duration defines the minimum downtime duration
+  // that must pass before the post only mode is automatically enabled. The
+  // accepted values are the Downtime enum values from the downtime_duration
+  // module
+  string min_post_only_mode_downtime_duration = 34;
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }

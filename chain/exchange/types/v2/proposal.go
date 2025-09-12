@@ -470,7 +470,6 @@ func NewDerivativeMarketParamUpdateProposal(
 	minNotional *math.LegacyDec,
 	hourlyInterestRate *math.LegacyDec,
 	hourlyFundingRateCap *math.LegacyDec,
-	openNotionalCap *OpenNotionalCap,
 	status MarketStatus,
 	oracleParams *OracleParams,
 	ticker string,
@@ -490,7 +489,6 @@ func NewDerivativeMarketParamUpdateProposal(
 		MinQuantityTickSize:    minQuantityTickSize,
 		HourlyInterestRate:     hourlyInterestRate,
 		HourlyFundingRateCap:   hourlyFundingRateCap,
-		OpenNotionalCap:        openNotionalCap,
 		Status:                 status,
 		OracleParams:           oracleParams,
 		Ticker:                 ticker,
@@ -535,7 +533,6 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.MaintenanceMarginRatio == nil &&
 		p.HourlyInterestRate == nil &&
 		p.HourlyFundingRateCap == nil &&
-		p.OpenNotionalCap == nil &&
 		p.Status == MarketStatus_Unspecified &&
 		p.AdminInfo == nil &&
 		p.OracleParams == nil {
@@ -583,11 +580,6 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if p.MinNotional != nil {
 		if err := types.ValidateMinNotional(*p.MinNotional); err != nil {
 			return errors.Wrap(types.ErrInvalidNotional, err.Error())
-		}
-	}
-	if p.OpenNotionalCap != nil {
-		if err := ValidateOpenNotionalCap(*p.OpenNotionalCap); err != nil {
-			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 		}
 	}
 
@@ -820,7 +812,6 @@ func NewPerpetualMarketLaunchProposal(
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType,
 	initialMarginRatio, maintenanceMarginRatio, reduceMarginRatio, makerFeeRate, takerFeeRate,
 	minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
-	openNotionalCap OpenNotionalCap,
 ) *PerpetualMarketLaunchProposal {
 	return &PerpetualMarketLaunchProposal{
 		Title:                  title,
@@ -834,7 +825,6 @@ func NewPerpetualMarketLaunchProposal(
 		InitialMarginRatio:     initialMarginRatio,
 		MaintenanceMarginRatio: maintenanceMarginRatio,
 		ReduceMarginRatio:      reduceMarginRatio,
-		OpenNotionalCap:        openNotionalCap,
 		MakerFeeRate:           makerFeeRate,
 		TakerFeeRate:           takerFeeRate,
 		MinPriceTickSize:       minPriceTickSize,
@@ -911,9 +901,6 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := types.ValidateMinNotional(p.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
 	}
-	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
-		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
-	}
 
 	return govtypes.ValidateAbstract(p)
 }
@@ -924,7 +911,6 @@ func NewExpiryFuturesMarketLaunchProposal(
 	oracleBase, oracleQuote string, oracleScaleFactor uint32, oracleType oracletypes.OracleType, expiry int64,
 	initialMarginRatio, maintenanceMarginRatio, reduceMarginRatio, makerFeeRate, takerFeeRate,
 	minPriceTickSize, minQuantityTickSize, minNotional math.LegacyDec,
-	openNotionalCap OpenNotionalCap,
 ) *ExpiryFuturesMarketLaunchProposal {
 	return &ExpiryFuturesMarketLaunchProposal{
 		Title:                  title,
@@ -939,7 +925,6 @@ func NewExpiryFuturesMarketLaunchProposal(
 		InitialMarginRatio:     initialMarginRatio,
 		MaintenanceMarginRatio: maintenanceMarginRatio,
 		ReduceMarginRatio:      reduceMarginRatio,
-		OpenNotionalCap:        openNotionalCap,
 		MakerFeeRate:           makerFeeRate,
 		TakerFeeRate:           takerFeeRate,
 		MinPriceTickSize:       minPriceTickSize,
@@ -1018,9 +1003,6 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := types.ValidateMinNotional(p.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
-	}
-	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
-		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 	}
 
 	return govtypes.ValidateAbstract(p)
@@ -1653,9 +1635,6 @@ func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	if err := types.ValidateMinNotional(p.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
 	}
-	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
-		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
-	}
 
 	return govtypes.ValidateAbstract(p)
 }
@@ -1666,7 +1645,6 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 	description string,
 	marketID string,
 	makerFeeRate, takerFeeRate, relayerFeeShareRate, minPriceTickSize, minQuantityTickSize, minNotional *math.LegacyDec,
-	openNotionalCap *OpenNotionalCap,
 	expirationTimestamp, settlementTimestamp int64,
 	admin string,
 	status MarketStatus,
@@ -1683,7 +1661,6 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 		MinPriceTickSize:    minPriceTickSize,
 		MinQuantityTickSize: minQuantityTickSize,
 		MinNotional:         minNotional,
-		OpenNotionalCap:     openNotionalCap,
 		ExpirationTimestamp: expirationTimestamp,
 		SettlementTimestamp: settlementTimestamp,
 		Admin:               admin,
@@ -1725,7 +1702,6 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		p.MinPriceTickSize == nil &&
 		p.MinQuantityTickSize == nil &&
 		p.MinNotional == nil &&
-		p.OpenNotionalCap == nil &&
 		p.Status == MarketStatus_Unspecified &&
 		p.ExpirationTimestamp == 0 &&
 		p.SettlementTimestamp == 0 &&
@@ -1767,12 +1743,6 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 	if p.MinNotional != nil {
 		if err := types.ValidateMinNotional(*p.MinNotional); err != nil {
 			return errors.Wrap(types.ErrInvalidNotional, err.Error())
-		}
-	}
-
-	if p.OpenNotionalCap != nil {
-		if err := ValidateOpenNotionalCap(*p.OpenNotionalCap); err != nil {
-			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 		}
 	}
 

@@ -16,22 +16,6 @@ enum AtomicMarketOrderAccessLevel {
   Everyone = 3;
 }
 
-message OpenNotionalCap {
-  oneof cap {
-    OpenNotionalCapUncapped uncapped = 1;
-    OpenNotionalCapCapped   capped   = 2;
-  }
-}
-
-message OpenNotionalCapUncapped {}
-
-message OpenNotionalCapCapped {
-  string value = 1 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false
-  ];
-}
-
 message Params {
   option (gogoproto.equal) = true;
   option (amino.name) = "exchange/Params";
@@ -295,11 +279,6 @@ message DerivativeMarket {
   // reduce_margin_ratio defines the ratio of the margin that is reduced
   string reduce_margin_ratio = 21 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-
-  // open_notional_cap defines the maximum open notional for the market
-  OpenNotionalCap open_notional_cap = 22 [
     (gogoproto.nullable) = false
   ];
 }

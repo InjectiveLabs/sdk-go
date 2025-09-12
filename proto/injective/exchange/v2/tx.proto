@@ -305,11 +305,6 @@ message MsgUpdateDerivativeMarket {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-
-  // (optional) updated value for open_notional_cap
-  OpenNotionalCap new_open_notional_cap = 10 [
-    (gogoproto.nullable) = false
-  ];
 }
 
 message MsgUpdateDerivativeMarketResponse {}
@@ -530,11 +525,6 @@ message MsgInstantPerpetualMarketLaunch {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-
-  // open_notional_cap defines the cap on the open notional
-  OpenNotionalCap open_notional_cap = 16 [
-    (gogoproto.nullable) = false
-  ];
 }
 
 // MsgInstantPerpetualMarketLaunchResponse defines the
@@ -597,11 +587,6 @@ message MsgInstantBinaryOptionsMarketLaunch {
   // orders in the market (in human readable format)
   string min_notional = 15 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-
-  // open_notional_cap defines the cap on the open notional
-  OpenNotionalCap open_notional_cap = 16 [
     (gogoproto.nullable) = false
   ];
 }
@@ -679,11 +664,6 @@ message MsgInstantExpiryFuturesMarketLaunch {
   // reduce_margin_ratio defines the ratio of the margin that is reduced
   string reduce_margin_ratio = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-
-  // open_notional_cap defines the cap on the open notional
-  OpenNotionalCap open_notional_cap = 17 [
     (gogoproto.nullable) = false
   ];
 }

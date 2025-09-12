@@ -11,6 +11,13 @@ import (
 	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 )
 
+const (
+	SPOT_MARKET_ID_PREFIX           = "-SPOT-MARKET-"
+	PERPETUAL_MARKET_ID_PREFIX      = "-PERPETUAL-MARKET-"
+	EXPIRY_FUTURES_MARKET_ID_PREFIX = "-EXPIRY-FUTURES-MARKET-"
+	BINARY_OPTIONS_MARKET_ID_PREFIX = "-BINARY-OPTIONS-MARKET-"
+)
+
 var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
 
 type DerivativeMarketInfo struct {
@@ -30,7 +37,7 @@ func NewSpotMarketID(baseDenom, quoteDenom string) common.Hash {
 		quoteDenom = quotePeggyDenom.String()
 	}
 
-	return crypto.Keccak256Hash([]byte((baseDenom + quoteDenom)))
+	return crypto.Keccak256Hash([]byte((SPOT_MARKET_ID_PREFIX + baseDenom + quoteDenom)))
 }
 
 func NewPerpetualMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType) common.Hash {
@@ -39,7 +46,7 @@ func NewPerpetualMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, or
 		quoteDenom = quotePeggyDenom.String()
 	}
 
-	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleBase + oracleQuote)))
+	return crypto.Keccak256Hash([]byte((PERPETUAL_MARKET_ID_PREFIX + oracleType.String() + ticker + quoteDenom + oracleBase + oracleQuote)))
 }
 
 func NewBinaryOptionsMarketID(ticker, quoteDenom, oracleSymbol, oracleProvider string, oracleType oracletypes.OracleType) common.Hash {
@@ -48,7 +55,12 @@ func NewBinaryOptionsMarketID(ticker, quoteDenom, oracleSymbol, oracleProvider s
 		quoteDenom = quotePeggyDenom.String()
 	}
 
-	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleSymbol + oracleProvider)))
+	return crypto.Keccak256Hash([]byte((BINARY_OPTIONS_MARKET_ID_PREFIX +
+		oracleType.String() +
+		ticker +
+		quoteDenom +
+		oracleSymbol +
+		oracleProvider)))
 }
 
 func NewExpiryFuturesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, expiry int64) common.Hash {
@@ -56,7 +68,13 @@ func NewExpiryFuturesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string
 	if err == nil {
 		quoteDenom = quotePeggyDenom.String()
 	}
-	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleBase + oracleQuote + strconv.Itoa(int(expiry)))))
+	return crypto.Keccak256Hash([]byte((EXPIRY_FUTURES_MARKET_ID_PREFIX +
+		oracleType.String() +
+		ticker +
+		quoteDenom +
+		oracleBase +
+		oracleQuote +
+		strconv.Itoa(int(expiry)))))
 }
 
 func NewDerivativesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, expiry int64) common.Hash {

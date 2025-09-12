@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
+	downtimetypes "github.com/InjectiveLabs/sdk-go/chain/downtime-detector/types"
 	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 )
 
@@ -41,14 +42,22 @@ var (
 	KeyMinimalProtocolFeeRate                      = []byte("MinimalProtocolFeeRate")
 	KeyIsInstantDerivativeMarketLaunchEnabled      = []byte("IsInstantDerivativeMarketLaunchEnabled")
 	KeyPostOnlyModeHeightThreshold                 = []byte("PostOnlyModeHeightThreshold")
+	KeyPostOnlyModeBlocksAmount                    = []byte("PostOnlyModeBlocksAmount")
+	KeyMinPostOnlyModeDowntimeDuration             = []byte("MinPostOnlyModeDowntimeDuration")
 )
 
 // ParamSetPairs returns the parameter set pairs.
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeySpotMarketInstantListingFee, &p.SpotMarketInstantListingFee, types.ValidateSpotMarketInstantListingFee),
 		paramtypes.NewParamSetPair(
-			KeyDerivativeMarketInstantListingFee, &p.DerivativeMarketInstantListingFee, types.ValidateDerivativeMarketInstantListingFee,
+			KeySpotMarketInstantListingFee,
+			&p.SpotMarketInstantListingFee,
+			types.ValidateSpotMarketInstantListingFee,
+		),
+		paramtypes.NewParamSetPair(
+			KeyDerivativeMarketInstantListingFee,
+			&p.DerivativeMarketInstantListingFee,
+			types.ValidateDerivativeMarketInstantListingFee,
 		),
 		paramtypes.NewParamSetPair(KeyDefaultSpotMakerFeeRate, &p.DefaultSpotMakerFeeRate, types.ValidateMakerFee),
 		paramtypes.NewParamSetPair(KeyDefaultSpotTakerFeeRate, &p.DefaultSpotTakerFeeRate, types.ValidateFee),
@@ -80,8 +89,14 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		),
 		paramtypes.NewParamSetPair(
 			KeyBinaryOptionsMarketInstantListingFee,
-			&p.BinaryOptionsMarketInstantListingFee, types.ValidateBinaryOptionsMarketInstantListingFee),
-		paramtypes.NewParamSetPair(KeyAtomicMarketOrderAccessLevel, &p.AtomicMarketOrderAccessLevel, types.ValidateAtomicMarketOrderAccessLevel),
+			&p.BinaryOptionsMarketInstantListingFee,
+			types.ValidateBinaryOptionsMarketInstantListingFee,
+		),
+		paramtypes.NewParamSetPair(
+			KeyAtomicMarketOrderAccessLevel,
+			&p.AtomicMarketOrderAccessLevel,
+			types.ValidateAtomicMarketOrderAccessLevel,
+		),
 		paramtypes.NewParamSetPair(
 			KeySpotAtomicMarketOrderFeeMultiplier,
 			&p.SpotAtomicMarketOrderFeeMultiplier,
@@ -98,8 +113,21 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			types.ValidateAtomicMarketOrderFeeMultiplier,
 		),
 		paramtypes.NewParamSetPair(KeyMinimalProtocolFeeRate, &p.MinimalProtocolFeeRate, types.ValidateFee),
-		paramtypes.NewParamSetPair(KeyIsInstantDerivativeMarketLaunchEnabled, &p.IsInstantDerivativeMarketLaunchEnabled, types.ValidateBool),
-		paramtypes.NewParamSetPair(KeyPostOnlyModeHeightThreshold, &p.PostOnlyModeHeightThreshold, types.ValidatePostOnlyModeHeightThreshold),
+		paramtypes.NewParamSetPair(
+			KeyIsInstantDerivativeMarketLaunchEnabled,
+			&p.IsInstantDerivativeMarketLaunchEnabled,
+			types.ValidateBool,
+		),
+		paramtypes.NewParamSetPair(
+			KeyPostOnlyModeHeightThreshold,
+			&p.PostOnlyModeHeightThreshold,
+			types.ValidatePostOnlyModeHeightThreshold,
+		),
+		paramtypes.NewParamSetPair(
+			KeyPostOnlyModeBlocksAmount,
+			&p.PostOnlyModeBlocksAmount,
+			ValidatePostOnlyModeBlocksAmount,
+		),
 	}
 }
 
@@ -137,6 +165,8 @@ func DefaultParams() Params {
 		InjAuctionMaxCap:                             types.DefaultInjAuctionMaxCap,
 		FixedGasEnabled:                              false,
 		EmitLegacyVersionEvents:                      true,
+		PostOnlyModeBlocksAmount:                     2000,           // default 2000 blocks
+		MinPostOnlyModeDowntimeDuration:              "DURATION_10M", // default 10 minutes
 	}
 }
 
@@ -219,13 +249,21 @@ func (p Params) Validate() error {
 		return fmt.Errorf("fixed_gas_enabled is incorrect: %w", err)
 	}
 
+	if err := ValidatePostOnlyModeBlocksAmount(p.PostOnlyModeBlocksAmount); err != nil {
+		return fmt.Errorf("post_only_mode_blocks_amount is incorrect: %w", err)
+	}
+
+	if err := ValidateMinPostOnlyModeDowntimeDuration(p.MinPostOnlyModeDowntimeDuration); err != nil {
+		return fmt.Errorf("min_post_only_mode_downtime_duration is incorrect: %w", err)
+	}
+
 	return nil
 }
 
-func ValidateAtomicMarketOrderAccessLevel(i any) error {
-	v, ok := i.(AtomicMarketOrderAccessLevel)
+func ValidateAtomicMarketOrderAccessLevel(accessLevel any) error {
+	v, ok := accessLevel.(AtomicMarketOrderAccessLevel)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return fmt.Errorf("invalid parameter type: %T", accessLevel)
 	}
 	if !v.IsValid() {
 		return fmt.Errorf("invalid AtomicMarketOrderAccessLevel value: %v", v)
@@ -233,28 +271,31 @@ func ValidateAtomicMarketOrderAccessLevel(i any) error {
 	return nil
 }
 
-func ValidateOpenNotionalCap(i any) error {
-	v, ok := i.(OpenNotionalCap)
+func ValidatePostOnlyModeBlocksAmount(blocksAmount any) error {
+	v, ok := blocksAmount.(uint64)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return fmt.Errorf("invalid parameter type: %T", blocksAmount)
 	}
 
-	capped := v.GetCapped() != nil
-	uncapped := v.GetUncapped() != nil
+	if v == 0 {
+		return fmt.Errorf("PostOnlyModeBlocksAmount must be greater than zero: %d", v)
+	}
 
-	if capped && uncapped {
-		return errors.New("open notional cap cannot be both capped and uncapped")
+	return nil
+}
+
+func ValidateMinPostOnlyModeDowntimeDuration(downtimeDuration any) error {
+	v, ok := downtimeDuration.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", downtimeDuration)
 	}
-	if !capped && !uncapped {
-		return errors.New("open notional cap must be either capped or uncapped")
+
+	if v == "" {
+		return errors.New("MinPostOnlyModeDowntimeDuration cannot be empty")
 	}
-	if capped {
-		if v.GetCapped().Value.IsNil() {
-			return errors.New("cap value cannot be nil")
-		}
-		if v.GetCapped().Value.IsNegative() {
-			return fmt.Errorf("cap value cannot be negative: %s", v)
-		}
+
+	if _, exists := downtimetypes.Downtime_value[v]; !exists {
+		return fmt.Errorf("invalid MinPostOnlyModeDowntimeDuration value: %s", v)
 	}
 
 	return nil

@@ -14,22 +14,6 @@ enum MarketStatus {
   Expired = 4;
 }
 
-message OpenNotionalCap {
-  oneof cap {
-    OpenNotionalCapUncapped uncapped = 1;
-    OpenNotionalCapCapped   capped   = 2;
-  }
-}
-
-message OpenNotionalCapUncapped {}
-
-message OpenNotionalCapCapped {
-  string value = 1 [
-    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable)   = false
-  ];
-}
-
 message MarketFeeMultiplier {
   option (gogoproto.goproto_getters) = false;
 
@@ -169,11 +153,6 @@ message BinaryOptionsMarket {
   uint32 admin_permissions = 19;
   // quote token decimals
   uint32 quote_decimals = 20;
-
-  // open_notional_cap defines the maximum open notional for the market
-  OpenNotionalCap open_notional_cap = 21 [
-    (gogoproto.nullable) = false
-  ];
 }
 
 // An object describing a derivative market in the Injective Futures Protocol.
@@ -256,11 +235,6 @@ message DerivativeMarket {
   // reduce_margin_ratio defines the ratio of the margin that is reduced
   string reduce_margin_ratio = 21 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
-  ];
-
-  // open_notional_cap defines the maximum open notional for the market
-  OpenNotionalCap open_notional_cap = 22 [
     (gogoproto.nullable) = false
   ];
 }

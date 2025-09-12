@@ -200,7 +200,6 @@ func (msg *MsgUpdateSpotMarket) HasMinNotionalUpdate() bool {
 	return !msg.NewMinNotional.IsNil() && !msg.NewMinNotional.IsZero()
 }
 
-//revive:disable:cyclomatic // Any refactoring to the function would make it less readable
 func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 	if err := types.ValidateAddress(msg.Admin); err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Admin)
@@ -213,7 +212,6 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 	hasNoUpdate := !msg.HasTickerUpdate() &&
 		!msg.HasMinPriceTickSizeUpdate() &&
 		!msg.HasMinNotionalUpdate() &&
-		!msg.HasOpenNotionalCapUpdate() &&
 		!msg.HasMinQuantityTickSizeUpdate() &&
 		!msg.HasInitialMarginRatioUpdate() &&
 		!msg.HasMaintenanceMarginRatioUpdate() &&
@@ -242,12 +240,6 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 	if msg.HasMinNotionalUpdate() {
 		if err := types.ValidateMinNotional(msg.NewMinNotional); err != nil {
 			return errors.Wrap(types.ErrInvalidNotional, err.Error())
-		}
-	}
-
-	if msg.HasOpenNotionalCapUpdate() {
-		if err := ValidateOpenNotionalCap(msg.NewOpenNotionalCap); err != nil {
-			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 		}
 	}
 
@@ -332,18 +324,6 @@ func (msg *MsgUpdateDerivativeMarket) HasReduceMarginRatioUpdate() bool {
 
 func (msg *MsgUpdateDerivativeMarket) HasMinNotionalUpdate() bool {
 	return !msg.NewMinNotional.IsNil() && !msg.NewMinNotional.IsZero()
-}
-
-func (msg *MsgUpdateDerivativeMarket) HasOpenNotionalCapUpdate() bool {
-	switch {
-	case msg.NewOpenNotionalCap.GetCapped() != nil:
-		return true
-	case msg.NewOpenNotionalCap.GetUncapped() != nil:
-		return true
-
-	default:
-		return false
-	}
 }
 
 func (m *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -706,9 +686,6 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if err := types.ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
 	}
-	if err := ValidateOpenNotionalCap(msg.OpenNotionalCap); err != nil {
-		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
-	}
 
 	return nil
 }
@@ -786,9 +763,6 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	if err := types.ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
 	}
-	if err := ValidateOpenNotionalCap(msg.OpenNotionalCap); err != nil {
-		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
-	}
 
 	return nil
 }
@@ -864,9 +838,6 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	}
 	if err := types.ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
-	}
-	if err := ValidateOpenNotionalCap(msg.OpenNotionalCap); err != nil {
-		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 	}
 
 	return nil

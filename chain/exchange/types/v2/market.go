@@ -185,10 +185,6 @@ func (m *DerivativeMarket) GetQuoteDecimals() uint32 {
 	return m.QuoteDecimals
 }
 
-func (m *DerivativeMarket) GetOpenNotionalCap() OpenNotionalCap {
-	return m.OpenNotionalCap
-}
-
 func (m *DerivativeMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
 	return types.PriceFromChainFormat(price, 0, m.QuoteDecimals)
 }
@@ -288,10 +284,6 @@ func (m *BinaryOptionsMarket) GetMarketStatus() MarketStatus {
 
 func (m *BinaryOptionsMarket) GetQuoteDecimals() uint32 {
 	return m.QuoteDecimals
-}
-
-func (m *BinaryOptionsMarket) GetOpenNotionalCap() OpenNotionalCap {
-	return m.OpenNotionalCap
 }
 
 func (m *BinaryOptionsMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
