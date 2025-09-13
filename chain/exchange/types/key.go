@@ -122,6 +122,7 @@ var (
 	MarketBalanceKey             = []byte{0x84} // key for each key to a MarketBalance
 	OrderExpirationsPrefix       = []byte{0x85} // prefix to store order expirations
 	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
+	PostOnlyModeCancellationKey  = []byte{0x87} // key to mark post-only mode cancellation for next BeginBlock
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {

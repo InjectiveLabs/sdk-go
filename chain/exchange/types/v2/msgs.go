@@ -1807,6 +1807,10 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 			return types.ErrInvalidLiquidationOrder
 		}
 
+		if msg.Order.OrderType != OrderType_BUY && msg.Order.OrderType != OrderType_SELL {
+			return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "liquidation order must be a vanilla limit order")
+		}
+
 		if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
 			return err
 		}

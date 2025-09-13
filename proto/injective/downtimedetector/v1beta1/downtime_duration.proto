@@ -1,0 +1,34 @@
+syntax = "proto3";
+package injective.downtimedetector.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/downtime-detector/types";
+
+enum Downtime {
+  DURATION_30S = 0 [ (gogoproto.enumvalue_customname) = "DURATION_30S" ];
+  DURATION_1M = 1 [ (gogoproto.enumvalue_customname) = "DURATION_1M" ];
+  DURATION_2M = 2 [ (gogoproto.enumvalue_customname) = "DURATION_2M" ];
+  DURATION_3M = 3 [ (gogoproto.enumvalue_customname) = "DURATION_3M" ];
+  DURATION_4M = 4 [ (gogoproto.enumvalue_customname) = "DURATION_4M" ];
+  DURATION_5M = 5 [ (gogoproto.enumvalue_customname) = "DURATION_5M" ];
+  DURATION_10M = 6 [ (gogoproto.enumvalue_customname) = "DURATION_10M" ];
+  DURATION_20M = 7 [ (gogoproto.enumvalue_customname) = "DURATION_20M" ];
+  DURATION_30M = 8 [ (gogoproto.enumvalue_customname) = "DURATION_30M" ];
+  DURATION_40M = 9 [ (gogoproto.enumvalue_customname) = "DURATION_40M" ];
+  DURATION_50M = 10 [ (gogoproto.enumvalue_customname) = "DURATION_50M" ];
+  DURATION_1H = 11 [ (gogoproto.enumvalue_customname) = "DURATION_1H" ];
+  DURATION_1_5H = 12 [ (gogoproto.enumvalue_customname) = "DURATION_1_5H" ];
+  DURATION_2H = 13 [ (gogoproto.enumvalue_customname) = "DURATION_2H" ];
+  DURATION_2_5H = 14 [ (gogoproto.enumvalue_customname) = "DURATION_2_5H" ];
+  DURATION_3H = 15 [ (gogoproto.enumvalue_customname) = "DURATION_3H" ];
+  DURATION_4H = 16 [ (gogoproto.enumvalue_customname) = "DURATION_4H" ];
+  DURATION_5H = 17 [ (gogoproto.enumvalue_customname) = "DURATION_5H" ];
+  DURATION_6H = 18 [ (gogoproto.enumvalue_customname) = "DURATION_6H" ];
+  DURATION_9H = 19 [ (gogoproto.enumvalue_customname) = "DURATION_9H" ];
+  DURATION_12H = 20 [ (gogoproto.enumvalue_customname) = "DURATION_12H" ];
+  DURATION_18H = 21 [ (gogoproto.enumvalue_customname) = "DURATION_18H" ];
+  DURATION_24H = 22 [ (gogoproto.enumvalue_customname) = "DURATION_24H" ];
+  DURATION_36H = 23 [ (gogoproto.enumvalue_customname) = "DURATION_36H" ];
+  DURATION_48H = 24 [ (gogoproto.enumvalue_customname) = "DURATION_48H" ];
+}

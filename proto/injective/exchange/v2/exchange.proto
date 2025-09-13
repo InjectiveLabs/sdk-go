@@ -194,9 +194,16 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // human_readable_upgrade_block_height defines the block height at which the
-  // human readable upgrade took place
-  int64 human_readable_upgrade_block_height = 32;
+  // DO NOT USE THIS FIELD. It was introduced for a temporary bug fix.
+  int64 human_readable_upgrade_block_height = 32 [ deprecated = true ];
+  // post_only_mode_blocks_amount defines the amount of blocks the post only
+  // mode will be enabled
+  uint64 post_only_mode_blocks_amount = 33;
+  // min_post_only_mode_downtime_duration defines the minimum downtime duration
+  // that must pass before the post only mode is automatically enabled. The
+  // accepted values are the Downtime enum values from the downtime_duration
+  // module
+  string min_post_only_mode_downtime_duration = 34;
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }

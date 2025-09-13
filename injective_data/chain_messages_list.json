@@ -67,6 +67,7 @@
   "injective.exchange.v2.MsgBinaryOptionsMarketParamUpdate",
   "injective.exchange.v2.MsgCancelBinaryOptionsOrder",
   "injective.exchange.v2.MsgCancelDerivativeOrder",
+  "injective.exchange.v2.MsgCancelPostOnlyMode",
   "injective.exchange.v2.MsgCancelSpotOrder",
   "injective.exchange.v2.MsgCreateBinaryOptionsLimitOrder",
   "injective.exchange.v2.MsgCreateBinaryOptionsMarketOrder",
