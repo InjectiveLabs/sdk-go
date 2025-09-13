@@ -26,6 +26,12 @@ type InjectiveAuctionRPCClient interface {
 	AuctionEndpoint(ctx context.Context, in *AuctionEndpointRequest, opts ...grpc.CallOption) (*AuctionEndpointResponse, error)
 	// Provide the historical auctions info
 	Auctions(ctx context.Context, in *AuctionsRequest, opts ...grpc.CallOption) (*AuctionsResponse, error)
+	// Provide the historical auctions info
+	AuctionsHistoryV2(ctx context.Context, in *AuctionsHistoryV2Request, opts ...grpc.CallOption) (*AuctionsHistoryV2Response, error)
+	// Provide historical auction info for a given auction
+	AuctionV2(ctx context.Context, in *AuctionV2Request, opts ...grpc.CallOption) (*AuctionV2Response, error)
+	// Provide the historical auctions info for a given account
+	AccountAuctionsV2(ctx context.Context, in *AccountAuctionsV2Request, opts ...grpc.CallOption) (*AccountAuctionsV2Response, error)
 	// StreamBids streams new bids of an auction.
 	StreamBids(ctx context.Context, in *StreamBidsRequest, opts ...grpc.CallOption) (InjectiveAuctionRPC_StreamBidsClient, error)
 	// InjBurntEndpoint returns the total amount of INJ burnt in auctions.
@@ -52,6 +58,33 @@ func (c *injectiveAuctionRPCClient) AuctionEndpoint(ctx context.Context, in *Auc
 func (c *injectiveAuctionRPCClient) Auctions(ctx context.Context, in *AuctionsRequest, opts ...grpc.CallOption) (*AuctionsResponse, error) {
 	out := new(AuctionsResponse)
 	err := c.cc.Invoke(ctx, "/injective_auction_rpc.InjectiveAuctionRPC/Auctions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveAuctionRPCClient) AuctionsHistoryV2(ctx context.Context, in *AuctionsHistoryV2Request, opts ...grpc.CallOption) (*AuctionsHistoryV2Response, error) {
+	out := new(AuctionsHistoryV2Response)
+	err := c.cc.Invoke(ctx, "/injective_auction_rpc.InjectiveAuctionRPC/AuctionsHistoryV2", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveAuctionRPCClient) AuctionV2(ctx context.Context, in *AuctionV2Request, opts ...grpc.CallOption) (*AuctionV2Response, error) {
+	out := new(AuctionV2Response)
+	err := c.cc.Invoke(ctx, "/injective_auction_rpc.InjectiveAuctionRPC/AuctionV2", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveAuctionRPCClient) AccountAuctionsV2(ctx context.Context, in *AccountAuctionsV2Request, opts ...grpc.CallOption) (*AccountAuctionsV2Response, error) {
+	out := new(AccountAuctionsV2Response)
+	err := c.cc.Invoke(ctx, "/injective_auction_rpc.InjectiveAuctionRPC/AccountAuctionsV2", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +140,12 @@ type InjectiveAuctionRPCServer interface {
 	AuctionEndpoint(context.Context, *AuctionEndpointRequest) (*AuctionEndpointResponse, error)
 	// Provide the historical auctions info
 	Auctions(context.Context, *AuctionsRequest) (*AuctionsResponse, error)
+	// Provide the historical auctions info
+	AuctionsHistoryV2(context.Context, *AuctionsHistoryV2Request) (*AuctionsHistoryV2Response, error)
+	// Provide historical auction info for a given auction
+	AuctionV2(context.Context, *AuctionV2Request) (*AuctionV2Response, error)
+	// Provide the historical auctions info for a given account
+	AccountAuctionsV2(context.Context, *AccountAuctionsV2Request) (*AccountAuctionsV2Response, error)
 	// StreamBids streams new bids of an auction.
 	StreamBids(*StreamBidsRequest, InjectiveAuctionRPC_StreamBidsServer) error
 	// InjBurntEndpoint returns the total amount of INJ burnt in auctions.
@@ -123,6 +162,15 @@ func (UnimplementedInjectiveAuctionRPCServer) AuctionEndpoint(context.Context, *
 }
 func (UnimplementedInjectiveAuctionRPCServer) Auctions(context.Context, *AuctionsRequest) (*AuctionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Auctions not implemented")
+}
+func (UnimplementedInjectiveAuctionRPCServer) AuctionsHistoryV2(context.Context, *AuctionsHistoryV2Request) (*AuctionsHistoryV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AuctionsHistoryV2 not implemented")
+}
+func (UnimplementedInjectiveAuctionRPCServer) AuctionV2(context.Context, *AuctionV2Request) (*AuctionV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AuctionV2 not implemented")
+}
+func (UnimplementedInjectiveAuctionRPCServer) AccountAuctionsV2(context.Context, *AccountAuctionsV2Request) (*AccountAuctionsV2Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AccountAuctionsV2 not implemented")
 }
 func (UnimplementedInjectiveAuctionRPCServer) StreamBids(*StreamBidsRequest, InjectiveAuctionRPC_StreamBidsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamBids not implemented")
@@ -175,6 +223,60 @@ func _InjectiveAuctionRPC_Auctions_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(InjectiveAuctionRPCServer).Auctions(ctx, req.(*AuctionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveAuctionRPC_AuctionsHistoryV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuctionsHistoryV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveAuctionRPCServer).AuctionsHistoryV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_auction_rpc.InjectiveAuctionRPC/AuctionsHistoryV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveAuctionRPCServer).AuctionsHistoryV2(ctx, req.(*AuctionsHistoryV2Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveAuctionRPC_AuctionV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuctionV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveAuctionRPCServer).AuctionV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_auction_rpc.InjectiveAuctionRPC/AuctionV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveAuctionRPCServer).AuctionV2(ctx, req.(*AuctionV2Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InjectiveAuctionRPC_AccountAuctionsV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountAuctionsV2Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveAuctionRPCServer).AccountAuctionsV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_auction_rpc.InjectiveAuctionRPC/AccountAuctionsV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveAuctionRPCServer).AccountAuctionsV2(ctx, req.(*AccountAuctionsV2Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -232,6 +334,18 @@ var InjectiveAuctionRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Auctions",
 			Handler:    _InjectiveAuctionRPC_Auctions_Handler,
+		},
+		{
+			MethodName: "AuctionsHistoryV2",
+			Handler:    _InjectiveAuctionRPC_AuctionsHistoryV2_Handler,
+		},
+		{
+			MethodName: "AuctionV2",
+			Handler:    _InjectiveAuctionRPC_AuctionV2_Handler,
+		},
+		{
+			MethodName: "AccountAuctionsV2",
+			Handler:    _InjectiveAuctionRPC_AccountAuctionsV2_Handler,
 		},
 		{
 			MethodName: "InjBurntEndpoint",

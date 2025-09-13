@@ -74,7 +74,7 @@ func main() {
 		QuoteDenom:             "factory/inj17vytdwqczqz72j65saukplrktd4gyfme5agf6c/usdc",
 		OracleBase:             "INJ",
 		OracleQuote:            "USDC",
-		OracleScaleFactor:      6,
+		OracleScaleFactor:      0,
 		OracleType:             oracletypes.OracleType_Band,
 		MakerFeeRate:           math.LegacyMustNewDecFromStr("-0.0001"),
 		TakerFeeRate:           math.LegacyMustNewDecFromStr("0.001"),

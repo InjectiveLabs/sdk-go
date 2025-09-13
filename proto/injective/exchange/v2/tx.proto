@@ -221,6 +221,9 @@ service Msg {
 
   rpc SetDelegationTransferReceivers(MsgSetDelegationTransferReceivers)
       returns (MsgSetDelegationTransferReceiversResponse);
+
+  rpc CancelPostOnlyMode(MsgCancelPostOnlyMode)
+      returns (MsgCancelPostOnlyModeResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -1536,3 +1539,15 @@ message MsgSetDelegationTransferReceivers {
 // MsgSetDelegationTransferReceiversResponse defines the response for
 // MsgSetDelegationTransferReceivers
 message MsgSetDelegationTransferReceiversResponse {}
+
+// MsgCancelPostOnlyMode defines a message for canceling post-only mode
+message MsgCancelPostOnlyMode {
+  option (amino.name) = "exchange/MsgCancelPostOnlyMode";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address
+  string sender = 1;
+}
+
+// MsgCancelPostOnlyModeResponse defines the response for MsgCancelPostOnlyMode
+message MsgCancelPostOnlyModeResponse {}
