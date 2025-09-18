@@ -44,6 +44,7 @@ import (
 
 	auction "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	keyscodec "github.com/InjectiveLabs/sdk-go/chain/crypto/codec"
+	downtimedetectortypes "github.com/InjectiveLabs/sdk-go/chain/downtime-detector/types"
 	erc20types "github.com/InjectiveLabs/sdk-go/chain/erc20/types"
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -153,6 +154,7 @@ func createInjectiveProtoCodec() (injectiveCodec *codec.ProtoCodec, interfaceReg
 	txfeestypes.RegisterInterfaces(interfaceRegistry)
 	erc20types.RegisterInterfaces(interfaceRegistry)
 	evmtypes.RegisterInterfaces(interfaceRegistry)
+	downtimedetectortypes.RegisterInterfaces(interfaceRegistry)
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
 	authztypes.RegisterInterfaces(interfaceRegistry)
