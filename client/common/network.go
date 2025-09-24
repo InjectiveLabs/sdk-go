@@ -13,11 +13,11 @@ import (
 
 const (
 	// nolint:gosec // not credentials, just the link to the public tokens list
-	MainnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/mainnet.json"
+	MainnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/json/tokens/mainnet.json"
 	// nolint:gosec // not credentials, just the link to the public tokens list
-	TestnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/testnet.json"
+	TestnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/json/tokens/testnet.json"
 	// nolint:gosec // not credentials, just the link to the public tokens list
-	DevnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/tokens/devnet.json"
+	DevnetTokensListURL = "https://github.com/InjectiveLabs/injective-lists/raw/master/json/tokens/devnet.json"
 )
 
 func cookieByName(cookies []*http.Cookie, key string) *http.Cookie {

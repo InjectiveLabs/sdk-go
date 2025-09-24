@@ -1,8 +1,6 @@
 module github.com/InjectiveLabs/sdk-go
 
-go 1.23.5
-
-toolchain go1.23.8
+go 1.23.9
 
 require (
 	cosmossdk.io/api v0.7.6
@@ -32,6 +30,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/shopspring/decimal v1.2.0
 	github.com/stretchr/testify v1.10.0
+	github.com/tidwall/btree v1.7.0
 	github.com/tyler-smith/go-bip39 v1.1.0
 	golang.org/x/crypto v0.37.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422
@@ -92,7 +91,7 @@ require (
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-db v1.1.1 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-	github.com/cosmos/iavl v1.2.2 // indirect
+	github.com/cosmos/iavl v1.2.6 // indirect
 	github.com/cosmos/ibc-go/modules/capability v1.0.1 // indirect
 	github.com/cosmos/ics23/go v0.11.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.14.0 // indirect
@@ -203,7 +202,6 @@ require (
 	github.com/supranational/blst v0.3.14 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
-	github.com/tidwall/btree v1.7.0 // indirect
 	github.com/tinylib/msgp v1.1.8 // indirect
 	github.com/tklauser/go-sysconf v0.3.15 // indirect
 	github.com/tklauser/numcpus v0.10.0 // indirect
@@ -237,24 +235,24 @@ require (
 )
 
 replace (
-	cosmossdk.io/api => github.com/InjectiveLabs/cosmos-sdk/api v0.50.13-evm-comet1-inj.3
-	cosmossdk.io/client/v2 => github.com/InjectiveLabs/cosmos-sdk/client/v2 v2.0.0-evm-comet1-inj.3
-	cosmossdk.io/core => github.com/InjectiveLabs/cosmos-sdk/core v0.50.13-evm-comet1-inj.3
-	cosmossdk.io/store => github.com/InjectiveLabs/cosmos-sdk/store v0.50.13-evm-comet1-inj.3
-	cosmossdk.io/x/circuit => github.com/InjectiveLabs/cosmos-sdk/x/circuit v0.50.13-evm-comet1-inj.3
-	cosmossdk.io/x/evidence => github.com/InjectiveLabs/cosmos-sdk/x/evidence v0.50.13-evm-comet1-inj.3
-	cosmossdk.io/x/feegrant => github.com/InjectiveLabs/cosmos-sdk/x/feegrant v0.50.13-evm-comet1-inj.3
-	cosmossdk.io/x/nft => github.com/InjectiveLabs/cosmos-sdk/x/nft v0.50.13-evm-comet1-inj.3
-	cosmossdk.io/x/tx => github.com/InjectiveLabs/cosmos-sdk/x/tx v0.50.13-evm-comet1-inj.3
-	cosmossdk.io/x/upgrade => github.com/InjectiveLabs/cosmos-sdk/x/upgrade v0.50.13-evm-comet1-inj.3
+	cosmossdk.io/api => github.com/InjectiveLabs/cosmos-sdk/api v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/client/v2 => github.com/InjectiveLabs/cosmos-sdk/client/v2 v2.0.0-v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/core => github.com/InjectiveLabs/cosmos-sdk/core v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/store => github.com/InjectiveLabs/cosmos-sdk/store v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/x/circuit => github.com/InjectiveLabs/cosmos-sdk/x/circuit v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/x/evidence => github.com/InjectiveLabs/cosmos-sdk/x/evidence v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/x/feegrant => github.com/InjectiveLabs/cosmos-sdk/x/feegrant v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/x/nft => github.com/InjectiveLabs/cosmos-sdk/x/nft v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/x/tx => github.com/InjectiveLabs/cosmos-sdk/x/tx v0.50.13-evm-comet1-inj.6
+	cosmossdk.io/x/upgrade => github.com/InjectiveLabs/cosmos-sdk/x/upgrade v0.50.13-evm-comet1-inj.6
 
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.53.3-evm-comet1-inj
 	github.com/bandprotocol/bandchain-packet => github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1
 	github.com/coder/websocket => github.com/InjectiveLabs/websocket v1.8.13
 
-	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v1.0.1-inj.2
+	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v1.0.1-inj.3
 	github.com/cometbft/cometbft/api => github.com/injectivelabs/cometbft/api v1.0.0-inj.2
-	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.50.13-evm-comet1-inj.3
+	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.50.13-evm-comet1-inj.6
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/InjectiveLabs/ibc-apps/middleware/packet-forward-middleware/v8 v8.2.0-evm-comet1-inj
 	github.com/cosmos/ibc-apps/modules/ibc-hooks/v8 => github.com/InjectiveLabs/ibc-apps/modules/ibc-hooks/v8 v8.0.0-evm-comet1-inj

@@ -13,6 +13,8 @@ import (
 
 var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
 
+const BO_MARKET_STRING_DELIMITER = "-BO-MARKET-"
+
 type DerivativeMarketInfo struct {
 	Market    *DerivativeMarket
 	MarkPrice math.LegacyDec
@@ -48,7 +50,9 @@ func NewBinaryOptionsMarketID(ticker, quoteDenom, oracleSymbol, oracleProvider s
 		quoteDenom = quotePeggyDenom.String()
 	}
 
-	return crypto.Keccak256Hash([]byte((oracleType.String() + ticker + quoteDenom + oracleSymbol + oracleProvider)))
+	return crypto.Keccak256Hash([]byte(
+		BO_MARKET_STRING_DELIMITER + oracleType.String() + ticker + quoteDenom + oracleSymbol + oracleProvider),
+	)
 }
 
 func NewExpiryFuturesMarketID(ticker, quoteDenom, oracleBase, oracleQuote string, oracleType oracletypes.OracleType, expiry int64) common.Hash {

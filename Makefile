@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.69 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.91 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.3 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.4 --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -51,6 +51,12 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/*.pb.go chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/codec.go chain/auction/types
+	mkdir -p chain/downtime-detector/types && \
+		cp injective-core/injective-chain/modules/downtime-detector/types/*.pb.go chain/downtime-detector/types && \
+		cp injective-core/injective-chain/modules/downtime-detector/types/codec.go chain/downtime-detector/types && \
+		cp injective-core/injective-chain/modules/downtime-detector/types/constants.go chain/downtime-detector/types && \
+		cp injective-core/injective-chain/modules/downtime-detector/types/genesis.go chain/downtime-detector/types && \
+		cp injective-core/injective-chain/modules/downtime-detector/types/keys.go chain/downtime-detector/types
 	mkdir -p chain/erc20/types && \
 		cp injective-core/injective-chain/modules/erc20/types/*.pb.go chain/erc20/types && \
 		cp injective-core/injective-chain/modules/erc20/types/codec.go chain/erc20/types
