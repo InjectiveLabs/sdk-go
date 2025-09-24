@@ -74,7 +74,7 @@ func main() {
 		OracleSymbol:        "UFC-KHABIB-TKO-05/30/2023",
 		OracleProvider:      "UFC",
 		OracleType:          oracletypes.OracleType_Provider,
-		OracleScaleFactor:   6,
+		OracleScaleFactor:   0,
 		MakerFeeRate:        math.LegacyMustNewDecFromStr("0.0005"),
 		TakerFeeRate:        math.LegacyMustNewDecFromStr("0.0010"),
 		ExpirationTimestamp: 1680730982,
