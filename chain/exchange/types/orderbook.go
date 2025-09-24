@@ -88,7 +88,7 @@ func PrintDisplayLevels(buyLevels, sellLevels []*Level) {
 	}
 
 	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Buy Price", "Buy Quantity", "Sell Price", "Sell Quantity"})
+	table.Header([]string{"Buy Price", "Buy Quantity", "Sell Price", "Sell Quantity"})
 
 	maxLength := len(buyLevelsSorted)
 	if len(sellLevelsSorted) > maxLength {
