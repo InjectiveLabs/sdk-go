@@ -376,10 +376,6 @@ func (m *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand,
 		}
 	}
 
-	if isDerivative && !hasBinaryPriceBand && m.Price.LT(types.MinDerivativeOrderPrice) {
-		return errors.Wrap(types.ErrInvalidPrice, m.Price.String())
-	}
-
 	return nil
 }
 
@@ -417,7 +413,7 @@ func (m *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 		return types.ErrInvalidTriggerPrice
 	}
 
-	if m.IsConditional() && (m.TriggerPrice == nil || m.TriggerPrice.LT(types.MinDerivativeOrderPrice)) {
+	if m.IsConditional() && (m.TriggerPrice == nil || m.TriggerPrice.LTE(math.LegacyZeroDec())) {
 		/*||!o.IsConditional() && o.TriggerPrice != nil */
 		// commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return errors.Wrapf(
@@ -1807,10 +1803,6 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 			return types.ErrInvalidLiquidationOrder
 		}
 
-		if msg.Order.OrderType != OrderType_BUY && msg.Order.OrderType != OrderType_SELL {
-			return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "liquidation order must be a vanilla limit order")
-		}
-
 		if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
 			return err
 		}
@@ -1924,7 +1916,10 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		len(msg.DerivativeOrdersToCreate) == 0 &&
 		len(msg.SpotOrdersToCreate) == 0 &&
 		len(msg.BinaryOptionsOrdersToCreate) == 0 &&
-		len(msg.BinaryOptionsOrdersToCancel) == 0 {
+		len(msg.BinaryOptionsOrdersToCancel) == 0 &&
+		len(msg.SpotMarketOrdersToCreate) == 0 &&
+		len(msg.DerivativeMarketOrdersToCreate) == 0 &&
+		len(msg.BinaryOptionsMarketOrdersToCreate) == 0 {
 		return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "msg is empty")
 	}
 
@@ -2045,7 +2040,13 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		}
 	}
 
-	return nil
+	// Check for duplicate derivative market orders (same market and subaccount)
+	if err := ensureNoDuplicateMarketOrders(sender, msg.DerivativeMarketOrdersToCreate); err != nil {
+		return err
+	}
+
+	// Check for duplicate binary options market orders (same market and subaccount)
+	return ensureNoDuplicateMarketOrders(sender, msg.BinaryOptionsMarketOrdersToCreate)
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -2611,34 +2612,22 @@ func hasDuplicatesOrder(slice []*OrderData) bool {
 	return false
 }
 
-func (msg *MsgSetDelegationTransferReceivers) Route() string { return RouterKey }
-func (msg *MsgSetDelegationTransferReceivers) Type() string  { return "setDelegationTransferReceivers" }
-func (msg *MsgSetDelegationTransferReceivers) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if len(msg.Receivers) == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "receivers list cannot be empty")
-	}
-
-	for _, receiver := range msg.Receivers {
-		if _, err := sdk.AccAddressFromBech32(receiver); err != nil {
-			return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address: %s", receiver)
+// ensureNoDuplicateMarketOrders checks if there are duplicate market orders for the same market and subaccount combination
+func ensureNoDuplicateMarketOrders(sender sdk.AccAddress, orders []*DerivativeOrder) error {
+	seen := make(map[string]struct{})
+	for _, order := range orders {
+		// Normalize the subaccount ID (converts both full subaccount ID and subaccount index to full subaccount ID)
+		normalizedSubaccountID, err := types.GetSubaccountIDOrDeriveFromNonce(sender, order.OrderInfo.SubaccountId)
+		if err != nil {
+			return errors.Wrap(types.ErrBadSubaccountID, order.OrderInfo.SubaccountId)
 		}
-	}
 
+		// Create a unique key combining market ID and normalized subaccount ID
+		key := order.MarketId + ":" + normalizedSubaccountID.Hex()
+		if _, exists := seen[key]; exists {
+			return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "duplicate market orders for the same market and subaccount")
+		}
+		seen[key] = struct{}{}
+	}
 	return nil
 }
-
-func (msg *MsgSetDelegationTransferReceivers) GetSignBytes() []byte {
-	bz, _ := json.Marshal(msg)
-	return sdk.MustSortJSON(bz)
-}
-
-func (msg *MsgSetDelegationTransferReceivers) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
-	return []sdk.AccAddress{sender}
-}
-
-var _ sdk.Msg = &MsgSetDelegationTransferReceivers{}

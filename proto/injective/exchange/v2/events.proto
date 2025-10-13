@@ -302,6 +302,7 @@ message EventTriggerConditionalMarketOrderFailed {
   ];
   bytes order_hash = 4;
   string trigger_err = 5;
+  string cid = 6;
 }
 
 message EventTriggerConditionalLimitOrderFailed {
@@ -313,6 +314,7 @@ message EventTriggerConditionalLimitOrderFailed {
   ];
   bytes order_hash = 4;
   string trigger_err = 5;
+  string cid = 6;
 }
 
 message SpotOrderV2Changes {

@@ -44,6 +44,7 @@ var (
 	KeyPostOnlyModeHeightThreshold                 = []byte("PostOnlyModeHeightThreshold")
 	KeyPostOnlyModeBlocksAmount                    = []byte("PostOnlyModeBlocksAmount")
 	KeyMinPostOnlyModeDowntimeDuration             = []byte("MinPostOnlyModeDowntimeDuration")
+	KeyPostOnlyModeBlocksAmountAfterDowntime       = []byte("PostOnlyModeBlocksAmountAfterDowntime")
 )
 
 // ParamSetPairs returns the parameter set pairs.
@@ -128,6 +129,11 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			&p.PostOnlyModeBlocksAmount,
 			ValidatePostOnlyModeBlocksAmount,
 		),
+		paramtypes.NewParamSetPair(
+			KeyPostOnlyModeBlocksAmountAfterDowntime,
+			&p.PostOnlyModeBlocksAmountAfterDowntime,
+			ValidatePostOnlyModeBlocksAmountAfterDowntime,
+		),
 	}
 }
 
@@ -167,6 +173,7 @@ func DefaultParams() Params {
 		EmitLegacyVersionEvents:                      true,
 		PostOnlyModeBlocksAmount:                     2000,           // default 2000 blocks
 		MinPostOnlyModeDowntimeDuration:              "DURATION_10M", // default 10 minutes
+		PostOnlyModeBlocksAmountAfterDowntime:        1000,           // default 1000 blocks
 	}
 }
 
@@ -257,6 +264,10 @@ func (p Params) Validate() error {
 		return fmt.Errorf("min_post_only_mode_downtime_duration is incorrect: %w", err)
 	}
 
+	if err := ValidatePostOnlyModeBlocksAmountAfterDowntime(p.PostOnlyModeBlocksAmountAfterDowntime); err != nil {
+		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
+	}
+
 	return nil
 }
 
@@ -296,6 +307,19 @@ func ValidateMinPostOnlyModeDowntimeDuration(downtimeDuration any) error {
 
 	if _, exists := downtimetypes.Downtime_value[v]; !exists {
 		return fmt.Errorf("invalid MinPostOnlyModeDowntimeDuration value: %s", v)
+	}
+
+	return nil
+}
+
+func ValidatePostOnlyModeBlocksAmountAfterDowntime(blocksAmount any) error {
+	v, ok := blocksAmount.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", blocksAmount)
+	}
+
+	if v == 0 {
+		return fmt.Errorf("PostOnlyModeBlocksAmountAfterDowntime must be greater than zero: %d", v)
 	}
 
 	return nil

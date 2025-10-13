@@ -17,23 +17,23 @@ import (
 
 // constants
 const (
-	ProposalTypeExchangeEnable                     string = "ProposalTypeExchangeEnableV2"
-	ProposalTypeBatchExchangeModification          string = "ProposalTypeBatchExchangeModificationV2"
-	ProposalTypeSpotMarketParamUpdate              string = "ProposalTypeSpotMarketParamUpdateV2"
-	ProposalTypeSpotMarketLaunch                   string = "ProposalTypeSpotMarketLaunchV2"
-	ProposalTypePerpetualMarketLaunch              string = "ProposalTypePerpetualMarketLaunchV2"
-	ProposalTypeExpiryFuturesMarketLaunch          string = "ProposalTypeExpiryFuturesMarketLaunchV2"
-	ProposalTypeDerivativeMarketParamUpdate        string = "ProposalTypeDerivativeMarketParamUpdateV2"
-	ProposalTypeMarketForcedSettlement             string = "ProposalTypeMarketForcedSettlementV2"
-	ProposalUpdateDenomDecimals                    string = "ProposalUpdateDenomDecimalsV2"
-	ProposalTypeTradingRewardCampaign              string = "ProposalTypeTradingRewardCampaignV2"
-	ProposalTypeTradingRewardCampaignUpdate        string = "ProposalTypeTradingRewardCampaignUpdateProposalV2"
-	ProposalTypeTradingRewardPointsUpdate          string = "ProposalTypeTradingRewardPointsUpdateProposalV2"
-	ProposalTypeFeeDiscountProposal                string = "ProposalTypeFeeDiscountProposalV2"
-	ProposalTypeBatchCommunityPoolSpendProposal    string = "ProposalTypeBatchCommunityPoolSpendProposalV2"
-	ProposalTypeBinaryOptionsMarketLaunch          string = "ProposalTypeBinaryOptionsMarketLaunchV2"
-	ProposalTypeBinaryOptionsMarketParamUpdate     string = "ProposalTypeBinaryOptionsMarketParamUpdateV2"
-	ProposalAtomicMarketOrderFeeMultiplierSchedule string = "ProposalAtomicMarketOrderFeeMultiplierScheduleV2"
+	ProposalTypeExchangeEnable                         string = "ProposalTypeExchangeEnableV2"
+	ProposalTypeBatchExchangeModification              string = "ProposalTypeBatchExchangeModificationV2"
+	ProposalTypeSpotMarketParamUpdate                  string = "ProposalTypeSpotMarketParamUpdateV2"
+	ProposalTypeSpotMarketLaunch                       string = "ProposalTypeSpotMarketLaunchV2"
+	ProposalTypePerpetualMarketLaunch                  string = "ProposalTypePerpetualMarketLaunchV2"
+	ProposalTypeExpiryFuturesMarketLaunch              string = "ProposalTypeExpiryFuturesMarketLaunchV2"
+	ProposalTypeDerivativeMarketParamUpdate            string = "ProposalTypeDerivativeMarketParamUpdateV2"
+	ProposalTypeMarketForcedSettlement                 string = "ProposalTypeMarketForcedSettlementV2"
+	ProposalUpdateAuctionExchangeTransferDenomDecimals string = "ProposalUpdateAuctionExchangeTransferDenomDecimalsV2"
+	ProposalTypeTradingRewardCampaign                  string = "ProposalTypeTradingRewardCampaignV2"
+	ProposalTypeTradingRewardCampaignUpdate            string = "ProposalTypeTradingRewardCampaignUpdateProposalV2"
+	ProposalTypeTradingRewardPointsUpdate              string = "ProposalTypeTradingRewardPointsUpdateProposalV2"
+	ProposalTypeFeeDiscountProposal                    string = "ProposalTypeFeeDiscountProposalV2"
+	ProposalTypeBatchCommunityPoolSpendProposal        string = "ProposalTypeBatchCommunityPoolSpendProposalV2"
+	ProposalTypeBinaryOptionsMarketLaunch              string = "ProposalTypeBinaryOptionsMarketLaunchV2"
+	ProposalTypeBinaryOptionsMarketParamUpdate         string = "ProposalTypeBinaryOptionsMarketParamUpdateV2"
+	ProposalAtomicMarketOrderFeeMultiplierSchedule     string = "ProposalAtomicMarketOrderFeeMultiplierScheduleV2"
 )
 
 func init() {
@@ -45,7 +45,7 @@ func init() {
 	govtypes.RegisterProposalType(ProposalTypeExpiryFuturesMarketLaunch)
 	govtypes.RegisterProposalType(ProposalTypeDerivativeMarketParamUpdate)
 	govtypes.RegisterProposalType(ProposalTypeMarketForcedSettlement)
-	govtypes.RegisterProposalType(ProposalUpdateDenomDecimals)
+	govtypes.RegisterProposalType(ProposalUpdateAuctionExchangeTransferDenomDecimals)
 	govtypes.RegisterProposalType(ProposalTypeTradingRewardCampaign)
 	govtypes.RegisterProposalType(ProposalTypeTradingRewardCampaignUpdate)
 	govtypes.RegisterProposalType(ProposalTypeTradingRewardPointsUpdate)
@@ -191,8 +191,8 @@ func (p *BatchExchangeModificationProposal) ValidateBasic() error {
 		}
 	}
 
-	if p.DenomDecimalsUpdateProposal != nil {
-		if err := p.DenomDecimalsUpdateProposal.ValidateBasic(); err != nil {
+	if p.AuctionExchangeTransferDenomDecimalsUpdateProposal != nil {
+		if err := p.AuctionExchangeTransferDenomDecimalsUpdateProposal.ValidateBasic(); err != nil {
 			return err
 		}
 	}
@@ -682,8 +682,8 @@ func (p *MarketForcedSettlementProposal) ValidateBasic() error {
 func NewUpdateDenomDecimalsProposal(
 	title, description string,
 	denomDecimals []*DenomDecimals,
-) *UpdateDenomDecimalsProposal {
-	return &UpdateDenomDecimalsProposal{
+) *UpdateAuctionExchangeTransferDenomDecimalsProposal {
+	return &UpdateAuctionExchangeTransferDenomDecimalsProposal{
 		Title:         title,
 		Description:   description,
 		DenomDecimals: denomDecimals,
@@ -691,28 +691,28 @@ func NewUpdateDenomDecimalsProposal(
 }
 
 // Implements Proposal Interface
-var _ govtypes.Content = &UpdateDenomDecimalsProposal{}
+var _ govtypes.Content = &UpdateAuctionExchangeTransferDenomDecimalsProposal{}
 
 // GetTitle returns the title of this proposal
-func (p *UpdateDenomDecimalsProposal) GetTitle() string {
+func (p *UpdateAuctionExchangeTransferDenomDecimalsProposal) GetTitle() string {
 	return p.Title
 }
 
 // GetDescription returns the description of this proposal
-func (p *UpdateDenomDecimalsProposal) GetDescription() string {
+func (p *UpdateAuctionExchangeTransferDenomDecimalsProposal) GetDescription() string {
 	return p.Description
 }
 
 // ProposalRoute returns router key of this proposal.
-func (p *UpdateDenomDecimalsProposal) ProposalRoute() string { return RouterKey }
+func (*UpdateAuctionExchangeTransferDenomDecimalsProposal) ProposalRoute() string { return RouterKey }
 
 // ProposalType returns proposal type of this proposal.
-func (p *UpdateDenomDecimalsProposal) ProposalType() string {
-	return ProposalUpdateDenomDecimals
+func (*UpdateAuctionExchangeTransferDenomDecimalsProposal) ProposalType() string {
+	return ProposalUpdateAuctionExchangeTransferDenomDecimals
 }
 
 // ValidateBasic returns ValidateBasic result of this proposal.
-func (p *UpdateDenomDecimalsProposal) ValidateBasic() error {
+func (p *UpdateAuctionExchangeTransferDenomDecimalsProposal) ValidateBasic() error {
 	for _, d := range p.DenomDecimals {
 		if err := d.Validate(); err != nil {
 			return err

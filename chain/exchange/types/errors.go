@@ -82,7 +82,7 @@ var (
 	ErrSenderIsNotAnAdmin                       = errors.Register(ModuleName, 74, "sender should be a market admin")
 	ErrMarketAlreadyScheduledToSettle           = errors.Register(ModuleName, 75, "market is already scheduled to settle")
 	ErrGenericMarketNotFound                    = errors.Register(ModuleName, 76, "market not found")
-	ErrInvalidDenomDecimal                      = errors.Register(ModuleName, 77, "denom decimal cannot be higher than max scale factor")
+	ErrInvalidDenomDecimal                      = errors.Register(ModuleName, 77, "denom decimal should be greater than 0 and not greater than max scale factor")
 	ErrInvalidState                             = errors.Register(ModuleName, 78, "state is invalid")
 	ErrTransientOrdersUpToCancelNotSupported    = errors.Register(ModuleName, 79, "transient orders up to cancellation not supported")
 	ErrInvalidTrade                             = errors.Register(ModuleName, 80, "invalid trade")

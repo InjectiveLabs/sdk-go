@@ -1,0 +1,50 @@
+syntax = "proto3";
+package injective.peggy.v1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
+
+import "gogoproto/gogo.proto";
+
+message RateLimit {
+  // address of the ERC20 token
+  string token_address = 1;
+
+  // decimals of the ERC20 token
+  uint32 token_decimals = 2;
+
+  // a Pyth-specific ID used to obtain USD price of the ERC20 token
+  string token_price_id = 3;
+
+  // length of the sliding window in which inbound (outbound) traffic is
+  // measured
+  uint64 rate_limit_window = 4;
+
+  // the notional USD limit imposed on all outgoing traffic (per token)
+  string rate_limit_usd = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // the absolute amount of tokens that can be minted on Injective
+  string absolute_mint_limit = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // transfers that occurred within the sliding window
+  repeated BridgeTransfer transfers = 7;
+}
+
+message BridgeTransfer {
+  // quantity that was bridged (chain format)
+  string amount = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+
+  // the Injective block at which this amount was bridged
+  uint64 block_number = 2;
+
+  // type of transfer (withdrawal/deposit)
+  bool is_deposit = 3;
+}
