@@ -161,8 +161,6 @@ type ChainClientV2 interface {
 	FetchAggregateVolumes(ctx context.Context, accounts []string, marketIDs []string) (*exchangev2types.QueryAggregateVolumesResponse, error)
 	FetchAggregateMarketVolume(ctx context.Context, marketId string) (*exchangev2types.QueryAggregateMarketVolumeResponse, error)
 	FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangev2types.QueryAggregateMarketVolumesResponse, error)
-	FetchDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error)
-	FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error)
 	FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error)
 	FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMarketResponse, error)
 	FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketsResponse, error)
@@ -1459,24 +1457,6 @@ func (c *chainClientV2) FetchAggregateMarketVolumes(ctx context.Context, marketI
 		MarketIds: marketIDs,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AggregateMarketVolumes, req)
-
-	return res, err
-}
-
-func (c *chainClientV2) FetchDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error) {
-	req := &exchangev2types.QueryDenomDecimalRequest{
-		Denom: denom,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DenomDecimal, req)
-
-	return res, err
-}
-
-func (c *chainClientV2) FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error) {
-	req := &exchangev2types.QueryDenomDecimalsRequest{
-		Denoms: denoms,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DenomDecimals, req)
 
 	return res, err
 }

@@ -383,14 +383,6 @@ func (c *MockChainClientV2) FetchAggregateMarketVolumes(ctx context.Context, mar
 	return &exchangev2types.QueryAggregateMarketVolumesResponse{}, nil
 }
 
-func (c *MockChainClientV2) FetchDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error) {
-	return &exchangev2types.QueryDenomDecimalResponse{}, nil
-}
-
-func (c *MockChainClientV2) FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error) {
-	return &exchangev2types.QueryDenomDecimalsResponse{}, nil
-}
-
 func (c *MockChainClientV2) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error) {
 	var response *exchangev2types.QuerySpotMarketsResponse
 	var localError error
