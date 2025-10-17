@@ -75,6 +75,13 @@ func main() {
 		OraclePriceFilter: &chainstreamv2.OraclePriceFilter{
 			Symbol: []string{"INJ", "USDT"},
 		},
+		OrderFailuresFilter: &chainstreamv2.OrderFailuresFilter{
+			Accounts: []string{"*"},
+		},
+		ConditionalOrderTriggerFailuresFilter: &chainstreamv2.ConditionalOrderTriggerFailuresFilter{
+			SubaccountIds: []string{subaccountId},
+			MarketIds:     []string{injUsdtPerpMarket},
+		},
 	}
 
 	ctx := context.Background()

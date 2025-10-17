@@ -405,7 +405,7 @@ service Query {
         "/injective/exchange/v1beta1/market_volatility/{market_id}";
   }
 
-  // Retrieves a spot market's orderbook by marketID
+  // Retrieves all binary options markets
   rpc BinaryOptionsMarkets(QueryBinaryMarketsRequest)
       returns (QueryBinaryMarketsResponse) {
     option (google.api.http).get =

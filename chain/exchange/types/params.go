@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/math"
@@ -44,14 +45,15 @@ const (
 
 	// MaxGranterDelegations is the maximum number of delegations that are checked for stake granter
 	MaxGranterDelegations = 25
+
+	// MaxTickSizeDecimalPlaces defines the maximum number of decimal places allowed for tick size
+	// The real max for LegacyDec is 18, but we allow 15 to ensure that we are absolutely safe of any rounding issues
+	MaxTickSizeDecimalPlaces = 15
 )
 
 var DefaultInjAuctionMaxCap = math.NewIntWithDecimal(10_000, 18)
 
 var MaxBinaryOptionsOrderPrice = math.LegacyOneDec()
-
-// would be $0.000001 for USDT
-var MinDerivativeOrderPrice = math.LegacyOneDec()
 
 // MaxOrderPrice equals 10^32
 var MaxOrderPrice = math.LegacyMustNewDecFromStr("100000000000000000000000000000000")
@@ -386,20 +388,38 @@ func ValidateTickSize(i interface{}) error {
 		return fmt.Errorf("unsupported tick size amount")
 	}
 
-	// 1e18 scaleFactor
-	scaleFactor := math.LegacyNewDec(1000000000000000000)
-	// v can be a decimal (e.g. 1e-18) so we scale by 1e18
+	// Use 10^MaxTickSizeDecimalPlaces as scaleFactor to naturally enforce decimal places limit
+	// Any tick size with more than MaxTickSizeDecimalPlaces decimal places will result in
+	// a scaled value < 1, which cannot be a power of 10
+	scaleFactor := math.LegacyNewDec(10).Power(MaxTickSizeDecimalPlaces)
+	// v can be a decimal (e.g. 1e-15) so we scale by 10^15
 	scaledValue := v.Mul(scaleFactor)
 
-	power := math.LegacyNewDec(1)
-	ten := math.LegacyNewDec(10)
-
-	// determine whether scaledValue is a power of 10
-	for power.LT(scaledValue) {
-		power = power.Mul(ten)
+	// Check if scaledValue is a power of 10 using repeated division
+	if scaledValue.LTE(math.LegacyZeroDec()) {
+		return errors.New("unsupported tick size")
 	}
 
-	if !power.Equal(scaledValue) {
+	// Handle the special case of 1 (which is 10^0)
+	if scaledValue.Equal(math.LegacyOneDec()) {
+		return nil
+	}
+
+	temp := scaledValue
+	ten := math.LegacyNewDec(10)
+
+	// Keep dividing by 10 while the result is >= 10
+	for temp.GTE(ten) {
+		quotient := temp.Quo(ten)
+		// Check if the division was exact (no remainder)
+		if !quotient.Mul(ten).Equal(temp) {
+			return errors.New("unsupported tick size")
+		}
+		temp = quotient
+	}
+
+	// After all divisions, we should have exactly 1
+	if !temp.Equal(math.LegacyOneDec()) {
 		return fmt.Errorf("unsupported tick size")
 	}
 

@@ -16,6 +16,7 @@ service Query {
 
 message QueryEipBaseFeeRequest {}
 message QueryEipBaseFeeResponse {
+  // The current chain gas price
   string base_fee = 1 [
     (gogoproto.moretags) = "yaml:\"base_fee\"",
 

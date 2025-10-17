@@ -7,6 +7,7 @@ import "injective/peggy/v1/msgs.proto";
 import "injective/peggy/v1/batch.proto";
 import "injective/peggy/v1/attestation.proto";
 import "injective/peggy/v1/params.proto";
+import "injective/peggy/v1/rate_limit.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
@@ -28,4 +29,5 @@ message GenesisState {
   uint64 last_outgoing_pool_id = 13;
   Valset last_observed_valset = 14 [ (gogoproto.nullable) = false ];
   repeated string ethereum_blacklist = 15;
+  repeated RateLimit rate_limits = 16;
 }

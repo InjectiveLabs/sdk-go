@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.16.91 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.17.0-beta --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.16.4 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.17.0-beta.3 --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -166,9 +166,9 @@ copy-chain-types: clone-injective-core
 	make extract-message-names
 
 extract-message-names:
-	@echo "Extracting message names from tx.pb.go files..."
+	@echo "Extracting message names from tx.pb.go and msgs.pb.go files..."
 	@mkdir -p injective_data
-	@find ./chain -name "tx.pb.go" -exec grep -h "proto\.RegisterType" {} \; | \
+	@find ./chain \( -name "tx.pb.go" -o -name "msgs.pb.go" \) -exec grep -h "proto\.RegisterType" {} \; | \
 		sed -n 's/.*proto\.RegisterType([^"]*"\([^"]*\)".*/\1/p' | \
 		grep -v 'Response$$' | \
 		sort -u | \

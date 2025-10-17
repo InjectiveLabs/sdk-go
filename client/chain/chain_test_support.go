@@ -383,12 +383,12 @@ func (c *MockChainClientV2) FetchAggregateMarketVolumes(ctx context.Context, mar
 	return &exchangev2types.QueryAggregateMarketVolumesResponse{}, nil
 }
 
-func (c *MockChainClientV2) FetchDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error) {
-	return &exchangev2types.QueryDenomDecimalResponse{}, nil
+func (c *MockChainClientV2) FetchAuctionExchangeTransferDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryAuctionExchangeTransferDenomDecimalResponse, error) {
+	return &exchangev2types.QueryAuctionExchangeTransferDenomDecimalResponse{}, nil
 }
 
-func (c *MockChainClientV2) FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error) {
-	return &exchangev2types.QueryDenomDecimalsResponse{}, nil
+func (c *MockChainClientV2) FetchAuctionExchangeTransferDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryAuctionExchangeTransferDenomDecimalsResponse, error) {
+	return &exchangev2types.QueryAuctionExchangeTransferDenomDecimalsResponse{}, nil
 }
 
 func (c *MockChainClientV2) FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error) {
@@ -646,6 +646,10 @@ func (c *MockChainClientV2) FetchDenomMinNotional(ctx context.Context, denom str
 
 func (c *MockChainClientV2) FetchDenomMinNotionals(ctx context.Context) (*exchangev2types.QueryDenomMinNotionalsResponse, error) {
 	return &exchangev2types.QueryDenomMinNotionalsResponse{}, nil
+}
+
+func (c *MockChainClientV2) FetchOpenInterest(ctx context.Context, marketId string) (*exchangev2types.QueryOpenInterestResponse, error) {
+	return &exchangev2types.QueryOpenInterestResponse{}, nil
 }
 
 // Tendermint module

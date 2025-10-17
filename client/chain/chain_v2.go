@@ -161,8 +161,8 @@ type ChainClientV2 interface {
 	FetchAggregateVolumes(ctx context.Context, accounts []string, marketIDs []string) (*exchangev2types.QueryAggregateVolumesResponse, error)
 	FetchAggregateMarketVolume(ctx context.Context, marketId string) (*exchangev2types.QueryAggregateMarketVolumeResponse, error)
 	FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangev2types.QueryAggregateMarketVolumesResponse, error)
-	FetchDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error)
-	FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error)
+	FetchAuctionExchangeTransferDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryAuctionExchangeTransferDenomDecimalResponse, error)
+	FetchAuctionExchangeTransferDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryAuctionExchangeTransferDenomDecimalsResponse, error)
 	FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error)
 	FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMarketResponse, error)
 	FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketsResponse, error)
@@ -219,6 +219,7 @@ type ChainClientV2 interface {
 	FetchMarketBalances(ctx context.Context) (*exchangev2types.QueryMarketBalancesResponse, error)
 	FetchDenomMinNotional(ctx context.Context, denom string) (*exchangev2types.QueryDenomMinNotionalResponse, error)
 	FetchDenomMinNotionals(ctx context.Context) (*exchangev2types.QueryDenomMinNotionalsResponse, error)
+	FetchOpenInterest(ctx context.Context, marketId string) (*exchangev2types.QueryOpenInterestResponse, error)
 
 	// Tendermint module
 	FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error)
@@ -1463,20 +1464,20 @@ func (c *chainClientV2) FetchAggregateMarketVolumes(ctx context.Context, marketI
 	return res, err
 }
 
-func (c *chainClientV2) FetchDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryDenomDecimalResponse, error) {
-	req := &exchangev2types.QueryDenomDecimalRequest{
+func (c *chainClientV2) FetchAuctionExchangeTransferDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryAuctionExchangeTransferDenomDecimalResponse, error) {
+	req := &exchangev2types.QueryAuctionExchangeTransferDenomDecimalRequest{
 		Denom: denom,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DenomDecimal, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AuctionExchangeTransferDenomDecimal, req)
 
 	return res, err
 }
 
-func (c *chainClientV2) FetchDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryDenomDecimalsResponse, error) {
-	req := &exchangev2types.QueryDenomDecimalsRequest{
+func (c *chainClientV2) FetchAuctionExchangeTransferDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryAuctionExchangeTransferDenomDecimalsResponse, error) {
+	req := &exchangev2types.QueryAuctionExchangeTransferDenomDecimalsRequest{
 		Denoms: denoms,
 	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DenomDecimals, req)
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.AuctionExchangeTransferDenomDecimals, req)
 
 	return res, err
 }
@@ -1998,6 +1999,15 @@ func (c *chainClientV2) FetchDenomMinNotional(ctx context.Context, denom string)
 func (c *chainClientV2) FetchDenomMinNotionals(ctx context.Context) (*exchangev2types.QueryDenomMinNotionalsResponse, error) {
 	req := &exchangev2types.QueryDenomMinNotionalsRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.DenomMinNotionals, req)
+
+	return res, err
+}
+
+func (c *chainClientV2) FetchOpenInterest(ctx context.Context, marketId string) (*exchangev2types.QueryOpenInterestResponse, error) {
+	req := &exchangev2types.QueryOpenInterestRequest{
+		MarketId: marketId,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeV2QueryClient.OpenInterest, req)
 
 	return res, err
 }

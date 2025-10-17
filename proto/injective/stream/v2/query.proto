@@ -35,6 +35,13 @@ message StreamRequest {
   PositionsFilter positions_filter = 9 [ (gogoproto.nullable) = true ];
   // filter for oracle prices events
   OraclePriceFilter oracle_price_filter = 10 [ (gogoproto.nullable) = true ];
+  // filter for order failures events
+  OrderFailuresFilter order_failures_filter = 11
+      [ (gogoproto.nullable) = true ];
+  // filter for conditional order trigger failures events
+  ConditionalOrderTriggerFailuresFilter
+      conditional_order_trigger_failures_filter = 12
+      [ (gogoproto.nullable) = true ];
 }
 
 message StreamResponse {
@@ -64,6 +71,11 @@ message StreamResponse {
   repeated OraclePrice oracle_prices = 12;
   // the current gas price when the block was processed (in chain format)
   string gas_price = 13;
+  // list of order failures updates
+  repeated OrderFailureUpdate order_failures = 14;
+  // list of conditional order trigger failures updates
+  repeated ConditionalOrderTriggerFailureUpdate
+      conditional_order_trigger_failures = 15;
 }
 
 message OrderbookUpdate {
@@ -257,6 +269,35 @@ message DerivativeTrade {
   string trade_id = 11;
 }
 
+message OrderFailureUpdate {
+  // the account address
+  string account = 1;
+  // the order hash
+  string order_hash = 2;
+  // the client order ID
+  string cid = 3;
+  // the error code
+  uint32 error_code = 4;
+}
+
+message ConditionalOrderTriggerFailureUpdate {
+  // the market ID
+  string market_id = 1;
+  // the subaccount ID
+  string subaccount_id = 2;
+  // the mark price
+  string mark_price = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the order hash
+  string order_hash = 4;
+  // the client order ID
+  string cid = 5;
+  // the error code
+  string error_description = 6;
+}
+
 message TradesFilter {
   // list of subaccount IDs to filter by
   repeated string subaccount_ids = 1;
@@ -294,6 +335,18 @@ message SubaccountDepositsFilter {
 }
 
 message OraclePriceFilter {
-  // list of symbol to filter by
+  // list of symbols to filter by
   repeated string symbol = 1;
+}
+
+message OrderFailuresFilter {
+  // list of account addresses to filter by
+  repeated string accounts = 1;
+}
+
+message ConditionalOrderTriggerFailuresFilter {
+  // list of subaccount IDs to filter by
+  repeated string subaccount_ids = 1;
+  // list of market IDs to filter by
+  repeated string market_ids = 2;
 }

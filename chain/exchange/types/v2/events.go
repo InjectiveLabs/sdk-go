@@ -1,6 +1,9 @@
 package v2
 
-import "github.com/ethereum/go-ethereum/common"
+import (
+	"cosmossdk.io/math"
+	"github.com/ethereum/go-ethereum/common"
+)
 
 func NewEventOrderCancelFail(
 	marketID,
@@ -34,4 +37,12 @@ func (e *EventOrderFail) AddOrderFail(orderHash common.Hash, cid string, flag ui
 
 func (e *EventOrderFail) IsEmpty() bool {
 	return len(e.Flags) == 0 && len(e.Hashes) == 0 && len(e.Cids) == 0
+}
+
+func (m *EventTriggerConditionalMarketOrderFailed) GetMarkPrice() math.LegacyDec {
+	return m.MarkPrice
+}
+
+func (m *EventTriggerConditionalLimitOrderFailed) GetMarkPrice() math.LegacyDec {
+	return m.MarkPrice
 }

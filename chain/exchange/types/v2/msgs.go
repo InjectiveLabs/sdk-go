@@ -35,6 +35,7 @@ var (
 	_ sdk.Msg = &MsgIncreasePositionMargin{}
 	_ sdk.Msg = &MsgDecreasePositionMargin{}
 	_ sdk.Msg = &MsgLiquidatePosition{}
+	_ sdk.Msg = &MsgOffsetPosition{}
 	_ sdk.Msg = &MsgEmergencySettleMarket{}
 	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}
 	_ sdk.Msg = &MsgInstantPerpetualMarketLaunch{}
@@ -88,6 +89,7 @@ const (
 	TypeMsgIncreasePositionMargin                 = "increasePositionMargin"
 	TypeMsgDecreasePositionMargin                 = "decreasePositionMargin"
 	TypeMsgLiquidatePosition                      = "liquidatePosition"
+	TypeMsgOffsetPosition                         = "offsetPosition"
 	TypeMsgEmergencySettleMarket                  = "emergencySettleMarket"
 	TypeMsgInstantSpotMarketLaunch                = "instantSpotMarketLaunch"
 	TypeMsgInstantPerpetualMarketLaunch           = "instantPerpetualMarketLaunch"
@@ -200,6 +202,7 @@ func (msg *MsgUpdateSpotMarket) HasMinNotionalUpdate() bool {
 	return !msg.NewMinNotional.IsNil() && !msg.NewMinNotional.IsZero()
 }
 
+//revive:disable:cyclomatic // Any refactoring to the function would make it less readable
 func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 	if err := types.ValidateAddress(msg.Admin); err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Admin)
@@ -212,6 +215,7 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 	hasNoUpdate := !msg.HasTickerUpdate() &&
 		!msg.HasMinPriceTickSizeUpdate() &&
 		!msg.HasMinNotionalUpdate() &&
+		!msg.HasOpenNotionalCapUpdate() &&
 		!msg.HasMinQuantityTickSizeUpdate() &&
 		!msg.HasInitialMarginRatioUpdate() &&
 		!msg.HasMaintenanceMarginRatioUpdate() &&
@@ -240,6 +244,12 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 	if msg.HasMinNotionalUpdate() {
 		if err := types.ValidateMinNotional(msg.NewMinNotional); err != nil {
 			return errors.Wrap(types.ErrInvalidNotional, err.Error())
+		}
+	}
+
+	if msg.HasOpenNotionalCapUpdate() {
+		if err := ValidateOpenNotionalCap(msg.NewOpenNotionalCap); err != nil {
+			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 		}
 	}
 
@@ -326,6 +336,18 @@ func (msg *MsgUpdateDerivativeMarket) HasMinNotionalUpdate() bool {
 	return !msg.NewMinNotional.IsNil() && !msg.NewMinNotional.IsZero()
 }
 
+func (msg *MsgUpdateDerivativeMarket) HasOpenNotionalCapUpdate() bool {
+	switch {
+	case msg.NewOpenNotionalCap.GetCapped() != nil:
+		return true
+	case msg.NewOpenNotionalCap.GetUncapped() != nil:
+		return true
+
+	default:
+		return false
+	}
+}
+
 func (m *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
 	if !types.IsHexHash(m.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, m.MarketId)
@@ -376,10 +398,6 @@ func (m *OrderInfo) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPriceBand,
 		}
 	}
 
-	if isDerivative && !hasBinaryPriceBand && m.Price.LT(types.MinDerivativeOrderPrice) {
-		return errors.Wrap(types.ErrInvalidPrice, m.Price.String())
-	}
-
 	return nil
 }
 
@@ -417,7 +435,7 @@ func (m *DerivativeOrder) ValidateBasic(senderAddr sdk.AccAddress, hasBinaryPric
 		return types.ErrInvalidTriggerPrice
 	}
 
-	if m.IsConditional() && (m.TriggerPrice == nil || m.TriggerPrice.LT(types.MinDerivativeOrderPrice)) {
+	if m.IsConditional() && (m.TriggerPrice == nil || m.TriggerPrice.LTE(math.LegacyZeroDec())) {
 		/*||!o.IsConditional() && o.TriggerPrice != nil */
 		// commented out this check since FE is sending to us 0.0 trigger price for all orders
 		return errors.Wrapf(
@@ -686,6 +704,9 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if err := types.ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
 	}
+	if err := ValidateOpenNotionalCap(msg.OpenNotionalCap); err != nil {
+		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
+	}
 
 	return nil
 }
@@ -763,6 +784,9 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	if err := types.ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
 	}
+	if err := ValidateOpenNotionalCap(msg.OpenNotionalCap); err != nil {
+		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
+	}
 
 	return nil
 }
@@ -838,6 +862,9 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	}
 	if err := types.ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
+	}
+	if err := ValidateOpenNotionalCap(msg.OpenNotionalCap); err != nil {
+		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 	}
 
 	return nil
@@ -1831,6 +1858,63 @@ func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sender}
 }
 
+func (*MsgOffsetPosition) Route() string {
+	return RouterKey
+}
+
+func (*MsgOffsetPosition) Type() string {
+	return TypeMsgOffsetPosition
+}
+
+func (msg *MsgOffsetPosition) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+
+	if err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if !types.IsHexHash(msg.MarketId) {
+		return errors.Wrap(types.ErrMarketInvalid, msg.MarketId)
+	}
+
+	_, ok := types.IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return errors.Wrap(types.ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	if len(msg.OffsettingSubaccountIds) == 0 {
+		return errors.Wrap(types.ErrOffsettingSubaccountIDsEmpty, "at least one offsetting subaccount ID must be provided")
+	}
+
+	for _, subaccountID := range msg.OffsettingSubaccountIds {
+		if _, ok := types.IsValidSubaccountID(subaccountID); !ok {
+			return errors.Wrap(types.ErrBadSubaccountID, subaccountID)
+		}
+
+		if subaccountID == msg.SubaccountId {
+			return errors.Wrap(types.ErrBadSubaccountID, "offsetting subaccount ID cannot be the same as the original subaccount ID")
+		}
+	}
+
+	if types.HasDuplicates(msg.OffsettingSubaccountIds) {
+		return errors.Wrap(types.ErrBadSubaccountID, "message contains duplicate offsetting subaccount IDs")
+	}
+
+	return nil
+}
+
+func (msg *MsgOffsetPosition) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgOffsetPosition) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
 func (msg *MsgEmergencySettleMarket) Route() string {
 	return RouterKey
 }
@@ -1924,7 +2008,10 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		len(msg.DerivativeOrdersToCreate) == 0 &&
 		len(msg.SpotOrdersToCreate) == 0 &&
 		len(msg.BinaryOptionsOrdersToCreate) == 0 &&
-		len(msg.BinaryOptionsOrdersToCancel) == 0 {
+		len(msg.BinaryOptionsOrdersToCancel) == 0 &&
+		len(msg.SpotMarketOrdersToCreate) == 0 &&
+		len(msg.DerivativeMarketOrdersToCreate) == 0 &&
+		len(msg.BinaryOptionsMarketOrdersToCreate) == 0 {
 		return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "msg is empty")
 	}
 
@@ -2045,7 +2132,13 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		}
 	}
 
-	return nil
+	// Check for duplicate derivative market orders (same market and subaccount)
+	if err := ensureNoDuplicateMarketOrders(sender, msg.DerivativeMarketOrdersToCreate); err != nil {
+		return err
+	}
+
+	// Check for duplicate binary options market orders (same market and subaccount)
+	return ensureNoDuplicateMarketOrders(sender, msg.BinaryOptionsMarketOrdersToCreate)
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -2611,34 +2704,22 @@ func hasDuplicatesOrder(slice []*OrderData) bool {
 	return false
 }
 
-func (msg *MsgSetDelegationTransferReceivers) Route() string { return RouterKey }
-func (msg *MsgSetDelegationTransferReceivers) Type() string  { return "setDelegationTransferReceivers" }
-func (msg *MsgSetDelegationTransferReceivers) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if len(msg.Receivers) == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "receivers list cannot be empty")
-	}
-
-	for _, receiver := range msg.Receivers {
-		if _, err := sdk.AccAddressFromBech32(receiver); err != nil {
-			return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address: %s", receiver)
+// ensureNoDuplicateMarketOrders checks if there are duplicate market orders for the same market and subaccount combination
+func ensureNoDuplicateMarketOrders(sender sdk.AccAddress, orders []*DerivativeOrder) error {
+	seen := make(map[string]struct{})
+	for _, order := range orders {
+		// Normalize the subaccount ID (converts both full subaccount ID and subaccount index to full subaccount ID)
+		normalizedSubaccountID, err := types.GetSubaccountIDOrDeriveFromNonce(sender, order.OrderInfo.SubaccountId)
+		if err != nil {
+			return errors.Wrap(types.ErrBadSubaccountID, order.OrderInfo.SubaccountId)
 		}
-	}
 
+		// Create a unique key combining market ID and normalized subaccount ID
+		key := order.MarketId + ":" + normalizedSubaccountID.Hex()
+		if _, exists := seen[key]; exists {
+			return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "duplicate market orders for the same market and subaccount")
+		}
+		seen[key] = struct{}{}
+	}
 	return nil
 }
-
-func (msg *MsgSetDelegationTransferReceivers) GetSignBytes() []byte {
-	bz, _ := json.Marshal(msg)
-	return sdk.MustSortJSON(bz)
-}
-
-func (msg *MsgSetDelegationTransferReceivers) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(msg.Sender)
-	return []sdk.AccAddress{sender}
-}
-
-var _ sdk.Msg = &MsgSetDelegationTransferReceivers{}

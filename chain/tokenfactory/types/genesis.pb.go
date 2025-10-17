@@ -81,11 +81,16 @@ func (m *GenesisState) GetFactoryDenoms() []GenesisDenom {
 // state. The structure contains DenomAuthorityMetadata which defines the
 // denom's admin.
 type GenesisDenom struct {
-	Denom             string                 `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty" yaml:"denom"`
+	// The denom
+	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty" yaml:"denom"`
+	// The authority metadata
 	AuthorityMetadata DenomAuthorityMetadata `protobuf:"bytes,2,opt,name=authority_metadata,json=authorityMetadata,proto3" json:"authority_metadata" yaml:"authority_metadata"`
-	Name              string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
-	Symbol            string                 `protobuf:"bytes,4,opt,name=symbol,proto3" json:"symbol,omitempty" yaml:"symbol"`
-	Decimals          uint32                 `protobuf:"varint,5,opt,name=decimals,proto3" json:"decimals,omitempty" yaml:"decimals"`
+	// The name
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
+	// The symbol
+	Symbol string `protobuf:"bytes,4,opt,name=symbol,proto3" json:"symbol,omitempty" yaml:"symbol"`
+	// The number of decimals
+	Decimals uint32 `protobuf:"varint,5,opt,name=decimals,proto3" json:"decimals,omitempty" yaml:"decimals"`
 }
 
 func (m *GenesisDenom) Reset()         { *m = GenesisDenom{} }

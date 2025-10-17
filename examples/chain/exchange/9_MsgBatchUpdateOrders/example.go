@@ -88,6 +88,18 @@ func main() {
 		},
 	)
 
+	spot_market_order := chainClient.CreateSpotOrderV2(
+		defaultSubaccountID,
+		&chainclient.SpotOrderData{
+			OrderType:    int32(exchangev2types.OrderType_BUY), //BUY SELL
+			Quantity:     decimal.NewFromFloat(0.1),
+			Price:        decimal.NewFromFloat(22),
+			FeeRecipient: senderAddress.String(),
+			MarketId:     smarketId,
+			Cid:          uuid.NewString(),
+		},
+	)
+
 	dmarketId := "0x4ca0f92fc28be0c9761326016b5a1a2177dd6375558365116b5bdda9abc229ce"
 	damount := decimal.NewFromFloat(0.01)
 	dprice := decimal.RequireFromString("31000") //31,000
@@ -108,6 +120,20 @@ func main() {
 		},
 	)
 
+	derivative_market_order := chainClient.CreateDerivativeOrderV2(
+		defaultSubaccountID,
+		&chainclient.DerivativeOrderData{
+			OrderType:    int32(exchangev2types.OrderType_BUY), //BUY SELL
+			Quantity:     decimal.NewFromFloat(0.01),
+			Price:        decimal.RequireFromString("33000"),
+			Leverage:     decimal.RequireFromString("2"),
+			FeeRecipient: senderAddress.String(),
+			MarketId:     dmarketId,
+			IsReduceOnly: false,
+			Cid:          uuid.NewString(),
+		},
+	)
+
 	msg := exchangev2types.MsgBatchUpdateOrders{
 		Sender:                         senderAddress.String(),
 		SubaccountId:                   defaultSubaccountID.Hex(),
@@ -115,6 +141,8 @@ func main() {
 		DerivativeOrdersToCreate:       []*exchangev2types.DerivativeOrder{derivative_order},
 		SpotMarketIdsToCancelAll:       smarketIds,
 		DerivativeMarketIdsToCancelAll: dmarketIds,
+		SpotMarketOrdersToCreate:       []*exchangev2types.SpotOrder{spot_market_order},
+		DerivativeMarketOrdersToCreate: []*exchangev2types.DerivativeOrder{derivative_market_order},
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

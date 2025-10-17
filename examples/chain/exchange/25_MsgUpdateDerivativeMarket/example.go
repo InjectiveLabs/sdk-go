@@ -78,6 +78,13 @@ func main() {
 		NewInitialMarginRatio:     math.LegacyMustNewDecFromStr("0.4"),
 		NewMaintenanceMarginRatio: math.LegacyMustNewDecFromStr("0.085"),
 		NewReduceMarginRatio:      math.LegacyMustNewDecFromStr("0.3"),
+		NewOpenNotionalCap: exchangev2types.OpenNotionalCap{
+			Cap: &exchangev2types.OpenNotionalCap_Capped{
+				Capped: &exchangev2types.OpenNotionalCapCapped{
+					Value: math.LegacyMustNewDecFromStr("1000"),
+				},
+			},
+		},
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

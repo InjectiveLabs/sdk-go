@@ -8,7 +8,6 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/InjectiveLabs/sdk-go/client/core"
-	"github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
 type TokenMetadata interface {
@@ -56,7 +55,7 @@ func NewHumanReadableMarketsAssistant(ctx context.Context, chainClient ChainClie
 	return assistant, err
 }
 
-func NewMarketsAssistantWithAllTokens(ctx context.Context, exchangeClient exchange.ExchangeClient, chainClient ChainClient) (MarketsAssistant, error) {
+func NewMarketsAssistantWithAllTokens(ctx context.Context, chainClient ChainClient) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
 	assistant.initializeTokensFromChainDenoms(ctx, chainClient)
 	err := assistant.initializeFromChainV1Markets(ctx, chainClient)
@@ -64,7 +63,7 @@ func NewMarketsAssistantWithAllTokens(ctx context.Context, exchangeClient exchan
 	return assistant, err
 }
 
-func NewHumanReadableMarketsAssistantWithAllTokens(ctx context.Context, exchangeClient exchange.ExchangeClient, chainClient ChainClientV2) (MarketsAssistant, error) {
+func NewHumanReadableMarketsAssistantWithAllTokens(ctx context.Context, chainClient ChainClientV2) (MarketsAssistant, error) {
 	assistant := newMarketsAssistant()
 	assistant.initializeTokensFromChainDenoms(ctx, chainClient)
 	err := assistant.initializeFromChainV2Markets(ctx, chainClient)
