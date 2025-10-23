@@ -12,14 +12,14 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("mainnet", "lb")
+	network := common.LoadNetwork("testnet", "lb")
 	explorerClient, err := explorerclient.NewExplorerClient(network)
 	if err != nil {
 		panic(err)
 	}
 
-	address := "inj1ghlynf7z25zql6kpu958wqlvmlwrhpp0a4cu9p"
-	after := uint64(137677300)
+	address := "inj1akxycslq8cjt0uffw4rjmfm3echchptu52a2dq"
+	after := uint64(14112176)
 
 	req := explorerPB.GetAccountTxsRequest{
 		After:   after,
