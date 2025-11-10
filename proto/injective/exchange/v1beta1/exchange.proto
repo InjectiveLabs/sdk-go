@@ -17,15 +17,20 @@ enum AtomicMarketOrderAccessLevel {
 }
 
 message OpenNotionalCap {
+  option (amino.name) = "injective.exchange.v1beta1.OpenNotionalCap";
+
   oneof cap {
-    OpenNotionalCapUncapped uncapped = 1;
-    OpenNotionalCapCapped capped = 2;
+    OpenNotionalCapUncapped uncapped = 1 [(amino.oneof_name) = "uncapped"];
+    OpenNotionalCapCapped  capped   = 2 [(amino.oneof_name) = "capped"];
   }
 }
 
-message OpenNotionalCapUncapped {}
+message OpenNotionalCapUncapped {
+  option (amino.name) = "injective.exchange.v1beta1.OpenNotionalCapUncapped";
+}
 
 message OpenNotionalCapCapped {
+  option (amino.name) = "injective.exchange.v1beta1.OpenNotionalCapCapped";
   string value = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false

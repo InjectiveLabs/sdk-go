@@ -29,10 +29,7 @@ func NewEventOrderCancelFail(
 func (e *EventOrderFail) AddOrderFail(orderHash common.Hash, cid string, flag uint32) {
 	e.Hashes = append(e.Hashes, orderHash.Bytes())
 	e.Flags = append(e.Flags, flag)
-
-	if cid != "" {
-		e.Cids = append(e.Cids, cid)
-	}
+	e.Cids = append(e.Cids, cid)
 }
 
 func (e *EventOrderFail) IsEmpty() bool {

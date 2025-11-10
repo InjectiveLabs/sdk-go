@@ -3,6 +3,7 @@ package injective.exchange.v2;
 
 import "gogoproto/gogo.proto";
 import "injective/oracle/v1beta1/oracle.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
 
@@ -15,15 +16,20 @@ enum MarketStatus {
 }
 
 message OpenNotionalCap {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCap";
+
   oneof cap {
-    OpenNotionalCapUncapped uncapped = 1;
-    OpenNotionalCapCapped capped = 2;
+    OpenNotionalCapUncapped uncapped = 1 [(amino.oneof_name) = "uncapped"];
+    OpenNotionalCapCapped  capped   = 2 [(amino.oneof_name) = "capped"];
   }
 }
 
-message OpenNotionalCapUncapped {}
+message OpenNotionalCapUncapped {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCapUncapped";
+}
 
 message OpenNotionalCapCapped {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCapCapped";
   string value = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
