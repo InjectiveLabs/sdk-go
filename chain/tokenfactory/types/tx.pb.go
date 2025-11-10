@@ -43,11 +43,15 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // originally set to be the creator, but this can be changed later. The token
 // denom does not indicate the current admin.
 type MsgCreateDenom struct {
+	// The sender's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
 	// subdenom can be up to 44 "alphanumeric" characters long.
 	Subdenom string `protobuf:"bytes,2,opt,name=subdenom,proto3" json:"subdenom,omitempty" yaml:"subdenom"`
-	Name     string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
-	Symbol   string `protobuf:"bytes,4,opt,name=symbol,proto3" json:"symbol,omitempty" yaml:"symbol"`
+	// The name
+	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`
+	// The symbol
+	Symbol string `protobuf:"bytes,4,opt,name=symbol,proto3" json:"symbol,omitempty" yaml:"symbol"`
+	// The number of decimals
 	Decimals uint32 `protobuf:"varint,5,opt,name=decimals,proto3" json:"decimals,omitempty" yaml:"decimals"`
 	// true if admins are allowed to burn tokens from other addresses
 	AllowAdminBurn bool `protobuf:"varint,6,opt,name=allow_admin_burn,json=allowAdminBurn,proto3" json:"allow_admin_burn,omitempty" yaml:"allow_admin_burn"`
@@ -177,9 +181,12 @@ func (m *MsgCreateDenomResponse) GetNewTokenDenom() string {
 // MsgMint is the sdk.Msg type for allowing an admin account or other permitted
 // accounts to mint more of a token.
 type MsgMint struct {
-	Sender   string     `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	Amount   types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount" yaml:"amount"`
-	Receiver string     `protobuf:"bytes,3,opt,name=receiver,proto3" json:"receiver,omitempty" yaml:"receiver"`
+	// The sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// The amount of tokens to mint
+	Amount types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount" yaml:"amount"`
+	// The Injective address to receive the tokens
+	Receiver string `protobuf:"bytes,3,opt,name=receiver,proto3" json:"receiver,omitempty" yaml:"receiver"`
 }
 
 func (m *MsgMint) Reset()         { *m = MsgMint{} }
@@ -275,9 +282,12 @@ var xxx_messageInfo_MsgMintResponse proto.InternalMessageInfo
 // MsgBurn is the sdk.Msg type for allowing an admin account to burn
 // a token.
 type MsgBurn struct {
-	Sender          string     `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	Amount          types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount" yaml:"amount"`
-	BurnFromAddress string     `protobuf:"bytes,3,opt,name=burnFromAddress,proto3" json:"burnFromAddress,omitempty" yaml:"burn_from_address"`
+	// The sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// The amount of tokens to burn
+	Amount types.Coin `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount" yaml:"amount"`
+	// The Injective address to burn the tokens from
+	BurnFromAddress string `protobuf:"bytes,3,opt,name=burnFromAddress,proto3" json:"burnFromAddress,omitempty" yaml:"burn_from_address"`
 }
 
 func (m *MsgBurn) Reset()         { *m = MsgBurn{} }
@@ -373,8 +383,11 @@ var xxx_messageInfo_MsgBurnResponse proto.InternalMessageInfo
 // MsgChangeAdmin is the sdk.Msg type for allowing an admin account to reassign
 // adminship of a denom to a new account
 type MsgChangeAdmin struct {
-	Sender   string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
-	Denom    string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty" yaml:"denom"`
+	// The sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// The denom
+	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty" yaml:"denom"`
+	// The new admin's Injective address
 	NewAdmin string `protobuf:"bytes,3,opt,name=new_admin,json=newAdmin,proto3" json:"new_admin,omitempty" yaml:"new_admin"`
 }
 
@@ -473,7 +486,9 @@ var xxx_messageInfo_MsgChangeAdminResponse proto.InternalMessageInfo
 // MsgSetDenomMetadata is the sdk.Msg type for allowing an admin account to set
 // the denom's bank metadata
 type MsgSetDenomMetadata struct {
-	Sender            string                                 `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// The sender's Injective address
+	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
+	// The metadata
 	Metadata          types1.Metadata                        `protobuf:"bytes,2,opt,name=metadata,proto3" json:"metadata" yaml:"metadata"`
 	AdminBurnDisabled *MsgSetDenomMetadata_AdminBurnDisabled `protobuf:"bytes,3,opt,name=admin_burn_disabled,json=adminBurnDisabled,proto3" json:"admin_burn_disabled,omitempty" yaml:"admin_burn_disabled"`
 }

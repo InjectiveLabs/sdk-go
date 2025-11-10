@@ -7,11 +7,9 @@ import (
 	"os"
 	"time"
 
-	"cosmossdk.io/math"
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
@@ -53,6 +51,7 @@ func main() {
 		clientCtx,
 		network,
 	)
+
 	if err != nil {
 		panic(err)
 	}
@@ -65,27 +64,18 @@ func main() {
 	gasPrice = int64(float64(gasPrice) * 1.1)
 	chainClient.SetGasPrice(gasPrice)
 
-	minPriceTickSize := math.LegacyMustNewDecFromStr("0.01")
-	minQuantityTickSize := math.LegacyMustNewDecFromStr("0.001")
+	marketId := "0x17ef48032cb24375ba7c2e39f384e56433bcab20cbee9a7357e4cba2eb00abe6"
 
-	msg := &exchangev2types.MsgInstantBinaryOptionsMarketLaunch{
-		Sender:              senderAddress.String(),
-		Ticker:              "UFC-KHABIB-TKO-05/30/2023",
-		OracleSymbol:        "UFC-KHABIB-TKO-05/30/2023",
-		OracleProvider:      "UFC",
-		OracleType:          oracletypes.OracleType_Provider,
-		OracleScaleFactor:   0,
-		MakerFeeRate:        math.LegacyMustNewDecFromStr("0.0005"),
-		TakerFeeRate:        math.LegacyMustNewDecFromStr("0.0010"),
-		ExpirationTimestamp: 1680730982,
-		SettlementTimestamp: 1690730982,
-		Admin:               senderAddress.String(),
-		QuoteDenom:          "peggy0xdAC17F958D2ee523a2206206994597C13D831ec7",
-		MinPriceTickSize:    minPriceTickSize,
-		MinQuantityTickSize: minQuantityTickSize,
-		OpenNotionalCap: exchangev2types.OpenNotionalCap{
-			Cap: &exchangev2types.OpenNotionalCap_Uncapped{},
-		},
+	offsettingSubaccountIds := []string{
+		"0xbdaedec95d563fb05240d6e01821008454c24c36000000000000000000000000",
+		"0xaf79152ac5df276d9a8e1e2e22822f9713474902000000000000000000000000",
+	}
+
+	msg := &exchangev2types.MsgOffsetPosition{
+		Sender:                  senderAddress.String(),
+		SubaccountId:            "0x156df4d5bc8e7dd9191433e54bd6a11eeb390921000000000000000000000000",
+		MarketId:                marketId,
+		OffsettingSubaccountIds: offsettingSubaccountIds,
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

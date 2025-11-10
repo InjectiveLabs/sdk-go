@@ -3,6 +3,7 @@ package injective.exchange.v2;
 
 import "gogoproto/gogo.proto";
 import "injective/oracle/v1beta1/oracle.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
 
@@ -12,6 +13,27 @@ enum MarketStatus {
   Paused = 2;
   Demolished = 3;
   Expired = 4;
+}
+
+message OpenNotionalCap {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCap";
+
+  oneof cap {
+    OpenNotionalCapUncapped uncapped = 1 [(amino.oneof_name) = "uncapped"];
+    OpenNotionalCapCapped  capped   = 2 [(amino.oneof_name) = "capped"];
+  }
+}
+
+message OpenNotionalCapUncapped {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCapUncapped";
+}
+
+message OpenNotionalCapCapped {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCapCapped";
+  string value = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message MarketFeeMultiplier {
@@ -153,6 +175,9 @@ message BinaryOptionsMarket {
   uint32 admin_permissions = 19;
   // quote token decimals
   uint32 quote_decimals = 20;
+
+  // open_notional_cap defines the maximum open notional for the market
+  OpenNotionalCap open_notional_cap = 21 [ (gogoproto.nullable) = false ];
 }
 
 // An object describing a derivative market in the Injective Futures Protocol.
@@ -237,6 +262,9 @@ message DerivativeMarket {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // open_notional_cap defines the maximum open notional for the market
+  OpenNotionalCap open_notional_cap = 22 [ (gogoproto.nullable) = false ];
 }
 
 message DerivativeMarketSettlementInfo {

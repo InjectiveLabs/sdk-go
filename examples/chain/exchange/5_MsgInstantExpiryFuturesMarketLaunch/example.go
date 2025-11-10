@@ -84,6 +84,9 @@ func main() {
 		ReduceMarginRatio:      math.LegacyMustNewDecFromStr("0.3"),
 		MinPriceTickSize:       minPriceTickSize,
 		MinQuantityTickSize:    minQuantityTickSize,
+		OpenNotionalCap: exchangev2types.OpenNotionalCap{
+			Cap: &exchangev2types.OpenNotionalCap_Uncapped{},
+		},
 	}
 
 	// AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

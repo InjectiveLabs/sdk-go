@@ -8,6 +8,10 @@ import (
 	"cosmossdk.io/x/tx/signing"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	hyperlaneinterchainsecuritytypes "github.com/bcp-innovations/hyperlane-cosmos/x/core/01_interchain_security/types"
+	hyperlanepostdispatchtypes "github.com/bcp-innovations/hyperlane-cosmos/x/core/02_post_dispatch/types"
+	hyperlanecoretypes "github.com/bcp-innovations/hyperlane-cosmos/x/core/types"
+	hyperlanewarptypes "github.com/bcp-innovations/hyperlane-cosmos/x/warp/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
@@ -182,6 +186,10 @@ func createInjectiveProtoCodec() (injectiveCodec *codec.ProtoCodec, interfaceReg
 	ibcclienttypes.RegisterInterfaces(interfaceRegistry)
 	ibcconnectiontypes.RegisterInterfaces(interfaceRegistry)
 	ibctransfertypes.RegisterInterfaces(interfaceRegistry)
+	hyperlanecoretypes.RegisterInterfaces(interfaceRegistry)
+	hyperlanewarptypes.RegisterInterfaces(interfaceRegistry)
+	hyperlanepostdispatchtypes.RegisterInterfaces(interfaceRegistry)
+	hyperlaneinterchainsecuritytypes.RegisterInterfaces(interfaceRegistry)
 
 	injectiveCodec = codec.NewProtoCodec(interfaceRegistry)
 

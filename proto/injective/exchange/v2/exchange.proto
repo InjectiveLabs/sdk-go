@@ -19,6 +19,7 @@ enum ExecutionType {
   LimitMatchNewOrder = 4;
   MarketLiquidation = 5;
   ExpiryMarketSettlement = 6;
+  OffsettingPosition = 7;
 }
 
 message Params {
@@ -194,16 +195,19 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
-  // DO NOT USE THIS FIELD. It was introduced for a temporary bug fix.
-  int64 human_readable_upgrade_block_height = 32 [ deprecated = true ];
+  reserved 32; // This was the field human_readable_upgrade_block_height
   // post_only_mode_blocks_amount defines the amount of blocks the post only
-  // mode will be enabled
+  // mode will be enabled after a chain upgrade
   uint64 post_only_mode_blocks_amount = 33;
   // min_post_only_mode_downtime_duration defines the minimum downtime duration
   // that must pass before the post only mode is automatically enabled. The
   // accepted values are the Downtime enum values from the downtime_duration
   // module
   string min_post_only_mode_downtime_duration = 34;
+  // post_only_mode_blocks_amount defines the amount of blocks the post only
+  // mode will be enabled after the downtime-detector module detects a chain
+  // downtime
+  uint64 post_only_mode_blocks_amount_after_downtime = 35;
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }

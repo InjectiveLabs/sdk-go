@@ -187,6 +187,9 @@ func createBTCUSDTChainDerivativeMarketV2() *exchangev2types.DerivativeMarket {
 		MinQuantityTickSize:    math.LegacyMustNewDecFromStr("0.0001"),
 		MinNotional:            math.LegacyMustNewDecFromStr("1000000"),
 		QuoteDecimals:          6,
+		OpenNotionalCap: exchangev2types.OpenNotionalCap{
+			Cap: &exchangev2types.OpenNotionalCap_Uncapped{},
+		},
 	}
 
 	return &marketInfo
@@ -213,6 +216,9 @@ func createFirstMatchBetBinaryOptionsMarketV2() *exchangev2types.BinaryOptionsMa
 		MinNotional:         math.LegacyMustNewDecFromStr("1"),
 		AdminPermissions:    1,
 		QuoteDecimals:       6,
+		OpenNotionalCap: exchangev2types.OpenNotionalCap{
+			Cap: &exchangev2types.OpenNotionalCap_Uncapped{},
+		},
 	}
 
 	return &market

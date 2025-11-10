@@ -191,15 +191,19 @@ func (p *Position) checkValidClosingPrice(
 	return nil
 }
 
-func (p *Position) GetLiquidationMarketOrderWorstPrice(markPrice math.LegacyDec, funding *PerpetualMarketFunding) math.LegacyDec {
+func (p *Position) GetLiquidationMarketOrderWorstPrice(markPrice math.LegacyDec, funding *PerpetualMarketFunding) *math.LegacyDec {
 	bankruptcyPrice := p.GetBankruptcyPrice(funding)
 	hasNegativeEquity := (p.IsLong && markPrice.LT(bankruptcyPrice)) || (p.IsShort() && markPrice.GT(bankruptcyPrice))
-
 	if hasNegativeEquity {
-		return markPrice
+		return &markPrice
 	}
 
-	return bankruptcyPrice
+	return &bankruptcyPrice
+}
+
+func (p *Position) GetOffsettingMarketOrderWorstPrice(funding *PerpetualMarketFunding) *math.LegacyDec {
+	bankruptcyPrice := p.GetBankruptcyPrice(funding)
+	return &bankruptcyPrice
 }
 
 func (p *Position) GetBankruptcyPrice(funding *PerpetualMarketFunding) (bankruptcyPrice math.LegacyDec) {

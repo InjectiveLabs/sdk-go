@@ -16,7 +16,6 @@ import (
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client/common"
 	"github.com/InjectiveLabs/sdk-go/client/core"
-	"github.com/InjectiveLabs/sdk-go/client/exchange"
 )
 
 func TestMarketAssistantCreation(t *testing.T) {
@@ -179,8 +178,6 @@ func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
 	network := common.NewNetwork()
 	network.OfficialTokensListURL = httpServer.URL
 
-	mockExchange := exchange.MockExchangeClient{}
-	mockExchange.Network = network
 	mockChain := MockChainClient{}
 	smartDenomMetadata := createSmartDenomMetadata()
 
@@ -193,7 +190,7 @@ func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	assistant, err := NewMarketsAssistantWithAllTokens(ctx, &mockExchange, &mockChain)
+	assistant, err := NewMarketsAssistantWithAllTokens(ctx, &mockChain)
 
 	assert.NoError(t, err)
 
@@ -365,8 +362,6 @@ func TestHumanReadableMarketAssistantCreationWithAllTokens(t *testing.T) {
 	network := common.NewNetwork()
 	network.OfficialTokensListURL = httpServer.URL
 
-	mockExchange := exchange.MockExchangeClient{}
-	mockExchange.Network = network
 	mockChain := MockChainClientV2{}
 	smartDenomMetadata := createSmartDenomMetadata()
 
@@ -379,7 +374,7 @@ func TestHumanReadableMarketAssistantCreationWithAllTokens(t *testing.T) {
 	})
 
 	ctx := context.Background()
-	assistant, err := NewHumanReadableMarketsAssistantWithAllTokens(ctx, &mockExchange, &mockChain)
+	assistant, err := NewHumanReadableMarketsAssistantWithAllTokens(ctx, &mockChain)
 
 	assert.NoError(t, err)
 

@@ -25,10 +25,12 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the permissions module's genesis state.
 type GenesisState struct {
-	// params defines the parameters of the module.
-	Params     Params            `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	Namespaces []Namespace       `protobuf:"bytes,2,rep,name=namespaces,proto3" json:"namespaces"`
-	Vouchers   []*AddressVoucher `protobuf:"bytes,3,rep,name=vouchers,proto3" json:"vouchers,omitempty"`
+	// params defines the parameters of the module
+	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+	// namespaces defines the namespaces of the module
+	Namespaces []Namespace `protobuf:"bytes,2,rep,name=namespaces,proto3" json:"namespaces"`
+	// vouchers defines the vouchers of the module
+	Vouchers []*AddressVoucher `protobuf:"bytes,3,rep,name=vouchers,proto3" json:"vouchers,omitempty"`
 }
 
 func (m *GenesisState) Reset()         { *m = GenesisState{} }

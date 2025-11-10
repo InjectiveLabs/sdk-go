@@ -60,7 +60,7 @@ func main() {
 
 	denoms := []string{"inj", "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5"}
 
-	res, err := chainClient.FetchDenomDecimals(ctx, denoms)
+	res, err := chainClient.FetchAuctionExchangeTransferDenomDecimals(ctx, denoms)
 	if err != nil {
 		fmt.Println(err)
 	}

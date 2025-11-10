@@ -115,8 +115,10 @@ message GenesisState {
   // forced closings at genesis
   repeated string spot_market_ids_scheduled_to_force_close = 28;
 
-  // denom_decimals defines the denom decimals for the exchange.
-  repeated DenomDecimals denom_decimals = 29 [ (gogoproto.nullable) = false ];
+  // auction_exchange_transfer_denom_decimals defines the denom decimals for the
+  // exchange.
+  repeated DenomDecimals auction_exchange_transfer_denom_decimals = 29
+      [ (gogoproto.nullable) = false ];
 
   // conditional_derivative_orderbook contains conditional orderbooks for all
   // markets (both lmit and market conditional orders)

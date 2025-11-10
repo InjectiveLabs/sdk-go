@@ -139,6 +139,9 @@ service Msg {
   rpc EmergencySettleMarket(MsgEmergencySettleMarket)
       returns (MsgEmergencySettleMarketResponse);
 
+  // OffsetPosition defines a method for offsetting a position
+  rpc OffsetPosition(MsgOffsetPosition) returns (MsgOffsetPositionResponse);
+
   // IncreasePositionMargin defines a method for increasing margin of a position
   rpc IncreasePositionMargin(MsgIncreasePositionMargin)
       returns (MsgIncreasePositionMarginResponse);
@@ -218,9 +221,6 @@ service Msg {
   rpc UpdateAtomicMarketOrderFeeMultiplierSchedule(
       MsgAtomicMarketOrderFeeMultiplierSchedule)
       returns (MsgAtomicMarketOrderFeeMultiplierScheduleResponse);
-
-  rpc SetDelegationTransferReceivers(MsgSetDelegationTransferReceivers)
-      returns (MsgSetDelegationTransferReceiversResponse);
 
   rpc CancelPostOnlyMode(MsgCancelPostOnlyMode)
       returns (MsgCancelPostOnlyModeResponse);
@@ -311,6 +311,9 @@ message MsgUpdateDerivativeMarket {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // (optional) updated value for open_notional_cap
+  OpenNotionalCap new_open_notional_cap = 10 [ (gogoproto.nullable) = false ];
 }
 
 message MsgUpdateDerivativeMarketResponse {}
@@ -531,6 +534,9 @@ message MsgInstantPerpetualMarketLaunch {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // open_notional_cap defines the cap on the open notional
+  OpenNotionalCap open_notional_cap = 16 [ (gogoproto.nullable) = false ];
 }
 
 // MsgInstantPerpetualMarketLaunchResponse defines the
@@ -595,6 +601,9 @@ message MsgInstantBinaryOptionsMarketLaunch {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // open_notional_cap defines the cap on the open notional
+  OpenNotionalCap open_notional_cap = 16 [ (gogoproto.nullable) = false ];
 }
 
 // MsgInstantBinaryOptionsMarketLaunchResponse defines the
@@ -672,6 +681,9 @@ message MsgInstantExpiryFuturesMarketLaunch {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // open_notional_cap defines the cap on the open notional
+  OpenNotionalCap open_notional_cap = 17 [ (gogoproto.nullable) = false ];
 }
 
 // MsgInstantExpiryFuturesMarketLaunchResponse defines the
@@ -883,6 +895,15 @@ message MsgBatchUpdateOrders {
   // the binary options orders to create
   repeated DerivativeOrder binary_options_orders_to_create = 11
       [ (gogoproto.nullable) = true ];
+  // the spot market orders to create
+  repeated SpotOrder spot_market_orders_to_create = 12
+      [ (gogoproto.nullable) = true ];
+  // the derivative market orders to create
+  repeated DerivativeOrder derivative_market_orders_to_create = 13
+      [ (gogoproto.nullable) = true ];
+  // the binary options market orders to create
+  repeated DerivativeOrder binary_options_market_orders_to_create = 14
+      [ (gogoproto.nullable) = true ];
 }
 
 // MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
@@ -902,6 +923,15 @@ message MsgBatchUpdateOrdersResponse {
   repeated string failed_derivative_orders_cids = 10;
   repeated string created_binary_options_orders_cids = 11;
   repeated string failed_binary_options_orders_cids = 12;
+  repeated string spot_market_order_hashes = 13;
+  repeated string created_spot_market_orders_cids = 14;
+  repeated string failed_spot_market_orders_cids = 15;
+  repeated string derivative_market_order_hashes = 16;
+  repeated string created_derivative_market_orders_cids = 17;
+  repeated string failed_derivative_market_orders_cids = 18;
+  repeated string binary_options_market_order_hashes = 19;
+  repeated string created_binary_options_market_orders_cids = 20;
+  repeated string failed_binary_options_market_orders_cids = 21;
 }
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder
@@ -1116,6 +1146,21 @@ message MsgLiquidatePosition {
 
 // MsgLiquidatePositionResponse defines the Msg/LiquidatePosition response type.
 message MsgLiquidatePositionResponse {}
+
+// A Cosmos-SDK MsgOffsetPosition
+message MsgOffsetPosition {
+  option (amino.name) = "exchange/MsgOffsetPosition";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string subaccount_id = 2;
+  string market_id = 3;
+  repeated string offsetting_subaccount_ids = 4;
+}
+
+// MsgOffsetPositionResponse defines the Msg/OffsetPosition
+// response type.
+message MsgOffsetPositionResponse {}
 
 // A Cosmos-SDK MsgEmergencySettleMarket
 message MsgEmergencySettleMarket {
@@ -1523,22 +1568,6 @@ message MsgAtomicMarketOrderFeeMultiplierSchedule {
 }
 
 message MsgAtomicMarketOrderFeeMultiplierScheduleResponse {}
-
-// MsgSetDelegationTransferReceivers defines a message for setting delegation
-// transfer receivers
-message MsgSetDelegationTransferReceivers {
-  option (amino.name) = "exchange/MsgSetDelegationTransferReceivers";
-  option (cosmos.msg.v1.signer) = "sender";
-
-  // the sender's Injective address (must be exchange admin)
-  string sender = 1;
-  // list of receiver addresses to set as delegation transfer receivers
-  repeated string receivers = 2;
-}
-
-// MsgSetDelegationTransferReceiversResponse defines the response for
-// MsgSetDelegationTransferReceivers
-message MsgSetDelegationTransferReceiversResponse {}
 
 // MsgCancelPostOnlyMode defines a message for canceling post-only mode
 message MsgCancelPostOnlyMode {
