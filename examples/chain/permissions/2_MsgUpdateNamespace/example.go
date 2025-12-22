@@ -103,7 +103,7 @@ func main() {
 	msg := &permissionstypes.MsgUpdateNamespace{
 		Sender:                    senderAddress.String(),
 		Denom:                     denom,
-		ContractHook:              &permissionstypes.MsgUpdateNamespace_SetContractHook{NewValue: "inj19ld6swyldyujcn72j7ugnu9twafhs9wxlyye5m"},
+		WasmHook:                  &permissionstypes.MsgUpdateNamespace_SetContractHook{NewValue: "inj19ld6swyldyujcn72j7ugnu9twafhs9wxlyye5m"},
 		RolePermissions:           []*permissionstypes.Role{&role1, &role2},
 		RoleManagers:              []*permissionstypes.RoleManager{&role_manager},
 		PolicyStatuses:            []*permissionstypes.PolicyStatus{&policy_status1, &policy_status2},
