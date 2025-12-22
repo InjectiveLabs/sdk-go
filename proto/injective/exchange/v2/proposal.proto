@@ -14,6 +14,12 @@ import "injective/oracle/v1beta1/oracle.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
 
+enum DisableMinimalProtocolFeeUpdate {
+  NoUpdate = 0;
+  False = 1;
+  True = 2;
+}
+
 message SpotMarketParamUpdateProposal {
   option (amino.name) = "exchange/SpotMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
@@ -73,6 +79,11 @@ message SpotMarketParamUpdateProposal {
   uint32 base_decimals = 13;
   // quote token decimals
   uint32 quote_decimals = 14;
+
+  // has_disabled_minimal_protocol_fee defines whether the minimal protocol fee
+  // is disabled for the market
+  DisableMinimalProtocolFeeUpdate has_disabled_minimal_protocol_fee = 15
+      [ (gogoproto.nullable) = true ];
 }
 
 enum ExchangeType {
@@ -476,6 +487,10 @@ message DerivativeMarketParamUpdateProposal {
   ];
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 19 [ (gogoproto.nullable) = true ];
+  // has_disabled_minimal_protocol_fee defines whether the minimal protocol fee
+  // is disabled for the market
+  DisableMinimalProtocolFeeUpdate has_disabled_minimal_protocol_fee = 20
+      [ (gogoproto.nullable) = true ];
 }
 
 message AdminInfo {
@@ -572,6 +587,10 @@ message BinaryOptionsMarketParamUpdateProposal {
   ];
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 17 [ (gogoproto.nullable) = true ];
+  // has_disabled_minimal_protocol_fee defines whether the minimal protocol fee
+  // is disabled for the market
+  DisableMinimalProtocolFeeUpdate has_disabled_minimal_protocol_fee = 18
+      [ (gogoproto.nullable) = true ];
 }
 
 message ProviderOracleParams {

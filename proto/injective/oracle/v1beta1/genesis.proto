@@ -42,6 +42,9 @@ message GenesisState {
   repeated StorkPriceState stork_price_states = 16;
 
   repeated string stork_publishers = 17;
+
+  repeated ChainlinkDataStreamsPriceState chainlink_data_streams_price_states =
+      18;
 }
 
 message CalldataRecord {

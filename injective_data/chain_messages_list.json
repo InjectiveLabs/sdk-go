@@ -125,6 +125,7 @@
   "injective.ocr.v1beta1.MsgUpdateParams",
   "injective.ocr.v1beta1.MsgWithdrawFeedRewardPool",
   "injective.oracle.v1beta1.MsgRelayBandRates",
+  "injective.oracle.v1beta1.MsgRelayChainlinkPrices",
   "injective.oracle.v1beta1.MsgRelayCoinbaseMessages",
   "injective.oracle.v1beta1.MsgRelayPriceFeedPrice",
   "injective.oracle.v1beta1.MsgRelayProviderPrices",

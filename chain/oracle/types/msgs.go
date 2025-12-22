@@ -24,6 +24,7 @@ const (
 	TypeMsgRelayProviderPrices   = "relayProviderPrices"
 	TypeMsgRelayPythPrices       = "relayPythPrices"
 	TypeMsgRelayStorkPrices      = "relayStorkPrices"
+	TypeMsgRelayChainlinkPrices  = "relayChainlinkPrices"
 	TypeMsgUpdateParams          = "updateParams"
 )
 
@@ -35,6 +36,7 @@ var (
 	_ sdk.Msg = &MsgRelayProviderPrices{}
 	_ sdk.Msg = &MsgRelayPythPrices{}
 	_ sdk.Msg = &MsgRelayStorkPrices{}
+	_ sdk.Msg = &MsgRelayChainlinkPrices{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
@@ -341,7 +343,7 @@ func (msg MsgRelayStorkPrices) ValidateBasic() error {
 		oldestTimestamp := ^uint64(0) // max uint64
 		for i := range assetPair.SignedPrices {
 			p := assetPair.SignedPrices[i]
-			// convert timestamp to nanoseconds to validate conditions	
+			// convert timestamp to nanoseconds to validate conditions
 			timestamp := ConvertTimestampToNanoSecond(p.Timestamp)
 			if timestamp > newestTimestamp {
 				newestTimestamp = timestamp
@@ -399,4 +401,33 @@ func ConvertTimestampToNanoSecond(timestamp uint64) (nanoSeconds uint64) {
 	default:
 		return timestamp * 1_000_000_000
 	}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (msg MsgRelayChainlinkPrices) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (msg MsgRelayChainlinkPrices) Type() string { return TypeMsgRelayChainlinkPrices }
+
+// ValidateBasic implements the sdk.Msg interface for MsgRelayChainlinkPrices.
+func (msg MsgRelayChainlinkPrices) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgRelayChainlinkPrices) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgRelayChainlinkPrices) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
 }

@@ -37,6 +37,8 @@ func GetOracleType(oracleTypeStr string) (OracleType, error) {
 		oracleType = OracleType_Pyth
 	case "stork":
 		oracleType = OracleType_Stork
+	case "chainlinkdatastreams":
+		oracleType = OracleType_ChainlinkDataStreams
 	default:
 		return OracleType_Band, errors.Wrapf(ErrUnsupportedOracleType, "%s", oracleTypeStr)
 	}

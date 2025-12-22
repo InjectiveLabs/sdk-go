@@ -9,6 +9,12 @@ import (
 
 var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
 
+type MarketIDQuoteDenomMakerFee struct {
+	MarketID   common.Hash
+	QuoteDenom string
+	MakerFee   math.LegacyDec
+}
+
 type DerivativeMarketInfo struct {
 	Market    *DerivativeMarket
 	MarkPrice math.LegacyDec
@@ -66,6 +72,10 @@ func (m *SpotMarket) GetMarketStatus() MarketStatus {
 	return m.Status
 }
 
+func (m *SpotMarket) GetDisabledMinimalProtocolFee() bool {
+	return m.HasDisabledMinimalProtocolFee
+}
+
 func (m *SpotMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
 	return types.PriceFromChainFormat(price, m.BaseDecimals, m.QuoteDecimals)
 }
@@ -95,7 +105,8 @@ func (m *ExpiryFuturesMarketInfo) IsPremature(currBlockTime int64) bool {
 }
 
 func (m *ExpiryFuturesMarketInfo) IsStartingMaturation(currBlockTime int64) bool {
-	return currBlockTime >= m.TwapStartTimestamp && (m.ExpirationTwapStartPriceCumulative.IsNil() || m.ExpirationTwapStartPriceCumulative.IsZero())
+	return currBlockTime >= m.TwapStartTimestamp &&
+		(m.ExpirationTwapStartBaseCumulativePrice.IsNil() || m.ExpirationTwapStartBaseCumulativePrice.IsZero())
 }
 
 func (m *ExpiryFuturesMarketInfo) IsMatured(currBlockTime int64) bool {
@@ -179,6 +190,10 @@ func (m *DerivativeMarket) GetOracleScaleFactor() uint32 {
 
 func (m *DerivativeMarket) GetMarketStatus() MarketStatus {
 	return m.Status
+}
+
+func (m *DerivativeMarket) GetDisabledMinimalProtocolFee() bool {
+	return m.HasDisabledMinimalProtocolFee
 }
 
 func (m *DerivativeMarket) GetQuoteDecimals() uint32 {
@@ -286,6 +301,10 @@ func (m *BinaryOptionsMarket) GetMarketStatus() MarketStatus {
 	return m.Status
 }
 
+func (m *BinaryOptionsMarket) GetDisabledMinimalProtocolFee() bool {
+	return m.HasDisabledMinimalProtocolFee
+}
+
 func (m *BinaryOptionsMarket) GetQuoteDecimals() uint32 {
 	return m.QuoteDecimals
 }
@@ -316,4 +335,60 @@ func (m *BinaryOptionsMarket) QuantityToChainFormat(humanReadableValue math.Lega
 
 func (m *BinaryOptionsMarket) NotionalToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec {
 	return types.NotionalToChainFormat(humanReadableValue, m.QuoteDecimals)
+}
+
+type MarketI interface {
+	MarketID() common.Hash
+	GetMarketType() types.MarketType
+	GetMinPriceTickSize() math.LegacyDec
+	GetMinQuantityTickSize() math.LegacyDec
+	GetMinNotional() math.LegacyDec
+	GetTicker() string
+	GetMakerFeeRate() math.LegacyDec
+	GetTakerFeeRate() math.LegacyDec
+	GetRelayerFeeShareRate() math.LegacyDec
+	GetQuoteDenom() string
+	StatusSupportsOrderCancellations() bool
+	GetDisabledMinimalProtocolFee() bool
+	GetMarketStatus() MarketStatus
+	PriceFromChainFormat(price math.LegacyDec) math.LegacyDec
+	QuantityFromChainFormat(quantity math.LegacyDec) math.LegacyDec
+	NotionalFromChainFormat(notional math.LegacyDec) math.LegacyDec
+	PriceToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec
+	QuantityToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec
+	NotionalToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec
+}
+
+type DerivativeMarketI interface {
+	MarketI
+	GetIsPerpetual() bool
+	GetInitialMarginRatio() math.LegacyDec
+	GetOracleScaleFactor() uint32
+	GetQuoteDecimals() uint32
+	GetOpenNotionalCap() OpenNotionalCap
+}
+
+func IsMarketSolvent(availableMarketFunds, marketBalanceDelta math.LegacyDec) bool {
+	return availableMarketFunds.Add(marketBalanceDelta).GTE(math.LegacyZeroDec())
+}
+
+// nolint // ok
+func GetMarketBalanceDelta(
+	payout,
+	collateralizationMargin,
+	tradeFee math.LegacyDec,
+	isReduceOnly bool,
+) math.LegacyDec {
+	if payout.IsNegative() {
+		// if payout is negative, don't just add these to the market balance,
+		// instead try to adjust market balance later when insurance fund is tapped
+		payout = math.LegacyZeroDec()
+	}
+
+	if isReduceOnly {
+		// trade fee is removed from payout for RO, but still should be removed from market balance
+		payout = payout.Add(tradeFee)
+	}
+
+	return collateralizationMargin.Sub(payout)
 }

@@ -67,8 +67,8 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapp
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.48.1/go.mod h1:viRWSEhtMZqz1rhwmOVKkWl6SwmVowfL9O2YR5gI2PE=
 github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1 h1:ZnvCV/lzjWmBwuGbkAz+okucfJEyEzkU9GYK3tKU9cU=
 github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1/go.mod h1:QELTDYiwnbAqIgTF9zeKr+hVlK6eVyt6Nxmh6/1mmzQ=
-github.com/InjectiveLabs/cometbft v1.0.1-inj.4 h1:xBu434PJvUZI7fHP8wUs+fRlfqI+flpYbvI5mlE3W6s=
-github.com/InjectiveLabs/cometbft v1.0.1-inj.4/go.mod h1:RgHHndb7wdtm9etmVj4tDn1NynC9YKIEJW9UUI3FCn4=
+github.com/InjectiveLabs/cometbft v1.0.1-inj.3 h1:wVl4vPhyTh6uuwT0BfH3pbF9W0QqEnZYRgB/2IDFXR0=
+github.com/InjectiveLabs/cometbft v1.0.1-inj.3/go.mod h1:RgHHndb7wdtm9etmVj4tDn1NynC9YKIEJW9UUI3FCn4=
 github.com/InjectiveLabs/cometbft/api v1.0.0-inj.2 h1:uXsmBVeBickTjZ2GqPNYXShoboRw1m2Cq1bKv4QCe0o=
 github.com/InjectiveLabs/cometbft/api v1.0.0-inj.2/go.mod h1:Ivh6nSCTJPQOyfQo8dgnyu/T88it092sEqSrZSmTQN8=
 github.com/InjectiveLabs/cosmos-sdk v0.50.14-inj h1:8ggLVXSVF6hz8VFB5ly1l9os4G4roqSsIzsGtH/8W70=

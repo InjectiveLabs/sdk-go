@@ -13,6 +13,9 @@ message Params {
   option (gogoproto.equal) = true;
 
   string pyth_contract = 1;
+  string chainlink_verifier_proxy_contract = 2;
+  bool accept_unverified_chainlink_data_streams_reports = 3;
+  uint64 chainlink_data_streams_verification_gas_limit = 4;
 }
 
 enum OracleType {
@@ -29,6 +32,7 @@ enum OracleType {
   BandIBC = 10;
   Provider = 11;
   Stork = 12;
+  ChainlinkDataStreams = 13;
 }
 
 message OracleInfo {
@@ -148,6 +152,14 @@ message PythPriceState {
   ];
   uint64 publish_time = 5;
   PriceState price_state = 6 [ (gogoproto.nullable) = false ];
+}
+
+message ChainlinkDataStreamsPriceState {
+  string feed_id = 1;
+  bytes full_report = 2;
+  uint64 valid_from_timestamp = 3;
+  uint64 observations_timestamp = 4;
+  PriceState price_state = 5 [ (gogoproto.nullable) = false ];
 }
 
 message BandOracleRequest {
@@ -296,4 +308,11 @@ message SignedPriceOfAssetPair {
     (gogoproto.nullable) = false
   ];
   bytes signature = 4;
+}
+
+message ChainlinkReport {
+  bytes feed_id = 1;
+  bytes full_report = 2;
+  uint64 valid_from_timestamp = 3;
+  uint64 observations_timestamp = 4;
 }
