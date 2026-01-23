@@ -5,13 +5,13 @@ import (
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 // constants
@@ -677,8 +677,8 @@ func (p *OracleParams) ValidateBasic() error {
 		return ErrSameOracles
 	}
 	switch p.OracleType {
-	case oracletypes.OracleType_Band, oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor,
-		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC, oracletypes.OracleType_Provider,
+	case oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor,
+		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_Provider,
 		oracletypes.OracleType_Stork, oracletypes.OracleType_ChainlinkDataStreams:
 
 	default:

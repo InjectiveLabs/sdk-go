@@ -76,7 +76,7 @@ service Query {
         "/injective/oracle/v1beta1/provider_price_state/{provider}/{symbol}";
   }
 
-  // Retrieves the state for all Chainlink Data Streamsprice feeds
+  // Retrieves the state for all Chainlink Data Streams price feeds
   rpc ChainlinkDataStreamsPriceStates(
       QueryChainlinkDataStreamsPriceStatesRequest)
       returns (QueryChainlinkDataStreamsPriceStatesResponse) {

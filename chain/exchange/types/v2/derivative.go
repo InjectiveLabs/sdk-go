@@ -862,6 +862,29 @@ func (p *DerivativeVwapInfo) ComputeSyntheticVwapUnitDelta(marketID common.Hash)
 	return vwapInfo.VwapData.Price.Sub(*vwapInfo.MarkPrice).Quo(*vwapInfo.MarkPrice)
 }
 
+// MergeAtomicPerpetualVwap merges accumulated atomic order VWAP data into this DerivativeVwapInfo.
+func (p *DerivativeVwapInfo) MergeAtomicPerpetualVwap(atomicVwapData map[common.Hash]*VwapInfo) {
+	for marketID, atomicInfo := range atomicVwapData {
+		if atomicInfo == nil || atomicInfo.MarkPrice == nil || atomicInfo.VwapData == nil {
+			continue
+		}
+
+		if atomicInfo.VwapData.Quantity.IsZero() {
+			continue
+		}
+
+		existingInfo := p.PerpetualVwapInfo[marketID]
+		if existingInfo == nil {
+			// No existing VWAP for this market, just use the atomic data
+			p.PerpetualVwapInfo[marketID] = atomicInfo
+			continue
+		}
+
+		// Merge the VWAP data: newVwap = (existingPrice * existingQty + atomicPrice * atomicQty) / (existingQty + atomicQty)
+		existingInfo.VwapData = existingInfo.VwapData.ApplyExecution(atomicInfo.VwapData.Price, atomicInfo.VwapData.Quantity)
+	}
+}
+
 type PositionState struct {
 	Position *Position
 }

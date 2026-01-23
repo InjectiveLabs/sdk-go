@@ -68,6 +68,8 @@ var (
 	_ sdk.Msg = &MsgTradingRewardPendingPointsUpdate{}
 	_ sdk.Msg = &MsgFeeDiscount{}
 	_ sdk.Msg = &MsgAtomicMarketOrderFeeMultiplierSchedule{}
+	_ sdk.Msg = &MsgCancelPostOnlyMode{}
+	_ sdk.Msg = &MsgActivatePostOnlyMode{}
 )
 
 // exchange message types
@@ -124,6 +126,8 @@ const (
 	TypeMsgTradingRewardPendingPointsUpdate       = "tradingRewardPendingPointsUpdate"
 	TypeMsgFeeDiscount                            = "feeDiscount"
 	TypeMsgAtomicMarketOrderFeeMultiplierSchedule = "atomicMarketOrderFeeMultiplierSchedule"
+	TypeMsgCancelPostOnlyMode                     = "cancelPostOnlyMode"
+	TypeMsgActivatePostOnlyMode                   = "activatePostOnlyMode"
 )
 
 func (MsgUpdateParams) Route() string { return RouterKey }
@@ -2749,4 +2753,56 @@ func ValidateBinaryOptionsMarketOrder(order *DerivativeOrder, senderAddr sdk.Acc
 	}
 
 	return order.ValidateBasic(senderAddr, true)
+}
+
+func (*MsgCancelPostOnlyMode) Route() string { return RouterKey }
+
+func (*MsgCancelPostOnlyMode) Type() string { return TypeMsgCancelPostOnlyMode }
+
+func (msg *MsgCancelPostOnlyMode) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	return nil
+}
+
+func (msg *MsgCancelPostOnlyMode) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgCancelPostOnlyMode) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (*MsgActivatePostOnlyMode) Route() string { return RouterKey }
+
+func (*MsgActivatePostOnlyMode) Type() string { return TypeMsgActivatePostOnlyMode }
+
+func (msg *MsgActivatePostOnlyMode) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if msg.BlocksAmount == 0 {
+		return errors.Wrap(types.ErrInvalidArgument, "blocks_amount must be greater than 0")
+	}
+
+	return nil
+}
+
+func (msg *MsgActivatePostOnlyMode) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgActivatePostOnlyMode) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
 }

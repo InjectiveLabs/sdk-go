@@ -13,6 +13,19 @@ enum MarketStatus {
   Paused = 2;
   Demolished = 3;
   Expired = 4;
+  ForcePaused = 5;
+}
+
+enum ForcePausedReason {
+  QuoteDenomPaused = 0;
+}
+
+message ForcePausedInfo {
+  ForcePausedReason reason = 1;
+  string mark_price_at_pausing = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message OpenNotionalCap {
@@ -188,6 +201,10 @@ message BinaryOptionsMarket {
   // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
   // fee is disabled for the market
   bool has_disabled_minimal_protocol_fee = 22;
+
+  // force_paused_info defines additional info for force paused markets, only
+  // set when status == ForcePaused
+  ForcePausedInfo force_paused_info = 23;
 }
 
 // An object describing a derivative market in the Injective Futures Protocol.
@@ -279,6 +296,10 @@ message DerivativeMarket {
   // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
   // fee is disabled for the market
   bool has_disabled_minimal_protocol_fee = 23;
+
+  // force_paused_info defines additional info for force paused markets, only
+  // set when status == ForcePaused
+  ForcePausedInfo force_paused_info = 24;
 }
 
 message DerivativeMarketSettlementInfo {

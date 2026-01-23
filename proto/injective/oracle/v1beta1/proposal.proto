@@ -9,30 +9,6 @@ import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
-message GrantBandOraclePrivilegeProposal {
-  option (amino.name) = "oracle/GrantBandOraclePrivilegeProposal";
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-
-  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-
-  string title = 1;
-  string description = 2;
-  repeated string relayers = 3;
-}
-
-message RevokeBandOraclePrivilegeProposal {
-  option (amino.name) = "oracle/RevokeBandOraclePrivilegeProposal";
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-
-  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-
-  string title = 1;
-  string description = 2;
-  repeated string relayers = 3;
-}
-
 message GrantPriceFeederPrivilegeProposal {
   option (amino.name) = "oracle/GrantPriceFeederPrivilegeProposal";
   option (gogoproto.equal) = false;
@@ -85,44 +61,6 @@ message RevokePriceFeederPrivilegeProposal {
   string base = 3;
   string quote = 4;
   repeated string relayers = 5;
-}
-
-message AuthorizeBandOracleRequestProposal {
-  option (amino.name) = "oracle/AuthorizeBandOracleRequestProposal";
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-
-  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-
-  string title = 1;
-  string description = 2;
-  BandOracleRequest request = 3 [ (gogoproto.nullable) = false ];
-}
-
-message UpdateBandOracleRequestProposal {
-  option (amino.name) = "oracle/UpdateBandOracleRequestProposal";
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-
-  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-
-  string title = 1;
-  string description = 2;
-  repeated uint64 delete_request_ids = 3;
-  BandOracleRequest update_oracle_request = 4;
-}
-
-message EnableBandIBCProposal {
-  option (amino.name) = "oracle/EnableBandIBCProposal";
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-
-  option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
-
-  string title = 1;
-  string description = 2;
-
-  BandIBCParams band_ibc_params = 3 [ (gogoproto.nullable) = false ];
 }
 
 message GrantStorkPublisherPrivilegeProposal {

@@ -2029,7 +2029,7 @@ type QueryClient interface {
 	StorkPublishers(ctx context.Context, in *QueryStorkPublishersRequest, opts ...grpc.CallOption) (*QueryStorkPublishersResponse, error)
 	// Retrieves the state for all provider price feeds
 	ProviderPriceState(ctx context.Context, in *QueryProviderPriceStateRequest, opts ...grpc.CallOption) (*QueryProviderPriceStateResponse, error)
-	// Retrieves the state for all Chainlink Data Streamsprice feeds
+	// Retrieves the state for all Chainlink Data Streams price feeds
 	ChainlinkDataStreamsPriceStates(ctx context.Context, in *QueryChainlinkDataStreamsPriceStatesRequest, opts ...grpc.CallOption) (*QueryChainlinkDataStreamsPriceStatesResponse, error)
 	// Retrieves the entire oracle module's state
 	OracleModuleState(ctx context.Context, in *QueryModuleStateRequest, opts ...grpc.CallOption) (*QueryModuleStateResponse, error)
@@ -2235,7 +2235,7 @@ type QueryServer interface {
 	StorkPublishers(context.Context, *QueryStorkPublishersRequest) (*QueryStorkPublishersResponse, error)
 	// Retrieves the state for all provider price feeds
 	ProviderPriceState(context.Context, *QueryProviderPriceStateRequest) (*QueryProviderPriceStateResponse, error)
-	// Retrieves the state for all Chainlink Data Streamsprice feeds
+	// Retrieves the state for all Chainlink Data Streams price feeds
 	ChainlinkDataStreamsPriceStates(context.Context, *QueryChainlinkDataStreamsPriceStatesRequest) (*QueryChainlinkDataStreamsPriceStatesResponse, error)
 	// Retrieves the entire oracle module's state
 	OracleModuleState(context.Context, *QueryModuleStateRequest) (*QueryModuleStateResponse, error)

@@ -184,6 +184,9 @@ message MsgEthereumTxResponse {
   uint64 gas_used = 5;
   // include the block hash for json-rpc to use
   bytes block_hash = 6;
+  // execution_gas_used specifies the actual gas consumed during EVM execution.
+  // This is used for accurate gas estimation.
+  uint64 execution_gas_used = 7;
 }
 
 // MsgUpdateParams defines a Msg for updating the x/evm module parameters.

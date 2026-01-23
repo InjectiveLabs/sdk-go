@@ -114,7 +114,7 @@ func validatePythContract(i interface{}) error {
 }
 
 // ValidateChainlinkVerifierProxyContract validates the Chainlink verifier proxy contract address.
-func ValidateChainlinkVerifierProxyContract(i interface{}) error {
+func ValidateChainlinkVerifierProxyContract(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

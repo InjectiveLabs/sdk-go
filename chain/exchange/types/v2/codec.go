@@ -75,6 +75,24 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgUpdateDerivativeMarket{}, "exchange/v2/MsgUpdateDerivativeMarket", nil)
 	cdc.RegisterConcrete(&MsgAuthorizeStakeGrants{}, "exchange/v2/MsgAuthorizeStakeGrants", nil)
 	cdc.RegisterConcrete(&MsgActivateStakeGrant{}, "exchange/v2/MsgActivateStakeGrant", nil)
+	cdc.RegisterConcrete(&MsgCancelPostOnlyMode{}, "exchange/v2/MsgCancelPostOnlyMode", nil)
+	cdc.RegisterConcrete(&MsgActivatePostOnlyMode{}, "exchange/v2/MsgActivatePostOnlyMode", nil)
+	cdc.RegisterConcrete(&MsgBatchExchangeModification{}, "exchange/v2/MsgBatchExchangeModification", nil)
+	cdc.RegisterConcrete(&MsgSpotMarketLaunch{}, "exchange/v2/MsgSpotMarketLaunch", nil)
+	cdc.RegisterConcrete(&MsgPerpetualMarketLaunch{}, "exchange/v2/MsgPerpetualMarketLaunch", nil)
+	cdc.RegisterConcrete(&MsgExpiryFuturesMarketLaunch{}, "exchange/v2/MsgExpiryFuturesMarketLaunch", nil)
+	cdc.RegisterConcrete(&MsgBinaryOptionsMarketLaunch{}, "exchange/v2/MsgBinaryOptionsMarketLaunch", nil)
+	cdc.RegisterConcrete(&MsgBatchCommunityPoolSpend{}, "exchange/v2/MsgBatchCommunityPoolSpend", nil)
+	cdc.RegisterConcrete(&MsgSpotMarketParamUpdate{}, "exchange/v2/MsgSpotMarketParamUpdate", nil)
+	cdc.RegisterConcrete(&MsgDerivativeMarketParamUpdate{}, "exchange/v2/MsgDerivativeMarketParamUpdate", nil)
+	cdc.RegisterConcrete(&MsgBinaryOptionsMarketParamUpdate{}, "exchange/v2/MsgBinaryOptionsMarketParamUpdate", nil)
+	cdc.RegisterConcrete(&MsgMarketForcedSettlement{}, "exchange/v2/MsgMarketForcedSettlement", nil)
+	cdc.RegisterConcrete(&MsgTradingRewardCampaignLaunch{}, "exchange/v2/MsgTradingRewardCampaignLaunch", nil)
+	cdc.RegisterConcrete(&MsgExchangeEnable{}, "exchange/v2/MsgExchangeEnable", nil)
+	cdc.RegisterConcrete(&MsgTradingRewardCampaignUpdate{}, "exchange/v2/MsgTradingRewardCampaignUpdate", nil)
+	cdc.RegisterConcrete(&MsgTradingRewardPendingPointsUpdate{}, "exchange/v2/MsgTradingRewardPendingPointsUpdate", nil)
+	cdc.RegisterConcrete(&MsgFeeDiscount{}, "exchange/v2/MsgFeeDiscount", nil)
+	cdc.RegisterConcrete(&MsgAtomicMarketOrderFeeMultiplierSchedule{}, "exchange/v2/MsgAtomicMarketOrderFeeMultiplierSchedule", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/v2/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/v2/BatchExchangeModificationProposal", nil)
@@ -101,6 +119,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 		"exchange/v2/AtomicMarketOrderFeeMultiplierScheduleProposal",
 		nil,
 	)
+	cdc.RegisterConcrete(&MsgReclaimLockedFunds{}, "exchange/v2/MsgReclaimLockedFunds", nil)
 	cdc.RegisterConcrete(&DenomMinNotionalProposal{}, "exchange/v2/DenomMinNotionalProposal", nil)
 
 	cdc.RegisterConcrete(&CreateSpotLimitOrderAuthz{}, "exchange/v2/CreateSpotLimitOrderAuthz", nil)
@@ -165,6 +184,9 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUpdateDerivativeMarket{},
 		&MsgAuthorizeStakeGrants{},
 		&MsgActivateStakeGrant{},
+		&MsgCancelPostOnlyMode{},
+		&MsgActivatePostOnlyMode{},
+		&MsgReclaimLockedFunds{},
 	)
 
 	registry.RegisterImplementations(

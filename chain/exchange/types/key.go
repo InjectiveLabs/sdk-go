@@ -124,6 +124,8 @@ var (
 	OrderExpirationsPrefix       = []byte{0x85} // prefix to store order expirations
 	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
 	PostOnlyModeCancellationKey  = []byte{0x87} // key to mark post-only mode cancellation for next BeginBlock
+
+	TransientAtomicPerpetualVwapPrefix = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
@@ -589,4 +591,9 @@ func GetOrderExpirationMarketPrefix(blockNumber int64) []byte {
 	buf = append(buf, blockNumberBz...)
 
 	return buf
+}
+
+// GetTransientAtomicPerpetualVwapKey returns the transient store key for atomic perpetual VWAP data for a market
+func GetTransientAtomicPerpetualVwapKey(marketID common.Hash) []byte {
+	return append(TransientAtomicPerpetualVwapPrefix, marketID.Bytes()...)
 }

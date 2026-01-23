@@ -14,4 +14,7 @@ message Params {
   option (amino.name) = "permissions/Params";
   // Max amount of gas allowed for contract hook queries
   uint64 contract_hook_max_gas = 1;
+
+  // EVM addresses of contracts that will not bypass module-to-module transfers
+  repeated string enforced_restrictions_contracts = 2;
 }

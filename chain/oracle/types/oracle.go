@@ -23,10 +23,6 @@ func GetOracleType(oracleTypeStr string) (OracleType, error) {
 	var oracleType OracleType
 
 	switch oracleTypeStr {
-	case "band":
-		oracleType = OracleType_Band
-	case "bandibc":
-		oracleType = OracleType_BandIBC
 	case "pricefeed":
 		oracleType = OracleType_PriceFeed
 	case "coinbase":
@@ -40,7 +36,7 @@ func GetOracleType(oracleTypeStr string) (OracleType, error) {
 	case "chainlinkdatastreams":
 		oracleType = OracleType_ChainlinkDataStreams
 	default:
-		return OracleType_Band, errors.Wrapf(ErrUnsupportedOracleType, "%s", oracleTypeStr)
+		return OracleType_Unspecified, errors.Wrapf(ErrUnsupportedOracleType, "%s", oracleTypeStr)
 	}
 	return oracleType, nil
 }
