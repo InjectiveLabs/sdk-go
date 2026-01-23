@@ -71,6 +71,7 @@ var (
 	ErrReadOnly       = errors.New("client is in read-only mode")
 )
 
+// Deprecated: ChainClient is deprecated. Use ChainClientV2 instead.
 type ChainClient interface {
 	CanSignTransactions() bool
 	FromAddress() sdk.AccAddress
@@ -333,6 +334,7 @@ type ChainClient interface {
 
 var _ ChainClient = &chainClient{}
 
+// Deprecated: chainClient is deprecated. Use ChainClientV2 instead.
 type chainClient struct {
 	ctx             sdkclient.Context
 	network         common.Network
@@ -380,6 +382,7 @@ type chainClient struct {
 	canSign bool
 }
 
+// Deprecated: NewChainClient is deprecated. Use NewChainClientV2 instead.
 func NewChainClient(
 	ctx sdkclient.Context,
 	network common.Network,

@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 var _ paramtypes.ParamSet = &Params{}
@@ -51,7 +52,10 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		PythContract: "",
+		PythContract:                                "",
+		ChainlinkVerifierProxyContract:              "",
+		AcceptUnverifiedChainlinkDataStreamsReports: true,
+		ChainlinkDataStreamsVerificationGasLimit:    500_000,
 	}
 }
 
@@ -65,8 +69,14 @@ func DefaultBandIBCParams() BandIBCParams {
 	}
 }
 
-// Validate performs basic validation on auction parameters.
+// Validate performs basic validation on oracle parameters.
 func (p Params) Validate() error {
+	if err := validatePythContract(p.PythContract); err != nil {
+		return fmt.Errorf("pyth_contract is incorrect: %w", err)
+	}
+	if err := ValidateChainlinkVerifierProxyContract(p.ChainlinkVerifierProxyContract); err != nil {
+		return fmt.Errorf("chainlink_verifier_proxy_contract is incorrect: %w", err)
+	}
 	return nil
 }
 
@@ -98,6 +108,24 @@ func validatePythContract(i interface{}) error {
 	_, err := sdk.AccAddressFromBech32(v)
 	if err != nil {
 		return fmt.Errorf("invalid PythContract value: %v", v)
+	}
+
+	return nil
+}
+
+// ValidateChainlinkVerifierProxyContract validates the Chainlink verifier proxy contract address.
+func ValidateChainlinkVerifierProxyContract(i any) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == "" {
+		return nil
+	}
+
+	if !common.IsHexAddress(v) {
+		return fmt.Errorf("invalid Ethereum address: %s", v)
 	}
 
 	return nil

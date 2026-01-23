@@ -2,11 +2,9 @@ package types
 
 import (
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"math/big"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/gogoproto/proto"
 
 	errorsmod "cosmossdk.io/errors"
@@ -86,64 +84,20 @@ func logsFromTxResponse(dst []*ethtypes.Log, rsp *MsgEthereumTxResponse, blockNu
 	return dst
 }
 
-// DecodeMsgLogsFromEvents decodes a protobuf-encoded byte slice into ethereum logs, for a single message.
-func DecodeMsgLogsFromEvents(in []byte, events []abci.Event, msgIndex int, blockNumber uint64) ([]*ethtypes.Log, error) {
+// DecodeMsgLogs decodes a protobuf-encoded byte slice into ethereum logs, for a single message.
+func DecodeMsgLogs(in []byte, msgIndex int, blockNumber uint64) ([]*ethtypes.Log, error) {
 	txResponses, err := DecodeTxResponses(in)
 	if err != nil {
 		return nil, err
 	}
-
-	var logs []*ethtypes.Log
-	if msgIndex < len(txResponses) {
-		logs = logsFromTxResponse(nil, txResponses[msgIndex], blockNumber)
+	if msgIndex >= len(txResponses) {
+		return nil, fmt.Errorf("invalid message index: %d", msgIndex)
 	}
-
-	if len(logs) == 0 {
-		logs, err = TxLogsFromEvents(events, msgIndex)
-	}
-
-	return logs, err
+	return logsFromTxResponse(nil, txResponses[msgIndex], blockNumber), nil
 }
 
-// TxLogsFromEvents parses ethereum logs from cosmos events for specific msg index
-func TxLogsFromEvents(events []abci.Event, msgIndex int) ([]*ethtypes.Log, error) {
-	for _, event := range events {
-		if event.Type != EventTypeTxLog {
-			continue
-		}
-
-		if msgIndex > 0 {
-			// not the eth tx we want
-			msgIndex--
-			continue
-		}
-
-		return ParseTxLogsFromEvent(event)
-	}
-
-	return []*ethtypes.Log{}, nil
-}
-
-// ParseTxLogsFromEvent parse tx logs from one event
-func ParseTxLogsFromEvent(event abci.Event) ([]*ethtypes.Log, error) {
-	logs := make([]*Log, 0, len(event.Attributes))
-	for _, attr := range event.Attributes {
-		if attr.Key != AttributeKeyTxLog {
-			continue
-		}
-
-		var log Log
-		if err := json.Unmarshal([]byte(attr.Value), &log); err != nil {
-			return nil, err
-		}
-
-		logs = append(logs, &log)
-	}
-	return LogsToEthereum(logs), nil
-}
-
-// DecodeTxLogsFromEvents decodes a protobuf-encoded byte slice into ethereum logs
-func DecodeTxLogsFromEvents(in []byte, events []abci.Event, blockNumber uint64) ([]*ethtypes.Log, error) {
+// DecodeTxLogs decodes a protobuf-encoded byte slice into ethereum logs
+func DecodeTxLogs(in []byte, blockNumber uint64) ([]*ethtypes.Log, error) {
 	txResponses, err := DecodeTxResponses(in)
 	if err != nil {
 		return nil, err
@@ -151,18 +105,6 @@ func DecodeTxLogsFromEvents(in []byte, events []abci.Event, blockNumber uint64) 
 	var logs []*ethtypes.Log
 	for _, response := range txResponses {
 		logs = logsFromTxResponse(logs, response, blockNumber)
-	}
-	if len(logs) == 0 {
-		for _, event := range events {
-			if event.Type != EventTypeTxLog {
-				continue
-			}
-			txLogs, err := ParseTxLogsFromEvent(event)
-			if err != nil {
-				return nil, err
-			}
-			logs = append(logs, txLogs...)
-		}
 	}
 	return logs, nil
 }

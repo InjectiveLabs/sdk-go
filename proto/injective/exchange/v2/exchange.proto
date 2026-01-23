@@ -20,6 +20,7 @@ enum ExecutionType {
   MarketLiquidation = 5;
   ExpiryMarketSettlement = 6;
   OffsettingPosition = 7;
+  Synthetic = 8;
 }
 
 message Params {
@@ -208,6 +209,10 @@ message Params {
   // mode will be enabled after the downtime-detector module detects a chain
   // downtime
   uint64 post_only_mode_blocks_amount_after_downtime = 35;
+
+  // addresses of EVM smart contracts that exchange will be listening to to
+  // pause markets denominated in respective erc20: denoms
+  repeated string enforced_restrictions_contracts = 36;
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }

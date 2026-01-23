@@ -20,4 +20,6 @@ var (
 	ErrInvalidEthSender        = errors.Register(ModuleName, 13, "invalid ethereum sender on claim")
 	ErrInvalidEthDestination   = errors.Register(ModuleName, 14, "invalid ethereum destination")
 	ErrNoLastClaimForValidator = errors.Register(ModuleName, 15, "missing previous claim for validator")
+	ErrDuplicateEthAddress     = errors.Register(ModuleName, 16, "eth address already in use")
+	ErrUnbondedValidator       = errors.Register(ModuleName, 17, "validator is unbonded")
 )

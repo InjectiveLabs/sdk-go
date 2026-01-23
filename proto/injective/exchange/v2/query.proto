@@ -262,14 +262,14 @@ service Query {
   rpc PositionsInMarket(QueryPositionsInMarketRequest)
       returns (QueryPositionsInMarketResponse) {
     option (google.api.http).get =
-        "/injective/exchange/v2/positions/{market_id}";
+        "/injective/exchange/v2/positions_in_market/{market_id}";
   }
 
   // Retrieves subaccount's positions
   rpc SubaccountPositions(QuerySubaccountPositionsRequest)
       returns (QuerySubaccountPositionsResponse) {
     option (google.api.http).get =
-        "/injective/exchange/v2/positions/{subaccount_id}";
+        "/injective/exchange/v2/subaccount_positions/{subaccount_id}";
   }
 
   // Retrieves subaccount's position in market

@@ -48,4 +48,5 @@ var (
 	ErrEmptyStorkSender            = errors.Register(ModuleName, 41, "sender stork is empty")
 	ErrInvalidStorkSignature       = errors.Register(ModuleName, 42, "invalid stork signature")
 	ErrStorkAssetIdNotUnique       = errors.Register(ModuleName, 43, "stork asset id not unique")
+	ErrChainlinkVerificationFailed = errors.Register(ModuleName, 44, "chainlink report verification failed")
 )

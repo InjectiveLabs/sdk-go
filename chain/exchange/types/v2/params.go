@@ -7,6 +7,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	ethcommon "github.com/ethereum/go-ethereum/common"
 
 	downtimetypes "github.com/InjectiveLabs/sdk-go/chain/downtime-detector/types"
 	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -268,6 +269,10 @@ func (p Params) Validate() error {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
 	}
 
+	if err := ValidateEVMAddresses(p.EnforcedRestrictionsContracts); err != nil {
+		return fmt.Errorf("enforced_restrictions_contracts are invalid: %w", err)
+	}
+
 	return nil
 }
 
@@ -346,6 +351,16 @@ func ValidateOpenNotionalCap(i any) error {
 		}
 		if v.GetCapped().Value.IsNegative() {
 			return fmt.Errorf("cap value cannot be negative: %s", v)
+		}
+	}
+
+	return nil
+}
+
+func ValidateEVMAddresses(addresses []string) error {
+	for _, addr := range addresses {
+		if !ethcommon.IsHexAddress(addr) {
+			return fmt.Errorf("address is not in EVM format: %s", addr)
 		}
 	}
 

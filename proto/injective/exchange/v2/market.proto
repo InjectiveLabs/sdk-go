@@ -2,8 +2,8 @@ syntax = "proto3";
 package injective.exchange.v2;
 
 import "gogoproto/gogo.proto";
-import "injective/oracle/v1beta1/oracle.proto";
 import "amino/amino.proto";
+import "injective/oracle/v1beta1/oracle.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
 
@@ -13,14 +13,30 @@ enum MarketStatus {
   Paused = 2;
   Demolished = 3;
   Expired = 4;
+  ForcePaused = 5;
+}
+
+enum ForcePausedReason {
+  QuoteDenomPaused = 0;
+}
+
+message ForcePausedInfo {
+  ForcePausedReason reason = 1;
+  string mark_price_at_pausing = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message OpenNotionalCap {
   option (amino.name) = "injective.exchange.v2.OpenNotionalCap";
 
   oneof cap {
-    OpenNotionalCapUncapped uncapped = 1 [(amino.oneof_name) = "uncapped"];
-    OpenNotionalCapCapped  capped   = 2 [(amino.oneof_name) = "capped"];
+    OpenNotionalCapUncapped uncapped = 1
+        [ (amino.oneof_name) =
+              "injective.exchange.v2.OpenNotionalCapUncapped" ];
+    OpenNotionalCapCapped capped = 2
+        [ (amino.oneof_name) = "injective.exchange.v2.OpenNotionalCapCapped" ];
   }
 }
 
@@ -103,6 +119,9 @@ message SpotMarket {
   uint32 base_decimals = 14;
   // quote token decimals
   uint32 quote_decimals = 15;
+  // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
+  // fee is disabled for the market
+  bool has_disabled_minimal_protocol_fee = 16;
 }
 
 // An object describing a binary options market in Injective Protocol.
@@ -178,6 +197,14 @@ message BinaryOptionsMarket {
 
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 21 [ (gogoproto.nullable) = false ];
+
+  // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
+  // fee is disabled for the market
+  bool has_disabled_minimal_protocol_fee = 22;
+
+  // force_paused_info defines additional info for force paused markets, only
+  // set when status == ForcePaused
+  ForcePausedInfo force_paused_info = 23;
 }
 
 // An object describing a derivative market in the Injective Futures Protocol.
@@ -265,6 +292,14 @@ message DerivativeMarket {
 
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 22 [ (gogoproto.nullable) = false ];
+
+  // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
+  // fee is disabled for the market
+  bool has_disabled_minimal_protocol_fee = 23;
+
+  // force_paused_info defines additional info for force paused markets, only
+  // set when status == ForcePaused
+  ForcePausedInfo force_paused_info = 24;
 }
 
 message DerivativeMarketSettlementInfo {
@@ -318,13 +353,33 @@ message ExpiryFuturesMarketInfo {
   int64 twap_start_timestamp = 3;
   // expiration_twap_start_price_cumulative defines the cumulative price for the
   // start of the TWAP window (in human readable format)
+  // Deprecated: For correctly calculating the expiration price using TWAP, we
+  // need to keep the cumulative price at the start of TWAP calculation
+  // separately for the base asset and the quote asset. Use
+  // expiration_twap_start_base_cumulative_price and
+  // expiration_twap_start_quote_cumulative_price instead.
   string expiration_twap_start_price_cumulative = 4 [
+    deprecated = true,
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
   // settlement_price defines the settlement price for a time expiry futures
   // market (in human readable format)
   string settlement_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // expiration_twap_start_base_cumulative_price defines the cumulative price
+  // for the base asset at the start of the TWAP calculation window (in human
+  // readable format)
+  string expiration_twap_start_base_cumulative_price = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // expiration_twap_start_quote_cumulative_price defines the cumulative price
+  // for the quote asset at the start of the TWAP calculation window (in human
+  // readable format)
+  string expiration_twap_start_quote_cumulative_price = 7 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];

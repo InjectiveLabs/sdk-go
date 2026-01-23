@@ -5,13 +5,13 @@ import (
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/types"
 )
 
 // constants
@@ -288,13 +288,8 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 	}
 
 	if p.AdminInfo != nil {
-		if p.AdminInfo.Admin != "" {
-			if _, err := sdk.AccAddressFromBech32(p.AdminInfo.Admin); err != nil {
-				return errors.Wrap(ErrInvalidAddress, err.Error())
-			}
-		}
-		if p.AdminInfo.AdminPermissions > MaxPerm {
-			return ErrInvalidPermissions
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
 		}
 	}
 
@@ -430,6 +425,12 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidDenomDecimal, "quote decimals is invalid")
 	}
 
+	if p.AdminInfo != nil {
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+
 	return govtypes.ValidateAbstract(p)
 }
 
@@ -532,13 +533,8 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	}
 
 	if p.AdminInfo != nil {
-		if p.AdminInfo.Admin != "" {
-			if _, err := sdk.AccAddressFromBech32(p.AdminInfo.Admin); err != nil {
-				return errors.Wrap(ErrInvalidAddress, err.Error())
-			}
-		}
-		if p.AdminInfo.AdminPermissions > MaxPerm {
-			return ErrInvalidPermissions
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
 		}
 	}
 
@@ -681,9 +677,9 @@ func (p *OracleParams) ValidateBasic() error {
 		return ErrSameOracles
 	}
 	switch p.OracleType {
-	case oracletypes.OracleType_Band, oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor,
-		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_BandIBC, oracletypes.OracleType_Provider,
-		oracletypes.OracleType_Stork:
+	case oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor,
+		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth, oracletypes.OracleType_Provider,
+		oracletypes.OracleType_Stork, oracletypes.OracleType_ChainlinkDataStreams:
 
 	default:
 		return errors.Wrap(ErrInvalidOracleType, p.OracleType.String())
@@ -803,6 +799,12 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidNotional, err.Error())
 	}
 
+	if p.AdminInfo != nil {
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+
 	return govtypes.ValidateAbstract(p)
 }
 
@@ -896,6 +898,12 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := ValidateMinNotional(p.MinNotional); err != nil {
 		return errors.Wrap(ErrInvalidNotional, err.Error())
+	}
+
+	if p.AdminInfo != nil {
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
+		}
 	}
 
 	return govtypes.ValidateAbstract(p)
@@ -1642,4 +1650,16 @@ func (p *DenomMinNotionalProposal) ValidateBasic() error {
 		}
 	}
 	return govtypes.ValidateAbstract(p)
+}
+
+func (a *AdminInfo) ValidateBasic() error {
+	if a.Admin != "" {
+		if _, err := sdk.AccAddressFromBech32(a.Admin); err != nil {
+			return errors.Wrap(ErrInvalidAddress, err.Error())
+		}
+	}
+	if a.AdminPermissions > MaxPerm {
+		return ErrInvalidPermissions
+	}
+	return nil
 }

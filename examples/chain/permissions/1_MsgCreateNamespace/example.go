@@ -119,12 +119,13 @@ func main() {
 
 	namespace := permissionstypes.Namespace{
 		Denom:                     denom,
-		ContractHook:              "",
+		WasmHook:                  "",
 		RolePermissions:           []*permissionstypes.Role{&role1, &role2, &role3},
 		ActorRoles:                []*permissionstypes.ActorRoles{&actor_role1, &actor_role2},
 		RoleManagers:              []*permissionstypes.RoleManager{&role_manager},
 		PolicyStatuses:            []*permissionstypes.PolicyStatus{&policy_status1, &policy_status2},
 		PolicyManagerCapabilities: []*permissionstypes.PolicyManagerCapability{&policy_manager_capability},
+		EvmHook:                   "",
 	}
 
 	msg := &permissionstypes.MsgCreateNamespace{

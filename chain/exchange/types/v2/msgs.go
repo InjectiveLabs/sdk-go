@@ -68,6 +68,8 @@ var (
 	_ sdk.Msg = &MsgTradingRewardPendingPointsUpdate{}
 	_ sdk.Msg = &MsgFeeDiscount{}
 	_ sdk.Msg = &MsgAtomicMarketOrderFeeMultiplierSchedule{}
+	_ sdk.Msg = &MsgCancelPostOnlyMode{}
+	_ sdk.Msg = &MsgActivatePostOnlyMode{}
 )
 
 // exchange message types
@@ -124,6 +126,8 @@ const (
 	TypeMsgTradingRewardPendingPointsUpdate       = "tradingRewardPendingPointsUpdate"
 	TypeMsgFeeDiscount                            = "feeDiscount"
 	TypeMsgAtomicMarketOrderFeeMultiplierSchedule = "atomicMarketOrderFeeMultiplierSchedule"
+	TypeMsgCancelPostOnlyMode                     = "cancelPostOnlyMode"
+	TypeMsgActivatePostOnlyMode                   = "activatePostOnlyMode"
 )
 
 func (MsgUpdateParams) Route() string { return RouterKey }
@@ -969,15 +973,7 @@ func (msg MsgCreateSpotMarketOrder) ValidateBasic() error {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
-		return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "Spot market order can't be a post only order")
-	}
-
-	if err := msg.Order.ValidateBasic(senderAddr); err != nil {
-		return err
-	}
-
-	return nil
+	return ValidateSpotMarketOrder(&msg.Order, senderAddr)
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -1227,14 +1223,7 @@ func (msg MsgCreateDerivativeMarketOrder) ValidateBasic() error {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
-		return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "Derivative market order can't be a post only order")
-	}
-
-	if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
-		return err
-	}
-	return nil
+	return ValidateDerivativeMarketOrder(&msg.Order, senderAddr)
 }
 
 // GetSignBytes encodes the message for signing
@@ -1300,17 +1289,7 @@ func (msg MsgCreateBinaryOptionsMarketOrder) ValidateBasic() error {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
-		return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "market order can't be a post only order")
-	}
-	if msg.Order.OrderType.IsConditional() {
-		return errors.Wrap(types.ErrUnrecognizedOrderType, string(msg.Order.OrderType))
-	}
-
-	if err := msg.Order.ValidateBasic(senderAddr, true); err != nil {
-		return err
-	}
-	return nil
+	return ValidateBinaryOptionsMarketOrder(&msg.Order, senderAddr)
 }
 
 // GetSignBytes encodes the message for signing
@@ -2132,6 +2111,24 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		}
 	}
 
+	for idx := range msg.SpotMarketOrdersToCreate {
+		if err := ValidateSpotMarketOrder(msg.SpotMarketOrdersToCreate[idx], sender); err != nil {
+			return err
+		}
+	}
+
+	for idx := range msg.DerivativeMarketOrdersToCreate {
+		if err := ValidateDerivativeMarketOrder(msg.DerivativeMarketOrdersToCreate[idx], sender); err != nil {
+			return err
+		}
+	}
+
+	for idx := range msg.BinaryOptionsMarketOrdersToCreate {
+		if err := ValidateBinaryOptionsMarketOrder(msg.BinaryOptionsMarketOrdersToCreate[idx], sender); err != nil {
+			return err
+		}
+	}
+
 	// Check for duplicate derivative market orders (same market and subaccount)
 	if err := ensureNoDuplicateMarketOrders(sender, msg.DerivativeMarketOrdersToCreate); err != nil {
 		return err
@@ -2231,12 +2228,19 @@ func (msg *MsgAuthorizeStakeGrants) ValidateBasic() error {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
+	seenGrantees := make(map[string]struct{})
+
 	for idx := range msg.Grants {
 		grant := msg.Grants[idx]
 
 		if _, err := sdk.AccAddressFromBech32(grant.Grantee); err != nil {
 			return errors.Wrap(sdkerrors.ErrInvalidAddress, grant.Grantee)
 		}
+
+		if _, ok := seenGrantees[grant.Grantee]; ok {
+			return errors.Wrapf(types.ErrInvalidStakeGrant, "duplicate grantee %s in MsgAuthorizeStakeGrants", grant.Grantee)
+		}
+		seenGrantees[grant.Grantee] = struct{}{}
 
 		if grant.Amount.IsNegative() || grant.Amount.GT(types.MaxTokenInt) {
 			return errors.Wrap(types.ErrInvalidStakeGrant, grant.Amount.String())
@@ -2722,4 +2726,83 @@ func ensureNoDuplicateMarketOrders(sender sdk.AccAddress, orders []*DerivativeOr
 		seen[key] = struct{}{}
 	}
 	return nil
+}
+
+func ValidateSpotMarketOrder(order *SpotOrder, senderAddr sdk.AccAddress) error {
+	if order.OrderType == OrderType_BUY_PO || order.OrderType == OrderType_SELL_PO {
+		return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "Spot market order can't be a post only order")
+	}
+
+	return order.ValidateBasic(senderAddr)
+}
+
+func ValidateDerivativeMarketOrder(order *DerivativeOrder, senderAddr sdk.AccAddress) error {
+	if order.OrderType == OrderType_BUY_PO || order.OrderType == OrderType_SELL_PO {
+		return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "Derivative market order can't be a post only order")
+	}
+
+	return order.ValidateBasic(senderAddr, false)
+}
+
+func ValidateBinaryOptionsMarketOrder(order *DerivativeOrder, senderAddr sdk.AccAddress) error {
+	if order.OrderType == OrderType_BUY_PO || order.OrderType == OrderType_SELL_PO {
+		return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "market order can't be a post only order")
+	}
+	if order.OrderType.IsConditional() {
+		return errors.Wrap(types.ErrUnrecognizedOrderType, string(order.OrderType))
+	}
+
+	return order.ValidateBasic(senderAddr, true)
+}
+
+func (*MsgCancelPostOnlyMode) Route() string { return RouterKey }
+
+func (*MsgCancelPostOnlyMode) Type() string { return TypeMsgCancelPostOnlyMode }
+
+func (msg *MsgCancelPostOnlyMode) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	return nil
+}
+
+func (msg *MsgCancelPostOnlyMode) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgCancelPostOnlyMode) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (*MsgActivatePostOnlyMode) Route() string { return RouterKey }
+
+func (*MsgActivatePostOnlyMode) Type() string { return TypeMsgActivatePostOnlyMode }
+
+func (msg *MsgActivatePostOnlyMode) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if msg.BlocksAmount == 0 {
+		return errors.Wrap(types.ErrInvalidArgument, "blocks_amount must be greater than 0")
+	}
+
+	return nil
+}
+
+func (msg *MsgActivatePostOnlyMode) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgActivatePostOnlyMode) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
 }

@@ -7,13 +7,11 @@ import (
 	"os"
 	"strconv"
 
+	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
+	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"google.golang.org/grpc/metadata"
 
-	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
-
-	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
-
-	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
 	"github.com/InjectiveLabs/sdk-go/client"
 	chainclient "github.com/InjectiveLabs/sdk-go/client/chain"
 	"github.com/InjectiveLabs/sdk-go/client/common"
@@ -53,7 +51,7 @@ func main() {
 
 	clientCtx = clientCtx.WithNodeURI(network.TmEndpoint).WithClient(tmClient)
 
-	chainClient, err := chainclient.NewChainClient(
+	chainClient, err := chainclient.NewChainClientV2(
 		clientCtx,
 		network,
 		common.OptionGasPrices(client.DefaultGasPriceWithDenom),
@@ -115,11 +113,11 @@ func main() {
 }
 
 func fetchSpotMarketsAtHeight(
-	chainClient chainclient.ChainClient,
+	chainClient chainclient.ChainClientV2,
 	height int64,
 	status string,
 	marketIds []string,
-) (*types.QuerySpotMarketsResponse, error) {
+) (*exchangev2types.QuerySpotMarketsResponse, error) {
 	ctx := context.Background()
 
 	ctxWithHeight := metadata.AppendToOutgoingContext(

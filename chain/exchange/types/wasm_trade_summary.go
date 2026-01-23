@@ -4,124 +4,113 @@ import (
 	"bytes"
 	"sort"
 
-	"cosmossdk.io/math"
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
 
-type MarketSummary struct {
-	TotalUserQuantity     math.LegacyDec
-	TotalContractQuantity math.LegacyDec
-	TotalUserMargin       math.LegacyDec
-	TotalContractMargin   math.LegacyDec
-	netQuantity           math.LegacyDec
-}
-
-func NewMarketSummary() *MarketSummary {
-	return &MarketSummary{
-		TotalUserQuantity:     math.LegacyZeroDec(),
-		TotalContractQuantity: math.LegacyZeroDec(),
-		TotalUserMargin:       math.LegacyZeroDec(),
-		TotalContractMargin:   math.LegacyZeroDec(),
-		netQuantity:           math.LegacyZeroDec(),
-	}
-}
-
-func NewSyntheticTradeActionSummary() *SyntheticTradeActionSummary {
-	return &SyntheticTradeActionSummary{
-		MarketSummary:   make(map[common.Hash]*MarketSummary),
-		MarketIDs:       make([]common.Hash, 0),
-		ContractAddress: sdk.AccAddress{},
-		UserAddress:     sdk.AccAddress{},
-	}
-}
-
 type SyntheticTradeActionSummary struct {
-	MarketSummary   map[common.Hash]*MarketSummary
-	MarketIDs       []common.Hash
+	Markets         map[common.Hash]bool
 	ContractAddress sdk.Address
 	UserAddress     sdk.Address
 }
 
 func (s *SyntheticTradeActionSummary) GetMarketIDs() []common.Hash {
-	marketIDs := make([]common.Hash, 0, len(s.MarketSummary))
-	for marketID := range s.MarketSummary {
+	marketIDs := make([]common.Hash, 0, len(s.Markets))
+
+	for marketID := range s.Markets {
 		marketIDs = append(marketIDs, marketID)
 	}
 
 	sort.SliceStable(marketIDs, func(i, j int) bool {
 		return bytes.Compare(marketIDs[i].Bytes(), marketIDs[j].Bytes()) < 0
 	})
-	s.MarketIDs = marketIDs
+
 	return marketIDs
 }
 
 func (s *SyntheticTradeActionSummary) Update(t *SyntheticTrade, isForUser bool) error {
-	if _, ok := s.MarketSummary[t.MarketID]; !ok {
-		s.MarketSummary[t.MarketID] = NewMarketSummary()
+	if _, ok := s.Markets[t.MarketID]; !ok {
+		s.Markets[t.MarketID] = true
 	}
-	summary := s.MarketSummary[t.MarketID]
 
 	address := SubaccountIDToSdkAddress(t.SubaccountID)
 
-	if isForUser && s.UserAddress.Empty() {
-		s.UserAddress = address
-	}
-
-	if !isForUser && s.ContractAddress.Empty() {
-		s.ContractAddress = address
-	}
-
-	if (isForUser && !s.UserAddress.Equals(address)) || (!isForUser && !s.ContractAddress.Equals(address)) {
+	if (isForUser && !address.Equals(s.UserAddress)) || (!isForUser && !address.Equals(s.ContractAddress)) {
 		return ErrBadSubaccountID
 	}
 
-	if t.IsBuy {
-		summary.netQuantity = summary.netQuantity.Add(t.Quantity)
-	} else {
-		summary.netQuantity = summary.netQuantity.Sub(t.Quantity)
-	}
-
-	if isForUser {
-		summary.TotalUserQuantity = summary.TotalUserQuantity.Add(t.Quantity)
-		summary.TotalUserMargin = summary.TotalUserMargin.Add(t.Margin)
-	} else {
-		summary.TotalContractQuantity = summary.TotalContractQuantity.Add(t.Quantity)
-		summary.TotalContractMargin = summary.TotalContractMargin.Add(t.Margin)
-	}
 	return nil
 }
 
-// IsValid checks that all the net quantities are zero
-func (s *SyntheticTradeActionSummary) IsValid() bool {
-	for _, v := range s.MarketSummary {
-		if !v.netQuantity.IsZero() {
-			return false
-		}
+func (a *SyntheticTradeAction) Summarize() (*SyntheticTradeActionSummary, error) {
+	if err := a.validateTrades(); err != nil {
+		return nil, err
 	}
-	return true
+
+	summary := a.initSummary()
+
+	if err := a.updateSummary(&summary); err != nil {
+		return nil, err
+	}
+
+	return &summary, nil
 }
 
-func (a *SyntheticTradeAction) Summarize() (*SyntheticTradeActionSummary, error) {
-	summary := NewSyntheticTradeActionSummary()
+func (a *SyntheticTradeAction) initSummary() SyntheticTradeActionSummary {
+	return SyntheticTradeActionSummary{
+		Markets:         make(map[common.Hash]bool),
+		ContractAddress: SubaccountIDToSdkAddress(a.ContractTrades[0].SubaccountID),
+		UserAddress:     SubaccountIDToSdkAddress(a.UserTrades[0].SubaccountID),
+	}
+}
 
+func (a *SyntheticTradeAction) validateTrades() error {
+	if len(a.UserTrades) == 0 || len(a.ContractTrades) == 0 {
+		return errors.Wrapf(ErrInvalidTrade, "no trades in action")
+	}
+
+	if len(a.UserTrades) != len(a.ContractTrades) {
+		return errors.Wrapf(
+			ErrInvalidTrade,
+			"mismatched user and contract trades: %d vs %d",
+			len(a.UserTrades),
+			len(a.ContractTrades),
+		)
+	}
+
+	for i, userTrade := range a.UserTrades {
+		contractTrade := a.ContractTrades[i]
+
+		if userTrade.MarketID != contractTrade.MarketID {
+			return errors.Wrapf(ErrInvalidTrade, "mismatched user and contract trade at index %d", i)
+		}
+		if userTrade.IsBuy == contractTrade.IsBuy {
+			return errors.Wrapf(ErrInvalidTrade, "mismatched user and contract trade at index %d", i)
+		}
+		if !userTrade.Quantity.Equal(contractTrade.Quantity) {
+			return errors.Wrapf(ErrInvalidTrade, "mismatched user and contract trade at index %d", i)
+		}
+		if !userTrade.Price.Equal(contractTrade.Price) {
+			return errors.Wrapf(ErrInvalidTrade, "mismatched user and contract trade at index %d", i)
+		}
+	}
+
+	return nil
+}
+
+func (a *SyntheticTradeAction) updateSummary(summary *SyntheticTradeActionSummary) error {
 	for _, t := range a.UserTrades {
 		if err := summary.Update(t, true); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
 	for _, t := range a.ContractTrades {
 		if err := summary.Update(t, false); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	// ensure that sum(buy quantity) == sum(sell quantity) for all markets
-	if !summary.IsValid() {
-		return nil, ErrInvalidQuantity
-	}
-
-	summary.GetMarketIDs()
-	return summary, nil
+	return nil
 }

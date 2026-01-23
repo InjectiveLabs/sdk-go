@@ -117,4 +117,6 @@ var (
 	ErrPositionNotOffsettable                   = errors.Register(ModuleName, 109, "position not offsettable")
 	ErrOffsettingSubaccountIDsEmpty             = errors.Register(ModuleName, 110, "offsetting subaccount IDs cannot be empty")
 	ErrInvalidOpenNotionalCap                   = errors.Register(ModuleName, 111, "invalid open notional cap")
+	ErrOpenNotionalCapBreached                  = errors.Register(ModuleName, 112, "open notional cap breached")
+	ErrNoOffsettingPositionsFound               = errors.Register(ModuleName, 113, "no valid offsetting positions found")
 )

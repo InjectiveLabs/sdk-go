@@ -20,8 +20,12 @@ message OpenNotionalCap {
   option (amino.name) = "injective.exchange.v1beta1.OpenNotionalCap";
 
   oneof cap {
-    OpenNotionalCapUncapped uncapped = 1 [(amino.oneof_name) = "uncapped"];
-    OpenNotionalCapCapped  capped   = 2 [(amino.oneof_name) = "capped"];
+    OpenNotionalCapUncapped uncapped = 1
+        [ (amino.oneof_name) =
+              "injective.exchange.v1beta1.OpenNotionalCapUncapped" ];
+    OpenNotionalCapCapped capped = 2
+        [ (amino.oneof_name) =
+              "injective.exchange.v1beta1.OpenNotionalCapCapped" ];
   }
 }
 
@@ -828,6 +832,8 @@ enum ExecutionType {
   LimitMatchNewOrder = 4;
   MarketLiquidation = 5;
   ExpiryMarketSettlement = 6;
+  OffsettingPosition = 7;
+  Synthetic = 8;
 }
 
 message SubaccountPosition {

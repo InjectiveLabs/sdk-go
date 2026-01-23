@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.17.16 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.17.81 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.17.0 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.18.0-alpha.3 --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -104,8 +104,7 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/oracle/types/oracle.go chain/oracle/types && \
 		cp injective-core/injective-chain/modules/oracle/types/params.go chain/oracle/types && \
 		cp injective-core/injective-chain/modules/oracle/types/proposal.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/stork_oracle.go chain/oracle/types && \
-		cp -r injective-core/injective-chain/modules/oracle/bandchain chain/oracle
+		cp injective-core/injective-chain/modules/oracle/types/stork_oracle.go chain/oracle/types
 	mkdir -p chain/peggy/types && \
 		cp injective-core/injective-chain/modules/peggy/types/*.pb.go chain/peggy/types && \
 		cp injective-core/injective-chain/modules/peggy/types/abi_json.go chain/peggy/types && \

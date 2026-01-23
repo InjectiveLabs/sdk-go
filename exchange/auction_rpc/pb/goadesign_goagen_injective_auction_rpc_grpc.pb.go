@@ -32,6 +32,8 @@ type InjectiveAuctionRPCClient interface {
 	AuctionV2(ctx context.Context, in *AuctionV2Request, opts ...grpc.CallOption) (*AuctionV2Response, error)
 	// Provide the historical auctions info for a given account
 	AccountAuctionsV2(ctx context.Context, in *AccountAuctionsV2Request, opts ...grpc.CallOption) (*AccountAuctionsV2Response, error)
+	// Get the allowlist status for a specific account in an auction round
+	AuctionAccountStatus(ctx context.Context, in *AuctionAccountStatusRequest, opts ...grpc.CallOption) (*AuctionAccountStatusResponse, error)
 	// StreamBids streams new bids of an auction.
 	StreamBids(ctx context.Context, in *StreamBidsRequest, opts ...grpc.CallOption) (InjectiveAuctionRPC_StreamBidsClient, error)
 	// InjBurntEndpoint returns the total amount of INJ burnt in auctions.
@@ -87,6 +89,15 @@ func (c *injectiveAuctionRPCClient) AuctionV2(ctx context.Context, in *AuctionV2
 func (c *injectiveAuctionRPCClient) AccountAuctionsV2(ctx context.Context, in *AccountAuctionsV2Request, opts ...grpc.CallOption) (*AccountAuctionsV2Response, error) {
 	out := new(AccountAuctionsV2Response)
 	err := c.cc.Invoke(ctx, "/injective_auction_rpc.InjectiveAuctionRPC/AccountAuctionsV2", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *injectiveAuctionRPCClient) AuctionAccountStatus(ctx context.Context, in *AuctionAccountStatusRequest, opts ...grpc.CallOption) (*AuctionAccountStatusResponse, error) {
+	out := new(AuctionAccountStatusResponse)
+	err := c.cc.Invoke(ctx, "/injective_auction_rpc.InjectiveAuctionRPC/AuctionAccountStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -157,6 +168,8 @@ type InjectiveAuctionRPCServer interface {
 	AuctionV2(context.Context, *AuctionV2Request) (*AuctionV2Response, error)
 	// Provide the historical auctions info for a given account
 	AccountAuctionsV2(context.Context, *AccountAuctionsV2Request) (*AccountAuctionsV2Response, error)
+	// Get the allowlist status for a specific account in an auction round
+	AuctionAccountStatus(context.Context, *AuctionAccountStatusRequest) (*AuctionAccountStatusResponse, error)
 	// StreamBids streams new bids of an auction.
 	StreamBids(*StreamBidsRequest, InjectiveAuctionRPC_StreamBidsServer) error
 	// InjBurntEndpoint returns the total amount of INJ burnt in auctions.
@@ -184,6 +197,9 @@ func (UnimplementedInjectiveAuctionRPCServer) AuctionV2(context.Context, *Auctio
 }
 func (UnimplementedInjectiveAuctionRPCServer) AccountAuctionsV2(context.Context, *AccountAuctionsV2Request) (*AccountAuctionsV2Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AccountAuctionsV2 not implemented")
+}
+func (UnimplementedInjectiveAuctionRPCServer) AuctionAccountStatus(context.Context, *AuctionAccountStatusRequest) (*AuctionAccountStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AuctionAccountStatus not implemented")
 }
 func (UnimplementedInjectiveAuctionRPCServer) StreamBids(*StreamBidsRequest, InjectiveAuctionRPC_StreamBidsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamBids not implemented")
@@ -297,6 +313,24 @@ func _InjectiveAuctionRPC_AccountAuctionsV2_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveAuctionRPC_AuctionAccountStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuctionAccountStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveAuctionRPCServer).AuctionAccountStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_auction_rpc.InjectiveAuctionRPC/AuctionAccountStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveAuctionRPCServer).AuctionAccountStatus(ctx, req.(*AuctionAccountStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _InjectiveAuctionRPC_StreamBids_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StreamBidsRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -380,6 +414,10 @@ var InjectiveAuctionRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AccountAuctionsV2",
 			Handler:    _InjectiveAuctionRPC_AccountAuctionsV2_Handler,
+		},
+		{
+			MethodName: "AuctionAccountStatus",
+			Handler:    _InjectiveAuctionRPC_AuctionAccountStatus_Handler,
 		},
 		{
 			MethodName: "InjBurntEndpoint",
