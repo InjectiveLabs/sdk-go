@@ -26,6 +26,92 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
+//
+// Deprecated: Do not use.
+type GrantBandOraclePrivilegeProposal struct {
+	Title       string   `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Relayers    []string `protobuf:"bytes,3,rep,name=relayers,proto3" json:"relayers,omitempty"`
+}
+
+func (m *GrantBandOraclePrivilegeProposal) Reset()         { *m = GrantBandOraclePrivilegeProposal{} }
+func (m *GrantBandOraclePrivilegeProposal) String() string { return proto.CompactTextString(m) }
+func (*GrantBandOraclePrivilegeProposal) ProtoMessage()    {}
+func (*GrantBandOraclePrivilegeProposal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c5a187f865fd0c5b, []int{0}
+}
+func (m *GrantBandOraclePrivilegeProposal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GrantBandOraclePrivilegeProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GrantBandOraclePrivilegeProposal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GrantBandOraclePrivilegeProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GrantBandOraclePrivilegeProposal.Merge(m, src)
+}
+func (m *GrantBandOraclePrivilegeProposal) XXX_Size() int {
+	return m.Size()
+}
+func (m *GrantBandOraclePrivilegeProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_GrantBandOraclePrivilegeProposal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GrantBandOraclePrivilegeProposal proto.InternalMessageInfo
+
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
+//
+// Deprecated: Do not use.
+type RevokeBandOraclePrivilegeProposal struct {
+	Title       string   `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Relayers    []string `protobuf:"bytes,3,rep,name=relayers,proto3" json:"relayers,omitempty"`
+}
+
+func (m *RevokeBandOraclePrivilegeProposal) Reset()         { *m = RevokeBandOraclePrivilegeProposal{} }
+func (m *RevokeBandOraclePrivilegeProposal) String() string { return proto.CompactTextString(m) }
+func (*RevokeBandOraclePrivilegeProposal) ProtoMessage()    {}
+func (*RevokeBandOraclePrivilegeProposal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c5a187f865fd0c5b, []int{1}
+}
+func (m *RevokeBandOraclePrivilegeProposal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RevokeBandOraclePrivilegeProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RevokeBandOraclePrivilegeProposal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RevokeBandOraclePrivilegeProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RevokeBandOraclePrivilegeProposal.Merge(m, src)
+}
+func (m *RevokeBandOraclePrivilegeProposal) XXX_Size() int {
+	return m.Size()
+}
+func (m *RevokeBandOraclePrivilegeProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_RevokeBandOraclePrivilegeProposal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RevokeBandOraclePrivilegeProposal proto.InternalMessageInfo
+
 type GrantPriceFeederPrivilegeProposal struct {
 	Title       string   `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
@@ -38,7 +124,7 @@ func (m *GrantPriceFeederPrivilegeProposal) Reset()         { *m = GrantPriceFee
 func (m *GrantPriceFeederPrivilegeProposal) String() string { return proto.CompactTextString(m) }
 func (*GrantPriceFeederPrivilegeProposal) ProtoMessage()    {}
 func (*GrantPriceFeederPrivilegeProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c5a187f865fd0c5b, []int{0}
+	return fileDescriptor_c5a187f865fd0c5b, []int{2}
 }
 func (m *GrantPriceFeederPrivilegeProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -78,7 +164,7 @@ func (m *GrantProviderPrivilegeProposal) Reset()         { *m = GrantProviderPri
 func (m *GrantProviderPrivilegeProposal) String() string { return proto.CompactTextString(m) }
 func (*GrantProviderPrivilegeProposal) ProtoMessage()    {}
 func (*GrantProviderPrivilegeProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c5a187f865fd0c5b, []int{1}
+	return fileDescriptor_c5a187f865fd0c5b, []int{3}
 }
 func (m *GrantProviderPrivilegeProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -118,7 +204,7 @@ func (m *RevokeProviderPrivilegeProposal) Reset()         { *m = RevokeProviderP
 func (m *RevokeProviderPrivilegeProposal) String() string { return proto.CompactTextString(m) }
 func (*RevokeProviderPrivilegeProposal) ProtoMessage()    {}
 func (*RevokeProviderPrivilegeProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c5a187f865fd0c5b, []int{2}
+	return fileDescriptor_c5a187f865fd0c5b, []int{4}
 }
 func (m *RevokeProviderPrivilegeProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -159,7 +245,7 @@ func (m *RevokePriceFeederPrivilegeProposal) Reset()         { *m = RevokePriceF
 func (m *RevokePriceFeederPrivilegeProposal) String() string { return proto.CompactTextString(m) }
 func (*RevokePriceFeederPrivilegeProposal) ProtoMessage()    {}
 func (*RevokePriceFeederPrivilegeProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c5a187f865fd0c5b, []int{3}
+	return fileDescriptor_c5a187f865fd0c5b, []int{5}
 }
 func (m *RevokePriceFeederPrivilegeProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -188,6 +274,136 @@ func (m *RevokePriceFeederPrivilegeProposal) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RevokePriceFeederPrivilegeProposal proto.InternalMessageInfo
 
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
+//
+// Deprecated: Do not use.
+type AuthorizeBandOracleRequestProposal struct {
+	Title       string            `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description string            `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Request     BandOracleRequest `protobuf:"bytes,3,opt,name=request,proto3" json:"request"`
+}
+
+func (m *AuthorizeBandOracleRequestProposal) Reset()         { *m = AuthorizeBandOracleRequestProposal{} }
+func (m *AuthorizeBandOracleRequestProposal) String() string { return proto.CompactTextString(m) }
+func (*AuthorizeBandOracleRequestProposal) ProtoMessage()    {}
+func (*AuthorizeBandOracleRequestProposal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c5a187f865fd0c5b, []int{6}
+}
+func (m *AuthorizeBandOracleRequestProposal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *AuthorizeBandOracleRequestProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_AuthorizeBandOracleRequestProposal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *AuthorizeBandOracleRequestProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AuthorizeBandOracleRequestProposal.Merge(m, src)
+}
+func (m *AuthorizeBandOracleRequestProposal) XXX_Size() int {
+	return m.Size()
+}
+func (m *AuthorizeBandOracleRequestProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_AuthorizeBandOracleRequestProposal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AuthorizeBandOracleRequestProposal proto.InternalMessageInfo
+
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
+//
+// Deprecated: Do not use.
+type UpdateBandOracleRequestProposal struct {
+	Title               string             `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description         string             `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	DeleteRequestIds    []uint64           `protobuf:"varint,3,rep,packed,name=delete_request_ids,json=deleteRequestIds,proto3" json:"delete_request_ids,omitempty"`
+	UpdateOracleRequest *BandOracleRequest `protobuf:"bytes,4,opt,name=update_oracle_request,json=updateOracleRequest,proto3" json:"update_oracle_request,omitempty"`
+}
+
+func (m *UpdateBandOracleRequestProposal) Reset()         { *m = UpdateBandOracleRequestProposal{} }
+func (m *UpdateBandOracleRequestProposal) String() string { return proto.CompactTextString(m) }
+func (*UpdateBandOracleRequestProposal) ProtoMessage()    {}
+func (*UpdateBandOracleRequestProposal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c5a187f865fd0c5b, []int{7}
+}
+func (m *UpdateBandOracleRequestProposal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *UpdateBandOracleRequestProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_UpdateBandOracleRequestProposal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *UpdateBandOracleRequestProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateBandOracleRequestProposal.Merge(m, src)
+}
+func (m *UpdateBandOracleRequestProposal) XXX_Size() int {
+	return m.Size()
+}
+func (m *UpdateBandOracleRequestProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateBandOracleRequestProposal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_UpdateBandOracleRequestProposal proto.InternalMessageInfo
+
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
+//
+// Deprecated: Do not use.
+type EnableBandIBCProposal struct {
+	Title         string        `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Description   string        `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	BandIbcParams BandIBCParams `protobuf:"bytes,3,opt,name=band_ibc_params,json=bandIbcParams,proto3" json:"band_ibc_params"`
+}
+
+func (m *EnableBandIBCProposal) Reset()         { *m = EnableBandIBCProposal{} }
+func (m *EnableBandIBCProposal) String() string { return proto.CompactTextString(m) }
+func (*EnableBandIBCProposal) ProtoMessage()    {}
+func (*EnableBandIBCProposal) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c5a187f865fd0c5b, []int{8}
+}
+func (m *EnableBandIBCProposal) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EnableBandIBCProposal) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EnableBandIBCProposal.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EnableBandIBCProposal) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EnableBandIBCProposal.Merge(m, src)
+}
+func (m *EnableBandIBCProposal) XXX_Size() int {
+	return m.Size()
+}
+func (m *EnableBandIBCProposal) XXX_DiscardUnknown() {
+	xxx_messageInfo_EnableBandIBCProposal.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EnableBandIBCProposal proto.InternalMessageInfo
+
 type GrantStorkPublisherPrivilegeProposal struct {
 	Title           string   `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	Description     string   `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
@@ -198,7 +414,7 @@ func (m *GrantStorkPublisherPrivilegeProposal) Reset()         { *m = GrantStork
 func (m *GrantStorkPublisherPrivilegeProposal) String() string { return proto.CompactTextString(m) }
 func (*GrantStorkPublisherPrivilegeProposal) ProtoMessage()    {}
 func (*GrantStorkPublisherPrivilegeProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c5a187f865fd0c5b, []int{4}
+	return fileDescriptor_c5a187f865fd0c5b, []int{9}
 }
 func (m *GrantStorkPublisherPrivilegeProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -237,7 +453,7 @@ func (m *RevokeStorkPublisherPrivilegeProposal) Reset()         { *m = RevokeSto
 func (m *RevokeStorkPublisherPrivilegeProposal) String() string { return proto.CompactTextString(m) }
 func (*RevokeStorkPublisherPrivilegeProposal) ProtoMessage()    {}
 func (*RevokeStorkPublisherPrivilegeProposal) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c5a187f865fd0c5b, []int{5}
+	return fileDescriptor_c5a187f865fd0c5b, []int{10}
 }
 func (m *RevokeStorkPublisherPrivilegeProposal) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -267,10 +483,15 @@ func (m *RevokeStorkPublisherPrivilegeProposal) XXX_DiscardUnknown() {
 var xxx_messageInfo_RevokeStorkPublisherPrivilegeProposal proto.InternalMessageInfo
 
 func init() {
+	proto.RegisterType((*GrantBandOraclePrivilegeProposal)(nil), "injective.oracle.v1beta1.GrantBandOraclePrivilegeProposal")
+	proto.RegisterType((*RevokeBandOraclePrivilegeProposal)(nil), "injective.oracle.v1beta1.RevokeBandOraclePrivilegeProposal")
 	proto.RegisterType((*GrantPriceFeederPrivilegeProposal)(nil), "injective.oracle.v1beta1.GrantPriceFeederPrivilegeProposal")
 	proto.RegisterType((*GrantProviderPrivilegeProposal)(nil), "injective.oracle.v1beta1.GrantProviderPrivilegeProposal")
 	proto.RegisterType((*RevokeProviderPrivilegeProposal)(nil), "injective.oracle.v1beta1.RevokeProviderPrivilegeProposal")
 	proto.RegisterType((*RevokePriceFeederPrivilegeProposal)(nil), "injective.oracle.v1beta1.RevokePriceFeederPrivilegeProposal")
+	proto.RegisterType((*AuthorizeBandOracleRequestProposal)(nil), "injective.oracle.v1beta1.AuthorizeBandOracleRequestProposal")
+	proto.RegisterType((*UpdateBandOracleRequestProposal)(nil), "injective.oracle.v1beta1.UpdateBandOracleRequestProposal")
+	proto.RegisterType((*EnableBandIBCProposal)(nil), "injective.oracle.v1beta1.EnableBandIBCProposal")
 	proto.RegisterType((*GrantStorkPublisherPrivilegeProposal)(nil), "injective.oracle.v1beta1.GrantStorkPublisherPrivilegeProposal")
 	proto.RegisterType((*RevokeStorkPublisherPrivilegeProposal)(nil), "injective.oracle.v1beta1.RevokeStorkPublisherPrivilegeProposal")
 }
@@ -280,40 +501,146 @@ func init() {
 }
 
 var fileDescriptor_c5a187f865fd0c5b = []byte{
-	// 519 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x95, 0x31, 0x6f, 0xd3, 0x40,
-	0x14, 0xc7, 0x7d, 0x24, 0x45, 0xed, 0x31, 0x00, 0x56, 0x07, 0xe3, 0xc1, 0x09, 0x16, 0x81, 0x14,
-	0xa8, 0xad, 0x8a, 0xad, 0x23, 0x48, 0x20, 0xa4, 0x0e, 0x26, 0x45, 0x20, 0xb1, 0x54, 0xb6, 0xf3,
-	0x70, 0x8e, 0x3a, 0x7e, 0xe6, 0xee, 0x62, 0xa9, 0xdf, 0x00, 0x31, 0xf1, 0x11, 0xfa, 0x11, 0x18,
-	0xf8, 0x10, 0x88, 0xa9, 0x23, 0x23, 0x24, 0x48, 0xf0, 0x09, 0x10, 0x23, 0x8a, 0xef, 0x1c, 0x92,
-	0x48, 0x25, 0x1e, 0x2a, 0xb5, 0x8b, 0x75, 0xff, 0xf7, 0xfe, 0xf7, 0xee, 0x7e, 0x77, 0x4f, 0x67,
-	0x7a, 0x87, 0x65, 0x6f, 0x20, 0x96, 0xac, 0x00, 0x1f, 0x79, 0x18, 0xa7, 0xe0, 0x17, 0x3b, 0x11,
-	0xc8, 0x70, 0xc7, 0xcf, 0x39, 0xe6, 0x28, 0xc2, 0xd4, 0xcb, 0x39, 0x4a, 0x34, 0xad, 0x99, 0xd1,
-	0x53, 0x46, 0x4f, 0x1b, 0x6d, 0x27, 0x46, 0x31, 0x44, 0xe1, 0x47, 0xa1, 0xf8, 0x37, 0x3b, 0x46,
-	0x96, 0xa9, 0x99, 0xf6, 0x0d, 0x95, 0x3f, 0x28, 0x95, 0xaf, 0x84, 0x4e, 0x6d, 0x26, 0x98, 0xa0,
-	0x8a, 0x4f, 0x47, 0x3a, 0xda, 0x39, 0x75, 0x4f, 0x7a, 0x65, 0x65, 0xbb, 0x1e, 0x0e, 0x59, 0x86,
-	0x7e, 0xf9, 0x55, 0x21, 0xf7, 0x37, 0xa1, 0x37, 0x9f, 0xf0, 0x30, 0x93, 0x01, 0x67, 0x31, 0x3c,
-	0x06, 0xe8, 0x03, 0x0f, 0x38, 0x2b, 0x58, 0x0a, 0x09, 0x04, 0x1a, 0xc8, 0xdc, 0xa4, 0x6b, 0x92,
-	0xc9, 0x14, 0x2c, 0xd2, 0x26, 0xdd, 0x8d, 0x9e, 0x12, 0x66, 0x9b, 0x5e, 0xe9, 0x83, 0x88, 0x39,
-	0xcb, 0x25, 0xc3, 0xcc, 0xba, 0x54, 0xe6, 0xe6, 0x43, 0xa6, 0x49, 0x9b, 0x53, 0x46, 0xab, 0x51,
-	0xa6, 0xca, 0xf1, 0xb4, 0xd6, 0xdb, 0x11, 0x4a, 0xb0, 0x9a, 0xaa, 0x56, 0x29, 0x4c, 0x9b, 0xae,
-	0x73, 0x48, 0xc3, 0x23, 0xe0, 0xc2, 0x5a, 0x6b, 0x37, 0xba, 0x1b, 0xbd, 0x99, 0xde, 0xdd, 0x7f,
-	0x77, 0xdc, 0x32, 0x7e, 0x1d, 0xb7, 0x8c, 0x2f, 0x9f, 0xb6, 0x6d, 0x7d, 0x1a, 0x09, 0x16, 0xd5,
-	0x71, 0x7a, 0x8f, 0x30, 0x93, 0x90, 0xc9, 0xf7, 0x3f, 0x3f, 0xde, 0xed, 0x6a, 0xfc, 0x95, 0x48,
-	0xee, 0x98, 0x50, 0x47, 0xbb, 0xb0, 0x60, 0x67, 0x4a, 0x6d, 0xd3, 0xf5, 0x5c, 0x17, 0xd5, 0xe4,
-	0x33, 0xbd, 0xc0, 0xd9, 0x5c, 0xe2, 0x0c, 0xea, 0x73, 0x76, 0x16, 0x39, 0x4f, 0x21, 0x70, 0x7f,
-	0x10, 0xda, 0xea, 0x41, 0x81, 0x87, 0x70, 0x7e, 0x94, 0xcb, 0xb7, 0xf9, 0xac, 0x3e, 0xe5, 0x6d,
-	0x4d, 0xb9, 0x02, 0xc1, 0xfd, 0x43, 0xa8, 0x5b, 0x79, 0x2e, 0x6c, 0x17, 0x3f, 0xaf, 0xcf, 0xbd,
-	0xb5, 0xc4, 0xfd, 0x9f, 0x36, 0xfe, 0x4e, 0xe8, 0xad, 0xb2, 0x09, 0xf6, 0x25, 0xf2, 0xc3, 0x60,
-	0x14, 0xa5, 0x4c, 0x0c, 0xce, 0x12, 0x7e, 0x8b, 0x5e, 0x13, 0xd3, 0xd2, 0x07, 0x79, 0x55, 0x5b,
-	0x58, 0x8d, 0x12, 0xed, 0xaa, 0x58, 0x58, 0x52, 0xec, 0xbe, 0xa8, 0x4f, 0x78, 0x6f, 0xbe, 0x7f,
-	0x57, 0x6c, 0xdd, 0x9d, 0x10, 0xda, 0x51, 0x47, 0x71, 0x01, 0x20, 0x5f, 0xd6, 0x87, 0xbc, 0xbf,
-	0x70, 0x8d, 0x2b, 0xf6, 0xfe, 0xf0, 0xf5, 0xe7, 0xb1, 0x43, 0x4e, 0xc6, 0x0e, 0xf9, 0x36, 0x76,
-	0xc8, 0x87, 0x89, 0x63, 0x9c, 0x4c, 0x1c, 0xe3, 0xeb, 0xc4, 0x31, 0x5e, 0xed, 0x25, 0x4c, 0x0e,
-	0x46, 0x91, 0x17, 0xe3, 0xd0, 0x7f, 0x5a, 0x3d, 0xf4, 0x7b, 0x61, 0x24, 0xfc, 0xd9, 0xb3, 0xbf,
-	0x1d, 0x23, 0x87, 0x79, 0x39, 0x08, 0x59, 0xe6, 0x0f, 0xb1, 0x3f, 0x4a, 0x41, 0x54, 0xff, 0x04,
-	0x79, 0x94, 0x83, 0x88, 0x2e, 0x97, 0x0f, 0xff, 0x83, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x2a,
-	0xa6, 0x51, 0xd9, 0xc8, 0x06, 0x00, 0x00,
+	// 752 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x96, 0xbf, 0x6f, 0x13, 0x49,
+	0x14, 0xc7, 0x3d, 0x89, 0x73, 0x97, 0x4c, 0x74, 0x4a, 0xce, 0x97, 0x48, 0x7b, 0xd6, 0x69, 0xed,
+	0xac, 0x2e, 0x97, 0xe4, 0x92, 0x78, 0x15, 0xe8, 0xd2, 0xe1, 0x08, 0x90, 0x45, 0x24, 0x8c, 0x43,
+	0x40, 0xa2, 0x59, 0xcd, 0xee, 0x0e, 0xf6, 0x90, 0xf5, 0xce, 0x66, 0x66, 0x6c, 0x29, 0x74, 0x74,
+	0x88, 0x8a, 0x3f, 0x21, 0x7f, 0x02, 0x05, 0x2d, 0x7d, 0x84, 0x10, 0x4a, 0x49, 0x85, 0xc0, 0x46,
+	0x82, 0x96, 0x06, 0x51, 0x22, 0xcf, 0xcc, 0x1a, 0xdb, 0xe0, 0xd8, 0x56, 0x02, 0xa4, 0x89, 0xf6,
+	0xfd, 0xc8, 0x9b, 0xf7, 0x79, 0xfe, 0xce, 0xdb, 0x85, 0x4b, 0x24, 0xbc, 0x87, 0x3d, 0x41, 0xea,
+	0xd8, 0xa6, 0x0c, 0x79, 0x01, 0xb6, 0xeb, 0x1b, 0x2e, 0x16, 0x68, 0xc3, 0x8e, 0x18, 0x8d, 0x28,
+	0x47, 0x41, 0x2e, 0x62, 0x54, 0xd0, 0x94, 0xd1, 0x4e, 0xcc, 0xa9, 0xc4, 0x9c, 0x4e, 0x4c, 0xff,
+	0x89, 0xaa, 0x24, 0xa4, 0xb6, 0xfc, 0xab, 0x92, 0xd3, 0xa6, 0x47, 0x79, 0x95, 0x72, 0xdb, 0x45,
+	0xfc, 0x6b, 0x41, 0x8f, 0x92, 0x50, 0xc7, 0xff, 0x56, 0x71, 0x47, 0x5a, 0xb6, 0x32, 0x74, 0x68,
+	0xae, 0x4c, 0xcb, 0x54, 0xf9, 0x5b, 0x4f, 0xda, 0xbb, 0xd8, 0xb7, 0x4d, 0xdd, 0x8c, 0x4c, 0xb3,
+	0x5e, 0x00, 0x98, 0xbd, 0xca, 0x50, 0x28, 0xf2, 0x28, 0xf4, 0xaf, 0xcb, 0x48, 0x91, 0x91, 0x3a,
+	0x09, 0x70, 0x19, 0x17, 0x35, 0x4f, 0x6a, 0x0e, 0x4e, 0x08, 0x22, 0x02, 0x6c, 0x80, 0x2c, 0x58,
+	0x9e, 0x2a, 0x29, 0x23, 0x95, 0x85, 0xd3, 0x3e, 0xe6, 0x1e, 0x23, 0x91, 0x20, 0x34, 0x34, 0xc6,
+	0x64, 0xac, 0xd3, 0x95, 0x4a, 0xc3, 0x49, 0x86, 0x03, 0x74, 0x80, 0x19, 0x37, 0xc6, 0xb3, 0xe3,
+	0xcb, 0x53, 0xa5, 0xb6, 0xbd, 0x79, 0xf3, 0xe1, 0x61, 0x26, 0xf1, 0xe1, 0x30, 0x93, 0x78, 0xfe,
+	0x74, 0x3d, 0xad, 0x79, 0xca, 0xb4, 0x1e, 0xcf, 0x28, 0xb7, 0x45, 0x43, 0x81, 0x43, 0xf1, 0xe8,
+	0xfd, 0x93, 0xff, 0x97, 0x34, 0xc0, 0xa0, 0x3e, 0x0d, 0x60, 0xbd, 0x04, 0x70, 0xa1, 0x84, 0xeb,
+	0x74, 0x0f, 0xff, 0x6c, 0x9e, 0xdd, 0xe1, 0x79, 0x96, 0x35, 0xcf, 0xc0, 0x46, 0x0d, 0x60, 0x7d,
+	0x02, 0x70, 0x41, 0x72, 0x17, 0x19, 0xf1, 0xf0, 0x15, 0x8c, 0x7d, 0xcc, 0xce, 0x0e, 0x28, 0x05,
+	0x93, 0x2d, 0xc1, 0x19, 0xe3, 0x32, 0x24, 0x9f, 0x5b, 0xb5, 0xf6, 0x6b, 0x54, 0x60, 0x23, 0xa9,
+	0x6a, 0x49, 0xa3, 0x0b, 0x7d, 0xa2, 0x07, 0x7d, 0x67, 0x74, 0xf4, 0x81, 0x48, 0x56, 0x03, 0x40,
+	0x53, 0x67, 0xd1, 0x3a, 0x39, 0x53, 0xea, 0x34, 0x9c, 0x8c, 0x74, 0x51, 0x4d, 0xde, 0xb6, 0xbb,
+	0x38, 0x93, 0x3d, 0x9c, 0xc5, 0xe1, 0x39, 0x17, 0xbb, 0x39, 0xfb, 0x10, 0x58, 0xef, 0x00, 0xcc,
+	0x28, 0x15, 0xfc, 0x3a, 0xca, 0xde, 0x5f, 0xf3, 0xc6, 0xf0, 0x94, 0xff, 0x75, 0x09, 0xb9, 0x3f,
+	0xe6, 0x67, 0x00, 0xad, 0x38, 0xe7, 0xdc, 0xaa, 0x78, 0x84, 0x85, 0xb4, 0xd2, 0xc3, 0x7d, 0x82,
+	0x8c, 0x1f, 0x8c, 0x41, 0xeb, 0x52, 0x4d, 0x54, 0x28, 0x23, 0xf7, 0x3b, 0xae, 0x7a, 0x09, 0xef,
+	0xd7, 0x30, 0x17, 0xa7, 0x46, 0xbf, 0x06, 0x7f, 0x67, 0xaa, 0x94, 0xa4, 0x9f, 0xbe, 0xb0, 0x9a,
+	0xeb, 0xf7, 0xd6, 0xc9, 0x7d, 0x73, 0x7a, 0x3e, 0x79, 0xf4, 0x3a, 0x93, 0x28, 0xc5, 0x15, 0x36,
+	0x6f, 0x8d, 0x3e, 0x81, 0xc1, 0x68, 0x06, 0xb0, 0x9e, 0x8d, 0xc1, 0xcc, 0x6e, 0xe4, 0x23, 0xf1,
+	0x03, 0x06, 0xb0, 0x06, 0x53, 0x3e, 0x0e, 0xb0, 0xc0, 0x8e, 0xa6, 0x70, 0x88, 0xaf, 0x96, 0x73,
+	0xb2, 0x34, 0xab, 0x22, 0xfa, 0xa8, 0x82, 0xcf, 0x53, 0x0e, 0x9c, 0xaf, 0xc9, 0x46, 0x1c, 0xd5,
+	0x7f, 0xfc, 0x4f, 0x52, 0x25, 0xa3, 0x0d, 0xaf, 0xf4, 0x97, 0xaa, 0xd4, 0xe5, 0x1c, 0x65, 0x15,
+	0xc6, 0x97, 0x67, 0xc0, 0x64, 0x0c, 0x60, 0x7d, 0x04, 0x70, 0xfe, 0x72, 0x88, 0xdc, 0x40, 0x66,
+	0x15, 0xf2, 0x5b, 0xa7, 0x9e, 0xda, 0x2e, 0x9c, 0x71, 0x51, 0xe8, 0x3b, 0xc4, 0xf5, 0x9c, 0x08,
+	0x31, 0x54, 0xe5, 0x5a, 0x3e, 0x4b, 0x27, 0x4f, 0xa0, 0x75, 0xb6, 0x4c, 0xd7, 0xd2, 0xf9, 0xa3,
+	0x55, 0xa5, 0xe0, 0x7a, 0xca, 0xb9, 0x59, 0x18, 0x9e, 0xfe, 0x1f, 0x4d, 0xff, 0x5d, 0x2e, 0x03,
+	0x58, 0x6f, 0x01, 0xfc, 0x57, 0x2e, 0xcf, 0x1d, 0x41, 0xd9, 0x5e, 0xb1, 0xe6, 0x06, 0x84, 0x57,
+	0xce, 0x72, 0x69, 0xac, 0xc0, 0x59, 0xde, 0x2a, 0xed, 0x44, 0x71, 0xed, 0xf8, 0x9d, 0x3e, 0xc3,
+	0xbb, 0x8e, 0xe4, 0xa3, 0xdc, 0x8b, 0xd5, 0xce, 0xbd, 0x3f, 0xa0, 0x75, 0xab, 0x09, 0xe0, 0xa2,
+	0x5a, 0x21, 0xe7, 0x00, 0xf2, 0xf6, 0xf0, 0x90, 0x6b, 0x5d, 0xeb, 0x6f, 0x40, 0xef, 0xf9, 0xbb,
+	0x47, 0x0d, 0x13, 0x1c, 0x37, 0x4c, 0xf0, 0xa6, 0x61, 0x82, 0xc7, 0x4d, 0x33, 0x71, 0xdc, 0x34,
+	0x13, 0xaf, 0x9a, 0x66, 0xe2, 0xce, 0x76, 0x99, 0x88, 0x4a, 0xcd, 0xcd, 0x79, 0xb4, 0x6a, 0x17,
+	0x62, 0xd9, 0x6d, 0x23, 0x97, 0xdb, 0x6d, 0x11, 0xae, 0x7b, 0x94, 0xe1, 0x4e, 0xb3, 0x82, 0x48,
+	0x68, 0x57, 0xa9, 0x5f, 0x0b, 0x30, 0x8f, 0x3f, 0x6c, 0xc5, 0x41, 0x84, 0xb9, 0xfb, 0x9b, 0xfc,
+	0xa0, 0xbd, 0xf8, 0x25, 0x00, 0x00, 0xff, 0xff, 0x1e, 0xe9, 0x1d, 0x90, 0xa0, 0x0b, 0x00, 0x00,
+}
+
+func (m *GrantBandOraclePrivilegeProposal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GrantBandOraclePrivilegeProposal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GrantBandOraclePrivilegeProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Relayers) > 0 {
+		for iNdEx := len(m.Relayers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Relayers[iNdEx])
+			copy(dAtA[i:], m.Relayers[iNdEx])
+			i = encodeVarintProposal(dAtA, i, uint64(len(m.Relayers[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RevokeBandOraclePrivilegeProposal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RevokeBandOraclePrivilegeProposal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RevokeBandOraclePrivilegeProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Relayers) > 0 {
+		for iNdEx := len(m.Relayers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Relayers[iNdEx])
+			copy(dAtA[i:], m.Relayers[iNdEx])
+			i = encodeVarintProposal(dAtA, i, uint64(len(m.Relayers[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *GrantPriceFeederPrivilegeProposal) Marshal() (dAtA []byte, err error) {
@@ -542,6 +869,167 @@ func (m *RevokePriceFeederPrivilegeProposal) MarshalToSizedBuffer(dAtA []byte) (
 	return len(dAtA) - i, nil
 }
 
+func (m *AuthorizeBandOracleRequestProposal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AuthorizeBandOracleRequestProposal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AuthorizeBandOracleRequestProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Request.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintProposal(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *UpdateBandOracleRequestProposal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *UpdateBandOracleRequestProposal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *UpdateBandOracleRequestProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.UpdateOracleRequest != nil {
+		{
+			size, err := m.UpdateOracleRequest.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintProposal(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.DeleteRequestIds) > 0 {
+		dAtA4 := make([]byte, len(m.DeleteRequestIds)*10)
+		var j3 int
+		for _, num := range m.DeleteRequestIds {
+			for num >= 1<<7 {
+				dAtA4[j3] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j3++
+			}
+			dAtA4[j3] = uint8(num)
+			j3++
+		}
+		i -= j3
+		copy(dAtA[i:], dAtA4[:j3])
+		i = encodeVarintProposal(dAtA, i, uint64(j3))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EnableBandIBCProposal) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EnableBandIBCProposal) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EnableBandIBCProposal) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.BandIbcParams.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintProposal(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintProposal(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *GrantStorkPublisherPrivilegeProposal) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -645,6 +1133,52 @@ func encodeVarintProposal(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *GrantBandOraclePrivilegeProposal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Title)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	if len(m.Relayers) > 0 {
+		for _, s := range m.Relayers {
+			l = len(s)
+			n += 1 + l + sovProposal(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *RevokeBandOraclePrivilegeProposal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Title)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	if len(m.Relayers) > 0 {
+		for _, s := range m.Relayers {
+			l = len(s)
+			n += 1 + l + sovProposal(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *GrantPriceFeederPrivilegeProposal) Size() (n int) {
 	if m == nil {
 		return 0
@@ -761,6 +1295,72 @@ func (m *RevokePriceFeederPrivilegeProposal) Size() (n int) {
 	return n
 }
 
+func (m *AuthorizeBandOracleRequestProposal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Title)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = m.Request.Size()
+	n += 1 + l + sovProposal(uint64(l))
+	return n
+}
+
+func (m *UpdateBandOracleRequestProposal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Title)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	if len(m.DeleteRequestIds) > 0 {
+		l = 0
+		for _, e := range m.DeleteRequestIds {
+			l += sovProposal(uint64(e))
+		}
+		n += 1 + sovProposal(uint64(l)) + l
+	}
+	if m.UpdateOracleRequest != nil {
+		l = m.UpdateOracleRequest.Size()
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	return n
+}
+
+func (m *EnableBandIBCProposal) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Title)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovProposal(uint64(l))
+	}
+	l = m.BandIbcParams.Size()
+	n += 1 + l + sovProposal(uint64(l))
+	return n
+}
+
 func (m *GrantStorkPublisherPrivilegeProposal) Size() (n int) {
 	if m == nil {
 		return 0
@@ -812,6 +1412,298 @@ func sovProposal(x uint64) (n int) {
 }
 func sozProposal(x uint64) (n int) {
 	return sovProposal(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *GrantBandOraclePrivilegeProposal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProposal
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GrantBandOraclePrivilegeProposal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GrantBandOraclePrivilegeProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Relayers", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Relayers = append(m.Relayers, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProposal(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RevokeBandOraclePrivilegeProposal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProposal
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RevokeBandOraclePrivilegeProposal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RevokeBandOraclePrivilegeProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Relayers", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Relayers = append(m.Relayers, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProposal(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *GrantPriceFeederPrivilegeProposal) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -1567,6 +2459,526 @@ func (m *RevokePriceFeederPrivilegeProposal) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Relayers = append(m.Relayers, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProposal(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AuthorizeBandOracleRequestProposal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProposal
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AuthorizeBandOracleRequestProposal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AuthorizeBandOracleRequestProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Request", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Request.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProposal(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *UpdateBandOracleRequestProposal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProposal
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: UpdateBandOracleRequestProposal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: UpdateBandOracleRequestProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType == 0 {
+				var v uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowProposal
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.DeleteRequestIds = append(m.DeleteRequestIds, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowProposal
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthProposal
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthProposal
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.DeleteRequestIds) == 0 {
+					m.DeleteRequestIds = make([]uint64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v uint64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowProposal
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= uint64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.DeleteRequestIds = append(m.DeleteRequestIds, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeleteRequestIds", wireType)
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UpdateOracleRequest", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.UpdateOracleRequest == nil {
+				m.UpdateOracleRequest = &BandOracleRequest{}
+			}
+			if err := m.UpdateOracleRequest.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipProposal(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EnableBandIBCProposal) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowProposal
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EnableBandIBCProposal: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EnableBandIBCProposal: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Title", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Title = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BandIbcParams", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowProposal
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthProposal
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthProposal
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.BandIbcParams.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

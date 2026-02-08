@@ -51,6 +51,13 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgValsetUpdatedClaim{},
 	)
 
+	registry.RegisterInterface(
+		"injective.peggy.v1.EthereumSigned",
+		(*EthereumSigned)(nil),
+		&OutgoingTxBatch{},
+		&Valset{},
+	)
+
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
 
