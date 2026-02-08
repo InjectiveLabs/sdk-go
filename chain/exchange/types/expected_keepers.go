@@ -104,3 +104,8 @@ type DowntimeKeeper interface {
 	GetLastDowntimeOfLength(ctx sdk.Context, dur downtimetypes.Downtime) (time.Time, error)
 	GetLastBlockTime(ctx sdk.Context) (time.Time, error)
 }
+
+type PermissionsKeeper interface {
+	IsEnforcedRestrictionsDenom(ctx sdk.Context, denom string) bool
+	SendRestrictionFn(ctx context.Context, fromAddr, toAddr sdk.AccAddress, amount sdk.Coin) (newToAddr sdk.AccAddress, err error)
+}
