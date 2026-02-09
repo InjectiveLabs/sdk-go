@@ -210,7 +210,6 @@ type DerivativeMatchingExpansionData struct {
 	OpenInterestDelta              math.LegacyDec
 	NewRestingLimitBuyOrders       []*DerivativeLimitOrder // transient buy orders that become new resting limit orders
 	NewRestingLimitSellOrders      []*DerivativeLimitOrder // transient sell orders that become new resting limit orders
-	PartialCancelOrders            map[common.Hash]struct{}
 }
 
 func NewDerivativeMatchingExpansionData(clearingPrice, clearingQuantity math.LegacyDec) *DerivativeMatchingExpansionData {
@@ -229,7 +228,6 @@ func NewDerivativeMatchingExpansionData(clearingPrice, clearingQuantity math.Leg
 		MarketBalanceDelta:             math.LegacyZeroDec(),
 		NewRestingLimitBuyOrders:       make([]*DerivativeLimitOrder, 0),
 		NewRestingLimitSellOrders:      make([]*DerivativeLimitOrder, 0),
-		PartialCancelOrders:            make(map[common.Hash]struct{}),
 	}
 }
 
@@ -254,22 +252,6 @@ func (e *DerivativeMatchingExpansionData) AddNewBuyRestingLimitOrder(order *Deri
 
 func (e *DerivativeMatchingExpansionData) AddNewSellRestingLimitOrder(order *DerivativeLimitOrder) {
 	e.NewRestingLimitSellOrders = append(e.NewRestingLimitSellOrders, order)
-}
-
-func (e *DerivativeMatchingExpansionData) SetRestingLimitBuyOrderCancels(orders []*DerivativeLimitOrder) {
-	e.RestingLimitBuyOrderCancels = orders
-}
-
-func (e *DerivativeMatchingExpansionData) SetRestingLimitSellOrderCancels(orders []*DerivativeLimitOrder) {
-	e.RestingLimitSellOrderCancels = orders
-}
-
-func (e *DerivativeMatchingExpansionData) SetTransientLimitBuyOrderCancels(orders []*DerivativeLimitOrder) {
-	e.TransientLimitBuyOrderCancels = orders
-}
-
-func (e *DerivativeMatchingExpansionData) SetTransientLimitSellOrderCancels(orders []*DerivativeLimitOrder) {
-	e.TransientLimitSellOrderCancels = orders
 }
 
 func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecutionData(
@@ -377,7 +359,6 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		CancelLimitOrderEvents:                cancelLimitOrdersEvents,
 		CancelMarketOrderEvents:               nil,
 		VwapData:                              vwapData,
-		PartialCancelOrders:                   e.PartialCancelOrders,
 	}
 
 	return batch
@@ -944,6 +925,10 @@ func GetPositionSliceData(p map[common.Hash]*PositionState) ([]*Position, []comm
 			positions = append(positions, position.Position)
 			nonNilPositionSubaccountIDs = append(nonNilPositionSubaccountIDs, subaccountID)
 		}
+
+		// else {
+		// 	fmt.Println("❌ position is nil for subaccount", subaccountID.Hex())
+		// }
 	}
 
 	return positions, nonNilPositionSubaccountIDs
@@ -990,10 +975,6 @@ type DerivativeBatchExecutionData struct {
 	CancelMarketOrderEvents []*EventCancelDerivativeOrder
 
 	VwapData *VwapData
-
-	// Orders that were partially filled then became invalid
-	// Used by persistence layer to handle partial cancellations correctly
-	PartialCancelOrders map[common.Hash]struct{}
 }
 
 func (d *DerivativeBatchExecutionData) GetAtomicDerivativeMarketOrderResults() *DerivativeMarketOrderResults {

@@ -1,0 +1,37 @@
+syntax = "proto3";
+package injective.ibcratelimits.v1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ibc-rate-limits/types";
+
+import "gogoproto/gogo.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+
+message RateLimit {
+  string token = 1;
+
+  injective.oracle.v1beta1.OracleType oracle_type = 2;
+
+  string oracle_id = 3;
+
+  string max_outgoing_limit_usd = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  uint64 sliding_window_size = 5;
+
+  uint32 token_decimals = 6;
+}
+
+message GenesisState {
+  // list of all configured rate limit objects
+  repeated RateLimit rate_limits = 1;
+}
+
+message EventRateLimitError {
+  uint64 block_number = 1;
+
+  string token = 2;
+
+  string the_error = 3;
+}

@@ -29,13 +29,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&GrantStorkPublisherPrivilegeProposal{}, "oracle/GrantStorkPublisherPrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokeStorkPublisherPrivilegeProposal{}, "oracle/RevokeStorkPublisherPrivilegeProposal", nil)
 	cdc.RegisterConcrete(&Params{}, "oracle/Params", nil)
-
-	// Deprecated: Band oracle proposal types kept for backward compatibility
-	cdc.RegisterConcrete(&GrantBandOraclePrivilegeProposal{}, "oracle/GrantBandOraclePrivilegeProposal", nil)     //nolint:staticcheck // deprecated
-	cdc.RegisterConcrete(&RevokeBandOraclePrivilegeProposal{}, "oracle/RevokeBandOraclePrivilegeProposal", nil)   //nolint:staticcheck // deprecated
-	cdc.RegisterConcrete(&AuthorizeBandOracleRequestProposal{}, "oracle/AuthorizeBandOracleRequestProposal", nil) //nolint:staticcheck // deprecated
-	cdc.RegisterConcrete(&UpdateBandOracleRequestProposal{}, "oracle/UpdateBandOracleRequestProposal", nil)       //nolint:staticcheck // deprecated
-	cdc.RegisterConcrete(&EnableBandIBCProposal{}, "oracle/EnableBandIBCProposal", nil)                           //nolint:staticcheck // deprecated
 }
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
@@ -55,12 +48,6 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&RevokeProviderPrivilegeProposal{},
 		&GrantStorkPublisherPrivilegeProposal{},
 		&RevokeStorkPublisherPrivilegeProposal{},
-		// Deprecated: Band oracle proposal types kept for backward compatibility
-		&GrantBandOraclePrivilegeProposal{},   //nolint:staticcheck // deprecated
-		&RevokeBandOraclePrivilegeProposal{},  //nolint:staticcheck // deprecated
-		&AuthorizeBandOracleRequestProposal{}, //nolint:staticcheck // deprecated
-		&UpdateBandOracleRequestProposal{},    //nolint:staticcheck // deprecated
-		&EnableBandIBCProposal{},              //nolint:staticcheck // deprecated
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

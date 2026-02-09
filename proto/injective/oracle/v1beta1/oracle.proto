@@ -23,7 +23,7 @@ enum OracleType {
   Band = 1 [ deprecated = true ];
   PriceFeed = 2;
   Coinbase = 3;
-  Chainlink = 4;
+  Chainlink = 4 [ deprecated = true ];
   Razor = 5;
   Dia = 6;
   API3 = 7;
@@ -41,6 +41,8 @@ message OracleInfo {
 }
 
 message ChainlinkPriceState {
+  option deprecated = true;
+
   string feed_id = 1;
   string answer = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",

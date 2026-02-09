@@ -1,0 +1,46 @@
+syntax = "proto3";
+package injective.ibcratelimits.v1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ibc-rate-limits/types";
+
+import "cosmos/msg/v1/msg.proto";
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "injective/ibcratelimits/v1/rate_limit.proto";
+
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  rpc CreateRateLimit(MsgCreateRateLimit) returns (MsgCreateRateLimitResponse);
+  rpc UpdateRateLimit(MsgUpdateRateLimit) returns (MsgUpdateRateLimitResponse);
+  rpc RemoveRateLimit(MsgRemoveRateLimit) returns (MsgRemoveRateLimitResponse);
+}
+
+message MsgCreateRateLimit {
+  option (cosmos.msg.v1.signer) = "authority";
+
+  // address of x/gov or module admin
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  RateLimit rate_limit = 2;
+}
+
+message MsgCreateRateLimitResponse {}
+
+message MsgUpdateRateLimit {
+  // address of x/gov or module admin
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  RateLimit new_rate_limit = 2;
+}
+
+message MsgUpdateRateLimitResponse {}
+
+message MsgRemoveRateLimit {
+  // address of x/gov or module admin
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  string token = 2;
+}
+
+message MsgRemoveRateLimitResponse {}

@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.17.81 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.18.0-beta.2 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b c-396/ibc-ratelimits --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -85,17 +85,15 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/exchange/types/v2 && \
     		cp injective-core/injective-chain/modules/exchange/types/v2/*.go chain/exchange/types/v2 && \
     		rm -rf chain/exchange/types/v2/*test.go && rm -rf chain/exchange/types/v2/*gw.go
+	mkdir -p chain/ibc-rate-limits/types && \
+		cp injective-core/injective-chain/modules/ibc-rate-limits/types/*.pb.go chain/ibc-rate-limits/types && \
+		cp injective-core/injective-chain/modules/ibc-rate-limits/types/codec.go chain/ibc-rate-limits/types && \
+		cp injective-core/injective-chain/modules/ibc-rate-limits/types/errors.go chain/ibc-rate-limits/types && \
+		cp injective-core/injective-chain/modules/ibc-rate-limits/types/msgs.go chain/ibc-rate-limits/types && \
+		cp injective-core/injective-chain/modules/ibc-rate-limits/types/rate_limit.go chain/ibc-rate-limits/types
 	mkdir -p chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
-	mkdir -p chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/*.pb.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/errors.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/key.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/params.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/proposal.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/types.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/codec.go chain/ocr/types
 	mkdir -p chain/oracle/types && \
 		cp injective-core/injective-chain/modules/oracle/types/*.pb.go chain/oracle/types && \
 		cp injective-core/injective-chain/modules/oracle/types/codec.go chain/oracle/types && \

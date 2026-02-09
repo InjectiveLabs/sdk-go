@@ -1,0 +1,41 @@
+syntax = "proto3";
+package injective.ibcratelimits.v1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ibc-rate-limits/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "injective/ibcratelimits/v1/rate_limit.proto";
+
+service Query {
+  rpc ModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+    option (google.api.http).get = "/injective/ibcratelimits/v1/module_state";
+  }
+
+  rpc RateLimit(QueryRateLimitRequest) returns (QueryRateLimitResponse) {
+    option (google.api.http).get = "/injective/ibcratelimits/v1/rate_limit";
+  }
+
+  rpc EffectiveOutflowUSD(QueryEffectiveOutflowUSDRequest)
+      returns (QueryEffectiveOutflowUSDResponse) {
+    option (google.api.http).get =
+        "/injective/ibcratelimits/v1/effective_outflow_usd";
+  }
+}
+
+message QueryModuleStateRequest {}
+
+message QueryModuleStateResponse { GenesisState state = 1; }
+
+message QueryRateLimitRequest { string token = 1; }
+
+message QueryRateLimitResponse { RateLimit rate_limit = 1; }
+
+message QueryEffectiveOutflowUSDRequest { string token = 1; }
+
+message QueryEffectiveOutflowUSDResponse {
+  string effective_outflow_usd = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

@@ -53,8 +53,8 @@ import (
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangev2 "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	ibcratelimits "github.com/InjectiveLabs/sdk-go/chain/ibc-rate-limits/types"
 	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
-	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	permissions "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
@@ -150,7 +150,6 @@ func createInjectiveProtoCodec() (injectiveCodec *codec.ProtoCodec, interfaceReg
 	auction.RegisterInterfaces(interfaceRegistry)
 	oracle.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
-	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
 	tokenfactory.RegisterInterfaces(interfaceRegistry)
@@ -159,6 +158,7 @@ func createInjectiveProtoCodec() (injectiveCodec *codec.ProtoCodec, interfaceReg
 	erc20types.RegisterInterfaces(interfaceRegistry)
 	evmtypes.RegisterInterfaces(interfaceRegistry)
 	downtimedetectortypes.RegisterInterfaces(interfaceRegistry)
+	ibcratelimits.RegisterInterfaces(interfaceRegistry)
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
 	authztypes.RegisterInterfaces(interfaceRegistry)
