@@ -4,6 +4,7 @@ package injective.exchange.v2;
 import "gogoproto/gogo.proto";
 import "amino/amino.proto";
 import "injective/oracle/v1beta1/oracle.proto";
+import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
 
@@ -37,6 +38,27 @@ message OpenNotionalCap {
               "injective.exchange.v2.OpenNotionalCapUncapped" ];
     OpenNotionalCapCapped capped = 2
         [ (amino.oneof_name) = "injective.exchange.v2.OpenNotionalCapCapped" ];
+  }
+}
+
+message OpenNotionalCapUncapped {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCapUncapped";
+}
+
+message OpenNotionalCapCapped {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCapCapped";
+  string value = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message OpenNotionalCap {
+  option (amino.name) = "injective.exchange.v2.OpenNotionalCap";
+
+  oneof cap {
+    OpenNotionalCapUncapped uncapped = 1 [(amino.oneof_name) = "uncapped"];
+    OpenNotionalCapCapped  capped   = 2 [(amino.oneof_name) = "capped"];
   }
 }
 
@@ -197,6 +219,7 @@ message BinaryOptionsMarket {
 
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 21 [ (gogoproto.nullable) = false ];
+<<<<<<< HEAD
 
   // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
   // fee is disabled for the market
@@ -205,6 +228,8 @@ message BinaryOptionsMarket {
   // force_paused_info defines additional info for force paused markets, only
   // set when status == ForcePaused
   ForcePausedInfo force_paused_info = 23;
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 }
 
 // An object describing a derivative market in the Injective Futures Protocol.
@@ -292,6 +317,7 @@ message DerivativeMarket {
 
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 22 [ (gogoproto.nullable) = false ];
+<<<<<<< HEAD
 
   // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
   // fee is disabled for the market
@@ -300,6 +326,8 @@ message DerivativeMarket {
   // force_paused_info defines additional info for force paused markets, only
   // set when status == ForcePaused
   ForcePausedInfo force_paused_info = 24;
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 }
 
 message DerivativeMarketSettlementInfo {

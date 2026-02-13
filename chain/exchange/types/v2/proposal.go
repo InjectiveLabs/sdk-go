@@ -914,11 +914,14 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
 		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 	}
+<<<<<<< HEAD
 	if p.AdminInfo != nil {
 		if err := p.AdminInfo.ValidateBasic(); err != nil {
 			return err
 		}
 	}
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 
 	return govtypes.ValidateAbstract(p)
 }
@@ -1027,11 +1030,14 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
 		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 	}
+<<<<<<< HEAD
 	if p.AdminInfo != nil {
 		if err := p.AdminInfo.ValidateBasic(); err != nil {
 			return err
 		}
 	}
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 
 	return govtypes.ValidateAbstract(p)
 }
@@ -1685,6 +1691,7 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 	hasDisabledMinimalProtocolFee DisableMinimalProtocolFeeUpdate,
 ) *BinaryOptionsMarketParamUpdateProposal {
 	return &BinaryOptionsMarketParamUpdateProposal{
+<<<<<<< HEAD
 		Title:                         title,
 		Description:                   description,
 		MarketId:                      marketID,
@@ -1702,6 +1709,24 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 		OracleParams:                  oracleParams,
 		Ticker:                        ticker,
 		HasDisabledMinimalProtocolFee: hasDisabledMinimalProtocolFee,
+=======
+		Title:               title,
+		Description:         description,
+		MarketId:            marketID,
+		MakerFeeRate:        makerFeeRate,
+		TakerFeeRate:        takerFeeRate,
+		RelayerFeeShareRate: relayerFeeShareRate,
+		MinPriceTickSize:    minPriceTickSize,
+		MinQuantityTickSize: minQuantityTickSize,
+		MinNotional:         minNotional,
+		OpenNotionalCap:     openNotionalCap,
+		ExpirationTimestamp: expirationTimestamp,
+		SettlementTimestamp: settlementTimestamp,
+		Admin:               admin,
+		Status:              status,
+		OracleParams:        oracleParams,
+		Ticker:              ticker,
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 	}
 }
 

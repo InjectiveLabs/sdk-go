@@ -269,10 +269,13 @@ func (p Params) Validate() error {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
 	}
 
+<<<<<<< HEAD
 	if err := ValidateEnforcedRestrictionsContracts(p.EnforcedRestrictionsContracts); err != nil {
 		return fmt.Errorf("enforced_restrictions_contracts are invalid: %w", err)
 	}
 
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 	return nil
 }
 
@@ -356,6 +359,7 @@ func ValidateOpenNotionalCap(i any) error {
 
 	return nil
 }
+<<<<<<< HEAD
 
 func ValidateEVMAddresses(addresses []string) error {
 	for _, addr := range addresses {
@@ -377,3 +381,5 @@ func ValidateEnforcedRestrictionsContracts(contracts []EnforcedRestrictionsContr
 
 	return nil
 }
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a

@@ -487,10 +487,13 @@ message DerivativeMarketParamUpdateProposal {
   ];
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 19 [ (gogoproto.nullable) = true ];
+<<<<<<< HEAD
   // has_disabled_minimal_protocol_fee defines whether the minimal protocol fee
   // is disabled for the market
   DisableMinimalProtocolFeeUpdate has_disabled_minimal_protocol_fee = 20
       [ (gogoproto.nullable) = true ];
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 }
 
 message AdminInfo {
@@ -587,10 +590,13 @@ message BinaryOptionsMarketParamUpdateProposal {
   ];
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 17 [ (gogoproto.nullable) = true ];
+<<<<<<< HEAD
   // has_disabled_minimal_protocol_fee defines whether the minimal protocol fee
   // is disabled for the market
   DisableMinimalProtocolFeeUpdate has_disabled_minimal_protocol_fee = 18
       [ (gogoproto.nullable) = true ];
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 }
 
 message ProviderOracleParams {

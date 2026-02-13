@@ -220,8 +220,13 @@ type MsgUpdateNamespace struct {
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty" yaml:"sender"`
 	// denom whose namespace updates are to be applied
 	Denom string `protobuf:"bytes,2,opt,name=denom,proto3" json:"denom,omitempty"`
+<<<<<<< HEAD
 	// address of wasm smart contract to apply code-based restrictions
 	WasmHook *MsgUpdateNamespace_SetContractHook `protobuf:"bytes,3,opt,name=wasm_hook,json=wasmHook,proto3" json:"wasm_hook,omitempty"`
+=======
+	// address of smart contract to apply code-based restrictions
+	ContractHook *MsgUpdateNamespace_SetContractHook `protobuf:"bytes,3,opt,name=contract_hook,json=contractHook,proto3" json:"contract_hook,omitempty"`
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 	// role permissions to update
 	RolePermissions []*Role `protobuf:"bytes,4,rep,name=role_permissions,json=rolePermissions,proto3" json:"role_permissions,omitempty"`
 	// role managers to update
@@ -230,8 +235,11 @@ type MsgUpdateNamespace struct {
 	PolicyStatuses []*PolicyStatus `protobuf:"bytes,6,rep,name=policy_statuses,json=policyStatuses,proto3" json:"policy_statuses,omitempty"`
 	// policy manager capabilities to update
 	PolicyManagerCapabilities []*PolicyManagerCapability `protobuf:"bytes,7,rep,name=policy_manager_capabilities,json=policyManagerCapabilities,proto3" json:"policy_manager_capabilities,omitempty"`
+<<<<<<< HEAD
 	// address of EVM smart contract to apply code-based restrictions
 	EvmHook *MsgUpdateNamespace_SetContractHook `protobuf:"bytes,8,opt,name=evm_hook,json=evmHook,proto3" json:"evm_hook,omitempty"`
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 }
 
 func (m *MsgUpdateNamespace) Reset()         { *m = MsgUpdateNamespace{} }

@@ -89,8 +89,13 @@ func (Action) EnumDescriptor() ([]byte, []int) {
 type Namespace struct {
 	// The tokenfactory denom to which this namespace applies to
 	Denom string `protobuf:"bytes,1,opt,name=denom,proto3" json:"denom,omitempty"`
+<<<<<<< HEAD
 	// The address of cosmwasm contract to apply code-based restrictions
 	WasmHook string `protobuf:"bytes,2,opt,name=wasm_hook,json=wasmHook,proto3" json:"wasm_hook,omitempty"`
+=======
+	// The address of smart contract to apply code-based restrictions
+	ContractHook string `protobuf:"bytes,2,opt,name=contract_hook,json=contractHook,proto3" json:"contract_hook,omitempty"`
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 	// permissions for each role
 	RolePermissions []*Role `protobuf:"bytes,3,rep,name=role_permissions,json=rolePermissions,proto3" json:"role_permissions,omitempty"`
 	// roles for each actor

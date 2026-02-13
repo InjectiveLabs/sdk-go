@@ -222,6 +222,7 @@ service Msg {
       MsgAtomicMarketOrderFeeMultiplierSchedule)
       returns (MsgAtomicMarketOrderFeeMultiplierScheduleResponse);
 
+<<<<<<< HEAD
   // MsgCancelPostOnlyMode defines a message to turn off the post-only mode
   rpc CancelPostOnlyMode(MsgCancelPostOnlyMode)
       returns (MsgCancelPostOnlyModeResponse);
@@ -230,6 +231,10 @@ service Msg {
   // a number of blocks
   rpc ActivatePostOnlyMode(MsgActivatePostOnlyMode)
       returns (MsgActivatePostOnlyModeResponse);
+=======
+  rpc CancelPostOnlyMode(MsgCancelPostOnlyMode)
+      returns (MsgCancelPostOnlyModeResponse);
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 }
 
 message MsgUpdateSpotMarket {
@@ -1586,6 +1591,7 @@ message MsgCancelPostOnlyMode {
 
 // MsgCancelPostOnlyModeResponse defines the response for MsgCancelPostOnlyMode
 message MsgCancelPostOnlyModeResponse {}
+<<<<<<< HEAD
 
 // MsgActivatePostOnlyMode defines a message to turn on the post-only mode for a
 // number of blocks
@@ -1602,3 +1608,5 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyModeResponse defines the response for
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
+=======
+>>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
