@@ -31,7 +31,8 @@ message MsgEthereumTx {
   option (gogoproto.goproto_getters) = false;
 
   // data is inner transaction data of the Ethereum transaction
-  google.protobuf.Any data = 1;
+  google.protobuf.Any data = 1
+      [ (cosmos_proto.accepts_interface) = "injective.evm.v1.TxData" ];
 
   // size is the encoded storage size of the transaction (DEPRECATED)
   double size = 2 [ (gogoproto.jsontag) = "-" ];
@@ -52,7 +53,7 @@ message MsgEthereumTx {
 // AllowUnprotectedTxs parameter is disabled.
 message LegacyTx {
   option (gogoproto.goproto_getters) = false;
-  option (cosmos_proto.implements_interface) = "TxData";
+  option (cosmos_proto.implements_interface) = "injective.evm.v1.TxData";
 
   // nonce corresponds to the account nonce (transaction sequence).
   uint64 nonce = 1;
@@ -80,7 +81,7 @@ message LegacyTx {
 // AccessListTx is the data of EIP-2930 access list transactions.
 message AccessListTx {
   option (gogoproto.goproto_getters) = false;
-  option (cosmos_proto.implements_interface) = "TxData";
+  option (cosmos_proto.implements_interface) = "injective.evm.v1.TxData";
 
   // chain_id of the destination EVM chain
   string chain_id = 1 [
@@ -120,7 +121,7 @@ message AccessListTx {
 // DynamicFeeTx is the data of EIP-1559 dinamic fee transactions.
 message DynamicFeeTx {
   option (gogoproto.goproto_getters) = false;
-  option (cosmos_proto.implements_interface) = "TxData";
+  option (cosmos_proto.implements_interface) = "injective.evm.v1.TxData";
 
   // chain_id of the destination EVM chain
   string chain_id = 1 [
@@ -184,6 +185,9 @@ message MsgEthereumTxResponse {
   uint64 gas_used = 5;
   // include the block hash for json-rpc to use
   bytes block_hash = 6;
+  // execution_gas_used specifies the actual gas consumed during EVM execution.
+  // This is used for accurate gas estimation.
+  uint64 execution_gas_used = 7;
 }
 
 // MsgUpdateParams defines a Msg for updating the x/evm module parameters.

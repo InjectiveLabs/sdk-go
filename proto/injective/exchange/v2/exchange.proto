@@ -4,12 +4,25 @@ package injective.exchange.v2;
 import "gogoproto/gogo.proto";
 import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
 
 import "injective/oracle/v1beta1/oracle.proto";
 import "injective/exchange/v2/market.proto";
 import "injective/exchange/v2/order.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
+
+// EnforcedRestrictionsContract defines a contract with its pause event
+// signature
+message EnforcedRestrictionsContract {
+  option (gogoproto.equal) = true;
+  // EVM address of the contract
+  string contract_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  // Pause event signature for the contract (e.g. "Pause()", or
+  // "Pause(address)"). If left empty, it will default to "Pause()".
+  string pause_event_signature = 2;
+}
 
 enum ExecutionType {
   UnspecifiedExecutionType = 0;
@@ -20,6 +33,7 @@ enum ExecutionType {
   MarketLiquidation = 5;
   ExpiryMarketSettlement = 6;
   OffsettingPosition = 7;
+  Synthetic = 8;
 }
 
 message Params {
@@ -208,6 +222,11 @@ message Params {
   // mode will be enabled after the downtime-detector module detects a chain
   // downtime
   uint64 post_only_mode_blocks_amount_after_downtime = 35;
+
+  // Contracts that exchange will be listening to pause markets denominated in
+  // respective erc20: denoms, with their pause event signatures
+  repeated EnforcedRestrictionsContract enforced_restrictions_contracts = 36
+      [ (gogoproto.nullable) = false ];
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }

@@ -222,8 +222,14 @@ service Msg {
       MsgAtomicMarketOrderFeeMultiplierSchedule)
       returns (MsgAtomicMarketOrderFeeMultiplierScheduleResponse);
 
+  // MsgCancelPostOnlyMode defines a message to turn off the post-only mode
   rpc CancelPostOnlyMode(MsgCancelPostOnlyMode)
       returns (MsgCancelPostOnlyModeResponse);
+
+  // MsgActivatePostOnlyMode defines a message to turn on the post-only mode for
+  // a number of blocks
+  rpc ActivatePostOnlyMode(MsgActivatePostOnlyMode)
+      returns (MsgActivatePostOnlyModeResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -1580,3 +1586,19 @@ message MsgCancelPostOnlyMode {
 
 // MsgCancelPostOnlyModeResponse defines the response for MsgCancelPostOnlyMode
 message MsgCancelPostOnlyModeResponse {}
+
+// MsgActivatePostOnlyMode defines a message to turn on the post-only mode for a
+// number of blocks
+message MsgActivatePostOnlyMode {
+  option (amino.name) = "exchange/MsgActivatePostOnlyMode";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address
+  string sender = 1;
+  // the number of blocks to activate post-only mode for
+  uint32 blocks_amount = 2;
+}
+
+// MsgActivatePostOnlyModeResponse defines the response for
+// MsgActivatePostOnlyMode
+message MsgActivatePostOnlyModeResponse {}

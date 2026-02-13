@@ -24,17 +24,17 @@ const (
 	TypeMsgRelayProviderPrices   = "relayProviderPrices"
 	TypeMsgRelayPythPrices       = "relayPythPrices"
 	TypeMsgRelayStorkPrices      = "relayStorkPrices"
+	TypeMsgRelayChainlinkPrices  = "relayChainlinkPrices"
 	TypeMsgUpdateParams          = "updateParams"
 )
 
 var (
 	_ sdk.Msg = &MsgRelayPriceFeedPrice{}
-	_ sdk.Msg = &MsgRelayBandRates{}
 	_ sdk.Msg = &MsgRelayCoinbaseMessages{}
-	_ sdk.Msg = &MsgRequestBandIBCRates{}
 	_ sdk.Msg = &MsgRelayProviderPrices{}
 	_ sdk.Msg = &MsgRelayPythPrices{}
 	_ sdk.Msg = &MsgRelayStorkPrices{}
+	_ sdk.Msg = &MsgRelayChainlinkPrices{}
 	_ sdk.Msg = &MsgUpdateParams{}
 )
 
@@ -110,46 +110,6 @@ func (msg MsgRelayPriceFeedPrice) GetSigners() []sdk.AccAddress {
 }
 
 // Route implements the sdk.Msg interface. It should return the name of the module
-func (msg MsgRelayBandRates) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (msg MsgRelayBandRates) Type() string { return TypeMsgRelayBandRates }
-
-// ValidateBasic implements the sdk.Msg interface for MsgRelay.
-func (msg MsgRelayBandRates) ValidateBasic() error {
-	if msg.Relayer == "" {
-		return ErrEmptyRelayerAddr
-	}
-
-	// check that the sizes of symbols,rates,resolveTimes,requestIDs are equal
-	symbolsCount := len(msg.Symbols)
-	if len(msg.Rates) != symbolsCount {
-		return ErrBadRatesCount
-	}
-	if len(msg.ResolveTimes) != symbolsCount {
-		return ErrBadResolveTimesCount
-	}
-	if len(msg.RequestIDs) != symbolsCount {
-		return ErrBadRequestIDsCount
-	}
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgRelayBandRates) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgRelayBandRates) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Relayer)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
 func (msg MsgRelayCoinbaseMessages) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
@@ -181,54 +141,6 @@ func (msg MsgRelayCoinbaseMessages) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{sender}
-}
-
-// NewMsgRequestBandIBCRates creates a new MsgRequestBandIBCRates instance.
-func NewMsgRequestBandIBCRates(
-	sender sdk.AccAddress,
-	requestID uint64,
-) *MsgRequestBandIBCRates {
-	return &MsgRequestBandIBCRates{
-		Sender:    sender.String(),
-		RequestId: requestID,
-	}
-}
-
-// Route implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestBandIBCRates) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestBandIBCRates) Type() string { return TypeMsgRequestBandIBCRates }
-
-// ValidateBasic implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestBandIBCRates) ValidateBasic() error {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return err
-	}
-	if sender.Empty() {
-		return errors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: Sender address must not be empty.")
-	}
-
-	if msg.RequestId == 0 {
-		return errors.Wrapf(ErrInvalidBandIBCRequest, "MsgRequestBandIBCRates: requestID should be greater than zero")
-	}
-	return nil
-}
-
-// GetSigners implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestBandIBCRates) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-// GetSignBytes implements the sdk.Msg interface for MsgRequestData.
-func (msg MsgRequestBandIBCRates) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&msg)
-	return sdk.MustSortJSON(bz)
 }
 
 // Route implements the sdk.Msg interface. It should return the name of the module
@@ -341,7 +253,7 @@ func (msg MsgRelayStorkPrices) ValidateBasic() error {
 		oldestTimestamp := ^uint64(0) // max uint64
 		for i := range assetPair.SignedPrices {
 			p := assetPair.SignedPrices[i]
-			// convert timestamp to nanoseconds to validate conditions	
+			// convert timestamp to nanoseconds to validate conditions
 			timestamp := ConvertTimestampToNanoSecond(p.Timestamp)
 			if timestamp > newestTimestamp {
 				newestTimestamp = timestamp
@@ -399,4 +311,33 @@ func ConvertTimestampToNanoSecond(timestamp uint64) (nanoSeconds uint64) {
 	default:
 		return timestamp * 1_000_000_000
 	}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
+func (MsgRelayChainlinkPrices) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (MsgRelayChainlinkPrices) Type() string { return TypeMsgRelayChainlinkPrices }
+
+// ValidateBasic implements the sdk.Msg interface for MsgRelayChainlinkPrices.
+func (msg MsgRelayChainlinkPrices) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgRelayChainlinkPrices) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgRelayChainlinkPrices) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
 }

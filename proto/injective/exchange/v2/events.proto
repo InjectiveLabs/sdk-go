@@ -81,6 +81,10 @@ message EventBinaryOptionsMarketUpdate {
   BinaryOptionsMarket market = 1 [ (gogoproto.nullable) = false ];
 }
 
+message EventDerivativeMarketUpdate {
+  DerivativeMarket market = 1 [ (gogoproto.nullable) = false ];
+}
+
 message EventNewSpotOrders {
   string market_id = 1;
   repeated SpotLimitOrder buy_orders = 2;
@@ -343,3 +347,13 @@ message SpotOrderV2Changes {
 }
 
 message EventDerivativePositionV2Migration { DerivativePosition position = 1; }
+
+message EventPositionTransfer {
+  string market_id = 1;
+  string source_subaccount_id = 2;
+  string destination_subaccount_id = 3;
+  string quantity = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

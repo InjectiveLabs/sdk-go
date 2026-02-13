@@ -1,15 +1,19 @@
 syntax = "proto3";
 package injective.oracle.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "injective/oracle/v1beta1/oracle.proto";
-import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
 message GrantBandOraclePrivilegeProposal {
+  option deprecated = true;
+
   option (amino.name) = "oracle/GrantBandOraclePrivilegeProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -21,7 +25,11 @@ message GrantBandOraclePrivilegeProposal {
   repeated string relayers = 3;
 }
 
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
 message RevokeBandOraclePrivilegeProposal {
+  option deprecated = true;
+
   option (amino.name) = "oracle/RevokeBandOraclePrivilegeProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -87,7 +95,11 @@ message RevokePriceFeederPrivilegeProposal {
   repeated string relayers = 5;
 }
 
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
 message AuthorizeBandOracleRequestProposal {
+  option deprecated = true;
+
   option (amino.name) = "oracle/AuthorizeBandOracleRequestProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -96,10 +108,14 @@ message AuthorizeBandOracleRequestProposal {
 
   string title = 1;
   string description = 2;
-  BandOracleRequest request = 3 [ (gogoproto.nullable) = false ];
+  BandOracleRequest request = 3 [(gogoproto.nullable) = false];
 }
 
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
 message UpdateBandOracleRequestProposal {
+  option deprecated = true;
+
   option (amino.name) = "oracle/UpdateBandOracleRequestProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -112,7 +128,11 @@ message UpdateBandOracleRequestProposal {
   BandOracleRequest update_oracle_request = 4;
 }
 
+// Deprecated: Band oracle support was removed. This message is kept for
+// backward compatibility to decode historical proposals.
 message EnableBandIBCProposal {
+  option deprecated = true;
+
   option (amino.name) = "oracle/EnableBandIBCProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -122,7 +142,7 @@ message EnableBandIBCProposal {
   string title = 1;
   string description = 2;
 
-  BandIBCParams band_ibc_params = 3 [ (gogoproto.nullable) = false ];
+  BandIBCParams band_ibc_params = 3 [(gogoproto.nullable) = false];
 }
 
 message GrantStorkPublisherPrivilegeProposal {

@@ -17,6 +17,10 @@ func (d *Deposit) IsEmpty() bool {
 	return d.AvailableBalance.IsZero() && d.TotalBalance.IsZero()
 }
 
+func (d *Deposit) IsNegative() bool {
+	return d.AvailableBalance.IsNegative() || d.TotalBalance.IsNegative()
+}
+
 func (d *Deposit) Display() string {
 	return fmt.Sprintf("Deposit Available: %s, Total: %s", getReadableDec(d.AvailableBalance), getReadableDec(d.TotalBalance))
 }

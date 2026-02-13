@@ -23,13 +23,6 @@ service Msg {
   rpc RelayPriceFeedPrice(MsgRelayPriceFeedPrice)
       returns (MsgRelayPriceFeedPriceResponse);
 
-  // RelayBandRates defines a method for relaying rates from Band
-  rpc RelayBandRates(MsgRelayBandRates) returns (MsgRelayBandRatesResponse);
-
-  // RequestBandIBCRates defines a method for fetching rates from Band ibc
-  rpc RequestBandIBCRates(MsgRequestBandIBCRates)
-      returns (MsgRequestBandIBCRatesResponse);
-
   // RelayCoinbaseMessages defines a method for relaying price messages from
   // Coinbase API
   rpc RelayCoinbaseMessages(MsgRelayCoinbaseMessages)
@@ -42,6 +35,11 @@ service Msg {
 
   // RelayPythPrices defines a method for relaying rates from the Pyth contract
   rpc RelayPythPrices(MsgRelayPythPrices) returns (MsgRelayPythPricesResponse);
+
+  // RelayChainlinkPrices defines a method for relaying rates from Chainlink
+  // Data Streams
+  rpc RelayChainlinkPrices(MsgRelayChainlinkPrices)
+      returns (MsgRelayChainlinkPricesResponse);
 
   //  UpdateParams enables updating oracle module's params via governance
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -88,19 +86,6 @@ message MsgRelayPriceFeedPrice {
 
 message MsgRelayPriceFeedPriceResponse {}
 
-message MsgRelayBandRates {
-  option (amino.name) = "oracle/MsgRelayBandRates";
-  option (cosmos.msg.v1.signer) = "relayer";
-
-  string relayer = 1;
-  repeated string symbols = 2;
-  repeated uint64 rates = 3;
-  repeated uint64 resolve_times = 4;
-  repeated uint64 requestIDs = 5;
-}
-
-message MsgRelayBandRatesResponse {}
-
 // MsgRelayCoinbaseMessages defines a SDK message for relaying price messages
 // from Coinbase API.
 message MsgRelayCoinbaseMessages {
@@ -130,21 +115,6 @@ message MsgRelayStorkPrices {
 
 message MsgRelayStorkPricesResponse {}
 
-// MsgRequestBandIBCRates defines a SDK message for requesting data from
-// BandChain using IBC.
-message MsgRequestBandIBCRates {
-  option (amino.name) = "oracle/MsgRequestBandIBCRates";
-  option (gogoproto.equal) = false;
-  option (gogoproto.goproto_getters) = false;
-  option (cosmos.msg.v1.signer) = "sender";
-
-  string sender = 1;
-  uint64 request_id = 2;
-}
-
-// MsgRequestDataResponse defines the Msg/RequestBandIBCRates response type.
-message MsgRequestBandIBCRatesResponse {}
-
 // MsgRelayPythPrices defines a SDK message for updating Pyth prices
 message MsgRelayPythPrices {
   option (amino.name) = "oracle/MsgRelayPythPrices";
@@ -158,6 +128,22 @@ message MsgRelayPythPrices {
 
 // MsgRelayPythPricesResponse defines the Msg/RelayPythPrices response type.
 message MsgRelayPythPricesResponse {}
+
+// MsgRelayChainlinkPrices defines a SDK message for updating Chainlink Data
+// Streams prices
+message MsgRelayChainlinkPrices {
+  option (amino.name) = "oracle/MsgRelayChainlinkPrices";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  repeated ChainlinkReport reports = 2;
+}
+
+// MsgRelayChainlinkPricesResponse defines the Msg/RelayChainlinkPrices response
+// type.
+message MsgRelayChainlinkPricesResponse {}
 
 message MsgUpdateParams {
   option (amino.name) = "oracle/MsgUpdateParams";

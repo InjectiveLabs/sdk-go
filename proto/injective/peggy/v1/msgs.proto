@@ -219,6 +219,7 @@ message MsgConfirmBatchResponse {}
 message MsgDepositClaim {
   option (amino.name) = "peggy/MsgDepositClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
+  option (cosmos_proto.implements_interface) = "peggy.v1beta1.EthereumClaim";
 
   uint64 event_nonce = 1;
   uint64 block_height = 2;
@@ -240,6 +241,7 @@ message MsgDepositClaimResponse {}
 message MsgWithdrawClaim {
   option (amino.name) = "peggy/MsgWithdrawClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
+  option (cosmos_proto.implements_interface) = "peggy.v1beta1.EthereumClaim";
 
   uint64 event_nonce = 1;
   uint64 block_height = 2;
@@ -256,6 +258,7 @@ message MsgWithdrawClaimResponse {}
 message MsgERC20DeployedClaim {
   option (amino.name) = "peggy/MsgERC20DeployedClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
+  option (cosmos_proto.implements_interface) = "peggy.v1beta1.EthereumClaim";
 
   uint64 event_nonce = 1;
   uint64 block_height = 2;
@@ -289,7 +292,8 @@ message MsgSubmitBadSignatureEvidence {
   option (amino.name) = "peggy/MsgSubmitBadSignatureEvidence";
   option (cosmos.msg.v1.signer) = "sender";
 
-  google.protobuf.Any subject = 1;
+  google.protobuf.Any subject = 1 [ (cosmos_proto.accepts_interface) =
+                                        "injective.peggy.v1.EthereumSigned" ];
   string signature = 2;
   string sender = 3;
 }
@@ -301,6 +305,7 @@ message MsgSubmitBadSignatureEvidenceResponse {}
 message MsgValsetUpdatedClaim {
   option (amino.name) = "peggy/MsgValsetUpdatedClaim";
   option (cosmos.msg.v1.signer) = "orchestrator";
+  option (cosmos_proto.implements_interface) = "peggy.v1beta1.EthereumClaim";
 
   uint64 event_nonce = 1;
   uint64 valset_nonce = 2;

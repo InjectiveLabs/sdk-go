@@ -76,6 +76,14 @@ service Query {
         "/injective/oracle/v1beta1/provider_price_state/{provider}/{symbol}";
   }
 
+  // Retrieves the state for all Chainlink Data Streams price feeds
+  rpc ChainlinkDataStreamsPriceStates(
+      QueryChainlinkDataStreamsPriceStatesRequest)
+      returns (QueryChainlinkDataStreamsPriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/chainlink_data_stream_price_states";
+  }
+
   // Retrieves the entire oracle module's state
   rpc OracleModuleState(QueryModuleStateRequest)
       returns (QueryModuleStateResponse) {
@@ -214,6 +222,16 @@ message QueryProviderPriceStateRequest {
 // QueryProviderPriceStatesResponse is the response type for the
 // Query/ProviderPriceStates RPC method.
 message QueryProviderPriceStateResponse { PriceState price_state = 1; }
+
+// QueryChainlinkDataStreamsPriceStatesRequest is the request type for the
+// Query/ChainlinkDataStreamsPriceStates RPC method.
+message QueryChainlinkDataStreamsPriceStatesRequest {}
+
+// QueryChainlinkDataStreamsPriceStatesResponse is the response type for the
+// Query/ChainlinkDataStreamsPriceStates RPC method.
+message QueryChainlinkDataStreamsPriceStatesResponse {
+  repeated ChainlinkDataStreamsPriceState price_states = 1;
+}
 
 // QueryModuleStateRequest is the request type for the Query/OracleModuleState
 // RPC method.

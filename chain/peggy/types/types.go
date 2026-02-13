@@ -64,6 +64,8 @@ func (b BridgeValidators) Sort() {
 	})
 }
 
+var PowerCeiling = sdkmath.LegacyNewDecFromInt(sdkmath.NewIntFromUint64(uint64(math.MaxUint32)))
+
 // PowerDiff returns the difference in power between two bridge validator sets
 // note this is Gravity bridge power *not* Cosmos voting power. Cosmos voting
 // power is based on the absolute number of tokens in the staking pool at any given
@@ -78,7 +80,7 @@ func (b BridgeValidators) Sort() {
 // if the total on chain voting power increases by 1% due to inflation, we shouldn't have to generate a new validator
 // set, after all the validators retained their relative percentages during inflation and normalized Gravity bridge power
 // shows no difference.
-func (b BridgeValidators) PowerDiff(c BridgeValidators) float64 {
+func (b BridgeValidators) PowerDiff(c BridgeValidators) sdkmath.LegacyDec {
 	powers := map[string]int64{}
 	// loop over b and initialize the map with their powers
 	for _, bv := range b {
@@ -95,13 +97,13 @@ func (b BridgeValidators) PowerDiff(c BridgeValidators) float64 {
 		}
 	}
 
-	var delta float64
-	for _, v := range powers {
+	delta := sdkmath.LegacyZeroDec()
+	for _, power := range powers {
 		// NOTE: we care about the absolute value of the changes
-		delta += math.Abs(float64(v))
+		delta = delta.Add(sdkmath.LegacyNewDec(power).Abs())
 	}
 
-	return math.Abs(delta / float64(math.MaxUint32))
+	return delta.Quo(PowerCeiling) // return diff in percentages
 }
 
 // TotalPower returns the total power in the bridge validator set

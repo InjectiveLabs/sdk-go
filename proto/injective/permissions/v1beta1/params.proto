@@ -12,6 +12,9 @@ option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mod
 message Params {
   option (gogoproto.equal) = true;
   option (amino.name) = "permissions/Params";
-  // Max amount of gas allowed for wasm hook queries
-  uint64 wasm_hook_query_max_gas = 1;
+  // Max amount of gas allowed for contract hook queries
+  uint64 contract_hook_max_gas = 1;
+
+  // EVM addresses of contracts that will not bypass module-to-module transfers
+  repeated string enforced_restrictions_contracts = 2;
 }

@@ -11,25 +11,26 @@ message GenesisState {
   // params defines all the parameters of related to oracle.
   Params params = 1 [ (gogoproto.nullable) = false ];
 
-  repeated string band_relayers = 2;
+  repeated string band_relayers = 2 [ deprecated = true ];
 
-  repeated BandPriceState band_price_states = 3;
+  repeated BandPriceState band_price_states = 3 [ deprecated = true ];
 
   repeated PriceFeedState price_feed_price_states = 4;
 
   repeated CoinbasePriceState coinbase_price_states = 5;
 
-  repeated BandPriceState band_ibc_price_states = 6;
+  repeated BandPriceState band_ibc_price_states = 6 [ deprecated = true ];
 
-  repeated BandOracleRequest band_ibc_oracle_requests = 7;
+  repeated BandOracleRequest band_ibc_oracle_requests = 7 [ deprecated = true ];
 
-  BandIBCParams band_ibc_params = 8 [ (gogoproto.nullable) = false ];
+  BandIBCParams band_ibc_params = 8
+      [ (gogoproto.nullable) = false, deprecated = true ];
 
-  uint64 band_ibc_latest_client_id = 9;
+  uint64 band_ibc_latest_client_id = 9 [ deprecated = true ];
 
-  repeated CalldataRecord calldata_records = 10;
+  repeated CalldataRecord calldata_records = 10 [ deprecated = true ];
 
-  uint64 band_ibc_latest_request_id = 11;
+  uint64 band_ibc_latest_request_id = 11 [ deprecated = true ];
 
   repeated ChainlinkPriceState chainlink_price_states = 12;
 
@@ -42,6 +43,9 @@ message GenesisState {
   repeated StorkPriceState stork_price_states = 16;
 
   repeated string stork_publishers = 17;
+
+  repeated ChainlinkDataStreamsPriceState chainlink_data_streams_price_states =
+      18;
 }
 
 message CalldataRecord {

@@ -259,7 +259,7 @@ service Query {
   rpc SubaccountPositions(QuerySubaccountPositionsRequest)
       returns (QuerySubaccountPositionsResponse) {
     option (google.api.http).get =
-        "/injective/exchange/v1beta1/positions/{subaccount_id}";
+        "/injective/exchange/v1beta1/subaccount_positions/{subaccount_id}";
   }
 
   // Retrieves subaccount's position in market

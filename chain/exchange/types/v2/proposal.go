@@ -220,6 +220,7 @@ func NewSpotMarketParamUpdateProposal(
 	status MarketStatus,
 	ticker string,
 	baseDecimals, quoteDecimals uint32,
+	hasDisabledMinimalProtocolFee DisableMinimalProtocolFeeUpdate,
 ) *SpotMarketParamUpdateProposal {
 	return &SpotMarketParamUpdateProposal{
 		title,
@@ -236,6 +237,7 @@ func NewSpotMarketParamUpdateProposal(
 		nil,
 		baseDecimals,
 		quoteDecimals,
+		hasDisabledMinimalProtocolFee,
 	}
 }
 
@@ -272,6 +274,7 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 		p.MinQuantityTickSize == nil &&
 		p.MinNotional == nil &&
 		p.AdminInfo == nil &&
+		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
 		p.Status == MarketStatus_Unspecified {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
@@ -309,13 +312,8 @@ func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 	}
 
 	if p.AdminInfo != nil {
-		if p.AdminInfo.Admin != "" {
-			if _, err := sdk.AccAddressFromBech32(p.AdminInfo.Admin); err != nil {
-				return errors.Wrap(types.ErrInvalidAddress, err.Error())
-			}
-		}
-		if p.AdminInfo.AdminPermissions > types.MaxPerm {
-			return types.ErrInvalidPermissions
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
 		}
 	}
 
@@ -451,6 +449,12 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 		return errors.Wrap(types.ErrInvalidDenomDecimal, "quote decimals is invalid")
 	}
 
+	if p.AdminInfo != nil {
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
+		}
+	}
+
 	return govtypes.ValidateAbstract(p)
 }
 
@@ -538,6 +542,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.OpenNotionalCap == nil &&
 		p.Status == MarketStatus_Unspecified &&
 		p.AdminInfo == nil &&
+		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
 		p.OracleParams == nil {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
@@ -604,13 +609,8 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	}
 
 	if p.AdminInfo != nil {
-		if p.AdminInfo.Admin != "" {
-			if _, err := sdk.AccAddressFromBech32(p.AdminInfo.Admin); err != nil {
-				return errors.Wrap(types.ErrInvalidAddress, err.Error())
-			}
-		}
-		if p.AdminInfo.AdminPermissions > types.MaxPerm {
-			return types.ErrInvalidPermissions
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
 		}
 	}
 
@@ -765,10 +765,10 @@ func (p *OracleParams) ValidateBasic() error {
 		return types.ErrSameOracles
 	}
 	switch p.OracleType {
-	case oracletypes.OracleType_Band, oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase,
+	case oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase,
 		oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor, oracletypes.OracleType_Dia,
 		oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth,
-		oracletypes.OracleType_BandIBC, oracletypes.OracleType_Provider, oracletypes.OracleType_Stork:
+		oracletypes.OracleType_Provider, oracletypes.OracleType_Stork, oracletypes.OracleType_ChainlinkDataStreams:
 
 	default:
 		return errors.Wrap(types.ErrInvalidOracleType, p.OracleType.String())
@@ -914,6 +914,11 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
 		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
 	}
+	if p.AdminInfo != nil {
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
+		}
+	}
 
 	return govtypes.ValidateAbstract(p)
 }
@@ -1021,6 +1026,11 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
 		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
+	}
+	if p.AdminInfo != nil {
+		if err := p.AdminInfo.ValidateBasic(); err != nil {
+			return err
+		}
 	}
 
 	return govtypes.ValidateAbstract(p)
@@ -1672,24 +1682,26 @@ func NewBinaryOptionsMarketParamUpdateProposal(
 	status MarketStatus,
 	oracleParams *ProviderOracleParams,
 	ticker string,
+	hasDisabledMinimalProtocolFee DisableMinimalProtocolFeeUpdate,
 ) *BinaryOptionsMarketParamUpdateProposal {
 	return &BinaryOptionsMarketParamUpdateProposal{
-		Title:               title,
-		Description:         description,
-		MarketId:            marketID,
-		MakerFeeRate:        makerFeeRate,
-		TakerFeeRate:        takerFeeRate,
-		RelayerFeeShareRate: relayerFeeShareRate,
-		MinPriceTickSize:    minPriceTickSize,
-		MinQuantityTickSize: minQuantityTickSize,
-		MinNotional:         minNotional,
-		OpenNotionalCap:     openNotionalCap,
-		ExpirationTimestamp: expirationTimestamp,
-		SettlementTimestamp: settlementTimestamp,
-		Admin:               admin,
-		Status:              status,
-		OracleParams:        oracleParams,
-		Ticker:              ticker,
+		Title:                         title,
+		Description:                   description,
+		MarketId:                      marketID,
+		MakerFeeRate:                  makerFeeRate,
+		TakerFeeRate:                  takerFeeRate,
+		RelayerFeeShareRate:           relayerFeeShareRate,
+		MinPriceTickSize:              minPriceTickSize,
+		MinQuantityTickSize:           minQuantityTickSize,
+		MinNotional:                   minNotional,
+		OpenNotionalCap:               openNotionalCap,
+		ExpirationTimestamp:           expirationTimestamp,
+		SettlementTimestamp:           settlementTimestamp,
+		Admin:                         admin,
+		Status:                        status,
+		OracleParams:                  oracleParams,
+		Ticker:                        ticker,
+		HasDisabledMinimalProtocolFee: hasDisabledMinimalProtocolFee,
 	}
 }
 
@@ -1731,6 +1743,7 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 		p.SettlementTimestamp == 0 &&
 		p.SettlementPrice == nil &&
 		p.Admin == "" &&
+		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
 		p.OracleParams == nil {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
@@ -1875,4 +1888,16 @@ func (p *AtomicMarketOrderFeeMultiplierScheduleProposal) ValidateBasic() error {
 		}
 	}
 	return govtypes.ValidateAbstract(p)
+}
+
+func (a *AdminInfo) ValidateBasic() error {
+	if a.Admin != "" {
+		if _, err := sdk.AccAddressFromBech32(a.Admin); err != nil {
+			return errors.Wrap(types.ErrInvalidAddress, err.Error())
+		}
+	}
+	if a.AdminPermissions > types.MaxPerm {
+		return types.ErrInvalidPermissions
+	}
+	return nil
 }

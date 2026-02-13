@@ -299,8 +299,13 @@ func GetPastEthSignatureCheckpointKey(checkpoint common.Hash) []byte {
 }
 
 // GetFakeCheckpointKey indexes fake checkpoints previously signed by a validator
-func GetFakeCheckpointKey(signature []byte) []byte {
-	return append(FakeCheckpointKey, signature...)
+func GetFakeCheckpointKey(checkpoint, addr []byte) []byte {
+	k := make([]byte, 0, len(FakeCheckpointKey)+len(checkpoint)+len(addr))
+	k = append(k, FakeCheckpointKey...)
+	k = append(k, checkpoint...)
+	k = append(k, addr...)
+
+	return k
 }
 
 func GetMintAmountERC20Key(erc20 []byte) []byte {

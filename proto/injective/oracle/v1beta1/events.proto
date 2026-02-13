@@ -87,3 +87,7 @@ message SetCoinbasePriceEvent {
 message EventSetStorkPrices { repeated StorkPriceState prices = 1; }
 
 message EventSetPythPrices { repeated PythPriceState prices = 1; }
+
+message EventSetChainlinkDataStreamsPrices {
+  repeated ChainlinkDataStreamsPriceState prices = 1;
+}

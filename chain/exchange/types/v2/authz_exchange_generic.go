@@ -108,29 +108,26 @@ func (a GenericExchangeAuthorization) MsgTypeURL() string {
 // the incoming message type, and it would not have been created if the
 // message type was not allowed.
 func (a GenericExchangeAuthorization) Accept(ctx context.Context, _ sdk.Msg) (authz.AcceptResponse, error) {
-	newSpendLimit := a.SpendLimit
-
-	// SpendLimit is optional, so we only check it if it is set
-	if a.SpendLimit != nil {
-		hold, ok := getHold(ctx)
-		if !ok {
-			return authz.AcceptResponse{Accept: false}, nil
-		}
-		for _, coin := range hold {
-			allowed := a.SpendLimit.AmountOf(coin.Denom)
-			if allowed.LT(coin.Amount) {
-				return authz.AcceptResponse{Accept: false}, nil
-			}
-			newSpendLimit = a.SpendLimit.Sub(sdk.NewCoin(coin.Denom, coin.Amount))
-		}
+	if noLimit := a.SpendLimit == nil; noLimit {
+		return authz.AcceptResponse{Accept: true, Updated: NewGenericExchangeAuthorization(a.Msg, nil)}, nil
 	}
 
-	updatedAuthorization := NewGenericExchangeAuthorization(
-		a.Msg,
-		newSpendLimit,
-	)
+	hold, ok := getHold(ctx)
+	if !ok {
+		return authz.AcceptResponse{Accept: false}, nil
+	}
 
-	return authz.AcceptResponse{Accept: true, Updated: updatedAuthorization}, nil
+	limit := a.SpendLimit
+	for _, coin := range hold {
+		allowance := limit.AmountOf(coin.Denom)
+		if allowance.LT(coin.Amount) {
+			return authz.AcceptResponse{Accept: false}, nil
+		}
+
+		limit = limit.Sub(sdk.NewCoin(coin.Denom, coin.Amount))
+	}
+
+	return authz.AcceptResponse{Accept: true, Updated: NewGenericExchangeAuthorization(a.Msg, limit)}, nil
 }
 
 // getHold returns the hold from the context. Hold is the amount of coins that

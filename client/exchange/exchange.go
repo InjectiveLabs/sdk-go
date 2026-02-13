@@ -49,7 +49,7 @@ type ExchangeClient interface {
 	GetDerivativeFundingRates(ctx context.Context, req *derivativeExchangePB.FundingRatesRequest) (*derivativeExchangePB.FundingRatesResponse, error)
 	GetPrice(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string, oracleScaleFactor uint32) (*oraclePB.PriceResponse, error)
 	FetchPriceV2(ctx context.Context, filters []*oraclePB.PricePayloadV2) (*oraclePB.PriceV2Response, error)
-	GetOracleList(ctx context.Context) (*oraclePB.OracleListResponse, error)
+	GetOracleList(ctx context.Context, symbol, oracleType, token string, perPage int32) (*oraclePB.OracleListResponse, error)
 	StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error)
 	GetAuction(ctx context.Context, round int64) (*auctionPB.AuctionEndpointResponse, error)
 	GetAuctions(ctx context.Context) (*auctionPB.AuctionsResponse, error)
@@ -471,8 +471,13 @@ func (c *exchangeClient) FetchPriceV2(ctx context.Context, filters []*oraclePB.P
 	return res, nil
 }
 
-func (c *exchangeClient) GetOracleList(ctx context.Context) (*oraclePB.OracleListResponse, error) {
-	req := oraclePB.OracleListRequest{}
+func (c *exchangeClient) GetOracleList(ctx context.Context, symbol, oracleType, token string, perPage int32) (*oraclePB.OracleListResponse, error) {
+	req := oraclePB.OracleListRequest{
+		Symbol:     symbol,
+		OracleType: oracleType,
+		Token:      token,
+		PerPage:    perPage,
+	}
 
 	res, err := common.ExecuteCall(ctx, c.network.ExchangeCookieAssistant, c.oracleClient.OracleList, &req)
 	if err != nil {
