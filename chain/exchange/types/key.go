@@ -124,11 +124,8 @@ var (
 	OrderExpirationsPrefix       = []byte{0x85} // prefix to store order expirations
 	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
 	PostOnlyModeCancellationKey  = []byte{0x87} // key to mark post-only mode cancellation for next BeginBlock
-<<<<<<< HEAD
 
 	TransientAtomicPerpetualVwapPrefix = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
-=======
->>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {

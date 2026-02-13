@@ -2111,7 +2111,6 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		}
 	}
 
-<<<<<<< HEAD
 	for idx := range msg.SpotMarketOrdersToCreate {
 		if err := ValidateSpotMarketOrder(msg.SpotMarketOrdersToCreate[idx], sender); err != nil {
 			return err
@@ -2130,8 +2129,6 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		}
 	}
 
-=======
->>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 	// Check for duplicate derivative market orders (same market and subaccount)
 	if err := ensureNoDuplicateMarketOrders(sender, msg.DerivativeMarketOrdersToCreate); err != nil {
 		return err
@@ -2720,7 +2717,6 @@ func ensureNoDuplicateMarketOrders(sender sdk.AccAddress, orders []*DerivativeOr
 		if err != nil {
 			return errors.Wrap(types.ErrBadSubaccountID, order.OrderInfo.SubaccountId)
 		}
-<<<<<<< HEAD
 
 		// Create a unique key combining market ID and normalized subaccount ID
 		key := order.MarketId + ":" + normalizedSubaccountID.Hex()
@@ -2767,8 +2763,6 @@ func (msg *MsgCancelPostOnlyMode) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
 		return errors.Wrap(err, "invalid sender address")
 	}
-=======
->>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 
 		// Create a unique key combining market ID and normalized subaccount ID
 		key := order.MarketId + ":" + normalizedSubaccountID.Hex()
@@ -2779,7 +2773,6 @@ func (msg *MsgCancelPostOnlyMode) ValidateBasic() error {
 	}
 	return nil
 }
-<<<<<<< HEAD
 
 func (msg *MsgCancelPostOnlyMode) GetSignBytes() []byte {
 	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
@@ -2820,5 +2813,3 @@ func (msg *MsgActivatePostOnlyMode) GetSigners() []sdk.AccAddress {
 	}
 	return []sdk.AccAddress{sender}
 }
-=======
->>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a

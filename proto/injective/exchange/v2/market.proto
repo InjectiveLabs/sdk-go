@@ -219,7 +219,6 @@ message BinaryOptionsMarket {
 
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 21 [ (gogoproto.nullable) = false ];
-<<<<<<< HEAD
 
   // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
   // fee is disabled for the market
@@ -228,8 +227,6 @@ message BinaryOptionsMarket {
   // force_paused_info defines additional info for force paused markets, only
   // set when status == ForcePaused
   ForcePausedInfo force_paused_info = 23;
-=======
->>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 }
 
 // An object describing a derivative market in the Injective Futures Protocol.
@@ -317,7 +314,6 @@ message DerivativeMarket {
 
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 22 [ (gogoproto.nullable) = false ];
-<<<<<<< HEAD
 
   // has_disabled_minimal_protocol_fee indicates whether the minimal protocol
   // fee is disabled for the market
@@ -326,8 +322,6 @@ message DerivativeMarket {
   // force_paused_info defines additional info for force paused markets, only
   // set when status == ForcePaused
   ForcePausedInfo force_paused_info = 24;
-=======
->>>>>>> 386021cddab6e9abb76aebb62577e4440dd8342a
 }
 
 message DerivativeMarketSettlementInfo {
