@@ -2764,13 +2764,6 @@ func (msg *MsgCancelPostOnlyMode) ValidateBasic() error {
 		return errors.Wrap(err, "invalid sender address")
 	}
 
-		// Create a unique key combining market ID and normalized subaccount ID
-		key := order.MarketId + ":" + normalizedSubaccountID.Hex()
-		if _, exists := seen[key]; exists {
-			return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "duplicate market orders for the same market and subaccount")
-		}
-		seen[key] = struct{}{}
-	}
 	return nil
 }
 

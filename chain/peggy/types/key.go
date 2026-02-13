@@ -315,11 +315,3 @@ func GetMintAmountERC20Key(erc20 []byte) []byte {
 
 	return k
 }
-
-func GetMintAmountERC20Key(erc20 []byte) []byte {
-	k := make([]byte, 0, len(MintAmountsERC20Key)+len(erc20))
-	k = append(k, MintAmountsERC20Key...)
-	k = append(k, erc20...)
-
-	return k
-}

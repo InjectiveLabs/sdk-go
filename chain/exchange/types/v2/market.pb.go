@@ -1890,18 +1890,6 @@ func (m *DerivativeMarket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i--
 	dAtA[i] = 0xb2
 	{
-		size, err := m.OpenNotionalCap.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintMarket(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x1
-	i--
-	dAtA[i] = 0xb2
-	{
 		size := m.ReduceMarginRatio.Size()
 		i -= size
 		if _, err := m.ReduceMarginRatio.MarshalTo(dAtA[i:]); err != nil {
