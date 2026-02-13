@@ -10,7 +10,6 @@ import "injective/wasmx/v1/proposal.proto";
 import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
-option (gogoproto.goproto_registration) = true;
 
 // Msg defines the wasmx Msg service.
 service Msg {

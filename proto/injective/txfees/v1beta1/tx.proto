@@ -8,7 +8,6 @@ import "injective/txfees/v1beta1/txfees.proto";
 import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/txfees/types";
-option (gogoproto.goproto_registration) = true;
 
 // Msg defines the auction Msg service.
 service Msg {
