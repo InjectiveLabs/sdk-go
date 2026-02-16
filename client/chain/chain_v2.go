@@ -51,43 +51,78 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
+// ChainClientV2 provides the primary interface for interacting with the
+// Injective chain. It supports transaction broadcasting, on-chain state
+// queries, order management, subaccount operations, and IBC transfers.
+// It supersedes the deprecated ChainClient with improved context handling
+// and Exchange V2 type support.
+//
+// Create instances using NewChainClientV2.
 type ChainClientV2 interface {
+	// CanSignTransactions reports whether the client has signing credentials configured
 	CanSignTransactions() bool
+	// FromAddress returns the sender address associated with this client
 	FromAddress() sdk.AccAddress
+	// QueryClient returns the gRPC client connection used for queries
 	QueryClient() *grpc.ClientConn
+	// ClientContext returns the underlying Cosmos SDK client context
 	ClientContext() sdkclient.Context
-	// return account number and sequence without increasing sequence
+	// GetAccNonce returns the account number and sequence without incrementing
+	// the local sequence counter
 	GetAccNonce() (accNum uint64, accSeq uint64)
 
+	// SimulateMsg estimates gas consumption for the given messages without broadcasting
 	SimulateMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
+	// AsyncBroadcastMsg broadcasts a transaction without waiting for inclusion in a block
 	AsyncBroadcastMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	// SyncBroadcastMsg broadcasts a transaction and blocks until it is included in a block
 	SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries uint32, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	// BroadcastMsg broadcasts a transaction using the specified broadcast mode
 	BroadcastMsg(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
 
-	// Build signed tx with given accNum and accSeq, useful for offline siging
-	// If simulate is set to false, initialGas will be used
+	// BuildSignedTx constructs and signs a transaction with explicit account number,
+	// sequence, and gas parameters. If simulate is set to false, initialGas will be used
 	BuildSignedTx(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error)
+	// SyncBroadcastSignedTx broadcasts pre-signed transaction bytes and waits for block inclusion
 	SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error)
+	// AsyncBroadcastSignedTx broadcasts pre-signed transaction bytes without waiting
 	AsyncBroadcastSignedTx(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error)
+	// BroadcastSignedTx broadcasts pre-signed transaction bytes using the specified mode
 	BroadcastSignedTx(ctx context.Context, txBytes []byte, broadcastMode txtypes.BroadcastMode) (*txtypes.BroadcastTxResponse, error)
 
 	// Bank Module
+
+	// GetBankBalances queries all bank balances for the given address
 	GetBankBalances(ctx context.Context, address string) (*banktypes.QueryAllBalancesResponse, error)
+	// GetBankBalance queries the balance of a specific denomination for the given address
 	GetBankBalance(ctx context.Context, address string, denom string) (*banktypes.QueryBalanceResponse, error)
+	// GetBankSpendableBalances queries spendable balances for the given address with pagination
 	GetBankSpendableBalances(ctx context.Context, address string, pagination *query.PageRequest) (*banktypes.QuerySpendableBalancesResponse, error)
+	// GetBankSpendableBalancesByDenom queries the spendable balance of a specific denomination
 	GetBankSpendableBalancesByDenom(ctx context.Context, address string, denom string) (*banktypes.QuerySpendableBalanceByDenomResponse, error)
+	// GetBankTotalSupply queries the total supply of all denominations
 	GetBankTotalSupply(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryTotalSupplyResponse, error)
+	// GetBankSupplyOf queries the total supply of a specific denomination
 	GetBankSupplyOf(ctx context.Context, denom string) (*banktypes.QuerySupplyOfResponse, error)
+	// GetDenomMetadata queries the metadata for a specific denomination
 	GetDenomMetadata(ctx context.Context, denom string) (*banktypes.QueryDenomMetadataResponse, error)
+	// GetDenomsMetadata queries the metadata for all denominations
 	GetDenomsMetadata(ctx context.Context, pagination *query.PageRequest) (*banktypes.QueryDenomsMetadataResponse, error)
+	// GetDenomOwners queries all accounts holding a specific denomination
 	GetDenomOwners(ctx context.Context, denom string, pagination *query.PageRequest) (*banktypes.QueryDenomOwnersResponse, error)
+	// GetBankSendEnabled queries whether sending is enabled for the given denominations
 	GetBankSendEnabled(ctx context.Context, denoms []string, pagination *query.PageRequest) (*banktypes.QuerySendEnabledResponse, error)
 
+	// GetAuthzGrants queries all authorization grants matching the request
 	GetAuthzGrants(ctx context.Context, req authztypes.QueryGrantsRequest) (*authztypes.QueryGrantsResponse, error)
+	// GetAccount queries the account information for the given address
 	GetAccount(ctx context.Context, address string) (*authtypes.QueryAccountResponse, error)
 
+	// BuildGenericAuthz constructs a generic authorization grant message
 	BuildGenericAuthz(granter string, grantee string, msgtype string, expireIn time.Time) *authztypes.MsgGrant
+	// BuildExchangeAuthz constructs an exchange-specific authorization grant message
 	BuildExchangeAuthz(granter string, grantee string, authzType ExchangeAuthz, subaccountId string, markets []string, expireIn time.Time) *authztypes.MsgGrant
+	// BuildExchangeBatchUpdateOrdersAuthz constructs a batch order update authorization grant
 	BuildExchangeBatchUpdateOrdersAuthz(
 		granter string,
 		grantee string,
@@ -97,29 +132,46 @@ type ChainClientV2 interface {
 		expireIn time.Time,
 	) *authztypes.MsgGrant
 
+	// DefaultSubaccount derives the default subaccount hash (index 0) for the given account
 	DefaultSubaccount(acc sdk.AccAddress) ethcommon.Hash
+	// Subaccount derives the subaccount hash at the given index for the account
 	Subaccount(account sdk.AccAddress, index int) ethcommon.Hash
 
+	// UpdateSubaccountNonceFromChain fetches the current subaccount nonce from chain
+	// and updates the local state
 	UpdateSubaccountNonceFromChain() error
+	// SynchronizeSubaccountNonce synchronizes the local nonce for the given subaccount with the chain
 	SynchronizeSubaccountNonce(subaccountId ethcommon.Hash) error
+	// ComputeOrderHashes computes order hashes for the given spot and derivative orders
 	ComputeOrderHashes(spotOrders []exchangev2types.SpotOrder, derivativeOrders []exchangev2types.DerivativeOrder, subaccountId ethcommon.Hash) (OrderHashes, error)
 
+	// CreateSpotOrderV2 constructs a new V2 spot order from the given parameters
 	CreateSpotOrderV2(defaultSubaccountID ethcommon.Hash, d *SpotOrderData) *exchangev2types.SpotOrder
+	// CreateDerivativeOrderV2 constructs a new V2 derivative order from the given parameters
 	CreateDerivativeOrderV2(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData) *exchangev2types.DerivativeOrder
+	// OrderCancelV2 constructs a V2 order cancellation from the given parameters
 	OrderCancelV2(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangev2types.OrderData
 
+	// GetGasFee returns the current gas fee string for transaction building
 	GetGasFee() (string, error)
 
+	// StreamEventOrderFail subscribes to order failure events for the given sender address
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
+	// StreamEventOrderFailWithWebsocket subscribes to order failure events using a custom websocket connection
 	StreamEventOrderFailWithWebsocket(sender string, websocket *rpchttp.HTTP, failEventCh chan map[string]uint)
+	// ChainStreamV2 opens a V2 chain stream for real-time event subscription
 	ChainStreamV2(ctx context.Context, req chainstreamv2types.StreamRequest) (chainstreamv2types.Stream_StreamV2Client, error)
 
-	// get tx from chain node
+	// GetTx queries a transaction by hash from the chain node
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
 
-	// wasm module
+	// Wasm module
+
+	// FetchContractInfo queries the contract metadata for the given address
 	FetchContractInfo(ctx context.Context, address string) (*wasmtypes.QueryContractInfoResponse, error)
+	// FetchContractHistory queries the contract code history for the given address
 	FetchContractHistory(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryContractHistoryResponse, error)
+	// FetchContractsByCode queries all contract instances for the given code ID
 	FetchContractsByCode(ctx context.Context, codeId uint64, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCodeResponse, error)
 	FetchAllContractsState(ctx context.Context, address string, pagination *query.PageRequest) (*wasmtypes.QueryAllContractStateResponse, error)
 	RawContractState(
@@ -127,6 +179,7 @@ type ChainClientV2 interface {
 		contractAddress string,
 		queryData []byte,
 	) (*wasmtypes.QueryRawContractStateResponse, error)
+	// SmartContractState queries a smart contract by sending it a JSON query message
 	SmartContractState(
 		ctx context.Context,
 		contractAddress string,
@@ -137,25 +190,36 @@ type ChainClientV2 interface {
 	FetchPinnedCodes(ctx context.Context, pagination *query.PageRequest) (*wasmtypes.QueryPinnedCodesResponse, error)
 	FetchContractsByCreator(ctx context.Context, creator string, pagination *query.PageRequest) (*wasmtypes.QueryContractsByCreatorResponse, error)
 
-	// tokenfactory module
+	// TokenFactory module
+
+	// FetchDenomAuthorityMetadata queries the authority metadata for a token factory denomination
 	FetchDenomAuthorityMetadata(ctx context.Context, creator string, subDenom string) (*tokenfactorytypes.QueryDenomAuthorityMetadataResponse, error)
+	// FetchDenomsFromCreator queries all denominations created by the given creator
 	FetchDenomsFromCreator(ctx context.Context, creator string) (*tokenfactorytypes.QueryDenomsFromCreatorResponse, error)
 	FetchTokenfactoryModuleState(ctx context.Context) (*tokenfactorytypes.QueryModuleStateResponse, error)
 
-	// distribution module
+	// Distribution module
+
+	// FetchValidatorDistributionInfo queries the distribution information for a validator
 	FetchValidatorDistributionInfo(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorDistributionInfoResponse, error)
+	// FetchValidatorOutstandingRewards queries outstanding rewards for a validator
 	FetchValidatorOutstandingRewards(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorOutstandingRewardsResponse, error)
 	FetchValidatorCommission(ctx context.Context, validatorAddress string) (*distributiontypes.QueryValidatorCommissionResponse, error)
 	FetchValidatorSlashes(ctx context.Context, validatorAddress string, startingHeight uint64, endingHeight uint64, pagination *query.PageRequest) (*distributiontypes.QueryValidatorSlashesResponse, error)
+	// FetchDelegationRewards queries the delegation rewards for a delegator-validator pair
 	FetchDelegationRewards(ctx context.Context, delegatorAddress string, validatorAddress string) (*distributiontypes.QueryDelegationRewardsResponse, error)
 	FetchDelegationTotalRewards(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegationTotalRewardsResponse, error)
 	FetchDelegatorValidators(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorValidatorsResponse, error)
 	FetchDelegatorWithdrawAddress(ctx context.Context, delegatorAddress string) (*distributiontypes.QueryDelegatorWithdrawAddressResponse, error)
 	FetchCommunityPool(ctx context.Context) (*distributiontypes.QueryCommunityPoolResponse, error)
 
-	// chain exchange module
+	// Exchange module
+
+	// FetchSubaccountDeposits queries all deposits for the given subaccount
 	FetchSubaccountDeposits(ctx context.Context, subaccountID string) (*exchangev2types.QuerySubaccountDepositsResponse, error)
+	// FetchSubaccountDeposit queries the deposit of a specific denomination for a subaccount
 	FetchSubaccountDeposit(ctx context.Context, subaccountId string, denom string) (*exchangev2types.QuerySubaccountDepositResponse, error)
+	// FetchExchangeBalances queries all exchange module balances
 	FetchExchangeBalances(ctx context.Context) (*exchangev2types.QueryExchangeBalancesResponse, error)
 	FetchAggregateVolume(ctx context.Context, account string) (*exchangev2types.QueryAggregateVolumeResponse, error)
 	FetchAggregateVolumes(ctx context.Context, accounts []string, marketIDs []string) (*exchangev2types.QueryAggregateVolumesResponse, error)
@@ -163,10 +227,13 @@ type ChainClientV2 interface {
 	FetchAggregateMarketVolumes(ctx context.Context, marketIDs []string) (*exchangev2types.QueryAggregateMarketVolumesResponse, error)
 	FetchAuctionExchangeTransferDenomDecimal(ctx context.Context, denom string) (*exchangev2types.QueryAuctionExchangeTransferDenomDecimalResponse, error)
 	FetchAuctionExchangeTransferDenomDecimals(ctx context.Context, denoms []string) (*exchangev2types.QueryAuctionExchangeTransferDenomDecimalsResponse, error)
+	// FetchChainSpotMarkets queries all spot markets from the chain, filtered by status
 	FetchChainSpotMarkets(ctx context.Context, status string, marketIDs []string) (*exchangev2types.QuerySpotMarketsResponse, error)
+	// FetchChainSpotMarket queries a single spot market by ID from the chain
 	FetchChainSpotMarket(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMarketResponse, error)
 	FetchChainFullSpotMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketsResponse, error)
 	FetchChainFullSpotMarket(ctx context.Context, marketId string, withMidPriceAndTob bool) (*exchangev2types.QueryFullSpotMarketResponse, error)
+	// FetchChainSpotOrderbook queries the spot orderbook for a market from the chain
 	FetchChainSpotOrderbook(ctx context.Context, marketId string, limit uint64, orderSide exchangev2types.OrderSide, limitCumulativeNotional sdkmath.LegacyDec, limitCumulativeQuantity sdkmath.LegacyDec) (*exchangev2types.QuerySpotOrderbookResponse, error)
 	FetchChainTraderSpotOrders(ctx context.Context, marketId string, subaccountId string) (*exchangev2types.QueryTraderSpotOrdersResponse, error)
 	FetchChainAccountAddressSpotOrders(ctx context.Context, marketId string, address string) (*exchangev2types.QueryAccountAddressSpotOrdersResponse, error)
@@ -175,14 +242,18 @@ type ChainClientV2 interface {
 	FetchChainTraderSpotTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangev2types.QueryTraderSpotOrdersResponse, error)
 	FetchSpotMidPriceAndTOB(ctx context.Context, marketId string) (*exchangev2types.QuerySpotMidPriceAndTOBResponse, error)
 	FetchDerivativeMidPriceAndTOB(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMidPriceAndTOBResponse, error)
+	// FetchChainDerivativeOrderbook queries the derivative orderbook for a market from the chain
 	FetchChainDerivativeOrderbook(ctx context.Context, marketId string, limit uint64, limitCumulativeNotional sdkmath.LegacyDec) (*exchangev2types.QueryDerivativeOrderbookResponse, error)
 	FetchChainTraderDerivativeOrders(ctx context.Context, marketId string, subaccountId string) (*exchangev2types.QueryTraderDerivativeOrdersResponse, error)
 	FetchChainAccountAddressDerivativeOrders(ctx context.Context, marketId string, address string) (*exchangev2types.QueryAccountAddressDerivativeOrdersResponse, error)
 	FetchChainDerivativeOrdersByHashes(ctx context.Context, marketId string, subaccountId string, orderHashes []string) (*exchangev2types.QueryDerivativeOrdersByHashesResponse, error)
 	FetchChainTraderDerivativeTransientOrders(ctx context.Context, marketId string, subaccountId string) (*exchangev2types.QueryTraderDerivativeOrdersResponse, error)
+	// FetchChainDerivativeMarkets queries all derivative markets from the chain
 	FetchChainDerivativeMarkets(ctx context.Context, status string, marketIDs []string, withMidPriceAndTob bool) (*exchangev2types.QueryDerivativeMarketsResponse, error)
+	// FetchChainDerivativeMarket queries a single derivative market by ID from the chain
 	FetchChainDerivativeMarket(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketResponse, error)
 	FetchDerivativeMarketAddress(ctx context.Context, marketId string) (*exchangev2types.QueryDerivativeMarketAddressResponse, error)
+	// FetchSubaccountTradeNonce queries the trade nonce for a subaccount
 	FetchSubaccountTradeNonce(ctx context.Context, subaccountId string) (*exchangev2types.QuerySubaccountTradeNonceResponse, error)
 	FetchChainPositions(ctx context.Context) (*exchangev2types.QueryPositionsResponse, error)
 	FetchChainPositionsInMarket(ctx context.Context, marketId string) (*exchangev2types.QueryPositionsInMarketResponse, error)
@@ -210,20 +281,28 @@ type ChainClientV2 interface {
 	FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangev2types.QueryBinaryMarketsResponse, error)
 	FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangev2types.QueryTraderDerivativeConditionalOrdersResponse, error)
 	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangev2types.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
+	// FetchActiveStakeGrant queries the active stake grant for the given grantee
 	FetchActiveStakeGrant(ctx context.Context, grantee string) (*exchangev2types.QueryActiveStakeGrantResponse, error)
 	FetchGrantAuthorization(ctx context.Context, granter, grantee string) (*exchangev2types.QueryGrantAuthorizationResponse, error)
 	FetchGrantAuthorizations(ctx context.Context, granter string) (*exchangev2types.QueryGrantAuthorizationsResponse, error)
+	// FetchL3DerivativeOrderbook queries the full L3 derivative orderbook for a market
 	FetchL3DerivativeOrderbook(ctx context.Context, marketId string) (*exchangev2types.QueryFullDerivativeOrderbookResponse, error)
+	// FetchL3SpotOrderbook queries the full L3 spot orderbook for a market
 	FetchL3SpotOrderbook(ctx context.Context, marketId string) (*exchangev2types.QueryFullSpotOrderbookResponse, error)
 	FetchMarketBalance(ctx context.Context, marketId string) (*exchangev2types.QueryMarketBalanceResponse, error)
 	FetchMarketBalances(ctx context.Context) (*exchangev2types.QueryMarketBalancesResponse, error)
 	FetchDenomMinNotional(ctx context.Context, denom string) (*exchangev2types.QueryDenomMinNotionalResponse, error)
 	FetchDenomMinNotionals(ctx context.Context) (*exchangev2types.QueryDenomMinNotionalsResponse, error)
+	// FetchOpenInterest queries the open interest for a derivative market
 	FetchOpenInterest(ctx context.Context, marketId string) (*exchangev2types.QueryOpenInterestResponse, error)
 
 	// Tendermint module
+
+	// FetchNodeInfo queries the node information from the connected Tendermint node
 	FetchNodeInfo(ctx context.Context) (*cmtservice.GetNodeInfoResponse, error)
+	// FetchSyncing queries whether the connected node is currently syncing
 	FetchSyncing(ctx context.Context) (*cmtservice.GetSyncingResponse, error)
+	// FetchLatestBlock queries the most recent block from the chain
 	FetchLatestBlock(ctx context.Context) (*cmtservice.GetLatestBlockResponse, error)
 	FetchBlockByHeight(ctx context.Context, height int64) (*cmtservice.GetBlockByHeightResponse, error)
 	FetchLatestValidatorSet(ctx context.Context) (*cmtservice.GetLatestValidatorSetResponse, error)
@@ -231,14 +310,20 @@ type ChainClientV2 interface {
 	ABCIQuery(ctx context.Context, path string, data []byte, height int64, prove bool) (*cmtservice.ABCIQueryResponse, error)
 
 	// IBC Transfer module
+
+	// FetchDenomTrace queries the denomination trace for an IBC token hash
 	FetchDenomTrace(ctx context.Context, hash string) (*ibctransfertypes.QueryDenomTraceResponse, error)
+	// FetchDenomTraces queries all denomination traces for IBC tokens
 	FetchDenomTraces(ctx context.Context, pagination *query.PageRequest) (*ibctransfertypes.QueryDenomTracesResponse, error)
 	FetchDenomHash(ctx context.Context, trace string) (*ibctransfertypes.QueryDenomHashResponse, error)
 	FetchEscrowAddress(ctx context.Context, portId string, channelId string) (*ibctransfertypes.QueryEscrowAddressResponse, error)
 	FetchTotalEscrowForDenom(ctx context.Context, denom string) (*ibctransfertypes.QueryTotalEscrowForDenomResponse, error)
 
 	// IBC Core Channel module
+
+	// FetchIBCChannel queries the IBC channel for the given port and channel identifiers
 	FetchIBCChannel(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelResponse, error)
+	// FetchIBCChannels queries all IBC channels with pagination
 	FetchIBCChannels(ctx context.Context, pagination *query.PageRequest) (*ibcchanneltypes.QueryChannelsResponse, error)
 	FetchIBCConnectionChannels(ctx context.Context, connection string, pagination *query.PageRequest) (*ibcchanneltypes.QueryConnectionChannelsResponse, error)
 	FetchIBCChannelClientState(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryChannelClientStateResponse, error)
@@ -252,8 +337,11 @@ type ChainClientV2 interface {
 	FetchIBCUnreceivedAcks(ctx context.Context, portId string, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error)
 	FetchIBCNextSequenceReceive(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error)
 
-	// IBC Core Chain module
+	// IBC Core Client module
+
+	// FetchIBCClientState queries the IBC client state for the given client identifier
 	FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error)
+	// FetchIBCClientStates queries all IBC client states with pagination
 	FetchIBCClientStates(ctx context.Context, pagination *query.PageRequest) (*ibcclienttypes.QueryClientStatesResponse, error)
 	FetchIBCConsensusState(ctx context.Context, clientId string, revisionNumber uint64, revisionHeight uint64, latestHeight bool) (*ibcclienttypes.QueryConsensusStateResponse, error)
 	FetchIBCConsensusStates(ctx context.Context, clientId string, pagination *query.PageRequest) (*ibcclienttypes.QueryConsensusStatesResponse, error)
@@ -264,7 +352,10 @@ type ChainClientV2 interface {
 	FetchIBCUpgradedConsensusState(ctx context.Context) (*ibcclienttypes.QueryUpgradedConsensusStateResponse, error)
 
 	// IBC Core Connection module
+
+	// FetchIBCConnection queries the IBC connection for the given connection identifier
 	FetchIBCConnection(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionResponse, error)
+	// FetchIBCConnections queries all IBC connections with pagination
 	FetchIBCConnections(ctx context.Context, pagination *query.PageRequest) (*ibcconnectiontypes.QueryConnectionsResponse, error)
 	FetchIBCClientConnections(ctx context.Context, clientId string) (*ibcconnectiontypes.QueryClientConnectionsResponse, error)
 	FetchIBCConnectionClientState(ctx context.Context, connectionId string) (*ibcconnectiontypes.QueryConnectionClientStateResponse, error)
@@ -272,8 +363,12 @@ type ChainClientV2 interface {
 	FetchIBCConnectionParams(ctx context.Context) (*ibcconnectiontypes.QueryConnectionParamsResponse, error)
 
 	// Permissions module
+
+	// FetchPermissionsNamespaceDenoms queries all denomination namespaces in the permissions module
 	FetchPermissionsNamespaceDenoms(ctx context.Context) (*permissionstypes.QueryNamespaceDenomsResponse, error)
+	// FetchPermissionsNamespaces queries all permission namespaces
 	FetchPermissionsNamespaces(ctx context.Context) (*permissionstypes.QueryNamespacesResponse, error)
+	// FetchPermissionsNamespace queries the permission namespace for a specific denomination
 	FetchPermissionsNamespace(ctx context.Context, denom string) (*permissionstypes.QueryNamespaceResponse, error)
 	FetchPermissionsRolesByActor(ctx context.Context, denom, actor string) (*permissionstypes.QueryRolesByActorResponse, error)
 	FetchPermissionsActorsByRole(ctx context.Context, denom, role string) (*permissionstypes.QueryActorsByRoleResponse, error)
@@ -286,27 +381,42 @@ type ChainClientV2 interface {
 	FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error)
 
 	// TxFees module
+
+	// FetchTxFeesParams queries the transaction fees module parameters
 	FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error)
+	// FetchEipBaseFee queries the current EIP-1559 base fee
 	FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
 
 	// ERC20 module
+
+	// FetchAllTokenPairs queries all registered ERC20-native token pairs
 	FetchAllTokenPairs(ctx context.Context, pagination *query.PageRequest) (*erc20types.QueryAllTokenPairsResponse, error)
+	// FetchTokenPairByDenom queries the token pair for a bank denomination
 	FetchTokenPairByDenom(ctx context.Context, bankDenom string) (*erc20types.QueryTokenPairByDenomResponse, error)
+	// FetchTokenPairByERC20Address queries the token pair for an ERC20 contract address
 	FetchTokenPairByERC20Address(ctx context.Context, erc20Address string) (*erc20types.QueryTokenPairByERC20AddressResponse, error)
 
 	// EVM module
+
+	// FetchEVMAccount queries the EVM account for the given address
 	FetchEVMAccount(ctx context.Context, evmAddress string) (*evmtypes.QueryAccountResponse, error)
+	// FetchEVMCosmosAccount queries the Cosmos account linked to an EVM address
 	FetchEVMCosmosAccount(ctx context.Context, address string) (*evmtypes.QueryCosmosAccountResponse, error)
 	FetchEVMValidatorAccount(ctx context.Context, consAddress string) (*evmtypes.QueryValidatorAccountResponse, error)
 	FetchEVMBalance(ctx context.Context, address string) (*evmtypes.QueryBalanceResponse, error)
 	FetchEVMStorage(ctx context.Context, address string, key *string) (*evmtypes.QueryStorageResponse, error)
 	FetchEVMCode(ctx context.Context, address string) (*evmtypes.QueryCodeResponse, error)
+	// FetchEVMBaseFee queries the current EVM base fee
 	FetchEVMBaseFee(ctx context.Context) (*evmtypes.QueryBaseFeeResponse, error)
 
+	// CurrentChainGasPrice returns the current chain gas price in the smallest denomination unit
 	CurrentChainGasPrice(ctx context.Context) int64
+	// SetGasPrice overrides the gas price used for transaction building
 	SetGasPrice(gasPrice int64)
 
+	// GetNetwork returns the network configuration for this client
 	GetNetwork() common.Network
+	// Close closes all gRPC connections held by this client
 	Close()
 }
 
@@ -2745,9 +2855,9 @@ func (c *chainClientV2) ComputeOrderHashes(spotOrders []exchangev2types.SpotOrde
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
 		}
-		message := map[string]interface{}{
+		message := map[string]any{
 			"MarketId": o.MarketId,
-			"OrderInfo": map[string]interface{}{
+			"OrderInfo": map[string]any{
 				"SubaccountId": o.OrderInfo.SubaccountId,
 				"FeeRecipient": o.OrderInfo.FeeRecipient,
 				"Price":        o.OrderInfo.Price.String(),
@@ -2787,9 +2897,9 @@ func (c *chainClientV2) ComputeOrderHashes(spotOrders []exchangev2types.SpotOrde
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
 		}
-		message := map[string]interface{}{
+		message := map[string]any{
 			"MarketId": o.MarketId,
-			"OrderInfo": map[string]interface{}{
+			"OrderInfo": map[string]any{
 				"SubaccountId": o.OrderInfo.SubaccountId,
 				"FeeRecipient": o.OrderInfo.FeeRecipient,
 				"Price":        o.OrderInfo.Price.String(),
