@@ -2745,9 +2745,9 @@ func (c *chainClientV2) ComputeOrderHashes(spotOrders []exchangev2types.SpotOrde
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
 		}
-		message := map[string]interface{}{
+		message := map[string]any{
 			"MarketId": o.MarketId,
-			"OrderInfo": map[string]interface{}{
+			"OrderInfo": map[string]any{
 				"SubaccountId": o.OrderInfo.SubaccountId,
 				"FeeRecipient": o.OrderInfo.FeeRecipient,
 				"Price":        o.OrderInfo.Price.String(),
@@ -2787,9 +2787,9 @@ func (c *chainClientV2) ComputeOrderHashes(spotOrders []exchangev2types.SpotOrde
 		if o.TriggerPrice != nil {
 			triggerPrice = o.TriggerPrice.String()
 		}
-		message := map[string]interface{}{
+		message := map[string]any{
 			"MarketId": o.MarketId,
-			"OrderInfo": map[string]interface{}{
+			"OrderInfo": map[string]any{
 				"SubaccountId": o.OrderInfo.SubaccountId,
 				"FeeRecipient": o.OrderInfo.FeeRecipient,
 				"Price":        o.OrderInfo.Price.String(),
