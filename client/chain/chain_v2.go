@@ -57,7 +57,7 @@ import (
 // It supersedes the deprecated ChainClient with improved context handling
 // and Exchange V2 type support.
 //
-// Create instances using NewChainClient.
+// Create instances using NewChainClientV2.
 type ChainClientV2 interface {
 	// CanSignTransactions reports whether the client has signing credentials configured.
 	CanSignTransactions() bool
@@ -80,7 +80,7 @@ type ChainClientV2 interface {
 	BroadcastMsg(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
 
 	// BuildSignedTx constructs and signs a transaction with explicit account number,
-	// sequence, and gas parameters. If simulate is false, initialGas is used directly.
+	// sequence, and gas parameters. When simulation is disabled, initialGas is used directly.
 	BuildSignedTx(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error)
 	SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTx(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error)
@@ -2278,7 +2278,7 @@ func (c *chainClientV2) FetchIBCNextSequenceReceive(ctx context.Context, portId,
 	return res, err
 }
 
-// IBC Core Chain module
+// IBC Core Client module
 func (c *chainClientV2) FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error) {
 	req := &ibcclienttypes.QueryClientStateRequest{
 		ClientId: clientId,
