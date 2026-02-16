@@ -51,21 +51,36 @@ import (
 	"github.com/InjectiveLabs/sdk-go/client/common"
 )
 
+// ChainClientV2 provides the primary interface for interacting with the
+// Injective chain. It supports transaction broadcasting, on-chain state
+// queries, order management, subaccount operations, and IBC transfers.
+// It supersedes the deprecated ChainClient with improved context handling
+// and Exchange V2 type support.
+//
+// Create instances using NewChainClient.
 type ChainClientV2 interface {
+	// CanSignTransactions reports whether the client has signing credentials configured.
 	CanSignTransactions() bool
+	// FromAddress returns the sender address associated with this client.
 	FromAddress() sdk.AccAddress
+	// QueryClient returns the gRPC client connection used for queries.
 	QueryClient() *grpc.ClientConn
+	// ClientContext returns the underlying Cosmos SDK client context.
 	ClientContext() sdkclient.Context
-	// return account number and sequence without increasing sequence
+	// GetAccNonce returns the account number and sequence without incrementing
+	// the local sequence counter.
 	GetAccNonce() (accNum uint64, accSeq uint64)
 
+	// SimulateMsg estimates gas consumption for the given messages without broadcasting.
 	SimulateMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.SimulateResponse, error)
+	// AsyncBroadcastMsg broadcasts a transaction without waiting for inclusion in a block.
 	AsyncBroadcastMsg(ctx context.Context, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
+	// SyncBroadcastMsg broadcasts a transaction and blocks until it is included in a block.
 	SyncBroadcastMsg(ctx context.Context, pollInterval *time.Duration, maxRetries uint32, msgs ...sdk.Msg) (*txtypes.BroadcastTxResponse, error)
 	BroadcastMsg(ctx context.Context, broadcastMode txtypes.BroadcastMode, msgs ...sdk.Msg) (*txtypes.BroadcastTxRequest, *txtypes.BroadcastTxResponse, error)
 
-	// Build signed tx with given accNum and accSeq, useful for offline siging
-	// If simulate is set to false, initialGas will be used
+	// BuildSignedTx constructs and signs a transaction with explicit account number,
+	// sequence, and gas parameters. If simulate is false, initialGas is used directly.
 	BuildSignedTx(ctx context.Context, accNum, accSeq, initialGas uint64, gasPrice uint64, msg ...sdk.Msg) ([]byte, error)
 	SyncBroadcastSignedTx(ctx context.Context, txBytes []byte, pollInterval *time.Duration, maxRetries uint32) (*txtypes.BroadcastTxResponse, error)
 	AsyncBroadcastSignedTx(ctx context.Context, txBytes []byte) (*txtypes.BroadcastTxResponse, error)
@@ -108,13 +123,14 @@ type ChainClientV2 interface {
 	CreateDerivativeOrderV2(defaultSubaccountID ethcommon.Hash, d *DerivativeOrderData) *exchangev2types.DerivativeOrder
 	OrderCancelV2(defaultSubaccountID ethcommon.Hash, d *OrderCancelData) *exchangev2types.OrderData
 
+	// GetGasFee returns the current gas fee string for transaction building.
 	GetGasFee() (string, error)
 
 	StreamEventOrderFail(sender string, failEventCh chan map[string]uint)
 	StreamEventOrderFailWithWebsocket(sender string, websocket *rpchttp.HTTP, failEventCh chan map[string]uint)
 	ChainStreamV2(ctx context.Context, req chainstreamv2types.StreamRequest) (chainstreamv2types.Stream_StreamV2Client, error)
 
-	// get tx from chain node
+	// GetTx queries a transaction by hash from the chain node.
 	GetTx(ctx context.Context, txHash string) (*txtypes.GetTxResponse, error)
 
 	// wasm module
@@ -252,7 +268,7 @@ type ChainClientV2 interface {
 	FetchIBCUnreceivedAcks(ctx context.Context, portId string, channelId string, packetAckSequences []uint64) (*ibcchanneltypes.QueryUnreceivedAcksResponse, error)
 	FetchIBCNextSequenceReceive(ctx context.Context, portId string, channelId string) (*ibcchanneltypes.QueryNextSequenceReceiveResponse, error)
 
-	// IBC Core Chain module
+	// IBC Core Client module
 	FetchIBCClientState(ctx context.Context, clientId string) (*ibcclienttypes.QueryClientStateResponse, error)
 	FetchIBCClientStates(ctx context.Context, pagination *query.PageRequest) (*ibcclienttypes.QueryClientStatesResponse, error)
 	FetchIBCConsensusState(ctx context.Context, clientId string, revisionNumber uint64, revisionHeight uint64, latestHeight bool) (*ibcclienttypes.QueryConsensusStateResponse, error)
@@ -306,7 +322,9 @@ type ChainClientV2 interface {
 	CurrentChainGasPrice(ctx context.Context) int64
 	SetGasPrice(gasPrice int64)
 
+	// GetNetwork returns the network configuration for this client.
 	GetNetwork() common.Network
+	// Close closes all gRPC connections held by this client.
 	Close()
 }
 
