@@ -47,13 +47,6 @@ var _ govtypes.Content = &RevokeProviderPrivilegeProposal{}
 var _ govtypes.Content = &GrantStorkPublisherPrivilegeProposal{}
 var _ govtypes.Content = &RevokeStorkPublisherPrivilegeProposal{}
 
-// Deprecated: Band oracle proposal types kept for backward compatibility
-var _ govtypes.Content = &GrantBandOraclePrivilegeProposal{}   //nolint:staticcheck // deprecated
-var _ govtypes.Content = &RevokeBandOraclePrivilegeProposal{}  //nolint:staticcheck // deprecated
-var _ govtypes.Content = &AuthorizeBandOracleRequestProposal{} //nolint:staticcheck // deprecated
-var _ govtypes.Content = &UpdateBandOracleRequestProposal{}    //nolint:staticcheck // deprecated
-var _ govtypes.Content = &EnableBandIBCProposal{}              //nolint:staticcheck // deprecated
-
 // GetTitle returns the title of this proposal.
 func (p *GrantPriceFeederPrivilegeProposal) GetTitle() string {
 	return p.Title
@@ -257,90 +250,3 @@ func (p *RevokeStorkPublisherPrivilegeProposal) ValidateBasic() error {
 
 	return nil
 }
-
-// Deprecated: Band oracle proposal types - kept for backward compatibility only
-
-// GetTitle returns the title of this proposal.
-func (p *GrantBandOraclePrivilegeProposal) GetTitle() string { return p.Title } //nolint:staticcheck // deprecated
-
-// GetDescription returns the description of this proposal.
-func (p *GrantBandOraclePrivilegeProposal) GetDescription() string { return p.Description } //nolint:staticcheck // deprecated
-
-// ProposalRoute returns router key of this proposal.
-func (*GrantBandOraclePrivilegeProposal) ProposalRoute() string { return RouterKey } //nolint:staticcheck // deprecated
-
-// ProposalType returns proposal type of this proposal.
-func (*GrantBandOraclePrivilegeProposal) ProposalType() string { //nolint:staticcheck // deprecated
-	return ProposalTypeGrantBandOraclePrivilege
-}
-
-// ValidateBasic returns ValidateBasic result of this proposal.
-func (*GrantBandOraclePrivilegeProposal) ValidateBasic() error { return ErrBandOracleDeprecated } //nolint:staticcheck // deprecated
-
-// GetTitle returns the title of this proposal.
-func (p *RevokeBandOraclePrivilegeProposal) GetTitle() string { return p.Title } //nolint:staticcheck // deprecated
-
-// GetDescription returns the description of this proposal.
-func (p *RevokeBandOraclePrivilegeProposal) GetDescription() string { return p.Description } //nolint:staticcheck // deprecated
-
-// ProposalRoute returns router key of this proposal.
-func (*RevokeBandOraclePrivilegeProposal) ProposalRoute() string { return RouterKey } //nolint:staticcheck // deprecated
-
-// ProposalType returns proposal type of this proposal.
-func (*RevokeBandOraclePrivilegeProposal) ProposalType() string { //nolint:staticcheck // deprecated
-	return ProposalTypeRevokeBandOraclePrivilege
-}
-
-// ValidateBasic returns ValidateBasic result of this proposal.
-func (*RevokeBandOraclePrivilegeProposal) ValidateBasic() error { return ErrBandOracleDeprecated } //nolint:staticcheck // deprecated
-
-// GetTitle returns the title of this proposal.
-func (p *AuthorizeBandOracleRequestProposal) GetTitle() string { return p.Title } //nolint:staticcheck // deprecated
-
-// GetDescription returns the description of this proposal.
-func (p *AuthorizeBandOracleRequestProposal) GetDescription() string { return p.Description } //nolint:staticcheck // deprecated
-
-// ProposalRoute returns router key of this proposal.
-func (*AuthorizeBandOracleRequestProposal) ProposalRoute() string { return RouterKey } //nolint:staticcheck // deprecated
-
-// ProposalType returns proposal type of this proposal.
-func (*AuthorizeBandOracleRequestProposal) ProposalType() string { //nolint:staticcheck // deprecated
-	return ProposalAuthorizeBandOracleRequest
-}
-
-// ValidateBasic returns ValidateBasic result of this proposal.
-func (*AuthorizeBandOracleRequestProposal) ValidateBasic() error { return ErrBandOracleDeprecated } //nolint:staticcheck // deprecated
-
-// GetTitle returns the title of this proposal.
-func (p *UpdateBandOracleRequestProposal) GetTitle() string { return p.Title } //nolint:staticcheck // deprecated
-
-// GetDescription returns the description of this proposal.
-func (p *UpdateBandOracleRequestProposal) GetDescription() string { return p.Description } //nolint:staticcheck // deprecated
-
-// ProposalRoute returns router key of this proposal.
-func (*UpdateBandOracleRequestProposal) ProposalRoute() string { return RouterKey } //nolint:staticcheck // deprecated
-
-// ProposalType returns proposal type of this proposal.
-func (*UpdateBandOracleRequestProposal) ProposalType() string { //nolint:staticcheck // deprecated
-	return ProposalUpdateBandOracleRequest
-}
-
-// ValidateBasic returns ValidateBasic result of this proposal.
-func (*UpdateBandOracleRequestProposal) ValidateBasic() error { return ErrBandOracleDeprecated } //nolint:staticcheck // deprecated
-
-// GetTitle returns the title of this proposal.
-func (p *EnableBandIBCProposal) GetTitle() string { return p.Title } //nolint:staticcheck // deprecated
-
-// GetDescription returns the description of this proposal.
-func (p *EnableBandIBCProposal) GetDescription() string { return p.Description } //nolint:staticcheck // deprecated
-
-// ProposalRoute returns router key of this proposal.
-func (*EnableBandIBCProposal) ProposalRoute() string { return RouterKey } //nolint:staticcheck // deprecated
-
-// ProposalType returns proposal type of this proposal.
-func (*EnableBandIBCProposal) ProposalType() string { //nolint:staticcheck // deprecated
-	return ProposalEnableBandIBC
-}
-
-// ValidateBasic returns ValidateBasic result of this proposal.
-func (*EnableBandIBCProposal) ValidateBasic() error { return ErrBandOracleDeprecated } //nolint:staticcheck // deprecated

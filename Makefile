@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.18.3 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.18.0 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b C-750 --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -88,14 +88,6 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
-	mkdir -p chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/*.pb.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/errors.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/key.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/params.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/proposal.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/types.go chain/ocr/types && \
-		cp injective-core/injective-chain/modules/ocr/types/codec.go chain/ocr/types
 	mkdir -p chain/oracle/types && \
 		cp injective-core/injective-chain/modules/oracle/types/*.pb.go chain/oracle/types && \
 		cp injective-core/injective-chain/modules/oracle/types/codec.go chain/oracle/types && \

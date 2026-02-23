@@ -14,7 +14,9 @@ message Params {
 
   string pyth_contract = 1;
   string chainlink_verifier_proxy_contract = 2;
-  bool accept_unverified_chainlink_data_streams_reports = 3;
+  // Reserved field number 3: previously
+  // accept_unverified_chainlink_data_streams_reports (bool). Do not reuse.
+  reserved 3;
   uint64 chainlink_data_streams_verification_gas_limit = 4;
 }
 
@@ -23,7 +25,7 @@ enum OracleType {
   Band = 1 [ deprecated = true ];
   PriceFeed = 2;
   Coinbase = 3;
-  Chainlink = 4;
+  Chainlink = 4 [ deprecated = true ];
   Razor = 5;
   Dia = 6;
   API3 = 7;
@@ -41,6 +43,8 @@ message OracleInfo {
 }
 
 message ChainlinkPriceState {
+  option deprecated = true;
+
   string feed_id = 1;
   string answer = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
@@ -166,6 +170,7 @@ message ChainlinkDataStreamsPriceState {
   uint64 valid_from_timestamp = 3;
   uint64 observations_timestamp = 4;
   PriceState price_state = 5 [ (gogoproto.nullable) = false ];
+  uint64 expires_at = 6;
 }
 
 // DEPRECATED! Oracle price from Band is no longer supported

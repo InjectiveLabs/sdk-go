@@ -451,12 +451,24 @@ func (o *DerivativeOrder) IsVanilla() bool {
 	return !o.IsReduceOnly()
 }
 
+func (o *DerivativeOrder) IsAtomic() bool {
+	return o.OrderType.IsAtomic()
+}
+
 func (o *DerivativeMarketOrder) IsVanilla() bool {
 	return !o.IsReduceOnly()
 }
 
+func (o *DerivativeMarketOrder) IsAtomic() bool {
+	return o.OrderType.IsAtomic()
+}
+
 func (m *DerivativeLimitOrder) IsVanilla() bool {
 	return !m.IsReduceOnly()
+}
+
+func (m *DerivativeLimitOrder) IsAtomic() bool {
+	return m.OrderType.IsAtomic()
 }
 
 func (m *DerivativeMarketOrder) IsBuy() bool {

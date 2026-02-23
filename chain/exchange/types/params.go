@@ -297,6 +297,23 @@ func ValidateFee(i interface{}) error {
 	return nil
 }
 
+func ValidateNonNegativeDec(i any) error {
+	v, ok := i.(math.LegacyDec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("value cannot be nil: %s", v)
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("value cannot be negative: %s", v)
+	}
+
+	return nil
+}
+
 func ValidateMakerFee(i interface{}) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {

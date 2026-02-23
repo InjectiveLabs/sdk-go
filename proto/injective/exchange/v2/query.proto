@@ -247,6 +247,23 @@ service Query {
         "/injective/exchange/v2/exchange/{subaccount_id}";
   }
 
+  // Retrieves a subaccount's risk profile
+  rpc SubaccountRiskProfile(QuerySubaccountRiskProfileRequest)
+      returns (QuerySubaccountRiskProfileResponse) {
+    option (google.api.http).get = "/injective/exchange/v2/exchange/"
+                                   "subaccount_risk_profile/{subaccount_id}";
+  }
+
+  // Retrieves a subaccount's cross-margin pool snapshot for a given quote
+  // denom. Returns current equity, order lock requirement, margin requirements,
+  // and other risk metrics needed to understand cross-margin health.
+  rpc CrossMarginPoolSnapshot(QueryCrossMarginPoolSnapshotRequest)
+      returns (QueryCrossMarginPoolSnapshotResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v2/exchange/"
+        "cross_margin_pool_snapshot/{subaccount_id}/{quote_denom}";
+  }
+
   // Retrieves the entire exchange module's state
   rpc ExchangeModuleState(QueryModuleStateRequest)
       returns (QueryModuleStateResponse) {
@@ -1168,6 +1185,11 @@ message QuerySubaccountPositionsResponse {
 // Query/SubaccountPositionInMarket RPC method.
 message QuerySubaccountPositionInMarketResponse {
   Position state = 1 [ (gogoproto.nullable) = true ];
+
+  // The risk mode of the subaccount (ISOLATED or CROSS).
+  // For CROSS mode, the position's margin is an accounting value; actual
+  // collateral is pooled. Use CrossMarginPoolSnapshot for pool-level health.
+  RiskMode risk_mode = 2;
 }
 
 message EffectivePosition {
@@ -1194,6 +1216,11 @@ message EffectivePosition {
 // Query/SubaccountEffectivePositionInMarket RPC method.
 message QuerySubaccountEffectivePositionInMarketResponse {
   EffectivePosition state = 1 [ (gogoproto.nullable) = true ];
+
+  // The risk mode of the subaccount (ISOLATED or CROSS).
+  // For CROSS mode, effective_margin reflects position value but liquidation
+  // is determined at pool level. Use CrossMarginPoolSnapshot for pool health.
+  RiskMode risk_mode = 2;
 }
 
 // QueryPerpetualMarketInfoRequest is the request type for the
@@ -1236,6 +1263,132 @@ message QuerySubaccountOrderMetadataResponse {
 // QuerySubaccountTradeNonceResponse is the response type for the
 // Query/SubaccountTradeNonce RPC method.
 message QuerySubaccountTradeNonceResponse { uint32 nonce = 1; }
+
+// QuerySubaccountRiskProfileRequest is the request type for the
+// Query/SubaccountRiskProfile RPC method.
+message QuerySubaccountRiskProfileRequest {
+  // 32-byte hex string, consistent with existing exchange queries.
+  string subaccount_id = 1;
+}
+
+// QuerySubaccountRiskProfileResponse is the response type for the
+// Query/SubaccountRiskProfile RPC method.
+message QuerySubaccountRiskProfileResponse {
+  SubaccountRiskProfile profile = 1;
+
+  // True if the profile was not explicitly stored and defaults were returned.
+  bool is_default = 2;
+}
+
+// QueryCrossMarginPoolSnapshotRequest is the request type for the
+// Query/CrossMarginPoolSnapshot RPC method.
+message QueryCrossMarginPoolSnapshotRequest {
+  // 32-byte hex string identifying the subaccount.
+  string subaccount_id = 1;
+
+  // The quote denom of the cross-margin pool (e.g., "USDC").
+  string quote_denom = 2;
+}
+
+// QueryCrossMarginPoolSnapshotResponse is the response type for the
+// Query/CrossMarginPoolSnapshot RPC method.
+message QueryCrossMarginPoolSnapshotResponse {
+  // The quote denom of the pool.
+  string quote_denom = 1;
+
+  // Available quote balance in the pool (human-readable notional units).
+  string quote_balance = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Total margin held in positions.
+  string position_margin_total = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Raw unrealised PnL across all positions in the pool.
+  string unrealized_pnl = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Effective unrealised PnL after applying positive uPnL haircut.
+  string unrealized_pnl_effective = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Equity used for order admission checks (quote_balance + position_margin +
+  // uPnL_eff - fees_buffer).
+  string equity_admission = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Equity used for liquidation checks (uses raw uPnL, not haircutted).
+  string equity_liquidation = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Sum of initial margin requirements for existing positions only.
+  string initial_margin_total = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Sum of maintenance margin requirements for existing positions.
+  string maintenance_margin_total = 9 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Initial margin using worst-case net exposure (q + B, q - S) across all
+  // markets.
+  string initial_margin_with_orders_total = 10 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Sum of entry losses for all open orders.
+  string entry_loss_total = 11 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Sum of fee reserves for all open orders.
+  string fee_reserve_total = 12 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Order Lock Requirement = IM_with_orders + entry_loss + fee_reserve.
+  // Orders may be cancelled if equity_admission < order_lock_requirement.
+  string order_lock_requirement = 13 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // The positive uPnL haircut rate applied (e.g., 0.5 = 50%).
+  string positive_upnl_haircut_rate = 14 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Health factor = equity_liquidation / maintenance_margin_total.
+  // When < 1, the account is liquidatable. When < 1.5, the account is in a
+  // warning state. Empty if maintenance_margin_total is zero (no positions).
+  string health_factor = 15 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+
+  // Field 16 removed: canonical_liquidation_target_market_id is no longer
+  // relevant — MsgLiquidateCrossMarginPool closes all positions atomically.
+  reserved 16;
+}
 
 // QueryModuleStateRequest is the request type for the Query/ExchangeModuleState
 // RPC method.

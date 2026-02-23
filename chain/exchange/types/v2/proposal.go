@@ -765,9 +765,8 @@ func (p *OracleParams) ValidateBasic() error {
 		return types.ErrSameOracles
 	}
 	switch p.OracleType {
-	case oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase,
-		oracletypes.OracleType_Chainlink, oracletypes.OracleType_Razor, oracletypes.OracleType_Dia,
-		oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth,
+	case oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Razor,
+		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth,
 		oracletypes.OracleType_Provider, oracletypes.OracleType_Stork, oracletypes.OracleType_ChainlinkDataStreams:
 
 	default:
