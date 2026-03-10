@@ -204,10 +204,13 @@ message Params {
   // List of addresses that are allowed to perform exchange admin operations
   repeated string exchange_admins = 27;
 
-  // inj_auction_max_cap defines the maximum cap for INJ sent to auction
+  // inj_auction_max_cap defines the maximum cap for INJ sent to auction.
+  // Deprecated: the cap is now driven by the auction module's InjBasketMaxCap;
+  // this field is ignored.
   string inj_auction_max_cap = 28 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
 
   // fixed_gas_enabled indicates if msg server will consume fixed gas amount for
@@ -245,8 +248,19 @@ message Params {
       deprecated_enforced_restrictions_contracts = 36
       [ (gogoproto.nullable) = false ];
 
+  // white_knight_liquidators defines addresses that can liquidate positions
+  // with a dedicated white-knight reward share in positive payout liquidations
+  repeated string white_knight_liquidators = 37;
+
+  // white_knight_liquidator_reward_share_rate defines the ratio of the split of
+  // the surplus collateral that goes to a white knight liquidator
+  string white_knight_liquidator_reward_share_rate = 38 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
   // cross_margin_params groups all cross-margin related parameters.
-  CrossMarginParams cross_margin_params = 37 [ (gogoproto.nullable) = false ];
+  CrossMarginParams cross_margin_params = 39 [ (gogoproto.nullable) = false ];
 }
 
 message CrossMarginParams {

@@ -49,9 +49,10 @@ const (
 	// MaxTickSizeDecimalPlaces defines the maximum number of decimal places allowed for tick size
 	// The real max for LegacyDec is 18, but we allow 15 to ensure that we are absolutely safe of any rounding issues
 	MaxTickSizeDecimalPlaces = 15
-)
 
-var DefaultInjAuctionMaxCap = math.NewIntWithDecimal(10_000, 18)
+	// MaxWhiteKnightLiquidators defines the maximum number of white knight liquidators.
+	MaxWhiteKnightLiquidators = 1024
+)
 
 var MaxBinaryOptionsOrderPrice = math.LegacyOneDec()
 
@@ -238,7 +239,7 @@ func ValidateFixedGasFlag(enabled any) error {
 	return nil
 }
 
-func ValidateSpotMarketInstantListingFee(i interface{}) error {
+func ValidateSpotMarketInstantListingFee(i any) error {
 	v, ok := i.(sdk.Coin)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -251,7 +252,7 @@ func ValidateSpotMarketInstantListingFee(i interface{}) error {
 	return nil
 }
 
-func ValidateDerivativeMarketInstantListingFee(i interface{}) error {
+func ValidateDerivativeMarketInstantListingFee(i any) error {
 	v, ok := i.(sdk.Coin)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -264,7 +265,7 @@ func ValidateDerivativeMarketInstantListingFee(i interface{}) error {
 	return nil
 }
 
-func ValidateBinaryOptionsMarketInstantListingFee(i interface{}) error {
+func ValidateBinaryOptionsMarketInstantListingFee(i any) error {
 	v, ok := i.(sdk.Coin)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -277,7 +278,7 @@ func ValidateBinaryOptionsMarketInstantListingFee(i interface{}) error {
 	return nil
 }
 
-func ValidateFee(i interface{}) error {
+func ValidateFee(i any) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -314,7 +315,7 @@ func ValidateNonNegativeDec(i any) error {
 	return nil
 }
 
-func ValidateMakerFee(i interface{}) error {
+func ValidateMakerFee(i any) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -335,7 +336,7 @@ func ValidateMakerFee(i interface{}) error {
 	return nil
 }
 
-func ValidateHourlyFundingRateCap(i interface{}) error {
+func ValidateHourlyFundingRateCap(i any) error {
 	v, ok := i.(math.LegacyDec)
 
 	if !ok {
@@ -361,7 +362,7 @@ func ValidateHourlyFundingRateCap(i interface{}) error {
 	return nil
 }
 
-func ValidateHourlyInterestRate(i interface{}) error {
+func ValidateHourlyInterestRate(i any) error {
 	v, ok := i.(math.LegacyDec)
 
 	if !ok {
@@ -383,7 +384,7 @@ func ValidateHourlyInterestRate(i interface{}) error {
 	return nil
 }
 
-func ValidateTickSize(i interface{}) error {
+func ValidateTickSize(i any) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -412,17 +413,24 @@ func ValidateTickSize(i interface{}) error {
 	// v can be a decimal (e.g. 1e-15) so we scale by 10^15
 	scaledValue := v.Mul(scaleFactor)
 
-	// Check if scaledValue is a power of 10 using repeated division
-	if scaledValue.LTE(math.LegacyZeroDec()) {
+	if !isPowerOf10(scaledValue) {
 		return errors.New("unsupported tick size")
 	}
 
-	// Handle the special case of 1 (which is 10^0)
-	if scaledValue.Equal(math.LegacyOneDec()) {
-		return nil
+	return nil
+}
+
+// isPowerOf10 checks whether the given decimal is a positive power of 10 (including 10^0 = 1).
+func isPowerOf10(v math.LegacyDec) bool {
+	if v.LTE(math.LegacyZeroDec()) {
+		return false
 	}
 
-	temp := scaledValue
+	if v.Equal(math.LegacyOneDec()) {
+		return true
+	}
+
+	temp := v
 	ten := math.LegacyNewDec(10)
 
 	// Keep dividing by 10 while the result is >= 10
@@ -430,20 +438,16 @@ func ValidateTickSize(i interface{}) error {
 		quotient := temp.Quo(ten)
 		// Check if the division was exact (no remainder)
 		if !quotient.Mul(ten).Equal(temp) {
-			return errors.New("unsupported tick size")
+			return false
 		}
 		temp = quotient
 	}
 
 	// After all divisions, we should have exactly 1
-	if !temp.Equal(math.LegacyOneDec()) {
-		return fmt.Errorf("unsupported tick size")
-	}
-
-	return nil
+	return temp.Equal(math.LegacyOneDec())
 }
 
-func ValidateMinNotional(i interface{}) error {
+func ValidateMinNotional(i any) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -460,7 +464,7 @@ func ValidateMinNotional(i interface{}) error {
 	return nil
 }
 
-func ValidateMarginRatio(i interface{}) error {
+func ValidateMarginRatio(i any) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -479,7 +483,7 @@ func ValidateMarginRatio(i interface{}) error {
 	return nil
 }
 
-func ValidateFundingInterval(i interface{}) error {
+func ValidateFundingInterval(i any) error {
 	v, ok := i.(int64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -492,7 +496,7 @@ func ValidateFundingInterval(i interface{}) error {
 	return nil
 }
 
-func ValidatePostOnlyModeHeightThreshold(i interface{}) error {
+func ValidatePostOnlyModeHeightThreshold(i any) error {
 	v, ok := i.(int64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -505,7 +509,7 @@ func ValidatePostOnlyModeHeightThreshold(i interface{}) error {
 	return nil
 }
 
-func ValidateAdmins(i interface{}) error {
+func ValidateAdmins(i any) error {
 	v, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -528,7 +532,34 @@ func ValidateAdmins(i interface{}) error {
 	return nil
 }
 
-func ValidateFundingMultiple(i interface{}) error {
+func ValidateWhiteKnightLiquidators(i any) error {
+	v, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if len(v) > MaxWhiteKnightLiquidators {
+		return fmt.Errorf("number of white knight liquidators cannot exceed %d: %d", MaxWhiteKnightLiquidators, len(v))
+	}
+
+	liquidators := make(map[string]struct{})
+
+	for _, liquidator := range v {
+		liquidatorAddr, err := sdk.AccAddressFromBech32(liquidator)
+		if err != nil {
+			return fmt.Errorf("invalid white knight liquidator address: %s", liquidator)
+		}
+
+		if _, found := liquidators[liquidatorAddr.String()]; found {
+			return fmt.Errorf("duplicate white knight liquidator: %s", liquidator)
+		}
+		liquidators[liquidatorAddr.String()] = struct{}{}
+	}
+
+	return nil
+}
+
+func ValidateFundingMultiple(i any) error {
 	v, ok := i.(int64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -541,7 +572,7 @@ func ValidateFundingMultiple(i interface{}) error {
 	return nil
 }
 
-func ValidateDerivativeOrderSideCount(i interface{}) error {
+func ValidateDerivativeOrderSideCount(i any) error {
 	v, ok := i.(uint32)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -554,7 +585,7 @@ func ValidateDerivativeOrderSideCount(i interface{}) error {
 	return nil
 }
 
-func ValidateInjRewardStakedRequirementThreshold(i interface{}) error {
+func ValidateInjRewardStakedRequirementThreshold(i any) error {
 	v, ok := i.(math.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -571,7 +602,7 @@ func ValidateInjRewardStakedRequirementThreshold(i interface{}) error {
 	return nil
 }
 
-func ValidateTradingRewardsVestingDuration(i interface{}) error {
+func ValidateTradingRewardsVestingDuration(i any) error {
 	v, ok := i.(int64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -584,7 +615,7 @@ func ValidateTradingRewardsVestingDuration(i interface{}) error {
 	return nil
 }
 
-func ValidateLiquidatorRewardShareRate(i interface{}) error {
+func ValidateLiquidatorRewardShareRate(i any) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -603,7 +634,11 @@ func ValidateLiquidatorRewardShareRate(i interface{}) error {
 	return nil
 }
 
-func ValidateAtomicMarketOrderAccessLevel(i interface{}) error {
+func ValidateWhiteKnightLiquidatorRewardShareRate(i any) error {
+	return ValidateLiquidatorRewardShareRate(i)
+}
+
+func ValidateAtomicMarketOrderAccessLevel(i any) error {
 	v, ok := i.(AtomicMarketOrderAccessLevel)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -614,7 +649,7 @@ func ValidateAtomicMarketOrderAccessLevel(i interface{}) error {
 	return nil
 }
 
-func ValidateAtomicMarketOrderFeeMultiplier(i interface{}) error {
+func ValidateAtomicMarketOrderFeeMultiplier(i any) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -632,7 +667,7 @@ func ValidateAtomicMarketOrderFeeMultiplier(i interface{}) error {
 	return nil
 }
 
-func ValidateBool(i interface{}) error {
+func ValidateBool(i any) error {
 	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

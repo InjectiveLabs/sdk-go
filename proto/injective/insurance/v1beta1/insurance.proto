@@ -82,3 +82,12 @@ message RedemptionSchedule {
   cosmos.base.v1beta1.Coin redemption_amount = 5
       [ (gogoproto.nullable) = false ];
 }
+
+message FailedRedemptionSchedule {
+  // id of the failed redemption
+  uint64 id = 1;
+  // the original redemption schedule that failed to execute
+  RedemptionSchedule schedule = 2 [ (gogoproto.nullable) = false ];
+  // the error message from the failed withdrawal attempt
+  string err = 3;
+}

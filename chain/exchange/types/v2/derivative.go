@@ -503,8 +503,9 @@ type DerivativeMarketOrderExpansionData struct {
 	MarketSellClearingPrice      math.LegacyDec
 	MarketBuyClearingQuantity    math.LegacyDec
 	MarketSellClearingQuantity   math.LegacyDec
-	MarketBalanceDelta           math.LegacyDec
-	OpenInterestDelta            math.LegacyDec
+	MarketBalanceDelta            math.LegacyDec
+	OpenInterestDelta             math.LegacyDec
+	CrossPoolSnapshotEvictions    []common.Hash
 }
 
 func (e *DerivativeMarketOrderExpansionData) SetSellExecutionData(
@@ -660,6 +661,7 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		CancelLimitOrderEvents:                cancelLimitOrdersEvents,
 		CancelMarketOrderEvents:               cancelMarketOrdersEvents,
 		VwapData:                              vwapData,
+		CrossPoolSnapshotEvictions:            e.CrossPoolSnapshotEvictions,
 	}
 	return batch
 }
@@ -990,6 +992,13 @@ type DerivativeBatchExecutionData struct {
 	// Orders that were partially filled then became invalid
 	// Used by persistence layer to handle partial cancellations correctly
 	PartialCancelOrders map[common.Hash]struct{}
+
+	// CrossPoolSnapshotEvictions lists cross-margin subaccounts whose cached pool
+	// snapshots must be evicted after stage-1 market-order matching. Collected during
+	// ProcessDerivativeMarketOrderbookMatchingResults (which runs in parallel goroutines)
+	// and applied in the single-threaded persistence phase to avoid data races on the
+	// shared object store.
+	CrossPoolSnapshotEvictions []common.Hash
 }
 
 func (d *DerivativeBatchExecutionData) GetAtomicDerivativeMarketOrderResults() *DerivativeMarketOrderResults {

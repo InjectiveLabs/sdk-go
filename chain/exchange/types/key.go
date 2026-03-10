@@ -64,8 +64,9 @@ var (
 	DerivativeMarketParamUpdateScheduleKey     = []byte{0x28} // prefix for a key to save scheduled derivative market params update
 	DerivativeMarketScheduledSettlementInfo    = []byte{0x29} // prefix for a key to save scheduled derivative market settlements
 	DerivativePositionModifiedSubaccountPrefix = []byte{0x2a} // prefix for a key to save a list of subaccountIDs by marketID
-	DerivativeOrderbookLevelsPrefix           = []byte{0x2b} // prefix for each key to the derivative orderbook for a given marketID and direction
-	SubaccountDerivativeMarketOrderPrefix     = []byte{0x2c} // prefix for each key to a subaccount derivative market order (transient), by (marketID, subaccountID, direction, price, order hash)
+	DerivativeOrderbookLevelsPrefix            = []byte{0x2b} // prefix for each key to the derivative orderbook for a given marketID and direction
+
+	SubaccountDerivativeMarketOrderPrefix = []byte{0x2c} // prefix for each key to a subaccount derivative market order (transient), by (marketID, subaccountID, direction, price, order hash)
 
 	PerpetualMarketFundingPrefix             = []byte{0x31} // prefix for each key to a perpetual market's funding state
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
@@ -128,17 +129,18 @@ var (
 	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
 	PostOnlyModeCancellationKey  = []byte{0x87} // key to mark post-only mode cancellation for next BeginBlock
 
-	TransientAtomicPerpetualVwapPrefix = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
-	ObjectCachedParamsKey              = []byte{0x89} // key for cached params in object store (block-scoped)
+	TransientAtomicPerpetualVwapPrefix    = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
+	ObjectCachedParamsKey                 = []byte{0x89} // key for cached params in object store (block-scoped)
+	ObjectCachedWhiteKnightLiquidatorsKey = []byte{0x8a} // key for cached white knight liquidators set in object store (block-scoped)
 
 	// SubaccountRiskProfilePrefix | subaccountID(32B) -> v2.SubaccountRiskProfile (proto bytes)
-	SubaccountRiskProfilePrefix = []byte{0x8a}
+	SubaccountRiskProfilePrefix = []byte{0x8b}
 	// ActiveDerivativeMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}
-	ActiveDerivativeMarketsBySubaccountPrefix = []byte{0x8b}
+	ActiveDerivativeMarketsBySubaccountPrefix = []byte{0x8c}
 	// ActiveDerivativeOrderMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}
-	ActiveDerivativeOrderMarketsBySubaccountPrefix = []byte{0x8c}
+	ActiveDerivativeOrderMarketsBySubaccountPrefix = []byte{0x8d}
 
-	ObjectCrossPoolSnapshotCacheKey = []byte{0x8d} // key for cross-pool snapshot cache in object store (block-scoped)
+	ObjectCrossPoolSnapshotCacheKey = []byte{0x8e} // key for cross-pool snapshot cache in object store (block-scoped)
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {

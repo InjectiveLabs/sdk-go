@@ -624,10 +624,8 @@ func (msg MsgUpdateSubaccountRiskProfile) ValidateBasic() error {
 	}
 
 	switch msg.RiskProfile.ReservationPolicy {
-	case ReservationPolicy_RESERVATION_POLICY_FULL_HOLD:
+	case ReservationPolicy_RESERVATION_POLICY_UNSPECIFIED, ReservationPolicy_RESERVATION_POLICY_FULL_HOLD:
 		// supported
-	case ReservationPolicy_RESERVATION_POLICY_UNSPECIFIED:
-		return errors.Wrap(types.ErrBadField, "reservation policy must be explicitly specified (FULL_HOLD)")
 	default:
 		return errors.Wrap(types.ErrFeatureDisabled, "reservation policy is not supported")
 	}

@@ -52,6 +52,13 @@ service Query {
       returns (QueryModuleStateResponse) {
     option (google.api.http).get = "/injective/insurance/v1beta1/module_state";
   }
+
+  // Retrieves all failed redemption schedules
+  rpc FailedRedemptions(QueryFailedRedemptionsRequest)
+      returns (QueryFailedRedemptionsResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/failed_redemptions";
+  }
 }
 
 // QueryInsuranceParamsRequest is the request type for the Query/InsuranceParams
@@ -118,3 +125,14 @@ message QueryModuleStateRequest {}
 // QueryModuleStateResponse is the response type for the
 // Query/InsuranceModuleState RPC method.
 message QueryModuleStateResponse { GenesisState state = 1; }
+
+// QueryFailedRedemptionsRequest is the request type for the
+// Query/FailedRedemptions RPC method.
+message QueryFailedRedemptionsRequest {}
+
+// QueryFailedRedemptionsResponse is the response type for the
+// Query/FailedRedemptions RPC method.
+message QueryFailedRedemptionsResponse {
+  repeated FailedRedemptionSchedule schedules = 1
+      [ (gogoproto.nullable) = false ];
+}
