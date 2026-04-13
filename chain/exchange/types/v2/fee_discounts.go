@@ -108,7 +108,7 @@ func (c *FeeDiscountConfig) GetFeeDiscountRate(account sdk.AccAddress, isMaker b
 	defer c.AccountFeeTiersMux.RUnlock()
 
 	tier, ok := c.AccountFeeTiers[types.SdkAccAddressToAccount(account)]
-	if !ok {
+	if !ok || tier == nil {
 		// should never happen but just in case
 		return nil
 	}

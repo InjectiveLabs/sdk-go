@@ -3,6 +3,7 @@ package injective.insurance.v1beta1;
 
 import "google/api/annotations.proto";
 import "injective/insurance/v1beta1/insurance.proto";
+import "injective/common/vouchers/v1/vouchers.proto";
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "injective/insurance/v1beta1/genesis.proto";
@@ -51,6 +52,23 @@ service Query {
   rpc InsuranceModuleState(QueryModuleStateRequest)
       returns (QueryModuleStateResponse) {
     option (google.api.http).get = "/injective/insurance/v1beta1/module_state";
+  }
+
+  // Retrieves all failed redemption schedules
+  rpc FailedRedemptions(QueryFailedRedemptionsRequest)
+      returns (QueryFailedRedemptionsResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/failed_redemptions";
+  }
+
+  // Vouchers retrieves all outstanding vouchers; pass an empty denom to get all
+  rpc Vouchers(QueryVouchersRequest) returns (QueryVouchersResponse) {
+    option (google.api.http).get = "/injective/insurance/v1beta1/vouchers";
+  }
+
+  // Voucher retrieves a single voucher for a given denom and address
+  rpc Voucher(QueryVoucherRequest) returns (QueryVoucherResponse) {
+    option (google.api.http).get = "/injective/insurance/v1beta1/voucher";
   }
 }
 
@@ -118,3 +136,40 @@ message QueryModuleStateRequest {}
 // QueryModuleStateResponse is the response type for the
 // Query/InsuranceModuleState RPC method.
 message QueryModuleStateResponse { GenesisState state = 1; }
+
+// QueryFailedRedemptionsRequest is the request type for the
+// Query/FailedRedemptions RPC method.
+message QueryFailedRedemptionsRequest {}
+
+// QueryFailedRedemptionsResponse is the response type for the
+// Query/FailedRedemptions RPC method.
+message QueryFailedRedemptionsResponse {
+  repeated FailedRedemptionSchedule schedules = 1
+      [ (gogoproto.nullable) = false ];
+}
+
+message QueryVouchersRequest {
+  // denom filter; empty string returns all vouchers
+  string denom = 1;
+}
+
+message QueryVouchersResponse {
+  // List of outstanding vouchers matching the request filter.
+  repeated injective.common.vouchers.v1.AddressVoucher vouchers = 1
+      [ (gogoproto.nullable) = false ];
+}
+
+message QueryVoucherRequest {
+  // Required. The token denom to look up.
+  string denom = 1;
+  // Required. The bech32 address of the voucher holder.
+  string address = 2;
+}
+
+message QueryVoucherResponse {
+  // The outstanding voucher coin for the requested denom and address.
+  cosmos.base.v1beta1.Coin voucher = 1 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+}

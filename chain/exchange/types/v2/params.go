@@ -17,35 +17,38 @@ var _ paramtypes.ParamSet = &Params{}
 
 // Parameter keys
 var (
-	KeySpotMarketInstantListingFee                 = []byte("SpotMarketInstantListingFee")
-	KeyDerivativeMarketInstantListingFee           = []byte("DerivativeMarketInstantListingFee")
-	KeyDefaultSpotMakerFeeRate                     = []byte("DefaultSpotMakerFeeRate")
-	KeyDefaultSpotTakerFeeRate                     = []byte("DefaultSpotTakerFeeRate")
-	KeyDefaultDerivativeMakerFeeRate               = []byte("DefaultDerivativeMakerFeeRate")
-	KeyDefaultDerivativeTakerFeeRate               = []byte("DefaultDerivativeTakerFeeRate")
-	KeyDefaultInitialMarginRatio                   = []byte("DefaultInitialMarginRatio")
-	KeyDefaultMaintenanceMarginRatio               = []byte("DefaultMaintenanceMarginRatio")
-	KeyDefaultReduceMarginRatio                    = []byte("DefaultReduceMarginRatio")
-	KeyDefaultFundingInterval                      = []byte("DefaultFundingInterval")
-	KeyFundingMultiple                             = []byte("FundingMultiple")
-	KeyRelayerFeeShareRate                         = []byte("RelayerFeeShareRate")
-	KeyDefaultHourlyFundingRateCap                 = []byte("DefaultHourlyFundingRateCap")
-	KeyDefaultHourlyInterestRate                   = []byte("DefaultHourlyInterestRate")
-	KeyMaxDerivativeOrderSideCount                 = []byte("MaxDerivativeOrderSideCount")
-	KeyInjRewardStakedRequirementThreshold         = []byte("KeyInjRewardStakedRequirementThreshold")
-	KeyTradingRewardsVestingDuration               = []byte("TradingRewardsVestingDuration")
-	KeyLiquidatorRewardShareRate                   = []byte("LiquidatorRewardShareRate")
-	KeyBinaryOptionsMarketInstantListingFee        = []byte("BinaryOptionsMarketInstantListingFee")
-	KeyAtomicMarketOrderAccessLevel                = []byte("AtomicMarketOrderAccessLevel")
-	KeySpotAtomicMarketOrderFeeMultiplier          = []byte("SpotAtomicMarketOrderFeeMultiplier")
-	KeyDerivativeAtomicMarketOrderFeeMultiplier    = []byte("DerivativeAtomicMarketOrderFeeMultiplier")
-	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
-	KeyMinimalProtocolFeeRate                      = []byte("MinimalProtocolFeeRate")
-	KeyIsInstantDerivativeMarketLaunchEnabled      = []byte("IsInstantDerivativeMarketLaunchEnabled")
-	KeyPostOnlyModeHeightThreshold                 = []byte("PostOnlyModeHeightThreshold")
-	KeyPostOnlyModeBlocksAmount                    = []byte("PostOnlyModeBlocksAmount")
-	KeyMinPostOnlyModeDowntimeDuration             = []byte("MinPostOnlyModeDowntimeDuration")
-	KeyPostOnlyModeBlocksAmountAfterDowntime       = []byte("PostOnlyModeBlocksAmountAfterDowntime")
+	KeySpotMarketInstantListingFee                  = []byte("SpotMarketInstantListingFee")
+	KeyDerivativeMarketInstantListingFee            = []byte("DerivativeMarketInstantListingFee")
+	KeyDefaultSpotMakerFeeRate                      = []byte("DefaultSpotMakerFeeRate")
+	KeyDefaultSpotTakerFeeRate                      = []byte("DefaultSpotTakerFeeRate")
+	KeyDefaultDerivativeMakerFeeRate                = []byte("DefaultDerivativeMakerFeeRate")
+	KeyDefaultDerivativeTakerFeeRate                = []byte("DefaultDerivativeTakerFeeRate")
+	KeyDefaultInitialMarginRatio                    = []byte("DefaultInitialMarginRatio")
+	KeyDefaultMaintenanceMarginRatio                = []byte("DefaultMaintenanceMarginRatio")
+	KeyDefaultReduceMarginRatio                     = []byte("DefaultReduceMarginRatio")
+	KeyDefaultFundingInterval                       = []byte("DefaultFundingInterval")
+	KeyFundingMultiple                              = []byte("FundingMultiple")
+	KeyRelayerFeeShareRate                          = []byte("RelayerFeeShareRate")
+	KeyDefaultHourlyFundingRateCap                  = []byte("DefaultHourlyFundingRateCap")
+	KeyDefaultHourlyInterestRate                    = []byte("DefaultHourlyInterestRate")
+	KeyMaxDerivativeOrderSideCount                  = []byte("MaxDerivativeOrderSideCount")
+	KeyInjRewardStakedRequirementThreshold          = []byte("KeyInjRewardStakedRequirementThreshold")
+	KeyTradingRewardsVestingDuration                = []byte("TradingRewardsVestingDuration")
+	KeyLiquidatorRewardShareRate                    = []byte("LiquidatorRewardShareRate")
+	KeyWhiteKnightLiquidators                       = []byte("WhiteKnightLiquidators")
+	KeyWhiteKnightLiquidatorRewardShareRate         = []byte("WhiteKnightLiquidatorRewardShareRate")
+	KeyBinaryOptionsMarketInstantListingFee         = []byte("BinaryOptionsMarketInstantListingFee")
+	KeyAtomicMarketOrderAccessLevel                 = []byte("AtomicMarketOrderAccessLevel")
+	KeySpotAtomicMarketOrderFeeMultiplier           = []byte("SpotAtomicMarketOrderFeeMultiplier")
+	KeyDerivativeAtomicMarketOrderFeeMultiplier     = []byte("DerivativeAtomicMarketOrderFeeMultiplier")
+	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier  = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
+	KeyMinimalProtocolFeeRate                       = []byte("MinimalProtocolFeeRate")
+	KeyIsInstantDerivativeMarketLaunchEnabled       = []byte("IsInstantDerivativeMarketLaunchEnabled")
+	KeyPostOnlyModeHeightThreshold                  = []byte("PostOnlyModeHeightThreshold")
+	KeyPostOnlyModeBlocksAmount                     = []byte("PostOnlyModeBlocksAmount")
+	KeyMinPostOnlyModeDowntimeDuration              = []byte("MinPostOnlyModeDowntimeDuration")
+	KeyPostOnlyModeBlocksAmountAfterDowntime        = []byte("PostOnlyModeBlocksAmountAfterDowntime")
+	KeyCrossMarginParams                            = []byte("CrossMarginParams")
 )
 
 // ParamSetPairs returns the parameter set pairs.
@@ -88,6 +91,16 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			KeyLiquidatorRewardShareRate,
 			&p.LiquidatorRewardShareRate,
 			types.ValidateLiquidatorRewardShareRate,
+		),
+		paramtypes.NewParamSetPair(
+			KeyWhiteKnightLiquidators,
+			&p.WhiteKnightLiquidators,
+			types.ValidateWhiteKnightLiquidators,
+		),
+		paramtypes.NewParamSetPair(
+			KeyWhiteKnightLiquidatorRewardShareRate,
+			&p.WhiteKnightLiquidatorRewardShareRate,
+			types.ValidateWhiteKnightLiquidatorRewardShareRate,
 		),
 		paramtypes.NewParamSetPair(
 			KeyBinaryOptionsMarketInstantListingFee,
@@ -135,6 +148,11 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			&p.PostOnlyModeBlocksAmountAfterDowntime,
 			ValidatePostOnlyModeBlocksAmountAfterDowntime,
 		),
+		paramtypes.NewParamSetPair(
+			KeyCrossMarginParams,
+			&p.CrossMarginParams,
+			ValidateCrossMarginParams,
+		),
 	}
 }
 
@@ -159,6 +177,8 @@ func DefaultParams() Params {
 		InjRewardStakedRequirementThreshold:          math.NewIntWithDecimal(100, 18), // 100 INJ
 		TradingRewardsVestingDuration:                604800,                          // 7 days
 		LiquidatorRewardShareRate:                    math.LegacyNewDecWithPrec(5, 2), // 5% liquidator reward
+		WhiteKnightLiquidatorRewardShareRate:         math.LegacyNewDecWithPrec(5, 1), // 50% white knight liquidator reward
+		WhiteKnightLiquidators:                       []string{},
 		BinaryOptionsMarketInstantListingFee:         sdk.NewCoin("inj", math.NewIntWithDecimal(types.BinaryOptionsMarketInstantListingFee, 18)),
 		AtomicMarketOrderAccessLevel:                 AtomicMarketOrderAccessLevel_SmartContractsOnly,
 		SpotAtomicMarketOrderFeeMultiplier:           math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
@@ -169,12 +189,12 @@ func DefaultParams() Params {
 		PostOnlyModeHeightThreshold:                  0,
 		MarginDecreasePriceTimestampThresholdSeconds: 60,
 		ExchangeAdmins:                               []string{},
-		InjAuctionMaxCap:                             types.DefaultInjAuctionMaxCap,
 		FixedGasEnabled:                              false,
 		EmitLegacyVersionEvents:                      true,
-		PostOnlyModeBlocksAmount:                     2000,           // default 2000 blocks
-		MinPostOnlyModeDowntimeDuration:              "DURATION_10M", // default 10 minutes
-		PostOnlyModeBlocksAmountAfterDowntime:        1000,           // default 1000 blocks
+		PostOnlyModeBlocksAmount:                     2000,                            // default 2000 blocks
+		MinPostOnlyModeDowntimeDuration:              "DURATION_10M",                  // default 10 minutes
+		PostOnlyModeBlocksAmountAfterDowntime:        1000,                            // default 1000 blocks
+		CrossMarginParams: DefaultCrossMarginParams(),
 	}
 }
 
@@ -228,6 +248,15 @@ func (p Params) Validate() error {
 	if err := types.ValidateLiquidatorRewardShareRate(p.LiquidatorRewardShareRate); err != nil {
 		return fmt.Errorf("liquidator_reward_share_rate is incorrect: %w", err)
 	}
+	if err := types.ValidateWhiteKnightLiquidatorRewardShareRate(p.WhiteKnightLiquidatorRewardShareRate); err != nil {
+		return fmt.Errorf("white_knight_liquidator_reward_share_rate is incorrect: %w", err)
+	}
+	if p.WhiteKnightLiquidatorRewardShareRate.LT(p.LiquidatorRewardShareRate) {
+		return errors.New("white_knight_liquidator_reward_share_rate must be greater than or equal to liquidator_reward_share_rate")
+	}
+	if err := types.ValidateWhiteKnightLiquidators(p.WhiteKnightLiquidators); err != nil {
+		return fmt.Errorf("white_knight_liquidators is incorrect: %w", err)
+	}
 	if err := types.ValidateBinaryOptionsMarketInstantListingFee(p.BinaryOptionsMarketInstantListingFee); err != nil {
 		return fmt.Errorf("binary_options_market_instant_listing_fee is incorrect: %w", err)
 	}
@@ -268,12 +297,55 @@ func (p Params) Validate() error {
 	if err := ValidatePostOnlyModeBlocksAmountAfterDowntime(p.PostOnlyModeBlocksAmountAfterDowntime); err != nil {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
 	}
+	return p.CrossMarginParams.Validate()
+}
 
-	if err := ValidateEnforcedRestrictionsContracts(p.EnforcedRestrictionsContracts); err != nil {
-		return fmt.Errorf("enforced_restrictions_contracts are invalid: %w", err)
+// DefaultCrossMarginParams returns default cross-margin parameters.
+func DefaultCrossMarginParams() CrossMarginParams {
+	return CrossMarginParams{
+		PositiveUpnlHaircutRate:           math.LegacyNewDecWithPrec(5, 1), // default 50% haircut
+		FeesBuffer:                        math.LegacyZeroDec(),
+		EnabledQuoteDenoms:                []string{},
+		PerpetualEnabled:                  true,
+		ExpiryEnabled:                     true,
+		MaxActiveDerivativeMarketsPerPool: 100,
+		EmergencyPaused:                   false,
+	}
+}
+
+// Validate performs basic validation on cross-margin parameters.
+// Dec fields are validated only when non-nil (nil means the caller did not set the field
+// and the msg server handler will backfill from current on-chain params before persisting).
+// Non-Dec fields are always validated so that genesis and direct callers cannot import
+// malformed configuration.
+func (p CrossMarginParams) Validate() error {
+	if !p.PositiveUpnlHaircutRate.IsNil() {
+		if err := types.ValidateFee(p.PositiveUpnlHaircutRate); err != nil {
+			return fmt.Errorf("cross_margin_positive_upnl_haircut_rate is incorrect: %w", err)
+		}
+	}
+	if !p.FeesBuffer.IsNil() {
+		if err := types.ValidateNonNegativeDec(p.FeesBuffer); err != nil {
+			return fmt.Errorf("cross_margin_fees_buffer is incorrect: %w", err)
+		}
+	}
+	if err := ValidateCrossMarginEnabledQuoteDenoms(p.EnabledQuoteDenoms); err != nil {
+		return fmt.Errorf("cross_margin_enabled_quote_denoms are invalid: %w", err)
+	}
+	if err := ValidateCrossMarginMaxActiveDerivativeMarketsPerPool(p.MaxActiveDerivativeMarketsPerPool); err != nil {
+		return fmt.Errorf("cross_margin_max_active_derivative_markets_per_pool is incorrect: %w", err)
 	}
 
 	return nil
+}
+
+// ValidateCrossMarginParams validates the CrossMarginParams sub-message for ParamSetPairs.
+func ValidateCrossMarginParams(i any) error {
+	v, ok := i.(CrossMarginParams)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	return v.Validate()
 }
 
 func ValidateAtomicMarketOrderAccessLevel(accessLevel any) error {
@@ -283,6 +355,47 @@ func ValidateAtomicMarketOrderAccessLevel(accessLevel any) error {
 	}
 	if !v.IsValid() {
 		return fmt.Errorf("invalid AtomicMarketOrderAccessLevel value: %v", v)
+	}
+	return nil
+}
+
+func ValidateCrossMarginEnabledQuoteDenoms(i any) error {
+	denoms, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	seen := make(map[string]struct{}, len(denoms))
+	for _, denom := range denoms {
+		if denom == "" {
+			return errors.New("cross margin enabled quote denom cannot be empty")
+		}
+		if err := sdk.ValidateDenom(denom); err != nil {
+			return fmt.Errorf("invalid denom %q: %w", denom, err)
+		}
+		if _, exists := seen[denom]; exists {
+			return fmt.Errorf("duplicate denom %q", denom)
+		}
+		seen[denom] = struct{}{}
+	}
+
+	return nil
+}
+
+func ValidateCrossMarginMaxActiveDerivativeMarketsPerPool(i any) error {
+	v, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	// Allow 0 for backwards compatibility (treated as a default cap at runtime).
+	if v == 0 {
+		return nil
+	}
+
+	const maxReasonable = 1000
+	if v > maxReasonable {
+		return fmt.Errorf("value %d exceeds max %d", v, maxReasonable)
 	}
 	return nil
 }
@@ -362,17 +475,6 @@ func ValidateEVMAddresses(addresses []string) error {
 		if !ethcommon.IsHexAddress(addr) {
 			return fmt.Errorf("address is not in EVM format: %s", addr)
 		}
-	}
-
-	return nil
-}
-
-func ValidateEnforcedRestrictionsContracts(contracts []EnforcedRestrictionsContract) error {
-	for _, contract := range contracts {
-		if !ethcommon.IsHexAddress(contract.ContractAddress) {
-			return fmt.Errorf("contract address is not in EVM format: %s", contract.ContractAddress)
-		}
-		// pause_event_signature can be empty (will default to "Pause()")
 	}
 
 	return nil

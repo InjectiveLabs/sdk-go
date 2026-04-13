@@ -25,17 +25,20 @@ message RateLimit {
     (gogoproto.nullable) = false
   ];
 
-  // the absolute amount of tokens that can be minted on Injective
+  // [DEPRECATED] the absolute amount of tokens that can be minted on Injective
   string absolute_mint_limit = 6 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
 
   // transfers that occurred within the sliding window
-  repeated BridgeTransfer transfers = 7;
+  repeated BridgeTransfer transfers = 7 [ deprecated = true ];
 }
 
 message BridgeTransfer {
+  option deprecated = true;
+
   // quantity that was bridged (chain format)
   string amount = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
@@ -47,4 +50,37 @@ message BridgeTransfer {
 
   // type of transfer (withdrawal/deposit)
   bool is_deposit = 3;
+}
+
+message RateLimitTransfers {
+  // contract address of the erc20 on Ethereum
+  string token = 1;
+
+  // records of deposit transfers across blocks
+  repeated BlockTransferRecord inflows = 2;
+
+  // records of withdrawal transfers across blocks
+  repeated BlockTransferRecord outflows = 3;
+}
+
+message BlockTransferRecord {
+  // block number at which the transfers occurred
+  uint64 block_number = 1;
+
+  // sum amount of transfers that happened in that block
+  string amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message MintAmount {
+  // address of the erc20 bridged in
+  string token = 1;
+
+  // amount currently minted on chain
+  string amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
 }

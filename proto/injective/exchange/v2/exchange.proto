@@ -12,6 +12,18 @@ import "injective/exchange/v2/order.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/exchange/types/v2";
 
+enum ExecutionType {
+  UnspecifiedExecutionType = 0;
+  Market = 1;
+  LimitFill = 2;
+  LimitMatchRestingOrder = 3;
+  LimitMatchNewOrder = 4;
+  MarketLiquidation = 5;
+  ExpiryMarketSettlement = 6;
+  OffsettingPosition = 7;
+  Synthetic = 8;
+}
+
 // EnforcedRestrictionsContract defines a contract with its pause event
 // signature
 message EnforcedRestrictionsContract {
@@ -24,16 +36,19 @@ message EnforcedRestrictionsContract {
   string pause_event_signature = 2;
 }
 
-enum ExecutionType {
-  UnspecifiedExecutionType = 0;
-  Market = 1;
-  LimitFill = 2;
-  LimitMatchRestingOrder = 3;
-  LimitMatchNewOrder = 4;
-  MarketLiquidation = 5;
-  ExpiryMarketSettlement = 6;
-  OffsettingPosition = 7;
-  Synthetic = 8;
+enum RiskMode {
+  RISK_MODE_UNSPECIFIED = 0;
+  RISK_MODE_ISOLATED = 1;
+  RISK_MODE_CROSS = 2;
+  RISK_MODE_PORTFOLIO = 3; // reserved for future use (not implemented)
+}
+
+enum ReservationPolicy {
+  RESERVATION_POLICY_UNSPECIFIED = 0;
+  RESERVATION_POLICY_FULL_HOLD = 1;
+  RESERVATION_POLICY_PARTIAL_HOLD =
+      2;                          // reserved for future use (not implemented)
+  RESERVATION_POLICY_NO_HOLD = 3; // reserved for future use (not implemented)
 }
 
 message Params {
@@ -189,10 +204,13 @@ message Params {
   // List of addresses that are allowed to perform exchange admin operations
   repeated string exchange_admins = 27;
 
-  // inj_auction_max_cap defines the maximum cap for INJ sent to auction
+  // inj_auction_max_cap defines the maximum cap for INJ sent to auction.
+  // Deprecated: the cap is now driven by the auction module's InjBasketMaxCap;
+  // this field is ignored.
   string inj_auction_max_cap = 28 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
 
   // fixed_gas_enabled indicates if msg server will consume fixed gas amount for
@@ -223,10 +241,69 @@ message Params {
   // downtime
   uint64 post_only_mode_blocks_amount_after_downtime = 35;
 
+  // DEPRECATED, left for upgrade purposes
   // Contracts that exchange will be listening to pause markets denominated in
   // respective erc20: denoms, with their pause event signatures
-  repeated EnforcedRestrictionsContract enforced_restrictions_contracts = 36
+  repeated EnforcedRestrictionsContract
+      deprecated_enforced_restrictions_contracts = 36
       [ (gogoproto.nullable) = false ];
+
+  // white_knight_liquidators defines addresses that can liquidate positions
+  // with a dedicated white-knight reward share in positive payout liquidations
+  repeated string white_knight_liquidators = 37;
+
+  // white_knight_liquidator_reward_share_rate defines the ratio of the split of
+  // the surplus collateral that goes to a white knight liquidator
+  string white_knight_liquidator_reward_share_rate = 38 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // cross_margin_params groups all cross-margin related parameters.
+  CrossMarginParams cross_margin_params = 39 [ (gogoproto.nullable) = false ];
+}
+
+message CrossMarginParams {
+  option (gogoproto.equal) = true;
+
+  // positive_upnl_haircut_rate defines the haircut applied to
+  // positive unrealized PnL for cross-margin admission checks.
+  string positive_upnl_haircut_rate = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // fees_buffer defines a fixed notional buffer (quote-denom
+  // units) subtracted from cross-margin equity calculations.
+  string fees_buffer = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // enabled_quote_denoms defines the quote denoms that are
+  // eligible for cross-margin pools.
+  repeated string enabled_quote_denoms = 3;
+
+  // perpetual_enabled defines whether perpetual derivative markets
+  // are eligible for cross margin.
+  bool perpetual_enabled = 4;
+
+  // expiry_enabled defines whether expiry futures derivative
+  // markets are eligible for cross margin.
+  bool expiry_enabled = 5;
+
+  // max_active_derivative_markets_per_pool defines the maximum
+  // number of active derivative markets (positions or orders) a cross-margin
+  // subaccount may have within a single quote-denom pool.
+  uint32 max_active_derivative_markets_per_pool = 6;
+
+  // emergency_paused defines whether cross margin is in emergency
+  // pause mode. When true:
+  // - All cross-margin orders (including reduce-only) are blocked
+  // - Profile switching involving cross mode is blocked
+  // - Liquidations are still allowed
+  // - Withdrawals are allowed up to isolated-margin maintenance level
+  bool emergency_paused = 7;
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }
@@ -599,4 +676,12 @@ message DenomMinNotional {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+}
+
+message SubaccountRiskProfile {
+  RiskMode mode = 1;
+  ReservationPolicy reservation_policy = 2;
+
+  // credit_line_id is reserved for future use and currently must be empty.
+  string credit_line_id = 3;
 }

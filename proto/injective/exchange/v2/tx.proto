@@ -230,6 +230,17 @@ service Msg {
   // a number of blocks
   rpc ActivatePostOnlyMode(MsgActivatePostOnlyMode)
       returns (MsgActivatePostOnlyModeResponse);
+
+  // LiquidateCrossMarginPool atomically closes all positions in a cross-margin
+  // pool, netting surplus from profitable positions against deficits before
+  // touching the insurance fund.
+  rpc LiquidateCrossMarginPool(MsgLiquidateCrossMarginPool)
+      returns (MsgLiquidateCrossMarginPoolResponse);
+
+  // UpdateSubaccountRiskProfile allows a user (subject to eligibility & safety
+  // gates) to set the subaccount's risk profile (e.g. opt into cross-margin).
+  rpc UpdateSubaccountRiskProfile(MsgUpdateSubaccountRiskProfile)
+      returns (MsgUpdateSubaccountRiskProfileResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -377,6 +388,26 @@ message MsgWithdraw {
 
 // MsgWithdraw defines the Msg/Withdraw response type.
 message MsgWithdrawResponse {}
+
+// MsgUpdateSubaccountRiskProfile defines a SDK message for updating a
+// subaccount's risk profile (e.g. opting into cross-margin).
+message MsgUpdateSubaccountRiskProfile {
+  option (amino.name) = "exchange/MsgUpdateSubaccountRiskProfile";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address
+  string sender = 1;
+  // the subaccount ID to update the risk profile for
+  string subaccount_id = 2;
+  // the requested risk profile (subject to eligibility & safety gates)
+  SubaccountRiskProfile risk_profile = 3 [ (gogoproto.nullable) = false ];
+}
+
+// MsgUpdateSubaccountRiskProfileResponse defines the
+// Msg/UpdateSubaccountRiskProfile response type.
+message MsgUpdateSubaccountRiskProfileResponse {}
 
 // MsgCreateSpotLimitOrder defines a SDK message for creating a new spot limit
 // order.
@@ -543,6 +574,8 @@ message MsgInstantPerpetualMarketLaunch {
 
   // open_notional_cap defines the cap on the open notional
   OpenNotionalCap open_notional_cap = 16 [ (gogoproto.nullable) = false ];
+  // cross_margin_eligible marks the market as eligible for cross-margin
+  bool cross_margin_eligible = 17;
 }
 
 // MsgInstantPerpetualMarketLaunchResponse defines the
@@ -690,6 +723,8 @@ message MsgInstantExpiryFuturesMarketLaunch {
 
   // open_notional_cap defines the cap on the open notional
   OpenNotionalCap open_notional_cap = 17 [ (gogoproto.nullable) = false ];
+  // cross_margin_eligible marks the market as eligible for cross-margin
+  bool cross_margin_eligible = 18;
 }
 
 // MsgInstantExpiryFuturesMarketLaunchResponse defines the
@@ -1602,3 +1637,22 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyModeResponse defines the response for
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
+
+// MsgLiquidateCrossMarginPool atomically closes all positions in a
+// cross-margin pool, netting surplus from profitable positions against deficits
+// before touching the insurance fund.
+message MsgLiquidateCrossMarginPool {
+  option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the liquidator's Injective address
+  string sender = 1;
+  // the cross-margin subaccount to liquidate
+  string subaccount_id = 2;
+  // identifies which cross-margin pool (by quote denom)
+  string quote_denom = 3;
+}
+
+// MsgLiquidateCrossMarginPoolResponse defines the
+// Msg/LiquidateCrossMarginPool response type.
+message MsgLiquidateCrossMarginPoolResponse {}

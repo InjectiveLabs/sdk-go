@@ -17,8 +17,10 @@ const (
 	ModuleName = "exchange"
 
 	// StoreKey to be used when creating the KVStore
-	StoreKey  = ModuleName
-	TStoreKey = "transient_exchange"
+	StoreKey = ModuleName
+	// ObjectStoreKey is the key to access the exchange object store, reset on Commit.
+	ObjectStoreKey = "object:" + ModuleName
+	TStoreKey      = "transient_exchange"
 )
 const PriceDecimalPlaces = 18
 const DefaultQueryOrderbookLimit uint64 = 20
@@ -63,6 +65,9 @@ var (
 	DerivativeMarketScheduledSettlementInfo    = []byte{0x29} // prefix for a key to save scheduled derivative market settlements
 	DerivativePositionModifiedSubaccountPrefix = []byte{0x2a} // prefix for a key to save a list of subaccountIDs by marketID
 	DerivativeOrderbookLevelsPrefix            = []byte{0x2b} // prefix for each key to the derivative orderbook for a given marketID and direction
+
+	// prefix for each key to a subaccount derivative market order (transient), by (marketID, subaccountID, direction, price, order hash)
+	SubaccountDerivativeMarketOrderPrefix = []byte{0x2c}
 
 	PerpetualMarketFundingPrefix             = []byte{0x31} // prefix for each key to a perpetual market's funding state
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
@@ -125,7 +130,19 @@ var (
 	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
 	PostOnlyModeCancellationKey  = []byte{0x87} // key to mark post-only mode cancellation for next BeginBlock
 
-	TransientAtomicPerpetualVwapPrefix = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
+  TransientAtomicPerpetualVwapPrefix           = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
+  ObjectCachedParamsKey                        = []byte{0x89} // key for cached params in object store (block-scoped)                                     
+  ObjectCachedWhiteKnightLiquidatorsKey        = []byte{0x8a} // key for cached white knight liquidators set in object store (block-scoped)               
+  TransientSyntheticPerpetualFundingVwapPrefix = []byte{0x8b} // prefix for transient synthetic perpetual funding VWAP data                               
+
+  // SubaccountRiskProfilePrefix | subaccountID(32B) -> v2.SubaccountRiskProfile (proto bytes)                                                            
+  SubaccountRiskProfilePrefix = []byte{0x8c}                                                                                                              
+  // ActiveDerivativeMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}                                                                  
+  ActiveDerivativeMarketsBySubaccountPrefix = []byte{0x8d}         
+  // ActiveDerivativeOrderMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}                                                             
+  ActiveDerivativeOrderMarketsBySubaccountPrefix = []byte{0x8e}
+
+  ObjectCrossPoolSnapshotCacheKey = []byte{0x8f} // key for cross-pool snapshot cache in object store (block-scoped)
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
@@ -292,12 +309,23 @@ func GetSubaccountOrderKey(marketID, subaccountID common.Hash, isBuy bool, price
 	return append(append(GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
+func GetSubaccountDerivativeMarketOrderKey(
+	marketID, subaccountID common.Hash, isBuy bool, price math.LegacyDec, orderHash common.Hash,
+) []byte {
+	prefix := GetSubaccountDerivativeMarketOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy)
+	return append(append(prefix, []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
+}
+
 func GetSubaccountOrderIterationKey(price math.LegacyDec, orderHash common.Hash) []byte {
 	return append([]byte(GetPaddedPrice(price)), orderHash.Bytes()...)
 }
 
 func GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID common.Hash, isBuy bool) []byte {
 	return append(SubaccountOrderPrefix, append(MarketSubaccountInfix(marketID, subaccountID), getBoolPrefix(isBuy)...)...)
+}
+
+func GetSubaccountDerivativeMarketOrderPrefixByMarketSubaccountDirection(marketID, subaccountID common.Hash, isBuy bool) []byte {
+	return append(SubaccountDerivativeMarketOrderPrefix, append(MarketSubaccountInfix(marketID, subaccountID), getBoolPrefix(isBuy)...)...)
 }
 
 func GetSubaccountMarketVolumeKey(subaccountID, marketID common.Hash) []byte {
@@ -330,8 +358,10 @@ func GetPaddedPrice(price math.LegacyDec) string {
 }
 
 func getPaddedPriceFromString(price string) string {
-	components := strings.Split(price, ".")
-	naturalPart, decimalPart := components[0], components[1]
+	naturalPart, decimalPart, ok := strings.Cut(price, ".")
+	if !ok {
+		panic(fmt.Sprintf("invalid price string: %q", price))
+	}
 	return fmt.Sprintf("%032s.%s", naturalPart, decimalPart)
 }
 
@@ -596,4 +626,9 @@ func GetOrderExpirationMarketPrefix(blockNumber int64) []byte {
 // GetTransientAtomicPerpetualVwapKey returns the transient store key for atomic perpetual VWAP data for a market
 func GetTransientAtomicPerpetualVwapKey(marketID common.Hash) []byte {
 	return append(TransientAtomicPerpetualVwapPrefix, marketID.Bytes()...)
+}
+
+// GetTransientSyntheticPerpetualFundingVwapKey returns the transient store key for synthetic perpetual funding VWAP data for a market
+func GetTransientSyntheticPerpetualFundingVwapKey(marketID common.Hash) []byte {
+	return append(TransientSyntheticPerpetualFundingVwapPrefix, marketID.Bytes()...)
 }

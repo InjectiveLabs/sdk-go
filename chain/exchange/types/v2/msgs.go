@@ -20,6 +20,7 @@ const RouterKey = types.ModuleName
 var (
 	_ sdk.Msg = &MsgDeposit{}
 	_ sdk.Msg = &MsgWithdraw{}
+	_ sdk.Msg = &MsgUpdateSubaccountRiskProfile{}
 	_ sdk.Msg = &MsgCreateSpotLimitOrder{}
 	_ sdk.Msg = &MsgBatchCreateSpotLimitOrders{}
 	_ sdk.Msg = &MsgCreateSpotMarketOrder{}
@@ -35,6 +36,7 @@ var (
 	_ sdk.Msg = &MsgIncreasePositionMargin{}
 	_ sdk.Msg = &MsgDecreasePositionMargin{}
 	_ sdk.Msg = &MsgLiquidatePosition{}
+	_ sdk.Msg = &MsgLiquidateCrossMarginPool{}
 	_ sdk.Msg = &MsgOffsetPosition{}
 	_ sdk.Msg = &MsgEmergencySettleMarket{}
 	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}
@@ -76,6 +78,7 @@ var (
 const (
 	TypeMsgDeposit                                = "msgDeposit"
 	TypeMsgWithdraw                               = "msgWithdraw"
+	TypeMsgUpdateSubaccountRiskProfile            = "updateSubaccountRiskProfile"
 	TypeMsgCreateSpotLimitOrder                   = "createSpotLimitOrder"
 	TypeMsgBatchCreateSpotLimitOrders             = "batchCreateSpotLimitOrders"
 	TypeMsgCreateSpotMarketOrder                  = "createSpotMarketOrder"
@@ -128,6 +131,7 @@ const (
 	TypeMsgAtomicMarketOrderFeeMultiplierSchedule = "atomicMarketOrderFeeMultiplierSchedule"
 	TypeMsgCancelPostOnlyMode                     = "cancelPostOnlyMode"
 	TypeMsgActivatePostOnlyMode                   = "activatePostOnlyMode"
+	TypeMsgLiquidateCrossMarginPool               = "liquidateCrossMarginPool"
 )
 
 func (MsgUpdateParams) Route() string { return RouterKey }
@@ -595,6 +599,60 @@ func (msg MsgWithdraw) GetSigners() []sdk.AccAddress {
 }
 
 // Route implements the sdk.Msg interface. It should return the name of the module
+func (MsgUpdateSubaccountRiskProfile) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (MsgUpdateSubaccountRiskProfile) Type() string { return TypeMsgUpdateSubaccountRiskProfile }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message.
+func (msg MsgUpdateSubaccountRiskProfile) ValidateBasic() error {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if err := types.CheckValidSubaccountIDOrNonce(senderAddr, msg.SubaccountId); err != nil {
+		return err
+	}
+
+	// Stateless risk profile validation (current support):
+	// - Only isolated/cross are supported (portfolio disabled).
+	// - Only FULL_HOLD reservation is supported (partial/no-hold disabled).
+	// - Credit lines are disabled.
+	if msg.RiskProfile.CreditLineId != "" {
+		return errors.Wrap(types.ErrFeatureDisabled, "credit lines are not supported")
+	}
+
+	switch msg.RiskProfile.ReservationPolicy {
+	case ReservationPolicy_RESERVATION_POLICY_UNSPECIFIED, ReservationPolicy_RESERVATION_POLICY_FULL_HOLD:
+		// supported
+	default:
+		return errors.Wrap(types.ErrFeatureDisabled, "reservation policy is not supported")
+	}
+
+	switch msg.RiskProfile.Mode {
+	case RiskMode_RISK_MODE_ISOLATED, RiskMode_RISK_MODE_CROSS:
+		// supported
+	case RiskMode_RISK_MODE_UNSPECIFIED:
+		return errors.Wrap(types.ErrBadField, "risk mode must be explicitly specified (ISOLATED or CROSS)")
+	default:
+		return errors.Wrap(types.ErrFeatureDisabled, "risk mode is not supported")
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgUpdateSubaccountRiskProfile) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgUpdateSubaccountRiskProfile) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(msg.Sender)}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
 func (msg MsgInstantSpotMarketLaunch) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
@@ -612,8 +670,14 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 	if msg.BaseDenom == "" {
 		return errors.Wrap(types.ErrInvalidBaseDenom, "base denom should not be empty")
 	}
+	if len(msg.BaseDenom) > types.MaxMarketLaunchDenomLength {
+		return errors.Wrapf(types.ErrInvalidBaseDenom, "base denom should not exceed %d characters", types.MaxMarketLaunchDenomLength)
+	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(types.ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if len(msg.QuoteDenom) > types.MaxMarketLaunchDenomLength {
+		return errors.Wrapf(types.ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", types.MaxMarketLaunchDenomLength)
 	}
 	if msg.BaseDenom == msg.QuoteDenom {
 		return types.ErrSameDenoms
@@ -670,6 +734,9 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(types.ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if len(msg.QuoteDenom) > types.MaxMarketLaunchDenomLength {
+		return errors.Wrapf(types.ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", types.MaxMarketLaunchDenomLength)
 	}
 	oracleParams := types.NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
 	if err := oracleParams.ValidateBasic(); err != nil {
@@ -746,11 +813,14 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	if msg.Ticker == "" || len(msg.Ticker) > types.MaxTickerLength {
 		return errors.Wrapf(types.ErrInvalidTicker, "ticker should not be empty or exceed %d characters", types.MaxTickerLength)
 	}
-	if msg.OracleSymbol == "" {
-		return errors.Wrap(types.ErrInvalidOracle, "oracle symbol should not be empty")
+	if msg.OracleSymbol == "" || len(msg.OracleSymbol) > types.MaxOracleSymbolLength {
+		return errors.Wrapf(types.ErrInvalidOracle, "oracle symbol should not be empty or exceed %d characters", types.MaxOracleSymbolLength)
 	}
 	if msg.OracleProvider == "" {
 		return errors.Wrap(types.ErrInvalidOracle, "oracle provider should not be empty")
+	}
+	if len(msg.OracleProvider) > types.MaxOracleProviderLength {
+		return errors.Wrapf(types.ErrInvalidOracle, "oracle provider should not exceed %d characters", types.MaxOracleProviderLength)
 	}
 	if msg.OracleType != oracletypes.OracleType_Provider {
 		return errors.Wrap(types.ErrInvalidOracleType, msg.OracleType.String())
@@ -778,6 +848,9 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(types.ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if len(msg.QuoteDenom) > types.MaxMarketLaunchDenomLength {
+		return errors.Wrapf(types.ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", types.MaxMarketLaunchDenomLength)
 	}
 	if err := types.ValidateTickSize(msg.MinPriceTickSize); err != nil {
 		return errors.Wrap(types.ErrInvalidPriceTickSize, err.Error())
@@ -828,6 +901,9 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(types.ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if len(msg.QuoteDenom) > types.MaxMarketLaunchDenomLength {
+		return errors.Wrapf(types.ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", types.MaxMarketLaunchDenomLength)
 	}
 
 	oracleParams := types.NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
@@ -1629,12 +1705,7 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 		return err
 	}
 
-	_, ok := types.IsValidSubaccountID(msg.DestinationSubaccountId)
-	if !ok {
-		return errors.Wrap(types.ErrBadSubaccountID, msg.DestinationSubaccountId)
-	}
-
-	return nil
+	return types.CheckValidSubaccountIDOrNonce(senderAddr, msg.DestinationSubaccountId)
 }
 
 func (msg *MsgIncreasePositionMargin) GetSignBytes() []byte {
@@ -1830,6 +1901,44 @@ func (msg *MsgLiquidatePosition) GetSignBytes() []byte {
 }
 
 func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (*MsgLiquidateCrossMarginPool) Route() string {
+	return RouterKey
+}
+
+func (*MsgLiquidateCrossMarginPool) Type() string {
+	return TypeMsgLiquidateCrossMarginPool
+}
+
+func (msg *MsgLiquidateCrossMarginPool) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	_, ok := types.IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return errors.Wrap(types.ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	if err := sdk.ValidateDenom(msg.QuoteDenom); err != nil {
+		return errors.Wrap(types.ErrInvalidQuoteDenom, err.Error())
+	}
+
+	return nil
+}
+
+func (msg *MsgLiquidateCrossMarginPool) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgLiquidateCrossMarginPool) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

@@ -1,6 +1,8 @@
 package types
 
 import (
+	"sync"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethaccounts "github.com/ethereum/go-ethereum/accounts"
 )
@@ -29,7 +31,22 @@ const (
 var (
 	// BIP44HDPath is the BIP44 HD path used on Ethereum.
 	BIP44HDPath = ethaccounts.DefaultBaseDerivationPath.String()
+
+	initSDKConfigOnce sync.Once
 )
+
+// InitSDKConfig applies Injective-specific settings to the global Cosmos SDK
+// config exactly once. It is safe to call from package init code.
+func InitSDKConfig() *sdk.Config {
+	config := sdk.GetConfig()
+
+	initSDKConfigOnce.Do(func() {
+		SetBech32Prefixes(config)
+		SetBip44CoinType(config)
+	})
+
+	return config
+}
 
 // SetBech32Prefixes sets the global prefixes to be used when serializing addresses and public keys to Bech32 strings.
 func SetBech32Prefixes(config *sdk.Config) {

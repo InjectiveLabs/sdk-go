@@ -4,6 +4,7 @@ package injective.txfees.v1beta1;
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/txfees/types";
 option (gogoproto.goproto_registration) = true;
@@ -17,6 +18,7 @@ message Params {
   uint64 high_gas_tx_threshold = 2
       [ (gogoproto.moretags) = "yaml:\"high_gas_tx_threshold\"" ];
   string min_gas_price_for_high_gas_tx = 3 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"min_gas_price_for_high_gas_tx\""
@@ -24,42 +26,50 @@ message Params {
   bool mempool1559_enabled = 4
       [ (gogoproto.moretags) = "yaml:\"mempool1559_enabled\"" ];
   string min_gas_price = 5 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"min_gas_price\""
   ];
   string default_base_fee_multiplier = 6 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"default_base_fee_multiplier\""
   ];
   string max_base_fee_multiplier = 7 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"max_base_fee_multiplier\""
   ];
   int64 reset_interval = 8 [ (gogoproto.moretags) = "yaml:\"reset_interval\"" ];
   string max_block_change_rate = 9 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"max_block_change_rate\""
   ];
   string target_block_space_percent_rate = 10 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"target_block_space_percent_rate\""
   ];
   string recheck_fee_low_base_fee = 11 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"recheck_fee_low_base_fee\""
   ];
   string recheck_fee_high_base_fee = 12 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"recheck_fee_high_base_fee\""
   ];
   string recheck_fee_base_fee_threshold_multiplier = 13 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"recheck_fee_base_fee_threshold_multiplier\""

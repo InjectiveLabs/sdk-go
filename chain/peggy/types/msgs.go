@@ -553,8 +553,14 @@ func (msg MsgValsetUpdatedClaim) Route() string { return RouterKey }
 
 // Hash implements BridgeDeposit.Hash
 func (b *MsgValsetUpdatedClaim) ClaimHash() []byte {
-	path := fmt.Sprintf("%d/%d/%d/%s/", b.ValsetNonce, b.EventNonce, b.BlockHeight, b.Members)
-	return tmhash.Sum([]byte(path))
+	return tmhash.Sum([]byte(fmt.Sprintf("%d/%d/%d/%s/%s/%s",
+		b.ValsetNonce,
+		b.EventNonce,
+		b.BlockHeight,
+		b.Members,
+		b.RewardToken,
+		b.RewardAmount.String(),
+	)))
 }
 
 // NewMsgCancelSendToEth returns a new msgMsgCancelSendToEth

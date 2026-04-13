@@ -300,6 +300,11 @@ message DerivativeMarket {
   // force_paused_info defines additional info for force paused markets, only
   // set when status == ForcePaused
   ForcePausedInfo force_paused_info = 24;
+
+  // cross_margin_eligible marks the market as eligible for cross-margin
+  // pool participation. Default false means markets are ineligible until
+  // explicitly enabled at launch or toggled via governance proposal.
+  bool cross_margin_eligible = 25;
 }
 
 message DerivativeMarketSettlementInfo {

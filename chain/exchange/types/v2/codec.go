@@ -41,6 +41,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 	cdc.RegisterConcrete(&MsgDeposit{}, "exchange/v2/MsgDeposit", nil)
 	cdc.RegisterConcrete(&MsgWithdraw{}, "exchange/v2/MsgWithdraw", nil)
+	cdc.RegisterConcrete(&MsgUpdateSubaccountRiskProfile{}, "exchange/v2/MsgUpdateSubaccountRiskProfile", nil)
 	cdc.RegisterConcrete(&MsgInstantSpotMarketLaunch{}, "exchange/v2/MsgInstantSpotMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantPerpetualMarketLaunch{}, "exchange/v2/MsgInstantPerpetualMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantExpiryFuturesMarketLaunch{}, "exchange/v2/MsgInstantExpiryFuturesMarketLaunch", nil)
@@ -60,6 +61,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgIncreasePositionMargin{}, "exchange/v2/MsgIncreasePositionMargin", nil)
 	cdc.RegisterConcrete(&MsgDecreasePositionMargin{}, "exchange/v2/MsgDecreasePositionMargin", nil)
 	cdc.RegisterConcrete(&MsgLiquidatePosition{}, "exchange/v2/MsgLiquidatePosition", nil)
+	cdc.RegisterConcrete(&MsgLiquidateCrossMarginPool{}, "exchange/v2/MsgLiquidateCrossMarginPool", nil)
 	cdc.RegisterConcrete(&MsgEmergencySettleMarket{}, "exchange/v2/MsgEmergencySettleMarket", nil)
 	cdc.RegisterConcrete(&MsgOffsetPosition{}, "exchange/v2/MsgOffsetPosition", nil)
 	cdc.RegisterConcrete(&MsgBatchUpdateOrders{}, "exchange/v2/MsgBatchUpdateOrders", nil)
@@ -150,6 +152,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgDeposit{},
 		&MsgWithdraw{},
+		&MsgUpdateSubaccountRiskProfile{},
 		&MsgInstantSpotMarketLaunch{},
 		&MsgInstantPerpetualMarketLaunch{},
 		&MsgInstantExpiryFuturesMarketLaunch{},
@@ -169,6 +172,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgIncreasePositionMargin{},
 		&MsgDecreasePositionMargin{},
 		&MsgLiquidatePosition{},
+		&MsgLiquidateCrossMarginPool{},
 		&MsgEmergencySettleMarket{},
 		&MsgOffsetPosition{},
 		&MsgBatchUpdateOrders{},

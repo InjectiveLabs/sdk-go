@@ -14,6 +14,7 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgBid{}, "auction/MsgBid", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "auction/MsgUpdateParams", nil)
+	cdc.RegisterConcrete(&MsgClaimVoucher{}, "auction/MsgClaimVoucher", nil)
 	cdc.RegisterConcrete(&Params{}, "auction/Params", nil)
 }
 
@@ -21,6 +22,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgBid{},
 		&MsgUpdateParams{},
+		&MsgClaimVoucher{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
