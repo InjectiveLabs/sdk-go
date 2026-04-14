@@ -36,10 +36,10 @@ type RateLimit struct {
 	RateLimitWindow uint64 `protobuf:"varint,4,opt,name=rate_limit_window,json=rateLimitWindow,proto3" json:"rate_limit_window,omitempty"`
 	// the notional USD limit imposed on all outgoing traffic (per token)
 	RateLimitUsd cosmossdk_io_math.LegacyDec `protobuf:"bytes,5,opt,name=rate_limit_usd,json=rateLimitUsd,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"rate_limit_usd"`
-	// the absolute amount of tokens that can be minted on Injective
-	AbsoluteMintLimit cosmossdk_io_math.Int `protobuf:"bytes,6,opt,name=absolute_mint_limit,json=absoluteMintLimit,proto3,customtype=cosmossdk.io/math.Int" json:"absolute_mint_limit"`
+	// [DEPRECATED] the absolute amount of tokens that can be minted on Injective
+	AbsoluteMintLimit cosmossdk_io_math.Int `protobuf:"bytes,6,opt,name=absolute_mint_limit,json=absoluteMintLimit,proto3,customtype=cosmossdk.io/math.Int" json:"absolute_mint_limit"` // Deprecated: Do not use.
 	// transfers that occurred within the sliding window
-	Transfers []*BridgeTransfer `protobuf:"bytes,7,rep,name=transfers,proto3" json:"transfers,omitempty"`
+	Transfers []*BridgeTransfer `protobuf:"bytes,7,rep,name=transfers,proto3" json:"transfers,omitempty"` // Deprecated: Do not use.
 }
 
 func (m *RateLimit) Reset()         { *m = RateLimit{} }
@@ -103,6 +103,7 @@ func (m *RateLimit) GetRateLimitWindow() uint64 {
 	return 0
 }
 
+// Deprecated: Do not use.
 func (m *RateLimit) GetTransfers() []*BridgeTransfer {
 	if m != nil {
 		return m.Transfers
@@ -110,6 +111,7 @@ func (m *RateLimit) GetTransfers() []*BridgeTransfer {
 	return nil
 }
 
+// Deprecated: Do not use.
 type BridgeTransfer struct {
 	// quantity that was bridged (chain format)
 	Amount cosmossdk_io_math.Int `protobuf:"bytes,1,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
@@ -166,9 +168,169 @@ func (m *BridgeTransfer) GetIsDeposit() bool {
 	return false
 }
 
+type RateLimitTransfers struct {
+	// contract address of the erc20 on Ethereum
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// records of deposit transfers across blocks
+	Inflows []*BlockTransferRecord `protobuf:"bytes,2,rep,name=inflows,proto3" json:"inflows,omitempty"`
+	// records of withdrawal transfers across blocks
+	Outflows []*BlockTransferRecord `protobuf:"bytes,3,rep,name=outflows,proto3" json:"outflows,omitempty"`
+}
+
+func (m *RateLimitTransfers) Reset()         { *m = RateLimitTransfers{} }
+func (m *RateLimitTransfers) String() string { return proto.CompactTextString(m) }
+func (*RateLimitTransfers) ProtoMessage()    {}
+func (*RateLimitTransfers) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5e4b49160131e74, []int{2}
+}
+func (m *RateLimitTransfers) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RateLimitTransfers) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RateLimitTransfers.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RateLimitTransfers) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RateLimitTransfers.Merge(m, src)
+}
+func (m *RateLimitTransfers) XXX_Size() int {
+	return m.Size()
+}
+func (m *RateLimitTransfers) XXX_DiscardUnknown() {
+	xxx_messageInfo_RateLimitTransfers.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RateLimitTransfers proto.InternalMessageInfo
+
+func (m *RateLimitTransfers) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
+func (m *RateLimitTransfers) GetInflows() []*BlockTransferRecord {
+	if m != nil {
+		return m.Inflows
+	}
+	return nil
+}
+
+func (m *RateLimitTransfers) GetOutflows() []*BlockTransferRecord {
+	if m != nil {
+		return m.Outflows
+	}
+	return nil
+}
+
+type BlockTransferRecord struct {
+	// block number at which the transfers occurred
+	BlockNumber uint64 `protobuf:"varint,1,opt,name=block_number,json=blockNumber,proto3" json:"block_number,omitempty"`
+	// sum amount of transfers that happened in that block
+	Amount cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+}
+
+func (m *BlockTransferRecord) Reset()         { *m = BlockTransferRecord{} }
+func (m *BlockTransferRecord) String() string { return proto.CompactTextString(m) }
+func (*BlockTransferRecord) ProtoMessage()    {}
+func (*BlockTransferRecord) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5e4b49160131e74, []int{3}
+}
+func (m *BlockTransferRecord) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *BlockTransferRecord) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_BlockTransferRecord.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *BlockTransferRecord) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BlockTransferRecord.Merge(m, src)
+}
+func (m *BlockTransferRecord) XXX_Size() int {
+	return m.Size()
+}
+func (m *BlockTransferRecord) XXX_DiscardUnknown() {
+	xxx_messageInfo_BlockTransferRecord.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BlockTransferRecord proto.InternalMessageInfo
+
+func (m *BlockTransferRecord) GetBlockNumber() uint64 {
+	if m != nil {
+		return m.BlockNumber
+	}
+	return 0
+}
+
+type MintAmount struct {
+	// address of the erc20 bridged in
+	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	// amount currently minted on chain
+	Amount cosmossdk_io_math.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=cosmossdk.io/math.Int" json:"amount"`
+}
+
+func (m *MintAmount) Reset()         { *m = MintAmount{} }
+func (m *MintAmount) String() string { return proto.CompactTextString(m) }
+func (*MintAmount) ProtoMessage()    {}
+func (*MintAmount) Descriptor() ([]byte, []int) {
+	return fileDescriptor_f5e4b49160131e74, []int{4}
+}
+func (m *MintAmount) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MintAmount) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MintAmount.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MintAmount) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MintAmount.Merge(m, src)
+}
+func (m *MintAmount) XXX_Size() int {
+	return m.Size()
+}
+func (m *MintAmount) XXX_DiscardUnknown() {
+	xxx_messageInfo_MintAmount.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MintAmount proto.InternalMessageInfo
+
+func (m *MintAmount) GetToken() string {
+	if m != nil {
+		return m.Token
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*RateLimit)(nil), "injective.peggy.v1.RateLimit")
 	proto.RegisterType((*BridgeTransfer)(nil), "injective.peggy.v1.BridgeTransfer")
+	proto.RegisterType((*RateLimitTransfers)(nil), "injective.peggy.v1.RateLimitTransfers")
+	proto.RegisterType((*BlockTransferRecord)(nil), "injective.peggy.v1.BlockTransferRecord")
+	proto.RegisterType((*MintAmount)(nil), "injective.peggy.v1.MintAmount")
 }
 
 func init() {
@@ -176,36 +338,43 @@ func init() {
 }
 
 var fileDescriptor_f5e4b49160131e74 = []byte{
-	// 463 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x41, 0x8b, 0x13, 0x31,
-	0x14, 0xc7, 0x3b, 0xb6, 0x56, 0x9b, 0xed, 0x56, 0x36, 0x2a, 0x0c, 0xca, 0xce, 0xd6, 0x56, 0xa1,
-	0x08, 0xce, 0xb0, 0x8a, 0x77, 0x2d, 0xbd, 0x14, 0xbb, 0x22, 0x83, 0x22, 0x78, 0x19, 0x32, 0xc9,
-	0x73, 0x1a, 0xdb, 0x24, 0x43, 0x92, 0xe9, 0xd2, 0x0f, 0xe0, 0xc1, 0x9b, 0x1f, 0x6b, 0x8f, 0x7b,
-	0x14, 0x0f, 0x8b, 0xb4, 0x5f, 0x44, 0x9a, 0x99, 0x76, 0x2b, 0x7b, 0xf0, 0x36, 0xf3, 0xcb, 0xef,
-	0xfd, 0x79, 0xc9, 0x7b, 0xa8, 0xcf, 0xe5, 0x37, 0xa0, 0x96, 0x2f, 0x20, 0xca, 0x21, 0xcb, 0x96,
-	0xd1, 0xe2, 0x34, 0xd2, 0xc4, 0x42, 0x32, 0xe7, 0x82, 0xdb, 0x30, 0xd7, 0xca, 0x2a, 0x8c, 0x77,
-	0x52, 0xe8, 0xa4, 0x70, 0x71, 0xfa, 0xe8, 0x41, 0xa6, 0x32, 0xe5, 0x8e, 0xa3, 0xcd, 0x57, 0x69,
-	0xf6, 0xbe, 0xd7, 0x51, 0x2b, 0x26, 0x16, 0x26, 0x9b, 0x6a, 0xdc, 0x47, 0x87, 0x56, 0xcd, 0x40,
-	0x26, 0x84, 0x31, 0x0d, 0xc6, 0xf8, 0x5e, 0xd7, 0x1b, 0xb4, 0xe2, 0xb6, 0x83, 0x6f, 0x4b, 0x86,
-	0x9f, 0xa1, 0x4e, 0x29, 0x31, 0xa0, 0x5c, 0x90, 0xb9, 0xf1, 0x6f, 0x75, 0xbd, 0xc1, 0x61, 0x5c,
-	0x96, 0x8e, 0x2a, 0x88, 0x9f, 0x6e, 0xb5, 0x5c, 0x73, 0x0a, 0x09, 0x67, 0x7e, 0x7d, 0x2f, 0xec,
-	0xc3, 0x06, 0x8e, 0x19, 0x7e, 0x8e, 0x8e, 0xae, 0xbb, 0x4f, 0xce, 0xb9, 0x64, 0xea, 0xdc, 0x6f,
-	0x74, 0xbd, 0x41, 0x23, 0xbe, 0xa7, 0xb7, 0x7d, 0x7d, 0x76, 0x18, 0x8f, 0x51, 0x67, 0xcf, 0x2d,
-	0x0c, 0xf3, 0x6f, 0x6f, 0x12, 0x87, 0xfd, 0x8b, 0xab, 0x93, 0xda, 0xef, 0xab, 0x93, 0xc7, 0x54,
-	0x19, 0xa1, 0x8c, 0x61, 0xb3, 0x90, 0xab, 0x48, 0x10, 0x3b, 0x0d, 0x27, 0x90, 0x11, 0xba, 0x1c,
-	0x01, 0x8d, 0xdb, 0xbb, 0xb4, 0x4f, 0x86, 0xe1, 0x33, 0x74, 0x9f, 0xa4, 0x46, 0xcd, 0x0b, 0x0b,
-	0x89, 0xe0, 0xd2, 0x96, 0x99, 0x7e, 0xd3, 0xe5, 0x1d, 0x57, 0x79, 0x0f, 0x6f, 0xe6, 0x8d, 0xa5,
-	0x8d, 0x8f, 0xb6, 0x95, 0x67, 0x5c, 0xda, 0xf2, 0xdd, 0xde, 0xa0, 0x96, 0xd5, 0x44, 0x9a, 0xaf,
-	0xa0, 0x8d, 0x7f, 0xa7, 0x5b, 0x1f, 0x1c, 0xbc, 0xec, 0x85, 0x37, 0x67, 0x10, 0x0e, 0x35, 0x67,
-	0x19, 0x7c, 0xac, 0xd4, 0xf8, 0xba, 0xa8, 0xf7, 0xc3, 0x43, 0x9d, 0x7f, 0x4f, 0xf1, 0x6b, 0xd4,
-	0x24, 0x42, 0x15, 0xd2, 0x96, 0x53, 0xf8, 0x5f, 0x5b, 0x95, 0x8c, 0x9f, 0xa0, 0x76, 0x3a, 0x57,
-	0x74, 0x96, 0xc8, 0x42, 0xa4, 0xa0, 0xdd, 0x70, 0x1a, 0xf1, 0x81, 0x63, 0xef, 0x1d, 0xc2, 0xc7,
-	0x08, 0x71, 0x93, 0x30, 0xc8, 0x95, 0xe1, 0xd6, 0x8d, 0xe5, 0x6e, 0xdc, 0xe2, 0x66, 0x54, 0x82,
-	0x21, 0x5c, 0xac, 0x02, 0xef, 0x72, 0x15, 0x78, 0x7f, 0x56, 0x81, 0xf7, 0x73, 0x1d, 0xd4, 0x2e,
-	0xd7, 0x41, 0xed, 0xd7, 0x3a, 0xa8, 0x7d, 0x79, 0x97, 0x71, 0x3b, 0x2d, 0xd2, 0x90, 0x2a, 0x11,
-	0x8d, 0xb7, 0xd7, 0x9b, 0x90, 0xd4, 0x44, 0xbb, 0xcb, 0xbe, 0xa0, 0x4a, 0xc3, 0xfe, 0xef, 0x94,
-	0x70, 0x19, 0x09, 0xc5, 0x8a, 0x39, 0x98, 0x6a, 0x65, 0xed, 0x32, 0x07, 0x93, 0x36, 0xdd, 0x06,
-	0xbe, 0xfa, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x98, 0x80, 0xb9, 0xad, 0xd2, 0x02, 0x00, 0x00,
+	// 567 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xdf, 0x8a, 0xd3, 0x4c,
+	0x1c, 0xed, 0xb4, 0xbb, 0xdd, 0xed, 0x6c, 0xb7, 0x1f, 0x3b, 0xbb, 0x1f, 0x04, 0x65, 0xd3, 0x9a,
+	0x2a, 0x16, 0xc1, 0x84, 0x55, 0xbc, 0xf1, 0xae, 0xb5, 0x37, 0xc5, 0xfa, 0x87, 0x41, 0x11, 0xbd,
+	0x09, 0x49, 0x66, 0x36, 0x1d, 0x9b, 0x64, 0x4a, 0x66, 0xd2, 0xd2, 0x67, 0x10, 0xc1, 0x67, 0xf1,
+	0x29, 0xf6, 0x72, 0x2f, 0xc5, 0x8b, 0x45, 0xda, 0x17, 0x91, 0x4c, 0x92, 0xb6, 0xd2, 0x22, 0xac,
+	0x77, 0x99, 0x93, 0x73, 0xce, 0x1c, 0xce, 0xef, 0xc7, 0xc0, 0x36, 0x8b, 0x3e, 0x53, 0x4f, 0xb2,
+	0x29, 0xb5, 0x26, 0xd4, 0xf7, 0xe7, 0xd6, 0xf4, 0xc2, 0x8a, 0x1d, 0x49, 0xed, 0x80, 0x85, 0x4c,
+	0x9a, 0x93, 0x98, 0x4b, 0x8e, 0xd0, 0x8a, 0x64, 0x2a, 0x92, 0x39, 0xbd, 0xb8, 0x73, 0xe6, 0x73,
+	0x9f, 0xab, 0xdf, 0x56, 0xfa, 0x95, 0x31, 0x8d, 0x2f, 0x15, 0x58, 0xc3, 0x8e, 0xa4, 0xc3, 0x54,
+	0x8d, 0xda, 0xf0, 0x58, 0xf2, 0x31, 0x8d, 0x6c, 0x87, 0x90, 0x98, 0x0a, 0xa1, 0x81, 0x16, 0xe8,
+	0xd4, 0x70, 0x5d, 0x81, 0xdd, 0x0c, 0x43, 0x0f, 0x60, 0x23, 0x23, 0x11, 0xea, 0xb1, 0xd0, 0x09,
+	0x84, 0x56, 0x6e, 0x81, 0xce, 0x31, 0xce, 0xa4, 0xfd, 0x1c, 0x44, 0xf7, 0x0b, 0xda, 0x24, 0x66,
+	0x1e, 0xb5, 0x19, 0xd1, 0x2a, 0x1b, 0x66, 0x6f, 0x53, 0x70, 0x40, 0xd0, 0x23, 0x78, 0xb2, 0x4e,
+	0x6f, 0xcf, 0x58, 0x44, 0xf8, 0x4c, 0xdb, 0x6b, 0x81, 0xce, 0x1e, 0xfe, 0x2f, 0x2e, 0x72, 0x7d,
+	0x50, 0x30, 0x1a, 0xc0, 0xc6, 0x06, 0x37, 0x11, 0x44, 0xdb, 0x4f, 0x1d, 0x7b, 0xed, 0xab, 0x9b,
+	0x66, 0xe9, 0xe7, 0x4d, 0xf3, 0xae, 0xc7, 0x45, 0xc8, 0x85, 0x20, 0x63, 0x93, 0x71, 0x2b, 0x74,
+	0xe4, 0xc8, 0x1c, 0x52, 0xdf, 0xf1, 0xe6, 0x7d, 0xea, 0xe1, 0xfa, 0xca, 0xed, 0xbd, 0x20, 0xe8,
+	0x0d, 0x3c, 0x75, 0x5c, 0xc1, 0x83, 0x44, 0x52, 0x3b, 0x64, 0x91, 0xcc, 0x3c, 0xb5, 0xaa, 0xf2,
+	0x6b, 0xe6, 0x7e, 0xff, 0x6f, 0xfb, 0x0d, 0x22, 0xa9, 0x01, 0x7c, 0x52, 0x68, 0x5f, 0xb1, 0x48,
+	0x66, 0xcd, 0xf5, 0x61, 0x4d, 0xc6, 0x4e, 0x24, 0x2e, 0x69, 0x2c, 0xb4, 0x83, 0x56, 0xa5, 0x73,
+	0xf4, 0xc4, 0x30, 0xb7, 0xa7, 0x60, 0xf6, 0x62, 0x46, 0x7c, 0xfa, 0x2e, 0xa7, 0xf6, 0xca, 0x1a,
+	0xc0, 0x6b, 0xa1, 0xf1, 0x15, 0xc0, 0xc6, 0x9f, 0x0c, 0xf4, 0x0c, 0x56, 0x9d, 0x90, 0x27, 0xe9,
+	0xbd, 0x2a, 0xdc, 0xf9, 0x5f, 0xc3, 0xe1, 0x9c, 0x8c, 0xee, 0xc1, 0xba, 0x1b, 0x70, 0x6f, 0x6c,
+	0x47, 0x49, 0xe8, 0xd2, 0x58, 0x8d, 0x68, 0x0f, 0x1f, 0x29, 0xec, 0xb5, 0x82, 0xd0, 0x39, 0x84,
+	0x4c, 0xd8, 0x84, 0x4e, 0xb8, 0x60, 0x52, 0x0d, 0xe7, 0x10, 0xd7, 0x98, 0xe8, 0x67, 0xc0, 0xf3,
+	0xb2, 0x06, 0x8c, 0xef, 0x00, 0xa2, 0xd5, 0x76, 0x14, 0x91, 0x04, 0x3a, 0x83, 0xfb, 0x6a, 0x88,
+	0xf9, 0x7a, 0x64, 0x07, 0xd4, 0x85, 0x07, 0x2c, 0xba, 0x0c, 0xf8, 0x2c, 0x5d, 0x88, 0xb4, 0x80,
+	0x87, 0x3b, 0x0b, 0x48, 0x13, 0x14, 0x56, 0x98, 0x7a, 0x3c, 0x26, 0xb8, 0xd0, 0xa1, 0x17, 0xf0,
+	0x90, 0x27, 0x32, 0xf3, 0xa8, 0xdc, 0xce, 0x63, 0x25, 0x34, 0x38, 0x3c, 0xdd, 0x41, 0xd8, 0x6a,
+	0x04, 0x6c, 0x37, 0xb2, 0xee, 0xba, 0x7c, 0x8b, 0xae, 0x8d, 0x8f, 0x10, 0xa6, 0x8b, 0xd0, 0xcd,
+	0x9a, 0xdf, 0x5d, 0xce, 0xbf, 0x59, 0xf7, 0xe8, 0xd5, 0x42, 0x07, 0xd7, 0x0b, 0x1d, 0xfc, 0x5a,
+	0xe8, 0xe0, 0xdb, 0x52, 0x2f, 0x5d, 0x2f, 0xf5, 0xd2, 0x8f, 0xa5, 0x5e, 0xfa, 0xf4, 0xd2, 0x67,
+	0x72, 0x94, 0xb8, 0xa6, 0xc7, 0x43, 0x6b, 0x50, 0x54, 0x34, 0x74, 0x5c, 0x61, 0xad, 0x0a, 0x7b,
+	0xec, 0xf1, 0x98, 0x6e, 0x1e, 0x47, 0x0e, 0x8b, 0xac, 0x90, 0x93, 0x24, 0xa0, 0x22, 0x7f, 0x3d,
+	0xe4, 0x7c, 0x42, 0x85, 0x5b, 0x55, 0x8f, 0xc1, 0xd3, 0xdf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x27,
+	0xa5, 0xb0, 0x31, 0x5d, 0x04, 0x00, 0x00,
 }
 
 func (m *RateLimit) Marshal() (dAtA []byte, err error) {
@@ -337,6 +506,142 @@ func (m *BridgeTransfer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *RateLimitTransfers) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RateLimitTransfers) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RateLimitTransfers) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Outflows) > 0 {
+		for iNdEx := len(m.Outflows) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Outflows[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintRateLimit(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Inflows) > 0 {
+		for iNdEx := len(m.Inflows) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Inflows[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintRateLimit(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if len(m.Token) > 0 {
+		i -= len(m.Token)
+		copy(dAtA[i:], m.Token)
+		i = encodeVarintRateLimit(dAtA, i, uint64(len(m.Token)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *BlockTransferRecord) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *BlockTransferRecord) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *BlockTransferRecord) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintRateLimit(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if m.BlockNumber != 0 {
+		i = encodeVarintRateLimit(dAtA, i, uint64(m.BlockNumber))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MintAmount) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MintAmount) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MintAmount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintRateLimit(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Token) > 0 {
+		i -= len(m.Token)
+		copy(dAtA[i:], m.Token)
+		i = encodeVarintRateLimit(dAtA, i, uint64(len(m.Token)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintRateLimit(dAtA []byte, offset int, v uint64) int {
 	offset -= sovRateLimit(v)
 	base := offset
@@ -395,6 +700,60 @@ func (m *BridgeTransfer) Size() (n int) {
 	if m.IsDeposit {
 		n += 2
 	}
+	return n
+}
+
+func (m *RateLimitTransfers) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Token)
+	if l > 0 {
+		n += 1 + l + sovRateLimit(uint64(l))
+	}
+	if len(m.Inflows) > 0 {
+		for _, e := range m.Inflows {
+			l = e.Size()
+			n += 1 + l + sovRateLimit(uint64(l))
+		}
+	}
+	if len(m.Outflows) > 0 {
+		for _, e := range m.Outflows {
+			l = e.Size()
+			n += 1 + l + sovRateLimit(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *BlockTransferRecord) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.BlockNumber != 0 {
+		n += 1 + sovRateLimit(uint64(m.BlockNumber))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovRateLimit(uint64(l))
+	return n
+}
+
+func (m *MintAmount) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Token)
+	if l > 0 {
+		n += 1 + l + sovRateLimit(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovRateLimit(uint64(l))
 	return n
 }
 
@@ -760,6 +1119,375 @@ func (m *BridgeTransfer) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.IsDeposit = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRateLimit(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RateLimitTransfers) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRateLimit
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RateLimitTransfers: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RateLimitTransfers: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRateLimit
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Token = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Inflows", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRateLimit
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Inflows = append(m.Inflows, &BlockTransferRecord{})
+			if err := m.Inflows[len(m.Inflows)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Outflows", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRateLimit
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Outflows = append(m.Outflows, &BlockTransferRecord{})
+			if err := m.Outflows[len(m.Outflows)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRateLimit(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *BlockTransferRecord) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRateLimit
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: BlockTransferRecord: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: BlockTransferRecord: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BlockNumber", wireType)
+			}
+			m.BlockNumber = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRateLimit
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.BlockNumber |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRateLimit
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRateLimit(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MintAmount) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRateLimit
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MintAmount: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MintAmount: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRateLimit
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Token = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRateLimit
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRateLimit
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipRateLimit(dAtA[iNdEx:])

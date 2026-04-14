@@ -256,22 +256,6 @@ func (e *DerivativeMatchingExpansionData) AddNewSellRestingLimitOrder(order *Der
 	e.NewRestingLimitSellOrders = append(e.NewRestingLimitSellOrders, order)
 }
 
-func (e *DerivativeMatchingExpansionData) SetRestingLimitBuyOrderCancels(orders []*DerivativeLimitOrder) {
-	e.RestingLimitBuyOrderCancels = orders
-}
-
-func (e *DerivativeMatchingExpansionData) SetRestingLimitSellOrderCancels(orders []*DerivativeLimitOrder) {
-	e.RestingLimitSellOrderCancels = orders
-}
-
-func (e *DerivativeMatchingExpansionData) SetTransientLimitBuyOrderCancels(orders []*DerivativeLimitOrder) {
-	e.TransientLimitBuyOrderCancels = orders
-}
-
-func (e *DerivativeMatchingExpansionData) SetTransientLimitSellOrderCancels(orders []*DerivativeLimitOrder) {
-	e.TransientLimitSellOrderCancels = orders
-}
-
 func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecutionData(
 	market DerivativeMarketI,
 	markPrice math.LegacyDec,
@@ -449,7 +433,15 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 	for idx := range e.TransientLimitBuyOrderCancels {
 		order := e.TransientLimitBuyOrderCancels[idx]
 
-		applyDerivativeLimitCancellation(order, takerFeeRate, depositDeltas, market)
+		// For orders that partially filled before being cancelled in the same FBA run,
+		// ApplyPositionDeltaAndGetDerivativeLimitOrderStateExpansion already credited
+		// (takerRate − makerRate) × price × cancelledQty via unmatchedFeeRefund.
+		// Using makerFeeRate here avoids double-counting that differential.
+		transientCancelFeeRate := takerFeeRate
+		if _, ok := e.PartialCancelOrders[order.Hash()]; ok {
+			transientCancelFeeRate = makerFeeRate
+		}
+		applyDerivativeLimitCancellation(order, transientCancelFeeRate, depositDeltas, market)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
@@ -464,7 +456,12 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 
 	for idx := range e.TransientLimitSellOrderCancels {
 		order := e.TransientLimitSellOrderCancels[idx]
-		applyDerivativeLimitCancellation(order, takerFeeRate, depositDeltas, market)
+		// Same reasoning as the buy loop above.
+		transientCancelFeeRate := takerFeeRate
+		if _, ok := e.PartialCancelOrders[order.Hash()]; ok {
+			transientCancelFeeRate = makerFeeRate
+		}
+		applyDerivativeLimitCancellation(order, transientCancelFeeRate, depositDeltas, market)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
@@ -875,33 +872,38 @@ func (p *DerivativeVwapInfo) GetSortedBinaryOptionsMarketIDs() []common.Hash {
 	return binaryOptionsMarketIDs
 }
 
-// ComputeSyntheticVwapUnitDelta returns (price - markPrice) / markPrice
-func (p *DerivativeVwapInfo) ComputeSyntheticVwapUnitDelta(marketID common.Hash) math.LegacyDec {
+// ComputeSyntheticVwapUnitDelta returns (price - markPrice) / markPrice for a supplied benchmark mark.
+func (p *DerivativeVwapInfo) ComputeSyntheticVwapUnitDelta(marketID common.Hash, markPrice math.LegacyDec) math.LegacyDec {
 	vwapInfo := p.PerpetualVwapInfo[marketID]
-	return vwapInfo.VwapData.Price.Sub(*vwapInfo.MarkPrice).Quo(*vwapInfo.MarkPrice)
+	return vwapInfo.VwapData.Price.Sub(markPrice).Quo(markPrice)
 }
 
-// MergeAtomicPerpetualVwap merges accumulated atomic order VWAP data into this DerivativeVwapInfo.
-func (p *DerivativeVwapInfo) MergeAtomicPerpetualVwap(atomicVwapData map[common.Hash]*VwapInfo) {
-	for marketID, atomicInfo := range atomicVwapData {
-		if atomicInfo == nil || atomicInfo.MarkPrice == nil || atomicInfo.VwapData == nil {
+// MergePerpetualVwap merges accumulated perpetual-market VWAP data into this DerivativeVwapInfo.
+func (p *DerivativeVwapInfo) MergePerpetualVwap(perpetualVwapData map[common.Hash]*VwapInfo) {
+	for marketID, incomingInfo := range perpetualVwapData {
+		if incomingInfo == nil || incomingInfo.MarkPrice == nil || incomingInfo.VwapData == nil {
 			continue
 		}
 
-		if atomicInfo.VwapData.Quantity.IsZero() {
+		if incomingInfo.VwapData.Quantity.IsZero() {
 			continue
 		}
 
 		existingInfo := p.PerpetualVwapInfo[marketID]
 		if existingInfo == nil {
-			// No existing VWAP for this market, just use the atomic data
-			p.PerpetualVwapInfo[marketID] = atomicInfo
+			// No existing VWAP for this market, just use the incoming data.
+			p.PerpetualVwapInfo[marketID] = incomingInfo
 			continue
 		}
 
-		// Merge the VWAP data: newVwap = (existingPrice * existingQty + atomicPrice * atomicQty) / (existingQty + atomicQty)
-		existingInfo.VwapData = existingInfo.VwapData.ApplyExecution(atomicInfo.VwapData.Price, atomicInfo.VwapData.Quantity)
+		// Merge the VWAP data: newVwap = (existingPrice * existingQty + incomingPrice * incomingQty) / (existingQty + incomingQty)
+		existingInfo.VwapData = existingInfo.VwapData.ApplyExecution(incomingInfo.VwapData.Price, incomingInfo.VwapData.Quantity)
 	}
+}
+
+// MergeAtomicPerpetualVwap merges accumulated atomic order VWAP data into this DerivativeVwapInfo.
+func (p *DerivativeVwapInfo) MergeAtomicPerpetualVwap(atomicVwapData map[common.Hash]*VwapInfo) {
+	p.MergePerpetualVwap(atomicVwapData)
 }
 
 type PositionState struct {

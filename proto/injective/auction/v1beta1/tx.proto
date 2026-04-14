@@ -18,6 +18,9 @@ service Msg {
   rpc Bid(MsgBid) returns (MsgBidResponse);
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // ClaimVoucher defines a method for claiming an outstanding voucher
+  rpc ClaimVoucher(MsgClaimVoucher) returns (MsgClaimVoucherResponse);
 }
 
 // Bid defines a SDK message for placing a bid for an auction
@@ -51,3 +54,19 @@ message MsgUpdateParams {
 }
 
 message MsgUpdateParamsResponse {}
+
+// MsgClaimVoucher defines a message for claiming an outstanding voucher
+message MsgClaimVoucher {
+  option (amino.name) = "auction/MsgClaimVoucher";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // The sender's Injective address.
+  string sender = 1;
+  // The token denom of the voucher to claim.
+  string denom = 2;
+}
+
+message MsgClaimVoucherResponse {}

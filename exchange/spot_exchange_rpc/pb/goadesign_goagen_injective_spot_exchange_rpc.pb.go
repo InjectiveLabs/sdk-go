@@ -2357,7 +2357,7 @@ type SpotTrade struct {
 	FeeRecipient string `protobuf:"bytes,9,opt,name=fee_recipient,json=feeRecipient,proto3" json:"fee_recipient,omitempty"`
 	// A unique string that helps differentiate between trades
 	TradeId string `protobuf:"bytes,10,opt,name=trade_id,json=tradeId,proto3" json:"trade_id,omitempty"`
-	// Trade's execution side, marker/taker
+	// Trade's execution side, maker,taker,n/a (n/a = not applicable)
 	ExecutionSide string `protobuf:"bytes,11,opt,name=execution_side,json=executionSide,proto3" json:"execution_side,omitempty"`
 	// Custom client order ID
 	Cid string `protobuf:"bytes,12,opt,name=cid,proto3" json:"cid,omitempty"`

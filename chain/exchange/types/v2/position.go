@@ -201,11 +201,6 @@ func (p *Position) GetLiquidationMarketOrderWorstPrice(markPrice math.LegacyDec,
 	return &bankruptcyPrice
 }
 
-func (p *Position) GetOffsettingMarketOrderWorstPrice(funding *PerpetualMarketFunding) *math.LegacyDec {
-	bankruptcyPrice := p.GetBankruptcyPrice(funding)
-	return &bankruptcyPrice
-}
-
 func (p *Position) GetBankruptcyPrice(funding *PerpetualMarketFunding) (bankruptcyPrice math.LegacyDec) {
 	return p.GetLiquidationPrice(math.LegacyZeroDec(), funding)
 }
@@ -333,6 +328,65 @@ func (p *Position) GetPayoutFromPnl(closingPrice, closingQuantity math.LegacyDec
 	return pnlNotional
 }
 
+func splitPositionMargin(totalMargin, totalQuantity, closingQuantity math.LegacyDec) (
+	closingMargin, remainingMargin math.LegacyDec,
+) {
+	if totalQuantity.IsZero() || closingQuantity.IsZero() {
+		return math.LegacyZeroDec(), totalMargin
+	}
+
+	if closingQuantity.Equal(totalQuantity) {
+		return totalMargin, math.LegacyZeroDec()
+	}
+
+	remainingQuantity := totalQuantity.Sub(closingQuantity)
+	remainingMargin = totalMargin.Mul(remainingQuantity).Quo(totalQuantity)
+	closingMargin = totalMargin.Sub(remainingMargin)
+
+	return closingMargin, remainingMargin
+}
+
+// ApplyBankruptCloseWithoutPayouts closes up to closingQuantity at closingPrice with an explicit
+// zero payout, while preserving the remaining position state.
+func (p *Position) ApplyBankruptCloseWithoutPayouts(
+	closingPrice, closingQuantity math.LegacyDec,
+) (pnl math.LegacyDec, positionDelta *PositionDelta) {
+	if p == nil {
+		return math.LegacyZeroDec(), nil
+	}
+
+	if p.Quantity.IsZero() || closingQuantity.IsZero() {
+		return math.LegacyZeroDec(), &PositionDelta{
+			IsLong:            !p.IsLong,
+			ExecutionQuantity: math.LegacyZeroDec(),
+			ExecutionMargin:   math.LegacyZeroDec(),
+			ExecutionPrice:    closingPrice,
+		}
+	}
+
+	closingQuantity = math.LegacyMinDec(p.Quantity, closingQuantity)
+	positionDelta = &PositionDelta{
+		IsLong:            !p.IsLong,
+		ExecutionQuantity: closingQuantity,
+		ExecutionMargin:   math.LegacyZeroDec(),
+		ExecutionPrice:    closingPrice,
+	}
+
+	pnl = p.GetPayoutFromPnl(closingPrice, closingQuantity)
+	remainingMargin := p.Margin.Add(pnl)
+	remainingQuantity := p.Quantity.Sub(closingQuantity)
+
+	if remainingQuantity.IsZero() {
+		p.ClosePositionWithoutPayouts()
+		return pnl, positionDelta
+	}
+
+	p.Quantity = remainingQuantity
+	p.Margin = remainingMargin
+
+	return pnl, positionDelta
+}
+
 func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceOnly math.LegacyDec) (
 	payout, closeExecutionMargin, collateralizationMargin, pnl math.LegacyDec,
 ) {
@@ -372,12 +426,12 @@ func (p *Position) ApplyPositionDelta(delta *PositionDelta, tradingFeeForReduceO
 		pnlNotional = pnlNotional.Sub(tradingFeeForReduceOnly)
 	}
 
-	positionClosingMargin := p.Margin.Mul(closingQuantity).Quo(p.Quantity)
+	positionClosingMargin, remainingMargin := splitPositionMargin(p.Margin, p.Quantity, closingQuantity)
 	payout = pnlNotional.Add(positionClosingMargin)
 
 	// for netting opposite direction
 	newPositionQuantity := p.Quantity.Sub(closingQuantity)
-	p.Margin = p.Margin.Mul(newPositionQuantity).Quo(p.Quantity)
+	p.Margin = remainingMargin
 	p.Quantity = newPositionQuantity
 
 	isFlippingPosition := delta.ExecutionQuantity.GT(closingQuantity)
