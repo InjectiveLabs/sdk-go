@@ -8,6 +8,8 @@ import "cosmos/bank/v1beta1/bank.proto";
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/permissions/types";
 
 message EventSetVoucher {
+  // The bech32 address of the voucher holder.
   string addr = 1;
+  // The new voucher amount. A zero coin signals voucher deletion.
   cosmos.base.v1beta1.Coin voucher = 2 [ (gogoproto.nullable) = false ];
 }

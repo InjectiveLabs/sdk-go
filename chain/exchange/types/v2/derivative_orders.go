@@ -202,13 +202,24 @@ func (m *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) mat
 	marginHoldRefund := math.LegacyZeroDec()
 	if m.IsVanilla() {
 		// negative fees are only accounted for upon matching
-		positiveFeePart := math.LegacyMaxDec(math.LegacyZeroDec(), feeRate)
 		//nolint:all
 		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
-		notional := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity)
-		marginHoldRefund = m.Fillable.Mul(m.Margin.Add(notional.Mul(positiveFeePart))).Quo(m.OrderInfo.Quantity)
+		marginHoldRefund = m.Fillable.Mul(m.GetMarginHold(feeRate)).Quo(m.OrderInfo.Quantity)
 	}
 	return marginHoldRefund
+}
+
+func getMarginHold(margin, notional, feeRate math.LegacyDec) math.LegacyDec {
+	positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
+	return margin.Add(notional.Mul(positiveFeeRatePart))
+}
+
+func (m *DerivativeOrder) GetMarginHold(feeRate math.LegacyDec) math.LegacyDec {
+	return getMarginHold(m.Margin, m.OrderInfo.GetNotional(), feeRate)
+}
+
+func (m *DerivativeLimitOrder) GetMarginHold(feeRate math.LegacyDec) math.LegacyDec {
+	return getMarginHold(m.Margin, m.OrderInfo.GetNotional(), feeRate)
 }
 
 func (m *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
@@ -258,10 +269,8 @@ func (m *DerivativeOrder) CheckMarginAndGetMarginHold(
 	initialMarginRatio, executionMarkPrice, feeRate math.LegacyDec, marketType v1.MarketType, oracleScaleFactor uint32,
 ) (marginHold math.LegacyDec, err error) {
 	notional := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity)
-	positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
-	feeAmount := notional.Mul(positiveFeeRatePart)
 
-	marginHold = m.Margin.Add(feeAmount)
+	marginHold = m.GetMarginHold(feeRate)
 	if marketType == v1.MarketType_BinaryOption {
 		requiredMargin := m.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
 		if !m.Margin.Equal(requiredMargin) {

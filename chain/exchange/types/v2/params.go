@@ -35,6 +35,8 @@ var (
 	KeyInjRewardStakedRequirementThreshold         = []byte("KeyInjRewardStakedRequirementThreshold")
 	KeyTradingRewardsVestingDuration               = []byte("TradingRewardsVestingDuration")
 	KeyLiquidatorRewardShareRate                   = []byte("LiquidatorRewardShareRate")
+	KeyWhiteKnightLiquidators                      = []byte("WhiteKnightLiquidators")
+	KeyWhiteKnightLiquidatorRewardShareRate        = []byte("WhiteKnightLiquidatorRewardShareRate")
 	KeyBinaryOptionsMarketInstantListingFee        = []byte("BinaryOptionsMarketInstantListingFee")
 	KeyAtomicMarketOrderAccessLevel                = []byte("AtomicMarketOrderAccessLevel")
 	KeySpotAtomicMarketOrderFeeMultiplier          = []byte("SpotAtomicMarketOrderFeeMultiplier")
@@ -88,6 +90,16 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			KeyLiquidatorRewardShareRate,
 			&p.LiquidatorRewardShareRate,
 			types.ValidateLiquidatorRewardShareRate,
+		),
+		paramtypes.NewParamSetPair(
+			KeyWhiteKnightLiquidators,
+			&p.WhiteKnightLiquidators,
+			types.ValidateWhiteKnightLiquidators,
+		),
+		paramtypes.NewParamSetPair(
+			KeyWhiteKnightLiquidatorRewardShareRate,
+			&p.WhiteKnightLiquidatorRewardShareRate,
+			types.ValidateWhiteKnightLiquidatorRewardShareRate,
 		),
 		paramtypes.NewParamSetPair(
 			KeyBinaryOptionsMarketInstantListingFee,
@@ -159,6 +171,8 @@ func DefaultParams() Params {
 		InjRewardStakedRequirementThreshold:          math.NewIntWithDecimal(100, 18), // 100 INJ
 		TradingRewardsVestingDuration:                604800,                          // 7 days
 		LiquidatorRewardShareRate:                    math.LegacyNewDecWithPrec(5, 2), // 5% liquidator reward
+		WhiteKnightLiquidatorRewardShareRate:         math.LegacyNewDecWithPrec(5, 1), // 50% white knight liquidator reward
+		WhiteKnightLiquidators:                       []string{},
 		BinaryOptionsMarketInstantListingFee:         sdk.NewCoin("inj", math.NewIntWithDecimal(types.BinaryOptionsMarketInstantListingFee, 18)),
 		AtomicMarketOrderAccessLevel:                 AtomicMarketOrderAccessLevel_SmartContractsOnly,
 		SpotAtomicMarketOrderFeeMultiplier:           math.LegacyNewDecWithPrec(25, 1),        // default 2.5 multiplier
@@ -169,7 +183,6 @@ func DefaultParams() Params {
 		PostOnlyModeHeightThreshold:                  0,
 		MarginDecreasePriceTimestampThresholdSeconds: 60,
 		ExchangeAdmins:                               []string{},
-		InjAuctionMaxCap:                             types.DefaultInjAuctionMaxCap,
 		FixedGasEnabled:                              false,
 		EmitLegacyVersionEvents:                      true,
 		PostOnlyModeBlocksAmount:                     2000,           // default 2000 blocks
@@ -228,6 +241,15 @@ func (p Params) Validate() error {
 	if err := types.ValidateLiquidatorRewardShareRate(p.LiquidatorRewardShareRate); err != nil {
 		return fmt.Errorf("liquidator_reward_share_rate is incorrect: %w", err)
 	}
+	if err := types.ValidateWhiteKnightLiquidatorRewardShareRate(p.WhiteKnightLiquidatorRewardShareRate); err != nil {
+		return fmt.Errorf("white_knight_liquidator_reward_share_rate is incorrect: %w", err)
+	}
+	if p.WhiteKnightLiquidatorRewardShareRate.LT(p.LiquidatorRewardShareRate) {
+		return errors.New("white_knight_liquidator_reward_share_rate must be greater than or equal to liquidator_reward_share_rate")
+	}
+	if err := types.ValidateWhiteKnightLiquidators(p.WhiteKnightLiquidators); err != nil {
+		return fmt.Errorf("white_knight_liquidators is incorrect: %w", err)
+	}
 	if err := types.ValidateBinaryOptionsMarketInstantListingFee(p.BinaryOptionsMarketInstantListingFee); err != nil {
 		return fmt.Errorf("binary_options_market_instant_listing_fee is incorrect: %w", err)
 	}
@@ -267,10 +289,6 @@ func (p Params) Validate() error {
 
 	if err := ValidatePostOnlyModeBlocksAmountAfterDowntime(p.PostOnlyModeBlocksAmountAfterDowntime); err != nil {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
-	}
-
-	if err := ValidateEnforcedRestrictionsContracts(p.EnforcedRestrictionsContracts); err != nil {
-		return fmt.Errorf("enforced_restrictions_contracts are invalid: %w", err)
 	}
 
 	return nil
@@ -362,17 +380,6 @@ func ValidateEVMAddresses(addresses []string) error {
 		if !ethcommon.IsHexAddress(addr) {
 			return fmt.Errorf("address is not in EVM format: %s", addr)
 		}
-	}
-
-	return nil
-}
-
-func ValidateEnforcedRestrictionsContracts(contracts []EnforcedRestrictionsContract) error {
-	for _, contract := range contracts {
-		if !ethcommon.IsHexAddress(contract.ContractAddress) {
-			return fmt.Errorf("contract address is not in EVM format: %s", contract.ContractAddress)
-		}
-		// pause_event_signature can be empty (will default to "Pause()")
 	}
 
 	return nil
