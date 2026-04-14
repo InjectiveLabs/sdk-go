@@ -253,8 +253,6 @@ replace (
 	github.com/cosmos/ibc-go/modules/capability => github.com/InjectiveLabs/ibc-go/modules/capability v1.0.0-inj.4
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/InjectiveLabs/ibc-go/modules/light-clients/08-wasm v0.5.0-inj.4
 	github.com/cosmos/ibc-go/v8 => github.com/InjectiveLabs/ibc-go/v8 v8.7.0-inj.4
-
-	// geth dev
 	github.com/ethereum/go-ethereum => github.com/InjectiveLabs/go-ethereum v1.16.3-inj.2
 
 	github.com/improbable-eng/grpc-web => github.com/maxim-inj/grpc-web v0.15.0-inj
