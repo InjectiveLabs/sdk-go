@@ -51,6 +51,8 @@ type ExchangeClient interface {
 	FetchPriceV2(ctx context.Context, filters []*oraclePB.PricePayloadV2) (*oraclePB.PriceV2Response, error)
 	GetOracleList(ctx context.Context, symbol, oracleType, token string, perPage int32) (*oraclePB.OracleListResponse, error)
 	StreamPrices(ctx context.Context, baseSymbol string, quoteSymbol string, oracleType string) (oraclePB.InjectiveOracleRPC_StreamPricesClient, error)
+	StreamOracleList(ctx context.Context, oracleType string, symbols []string) (oraclePB.InjectiveOracleRPC_StreamOracleListClient, error)
+	StreamPricesByMarkets(ctx context.Context, marketIds []string) (oraclePB.InjectiveOracleRPC_StreamPricesByMarketsClient, error)
 	GetAuction(ctx context.Context, round int64) (*auctionPB.AuctionEndpointResponse, error)
 	GetAuctions(ctx context.Context) (*auctionPB.AuctionsResponse, error)
 	StreamBids(ctx context.Context) (auctionPB.InjectiveAuctionRPC_StreamBidsClient, error)
@@ -496,6 +498,37 @@ func (c *exchangeClient) StreamPrices(ctx context.Context, baseSymbol, quoteSymb
 	}
 
 	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.oracleClient.StreamPrices, &req)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamOracleList(ctx context.Context, oracleType string, symbols []string) (oraclePB.InjectiveOracleRPC_StreamOracleListClient, error) {
+	req := oraclePB.StreamOracleListRequest{
+		OracleType: oracleType,
+		Symbols:    symbols,
+	}
+
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.oracleClient.StreamOracleList, &req)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return stream, nil
+}
+
+func (c *exchangeClient) StreamPricesByMarkets(ctx context.Context, marketIds []string) (oraclePB.InjectiveOracleRPC_StreamPricesByMarketsClient, error) {
+	req := oraclePB.StreamPricesByMarketsRequest{
+		MarketIds: marketIds,
+	}
+
+	stream, err := common.ExecuteStreamCall(ctx, c.network.ExchangeCookieAssistant, c.oracleClient.StreamPricesByMarkets, &req)
 
 	if err != nil {
 		fmt.Println(err)
