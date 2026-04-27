@@ -31,6 +31,9 @@ type InjectiveOracleRPCClient interface {
 	// StreamPrices streams new price changes for a specified oracle. If no oracles
 	// are provided, all price changes are streamed.
 	StreamPrices(ctx context.Context, in *StreamPricesRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamPricesClient, error)
+	// StreamOracleList streams oracle data updates filtered by oracle type and
+	// optionally by symbols.
+	StreamOracleList(ctx context.Context, in *StreamOracleListRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamOracleListClient, error)
 	// StreamPrices streams new price changes markets
 	StreamPricesByMarkets(ctx context.Context, in *StreamPricesByMarketsRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamPricesByMarketsClient, error)
 }
@@ -102,8 +105,40 @@ func (x *injectiveOracleRPCStreamPricesClient) Recv() (*StreamPricesResponse, er
 	return m, nil
 }
 
+func (c *injectiveOracleRPCClient) StreamOracleList(ctx context.Context, in *StreamOracleListRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamOracleListClient, error) {
+	stream, err := c.cc.NewStream(ctx, &InjectiveOracleRPC_ServiceDesc.Streams[1], "/injective_oracle_rpc.InjectiveOracleRPC/StreamOracleList", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &injectiveOracleRPCStreamOracleListClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type InjectiveOracleRPC_StreamOracleListClient interface {
+	Recv() (*StreamOracleListResponse, error)
+	grpc.ClientStream
+}
+
+type injectiveOracleRPCStreamOracleListClient struct {
+	grpc.ClientStream
+}
+
+func (x *injectiveOracleRPCStreamOracleListClient) Recv() (*StreamOracleListResponse, error) {
+	m := new(StreamOracleListResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *injectiveOracleRPCClient) StreamPricesByMarkets(ctx context.Context, in *StreamPricesByMarketsRequest, opts ...grpc.CallOption) (InjectiveOracleRPC_StreamPricesByMarketsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &InjectiveOracleRPC_ServiceDesc.Streams[1], "/injective_oracle_rpc.InjectiveOracleRPC/StreamPricesByMarkets", opts...)
+	stream, err := c.cc.NewStream(ctx, &InjectiveOracleRPC_ServiceDesc.Streams[2], "/injective_oracle_rpc.InjectiveOracleRPC/StreamPricesByMarkets", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -147,6 +182,9 @@ type InjectiveOracleRPCServer interface {
 	// StreamPrices streams new price changes for a specified oracle. If no oracles
 	// are provided, all price changes are streamed.
 	StreamPrices(*StreamPricesRequest, InjectiveOracleRPC_StreamPricesServer) error
+	// StreamOracleList streams oracle data updates filtered by oracle type and
+	// optionally by symbols.
+	StreamOracleList(*StreamOracleListRequest, InjectiveOracleRPC_StreamOracleListServer) error
 	// StreamPrices streams new price changes markets
 	StreamPricesByMarkets(*StreamPricesByMarketsRequest, InjectiveOracleRPC_StreamPricesByMarketsServer) error
 	mustEmbedUnimplementedInjectiveOracleRPCServer()
@@ -167,6 +205,9 @@ func (UnimplementedInjectiveOracleRPCServer) PriceV2(context.Context, *PriceV2Re
 }
 func (UnimplementedInjectiveOracleRPCServer) StreamPrices(*StreamPricesRequest, InjectiveOracleRPC_StreamPricesServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPrices not implemented")
+}
+func (UnimplementedInjectiveOracleRPCServer) StreamOracleList(*StreamOracleListRequest, InjectiveOracleRPC_StreamOracleListServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamOracleList not implemented")
 }
 func (UnimplementedInjectiveOracleRPCServer) StreamPricesByMarkets(*StreamPricesByMarketsRequest, InjectiveOracleRPC_StreamPricesByMarketsServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPricesByMarkets not implemented")
@@ -259,6 +300,27 @@ func (x *injectiveOracleRPCStreamPricesServer) Send(m *StreamPricesResponse) err
 	return x.ServerStream.SendMsg(m)
 }
 
+func _InjectiveOracleRPC_StreamOracleList_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamOracleListRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(InjectiveOracleRPCServer).StreamOracleList(m, &injectiveOracleRPCStreamOracleListServer{stream})
+}
+
+type InjectiveOracleRPC_StreamOracleListServer interface {
+	Send(*StreamOracleListResponse) error
+	grpc.ServerStream
+}
+
+type injectiveOracleRPCStreamOracleListServer struct {
+	grpc.ServerStream
+}
+
+func (x *injectiveOracleRPCStreamOracleListServer) Send(m *StreamOracleListResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _InjectiveOracleRPC_StreamPricesByMarkets_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(StreamPricesByMarketsRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -304,6 +366,11 @@ var InjectiveOracleRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamPrices",
 			Handler:       _InjectiveOracleRPC_StreamPrices_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamOracleList",
+			Handler:       _InjectiveOracleRPC_StreamOracleList_Handler,
 			ServerStreams: true,
 		},
 		{

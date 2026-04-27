@@ -26,7 +26,9 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type EventSetVoucher struct {
-	Addr    string     `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
+	// The bech32 address of the voucher holder.
+	Addr string `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
+	// The new voucher amount. A zero coin signals voucher deletion.
 	Voucher types.Coin `protobuf:"bytes,2,opt,name=voucher,proto3" json:"voucher"`
 }
 

@@ -109,6 +109,10 @@ func (s SymbolPriceTimestamps) GetTimestamp(oracleType OracleType, symbol string
 
 // CheckPriceFeedThreshold returns true if the newPrice has changed beyond 100x or less than 1% of the last price
 func CheckPriceFeedThreshold(lastPrice, newPrice math.LegacyDec) bool {
+	if !lastPrice.IsPositive() {
+		return false
+	}
+
 	return newPrice.GT(lastPrice.Mul(math.LegacyNewDec(100))) || newPrice.LT(lastPrice.Quo(math.LegacyNewDec(100)))
 }
 

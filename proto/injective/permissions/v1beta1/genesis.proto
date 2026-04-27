@@ -2,6 +2,7 @@ syntax = "proto3";
 package injective.permissions.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "injective/common/vouchers/v1/vouchers.proto";
 import "injective/permissions/v1beta1/params.proto";
 import "injective/permissions/v1beta1/permissions.proto";
 
@@ -14,5 +15,6 @@ message GenesisState {
   // namespaces defines the namespaces of the module
   repeated Namespace namespaces = 2 [ (gogoproto.nullable) = false ];
   // vouchers defines the vouchers of the module
-  repeated AddressVoucher vouchers = 3;
+  repeated injective.common.vouchers.v1.AddressVoucher vouchers = 3
+      [ (gogoproto.nullable) = false ];
 }

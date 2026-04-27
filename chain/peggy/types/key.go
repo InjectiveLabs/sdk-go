@@ -117,8 +117,11 @@ var (
 	// FakeCheckpointKey indexes eth signature checkpoints that never existed
 	FakeCheckpointKey = []byte{0x1d}
 
-	RateLimitsKey       = []byte{0x1e}
-	MintAmountsERC20Key = []byte{0x1f}
+	RateLimitKey           = []byte{0x1e}
+	MintAmountERC20Key     = []byte{0x1f}
+	RateLimitInflowKey     = []byte{0x20}
+	RateLimitOutflowKey    = []byte{0x21}
+	RateLimitNetOutflowKey = []byte{0x22}
 )
 
 func GetEthereumBlacklistStoreKey(addr common.Address) []byte {
@@ -308,9 +311,57 @@ func GetFakeCheckpointKey(checkpoint, addr []byte) []byte {
 	return k
 }
 
+func GetRateLimitKey(erc20 []byte) []byte {
+	k := make([]byte, 0, len(RateLimitKey)+len(erc20))
+	k = append(k, RateLimitKey...)
+	k = append(k, erc20...)
+
+	return k
+}
+
 func GetMintAmountERC20Key(erc20 []byte) []byte {
-	k := make([]byte, 0, len(MintAmountsERC20Key)+len(erc20))
-	k = append(k, MintAmountsERC20Key...)
+	k := make([]byte, 0, len(MintAmountERC20Key)+len(erc20))
+	k = append(k, MintAmountERC20Key...)
+	k = append(k, erc20...)
+
+	return k
+}
+
+func GetTokenInflowPrefix(erc20 []byte) []byte {
+	k := make([]byte, 0, len(RateLimitInflowKey)+len(erc20))
+	k = append(k, RateLimitInflowKey...)
+	k = append(k, erc20...)
+
+	return k
+}
+
+func GetTokenInflowByBlockKey(erc20 []byte, blockNum uint64) []byte {
+	k := make([]byte, 0, len(RateLimitInflowKey)+len(erc20)+8)
+	k = append(k, GetTokenInflowPrefix(erc20)...)
+	k = append(k, UInt64Bytes(blockNum)...)
+
+	return k
+}
+
+func GetTokenOutflowPrefix(erc20 []byte) []byte {
+	k := make([]byte, 0, len(RateLimitOutflowKey)+len(erc20))
+	k = append(k, RateLimitOutflowKey...)
+	k = append(k, erc20...)
+
+	return k
+}
+
+func GetTokenOutflowByBlockKey(erc20 []byte, blockNum uint64) []byte {
+	k := make([]byte, 0, len(RateLimitOutflowKey)+len(erc20)+8)
+	k = append(k, GetTokenOutflowPrefix(erc20)...)
+	k = append(k, UInt64Bytes(blockNum)...)
+
+	return k
+}
+
+func GetTokenNetOutflowKey(erc20 []byte) []byte {
+	k := make([]byte, 0, len(RateLimitNetOutflowKey)+len(erc20))
+	k = append(k, RateLimitNetOutflowKey...)
 	k = append(k, erc20...)
 
 	return k

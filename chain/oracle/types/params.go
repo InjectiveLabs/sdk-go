@@ -52,10 +52,9 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 // DefaultParams returns a default set of parameters.
 func DefaultParams() Params {
 	return Params{
-		PythContract:                                "",
-		ChainlinkVerifierProxyContract:              "",
-		AcceptUnverifiedChainlinkDataStreamsReports: true,
-		ChainlinkDataStreamsVerificationGasLimit:    500_000,
+		PythContract:                             "",
+		ChainlinkVerifierProxyContract:           "",
+		ChainlinkDataStreamsVerificationGasLimit: 500_000,
 	}
 }
 

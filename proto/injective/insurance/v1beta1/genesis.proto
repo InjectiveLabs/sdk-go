@@ -2,6 +2,7 @@ syntax = "proto3";
 package injective.insurance.v1beta1;
 
 import "injective/insurance/v1beta1/insurance.proto";
+import "injective/common/vouchers/v1/vouchers.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
@@ -26,4 +27,17 @@ message GenesisState {
   // next_redemption_schedule_id describes next redemption schedule id to be
   // used for next schedule incremented by 1 per redemption request
   uint64 next_redemption_schedule_id = 5;
+
+  // failed_redemption_schedules describes redemptions that failed during
+  // settlement and are preserved for manual resolution
+  repeated FailedRedemptionSchedule failed_redemption_schedules = 6
+      [ (gogoproto.nullable) = false ];
+
+  // next_failed_redemption_schedule_id describes the next id for failed
+  // redemption schedules, incremented by 1 per failed settlement
+  uint64 next_failed_redemption_schedule_id = 7;
+
+  // outstanding vouchers (failed redemption deliveries)
+  repeated injective.common.vouchers.v1.AddressVoucher vouchers = 8
+      [ (gogoproto.nullable) = false ];
 }

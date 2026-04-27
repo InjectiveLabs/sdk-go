@@ -24,10 +24,12 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	"google.golang.org/grpc"
 
+	auctiontypes "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	erc20types "github.com/InjectiveLabs/sdk-go/chain/erc20/types"
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
@@ -862,6 +864,22 @@ func (c *MockChainClientV2) FetchPermissionsVouchers(ctx context.Context, denom 
 
 func (c *MockChainClientV2) FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error) {
 	return &permissionstypes.QueryVoucherResponse{}, nil
+}
+
+func (c *MockChainClientV2) FetchAuctionVouchers(ctx context.Context, denom string) (*auctiontypes.QueryVouchersResponse, error) {
+	return &auctiontypes.QueryVouchersResponse{}, nil
+}
+
+func (c *MockChainClientV2) FetchAuctionVoucher(ctx context.Context, denom, address string) (*auctiontypes.QueryVoucherResponse, error) {
+	return &auctiontypes.QueryVoucherResponse{}, nil
+}
+
+func (c *MockChainClientV2) FetchInsuranceVouchers(ctx context.Context, denom string) (*insurancetypes.QueryVouchersResponse, error) {
+	return &insurancetypes.QueryVouchersResponse{}, nil
+}
+
+func (c *MockChainClientV2) FetchInsuranceVoucher(ctx context.Context, denom, address string) (*insurancetypes.QueryVoucherResponse, error) {
+	return &insurancetypes.QueryVoucherResponse{}, nil
 }
 
 func (c *MockChainClientV2) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {

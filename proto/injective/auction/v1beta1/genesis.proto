@@ -2,6 +2,7 @@ syntax = "proto3";
 package injective.auction.v1beta1;
 
 import "injective/auction/v1beta1/auction.proto";
+import "injective/common/vouchers/v1/vouchers.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/auction/types";
@@ -22,4 +23,8 @@ message GenesisState {
 
   // last auction result
   LastAuctionResult last_auction_result = 5;
+
+  // outstanding vouchers (failed basket deliveries)
+  repeated injective.common.vouchers.v1.AddressVoucher vouchers = 6
+      [ (gogoproto.nullable) = false ];
 }

@@ -32,7 +32,8 @@ message GenesisState {
 
   uint64 band_ibc_latest_request_id = 11 [ deprecated = true ];
 
-  repeated ChainlinkPriceState chainlink_price_states = 12;
+  repeated ChainlinkPriceState chainlink_price_states = 12
+      [ deprecated = true ];
 
   repeated PriceRecords historical_price_records = 13;
 

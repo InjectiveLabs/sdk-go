@@ -7,7 +7,10 @@ import "injective/oracle/v1beta1/oracle.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/oracle/types";
 
+// Deprecated: Do not use.
 message SetChainlinkPriceEvent {
+  option deprecated = true;
+
   string feed_id = 1;
   string answer = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
@@ -16,8 +19,10 @@ message SetChainlinkPriceEvent {
   uint64 timestamp = 3;
 }
 
-// Event type upon set ref
+// Deprecated: Do not use.
 message SetBandPriceEvent {
+  option deprecated = true;
+
   string relayer = 1;
   string symbol = 2;
   string price = 3 [
@@ -28,7 +33,10 @@ message SetBandPriceEvent {
   uint64 request_id = 5;
 }
 
+// Deprecated: Do not use.
 message SetBandIBCPriceEvent {
+  option deprecated = true;
+
   string relayer = 1;
   repeated string symbols = 2;
   repeated string prices = 3 [
@@ -40,17 +48,28 @@ message SetBandIBCPriceEvent {
   int64 client_id = 6;
 }
 
+// Deprecated: Do not use.
 message EventBandIBCAckSuccess {
+  option deprecated = true;
+
   string ack_result = 1;
   int64 client_id = 2;
 }
 
+// Deprecated: Do not use.
 message EventBandIBCAckError {
+  option deprecated = true;
+
   string ack_error = 1;
   int64 client_id = 2;
 }
 
-message EventBandIBCResponseTimeout { int64 client_id = 1; }
+// Deprecated: Do not use.
+message EventBandIBCResponseTimeout {
+  option deprecated = true;
+
+  int64 client_id = 1;
+}
 
 message SetPriceFeedPriceEvent {
   string relayer = 1;
