@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	network := common.LoadNetwork("tstnet", "lb")
+	network := common.LoadNetwork("testnet", "lb")
 	exchangeClient, err := exchangeclient.NewExchangeClient(network)
 	if err != nil {
 		panic(err)
