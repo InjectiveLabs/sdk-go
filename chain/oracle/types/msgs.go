@@ -161,19 +161,22 @@ func (msg MsgRelayProviderPrices) ValidateBasic() error {
 	if msg.Provider == "" {
 		return ErrEmptyProvider
 	}
+	if strings.Contains(msg.Provider, ProviderDelimiter) {
+		return ErrInvalidProvider
+	}
 
 	if len(msg.Symbols) != len(msg.Prices) || len(msg.Prices) == 0 {
 		return ErrBadRatesCount
 	}
 
 	for _, symbol := range msg.Symbols {
-		if strings.Contains(symbol, providerDelimiter) {
+		if strings.Contains(symbol, ProviderDelimiter) {
 			return ErrInvalidSymbol
 		}
 	}
 
 	for _, price := range msg.Prices {
-		// zero prices are allowed for provider oracles
+		// zero prices are allowed for provider oracles (e.g. binary options natural settlement)
 		if price.IsNegative() {
 			return ErrBadPrice
 		}
@@ -244,6 +247,9 @@ func (msg MsgRelayStorkPrices) ValidateBasic() error {
 	assetIDs := make(map[string]struct{})
 	for idx := range msg.AssetPairs {
 		assetPair := msg.AssetPairs[idx]
+		if assetPair.AssetId == "" {
+			return errors.Wrap(ErrEmptyStorkAssetId, "asset id cannot be empty")
+		}
 		if _, found := assetIDs[assetPair.AssetId]; found {
 			return errors.Wrapf(ErrStorkAssetIdNotUnique, "Asset id %s is not unique", assetPair.AssetId)
 		}

@@ -204,6 +204,10 @@ func (m *DerivativeMarket) GetOpenNotionalCap() OpenNotionalCap {
 	return m.OpenNotionalCap
 }
 
+func (m *DerivativeMarket) IsCrossMarginEligible() bool {
+	return m.CrossMarginEligible
+}
+
 func (m *DerivativeMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
 	return types.PriceFromChainFormat(price, 0, m.QuoteDecimals)
 }
@@ -313,6 +317,10 @@ func (m *BinaryOptionsMarket) GetOpenNotionalCap() OpenNotionalCap {
 	return m.OpenNotionalCap
 }
 
+func (*BinaryOptionsMarket) IsCrossMarginEligible() bool {
+	return false
+}
+
 func (m *BinaryOptionsMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
 	return types.PriceFromChainFormat(price, 0, m.QuoteDecimals)
 }
@@ -366,6 +374,7 @@ type DerivativeMarketI interface {
 	GetOracleScaleFactor() uint32
 	GetQuoteDecimals() uint32
 	GetOpenNotionalCap() OpenNotionalCap
+	IsCrossMarginEligible() bool
 }
 
 func IsMarketSolvent(availableMarketFunds, marketBalanceDelta math.LegacyDec) bool {

@@ -50,4 +50,5 @@ var (
 	ErrStorkAssetIdNotUnique       = errors.Register(ModuleName, 43, "stork asset id not unique")
 	ErrChainlinkVerificationFailed = errors.Register(ModuleName, 44, "chainlink report verification failed")
 	ErrBandOracleDeprecated        = errors.Register(ModuleName, 45, "Band oracle is deprecated and no longer supported")
+	ErrEmptyStorkAssetId           = errors.Register(ModuleName, 46, "stork asset id is empty")
 )

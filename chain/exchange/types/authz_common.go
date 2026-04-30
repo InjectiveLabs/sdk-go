@@ -191,7 +191,7 @@ func authorizeDerivativeOrders(authorizedMarkets []string, subaccountID string, 
 	)
 }
 
-func authorizeCancelAll(authorizedMarkets []string, authzSubaccountID, requestSubaccountID string, marketIDs []string, unauthorizedMarketErr string) error {
+func authorizeCancelAllMarkets(authorizedMarkets []string, authzSubaccountID, requestSubaccountID string, marketIDs []string, unauthorizedMarketErr string) error {
 	return AuthorizeCancelAll(authorizedMarkets, authzSubaccountID, requestSubaccountID, marketIDs, unauthorizedMarketErr)
 }
 
@@ -214,7 +214,7 @@ func (a BatchUpdateOrdersAuthz) authorizeSpotOrdersToCancel(ordersToUpdate *MsgB
 }
 
 func (a BatchUpdateOrdersAuthz) authorizeSpotMarketIDsToCancelAll(ordersToUpdate *MsgBatchUpdateOrders) error {
-	return authorizeCancelAll(
+	return authorizeCancelAllMarkets(
 		a.SpotMarkets,
 		a.SubaccountId,
 		ordersToUpdate.SubaccountId,
@@ -242,7 +242,7 @@ func (a BatchUpdateOrdersAuthz) authorizeDerivativeOrdersToCancel(ordersToUpdate
 }
 
 func (a BatchUpdateOrdersAuthz) authorizeDerivativeMarketIDsToCancelAll(ordersToUpdate *MsgBatchUpdateOrders) error {
-	return authorizeCancelAll(
+	return authorizeCancelAllMarkets(
 		a.DerivativeMarkets,
 		a.SubaccountId,
 		ordersToUpdate.SubaccountId,
@@ -272,7 +272,7 @@ func (a BatchUpdateOrdersAuthz) authorizeBinaryOptionsOrdersToCancel(ordersToUpd
 }
 
 func (a BatchUpdateOrdersAuthz) authorizeBinaryOptionsMarketIDsToCancelAll(ordersToUpdate *MsgBatchUpdateOrders) error {
-	return authorizeCancelAll(
+	return authorizeCancelAllMarkets(
 		a.DerivativeMarkets,
 		a.SubaccountId,
 		ordersToUpdate.SubaccountId,

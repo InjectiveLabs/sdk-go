@@ -1614,11 +1614,7 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 		return err
 	}
 
-	if err := CheckValidSubaccountIDOrNonce(senderAddr, msg.DestinationSubaccountId); err != nil {
-		return err
-	}
-
-	return nil
+	return CheckValidSubaccountIDOrNonce(senderAddr, msg.DestinationSubaccountId)
 }
 
 func (msg *MsgIncreasePositionMargin) GetSignBytes() []byte {

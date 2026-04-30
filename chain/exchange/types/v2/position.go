@@ -34,13 +34,20 @@ func NewPosition(isLong bool, cumulativeFundingEntry math.LegacyDec) *Position {
 func (p *Position) IsShort() bool { return !p.IsLong }
 
 func (p *Position) Copy() *Position {
-	return &Position{
-		IsLong:                 p.IsLong,
-		Quantity:               p.Quantity,
-		EntryPrice:             p.EntryPrice,
-		Margin:                 p.Margin,
-		CumulativeFundingEntry: p.CumulativeFundingEntry,
+	c := &Position{
+		IsLong:   p.IsLong,
+		Quantity: p.Quantity.Clone(),
 	}
+	if !p.EntryPrice.IsNil() {
+		c.EntryPrice = p.EntryPrice.Clone()
+	}
+	if !p.Margin.IsNil() {
+		c.Margin = p.Margin.Clone()
+	}
+	if !p.CumulativeFundingEntry.IsNil() {
+		c.CumulativeFundingEntry = p.CumulativeFundingEntry.Clone()
+	}
+	return c
 }
 
 // GetEffectiveMarginRatio returns the effective margin ratio of the position, based on the input closing price.

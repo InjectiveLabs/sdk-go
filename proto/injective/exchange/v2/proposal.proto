@@ -20,6 +20,16 @@ enum DisableMinimalProtocolFeeUpdate {
   True = 2;
 }
 
+// CrossMarginEligibility is a tri-state enum used in
+// DerivativeMarketParamUpdateProposal to control per-market cross-margin
+// eligibility. UNSPECIFIED means "no update" (the market's current value is
+// preserved), following the same pattern as DisableMinimalProtocolFeeUpdate.
+enum CrossMarginEligibility {
+  CM_ELIGIBILITY_UNSPECIFIED = 0; // no update — preserves existing value
+  CM_ELIGIBILITY_ELIGIBLE = 1;   // market can participate in cross-margin pools
+  CM_ELIGIBILITY_INELIGIBLE = 2; // market is excluded from cross-margin pools
+}
+
 message SpotMarketParamUpdateProposal {
   option (amino.name) = "exchange/SpotMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
@@ -261,6 +271,8 @@ message PerpetualMarketLaunchProposal {
   ];
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 18 [ (gogoproto.nullable) = false ];
+  // cross_margin_eligible marks the market as eligible for cross-margin
+  bool cross_margin_eligible = 19;
 }
 
 message BinaryOptionsMarketLaunchProposal {
@@ -399,6 +411,8 @@ message ExpiryFuturesMarketLaunchProposal {
   ];
   // open_notional_cap defines the maximum open notional for the market
   OpenNotionalCap open_notional_cap = 19 [ (gogoproto.nullable) = false ];
+  // cross_margin_eligible marks the market as eligible for cross-margin
+  bool cross_margin_eligible = 20;
 }
 
 message DerivativeMarketParamUpdateProposal {
@@ -491,6 +505,9 @@ message DerivativeMarketParamUpdateProposal {
   // is disabled for the market
   DisableMinimalProtocolFeeUpdate has_disabled_minimal_protocol_fee = 20
       [ (gogoproto.nullable) = true ];
+  // cross_margin_eligibility controls whether the market can participate in
+  // cross-margin pools
+  CrossMarginEligibility cross_margin_eligibility = 21;
 }
 
 message AdminInfo {

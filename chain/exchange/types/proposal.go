@@ -701,6 +701,15 @@ func (p *OracleParams) ValidateBasic() error {
 		return ErrExceedsMaxOracleScaleFactor
 	}
 
+	if p.OracleType == oracletypes.OracleType_Provider {
+		if err := oracletypes.ValidateProviderDerivativeOracleLayout(p.OracleBase, p.OracleQuote); err != nil {
+			return errors.Wrap(ErrInvalidOracle, err.Error())
+		}
+		if err := oracletypes.ValidateReservedProviderID(p.OracleQuote); err != nil {
+			return errors.Wrap(ErrInvalidOracle, err.Error())
+		}
+	}
+
 	return nil
 }
 
@@ -720,6 +729,13 @@ func (p *ProviderOracleParams) ValidateBasic() error {
 
 	if p.OracleType != oracletypes.OracleType_Provider {
 		return errors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+	}
+
+	if err := oracletypes.ValidateProviderDerivativeOracleLayout(p.Symbol, p.Provider); err != nil {
+		return errors.Wrap(ErrInvalidOracle, err.Error())
+	}
+	if err := oracletypes.ValidateReservedProviderID(p.Provider); err != nil {
+		return errors.Wrap(ErrInvalidOracle, err.Error())
 	}
 
 	if p.OracleScaleFactor > MaxOracleScaleFactor {

@@ -15,6 +15,8 @@ import (
 
 var _ paramtypes.ParamSet = &Params{}
 
+const MaxLiquidationCooldownBlocks uint64 = 1000
+
 // Parameter keys
 var (
 	KeySpotMarketInstantListingFee                 = []byte("SpotMarketInstantListingFee")
@@ -48,6 +50,7 @@ var (
 	KeyPostOnlyModeBlocksAmount                    = []byte("PostOnlyModeBlocksAmount")
 	KeyMinPostOnlyModeDowntimeDuration             = []byte("MinPostOnlyModeDowntimeDuration")
 	KeyPostOnlyModeBlocksAmountAfterDowntime       = []byte("PostOnlyModeBlocksAmountAfterDowntime")
+	KeyCrossMarginParams                           = []byte("CrossMarginParams")
 )
 
 // ParamSetPairs returns the parameter set pairs.
@@ -147,6 +150,11 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 			&p.PostOnlyModeBlocksAmountAfterDowntime,
 			ValidatePostOnlyModeBlocksAmountAfterDowntime,
 		),
+		paramtypes.NewParamSetPair(
+			KeyCrossMarginParams,
+			&p.CrossMarginParams,
+			ValidateCrossMarginParams,
+		),
 	}
 }
 
@@ -188,6 +196,7 @@ func DefaultParams() Params {
 		PostOnlyModeBlocksAmount:                     2000,           // default 2000 blocks
 		MinPostOnlyModeDowntimeDuration:              "DURATION_10M", // default 10 minutes
 		PostOnlyModeBlocksAmountAfterDowntime:        1000,           // default 1000 blocks
+		CrossMarginParams:                            DefaultCrossMarginParams(),
 	}
 }
 
@@ -290,8 +299,74 @@ func (p Params) Validate() error {
 	if err := ValidatePostOnlyModeBlocksAmountAfterDowntime(p.PostOnlyModeBlocksAmountAfterDowntime); err != nil {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
 	}
+	return p.CrossMarginParams.Validate()
+}
 
+// DefaultCrossMarginParams returns default cross-margin parameters.
+func DefaultCrossMarginParams() CrossMarginParams {
+	return CrossMarginParams{
+		PositiveUpnlHaircutRate:           math.LegacyNewDecWithPrec(5, 1), // default 50% haircut
+		FeesBuffer:                        math.LegacyZeroDec(),
+		EnabledQuoteDenoms:                []string{},
+		PerpetualEnabled:                  true,
+		ExpiryEnabled:                     true,
+		MaxActiveDerivativeMarketsPerPool: 100,
+		EmergencyPaused:                   false,
+		BackstopMarginRatio:               math.LegacyNewDecWithPrec(5, 2), // default 5% buffer above MM
+		PartialLiquidationRatio:           math.LegacyOneDec(),             // default 100% of shortfall
+		LiquidationCooldownBlocks:         0,
+	}
+}
+
+// Validate enforces value ranges on every CrossMarginParams field.
+func (p CrossMarginParams) Validate() error {
+	if p.PositiveUpnlHaircutRate.IsNil() {
+		return errors.New("cross_margin: positive_upnl_haircut_rate must be set")
+	}
+	if err := types.ValidateFee(p.PositiveUpnlHaircutRate); err != nil {
+		return fmt.Errorf("cross_margin_positive_upnl_haircut_rate is incorrect: %w", err)
+	}
+	if p.FeesBuffer.IsNil() {
+		return errors.New("cross_margin: fees_buffer must be set")
+	}
+	if err := types.ValidateNonNegativeDec(p.FeesBuffer); err != nil {
+		return fmt.Errorf("cross_margin_fees_buffer is incorrect: %w", err)
+	}
+	if err := ValidateCrossMarginMaxActiveDerivativeMarketsPerPool(p.MaxActiveDerivativeMarketsPerPool); err != nil {
+		return fmt.Errorf("cross_margin_max_active_derivative_markets_per_pool is incorrect: %w", err)
+	}
+	if p.BackstopMarginRatio.IsNil() {
+		return errors.New("cross_margin: backstop_margin_ratio must be set")
+	}
+	if p.BackstopMarginRatio.IsNegative() || p.BackstopMarginRatio.GTE(math.LegacyOneDec()) {
+		return fmt.Errorf("backstop_margin_ratio must be in [0, 1), got %s", p.BackstopMarginRatio)
+	}
+	if p.PartialLiquidationRatio.IsNil() {
+		return errors.New("cross_margin: partial_liquidation_ratio must be set")
+	}
+	if !p.PartialLiquidationRatio.IsPositive() || p.PartialLiquidationRatio.GT(math.LegacyOneDec()) {
+		return fmt.Errorf("partial_liquidation_ratio must be in (0, 1], got %s", p.PartialLiquidationRatio)
+	}
+	if p.LiquidationCooldownBlocks > MaxLiquidationCooldownBlocks {
+		return fmt.Errorf(
+			"liquidation_cooldown_blocks must be <= %d, got %d",
+			MaxLiquidationCooldownBlocks,
+			p.LiquidationCooldownBlocks,
+		)
+	}
+	if err := ValidateCrossMarginEnabledQuoteDenoms(p.EnabledQuoteDenoms); err != nil {
+		return fmt.Errorf("cross_margin_enabled_quote_denoms are invalid: %w", err)
+	}
 	return nil
+}
+
+// ValidateCrossMarginParams validates the CrossMarginParams sub-message for ParamSetPairs.
+func ValidateCrossMarginParams(i any) error {
+	v, ok := i.(CrossMarginParams)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	return v.Validate()
 }
 
 func ValidateAtomicMarketOrderAccessLevel(accessLevel any) error {
@@ -301,6 +376,48 @@ func ValidateAtomicMarketOrderAccessLevel(accessLevel any) error {
 	}
 	if !v.IsValid() {
 		return fmt.Errorf("invalid AtomicMarketOrderAccessLevel value: %v", v)
+	}
+	return nil
+}
+
+func ValidateCrossMarginEnabledQuoteDenoms(i any) error {
+	denoms, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	seen := make(map[string]struct{}, len(denoms))
+	for _, denom := range denoms {
+		if denom == "" {
+			return errors.New("cross margin enabled quote denom cannot be empty")
+		}
+		if err := sdk.ValidateDenom(denom); err != nil {
+			return fmt.Errorf("invalid denom %q: %w", denom, err)
+		}
+		if _, exists := seen[denom]; exists {
+			return fmt.Errorf("duplicate denom %q", denom)
+		}
+		seen[denom] = struct{}{}
+	}
+
+	return nil
+}
+
+func ValidateCrossMarginMaxActiveDerivativeMarketsPerPool(i any) error {
+	v, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	// Explicit zero is rejected: a cap of zero would ban every subaccount
+	// from opening any cross-margin market. Valid range is [1, maxReasonable].
+	if v == 0 {
+		return errors.New("max_active_derivative_markets_per_pool must be >= 1 (explicit zero is rejected; governance must supply a positive cap)")
+	}
+
+	const maxReasonable = 1000
+	if v > maxReasonable {
+		return fmt.Errorf("max_active_derivative_markets_per_pool %d exceeds max %d", v, maxReasonable)
 	}
 	return nil
 }

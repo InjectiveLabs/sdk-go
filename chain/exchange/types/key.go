@@ -66,6 +66,9 @@ var (
 	DerivativePositionModifiedSubaccountPrefix = []byte{0x2a} // prefix for a key to save a list of subaccountIDs by marketID
 	DerivativeOrderbookLevelsPrefix            = []byte{0x2b} // prefix for each key to the derivative orderbook for a given marketID and direction
 
+	// prefix for each key to a subaccount derivative market order (transient), by (marketID, subaccountID, direction, price, order hash)
+	SubaccountDerivativeMarketOrderPrefix = []byte{0x2c}
+
 	PerpetualMarketFundingPrefix             = []byte{0x31} // prefix for each key to a perpetual market's funding state
 	PerpetualMarketInfoPrefix                = []byte{0x32} // prefix for each key to a perpetual market's market info
 	ExpiryFuturesMarketInfoPrefix            = []byte{0x33} // prefix for each key to a expiry futures market's market info
@@ -131,6 +134,18 @@ var (
 	ObjectCachedParamsKey                        = []byte{0x89} // key for cached params in object store (block-scoped)
 	ObjectCachedWhiteKnightLiquidatorsKey        = []byte{0x8a} // key for cached white knight liquidators set in object store (block-scoped)
 	TransientSyntheticPerpetualFundingVwapPrefix = []byte{0x8b} // prefix for transient synthetic perpetual funding VWAP data
+
+	// SubaccountRiskProfilePrefix | subaccountID(32B) -> v2.SubaccountRiskProfile (proto bytes)
+	SubaccountRiskProfilePrefix = []byte{0x8c}
+	// ActiveDerivativeMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}
+	ActiveDerivativeMarketsBySubaccountPrefix = []byte{0x8d}
+	// ActiveDerivativeOrderMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}
+	ActiveDerivativeOrderMarketsBySubaccountPrefix = []byte{0x8e}
+
+	ObjectCrossPoolSnapshotCacheKey = []byte{0x8f} // key for cross-pool snapshot cache in object store (block-scoped)
+
+	// CrossMarginLastLiquidationBlockPrefix | subaccountID(32B) | quoteDenom -> uint64 (block height)
+	CrossMarginLastLiquidationBlockPrefix = []byte{0x90}
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
@@ -297,12 +312,23 @@ func GetSubaccountOrderKey(marketID, subaccountID common.Hash, isBuy bool, price
 	return append(append(GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
 }
 
+func GetSubaccountDerivativeMarketOrderKey(
+	marketID, subaccountID common.Hash, isBuy bool, price math.LegacyDec, orderHash common.Hash,
+) []byte {
+	prefix := GetSubaccountDerivativeMarketOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy)
+	return append(append(prefix, []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
+}
+
 func GetSubaccountOrderIterationKey(price math.LegacyDec, orderHash common.Hash) []byte {
 	return append([]byte(GetPaddedPrice(price)), orderHash.Bytes()...)
 }
 
 func GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID common.Hash, isBuy bool) []byte {
 	return append(SubaccountOrderPrefix, append(MarketSubaccountInfix(marketID, subaccountID), getBoolPrefix(isBuy)...)...)
+}
+
+func GetSubaccountDerivativeMarketOrderPrefixByMarketSubaccountDirection(marketID, subaccountID common.Hash, isBuy bool) []byte {
+	return append(SubaccountDerivativeMarketOrderPrefix, append(MarketSubaccountInfix(marketID, subaccountID), getBoolPrefix(isBuy)...)...)
 }
 
 func GetSubaccountMarketVolumeKey(subaccountID, marketID common.Hash) []byte {

@@ -549,8 +549,13 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.Status == MarketStatus_Unspecified &&
 		p.AdminInfo == nil &&
 		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
+		p.CrossMarginEligibility == CrossMarginEligibility_CM_ELIGIBILITY_UNSPECIFIED &&
 		p.OracleParams == nil {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
+	}
+
+	if p.CrossMarginEligibility < 0 || p.CrossMarginEligibility > CrossMarginEligibility_CM_ELIGIBILITY_INELIGIBLE {
+		return errors.Wrap(gov.ErrInvalidProposalContent, "invalid cross_margin_eligibility value")
 	}
 
 	if p.MakerFeeRate != nil {
@@ -793,6 +798,15 @@ func (p *OracleParams) ValidateBasic() error {
 		return types.ErrExceedsMaxOracleScaleFactor
 	}
 
+	if p.OracleType == oracletypes.OracleType_Provider {
+		if err := oracletypes.ValidateProviderDerivativeOracleLayout(p.OracleBase, p.OracleQuote); err != nil {
+			return errors.Wrap(types.ErrInvalidOracle, err.Error())
+		}
+		if err := oracletypes.ValidateReservedProviderID(p.OracleQuote); err != nil {
+			return errors.Wrap(types.ErrInvalidOracle, err.Error())
+		}
+	}
+
 	return nil
 }
 
@@ -826,6 +840,13 @@ func (p *ProviderOracleParams) ValidateBasic() error {
 
 	if p.OracleType != oracletypes.OracleType_Provider {
 		return errors.Wrap(types.ErrInvalidOracleType, p.OracleType.String())
+	}
+
+	if err := oracletypes.ValidateProviderDerivativeOracleLayout(p.Symbol, p.Provider); err != nil {
+		return errors.Wrap(types.ErrInvalidOracle, err.Error())
+	}
+	if err := oracletypes.ValidateReservedProviderID(p.Provider); err != nil {
+		return errors.Wrap(types.ErrInvalidOracle, err.Error())
 	}
 
 	if p.OracleScaleFactor > types.MaxOracleScaleFactor {
@@ -1644,20 +1665,10 @@ func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
 	if p.Ticker == "" || len(p.Ticker) > types.MaxTickerLength {
 		return errors.Wrapf(types.ErrInvalidTicker, "ticker should not be empty or exceed %d characters", types.MaxTickerLength)
 	}
-	if p.OracleSymbol == "" || len(p.OracleSymbol) > types.MaxOracleSymbolLength {
-		return errors.Wrapf(types.ErrInvalidOracle, "oracle symbol should not be empty or exceed %d characters", types.MaxOracleSymbolLength)
-	}
-	if p.OracleProvider == "" {
-		return errors.Wrap(types.ErrInvalidOracle, "oracle provider should not be empty")
-	}
-	if len(p.OracleProvider) > types.MaxOracleProviderLength {
-		return errors.Wrapf(types.ErrInvalidOracle, "oracle provider should not exceed %d characters", types.MaxOracleProviderLength)
-	}
-	if p.OracleType != oracletypes.OracleType_Provider {
-		return errors.Wrap(types.ErrInvalidOracleType, p.OracleType.String())
-	}
-	if p.OracleScaleFactor > types.MaxOracleScaleFactor {
-		return types.ErrExceedsMaxOracleScaleFactor
+
+	providerOracleParams := NewProviderOracleParams(p.OracleSymbol, p.OracleProvider, p.OracleScaleFactor, p.OracleType)
+	if err := providerOracleParams.ValidateBasic(); err != nil {
+		return err
 	}
 
 	if p.ExpirationTimestamp >= p.SettlementTimestamp || p.ExpirationTimestamp < 0 || p.SettlementTimestamp < 0 {

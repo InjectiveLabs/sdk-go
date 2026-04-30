@@ -153,6 +153,9 @@ func (p *GrantProviderPrivilegeProposal) ValidateBasic() error {
 			return ErrEmptyRelayerAddr
 		}
 	}
+	if err := ValidateReservedProviderID(p.Provider); err != nil {
+		return err
+	}
 	return govtypes.ValidateAbstract(p)
 }
 
@@ -180,7 +183,7 @@ func (p *RevokeProviderPrivilegeProposal) ValidateBasic() error {
 		return ErrEmptyProvider
 	}
 
-	if strings.Contains(p.Provider, providerDelimiter) {
+	if strings.Contains(p.Provider, ProviderDelimiter) {
 		return ErrInvalidProvider
 	}
 

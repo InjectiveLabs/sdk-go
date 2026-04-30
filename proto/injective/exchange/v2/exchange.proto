@@ -36,6 +36,21 @@ message EnforcedRestrictionsContract {
   string pause_event_signature = 2;
 }
 
+enum RiskMode {
+  RISK_MODE_UNSPECIFIED = 0;
+  RISK_MODE_ISOLATED = 1;
+  RISK_MODE_CROSS = 2;
+  RISK_MODE_PORTFOLIO = 3; // reserved for future use (not implemented)
+}
+
+enum ReservationPolicy {
+  RESERVATION_POLICY_UNSPECIFIED = 0;
+  RESERVATION_POLICY_FULL_HOLD = 1;
+  RESERVATION_POLICY_PARTIAL_HOLD =
+      2;                          // reserved for future use (not implemented)
+  RESERVATION_POLICY_NO_HOLD = 3; // reserved for future use (not implemented)
+}
+
 message Params {
   option (gogoproto.equal) = true;
   option (amino.name) = "exchange/Params";
@@ -243,6 +258,72 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // cross_margin_params groups all cross-margin related parameters.
+  CrossMarginParams cross_margin_params = 39 [ (gogoproto.nullable) = false ];
+}
+
+message CrossMarginParams {
+  option (gogoproto.equal) = true;
+
+  // positive_upnl_haircut_rate defines the haircut applied to positive
+  // unrealized PnL for cross-margin admission checks.
+  string positive_upnl_haircut_rate = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // fees_buffer defines a fixed notional buffer (quote-denom units)
+  // subtracted from cross-margin equity calculations.
+  string fees_buffer = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // enabled_quote_denoms defines the quote denoms that are eligible for
+  // cross-margin pools.
+  repeated string enabled_quote_denoms = 3;
+
+  // perpetual_enabled defines whether perpetual derivative markets are
+  // eligible for cross margin.
+  bool perpetual_enabled = 4;
+
+  // expiry_enabled defines whether expiry futures derivative markets are
+  // eligible for cross margin.
+  bool expiry_enabled = 5;
+
+  // max_active_derivative_markets_per_pool defines the maximum number of
+  // active derivative markets (positions or orders) a cross-margin
+  // subaccount may have within a single quote-denom pool.
+  uint32 max_active_derivative_markets_per_pool = 6;
+
+  // emergency_paused defines whether cross margin is in emergency pause
+  // mode. When true:
+  // - All cross-margin orders (including reduce-only) are blocked
+  // - Profile switching involving cross mode is blocked
+  // - Liquidations are still allowed
+  // - Withdrawals are allowed up to isolated-margin maintenance level
+  bool emergency_paused = 7;
+
+  // backstop_margin_ratio defines the target health buffer above
+  // maintenance margin for graduated liquidation. Liquidation stops when
+  // EquityLiquidation >= MM * (1 + ratio).
+  string backstop_margin_ratio = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // partial_liquidation_ratio is the fraction of the shortfall to target
+  // per liquidation tx. 1.0 = close enough to fully restore health; <1.0
+  // = close only a fraction per tx.
+  string partial_liquidation_ratio = 9 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // liquidation_cooldown_blocks is the minimum number of blocks between
+  // successive partial liquidations on the same cross-margin pool.
+  uint64 liquidation_cooldown_blocks = 10;
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }
@@ -615,4 +696,12 @@ message DenomMinNotional {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+}
+
+message SubaccountRiskProfile {
+  RiskMode mode = 1;
+  ReservationPolicy reservation_policy = 2;
+
+  // credit_line_id is reserved for future use and currently must be empty.
+  string credit_line_id = 3;
 }
