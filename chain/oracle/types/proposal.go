@@ -180,7 +180,7 @@ func (p *RevokeProviderPrivilegeProposal) ValidateBasic() error {
 		return ErrEmptyProvider
 	}
 
-	if strings.Contains(p.Provider, providerDelimiter) {
+	if strings.Contains(p.Provider, ProviderDelimiter) {
 		return ErrInvalidProvider
 	}
 

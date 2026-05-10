@@ -44,6 +44,36 @@ func NewMarketOrderForLiquidation(
 	return &order
 }
 
+// NewMarketOrderForPartialLiquidation creates a liquidation market order for a specific
+// quantity (which may be less than the full position). Used by graduated liquidation.
+func NewMarketOrderForPartialLiquidation(
+	position *Position,
+	closeQuantity math.LegacyDec,
+	positionSubaccountID common.Hash,
+	liquidator sdk.AccAddress,
+	worstPrice math.LegacyDec,
+) *DerivativeMarketOrder {
+	var orderType OrderType
+	if position.IsLong {
+		orderType = OrderType_SELL
+	} else {
+		orderType = OrderType_BUY
+	}
+
+	return &DerivativeMarketOrder{
+		OrderInfo: OrderInfo{
+			SubaccountId: positionSubaccountID.Hex(),
+			FeeRecipient: liquidator.String(),
+			Price:        worstPrice,
+			Quantity:     closeQuantity,
+		},
+		OrderType:    orderType,
+		Margin:       math.LegacyZeroDec(),
+		MarginHold:   math.LegacyZeroDec(),
+		TriggerPrice: nil,
+	}
+}
+
 func (m *DerivativeLimitOrder) ToTrimmed() *TrimmedDerivativeLimitOrder {
 	return &TrimmedDerivativeLimitOrder{
 		Price:     m.OrderInfo.Price,
@@ -456,16 +486,28 @@ func (o *DerivativeMarketOrder) FeeRecipient() common.Address {
 	return o.OrderInfo.FeeRecipientAddress()
 }
 
-func (o *DerivativeOrder) IsVanilla() bool {
-	return !o.IsReduceOnly()
+func (m *DerivativeOrder) IsVanilla() bool {
+	return !m.IsReduceOnly()
+}
+
+func (m *DerivativeOrder) IsAtomic() bool {
+	return m.OrderType.IsAtomic()
 }
 
 func (o *DerivativeMarketOrder) IsVanilla() bool {
 	return !o.IsReduceOnly()
 }
 
+func (o *DerivativeMarketOrder) IsAtomic() bool {
+	return o.OrderType.IsAtomic()
+}
+
 func (m *DerivativeLimitOrder) IsVanilla() bool {
 	return !m.IsReduceOnly()
+}
+
+func (m *DerivativeLimitOrder) IsAtomic() bool {
+	return m.OrderType.IsAtomic()
 }
 
 func (m *DerivativeMarketOrder) IsBuy() bool {

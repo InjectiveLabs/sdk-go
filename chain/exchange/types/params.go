@@ -304,6 +304,23 @@ func ValidateFee(i any) error {
 	return nil
 }
 
+func ValidateNonNegativeDec(i any) error {
+	v, ok := i.(math.LegacyDec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("value cannot be nil: %s", v)
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("value cannot be negative: %s", v)
+	}
+
+	return nil
+}
+
 func ValidateMakerFee(i any) error {
 	v, ok := i.(math.LegacyDec)
 	if !ok {
@@ -569,6 +586,11 @@ func ValidateDerivativeOrderSideCount(i any) error {
 
 	if v == 0 {
 		return fmt.Errorf("DerivativeOrderSideCount must be positive: %d", v)
+	}
+
+	const maxDerivativeOrderSideCount = 1000
+	if v > maxDerivativeOrderSideCount {
+		return fmt.Errorf("DerivativeOrderSideCount must not exceed %d: %d", maxDerivativeOrderSideCount, v)
 	}
 
 	return nil

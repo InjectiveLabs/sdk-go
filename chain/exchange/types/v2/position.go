@@ -34,13 +34,20 @@ func NewPosition(isLong bool, cumulativeFundingEntry math.LegacyDec) *Position {
 func (p *Position) IsShort() bool { return !p.IsLong }
 
 func (p *Position) Copy() *Position {
-	return &Position{
-		IsLong:                 p.IsLong,
-		Quantity:               p.Quantity,
-		EntryPrice:             p.EntryPrice,
-		Margin:                 p.Margin,
-		CumulativeFundingEntry: p.CumulativeFundingEntry,
+	c := &Position{
+		IsLong:   p.IsLong,
+		Quantity: p.Quantity.Clone(),
 	}
+	if !p.EntryPrice.IsNil() {
+		c.EntryPrice = p.EntryPrice.Clone()
+	}
+	if !p.Margin.IsNil() {
+		c.Margin = p.Margin.Clone()
+	}
+	if !p.CumulativeFundingEntry.IsNil() {
+		c.CumulativeFundingEntry = p.CumulativeFundingEntry.Clone()
+	}
+	return c
 }
 
 // GetEffectiveMarginRatio returns the effective margin ratio of the position, based on the input closing price.
@@ -52,34 +59,84 @@ func (p *Position) GetEffectiveMarginRatio(closingPrice, closingFee math.LegacyD
 	return effectiveMargin.Quo(closingPrice.Mul(p.Quantity))
 }
 
-// ApplyProfitHaircutForDerivatives results in reducing the payout (pnl * quantity) by the given rate (e.g. 0.1=10%) by modifying the entry price.
-// Formula for adjustment:
-// newPayoutFromPnl = oldPayoutFromPnl * (1 - missingFundsRate)
-// => Entry price adjustment for buys
-// (newEntryPrice - settlementPrice) * quantity = (entryPrice - settlementPrice) * quantity * (1 - missingFundsRate)
-// newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
-// => Entry price adjustment for sells
-// (settlementPrice - newEntryPrice) * quantity = (settlementPrice - entryPrice) * quantity * (1 - missingFundsRate)
-// newEntryPrice = entryPrice - entryPrice * haircutPercentage + settlementPrice * haircutPercentage
-func (p *Position) ApplyProfitHaircutForDerivatives(deficitAmount, totalProfits, settlementPrice math.LegacyDec) {
-	// haircutPercentage = deficitAmount / totalProfits
-	// To preserve precision, the division by totalProfits is done last.
-	// newEntryPrice =  haircutPercentage * (settlementPrice - entryPrice) + entryPrice
-	newEntryPrice := deficitAmount.Mul(settlementPrice.Sub(p.EntryPrice)).Quo(totalProfits).Add(p.EntryPrice)
-	p.EntryPrice = newEntryPrice
+// HaircutProfitBasis returns the per-position contribution to TotalProfits used
+// during scheduled-settlement profit-haircut accounting. The basis is the
+// payout-capped post-fee PnL: `min(post_fee_pnl, post_fee_payout)` when both
+// are positive, else zero. This is the SINGLE source of truth used by both
+// the scan path (`getPositionFundsStatus`) and the apply path
+// (`ApplyProfitHaircutForDerivatives`); they MUST NOT recompute it
+// independently or use a different basis (e.g. gross PnL).
+//
+// The realised-PnL cap applies uniformly across all paths that distribute haircut.
+func (p *Position) HaircutProfitBasis(settlementPrice, closingFeeRate math.LegacyDec) math.LegacyDec {
+	payout := p.GetPayoutIfFullyClosing(settlementPrice, closingFeeRate)
+	if !payout.PnlNotional.IsPositive() || !payout.Payout.IsPositive() {
+		return math.LegacyZeroDec()
+	}
+	return math.LegacyMinDec(payout.PnlNotional, payout.Payout)
+}
 
-	// profitable position but with negative margin, we didn't account for negative margin previously,
-	// so we can safely add it if payout becomes negative from haircut
-	newPositionPayout := p.GetPayoutIfFullyClosing(settlementPrice, math.LegacyZeroDec()).Payout
+// ApplyProfitHaircutForDerivatives reduces the position's payout by exactly
+// `(deficitAmount / totalProfits) * HaircutProfitBasis(settlementPrice, closingFeeRate)`,
+// achieved by an entry-price adjustment. The basis is the capped post-fee PnL
+// — see `HaircutProfitBasis`.
+//
+// Formula:
+//
+//	rate          = deficitAmount / totalProfits
+//	cappedBasis   = HaircutProfitBasis(settlementPrice, closingFeeRate)
+//	haircut       = rate * cappedBasis
+//	newPayoutFromPnl(gross) = oldPayoutFromPnl(gross) - haircut
+//	=> entry-price adjustment for longs: newEntry = entry + haircut/quantity
+//	   entry-price adjustment for shorts: newEntry = entry - haircut/quantity
+//
+// (Both directions move entry "toward" settlement by `haircut/quantity`.)
+//
+// Rejected historical form: scaling gross PnL by `1 - rate` (i.e.
+// `newPayoutFromPnl = oldPayoutFromPnl * (1 - rate)`). For a negative-margin
+// winner with `pnl=10, margin=-5, payout=5, rate=0.5`, gross-PnL scaling
+// produces post-haircut payout 0; capped-basis scaling produces 2.5, matching
+// the deficit-conservation invariant that sum of per-position haircuts equals
+// the ProfitHaircutAmount.
+func (p *Position) ApplyProfitHaircutForDerivatives(
+	deficitAmount, totalProfits, settlementPrice, closingFeeRate math.LegacyDec,
+) {
+	cappedBasis := p.HaircutProfitBasis(settlementPrice, closingFeeRate)
+	if !cappedBasis.IsPositive() {
+		return
+	}
+	haircutAmount := deficitAmount.Mul(cappedBasis).Quo(totalProfits)
+	if !haircutAmount.IsPositive() || p.Quantity.IsZero() {
+		return
+	}
+
+	entryDelta := haircutAmount.Quo(p.Quantity)
+	if p.IsLong {
+		p.EntryPrice = p.EntryPrice.Add(entryDelta)
+	} else {
+		p.EntryPrice = p.EntryPrice.Sub(entryDelta)
+	}
+
+	// Defensive: the capped-basis formula cannot produce a negative payout
+	// (haircut <= cappedBasis <= payout). The clamp is retained as a guard
+	// against rounding-driven sub-atom drift.
+	newPositionPayout := p.GetPayoutIfFullyClosing(settlementPrice, closingFeeRate).Payout
 	if newPositionPayout.IsNegative() {
 		p.Margin = p.Margin.Add(newPositionPayout.Abs())
 	}
 }
 
-func (p *Position) ApplyTotalPositionPayoutHaircut(deficitAmount, totalPayouts, settlementPrice math.LegacyDec) {
-	p.ApplyProfitHaircutForDerivatives(deficitAmount, totalPayouts, settlementPrice)
+func (p *Position) ApplyTotalPositionPayoutHaircut(deficitAmount, totalPayouts, settlementPrice, closingFeeRate math.LegacyDec) {
+	if totalPayouts.IsZero() {
+		return
+	}
 
-	removedMargin := p.Margin.Mul(deficitAmount).Quo(totalPayouts)
+	payoutBefore := p.GetPayoutIfFullyClosing(settlementPrice, closingFeeRate).Payout
+	if !payoutBefore.IsPositive() {
+		return
+	}
+
+	removedMargin := payoutBefore.Mul(deficitAmount).Quo(totalPayouts)
 	p.Margin = p.Margin.Sub(removedMargin)
 }
 

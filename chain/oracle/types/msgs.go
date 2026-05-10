@@ -167,7 +167,7 @@ func (msg MsgRelayProviderPrices) ValidateBasic() error {
 	}
 
 	for _, symbol := range msg.Symbols {
-		if strings.Contains(symbol, providerDelimiter) {
+		if strings.Contains(symbol, ProviderDelimiter) {
 			return ErrInvalidSymbol
 		}
 	}
