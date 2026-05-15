@@ -54,7 +54,7 @@ require (
 	github.com/CosmWasm/wasmvm/v2 v2.1.5 // indirect
 	github.com/DataDog/datadog-go v4.8.3+incompatible // indirect
 	github.com/DataDog/zstd v1.5.6 // indirect
-	github.com/InjectiveLabs/metrics/v2 v2.0.0-beta.8 // indirect
+	github.com/InjectiveLabs/metrics/v2 v2.0.0-beta.9 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/VictoriaMetrics/fastcache v1.12.2 // indirect
 	github.com/aws/aws-sdk-go v1.44.327 // indirect

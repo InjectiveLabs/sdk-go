@@ -21,7 +21,13 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRelayPythPrices{}, "oracle/MsgRelayPythPrices", nil)
 	cdc.RegisterConcrete(&MsgRelayStorkPrices{}, "oracle/MsgRelayStorkPrices", nil)
 	cdc.RegisterConcrete(&MsgRelayChainlinkPrices{}, "oracle/MsgRelayChainlinkPrices", nil)
+	cdc.RegisterConcrete(&MsgRelayPythProPrices{}, "oracle/MsgRelayPythProPrices", nil)
+	cdc.RegisterConcrete(&MsgRelaySedaFastPrices{}, "oracle/MsgRelaySedaFastPrices", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "oracle/MsgUpdateParams", nil)
+
+	// Deprecated: Band oracle tx types kept for backward compatibility
+	cdc.RegisterConcrete(&MsgRelayBandRates{}, "oracle/MsgRelayBandRates", nil)           //nolint:staticcheck // deprecated
+	cdc.RegisterConcrete(&MsgRequestBandIBCRates{}, "oracle/MsgRequestBandIBCRates", nil) //nolint:staticcheck // deprecated
 
 	cdc.RegisterConcrete(&GrantPriceFeederPrivilegeProposal{}, "oracle/GrantPriceFeederPrivilegeProposal", nil)
 	cdc.RegisterConcrete(&RevokePriceFeederPrivilegeProposal{}, "oracle/RevokePriceFeederPrivilegeProposal", nil)
@@ -47,7 +53,12 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgRelayPythPrices{},
 		&MsgRelayStorkPrices{},
 		&MsgRelayChainlinkPrices{},
+		&MsgRelayPythProPrices{},
+		&MsgRelaySedaFastPrices{},
 		&MsgUpdateParams{},
+		// Deprecated: Band oracle tx types kept for backward compatibility
+		&MsgRelayBandRates{},      //nolint:staticcheck // deprecated
+		&MsgRequestBandIBCRates{}, //nolint:staticcheck // deprecated
 	)
 
 	registry.RegisterImplementations((*govtypes.Content)(nil),

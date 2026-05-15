@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.19.0 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.19.41 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.19.0 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -91,16 +91,8 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
 	mkdir -p chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/*.pb.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/chainlink_data_streams.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/codec.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/errors.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/msgs.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/oracle.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/params.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/proposal.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/pyth.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/stork_oracle.go chain/oracle/types
+		cp injective-core/injective-chain/modules/oracle/types/*.go chain/oracle/types && \
+		rm -rf chain/oracle/types/*test.go && rm -rf chain/oracle/types/*gw.go
 	mkdir -p chain/peggy/types && \
 		cp injective-core/injective-chain/modules/peggy/types/*.pb.go chain/peggy/types && \
 		cp injective-core/injective-chain/modules/peggy/types/abi_json.go chain/peggy/types && \
@@ -143,6 +135,7 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/types/chain_id.go chain/types && \
 		cp injective-core/injective-chain/types/codec.go chain/types && \
 		cp injective-core/injective-chain/types/errors.go chain/types && \
+		cp injective-core/injective-chain/types/ethereum_signer.go chain/types && \
 		cp injective-core/injective-chain/types/int.go chain/types && \
 		cp injective-core/injective-chain/types/util.go chain/types && \
 		cp injective-core/injective-chain/types/validation.go chain/types
@@ -172,34 +165,8 @@ extract-message-names:
 	@echo "Message names extracted to injective_data/chain_messages_list.json (excluding Response messages)"
 	@echo "Total messages found: $$(jq length injective_data/chain_messages_list.json)"
 
-#gen: gen-proto
-#
-#gen-proto: clone-all copy-proto
-#	buf generate --template buf.gen.chain.yaml
-#	buf generate --template buf.gen.indexer.yaml
-#	rm -rf local_proto
-#	$(call clean_repos)
-#
-#define clean_repos
-#	rm -Rf injective-indexer
-#endef
-#
-#clean-all:
-#	$(call clean_repos)
-#
-#clone-injective-indexer:
-#	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.13.4 --depth 1 --single-branch
-#
-#clone-all: clone-injective-indexer
-#
-#copy-proto:
-#	rm -rf local_proto
-#	mkdir -p local_proto
-#	find ./injective-indexer/api/gen/grpc -type f -name "*.proto" | while read -r file; do \
-#		dest="local_proto/$$(basename $$(dirname $$(dirname "$$file")))/$$(basename $$(dirname "$$file"))"; \
-#		mkdir -p "$$dest"; \
-#		cp "$$file" "$$dest"; \
-#	done
+update-ofac-list:
+	go run examples/chain/ofac/1_DownloadOfacList/example.go
 
 tests:
 	go clean -testcache && go test -race ./client/... ./ethereum/...
@@ -222,4 +189,4 @@ lint-all: export GOPROXY=direct
 lint-all:
 	golangci-lint run --timeout=15m -v
 
-.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master lint-all extract-message-names
+.PHONY: copy-exchange-client update-ofac-list tests coverage lint lint-last-commit lint-master lint-all extract-message-names

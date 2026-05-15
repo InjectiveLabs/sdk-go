@@ -135,6 +135,11 @@ service Msg {
   rpc LiquidatePosition(MsgLiquidatePosition)
       returns (MsgLiquidatePositionResponse);
 
+  // BatchLiquidatePositions defines a method for liquidating multiple positions
+  // in a best-effort manner
+  rpc BatchLiquidatePositions(MsgBatchLiquidatePositions)
+      returns (MsgBatchLiquidatePositionsResponse);
+
   // EmergencySettleMarket defines a method for emergency settling a market
   rpc EmergencySettleMarket(MsgEmergencySettleMarket)
       returns (MsgEmergencySettleMarketResponse);
@@ -230,6 +235,17 @@ service Msg {
   // a number of blocks
   rpc ActivatePostOnlyMode(MsgActivatePostOnlyMode)
       returns (MsgActivatePostOnlyModeResponse);
+
+  // LiquidateCrossMarginPool atomically closes all positions in a cross-margin
+  // pool, netting surplus from profitable positions against deficits before
+  // touching the insurance fund.
+  rpc LiquidateCrossMarginPool(MsgLiquidateCrossMarginPool)
+      returns (MsgLiquidateCrossMarginPoolResponse);
+
+  // UpdateSubaccountRiskProfile allows a user (subject to eligibility & safety
+  // gates) to set the subaccount's risk profile (e.g. opt into cross-margin).
+  rpc UpdateSubaccountRiskProfile(MsgUpdateSubaccountRiskProfile)
+      returns (MsgUpdateSubaccountRiskProfileResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -320,6 +336,11 @@ message MsgUpdateDerivativeMarket {
 
   // (optional) updated value for open_notional_cap
   OpenNotionalCap new_open_notional_cap = 10 [ (gogoproto.nullable) = false ];
+
+  // (optional) tri-state toggle for cross-margin eligibility. Direct message
+  // updates are exchange-admin-only and may set either ELIGIBLE or INELIGIBLE.
+  // UNSPECIFIED is a no-op (preserves current value).
+  CrossMarginEligibility cross_margin_eligibility = 11;
 }
 
 message MsgUpdateDerivativeMarketResponse {}
@@ -377,6 +398,26 @@ message MsgWithdraw {
 
 // MsgWithdraw defines the Msg/Withdraw response type.
 message MsgWithdrawResponse {}
+
+// MsgUpdateSubaccountRiskProfile defines a SDK message for updating a
+// subaccount's risk profile (e.g. opting into cross-margin).
+message MsgUpdateSubaccountRiskProfile {
+  option (amino.name) = "exchange/MsgUpdateSubaccountRiskProfile";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address
+  string sender = 1;
+  // the subaccount ID to update the risk profile for
+  string subaccount_id = 2;
+  // the requested risk profile (subject to eligibility & safety gates)
+  SubaccountRiskProfile risk_profile = 3 [ (gogoproto.nullable) = false ];
+}
+
+// MsgUpdateSubaccountRiskProfileResponse defines the
+// Msg/UpdateSubaccountRiskProfile response type.
+message MsgUpdateSubaccountRiskProfileResponse {}
 
 // MsgCreateSpotLimitOrder defines a SDK message for creating a new spot limit
 // order.
@@ -543,6 +584,8 @@ message MsgInstantPerpetualMarketLaunch {
 
   // open_notional_cap defines the cap on the open notional
   OpenNotionalCap open_notional_cap = 16 [ (gogoproto.nullable) = false ];
+  // cross_margin_eligible marks the market as eligible for cross-margin
+  bool cross_margin_eligible = 17;
 }
 
 // MsgInstantPerpetualMarketLaunchResponse defines the
@@ -690,6 +733,8 @@ message MsgInstantExpiryFuturesMarketLaunch {
 
   // open_notional_cap defines the cap on the open notional
   OpenNotionalCap open_notional_cap = 17 [ (gogoproto.nullable) = false ];
+  // cross_margin_eligible marks the market as eligible for cross-margin
+  bool cross_margin_eligible = 18;
 }
 
 // MsgInstantExpiryFuturesMarketLaunchResponse defines the
@@ -1153,6 +1198,47 @@ message MsgLiquidatePosition {
 // MsgLiquidatePositionResponse defines the Msg/LiquidatePosition response type.
 message MsgLiquidatePositionResponse {}
 
+// LiquidatePositionData contains per-position liquidation input fields.
+message LiquidatePositionData {
+  // the subaccount ID the position belongs to
+  string subaccount_id = 1;
+  // the position's market ID
+  string market_id = 2;
+
+  // optional order to provide for liquidation
+  DerivativeOrder order = 3 [ (gogoproto.nullable) = true ];
+}
+
+// A Cosmos-SDK MsgBatchLiquidatePositions
+message MsgBatchLiquidatePositions {
+  option (amino.name) = "exchange/MsgBatchLiquidatePositions";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address
+  string sender = 1;
+  // the positions to liquidate
+  repeated LiquidatePositionData liquidations = 2
+      [ (gogoproto.nullable) = false ];
+}
+
+// LiquidatePositionResult contains the liquidation outcome for an item.
+message LiquidatePositionResult {
+  // the subaccount ID the position belongs to
+  string subaccount_id = 1;
+  // the position's market ID
+  string market_id = 2;
+  // whether the liquidation succeeded
+  bool success = 3;
+  // failure reason when success is false
+  string error = 4;
+}
+
+// MsgBatchLiquidatePositionsResponse defines the
+// Msg/BatchLiquidatePositions response type.
+message MsgBatchLiquidatePositionsResponse {
+  repeated LiquidatePositionResult results = 1 [ (gogoproto.nullable) = false ];
+}
+
 // A Cosmos-SDK MsgOffsetPosition
 message MsgOffsetPosition {
   option (amino.name) = "exchange/MsgOffsetPosition";
@@ -1575,6 +1661,24 @@ message MsgAtomicMarketOrderFeeMultiplierSchedule {
 
 message MsgAtomicMarketOrderFeeMultiplierScheduleResponse {}
 
+// Deprecated: Delegation transfer receiver support was removed. This message
+// is kept for backward compatibility to decode historical transactions.
+message MsgSetDelegationTransferReceivers {
+  option deprecated = true;
+
+  option (amino.name) = "exchange/MsgSetDelegationTransferReceivers";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address (must be exchange admin)
+  string sender = 1;
+  // list of receiver addresses to set as delegation transfer receivers
+  repeated string receivers = 2;
+}
+
+// Deprecated: Delegation transfer receiver support was removed. This message
+// is kept for backward compatibility to decode historical transactions.
+message MsgSetDelegationTransferReceiversResponse { option deprecated = true; }
+
 // MsgCancelPostOnlyMode defines a message for canceling post-only mode
 message MsgCancelPostOnlyMode {
   option (amino.name) = "exchange/MsgCancelPostOnlyMode";
@@ -1602,3 +1706,22 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyModeResponse defines the response for
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
+
+// MsgLiquidateCrossMarginPool atomically closes all positions in a
+// cross-margin pool, netting surplus from profitable positions against deficits
+// before touching the insurance fund.
+message MsgLiquidateCrossMarginPool {
+  option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the liquidator's Injective address
+  string sender = 1;
+  // the cross-margin subaccount to liquidate
+  string subaccount_id = 2;
+  // identifies which cross-margin pool (by quote denom)
+  string quote_denom = 3;
+}
+
+// MsgLiquidateCrossMarginPoolResponse defines the
+// Msg/LiquidateCrossMarginPool response type.
+message MsgLiquidateCrossMarginPoolResponse {}

@@ -456,16 +456,28 @@ func (o *DerivativeMarketOrder) FeeRecipient() common.Address {
 	return o.OrderInfo.FeeRecipientAddress()
 }
 
-func (o *DerivativeOrder) IsVanilla() bool {
-	return !o.IsReduceOnly()
+func (m *DerivativeOrder) IsVanilla() bool {
+	return !m.IsReduceOnly()
+}
+
+func (m *DerivativeOrder) IsAtomic() bool {
+	return m.OrderType.IsAtomic()
 }
 
 func (o *DerivativeMarketOrder) IsVanilla() bool {
 	return !o.IsReduceOnly()
 }
 
+func (o *DerivativeMarketOrder) IsAtomic() bool {
+	return o.OrderType.IsAtomic()
+}
+
 func (m *DerivativeLimitOrder) IsVanilla() bool {
 	return !m.IsReduceOnly()
+}
+
+func (m *DerivativeLimitOrder) IsAtomic() bool {
+	return m.OrderType.IsAtomic()
 }
 
 func (m *DerivativeMarketOrder) IsBuy() bool {

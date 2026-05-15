@@ -79,26 +79,8 @@ func (p Params) ValidateBasic() error {
 	if err := validateSignedClaimsWindow(p.SignedClaimsWindow); err != nil {
 		return errors.Wrap(err, "signed blocks window")
 	}
-	if err := validateSlashFractionValset(p.SlashFractionValset); err != nil {
-		return errors.Wrap(err, "slash fraction valset")
-	}
-	if err := validateSlashFractionBatch(p.SlashFractionBatch); err != nil {
-		return errors.Wrap(err, "slash fraction valset")
-	}
-	if err := validateSlashFractionClaim(p.SlashFractionClaim); err != nil {
-		return errors.Wrap(err, "slash fraction valset")
-	}
-	if err := validateSlashFractionConflictingClaim(p.SlashFractionConflictingClaim); err != nil {
-		return errors.Wrap(err, "slash fraction valset")
-	}
-	if err := validateSlashFractionBadEthSignature(p.SlashFractionBadEthSignature); err != nil {
-		return errors.Wrap(err, "slash fraction BadEthSignature")
-	}
 	if err := validateUnbondSlashingValsetsWindow(p.UnbondSlashingValsetsWindow); err != nil {
 		return errors.Wrap(err, "unbond Slashing valset window")
-	}
-	if err := validateClaimSlashingEnabled(p.ClaimSlashingEnabled); err != nil {
-		return errors.Wrap(err, "claim slashing enabled")
 	}
 	if err := validateAdmins(p.Admins); err != nil {
 		return errors.Wrap(err, "admins")
@@ -118,7 +100,7 @@ func (p Params) Equal(p2 Params) bool {
 	return bytes.Equal(bz1, bz2)
 }
 
-func validatePeggyID(i interface{}) error {
+func validatePeggyID(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -129,28 +111,28 @@ func validatePeggyID(i interface{}) error {
 	return nil
 }
 
-func validateContractHash(i interface{}) error {
+func validateContractHash(i any) error {
 	if _, ok := i.(string); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
-func validateBridgeChainID(i interface{}) error {
+func validateBridgeChainID(i any) error {
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
-func validateBridgeContractStartHeight(i interface{}) error {
+func validateBridgeContractStartHeight(i any) error {
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
-func validateTargetBatchTimeout(i interface{}) error {
+func validateTargetBatchTimeout(i any) error {
 	val, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -160,7 +142,7 @@ func validateTargetBatchTimeout(i interface{}) error {
 	return nil
 }
 
-func validateAverageBlockTime(i interface{}) error {
+func validateAverageBlockTime(i any) error {
 	val, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -170,7 +152,7 @@ func validateAverageBlockTime(i interface{}) error {
 	return nil
 }
 
-func validateAverageEthereumBlockTime(i interface{}) error {
+func validateAverageEthereumBlockTime(i any) error {
 	val, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -180,7 +162,7 @@ func validateAverageEthereumBlockTime(i interface{}) error {
 	return nil
 }
 
-func validateBridgeContractAddress(i interface{}) error {
+func validateBridgeContractAddress(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -193,60 +175,48 @@ func validateBridgeContractAddress(i interface{}) error {
 	return nil
 }
 
-func validateSignedValsetsWindow(i interface{}) error {
+func validateSignedValsetsWindow(i any) error {
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
-func validateUnbondSlashingValsetsWindow(i interface{}) error {
+func validateUnbondSlashingValsetsWindow(i any) error {
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
-func validateSlashFractionValset(i interface{}) error {
-	if _, ok := i.(math.LegacyDec); !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
+func validateSlashFractionValset(i any) error {
+	return skipDeprecatedValidation(i)
 }
 
-func validateSignedBatchesWindow(i interface{}) error {
+func validateSignedBatchesWindow(i any) error {
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
-func validateSignedClaimsWindow(i interface{}) error {
+func validateSignedClaimsWindow(i any) error {
 	if _, ok := i.(uint64); !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 	return nil
 }
 
-func validateSlashFractionBatch(i interface{}) error {
-	if _, ok := i.(math.LegacyDec); !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
+func validateSlashFractionBatch(i any) error {
+	return skipDeprecatedValidation(i)
 }
 
-func validateSlashFractionClaim(i interface{}) error {
-	if _, ok := i.(math.LegacyDec); !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
+func validateSlashFractionClaim(i any) error {
+	return skipDeprecatedValidation(i)
 }
 
-func validateSlashFractionConflictingClaim(i interface{}) error {
-	if _, ok := i.(math.LegacyDec); !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return nil
+func validateSlashFractionConflictingClaim(i any) error {
+	return skipDeprecatedValidation(i)
 }
 
 func strToFixByteArray(s string) ([32]byte, error) {
@@ -258,7 +228,7 @@ func strToFixByteArray(s string) ([32]byte, error) {
 	return out, nil
 }
 
-func validateCosmosCoinDenom(i interface{}) error {
+func validateCosmosCoinDenom(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -270,7 +240,7 @@ func validateCosmosCoinDenom(i interface{}) error {
 	return nil
 }
 
-func validateCosmosCoinErc20Contract(i interface{}) error {
+func validateCosmosCoinErc20Contract(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -284,26 +254,25 @@ func validateCosmosCoinErc20Contract(i interface{}) error {
 	return ValidateEthAddress(v)
 }
 
-func validateClaimSlashingEnabled(i interface{}) error {
-	_, ok := i.(bool)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
+func validateClaimSlashingEnabled(i any) error {
+	return skipDeprecatedValidation(i)
+}
+
+func validateSlashFractionBadEthSignature(i any) error {
+	return skipDeprecatedValidation(i)
+}
+
+// Deprecated Peggy params remain in state for compatibility, but their values
+// are no longer used and should not be validated.
+func skipDeprecatedValidation(_ any) error {
 	return nil
 }
 
-func validateSlashFractionBadEthSignature(i interface{}) error {
-	if _, ok := i.(math.LegacyDec); !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
+func validateValsetReward(_ any) error {
 	return nil
 }
 
-func validateValsetReward(i interface{}) error {
-	return nil
-}
-
-func validateAdmins(i interface{}) error {
+func validateAdmins(i any) error {
 	v, ok := i.([]string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -326,7 +295,7 @@ func validateAdmins(i interface{}) error {
 	return nil
 }
 
-func validateSegregatedWallet(i interface{}) error {
+func validateSegregatedWallet(i any) error {
 	str, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)

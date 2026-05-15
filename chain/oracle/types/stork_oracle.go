@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	peggytypes "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 func getMessageHash(publisher common.Address, assetPairID, timeStamp, price string) (hash common.Hash) {
@@ -30,7 +30,8 @@ func encodeUint256(v string) []byte {
 func VerifyStorkMsgSignature(oraclePubKey common.Address, assetPairID, timeStamp, price string, signature []byte) bool {
 	hash := getMessageHash(oraclePubKey, assetPairID, timeStamp, price)
 
-	recoveredPubKey, err := peggytypes.EthAddressFromSignature(hash, signature)
+	// Use strict validation to reject malleable high-S signature variants.
+	recoveredPubKey, err := chaintypes.StrictEthAddressFromSignature(hash, signature)
 	if err != nil {
 		return false
 	}

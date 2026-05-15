@@ -56,6 +56,20 @@ service Query {
         "/injective/oracle/v1beta1/pyth_price_states";
   }
 
+  // Retrieves the state for all pyth pro price feeds
+  rpc PythProPriceStates(QueryPythProPriceStatesRequest)
+      returns (QueryPythProPriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/pyth_pro_price_states";
+  }
+
+  // Retrieves the state for all SEDA Fast price feeds
+  rpc SedaFastPriceStates(QuerySedaFastPriceStatesRequest)
+      returns (QuerySedaFastPriceStatesResponse) {
+    option (google.api.http).get =
+        "/injective/oracle/v1beta1/seda_fast_price_states";
+  }
+
   // Retrieves the state for all stork price feeds
   rpc StorkPriceStates(QueryStorkPriceStatesRequest)
       returns (QueryStorkPriceStatesResponse) {
@@ -192,6 +206,26 @@ message QueryPythPriceStatesRequest {}
 // Query/CoinbasePriceStates RPC method.
 message QueryPythPriceStatesResponse {
   repeated PythPriceState price_states = 1;
+}
+
+// QueryPythProPriceStatesRequest is the request type for the
+// Query/PythProPriceStates RPC method.
+message QueryPythProPriceStatesRequest {}
+
+// QueryPythProPriceStatesResponse is the response type for the
+// Query/PythProPriceStates RPC method.
+message QueryPythProPriceStatesResponse {
+  repeated PythProPriceState price_states = 1;
+}
+
+// QuerySedaFastPriceStatesRequest is the request type for the
+// Query/SedaFastPriceStates RPC method.
+message QuerySedaFastPriceStatesRequest {}
+
+// QuerySedaFastPriceStatesResponse is the response type for the
+// Query/SedaFastPriceStates RPC method.
+message QuerySedaFastPriceStatesResponse {
+  repeated SedaFastPriceState price_states = 1;
 }
 
 // QueryStorkPriceStatesRequest is the request type for the
