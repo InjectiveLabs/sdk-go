@@ -1,6 +1,8 @@
 package types
 
 import (
+	"encoding/binary"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -52,6 +54,10 @@ var (
 	// SecondIndexOutgoingTXFeeKey indexes fee amounts by token contract address
 	SecondIndexOutgoingTXFeeKey = []byte{0x9}
 
+	// FeeIndexOutgoingTxKey is a replacement for SecondIndexOutgoingTXFeeKey. Tx ID is now indexed as part of the key.
+	// Result is a single key entry with an empty value
+	FeeIndexOutgoingTxKey = []byte{0xc}
+
 	// OutgoingTXBatchKey indexes outgoing tx batches under a nonce and token address
 	OutgoingTXBatchKey = []byte{0xa}
 
@@ -91,14 +97,14 @@ var (
 	// ERC20ToDenomKey prefixes the index of Cosmos originated assets ERC20s to denoms
 	ERC20ToDenomKey = []byte{0xf4}
 
-	// LastSlashedValsetNonce indexes the latest slashed valset nonce
-	LastSlashedValsetNonce = []byte{0xf5}
+	// LastJailedValsetNonce indexes the latest jailed valset nonce
+	LastJailedValsetNonce = []byte{0xf5}
 
 	// LatestValsetNonce indexes the latest valset nonce
 	LatestValsetNonce = []byte{0xf6}
 
-	// LastSlashedBatchBlock indexes the latest slashed batch block height
-	LastSlashedBatchBlock = []byte{0xf7}
+	// LastJailedBatchBlock indexes the latest jailed batch block height
+	LastJailedBatchBlock = []byte{0xf7}
 
 	// LastUnbondingBlockHeight indexes the last validator unbonding block height
 	LastUnbondingBlockHeight = []byte{0xf8}
@@ -238,7 +244,7 @@ func GetBatchConfirmKey(tokenContract common.Address, batchNonce uint64, validat
 	return buf
 }
 
-// GetFeeSecondIndexKey returns the following key format
+// GetFeeSecondIndexKey returns the following legacy key format
 // prefix            eth-contract-address            					fee_amount
 // [0x9][0xc783df8a850f42e7F7e57013759C285caa701eB6][0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
 func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token) []byte {
@@ -252,6 +258,22 @@ func GetFeeSecondIndexKey(tokenContract common.Address, fee *ERC20Token) []byte 
 	buf = append(buf, amount...)
 
 	return buf
+}
+
+// GetFeeIndexKey stores one key per unbatched tx:
+// prefix | eth-contract-address | fee-amount | tx-id.
+func GetFeeIndexKey(token common.Address, fee *ERC20Token, txID uint64) []byte {
+	k := make([]byte, len(FeeIndexOutgoingTxKey)+ETHContractAddressLen+32+8) // prefix + addr + fee + tx_id
+	copy(k, FeeIndexOutgoingTxKey)
+	copy(k[len(FeeIndexOutgoingTxKey):], token.Bytes())
+
+	var amount [32]byte
+	fee.Amount.BigInt().FillBytes(amount[:])
+
+	copy(k[len(FeeIndexOutgoingTxKey)+ETHContractAddressLen:], amount[:])
+	binary.BigEndian.PutUint64(k[len(FeeIndexOutgoingTxKey)+ETHContractAddressLen+32:], txID)
+
+	return k
 }
 
 // GetLastEventNonceByValidatorKey indexes lateset event nonce by validator

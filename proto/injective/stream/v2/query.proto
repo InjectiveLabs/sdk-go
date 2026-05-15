@@ -267,6 +267,8 @@ message DerivativeTrade {
   string cid = 10;
   // the trade ID
   string trade_id = 11;
+  // whether the trade resulted from a liquidation
+  bool is_liquidation = 12;
 }
 
 message OrderFailureUpdate {

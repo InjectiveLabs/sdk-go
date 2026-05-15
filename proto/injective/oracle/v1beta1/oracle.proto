@@ -18,6 +18,38 @@ message Params {
   // accept_unverified_chainlink_data_streams_reports (bool). Do not reuse.
   reserved 3;
   uint64 chainlink_data_streams_verification_gas_limit = 4;
+  // EVM hex address of the PythLazer verifier contract deployed on Injective.
+  // Must be set via governance before PythPro price relaying is active.
+  // (optional)
+  string pyth_pro_verifier_contract = 5;
+  // Gas cap for the eth_call used in PythPro update verification. Defaults to
+  // 500000.
+  uint64 pyth_pro_verification_gas_limit = 6;
+  // Fee in wei passed as msg.value to the PythLazer verifyUpdate call.
+  // Update via governance if the on-chain contract fee changes. Defaults to 1.
+  uint64 pyth_pro_verification_fee = 7;
+  // seda_fast_params groups all SEDA Fast oracle configuration. An empty
+  // public_key disables MsgRelaySedaFastPrices handling until set via
+  // MsgUpdateParams.
+  SedaFastParams seda_fast_params = 8 [ (gogoproto.nullable) = false ];
+}
+
+// SedaFastParams holds the on-chain configuration for the SEDA Fast oracle.
+// See
+// https://docs.seda.xyz/home/for-developers/define-your-delivery-method/seda-fast
+message SedaFastParams {
+  option (gogoproto.equal) = true;
+
+  // SEC1 secp256k1 public key published by SEDA Fast at GET /info.
+  // Compressed (33 B, 0x02/0x03 prefix) or uncompressed (65 B, 0x04 prefix).
+  // Empty value disables all MsgRelaySedaFastPrices handling.
+  bytes public_key = 1;
+  // Allowlist of execProgramIds whose dataResult.result payload is an ASCII
+  // decimal string (e.g. "384.48255"), parsed as LegacyDec.
+  repeated string simple_program_ids = 2;
+  // Allowlist of execProgramIds whose dataResult.result payload is a UTF-8
+  // JSON object containing {price:{mantissa,expo},...}.
+  repeated string json_program_ids = 3;
 }
 
 enum OracleType {
@@ -35,6 +67,14 @@ enum OracleType {
   Provider = 11;
   Stork = 12;
   ChainlinkDataStreams = 13;
+  // PythPro uses the Pyth Lazer high-frequency feed, verified via an on-chain
+  // EVM contract.
+  PythPro = 14;
+  // SedaFast relays prices from the SEDA Fast WebSocket stream, verified
+  // on-chain via secp256k1 ECDSA over keccak256(dataResultId).
+  // See
+  // https://docs.seda.xyz/home/for-developers/define-your-delivery-method/seda-fast
+  SedaFast = 15;
 }
 
 message OracleInfo {
@@ -332,4 +372,31 @@ message ChainlinkReport {
   bytes full_report = 2;
   uint64 valid_from_timestamp = 3;
   uint64 observations_timestamp = 4;
+}
+
+// PythProPriceState holds the verified price state for a single PythPro feed.
+message PythProPriceState {
+  // feed_id is the uint32 Pyth Lazer feed identifier.
+  uint32 feed_id = 1;
+  // timestamp is the price timestamp extracted from the verified payload
+  // (microseconds from epoch).
+  uint64 timestamp = 2;
+  // price_state holds the verified price, cumulative price, and block
+  // timestamp.
+  PriceState price_state = 3 [ (gogoproto.nullable) = false ];
+}
+
+// SedaFastPriceState holds the verified price state for a single SEDA Fast
+// feed.
+message SedaFastPriceState {
+  // feed_id is the hex-encoded execInputs string from the SEDA Fast
+  // dataRequest. It is the stable on-chain identity of the feed, invariant
+  // across relayer restarts and per-execution result IDs.
+  string feed_id = 1;
+  // timestamp is the dataResult.blockTimestamp value (milliseconds from
+  // epoch) extracted from the verified SEDA Fast response.
+  uint64 timestamp = 2;
+  // price_state holds the verified price, cumulative price, and block
+  // timestamp.
+  PriceState price_state = 3 [ (gogoproto.nullable) = false ];
 }

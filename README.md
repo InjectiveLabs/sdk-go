@@ -82,13 +82,9 @@ There are important format differences between V1 and V2 endpoints:
 
 This format difference is one of the key improvements in V2, making it easier to work with market data without manual conversion.
 
-## Updating Exchange API proto and client
+## Maintainers
 
-```bash
-$ make copy-exchange-client
-```
-
-(you have to clone [this repo](https://github.com/InjectiveLabs/injective-indexer) into `../injective-indexer`)
+The process for updating proto definitions, chain types, and generated data files (`injective_data/chain_messages_list.json`, `injective_data/ofac.json`) is documented in [MAINTAINERS.md](MAINTAINERS.md).
 
 ---
 

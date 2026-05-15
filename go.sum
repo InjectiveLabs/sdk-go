@@ -1276,8 +1276,8 @@ github.com/InjectiveLabs/ibc-go/modules/capability v1.0.0-inj.4 h1:icQacndGsF7sp
 github.com/InjectiveLabs/ibc-go/modules/capability v1.0.0-inj.4/go.mod h1:9yJ97Kw1qVOlg/pL21erfBlz6AxXmaXKP2d89mL9mpg=
 github.com/InjectiveLabs/ibc-go/v8 v8.7.0-inj.4 h1:dD8rgHheFaJ6UhycH0ow14X5A5hJ046IcfuNSnxNQ1Y=
 github.com/InjectiveLabs/ibc-go/v8 v8.7.0-inj.4/go.mod h1:mJcKKRy2/b8n6bikQDeaqrx1A6Wmm3GzpbrcUEUPcqU=
-github.com/InjectiveLabs/metrics/v2 v2.0.0-beta.8 h1:zvIV7ifNcH2Dvl0RrXd2qYRkaDSc+iP0hqaAhfS85MY=
-github.com/InjectiveLabs/metrics/v2 v2.0.0-beta.8/go.mod h1:fdW28eWh1Ace92UW2TzINdJVaVP7whCmHKkGQZHsxGI=
+github.com/InjectiveLabs/metrics/v2 v2.0.0-beta.9 h1:Cp3yVXdyDo4xW9vLZi/Rt2PGgZrONAnPyoUxmEvw/Pc=
+github.com/InjectiveLabs/metrics/v2 v2.0.0-beta.9/go.mod h1:fdW28eWh1Ace92UW2TzINdJVaVP7whCmHKkGQZHsxGI=
 github.com/InjectiveLabs/suplog v1.3.3 h1:ARIR3lWD9BxcrmqTwgcGBt8t7e10gwOqllUAXa/MfxI=
 github.com/InjectiveLabs/suplog v1.3.3/go.mod h1:+I9WRgUhzmo1V/n7IkW24kFBFB9ZTPAiXXXCogWxmTM=
 github.com/InjectiveLabs/wasmd v0.53.3-inj.3 h1:lMhBgZdPoR86wTF/uiIs6M6xGzRZ2J3MN1ZGrqojmfg=

@@ -47,6 +47,14 @@ message GenesisState {
 
   repeated ChainlinkDataStreamsPriceState chainlink_data_streams_price_states =
       18;
+
+  // pyth_pro_price_states defines the persisted PythPro feed price states at
+  // genesis.
+  repeated PythProPriceState pyth_pro_price_states = 19;
+
+  // seda_fast_price_states defines the persisted SEDA Fast feed price states
+  // at genesis, keyed by feed_id (hex-encoded execInputs).
+  repeated SedaFastPriceState seda_fast_price_states = 20;
 }
 
 message CalldataRecord {

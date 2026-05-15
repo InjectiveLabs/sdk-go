@@ -25,6 +25,8 @@ const (
 	TypeMsgRelayPythPrices       = "relayPythPrices"
 	TypeMsgRelayStorkPrices      = "relayStorkPrices"
 	TypeMsgRelayChainlinkPrices  = "relayChainlinkPrices"
+	TypeMsgRelayPythProPrices    = "relayPythProPrices"
+	TypeMsgRelaySedaFastPrices   = "relaySedaFastPrices"
 	TypeMsgUpdateParams          = "updateParams"
 )
 
@@ -35,7 +37,14 @@ var (
 	_ sdk.Msg = &MsgRelayPythPrices{}
 	_ sdk.Msg = &MsgRelayStorkPrices{}
 	_ sdk.Msg = &MsgRelayChainlinkPrices{}
+	_ sdk.Msg = &MsgRelayPythProPrices{}
+	_ sdk.Msg = &MsgRelaySedaFastPrices{}
 	_ sdk.Msg = &MsgUpdateParams{}
+
+	// Deprecated: Band oracle support was removed. Kept so Any-wrapped
+	// historical txs can still be decoded.
+	_ sdk.Msg = &MsgRelayBandRates{}      //nolint:staticcheck // deprecated
+	_ sdk.Msg = &MsgRequestBandIBCRates{} //nolint:staticcheck // deprecated
 )
 
 func (msg MsgUpdateParams) Route() string { return RouterKey }
@@ -161,19 +170,22 @@ func (msg MsgRelayProviderPrices) ValidateBasic() error {
 	if msg.Provider == "" {
 		return ErrEmptyProvider
 	}
+	if strings.Contains(msg.Provider, ProviderDelimiter) {
+		return ErrInvalidProvider
+	}
 
 	if len(msg.Symbols) != len(msg.Prices) || len(msg.Prices) == 0 {
 		return ErrBadRatesCount
 	}
 
 	for _, symbol := range msg.Symbols {
-		if strings.Contains(symbol, providerDelimiter) {
+		if strings.Contains(symbol, ProviderDelimiter) {
 			return ErrInvalidSymbol
 		}
 	}
 
 	for _, price := range msg.Prices {
-		// zero prices are allowed for provider oracles
+		// zero prices are allowed for provider oracles (e.g. binary options natural settlement)
 		if price.IsNegative() {
 			return ErrBadPrice
 		}
@@ -244,6 +256,9 @@ func (msg MsgRelayStorkPrices) ValidateBasic() error {
 	assetIDs := make(map[string]struct{})
 	for idx := range msg.AssetPairs {
 		assetPair := msg.AssetPairs[idx]
+		if assetPair.AssetId == "" {
+			return errors.Wrap(ErrEmptyStorkAssetId, "asset id cannot be empty")
+		}
 		if _, found := assetIDs[assetPair.AssetId]; found {
 			return errors.Wrapf(ErrStorkAssetIdNotUnique, "Asset id %s is not unique", assetPair.AssetId)
 		}
@@ -340,4 +355,131 @@ func (msg MsgRelayChainlinkPrices) GetSigners() []sdk.AccAddress {
 		panic(err)
 	}
 	return []sdk.AccAddress{sender}
+}
+
+// Route implements the sdk.Msg interface.
+func (MsgRelayPythProPrices) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface.
+func (MsgRelayPythProPrices) Type() string { return TypeMsgRelayPythProPrices }
+
+// ValidateBasic implements the sdk.Msg interface for MsgRelayPythProPrices.
+func (msg MsgRelayPythProPrices) ValidateBasic() error {
+	if msg.Sender == "" {
+		return ErrEmptyRelayerAddr
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return err
+	}
+
+	if len(msg.Updates) == 0 {
+		return ErrBadMessagesCount
+	}
+
+	for _, update := range msg.Updates {
+		if len(update) == 0 {
+			return ErrBadMessagesCount
+		}
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface.
+func (msg *MsgRelayPythProPrices) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface.
+func (msg MsgRelayPythProPrices) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (MsgRelaySedaFastPrices) Route() string { return RouterKey }
+
+func (MsgRelaySedaFastPrices) Type() string { return TypeMsgRelaySedaFastPrices }
+
+// ValidateBasic implements the sdk.Msg interface for MsgRelaySedaFastPrices.
+// It enforces the size and count caps defined in MaxSedaFastUpdateSize and
+// MaxSedaFastUpdatesPerMsg.
+func (msg MsgRelaySedaFastPrices) ValidateBasic() error {
+	if msg.Sender == "" {
+		return ErrEmptyRelayerAddr
+	}
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return err
+	}
+
+	if len(msg.Updates) == 0 {
+		return ErrBadMessagesCount
+	}
+	if len(msg.Updates) > MaxSedaFastUpdatesPerMsg {
+		return fmt.Errorf("too many seda fast updates: %d > %d", len(msg.Updates), MaxSedaFastUpdatesPerMsg)
+	}
+
+	for i, update := range msg.Updates {
+		if len(update) == 0 {
+			return fmt.Errorf("seda fast update[%d] is empty", i)
+		}
+		if len(update) > MaxSedaFastUpdateSize {
+			return fmt.Errorf("seda fast update[%d] too large: %d > %d bytes", i, len(update), MaxSedaFastUpdateSize)
+		}
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface.
+func (msg *MsgRelaySedaFastPrices) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface.
+func (msg MsgRelaySedaFastPrices) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+// Deprecated: Band oracle support was removed. The methods below exist only
+// so that Any-wrapped historical txs containing these message types can still
+// be unpacked during tx queries and replay. ValidateBasic always rejects, so
+// no new tx of these types can be accepted by the chain.
+
+func (MsgRelayBandRates) Route() string        { return RouterKey }               //nolint:staticcheck // deprecated
+func (MsgRelayBandRates) Type() string         { return TypeMsgRelayBandRates }   //nolint:staticcheck // deprecated
+func (MsgRelayBandRates) ValidateBasic() error { return ErrBandOracleDeprecated } //nolint:staticcheck // deprecated
+
+func (msg *MsgRelayBandRates) GetSignBytes() []byte { //nolint:staticcheck // deprecated
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg MsgRelayBandRates) GetSigners() []sdk.AccAddress { //nolint:staticcheck // deprecated
+	addr, err := sdk.AccAddressFromBech32(msg.Relayer)
+	if err != nil {
+		return nil
+	}
+	return []sdk.AccAddress{addr}
+}
+
+func (MsgRequestBandIBCRates) Route() string        { return RouterKey }                  //nolint:staticcheck // deprecated
+func (MsgRequestBandIBCRates) Type() string         { return TypeMsgRequestBandIBCRates } //nolint:staticcheck // deprecated
+func (MsgRequestBandIBCRates) ValidateBasic() error { return ErrBandOracleDeprecated }    //nolint:staticcheck // deprecated
+
+func (msg *MsgRequestBandIBCRates) GetSignBytes() []byte { //nolint:staticcheck // deprecated
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg MsgRequestBandIBCRates) GetSigners() []sdk.AccAddress { //nolint:staticcheck // deprecated
+	addr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil
+	}
+	return []sdk.AccAddress{addr}
 }
