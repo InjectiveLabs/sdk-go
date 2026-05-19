@@ -100,6 +100,22 @@ func LoadNetwork(name, node string) Network {
 			ExplorerCookieAssistant: &DisabledCookieAssistant{},
 			OfficialTokensListURL:   DevnetTokensListURL,
 		}
+	case "devnet-3":
+		return Network{
+			LcdEndpoint:             "https://devnet-3.lcd.injective.dev",
+			TmEndpoint:              "https://devnet-3.tm.injective.dev:443",
+			ChainGrpcEndpoint:       "devnet-3.grpc.injective.dev:9900",
+			ChainStreamGrpcEndpoint: "devnet-3.grpc.injective.dev:9999",
+			ExchangeGrpcEndpoint:    "devnet-3.api.injective.dev:9910",
+			ExplorerGrpcEndpoint:    "devnet-3.api.injective.dev:9911",
+			ChainId:                 "injective-777",
+			FeeDenom:                "inj",
+			Name:                    "devnet-3",
+			ChainCookieAssistant:    &DisabledCookieAssistant{},
+			ExchangeCookieAssistant: &DisabledCookieAssistant{},
+			ExplorerCookieAssistant: &DisabledCookieAssistant{},
+			OfficialTokensListURL:   DevnetTokensListURL,
+		}
 	case "testnet":
 		validNodes := []string{"lb", "sentry"}
 		if !contains(validNodes, node) {
