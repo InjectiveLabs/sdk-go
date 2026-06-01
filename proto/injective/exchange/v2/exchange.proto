@@ -342,6 +342,15 @@ message CrossMarginParams {
   // applies only when the effective subaccount risk profile is RISK_MODE_CROSS;
   // isolated-mode subaccounts are unaffected.
   uint32 max_cross_margin_spot_orders_per_subaccount_per_denom = 13;
+
+  // util_ratio defines the multiplier applied to the cash-floor admission
+  // check: util_ratio * (QuoteBalance + PositionMarginTotal - ratcheted MM).
+  // It must be in [0, 1]. 1.0 applies no extra utilization haircut; 0 disables
+  // new risk-increasing cross-margin orders.
+  string util_ratio = 14 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }

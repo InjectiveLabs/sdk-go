@@ -538,6 +538,11 @@ type CrossMarginParams struct {
 	// applies only when the effective subaccount risk profile is RISK_MODE_CROSS;
 	// isolated-mode subaccounts are unaffected.
 	MaxCrossMarginSpotOrdersPerSubaccountPerDenom uint32 `protobuf:"varint,13,opt,name=max_cross_margin_spot_orders_per_subaccount_per_denom,json=maxCrossMarginSpotOrdersPerSubaccountPerDenom,proto3" json:"max_cross_margin_spot_orders_per_subaccount_per_denom,omitempty"`
+	// util_ratio defines the multiplier applied to the cash-floor admission
+	// check: util_ratio * (QuoteBalance + PositionMarginTotal - ratcheted MM).
+	// It must be in [0, 1]. 1.0 applies no extra utilization haircut; 0 disables
+	// new risk-increasing cross-margin orders.
+	UtilRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,14,opt,name=util_ratio,json=utilRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"util_ratio"`
 }
 
 func (m *CrossMarginParams) Reset()         { *m = CrossMarginParams{} }
@@ -3038,6 +3043,9 @@ func (this *CrossMarginParams) Equal(that interface{}) bool {
 	if this.MaxCrossMarginSpotOrdersPerSubaccountPerDenom != that1.MaxCrossMarginSpotOrdersPerSubaccountPerDenom {
 		return false
 	}
+	if !this.UtilRatio.Equal(that1.UtilRatio) {
+		return false
+	}
 	return true
 }
 func (m *EnforcedRestrictionsContract) Marshal() (dAtA []byte, err error) {
@@ -3500,6 +3508,16 @@ func (m *CrossMarginParams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	{
+		size := m.UtilRatio.Size()
+		i -= size
+		if _, err := m.UtilRatio.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintExchange(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x72
 	if m.MaxCrossMarginSpotOrdersPerSubaccountPerDenom != 0 {
 		i = encodeVarintExchange(dAtA, i, uint64(m.MaxCrossMarginSpotOrdersPerSubaccountPerDenom))
 		i--
@@ -5527,6 +5545,8 @@ func (m *CrossMarginParams) Size() (n int) {
 	if m.MaxCrossMarginSpotOrdersPerSubaccountPerDenom != 0 {
 		n += 1 + sovExchange(uint64(m.MaxCrossMarginSpotOrdersPerSubaccountPerDenom))
 	}
+	l = m.UtilRatio.Size()
+	n += 1 + l + sovExchange(uint64(l))
 	return n
 }
 
@@ -7804,6 +7824,40 @@ func (m *CrossMarginParams) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 14:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UtilRatio", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowExchange
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthExchange
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthExchange
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.UtilRatio.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipExchange(dAtA[iNdEx:])
