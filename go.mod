@@ -226,25 +226,25 @@ require (
 )
 
 replace (
-	cosmossdk.io/api => github.com/InjectiveLabs/cosmos-sdk/api v0.50.14-inj.9
-	cosmossdk.io/client/v2 => github.com/InjectiveLabs/cosmos-sdk/client/v2 v2.0.0-v0.50.14-inj.9
-	cosmossdk.io/core => github.com/InjectiveLabs/cosmos-sdk/core v0.50.14-inj.9
-	cosmossdk.io/errors => github.com/InjectiveLabs/cosmos-sdk/errors v0.50.14-inj.9
-	cosmossdk.io/store => github.com/InjectiveLabs/cosmos-sdk/store v0.50.14-inj.9
-	cosmossdk.io/x/circuit => github.com/InjectiveLabs/cosmos-sdk/x/circuit v0.50.14-inj.9
-	cosmossdk.io/x/evidence => github.com/InjectiveLabs/cosmos-sdk/x/evidence v0.50.14-inj.9
-	cosmossdk.io/x/feegrant => github.com/InjectiveLabs/cosmos-sdk/x/feegrant v0.50.14-inj.9
-	cosmossdk.io/x/nft => github.com/InjectiveLabs/cosmos-sdk/x/nft v0.50.14-inj.9
-	cosmossdk.io/x/tx => github.com/InjectiveLabs/cosmos-sdk/x/tx v0.50.14-inj.9
-	cosmossdk.io/x/upgrade => github.com/InjectiveLabs/cosmos-sdk/x/upgrade v0.50.14-inj.9
-
+	cosmossdk.io/api => github.com/InjectiveLabs/cosmos-sdk/api v0.50.14-inj.10
+	cosmossdk.io/client/v2 => github.com/InjectiveLabs/cosmos-sdk/client/v2 v2.0.0-v0.50.14-inj.10
+	cosmossdk.io/core => github.com/InjectiveLabs/cosmos-sdk/core v0.50.14-inj.10
+	cosmossdk.io/errors => github.com/InjectiveLabs/cosmos-sdk/errors v0.50.14-inj.10
+	cosmossdk.io/store => github.com/InjectiveLabs/cosmos-sdk/store v0.50.14-inj.10
+	cosmossdk.io/x/circuit => github.com/InjectiveLabs/cosmos-sdk/x/circuit v0.50.14-inj.10
+	cosmossdk.io/x/evidence => github.com/InjectiveLabs/cosmos-sdk/x/evidence v0.50.14-inj.10
+	cosmossdk.io/x/feegrant => github.com/InjectiveLabs/cosmos-sdk/x/feegrant v0.50.14-inj.10
+	cosmossdk.io/x/nft => github.com/InjectiveLabs/cosmos-sdk/x/nft v0.50.14-inj.10
+	cosmossdk.io/x/tx => github.com/InjectiveLabs/cosmos-sdk/x/tx v0.50.14-inj.10
+	cosmossdk.io/x/upgrade => github.com/InjectiveLabs/cosmos-sdk/x/upgrade v0.50.14-inj.10
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.53.3-inj.3
+
 	github.com/bcp-innovations/hyperlane-cosmos => github.com/InjectiveLabs/hyperlane-cosmos v1.0.1-inj
 	github.com/coder/websocket => github.com/InjectiveLabs/websocket v1.8.13
 
-	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v1.0.1-inj.7
-	github.com/cometbft/cometbft/api => github.com/InjectiveLabs/cometbft/api v1.0.0-inj.3
-	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.50.14-inj.9
+	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v1.0.1-inj.v1.19.0-rollback
+	github.com/cometbft/cometbft/api => github.com/InjectiveLabs/cometbft/api v1.0.1-inj.v1.19.0-rollback
+	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.50.14-inj.10
 	github.com/cosmos/gogoproto => github.com/InjectiveLabs/gogoproto v1.7.2-inj.2
 
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/InjectiveLabs/ibc-apps/middleware/packet-forward-middleware/v8 v8.2.0-inj.4
@@ -253,6 +253,7 @@ replace (
 	github.com/cosmos/ibc-go/modules/capability => github.com/InjectiveLabs/ibc-go/modules/capability v1.0.0-inj.4
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/InjectiveLabs/ibc-go/modules/light-clients/08-wasm v0.5.0-inj.4
 	github.com/cosmos/ibc-go/v8 => github.com/InjectiveLabs/ibc-go/v8 v8.7.0-inj.4
+
 	github.com/ethereum/go-ethereum => github.com/InjectiveLabs/go-ethereum v1.16.3-inj.2
 
 	github.com/improbable-eng/grpc-web => github.com/maxim-inj/grpc-web v0.15.0-inj
