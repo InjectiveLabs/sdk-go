@@ -2,11 +2,11 @@ package types
 
 import (
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"strings"
 
 	"cosmossdk.io/math"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // MaxSedaFastUpdateSize is the maximum allowed size in bytes for a single
@@ -31,24 +31,85 @@ const MaxSedaFastExponent = 18
 // headroom for the ~60-bit multiplier while keeping prices in a sane range.
 const MaxSedaFastMantissaBits = 192
 
-// ValidateCanonicalSedaFastFeedID ensures s is the canonical hex form used as
-// the on-chain store key for SEDA Fast feeds: lowercase hex, no 0x prefix,
-// non-empty, even length. This keeps exchange market IDs (which the exchange
-// hashes to look up prices) aligned with the keys the relay path writes.
+// DecodeSedaFastExecInputs maps the SEDA Fast wire representation into the
+// bytes used by SEDA's own drId preimage and Injective's composite feed ID.
+func DecodeSedaFastExecInputs(raw string) ([]byte, error) {
+	stripped := strings.TrimPrefix(strings.TrimPrefix(raw, "0x"), "0X")
+	if raw != stripped {
+		if stripped == "" {
+			return []byte{}, nil
+		}
+		b, err := hex.DecodeString(stripped)
+		if err != nil {
+			return nil, fmt.Errorf("seda fast execInputs: invalid hex %q: %w", stripped, err)
+		}
+		return b, nil
+	}
+	if stripped == "" {
+		return []byte{}, nil
+	}
+	if isLowercaseHex(stripped) && len(stripped)%2 == 0 {
+		b, err := hex.DecodeString(stripped)
+		if err != nil {
+			return nil, fmt.Errorf("seda fast execInputs: invalid hex %q: %w", stripped, err)
+		}
+		return b, nil
+	}
+	return []byte(raw), nil
+}
+
+// ComputeSedaFastFeedID derives the stable on-chain feed identifier for a SEDA
+// Fast result from the Oracle Program ID and the raw execution input bytes.
+func ComputeSedaFastFeedID(execProgramIDHex string, execInputs []byte) (string, error) {
+	if err := validateLowercaseHex32("seda fast execProgramId", execProgramIDHex); err != nil {
+		return "", err
+	}
+
+	programIDBytes, err := hex.DecodeString(execProgramIDHex)
+	if err != nil {
+		return "", fmt.Errorf("seda fast execProgramId %q: %w", execProgramIDHex, err)
+	}
+
+	inputHash := crypto.Keccak256(execInputs)
+	preimage := make([]byte, 0, len(programIDBytes)+len(inputHash))
+	preimage = append(preimage, programIDBytes...)
+	preimage = append(preimage, inputHash...)
+
+	return hex.EncodeToString(crypto.Keccak256(preimage)), nil
+}
+
+// ValidateCanonicalSedaFastFeedID ensures s is the canonical composite feed ID
+// written by the SEDA Fast relay path: exactly 32 bytes encoded as lowercase hex.
 func ValidateCanonicalSedaFastFeedID(s string) error {
+	return validateLowercaseHex32("seda fast feed id", s)
+}
+
+func validateLowercaseHex32(name, s string) error {
 	if s == "" {
-		return errors.New("seda fast feed id must not be empty")
+		return fmt.Errorf("%s must not be empty", name)
+	}
+	if len(s) != 64 {
+		return fmt.Errorf("%s %q must be exactly 64 characters", name, s)
 	}
 	if strings.HasPrefix(s, "0x") || strings.HasPrefix(s, "0X") {
-		return fmt.Errorf("seda fast feed id %q must not have a 0x prefix", s)
+		return fmt.Errorf("%s %q must not have a 0x prefix", name, s)
 	}
 	if strings.ToLower(s) != s {
-		return fmt.Errorf("seda fast feed id %q must be lowercase hex", s)
+		return fmt.Errorf("%s %q must be lowercase hex", name, s)
 	}
 	if _, err := hex.DecodeString(s); err != nil {
-		return fmt.Errorf("seda fast feed id %q: %w", s, err)
+		return fmt.Errorf("%s %q: %w", name, s, err)
 	}
 	return nil
+}
+
+func isLowercaseHex(s string) bool {
+	for _, r := range s {
+		if (r < '0' || r > '9') && (r < 'a' || r > 'f') {
+			return false
+		}
+	}
+	return true
 }
 
 // NewSedaFastPriceState creates a SedaFastPriceState for a feed seen for the

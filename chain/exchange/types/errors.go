@@ -71,7 +71,7 @@ var (
 	ErrAlreadyOptedOutOfRewards                 = errors.Register(ModuleName, 62, "already opted out of rewards")
 	ErrInvalidMarginRatio                       = errors.Register(ModuleName, 63, "invalid margin ratio")
 	ErrBelowMinimalContribution                 = errors.Register(ModuleName, 64, "provided funds are below minimum")
-	ErrLowPositionMargin                        = errors.Register(ModuleName, 65, "position is below initial margin requirement")
+	ErrLowPositionMargin                        = errors.Register(ModuleName, 65, "position margin is below the required threshold")
 	ErrInvalidTotalSupply                       = errors.Register(ModuleName, 66, "pool has non-positive total lp token supply")
 	ErrInvalidLpTokenBurnAmount                 = errors.Register(ModuleName, 67, "passed lp token burn amount is greater than total lp token supply")
 	ErrUnsupportedAction                        = errors.Register(ModuleName, 68, "unsupported action")

@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
@@ -72,8 +73,8 @@ var (
 	// PythProPriceKey is the prefix for the feedID (uint32) => PythProPriceState store.
 	PythProPriceKey = []byte{0xA1}
 
-	// SedaFastPriceKey is the prefix for the feedID (keccak256 hash) =>
-	// SedaFastPriceState store. feedID is the hex-encoded execInputs string.
+	// SedaFastPriceKey is the prefix for the 32-byte composite feedID =>
+	// SedaFastPriceState store.
 	SedaFastPriceKey = []byte{0xB1}
 )
 
@@ -304,24 +305,24 @@ func GetPythProFeedIDFromIterKey(iterKey []byte) uint32 {
 }
 
 // GetSedaFastPriceStoreKey returns the full store key for a SEDA Fast price
-// state. feedID is the hex-encoded execInputs string; the key is
-// SedaFastPriceKey || keccak256(feedID) for fixed-length keys that allow safe
-// prefix-store iteration.
-func GetSedaFastPriceStoreKey(feedID string) []byte {
-	hash := crypto.Keccak256([]byte(feedID))
-	key := make([]byte, len(SedaFastPriceKey)+len(hash))
+// state. feedID must be the 64-char composite SedaFast feed ID, encoded as raw
+// bytes under the SedaFastPriceKey prefix.
+func GetSedaFastPriceStoreKey(feedID string) ([]byte, error) {
+	if err := validateLowercaseHex32("seda fast feed id", feedID); err != nil {
+		return nil, err
+	}
+	feedIDBytes, _ := hex.DecodeString(feedID)
+	key := make([]byte, len(SedaFastPriceKey)+len(feedIDBytes))
 	copy(key, SedaFastPriceKey)
-	copy(key[len(SedaFastPriceKey):], hash)
-	return key
+	copy(key[len(SedaFastPriceKey):], feedIDBytes)
+	return key, nil
 }
 
-// GetSedaFastFeedIDFromIterKey returns the feedID stored in the SedaFastPriceState
-// value. Because the store key encodes a keccak256 hash of the feedID (not the
-// feedID itself), callers must read the feedID from the persisted value, not
-// from the iterator key. This function exists only to make the intent explicit.
-// See SetSedaFastPriceState for how feedID is preserved in the stored value.
-func GetSedaFastFeedIDFromIterKey(_ []byte) string {
-	// feedID is restored from the stored proto value, not from the key bytes.
-	// This function is a no-op placeholder for documentation purposes.
+// GetSedaFastFeedIDFromIterKey returns the canonical 64-char feed ID from a
+// prefix-store iterator key suffix.
+func GetSedaFastFeedIDFromIterKey(iterKey []byte) string {
+	if len(iterKey) == common.HashLength {
+		return hex.EncodeToString(iterKey)
+	}
 	return ""
 }
