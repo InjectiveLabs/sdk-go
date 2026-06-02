@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.19.41 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.2 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.20.0 --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
