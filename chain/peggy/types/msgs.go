@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"cosmossdk.io/errors"
+	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -76,10 +77,8 @@ func (msg *MsgSetOrchestratorAddresses) ValidateBasic() (err error) {
 	if _, err = sdk.AccAddressFromBech32(msg.Orchestrator); err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Orchestrator)
 	}
-	if err := ValidateEthAddress(msg.EthAddress); err != nil {
-		return errors.Wrap(err, "ethereum address")
-	}
-	return nil
+
+	return chaintypes.ValidateNonZeroAddress(msg.EthAddress)
 }
 
 // GetSignBytes encodes the message for signing
@@ -120,6 +119,13 @@ func (msg *MsgValsetConfirm) ValidateBasic() (err error) {
 	}
 	if err := ValidateEthAddress(msg.EthAddress); err != nil {
 		return errors.Wrap(err, "ethereum address")
+	}
+	sigBytes, err := hex.DecodeString(msg.Signature)
+	if err != nil {
+		return errors.Wrapf(sdkerrors.ErrUnknownRequest, "Could not decode hex string %s", msg.Signature)
+	}
+	if len(sigBytes) != 65 {
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "ethereum signature must be 65 bytes, got %d", len(sigBytes))
 	}
 	return nil
 }
@@ -246,9 +252,12 @@ func (msg MsgConfirmBatch) ValidateBasic() error {
 	if err := ValidateEthAddress(msg.TokenContract); err != nil {
 		return errors.Wrap(err, "token contract")
 	}
-	_, err := hex.DecodeString(msg.Signature)
+	sigBytes, err := hex.DecodeString(msg.Signature)
 	if err != nil {
 		return errors.Wrapf(sdkerrors.ErrUnknownRequest, "Could not decode hex string %s", msg.Signature)
+	}
+	if len(sigBytes) != 65 {
+		return errors.Wrapf(sdkerrors.ErrInvalidRequest, "ethereum signature must be 65 bytes, got %d", len(sigBytes))
 	}
 	return nil
 }

@@ -106,28 +106,33 @@ message Params {
   uint64 average_ethereum_block_time = 10;
   bytes slash_fraction_valset = 11 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
   bytes slash_fraction_batch = 12 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
   bytes slash_fraction_claim = 13 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
   bytes slash_fraction_conflicting_claim = 14 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
   uint64 unbond_slashing_valsets_window = 15;
   bytes slash_fraction_bad_eth_signature = 16 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
   string cosmos_coin_denom = 17;
   string cosmos_coin_erc20_contract = 18;
-  bool claim_slashing_enabled = 19;
+  bool claim_slashing_enabled = 19 [ deprecated = true ];
   uint64 bridge_contract_start_height = 20;
 
   cosmos.base.v1beta1.Coin valset_reward = 21 [ (gogoproto.nullable) = false ];

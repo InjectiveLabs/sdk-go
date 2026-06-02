@@ -140,6 +140,8 @@ message GenesisState {
   repeated FullActiveGrant active_grants = 36;
 
   repeated DenomMinNotional denom_min_notionals = 37;
+
+  repeated SubaccountRiskProfileRecord subaccount_risk_profiles = 38;
 }
 
 message OrderbookSequence {
@@ -202,4 +204,9 @@ message FullGrantAuthorizations {
 message FullActiveGrant {
   string grantee = 1;
   ActiveGrant active_grant = 2;
+}
+
+message SubaccountRiskProfileRecord {
+  string subaccount_id = 1;
+  SubaccountRiskProfile risk_profile = 2 [ (gogoproto.nullable) = false ];
 }

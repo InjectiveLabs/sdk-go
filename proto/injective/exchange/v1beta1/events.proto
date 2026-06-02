@@ -41,6 +41,15 @@ message EventLostFundsFromLiquidation {
   ];
 }
 
+message EventLostFundsFromCrossPoolLiquidation {
+  bytes subaccount_id = 1;
+  string quote_denom = 2;
+  string lost_funds_from_available_during_payout = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
 message EventBatchDerivativePosition {
   string market_id = 1;
   repeated SubaccountPosition positions = 2;

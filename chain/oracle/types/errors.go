@@ -50,4 +50,14 @@ var (
 	ErrStorkAssetIdNotUnique       = errors.Register(ModuleName, 43, "stork asset id not unique")
 	ErrChainlinkVerificationFailed = errors.Register(ModuleName, 44, "chainlink report verification failed")
 	ErrBandOracleDeprecated        = errors.Register(ModuleName, 45, "Band oracle is deprecated and no longer supported")
+	ErrEmptyStorkAssetId           = errors.Register(ModuleName, 46, "stork asset id is empty")
+	ErrPythProVerificationFailed   = errors.Register(ModuleName, 47, "pyth pro update verification failed")
+
+	// SedaFast errors
+	ErrSedaFastDisabled           = errors.Register(ModuleName, 48, "seda fast oracle disabled: public key not configured")
+	ErrSedaFastPayloadMalformed   = errors.Register(ModuleName, 49, "seda fast payload malformed")
+	ErrSedaFastVerificationFailed = errors.Register(ModuleName, 50, "seda fast signature verification failed")
+	ErrSedaFastProgramNotAllowed  = errors.Register(ModuleName, 51, "seda fast exec program id not in allowlist")
+	ErrSedaFastExecutionFailed    = errors.Register(ModuleName, 52, "seda fast execution failed (non-zero exit code or no consensus)")
+	ErrSedaFastParserFailed       = errors.Register(ModuleName, 53, "seda fast result parser failed")
 )

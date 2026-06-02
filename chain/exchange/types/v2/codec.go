@@ -41,6 +41,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 	cdc.RegisterConcrete(&MsgDeposit{}, "exchange/v2/MsgDeposit", nil)
 	cdc.RegisterConcrete(&MsgWithdraw{}, "exchange/v2/MsgWithdraw", nil)
+	cdc.RegisterConcrete(&MsgUpdateSubaccountRiskProfile{}, "exchange/v2/MsgUpdateSubaccountRiskProfile", nil)
 	cdc.RegisterConcrete(&MsgInstantSpotMarketLaunch{}, "exchange/v2/MsgInstantSpotMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantPerpetualMarketLaunch{}, "exchange/v2/MsgInstantPerpetualMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantExpiryFuturesMarketLaunch{}, "exchange/v2/MsgInstantExpiryFuturesMarketLaunch", nil)
@@ -60,6 +61,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgIncreasePositionMargin{}, "exchange/v2/MsgIncreasePositionMargin", nil)
 	cdc.RegisterConcrete(&MsgDecreasePositionMargin{}, "exchange/v2/MsgDecreasePositionMargin", nil)
 	cdc.RegisterConcrete(&MsgLiquidatePosition{}, "exchange/v2/MsgLiquidatePosition", nil)
+	cdc.RegisterConcrete(&MsgBatchLiquidatePositions{}, "exchange/v2/MsgBatchLiquidatePositions", nil)
+	cdc.RegisterConcrete(&MsgLiquidateCrossMarginPool{}, "exchange/v2/MsgLiquidateCrossMarginPool", nil)
 	cdc.RegisterConcrete(&MsgEmergencySettleMarket{}, "exchange/v2/MsgEmergencySettleMarket", nil)
 	cdc.RegisterConcrete(&MsgOffsetPosition{}, "exchange/v2/MsgOffsetPosition", nil)
 	cdc.RegisterConcrete(&MsgBatchUpdateOrders{}, "exchange/v2/MsgBatchUpdateOrders", nil)
@@ -93,6 +96,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgTradingRewardPendingPointsUpdate{}, "exchange/v2/MsgTradingRewardPendingPointsUpdate", nil)
 	cdc.RegisterConcrete(&MsgFeeDiscount{}, "exchange/v2/MsgFeeDiscount", nil)
 	cdc.RegisterConcrete(&MsgAtomicMarketOrderFeeMultiplierSchedule{}, "exchange/v2/MsgAtomicMarketOrderFeeMultiplierSchedule", nil)
+
+	// Deprecated: kept for backward-compatible Amino decoding of historical txs
+	cdc.RegisterConcrete(&MsgSetDelegationTransferReceivers{}, "exchange/v2/MsgSetDelegationTransferReceivers", nil) //nolint:staticcheck // deprecated
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/v2/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/v2/BatchExchangeModificationProposal", nil)
@@ -150,6 +156,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgDeposit{},
 		&MsgWithdraw{},
+		&MsgUpdateSubaccountRiskProfile{},
 		&MsgInstantSpotMarketLaunch{},
 		&MsgInstantPerpetualMarketLaunch{},
 		&MsgInstantExpiryFuturesMarketLaunch{},
@@ -169,6 +176,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgIncreasePositionMargin{},
 		&MsgDecreasePositionMargin{},
 		&MsgLiquidatePosition{},
+		&MsgBatchLiquidatePositions{},
+		&MsgLiquidateCrossMarginPool{},
 		&MsgEmergencySettleMarket{},
 		&MsgOffsetPosition{},
 		&MsgBatchUpdateOrders{},
@@ -187,6 +196,8 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCancelPostOnlyMode{},
 		&MsgActivatePostOnlyMode{},
 		&MsgReclaimLockedFunds{},
+		// Deprecated: kept for backward-compatible Any decoding of historical txs
+		&MsgSetDelegationTransferReceivers{}, //nolint:staticcheck // deprecated
 	)
 
 	registry.RegisterImplementations(
@@ -200,6 +211,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCreateBinaryOptionsLimitOrderResponse{},
 		&MsgCreateBinaryOptionsMarketOrderResponse{},
 		&MsgBatchUpdateOrdersResponse{},
+		&MsgBatchLiquidatePositionsResponse{},
 	)
 
 	registry.RegisterImplementations(

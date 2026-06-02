@@ -3,6 +3,7 @@ package v2
 import (
 	"bytes"
 	"encoding/json"
+	"strings"
 
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -11,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
@@ -20,6 +20,7 @@ const RouterKey = types.ModuleName
 var (
 	_ sdk.Msg = &MsgDeposit{}
 	_ sdk.Msg = &MsgWithdraw{}
+	_ sdk.Msg = &MsgUpdateSubaccountRiskProfile{}
 	_ sdk.Msg = &MsgCreateSpotLimitOrder{}
 	_ sdk.Msg = &MsgBatchCreateSpotLimitOrders{}
 	_ sdk.Msg = &MsgCreateSpotMarketOrder{}
@@ -35,6 +36,8 @@ var (
 	_ sdk.Msg = &MsgIncreasePositionMargin{}
 	_ sdk.Msg = &MsgDecreasePositionMargin{}
 	_ sdk.Msg = &MsgLiquidatePosition{}
+	_ sdk.Msg = &MsgBatchLiquidatePositions{}
+	_ sdk.Msg = &MsgLiquidateCrossMarginPool{}
 	_ sdk.Msg = &MsgOffsetPosition{}
 	_ sdk.Msg = &MsgEmergencySettleMarket{}
 	_ sdk.Msg = &MsgInstantSpotMarketLaunch{}
@@ -69,6 +72,10 @@ var (
 	_ sdk.Msg = &MsgFeeDiscount{}
 	_ sdk.Msg = &MsgAtomicMarketOrderFeeMultiplierSchedule{}
 	_ sdk.Msg = &MsgCancelPostOnlyMode{}
+
+	// Deprecated: Delegation transfer receiver support was removed. Kept so
+	// Any-wrapped historical txs can still be decoded.
+	_ sdk.Msg = &MsgSetDelegationTransferReceivers{} //nolint:staticcheck // deprecated
 	_ sdk.Msg = &MsgActivatePostOnlyMode{}
 )
 
@@ -76,6 +83,7 @@ var (
 const (
 	TypeMsgDeposit                                = "msgDeposit"
 	TypeMsgWithdraw                               = "msgWithdraw"
+	TypeMsgUpdateSubaccountRiskProfile            = "updateSubaccountRiskProfile"
 	TypeMsgCreateSpotLimitOrder                   = "createSpotLimitOrder"
 	TypeMsgBatchCreateSpotLimitOrders             = "batchCreateSpotLimitOrders"
 	TypeMsgCreateSpotMarketOrder                  = "createSpotMarketOrder"
@@ -91,6 +99,7 @@ const (
 	TypeMsgIncreasePositionMargin                 = "increasePositionMargin"
 	TypeMsgDecreasePositionMargin                 = "decreasePositionMargin"
 	TypeMsgLiquidatePosition                      = "liquidatePosition"
+	TypeMsgBatchLiquidatePositions                = "batchLiquidatePositions"
 	TypeMsgOffsetPosition                         = "offsetPosition"
 	TypeMsgEmergencySettleMarket                  = "emergencySettleMarket"
 	TypeMsgInstantSpotMarketLaunch                = "instantSpotMarketLaunch"
@@ -126,8 +135,10 @@ const (
 	TypeMsgTradingRewardPendingPointsUpdate       = "tradingRewardPendingPointsUpdate"
 	TypeMsgFeeDiscount                            = "feeDiscount"
 	TypeMsgAtomicMarketOrderFeeMultiplierSchedule = "atomicMarketOrderFeeMultiplierSchedule"
+	TypeMsgSetDelegationTransferReceivers         = "setDelegationTransferReceivers"
 	TypeMsgCancelPostOnlyMode                     = "cancelPostOnlyMode"
 	TypeMsgActivatePostOnlyMode                   = "activatePostOnlyMode"
+	TypeMsgLiquidateCrossMarginPool               = "liquidateCrossMarginPool"
 )
 
 func (MsgUpdateParams) Route() string { return RouterKey }
@@ -223,10 +234,15 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 		!msg.HasMinQuantityTickSizeUpdate() &&
 		!msg.HasInitialMarginRatioUpdate() &&
 		!msg.HasMaintenanceMarginRatioUpdate() &&
-		!msg.HasReduceMarginRatioUpdate()
+		!msg.HasReduceMarginRatioUpdate() &&
+		!msg.HasCrossMarginEligibilityUpdate()
 
 	if hasNoUpdate {
 		return errors.Wrap(types.ErrBadField, "no update value present")
+	}
+
+	if msg.CrossMarginEligibility < 0 || msg.CrossMarginEligibility > CrossMarginEligibility_CM_ELIGIBILITY_INELIGIBLE {
+		return errors.Wrapf(types.ErrBadField, "invalid cross_margin_eligibility value %d", msg.CrossMarginEligibility)
 	}
 
 	if len(msg.NewTicker) > types.MaxTickerLength {
@@ -350,6 +366,10 @@ func (msg *MsgUpdateDerivativeMarket) HasOpenNotionalCapUpdate() bool {
 	default:
 		return false
 	}
+}
+
+func (msg *MsgUpdateDerivativeMarket) HasCrossMarginEligibilityUpdate() bool {
+	return msg.CrossMarginEligibility != CrossMarginEligibility_CM_ELIGIBILITY_UNSPECIFIED
 }
 
 func (m *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -595,6 +615,60 @@ func (msg MsgWithdraw) GetSigners() []sdk.AccAddress {
 }
 
 // Route implements the sdk.Msg interface. It should return the name of the module
+func (MsgUpdateSubaccountRiskProfile) Route() string { return RouterKey }
+
+// Type implements the sdk.Msg interface. It should return the action.
+func (MsgUpdateSubaccountRiskProfile) Type() string { return TypeMsgUpdateSubaccountRiskProfile }
+
+// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message.
+func (msg MsgUpdateSubaccountRiskProfile) ValidateBasic() error {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if err := types.CheckValidSubaccountIDOrNonce(senderAddr, msg.SubaccountId); err != nil {
+		return err
+	}
+
+	// Stateless risk profile validation (current support):
+	// - Only isolated/cross are supported (portfolio disabled).
+	// - Only FULL_HOLD reservation is supported (partial/no-hold disabled).
+	// - Credit lines are disabled.
+	if msg.RiskProfile.CreditLineId != "" {
+		return errors.Wrap(types.ErrFeatureDisabled, "credit lines are not supported")
+	}
+
+	switch msg.RiskProfile.ReservationPolicy {
+	case ReservationPolicy_RESERVATION_POLICY_UNSPECIFIED, ReservationPolicy_RESERVATION_POLICY_FULL_HOLD:
+		// supported
+	default:
+		return errors.Wrap(types.ErrFeatureDisabled, "reservation policy is not supported")
+	}
+
+	switch msg.RiskProfile.Mode {
+	case RiskMode_RISK_MODE_ISOLATED, RiskMode_RISK_MODE_CROSS:
+		// supported
+	case RiskMode_RISK_MODE_UNSPECIFIED:
+		return errors.Wrap(types.ErrBadField, "risk mode must be explicitly specified (ISOLATED or CROSS)")
+	default:
+		return errors.Wrap(types.ErrFeatureDisabled, "risk mode is not supported")
+	}
+
+	return nil
+}
+
+// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
+func (msg *MsgUpdateSubaccountRiskProfile) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+// GetSigners implements the sdk.Msg interface. It defines whose signature is required
+func (msg MsgUpdateSubaccountRiskProfile) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(msg.Sender)}
+}
+
+// Route implements the sdk.Msg interface. It should return the name of the module
 func (msg MsgInstantSpotMarketLaunch) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface. It should return the action.
@@ -755,20 +829,10 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	if msg.Ticker == "" || len(msg.Ticker) > types.MaxTickerLength {
 		return errors.Wrapf(types.ErrInvalidTicker, "ticker should not be empty or exceed %d characters", types.MaxTickerLength)
 	}
-	if msg.OracleSymbol == "" || len(msg.OracleSymbol) > types.MaxOracleSymbolLength {
-		return errors.Wrapf(types.ErrInvalidOracle, "oracle symbol should not be empty or exceed %d characters", types.MaxOracleSymbolLength)
-	}
-	if msg.OracleProvider == "" {
-		return errors.Wrap(types.ErrInvalidOracle, "oracle provider should not be empty")
-	}
-	if len(msg.OracleProvider) > types.MaxOracleProviderLength {
-		return errors.Wrapf(types.ErrInvalidOracle, "oracle provider should not exceed %d characters", types.MaxOracleProviderLength)
-	}
-	if msg.OracleType != oracletypes.OracleType_Provider {
-		return errors.Wrap(types.ErrInvalidOracleType, msg.OracleType.String())
-	}
-	if msg.OracleScaleFactor > types.MaxOracleScaleFactor {
-		return types.ErrExceedsMaxOracleScaleFactor
+
+	providerOracleParams := NewProviderOracleParams(msg.OracleSymbol, msg.OracleProvider, msg.OracleScaleFactor, msg.OracleType)
+	if err := providerOracleParams.ValidateBasic(); err != nil {
+		return err
 	}
 	if err := types.ValidateMakerFee(msg.MakerFeeRate); err != nil {
 		return err
@@ -1647,11 +1711,7 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 		return err
 	}
 
-	if err := types.CheckValidSubaccountIDOrNonce(senderAddr, msg.DestinationSubaccountId); err != nil {
-		return err
-	}
-
-	return nil
+	return types.CheckValidSubaccountIDOrNonce(senderAddr, msg.DestinationSubaccountId)
 }
 
 func (msg *MsgIncreasePositionMargin) GetSignBytes() []byte {
@@ -1810,36 +1870,11 @@ func (msg *MsgLiquidatePosition) ValidateBasic() error {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
 	}
 
-	if !types.IsHexHash(msg.MarketId) {
-		return errors.Wrap(types.ErrMarketInvalid, msg.MarketId)
-	}
-
-	_, ok := types.IsValidSubaccountID(msg.SubaccountId)
-	if !ok {
-		return errors.Wrap(types.ErrBadSubaccountID, msg.SubaccountId)
-	}
-
-	if msg.Order != nil {
-		liquidatorSubaccountID, err := types.GetSubaccountIDOrDeriveFromNonce(senderAddr, msg.Order.OrderInfo.SubaccountId)
-		if err != nil {
-			return err
-		}
-
-		// cannot liquidate own position with an order
-		if liquidatorSubaccountID == common.HexToHash(msg.SubaccountId) {
-			return types.ErrInvalidLiquidationOrder
-		}
-
-		if msg.Order.OrderType != OrderType_BUY && msg.Order.OrderType != OrderType_SELL {
-			return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "liquidation order must be a vanilla limit order")
-		}
-
-		if err := msg.Order.ValidateBasic(senderAddr, false); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return LiquidatePositionData{
+		SubaccountId: msg.SubaccountId,
+		MarketId:     msg.MarketId,
+		Order:        msg.Order,
+	}.ValidateBasic(senderAddr)
 }
 
 func (msg *MsgLiquidatePosition) GetSignBytes() []byte {
@@ -1847,6 +1882,122 @@ func (msg *MsgLiquidatePosition) GetSignBytes() []byte {
 }
 
 func (msg *MsgLiquidatePosition) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (data LiquidatePositionData) ValidateBasic(senderAddr sdk.AccAddress) error {
+	if !types.IsHexHash(data.MarketId) {
+		return errors.Wrap(types.ErrMarketInvalid, data.MarketId)
+	}
+
+	_, ok := types.IsValidSubaccountID(data.SubaccountId)
+	if !ok {
+		return errors.Wrap(types.ErrBadSubaccountID, data.SubaccountId)
+	}
+
+	if data.Order == nil {
+		return nil
+	}
+
+	liquidatorSubaccountID, err := types.GetSubaccountIDOrDeriveFromNonce(senderAddr, data.Order.OrderInfo.SubaccountId)
+	if err != nil {
+		return err
+	}
+
+	// cannot liquidate own position with an order
+	if liquidatorSubaccountID == common.HexToHash(data.SubaccountId) {
+		return types.ErrInvalidLiquidationOrder
+	}
+
+	if data.Order.OrderType != OrderType_BUY && data.Order.OrderType != OrderType_SELL {
+		return errors.Wrap(types.ErrInvalidOrderTypeForMessage, "liquidation order must be a vanilla limit order")
+	}
+
+	return data.Order.ValidateBasic(senderAddr, false)
+}
+
+func (*MsgBatchLiquidatePositions) Route() string {
+	return RouterKey
+}
+
+func (*MsgBatchLiquidatePositions) Type() string {
+	return TypeMsgBatchLiquidatePositions
+}
+
+func (msg *MsgBatchLiquidatePositions) ValidateBasic() error {
+	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if len(msg.Liquidations) == 0 {
+		return errors.Wrap(types.ErrInvalidBatchMsgUpdate, "at least one liquidation must be provided")
+	}
+
+	seen := make(map[string]struct{}, len(msg.Liquidations))
+	for idx := range msg.Liquidations {
+		item := msg.Liquidations[idx]
+		if err := item.ValidateBasic(senderAddr); err != nil {
+			return errors.Wrapf(err, "liquidations[%d]", idx)
+		}
+		key := strings.ToLower(item.SubaccountId) + "|" + strings.ToLower(item.MarketId)
+		if _, dup := seen[key]; dup {
+			return errors.Wrapf(types.ErrInvalidBatchMsgUpdate,
+				"liquidations[%d]: duplicate (subaccountId=%s, marketId=%s)", idx, item.SubaccountId, item.MarketId)
+		}
+		seen[key] = struct{}{}
+	}
+
+	return nil
+}
+
+func (msg *MsgBatchLiquidatePositions) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgBatchLiquidatePositions) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (*MsgLiquidateCrossMarginPool) Route() string {
+	return RouterKey
+}
+
+func (*MsgLiquidateCrossMarginPool) Type() string {
+	return TypeMsgLiquidateCrossMarginPool
+}
+
+func (msg *MsgLiquidateCrossMarginPool) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	_, ok := types.IsValidSubaccountID(msg.SubaccountId)
+	if !ok {
+		return errors.Wrap(types.ErrBadSubaccountID, msg.SubaccountId)
+	}
+
+	if err := sdk.ValidateDenom(msg.QuoteDenom); err != nil {
+		return errors.Wrap(types.ErrInvalidQuoteDenom, err.Error())
+	}
+
+	return nil
+}
+
+func (msg *MsgLiquidateCrossMarginPool) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgLiquidateCrossMarginPool) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)
@@ -2707,6 +2858,86 @@ func (msg *MsgAtomicMarketOrderFeeMultiplierSchedule) ValidateBasic() error {
 	return nil
 }
 
+// Deprecated: Delegation transfer receiver support was removed. The methods
+// below exist only so that Any-wrapped historical txs containing this message
+// type can still be unpacked during tx queries and replay. ValidateBasic always
+// rejects, so no new tx of this type can be accepted by the chain.
+
+func (*MsgSetDelegationTransferReceivers) Route() string { return RouterKey } //nolint:staticcheck // deprecated
+
+func (*MsgSetDelegationTransferReceivers) Type() string { //nolint:staticcheck // deprecated
+	return TypeMsgSetDelegationTransferReceivers
+}
+
+func (*MsgSetDelegationTransferReceivers) ValidateBasic() error { //nolint:staticcheck // deprecated
+	return errors.Wrap(types.ErrMsgDeprecated, "delegation transfer receivers feature was removed")
+}
+
+func (msg *MsgSetDelegationTransferReceivers) GetSignBytes() []byte { //nolint:staticcheck // deprecated
+	bz, _ := json.Marshal(msg)
+	return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgSetDelegationTransferReceivers) GetSigners() []sdk.AccAddress { //nolint:staticcheck // deprecated
+	addr, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil
+	}
+	return []sdk.AccAddress{addr}
+}
+
+func (*MsgCancelPostOnlyMode) Route() string { return RouterKey }
+
+func (*MsgCancelPostOnlyMode) Type() string { return TypeMsgCancelPostOnlyMode }
+
+func (msg *MsgCancelPostOnlyMode) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	return nil
+}
+
+func (msg *MsgCancelPostOnlyMode) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgCancelPostOnlyMode) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (*MsgActivatePostOnlyMode) Route() string { return RouterKey }
+
+func (*MsgActivatePostOnlyMode) Type() string { return TypeMsgActivatePostOnlyMode }
+
+func (msg *MsgActivatePostOnlyMode) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	if msg.BlocksAmount == 0 {
+		return errors.Wrap(types.ErrInvalidArgument, "blocks_amount must be greater than 0")
+	}
+
+	return nil
+}
+
+func (msg *MsgActivatePostOnlyMode) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgActivatePostOnlyMode) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
 func hasDuplicatesOrder(slice []*OrderData) bool {
 	seenHashes := make(map[string]struct{})
 	seenCids := make(map[string]struct{})
@@ -2770,56 +3001,4 @@ func ValidateBinaryOptionsMarketOrder(order *DerivativeOrder, senderAddr sdk.Acc
 	}
 
 	return order.ValidateBasic(senderAddr, true)
-}
-
-func (*MsgCancelPostOnlyMode) Route() string { return RouterKey }
-
-func (*MsgCancelPostOnlyMode) Type() string { return TypeMsgCancelPostOnlyMode }
-
-func (msg *MsgCancelPostOnlyMode) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(err, "invalid sender address")
-	}
-
-	return nil
-}
-
-func (msg *MsgCancelPostOnlyMode) GetSignBytes() []byte {
-	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
-}
-
-func (msg *MsgCancelPostOnlyMode) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
-}
-
-func (*MsgActivatePostOnlyMode) Route() string { return RouterKey }
-
-func (*MsgActivatePostOnlyMode) Type() string { return TypeMsgActivatePostOnlyMode }
-
-func (msg *MsgActivatePostOnlyMode) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(err, "invalid sender address")
-	}
-
-	if msg.BlocksAmount == 0 {
-		return errors.Wrap(types.ErrInvalidArgument, "blocks_amount must be greater than 0")
-	}
-
-	return nil
-}
-
-func (msg *MsgActivatePostOnlyMode) GetSignBytes() []byte {
-	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
-}
-
-func (msg *MsgActivatePostOnlyMode) GetSigners() []sdk.AccAddress {
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{sender}
 }

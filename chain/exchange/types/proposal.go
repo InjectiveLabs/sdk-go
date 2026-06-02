@@ -691,7 +691,8 @@ func (p *OracleParams) ValidateBasic() error {
 	switch p.OracleType {
 	case oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Razor,
 		oracletypes.OracleType_Dia, oracletypes.OracleType_API3, oracletypes.OracleType_Uma, oracletypes.OracleType_Pyth,
-		oracletypes.OracleType_Provider, oracletypes.OracleType_Stork, oracletypes.OracleType_ChainlinkDataStreams:
+		oracletypes.OracleType_PythPro, oracletypes.OracleType_Provider, oracletypes.OracleType_Stork,
+		oracletypes.OracleType_ChainlinkDataStreams, oracletypes.OracleType_SedaFast:
 
 	default:
 		return errors.Wrap(ErrInvalidOracleType, p.OracleType.String())
@@ -699,6 +700,37 @@ func (p *OracleParams) ValidateBasic() error {
 
 	if p.OracleScaleFactor > MaxOracleScaleFactor {
 		return ErrExceedsMaxOracleScaleFactor
+	}
+
+	if p.OracleType == oracletypes.OracleType_Provider {
+		if err := oracletypes.ValidateProviderDerivativeOracleLayout(p.OracleBase, p.OracleQuote); err != nil {
+			return errors.Wrap(ErrInvalidOracle, err.Error())
+		}
+		if err := oracletypes.ValidateReservedProviderID(p.OracleQuote); err != nil {
+			return errors.Wrap(ErrInvalidOracle, err.Error())
+		}
+	}
+
+	if p.OracleType == oracletypes.OracleType_PythPro {
+		if err := oracletypes.ValidateCanonicalPythProFeedID(p.OracleBase); err != nil {
+			return errors.Wrap(ErrInvalidOracle, err.Error())
+		}
+		if p.OracleQuote != oracletypes.QuoteUSD {
+			if err := oracletypes.ValidateCanonicalPythProFeedID(p.OracleQuote); err != nil {
+				return errors.Wrap(ErrInvalidOracle, err.Error())
+			}
+		}
+	}
+
+	if p.OracleType == oracletypes.OracleType_SedaFast {
+		if err := oracletypes.ValidateCanonicalSedaFastFeedID(p.OracleBase); err != nil {
+			return errors.Wrap(ErrInvalidOracle, err.Error())
+		}
+		if p.OracleQuote != oracletypes.QuoteUSD {
+			if err := oracletypes.ValidateCanonicalSedaFastFeedID(p.OracleQuote); err != nil {
+				return errors.Wrap(ErrInvalidOracle, err.Error())
+			}
+		}
 	}
 
 	return nil
@@ -720,6 +752,13 @@ func (p *ProviderOracleParams) ValidateBasic() error {
 
 	if p.OracleType != oracletypes.OracleType_Provider {
 		return errors.Wrap(ErrInvalidOracleType, p.OracleType.String())
+	}
+
+	if err := oracletypes.ValidateProviderDerivativeOracleLayout(p.Symbol, p.Provider); err != nil {
+		return errors.Wrap(ErrInvalidOracle, err.Error())
+	}
+	if err := oracletypes.ValidateReservedProviderID(p.Provider); err != nil {
+		return errors.Wrap(ErrInvalidOracle, err.Error())
 	}
 
 	if p.OracleScaleFactor > MaxOracleScaleFactor {
