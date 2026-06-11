@@ -4,6 +4,7 @@ package injective.peggy.v1;
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/peggy/types";
 
 import "gogoproto/gogo.proto";
+import "injective/oracle/v1beta1/oracle.proto";
 
 message RateLimit {
   // address of the ERC20 token
@@ -12,7 +13,8 @@ message RateLimit {
   // decimals of the ERC20 token
   uint32 token_decimals = 2;
 
-  // a Pyth-specific ID used to obtain USD price of the ERC20 token
+  // unique ID used to obtain the notional USD value of the ERC20 token from
+  // oracle
   string token_price_id = 3;
 
   // length of the sliding window in which inbound (outbound) traffic is
@@ -34,6 +36,10 @@ message RateLimit {
 
   // transfers that occurred within the sliding window
   repeated BridgeTransfer transfers = 7 [ deprecated = true ];
+
+  // oracle type used to obtain the USD price of the ERC20 token (in relation
+  // with token_price_id)
+  injective.oracle.v1beta1.OracleType token_oracle_type = 8;
 }
 
 message BridgeTransfer {
