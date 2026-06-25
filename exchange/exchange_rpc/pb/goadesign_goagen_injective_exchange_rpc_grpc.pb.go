@@ -36,6 +36,8 @@ type InjectiveExchangeRPCClient interface {
 	BroadcastCosmosTx(ctx context.Context, in *BroadcastCosmosTxRequest, opts ...grpc.CallOption) (*BroadcastCosmosTxResponse, error)
 	// Return fee payer information's
 	GetFeePayer(ctx context.Context, in *GetFeePayerRequest, opts ...grpc.CallOption) (*GetFeePayerResponse, error)
+	// PrepareFeeGrant creates or refreshes a feegrant for a grantee address
+	PrepareFeeGrant(ctx context.Context, in *PrepareFeeGrantRequest, opts ...grpc.CallOption) (*PrepareFeeGrantResponse, error)
 }
 
 type injectiveExchangeRPCClient struct {
@@ -109,6 +111,15 @@ func (c *injectiveExchangeRPCClient) GetFeePayer(ctx context.Context, in *GetFee
 	return out, nil
 }
 
+func (c *injectiveExchangeRPCClient) PrepareFeeGrant(ctx context.Context, in *PrepareFeeGrantRequest, opts ...grpc.CallOption) (*PrepareFeeGrantResponse, error) {
+	out := new(PrepareFeeGrantResponse)
+	err := c.cc.Invoke(ctx, "/injective_exchange_rpc.InjectiveExchangeRPC/PrepareFeeGrant", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InjectiveExchangeRPCServer is the server API for InjectiveExchangeRPC service.
 // All implementations must embed UnimplementedInjectiveExchangeRPCServer
 // for forward compatibility
@@ -127,6 +138,8 @@ type InjectiveExchangeRPCServer interface {
 	BroadcastCosmosTx(context.Context, *BroadcastCosmosTxRequest) (*BroadcastCosmosTxResponse, error)
 	// Return fee payer information's
 	GetFeePayer(context.Context, *GetFeePayerRequest) (*GetFeePayerResponse, error)
+	// PrepareFeeGrant creates or refreshes a feegrant for a grantee address
+	PrepareFeeGrant(context.Context, *PrepareFeeGrantRequest) (*PrepareFeeGrantResponse, error)
 	mustEmbedUnimplementedInjectiveExchangeRPCServer()
 }
 
@@ -154,6 +167,9 @@ func (UnimplementedInjectiveExchangeRPCServer) BroadcastCosmosTx(context.Context
 }
 func (UnimplementedInjectiveExchangeRPCServer) GetFeePayer(context.Context, *GetFeePayerRequest) (*GetFeePayerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFeePayer not implemented")
+}
+func (UnimplementedInjectiveExchangeRPCServer) PrepareFeeGrant(context.Context, *PrepareFeeGrantRequest) (*PrepareFeeGrantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PrepareFeeGrant not implemented")
 }
 func (UnimplementedInjectiveExchangeRPCServer) mustEmbedUnimplementedInjectiveExchangeRPCServer() {}
 
@@ -294,6 +310,24 @@ func _InjectiveExchangeRPC_GetFeePayer_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveExchangeRPC_PrepareFeeGrant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PrepareFeeGrantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExchangeRPCServer).PrepareFeeGrant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_exchange_rpc.InjectiveExchangeRPC/PrepareFeeGrant",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExchangeRPCServer).PrepareFeeGrant(ctx, req.(*PrepareFeeGrantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InjectiveExchangeRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveExchangeRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -328,6 +362,10 @@ var InjectiveExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFeePayer",
 			Handler:    _InjectiveExchangeRPC_GetFeePayer_Handler,
+		},
+		{
+			MethodName: "PrepareFeeGrant",
+			Handler:    _InjectiveExchangeRPC_PrepareFeeGrant_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
