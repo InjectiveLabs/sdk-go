@@ -241,8 +241,12 @@ type MsgUpdateParams struct {
 	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
 	// params defines the exchange parameters to update.
-	//
-	// NOTE: All parameters must be supplied.
+	// Callers should supply a full Params object. Some parameter groups still
+	// preserve omitted fields, but cross_margin_params is treated as a full
+	// replacement. Sparse/raw payloads must include the full intended
+	// cross_margin_params payload because decoded false/zero/empty values are
+	// applied literally when they pass validation, including valid explicit
+	// zeros such as backstop_margin_ratio = 0.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
 
@@ -5667,9 +5671,9 @@ func (m *MsgActivatePostOnlyModeResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgActivatePostOnlyModeResponse proto.InternalMessageInfo
 
-// MsgLiquidateCrossMarginPool atomically closes all positions in a
-// cross-margin pool, netting surplus from profitable positions against deficits
-// before touching the insurance fund.
+// MsgLiquidateCrossMarginPool performs graduated selective liquidation on a
+// cross-margin quote-denom pool, canceling pool orders first and then closing
+// only enough positions to restore health according to the configured target.
 type MsgLiquidateCrossMarginPool struct {
 	// the liquidator's Injective address
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`

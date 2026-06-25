@@ -4,7 +4,8 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.49 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.20.1-beta --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b ic-1060/migrate-peggy-ratelimits-from-pyth --depth 1 --single-branch
+	cd injective-core && git fetch --depth 1 origin 0871bd8305d2082dbbaf105c5c4be7b28e35f92d && git checkout 0871bd8305d2082dbbaf105c5c4be7b28e35f92d
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
