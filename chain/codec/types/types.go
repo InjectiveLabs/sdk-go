@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/cosmos/gogoproto/proto"
 
-	"github.com/InjectiveLabs/sdk-go/chain/app/ante/eip712"
 	injcodec "github.com/InjectiveLabs/sdk-go/chain/codec"
 )
 
@@ -29,7 +28,7 @@ func MakeEncodingConfig() EncodingConfig {
 	encodingConfig := EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Codec:             appCodec,
-		TxConfig:          tx.NewTxConfig(appCodec, tx.DefaultSignModes, eip712.NewSignModeHandler(appCodec)),
+		TxConfig:          tx.NewTxConfig(appCodec, tx.DefaultSignModes),
 		Amino:             cdc,
 	}
 
