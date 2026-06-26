@@ -8,6 +8,7 @@ import (
 	"cosmossdk.io/x/tx/signing"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	probabilistic "github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
@@ -182,6 +183,9 @@ func createInjectiveProtoCodec() (injectiveCodec *codec.ProtoCodec, interfaceReg
 	ibcclienttypes.RegisterInterfaces(interfaceRegistry)
 	ibcconnectiontypes.RegisterInterfaces(interfaceRegistry)
 	ibctransfertypes.RegisterInterfaces(interfaceRegistry)
+	evmtypes.RegisterInterfaces(interfaceRegistry)
+	erc20types.RegisterInterfaces(interfaceRegistry)
+	probabilistic.RegisterInterfaces(interfaceRegistry)
 
 	injectiveCodec = codec.NewProtoCodec(interfaceRegistry)
 
