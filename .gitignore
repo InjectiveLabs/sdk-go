@@ -5,3 +5,4 @@
 .exchange_cookie
 coverage.out
 .env
+.cache

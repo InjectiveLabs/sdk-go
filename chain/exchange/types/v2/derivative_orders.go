@@ -201,10 +201,21 @@ func (m *DerivativeLimitOrder) GetCancelDepositDelta(feeRate math.LegacyDec) *v1
 func (m *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) math.LegacyDec {
 	marginHoldRefund := math.LegacyZeroDec()
 	if m.IsVanilla() {
+		if !m.OrderInfo.Quantity.IsPositive() {
+			// Malformed legacy state can have no usable denominator; only release
+			// margin when there is remaining fillable quantity to cancel.
+			if !m.Fillable.IsPositive() {
+				return marginHoldRefund
+			}
+			return m.Margin
+		}
+
 		// negative fees are only accounted for upon matching
-		//nolint:all
 		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
-		marginHoldRefund = m.Fillable.Mul(m.GetMarginHold(feeRate)).Quo(m.OrderInfo.Quantity)
+		positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
+		marginRefund := m.Fillable.Mul(m.Margin).Quo(m.OrderInfo.Quantity)
+		feeRefund := m.Fillable.Mul(m.OrderInfo.Price).Mul(positiveFeeRatePart)
+		marginHoldRefund = marginRefund.Add(feeRefund)
 	}
 	return marginHoldRefund
 }

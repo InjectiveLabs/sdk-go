@@ -108,12 +108,9 @@ func (a GenericExchangeAuthorization) MsgTypeURL() string {
 // the incoming message type, and it would not have been created if the
 // message type was not allowed.
 func (a GenericExchangeAuthorization) Accept(ctx context.Context, _ sdk.Msg) (authz.AcceptResponse, error) {
-	if noLimit := a.SpendLimit == nil; noLimit {
-		return authz.AcceptResponse{Accept: true, Updated: NewGenericExchangeAuthorization(a.Msg, nil)}, nil
-	}
+	hold, _ := getHold(ctx)
 
-	hold, ok := getHold(ctx)
-	if !ok {
+	if a.SpendLimit.IsZero() && !hold.IsZero() { // on an exhausted grant only allow zero hold messages (like cancellations) (BB-225)
 		return authz.AcceptResponse{Accept: false}, nil
 	}
 
