@@ -8,6 +8,7 @@ import "amino/amino.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
+import "injective/oracle/v1beta1/oracle.proto";
 import "injective/peggy/v1/types.proto";
 import "injective/peggy/v1/params.proto";
 import "injective/peggy/v1/rate_limit.proto";
@@ -383,7 +384,8 @@ message MsgCreateRateLimit {
   // decimals of the ERC20 token
   uint32 token_decimals = 3;
 
-  // a Pyth-specific ID used to obtain USD price of the ERC20 token
+  // unique ID used to obtain the notional USD value of the ERC20 token from
+  // oracle
   string token_price_id = 4;
 
   // the notional USD limit imposed on all outgoing traffic (per token)
@@ -402,6 +404,10 @@ message MsgCreateRateLimit {
   // length of the sliding window in which inbound (outbound) traffic is
   // measured
   uint64 rate_limit_window = 7;
+
+  // token_oracle_type is used to obtain the USD price of the ERC20 token (in
+  // relation with token_price_id)
+  injective.oracle.v1beta1.OracleType token_oracle_type = 8;
 }
 
 message MsgCreateRateLimitResponse {}
@@ -416,7 +422,8 @@ message MsgUpdateRateLimit {
   // token_address is the address of rate limited token
   string token_address = 2;
 
-  // new_token_price_id is the new Pyth price ID of the rate limited token
+  // unique ID used to obtain the notional USD value of the ERC20 token from
+  // oracle
   string new_token_price_id = 3;
 
   // new_rate_limit_usd is the new notional limit (on withdrawals) in USD
@@ -427,6 +434,10 @@ message MsgUpdateRateLimit {
 
   // new_rate_limit_window is the new length of the sliding window
   uint64 new_rate_limit_window = 5;
+
+  // new_token_oracle_type is used to obtain the USD price of the ERC20 token
+  // (in relation with token_price_id)
+  injective.oracle.v1beta1.OracleType new_token_oracle_type = 6;
 }
 
 message MsgUpdateRateLimitResponse {}
