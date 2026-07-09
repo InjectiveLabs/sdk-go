@@ -246,6 +246,13 @@ service Msg {
   // gates) to set the subaccount's risk profile (e.g. opt into cross-margin).
   rpc UpdateSubaccountRiskProfile(MsgUpdateSubaccountRiskProfile)
       returns (MsgUpdateSubaccountRiskProfileResponse);
+
+  // UpdateSubaccountMarketRiskMode pins one derivative market's margin mode
+  // for a subaccount (or unpins it back to the profile default), converting
+  // resting order margin representation atomically. Requires a flat position
+  // in that market.
+  rpc UpdateSubaccountMarketRiskMode(MsgUpdateSubaccountMarketRiskMode)
+      returns (MsgUpdateSubaccountMarketRiskModeResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -353,8 +360,12 @@ message MsgUpdateParams {
   string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 
   // params defines the exchange parameters to update.
-  //
-  // NOTE: All parameters must be supplied.
+  // Callers should supply a full Params object. Some parameter groups still
+  // preserve omitted fields, but cross_margin_params is treated as a full
+  // replacement. Sparse/raw payloads must include the full intended
+  // cross_margin_params payload because decoded false/zero/empty values are
+  // applied literally when they pass validation, including valid explicit
+  // zeros such as backstop_margin_ratio = 0.
   Params params = 2 [ (gogoproto.nullable) = false ];
 }
 
@@ -418,6 +429,30 @@ message MsgUpdateSubaccountRiskProfile {
 // MsgUpdateSubaccountRiskProfileResponse defines the
 // Msg/UpdateSubaccountRiskProfile response type.
 message MsgUpdateSubaccountRiskProfileResponse {}
+
+// MsgUpdateSubaccountMarketRiskMode defines a SDK message for pinning one
+// derivative market's margin mode for a subaccount, or unpinning it back to
+// the profile default (mode UNSPECIFIED).
+message MsgUpdateSubaccountMarketRiskMode {
+  option (amino.name) = "exchange/MsgUpdateSubaccountMarketRiskMode";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address
+  string sender = 1;
+  // the subaccount ID to update the market's margin mode for
+  string subaccount_id = 2;
+  // the derivative market whose mode is pinned or unpinned
+  string market_id = 3;
+  // the requested mode: ISOLATED or CROSS pins, UNSPECIFIED unpins back to
+  // the profile default (subject to eligibility & safety gates)
+  RiskMode mode = 4;
+}
+
+// MsgUpdateSubaccountMarketRiskModeResponse defines the
+// Msg/UpdateSubaccountMarketRiskMode response type.
+message MsgUpdateSubaccountMarketRiskModeResponse {}
 
 // MsgCreateSpotLimitOrder defines a SDK message for creating a new spot limit
 // order.
@@ -1707,9 +1742,9 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
 
-// MsgLiquidateCrossMarginPool atomically closes all positions in a
-// cross-margin pool, netting surplus from profitable positions against deficits
-// before touching the insurance fund.
+// MsgLiquidateCrossMarginPool performs graduated selective liquidation on a
+// cross-margin quote-denom pool, canceling pool orders first and then closing
+// only enough positions to restore health according to the configured target.
 message MsgLiquidateCrossMarginPool {
   option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
   option (cosmos.msg.v1.signer) = "sender";

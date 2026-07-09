@@ -254,6 +254,24 @@ service Query {
                                    "subaccount_risk_profile/{subaccount_id}";
   }
 
+  // Retrieves a subaccount's explicit per-market margin-mode records
+  rpc SubaccountMarketRiskModes(QuerySubaccountMarketRiskModesRequest)
+      returns (QuerySubaccountMarketRiskModesResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v2/exchange/"
+        "subaccount_market_risk_modes/{subaccount_id}";
+  }
+
+  // Resolves the effective margin mode of one derivative market for a
+  // subaccount (binary options pin -> explicit record -> profile default)
+  rpc EffectiveSubaccountMarketRiskMode(
+      QueryEffectiveSubaccountMarketRiskModeRequest)
+      returns (QueryEffectiveSubaccountMarketRiskModeResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v2/exchange/"
+        "effective_market_risk_mode/{subaccount_id}/{market_id}";
+  }
+
   // Retrieves a subaccount's cross-margin pool snapshot for a given quote
   // denom. Returns current equity, order lock requirement, margin requirements,
   // and other risk metrics needed to understand cross-margin health.
@@ -1185,7 +1203,8 @@ message QuerySubaccountPositionsResponse {
 message QuerySubaccountPositionInMarketResponse {
   Position state = 1 [ (gogoproto.nullable) = true ];
 
-  // The risk mode of the subaccount (ISOLATED or CROSS).
+  // The effective margin mode of this (subaccount, market) pair
+  // (ISOLATED or CROSS), resolved per market.
   // For CROSS mode, the position's margin is an accounting value; actual
   // collateral is pooled. Use CrossMarginPoolSnapshot for pool-level health.
   RiskMode risk_mode = 2;
@@ -1216,7 +1235,8 @@ message EffectivePosition {
 message QuerySubaccountEffectivePositionInMarketResponse {
   EffectivePosition state = 1 [ (gogoproto.nullable) = true ];
 
-  // The risk mode of the subaccount (ISOLATED or CROSS).
+  // The effective margin mode of this (subaccount, market) pair
+  // (ISOLATED or CROSS), resolved per market.
   // For CROSS mode, effective_margin reflects position value but liquidation
   // is determined at pool level. Use CrossMarginPoolSnapshot for pool health.
   RiskMode risk_mode = 2;
@@ -1277,6 +1297,39 @@ message QuerySubaccountRiskProfileResponse {
 
   // True if the profile was not explicitly stored and defaults were returned.
   bool is_default = 2;
+}
+
+// QuerySubaccountMarketRiskModesRequest is the request type for the
+// Query/SubaccountMarketRiskModes RPC method.
+message QuerySubaccountMarketRiskModesRequest {
+  // 32-byte hex string, consistent with existing exchange queries.
+  string subaccount_id = 1;
+}
+
+// QuerySubaccountMarketRiskModesResponse is the response type for the
+// Query/SubaccountMarketRiskModes RPC method.
+message QuerySubaccountMarketRiskModesResponse {
+  // the subaccount's explicit per-market overrides, in market-ID byte order
+  repeated SubaccountMarketRiskModeRecord records = 1;
+}
+
+// QueryEffectiveSubaccountMarketRiskModeRequest is the request type for the
+// Query/EffectiveSubaccountMarketRiskMode RPC method.
+message QueryEffectiveSubaccountMarketRiskModeRequest {
+  // the subaccount ID
+  string subaccount_id = 1;
+  // the market ID
+  string market_id = 2;
+}
+
+// QueryEffectiveSubaccountMarketRiskModeResponse is the response type for the
+// Query/EffectiveSubaccountMarketRiskMode RPC method.
+message QueryEffectiveSubaccountMarketRiskModeResponse {
+  // the resolved effective mode for this (subaccount, market) pair
+  RiskMode mode = 1;
+  // true when an explicit per-market record produced the resolution (as
+  // opposed to the profile default or the binary-options pin)
+  bool is_override = 2;
 }
 
 // QueryCrossMarginPoolSnapshotRequest is the request type for the
@@ -1387,6 +1440,50 @@ message QueryCrossMarginPoolSnapshotResponse {
   // Field 16 removed: canonical_liquidation_target_market_id is no longer
   // relevant — MsgLiquidateCrossMarginPool closes all positions atomically.
   reserved 16;
+
+  // Ratcheted maintenance margin total: max(maintenance at current mark,
+  // maintenance at entry notional) summed across positions. This is the
+  // maintenance floor used in the cash-floor and withdrawable formulas, and is
+  // distinct from maintenance_margin_total. It is NOT derivable from the other
+  // response fields, so off-chain monitors need it to reconstruct the chain's
+  // admission / withdrawal predicates.
+  string ratcheted_maintenance_margin_total = 17 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Cross-margin utilisation ratio applied to the cash floor (0 is the
+  // emergency halt on new risk-increasing actions). A module param, not
+  // recoverable from any other response field.
+  string cross_margin_util_ratio = 18 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Position-side Order Lock Requirement bucket embedded in
+  // order_lock_requirement. This is the sum of max(position.Margin, 0), not the
+  // signed position_margin_total. It is exposed because negative-funded or
+  // mixed-sign position margins make the OLR split impossible to reconstruct
+  // from position_margin_total.
+  string position_order_lock_requirement = 19 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Non-position Order Lock Requirement bucket used by the cash-floor formula.
+  // This is not generally max(order_lock_requirement - position_margin_total,
+  // 0) because position_margin_total is signed while the position-side OLR
+  // bucket floors each position margin at zero. Together with
+  // ratcheted_maintenance_margin_total, cross_margin_util_ratio, and the
+  // existing equity fields, monitors can derive fees_buffer
+  // (= quote_balance + position_margin_total + unrealized_pnl_effective -
+  // equity_admission), cash_floor_available, admission_available
+  // (= equity_admission - order_lock_requirement), available_for_new
+  // (= min(cash_floor_available, admission_available)), and withdrawable.
+  string non_position_order_lock_requirement = 20 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // QueryModuleStateRequest is the request type for the Query/ExchangeModuleState
