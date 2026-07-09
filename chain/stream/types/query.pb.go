@@ -914,6 +914,9 @@ func (m *Position) GetIsLong() bool {
 }
 
 type OraclePrice struct {
+	// The feed identifier for this price update, sourced from
+	// EventOraclePriceUpdate.id. Its format depends on the oracle type; see
+	// OraclePriceFilter.symbol for the per-type mapping.
 	Symbol string                      `protobuf:"bytes,1,opt,name=symbol,proto3" json:"symbol,omitempty"`
 	Price  cosmossdk_io_math.LegacyDec `protobuf:"bytes,2,opt,name=price,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"price"`
 	Type   string                      `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`
@@ -1490,6 +1493,19 @@ func (m *SubaccountDepositsFilter) GetSubaccountIds() []string {
 }
 
 type OraclePriceFilter struct {
+	// Feed identifiers to subscribe to. Each entry matches the `symbol` field of
+	// `OraclePrice`, which equals `EventOraclePriceUpdate.id`. The format depends
+	// on the oracle type:
+	//   - Coinbase:             asset key (e.g. "BTC")
+	//   - Pyth:                 price feed ID hex hash
+	//   - Stork:                asset symbol (e.g. "BTCUSD")
+	//   - ChainlinkDataStreams:  feed ID hex string (e.g. "0x00034a45...")
+	//   - PriceFeed:            compound "base/quote" (e.g. "BTC/USDT")
+	//   - Provider:             compound "provider/symbol" (e.g. "acme/BTC")
+	//   - PythPro:              decimal string of the uint32 feed ID (e.g.
+	//   "12345")
+	//   - SedaFast:             hex-encoded execInputs feed ID
+	// Use ["*"] to subscribe to all oracle price updates.
 	Symbol []string `protobuf:"bytes,1,rep,name=symbol,proto3" json:"symbol,omitempty"`
 }
 

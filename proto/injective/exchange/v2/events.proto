@@ -166,6 +166,15 @@ message EventSubaccountRiskProfileUpdated {
   bool is_default = 4;
 }
 
+message EventSubaccountMarketRiskModeUpdated {
+  string subaccount_id = 1;
+  string market_id = 2;
+  // previous explicit override mode; UNSPECIFIED when no override existed
+  RiskMode previous_mode = 3;
+  // new explicit override mode; UNSPECIFIED when the override was removed
+  RiskMode new_mode = 4;
+}
+
 message EventBatchDepositUpdate { repeated DepositUpdate deposit_updates = 1; }
 
 message DerivativeMarketOrderCancel {

@@ -115,24 +115,23 @@ func (a GenericExchangeAuthorization) MsgTypeURL() string {
 }
 
 // Accept implements Authorization.Accept.
-func (a GenericExchangeAuthorization) Accept(ctx context.Context, _ sdk.Msg) (authz.AcceptResponse, error) {
-	hold, _ := getHold(ctx)
-
-	if a.SpendLimit.IsZero() && !hold.IsZero() { // on an exhausted grant only allow zero hold messages (like cancellations) (BB-225)
-		return authz.AcceptResponse{Accept: false}, nil
-	}
-
-	limit := a.SpendLimit
-	for _, coin := range hold {
-		allowance := limit.AmountOf(coin.Denom)
-		if allowance.LT(coin.Amount) {
+func (a GenericExchangeAuthorization) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+	// SpendLimit is optional, so we only check it if it is set
+	if a.SpendLimit != nil {
+		hold, ok := getHold(ctx)
+		if !ok {
 			return authz.AcceptResponse{Accept: false}, nil
 		}
 
-		limit = limit.Sub(sdk.NewCoin(coin.Denom, coin.Amount))
+		for _, coin := range hold {
+			allowed := a.SpendLimit.AmountOf(coin.Denom)
+			if allowed.LT(coin.Amount) {
+				return authz.AcceptResponse{Accept: false}, nil
+			}
+			a.SpendLimit = a.SpendLimit.Sub(sdk.NewCoin(coin.Denom, coin.Amount))
+		}
 	}
-
-	return authz.AcceptResponse{Accept: true, Updated: NewGenericExchangeAuthorization(a.Msg, limit)}, nil
+	return authz.AcceptResponse{Accept: true, Updated: &a}, nil
 }
 
 // getHold returns the hold from the context. Hold is the amount of coins that
