@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.49 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b ic-1047/data-pipeline --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -126,6 +126,8 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/wasmx/types/msgs.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/params.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
+	mkdir -p chain/mq/types && \
+		cp injective-core/injective-chain/mq/types/*.pb.go chain/mq/types
 	mkdir -p chain/stream/types && \
 		cp injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
 	mkdir -p chain/stream/types/v2 && \
