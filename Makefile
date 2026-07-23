@@ -170,6 +170,9 @@ extract-message-names:
 update-ofac-list:
 	go run examples/chain/ofac/1_DownloadOfacList/example.go
 
+install-mq:
+	go install ./client/mq/stream ./client/mq/detector
+
 tests:
 	go clean -testcache && go test -race ./client/... ./ethereum/...
 coverage:
@@ -191,4 +194,4 @@ lint-all: export GOPROXY=direct
 lint-all:
 	golangci-lint run --timeout=15m -v
 
-.PHONY: copy-exchange-client update-ofac-list tests coverage lint lint-last-commit lint-master lint-all extract-message-names
+.PHONY: copy-exchange-client update-ofac-list install-mq tests coverage lint lint-last-commit lint-master lint-all extract-message-names
