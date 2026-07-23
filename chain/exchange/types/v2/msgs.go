@@ -699,11 +699,8 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 		return types.ErrSameDenoms
 	}
 
-	if err := types.ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return errors.Wrap(types.ErrInvalidPriceTickSize, err.Error())
-	}
-	if err := types.ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return errors.Wrap(types.ErrInvalidQuantityTickSize, err.Error())
+	if err := ValidateSpotMarketTickSizes(msg.MinPriceTickSize, msg.MinQuantityTickSize); err != nil {
+		return err
 	}
 	if err := types.ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())

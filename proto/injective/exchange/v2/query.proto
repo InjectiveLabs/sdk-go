@@ -1399,9 +1399,9 @@ message QueryCrossMarginPoolSnapshotResponse {
     (gogoproto.nullable) = false
   ];
 
-  // Cross-margin utilisation ratio applied to the cash floor (0 is the emergency
-  // halt on new risk-increasing actions). A module param, not recoverable from
-  // any other response field.
+  // Cross-margin utilisation ratio applied to the cash floor (0 is the
+  // emergency halt on new risk-increasing actions). A module param, not
+  // recoverable from any other response field.
   string cross_margin_util_ratio = 18 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -1418,11 +1418,11 @@ message QueryCrossMarginPoolSnapshotResponse {
   ];
 
   // Non-position Order Lock Requirement bucket used by the cash-floor formula.
-  // This is not generally max(order_lock_requirement - position_margin_total, 0)
-  // because position_margin_total is signed while the position-side OLR bucket
-  // floors each position margin at zero.
-  // Together with ratcheted_maintenance_margin_total, cross_margin_util_ratio,
-  // and the existing equity fields, monitors can derive fees_buffer
+  // This is not generally max(order_lock_requirement - position_margin_total,
+  // 0) because position_margin_total is signed while the position-side OLR
+  // bucket floors each position margin at zero. Together with
+  // ratcheted_maintenance_margin_total, cross_margin_util_ratio, and the
+  // existing equity fields, monitors can derive fees_buffer
   // (= quote_balance + position_margin_total + unrealized_pnl_effective -
   // equity_admission), cash_floor_available, admission_available
   // (= equity_admission - order_lock_requirement), available_for_new

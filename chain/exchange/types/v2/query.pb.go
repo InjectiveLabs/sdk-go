@@ -4752,9 +4752,9 @@ type QueryCrossMarginPoolSnapshotResponse struct {
 	// response fields, so off-chain monitors need it to reconstruct the chain's
 	// admission / withdrawal predicates.
 	RatchetedMaintenanceMarginTotal cosmossdk_io_math.LegacyDec `protobuf:"bytes,17,opt,name=ratcheted_maintenance_margin_total,json=ratchetedMaintenanceMarginTotal,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"ratcheted_maintenance_margin_total"`
-	// Cross-margin utilisation ratio applied to the cash floor (0 is the emergency
-	// halt on new risk-increasing actions). A module param, not recoverable from
-	// any other response field.
+	// Cross-margin utilisation ratio applied to the cash floor (0 is the
+	// emergency halt on new risk-increasing actions). A module param, not
+	// recoverable from any other response field.
 	CrossMarginUtilRatio cosmossdk_io_math.LegacyDec `protobuf:"bytes,18,opt,name=cross_margin_util_ratio,json=crossMarginUtilRatio,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"cross_margin_util_ratio"`
 	// Position-side Order Lock Requirement bucket embedded in
 	// order_lock_requirement. This is the sum of max(position.Margin, 0), not the
@@ -4763,11 +4763,11 @@ type QueryCrossMarginPoolSnapshotResponse struct {
 	// from position_margin_total.
 	PositionOrderLockRequirement cosmossdk_io_math.LegacyDec `protobuf:"bytes,19,opt,name=position_order_lock_requirement,json=positionOrderLockRequirement,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"position_order_lock_requirement"`
 	// Non-position Order Lock Requirement bucket used by the cash-floor formula.
-	// This is not generally max(order_lock_requirement - position_margin_total, 0)
-	// because position_margin_total is signed while the position-side OLR bucket
-	// floors each position margin at zero.
-	// Together with ratcheted_maintenance_margin_total, cross_margin_util_ratio,
-	// and the existing equity fields, monitors can derive fees_buffer
+	// This is not generally max(order_lock_requirement - position_margin_total,
+	// 0) because position_margin_total is signed while the position-side OLR
+	// bucket floors each position margin at zero. Together with
+	// ratcheted_maintenance_margin_total, cross_margin_util_ratio, and the
+	// existing equity fields, monitors can derive fees_buffer
 	// (= quote_balance + position_margin_total + unrealized_pnl_effective -
 	// equity_admission), cash_floor_available, admission_available
 	// (= equity_admission - order_lock_requirement), available_for_new

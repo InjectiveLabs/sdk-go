@@ -44,30 +44,60 @@ func (gs GenesisState) Validate() error {
 }
 
 func (gs GenesisState) validateSpotOrderbookMarkets() error {
-	spotMarkets := gs.spotMarketIDs()
+	spotMarkets, err := gs.validatedSpotMarkets()
+	if err != nil {
+		return err
+	}
 	for i, orderbook := range gs.SpotOrderbook {
 		marketID := orderbook.MarketId
 		if !types.IsHexHash(marketID) {
 			return fmt.Errorf("spot_orderbook[%d]: invalid market_id %q", i, marketID)
 		}
-		if _, ok := spotMarkets[marketID]; !ok {
+		market, ok := spotMarkets[marketID]
+		if !ok {
 			return fmt.Errorf("spot_orderbook[%d]: unknown market_id %s", i, marketID)
+		}
+		if market.IsActive() {
+			if err := validateSpotOrderbookTicks(i, orderbook, market); err != nil {
+				return err
+			}
 		}
 	}
 
 	return nil
 }
 
-func (gs GenesisState) spotMarketIDs() map[string]struct{} {
-	markets := make(map[string]struct{}, len(gs.SpotMarkets))
-	for _, market := range gs.SpotMarkets {
+func (gs GenesisState) validatedSpotMarkets() (map[string]*SpotMarket, error) {
+	markets := make(map[string]*SpotMarket, len(gs.SpotMarkets))
+	for i, market := range gs.SpotMarkets {
 		if market == nil {
 			continue
 		}
-		markets[market.MarketId] = struct{}{}
+		if market.IsActive() {
+			if err := ValidateSpotMarketTickSizes(market.MinPriceTickSize, market.MinQuantityTickSize); err != nil {
+				return nil, fmt.Errorf("spot_markets[%d]: %w", i, err)
+			}
+		}
+		markets[market.MarketId] = market
 	}
 
-	return markets
+	return markets, nil
+}
+
+func validateSpotOrderbookTicks(i int, orderbook SpotOrderBook, market *SpotMarket) error {
+	for j, order := range orderbook.Orders {
+		if order == nil {
+			return fmt.Errorf("spot_orderbook[%d].orders[%d]: missing order", i, j)
+		}
+		if order.OrderInfo.Price.IsNil() || types.BreachesMinimumTickSize(order.OrderInfo.Price, market.MinPriceTickSize) {
+			return fmt.Errorf("spot_orderbook[%d].orders[%d]: price does not match market tick size", i, j)
+		}
+		if order.Fillable.IsNil() || types.BreachesMinimumTickSize(order.Fillable, market.MinQuantityTickSize) {
+			return fmt.Errorf("spot_orderbook[%d].orders[%d]: fillable does not match market tick size", i, j)
+		}
+	}
+
+	return nil
 }
 
 func (gs GenesisState) validateDerivativeMarketSettlementScheduled() error {
