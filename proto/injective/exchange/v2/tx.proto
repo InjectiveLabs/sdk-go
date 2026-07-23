@@ -353,8 +353,12 @@ message MsgUpdateParams {
   string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 
   // params defines the exchange parameters to update.
-  //
-  // NOTE: All parameters must be supplied.
+  // Callers should supply a full Params object. Some parameter groups still
+  // preserve omitted fields, but cross_margin_params is treated as a full
+  // replacement. Sparse/raw payloads must include the full intended
+  // cross_margin_params payload because decoded false/zero/empty values are
+  // applied literally when they pass validation, including valid explicit
+  // zeros such as backstop_margin_ratio = 0.
   Params params = 2 [ (gogoproto.nullable) = false ];
 }
 
@@ -1707,9 +1711,9 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
 
-// MsgLiquidateCrossMarginPool atomically closes all positions in a
-// cross-margin pool, netting surplus from profitable positions against deficits
-// before touching the insurance fund.
+// MsgLiquidateCrossMarginPool performs graduated selective liquidation on a
+// cross-margin quote-denom pool, canceling pool orders first and then closing
+// only enough positions to restore health according to the configured target.
 message MsgLiquidateCrossMarginPool {
   option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
   option (cosmos.msg.v1.signer) = "sender";
