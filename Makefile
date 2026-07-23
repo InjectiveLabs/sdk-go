@@ -171,7 +171,7 @@ update-ofac-list:
 	go run examples/chain/ofac/1_DownloadOfacList/example.go
 
 install-mq:
-	go install ./client/mq/stream ./client/mq/detector
+	go install ./client/mq/stream/server ./client/mq/detector
 
 tests:
 	go clean -testcache && go test -race ./client/... ./ethereum/...
