@@ -26,7 +26,7 @@ var kacp = keepalive.ClientParameters{
 }
 
 func main() {
-	address := flag.String("address", "localhost:9911", "MQ gRPC stream server address")
+	address := flag.String("address", "localhost:9988", "MQ gRPC stream server address")
 	format := flag.String("format", "verbose", "Output format: verbose or minimal")
 	eventsDir := flag.String("events-dir", "", "Directory to write one JSON file per streamed block")
 	flag.Parse()

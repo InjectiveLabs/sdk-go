@@ -82,27 +82,30 @@ func startMQStream(cmd *cobra.Command, logger sdklog.Logger) error {
 
 	defer client.Close()
 
-	ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+	signalCtx, stopSignals := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+	defer stopSignals()
+
+	ctx, cancel := context.WithCancelCause(signalCtx)
+	defer cancel(nil)
 
 	var mtx sync.RWMutex
 	subscriptions := make(map[string]chan *types.EventStreamResponse)
 
 	topicCh := make(chan *types.EventStreamResponse, 1)
 	go func() {
-		defer func() {
-			stop() // kill the ctx for stream as well
-			close(topicCh)
-		}()
+		defer close(topicCh)
 
 		for {
 			fetches := client.PollFetches(ctx)
 			if err := fetches.Err(); err != nil {
 				if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
+					cancel(nil)
 					return
 				}
 
+				err = fmt.Errorf("poll kafka fetches: %w", err)
 				logger.Error("error polling fetches, stopping consumer loop", "err", err.Error())
+				cancel(err)
 				return
 			}
 
@@ -120,6 +123,7 @@ func startMQStream(cmd *cobra.Command, logger sdklog.Logger) error {
 					select {
 					case sub <- &msg:
 					default: // subscriber not consuming
+						logger.Debug("consumer not reading the channel, skipping")
 					}
 				}
 				mtx.RUnlock()
@@ -189,10 +193,14 @@ func startMQStream(cmd *cobra.Command, logger sdklog.Logger) error {
 	case <-ctx.Done():
 		logger.Info("stopping event stream server")
 		grpcServer.Stop()
+		if err := context.Cause(ctx); err != nil && !errors.Is(err, context.Canceled) {
+			return err
+		}
+
 		return nil
 
 	case err := <-serveErrCh:
-		stop()
+		cancel(err)
 		return err
 	}
 }
@@ -212,7 +220,7 @@ func (srv StreamServer) EventStream(_ *types.EventStreamRequest, server types.Ev
 	for {
 		select {
 		case <-server.Context().Done():
-			return nil
+			return server.Context().Err()
 		case message, ok := <-sub:
 			if !ok {
 				return errors.New("stream closed")

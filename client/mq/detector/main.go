@@ -67,8 +67,11 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 
 	defer client.Close()
 
-	ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+	signalCtx, stopSignals := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+	defer stopSignals()
+
+	ctx, cancel := context.WithCancelCause(signalCtx)
+	defer cancel(nil)
 
 	var (
 		rawTopicCh    = make(chan *types.EventStreamResponse, 1)
@@ -78,7 +81,6 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 	// start the kafka polling loop
 	go func() {
 		defer func() {
-			stop() // kill the run ctx for detector as well
 			close(rawTopicCh)
 			close(latestTopicCh)
 		}()
@@ -87,10 +89,13 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			fetches := client.PollFetches(ctx)
 			if err := fetches.Err(); err != nil {
 				if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
+					cancel(nil)
 					return
 				}
 
+				err = fmt.Errorf("poll kafka fetches: %w", err)
 				logger.Error("error polling fetches, stopping consumer loop", "err", err.Error())
+				cancel(err)
 				return
 			}
 
@@ -109,7 +114,9 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 				case config.RawTopic:
 					rawTopicCh <- &msg
 				default:
+					err := fmt.Errorf("unknown kafka topic %q", record.Topic)
 					logger.Error("unknown topic", "topic", record.Topic)
+					cancel(err)
 					return
 				}
 			}
@@ -162,6 +169,10 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 	for {
 		select {
 		case <-ctx.Done():
+			if err := context.Cause(ctx); err != nil {
+				return err
+			}
+
 			return ctx.Err()
 		case <-ticker.C:
 			if noLatestForAWhile := !lastSeenLatest.IsZero() && time.Since(lastSeenLatest) > config.MessageTimeout; noLatestForAWhile {
@@ -171,12 +182,24 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			continue
 		case msg, ok := <-rawTopicCh:
 			if msg == nil || !ok {
+				if err := context.Cause(ctx); err != nil && !errors.Is(err, context.Canceled) {
+					return err
+				}
+
 				return nil
+			}
+
+			if msg.BlockHeight <= latestHeight {
+				continue // no need to store an already processed height
 			}
 
 			rawHeights[msg.BlockHeight] = struct{}{}
 		case msg, ok := <-latestTopicCh:
 			if msg == nil || !ok {
+				if err := context.Cause(ctx); err != nil && !errors.Is(err, context.Canceled) {
+					return err
+				}
+
 				return nil
 			}
 
