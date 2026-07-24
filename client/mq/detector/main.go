@@ -158,15 +158,17 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 		}
 	}
 
-	latestHeight := int64(0)
-	rawHeights := make(map[int64]struct{})
-	ticker := time.NewTicker(config.MonitorInterval)
-	defer ticker.Stop()
+	var (
+		latestHeight   = int64(0)
+		rawHeights     = make(map[int64]struct{})
+		lastSeenLatest time.Time
+	)
 
-	var lastSeenLatest time.Time
-
-	// run the main detector loop
 	for {
+		if noLatestForAWhile := !lastSeenLatest.IsZero() && time.Since(lastSeenLatest) > config.MessageTimeout; noLatestForAWhile {
+			go callControlPlane(uint64(latestHeight + 1))
+		}
+
 		select {
 		case <-ctx.Done():
 			if err := context.Cause(ctx); err != nil {
@@ -174,12 +176,6 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			}
 
 			return ctx.Err()
-		case <-ticker.C:
-			if noLatestForAWhile := !lastSeenLatest.IsZero() && time.Since(lastSeenLatest) > config.MessageTimeout; noLatestForAWhile {
-				go callControlPlane(uint64(latestHeight))
-			}
-
-			continue
 		case msg, ok := <-rawTopicCh:
 			if msg == nil || !ok {
 				if err := context.Cause(ctx); err != nil && !errors.Is(err, context.Canceled) {
@@ -190,7 +186,11 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			}
 
 			if msg.BlockHeight <= latestHeight {
-				continue // no need to store an already processed height
+				continue // no need to store previous heights
+			}
+
+			if _, ok := rawHeights[msg.BlockHeight]; ok {
+				continue // already here
 			}
 
 			rawHeights[msg.BlockHeight] = struct{}{}
@@ -232,9 +232,8 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 
 		slices.Sort(sortedHeights)
 
-		earliestRawHeight := sortedHeights[0]
-		if thereIsAGap := latestHeight+1 < earliestRawHeight; thereIsAGap {
-			callControlPlane(uint64(latestHeight) + 1)
+		if thereIsAGap := latestHeight+1 < sortedHeights[0]; thereIsAGap {
+			go callControlPlane(uint64(latestHeight) + 1)
 		}
 	}
 }
