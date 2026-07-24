@@ -39,7 +39,6 @@ from configured full node control planes when raw/latest state indicates a gap.`
 	cmd.Flags().StringSlice(flagMQDetectorFullNodes, []string{}, "Full node control plane URLs")
 	cmd.Flags().Duration(flagMQDetectorRequestTimeout, 10*time.Second, "Timeout for block requests")
 	cmd.Flags().Duration(flagMQDetectorMessageTimeout, 30*time.Second, "Message waiting timeout duration")
-	cmd.Flags().Duration(flagMQDetectorMonitorInterval, time.Second, "Interval to check for timeouts")
 
 	if err := cmd.Execute(); err != nil && !errors.Is(err, context.Canceled) {
 		_, _ = fmt.Fprintln(os.Stderr, err)
@@ -159,16 +158,35 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 	}
 
 	var (
-		latestHeight   = int64(0)
-		rawHeights     = make(map[int64]struct{})
-		lastSeenLatest time.Time
+		latestHeight  = int64(0)
+		rawHeights    = make(map[int64]struct{})
+		latestTimeout <-chan time.Time
+		latestTimer   *time.Timer
 	)
 
-	for {
-		if noLatestForAWhile := !lastSeenLatest.IsZero() && time.Since(lastSeenLatest) > config.MessageTimeout; noLatestForAWhile {
-			go callControlPlane(uint64(latestHeight + 1))
+	resetLatestTimer := func() {
+		if latestTimer == nil {
+			latestTimer = time.NewTimer(config.MessageTimeout)
+		} else {
+			if !latestTimer.Stop() {
+				select {
+				case <-latestTimer.C:
+				default:
+				}
+			}
+			latestTimer.Reset(config.MessageTimeout)
 		}
 
+		latestTimeout = latestTimer.C
+	}
+
+	defer func() {
+		if latestTimer != nil {
+			latestTimer.Stop()
+		}
+	}()
+
+	for {
 		select {
 		case <-ctx.Done():
 			if err := context.Cause(ctx); err != nil {
@@ -176,6 +194,9 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			}
 
 			return ctx.Err()
+		case <-latestTimeout:
+			go callControlPlane(uint64(latestHeight) + 1)
+			resetLatestTimer()
 		case msg, ok := <-rawTopicCh:
 			if msg == nil || !ok {
 				if err := context.Cause(ctx); err != nil && !errors.Is(err, context.Canceled) {
@@ -204,7 +225,7 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			}
 
 			latestHeight = msg.BlockHeight
-			lastSeenLatest = time.Now()
+			resetLatestTimer()
 
 			for h := range rawHeights {
 				if h <= latestHeight {

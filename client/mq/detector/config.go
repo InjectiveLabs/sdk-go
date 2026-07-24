@@ -10,23 +10,21 @@ import (
 )
 
 const (
-	flagMQDetectorKafkaBrokers    = "kafka-brokers"
-	flagMQDetectorRawTopic        = "raw-topic"
-	flagMQDetectorLatestTopic     = "latest-topic"
-	flagMQDetectorFullNodes       = "full-nodes"
-	flagMQDetectorRequestTimeout  = "request-timeout"
-	flagMQDetectorMessageTimeout  = "message-timeout"
-	flagMQDetectorMonitorInterval = "monitor-interval"
+	flagMQDetectorKafkaBrokers   = "kafka-brokers"
+	flagMQDetectorRawTopic       = "raw-topic"
+	flagMQDetectorLatestTopic    = "latest-topic"
+	flagMQDetectorFullNodes      = "full-nodes"
+	flagMQDetectorRequestTimeout = "request-timeout"
+	flagMQDetectorMessageTimeout = "message-timeout"
 )
 
 type mqDetectorConfig struct {
-	KafkaBrokers    []string
-	RawTopic        string
-	LatestTopic     string
-	FullNodes       []string
-	RequestTimeout  time.Duration
-	MessageTimeout  time.Duration
-	MonitorInterval time.Duration
+	KafkaBrokers   []string
+	RawTopic       string
+	LatestTopic    string
+	FullNodes      []string
+	RequestTimeout time.Duration
+	MessageTimeout time.Duration
 }
 
 func parseConfig(cmd *cobra.Command) (mqDetectorConfig, error) {
@@ -60,19 +58,13 @@ func parseConfig(cmd *cobra.Command) (mqDetectorConfig, error) {
 		return mqDetectorConfig{}, err
 	}
 
-	monitorInterval, err := cmd.Flags().GetDuration(flagMQDetectorMonitorInterval)
-	if err != nil {
-		return mqDetectorConfig{}, err
-	}
-
 	cfg := mqDetectorConfig{
-		KafkaBrokers:    kafkaBrokers,
-		RawTopic:        rawTopic,
-		LatestTopic:     latestTopic,
-		FullNodes:       fullNodes,
-		RequestTimeout:  requestTimeout,
-		MessageTimeout:  messageTimeout,
-		MonitorInterval: monitorInterval,
+		KafkaBrokers:   kafkaBrokers,
+		RawTopic:       rawTopic,
+		LatestTopic:    latestTopic,
+		FullNodes:      fullNodes,
+		RequestTimeout: requestTimeout,
+		MessageTimeout: messageTimeout,
 	}
 
 	if len(cfg.KafkaBrokers) == 0 {
@@ -113,14 +105,6 @@ func parseConfig(cmd *cobra.Command) (mqDetectorConfig, error) {
 
 	if cfg.MessageTimeout <= 0 {
 		return mqDetectorConfig{}, errors.New("invalid MQ detector config: message timeout must be positive")
-	}
-
-	if cfg.MonitorInterval <= 0 {
-		return mqDetectorConfig{}, errors.New("invalid MQ detector config: monitor interval must be positive")
-	}
-
-	if cfg.MonitorInterval >= cfg.MessageTimeout {
-		return mqDetectorConfig{}, errors.New("invalid MQ detector config: monitor interval should be less than message timeout")
 	}
 
 	return cfg, nil
