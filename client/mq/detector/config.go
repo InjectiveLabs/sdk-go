@@ -14,6 +14,7 @@ const (
 	flagMQDetectorRawTopic       = "raw-topic"
 	flagMQDetectorLatestTopic    = "latest-topic"
 	flagMQDetectorFullNodes      = "full-nodes"
+	flagMQDetectorControlToken   = "control-token"
 	flagMQDetectorRequestTimeout = "request-timeout"
 	flagMQDetectorMessageTimeout = "message-timeout"
 )
@@ -23,6 +24,7 @@ type mqDetectorConfig struct {
 	RawTopic       string
 	LatestTopic    string
 	FullNodes      []string
+	ControlToken   string
 	RequestTimeout time.Duration
 	MessageTimeout time.Duration
 }
@@ -48,6 +50,11 @@ func parseConfig(cmd *cobra.Command) (mqDetectorConfig, error) {
 		return mqDetectorConfig{}, err
 	}
 
+	controlToken, err := cmd.Flags().GetString(flagMQDetectorControlToken)
+	if err != nil {
+		return mqDetectorConfig{}, err
+	}
+
 	requestTimeout, err := cmd.Flags().GetDuration(flagMQDetectorRequestTimeout)
 	if err != nil {
 		return mqDetectorConfig{}, err
@@ -63,6 +70,7 @@ func parseConfig(cmd *cobra.Command) (mqDetectorConfig, error) {
 		RawTopic:       rawTopic,
 		LatestTopic:    latestTopic,
 		FullNodes:      fullNodes,
+		ControlToken:   controlToken,
 		RequestTimeout: requestTimeout,
 		MessageTimeout: messageTimeout,
 	}

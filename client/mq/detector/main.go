@@ -37,6 +37,7 @@ from configured full node control planes when raw/latest state indicates a gap.`
 	cmd.Flags().String(flagMQDetectorRawTopic, "", "Topic name for raw messages")
 	cmd.Flags().String(flagMQDetectorLatestTopic, "", "Topic name for latest messages")
 	cmd.Flags().StringSlice(flagMQDetectorFullNodes, []string{}, "Full node control plane URLs")
+	cmd.Flags().String(flagMQDetectorControlToken, "", "Bearer token for full node control plane requests")
 	cmd.Flags().Duration(flagMQDetectorRequestTimeout, 10*time.Second, "Timeout for block requests")
 	cmd.Flags().Duration(flagMQDetectorMessageTimeout, 30*time.Second, "Message waiting timeout duration")
 
@@ -124,27 +125,7 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 
 	controlPlaneClient := &http.Client{Timeout: config.RequestTimeout}
 	requestBlocksFromNode := func(nodeURL string, startHeight uint64) error {
-		requestURL := fmt.Sprintf("%s/request?from_height=%d", nodeURL, startHeight)
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL, http.NoBody)
-		if err != nil {
-			return err
-		}
-
-		resp, err := controlPlaneClient.Do(req)
-		if err != nil {
-			return err
-		}
-
-		defer func() {
-			_ = resp.Body.Close()
-		}()
-
-		if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
-			body, _ := io.ReadAll(resp.Body)
-			return fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
-		}
-
-		return nil
+		return requestControlPlaneBlocks(ctx, controlPlaneClient, nodeURL, startHeight, config.ControlToken)
 	}
 
 	callControlPlane := func(startHeight uint64) {
@@ -257,4 +238,32 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			go callControlPlane(uint64(latestHeight) + 1)
 		}
 	}
+}
+
+func requestControlPlaneBlocks(ctx context.Context, client *http.Client, nodeURL string, startHeight uint64, controlToken string) error {
+	requestURL := fmt.Sprintf("%s/request?from_height=%d", nodeURL, startHeight)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL, http.NoBody)
+	if err != nil {
+		return err
+	}
+
+	if controlToken != "" {
+		req.Header.Set("Authorization", "Bearer "+controlToken)
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
+	}
+
+	return nil
 }
