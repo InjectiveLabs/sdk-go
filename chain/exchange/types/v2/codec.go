@@ -96,9 +96,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgTradingRewardPendingPointsUpdate{}, "exchange/v2/MsgTradingRewardPendingPointsUpdate", nil)
 	cdc.RegisterConcrete(&MsgFeeDiscount{}, "exchange/v2/MsgFeeDiscount", nil)
 	cdc.RegisterConcrete(&MsgAtomicMarketOrderFeeMultiplierSchedule{}, "exchange/v2/MsgAtomicMarketOrderFeeMultiplierSchedule", nil)
-
-	// Deprecated: kept for backward-compatible Amino decoding of historical txs
-	cdc.RegisterConcrete(&MsgSetDelegationTransferReceivers{}, "exchange/v2/MsgSetDelegationTransferReceivers", nil) //nolint:staticcheck // deprecated
+	cdc.RegisterConcrete(&MsgSetDelegationTransferReceivers{}, "exchange/v2/MsgSetDelegationTransferReceivers", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/v2/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/v2/BatchExchangeModificationProposal", nil)
@@ -196,8 +194,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCancelPostOnlyMode{},
 		&MsgActivatePostOnlyMode{},
 		&MsgReclaimLockedFunds{},
-		// Deprecated: kept for backward-compatible Any decoding of historical txs
-		&MsgSetDelegationTransferReceivers{}, //nolint:staticcheck // deprecated
+		&MsgSetDelegationTransferReceivers{},
 	)
 
 	registry.RegisterImplementations(

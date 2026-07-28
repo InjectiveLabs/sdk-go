@@ -643,6 +643,12 @@ message SpotMarketOrderResults {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+  // the fee-exclusive quote amount actually settled for the trade (in chain
+  // format)
+  string notional = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // A Cosmos-SDK MsgCreateDerivativeLimitOrder
