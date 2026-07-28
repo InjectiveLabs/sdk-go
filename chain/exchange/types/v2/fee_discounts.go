@@ -161,6 +161,71 @@ func (c *FeeDiscountConfig) IncrementAccountVolumeContribution(
 	}
 }
 
+// DecrementMakerVolumeContribution reverses maker volume that was accrued before a trade's settled
+// notional was reduced. Contributions are clamped at zero defensively.
+func (c *FeeDiscountConfig) DecrementMakerVolumeContribution(
+	subaccountID common.Hash,
+	marketID common.Hash,
+	amount math.LegacyDec,
+) {
+	if c == nil || c.FeeDiscountStakingInfo == nil || amount.IsNil() || !amount.IsPositive() {
+		return
+	}
+
+	account := types.SubaccountIDToAccount(subaccountID)
+	c.AccountVolumesMux.Lock()
+	defer c.AccountVolumesMux.Unlock()
+
+	c.decrementQualifiedAccountVolume(account, amount)
+	c.decrementMakerMarketVolume(subaccountID, marketID, amount)
+}
+
+func (c *FeeDiscountConfig) decrementQualifiedAccountVolume(account types.Account, amount math.LegacyDec) {
+	if !c.IsMarketQualified {
+		return
+	}
+	volume, ok := c.AccountVolumeContributions[account]
+	if !ok {
+		return
+	}
+	volume = subtractVolumeContribution(volume, amount)
+	if volume.IsZero() {
+		delete(c.AccountVolumeContributions, account)
+		return
+	}
+	c.AccountVolumeContributions[account] = volume
+}
+
+func (c *FeeDiscountConfig) decrementMakerMarketVolume(
+	subaccountID, marketID common.Hash,
+	amount math.LegacyDec,
+) {
+	marketVolumes, ok := c.SubaccountMarketVolumeContributions[subaccountID]
+	if !ok {
+		return
+	}
+	volume, ok := marketVolumes[marketID]
+	if !ok {
+		return
+	}
+	volume.MakerVolume = subtractVolumeContribution(volume.MakerVolume, amount)
+	if volume.IsZero() {
+		delete(marketVolumes, marketID)
+		if len(marketVolumes) == 0 {
+			delete(c.SubaccountMarketVolumeContributions, subaccountID)
+		}
+		return
+	}
+	marketVolumes[marketID] = volume
+}
+
+func subtractVolumeContribution(volume, amount math.LegacyDec) math.LegacyDec {
+	if volume.IsNil() || !volume.IsPositive() {
+		return math.LegacyZeroDec()
+	}
+	return math.LegacyMaxDec(math.LegacyZeroDec(), volume.Sub(amount))
+}
+
 func NewFeeDiscountStakingInfo(
 	schedule *FeeDiscountSchedule,
 	currBucketStartTimestamp, oldestBucketStartTimestamp int64,

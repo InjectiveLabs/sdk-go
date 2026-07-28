@@ -416,11 +416,8 @@ func (p *SpotMarketLaunchProposal) ValidateBasic() error {
 		return types.ErrSameDenoms
 	}
 
-	if err := types.ValidateTickSize(p.MinPriceTickSize); err != nil {
-		return errors.Wrap(types.ErrInvalidPriceTickSize, err.Error())
-	}
-	if err := types.ValidateTickSize(p.MinQuantityTickSize); err != nil {
-		return errors.Wrap(types.ErrInvalidQuantityTickSize, err.Error())
+	if err := ValidateSpotMarketTickSizes(p.MinPriceTickSize, p.MinQuantityTickSize); err != nil {
+		return err
 	}
 	if err := types.ValidateMinNotional(p.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())

@@ -789,6 +789,12 @@ message TradeLog {
   bytes order_hash = 5;
   bytes fee_recipient_address = 6 [ (gogoproto.nullable) = true ];
   string cid = 7;
+  // the fee-exclusive quote amount actually settled for the trade (in chain
+  // format)
+  string notional = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message PositionDelta {
