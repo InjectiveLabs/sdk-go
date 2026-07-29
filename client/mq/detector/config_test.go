@@ -1,25 +1,36 @@
 package main
 
 import (
+	"flag"
+	"io"
+	"os"
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/spf13/cobra"
 )
 
 func TestParseConfigReadsControlToken(t *testing.T) {
-	cmd := newDetectorTestCommand()
+	oldCommandLine := flag.CommandLine
+	oldArgs := os.Args
+	t.Cleanup(func() {
+		flag.CommandLine = oldCommandLine
+		os.Args = oldArgs
+	})
 
-	setFlag(t, cmd, flagMQDetectorKafkaBrokers, "broker-1:9092,broker-2:9092")
-	setFlag(t, cmd, flagMQDetectorRawTopic, "raw")
-	setFlag(t, cmd, flagMQDetectorLatestTopic, "latest")
-	setFlag(t, cmd, flagMQDetectorFullNodes, "http://node-1:9999,http://node-2:9999")
-	setFlag(t, cmd, flagMQDetectorControlToken, "secret")
-	setFlag(t, cmd, flagMQDetectorRequestTimeout, "2s")
-	setFlag(t, cmd, flagMQDetectorMessageTimeout, "3s")
+	flag.CommandLine = flag.NewFlagSet(t.Name(), flag.ContinueOnError)
+	flag.CommandLine.SetOutput(io.Discard)
+	os.Args = []string{
+		"detector",
+		"--" + flagMQDetectorKafkaBrokers, "broker-1:9092,broker-2:9092",
+		"--" + flagMQDetectorRawTopic, "raw",
+		"--" + flagMQDetectorLatestTopic, "latest",
+		"--" + flagMQDetectorFullNodes, "http://node-1:9999,http://node-2:9999",
+		"--" + flagMQDetectorControlToken, "secret",
+		"--" + flagMQDetectorRequestTimeout, "2s",
+		"--" + flagMQDetectorMessageTimeout, "3s",
+	}
 
-	cfg, err := parseConfig(cmd)
+	cfg, err := parseConfig()
 	if err != nil {
 		t.Fatalf("parseConfig returned error: %v", err)
 	}
@@ -42,27 +53,5 @@ func TestParseConfigReadsControlToken(t *testing.T) {
 
 	if cfg.MessageTimeout != 3*time.Second {
 		t.Fatalf("unexpected MessageTimeout: %s", cfg.MessageTimeout)
-	}
-}
-
-func newDetectorTestCommand() *cobra.Command {
-	cmd := &cobra.Command{}
-
-	cmd.Flags().StringSlice(flagMQDetectorKafkaBrokers, []string{}, "")
-	cmd.Flags().String(flagMQDetectorRawTopic, "", "")
-	cmd.Flags().String(flagMQDetectorLatestTopic, "", "")
-	cmd.Flags().StringSlice(flagMQDetectorFullNodes, []string{}, "")
-	cmd.Flags().String(flagMQDetectorControlToken, "", "")
-	cmd.Flags().Duration(flagMQDetectorRequestTimeout, 10*time.Second, "")
-	cmd.Flags().Duration(flagMQDetectorMessageTimeout, 30*time.Second, "")
-
-	return cmd
-}
-
-func setFlag(t *testing.T, cmd *cobra.Command, name, value string) {
-	t.Helper()
-
-	if err := cmd.Flags().Set(name, value); err != nil {
-		t.Fatalf("failed to set flag %q: %v", name, err)
 	}
 }

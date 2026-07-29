@@ -14,41 +14,21 @@ import (
 
 	sdklog "cosmossdk.io/log"
 	"github.com/google/uuid"
-	"github.com/spf13/cobra"
 	"github.com/twmb/franz-go/pkg/kgo"
 
 	"github.com/InjectiveLabs/sdk-go/chain/mq/types"
 )
 
 func main() {
-	logger := sdklog.NewLogger(os.Stderr)
-	cmd := &cobra.Command{
-		Use:          "detector",
-		Short:        "Starts the MQ detector service",
-		SilenceUsage: true,
-		Long: `Run the MQ detector service. It consumes raw and latest MQ messages and requests missing blocks
-from configured full node control planes when raw/latest state indicates a gap.`,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			return startMQDetector(cmd, logger)
-		},
-	}
-
-	cmd.Flags().StringSlice(flagMQDetectorKafkaBrokers, []string{}, "Kafka broker addresses")
-	cmd.Flags().String(flagMQDetectorRawTopic, "", "Topic name for raw messages")
-	cmd.Flags().String(flagMQDetectorLatestTopic, "", "Topic name for latest messages")
-	cmd.Flags().StringSlice(flagMQDetectorFullNodes, []string{}, "Full node control plane URLs")
-	cmd.Flags().String(flagMQDetectorControlToken, "", "Bearer token for full node control plane requests")
-	cmd.Flags().Duration(flagMQDetectorRequestTimeout, 10*time.Second, "Timeout for block requests")
-	cmd.Flags().Duration(flagMQDetectorMessageTimeout, 30*time.Second, "Message waiting timeout duration")
-
-	if err := cmd.Execute(); err != nil && !errors.Is(err, context.Canceled) {
+	if err := startMQDetector(context.Background()); err != nil && !errors.Is(err, context.Canceled) {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
-	config, err := parseConfig(cmd)
+func startMQDetector(ctx context.Context) error {
+	logger := sdklog.NewLogger(os.Stderr)
+	config, err := parseConfig()
 	if err != nil {
 		return err
 	}
@@ -67,7 +47,7 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 
 	defer client.Close()
 
-	signalCtx, stopSignals := signal.NotifyContext(cmd.Context(), os.Interrupt, syscall.SIGTERM)
+	signalCtx, stopSignals := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stopSignals()
 
 	ctx, cancel := context.WithCancelCause(signalCtx)
@@ -78,25 +58,17 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 		latestTopicCh = make(chan *types.EventStreamResponse, 1)
 	)
 
-	// start the kafka polling loop
-	go func() {
-		defer func() {
-			close(rawTopicCh)
-			close(latestTopicCh)
-		}()
-
+	poll := func(ctx context.Context, raw, latest chan<- *types.EventStreamResponse) error {
 		for {
 			fetches := client.PollFetches(ctx)
 			if err := fetches.Err(); err != nil {
 				if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
-					cancel(nil)
-					return
+					return err
 				}
 
 				err = fmt.Errorf("poll kafka fetches: %w", err)
 				logger.Error("error polling fetches, stopping consumer loop", "err", err.Error())
-				cancel(err)
-				return
+				return err
 			}
 
 			iter := fetches.RecordIter()
@@ -110,27 +82,42 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 
 				switch record.Topic {
 				case config.LatestTopic:
-					latestTopicCh <- &msg
+					latest <- &msg
 				case config.RawTopic:
-					rawTopicCh <- &msg
+					raw <- &msg
 				default:
 					err := fmt.Errorf("unknown kafka topic %q", record.Topic)
 					logger.Error("unknown topic", "topic", record.Topic)
-					cancel(err)
-					return
+					return err
 				}
 			}
 		}
+	}
+
+	// start the kafka polling loop
+	go func() {
+		defer func() {
+			close(rawTopicCh)
+			close(latestTopicCh)
+		}()
+
+		if err := poll(ctx, rawTopicCh, latestTopicCh); err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
+				cancel(nil)
+				return
+			}
+
+			cancel(err)
+			return
+		}
+
+		cancel(nil)
 	}()
 
 	controlPlaneClient := &http.Client{Timeout: config.RequestTimeout}
-	requestBlocksFromNode := func(nodeURL string, startHeight uint64) error {
-		return requestControlPlaneBlocks(ctx, controlPlaneClient, nodeURL, startHeight, config.ControlToken)
-	}
-
 	callControlPlane := func(startHeight uint64) {
 		for _, node := range config.FullNodes {
-			if err := requestBlocksFromNode(node, startHeight); err != nil {
+			if err := requestControlPlaneBlocks(ctx, controlPlaneClient, startHeight, node, config.ControlToken); err != nil {
 				logger.Error("error requesting blocks from node", "node", node, "err", err.Error())
 			}
 
@@ -139,35 +126,16 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 	}
 
 	var (
-		latestHeight  = int64(0)
-		rawHeights    = make(map[int64]struct{})
-		latestTimeout <-chan time.Time
-		latestTimer   *time.Timer
+		latestHeight   = int64(0)
+		rawHeights     = make(map[int64]struct{})
+		lastSeenLatest time.Time
 	)
 
-	resetLatestTimer := func() {
-		if latestTimer == nil {
-			latestTimer = time.NewTimer(config.MessageTimeout)
-		} else {
-			if !latestTimer.Stop() {
-				select {
-				case <-latestTimer.C:
-				default:
-				}
-			}
-			latestTimer.Reset(config.MessageTimeout)
-		}
-
-		latestTimeout = latestTimer.C
-	}
-
-	defer func() {
-		if latestTimer != nil {
-			latestTimer.Stop()
-		}
-	}()
-
 	for {
+		if noLatestForAWhile := !lastSeenLatest.IsZero() && time.Since(lastSeenLatest) > config.MessageTimeout; noLatestForAWhile {
+			go callControlPlane(uint64(latestHeight) + 1)
+		}
+
 		select {
 		case <-ctx.Done():
 			if err := context.Cause(ctx); err != nil {
@@ -175,9 +143,6 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			}
 
 			return ctx.Err()
-		case <-latestTimeout:
-			go callControlPlane(uint64(latestHeight) + 1)
-			resetLatestTimer()
 		case msg, ok := <-rawTopicCh:
 			if msg == nil || !ok {
 				if err := context.Cause(ctx); err != nil && !errors.Is(err, context.Canceled) {
@@ -206,7 +171,7 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 			}
 
 			latestHeight = msg.BlockHeight
-			resetLatestTimer()
+			lastSeenLatest = time.Now()
 
 			for h := range rawHeights {
 				if h <= latestHeight {
@@ -240,7 +205,13 @@ func startMQDetector(cmd *cobra.Command, logger sdklog.Logger) error {
 	}
 }
 
-func requestControlPlaneBlocks(ctx context.Context, client *http.Client, nodeURL string, startHeight uint64, controlToken string) error {
+func requestControlPlaneBlocks(
+	ctx context.Context,
+	client *http.Client,
+	startHeight uint64,
+	nodeURL,
+	controlToken string,
+) error {
 	requestURL := fmt.Sprintf("%s/request?from_height=%d", nodeURL, startHeight)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, requestURL, http.NoBody)
 	if err != nil {
