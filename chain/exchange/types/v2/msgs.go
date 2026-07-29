@@ -71,8 +71,11 @@ var (
 	_ sdk.Msg = &MsgTradingRewardPendingPointsUpdate{}
 	_ sdk.Msg = &MsgFeeDiscount{}
 	_ sdk.Msg = &MsgAtomicMarketOrderFeeMultiplierSchedule{}
-	_ sdk.Msg = &MsgSetDelegationTransferReceivers{}
 	_ sdk.Msg = &MsgCancelPostOnlyMode{}
+
+	// Deprecated: Delegation transfer receiver support was removed. Kept so
+	// Any-wrapped historical txs can still be decoded.
+	_ sdk.Msg = &MsgSetDelegationTransferReceivers{} //nolint:staticcheck // deprecated
 	_ sdk.Msg = &MsgActivatePostOnlyMode{}
 )
 
@@ -2852,36 +2855,27 @@ func (msg *MsgAtomicMarketOrderFeeMultiplierSchedule) ValidateBasic() error {
 	return nil
 }
 
-func (*MsgSetDelegationTransferReceivers) Route() string { return RouterKey }
+// Deprecated: Delegation transfer receiver support was removed. The methods
+// below exist only so that Any-wrapped historical txs containing this message
+// type can still be unpacked during tx queries and replay. ValidateBasic always
+// rejects, so no new tx of this type can be accepted by the chain.
 
-func (*MsgSetDelegationTransferReceivers) Type() string {
+func (*MsgSetDelegationTransferReceivers) Route() string { return RouterKey } //nolint:staticcheck // deprecated
+
+func (*MsgSetDelegationTransferReceivers) Type() string { //nolint:staticcheck // deprecated
 	return TypeMsgSetDelegationTransferReceivers
 }
 
-func (msg *MsgSetDelegationTransferReceivers) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if len(msg.Receivers) == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "receivers list cannot be empty")
-	}
-
-	for _, receiver := range msg.Receivers {
-		if _, err := sdk.AccAddressFromBech32(receiver); err != nil {
-			return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address: %s", receiver)
-		}
-	}
-
-	return nil
+func (*MsgSetDelegationTransferReceivers) ValidateBasic() error { //nolint:staticcheck // deprecated
+	return errors.Wrap(types.ErrMsgDeprecated, "delegation transfer receivers feature was removed")
 }
 
-func (msg *MsgSetDelegationTransferReceivers) GetSignBytes() []byte {
+func (msg *MsgSetDelegationTransferReceivers) GetSignBytes() []byte { //nolint:staticcheck // deprecated
 	bz, _ := json.Marshal(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgSetDelegationTransferReceivers) GetSigners() []sdk.AccAddress {
+func (msg *MsgSetDelegationTransferReceivers) GetSigners() []sdk.AccAddress { //nolint:staticcheck // deprecated
 	addr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil
