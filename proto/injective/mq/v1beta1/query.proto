@@ -6,12 +6,18 @@ import "cometbft/abci/v1/types.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mq/types";
 
-// ChainStream defines the gRPC streaming service.
 service EventStream {
   rpc EventStream(EventStreamRequest) returns (stream EventStreamResponse);
 }
 
-message EventStreamRequest {}
+message EventStreamRequest {
+  // a unique Kafka partition for this particular client. Reuse the value to
+  // resume where you left off with receiving data
+  string consumer_id = 1;
+
+  // topic of interest (raw, latest, guaranteed)
+  string topic = 2;
+}
 
 message EventStreamResponse {
   int64 block_height = 1;
