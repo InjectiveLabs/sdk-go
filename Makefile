@@ -170,8 +170,15 @@ extract-message-names:
 update-ofac-list:
 	go run examples/chain/ofac/1_DownloadOfacList/example.go
 
+GO_INSTALL_BINDIR := $(shell go env GOBIN)
+ifeq ($(GO_INSTALL_BINDIR),)
+GO_INSTALL_BINDIR := $(shell go env GOPATH)/bin
+endif
+
 install-mq:
-	go install ./client/mq/stream/server ./client/mq/detector
+	mkdir -p $(GO_INSTALL_BINDIR)
+	go build -o $(GO_INSTALL_BINDIR)/mq-stream ./client/mq/stream/server
+	go build -o $(GO_INSTALL_BINDIR)/mq-detector ./client/mq/detector
 
 tests:
 	go clean -testcache && go test -race ./client/... ./ethereum/...
