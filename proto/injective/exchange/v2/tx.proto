@@ -227,6 +227,10 @@ service Msg {
       MsgAtomicMarketOrderFeeMultiplierSchedule)
       returns (MsgAtomicMarketOrderFeeMultiplierScheduleResponse);
 
+  // SetDelegationTransferReceivers adds delegation transfer receivers.
+  rpc SetDelegationTransferReceivers(MsgSetDelegationTransferReceivers)
+      returns (MsgSetDelegationTransferReceiversResponse);
+
   // MsgCancelPostOnlyMode defines a message to turn off the post-only mode
   rpc CancelPostOnlyMode(MsgCancelPostOnlyMode)
       returns (MsgCancelPostOnlyModeResponse);
@@ -1671,11 +1675,9 @@ message MsgAtomicMarketOrderFeeMultiplierSchedule {
 
 message MsgAtomicMarketOrderFeeMultiplierScheduleResponse {}
 
-// Deprecated: Delegation transfer receiver support was removed. This message
-// is kept for backward compatibility to decode historical transactions.
+// MsgSetDelegationTransferReceivers defines a message for adding delegation
+// transfer receivers.
 message MsgSetDelegationTransferReceivers {
-  option deprecated = true;
-
   option (amino.name) = "exchange/MsgSetDelegationTransferReceivers";
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -1685,9 +1687,9 @@ message MsgSetDelegationTransferReceivers {
   repeated string receivers = 2;
 }
 
-// Deprecated: Delegation transfer receiver support was removed. This message
-// is kept for backward compatibility to decode historical transactions.
-message MsgSetDelegationTransferReceiversResponse { option deprecated = true; }
+// MsgSetDelegationTransferReceiversResponse defines the response for
+// MsgSetDelegationTransferReceivers.
+message MsgSetDelegationTransferReceiversResponse {}
 
 // MsgCancelPostOnlyMode defines a message for canceling post-only mode
 message MsgCancelPostOnlyMode {
