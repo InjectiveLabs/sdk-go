@@ -15,6 +15,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/gogoproto/proto"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -239,6 +240,47 @@ func TestWriteEventsFileSkipsWhenDirectoryUnset(t *testing.T) {
 	})
 
 	require.NoError(t, err)
+}
+
+func TestResolveConsumerIDUsesFlagValue(t *testing.T) {
+	t.Parallel()
+
+	filePath := filepath.Join(t.TempDir(), "consumer-id")
+
+	consumerID, err := resolveConsumerID(" from-flag ", filePath)
+
+	require.NoError(t, err)
+	require.Equal(t, "from-flag", consumerID)
+	require.NoFileExists(t, filePath)
+}
+
+func TestResolveConsumerIDReadsExistingFile(t *testing.T) {
+	t.Parallel()
+
+	filePath := filepath.Join(t.TempDir(), "consumer-id")
+	require.NoError(t, os.WriteFile(filePath, []byte("from-file\n"), 0o600))
+
+	consumerID, err := resolveConsumerID("", filePath)
+
+	require.NoError(t, err)
+	require.Equal(t, "from-file", consumerID)
+}
+
+func TestResolveConsumerIDGeneratesAndWritesMissingFile(t *testing.T) {
+	t.Parallel()
+
+	filePath := filepath.Join(t.TempDir(), "nested", "consumer-id")
+
+	consumerID, err := resolveConsumerID("", filePath)
+
+	require.NoError(t, err)
+	require.NotEmpty(t, consumerID)
+	_, err = uuid.Parse(consumerID)
+	require.NoError(t, err)
+
+	bz, err := os.ReadFile(filePath)
+	require.NoError(t, err)
+	require.Equal(t, consumerID+"\n", string(bz))
 }
 
 func TestWriteEventsFileWritesStructuredPayload(t *testing.T) {

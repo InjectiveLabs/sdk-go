@@ -11,7 +11,6 @@ import (
 const (
 	flagMQStreamListenAddress             = "listen-address"
 	flagMQStreamKafkaBrokers              = "kafka-brokers"
-	flagMQStreamTopicName                 = "topic"
 	flagMQStreamEnforceKeepalive          = "mq-enforce-keepalive"
 	flagMQStreamMinClientPingInterval     = "mq-min-client-ping-interval"
 	flagMQStreamMaxConnectionIdle         = "mq-max-connection-idle"
@@ -27,7 +26,6 @@ const (
 type mqStreamConfig struct {
 	ListenAddress             string
 	KafkaBrokers              []string
-	Topic                     string
 	EnforceKeepalive          bool
 	MinClientPingInterval     time.Duration
 	MaxConnectionIdle         time.Duration
@@ -38,7 +36,6 @@ type mqStreamConfig struct {
 func parseConfig() (mqStreamConfig, error) {
 	listenAddress := flag.String(flagMQStreamListenAddress, "0.0.0.0:9988", "Listen address")
 	kafkaBrokers := flag.String(flagMQStreamKafkaBrokers, "", "Comma-separated Kafka broker addresses")
-	topic := flag.String(flagMQStreamTopicName, "", "Topic to consume")
 	enforceKeepalive := flag.Bool(flagMQStreamEnforceKeepalive, false,
 		"Define if Keepalive configuration params should be applied to MQ event stream gRPC server",
 	)
@@ -59,7 +56,6 @@ func parseConfig() (mqStreamConfig, error) {
 
 	cfg := mqStreamConfig{
 		ListenAddress:             *listenAddress,
-		Topic:                     *topic,
 		EnforceKeepalive:          *enforceKeepalive,
 		MinClientPingInterval:     *minClientPingInterval,
 		MaxConnectionIdle:         *maxConnectionIdle,
@@ -91,10 +87,6 @@ func (cfg mqStreamConfig) Validate() error {
 		if strings.TrimSpace(broker) == "" {
 			return fmt.Errorf("invalid MQ stream config: Kafka broker #%d is empty", i+1)
 		}
-	}
-
-	if strings.TrimSpace(cfg.Topic) == "" {
-		return errors.New("invalid MQ stream config: topic cannot be empty")
 	}
 
 	if cfg.MinClientPingInterval <= 0 {

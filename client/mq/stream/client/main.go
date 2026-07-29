@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"errors"
-	"flag"
 	"fmt"
 	"io"
-	"log"
+	"os"
 	"strings"
 	"time"
 
@@ -26,32 +25,35 @@ var kacp = keepalive.ClientParameters{
 }
 
 func main() {
-	address := flag.String("address", "localhost:9988", "MQ gRPC stream server address")
-	format := flag.String("format", "verbose", "Output format: verbose or minimal")
-	eventsDir := flag.String("events-dir", "", "Directory to write one JSON file per streamed block")
-	flag.Parse()
-
-	if err := run(*address, *format, *eventsDir); err != nil {
-		log.Fatal(err)
+	if err := startMQStreamClient(context.Background()); err != nil && !errors.Is(err, context.Canceled) {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 }
 
-func run(address, format, eventsDir string) error {
+func startMQStreamClient(ctx context.Context) error {
+	config, err := parseConfig()
+	if err != nil {
+		return err
+	}
+
 	cc, err := grpc.NewClient(
-		address,
+		config.Address,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(kacp),
 	)
-	// nolint:staticcheck //ignored on purpose
 	if err != nil {
 		return fmt.Errorf("failed to connect: %w", err)
 	}
-	defer cc.Close()
 
-	client := mqtypes.NewEventStreamClient(cc)
+	defer func() {
+		_ = cc.Close()
+	}()
 
-	ctx := context.Background()
-	stream, err := client.EventStream(ctx, &mqtypes.EventStreamRequest{})
+	stream, err := mqtypes.NewEventStreamClient(cc).EventStream(ctx, &mqtypes.EventStreamRequest{
+		ConsumerId: config.ConsumerID,
+		Topic:      config.Topic,
+	})
 	if err != nil {
 		return fmt.Errorf("failed to start event stream: %w", err)
 	}
@@ -66,17 +68,17 @@ func run(address, format, eventsDir string) error {
 			return fmt.Errorf("event stream failed: %w", err)
 		}
 
-		if err := writeEventsFile(eventsDir, res); err != nil {
+		if err := writeEventsFile(config.EventsDir, res); err != nil {
 			return fmt.Errorf("failed to write events file: %w", err)
 		}
 
-		switch format {
+		switch config.Format {
 		case "minimal":
 			printMinimal(res)
 		case "verbose":
 			printVerbose(res)
 		default:
-			return fmt.Errorf("unsupported format %q", format)
+			return fmt.Errorf("unsupported format %q", config.Format)
 		}
 	}
 }

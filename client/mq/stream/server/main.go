@@ -8,51 +8,37 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-	"sync"
 	"syscall"
 
 	sdklog "cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/server/grpc/gogoreflection"
-	"github.com/google/uuid"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/status"
 
 	"github.com/InjectiveLabs/sdk-go/chain/mq/types"
 )
 
 func main() {
-	logger := sdklog.NewLogger(os.Stderr)
-	if err := startMQStream(context.Background(), logger); err != nil && !errors.Is(err, context.Canceled) {
+	if err := startMQStream(context.Background()); err != nil && !errors.Is(err, context.Canceled) {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func startMQStream(ctx context.Context, logger sdklog.Logger) error {
+func startMQStream(ctx context.Context) error {
+	logger := sdklog.NewLogger(os.Stderr)
 	config, err := parseConfig()
 	if err != nil {
 		return err
 	}
 
-	opts := []kgo.Opt{
-		kgo.SeedBrokers(config.KafkaBrokers...),
-		kgo.ConsumerGroup(uuid.New().String()),
-		kgo.ConsumeTopics(config.Topic),
-		kgo.ConsumeResetOffset(kgo.NewOffset().AtStart()),
-	}
-
-	client, err := kgo.NewClient(opts...)
-	if err != nil {
-		return err
-	}
-
-	defer client.Close()
-
 	signalCtx, stopSignals := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stopSignals()
 
-	cctx, cancel := context.WithCancelCause(signalCtx)
+	ctx, cancel := context.WithCancelCause(signalCtx)
 	defer cancel(nil)
 
 	var grpcServerOptions []grpc.ServerOption
@@ -69,17 +55,10 @@ func startMQStream(ctx context.Context, logger sdklog.Logger) error {
 		}
 	}
 
-	srv := NewStreamServer(logger, client)
+	srv := NewStreamServer(logger, config)
 	grpcServer := grpc.NewServer(grpcServerOptions...)
 	types.RegisterEventStreamServer(grpcServer, srv)
 	gogoreflection.Register(grpcServer)
-
-	// start subscription
-	go func() {
-		if err := srv.Poll(cctx); err != nil {
-			logger.Error(err.Error())
-		}
-	}()
 
 	listener, err := net.Listen("tcp", strings.TrimPrefix(config.ListenAddress, "tcp://"))
 	if err != nil {
@@ -119,44 +98,57 @@ func startMQStream(ctx context.Context, logger sdklog.Logger) error {
 }
 
 type StreamServer struct {
-	logger        sdklog.Logger
-	kafka         *kgo.Client
-	mtx           sync.RWMutex
-	subscriptions map[string]chan *types.EventStreamResponse
+	logger       sdklog.Logger
+	kafkaBrokers []string
 }
 
-func NewStreamServer(l sdklog.Logger, k *kgo.Client) *StreamServer {
+func NewStreamServer(l sdklog.Logger, cfg mqStreamConfig) *StreamServer {
 	return &StreamServer{
-		logger:        l,
-		kafka:         k,
-		subscriptions: make(map[string]chan *types.EventStreamResponse),
+		logger:       l,
+		kafkaBrokers: cfg.KafkaBrokers,
 	}
 }
 
-func (srv *StreamServer) Poll(ctx context.Context) error {
-	notifyAll := func(msg *types.EventStreamResponse) {
-		srv.mtx.RLock()
-		defer srv.mtx.RUnlock()
-
-		for _, sub := range srv.subscriptions {
-			select {
-			case sub <- msg:
-			default: // subscriber not consuming
-				srv.logger.Warn("consumer not reading the channel, skipping")
-			}
-		}
+func (srv *StreamServer) EventStream(req *types.EventStreamRequest, server types.EventStream_EventStreamServer) error {
+	if req == nil {
+		return status.Error(codes.InvalidArgument, "event stream request cannot be nil")
 	}
+
+	consumerID := strings.TrimSpace(req.ConsumerId)
+	if consumerID == "" {
+		return status.Error(codes.InvalidArgument, "consumer id cannot be empty")
+	}
+
+	topic := strings.TrimSpace(req.Topic)
+	if topic == "" {
+		return status.Error(codes.InvalidArgument, "topic cannot be empty")
+	}
+
+	opts := []kgo.Opt{
+		kgo.SeedBrokers(srv.kafkaBrokers...),
+		kgo.ConsumerGroup(consumerID),
+		kgo.ConsumeTopics(topic),
+		kgo.ConsumeResetOffset(kgo.NewOffset().AtStart()),
+	}
+
+	client, err := kgo.NewClient(opts...)
+	if err != nil {
+		return err
+	}
+
+	defer client.Close()
+
+	srv.logger.Info("event stream consumer started", "consumer_id", consumerID, "topic", topic)
+	defer srv.logger.Info("event stream consumer stopped", "consumer_id", consumerID, "topic", topic)
 
 	for {
-		fetches := srv.kafka.PollFetches(ctx)
+		fetches := client.PollFetches(server.Context())
 		if err := fetches.Err(); err != nil {
-			if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
-				return nil
+			if errors.Is(err, context.Canceled) || errors.Is(server.Context().Err(), context.Canceled) {
+				return server.Context().Err()
 			}
 
-			err = fmt.Errorf("poll kafka fetches: %w", err)
-			srv.logger.Error("error polling fetches, stopping consumer loop", "err", err.Error())
-			return err
+			return fmt.Errorf("poll kafka fetches: %w", err)
 		}
 
 		iter := fetches.RecordIter()
@@ -168,35 +160,7 @@ func (srv *StreamServer) Poll(ctx context.Context) error {
 				continue
 			}
 
-			notifyAll(&msg)
-		}
-	}
-}
-
-func (srv *StreamServer) EventStream(_ *types.EventStreamRequest, server types.EventStream_EventStreamServer) error {
-	id := uuid.New().String()
-	ch := make(chan *types.EventStreamResponse, 100)
-
-	srv.mtx.Lock()
-	srv.subscriptions[id] = ch
-	srv.mtx.Unlock()
-
-	defer func() {
-		srv.mtx.Lock()
-		delete(srv.subscriptions, id)
-		srv.mtx.RUnlock()
-	}()
-
-	for {
-		select {
-		case <-server.Context().Done():
-			return server.Context().Err()
-		case message, ok := <-ch:
-			if !ok {
-				return errors.New("stream closed")
-			}
-
-			if err := server.Send(message); err != nil {
+			if err := server.Send(&msg); err != nil {
 				return fmt.Errorf("error sending message to client: %w", err)
 			}
 		}
