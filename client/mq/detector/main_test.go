@@ -29,7 +29,7 @@ func TestRequestControlPlaneBlocksAddsBearerToken(t *testing.T) {
 	}))
 	defer server.Close()
 
-	err := requestControlPlaneBlocks(context.Background(), server.Client(), server.URL, 42, "secret")
+	err := requestControlPlaneBlocks(context.Background(), server.Client(), 42, server.URL, "secret")
 	if err != nil {
 		t.Fatalf("requestControlPlaneBlocks returned error: %v", err)
 	}
@@ -45,7 +45,7 @@ func TestRequestControlPlaneBlocksOmitsBearerTokenWhenEmpty(t *testing.T) {
 	}))
 	defer server.Close()
 
-	err := requestControlPlaneBlocks(context.Background(), server.Client(), server.URL, 42, "")
+	err := requestControlPlaneBlocks(context.Background(), server.Client(), 42, server.URL, "")
 	if err != nil {
 		t.Fatalf("requestControlPlaneBlocks returned error: %v", err)
 	}

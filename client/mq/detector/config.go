@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
 	flagMQDetectorKafkaBrokers   = "kafka-brokers"
+	flagMQDetectorConsumerID     = "consumer-id"
 	flagMQDetectorRawTopic       = "raw-topic"
 	flagMQDetectorLatestTopic    = "latest-topic"
 	flagMQDetectorFullNodes      = "full-nodes"
@@ -20,6 +23,7 @@ const (
 
 type mqDetectorConfig struct {
 	KafkaBrokers   []string
+	ConsumerID     string
 	RawTopic       string
 	LatestTopic    string
 	FullNodes      []string
@@ -30,6 +34,7 @@ type mqDetectorConfig struct {
 
 func parseConfig() (mqDetectorConfig, error) {
 	kafkaBrokers := flag.String(flagMQDetectorKafkaBrokers, "", "Comma-separated Kafka broker addresses")
+	consumerID := flag.String(flagMQDetectorConsumerID, "", "Kafka consumer id; generated when omitted")
 	rawTopic := flag.String(flagMQDetectorRawTopic, "", "Topic name for raw messages")
 	latestTopic := flag.String(flagMQDetectorLatestTopic, "", "Topic name for latest messages")
 	fullNodes := flag.String(flagMQDetectorFullNodes, "", "Comma-separated full node control plane URLs")
@@ -39,6 +44,7 @@ func parseConfig() (mqDetectorConfig, error) {
 	flag.Parse()
 
 	cfg := mqDetectorConfig{
+		ConsumerID:     resolveConsumerID(*consumerID),
 		RawTopic:       *rawTopic,
 		LatestTopic:    *latestTopic,
 		ControlToken:   *controlToken,
@@ -61,9 +67,21 @@ func parseConfig() (mqDetectorConfig, error) {
 	return cfg, nil
 }
 
+func resolveConsumerID(flagValue string) string {
+	if consumerID := strings.TrimSpace(flagValue); consumerID != "" {
+		return consumerID
+	}
+
+	return uuid.NewString()
+}
+
 func (cfg mqDetectorConfig) Validate() error {
 	if len(cfg.KafkaBrokers) == 0 {
 		return errors.New("invalid MQ detector config: no Kafka brokers specified")
+	}
+
+	if strings.TrimSpace(cfg.ConsumerID) == "" {
+		return errors.New("invalid MQ detector config: consumer id cannot be empty")
 	}
 
 	for i, broker := range cfg.KafkaBrokers {

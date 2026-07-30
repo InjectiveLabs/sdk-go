@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -13,7 +14,6 @@ import (
 	"time"
 
 	sdklog "cosmossdk.io/log"
-	"github.com/google/uuid"
 	"github.com/twmb/franz-go/pkg/kgo"
 
 	"github.com/InjectiveLabs/sdk-go/chain/mq/types"
@@ -35,7 +35,7 @@ func startMQDetector(ctx context.Context) error {
 
 	opts := []kgo.Opt{
 		kgo.SeedBrokers(config.KafkaBrokers...),
-		kgo.ConsumerGroup(uuid.New().String()),
+		kgo.ConsumerGroup(config.ConsumerID),
 		kgo.ConsumeTopics(config.RawTopic, config.LatestTopic),
 		kgo.ConsumeResetOffset(kgo.NewOffset().AtStart()),
 	}
@@ -94,6 +94,18 @@ func startMQDetector(ctx context.Context) error {
 		}
 	}
 
+	controlPlaneClient := &http.Client{Timeout: config.RequestTimeout}
+	callControlPlane := func(startHeight uint64) {
+		logger.Info("calling control plane", "startHeight", startHeight)
+		for _, node := range config.FullNodes {
+			if err := requestControlPlaneBlocks(ctx, controlPlaneClient, startHeight, node, config.ControlToken); err != nil {
+				logger.Error("error requesting blocks from node", "node", node, "err", err.Error())
+			}
+
+			logger.Debug("requested blocks from node", "node", node)
+		}
+	}
+
 	// start the kafka polling loop
 	go func() {
 		defer func() {
@@ -102,28 +114,14 @@ func startMQDetector(ctx context.Context) error {
 		}()
 
 		if err := poll(ctx, rawTopicCh, latestTopicCh); err != nil {
-			if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.Canceled) {
-				cancel(nil)
+			if !errors.Is(err, context.Canceled) && !errors.Is(ctx.Err(), context.Canceled) {
+				cancel(err)
 				return
 			}
-
-			cancel(err)
-			return
 		}
 
 		cancel(nil)
 	}()
-
-	controlPlaneClient := &http.Client{Timeout: config.RequestTimeout}
-	callControlPlane := func(startHeight uint64) {
-		for _, node := range config.FullNodes {
-			if err := requestControlPlaneBlocks(ctx, controlPlaneClient, startHeight, node, config.ControlToken); err != nil {
-				logger.Error("error requesting blocks from node", "node", node, "err", err.Error())
-			}
-
-			logger.Info("requested blocks from node", "node", node, "start_height", startHeight)
-		}
-	}
 
 	var (
 		latestHeight   = int64(0)
@@ -161,6 +159,11 @@ func startMQDetector(ctx context.Context) error {
 			}
 
 			rawHeights[msg.BlockHeight] = struct{}{}
+			logger.Info("received raw event",
+				"height", msg.BlockHeight,
+				"app_hash", hex.EncodeToString(msg.AppHash),
+				"last_app_hash", hex.EncodeToString(msg.LastAppHash),
+			)
 		case msg, ok := <-latestTopicCh:
 			if msg == nil || !ok {
 				if err := context.Cause(ctx); err != nil && !errors.Is(err, context.Canceled) {
@@ -172,6 +175,11 @@ func startMQDetector(ctx context.Context) error {
 
 			latestHeight = msg.BlockHeight
 			lastSeenLatest = time.Now()
+			logger.Info("received latest event",
+				"height", msg.BlockHeight,
+				"app_hash", hex.EncodeToString(msg.AppHash),
+				"last_app_hash", hex.EncodeToString(msg.LastAppHash),
+			)
 
 			for h := range rawHeights {
 				if h <= latestHeight {
@@ -200,6 +208,7 @@ func startMQDetector(ctx context.Context) error {
 		slices.Sort(sortedHeights)
 
 		if thereIsAGap := latestHeight+1 < sortedHeights[0]; thereIsAGap {
+			logger.Warn("height gap detected", "want", latestHeight+1, "got", sortedHeights[0])
 			go callControlPlane(uint64(latestHeight) + 1)
 		}
 	}
