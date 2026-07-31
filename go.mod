@@ -69,7 +69,7 @@ require (
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.1.0 // indirect
 	github.com/bugsnag/bugsnag-go v2.1.2+incompatible // indirect
 	github.com/bugsnag/panicwrap v1.3.4 // indirect
-	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.1.2 // indirect
+	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.1.3 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/cp v1.1.1 // indirect
@@ -249,8 +249,8 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.53.3-inj.3
 
 	// cardano ibc
-	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.0.0-20260623111725-133335c211cc
-	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 v0.0.0-20260623111725-133335c211cc
+	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.0.0-20260708114507-110e3155016b
+	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 v0.0.0-20260708114507-110e3155016b
 
 	github.com/coder/websocket => github.com/InjectiveLabs/websocket v1.8.13
 

@@ -1238,10 +1238,10 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.48
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.48.1/go.mod h1:jyqM3eLpJ3IbIFDTKVz2rF9T/xWGW0rIriGwnz8l9Tk=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.48.1 h1:8nn+rsCvTq9axyEh382S0PFLBeaFwNsT43IrPWzctRU=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.48.1/go.mod h1:viRWSEhtMZqz1rhwmOVKkWl6SwmVowfL9O2YR5gI2PE=
-github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.0.0-20260623111725-133335c211cc h1:zaY+I0e4+dkJNqpOO/C8z4prH/uFGnbRg9OD0I3EBBs=
-github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.0.0-20260623111725-133335c211cc/go.mod h1:hTEvgDLEqJSuf6zZYfDcdHySo1uHjNB4LZRkWi/5MzQ=
-github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 v0.0.0-20260623111725-133335c211cc h1:V6mGNnZkftnLM2yCiUsNQ9xGEX4h8b8yovaUzYsSFhI=
-github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 v0.0.0-20260623111725-133335c211cc/go.mod h1:63O3ytzdSGvF3kND/S8HObBrVTEf0HGpERnWu1uLIMs=
+github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.0.0-20260708114507-110e3155016b h1:3DhPtkjnwb4rpWmehfMSw/dwHAnf+1S3UMSf0bXxTBc=
+github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.0.0-20260708114507-110e3155016b/go.mod h1:hTEvgDLEqJSuf6zZYfDcdHySo1uHjNB4LZRkWi/5MzQ=
+github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 v0.0.0-20260708114507-110e3155016b h1:Bw0QRAYu0IT56ePhDZlbzryIwbW8H0zXEIEIXn7VziM=
+github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 v0.0.0-20260708114507-110e3155016b/go.mod h1:GnzPiiBgn/muNRwWsMyoLIUmKjaqUW6gCqTPPZ+xK7k=
 github.com/InjectiveLabs/cometbft v1.0.1-inj.9 h1:j83caQ90XKyU9ojs7F6CyR7Ds8uZkamTxR38v1ovB2Y=
 github.com/InjectiveLabs/cometbft v1.0.1-inj.9/go.mod h1:GjHzF+48UzwdWUUG4uUD+e52h2L6Pq9rK4eL+oYIyBU=
 github.com/InjectiveLabs/cometbft/api v1.0.0-inj.4 h1:XibZsTaU2GGq4v07yS3saajY45Abx/m8y8vUq0uRRPE=
