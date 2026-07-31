@@ -25,12 +25,12 @@ import (
 func main() {
 	var (
 		listenAddress             = flag.String(flagMQStreamListenAddress, "0.0.0.0:9988", "Listen address")
-		kafkaBrokers              = flag.String(flagMQStreamKafkaBrokers, "", "Comma-separated Kafka broker addresses")
-		enforceKeepalive          = flag.Bool(flagMQStreamEnforceKeepalive, false, "Define if Keepalive configuration params should be applied to MQ event stream gRPC server")
-		minClientPingInterval     = flag.Duration(flagMQStreamMinClientPingInterval, defaultMQStreamMinClientPingInterval, "Duration a client should wait before sending a keepalive ping")
-		maxConnectionIdle         = flag.Duration(flagMQStreamMaxConnectionIdle, defaultMQStreamMaxConnectionIdle, "Duration a connection is allowed to stay idle before forcing the disconnection")
-		serverPingInterval        = flag.Duration(flagMQStreamServerPingInterval, defaultMQStreamServerPingInterval, "Duration after which the server will send a keepalive ping to the client on an idle connection")
-		serverPingResponseTimeout = flag.Duration(flagMQStreamServerPingResponseTimeout, defaultMQStreamServerPingResponseTimeout, "Duration the server waits for the client to respond to a ping message before forcing a disconnection")
+		kafkaBrokers              = flag.String(flagMQStreamKafkaBrokers, "", "Comma-separated Kafka broker addresses")                                                                                                                    //nolint // it's fine
+		enforceKeepalive          = flag.Bool(flagMQStreamEnforceKeepalive, false, "Define if Keepalive configuration params should be applied to MQ event stream gRPC server")                                                            //nolint // it's fine
+		minClientPingInterval     = flag.Duration(flagMQStreamMinClientPingInterval, defaultMQStreamMinClientPingInterval, "Duration a client should wait before sending a keepalive ping")                                                //nolint // it's fine
+		maxConnectionIdle         = flag.Duration(flagMQStreamMaxConnectionIdle, defaultMQStreamMaxConnectionIdle, "Duration a connection is allowed to stay idle before forcing the disconnection")                                       //nolint // it's fine
+		serverPingInterval        = flag.Duration(flagMQStreamServerPingInterval, defaultMQStreamServerPingInterval, "Duration after which the server will send a keepalive ping to the client on an idle connection")                     //nolint // it's fine
+		serverPingResponseTimeout = flag.Duration(flagMQStreamServerPingResponseTimeout, defaultMQStreamServerPingResponseTimeout, "Duration the server waits for the client to respond to a ping message before forcing a disconnection") //nolint // it's fine
 	)
 
 	flag.Parse()

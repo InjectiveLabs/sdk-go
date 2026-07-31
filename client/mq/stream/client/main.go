@@ -29,7 +29,7 @@ func main() {
 	var (
 		address        = flag.String(flagMQStreamClientAddress, "localhost:9988", "MQ gRPC stream server address")
 		consumerID     = flag.String(flagMQStreamClientConsumerID, "", "Stable Kafka consumer id")
-		consumerIDFile = flag.String(flagMQStreamClientConsumerIDFile, defaultConsumerIDFile, "File used to persist a generated Kafka consumer id")
+		consumerIDFile = flag.String(flagMQStreamClientConsumerIDFile, defaultConsumerIDFile, "File used to persist a generated Kafka consumer id") //nolint // it's fine
 		topic          = flag.String(flagMQStreamClientTopic, "", "Topic to consume")
 		format         = flag.String(flagMQStreamClientFormat, "verbose", "Output format: verbose or minimal")
 		eventsDir      = flag.String(flagMQStreamClientEventsDir, "", "Directory to write one JSON file per streamed block")

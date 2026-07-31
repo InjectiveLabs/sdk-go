@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -29,35 +28,6 @@ type mqStreamClientConfig struct {
 	Topic          string
 	Format         string
 	EventsDir      string
-}
-
-func parseConfig() (mqStreamClientConfig, error) {
-	address := flag.String(flagMQStreamClientAddress, "localhost:9988", "MQ gRPC stream server address")
-	consumerID := flag.String(flagMQStreamClientConsumerID, "", "Stable Kafka consumer id")
-	consumerIDFile := flag.String(flagMQStreamClientConsumerIDFile, defaultConsumerIDFile, "File used to persist a generated Kafka consumer id")
-	topic := flag.String(flagMQStreamClientTopic, "", "Topic to consume")
-	format := flag.String(flagMQStreamClientFormat, "verbose", "Output format: verbose or minimal")
-	eventsDir := flag.String(flagMQStreamClientEventsDir, "", "Directory to write one JSON file per streamed block")
-	flag.Parse()
-
-	resolvedConsumerID, err := resolveConsumerID(*consumerID, *consumerIDFile)
-	if err != nil {
-		return mqStreamClientConfig{}, err
-	}
-
-	cfg := mqStreamClientConfig{
-		Address:    *address,
-		ConsumerID: resolvedConsumerID,
-		Topic:      *topic,
-		Format:     *format,
-		EventsDir:  *eventsDir,
-	}
-
-	if err := cfg.Validate(); err != nil {
-		return mqStreamClientConfig{}, err
-	}
-
-	return cfg, nil
 }
 
 func (cfg mqStreamClientConfig) Validate() error {
