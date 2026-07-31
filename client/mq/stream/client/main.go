@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -25,25 +26,49 @@ var kacp = keepalive.ClientParameters{
 }
 
 func main() {
-	if err := startMQStreamClient(context.Background()); err != nil && !errors.Is(err, context.Canceled) {
+	var (
+		address        = flag.String(flagMQStreamClientAddress, "localhost:9988", "MQ gRPC stream server address")
+		consumerID     = flag.String(flagMQStreamClientConsumerID, "", "Stable Kafka consumer id")
+		consumerIDFile = flag.String(flagMQStreamClientConsumerIDFile, defaultConsumerIDFile, "File used to persist a generated Kafka consumer id")
+		topic          = flag.String(flagMQStreamClientTopic, "", "Topic to consume")
+		format         = flag.String(flagMQStreamClientFormat, "verbose", "Output format: verbose or minimal")
+		eventsDir      = flag.String(flagMQStreamClientEventsDir, "", "Directory to write one JSON file per streamed block")
+	)
+
+	flag.Parse()
+
+	cfg := mqStreamClientConfig{
+		Address:        *address,
+		ConsumerID:     *consumerID,
+		ConsumerIDFile: *consumerIDFile,
+		Topic:          *topic,
+		Format:         *format,
+		EventsDir:      *eventsDir,
+	}
+
+	if err := startMQStreamClient(context.Background(), cfg); err != nil && !errors.Is(err, context.Canceled) {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func startMQStreamClient(ctx context.Context) error {
-	config, err := parseConfig()
+func startMQStreamClient(ctx context.Context, cfg mqStreamClientConfig) error {
+	if err := cfg.Validate(); err != nil {
+		return err
+	}
+
+	resolvedConsumerID, err := resolveConsumerID(cfg.ConsumerID, cfg.ConsumerIDFile)
 	if err != nil {
 		return err
 	}
 
-	publishEventDecoder, err := newPublishEventDecoder()
+	cdc, err := newPublishEventDecoder()
 	if err != nil {
 		return fmt.Errorf("failed to initialize publish event decoder: %w", err)
 	}
 
 	cc, err := grpc.NewClient(
-		config.Address,
+		cfg.Address,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(kacp),
 	)
@@ -56,8 +81,8 @@ func startMQStreamClient(ctx context.Context) error {
 	}()
 
 	stream, err := mqtypes.NewEventStreamClient(cc).EventStream(ctx, &mqtypes.EventStreamRequest{
-		ConsumerId: config.ConsumerID,
-		Topic:      config.Topic,
+		ConsumerId: resolvedConsumerID,
+		Topic:      cfg.Topic,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to start event stream: %w", err)
@@ -73,17 +98,17 @@ func startMQStreamClient(ctx context.Context) error {
 			return fmt.Errorf("event stream failed: %w", err)
 		}
 
-		if err := writeEventsFile(config.EventsDir, res, publishEventDecoder); err != nil {
+		if err := writeEventsFile(cfg.EventsDir, res, cdc); err != nil {
 			return fmt.Errorf("failed to write events file: %w", err)
 		}
 
-		switch config.Format {
+		switch cfg.Format {
 		case "minimal":
 			printMinimal(res)
 		case "verbose":
-			printVerbose(res, publishEventDecoder)
+			printVerbose(res, cdc)
 		default:
-			return fmt.Errorf("unsupported format %q", config.Format)
+			return fmt.Errorf("unsupported format %q", cfg.Format)
 		}
 	}
 }

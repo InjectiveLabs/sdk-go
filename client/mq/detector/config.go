@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"strings"
 	"time"
@@ -24,55 +23,13 @@ const (
 type mqDetectorConfig struct {
 	KafkaBrokers   []string
 	ConsumerID     string
+	ConsumerIDFile string
 	RawTopic       string
 	LatestTopic    string
 	FullNodes      []string
 	ControlToken   string
 	RequestTimeout time.Duration
 	MessageTimeout time.Duration
-}
-
-func parseConfig() (mqDetectorConfig, error) {
-	kafkaBrokers := flag.String(flagMQDetectorKafkaBrokers, "", "Comma-separated Kafka broker addresses")
-	consumerID := flag.String(flagMQDetectorConsumerID, "", "Kafka consumer id; generated when omitted")
-	rawTopic := flag.String(flagMQDetectorRawTopic, "", "Topic name for raw messages")
-	latestTopic := flag.String(flagMQDetectorLatestTopic, "", "Topic name for latest messages")
-	fullNodes := flag.String(flagMQDetectorFullNodes, "", "Comma-separated full node control plane URLs")
-	controlToken := flag.String(flagMQDetectorControlToken, "", "Bearer token for full node control plane requests")
-	requestTimeout := flag.Duration(flagMQDetectorRequestTimeout, 10*time.Second, "Timeout for block requests")
-	messageTimeout := flag.Duration(flagMQDetectorMessageTimeout, 30*time.Second, "Message waiting timeout duration")
-	flag.Parse()
-
-	cfg := mqDetectorConfig{
-		ConsumerID:     resolveConsumerID(*consumerID),
-		RawTopic:       *rawTopic,
-		LatestTopic:    *latestTopic,
-		ControlToken:   *controlToken,
-		RequestTimeout: *requestTimeout,
-		MessageTimeout: *messageTimeout,
-	}
-
-	if *kafkaBrokers != "" {
-		cfg.KafkaBrokers = strings.Split(*kafkaBrokers, ",")
-	}
-
-	if *fullNodes != "" {
-		cfg.FullNodes = strings.Split(*fullNodes, ",")
-	}
-
-	if err := cfg.Validate(); err != nil {
-		return mqDetectorConfig{}, err
-	}
-
-	return cfg, nil
-}
-
-func resolveConsumerID(flagValue string) string {
-	if consumerID := strings.TrimSpace(flagValue); consumerID != "" {
-		return consumerID
-	}
-
-	return uuid.NewString()
 }
 
 func (cfg mqDetectorConfig) Validate() error {
@@ -121,4 +78,12 @@ func (cfg mqDetectorConfig) Validate() error {
 	}
 
 	return nil
+}
+
+func resolveConsumerID(flagValue string) string {
+	if consumerID := strings.TrimSpace(flagValue); consumerID != "" {
+		return consumerID
+	}
+
+	return uuid.NewString()
 }

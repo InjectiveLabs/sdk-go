@@ -23,11 +23,12 @@ const (
 )
 
 type mqStreamClientConfig struct {
-	Address    string
-	ConsumerID string
-	Topic      string
-	Format     string
-	EventsDir  string
+	Address        string
+	ConsumerID     string
+	ConsumerIDFile string
+	Topic          string
+	Format         string
+	EventsDir      string
 }
 
 func parseConfig() (mqStreamClientConfig, error) {

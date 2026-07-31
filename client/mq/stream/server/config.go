@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"strings"
 	"time"
@@ -31,47 +30,6 @@ type mqStreamConfig struct {
 	MaxConnectionIdle         time.Duration
 	ServerPingInterval        time.Duration
 	ServerPingResponseTimeout time.Duration
-}
-
-func parseConfig() (mqStreamConfig, error) {
-	listenAddress := flag.String(flagMQStreamListenAddress, "0.0.0.0:9988", "Listen address")
-	kafkaBrokers := flag.String(flagMQStreamKafkaBrokers, "", "Comma-separated Kafka broker addresses")
-	enforceKeepalive := flag.Bool(flagMQStreamEnforceKeepalive, false,
-		"Define if Keepalive configuration params should be applied to MQ event stream gRPC server",
-	)
-	minClientPingInterval := flag.Duration(flagMQStreamMinClientPingInterval, defaultMQStreamMinClientPingInterval,
-		"Duration a client should wait before sending a keepalive ping",
-	)
-	maxConnectionIdle := flag.Duration(flagMQStreamMaxConnectionIdle, defaultMQStreamMaxConnectionIdle,
-		"Duration a connection is allowed to stay idle before forcing the disconnection",
-	)
-	serverPingInterval := flag.Duration(flagMQStreamServerPingInterval, defaultMQStreamServerPingInterval,
-		"Duration after which the server will send a keepalive ping to the client on an idle connection",
-	)
-	serverPingResponseTimeout := flag.Duration(flagMQStreamServerPingResponseTimeout, defaultMQStreamServerPingResponseTimeout,
-		"Duration the server waits for the client to respond to a ping message before forcing a disconnection",
-	)
-
-	flag.Parse()
-
-	cfg := mqStreamConfig{
-		ListenAddress:             *listenAddress,
-		EnforceKeepalive:          *enforceKeepalive,
-		MinClientPingInterval:     *minClientPingInterval,
-		MaxConnectionIdle:         *maxConnectionIdle,
-		ServerPingInterval:        *serverPingInterval,
-		ServerPingResponseTimeout: *serverPingResponseTimeout,
-	}
-
-	if *kafkaBrokers != "" {
-		cfg.KafkaBrokers = strings.Split(*kafkaBrokers, ",")
-	}
-
-	if err := cfg.Validate(); err != nil {
-		return mqStreamConfig{}, err
-	}
-
-	return cfg, nil
 }
 
 func (cfg mqStreamConfig) Validate() error {

@@ -4,12 +4,14 @@ import (
 	"context"
 	"encoding/hex"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/signal"
 	"slices"
+	"strings"
 	"syscall"
 	"time"
 
@@ -20,23 +22,52 @@ import (
 )
 
 func main() {
-	if err := startMQDetector(context.Background()); err != nil && !errors.Is(err, context.Canceled) {
+	var (
+		kafkaBrokers   = flag.String(flagMQDetectorKafkaBrokers, "", "Comma-separated Kafka broker addresses")
+		consumerID     = flag.String(flagMQDetectorConsumerID, "", "Kafka consumer id; generated when omitted")
+		rawTopic       = flag.String(flagMQDetectorRawTopic, "", "Topic name for raw messages")
+		latestTopic    = flag.String(flagMQDetectorLatestTopic, "", "Topic name for latest messages")
+		fullNodes      = flag.String(flagMQDetectorFullNodes, "", "Comma-separated full node control plane URLs")
+		controlToken   = flag.String(flagMQDetectorControlToken, "", "Bearer token for full node control plane requests")
+		requestTimeout = flag.Duration(flagMQDetectorRequestTimeout, 10*time.Second, "Timeout for block requests")
+		messageTimeout = flag.Duration(flagMQDetectorMessageTimeout, 30*time.Second, "Message waiting timeout duration")
+	)
+
+	flag.Parse()
+
+	cfg := mqDetectorConfig{
+		ConsumerID:     resolveConsumerID(*consumerID),
+		RawTopic:       *rawTopic,
+		LatestTopic:    *latestTopic,
+		ControlToken:   *controlToken,
+		RequestTimeout: *requestTimeout,
+		MessageTimeout: *messageTimeout,
+	}
+
+	if *kafkaBrokers != "" {
+		cfg.KafkaBrokers = strings.Split(*kafkaBrokers, ",")
+	}
+
+	if *fullNodes != "" {
+		cfg.FullNodes = strings.Split(*fullNodes, ",")
+	}
+
+	if err := startMQDetector(context.Background(), cfg); err != nil && !errors.Is(err, context.Canceled) {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func startMQDetector(ctx context.Context) error {
-	logger := sdklog.NewLogger(os.Stderr)
-	config, err := parseConfig()
-	if err != nil {
+func startMQDetector(ctx context.Context, cfg mqDetectorConfig) error {
+	if err := cfg.Validate(); err != nil {
 		return err
 	}
 
+	logger := sdklog.NewLogger(os.Stderr)
 	opts := []kgo.Opt{
-		kgo.SeedBrokers(config.KafkaBrokers...),
-		kgo.ConsumerGroup(config.ConsumerID),
-		kgo.ConsumeTopics(config.RawTopic, config.LatestTopic),
+		kgo.SeedBrokers(cfg.KafkaBrokers...),
+		kgo.ConsumerGroup(cfg.ConsumerID),
+		kgo.ConsumeTopics(cfg.RawTopic, cfg.LatestTopic),
 		kgo.ConsumeResetOffset(kgo.NewOffset().AtStart()),
 	}
 
@@ -81,9 +112,9 @@ func startMQDetector(ctx context.Context) error {
 				}
 
 				switch record.Topic {
-				case config.LatestTopic:
+				case cfg.LatestTopic:
 					latest <- &msg
-				case config.RawTopic:
+				case cfg.RawTopic:
 					raw <- &msg
 				default:
 					err := fmt.Errorf("unknown kafka topic %q", record.Topic)
@@ -94,11 +125,11 @@ func startMQDetector(ctx context.Context) error {
 		}
 	}
 
-	controlPlaneClient := &http.Client{Timeout: config.RequestTimeout}
+	controlPlaneClient := &http.Client{Timeout: cfg.RequestTimeout}
 	callControlPlane := func(startHeight uint64) {
 		logger.Info("calling control plane", "startHeight", startHeight)
-		for _, node := range config.FullNodes {
-			if err := requestControlPlaneBlocks(ctx, controlPlaneClient, startHeight, node, config.ControlToken); err != nil {
+		for _, node := range cfg.FullNodes {
+			if err := requestControlPlaneBlocks(ctx, controlPlaneClient, startHeight, node, cfg.ControlToken); err != nil {
 				logger.Error("error requesting blocks from node", "node", node, "err", err.Error())
 			}
 
@@ -130,7 +161,7 @@ func startMQDetector(ctx context.Context) error {
 	)
 
 	for {
-		if noLatestForAWhile := !lastSeenLatest.IsZero() && time.Since(lastSeenLatest) > config.MessageTimeout; noLatestForAWhile {
+		if noLatestForAWhile := !lastSeenLatest.IsZero() && time.Since(lastSeenLatest) > cfg.MessageTimeout; noLatestForAWhile {
 			go callControlPlane(uint64(latestHeight) + 1)
 		}
 

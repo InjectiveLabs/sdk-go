@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -22,16 +23,39 @@ import (
 )
 
 func main() {
-	if err := startMQStream(context.Background()); err != nil && !errors.Is(err, context.Canceled) {
+	var (
+		listenAddress             = flag.String(flagMQStreamListenAddress, "0.0.0.0:9988", "Listen address")
+		kafkaBrokers              = flag.String(flagMQStreamKafkaBrokers, "", "Comma-separated Kafka broker addresses")
+		enforceKeepalive          = flag.Bool(flagMQStreamEnforceKeepalive, false, "Define if Keepalive configuration params should be applied to MQ event stream gRPC server")
+		minClientPingInterval     = flag.Duration(flagMQStreamMinClientPingInterval, defaultMQStreamMinClientPingInterval, "Duration a client should wait before sending a keepalive ping")
+		maxConnectionIdle         = flag.Duration(flagMQStreamMaxConnectionIdle, defaultMQStreamMaxConnectionIdle, "Duration a connection is allowed to stay idle before forcing the disconnection")
+		serverPingInterval        = flag.Duration(flagMQStreamServerPingInterval, defaultMQStreamServerPingInterval, "Duration after which the server will send a keepalive ping to the client on an idle connection")
+		serverPingResponseTimeout = flag.Duration(flagMQStreamServerPingResponseTimeout, defaultMQStreamServerPingResponseTimeout, "Duration the server waits for the client to respond to a ping message before forcing a disconnection")
+	)
+
+	flag.Parse()
+
+	cfg := mqStreamConfig{
+		ListenAddress:             *listenAddress,
+		EnforceKeepalive:          *enforceKeepalive,
+		MinClientPingInterval:     *minClientPingInterval,
+		MaxConnectionIdle:         *maxConnectionIdle,
+		ServerPingInterval:        *serverPingInterval,
+		ServerPingResponseTimeout: *serverPingResponseTimeout,
+	}
+
+	if *kafkaBrokers != "" {
+		cfg.KafkaBrokers = strings.Split(*kafkaBrokers, ",")
+	}
+
+	if err := startMQStream(context.Background(), cfg); err != nil && !errors.Is(err, context.Canceled) {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func startMQStream(ctx context.Context) error {
-	logger := sdklog.NewLogger(os.Stderr)
-	config, err := parseConfig()
-	if err != nil {
+func startMQStream(ctx context.Context, cfg mqStreamConfig) error {
+	if err := cfg.Validate(); err != nil {
 		return err
 	}
 
@@ -42,25 +66,26 @@ func startMQStream(ctx context.Context) error {
 	defer cancel(nil)
 
 	var grpcServerOptions []grpc.ServerOption
-	if config.EnforceKeepalive {
+	if cfg.EnforceKeepalive {
 		grpcServerOptions = []grpc.ServerOption{
 			grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
-				MinTime: config.MinClientPingInterval,
+				MinTime: cfg.MinClientPingInterval,
 			}),
 			grpc.KeepaliveParams(keepalive.ServerParameters{
-				MaxConnectionIdle: config.MaxConnectionIdle,
-				Time:              config.ServerPingInterval,
-				Timeout:           config.ServerPingResponseTimeout,
+				MaxConnectionIdle: cfg.MaxConnectionIdle,
+				Time:              cfg.ServerPingInterval,
+				Timeout:           cfg.ServerPingResponseTimeout,
 			}),
 		}
 	}
 
-	srv := NewStreamServer(logger, config)
+	logger := sdklog.NewLogger(os.Stderr)
+	srv := NewStreamServer(logger, cfg)
 	grpcServer := grpc.NewServer(grpcServerOptions...)
 	types.RegisterEventStreamServer(grpcServer, srv)
 	gogoreflection.Register(grpcServer)
 
-	listener, err := net.Listen("tcp", strings.TrimPrefix(config.ListenAddress, "tcp://"))
+	listener, err := net.Listen("tcp", strings.TrimPrefix(cfg.ListenAddress, "tcp://"))
 	if err != nil {
 		return err
 	}
@@ -79,7 +104,7 @@ func startMQStream(ctx context.Context) error {
 		serveErrCh <- serveErr
 	}()
 
-	logger.Info("event stream server started", "address", config.ListenAddress)
+	logger.Info("event stream server started", "address", cfg.ListenAddress)
 
 	select {
 	case <-ctx.Done():
