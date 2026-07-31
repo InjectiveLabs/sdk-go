@@ -37,6 +37,11 @@ func startMQStreamClient(ctx context.Context) error {
 		return err
 	}
 
+	publishEventDecoder, err := newPublishEventDecoder()
+	if err != nil {
+		return fmt.Errorf("failed to initialize publish event decoder: %w", err)
+	}
+
 	cc, err := grpc.NewClient(
 		config.Address,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -68,7 +73,7 @@ func startMQStreamClient(ctx context.Context) error {
 			return fmt.Errorf("event stream failed: %w", err)
 		}
 
-		if err := writeEventsFile(config.EventsDir, res); err != nil {
+		if err := writeEventsFile(config.EventsDir, res, publishEventDecoder); err != nil {
 			return fmt.Errorf("failed to write events file: %w", err)
 		}
 
@@ -76,7 +81,7 @@ func startMQStreamClient(ctx context.Context) error {
 		case "minimal":
 			printMinimal(res)
 		case "verbose":
-			printVerbose(res)
+			printVerbose(res, publishEventDecoder)
 		default:
 			return fmt.Errorf("unsupported format %q", config.Format)
 		}

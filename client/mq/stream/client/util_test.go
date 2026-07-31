@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -31,8 +32,9 @@ func TestDecodePublishEventRendersAnyAsJSON(t *testing.T) {
 		Amount: sdk.NewCoin("inj", sdkmath.NewInt(123123)),
 	}
 	eventBz := packPublishEventForClientTest(t, event)
+	decoder := newTestPublishEventDecoder(t)
 
-	decoded, err := decodePublishEvent(eventBz)
+	decoded, err := decoder.decodePublishEvent(eventBz)
 
 	require.NoError(t, err)
 	require.Equal(t, codectypes.MsgTypeURL(event), decoded.TypeURL)
@@ -97,17 +99,17 @@ func TestTransformEventSet(t *testing.T) {
 			{Key: "scope", Value: "block", Index: true},
 		},
 	}
+	decoder := newTestPublishEventDecoder(t)
 
-	transformed, err := transformEventSet(mqtypes.EventSet{
+	transformed := transformEventSet(mqtypes.EventSet{
 		PublishedEvents: [][]byte{packPublishEventForClientTest(t, event)},
 		TrueOrders: []mqtypes.EventType{
 			mqtypes.EventType_ABCI,
 			mqtypes.EventType_PUBLISH,
 		},
 		AbciEvents: []abcitypes.Event{abciEvent},
-	})
+	}, decoder)
 
-	require.NoError(t, err)
 	require.Equal(t, []string{"ABCI", "PUBLISH"}, transformed.TrueOrders)
 	require.Equal(t, []abcitypes.Event{abciEvent}, transformed.ABCIEvents)
 	require.Len(t, transformed.PublishEvents, 1)
@@ -118,14 +120,16 @@ func TestTransformEventSet(t *testing.T) {
 	require.JSONEq(t, `{"denom":"inj","amount":"123123"}`, string(value["amount"]))
 }
 
-func TestTransformEventSetReturnsPublishDecodeError(t *testing.T) {
+func TestTransformEventSetSkipsMalformedPublishEvent(t *testing.T) {
 	t.Parallel()
 
-	_, err := transformEventSet(mqtypes.EventSet{
-		PublishedEvents: [][]byte{{0xff}},
-	})
+	decoder := newTestPublishEventDecoder(t)
 
-	require.ErrorContains(t, err, "decode publish event 0")
+	transformed := transformEventSet(mqtypes.EventSet{
+		PublishedEvents: [][]byte{{0xff}},
+	}, decoder)
+
+	require.Empty(t, transformed.PublishEvents)
 }
 
 func TestTransformAdditionalData(t *testing.T) {
@@ -162,7 +166,8 @@ func TestDecodePublishEventRejectsRawBytes(t *testing.T) {
 	eventBz, err := proto.Marshal(event)
 	require.NoError(t, err)
 
-	_, err = decodePublishEvent(eventBz)
+	decoder := newTestPublishEventDecoder(t)
+	_, err = decoder.decodePublishEvent(eventBz)
 
 	require.ErrorContains(t, err, "missing type_url")
 }
@@ -176,9 +181,10 @@ func TestDecodePublishEventRejectsUnknownTypeURL(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	_, err = decodePublishEvent(eventBz)
+	decoder := newTestPublishEventDecoder(t)
+	_, err = decoder.decodePublishEvent(eventBz)
 
-	require.ErrorContains(t, err, `unknown publish event type "/injective.unknown.Event"`)
+	require.ErrorContains(t, err, `marshal publish event any json "/injective.unknown.Event"`)
 }
 
 func TestDecodePublishEventRejectsMalformedAnyValue(t *testing.T) {
@@ -191,33 +197,20 @@ func TestDecodePublishEventRejectsMalformedAnyValue(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	_, err = decodePublishEvent(eventBz)
+	decoder := newTestPublishEventDecoder(t)
+	_, err = decoder.decodePublishEvent(eventBz)
 
-	require.ErrorContains(t, err, "unmarshal publish event")
+	require.ErrorContains(t, err, "marshal publish event any json")
 	require.ErrorContains(t, err, codectypes.MsgTypeURL(event))
-}
-
-func TestMessageNameFromTypeURL(t *testing.T) {
-	t.Parallel()
-
-	require.Equal(
-		t,
-		"injective.exchange.v1beta1.EventSubaccountWithdraw",
-		messageNameFromTypeURL("/injective.exchange.v1beta1.EventSubaccountWithdraw"),
-	)
-	require.Equal(
-		t,
-		"injective.exchange.v1beta1.EventSubaccountWithdraw",
-		messageNameFromTypeURL("type.googleapis.com/injective.exchange.v1beta1.EventSubaccountWithdraw"),
-	)
 }
 
 func TestWriteEventsFileCreatesDirectoryWithRestrictedPermissions(t *testing.T) {
 	t.Parallel()
 
 	eventsDir := filepath.Join(t.TempDir(), "events")
+	decoder := newTestPublishEventDecoder(t)
 
-	err := writeEventsFile(eventsDir, &mqtypes.EventStreamResponse{BlockHeight: 7})
+	err := writeEventsFile(eventsDir, &mqtypes.EventStreamResponse{BlockHeight: 7}, decoder)
 	require.NoError(t, err)
 
 	info, err := os.Stat(eventsDir)
@@ -237,7 +230,7 @@ func TestWriteEventsFileSkipsWhenDirectoryUnset(t *testing.T) {
 		BlockEvents: mqtypes.EventSet{
 			PublishedEvents: [][]byte{{0xff}},
 		},
-	})
+	}, nil)
 
 	require.NoError(t, err)
 }
@@ -296,6 +289,7 @@ func TestWriteEventsFileWritesStructuredPayload(t *testing.T) {
 		},
 	}
 	eventsDir := t.TempDir()
+	decoder := newTestPublishEventDecoder(t)
 
 	err := writeEventsFile(eventsDir, &mqtypes.EventStreamResponse{
 		BlockHeight: 11,
@@ -317,7 +311,7 @@ func TestWriteEventsFileWritesStructuredPayload(t *testing.T) {
 				Data: []byte("extra"),
 			},
 		},
-	})
+	}, decoder)
 
 	require.NoError(t, err)
 
@@ -346,28 +340,41 @@ func TestWriteEventsFileWritesStructuredPayload(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestWriteEventsFileReturnsTransformErrors(t *testing.T) {
+func TestWriteEventsFileSkipsMalformedPublishEvents(t *testing.T) {
 	t.Parallel()
 
 	eventsDir := t.TempDir()
+	decoder := newTestPublishEventDecoder(t)
 
 	err := writeEventsFile(eventsDir, &mqtypes.EventStreamResponse{
+		BlockHeight: 1,
 		BlockEvents: mqtypes.EventSet{
 			PublishedEvents: [][]byte{{0xff}},
 		},
-	})
-	require.ErrorContains(t, err, "transform block event set")
-	require.ErrorContains(t, err, "decode publish event 0")
+	}, decoder)
+	require.NoError(t, err)
 
 	err = writeEventsFile(eventsDir, &mqtypes.EventStreamResponse{
+		BlockHeight: 2,
 		TxEvents: []mqtypes.EventSet{
 			{
 				PublishedEvents: [][]byte{{0xff}},
 			},
 		},
-	})
-	require.ErrorContains(t, err, "transform tx event set 0")
-	require.ErrorContains(t, err, "decode publish event 0")
+	}, decoder)
+	require.NoError(t, err)
+
+	for _, height := range []int{1, 2} {
+		bz, err := os.ReadFile(filepath.Join(eventsDir, fmt.Sprintf("block-%012d.json", height)))
+		require.NoError(t, err)
+
+		var written blockEventsFile
+		require.NoError(t, json.Unmarshal(bz, &written))
+		require.Empty(t, written.BlockEvents.PublishEvents)
+		for _, txEvents := range written.TxEvents {
+			require.Empty(t, txEvents.PublishEvents)
+		}
+	}
 }
 
 func TestIsExpectedStreamClose(t *testing.T) {
@@ -438,4 +445,12 @@ func packPublishEventForClientTest(t *testing.T, event proto.Message) []byte {
 	require.NoError(t, err)
 
 	return eventBz
+}
+
+func newTestPublishEventDecoder(t *testing.T) *publishEventDecoder {
+	t.Helper()
+
+	decoder, err := newPublishEventDecoder()
+	require.NoError(t, err)
+	return decoder
 }
