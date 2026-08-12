@@ -1,6 +1,8 @@
 syntax = "proto3";
 package injective.evm.v1;
 
+import "injective/evm/v1/tx.proto";
+
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/evm/types";
 
 // EventEthereumTx defines the event for an Ethereum transaction
@@ -19,6 +21,42 @@ message EventEthereumTx {
   string recipient = 6;
   // eth_tx_failed contains a VM error should it occur
   string eth_tx_failed = 7;
+}
+
+// EventIBCEVMHookTx defines the event emitted for an EVM call attempted from an
+// inbound IBC transfer hook.
+message EventIBCEVMHookTx {
+  // source_port is the packet source port.
+  string source_port = 1;
+  // source_channel is the packet source channel.
+  string source_channel = 2;
+  // destination_port is the packet destination port.
+  string destination_port = 3;
+  // destination_channel is the packet destination channel.
+  string destination_channel = 4;
+  // sequence is the packet sequence.
+  uint64 sequence = 5;
+
+  // packet_sender is the authenticated ICS-20 packet sender.
+  string packet_sender = 6;
+  // receiver is the EVM address corresponding to the packet receiver.
+  string receiver = 7;
+  // contract is the target EVM contract address.
+  string contract = 8;
+  // token is the MTS token address for the received IBC denom.
+  string token = 9;
+  // amount is the token amount received.
+  string amount = 10;
+
+  // from is the EVM caller used for the hook execution.
+  string from = 11;
+  // input is the ABI-encoded onIBCTransfer calldata.
+  bytes input = 12;
+  // gas_limit is the EVM gas limit for the hook call.
+  uint64 gas_limit = 13;
+
+  // response is the EVM execution response.
+  MsgEthereumTxResponse response = 14;
 }
 
 // EventTxLog defines the event for an Ethereum transaction log
