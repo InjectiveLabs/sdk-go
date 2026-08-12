@@ -63,3 +63,31 @@ func NewEventIBCEVMHookTx( //nolint:revive // all good
 		Response:           response,
 	}
 }
+
+// NormalizeIBCEVMHookResponse rewrites a hook execution response with the synthetic transaction hash and block hash.
+// Hook calls are not signed Ethereum transactions, so the response produced by execution must be normalized before it is
+// emitted for RPC indexing; this also updates nested logs without mutating the original response.
+func NormalizeIBCEVMHookResponse(
+	resp *MsgEthereumTxResponse,
+	txHash common.Hash,
+	blockHash []byte,
+) *MsgEthereumTxResponse {
+	normalized := *resp
+	normalized.Hash = txHash.Hex()
+	normalized.BlockHash = blockHash
+	blockHashHex := common.BytesToHash(blockHash).Hex()
+
+	normalized.Logs = make([]*Log, 0, len(resp.Logs))
+	for _, log := range resp.Logs {
+		if log == nil {
+			continue
+		}
+
+		normalizedLog := *log
+		normalizedLog.TxHash = txHash.Hex()
+		normalizedLog.BlockHash = blockHashHex
+		normalized.Logs = append(normalized.Logs, &normalizedLog)
+	}
+
+	return &normalized
+}
