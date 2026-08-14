@@ -1,6 +1,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"math/big"
@@ -11,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/vm"
 )
 
@@ -38,35 +40,40 @@ var onIBCTransferABI = mustParseABI(`[{
 func PackIBCHookCall(
 	destChannelID,
 	packetSender,
-	hookContract,
 	token string,
 	amount sdkmath.Int,
 	receiver sdk.AccAddress,
-	payload []byte,
-	gasLimit uint64,
+	hookPayload,
+	hookContract string,
+	hookGasLimit uint64,
 ) (*IBCHookCall, error) {
 	if !common.IsHexAddress(hookContract) {
-		return nil, fmt.Errorf("invalid hook contract address")
+		return nil, errors.New("invalid hook contract address")
+	}
+
+	payload, err := hexutil.Decode(hookPayload)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode hook payload: %w", err)
 	}
 
 	input, err := onIBCTransferABI.Pack(
 		onIBCTransferMethod,
 		destChannelID,
 		packetSender,
-		common.HexToAddress(token).Bytes(),
+		common.HexToAddress(token),
 		amount.BigInt(),
 		common.BytesToAddress(receiver),
 		payload,
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to pack hook args: %w", err)
 	}
 
 	call := &IBCHookCall{
 		Contract: common.FromHex(hookContract),
 		Input:    input,
-		GasLimit: gasLimit,
+		GasLimit: hookGasLimit,
 	}
 
 	return call, nil
