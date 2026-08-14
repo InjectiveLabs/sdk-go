@@ -206,6 +206,7 @@ func DefaultParams() Params {
 		MinPostOnlyModeDowntimeDuration:              "DURATION_10M", // default 10 minutes
 		PostOnlyModeBlocksAmountAfterDowntime:        1000,           // default 1000 blocks
 		CrossMarginParams:                            DefaultCrossMarginParams(),
+		SwapParams:                                   DefaultSwapParams(),
 	}
 }
 
@@ -308,7 +309,41 @@ func (p Params) Validate() error {
 	if err := ValidatePostOnlyModeBlocksAmountAfterDowntime(p.PostOnlyModeBlocksAmountAfterDowntime); err != nil {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
 	}
+	if err := p.SwapParams.Validate(); err != nil {
+		return fmt.Errorf("swap_params is incorrect: %w", err)
+	}
 	return p.CrossMarginParams.Validate()
+}
+
+// DefaultSwapParams returns default swap parameters. The empty allowlist keeps
+// the swap path inert until governance or an exchange admin lists markets.
+func DefaultSwapParams() SwapParams {
+	return SwapParams{
+		Enabled:        true,
+		AllowedMarkets: nil,
+	}
+}
+
+// MaxSwapAllowedMarkets bounds the allowlist size as an input-sanity limit.
+const MaxSwapAllowedMarkets = 1000
+
+// Validate performs basic validation on swap parameters.
+func (p SwapParams) Validate() error {
+	if len(p.AllowedMarkets) > MaxSwapAllowedMarkets {
+		return fmt.Errorf("allowed_markets exceeds maximum of %d entries", MaxSwapAllowedMarkets)
+	}
+	seen := make(map[string]struct{}, len(p.AllowedMarkets))
+	for _, marketID := range p.AllowedMarkets {
+		if !types.IsHexHash(marketID) {
+			return fmt.Errorf("allowed_markets entry %q is not a valid market ID hash", marketID)
+		}
+		normalized := ethcommon.HexToHash(marketID).Hex()
+		if _, ok := seen[normalized]; ok {
+			return fmt.Errorf("allowed_markets entry %q is duplicated", marketID)
+		}
+		seen[normalized] = struct{}{}
+	}
+	return nil
 }
 
 // DefaultCrossMarginParams returns default cross-margin parameters.

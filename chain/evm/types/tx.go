@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"math"
 	"math/big"
 	"strings"
@@ -33,24 +34,42 @@ var onIBCTransferABI = mustParseABI(`[{
 		"outputs": [{"name": "", "type": "bytes"}]
 	}]`)
 
-// PackIBCHookCallData ABI-encodes an onIBCTransfer call.
-func PackIBCHookCallData(
-	destChannelID string,
-	packetSender string,
-	token []byte,
+// PackIBCHookCall ABI-encodes an onIBCTransfer call
+func PackIBCHookCall(
+	destChannelID,
+	packetSender,
+	hookContract,
+	token string,
 	amount sdkmath.Int,
 	receiver sdk.AccAddress,
 	payload []byte,
-) ([]byte, error) {
-	return onIBCTransferABI.Pack(
+	gasLimit uint64,
+) (*IBCHookCall, error) {
+	if !common.IsHexAddress(hookContract) {
+		return nil, fmt.Errorf("invalid hook contract address")
+	}
+
+	input, err := onIBCTransferABI.Pack(
 		onIBCTransferMethod,
 		destChannelID,
 		packetSender,
-		common.BytesToAddress(token),
+		common.HexToAddress(token).Bytes(),
 		amount.BigInt(),
 		common.BytesToAddress(receiver),
 		payload,
 	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	call := &IBCHookCall{
+		Contract: common.FromHex(hookContract),
+		Input:    input,
+		GasLimit: gasLimit,
+	}
+
+	return call, nil
 }
 
 // GetTxPriority returns the priority of a given Ethereum tx. It relies of the

@@ -255,6 +255,10 @@ func (m *DerivativeMarket) NotionalToChainFormat(humanReadableValue math.LegacyD
 	return types.NotionalToChainFormat(humanReadableValue, m.QuoteDecimals)
 }
 
+func (m *DerivativeMarket) CanRepresentNotionalInChainFormat(humanReadableValue math.LegacyDec) bool {
+	return types.CanRepresentNotionalInChainFormat(humanReadableValue, m.QuoteDecimals)
+}
+
 /// Binary Options Markets
 //
 
