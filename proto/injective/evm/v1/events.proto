@@ -34,7 +34,7 @@ message EventIBCHookCall {
   // sequence is the packet sequence.
   uint64 sequence = 3;
   // contract is the 20-byte target EVM contract address.
-  bytes contract = 4;
+  string contract = 4;
   // input is the ABI-encoded onIBCTransfer calldata.
   bytes input = 5;
   // success reports whether EVM execution and post-processing succeeded.

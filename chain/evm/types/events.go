@@ -1,8 +1,6 @@
 package types
 
-import (
-	"github.com/ethereum/go-ethereum/common"
-)
+import "github.com/ethereum/go-ethereum/common"
 
 // Evm module events
 const (
@@ -35,7 +33,7 @@ type IBCEVMHookAcknowledgement struct {
 func NewEventIBCHookCall( //nolint:revive // all good
 	destPort, destCh string,
 	sequence uint64,
-	contract common.Address,
+	contract,
 	input []byte,
 	response *MsgEthereumTxResponse,
 ) *EventIBCHookCall {
@@ -43,7 +41,7 @@ func NewEventIBCHookCall( //nolint:revive // all good
 		DestinationPort:    destPort,
 		DestinationChannel: destCh,
 		Sequence:           sequence,
-		Contract:           contract.Bytes(),
+		Contract:           common.BytesToAddress(contract).Hex(),
 		Input:              input,
 	}
 

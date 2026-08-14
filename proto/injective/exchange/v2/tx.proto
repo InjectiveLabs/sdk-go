@@ -165,7 +165,8 @@ service Msg {
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  rpc UpdateSwapParams(MsgUpdateSwapParams) returns (MsgUpdateSwapParamsResponse);
+  rpc UpdateSwapParams(MsgUpdateSwapParams)
+      returns (MsgUpdateSwapParamsResponse);
 
   // UpdateSpotMarket modifies certain spot market fields (admin only)
   rpc UpdateSpotMarket(MsgUpdateSpotMarket)
