@@ -1,7 +1,7 @@
 syntax = "proto3";
 package injective.evm.v1;
 
-import "injective/evm/v1/tx.proto";
+import "injective/evm/v1/log.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/evm/types";
 
@@ -23,40 +23,31 @@ message EventEthereumTx {
   string eth_tx_failed = 7;
 }
 
-// EventIBCEVMHookTx defines the event emitted for an EVM call attempted from an
-// inbound IBC transfer hook.
-message EventIBCEVMHookTx {
-  // source_port is the packet source port.
-  string source_port = 1;
-  // source_channel is the packet source channel.
-  string source_channel = 2;
+// EventIBCHookCall defines the event emitted for an EVM call attempted from an
+// inbound IBC transfer hook. The gateway uses it to construct the synthetic
+// Ethereum transaction, receipt, and logs.
+message EventIBCHookCall {
   // destination_port is the packet destination port.
-  string destination_port = 3;
+  string destination_port = 1;
   // destination_channel is the packet destination channel.
-  string destination_channel = 4;
+  string destination_channel = 2;
   // sequence is the packet sequence.
-  uint64 sequence = 5;
-
-  // packet_sender is the authenticated ICS-20 packet sender.
-  string packet_sender = 6;
-  // receiver is the EVM address corresponding to the packet receiver.
-  string receiver = 7;
-  // contract is the target EVM contract address.
-  string contract = 8;
-  // token is the MTS token address for the received IBC denom.
-  string token = 9;
-  // amount is the token amount received.
-  string amount = 10;
-
-  // from is the EVM caller used for the hook execution.
-  string from = 11;
+  uint64 sequence = 3;
+  // contract is the 20-byte target EVM contract address.
+  bytes contract = 4;
   // input is the ABI-encoded onIBCTransfer calldata.
-  bytes input = 12;
-  // gas_limit is the EVM gas limit for the hook call.
-  uint64 gas_limit = 13;
-
-  // response is the EVM execution response.
-  MsgEthereumTxResponse response = 14;
+  bytes input = 5;
+  // success reports whether EVM execution and post-processing succeeded.
+  bool success = 6;
+  // return_data contains normal return data on success or revert data on
+  // failure.
+  bytes return_data = 7;
+  // error contains the execution, validation, or post-processing error.
+  string error = 8;
+  // gas_used is used by the gateway to populate the synthetic receipt.
+  uint64 gas_used = 9;
+  // logs contains successful EVM logs for expansion into sibling RPC logs.
+  repeated Log logs = 10;
 }
 
 // EventTxLog defines the event for an Ethereum transaction log

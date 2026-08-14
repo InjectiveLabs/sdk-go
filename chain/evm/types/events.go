@@ -2,8 +2,6 @@ package types
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 )
 
 // Evm module events
@@ -34,60 +32,32 @@ type IBCEVMHookAcknowledgement struct {
 	IBCAck         []byte `json:"ibc_ack"`
 }
 
-func NewEventIBCEVMHookTx( //nolint:revive // all good
-	packet ibcexported.PacketI,
-	packetSender string,
-	receiver,
-	contract,
-	token,
-	from common.Address,
-	amount string,
+func NewEventIBCHookCall( //nolint:revive // all good
+	destPort, destCh string,
+	sequence uint64,
+	contract common.Address,
 	input []byte,
-	gasLimit uint64,
 	response *MsgEthereumTxResponse,
-) *EventIBCEVMHookTx {
-	return &EventIBCEVMHookTx{
-		SourcePort:         packet.GetSourcePort(),
-		SourceChannel:      packet.GetSourceChannel(),
-		DestinationPort:    packet.GetDestPort(),
-		DestinationChannel: packet.GetDestChannel(),
-		Sequence:           packet.GetSequence(),
-		PacketSender:       packetSender,
-		Receiver:           receiver.Hex(),
-		Contract:           contract.Hex(),
-		Token:              token.Hex(),
-		Amount:             amount,
-		From:               from.Hex(),
+) *EventIBCHookCall {
+	event := &EventIBCHookCall{
+		DestinationPort:    destPort,
+		DestinationChannel: destCh,
+		Sequence:           sequence,
+		Contract:           contract.Bytes(),
 		Input:              input,
-		GasLimit:           gasLimit,
-		Response:           response,
-	}
-}
-
-// NormalizeIBCEVMHookResponse rewrites a hook execution response with the synthetic transaction hash and block hash.
-// Hook calls are not signed Ethereum transactions, so the response produced by execution must be normalized before it is
-// emitted for RPC indexing; this also updates nested logs without mutating the original response.
-func NormalizeIBCEVMHookResponse(
-	resp *MsgEthereumTxResponse,
-	txHash common.Hash,
-	blockHash []byte,
-) *MsgEthereumTxResponse {
-	normalized := *resp
-	normalized.Hash = txHash.Hex()
-	normalized.BlockHash = blockHash
-	blockHashHex := common.BytesToHash(blockHash).Hex()
-
-	normalized.Logs = make([]*Log, 0, len(resp.Logs))
-	for _, log := range resp.Logs {
-		if log == nil {
-			continue
-		}
-
-		normalizedLog := *log
-		normalizedLog.TxHash = txHash.Hex()
-		normalizedLog.BlockHash = blockHashHex
-		normalized.Logs = append(normalized.Logs, &normalizedLog)
 	}
 
-	return &normalized
+	if response == nil {
+		return event
+	}
+
+	event.Success = !response.Failed()
+	event.ReturnData = response.Ret
+	event.Error = response.VmError
+	event.GasUsed = response.GasUsed
+	if event.Success {
+		event.Logs = response.Logs
+	}
+
+	return event
 }

@@ -122,51 +122,45 @@ func (m *EventEthereumTx) GetEthTxFailed() string {
 	return ""
 }
 
-// EventIBCEVMHookTx defines the event emitted for an EVM call attempted from an
-// inbound IBC transfer hook.
-type EventIBCEVMHookTx struct {
-	// source_port is the packet source port.
-	SourcePort string `protobuf:"bytes,1,opt,name=source_port,json=sourcePort,proto3" json:"source_port,omitempty"`
-	// source_channel is the packet source channel.
-	SourceChannel string `protobuf:"bytes,2,opt,name=source_channel,json=sourceChannel,proto3" json:"source_channel,omitempty"`
+// EventIBCHookCall defines the event emitted for an EVM call attempted from an
+// inbound IBC transfer hook. The gateway uses it to construct the synthetic
+// Ethereum transaction, receipt, and logs.
+type EventIBCHookCall struct {
 	// destination_port is the packet destination port.
-	DestinationPort string `protobuf:"bytes,3,opt,name=destination_port,json=destinationPort,proto3" json:"destination_port,omitempty"`
+	DestinationPort string `protobuf:"bytes,1,opt,name=destination_port,json=destinationPort,proto3" json:"destination_port,omitempty"`
 	// destination_channel is the packet destination channel.
-	DestinationChannel string `protobuf:"bytes,4,opt,name=destination_channel,json=destinationChannel,proto3" json:"destination_channel,omitempty"`
+	DestinationChannel string `protobuf:"bytes,2,opt,name=destination_channel,json=destinationChannel,proto3" json:"destination_channel,omitempty"`
 	// sequence is the packet sequence.
-	Sequence uint64 `protobuf:"varint,5,opt,name=sequence,proto3" json:"sequence,omitempty"`
-	// packet_sender is the authenticated ICS-20 packet sender.
-	PacketSender string `protobuf:"bytes,6,opt,name=packet_sender,json=packetSender,proto3" json:"packet_sender,omitempty"`
-	// receiver is the EVM address corresponding to the packet receiver.
-	Receiver string `protobuf:"bytes,7,opt,name=receiver,proto3" json:"receiver,omitempty"`
-	// contract is the target EVM contract address.
-	Contract string `protobuf:"bytes,8,opt,name=contract,proto3" json:"contract,omitempty"`
-	// token is the MTS token address for the received IBC denom.
-	Token string `protobuf:"bytes,9,opt,name=token,proto3" json:"token,omitempty"`
-	// amount is the token amount received.
-	Amount string `protobuf:"bytes,10,opt,name=amount,proto3" json:"amount,omitempty"`
-	// from is the EVM caller used for the hook execution.
-	From string `protobuf:"bytes,11,opt,name=from,proto3" json:"from,omitempty"`
+	Sequence uint64 `protobuf:"varint,3,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	// contract is the 20-byte target EVM contract address.
+	Contract []byte `protobuf:"bytes,4,opt,name=contract,proto3" json:"contract,omitempty"`
 	// input is the ABI-encoded onIBCTransfer calldata.
-	Input []byte `protobuf:"bytes,12,opt,name=input,proto3" json:"input,omitempty"`
-	// gas_limit is the EVM gas limit for the hook call.
-	GasLimit uint64 `protobuf:"varint,13,opt,name=gas_limit,json=gasLimit,proto3" json:"gas_limit,omitempty"`
-	// response is the EVM execution response.
-	Response *MsgEthereumTxResponse `protobuf:"bytes,14,opt,name=response,proto3" json:"response,omitempty"`
+	Input []byte `protobuf:"bytes,5,opt,name=input,proto3" json:"input,omitempty"`
+	// success reports whether EVM execution and post-processing succeeded.
+	Success bool `protobuf:"varint,6,opt,name=success,proto3" json:"success,omitempty"`
+	// return_data contains normal return data on success or revert data on
+	// failure.
+	ReturnData []byte `protobuf:"bytes,7,opt,name=return_data,json=returnData,proto3" json:"return_data,omitempty"`
+	// error contains the execution, validation, or post-processing error.
+	Error string `protobuf:"bytes,8,opt,name=error,proto3" json:"error,omitempty"`
+	// gas_used is used by the gateway to populate the synthetic receipt.
+	GasUsed uint64 `protobuf:"varint,9,opt,name=gas_used,json=gasUsed,proto3" json:"gas_used,omitempty"`
+	// logs contains successful EVM logs for expansion into sibling RPC logs.
+	Logs []*Log `protobuf:"bytes,10,rep,name=logs,proto3" json:"logs,omitempty"`
 }
 
-func (m *EventIBCEVMHookTx) Reset()         { *m = EventIBCEVMHookTx{} }
-func (m *EventIBCEVMHookTx) String() string { return proto.CompactTextString(m) }
-func (*EventIBCEVMHookTx) ProtoMessage()    {}
-func (*EventIBCEVMHookTx) Descriptor() ([]byte, []int) {
+func (m *EventIBCHookCall) Reset()         { *m = EventIBCHookCall{} }
+func (m *EventIBCHookCall) String() string { return proto.CompactTextString(m) }
+func (*EventIBCHookCall) ProtoMessage()    {}
+func (*EventIBCHookCall) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5024e613c650b0ae, []int{1}
 }
-func (m *EventIBCEVMHookTx) XXX_Unmarshal(b []byte) error {
+func (m *EventIBCHookCall) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *EventIBCEVMHookTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EventIBCHookCall) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_EventIBCEVMHookTx.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EventIBCHookCall.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -176,112 +170,84 @@ func (m *EventIBCEVMHookTx) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return b[:n], nil
 	}
 }
-func (m *EventIBCEVMHookTx) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_EventIBCEVMHookTx.Merge(m, src)
+func (m *EventIBCHookCall) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventIBCHookCall.Merge(m, src)
 }
-func (m *EventIBCEVMHookTx) XXX_Size() int {
+func (m *EventIBCHookCall) XXX_Size() int {
 	return m.Size()
 }
-func (m *EventIBCEVMHookTx) XXX_DiscardUnknown() {
-	xxx_messageInfo_EventIBCEVMHookTx.DiscardUnknown(m)
+func (m *EventIBCHookCall) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventIBCHookCall.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_EventIBCEVMHookTx proto.InternalMessageInfo
+var xxx_messageInfo_EventIBCHookCall proto.InternalMessageInfo
 
-func (m *EventIBCEVMHookTx) GetSourcePort() string {
-	if m != nil {
-		return m.SourcePort
-	}
-	return ""
-}
-
-func (m *EventIBCEVMHookTx) GetSourceChannel() string {
-	if m != nil {
-		return m.SourceChannel
-	}
-	return ""
-}
-
-func (m *EventIBCEVMHookTx) GetDestinationPort() string {
+func (m *EventIBCHookCall) GetDestinationPort() string {
 	if m != nil {
 		return m.DestinationPort
 	}
 	return ""
 }
 
-func (m *EventIBCEVMHookTx) GetDestinationChannel() string {
+func (m *EventIBCHookCall) GetDestinationChannel() string {
 	if m != nil {
 		return m.DestinationChannel
 	}
 	return ""
 }
 
-func (m *EventIBCEVMHookTx) GetSequence() uint64 {
+func (m *EventIBCHookCall) GetSequence() uint64 {
 	if m != nil {
 		return m.Sequence
 	}
 	return 0
 }
 
-func (m *EventIBCEVMHookTx) GetPacketSender() string {
-	if m != nil {
-		return m.PacketSender
-	}
-	return ""
-}
-
-func (m *EventIBCEVMHookTx) GetReceiver() string {
-	if m != nil {
-		return m.Receiver
-	}
-	return ""
-}
-
-func (m *EventIBCEVMHookTx) GetContract() string {
+func (m *EventIBCHookCall) GetContract() []byte {
 	if m != nil {
 		return m.Contract
 	}
-	return ""
+	return nil
 }
 
-func (m *EventIBCEVMHookTx) GetToken() string {
-	if m != nil {
-		return m.Token
-	}
-	return ""
-}
-
-func (m *EventIBCEVMHookTx) GetAmount() string {
-	if m != nil {
-		return m.Amount
-	}
-	return ""
-}
-
-func (m *EventIBCEVMHookTx) GetFrom() string {
-	if m != nil {
-		return m.From
-	}
-	return ""
-}
-
-func (m *EventIBCEVMHookTx) GetInput() []byte {
+func (m *EventIBCHookCall) GetInput() []byte {
 	if m != nil {
 		return m.Input
 	}
 	return nil
 }
 
-func (m *EventIBCEVMHookTx) GetGasLimit() uint64 {
+func (m *EventIBCHookCall) GetSuccess() bool {
 	if m != nil {
-		return m.GasLimit
+		return m.Success
+	}
+	return false
+}
+
+func (m *EventIBCHookCall) GetReturnData() []byte {
+	if m != nil {
+		return m.ReturnData
+	}
+	return nil
+}
+
+func (m *EventIBCHookCall) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+func (m *EventIBCHookCall) GetGasUsed() uint64 {
+	if m != nil {
+		return m.GasUsed
 	}
 	return 0
 }
 
-func (m *EventIBCEVMHookTx) GetResponse() *MsgEthereumTxResponse {
+func (m *EventIBCHookCall) GetLogs() []*Log {
 	if m != nil {
-		return m.Response
+		return m.Logs
 	}
 	return nil
 }
@@ -444,7 +410,7 @@ func (m *EventBlockBloom) GetBloom() string {
 
 func init() {
 	proto.RegisterType((*EventEthereumTx)(nil), "injective.evm.v1.EventEthereumTx")
-	proto.RegisterType((*EventIBCEVMHookTx)(nil), "injective.evm.v1.EventIBCEVMHookTx")
+	proto.RegisterType((*EventIBCHookCall)(nil), "injective.evm.v1.EventIBCHookCall")
 	proto.RegisterType((*EventTxLog)(nil), "injective.evm.v1.EventTxLog")
 	proto.RegisterType((*EventMessage)(nil), "injective.evm.v1.EventMessage")
 	proto.RegisterType((*EventBlockBloom)(nil), "injective.evm.v1.EventBlockBloom")
@@ -453,46 +419,42 @@ func init() {
 func init() { proto.RegisterFile("injective/evm/v1/events.proto", fileDescriptor_5024e613c650b0ae) }
 
 var fileDescriptor_5024e613c650b0ae = []byte{
-	// 612 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x53, 0xc1, 0x6e, 0xd3, 0x40,
-	0x10, 0xad, 0x69, 0x9a, 0x36, 0x9b, 0xa4, 0x2d, 0x0b, 0x82, 0x6d, 0x81, 0x10, 0x05, 0x55, 0x2d,
-	0x07, 0x62, 0x15, 0xfe, 0x20, 0x55, 0x51, 0x2b, 0xb5, 0x12, 0x0a, 0x01, 0x24, 0x2e, 0xd1, 0x66,
-	0x3d, 0xb5, 0x97, 0xd8, 0xbb, 0xc6, 0xbb, 0xb6, 0xdc, 0xbf, 0xe0, 0xb3, 0x90, 0xb8, 0xf4, 0xc8,
-	0x11, 0x35, 0x37, 0xbe, 0x02, 0xed, 0xae, 0x9d, 0x06, 0xb8, 0xf9, 0xbd, 0x99, 0x79, 0x9e, 0x99,
-	0x37, 0x8b, 0x9e, 0x71, 0xf1, 0x05, 0x98, 0xe6, 0x05, 0xf8, 0x50, 0x24, 0x7e, 0x71, 0xec, 0x43,
-	0x01, 0x42, 0xab, 0x61, 0x9a, 0x49, 0x2d, 0xf1, 0xee, 0x32, 0x3c, 0x84, 0x22, 0x19, 0x16, 0xc7,
-	0xfb, 0x7b, 0xff, 0x15, 0xe8, 0xd2, 0x25, 0x0f, 0x7e, 0x78, 0x68, 0xe7, 0xd4, 0x54, 0x9f, 0xea,
-	0x08, 0x32, 0xc8, 0x93, 0x49, 0x89, 0x1f, 0xa1, 0x26, 0x4d, 0x64, 0x2e, 0x34, 0xf1, 0xfa, 0xde,
-	0x51, 0x6b, 0x5c, 0x21, 0xbc, 0x87, 0xb6, 0x40, 0x47, 0xd3, 0x88, 0xaa, 0x88, 0xdc, 0xb3, 0x91,
-	0x4d, 0xd0, 0xd1, 0x19, 0x55, 0x11, 0x7e, 0x88, 0x36, 0xb8, 0x08, 0xa0, 0x24, 0xeb, 0x96, 0x77,
-	0xc0, 0x14, 0x84, 0x54, 0x4d, 0x73, 0x05, 0x01, 0x69, 0xb8, 0x82, 0x90, 0xaa, 0x0f, 0x0a, 0x02,
-	0x8c, 0x51, 0xc3, 0xea, 0x6c, 0x58, 0xda, 0x7e, 0xe3, 0xa7, 0xa8, 0x95, 0x01, 0xe3, 0x29, 0x07,
-	0xa1, 0x49, 0xd3, 0x06, 0xee, 0x08, 0x3c, 0x40, 0x5d, 0xf3, 0x77, 0x5d, 0x4e, 0xaf, 0x28, 0x8f,
-	0x21, 0x20, 0x9b, 0x36, 0xa3, 0x0d, 0x3a, 0x9a, 0x94, 0x6f, 0x2d, 0x35, 0xf8, 0xbd, 0x8e, 0xee,
-	0xdb, 0x69, 0xce, 0x47, 0x27, 0xa7, 0x1f, 0x2f, 0xcf, 0xa4, 0x9c, 0x4f, 0x4a, 0xfc, 0x1c, 0xb5,
-	0x95, 0xcc, 0x33, 0x06, 0xd3, 0x54, 0x66, 0xf5, 0x50, 0xc8, 0x51, 0xef, 0x64, 0xa6, 0xf1, 0x01,
-	0xda, 0xae, 0x12, 0x58, 0x44, 0x85, 0x80, 0xb8, 0x1a, 0xaf, 0xeb, 0xd8, 0x13, 0x47, 0xe2, 0x97,
-	0x68, 0x37, 0x00, 0xa5, 0xb9, 0xa0, 0x9a, 0x4b, 0xe1, 0xc4, 0xdc, 0xbc, 0x3b, 0x2b, 0xbc, 0x55,
-	0xf4, 0xd1, 0x83, 0xd5, 0xd4, 0x5a, 0xd6, 0x2d, 0x01, 0xaf, 0x84, 0x6a, 0xed, 0x7d, 0xb4, 0xa5,
-	0xe0, 0x6b, 0x0e, 0x82, 0x81, 0xdd, 0x49, 0x63, 0xbc, 0xc4, 0xf8, 0x05, 0xea, 0xa6, 0x94, 0xcd,
-	0x41, 0x4f, 0x15, 0x88, 0x00, 0xb2, 0x6a, 0x37, 0x1d, 0x47, 0xbe, 0xb7, 0x9c, 0x11, 0xc8, 0x80,
-	0x01, 0x2f, 0x20, 0xab, 0x36, 0xb3, 0xc4, 0x26, 0xc6, 0xa4, 0xd0, 0x19, 0x65, 0x9a, 0x6c, 0xb9,
-	0x58, 0x8d, 0x8d, 0x73, 0x5a, 0xce, 0x41, 0x90, 0x96, 0x73, 0xce, 0x82, 0x95, 0x13, 0x40, 0x7f,
-	0x9d, 0x00, 0x46, 0x8d, 0xab, 0x4c, 0x26, 0xa4, 0xed, 0x6c, 0x33, 0xdf, 0xce, 0xfb, 0x34, 0xd7,
-	0xa4, 0xd3, 0xf7, 0x8e, 0x3a, 0x63, 0x07, 0xf0, 0x13, 0xd4, 0x32, 0xde, 0xc7, 0x3c, 0xe1, 0x9a,
-	0x74, 0xdd, 0x44, 0x21, 0x55, 0x17, 0x06, 0xe3, 0x13, 0xd3, 0xac, 0x4a, 0xa5, 0x50, 0x40, 0xb6,
-	0xfb, 0xde, 0x51, 0xfb, 0xf5, 0xe1, 0xf0, 0xdf, 0xab, 0x1d, 0x5e, 0xaa, 0xf0, 0xee, 0x28, 0xc7,
-	0x55, 0xfa, 0x78, 0x59, 0x38, 0x38, 0x40, 0xc8, 0x7a, 0x3d, 0x29, 0x2f, 0x64, 0x88, 0x1f, 0xa3,
-	0x4d, 0x5d, 0x4e, 0x63, 0x19, 0x2a, 0xe2, 0xf5, 0xd7, 0x4d, 0xcb, 0xda, 0xf0, 0x6a, 0xf0, 0x09,
-	0x75, 0x6c, 0xda, 0x25, 0x28, 0x45, 0x43, 0x30, 0xa3, 0x25, 0x32, 0xc8, 0x63, 0xa8, 0xaf, 0xdb,
-	0x21, 0xc3, 0x57, 0xeb, 0x75, 0xe6, 0x57, 0xa8, 0x12, 0xd6, 0xd7, 0x29, 0x54, 0x66, 0x37, 0x75,
-	0x39, 0xb9, 0x4e, 0x61, 0x70, 0x58, 0xbd, 0x9c, 0x51, 0x2c, 0xd9, 0x7c, 0x14, 0x4b, 0xb7, 0x8a,
-	0x99, 0xf9, 0xa8, 0xa4, 0x1d, 0x18, 0xb1, 0xef, 0xb7, 0x3d, 0xef, 0xe6, 0xb6, 0xe7, 0xfd, 0xba,
-	0xed, 0x79, 0xdf, 0x16, 0xbd, 0xb5, 0x9b, 0x45, 0x6f, 0xed, 0xe7, 0xa2, 0xb7, 0xf6, 0xf9, 0x3c,
-	0xe4, 0x3a, 0xca, 0x67, 0x43, 0x26, 0x13, 0xff, 0xbc, 0x9e, 0xff, 0x82, 0xce, 0x94, 0xbf, 0xdc,
-	0xc6, 0x2b, 0x26, 0x33, 0x58, 0x85, 0x11, 0xe5, 0xc2, 0x77, 0x3d, 0x2b, 0xfb, 0x9c, 0x4d, 0x6b,
-	0x6a, 0xd6, 0xb4, 0xef, 0xf9, 0xcd, 0x9f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x79, 0xd9, 0x22, 0x86,
-	0x1d, 0x04, 0x00, 0x00,
+	// 551 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x53, 0x5d, 0x6b, 0xd4, 0x40,
+	0x14, 0x6d, 0xda, 0xed, 0xee, 0x76, 0xba, 0xd2, 0x32, 0x7e, 0xc5, 0xa2, 0xb1, 0x04, 0xc4, 0xf6,
+	0xc1, 0x84, 0xea, 0x3f, 0xd8, 0x5a, 0x69, 0xa1, 0x82, 0x84, 0x15, 0xc1, 0x97, 0x30, 0x3b, 0xb9,
+	0x26, 0xb1, 0xc9, 0x4c, 0x9c, 0xb9, 0x09, 0xe9, 0xbf, 0xf0, 0x67, 0x09, 0xbe, 0x14, 0x7c, 0xf1,
+	0x51, 0xba, 0x7f, 0x44, 0x66, 0x92, 0x5d, 0x57, 0x7d, 0xcb, 0x39, 0xe7, 0xde, 0x9b, 0x39, 0x73,
+	0xcf, 0x90, 0x27, 0xb9, 0xf8, 0x0c, 0x1c, 0xf3, 0x06, 0x42, 0x68, 0xca, 0xb0, 0x39, 0x09, 0xa1,
+	0x01, 0x81, 0x3a, 0xa8, 0x94, 0x44, 0x49, 0xf7, 0x57, 0x72, 0x00, 0x4d, 0x19, 0x34, 0x27, 0x07,
+	0x07, 0xff, 0x35, 0x14, 0x32, 0xed, 0xaa, 0xfd, 0xef, 0x0e, 0xd9, 0x3b, 0x33, 0xed, 0x67, 0x98,
+	0x81, 0x82, 0xba, 0x9c, 0xb5, 0xf4, 0x01, 0x19, 0xb2, 0x52, 0xd6, 0x02, 0x5d, 0xe7, 0xd0, 0x39,
+	0xda, 0x89, 0x7a, 0x44, 0x1f, 0x91, 0x31, 0x60, 0x16, 0x67, 0x4c, 0x67, 0xee, 0xa6, 0x55, 0x46,
+	0x80, 0xd9, 0x39, 0xd3, 0x19, 0xbd, 0x47, 0xb6, 0x73, 0x91, 0x40, 0xeb, 0x6e, 0x59, 0xbe, 0x03,
+	0xa6, 0x21, 0x65, 0x3a, 0xae, 0x35, 0x24, 0xee, 0xa0, 0x6b, 0x48, 0x99, 0x7e, 0xaf, 0x21, 0xa1,
+	0x94, 0x0c, 0xec, 0x9c, 0x6d, 0x4b, 0xdb, 0x6f, 0xfa, 0x98, 0xec, 0x28, 0xe0, 0x79, 0x95, 0x83,
+	0x40, 0x77, 0x68, 0x85, 0x3f, 0x04, 0xf5, 0xc9, 0x1d, 0xf3, 0x77, 0x6c, 0xe3, 0x4f, 0x2c, 0x2f,
+	0x20, 0x71, 0x47, 0xb6, 0x62, 0x17, 0x30, 0x9b, 0xb5, 0x6f, 0x2c, 0xe5, 0xff, 0xd8, 0x24, 0xfb,
+	0xd6, 0xcd, 0xc5, 0xf4, 0xf4, 0x5c, 0xca, 0xab, 0x53, 0x56, 0x14, 0xf4, 0x98, 0xec, 0x27, 0xa0,
+	0x31, 0x17, 0x0c, 0x73, 0x29, 0xe2, 0x4a, 0xaa, 0xa5, 0xb1, 0xbd, 0x35, 0xfe, 0x9d, 0x54, 0x48,
+	0x43, 0x72, 0x77, 0xbd, 0x94, 0x67, 0x4c, 0x08, 0x28, 0x7a, 0xb3, 0x74, 0x4d, 0x3a, 0xed, 0x14,
+	0x7a, 0x40, 0xc6, 0x1a, 0xbe, 0xd4, 0x20, 0x38, 0x58, 0xeb, 0x83, 0x68, 0x85, 0x8d, 0xc6, 0xa5,
+	0x40, 0xc5, 0x38, 0x5a, 0xf7, 0x93, 0x68, 0x85, 0xbb, 0xfb, 0xaa, 0x6a, 0xb4, 0xfe, 0x27, 0x51,
+	0x07, 0xa8, 0x4b, 0x46, 0xba, 0xe6, 0x1c, 0xb4, 0xb6, 0xf6, 0xc7, 0xd1, 0x12, 0xd2, 0xa7, 0x64,
+	0x57, 0x01, 0xd6, 0x4a, 0xc4, 0x09, 0x43, 0x66, 0xad, 0x4f, 0x22, 0xd2, 0x51, 0xaf, 0x19, 0x32,
+	0x33, 0x10, 0x94, 0x92, 0xca, 0x1d, 0x77, 0x0b, 0xb0, 0xe0, 0xaf, 0x05, 0xec, 0xd8, 0xe3, 0xad,
+	0x16, 0x70, 0x4c, 0x06, 0x85, 0x4c, 0xb5, 0x4b, 0x0e, 0xb7, 0x8e, 0x76, 0x5f, 0xde, 0x0f, 0xfe,
+	0x4d, 0x4d, 0x70, 0x29, 0xd3, 0xc8, 0x96, 0xf8, 0xcf, 0x08, 0xb1, 0x97, 0x3a, 0x6b, 0x2f, 0x65,
+	0x4a, 0x1f, 0x92, 0x11, 0xb6, 0xb1, 0xed, 0x75, 0x0e, 0xb7, 0x4c, 0x3c, 0xd0, 0xf0, 0xda, 0xff,
+	0x40, 0x26, 0xb6, 0xec, 0x2d, 0x68, 0xcd, 0x52, 0x30, 0x31, 0x2a, 0x65, 0x52, 0x17, 0xb0, 0x8c,
+	0x51, 0x87, 0x0c, 0xaf, 0x41, 0x24, 0xa0, 0xfa, 0x7b, 0xed, 0x51, 0x3f, 0x18, 0xaf, 0x2b, 0xe8,
+	0x53, 0x34, 0xc4, 0x76, 0x76, 0x5d, 0x81, 0xff, 0xbc, 0x8f, 0xe8, 0xb4, 0x90, 0xfc, 0x6a, 0x5a,
+	0x48, 0x59, 0x1a, 0xbb, 0x73, 0xf3, 0xd1, 0x8f, 0xee, 0xc0, 0x94, 0x7f, 0xbb, 0xf5, 0x9c, 0x9b,
+	0x5b, 0xcf, 0xf9, 0x75, 0xeb, 0x39, 0x5f, 0x17, 0xde, 0xc6, 0xcd, 0xc2, 0xdb, 0xf8, 0xb9, 0xf0,
+	0x36, 0x3e, 0x5e, 0xa4, 0x39, 0x66, 0xf5, 0x3c, 0xe0, 0xb2, 0x0c, 0x2f, 0x96, 0x4e, 0x2f, 0xd9,
+	0x5c, 0x87, 0x2b, 0xdf, 0x2f, 0xb8, 0x54, 0xb0, 0x0e, 0x33, 0x96, 0x8b, 0xb0, 0x3b, 0xb3, 0xb6,
+	0x0f, 0xc7, 0x1c, 0x4d, 0xcf, 0x87, 0xf6, 0xe1, 0xbc, 0xfa, 0x1d, 0x00, 0x00, 0xff, 0xff, 0xf0,
+	0xb6, 0x27, 0x8f, 0x87, 0x03, 0x00, 0x00,
 }
 
 func (m *EventEthereumTx) Marshal() (dAtA []byte, err error) {
@@ -567,7 +529,7 @@ func (m *EventEthereumTx) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *EventIBCEVMHookTx) Marshal() (dAtA []byte, err error) {
+func (m *EventIBCHookCall) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -577,112 +539,89 @@ func (m *EventIBCEVMHookTx) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *EventIBCEVMHookTx) MarshalTo(dAtA []byte) (int, error) {
+func (m *EventIBCHookCall) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *EventIBCEVMHookTx) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EventIBCHookCall) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Response != nil {
-		{
-			size, err := m.Response.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
+	if len(m.Logs) > 0 {
+		for iNdEx := len(m.Logs) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Logs[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintEvents(dAtA, i, uint64(size))
 			}
-			i -= size
-			i = encodeVarintEvents(dAtA, i, uint64(size))
+			i--
+			dAtA[i] = 0x52
+		}
+	}
+	if m.GasUsed != 0 {
+		i = encodeVarintEvents(dAtA, i, uint64(m.GasUsed))
+		i--
+		dAtA[i] = 0x48
+	}
+	if len(m.Error) > 0 {
+		i -= len(m.Error)
+		copy(dAtA[i:], m.Error)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Error)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if len(m.ReturnData) > 0 {
+		i -= len(m.ReturnData)
+		copy(dAtA[i:], m.ReturnData)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.ReturnData)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if m.Success {
+		i--
+		if m.Success {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
 		}
 		i--
-		dAtA[i] = 0x72
-	}
-	if m.GasLimit != 0 {
-		i = encodeVarintEvents(dAtA, i, uint64(m.GasLimit))
-		i--
-		dAtA[i] = 0x68
+		dAtA[i] = 0x30
 	}
 	if len(m.Input) > 0 {
 		i -= len(m.Input)
 		copy(dAtA[i:], m.Input)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.Input)))
 		i--
-		dAtA[i] = 0x62
-	}
-	if len(m.From) > 0 {
-		i -= len(m.From)
-		copy(dAtA[i:], m.From)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.From)))
-		i--
-		dAtA[i] = 0x5a
-	}
-	if len(m.Amount) > 0 {
-		i -= len(m.Amount)
-		copy(dAtA[i:], m.Amount)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Amount)))
-		i--
-		dAtA[i] = 0x52
-	}
-	if len(m.Token) > 0 {
-		i -= len(m.Token)
-		copy(dAtA[i:], m.Token)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Token)))
-		i--
-		dAtA[i] = 0x4a
+		dAtA[i] = 0x2a
 	}
 	if len(m.Contract) > 0 {
 		i -= len(m.Contract)
 		copy(dAtA[i:], m.Contract)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.Contract)))
 		i--
-		dAtA[i] = 0x42
-	}
-	if len(m.Receiver) > 0 {
-		i -= len(m.Receiver)
-		copy(dAtA[i:], m.Receiver)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.Receiver)))
-		i--
-		dAtA[i] = 0x3a
-	}
-	if len(m.PacketSender) > 0 {
-		i -= len(m.PacketSender)
-		copy(dAtA[i:], m.PacketSender)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.PacketSender)))
-		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x22
 	}
 	if m.Sequence != 0 {
 		i = encodeVarintEvents(dAtA, i, uint64(m.Sequence))
 		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x18
 	}
 	if len(m.DestinationChannel) > 0 {
 		i -= len(m.DestinationChannel)
 		copy(dAtA[i:], m.DestinationChannel)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.DestinationChannel)))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x12
 	}
 	if len(m.DestinationPort) > 0 {
 		i -= len(m.DestinationPort)
 		copy(dAtA[i:], m.DestinationPort)
 		i = encodeVarintEvents(dAtA, i, uint64(len(m.DestinationPort)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.SourceChannel) > 0 {
-		i -= len(m.SourceChannel)
-		copy(dAtA[i:], m.SourceChannel)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.SourceChannel)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.SourcePort) > 0 {
-		i -= len(m.SourcePort)
-		copy(dAtA[i:], m.SourcePort)
-		i = encodeVarintEvents(dAtA, i, uint64(len(m.SourcePort)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -843,20 +782,12 @@ func (m *EventEthereumTx) Size() (n int) {
 	return n
 }
 
-func (m *EventIBCEVMHookTx) Size() (n int) {
+func (m *EventIBCHookCall) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.SourcePort)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.SourceChannel)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
 	l = len(m.DestinationPort)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
@@ -868,27 +799,7 @@ func (m *EventIBCEVMHookTx) Size() (n int) {
 	if m.Sequence != 0 {
 		n += 1 + sovEvents(uint64(m.Sequence))
 	}
-	l = len(m.PacketSender)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.Receiver)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
 	l = len(m.Contract)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.Token)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.Amount)
-	if l > 0 {
-		n += 1 + l + sovEvents(uint64(l))
-	}
-	l = len(m.From)
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
@@ -896,12 +807,25 @@ func (m *EventIBCEVMHookTx) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
 	}
-	if m.GasLimit != 0 {
-		n += 1 + sovEvents(uint64(m.GasLimit))
+	if m.Success {
+		n += 2
 	}
-	if m.Response != nil {
-		l = m.Response.Size()
+	l = len(m.ReturnData)
+	if l > 0 {
 		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.Error)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	if m.GasUsed != 0 {
+		n += 1 + sovEvents(uint64(m.GasUsed))
+	}
+	if len(m.Logs) > 0 {
+		for _, e := range m.Logs {
+			l = e.Size()
+			n += 1 + l + sovEvents(uint64(l))
+		}
 	}
 	return n
 }
@@ -1235,7 +1159,7 @@ func (m *EventEthereumTx) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
+func (m *EventIBCHookCall) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1258,77 +1182,13 @@ func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: EventIBCEVMHookTx: wiretype end group for non-group")
+			return fmt.Errorf("proto: EventIBCHookCall: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: EventIBCEVMHookTx: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EventIBCHookCall: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SourcePort", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SourcePort = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SourceChannel", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SourceChannel = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field DestinationPort", wireType)
 			}
@@ -1360,7 +1220,7 @@ func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
 			}
 			m.DestinationPort = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field DestinationChannel", wireType)
 			}
@@ -1392,7 +1252,7 @@ func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
 			}
 			m.DestinationChannel = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 5:
+		case 3:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
 			}
@@ -1411,75 +1271,11 @@ func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PacketSender", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.PacketSender = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Receiver", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Receiver = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 8:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Contract", wireType)
 			}
-			var stringLen uint64
+			var byteLen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -1489,121 +1285,27 @@ func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				byteLen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if byteLen < 0 {
 				return ErrInvalidLengthEvents
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + byteLen
 			if postIndex < 0 {
 				return ErrInvalidLengthEvents
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Contract = string(dAtA[iNdEx:postIndex])
+			m.Contract = append(m.Contract[:0], dAtA[iNdEx:postIndex]...)
+			if m.Contract == nil {
+				m.Contract = []byte{}
+			}
 			iNdEx = postIndex
-		case 9:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Token = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 10:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Amount = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 11:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field From", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvents
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvents
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvents
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.From = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 12:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Input", wireType)
 			}
@@ -1637,11 +1339,11 @@ func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
 				m.Input = []byte{}
 			}
 			iNdEx = postIndex
-		case 13:
+		case 6:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field GasLimit", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Success", wireType)
 			}
-			m.GasLimit = 0
+			var v int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowEvents
@@ -1651,14 +1353,100 @@ func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.GasLimit |= uint64(b&0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-		case 14:
+			m.Success = bool(v != 0)
+		case 7:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Response", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ReturnData", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ReturnData = append(m.ReturnData[:0], dAtA[iNdEx:postIndex]...)
+			if m.ReturnData == nil {
+				m.ReturnData = []byte{}
+			}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Error", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Error = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GasUsed", wireType)
+			}
+			m.GasUsed = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.GasUsed |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Logs", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1685,10 +1473,8 @@ func (m *EventIBCEVMHookTx) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Response == nil {
-				m.Response = &MsgEthereumTxResponse{}
-			}
-			if err := m.Response.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Logs = append(m.Logs, &Log{})
+			if err := m.Logs[len(m.Logs)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

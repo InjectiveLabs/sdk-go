@@ -8,6 +8,7 @@
   "injective.evm.v1.AccessListTx",
   "injective.evm.v1.DynamicFeeTx",
   "injective.evm.v1.ExtensionOptionsEthereumTx",
+  "injective.evm.v1.IBCHookCall",
   "injective.evm.v1.LegacyTx",
   "injective.evm.v1.MsgEthereumTx",
   "injective.evm.v1.MsgUpdateParams",
