@@ -2,7 +2,6 @@ package types
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 // Evm module events
@@ -37,10 +36,9 @@ func NewEventIBCHookCall( //nolint:revive // all good
 	destPort, destCh string,
 	sequence uint64,
 	contract common.Address,
-	inputRaw string,
+	input []byte,
 	response *MsgEthereumTxResponse,
 ) *EventIBCHookCall {
-	input, _ := hexutil.Decode(inputRaw)
 	event := &EventIBCHookCall{
 		DestinationPort:    destPort,
 		DestinationChannel: destCh,
