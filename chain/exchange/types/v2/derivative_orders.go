@@ -44,6 +44,75 @@ func NewMarketOrderForLiquidation(
 	return &order
 }
 
+// NewMarketOrderForPartialLiquidation creates a liquidation market order for a specific
+// quantity (which may be less than the full position). Used by graduated liquidation.
+func NewMarketOrderForPartialLiquidation(
+	position *Position,
+	closeQuantity math.LegacyDec,
+	positionSubaccountID common.Hash,
+	liquidator sdk.AccAddress,
+	worstPrice math.LegacyDec,
+) *DerivativeMarketOrder {
+	var orderType OrderType
+	if position.IsLong {
+		orderType = OrderType_SELL
+	} else {
+		orderType = OrderType_BUY
+	}
+
+	return &DerivativeMarketOrder{
+		OrderInfo: OrderInfo{
+			SubaccountId: positionSubaccountID.Hex(),
+			FeeRecipient: liquidator.String(),
+			Price:        worstPrice,
+			Quantity:     closeQuantity,
+		},
+		OrderType:    orderType,
+		Margin:       math.LegacyZeroDec(),
+		MarginHold:   math.LegacyZeroDec(),
+		TriggerPrice: nil,
+	}
+}
+
+// Copy returns a deep copy of the order, isolating the mutable-by-reference fields
+// (OrderHash, TriggerPrice) and cloning the LegacyDec values so the copy can be mutated
+// without affecting the original.
+func (m *DerivativeLimitOrder) Copy() *DerivativeLimitOrder {
+	if m == nil {
+		return nil
+	}
+	c := &DerivativeLimitOrder{
+		OrderInfo: OrderInfo{
+			SubaccountId: m.OrderInfo.SubaccountId,
+			FeeRecipient: m.OrderInfo.FeeRecipient,
+			Cid:          m.OrderInfo.Cid,
+		},
+		OrderType:       m.OrderType,
+		ExpirationBlock: m.ExpirationBlock,
+	}
+	if !m.OrderInfo.Price.IsNil() {
+		c.OrderInfo.Price = m.OrderInfo.Price.Clone()
+	}
+	if !m.OrderInfo.Quantity.IsNil() {
+		c.OrderInfo.Quantity = m.OrderInfo.Quantity.Clone()
+	}
+	if !m.Margin.IsNil() {
+		c.Margin = m.Margin.Clone()
+	}
+	if !m.Fillable.IsNil() {
+		c.Fillable = m.Fillable.Clone()
+	}
+	if m.TriggerPrice != nil {
+		triggerPrice := m.TriggerPrice.Clone()
+		c.TriggerPrice = &triggerPrice
+	}
+	if m.OrderHash != nil {
+		c.OrderHash = make([]byte, len(m.OrderHash))
+		copy(c.OrderHash, m.OrderHash)
+	}
+	return c
+}
+
 func (m *DerivativeLimitOrder) ToTrimmed() *TrimmedDerivativeLimitOrder {
 	return &TrimmedDerivativeLimitOrder{
 		Price:     m.OrderInfo.Price,

@@ -4,7 +4,8 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.89 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b v1.20.3 --depth 1 --single-branch
+	#git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b ic-1075/ibc-evm-hook --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*

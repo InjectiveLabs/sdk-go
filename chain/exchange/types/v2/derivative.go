@@ -3,6 +3,7 @@ package v2 //nolint:revive // ok
 import (
 	"bytes"
 	"sort"
+	"sync"
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
@@ -522,9 +523,9 @@ type DerivativeMarketOrderExpansionData struct {
 	MarketSellClearingPrice      math.LegacyDec
 	MarketBuyClearingQuantity    math.LegacyDec
 	MarketSellClearingQuantity   math.LegacyDec
-	MarketBalanceDelta            math.LegacyDec
-	OpenInterestDelta             math.LegacyDec
-	CrossPoolSnapshotEvictions    []common.Hash
+	MarketBalanceDelta           math.LegacyDec
+	OpenInterestDelta            math.LegacyDec
+	CrossPoolSnapshotEvictions   []common.Hash
 }
 
 func (e *DerivativeMarketOrderExpansionData) SetSellExecutionData(
@@ -977,6 +978,14 @@ type DerivativeBatchExecutionData struct {
 	MarkPrice math.LegacyDec
 	Funding   *PerpetualMarketFunding
 
+	// Fee-discount staking deltas are produced during FBA matching but must be
+	// merged only after derivative solvency filtering. Some executions can be
+	// discarded after matching if a market is insolvent or a reduce-only cleanup
+	// dependency fails; carrying the base/local pair here lets persistence merge
+	// only surviving deltas.
+	FeeDiscountStakingInfoBase  *FeeDiscountStakingInfo
+	FeeDiscountStakingInfoLocal *FeeDiscountStakingInfo
+
 	// update the deposits for margin deductions, payouts and refunds
 	DepositDeltas        types.DepositDeltas
 	DepositSubaccountIDs []common.Hash
@@ -1023,6 +1032,235 @@ type DerivativeBatchExecutionData struct {
 	// and applied in the single-threaded persistence phase to avoid data races on the
 	// shared object store.
 	CrossPoolSnapshotEvictions []common.Hash
+}
+
+type CrossMarginPoolKey struct {
+	SubaccountID common.Hash
+	QuoteDenom   string
+}
+
+func CloneFeeDiscountStakingInfo(info *FeeDiscountStakingInfo) *FeeDiscountStakingInfo {
+	if info == nil {
+		return nil
+	}
+
+	clone := &FeeDiscountStakingInfo{
+		SubaccountMarketVolumeContributions: make(map[common.Hash]map[common.Hash]VolumeRecord),
+		AccountVolumeContributions:          make(map[types.Account]math.LegacyDec),
+		AccountFeeTiers:                     make(map[types.Account]*types.FeeDiscountRates),
+		Validators:                          make(ValidatorCache),
+		NewAccounts:                         make(map[types.Account]*FeeDiscountTierTTL),
+		GrantCheckpoints:                    make(map[string]struct{}),
+		InvalidGrants:                       make(map[string]string),
+		AccountFeeTiersMux:                  new(sync.RWMutex),
+		AccountVolumesMux:                   new(sync.RWMutex),
+		ValidatorsMux:                       new(sync.RWMutex),
+		NewAccountsMux:                      new(sync.RWMutex),
+		GrantsMux:                           new(sync.RWMutex),
+		Schedule:                            info.Schedule,
+		CurrBucketStartTimestamp:            info.CurrBucketStartTimestamp,
+		OldestBucketStartTimestamp:          info.OldestBucketStartTimestamp,
+		MaxTTLTimestamp:                     info.MaxTTLTimestamp,
+		NextTTLTimestamp:                    info.NextTTLTimestamp,
+		FeeDiscountRatesCache:               info.FeeDiscountRatesCache,
+		IsFirstFeeCycleFinished:             info.IsFirstFeeCycleFinished,
+	}
+
+	info.AccountVolumesMux.RLock()
+	for account, amount := range info.AccountVolumeContributions {
+		clone.AccountVolumeContributions[account] = amount
+	}
+	for subaccountID, byMarket := range info.SubaccountMarketVolumeContributions {
+		clone.SubaccountMarketVolumeContributions[subaccountID] = make(map[common.Hash]VolumeRecord, len(byMarket))
+		for marketID, volume := range byMarket {
+			clone.SubaccountMarketVolumeContributions[subaccountID][marketID] = volume
+		}
+	}
+	info.AccountVolumesMux.RUnlock()
+
+	info.AccountFeeTiersMux.RLock()
+	for account, rates := range info.AccountFeeTiers {
+		clone.AccountFeeTiers[account] = copyFeeDiscountRates(rates)
+	}
+	info.AccountFeeTiersMux.RUnlock()
+
+	info.ValidatorsMux.RLock()
+	for operator, validator := range info.Validators {
+		clone.Validators[operator] = validator
+	}
+	info.ValidatorsMux.RUnlock()
+
+	info.NewAccountsMux.RLock()
+	for account, ttl := range info.NewAccounts {
+		clone.NewAccounts[account] = copyFeeDiscountTierTTL(ttl)
+	}
+	info.NewAccountsMux.RUnlock()
+
+	info.GrantsMux.RLock()
+	for granter := range info.GrantCheckpoints {
+		clone.GrantCheckpoints[granter] = struct{}{}
+	}
+	for grantee, granter := range info.InvalidGrants {
+		clone.InvalidGrants[grantee] = granter
+	}
+	info.GrantsMux.RUnlock()
+
+	return clone
+}
+
+func MergeFeeDiscountStakingInfoDelta(dst, base, local *FeeDiscountStakingInfo) {
+	if dst == nil || base == nil || local == nil {
+		return
+	}
+
+	mergeFeeDiscountVolumeDelta(dst, base, local)
+	mergeFeeDiscountRateDelta(dst, base, local)
+	mergeFeeDiscountValidatorDelta(dst, base, local)
+	mergeFeeDiscountNewAccountDelta(dst, base, local)
+	mergeFeeDiscountGrantDelta(dst, base, local)
+}
+
+func mergeFeeDiscountVolumeDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.AccountVolumesMux.RLock()
+	base.AccountVolumesMux.RLock()
+	dst.AccountVolumesMux.Lock()
+	for account, localAmount := range local.AccountVolumeContributions {
+		delta := feeDiscountDecOrZero(localAmount).Sub(feeDiscountDecOrZero(base.AccountVolumeContributions[account]))
+		if delta.IsZero() {
+			continue
+		}
+		dst.AccountVolumeContributions[account] = feeDiscountDecOrZero(dst.AccountVolumeContributions[account]).Add(delta)
+	}
+	for subaccountID, localByMarket := range local.SubaccountMarketVolumeContributions {
+		baseByMarket := base.SubaccountMarketVolumeContributions[subaccountID]
+		for marketID, localVolume := range localByMarket {
+			delta := volumeRecordDelta(localVolume, baseByMarket[marketID])
+			if (&delta).IsZero() {
+				continue
+			}
+			if dst.SubaccountMarketVolumeContributions[subaccountID] == nil {
+				dst.SubaccountMarketVolumeContributions[subaccountID] = make(map[common.Hash]VolumeRecord)
+			}
+			dst.SubaccountMarketVolumeContributions[subaccountID][marketID] =
+				dst.SubaccountMarketVolumeContributions[subaccountID][marketID].Add(delta)
+		}
+	}
+	dst.AccountVolumesMux.Unlock()
+	base.AccountVolumesMux.RUnlock()
+	local.AccountVolumesMux.RUnlock()
+}
+
+func mergeFeeDiscountRateDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.AccountFeeTiersMux.RLock()
+	base.AccountFeeTiersMux.RLock()
+	dst.AccountFeeTiersMux.Lock()
+	for account, localRates := range local.AccountFeeTiers {
+		if feeDiscountRatesEqual(localRates, base.AccountFeeTiers[account]) {
+			continue
+		}
+		dst.AccountFeeTiers[account] = copyFeeDiscountRates(localRates)
+	}
+	dst.AccountFeeTiersMux.Unlock()
+	base.AccountFeeTiersMux.RUnlock()
+	local.AccountFeeTiersMux.RUnlock()
+}
+
+func mergeFeeDiscountValidatorDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.ValidatorsMux.RLock()
+	base.ValidatorsMux.RLock()
+	dst.ValidatorsMux.Lock()
+	for operator, validator := range local.Validators {
+		if _, had := base.Validators[operator]; had {
+			continue
+		}
+		dst.Validators[operator] = validator
+	}
+	dst.ValidatorsMux.Unlock()
+	base.ValidatorsMux.RUnlock()
+	local.ValidatorsMux.RUnlock()
+}
+
+func mergeFeeDiscountNewAccountDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.NewAccountsMux.RLock()
+	base.NewAccountsMux.RLock()
+	dst.NewAccountsMux.Lock()
+	for account, localTTL := range local.NewAccounts {
+		if feeDiscountTierTTLEqual(localTTL, base.NewAccounts[account]) {
+			continue
+		}
+		dst.NewAccounts[account] = copyFeeDiscountTierTTL(localTTL)
+	}
+	dst.NewAccountsMux.Unlock()
+	base.NewAccountsMux.RUnlock()
+	local.NewAccountsMux.RUnlock()
+}
+
+func mergeFeeDiscountGrantDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.GrantsMux.RLock()
+	base.GrantsMux.RLock()
+	dst.GrantsMux.Lock()
+	for granter := range local.GrantCheckpoints {
+		if _, had := base.GrantCheckpoints[granter]; had {
+			continue
+		}
+		dst.GrantCheckpoints[granter] = struct{}{}
+	}
+	for grantee, granter := range local.InvalidGrants {
+		if base.InvalidGrants[grantee] == granter {
+			continue
+		}
+		dst.InvalidGrants[grantee] = granter
+	}
+	dst.GrantsMux.Unlock()
+	base.GrantsMux.RUnlock()
+	local.GrantsMux.RUnlock()
+}
+
+func feeDiscountDecOrZero(value math.LegacyDec) math.LegacyDec {
+	if value.IsNil() {
+		return math.LegacyZeroDec()
+	}
+	return value
+}
+
+func volumeRecordDelta(local, base VolumeRecord) VolumeRecord {
+	return NewVolumeRecord(
+		feeDiscountDecOrZero(local.MakerVolume).Sub(feeDiscountDecOrZero(base.MakerVolume)),
+		feeDiscountDecOrZero(local.TakerVolume).Sub(feeDiscountDecOrZero(base.TakerVolume)),
+	)
+}
+
+func copyFeeDiscountRates(rates *types.FeeDiscountRates) *types.FeeDiscountRates {
+	if rates == nil {
+		return nil
+	}
+	return &types.FeeDiscountRates{
+		MakerDiscountRate: rates.MakerDiscountRate,
+		TakerDiscountRate: rates.TakerDiscountRate,
+	}
+}
+
+func feeDiscountRatesEqual(a, b *types.FeeDiscountRates) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return feeDiscountDecOrZero(a.MakerDiscountRate).Equal(feeDiscountDecOrZero(b.MakerDiscountRate)) &&
+		feeDiscountDecOrZero(a.TakerDiscountRate).Equal(feeDiscountDecOrZero(b.TakerDiscountRate))
+}
+
+func copyFeeDiscountTierTTL(ttl *FeeDiscountTierTTL) *FeeDiscountTierTTL {
+	if ttl == nil {
+		return nil
+	}
+	cp := *ttl
+	return &cp
+}
+
+func feeDiscountTierTTLEqual(a, b *FeeDiscountTierTTL) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return a.Tier == b.Tier && a.TtlTimestamp == b.TtlTimestamp
 }
 
 func (d *DerivativeBatchExecutionData) GetAtomicDerivativeMarketOrderResults() *DerivativeMarketOrderResults {

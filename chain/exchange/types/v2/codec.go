@@ -74,6 +74,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCancelBinaryOptionsOrder{}, "exchange/v2/MsgCancelBinaryOptionsOrder", nil)
 	cdc.RegisterConcrete(&MsgAdminUpdateBinaryOptionsMarket{}, "exchange/v2/MsgAdminUpdateBinaryOptionsMarket", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "exchange/v2/MsgUpdateParams", nil)
+	cdc.RegisterConcrete(&MsgUpdateSwapParams{}, "exchange/v2/MsgUpdateSwapParams", nil)
 	cdc.RegisterConcrete(&MsgUpdateSpotMarket{}, "exchange/v2/MsgUpdateSpotMarket", nil)
 	cdc.RegisterConcrete(&MsgUpdateDerivativeMarket{}, "exchange/v2/MsgUpdateDerivativeMarket", nil)
 	cdc.RegisterConcrete(&MsgAuthorizeStakeGrants{}, "exchange/v2/MsgAuthorizeStakeGrants", nil)
@@ -96,6 +97,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgTradingRewardPendingPointsUpdate{}, "exchange/v2/MsgTradingRewardPendingPointsUpdate", nil)
 	cdc.RegisterConcrete(&MsgFeeDiscount{}, "exchange/v2/MsgFeeDiscount", nil)
 	cdc.RegisterConcrete(&MsgAtomicMarketOrderFeeMultiplierSchedule{}, "exchange/v2/MsgAtomicMarketOrderFeeMultiplierSchedule", nil)
+
 	cdc.RegisterConcrete(&MsgSetDelegationTransferReceivers{}, "exchange/v2/MsgSetDelegationTransferReceivers", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/v2/ExchangeEnableProposal", nil)
@@ -187,6 +189,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCancelBinaryOptionsOrder{},
 		&MsgAdminUpdateBinaryOptionsMarket{},
 		&MsgUpdateParams{},
+		&MsgUpdateSwapParams{},
 		&MsgUpdateSpotMarket{},
 		&MsgUpdateDerivativeMarket{},
 		&MsgAuthorizeStakeGrants{},

@@ -89,14 +89,61 @@ func NewFeeDiscountConfig(isQualified bool, stakingInfo *FeeDiscountStakingInfo)
 		isQualified = false
 	}
 	return &FeeDiscountConfig{
-		IsMarketQualified:      isQualified,
-		FeeDiscountStakingInfo: stakingInfo,
+		IsMarketQualified:        isQualified,
+		FeeDiscountStakingInfo:   stakingInfo,
+		readOnlyFeeDiscountRates: make(map[readOnlyFeeDiscountRateKey]math.LegacyDec),
+		readOnlyFeeDiscountMux:   new(sync.RWMutex),
 	}
 }
 
 type FeeDiscountConfig struct {
 	IsMarketQualified bool
 	*FeeDiscountStakingInfo
+
+	readOnlyFeeDiscountRates map[readOnlyFeeDiscountRateKey]math.LegacyDec
+	readOnlyFeeDiscountMux   *sync.RWMutex
+}
+
+type readOnlyFeeDiscountRateKey struct {
+	account types.Account
+	isMaker bool
+}
+
+// GetReadOnlyFeeDiscountRate returns a memoized fee-discount rate for side-effect-free checks.
+func (c *FeeDiscountConfig) GetReadOnlyFeeDiscountRate(account sdk.AccAddress, isMaker bool) (math.LegacyDec, bool) {
+	if c == nil || c.readOnlyFeeDiscountMux == nil {
+		return math.LegacyDec{}, false
+	}
+
+	c.readOnlyFeeDiscountMux.RLock()
+	defer c.readOnlyFeeDiscountMux.RUnlock()
+
+	discountRate, ok := c.readOnlyFeeDiscountRates[readOnlyFeeDiscountRateKey{
+		account: types.SdkAccAddressToAccount(account),
+		isMaker: isMaker,
+	}]
+	return discountRate, ok
+}
+
+// SetReadOnlyFeeDiscountRate memoizes a fee-discount rate for side-effect-free checks.
+func (c *FeeDiscountConfig) SetReadOnlyFeeDiscountRate(account sdk.AccAddress, isMaker bool, discountRate math.LegacyDec) {
+	if c == nil {
+		return
+	}
+	if c.readOnlyFeeDiscountMux == nil {
+		c.readOnlyFeeDiscountMux = new(sync.RWMutex)
+	}
+
+	c.readOnlyFeeDiscountMux.Lock()
+	defer c.readOnlyFeeDiscountMux.Unlock()
+
+	if c.readOnlyFeeDiscountRates == nil {
+		c.readOnlyFeeDiscountRates = make(map[readOnlyFeeDiscountRateKey]math.LegacyDec)
+	}
+	c.readOnlyFeeDiscountRates[readOnlyFeeDiscountRateKey{
+		account: types.SdkAccAddressToAccount(account),
+		isMaker: isMaker,
+	}] = discountRate
 }
 
 func (c *FeeDiscountConfig) GetFeeDiscountRate(account sdk.AccAddress, isMaker bool) *math.LegacyDec { // nolint:revive // ok
@@ -253,6 +300,35 @@ func NewFeeDiscountStakingInfo(
 		NextTTLTimestamp:                    nextTTLTimestamp,
 		FeeDiscountRatesCache:               schedule.GetFeeDiscountRatesMap(),
 		IsFirstFeeCycleFinished:             isFirstFeeCycleFinished,
+	}
+}
+
+// NewFeeDiscountStakingInfoForReadOnlyLookup builds a lightweight, throwaway staking-info view for fee-tier lookup.
+func NewFeeDiscountStakingInfoForReadOnlyLookup(info *FeeDiscountStakingInfo) *FeeDiscountStakingInfo {
+	if info == nil {
+		return nil
+	}
+
+	return &FeeDiscountStakingInfo{
+		SubaccountMarketVolumeContributions: make(map[common.Hash]map[common.Hash]VolumeRecord),
+		AccountVolumeContributions:          make(map[types.Account]math.LegacyDec),
+		AccountFeeTiers:                     make(map[types.Account]*types.FeeDiscountRates),
+		Validators:                          make(ValidatorCache),
+		NewAccounts:                         make(map[types.Account]*FeeDiscountTierTTL),
+		GrantCheckpoints:                    make(map[string]struct{}),
+		InvalidGrants:                       make(map[string]string),
+		AccountFeeTiersMux:                  new(sync.RWMutex),
+		AccountVolumesMux:                   new(sync.RWMutex),
+		ValidatorsMux:                       new(sync.RWMutex),
+		NewAccountsMux:                      new(sync.RWMutex),
+		GrantsMux:                           new(sync.RWMutex),
+		Schedule:                            info.Schedule,
+		CurrBucketStartTimestamp:            info.CurrBucketStartTimestamp,
+		OldestBucketStartTimestamp:          info.OldestBucketStartTimestamp,
+		MaxTTLTimestamp:                     info.MaxTTLTimestamp,
+		NextTTLTimestamp:                    info.NextTTLTimestamp,
+		FeeDiscountRatesCache:               info.FeeDiscountRatesCache,
+		IsFirstFeeCycleFinished:             info.IsFirstFeeCycleFinished,
 	}
 }
 

@@ -165,6 +165,9 @@ service Msg {
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
+  rpc UpdateSwapParams(MsgUpdateSwapParams)
+      returns (MsgUpdateSwapParamsResponse);
+
   // UpdateSpotMarket modifies certain spot market fields (admin only)
   rpc UpdateSpotMarket(MsgUpdateSpotMarket)
       returns (MsgUpdateSpotMarketResponse);
@@ -357,12 +360,32 @@ message MsgUpdateParams {
   string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
 
   // params defines the exchange parameters to update.
-  //
-  // NOTE: All parameters must be supplied.
+  // Callers should supply a full Params object. Some parameter groups still
+  // preserve omitted fields, but cross_margin_params is treated as a full
+  // replacement. Sparse/raw payloads must include the full intended
+  // cross_margin_params payload because decoded false/zero/empty values are
+  // applied literally when they pass validation, including valid explicit
+  // zeros such as backstop_margin_ratio = 0.
   Params params = 2 [ (gogoproto.nullable) = false ];
 }
 
 message MsgUpdateParamsResponse {}
+
+// MsgUpdateSwapParams updates only the swap parameter group. It is callable by
+// the governance authority or any exchange admin, providing an immediate
+// operational path for pausing swaps or maintaining the market allowlist.
+message MsgUpdateSwapParams {
+  option (amino.name) = "exchange/MsgUpdateSwapParams";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // sender is the governance authority or an exchange admin.
+  string sender = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // swap_params fully replaces the current swap parameter group.
+  SwapParams swap_params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateSwapParamsResponse {}
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's
 // bank balance into the subaccount's exchange deposits
@@ -1715,9 +1738,9 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
 
-// MsgLiquidateCrossMarginPool atomically closes all positions in a
-// cross-margin pool, netting surplus from profitable positions against deficits
-// before touching the insurance fund.
+// MsgLiquidateCrossMarginPool performs graduated selective liquidation on a
+// cross-margin quote-denom pool, canceling pool orders first and then closing
+// only enough positions to restore health according to the configured target.
 message MsgLiquidateCrossMarginPool {
   option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
   option (cosmos.msg.v1.signer) = "sender";

@@ -58,10 +58,10 @@ enum OracleType {
   PriceFeed = 2;
   Coinbase = 3;
   Chainlink = 4 [ deprecated = true ];
-  Razor = 5;
-  Dia = 6;
-  API3 = 7;
-  Uma = 8;
+  Razor = 5 [ deprecated = true ];
+  Dia = 6 [ deprecated = true ];
+  API3 = 7 [ deprecated = true ];
+  Uma = 8 [ deprecated = true ];
   Pyth = 9;
   BandIBC = 10 [ deprecated = true ];
   Provider = 11;

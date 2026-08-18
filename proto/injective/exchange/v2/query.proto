@@ -168,6 +168,18 @@ service Query {
   }
 
   // Retrieves a spot market's mid-price
+  // Projects the output of a spot swap for an exact input amount
+  rpc SpotSwapOutput(QuerySpotSwapOutputRequest)
+      returns (QuerySpotSwapOutputResponse) {
+    option (google.api.http).get = "/injective/exchange/v2/spot/swapOutput";
+  }
+
+  // Projects the input required for a spot swap to yield an exact output amount
+  rpc SpotSwapInput(QuerySpotSwapInputRequest)
+      returns (QuerySpotSwapInputResponse) {
+    option (google.api.http).get = "/injective/exchange/v2/spot/swapInput";
+  }
+
   rpc SpotMidPriceAndTOB(QuerySpotMidPriceAndTOBRequest)
       returns (QuerySpotMidPriceAndTOBResponse) {
     option (google.api.http).get =
@@ -827,6 +839,62 @@ message QueryAccountAddressSpotOrdersResponse {
   repeated TrimmedSpotLimitOrder orders = 1;
 }
 
+// QuerySpotSwapOutputRequest is the request type for the
+// Query/SpotSwapOutput RPC method.
+message QuerySpotSwapOutputRequest {
+  // Market ID of the spot market to swap on
+  string market_id = 1;
+  // Denom of the input token; the swap direction is derived from which side
+  // of the market it matches
+  string input_denom = 2;
+  // Exact input amount in chain format
+  string amount_in = 3;
+}
+
+// QuerySpotSwapOutputResponse is the response type for the
+// Query/SpotSwapOutput RPC method.
+message QuerySpotSwapOutputResponse {
+  string output_denom = 1;
+  // Projected output amount in chain format
+  string output_amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // Projected input actually spent in chain format; amount_in minus this is
+  // the projected refund
+  string spent_amount = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QuerySpotSwapInputRequest is the request type for the
+// Query/SpotSwapInput RPC method.
+message QuerySpotSwapInputRequest {
+  // Market ID of the spot market to swap on
+  string market_id = 1;
+  // Denom of the desired output token; the swap direction is derived from
+  // which side of the market it matches
+  string output_denom = 2;
+  // Desired exact output amount in chain format
+  string amount_out = 3;
+}
+
+// QuerySpotSwapInputResponse is the response type for the
+// Query/SpotSwapInput RPC method.
+message QuerySpotSwapInputResponse {
+  string input_denom = 1;
+  // Input amount in chain format projected to achieve at least amount_out on
+  // the current book; conservatively rounded up. The projection walks
+  // aggregated levels, which cannot exclude paused or frozen maker liquidity
+  // resting at executable prices, so pair the swap with minOut = amount_out
+  // rather than relying on the projection alone
+  string input_amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
 // QuerySpotMidPriceAndTOBRequest is the request type for the
 // Query/SpotMidPriceAndTOB RPC method.
 message QuerySpotMidPriceAndTOBRequest {
@@ -1387,6 +1455,50 @@ message QueryCrossMarginPoolSnapshotResponse {
   // Field 16 removed: canonical_liquidation_target_market_id is no longer
   // relevant — MsgLiquidateCrossMarginPool closes all positions atomically.
   reserved 16;
+
+  // Ratcheted maintenance margin total: max(maintenance at current mark,
+  // maintenance at entry notional) summed across positions. This is the
+  // maintenance floor used in the cash-floor and withdrawable formulas, and is
+  // distinct from maintenance_margin_total. It is NOT derivable from the other
+  // response fields, so off-chain monitors need it to reconstruct the chain's
+  // admission / withdrawal predicates.
+  string ratcheted_maintenance_margin_total = 17 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Cross-margin utilisation ratio applied to the cash floor (0 is the
+  // emergency halt on new risk-increasing actions). A module param, not
+  // recoverable from any other response field.
+  string cross_margin_util_ratio = 18 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Position-side Order Lock Requirement bucket embedded in
+  // order_lock_requirement. This is the sum of max(position.Margin, 0), not the
+  // signed position_margin_total. It is exposed because negative-funded or
+  // mixed-sign position margins make the OLR split impossible to reconstruct
+  // from position_margin_total.
+  string position_order_lock_requirement = 19 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Non-position Order Lock Requirement bucket used by the cash-floor formula.
+  // This is not generally max(order_lock_requirement - position_margin_total,
+  // 0) because position_margin_total is signed while the position-side OLR
+  // bucket floors each position margin at zero. Together with
+  // ratcheted_maintenance_margin_total, cross_margin_util_ratio, and the
+  // existing equity fields, monitors can derive fees_buffer
+  // (= quote_balance + position_margin_total + unrealized_pnl_effective -
+  // equity_admission), cash_floor_available, admission_available
+  // (= equity_admission - order_lock_requirement), available_for_new
+  // (= min(cash_floor_available, admission_available)), and withdrawable.
+  string non_position_order_lock_requirement = 20 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 // QueryModuleStateRequest is the request type for the Query/ExchangeModuleState

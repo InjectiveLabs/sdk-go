@@ -205,3 +205,17 @@ message MsgUpdateParams {
 // MsgUpdateParamsResponse defines the response structure for executing a
 // MsgUpdateParams message.
 message MsgUpdateParamsResponse {}
+
+// IBCHookCall is used to trigger a contract call on the destination chain
+// during an ICS20 transfer. Hooks are always called from a system-wide address
+// so target contract can restrict callers.
+message IBCHookCall {
+  // Contract is the target EVM contract address
+  bytes contract = 1;
+
+  // Input is the ABI-encoded contract call data
+  bytes input = 2;
+
+  // GasLimit is the maximum EVM gas available to the contract call
+  uint64 gas_limit = 3;
+}
