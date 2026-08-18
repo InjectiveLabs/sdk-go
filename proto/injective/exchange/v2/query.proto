@@ -848,10 +848,7 @@ message QuerySpotSwapOutputRequest {
   // of the market it matches
   string input_denom = 2;
   // Exact input amount in chain format
-  string amount_in = 3 [
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
+  string amount_in = 3;
 }
 
 // QuerySpotSwapOutputResponse is the response type for the
@@ -880,10 +877,7 @@ message QuerySpotSwapInputRequest {
   // which side of the market it matches
   string output_denom = 2;
   // Desired exact output amount in chain format
-  string amount_out = 3 [
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
-  ];
+  string amount_out = 3;
 }
 
 // QuerySpotSwapInputResponse is the response type for the

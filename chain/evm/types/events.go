@@ -24,12 +24,6 @@ const (
 	MetricKeyStaticCall   = "static_call"
 )
 
-// IBCEVMHookAcknowledgement wraps the underlying IBC acknowledgement with the EVM hook contract result.
-type IBCEVMHookAcknowledgement struct {
-	ContractResult []byte `json:"contract_result"`
-	IBCAck         []byte `json:"ibc_ack"`
-}
-
 func NewEventIBCHookCall( //nolint:revive // all good
 	destPort, destCh string,
 	sequence uint64,

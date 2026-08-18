@@ -27,26 +27,26 @@ message EventEthereumTx {
 // inbound IBC transfer hook. The gateway uses it to construct the synthetic
 // Ethereum transaction, receipt, and logs.
 message EventIBCHookCall {
-  // destination_port is the packet destination port.
+  // destination_port is the packet destination port
   string destination_port = 1;
-  // destination_channel is the packet destination channel.
+  // destination_channel is the packet destination channel
   string destination_channel = 2;
-  // sequence is the packet sequence.
+  // sequence is the packet sequence
   uint64 sequence = 3;
-  // contract is the 20-byte target EVM contract address.
+  // contract is the 20-byte target EVM contract address
   string contract = 4;
-  // input is the ABI-encoded onIBCTransfer calldata.
+  // input is the ABI-encoded onIBCTransfer calldata
   bytes input = 5;
-  // success reports whether EVM execution and post-processing succeeded.
+  // success reports whether EVM execution and post-processing succeeded
   bool success = 6;
   // return_data contains normal return data on success or revert data on
-  // failure.
+  // failure
   bytes return_data = 7;
-  // error contains the execution, validation, or post-processing error.
+  // error contains the execution, validation, or post-processing error
   string error = 8;
-  // gas_used is used by the gateway to populate the synthetic receipt.
+  // gas_used is used by the gateway to populate the synthetic receipt
   uint64 gas_used = 9;
-  // logs contains successful EVM logs for expansion into sibling RPC logs.
+  // logs contains successful EVM logs for expansion into sibling RPC logs
   repeated Log logs = 10;
 }
 

@@ -126,26 +126,26 @@ func (m *EventEthereumTx) GetEthTxFailed() string {
 // inbound IBC transfer hook. The gateway uses it to construct the synthetic
 // Ethereum transaction, receipt, and logs.
 type EventIBCHookCall struct {
-	// destination_port is the packet destination port.
+	// destination_port is the packet destination port
 	DestinationPort string `protobuf:"bytes,1,opt,name=destination_port,json=destinationPort,proto3" json:"destination_port,omitempty"`
-	// destination_channel is the packet destination channel.
+	// destination_channel is the packet destination channel
 	DestinationChannel string `protobuf:"bytes,2,opt,name=destination_channel,json=destinationChannel,proto3" json:"destination_channel,omitempty"`
-	// sequence is the packet sequence.
+	// sequence is the packet sequence
 	Sequence uint64 `protobuf:"varint,3,opt,name=sequence,proto3" json:"sequence,omitempty"`
-	// contract is the 20-byte target EVM contract address.
+	// contract is the 20-byte target EVM contract address
 	Contract string `protobuf:"bytes,4,opt,name=contract,proto3" json:"contract,omitempty"`
-	// input is the ABI-encoded onIBCTransfer calldata.
+	// input is the ABI-encoded onIBCTransfer calldata
 	Input []byte `protobuf:"bytes,5,opt,name=input,proto3" json:"input,omitempty"`
-	// success reports whether EVM execution and post-processing succeeded.
+	// success reports whether EVM execution and post-processing succeeded
 	Success bool `protobuf:"varint,6,opt,name=success,proto3" json:"success,omitempty"`
 	// return_data contains normal return data on success or revert data on
-	// failure.
+	// failure
 	ReturnData []byte `protobuf:"bytes,7,opt,name=return_data,json=returnData,proto3" json:"return_data,omitempty"`
-	// error contains the execution, validation, or post-processing error.
+	// error contains the execution, validation, or post-processing error
 	Error string `protobuf:"bytes,8,opt,name=error,proto3" json:"error,omitempty"`
-	// gas_used is used by the gateway to populate the synthetic receipt.
+	// gas_used is used by the gateway to populate the synthetic receipt
 	GasUsed uint64 `protobuf:"varint,9,opt,name=gas_used,json=gasUsed,proto3" json:"gas_used,omitempty"`
-	// logs contains successful EVM logs for expansion into sibling RPC logs.
+	// logs contains successful EVM logs for expansion into sibling RPC logs
 	Logs []*Log `protobuf:"bytes,10,rep,name=logs,proto3" json:"logs,omitempty"`
 }
 

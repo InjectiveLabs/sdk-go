@@ -448,9 +448,9 @@ func (m *MsgUpdateParamsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 
-// IBCHookCall is used to trigger a contract call during an ICS20 transfer.
-// Hooks are always called from a system-wide address so target contract can
-// restrict callers.
+// IBCHookCall is used to trigger a contract call on the destination chain
+// during an ICS20 transfer. Hooks are always called from a system-wide address
+// so target contract can restrict callers.
 type IBCHookCall struct {
 	// Contract is the target EVM contract address
 	Contract []byte `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`

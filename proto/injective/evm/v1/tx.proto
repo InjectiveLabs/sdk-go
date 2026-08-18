@@ -206,9 +206,9 @@ message MsgUpdateParams {
 // MsgUpdateParams message.
 message MsgUpdateParamsResponse {}
 
-// IBCHookCall is used to trigger a contract call during an ICS20 transfer.
-// Hooks are always called from a system-wide address so target contract can
-// restrict callers.
+// IBCHookCall is used to trigger a contract call on the destination chain
+// during an ICS20 transfer. Hooks are always called from a system-wide address
+// so target contract can restrict callers.
 message IBCHookCall {
   // Contract is the target EVM contract address
   bytes contract = 1;
