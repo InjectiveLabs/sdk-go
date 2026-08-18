@@ -18,7 +18,7 @@ import (
 
 const (
 	// IBCHookCallerAddressHex is the trusted system caller used for inbound IBC-triggered EVM calls.
-	IBCHookCallerAddressHex = "0x0000000000000000000000000000000000000068"
+	IBCHookCallerAddressHex = "0x0000000000000000000000000000000000000069"
 	onIBCTransferMethod     = "onIBCTransfer"
 )
 
