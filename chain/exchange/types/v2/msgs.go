@@ -137,6 +137,7 @@ const (
 	TypeMsgCancelPostOnlyMode                     = "cancelPostOnlyMode"
 	TypeMsgActivatePostOnlyMode                   = "activatePostOnlyMode"
 	TypeMsgLiquidateCrossMarginPool               = "liquidateCrossMarginPool"
+	TypeMsgUpdateSwapParams                       = "updateSwapParams"
 )
 
 func (MsgUpdateParams) Route() string { return RouterKey }
@@ -148,7 +149,17 @@ func (msg MsgUpdateParams) ValidateBasic() error {
 		return errors.Wrap(err, "invalid authority address")
 	}
 
-	if err := msg.Params.Validate(); err != nil {
+	params := msg.Params
+	if len(params.CrossMarginParams.LiquidationRfqContractAddress) == 0 &&
+		len(params.CrossMarginParams.EnabledQuoteDenoms) != 0 {
+		// Proto3 cannot distinguish an omitted list from an explicitly empty one.
+		// Use the already-validated authority solely as a syntactically valid marker
+		// so stateless validation can enforce every RFQ-mode bound. The stateful
+		// handler restores the configured router set before validating and
+		// persisting the actual parameters, or rejects the update if none exists.
+		params.CrossMarginParams.LiquidationRfqContractAddress = []string{msg.Authority}
+	}
+	if err := params.Validate(); err != nil {
 		return err
 	}
 
@@ -161,6 +172,27 @@ func (msg *MsgUpdateParams) GetSignBytes() []byte {
 
 func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
 	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
+
+func (MsgUpdateSwapParams) Route() string { return RouterKey }
+
+func (MsgUpdateSwapParams) Type() string { return TypeMsgUpdateSwapParams }
+
+func (msg MsgUpdateSwapParams) ValidateBasic() error {
+	if err := types.ValidateAddress(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	return msg.SwapParams.Validate()
+}
+
+func (msg *MsgUpdateSwapParams) GetSignBytes() []byte {
+	return types.ModuleCdc.MustMarshal(msg)
+}
+
+func (msg MsgUpdateSwapParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Sender)
 	return []sdk.AccAddress{addr}
 }
 
@@ -1983,6 +2015,19 @@ func (msg *MsgLiquidateCrossMarginPool) ValidateBasic() error {
 
 	if err := sdk.ValidateDenom(msg.QuoteDenom); err != nil {
 		return errors.Wrap(types.ErrInvalidQuoteDenom, err.Error())
+	}
+
+	// Stateless validation deliberately bounds, but does not parse, the RFQ
+	// payload. Terminal recovery may be cancel-only or settlement-only, and an
+	// already-settling pool is idempotent even when the optional payload is
+	// malformed. The message server performs strict parsing only after cleanup
+	// proves that an active, unmarked, still-unhealthy pool needs an RFQ close.
+	if len(msg.RfqAction) > MaxCrossMarginRFQLiquidationActionBytes {
+		return errors.Wrapf(
+			types.ErrBadField,
+			"rfq_action exceeds maximum size of %d bytes",
+			MaxCrossMarginRFQLiquidationActionBytes,
+		)
 	}
 
 	return nil

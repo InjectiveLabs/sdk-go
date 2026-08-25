@@ -1,8 +1,10 @@
 package v2
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"sort"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,6 +20,21 @@ var _ paramtypes.ParamSet = &Params{}
 const (
 	MaxLiquidationCooldownBlocks uint64 = 1000
 
+	// RFQ liquidation bounds cap every dimension of a caller-supplied
+	// cross-margin liquidation action before it reaches keeper execution.
+	MaxCrossMarginRFQLiquidationMarkets           = 8
+	MaxCrossMarginRFQEnabledQuoteDenoms           = 8
+	MaxCrossMarginRFQContractAddresses            = 8
+	MaxCrossMarginRFQPositionMarketsPerSubaccount = MaxCrossMarginRFQEnabledQuoteDenoms * MaxCrossMarginRFQLiquidationMarkets
+	MaxCrossMarginRFQLiquidationTradePairs        = 32
+	MaxCrossMarginRFQLiquidationActionBytes       = 65_536
+
+	// CrossMarginMaxActiveDerivativeMarketsPerPoolHardLimit is the protocol
+	// validation ceiling. Read-side bounded recovery uses this hard limit rather
+	// than the mutable admission cap so a governance decrease cannot strand
+	// grandfathered cross-margin positions.
+	CrossMarginMaxActiveDerivativeMarketsPerPoolHardLimit uint32 = 1000
+
 	// DefaultMaxCrossMarginSpotOrdersPerSubaccountPerDenom caps cross-margin
 	// spot order count per (subaccount, locking denom) at admission so the
 	// liquidation cancel-first work for cross-margin pools is bounded by a
@@ -25,6 +42,96 @@ const (
 	DefaultMaxCrossMarginSpotOrdersPerSubaccountPerDenom uint32 = 200
 	MaxCrossMarginSpotOrdersPerSubaccountPerDenom        uint32 = 1000
 )
+
+// CrossMarginRFQRouterSet is a validated, byte-sorted set of cross-margin RFQ
+// router addresses. Its zero value is the empty set.
+type CrossMarginRFQRouterSet struct {
+	addresses []sdk.AccAddress
+}
+
+// ParseCrossMarginRFQRouterSet parses, byte-deduplicates, and byte-sorts RFQ
+// router addresses. Textual aliases of the same address are duplicates rather
+// than distinct routers.
+func ParseCrossMarginRFQRouterSet(values []string) (CrossMarginRFQRouterSet, error) {
+	if len(values) > MaxCrossMarginRFQContractAddresses {
+		return CrossMarginRFQRouterSet{}, fmt.Errorf(
+			"cross_margin_liquidation_rfq_contract_address must contain at most %d entries, got %d",
+			MaxCrossMarginRFQContractAddresses,
+			len(values),
+		)
+	}
+
+	addresses := make([]sdk.AccAddress, len(values))
+	for i, value := range values {
+		address, err := sdk.AccAddressFromBech32(value)
+		if err != nil {
+			return CrossMarginRFQRouterSet{}, fmt.Errorf(
+				"cross_margin_liquidation_rfq_contract_address[%d] is invalid: %w",
+				i,
+				err,
+			)
+		}
+		addresses[i] = append(sdk.AccAddress(nil), address...)
+	}
+
+	sort.Slice(addresses, func(i, j int) bool {
+		return bytes.Compare(addresses[i], addresses[j]) < 0
+	})
+	for i := 1; i < len(addresses); i++ {
+		if bytes.Equal(addresses[i-1], addresses[i]) {
+			return CrossMarginRFQRouterSet{}, fmt.Errorf(
+				"cross_margin_liquidation_rfq_contract_address contains duplicate address %s",
+				addresses[i].String(),
+			)
+		}
+	}
+
+	return CrossMarginRFQRouterSet{addresses: addresses}, nil
+}
+
+// Len returns the number of distinct routers.
+func (s CrossMarginRFQRouterSet) Len() int {
+	return len(s.addresses)
+}
+
+// Contains reports whether address belongs to the router set.
+func (s CrossMarginRFQRouterSet) Contains(address sdk.AccAddress) bool {
+	idx := sort.Search(len(s.addresses), func(i int) bool {
+		return bytes.Compare(s.addresses[i], address) >= 0
+	})
+	return idx < len(s.addresses) && bytes.Equal(s.addresses[idx], address)
+}
+
+// Equal reports byte-set equality. Both operands are already canonical.
+func (s CrossMarginRFQRouterSet) Equal(other CrossMarginRFQRouterSet) bool {
+	if len(s.addresses) != len(other.addresses) {
+		return false
+	}
+	for i := range s.addresses {
+		if !bytes.Equal(s.addresses[i], other.addresses[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+// Addresses returns a deep copy of the canonical byte-sorted addresses.
+func (s CrossMarginRFQRouterSet) Addresses() []sdk.AccAddress {
+	addresses := make([]sdk.AccAddress, len(s.addresses))
+	for i := range s.addresses {
+		addresses[i] = append(sdk.AccAddress(nil), s.addresses[i]...)
+	}
+	return addresses
+}
+
+// CanonicalStrings returns canonical Bech32 encodings in address-byte order.
+func (s CrossMarginRFQRouterSet) CanonicalStrings() []string {
+	values := make([]string, len(s.addresses))
+	for i := range s.addresses {
+		values[i] = s.addresses[i].String()
+	}
+	return values
+}
 
 // Parameter keys
 var (
@@ -206,6 +313,7 @@ func DefaultParams() Params {
 		MinPostOnlyModeDowntimeDuration:              "DURATION_10M", // default 10 minutes
 		PostOnlyModeBlocksAmountAfterDowntime:        1000,           // default 1000 blocks
 		CrossMarginParams:                            DefaultCrossMarginParams(),
+		SwapParams:                                   DefaultSwapParams(),
 	}
 }
 
@@ -308,7 +416,41 @@ func (p Params) Validate() error {
 	if err := ValidatePostOnlyModeBlocksAmountAfterDowntime(p.PostOnlyModeBlocksAmountAfterDowntime); err != nil {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
 	}
+	if err := p.SwapParams.Validate(); err != nil {
+		return fmt.Errorf("swap_params is incorrect: %w", err)
+	}
 	return p.CrossMarginParams.Validate()
+}
+
+// DefaultSwapParams returns default swap parameters. The empty allowlist keeps
+// the swap path inert until governance or an exchange admin lists markets.
+func DefaultSwapParams() SwapParams {
+	return SwapParams{
+		Enabled:        true,
+		AllowedMarkets: nil,
+	}
+}
+
+// MaxSwapAllowedMarkets bounds the allowlist size as an input-sanity limit.
+const MaxSwapAllowedMarkets = 1000
+
+// Validate performs basic validation on swap parameters.
+func (p SwapParams) Validate() error {
+	if len(p.AllowedMarkets) > MaxSwapAllowedMarkets {
+		return fmt.Errorf("allowed_markets exceeds maximum of %d entries", MaxSwapAllowedMarkets)
+	}
+	seen := make(map[string]struct{}, len(p.AllowedMarkets))
+	for _, marketID := range p.AllowedMarkets {
+		if !types.IsHexHash(marketID) {
+			return fmt.Errorf("allowed_markets entry %q is not a valid market ID hash", marketID)
+		}
+		normalized := ethcommon.HexToHash(marketID).Hex()
+		if _, ok := seen[normalized]; ok {
+			return fmt.Errorf("allowed_markets entry %q is duplicated", marketID)
+		}
+		seen[normalized] = struct{}{}
+	}
+	return nil
 }
 
 // DefaultCrossMarginParams returns default cross-margin parameters.
@@ -326,6 +468,7 @@ func DefaultCrossMarginParams() CrossMarginParams {
 		LiquidationCooldownBlocks:                     0,
 		MaxCrossMarginSpotOrdersPerSubaccountPerDenom: DefaultMaxCrossMarginSpotOrdersPerSubaccountPerDenom,
 		UtilRatio:                                     math.LegacyOneDec(),
+		LiquidationRfqContractAddress:                 []string{},
 	}
 }
 
@@ -386,6 +529,22 @@ func (p CrossMarginParams) Validate() error {
 	if err := ValidateCrossMarginEnabledQuoteDenoms(p.EnabledQuoteDenoms); err != nil {
 		return fmt.Errorf("cross_margin_enabled_quote_denoms are invalid: %w", err)
 	}
+	routers, err := ParseCrossMarginRFQRouterSet(p.LiquidationRfqContractAddress)
+	if err != nil {
+		return err
+	}
+	if routers.Len() == 0 && len(p.EnabledQuoteDenoms) != 0 {
+		return errors.New("cross_margin_enabled_quote_denoms must be empty when liquidation_rfq_contract_address is not configured")
+	}
+	if routers.Len() != 0 {
+		if len(p.EnabledQuoteDenoms) > MaxCrossMarginRFQEnabledQuoteDenoms {
+			return fmt.Errorf(
+				"cross_margin_enabled_quote_denoms must contain at most %d entries when RFQ liquidation is enabled, got %d",
+				MaxCrossMarginRFQEnabledQuoteDenoms,
+				len(p.EnabledQuoteDenoms),
+			)
+		}
+	}
 	return nil
 }
 
@@ -444,9 +603,12 @@ func ValidateCrossMarginMaxActiveDerivativeMarketsPerPool(i any) error {
 		return errors.New("max_active_derivative_markets_per_pool must be >= 1 (explicit zero is rejected; governance must supply a positive cap)")
 	}
 
-	const maxReasonable = 1000
-	if v > maxReasonable {
-		return fmt.Errorf("max_active_derivative_markets_per_pool %d exceeds max %d", v, maxReasonable)
+	if v > CrossMarginMaxActiveDerivativeMarketsPerPoolHardLimit {
+		return fmt.Errorf(
+			"max_active_derivative_markets_per_pool %d exceeds max %d",
+			v,
+			CrossMarginMaxActiveDerivativeMarketsPerPoolHardLimit,
+		)
 	}
 	return nil
 }
