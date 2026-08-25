@@ -1006,6 +1006,12 @@ type DerivativeBatchExecutionData struct {
 	TransientLimitOrderCancelledDeltas []*DerivativeLimitOrderDelta
 	// resting limit order cancelled deltas to apply
 	RestingLimitOrderCancelledDeltas []*DerivativeLimitOrderDelta
+	// TerminalRestingCashAuthorityCancels carries the identities of prior-block
+	// makers terminally rejected by the ephemeral FBA cash authority. Ordinary
+	// successful persistence uses the cancellation deltas above; this sidecar is
+	// retained solely so a later execution discard can apply the same canonical
+	// cancellations on the parent context.
+	TerminalRestingCashAuthorityCancels []*DerivativeLimitOrder
 
 	// events for batch market order and limit order execution
 	MarketBuyOrderExecutionEvent          *EventBatchDerivativeExecution

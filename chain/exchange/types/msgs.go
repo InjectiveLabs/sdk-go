@@ -11,8 +11,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
+	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
 const RouterKey = ModuleName

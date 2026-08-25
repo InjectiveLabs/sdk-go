@@ -165,6 +165,9 @@ service Msg {
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
+  rpc UpdateSwapParams(MsgUpdateSwapParams)
+      returns (MsgUpdateSwapParamsResponse);
+
   // UpdateSpotMarket modifies certain spot market fields (admin only)
   rpc UpdateSpotMarket(MsgUpdateSpotMarket)
       returns (MsgUpdateSpotMarketResponse);
@@ -367,6 +370,22 @@ message MsgUpdateParams {
 }
 
 message MsgUpdateParamsResponse {}
+
+// MsgUpdateSwapParams updates only the swap parameter group. It is callable by
+// the governance authority or any exchange admin, providing an immediate
+// operational path for pausing swaps or maintaining the market allowlist.
+message MsgUpdateSwapParams {
+  option (amino.name) = "exchange/MsgUpdateSwapParams";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // sender is the governance authority or an exchange admin.
+  string sender = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // swap_params fully replaces the current swap parameter group.
+  SwapParams swap_params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateSwapParamsResponse {}
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's
 // bank balance into the subaccount's exchange deposits
@@ -1719,9 +1738,9 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
 
-// MsgLiquidateCrossMarginPool performs graduated selective liquidation on a
-// cross-margin quote-denom pool, canceling pool orders first and then closing
-// only enough positions to restore health according to the configured target.
+// MsgLiquidateCrossMarginPool liquidates a cross-margin quote-denom pool. The
+// legacy mode performs graduated public-book liquidation; RFQ-only mode accepts
+// an authenticated atomic full-pool close from the configured contract.
 message MsgLiquidateCrossMarginPool {
   option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
   option (cosmos.msg.v1.signer) = "sender";
@@ -1732,6 +1751,10 @@ message MsgLiquidateCrossMarginPool {
   string subaccount_id = 2;
   // identifies which cross-margin pool (by quote denom)
   string quote_denom = 3;
+  // rfq_action is the synthetic-trade action returned by the configured RFQ
+  // contract. It is required for an active-market RFQ liquidation and may be
+  // empty when an already-paused liquidatable pool is routed to settlement.
+  string rfq_action = 4;
 }
 
 // MsgLiquidateCrossMarginPoolResponse defines the

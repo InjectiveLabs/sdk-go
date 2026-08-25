@@ -181,15 +181,47 @@ func (p *Position) checkValidClosingPrice(
 	bankruptcyPrice := p.GetBankruptcyPriceWithAddedMargin(funding, orderMargin)
 
 	if p.IsLong {
-		// For long positions, Price ≥ BankruptcyPrice / (1 - TradeFeeRate) must hold
-		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(math.LegacyOneDec().Sub(tradeFeeRate))
+		// For long positions, Price * (1 - TradeFeeRate) ≥ BankruptcyPrice must hold.
+		feeMultiplier := math.LegacyOneDec().Sub(tradeFeeRate)
+		if feeMultiplier.IsZero() {
+			// At a 100% fee the close contributes zero price proceeds. Evaluate the
+			// multiplication-form boundary directly instead of dividing by zero.
+			if bankruptcyPrice.IsPositive() {
+				return types.ErrPriceSurpassesBankruptcyPrice
+			}
+			return nil
+		}
+		// Above a 100% effective fee, a higher sell execution price can make the
+		// close less solvent. This order-price check has no execution-price ceiling,
+		// so it cannot safely admit that case.
+		if feeMultiplier.IsNegative() {
+			return types.ErrPriceSurpassesBankruptcyPrice
+		}
+
+		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(feeMultiplier)
 
 		if closingPrice.LT(feeAdjustedBankruptcyPrice) {
 			return types.ErrPriceSurpassesBankruptcyPrice
 		}
 	} else {
-		// For short positions, Price ≤ BankruptcyPrice / (1 + TradeFeeRate) must hold
-		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(math.LegacyOneDec().Add(tradeFeeRate))
+		// For short positions, Price * (1 + TradeFeeRate) ≤ BankruptcyPrice must hold.
+		feeMultiplier := math.LegacyOneDec().Add(tradeFeeRate)
+		if feeMultiplier.IsZero() {
+			// At a 100% rebate the fee-adjusted close price is zero. Evaluate the
+			// multiplication-form boundary directly instead of dividing by zero.
+			if bankruptcyPrice.IsNegative() {
+				return types.ErrPriceSurpassesBankruptcyPrice
+			}
+			return nil
+		}
+		// Below a -100% effective fee, a lower buy execution price can make the
+		// close less solvent. This order-price check has no execution-price floor,
+		// so it cannot safely admit that case.
+		if feeMultiplier.IsNegative() {
+			return types.ErrPriceSurpassesBankruptcyPrice
+		}
+
+		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(feeMultiplier)
 
 		if closingPrice.GT(feeAdjustedBankruptcyPrice) {
 			return types.ErrPriceSurpassesBankruptcyPrice

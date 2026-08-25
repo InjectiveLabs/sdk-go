@@ -133,6 +133,7 @@ var (
 	TransientAtomicPerpetualVwapPrefix           = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
 	ObjectCachedParamsKey                        = []byte{0x89} // key for cached params in object store (block-scoped)
 	ObjectCachedWhiteKnightLiquidatorsKey        = []byte{0x8a} // key for cached white knight liquidators set in object store (block-scoped)
+	ObjectCachedSwapAllowedMarketsKey            = []byte{0x9c} // key for cached swap allowed-markets set in object store (block-scoped)
 	TransientSyntheticPerpetualFundingVwapPrefix = []byte{0x8b} // prefix for transient synthetic perpetual funding VWAP data
 
 	// SubaccountRiskProfilePrefix | subaccountID(32B) -> v2.SubaccountRiskProfile (proto bytes)
@@ -146,6 +147,11 @@ var (
 
 	// CrossMarginLastLiquidationBlockPrefix | subaccountID(32B) | quoteDenom -> uint64 (block height)
 	CrossMarginLastLiquidationBlockPrefix = []byte{0x90}
+	// TransientCrossMarginRestingVanillaAdmissionPrefix | marketID(32B) | side -> uint64.
+	// Counts transitions that can add durable cross-margin vanilla makers during the
+	// current block. It lives only in the transient store and bounds how quickly a
+	// terminally rejected resting prefix can be replenished.
+	TransientCrossMarginRestingVanillaAdmissionPrefix = []byte{0x91}
 
 	// SpotLimitOrderDenomIndexPrefix | subaccountID | len(lockingDenom) | lockingDenom | marketID | side -> count
 	SpotLimitOrderDenomIndexPrefix = []byte{0x95}
@@ -729,6 +735,15 @@ func GetCrossMarginLastLiquidationBlockKey(subaccountID common.Hash, quoteDenom 
 	n := copy(key, CrossMarginLastLiquidationBlockPrefix)
 	n += copy(key[n:], addrBytes)
 	copy(key[n:], denomBytes)
+	return key
+}
+
+// GetTransientCrossMarginRestingVanillaAdmissionKey returns the transient
+// per-market-side durable cross-margin vanilla-maker admission counter key.
+func GetTransientCrossMarginRestingVanillaAdmissionKey(marketID common.Hash, isBuy bool) []byte {
+	key := make([]byte, 0, len(TransientCrossMarginRestingVanillaAdmissionPrefix)+common.HashLength+1)
+	key = append(key, TransientCrossMarginRestingVanillaAdmissionPrefix...)
+	key = append(key, MarketDirectionPrefix(marketID, isBuy)...)
 	return key
 }
 
