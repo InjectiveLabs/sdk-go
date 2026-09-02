@@ -42,19 +42,12 @@ var ZeroSubaccountID = common.HexToHash("0x0000000000000000000000000000000000000
 // inj1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqe2hm49
 var TempRewardsSenderAddress = sdk.AccAddress(common.HexToAddress(ZeroSubaccountID.Hex()).Bytes())
 
-// inj1zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3t5qxqh
-var AuctionFeesAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
+// ExchangeAuctionFeesAddress is the bank address (inj1zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3t5qxqh) used for auction fees from the exchange module.
+// Kept for backward compatibility with external senders (e.g. smart contracts) that already send funds here.
+// New code should use auctiontypes.AuctionFeesSubaccountAddress.
+var ExchangeAuctionFeesAddress = sdk.AccAddress(common.HexToAddress(AuctionSubaccountID.Hex()).Bytes())
 
 var hexRegex = regexp.MustCompile("^(0x)?[0-9a-fA-F]+$")
-
-func StringInSlice(a string, list *[]string) bool {
-	for _, b := range *list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
 
 func IsDefaultSubaccountID(subaccountID common.Hash) bool {
 	// empty 12 bytes

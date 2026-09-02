@@ -548,8 +548,14 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 	if msg.BaseDenom == "" {
 		return errors.Wrap(ErrInvalidBaseDenom, "base denom should not be empty")
 	}
+	if len(msg.BaseDenom) > MaxMarketLaunchDenomLength {
+		return errors.Wrapf(ErrInvalidBaseDenom, "base denom should not exceed %d characters", MaxMarketLaunchDenomLength)
+	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if len(msg.QuoteDenom) > MaxMarketLaunchDenomLength {
+		return errors.Wrapf(ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", MaxMarketLaunchDenomLength)
 	}
 	if msg.BaseDenom == msg.QuoteDenom {
 		return ErrSameDenoms
@@ -608,6 +614,9 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if len(msg.QuoteDenom) > MaxMarketLaunchDenomLength {
+		return errors.Wrapf(ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", MaxMarketLaunchDenomLength)
 	}
 	oracleParams := NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
 	if err := oracleParams.ValidateBasic(); err != nil {
@@ -675,11 +684,14 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	if msg.Ticker == "" || len(msg.Ticker) > MaxTickerLength {
 		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed %d characters", MaxTickerLength)
 	}
-	if msg.OracleSymbol == "" {
-		return errors.Wrap(ErrInvalidOracle, "oracle symbol should not be empty")
+	if msg.OracleSymbol == "" || len(msg.OracleSymbol) > MaxOracleSymbolLength {
+		return errors.Wrapf(ErrInvalidOracle, "oracle symbol should not be empty or exceed %d characters", MaxOracleSymbolLength)
 	}
 	if msg.OracleProvider == "" {
 		return errors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
+	}
+	if len(msg.OracleProvider) > MaxOracleProviderLength {
+		return errors.Wrapf(ErrInvalidOracle, "oracle provider should not exceed %d characters", MaxOracleProviderLength)
 	}
 	if msg.OracleType != oracletypes.OracleType_Provider {
 		return errors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
@@ -707,6 +719,9 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
 	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if len(msg.QuoteDenom) > MaxMarketLaunchDenomLength {
+		return errors.Wrapf(ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", MaxMarketLaunchDenomLength)
 	}
 	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
 		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
@@ -756,6 +771,9 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	}
 	if msg.QuoteDenom == "" {
 		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
+	}
+	if len(msg.QuoteDenom) > MaxMarketLaunchDenomLength {
+		return errors.Wrapf(ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", MaxMarketLaunchDenomLength)
 	}
 
 	oracleParams := NewOracleParams(msg.OracleBase, msg.OracleQuote, msg.OracleScaleFactor, msg.OracleType)
@@ -1596,12 +1614,7 @@ func (msg *MsgIncreasePositionMargin) ValidateBasic() error {
 		return err
 	}
 
-	_, ok := IsValidSubaccountID(msg.DestinationSubaccountId)
-	if !ok {
-		return errors.Wrap(ErrBadSubaccountID, msg.DestinationSubaccountId)
-	}
-
-	return nil
+	return CheckValidSubaccountIDOrNonce(senderAddr, msg.DestinationSubaccountId)
 }
 
 func (msg *MsgIncreasePositionMargin) GetSignBytes() []byte {

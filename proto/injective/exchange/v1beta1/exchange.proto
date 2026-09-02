@@ -194,10 +194,13 @@ message Params {
   // List of addresses that are allowed to perform exchange admin operations
   repeated string exchange_admins = 27;
 
-  // inj_auction_max_cap defines the maximum cap for INJ sent to auction
+  // inj_auction_max_cap defines the maximum cap for INJ sent to auction.
+  // Deprecated: the cap is now driven by the auction module's InjBasketMaxCap;
+  // this field is ignored.
   string inj_auction_max_cap = 28 [
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable) = false
+    (gogoproto.nullable) = false,
+    deprecated = true
   ];
 
   // fixed_gas_enabled indicates if msg server will consume fixed gas amount for
@@ -786,6 +789,12 @@ message TradeLog {
   bytes order_hash = 5;
   bytes fee_recipient_address = 6 [ (gogoproto.nullable) = true ];
   string cid = 7;
+  // the fee-exclusive quote amount actually settled for the trade (in chain
+  // format)
+  string notional = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message PositionDelta {

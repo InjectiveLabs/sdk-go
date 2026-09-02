@@ -110,3 +110,17 @@ message EventSetPythPrices { repeated PythPriceState prices = 1; }
 message EventSetChainlinkDataStreamsPrices {
   repeated ChainlinkDataStreamsPriceState prices = 1;
 }
+
+// EventOraclePriceUpdate is a generic price update event emitted for oracle
+// types that adopt the new event format. Intended to replace type-specific
+// events for all oracle types going forward.
+message EventOraclePriceUpdate {
+  // oracle_type identifies which oracle source emitted this price update.
+  OracleType oracle_type = 1;
+  // id identifies the price feed within the oracle type (e.g. feedId for
+  // PythPro).
+  string id = 2;
+  // price_state contains the verified price, cumulative price, and block
+  // timestamp.
+  PriceState price_state = 3 [ (gogoproto.nullable) = false ];
+}

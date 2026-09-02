@@ -44,6 +44,75 @@ func NewMarketOrderForLiquidation(
 	return &order
 }
 
+// NewMarketOrderForPartialLiquidation creates a liquidation market order for a specific
+// quantity (which may be less than the full position). Used by graduated liquidation.
+func NewMarketOrderForPartialLiquidation(
+	position *Position,
+	closeQuantity math.LegacyDec,
+	positionSubaccountID common.Hash,
+	liquidator sdk.AccAddress,
+	worstPrice math.LegacyDec,
+) *DerivativeMarketOrder {
+	var orderType OrderType
+	if position.IsLong {
+		orderType = OrderType_SELL
+	} else {
+		orderType = OrderType_BUY
+	}
+
+	return &DerivativeMarketOrder{
+		OrderInfo: OrderInfo{
+			SubaccountId: positionSubaccountID.Hex(),
+			FeeRecipient: liquidator.String(),
+			Price:        worstPrice,
+			Quantity:     closeQuantity,
+		},
+		OrderType:    orderType,
+		Margin:       math.LegacyZeroDec(),
+		MarginHold:   math.LegacyZeroDec(),
+		TriggerPrice: nil,
+	}
+}
+
+// Copy returns a deep copy of the order, isolating the mutable-by-reference fields
+// (OrderHash, TriggerPrice) and cloning the LegacyDec values so the copy can be mutated
+// without affecting the original.
+func (m *DerivativeLimitOrder) Copy() *DerivativeLimitOrder {
+	if m == nil {
+		return nil
+	}
+	c := &DerivativeLimitOrder{
+		OrderInfo: OrderInfo{
+			SubaccountId: m.OrderInfo.SubaccountId,
+			FeeRecipient: m.OrderInfo.FeeRecipient,
+			Cid:          m.OrderInfo.Cid,
+		},
+		OrderType:       m.OrderType,
+		ExpirationBlock: m.ExpirationBlock,
+	}
+	if !m.OrderInfo.Price.IsNil() {
+		c.OrderInfo.Price = m.OrderInfo.Price.Clone()
+	}
+	if !m.OrderInfo.Quantity.IsNil() {
+		c.OrderInfo.Quantity = m.OrderInfo.Quantity.Clone()
+	}
+	if !m.Margin.IsNil() {
+		c.Margin = m.Margin.Clone()
+	}
+	if !m.Fillable.IsNil() {
+		c.Fillable = m.Fillable.Clone()
+	}
+	if m.TriggerPrice != nil {
+		triggerPrice := m.TriggerPrice.Clone()
+		c.TriggerPrice = &triggerPrice
+	}
+	if m.OrderHash != nil {
+		c.OrderHash = make([]byte, len(m.OrderHash))
+		copy(c.OrderHash, m.OrderHash)
+	}
+	return c
+}
+
 func (m *DerivativeLimitOrder) ToTrimmed() *TrimmedDerivativeLimitOrder {
 	return &TrimmedDerivativeLimitOrder{
 		Price:     m.OrderInfo.Price,
@@ -201,14 +270,36 @@ func (m *DerivativeLimitOrder) GetCancelDepositDelta(feeRate math.LegacyDec) *v1
 func (m *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) math.LegacyDec {
 	marginHoldRefund := math.LegacyZeroDec()
 	if m.IsVanilla() {
+		if !m.OrderInfo.Quantity.IsPositive() {
+			// Malformed legacy state can have no usable denominator; only release
+			// margin when there is remaining fillable quantity to cancel.
+			if !m.Fillable.IsPositive() {
+				return marginHoldRefund
+			}
+			return m.Margin
+		}
+
 		// negative fees are only accounted for upon matching
-		positiveFeePart := math.LegacyMaxDec(math.LegacyZeroDec(), feeRate)
-		//nolint:all
 		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
-		notional := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity)
-		marginHoldRefund = m.Fillable.Mul(m.Margin.Add(notional.Mul(positiveFeePart))).Quo(m.OrderInfo.Quantity)
+		positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
+		marginRefund := m.Fillable.Mul(m.Margin).Quo(m.OrderInfo.Quantity)
+		feeRefund := m.Fillable.Mul(m.OrderInfo.Price).Mul(positiveFeeRatePart)
+		marginHoldRefund = marginRefund.Add(feeRefund)
 	}
 	return marginHoldRefund
+}
+
+func getMarginHold(margin, notional, feeRate math.LegacyDec) math.LegacyDec {
+	positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
+	return margin.Add(notional.Mul(positiveFeeRatePart))
+}
+
+func (m *DerivativeOrder) GetMarginHold(feeRate math.LegacyDec) math.LegacyDec {
+	return getMarginHold(m.Margin, m.OrderInfo.GetNotional(), feeRate)
+}
+
+func (m *DerivativeLimitOrder) GetMarginHold(feeRate math.LegacyDec) math.LegacyDec {
+	return getMarginHold(m.Margin, m.OrderInfo.GetNotional(), feeRate)
 }
 
 func (m *DerivativeOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
@@ -258,10 +349,8 @@ func (m *DerivativeOrder) CheckMarginAndGetMarginHold(
 	initialMarginRatio, executionMarkPrice, feeRate math.LegacyDec, marketType v1.MarketType, oracleScaleFactor uint32,
 ) (marginHold math.LegacyDec, err error) {
 	notional := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity)
-	positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
-	feeAmount := notional.Mul(positiveFeeRatePart)
 
-	marginHold = m.Margin.Add(feeAmount)
+	marginHold = m.GetMarginHold(feeRate)
 	if marketType == v1.MarketType_BinaryOption {
 		requiredMargin := m.GetRequiredBinaryOptionsMargin(oracleScaleFactor)
 		if !m.Margin.Equal(requiredMargin) {
@@ -447,16 +536,28 @@ func (o *DerivativeMarketOrder) FeeRecipient() common.Address {
 	return o.OrderInfo.FeeRecipientAddress()
 }
 
-func (o *DerivativeOrder) IsVanilla() bool {
-	return !o.IsReduceOnly()
+func (m *DerivativeOrder) IsVanilla() bool {
+	return !m.IsReduceOnly()
+}
+
+func (m *DerivativeOrder) IsAtomic() bool {
+	return m.OrderType.IsAtomic()
 }
 
 func (o *DerivativeMarketOrder) IsVanilla() bool {
 	return !o.IsReduceOnly()
 }
 
+func (o *DerivativeMarketOrder) IsAtomic() bool {
+	return o.OrderType.IsAtomic()
+}
+
 func (m *DerivativeLimitOrder) IsVanilla() bool {
 	return !m.IsReduceOnly()
+}
+
+func (m *DerivativeLimitOrder) IsAtomic() bool {
+	return m.OrderType.IsAtomic()
 }
 
 func (m *DerivativeMarketOrder) IsBuy() bool {

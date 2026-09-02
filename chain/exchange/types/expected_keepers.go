@@ -29,7 +29,7 @@ type BankKeeper interface {
 
 // OracleKeeper defines the expected oracle keeper methods.
 type OracleKeeper interface {
-	GetPrice(ctx sdk.Context, oracletype oracletypes.OracleType, base string, quote string) *sdkmath.LegacyDec
+	GetReferencePrice(ctx sdk.Context, oracletype oracletypes.OracleType, base, quote string) *sdkmath.LegacyDec
 	GetPricePairState(
 		ctx sdk.Context,
 		oracletype oracletypes.OracleType,
@@ -40,22 +40,8 @@ type OracleKeeper interface {
 		oracleType oracletypes.OracleType,
 		base, quote string,
 	) (baseCumulative, quoteCumulative *sdkmath.LegacyDec)
-	GetHistoricalPriceRecords(
-		ctx sdk.Context,
-		oracleType oracletypes.OracleType,
-		symbol string,
-		from int64,
-	) (entry *oracletypes.PriceRecords, omitted bool)
-	GetMixedHistoricalPriceRecords(
-		ctx sdk.Context,
-		baseOracleType, quoteOracleType oracletypes.OracleType,
-		baseSymbol, quoteSymbol string,
-		from int64,
-	) (mixed *oracletypes.PriceRecords, ok bool)
-	GetStandardDeviationForPriceRecords(priceRecords []*oracletypes.PriceRecord) *sdkmath.LegacyDec
 	GetProviderInfo(ctx sdk.Context, provider string) *oracletypes.ProviderInfo
 	GetProviderPrice(ctx sdk.Context, provider, symbol string) *sdkmath.LegacyDec
-	GetProviderPriceState(ctx sdk.Context, provider, symbol string) *oracletypes.ProviderPriceState
 }
 
 // InsuranceKeeper defines the expected insurance keeper methods.
@@ -86,6 +72,7 @@ type DistributionKeeper interface {
 type StakingKeeper interface {
 	GetDelegatorDelegations(ctx context.Context, delegator sdk.AccAddress, maxRetrieve uint16) (delegations []stakingtypes.Delegation, err error)
 	Validator(context.Context, sdk.ValAddress) (stakingtypes.ValidatorI, error) // get a particular validator by operator address
+	SetDelegationTransferReceiver(ctx context.Context, receiver sdk.AccAddress)
 }
 
 type WasmViewKeeper interface {

@@ -8,6 +8,24 @@ import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/permissions/types";
 
+// EnforcedRestrictionsContract defines an EVM contract with its pause,
+// blacklist and unblacklist event signatures
+message EnforcedRestrictionsEVMContract {
+  option (gogoproto.equal) = true;
+  // EVM address of the contract
+  string contract_address = 1
+      [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  // Pause event signature for the contract (e.g. "Pause()")
+  string pause_event_signature = 2;
+  // Unpause event signature for the contract (e.g. "Unpause()")
+  string unpause_event_signature = 3;
+  // Blacklist event signature for the contract (e.g. Blacklisted(address)")
+  string blacklist_event_signature = 4;
+  // UnBlacklist event signature for the contract (e.g.
+  // "UnBlacklisted(address)")
+  string unblacklist_event_signature = 5;
+}
+
 // Params defines the parameters for the permissions module.
 message Params {
   option (gogoproto.equal) = true;
@@ -15,6 +33,14 @@ message Params {
   // Max amount of gas allowed for contract hook queries
   uint64 contract_hook_max_gas = 1;
 
+  // DEPRECATED in favor of enforced_restrictions_evm_contracts, but left
+  // for compatibility and upgrade purposes
+  //
   // EVM addresses of contracts that will not bypass module-to-module transfers
-  repeated string enforced_restrictions_contracts = 2;
+  repeated string deprecated_enforced_restrictions_contracts = 2;
+
+  // EVM Contracts that module will be listening to sync permissions stored
+  // inside namespace on every update inside smart contract state
+  repeated EnforcedRestrictionsEVMContract enforced_restrictions_evm_contracts =
+      3 [ (gogoproto.nullable) = false ];
 }

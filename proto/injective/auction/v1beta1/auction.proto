@@ -4,8 +4,19 @@ package injective.auction.v1beta1;
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "amino/amino.proto";
+import "injective/common/vouchers/v1/vouchers.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/auction/types";
+
+message EventSetVoucher {
+  // The bech32 address of the voucher holder.
+  string addr = 1;
+  // The new voucher amount. A zero coin signals voucher deletion.
+  cosmos.base.v1beta1.Coin voucher = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+}
 
 message Params {
   option (gogoproto.equal) = true;

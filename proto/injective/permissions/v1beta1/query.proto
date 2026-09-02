@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "injective/common/vouchers/v1/vouchers.proto";
 import "injective/permissions/v1beta1/params.proto";
 import "injective/permissions/v1beta1/genesis.proto";
 import "injective/permissions/v1beta1/permissions.proto";
@@ -89,15 +90,13 @@ service Query {
 
   // Vouchers defines a gRPC query method for the vouchers for a given denom
   rpc Vouchers(QueryVouchersRequest) returns (QueryVouchersResponse) {
-    option (google.api.http).get =
-        "/injective/permissions/v1beta1/vouchers/{denom}";
+    option (google.api.http).get = "/injective/permissions/v1beta1/vouchers";
   }
 
   // Voucher defines a gRPC query method for the vouchers for a given denom and
   // address
   rpc Voucher(QueryVoucherRequest) returns (QueryVoucherResponse) {
-    option (google.api.http).get =
-        "/injective/permissions/v1beta1/voucher/{denom}/{address}";
+    option (google.api.http).get = "/injective/permissions/v1beta1/voucher";
   }
 
   // Retrieves the entire permissions module's state
@@ -249,8 +248,9 @@ message QueryVouchersRequest {
 }
 
 message QueryVouchersResponse {
-  // List of vouchers
-  repeated AddressVoucher vouchers = 1;
+  // List of outstanding vouchers matching the request filter.
+  repeated injective.common.vouchers.v1.AddressVoucher vouchers = 1
+      [ (gogoproto.nullable) = false ];
 }
 
 message QueryVoucherRequest {
@@ -264,8 +264,7 @@ message QueryVoucherResponse {
   // The voucher amount
   cosmos.base.v1beta1.Coin voucher = 1 [
     (gogoproto.nullable) = false,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.jsontag) = "voucher,omitempty"
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin"
   ];
 }
 

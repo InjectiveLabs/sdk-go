@@ -30,4 +30,6 @@ message GenesisState {
   Valset last_observed_valset = 14 [ (gogoproto.nullable) = false ];
   repeated string ethereum_blacklist = 15;
   repeated RateLimit rate_limits = 16;
+  repeated RateLimitTransfers rate_limit_transfers = 17;
+  repeated MintAmount mint_amounts = 18;
 }

@@ -1,0 +1,18 @@
+syntax = "proto3";
+package injective.common.vouchers.v1;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/common/vouchers/types";
+
+// AddressVoucher pairs a bech32 address with its outstanding voucher coin.
+message AddressVoucher {
+  // The bech32 address of the voucher holder.
+  string address = 1;
+  // The outstanding voucher coin.
+  cosmos.base.v1beta1.Coin voucher = 2 [
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (gogoproto.nullable) = false
+  ];
+}

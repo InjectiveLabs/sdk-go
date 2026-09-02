@@ -36,6 +36,8 @@ type EventProviderAPIClient interface {
 	GetABCIBlockEvents(ctx context.Context, in *GetABCIBlockEventsRequest, opts ...grpc.CallOption) (*GetABCIBlockEventsResponse, error)
 	// Get all raw block events for selected height
 	GetABCIBlockEventsAtHeight(ctx context.Context, in *GetABCIBlockEventsAtHeightRequest, opts ...grpc.CallOption) (*GetABCIBlockEventsAtHeightResponse, error)
+	// Stream raw block events for selected height
+	StreamABCIEvents(ctx context.Context, in *StreamABCIEventsRequest, opts ...grpc.CallOption) (EventProviderAPI_StreamABCIEventsClient, error)
 }
 
 type eventProviderAPIClient struct {
@@ -155,6 +157,38 @@ func (c *eventProviderAPIClient) GetABCIBlockEventsAtHeight(ctx context.Context,
 	return out, nil
 }
 
+func (c *eventProviderAPIClient) StreamABCIEvents(ctx context.Context, in *StreamABCIEventsRequest, opts ...grpc.CallOption) (EventProviderAPI_StreamABCIEventsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &EventProviderAPI_ServiceDesc.Streams[2], "/event_provider_api.EventProviderAPI/StreamABCIEvents", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &eventProviderAPIStreamABCIEventsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type EventProviderAPI_StreamABCIEventsClient interface {
+	Recv() (*StreamABCIEventsResponse, error)
+	grpc.ClientStream
+}
+
+type eventProviderAPIStreamABCIEventsClient struct {
+	grpc.ClientStream
+}
+
+func (x *eventProviderAPIStreamABCIEventsClient) Recv() (*StreamABCIEventsResponse, error) {
+	m := new(StreamABCIEventsResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // EventProviderAPIServer is the server API for EventProviderAPI service.
 // All implementations must embed UnimplementedEventProviderAPIServer
 // for forward compatibility
@@ -173,6 +207,8 @@ type EventProviderAPIServer interface {
 	GetABCIBlockEvents(context.Context, *GetABCIBlockEventsRequest) (*GetABCIBlockEventsResponse, error)
 	// Get all raw block events for selected height
 	GetABCIBlockEventsAtHeight(context.Context, *GetABCIBlockEventsAtHeightRequest) (*GetABCIBlockEventsAtHeightResponse, error)
+	// Stream raw block events for selected height
+	StreamABCIEvents(*StreamABCIEventsRequest, EventProviderAPI_StreamABCIEventsServer) error
 	mustEmbedUnimplementedEventProviderAPIServer()
 }
 
@@ -200,6 +236,9 @@ func (UnimplementedEventProviderAPIServer) GetABCIBlockEvents(context.Context, *
 }
 func (UnimplementedEventProviderAPIServer) GetABCIBlockEventsAtHeight(context.Context, *GetABCIBlockEventsAtHeightRequest) (*GetABCIBlockEventsAtHeightResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetABCIBlockEventsAtHeight not implemented")
+}
+func (UnimplementedEventProviderAPIServer) StreamABCIEvents(*StreamABCIEventsRequest, EventProviderAPI_StreamABCIEventsServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamABCIEvents not implemented")
 }
 func (UnimplementedEventProviderAPIServer) mustEmbedUnimplementedEventProviderAPIServer() {}
 
@@ -346,6 +385,27 @@ func _EventProviderAPI_GetABCIBlockEventsAtHeight_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EventProviderAPI_StreamABCIEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamABCIEventsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(EventProviderAPIServer).StreamABCIEvents(m, &eventProviderAPIStreamABCIEventsServer{stream})
+}
+
+type EventProviderAPI_StreamABCIEventsServer interface {
+	Send(*StreamABCIEventsResponse) error
+	grpc.ServerStream
+}
+
+type eventProviderAPIStreamABCIEventsServer struct {
+	grpc.ServerStream
+}
+
+func (x *eventProviderAPIStreamABCIEventsServer) Send(m *StreamABCIEventsResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // EventProviderAPI_ServiceDesc is the grpc.ServiceDesc for EventProviderAPI service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -383,6 +443,11 @@ var EventProviderAPI_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "StreamBlockEvents",
 			Handler:       _EventProviderAPI_StreamBlockEvents_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamABCIEvents",
+			Handler:       _EventProviderAPI_StreamABCIEvents_Handler,
 			ServerStreams: true,
 		},
 	},

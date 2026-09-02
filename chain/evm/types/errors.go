@@ -38,6 +38,7 @@ const (
 	codeErrInvalidGasLimit
 	codeErrConfigOverrides
 	codeErrCreateNotAuthorized
+	codeErrBlockedAddress
 )
 
 var ErrPostTxProcessing = errors.New("failed to execute post processing")
@@ -110,6 +111,9 @@ var (
 	ErrInvalidGasLimit = errorsmod.Register(ModuleName, codeErrInvalidGasLimit, "invalid gas limit")
 
 	ErrConfigOverrides = errorsmod.Register(ModuleName, codeErrConfigOverrides, "failed to apply state override")
+
+	// ErrBlockedAddress returns an error if the recipient is not allowed to receive funds.
+	ErrBlockedAddress = errorsmod.Register(ModuleName, codeErrBlockedAddress, "address is not allowed to receive funds")
 )
 
 var (

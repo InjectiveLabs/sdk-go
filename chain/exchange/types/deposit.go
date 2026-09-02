@@ -14,9 +14,15 @@ type DepositDelta struct {
 }
 
 func NewUniformDepositDelta(delta math.LegacyDec) *DepositDelta {
+	if delta.IsNil() {
+		return &DepositDelta{
+			AvailableBalanceDelta: delta,
+			TotalBalanceDelta:     delta,
+		}
+	}
 	return &DepositDelta{
-		AvailableBalanceDelta: delta,
-		TotalBalanceDelta:     delta,
+		AvailableBalanceDelta: delta.Clone(),
+		TotalBalanceDelta:     delta.Clone(),
 	}
 }
 

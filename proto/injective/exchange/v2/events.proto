@@ -43,6 +43,15 @@ message EventLostFundsFromLiquidation {
   ];
 }
 
+message EventLostFundsFromCrossPoolLiquidation {
+  bytes subaccount_id = 1;
+  string quote_denom = 2;
+  string lost_funds_from_available_during_payout = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
 message EventBatchDerivativePosition {
   string market_id = 1;
   repeated SubaccountPosition positions = 2;
@@ -148,6 +157,13 @@ message EventSubaccountBalanceTransfer {
   string src_subaccount_id = 1;
   string dst_subaccount_id = 2;
   cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+}
+
+message EventSubaccountRiskProfileUpdated {
+  string subaccount_id = 1;
+  SubaccountRiskProfile previous_profile = 2 [ (gogoproto.nullable) = false ];
+  SubaccountRiskProfile new_profile = 3 [ (gogoproto.nullable) = false ];
+  bool is_default = 4;
 }
 
 message EventBatchDepositUpdate { repeated DepositUpdate deposit_updates = 1; }

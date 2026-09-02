@@ -1,6 +1,7 @@
 package types
 
 import (
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -24,4 +25,32 @@ func HasDuplicateCoins(slice []sdk.Coin) bool {
 		seen[item.Denom] = struct{}{}
 	}
 	return false
+}
+
+// IterCb is a callback for IterateSafe that receives key and value bytes.
+// Return true to stop iteration.
+type IterCb func(k, v []byte) (stop bool)
+
+// IterateSafe ensures the Iterator is closed even if the work done inside the callback panics.
+func IterateSafe(iter storetypes.Iterator, callback IterCb) {
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		if callback(iter.Key(), iter.Value()) {
+			return
+		}
+	}
+}
+
+// IterKeyCb is a callback for IterateKeysSafe that receives only the key bytes.
+// Return true to stop iteration.
+type IterKeyCb func(k []byte) (stop bool)
+
+// IterateKeysSafe only iterates over keys and ensures the Iterator is closed even if the callback panics.
+func IterateKeysSafe(iter storetypes.Iterator, callback IterKeyCb) {
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		if callback(iter.Key()) {
+			return
+		}
+	}
 }

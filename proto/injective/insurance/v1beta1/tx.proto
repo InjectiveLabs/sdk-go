@@ -29,6 +29,9 @@ service Msg {
       returns (MsgRequestRedemptionResponse);
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
+
+  // ClaimVoucher defines a method for claiming an outstanding voucher
+  rpc ClaimVoucher(MsgClaimVoucher) returns (MsgClaimVoucherResponse);
 }
 
 // MsgCreateInsuranceFund a message to create an insurance fund for a derivative
@@ -115,3 +118,19 @@ message MsgUpdateParams {
 }
 
 message MsgUpdateParamsResponse {}
+
+// MsgClaimVoucher defines a message for claiming an outstanding voucher
+message MsgClaimVoucher {
+  option (amino.name) = "insurance/MsgClaimVoucher";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // The sender's Injective address.
+  string sender = 1;
+  // The token denom of the voucher to claim.
+  string denom = 2;
+}
+
+message MsgClaimVoucherResponse {}

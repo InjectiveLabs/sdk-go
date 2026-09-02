@@ -3,6 +3,7 @@ package v2 //nolint:revive // ok
 import (
 	"bytes"
 	"sort"
+	"sync"
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
@@ -210,6 +211,7 @@ type DerivativeMatchingExpansionData struct {
 	OpenInterestDelta              math.LegacyDec
 	NewRestingLimitBuyOrders       []*DerivativeLimitOrder // transient buy orders that become new resting limit orders
 	NewRestingLimitSellOrders      []*DerivativeLimitOrder // transient sell orders that become new resting limit orders
+	PartialCancelOrders            map[common.Hash]struct{}
 }
 
 func NewDerivativeMatchingExpansionData(clearingPrice, clearingQuantity math.LegacyDec) *DerivativeMatchingExpansionData {
@@ -228,6 +230,7 @@ func NewDerivativeMatchingExpansionData(clearingPrice, clearingQuantity math.Leg
 		MarketBalanceDelta:             math.LegacyZeroDec(),
 		NewRestingLimitBuyOrders:       make([]*DerivativeLimitOrder, 0),
 		NewRestingLimitSellOrders:      make([]*DerivativeLimitOrder, 0),
+		PartialCancelOrders:            make(map[common.Hash]struct{}),
 	}
 }
 
@@ -259,6 +262,7 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 	markPrice math.LegacyDec,
 	funding *PerpetualMarketFunding,
 	positionStates map[common.Hash]*PositionState,
+	isCrossSubaccount func(common.Hash) bool,
 ) *DerivativeBatchExecutionData {
 	depositDeltas := types.NewDepositDeltas()
 	tradingRewardPoints := types.NewTradingRewardPoints()
@@ -270,6 +274,7 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 			market.GetMakerFeeRate(),
 			market.GetTakerFeeRate(),
 			depositDeltas,
+			isCrossSubaccount,
 		)
 
 	positions, positionSubaccountIDs := GetPositionSliceData(positionStates)
@@ -359,6 +364,7 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		CancelLimitOrderEvents:                cancelLimitOrdersEvents,
 		CancelMarketOrderEvents:               nil,
 		VwapData:                              vwapData,
+		PartialCancelOrders:                   e.PartialCancelOrders,
 	}
 
 	return batch
@@ -369,6 +375,7 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 	makerFeeRate math.LegacyDec,
 	takerFeeRate math.LegacyDec,
 	depositDeltas types.DepositDeltas,
+	isCrossSubaccount func(common.Hash) bool,
 ) (
 	cancelOrdersEvent []*EventCancelDerivativeOrder,
 	restingOrderCancelledDeltas []*DerivativeLimitOrderDelta,
@@ -398,7 +405,7 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 	for idx := range e.RestingLimitBuyOrderCancels {
 		order := e.RestingLimitBuyOrderCancels[idx]
 
-		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, market)
+		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, market, isCrossSubaccount)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
@@ -414,7 +421,7 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 	for idx := range e.RestingLimitSellOrderCancels {
 		order := e.RestingLimitSellOrderCancels[idx]
 
-		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, market)
+		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, market, isCrossSubaccount)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
@@ -430,7 +437,15 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 	for idx := range e.TransientLimitBuyOrderCancels {
 		order := e.TransientLimitBuyOrderCancels[idx]
 
-		applyDerivativeLimitCancellation(order, takerFeeRate, depositDeltas, market)
+		// For orders that partially filled before being cancelled in the same FBA run,
+		// ApplyPositionDeltaAndGetDerivativeLimitOrderStateExpansion already credited
+		// (takerRate − makerRate) × price × cancelledQty via unmatchedFeeRefund.
+		// Using makerFeeRate here avoids double-counting that differential.
+		transientCancelFeeRate := takerFeeRate
+		if _, ok := e.PartialCancelOrders[order.Hash()]; ok {
+			transientCancelFeeRate = makerFeeRate
+		}
+		applyDerivativeLimitCancellation(order, transientCancelFeeRate, depositDeltas, market, isCrossSubaccount)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
@@ -445,7 +460,12 @@ func (e *DerivativeMatchingExpansionData) applyCancellationsAndGetDerivativeLimi
 
 	for idx := range e.TransientLimitSellOrderCancels {
 		order := e.TransientLimitSellOrderCancels[idx]
-		applyDerivativeLimitCancellation(order, takerFeeRate, depositDeltas, market)
+		// Same reasoning as the buy loop above.
+		transientCancelFeeRate := takerFeeRate
+		if _, ok := e.PartialCancelOrders[order.Hash()]; ok {
+			transientCancelFeeRate = makerFeeRate
+		}
+		applyDerivativeLimitCancellation(order, transientCancelFeeRate, depositDeltas, market, isCrossSubaccount)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
@@ -466,9 +486,21 @@ func applyDerivativeLimitCancellation(
 	orderFeeRate math.LegacyDec,
 	depositDeltas types.DepositDeltas,
 	market DerivativeMarketI,
+	isCrossSubaccount func(common.Hash) bool,
 ) {
 	// For vanilla orders, increment the available balance
 	if order.IsVanilla() {
+		if isCrossSubaccount != nil && isCrossSubaccount(order.SubaccountID()) {
+			// Cross margin does not use per-order (additive) deposit holds for derivative orders.
+			// Forced cancellations do not refund anything, but we must still record the subaccount
+			// in depositDeltas (with zero delta) so that the persistence layer sees it in
+			// DepositSubaccountIDs and evicts the stale cross-pool snapshot cache.
+			depositDeltas.ApplyDepositDelta(order.SubaccountID(), &types.DepositDelta{
+				AvailableBalanceDelta: math.LegacyZeroDec(),
+				TotalBalanceDelta:     math.LegacyZeroDec(),
+			})
+			return
+		}
 		depositDelta := order.GetCancelDepositDelta(orderFeeRate)
 		chainFormatDepositDelta := types.DepositDelta{
 			AvailableBalanceDelta: market.NotionalToChainFormat(depositDelta.AvailableBalanceDelta),
@@ -493,6 +525,7 @@ type DerivativeMarketOrderExpansionData struct {
 	MarketSellClearingQuantity   math.LegacyDec
 	MarketBalanceDelta           math.LegacyDec
 	OpenInterestDelta            math.LegacyDec
+	CrossPoolSnapshotEvictions   []common.Hash
 }
 
 func (e *DerivativeMarketOrderExpansionData) SetSellExecutionData(
@@ -553,6 +586,7 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 	funding *PerpetualMarketFunding,
 	positionStates map[common.Hash]*PositionState,
 	isLiquidation bool,
+	isCrossSubaccount func(common.Hash) bool,
 ) *DerivativeBatchExecutionData {
 	depositDeltas := types.NewDepositDeltas()
 	tradingRewardPoints := types.NewTradingRewardPoints()
@@ -562,6 +596,7 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		market,
 		market.GetMakerFeeRate(),
 		depositDeltas,
+		isCrossSubaccount,
 	)
 
 	// process unfilled market order cancellations
@@ -646,6 +681,7 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		CancelLimitOrderEvents:                cancelLimitOrdersEvents,
 		CancelMarketOrderEvents:               cancelMarketOrdersEvents,
 		VwapData:                              vwapData,
+		CrossPoolSnapshotEvictions:            e.CrossPoolSnapshotEvictions,
 	}
 	return batch
 }
@@ -678,6 +714,7 @@ func (e *DerivativeMarketOrderExpansionData) applyCancellationsAndGetDerivativeL
 	market DerivativeMarketI,
 	makerFeeRate math.LegacyDec,
 	depositDeltas types.DepositDeltas,
+	isCrossSubaccount func(common.Hash) bool,
 ) (
 	cancelOrdersEvent []*EventCancelDerivativeOrder,
 	restingOrderCancelledDeltas []*DerivativeLimitOrderDelta,
@@ -691,7 +728,7 @@ func (e *DerivativeMarketOrderExpansionData) applyCancellationsAndGetDerivativeL
 
 	for idx := range e.RestingLimitBuyOrderCancels {
 		order := e.RestingLimitBuyOrderCancels[idx]
-		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, market)
+		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, market, isCrossSubaccount)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
@@ -707,7 +744,7 @@ func (e *DerivativeMarketOrderExpansionData) applyCancellationsAndGetDerivativeL
 
 	for idx := range e.RestingLimitSellOrderCancels {
 		order := e.RestingLimitSellOrderCancels[idx]
-		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, market)
+		applyDerivativeLimitCancellation(order, makerFeeRate, depositDeltas, market, isCrossSubaccount)
 		cancelOrdersEvent = append(cancelOrdersEvent, &EventCancelDerivativeOrder{
 			MarketId:      marketIDHex,
 			IsLimitCancel: true,
@@ -856,33 +893,38 @@ func (p *DerivativeVwapInfo) GetSortedBinaryOptionsMarketIDs() []common.Hash {
 	return binaryOptionsMarketIDs
 }
 
-// ComputeSyntheticVwapUnitDelta returns (price - markPrice) / markPrice
-func (p *DerivativeVwapInfo) ComputeSyntheticVwapUnitDelta(marketID common.Hash) math.LegacyDec {
+// ComputeSyntheticVwapUnitDelta returns (price - markPrice) / markPrice for a supplied benchmark mark.
+func (p *DerivativeVwapInfo) ComputeSyntheticVwapUnitDelta(marketID common.Hash, markPrice math.LegacyDec) math.LegacyDec {
 	vwapInfo := p.PerpetualVwapInfo[marketID]
-	return vwapInfo.VwapData.Price.Sub(*vwapInfo.MarkPrice).Quo(*vwapInfo.MarkPrice)
+	return vwapInfo.VwapData.Price.Sub(markPrice).Quo(markPrice)
 }
 
-// MergeAtomicPerpetualVwap merges accumulated atomic order VWAP data into this DerivativeVwapInfo.
-func (p *DerivativeVwapInfo) MergeAtomicPerpetualVwap(atomicVwapData map[common.Hash]*VwapInfo) {
-	for marketID, atomicInfo := range atomicVwapData {
-		if atomicInfo == nil || atomicInfo.MarkPrice == nil || atomicInfo.VwapData == nil {
+// MergePerpetualVwap merges accumulated perpetual-market VWAP data into this DerivativeVwapInfo.
+func (p *DerivativeVwapInfo) MergePerpetualVwap(perpetualVwapData map[common.Hash]*VwapInfo) {
+	for marketID, incomingInfo := range perpetualVwapData {
+		if incomingInfo == nil || incomingInfo.MarkPrice == nil || incomingInfo.VwapData == nil {
 			continue
 		}
 
-		if atomicInfo.VwapData.Quantity.IsZero() {
+		if incomingInfo.VwapData.Quantity.IsZero() {
 			continue
 		}
 
 		existingInfo := p.PerpetualVwapInfo[marketID]
 		if existingInfo == nil {
-			// No existing VWAP for this market, just use the atomic data
-			p.PerpetualVwapInfo[marketID] = atomicInfo
+			// No existing VWAP for this market, just use the incoming data.
+			p.PerpetualVwapInfo[marketID] = incomingInfo
 			continue
 		}
 
-		// Merge the VWAP data: newVwap = (existingPrice * existingQty + atomicPrice * atomicQty) / (existingQty + atomicQty)
-		existingInfo.VwapData = existingInfo.VwapData.ApplyExecution(atomicInfo.VwapData.Price, atomicInfo.VwapData.Quantity)
+		// Merge the VWAP data: newVwap = (existingPrice * existingQty + incomingPrice * incomingQty) / (existingQty + incomingQty)
+		existingInfo.VwapData = existingInfo.VwapData.ApplyExecution(incomingInfo.VwapData.Price, incomingInfo.VwapData.Quantity)
 	}
+}
+
+// MergeAtomicPerpetualVwap merges accumulated atomic order VWAP data into this DerivativeVwapInfo.
+func (p *DerivativeVwapInfo) MergeAtomicPerpetualVwap(atomicVwapData map[common.Hash]*VwapInfo) {
+	p.MergePerpetualVwap(atomicVwapData)
 }
 
 type PositionState struct {
@@ -925,10 +967,6 @@ func GetPositionSliceData(p map[common.Hash]*PositionState) ([]*Position, []comm
 			positions = append(positions, position.Position)
 			nonNilPositionSubaccountIDs = append(nonNilPositionSubaccountIDs, subaccountID)
 		}
-
-		// else {
-		// 	fmt.Println("❌ position is nil for subaccount", subaccountID.Hex())
-		// }
 	}
 
 	return positions, nonNilPositionSubaccountIDs
@@ -939,6 +977,14 @@ type DerivativeBatchExecutionData struct {
 
 	MarkPrice math.LegacyDec
 	Funding   *PerpetualMarketFunding
+
+	// Fee-discount staking deltas are produced during FBA matching but must be
+	// merged only after derivative solvency filtering. Some executions can be
+	// discarded after matching if a market is insolvent or a reduce-only cleanup
+	// dependency fails; carrying the base/local pair here lets persistence merge
+	// only surviving deltas.
+	FeeDiscountStakingInfoBase  *FeeDiscountStakingInfo
+	FeeDiscountStakingInfoLocal *FeeDiscountStakingInfo
 
 	// update the deposits for margin deductions, payouts and refunds
 	DepositDeltas        types.DepositDeltas
@@ -975,6 +1021,246 @@ type DerivativeBatchExecutionData struct {
 	CancelMarketOrderEvents []*EventCancelDerivativeOrder
 
 	VwapData *VwapData
+
+	// Orders that were partially filled then became invalid
+	// Used by persistence layer to handle partial cancellations correctly
+	PartialCancelOrders map[common.Hash]struct{}
+
+	// CrossPoolSnapshotEvictions lists cross-margin subaccounts whose cached pool
+	// snapshots must be evicted after stage-1 market-order matching. Collected during
+	// ProcessDerivativeMarketOrderbookMatchingResults (which runs in parallel goroutines)
+	// and applied in the single-threaded persistence phase to avoid data races on the
+	// shared object store.
+	CrossPoolSnapshotEvictions []common.Hash
+}
+
+type CrossMarginPoolKey struct {
+	SubaccountID common.Hash
+	QuoteDenom   string
+}
+
+func CloneFeeDiscountStakingInfo(info *FeeDiscountStakingInfo) *FeeDiscountStakingInfo {
+	if info == nil {
+		return nil
+	}
+
+	clone := &FeeDiscountStakingInfo{
+		SubaccountMarketVolumeContributions: make(map[common.Hash]map[common.Hash]VolumeRecord),
+		AccountVolumeContributions:          make(map[types.Account]math.LegacyDec),
+		AccountFeeTiers:                     make(map[types.Account]*types.FeeDiscountRates),
+		Validators:                          make(ValidatorCache),
+		NewAccounts:                         make(map[types.Account]*FeeDiscountTierTTL),
+		GrantCheckpoints:                    make(map[string]struct{}),
+		InvalidGrants:                       make(map[string]string),
+		AccountFeeTiersMux:                  new(sync.RWMutex),
+		AccountVolumesMux:                   new(sync.RWMutex),
+		ValidatorsMux:                       new(sync.RWMutex),
+		NewAccountsMux:                      new(sync.RWMutex),
+		GrantsMux:                           new(sync.RWMutex),
+		Schedule:                            info.Schedule,
+		CurrBucketStartTimestamp:            info.CurrBucketStartTimestamp,
+		OldestBucketStartTimestamp:          info.OldestBucketStartTimestamp,
+		MaxTTLTimestamp:                     info.MaxTTLTimestamp,
+		NextTTLTimestamp:                    info.NextTTLTimestamp,
+		FeeDiscountRatesCache:               info.FeeDiscountRatesCache,
+		IsFirstFeeCycleFinished:             info.IsFirstFeeCycleFinished,
+	}
+
+	info.AccountVolumesMux.RLock()
+	for account, amount := range info.AccountVolumeContributions {
+		clone.AccountVolumeContributions[account] = amount
+	}
+	for subaccountID, byMarket := range info.SubaccountMarketVolumeContributions {
+		clone.SubaccountMarketVolumeContributions[subaccountID] = make(map[common.Hash]VolumeRecord, len(byMarket))
+		for marketID, volume := range byMarket {
+			clone.SubaccountMarketVolumeContributions[subaccountID][marketID] = volume
+		}
+	}
+	info.AccountVolumesMux.RUnlock()
+
+	info.AccountFeeTiersMux.RLock()
+	for account, rates := range info.AccountFeeTiers {
+		clone.AccountFeeTiers[account] = copyFeeDiscountRates(rates)
+	}
+	info.AccountFeeTiersMux.RUnlock()
+
+	info.ValidatorsMux.RLock()
+	for operator, validator := range info.Validators {
+		clone.Validators[operator] = validator
+	}
+	info.ValidatorsMux.RUnlock()
+
+	info.NewAccountsMux.RLock()
+	for account, ttl := range info.NewAccounts {
+		clone.NewAccounts[account] = copyFeeDiscountTierTTL(ttl)
+	}
+	info.NewAccountsMux.RUnlock()
+
+	info.GrantsMux.RLock()
+	for granter := range info.GrantCheckpoints {
+		clone.GrantCheckpoints[granter] = struct{}{}
+	}
+	for grantee, granter := range info.InvalidGrants {
+		clone.InvalidGrants[grantee] = granter
+	}
+	info.GrantsMux.RUnlock()
+
+	return clone
+}
+
+func MergeFeeDiscountStakingInfoDelta(dst, base, local *FeeDiscountStakingInfo) {
+	if dst == nil || base == nil || local == nil {
+		return
+	}
+
+	mergeFeeDiscountVolumeDelta(dst, base, local)
+	mergeFeeDiscountRateDelta(dst, base, local)
+	mergeFeeDiscountValidatorDelta(dst, base, local)
+	mergeFeeDiscountNewAccountDelta(dst, base, local)
+	mergeFeeDiscountGrantDelta(dst, base, local)
+}
+
+func mergeFeeDiscountVolumeDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.AccountVolumesMux.RLock()
+	base.AccountVolumesMux.RLock()
+	dst.AccountVolumesMux.Lock()
+	for account, localAmount := range local.AccountVolumeContributions {
+		delta := feeDiscountDecOrZero(localAmount).Sub(feeDiscountDecOrZero(base.AccountVolumeContributions[account]))
+		if delta.IsZero() {
+			continue
+		}
+		dst.AccountVolumeContributions[account] = feeDiscountDecOrZero(dst.AccountVolumeContributions[account]).Add(delta)
+	}
+	for subaccountID, localByMarket := range local.SubaccountMarketVolumeContributions {
+		baseByMarket := base.SubaccountMarketVolumeContributions[subaccountID]
+		for marketID, localVolume := range localByMarket {
+			delta := volumeRecordDelta(localVolume, baseByMarket[marketID])
+			if (&delta).IsZero() {
+				continue
+			}
+			if dst.SubaccountMarketVolumeContributions[subaccountID] == nil {
+				dst.SubaccountMarketVolumeContributions[subaccountID] = make(map[common.Hash]VolumeRecord)
+			}
+			dst.SubaccountMarketVolumeContributions[subaccountID][marketID] =
+				dst.SubaccountMarketVolumeContributions[subaccountID][marketID].Add(delta)
+		}
+	}
+	dst.AccountVolumesMux.Unlock()
+	base.AccountVolumesMux.RUnlock()
+	local.AccountVolumesMux.RUnlock()
+}
+
+func mergeFeeDiscountRateDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.AccountFeeTiersMux.RLock()
+	base.AccountFeeTiersMux.RLock()
+	dst.AccountFeeTiersMux.Lock()
+	for account, localRates := range local.AccountFeeTiers {
+		if feeDiscountRatesEqual(localRates, base.AccountFeeTiers[account]) {
+			continue
+		}
+		dst.AccountFeeTiers[account] = copyFeeDiscountRates(localRates)
+	}
+	dst.AccountFeeTiersMux.Unlock()
+	base.AccountFeeTiersMux.RUnlock()
+	local.AccountFeeTiersMux.RUnlock()
+}
+
+func mergeFeeDiscountValidatorDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.ValidatorsMux.RLock()
+	base.ValidatorsMux.RLock()
+	dst.ValidatorsMux.Lock()
+	for operator, validator := range local.Validators {
+		if _, had := base.Validators[operator]; had {
+			continue
+		}
+		dst.Validators[operator] = validator
+	}
+	dst.ValidatorsMux.Unlock()
+	base.ValidatorsMux.RUnlock()
+	local.ValidatorsMux.RUnlock()
+}
+
+func mergeFeeDiscountNewAccountDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.NewAccountsMux.RLock()
+	base.NewAccountsMux.RLock()
+	dst.NewAccountsMux.Lock()
+	for account, localTTL := range local.NewAccounts {
+		if feeDiscountTierTTLEqual(localTTL, base.NewAccounts[account]) {
+			continue
+		}
+		dst.NewAccounts[account] = copyFeeDiscountTierTTL(localTTL)
+	}
+	dst.NewAccountsMux.Unlock()
+	base.NewAccountsMux.RUnlock()
+	local.NewAccountsMux.RUnlock()
+}
+
+func mergeFeeDiscountGrantDelta(dst, base, local *FeeDiscountStakingInfo) {
+	local.GrantsMux.RLock()
+	base.GrantsMux.RLock()
+	dst.GrantsMux.Lock()
+	for granter := range local.GrantCheckpoints {
+		if _, had := base.GrantCheckpoints[granter]; had {
+			continue
+		}
+		dst.GrantCheckpoints[granter] = struct{}{}
+	}
+	for grantee, granter := range local.InvalidGrants {
+		if base.InvalidGrants[grantee] == granter {
+			continue
+		}
+		dst.InvalidGrants[grantee] = granter
+	}
+	dst.GrantsMux.Unlock()
+	base.GrantsMux.RUnlock()
+	local.GrantsMux.RUnlock()
+}
+
+func feeDiscountDecOrZero(value math.LegacyDec) math.LegacyDec {
+	if value.IsNil() {
+		return math.LegacyZeroDec()
+	}
+	return value
+}
+
+func volumeRecordDelta(local, base VolumeRecord) VolumeRecord {
+	return NewVolumeRecord(
+		feeDiscountDecOrZero(local.MakerVolume).Sub(feeDiscountDecOrZero(base.MakerVolume)),
+		feeDiscountDecOrZero(local.TakerVolume).Sub(feeDiscountDecOrZero(base.TakerVolume)),
+	)
+}
+
+func copyFeeDiscountRates(rates *types.FeeDiscountRates) *types.FeeDiscountRates {
+	if rates == nil {
+		return nil
+	}
+	return &types.FeeDiscountRates{
+		MakerDiscountRate: rates.MakerDiscountRate,
+		TakerDiscountRate: rates.TakerDiscountRate,
+	}
+}
+
+func feeDiscountRatesEqual(a, b *types.FeeDiscountRates) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return feeDiscountDecOrZero(a.MakerDiscountRate).Equal(feeDiscountDecOrZero(b.MakerDiscountRate)) &&
+		feeDiscountDecOrZero(a.TakerDiscountRate).Equal(feeDiscountDecOrZero(b.TakerDiscountRate))
+}
+
+func copyFeeDiscountTierTTL(ttl *FeeDiscountTierTTL) *FeeDiscountTierTTL {
+	if ttl == nil {
+		return nil
+	}
+	cp := *ttl
+	return &cp
+}
+
+func feeDiscountTierTTLEqual(a, b *FeeDiscountTierTTL) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return a.Tier == b.Tier && a.TtlTimestamp == b.TtlTimestamp
 }
 
 func (d *DerivativeBatchExecutionData) GetAtomicDerivativeMarketOrderResults() *DerivativeMarketOrderResults {

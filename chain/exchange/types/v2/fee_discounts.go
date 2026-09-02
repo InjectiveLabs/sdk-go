@@ -89,14 +89,61 @@ func NewFeeDiscountConfig(isQualified bool, stakingInfo *FeeDiscountStakingInfo)
 		isQualified = false
 	}
 	return &FeeDiscountConfig{
-		IsMarketQualified:      isQualified,
-		FeeDiscountStakingInfo: stakingInfo,
+		IsMarketQualified:        isQualified,
+		FeeDiscountStakingInfo:   stakingInfo,
+		readOnlyFeeDiscountRates: make(map[readOnlyFeeDiscountRateKey]math.LegacyDec),
+		readOnlyFeeDiscountMux:   new(sync.RWMutex),
 	}
 }
 
 type FeeDiscountConfig struct {
 	IsMarketQualified bool
 	*FeeDiscountStakingInfo
+
+	readOnlyFeeDiscountRates map[readOnlyFeeDiscountRateKey]math.LegacyDec
+	readOnlyFeeDiscountMux   *sync.RWMutex
+}
+
+type readOnlyFeeDiscountRateKey struct {
+	account types.Account
+	isMaker bool
+}
+
+// GetReadOnlyFeeDiscountRate returns a memoized fee-discount rate for side-effect-free checks.
+func (c *FeeDiscountConfig) GetReadOnlyFeeDiscountRate(account sdk.AccAddress, isMaker bool) (math.LegacyDec, bool) {
+	if c == nil || c.readOnlyFeeDiscountMux == nil {
+		return math.LegacyDec{}, false
+	}
+
+	c.readOnlyFeeDiscountMux.RLock()
+	defer c.readOnlyFeeDiscountMux.RUnlock()
+
+	discountRate, ok := c.readOnlyFeeDiscountRates[readOnlyFeeDiscountRateKey{
+		account: types.SdkAccAddressToAccount(account),
+		isMaker: isMaker,
+	}]
+	return discountRate, ok
+}
+
+// SetReadOnlyFeeDiscountRate memoizes a fee-discount rate for side-effect-free checks.
+func (c *FeeDiscountConfig) SetReadOnlyFeeDiscountRate(account sdk.AccAddress, isMaker bool, discountRate math.LegacyDec) {
+	if c == nil {
+		return
+	}
+	if c.readOnlyFeeDiscountMux == nil {
+		c.readOnlyFeeDiscountMux = new(sync.RWMutex)
+	}
+
+	c.readOnlyFeeDiscountMux.Lock()
+	defer c.readOnlyFeeDiscountMux.Unlock()
+
+	if c.readOnlyFeeDiscountRates == nil {
+		c.readOnlyFeeDiscountRates = make(map[readOnlyFeeDiscountRateKey]math.LegacyDec)
+	}
+	c.readOnlyFeeDiscountRates[readOnlyFeeDiscountRateKey{
+		account: types.SdkAccAddressToAccount(account),
+		isMaker: isMaker,
+	}] = discountRate
 }
 
 func (c *FeeDiscountConfig) GetFeeDiscountRate(account sdk.AccAddress, isMaker bool) *math.LegacyDec { // nolint:revive // ok
@@ -108,7 +155,7 @@ func (c *FeeDiscountConfig) GetFeeDiscountRate(account sdk.AccAddress, isMaker b
 	defer c.AccountFeeTiersMux.RUnlock()
 
 	tier, ok := c.AccountFeeTiers[types.SdkAccAddressToAccount(account)]
-	if !ok {
+	if !ok || tier == nil {
 		// should never happen but just in case
 		return nil
 	}
@@ -161,6 +208,71 @@ func (c *FeeDiscountConfig) IncrementAccountVolumeContribution(
 	}
 }
 
+// DecrementMakerVolumeContribution reverses maker volume that was accrued before a trade's settled
+// notional was reduced. Contributions are clamped at zero defensively.
+func (c *FeeDiscountConfig) DecrementMakerVolumeContribution(
+	subaccountID common.Hash,
+	marketID common.Hash,
+	amount math.LegacyDec,
+) {
+	if c == nil || c.FeeDiscountStakingInfo == nil || amount.IsNil() || !amount.IsPositive() {
+		return
+	}
+
+	account := types.SubaccountIDToAccount(subaccountID)
+	c.AccountVolumesMux.Lock()
+	defer c.AccountVolumesMux.Unlock()
+
+	c.decrementQualifiedAccountVolume(account, amount)
+	c.decrementMakerMarketVolume(subaccountID, marketID, amount)
+}
+
+func (c *FeeDiscountConfig) decrementQualifiedAccountVolume(account types.Account, amount math.LegacyDec) {
+	if !c.IsMarketQualified {
+		return
+	}
+	volume, ok := c.AccountVolumeContributions[account]
+	if !ok {
+		return
+	}
+	volume = subtractVolumeContribution(volume, amount)
+	if volume.IsZero() {
+		delete(c.AccountVolumeContributions, account)
+		return
+	}
+	c.AccountVolumeContributions[account] = volume
+}
+
+func (c *FeeDiscountConfig) decrementMakerMarketVolume(
+	subaccountID, marketID common.Hash,
+	amount math.LegacyDec,
+) {
+	marketVolumes, ok := c.SubaccountMarketVolumeContributions[subaccountID]
+	if !ok {
+		return
+	}
+	volume, ok := marketVolumes[marketID]
+	if !ok {
+		return
+	}
+	volume.MakerVolume = subtractVolumeContribution(volume.MakerVolume, amount)
+	if volume.IsZero() {
+		delete(marketVolumes, marketID)
+		if len(marketVolumes) == 0 {
+			delete(c.SubaccountMarketVolumeContributions, subaccountID)
+		}
+		return
+	}
+	marketVolumes[marketID] = volume
+}
+
+func subtractVolumeContribution(volume, amount math.LegacyDec) math.LegacyDec {
+	if volume.IsNil() || !volume.IsPositive() {
+		return math.LegacyZeroDec()
+	}
+	return math.LegacyMaxDec(math.LegacyZeroDec(), volume.Sub(amount))
+}
+
 func NewFeeDiscountStakingInfo(
 	schedule *FeeDiscountSchedule,
 	currBucketStartTimestamp, oldestBucketStartTimestamp int64,
@@ -188,6 +300,35 @@ func NewFeeDiscountStakingInfo(
 		NextTTLTimestamp:                    nextTTLTimestamp,
 		FeeDiscountRatesCache:               schedule.GetFeeDiscountRatesMap(),
 		IsFirstFeeCycleFinished:             isFirstFeeCycleFinished,
+	}
+}
+
+// NewFeeDiscountStakingInfoForReadOnlyLookup builds a lightweight, throwaway staking-info view for fee-tier lookup.
+func NewFeeDiscountStakingInfoForReadOnlyLookup(info *FeeDiscountStakingInfo) *FeeDiscountStakingInfo {
+	if info == nil {
+		return nil
+	}
+
+	return &FeeDiscountStakingInfo{
+		SubaccountMarketVolumeContributions: make(map[common.Hash]map[common.Hash]VolumeRecord),
+		AccountVolumeContributions:          make(map[types.Account]math.LegacyDec),
+		AccountFeeTiers:                     make(map[types.Account]*types.FeeDiscountRates),
+		Validators:                          make(ValidatorCache),
+		NewAccounts:                         make(map[types.Account]*FeeDiscountTierTTL),
+		GrantCheckpoints:                    make(map[string]struct{}),
+		InvalidGrants:                       make(map[string]string),
+		AccountFeeTiersMux:                  new(sync.RWMutex),
+		AccountVolumesMux:                   new(sync.RWMutex),
+		ValidatorsMux:                       new(sync.RWMutex),
+		NewAccountsMux:                      new(sync.RWMutex),
+		GrantsMux:                           new(sync.RWMutex),
+		Schedule:                            info.Schedule,
+		CurrBucketStartTimestamp:            info.CurrBucketStartTimestamp,
+		OldestBucketStartTimestamp:          info.OldestBucketStartTimestamp,
+		MaxTTLTimestamp:                     info.MaxTTLTimestamp,
+		NextTTLTimestamp:                    info.NextTTLTimestamp,
+		FeeDiscountRatesCache:               info.FeeDiscountRatesCache,
+		IsFirstFeeCycleFinished:             info.IsFirstFeeCycleFinished,
 	}
 }
 

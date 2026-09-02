@@ -11,10 +11,12 @@ import (
 var _ paramtypes.ParamSet = &Params{}
 
 const (
-	GasForFeeDeduction     uint64 = 13419
-	GasForFeeRefund        uint64 = 13419
-	DefaultGasContractCall uint64 = 63558
-	MinExecutionGasLimit          = GasForFeeDeduction + GasForFeeRefund + DefaultGasContractCall
+	GasForFeeDeduction        uint64 = 13419
+	GasForFeeRefund           uint64 = 13419
+	DefaultGasContractCall    uint64 = 63558
+	ExecutionGasFeeMultiplier uint64 = 3
+	MinExecutionGasLimit      uint64 = GasForFeeDeduction + GasForFeeRefund + DefaultGasContractCall
+	MaxSafeExecutionGasLimit  uint64 = ^uint64(0) / ExecutionGasFeeMultiplier
 )
 
 // Wasmx params default values
@@ -123,6 +125,10 @@ func validateMaxContractGasLimit(i interface{}) error {
 
 	if v < MinExecutionGasLimit {
 		return fmt.Errorf("MaxContractGasLimit %d must be greater than the MinExecutionGasLimit: %d", v, MinExecutionGasLimit)
+	}
+
+	if v > MaxSafeExecutionGasLimit {
+		return fmt.Errorf("MaxContractGasLimit %d must not exceed %d to avoid gas fee overflow", v, MaxSafeExecutionGasLimit)
 	}
 	return nil
 }

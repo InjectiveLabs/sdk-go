@@ -62,9 +62,29 @@ func reduceToSet(slice []string) []string {
 	i := 0
 	for k := range set {
 		output[i] = k
-		i += 1
+		i++
 	}
 	return output
+}
+
+type batchUpdateOrdersAuthzCheck struct {
+	field string
+	check func(*BatchUpdateOrdersAuthz, *MsgBatchUpdateOrders) error
+}
+
+var batchUpdateOrdersAuthzChecks = []batchUpdateOrdersAuthzCheck{
+	{field: "SpotOrdersToCreate", check: (*BatchUpdateOrdersAuthz).authorizeSpotOrdersToCreate},
+	{field: "SpotOrdersToCancel", check: (*BatchUpdateOrdersAuthz).authorizeSpotOrdersToCancel},
+	{field: "SpotMarketIdsToCancelAll", check: (*BatchUpdateOrdersAuthz).authorizeSpotMarketIDsToCancelAll},
+	{field: "SpotMarketOrdersToCreate", check: (*BatchUpdateOrdersAuthz).authorizeSpotMarketOrdersToCreate},
+	{field: "DerivativeOrdersToCreate", check: (*BatchUpdateOrdersAuthz).authorizeDerivativeOrdersToCreate},
+	{field: "DerivativeOrdersToCancel", check: (*BatchUpdateOrdersAuthz).authorizeDerivativeOrdersToCancel},
+	{field: "DerivativeMarketIdsToCancelAll", check: (*BatchUpdateOrdersAuthz).authorizeDerivativeMarketIDsToCancelAll},
+	{field: "DerivativeMarketOrdersToCreate", check: (*BatchUpdateOrdersAuthz).authorizeDerivativeMarketOrdersToCreate},
+	{field: "BinaryOptionsOrdersToCreate", check: (*BatchUpdateOrdersAuthz).authorizeBinaryOptionsOrdersToCreate},
+	{field: "BinaryOptionsOrdersToCancel", check: (*BatchUpdateOrdersAuthz).authorizeBinaryOptionsOrdersToCancel},
+	{field: "BinaryOptionsMarketIdsToCancelAll", check: (*BatchUpdateOrdersAuthz).authorizeBinaryOptionsMarketIDsToCancelAll},
+	{field: "BinaryOptionsMarketOrdersToCreate", check: (*BatchUpdateOrdersAuthz).authorizeBinaryOptionsMarketOrdersToCreate},
 }
 
 func (a *BatchUpdateOrdersAuthz) MsgTypeURL() string {
@@ -77,61 +97,11 @@ func (a *BatchUpdateOrdersAuthz) Accept(_ context.Context, msg sdk.Msg) (authz.A
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
 	}
 
-	// check authorized spot markets
-	for _, o := range ordersToUpdate.SpotOrdersToCreate {
-		if !find(a.SpotMarkets, o.MarketId) {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested spot market to create orders is unauthorized")
-		}
-		if o.OrderInfo.SubaccountId != a.SubaccountId {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
+	for _, authzCheck := range batchUpdateOrdersAuthzChecks {
+		if err := authzCheck.check(a, ordersToUpdate); err != nil {
+			return authz.AcceptResponse{}, err
 		}
 	}
-	for _, o := range ordersToUpdate.SpotOrdersToCancel {
-		if !find(a.SpotMarkets, o.MarketId) {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested spot market to cancel orders is unauthorized")
-		}
-		if o.SubaccountId != a.SubaccountId {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
-		}
-	}
-	for _, id := range ordersToUpdate.SpotMarketIdsToCancelAll {
-		if !find(a.SpotMarkets, id) {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested spot market to cancel all orders is unauthorized")
-		}
-
-		if ordersToUpdate.SubaccountId != a.SubaccountId {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
-		}
-	}
-
-	// check authorized derivative markets
-	for _, o := range ordersToUpdate.DerivativeOrdersToCreate {
-		if !find(a.DerivativeMarkets, o.MarketId) {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested derivative market to create orders is unauthorized")
-		}
-		if o.OrderInfo.SubaccountId != a.SubaccountId {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
-		}
-	}
-	for _, o := range ordersToUpdate.DerivativeOrdersToCancel {
-		if !find(a.DerivativeMarkets, o.MarketId) {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested derivative market to cancel orders is unauthorized")
-		}
-		if o.SubaccountId != a.SubaccountId {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
-		}
-	}
-	for _, id := range ordersToUpdate.DerivativeMarketIdsToCancelAll {
-		if !find(a.DerivativeMarkets, id) {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested derivative market to cancel all orders is unauthorized")
-		}
-
-		if ordersToUpdate.SubaccountId != a.SubaccountId {
-			return authz.AcceptResponse{}, sdkerrors.ErrUnauthorized.Wrapf("requested subaccount is unauthorized")
-		}
-	}
-
-	// TODO add check for BO markets?
 
 	return authz.AcceptResponse{Accept: true, Delete: false, Updated: nil}, nil
 }
@@ -143,25 +113,142 @@ func (a *BatchUpdateOrdersAuthz) ValidateBasic() error {
 	if len(a.SpotMarkets) == 0 && len(a.DerivativeMarkets) == 0 {
 		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
 	}
-	if len(a.SpotMarkets) > AuthorizedMarketsLimit() || len(a.DerivativeMarkets) > AuthorizedMarketsLimit() {
-		return sdkerrors.ErrLogic.Wrapf("invalid markets array length")
+	if err := types.ValidateAuthorizedMarkets(a.SpotMarkets, "invalid spot market id to authorize", AuthorizedMarketsLimit()); err != nil {
+		return err
 	}
-	spotMarketsSet := reduceToSet(a.SpotMarkets)
-	derivativeMarketsSet := reduceToSet(a.DerivativeMarkets)
-	if len(a.SpotMarkets) != len(spotMarketsSet) || len(a.DerivativeMarkets) != len(derivativeMarketsSet) {
-		return sdkerrors.ErrLogic.Wrapf("cannot have duplicate markets")
-	}
-	for _, m := range a.SpotMarkets {
-		if !types.IsHexHash(m) {
-			return sdkerrors.ErrLogic.Wrap("invalid spot market id to authorize")
-		}
-	}
-	for _, m := range a.DerivativeMarkets {
-		if !types.IsHexHash(m) {
-			return sdkerrors.ErrLogic.Wrap("invalid derivative market id to authorize")
-		}
-	}
-	return nil
+
+	return types.ValidateAuthorizedMarkets(a.DerivativeMarkets, "invalid derivative market id to authorize", AuthorizedMarketsLimit())
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeSpotOrdersToCreate(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.SpotMarkets,
+		a.SubaccountId,
+		ordersToUpdate.SpotOrdersToCreate,
+		func(order *SpotOrder) string { return order.MarketId },
+		func(order *SpotOrder) string { return order.OrderInfo.SubaccountId },
+		"requested spot market to create orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeSpotOrdersToCancel(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.SpotMarkets,
+		a.SubaccountId,
+		ordersToUpdate.SpotOrdersToCancel,
+		func(order *OrderData) string { return order.MarketId },
+		func(order *OrderData) string { return order.SubaccountId },
+		"requested spot market to cancel orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeSpotMarketIDsToCancelAll(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeCancelAll(
+		a.SpotMarkets,
+		a.SubaccountId,
+		ordersToUpdate.SubaccountId,
+		ordersToUpdate.SpotMarketIdsToCancelAll,
+		"requested spot market to cancel all orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeSpotMarketOrdersToCreate(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.SpotMarkets,
+		a.SubaccountId,
+		ordersToUpdate.SpotMarketOrdersToCreate,
+		func(order *SpotOrder) string { return order.MarketId },
+		func(order *SpotOrder) string { return order.OrderInfo.SubaccountId },
+		"requested spot market to create orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeDerivativeOrdersToCreate(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.DerivativeMarkets,
+		a.SubaccountId,
+		ordersToUpdate.DerivativeOrdersToCreate,
+		func(order *DerivativeOrder) string { return order.MarketId },
+		func(order *DerivativeOrder) string { return order.OrderInfo.SubaccountId },
+		"requested derivative market to create orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeDerivativeOrdersToCancel(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.DerivativeMarkets,
+		a.SubaccountId,
+		ordersToUpdate.DerivativeOrdersToCancel,
+		func(order *OrderData) string { return order.MarketId },
+		func(order *OrderData) string { return order.SubaccountId },
+		"requested derivative market to cancel orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeDerivativeMarketIDsToCancelAll(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeCancelAll(
+		a.DerivativeMarkets,
+		a.SubaccountId,
+		ordersToUpdate.SubaccountId,
+		ordersToUpdate.DerivativeMarketIdsToCancelAll,
+		"requested derivative market to cancel all orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeDerivativeMarketOrdersToCreate(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.DerivativeMarkets,
+		a.SubaccountId,
+		ordersToUpdate.DerivativeMarketOrdersToCreate,
+		func(order *DerivativeOrder) string { return order.MarketId },
+		func(order *DerivativeOrder) string { return order.OrderInfo.SubaccountId },
+		"requested derivative market to create orders is unauthorized",
+	)
+}
+
+// BatchUpdateOrdersAuthz only carries spot and derivative allowlists, so
+// binary options share the derivative market authorization set.
+func (a *BatchUpdateOrdersAuthz) authorizeBinaryOptionsOrdersToCreate(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.DerivativeMarkets,
+		a.SubaccountId,
+		ordersToUpdate.BinaryOptionsOrdersToCreate,
+		func(order *DerivativeOrder) string { return order.MarketId },
+		func(order *DerivativeOrder) string { return order.OrderInfo.SubaccountId },
+		"requested binary options market to create orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeBinaryOptionsOrdersToCancel(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.DerivativeMarkets,
+		a.SubaccountId,
+		ordersToUpdate.BinaryOptionsOrdersToCancel,
+		func(order *OrderData) string { return order.MarketId },
+		func(order *OrderData) string { return order.SubaccountId },
+		"requested binary options market to cancel orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeBinaryOptionsMarketIDsToCancelAll(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeCancelAll(
+		a.DerivativeMarkets,
+		a.SubaccountId,
+		ordersToUpdate.SubaccountId,
+		ordersToUpdate.BinaryOptionsMarketIdsToCancelAll,
+		"requested binary options market to cancel all orders is unauthorized",
+	)
+}
+
+func (a *BatchUpdateOrdersAuthz) authorizeBinaryOptionsMarketOrdersToCreate(ordersToUpdate *MsgBatchUpdateOrders) error {
+	return types.AuthorizeOrders(
+		a.DerivativeMarkets,
+		a.SubaccountId,
+		ordersToUpdate.BinaryOptionsMarketOrdersToCreate,
+		func(order *DerivativeOrder) string { return order.MarketId },
+		func(order *DerivativeOrder) string { return order.OrderInfo.SubaccountId },
+		"requested binary options market to create orders is unauthorized",
+	)
 }
 
 func (a *CreateDerivativeLimitOrderAuthz) MsgTypeURL() string {

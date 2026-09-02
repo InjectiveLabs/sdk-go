@@ -3,6 +3,7 @@ package injective.permissions.v1beta1;
 
 import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
+import "injective/common/vouchers/v1/vouchers.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/permissions/types";
 
@@ -116,15 +117,3 @@ message PolicyManagerCapability {
 
 // used in storage
 message RoleIDs { repeated uint32 role_ids = 1; }
-
-// AddressVoucher is used to represent a voucher for a specific address
-message AddressVoucher {
-  // The Injective address that the voucher is for
-  string address = 1;
-  // The voucher amount
-  cosmos.base.v1beta1.Coin voucher = 2 [
-    (gogoproto.nullable) = false,
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.jsontag) = "voucher,omitempty"
-  ];
-}

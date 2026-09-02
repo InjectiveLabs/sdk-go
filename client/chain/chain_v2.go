@@ -40,9 +40,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
+	auctiontypes "github.com/InjectiveLabs/sdk-go/chain/auction/types"
 	erc20types "github.com/InjectiveLabs/sdk-go/chain/erc20/types"
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchangev2types "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	permissionstypes "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
 	chainstreamv2types "github.com/InjectiveLabs/sdk-go/chain/stream/types/v2"
 	tokenfactorytypes "github.com/InjectiveLabs/sdk-go/chain/tokenfactory/types"
@@ -285,6 +287,14 @@ type ChainClientV2 interface {
 	FetchPermissionsVoucher(ctx context.Context, denom, address string) (*permissionstypes.QueryVoucherResponse, error)
 	FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error)
 
+	// Auction module
+	FetchAuctionVouchers(ctx context.Context, denom string) (*auctiontypes.QueryVouchersResponse, error)
+	FetchAuctionVoucher(ctx context.Context, denom, address string) (*auctiontypes.QueryVoucherResponse, error)
+
+	// Insurance module
+	FetchInsuranceVouchers(ctx context.Context, denom string) (*insurancetypes.QueryVouchersResponse, error)
+	FetchInsuranceVoucher(ctx context.Context, denom, address string) (*insurancetypes.QueryVoucherResponse, error)
+
 	// TxFees module
 	FetchTxFeesParams(ctx context.Context) (*txfeestypes.QueryParamsResponse, error)
 	FetchEipBaseFee(ctx context.Context) (*txfeestypes.QueryEipBaseFeeResponse, error)
@@ -337,12 +347,14 @@ type chainClientV2 struct {
 
 	authQueryClient          authtypes.QueryClient
 	authzQueryClient         authztypes.QueryClient
+	auctionQueryClient       auctiontypes.QueryClient
 	bankQueryClient          banktypes.QueryClient
 	chainStreamV2Client      chainstreamv2types.StreamClient
 	distributionQueryClient  distributiontypes.QueryClient
 	erc20QueryClient         erc20types.QueryClient
 	evmQueryClient           evmtypes.QueryClient
 	exchangeV2QueryClient    exchangev2types.QueryClient
+	insuranceQueryClient     insurancetypes.QueryClient
 	ibcChannelQueryClient    ibcchanneltypes.QueryClient
 	ibcClientQueryClient     ibcclienttypes.QueryClient
 	ibcConnectionQueryClient ibcconnectiontypes.QueryClient
@@ -465,12 +477,14 @@ func NewChainClientV2(
 
 		authQueryClient:          authtypes.NewQueryClient(conn),
 		authzQueryClient:         authztypes.NewQueryClient(conn),
+		auctionQueryClient:       auctiontypes.NewQueryClient(conn),
 		bankQueryClient:          banktypes.NewQueryClient(conn),
 		chainStreamV2Client:      chainstreamv2types.NewStreamClient(chainStreamConn),
 		distributionQueryClient:  distributiontypes.NewQueryClient(conn),
 		erc20QueryClient:         erc20types.NewQueryClient(conn),
 		evmQueryClient:           evmtypes.NewQueryClient(conn),
 		exchangeV2QueryClient:    exchangev2types.NewQueryClient(conn),
+		insuranceQueryClient:     insurancetypes.NewQueryClient(conn),
 		ibcChannelQueryClient:    ibcchanneltypes.NewQueryClient(conn),
 		ibcClientQueryClient:     ibcclienttypes.NewQueryClient(conn),
 		ibcConnectionQueryClient: ibcconnectiontypes.NewQueryClient(conn),
@@ -2500,6 +2514,44 @@ func (c *chainClientV2) FetchPermissionsVoucher(ctx context.Context, denom, addr
 func (c *chainClientV2) FetchPermissionsModuleState(ctx context.Context) (*permissionstypes.QueryModuleStateResponse, error) {
 	req := &permissionstypes.QueryModuleStateRequest{}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.permissionsQueryClient.PermissionsModuleState, req)
+
+	return res, err
+}
+
+func (c *chainClientV2) FetchAuctionVouchers(ctx context.Context, denom string) (*auctiontypes.QueryVouchersResponse, error) {
+	req := &auctiontypes.QueryVouchersRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.auctionQueryClient.Vouchers, req)
+
+	return res, err
+}
+
+func (c *chainClientV2) FetchAuctionVoucher(ctx context.Context, denom, address string) (*auctiontypes.QueryVoucherResponse, error) {
+	req := &auctiontypes.QueryVoucherRequest{
+		Denom:   denom,
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.auctionQueryClient.Voucher, req)
+
+	return res, err
+}
+
+func (c *chainClientV2) FetchInsuranceVouchers(ctx context.Context, denom string) (*insurancetypes.QueryVouchersResponse, error) {
+	req := &insurancetypes.QueryVouchersRequest{
+		Denom: denom,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.insuranceQueryClient.Vouchers, req)
+
+	return res, err
+}
+
+func (c *chainClientV2) FetchInsuranceVoucher(ctx context.Context, denom, address string) (*insurancetypes.QueryVoucherResponse, error) {
+	req := &insurancetypes.QueryVoucherRequest{
+		Denom:   denom,
+		Address: address,
+	}
+	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.insuranceQueryClient.Voucher, req)
 
 	return res, err
 }

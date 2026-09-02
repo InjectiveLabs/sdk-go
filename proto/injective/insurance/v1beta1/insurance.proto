@@ -6,6 +6,7 @@ import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "injective/oracle/v1beta1/oracle.proto";
+import "injective/common/vouchers/v1/vouchers.proto";
 import "amino/amino.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
@@ -81,4 +82,13 @@ message RedemptionSchedule {
   // the insurance_pool_token amount to redeem
   cosmos.base.v1beta1.Coin redemption_amount = 5
       [ (gogoproto.nullable) = false ];
+}
+
+message FailedRedemptionSchedule {
+  // id of the failed redemption
+  uint64 id = 1;
+  // the original redemption schedule that failed to execute
+  RedemptionSchedule schedule = 2 [ (gogoproto.nullable) = false ];
+  // the error message from the failed withdrawal attempt
+  string err = 3;
 }

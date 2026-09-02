@@ -12,4 +12,6 @@ const (
 var (
 	// ErrInvalidChainID returns an error resulting from an invalid chain ID.
 	ErrInvalidChainID = errors.Register(RootCodespace, 3, "invalid chain ID")
+	// ErrInvalidEthereumSignature is returned when an Ethereum ECDSA signature fails verification.
+	ErrInvalidEthereumSignature = errors.Register(RootCodespace, 4, "invalid ethereum signature")
 )

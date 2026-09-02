@@ -26,19 +26,109 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// EnforcedRestrictionsContract defines an EVM contract with its pause,
+// blacklist and unblacklist event signatures
+type EnforcedRestrictionsEVMContract struct {
+	// EVM address of the contract
+	ContractAddress string `protobuf:"bytes,1,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	// Pause event signature for the contract (e.g. "Pause()")
+	PauseEventSignature string `protobuf:"bytes,2,opt,name=pause_event_signature,json=pauseEventSignature,proto3" json:"pause_event_signature,omitempty"`
+	// Unpause event signature for the contract (e.g. "Unpause()")
+	UnpauseEventSignature string `protobuf:"bytes,3,opt,name=unpause_event_signature,json=unpauseEventSignature,proto3" json:"unpause_event_signature,omitempty"`
+	// Blacklist event signature for the contract (e.g. Blacklisted(address)")
+	BlacklistEventSignature string `protobuf:"bytes,4,opt,name=blacklist_event_signature,json=blacklistEventSignature,proto3" json:"blacklist_event_signature,omitempty"`
+	// UnBlacklist event signature for the contract (e.g.
+	// "UnBlacklisted(address)")
+	UnblacklistEventSignature string `protobuf:"bytes,5,opt,name=unblacklist_event_signature,json=unblacklistEventSignature,proto3" json:"unblacklist_event_signature,omitempty"`
+}
+
+func (m *EnforcedRestrictionsEVMContract) Reset()         { *m = EnforcedRestrictionsEVMContract{} }
+func (m *EnforcedRestrictionsEVMContract) String() string { return proto.CompactTextString(m) }
+func (*EnforcedRestrictionsEVMContract) ProtoMessage()    {}
+func (*EnforcedRestrictionsEVMContract) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4a7ea0496163621f, []int{0}
+}
+func (m *EnforcedRestrictionsEVMContract) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EnforcedRestrictionsEVMContract) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EnforcedRestrictionsEVMContract.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EnforcedRestrictionsEVMContract) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EnforcedRestrictionsEVMContract.Merge(m, src)
+}
+func (m *EnforcedRestrictionsEVMContract) XXX_Size() int {
+	return m.Size()
+}
+func (m *EnforcedRestrictionsEVMContract) XXX_DiscardUnknown() {
+	xxx_messageInfo_EnforcedRestrictionsEVMContract.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EnforcedRestrictionsEVMContract proto.InternalMessageInfo
+
+func (m *EnforcedRestrictionsEVMContract) GetContractAddress() string {
+	if m != nil {
+		return m.ContractAddress
+	}
+	return ""
+}
+
+func (m *EnforcedRestrictionsEVMContract) GetPauseEventSignature() string {
+	if m != nil {
+		return m.PauseEventSignature
+	}
+	return ""
+}
+
+func (m *EnforcedRestrictionsEVMContract) GetUnpauseEventSignature() string {
+	if m != nil {
+		return m.UnpauseEventSignature
+	}
+	return ""
+}
+
+func (m *EnforcedRestrictionsEVMContract) GetBlacklistEventSignature() string {
+	if m != nil {
+		return m.BlacklistEventSignature
+	}
+	return ""
+}
+
+func (m *EnforcedRestrictionsEVMContract) GetUnblacklistEventSignature() string {
+	if m != nil {
+		return m.UnblacklistEventSignature
+	}
+	return ""
+}
+
 // Params defines the parameters for the permissions module.
 type Params struct {
 	// Max amount of gas allowed for contract hook queries
 	ContractHookMaxGas uint64 `protobuf:"varint,1,opt,name=contract_hook_max_gas,json=contractHookMaxGas,proto3" json:"contract_hook_max_gas,omitempty"`
+	// DEPRECATED in favor of enforced_restrictions_evm_contracts, but left
+	// for compatibility and upgrade purposes
+	//
 	// EVM addresses of contracts that will not bypass module-to-module transfers
-	EnforcedRestrictionsContracts []string `protobuf:"bytes,2,rep,name=enforced_restrictions_contracts,json=enforcedRestrictionsContracts,proto3" json:"enforced_restrictions_contracts,omitempty"`
+	DeprecatedEnforcedRestrictionsContracts []string `protobuf:"bytes,2,rep,name=deprecated_enforced_restrictions_contracts,json=deprecatedEnforcedRestrictionsContracts,proto3" json:"deprecated_enforced_restrictions_contracts,omitempty"`
+	// EVM Contracts that module will be listening to sync permissions stored
+	// inside namespace on every update inside smart contract state
+	EnforcedRestrictionsEvmContracts []EnforcedRestrictionsEVMContract `protobuf:"bytes,3,rep,name=enforced_restrictions_evm_contracts,json=enforcedRestrictionsEvmContracts,proto3" json:"enforced_restrictions_evm_contracts"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
 func (m *Params) String() string { return proto.CompactTextString(m) }
 func (*Params) ProtoMessage()    {}
 func (*Params) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4a7ea0496163621f, []int{0}
+	return fileDescriptor_4a7ea0496163621f, []int{1}
 }
 func (m *Params) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -74,14 +164,22 @@ func (m *Params) GetContractHookMaxGas() uint64 {
 	return 0
 }
 
-func (m *Params) GetEnforcedRestrictionsContracts() []string {
+func (m *Params) GetDeprecatedEnforcedRestrictionsContracts() []string {
 	if m != nil {
-		return m.EnforcedRestrictionsContracts
+		return m.DeprecatedEnforcedRestrictionsContracts
+	}
+	return nil
+}
+
+func (m *Params) GetEnforcedRestrictionsEvmContracts() []EnforcedRestrictionsEVMContract {
+	if m != nil {
+		return m.EnforcedRestrictionsEvmContracts
 	}
 	return nil
 }
 
 func init() {
+	proto.RegisterType((*EnforcedRestrictionsEVMContract)(nil), "injective.permissions.v1beta1.EnforcedRestrictionsEVMContract")
 	proto.RegisterType((*Params)(nil), "injective.permissions.v1beta1.Params")
 }
 
@@ -90,29 +188,78 @@ func init() {
 }
 
 var fileDescriptor_4a7ea0496163621f = []byte{
-	// 318 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x54, 0x91, 0x4f, 0x4a, 0x03, 0x31,
-	0x18, 0xc5, 0x1b, 0x95, 0x82, 0xb3, 0x73, 0x50, 0xa8, 0x95, 0xa6, 0xc5, 0x55, 0x29, 0x38, 0xa1,
-	0xb8, 0x73, 0xa9, 0xe0, 0x1f, 0x50, 0xd0, 0x2e, 0xdd, 0x0c, 0x99, 0x34, 0x4e, 0x63, 0x4d, 0xbe,
-	0x21, 0x5f, 0x5a, 0xea, 0x15, 0x5c, 0x79, 0x84, 0x1e, 0xc1, 0x63, 0xb8, 0xec, 0xd2, 0xa5, 0xb4,
-	0x0b, 0x3d, 0x86, 0x74, 0xd2, 0x19, 0xc6, 0x4d, 0xc8, 0xcb, 0xfb, 0x85, 0xbc, 0xbc, 0x2f, 0xe8,
-	0x29, 0xf3, 0x2c, 0x85, 0x53, 0x53, 0xc9, 0x32, 0x69, 0xb5, 0x42, 0x54, 0x60, 0x90, 0x4d, 0xfb,
-	0x89, 0x74, 0xbc, 0xcf, 0x32, 0x6e, 0xb9, 0xc6, 0x28, 0xb3, 0xe0, 0x20, 0x6c, 0x95, 0x6c, 0x54,
-	0x61, 0xa3, 0x0d, 0xdb, 0xdc, 0x4f, 0x21, 0x85, 0x9c, 0x64, 0xeb, 0x9d, 0xbf, 0xd4, 0x3c, 0x14,
-	0x80, 0x1a, 0x30, 0xf6, 0x86, 0x17, 0x1b, 0x8b, 0x7a, 0xc5, 0x12, 0x8e, 0xb2, 0x7c, 0x51, 0x80,
-	0x32, 0x1b, 0x7f, 0x8f, 0x6b, 0x65, 0x80, 0xe5, 0xab, 0x3f, 0x3a, 0x9e, 0x93, 0xa0, 0x7e, 0x9f,
-	0x67, 0x0a, 0xfb, 0xc1, 0x81, 0x00, 0xe3, 0x2c, 0x17, 0x2e, 0x1e, 0x01, 0x8c, 0x63, 0xcd, 0x67,
-	0x71, 0xca, 0xb1, 0x41, 0x3a, 0xa4, 0xbb, 0x33, 0x08, 0x0b, 0xf3, 0x1a, 0x60, 0x7c, 0xc7, 0x67,
-	0x57, 0x1c, 0xc3, 0xcb, 0xa0, 0x2d, 0xcd, 0x13, 0x58, 0x21, 0x87, 0xb1, 0x95, 0xe8, 0xac, 0x12,
-	0x6e, 0xfd, 0x85, 0xb8, 0x60, 0xb1, 0xb1, 0xd5, 0xd9, 0xee, 0xee, 0x0e, 0x5a, 0x05, 0x36, 0xa8,
-	0x50, 0x17, 0x05, 0x74, 0x76, 0xf4, 0x3b, 0x6f, 0x93, 0xb7, 0x9f, 0x8f, 0x5e, 0x58, 0xed, 0xcc,
-	0xe7, 0x3a, 0x1f, 0x7f, 0x2e, 0x29, 0x59, 0x2c, 0x29, 0xf9, 0x5e, 0x52, 0xf2, 0xbe, 0xa2, 0xb5,
-	0xc5, 0x8a, 0xd6, 0xbe, 0x56, 0xb4, 0xf6, 0xf8, 0x90, 0x2a, 0x37, 0x9a, 0x24, 0x91, 0x00, 0xcd,
-	0x6e, 0x8a, 0x2a, 0x6f, 0x79, 0x82, 0xac, 0x2c, 0xf6, 0x44, 0x80, 0x95, 0x55, 0x39, 0xe2, 0xca,
-	0x30, 0x0d, 0xc3, 0xc9, 0x8b, 0xc4, 0x7f, 0x13, 0x72, 0xaf, 0x99, 0xc4, 0xa4, 0x9e, 0xd7, 0x72,
-	0xfa, 0x17, 0x00, 0x00, 0xff, 0xff, 0xfe, 0x58, 0x53, 0x63, 0xc7, 0x01, 0x00, 0x00,
+	// 516 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x93, 0xcf, 0x8a, 0x13, 0x41,
+	0x10, 0xc6, 0x33, 0x49, 0x5c, 0xd8, 0xf6, 0xa0, 0x8e, 0x1b, 0x36, 0xd9, 0xc5, 0x49, 0x58, 0x0f,
+	0x86, 0xc0, 0xce, 0x90, 0x15, 0x3c, 0xe4, 0xb0, 0x60, 0x96, 0xa0, 0x82, 0x0b, 0x3a, 0x0b, 0x1e,
+	0xf4, 0x30, 0xf4, 0xf4, 0x94, 0x93, 0x36, 0xe9, 0xee, 0xa1, 0xbb, 0x27, 0xac, 0xaf, 0xe0, 0x49,
+	0xf0, 0x05, 0x7c, 0x04, 0x0f, 0x3e, 0xc4, 0x82, 0x97, 0x45, 0x3c, 0x78, 0x12, 0x49, 0x0e, 0xfa,
+	0x18, 0x32, 0x7f, 0x9d, 0x5d, 0xa3, 0x5e, 0x86, 0xae, 0xfe, 0xbe, 0x5f, 0x4d, 0x51, 0xd5, 0x85,
+	0x06, 0x94, 0xbf, 0x02, 0xa2, 0xe9, 0x02, 0x9c, 0x08, 0x24, 0xa3, 0x4a, 0x51, 0xc1, 0x95, 0xb3,
+	0x18, 0xfa, 0xa0, 0xf1, 0xd0, 0x89, 0xb0, 0xc4, 0x4c, 0xd9, 0x91, 0x14, 0x5a, 0x98, 0xb7, 0x4a,
+	0xaf, 0x5d, 0xf1, 0xda, 0xb9, 0x77, 0x67, 0x2b, 0x14, 0xa1, 0x48, 0x9d, 0x4e, 0x72, 0xca, 0xa0,
+	0x9d, 0x0e, 0x11, 0x8a, 0x09, 0xe5, 0x65, 0x42, 0x16, 0xe4, 0x92, 0x95, 0x45, 0x8e, 0x8f, 0x15,
+	0x94, 0x7f, 0x24, 0x82, 0xf2, 0x5c, 0xbf, 0x81, 0x19, 0xe5, 0xc2, 0x49, 0xbf, 0xd9, 0xd5, 0xde,
+	0x97, 0x3a, 0xea, 0x4e, 0xf8, 0x4b, 0x21, 0x09, 0x04, 0x2e, 0x28, 0x2d, 0x29, 0xd1, 0x49, 0x11,
+	0x93, 0x67, 0xc7, 0x47, 0x82, 0x6b, 0x89, 0x89, 0x36, 0x8f, 0xd0, 0x75, 0x92, 0x9f, 0x3d, 0x1c,
+	0x04, 0x12, 0x94, 0x6a, 0x1b, 0x3d, 0xa3, 0xbf, 0x39, 0x6e, 0x7f, 0xfe, 0xb8, 0xbf, 0x95, 0x97,
+	0x70, 0x3f, 0x53, 0x4e, 0xb4, 0xa4, 0x3c, 0x74, 0xaf, 0x15, 0x44, 0x7e, 0x6d, 0x1e, 0xa0, 0x56,
+	0x84, 0x63, 0x05, 0x1e, 0x2c, 0x80, 0x6b, 0x4f, 0xd1, 0x90, 0x63, 0x1d, 0x4b, 0x68, 0xd7, 0x93,
+	0x4c, 0xee, 0xcd, 0x54, 0x9c, 0x24, 0xda, 0x49, 0x21, 0x99, 0xf7, 0xd0, 0x76, 0xcc, 0xd7, 0x53,
+	0x8d, 0x94, 0x6a, 0xe5, 0xf2, 0x25, 0x6e, 0x84, 0x3a, 0xfe, 0x1c, 0x93, 0xd9, 0x9c, 0x2a, 0xfd,
+	0x07, 0xd9, 0x4c, 0xc9, 0xed, 0xd2, 0x70, 0x89, 0x3d, 0x44, 0xbb, 0x31, 0xff, 0x3b, 0x7d, 0x25,
+	0xa5, 0x3b, 0x15, 0xcb, 0x45, 0x7e, 0xd4, 0xfc, 0xf9, 0xbe, 0x6b, 0xec, 0x7d, 0xaa, 0xa3, 0x8d,
+	0x27, 0xe9, 0xa8, 0xcd, 0x21, 0x6a, 0x95, 0xdd, 0x9b, 0x0a, 0x31, 0xf3, 0x18, 0x3e, 0xf5, 0x42,
+	0x9c, 0xb5, 0xb0, 0xe9, 0x9a, 0x85, 0xf8, 0x50, 0x88, 0xd9, 0x31, 0x3e, 0x7d, 0x80, 0x95, 0xf9,
+	0x02, 0x0d, 0x02, 0x88, 0x24, 0x10, 0xac, 0x21, 0xf0, 0x20, 0x1f, 0x8f, 0x27, 0x2b, 0xf3, 0xf1,
+	0x0a, 0x4c, 0xb5, 0xeb, 0xbd, 0x46, 0x7f, 0xd3, 0xbd, 0xf3, 0x9b, 0x58, 0x37, 0xcf, 0x62, 0x98,
+	0xca, 0x7c, 0x67, 0xa0, 0xdb, 0xeb, 0x53, 0xc2, 0x82, 0x55, 0xd2, 0x36, 0x7a, 0x8d, 0xfe, 0xd5,
+	0x83, 0x43, 0xfb, 0x9f, 0x6f, 0xd4, 0xfe, 0xcf, 0xdb, 0x19, 0x37, 0xcf, 0xbe, 0x75, 0x6b, 0x6e,
+	0x0f, 0xd6, 0xd9, 0x16, 0xac, 0xac, 0x6a, 0xb4, 0x9b, 0xb4, 0xed, 0xcd, 0x8f, 0x0f, 0x03, 0xb3,
+	0xba, 0x35, 0x59, 0x0b, 0xc7, 0xb3, 0xb3, 0xa5, 0x65, 0x9c, 0x2f, 0x2d, 0xe3, 0xfb, 0xd2, 0x32,
+	0xde, 0xae, 0xac, 0xda, 0xf9, 0xca, 0xaa, 0x7d, 0x5d, 0x59, 0xb5, 0xe7, 0x4f, 0x43, 0xaa, 0xa7,
+	0xb1, 0x6f, 0x13, 0xc1, 0x9c, 0x47, 0x45, 0xa1, 0x8f, 0xb1, 0xaf, 0x9c, 0xb2, 0xec, 0x7d, 0x22,
+	0x24, 0x54, 0xc3, 0x29, 0xa6, 0xdc, 0x61, 0x22, 0x88, 0xe7, 0xa0, 0x2e, 0xec, 0xa8, 0x7e, 0x1d,
+	0x81, 0xf2, 0x37, 0xd2, 0xc5, 0xb8, 0xfb, 0x2b, 0x00, 0x00, 0xff, 0xff, 0x8f, 0x93, 0x14, 0x28,
+	0xc9, 0x03, 0x00, 0x00,
 }
 
+func (this *EnforcedRestrictionsEVMContract) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*EnforcedRestrictionsEVMContract)
+	if !ok {
+		that2, ok := that.(EnforcedRestrictionsEVMContract)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.ContractAddress != that1.ContractAddress {
+		return false
+	}
+	if this.PauseEventSignature != that1.PauseEventSignature {
+		return false
+	}
+	if this.UnpauseEventSignature != that1.UnpauseEventSignature {
+		return false
+	}
+	if this.BlacklistEventSignature != that1.BlacklistEventSignature {
+		return false
+	}
+	if this.UnblacklistEventSignature != that1.UnblacklistEventSignature {
+		return false
+	}
+	return true
+}
 func (this *Params) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -135,16 +282,82 @@ func (this *Params) Equal(that interface{}) bool {
 	if this.ContractHookMaxGas != that1.ContractHookMaxGas {
 		return false
 	}
-	if len(this.EnforcedRestrictionsContracts) != len(that1.EnforcedRestrictionsContracts) {
+	if len(this.DeprecatedEnforcedRestrictionsContracts) != len(that1.DeprecatedEnforcedRestrictionsContracts) {
 		return false
 	}
-	for i := range this.EnforcedRestrictionsContracts {
-		if this.EnforcedRestrictionsContracts[i] != that1.EnforcedRestrictionsContracts[i] {
+	for i := range this.DeprecatedEnforcedRestrictionsContracts {
+		if this.DeprecatedEnforcedRestrictionsContracts[i] != that1.DeprecatedEnforcedRestrictionsContracts[i] {
+			return false
+		}
+	}
+	if len(this.EnforcedRestrictionsEvmContracts) != len(that1.EnforcedRestrictionsEvmContracts) {
+		return false
+	}
+	for i := range this.EnforcedRestrictionsEvmContracts {
+		if !this.EnforcedRestrictionsEvmContracts[i].Equal(&that1.EnforcedRestrictionsEvmContracts[i]) {
 			return false
 		}
 	}
 	return true
 }
+func (m *EnforcedRestrictionsEVMContract) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EnforcedRestrictionsEVMContract) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EnforcedRestrictionsEVMContract) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.UnblacklistEventSignature) > 0 {
+		i -= len(m.UnblacklistEventSignature)
+		copy(dAtA[i:], m.UnblacklistEventSignature)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.UnblacklistEventSignature)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.BlacklistEventSignature) > 0 {
+		i -= len(m.BlacklistEventSignature)
+		copy(dAtA[i:], m.BlacklistEventSignature)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.BlacklistEventSignature)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.UnpauseEventSignature) > 0 {
+		i -= len(m.UnpauseEventSignature)
+		copy(dAtA[i:], m.UnpauseEventSignature)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.UnpauseEventSignature)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.PauseEventSignature) > 0 {
+		i -= len(m.PauseEventSignature)
+		copy(dAtA[i:], m.PauseEventSignature)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.PauseEventSignature)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ContractAddress) > 0 {
+		i -= len(m.ContractAddress)
+		copy(dAtA[i:], m.ContractAddress)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.ContractAddress)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *Params) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -165,11 +378,25 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.EnforcedRestrictionsContracts) > 0 {
-		for iNdEx := len(m.EnforcedRestrictionsContracts) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.EnforcedRestrictionsContracts[iNdEx])
-			copy(dAtA[i:], m.EnforcedRestrictionsContracts[iNdEx])
-			i = encodeVarintParams(dAtA, i, uint64(len(m.EnforcedRestrictionsContracts[iNdEx])))
+	if len(m.EnforcedRestrictionsEvmContracts) > 0 {
+		for iNdEx := len(m.EnforcedRestrictionsEvmContracts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.EnforcedRestrictionsEvmContracts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintParams(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.DeprecatedEnforcedRestrictionsContracts) > 0 {
+		for iNdEx := len(m.DeprecatedEnforcedRestrictionsContracts) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.DeprecatedEnforcedRestrictionsContracts[iNdEx])
+			copy(dAtA[i:], m.DeprecatedEnforcedRestrictionsContracts[iNdEx])
+			i = encodeVarintParams(dAtA, i, uint64(len(m.DeprecatedEnforcedRestrictionsContracts[iNdEx])))
 			i--
 			dAtA[i] = 0x12
 		}
@@ -193,6 +420,35 @@ func encodeVarintParams(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *EnforcedRestrictionsEVMContract) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ContractAddress)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.PauseEventSignature)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.UnpauseEventSignature)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.BlacklistEventSignature)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.UnblacklistEventSignature)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	return n
+}
+
 func (m *Params) Size() (n int) {
 	if m == nil {
 		return 0
@@ -202,9 +458,15 @@ func (m *Params) Size() (n int) {
 	if m.ContractHookMaxGas != 0 {
 		n += 1 + sovParams(uint64(m.ContractHookMaxGas))
 	}
-	if len(m.EnforcedRestrictionsContracts) > 0 {
-		for _, s := range m.EnforcedRestrictionsContracts {
+	if len(m.DeprecatedEnforcedRestrictionsContracts) > 0 {
+		for _, s := range m.DeprecatedEnforcedRestrictionsContracts {
 			l = len(s)
+			n += 1 + l + sovParams(uint64(l))
+		}
+	}
+	if len(m.EnforcedRestrictionsEvmContracts) > 0 {
+		for _, e := range m.EnforcedRestrictionsEvmContracts {
+			l = e.Size()
 			n += 1 + l + sovParams(uint64(l))
 		}
 	}
@@ -216,6 +478,216 @@ func sovParams(x uint64) (n int) {
 }
 func sozParams(x uint64) (n int) {
 	return sovParams(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *EnforcedRestrictionsEVMContract) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowParams
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EnforcedRestrictionsEVMContract: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EnforcedRestrictionsEVMContract: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PauseEventSignature", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PauseEventSignature = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UnpauseEventSignature", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.UnpauseEventSignature = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BlacklistEventSignature", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BlacklistEventSignature = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UnblacklistEventSignature", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.UnblacklistEventSignature = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipParams(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthParams
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *Params) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -267,7 +739,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field EnforcedRestrictionsContracts", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field DeprecatedEnforcedRestrictionsContracts", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -295,7 +767,41 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.EnforcedRestrictionsContracts = append(m.EnforcedRestrictionsContracts, string(dAtA[iNdEx:postIndex]))
+			m.DeprecatedEnforcedRestrictionsContracts = append(m.DeprecatedEnforcedRestrictionsContracts, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EnforcedRestrictionsEvmContracts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.EnforcedRestrictionsEvmContracts = append(m.EnforcedRestrictionsEvmContracts, EnforcedRestrictionsEVMContract{})
+			if err := m.EnforcedRestrictionsEvmContracts[len(m.EnforcedRestrictionsEvmContracts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

@@ -150,6 +150,9 @@ message Position {
 }
 
 message OraclePrice {
+  // The feed identifier for this price update, sourced from
+  // EventOraclePriceUpdate.id. Its format depends on the oracle type; see
+  // OraclePriceFilter.symbol for the per-type mapping.
   string symbol = 1;
   string price = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
@@ -190,6 +193,12 @@ message SpotTrade {
   string cid = 10;
   // the trade ID
   string trade_id = 11;
+  // the fee-exclusive quote amount actually settled for the trade (in chain
+  // format)
+  string notional = 12 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message DerivativeTrade {
@@ -244,4 +253,19 @@ message BankBalancesFilter { repeated string accounts = 1; }
 
 message SubaccountDepositsFilter { repeated string subaccount_ids = 1; }
 
-message OraclePriceFilter { repeated string symbol = 1; }
+message OraclePriceFilter {
+  // Feed identifiers to subscribe to. Each entry matches the `symbol` field of
+  // `OraclePrice`, which equals `EventOraclePriceUpdate.id`. The format depends
+  // on the oracle type:
+  //   - Coinbase:             asset key (e.g. "BTC")
+  //   - Pyth:                 price feed ID hex hash
+  //   - Stork:                asset symbol (e.g. "BTCUSD")
+  //   - ChainlinkDataStreams:  feed ID hex string (e.g. "0x00034a45...")
+  //   - PriceFeed:            compound "base/quote" (e.g. "BTC/USDT")
+  //   - Provider:             compound "provider/symbol" (e.g. "acme/BTC")
+  //   - PythPro:              decimal string of the uint32 feed ID (e.g.
+  //   "12345")
+  //   - SedaFast:             hex-encoded execInputs feed ID
+  // Use ["*"] to subscribe to all oracle price updates.
+  repeated string symbol = 1;
+}

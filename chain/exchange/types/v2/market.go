@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -8,6 +9,28 @@ import (
 )
 
 var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
+
+// ValidateSpotMarketTickSizes ensures the smallest valid spot fill has a
+// representable quote notional at LegacyDec's 18-decimal precision.
+func ValidateSpotMarketTickSizes(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
+	if err := types.ValidateTickSize(minPriceTickSize); err != nil {
+		return errors.Wrap(types.ErrInvalidPriceTickSize, err.Error())
+	}
+	if err := types.ValidateTickSize(minQuantityTickSize); err != nil {
+		return errors.Wrap(types.ErrInvalidQuantityTickSize, err.Error())
+	}
+	if !minPriceTickSize.Mul(minQuantityTickSize).IsPositive() {
+		return errors.Wrapf(
+			types.ErrInvalidNotional,
+			"minimum price tick size (%s) times minimum quantity tick size (%s) must be at least %s",
+			minPriceTickSize,
+			minQuantityTickSize,
+			math.LegacySmallestDec(),
+		)
+	}
+
+	return nil
+}
 
 type MarketIDQuoteDenomMakerFee struct {
 	MarketID   common.Hash
@@ -204,6 +227,10 @@ func (m *DerivativeMarket) GetOpenNotionalCap() OpenNotionalCap {
 	return m.OpenNotionalCap
 }
 
+func (m *DerivativeMarket) IsCrossMarginEligible() bool {
+	return m.CrossMarginEligible
+}
+
 func (m *DerivativeMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
 	return types.PriceFromChainFormat(price, 0, m.QuoteDecimals)
 }
@@ -313,6 +340,10 @@ func (m *BinaryOptionsMarket) GetOpenNotionalCap() OpenNotionalCap {
 	return m.OpenNotionalCap
 }
 
+func (*BinaryOptionsMarket) IsCrossMarginEligible() bool {
+	return false
+}
+
 func (m *BinaryOptionsMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
 	return types.PriceFromChainFormat(price, 0, m.QuoteDecimals)
 }
@@ -366,6 +397,7 @@ type DerivativeMarketI interface {
 	GetOracleScaleFactor() uint32
 	GetQuoteDecimals() uint32
 	GetOpenNotionalCap() OpenNotionalCap
+	IsCrossMarginEligible() bool
 }
 
 func IsMarketSolvent(availableMarketFunds, marketBalanceDelta math.LegacyDec) bool {

@@ -60,6 +60,7 @@ type SpotOrderStateExpansion struct {
 	QuoteChangeAmount       math.LegacyDec
 	QuoteRefundAmount       math.LegacyDec
 	TradePrice              math.LegacyDec
+	TradeNotional           math.LegacyDec
 	FeeRecipient            common.Address
 	FeeRecipientReward      math.LegacyDec
 	AuctionFeeReward        math.LegacyDec
@@ -174,6 +175,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 		trades = append(trades, &TradeLog{
 			Quantity:            expansion.BaseChangeAmount.Abs(),
 			Price:               expansion.TradePrice,
+			Notional:            expansion.TradeNotional,
 			SubaccountId:        expansion.SubaccountID.Bytes(),
 			Fee:                 realizedTradeFee,
 			OrderHash:           expansion.OrderHash.Bytes(),

@@ -1,10 +1,10 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.17.81 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.89 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b c-396/ibc-ratelimits --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -51,6 +51,8 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/*.pb.go chain/auction/types && \
 		cp injective-core/injective-chain/modules/auction/types/codec.go chain/auction/types
+	mkdir -p chain/common/vouchers/types && \
+		cp injective-core/injective-chain/modules/common/vouchers/types/*.pb.go chain/common/vouchers/types
 	mkdir -p chain/downtime-detector/types && \
 		cp injective-core/injective-chain/modules/downtime-detector/types/*.pb.go chain/downtime-detector/types && \
 		cp injective-core/injective-chain/modules/downtime-detector/types/codec.go chain/downtime-detector/types && \
@@ -85,24 +87,12 @@ copy-chain-types: clone-injective-core
 	mkdir -p chain/exchange/types/v2 && \
     		cp injective-core/injective-chain/modules/exchange/types/v2/*.go chain/exchange/types/v2 && \
     		rm -rf chain/exchange/types/v2/*test.go && rm -rf chain/exchange/types/v2/*gw.go
-	mkdir -p chain/ibc-rate-limits/types && \
-		cp injective-core/injective-chain/modules/ibc-rate-limits/types/*.pb.go chain/ibc-rate-limits/types && \
-		cp injective-core/injective-chain/modules/ibc-rate-limits/types/codec.go chain/ibc-rate-limits/types && \
-		cp injective-core/injective-chain/modules/ibc-rate-limits/types/errors.go chain/ibc-rate-limits/types && \
-		cp injective-core/injective-chain/modules/ibc-rate-limits/types/msgs.go chain/ibc-rate-limits/types && \
-		cp injective-core/injective-chain/modules/ibc-rate-limits/types/rate_limit.go chain/ibc-rate-limits/types
 	mkdir -p chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
 	mkdir -p chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/*.pb.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/codec.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/errors.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/msgs.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/oracle.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/params.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/proposal.go chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/stork_oracle.go chain/oracle/types
+		cp injective-core/injective-chain/modules/oracle/types/*.go chain/oracle/types && \
+		rm -rf chain/oracle/types/*test.go && rm -rf chain/oracle/types/*gw.go
 	mkdir -p chain/peggy/types && \
 		cp injective-core/injective-chain/modules/peggy/types/*.pb.go chain/peggy/types && \
 		cp injective-core/injective-chain/modules/peggy/types/abi_json.go chain/peggy/types && \
@@ -145,6 +135,7 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/types/chain_id.go chain/types && \
 		cp injective-core/injective-chain/types/codec.go chain/types && \
 		cp injective-core/injective-chain/types/errors.go chain/types && \
+		cp injective-core/injective-chain/types/ethereum_signer.go chain/types && \
 		cp injective-core/injective-chain/types/int.go chain/types && \
 		cp injective-core/injective-chain/types/util.go chain/types && \
 		cp injective-core/injective-chain/types/validation.go chain/types
@@ -174,39 +165,13 @@ extract-message-names:
 	@echo "Message names extracted to injective_data/chain_messages_list.json (excluding Response messages)"
 	@echo "Total messages found: $$(jq length injective_data/chain_messages_list.json)"
 
-#gen: gen-proto
-#
-#gen-proto: clone-all copy-proto
-#	buf generate --template buf.gen.chain.yaml
-#	buf generate --template buf.gen.indexer.yaml
-#	rm -rf local_proto
-#	$(call clean_repos)
-#
-#define clean_repos
-#	rm -Rf injective-indexer
-#endef
-#
-#clean-all:
-#	$(call clean_repos)
-#
-#clone-injective-indexer:
-#	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.13.4 --depth 1 --single-branch
-#
-#clone-all: clone-injective-indexer
-#
-#copy-proto:
-#	rm -rf local_proto
-#	mkdir -p local_proto
-#	find ./injective-indexer/api/gen/grpc -type f -name "*.proto" | while read -r file; do \
-#		dest="local_proto/$$(basename $$(dirname $$(dirname "$$file")))/$$(basename $$(dirname "$$file"))"; \
-#		mkdir -p "$$dest"; \
-#		cp "$$file" "$$dest"; \
-#	done
+update-ofac-list:
+	go run examples/chain/ofac/1_DownloadOfacList/example.go
 
 tests:
-	go test -race ./client/... ./ethereum/...
+	go clean -testcache && go test -race ./client/... ./ethereum/...
 coverage:
-	go test -race -coverprofile=coverage.out -covermode=atomic ./client/... ./ethereum/...
+	go clean -testcache && go test -race -coverprofile=coverage.out -covermode=atomic ./client/... ./ethereum/...
 
 lint: export GOPROXY=direct
 lint:
@@ -224,4 +189,4 @@ lint-all: export GOPROXY=direct
 lint-all:
 	golangci-lint run --timeout=15m -v
 
-.PHONY: copy-exchange-client tests coverage lint lint-last-commit lint-master lint-all extract-message-names
+.PHONY: copy-exchange-client update-ofac-list tests coverage lint lint-last-commit lint-master lint-all extract-message-names
