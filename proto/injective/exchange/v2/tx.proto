@@ -165,6 +165,8 @@ service Msg {
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
+  rpc UpdateSwapParams(MsgUpdateSwapParams) returns (MsgUpdateSwapParamsResponse);
+
   // UpdateSpotMarket modifies certain spot market fields (admin only)
   rpc UpdateSpotMarket(MsgUpdateSpotMarket)
       returns (MsgUpdateSpotMarketResponse);
@@ -367,6 +369,22 @@ message MsgUpdateParams {
 }
 
 message MsgUpdateParamsResponse {}
+
+// MsgUpdateSwapParams updates only the swap parameter group. It is callable by
+// the governance authority or any exchange admin, providing an immediate
+// operational path for pausing swaps or maintaining the market allowlist.
+message MsgUpdateSwapParams {
+  option (amino.name) = "exchange/MsgUpdateSwapParams";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // sender is the governance authority or an exchange admin.
+  string sender = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // swap_params fully replaces the current swap parameter group.
+  SwapParams swap_params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateSwapParamsResponse {}
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's
 // bank balance into the subaccount's exchange deposits

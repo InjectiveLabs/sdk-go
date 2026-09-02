@@ -133,6 +133,7 @@ var (
 	TransientAtomicPerpetualVwapPrefix           = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
 	ObjectCachedParamsKey                        = []byte{0x89} // key for cached params in object store (block-scoped)
 	ObjectCachedWhiteKnightLiquidatorsKey        = []byte{0x8a} // key for cached white knight liquidators set in object store (block-scoped)
+	ObjectCachedSwapAllowedMarketsKey            = []byte{0x9c} // key for cached swap allowed-markets set in object store (block-scoped)
 	TransientSyntheticPerpetualFundingVwapPrefix = []byte{0x8b} // prefix for transient synthetic perpetual funding VWAP data
 
 	// SubaccountRiskProfilePrefix | subaccountID(32B) -> v2.SubaccountRiskProfile (proto bytes)

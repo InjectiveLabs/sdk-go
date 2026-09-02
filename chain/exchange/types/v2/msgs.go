@@ -137,6 +137,7 @@ const (
 	TypeMsgCancelPostOnlyMode                     = "cancelPostOnlyMode"
 	TypeMsgActivatePostOnlyMode                   = "activatePostOnlyMode"
 	TypeMsgLiquidateCrossMarginPool               = "liquidateCrossMarginPool"
+	TypeMsgUpdateSwapParams                       = "updateSwapParams"
 )
 
 func (MsgUpdateParams) Route() string { return RouterKey }
@@ -161,6 +162,27 @@ func (msg *MsgUpdateParams) GetSignBytes() []byte {
 
 func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
 	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
+
+func (MsgUpdateSwapParams) Route() string { return RouterKey }
+
+func (MsgUpdateSwapParams) Type() string { return TypeMsgUpdateSwapParams }
+
+func (msg MsgUpdateSwapParams) ValidateBasic() error {
+	if err := types.ValidateAddress(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	return msg.SwapParams.Validate()
+}
+
+func (msg *MsgUpdateSwapParams) GetSignBytes() []byte {
+	return types.ModuleCdc.MustMarshal(msg)
+}
+
+func (msg MsgUpdateSwapParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Sender)
 	return []sdk.AccAddress{addr}
 }
 
