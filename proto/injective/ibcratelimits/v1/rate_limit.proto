@@ -31,9 +31,35 @@ message RateLimit {
   uint32 token_decimals = 6;
 }
 
+message IBCRateLimitTransfers {
+  // Name of the (native) token to rate limit. (e.g. "inj" or
+  // "factory/{ADDR}/{NAME}")
+  string token = 1;
+
+  // records of deposit transfers across blocks
+  repeated IBCBlockTransferRecord inflows = 2;
+
+  // records of withdrawal transfers across blocks
+  repeated IBCBlockTransferRecord outflows = 3;
+}
+
+message IBCBlockTransferRecord {
+  // block number at which the transfers occurred
+  uint64 block_number = 1;
+
+  // sum amount of transfers that happened in this block
+  string amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
 message GenesisState {
   // list of all configured rate limit objects
   repeated RateLimit rate_limits = 1;
+
+  // inbound and outbound transfers of all rate limited assets
+  repeated IBCRateLimitTransfers rate_limit_transfers = 2;
 }
 
 message EventRateLimitError {
