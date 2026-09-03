@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.89 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b ic-1047/data-pipeline --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -126,6 +126,8 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/wasmx/types/msgs.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/params.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
+	mkdir -p chain/mq/types && \
+		cp injective-core/injective-chain/mq/types/*.pb.go chain/mq/types
 	mkdir -p chain/stream/types && \
 		cp injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
 	mkdir -p chain/stream/types/v2 && \
@@ -168,6 +170,16 @@ extract-message-names:
 update-ofac-list:
 	go run examples/chain/ofac/1_DownloadOfacList/example.go
 
+GO_INSTALL_BINDIR := $(shell go env GOBIN)
+ifeq ($(GO_INSTALL_BINDIR),)
+GO_INSTALL_BINDIR := $(shell go env GOPATH)/bin
+endif
+
+install-mq:
+	mkdir -p $(GO_INSTALL_BINDIR)
+	go build -o $(GO_INSTALL_BINDIR)/mq-stream ./client/mq/stream/server
+	go build -o $(GO_INSTALL_BINDIR)/mq-detector ./client/mq/detector
+
 tests:
 	go clean -testcache && go test -race ./client/... ./ethereum/...
 coverage:
@@ -189,4 +201,4 @@ lint-all: export GOPROXY=direct
 lint-all:
 	golangci-lint run --timeout=15m -v
 
-.PHONY: copy-exchange-client update-ofac-list tests coverage lint lint-last-commit lint-master lint-all extract-message-names
+.PHONY: copy-exchange-client update-ofac-list install-mq tests coverage lint lint-last-commit lint-master lint-all extract-message-names
