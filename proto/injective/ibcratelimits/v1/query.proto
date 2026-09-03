@@ -15,16 +15,24 @@ service Query {
 
   // RateLimit returns the configured rate limit for a single token
   rpc RateLimit(QueryRateLimitRequest) returns (QueryRateLimitResponse) {
-    option (google.api.http).get =
-        "/injective/ibcratelimits/v1/rate_limit/{token}";
+    option (google.api.http) = {
+      get : "/injective/ibcratelimits/v1/rate_limit"
+      additional_bindings {
+        get : "/injective/ibcratelimits/v1/rate_limit/{token}"
+      }
+    };
   }
 
   // EffectiveOutflowUSD returns current effective net outflow in USD for a
   // token
   rpc EffectiveOutflowUSD(QueryEffectiveOutflowUSDRequest)
       returns (QueryEffectiveOutflowUSDResponse) {
-    option (google.api.http).get =
-        "/injective/ibcratelimits/v1/effective_outflow_usd/{token}";
+    option (google.api.http) = {
+      get : "/injective/ibcratelimits/v1/effective_outflow_usd"
+      additional_bindings {
+        get : "/injective/ibcratelimits/v1/effective_outflow_usd/{token}"
+      }
+    };
   }
 }
 
