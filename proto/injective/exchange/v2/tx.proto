@@ -165,6 +165,9 @@ service Msg {
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
+  rpc UpdateSwapParams(MsgUpdateSwapParams)
+      returns (MsgUpdateSwapParamsResponse);
+
   // UpdateSpotMarket modifies certain spot market fields (admin only)
   rpc UpdateSpotMarket(MsgUpdateSpotMarket)
       returns (MsgUpdateSpotMarketResponse);
@@ -226,6 +229,10 @@ service Msg {
   rpc UpdateAtomicMarketOrderFeeMultiplierSchedule(
       MsgAtomicMarketOrderFeeMultiplierSchedule)
       returns (MsgAtomicMarketOrderFeeMultiplierScheduleResponse);
+
+  // SetDelegationTransferReceivers adds delegation transfer receivers.
+  rpc SetDelegationTransferReceivers(MsgSetDelegationTransferReceivers)
+      returns (MsgSetDelegationTransferReceiversResponse);
 
   // MsgCancelPostOnlyMode defines a message to turn off the post-only mode
   rpc CancelPostOnlyMode(MsgCancelPostOnlyMode)
@@ -370,6 +377,22 @@ message MsgUpdateParams {
 }
 
 message MsgUpdateParamsResponse {}
+
+// MsgUpdateSwapParams updates only the swap parameter group. It is callable by
+// the governance authority or any exchange admin, providing an immediate
+// operational path for pausing swaps or maintaining the market allowlist.
+message MsgUpdateSwapParams {
+  option (amino.name) = "exchange/MsgUpdateSwapParams";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // sender is the governance authority or an exchange admin.
+  string sender = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // swap_params fully replaces the current swap parameter group.
+  SwapParams swap_params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message MsgUpdateSwapParamsResponse {}
 
 // MsgDeposit defines a SDK message for transferring coins from the sender's
 // bank balance into the subaccount's exchange deposits
@@ -816,6 +839,12 @@ message SpotMarketOrderResults {
     (gogoproto.nullable) = false
   ];
   string fee = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the fee-exclusive quote amount actually settled for the trade (in human
+  // readable format)
+  string notional = 4 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
@@ -1696,11 +1725,9 @@ message MsgAtomicMarketOrderFeeMultiplierSchedule {
 
 message MsgAtomicMarketOrderFeeMultiplierScheduleResponse {}
 
-// Deprecated: Delegation transfer receiver support was removed. This message
-// is kept for backward compatibility to decode historical transactions.
+// MsgSetDelegationTransferReceivers defines a message for adding delegation
+// transfer receivers.
 message MsgSetDelegationTransferReceivers {
-  option deprecated = true;
-
   option (amino.name) = "exchange/MsgSetDelegationTransferReceivers";
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -1710,9 +1737,9 @@ message MsgSetDelegationTransferReceivers {
   repeated string receivers = 2;
 }
 
-// Deprecated: Delegation transfer receiver support was removed. This message
-// is kept for backward compatibility to decode historical transactions.
-message MsgSetDelegationTransferReceiversResponse { option deprecated = true; }
+// MsgSetDelegationTransferReceiversResponse defines the response for
+// MsgSetDelegationTransferReceivers.
+message MsgSetDelegationTransferReceiversResponse {}
 
 // MsgCancelPostOnlyMode defines a message for canceling post-only mode
 message MsgCancelPostOnlyMode {
@@ -1742,9 +1769,10 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
 
-// MsgLiquidateCrossMarginPool performs graduated selective liquidation on a
-// cross-margin quote-denom pool, canceling pool orders first and then closing
-// only enough positions to restore health according to the configured target.
+// MsgLiquidateCrossMarginPool liquidates a cross-margin quote-denom pool. The
+// legacy mode performs graduated public-book liquidation; RFQ-only mode accepts
+// from the configured contract either an authenticated atomic full-pool close
+// or a one-pair partial that closes one bounded slice of one position.
 message MsgLiquidateCrossMarginPool {
   option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
   option (cosmos.msg.v1.signer) = "sender";
@@ -1755,6 +1783,10 @@ message MsgLiquidateCrossMarginPool {
   string subaccount_id = 2;
   // identifies which cross-margin pool (by quote denom)
   string quote_denom = 3;
+  // rfq_action is the synthetic-trade action returned by the configured RFQ
+  // contract. It is required for an active-market RFQ liquidation and may be
+  // empty when an already-paused liquidatable pool is routed to settlement.
+  string rfq_action = 4;
 }
 
 // MsgLiquidateCrossMarginPoolResponse defines the

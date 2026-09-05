@@ -75,6 +75,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgCancelBinaryOptionsOrder{}, "exchange/v2/MsgCancelBinaryOptionsOrder", nil)
 	cdc.RegisterConcrete(&MsgAdminUpdateBinaryOptionsMarket{}, "exchange/v2/MsgAdminUpdateBinaryOptionsMarket", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "exchange/v2/MsgUpdateParams", nil)
+	cdc.RegisterConcrete(&MsgUpdateSwapParams{}, "exchange/v2/MsgUpdateSwapParams", nil)
 	cdc.RegisterConcrete(&MsgUpdateSpotMarket{}, "exchange/v2/MsgUpdateSpotMarket", nil)
 	cdc.RegisterConcrete(&MsgUpdateDerivativeMarket{}, "exchange/v2/MsgUpdateDerivativeMarket", nil)
 	cdc.RegisterConcrete(&MsgAuthorizeStakeGrants{}, "exchange/v2/MsgAuthorizeStakeGrants", nil)
@@ -98,8 +99,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgFeeDiscount{}, "exchange/v2/MsgFeeDiscount", nil)
 	cdc.RegisterConcrete(&MsgAtomicMarketOrderFeeMultiplierSchedule{}, "exchange/v2/MsgAtomicMarketOrderFeeMultiplierSchedule", nil)
 
-	// Deprecated: kept for backward-compatible Amino decoding of historical txs
-	cdc.RegisterConcrete(&MsgSetDelegationTransferReceivers{}, "exchange/v2/MsgSetDelegationTransferReceivers", nil) //nolint:staticcheck // deprecated
+	cdc.RegisterConcrete(&MsgSetDelegationTransferReceivers{}, "exchange/v2/MsgSetDelegationTransferReceivers", nil)
 
 	cdc.RegisterConcrete(&ExchangeEnableProposal{}, "exchange/v2/ExchangeEnableProposal", nil)
 	cdc.RegisterConcrete(&BatchExchangeModificationProposal{}, "exchange/v2/BatchExchangeModificationProposal", nil)
@@ -191,6 +191,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCancelBinaryOptionsOrder{},
 		&MsgAdminUpdateBinaryOptionsMarket{},
 		&MsgUpdateParams{},
+		&MsgUpdateSwapParams{},
 		&MsgUpdateSpotMarket{},
 		&MsgUpdateDerivativeMarket{},
 		&MsgAuthorizeStakeGrants{},
@@ -198,8 +199,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgCancelPostOnlyMode{},
 		&MsgActivatePostOnlyMode{},
 		&MsgReclaimLockedFunds{},
-		// Deprecated: kept for backward-compatible Any decoding of historical txs
-		&MsgSetDelegationTransferReceivers{}, //nolint:staticcheck // deprecated
+		&MsgSetDelegationTransferReceivers{},
 	)
 
 	registry.RegisterImplementations(

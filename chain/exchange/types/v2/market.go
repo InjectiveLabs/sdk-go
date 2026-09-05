@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
 
@@ -8,6 +9,28 @@ import (
 )
 
 var BinaryOptionsMarketRefundFlagPrice = math.LegacyNewDec(-1)
+
+// ValidateSpotMarketTickSizes ensures the smallest valid spot fill has a
+// representable quote notional at LegacyDec's 18-decimal precision.
+func ValidateSpotMarketTickSizes(minPriceTickSize, minQuantityTickSize math.LegacyDec) error {
+	if err := types.ValidateTickSize(minPriceTickSize); err != nil {
+		return errors.Wrap(types.ErrInvalidPriceTickSize, err.Error())
+	}
+	if err := types.ValidateTickSize(minQuantityTickSize); err != nil {
+		return errors.Wrap(types.ErrInvalidQuantityTickSize, err.Error())
+	}
+	if !minPriceTickSize.Mul(minQuantityTickSize).IsPositive() {
+		return errors.Wrapf(
+			types.ErrInvalidNotional,
+			"minimum price tick size (%s) times minimum quantity tick size (%s) must be at least %s",
+			minPriceTickSize,
+			minQuantityTickSize,
+			math.LegacySmallestDec(),
+		)
+	}
+
+	return nil
+}
 
 type MarketIDQuoteDenomMakerFee struct {
 	MarketID   common.Hash
@@ -230,6 +253,10 @@ func (*DerivativeMarket) QuantityToChainFormat(humanReadableValue math.LegacyDec
 
 func (m *DerivativeMarket) NotionalToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec {
 	return types.NotionalToChainFormat(humanReadableValue, m.QuoteDecimals)
+}
+
+func (m *DerivativeMarket) CanRepresentNotionalInChainFormat(humanReadableValue math.LegacyDec) bool {
+	return types.CanRepresentNotionalInChainFormat(humanReadableValue, m.QuoteDecimals)
 }
 
 /// Binary Options Markets

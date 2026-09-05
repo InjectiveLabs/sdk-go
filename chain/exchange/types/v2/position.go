@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"math/big"
+
 	"cosmossdk.io/math"
 
 	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
@@ -181,15 +183,47 @@ func (p *Position) checkValidClosingPrice(
 	bankruptcyPrice := p.GetBankruptcyPriceWithAddedMargin(funding, orderMargin)
 
 	if p.IsLong {
-		// For long positions, Price ≥ BankruptcyPrice / (1 - TradeFeeRate) must hold
-		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(math.LegacyOneDec().Sub(tradeFeeRate))
+		// For long positions, Price * (1 - TradeFeeRate) ≥ BankruptcyPrice must hold.
+		feeMultiplier := math.LegacyOneDec().Sub(tradeFeeRate)
+		if feeMultiplier.IsZero() {
+			// At a 100% fee the close contributes zero price proceeds. Evaluate the
+			// multiplication-form boundary directly instead of dividing by zero.
+			if bankruptcyPrice.IsPositive() {
+				return types.ErrPriceSurpassesBankruptcyPrice
+			}
+			return nil
+		}
+		// Above a 100% effective fee, a higher sell execution price can make the
+		// close less solvent. This order-price check has no execution-price ceiling,
+		// so it cannot safely admit that case.
+		if feeMultiplier.IsNegative() {
+			return types.ErrPriceSurpassesBankruptcyPrice
+		}
+
+		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(feeMultiplier)
 
 		if closingPrice.LT(feeAdjustedBankruptcyPrice) {
 			return types.ErrPriceSurpassesBankruptcyPrice
 		}
 	} else {
-		// For short positions, Price ≤ BankruptcyPrice / (1 + TradeFeeRate) must hold
-		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(math.LegacyOneDec().Add(tradeFeeRate))
+		// For short positions, Price * (1 + TradeFeeRate) ≤ BankruptcyPrice must hold.
+		feeMultiplier := math.LegacyOneDec().Add(tradeFeeRate)
+		if feeMultiplier.IsZero() {
+			// At a 100% rebate the fee-adjusted close price is zero. Evaluate the
+			// multiplication-form boundary directly instead of dividing by zero.
+			if bankruptcyPrice.IsNegative() {
+				return types.ErrPriceSurpassesBankruptcyPrice
+			}
+			return nil
+		}
+		// Below a -100% effective fee, a lower buy execution price can make the
+		// close less solvent. This order-price check has no execution-price floor,
+		// so it cannot safely admit that case.
+		if feeMultiplier.IsNegative() {
+			return types.ErrPriceSurpassesBankruptcyPrice
+		}
+
+		feeAdjustedBankruptcyPrice := bankruptcyPrice.Quo(feeMultiplier)
 
 		if closingPrice.GT(feeAdjustedBankruptcyPrice) {
 			return types.ErrPriceSurpassesBankruptcyPrice
@@ -347,10 +381,54 @@ func splitPositionMargin(totalMargin, totalQuantity, closingQuantity math.Legacy
 	}
 
 	remainingQuantity := totalQuantity.Sub(closingQuantity)
-	remainingMargin = totalMargin.Mul(remainingQuantity).Quo(totalQuantity)
+	remainingMarginRaw := proportionalPositionMarginRaw(totalMargin, remainingQuantity, totalQuantity)
+	remainingMargin = math.LegacyNewDecFromBigIntWithPrec(remainingMarginRaw, math.LegacyPrecision)
 	closingMargin = totalMargin.Sub(remainingMargin)
 
 	return closingMargin, remainingMargin
+}
+
+// proportionalPositionMarginRaw reproduces LegacyDec's sequential
+// totalMargin.Mul(remainingQuantity).Quo(totalQuantity) banker rounding without
+// constructing the potentially overflowing multiplication result. The final
+// proportional margin cannot exceed totalMargin in magnitude when the close is
+// bounded by the live position quantity.
+func proportionalPositionMarginRaw(
+	totalMargin, remainingQuantity, totalQuantity math.LegacyDec,
+) *big.Int {
+	precision := math.LegacyOneDec().BigInt()
+	mulRaw := roundPositionMarginQuotientToEven(
+		new(big.Int).Mul(totalMargin.BigInt(), remainingQuantity.BigInt()),
+		precision,
+	)
+	quoIntermediate := new(big.Int).Quo(
+		new(big.Int).Mul(mulRaw, new(big.Int).Mul(precision, precision)),
+		totalQuantity.BigInt(),
+	)
+	return roundPositionMarginQuotientToEven(quoIntermediate, precision)
+}
+
+func roundPositionMarginQuotientToEven(numerator, positiveDenominator *big.Int) *big.Int {
+	quotient, remainder := new(big.Int), new(big.Int)
+	quotient.QuoRem(numerator, positiveDenominator, remainder)
+	if remainder.Sign() == 0 {
+		return quotient
+	}
+
+	twiceRemainder := new(big.Int).Lsh(new(big.Int).Abs(remainder), 1)
+	switch twiceRemainder.Cmp(positiveDenominator) {
+	case -1:
+		return quotient
+	case 0:
+		if new(big.Int).Abs(quotient).Bit(0) == 0 {
+			return quotient
+		}
+	}
+
+	if numerator.Sign() < 0 {
+		return quotient.Sub(quotient, big.NewInt(1))
+	}
+	return quotient.Add(quotient, big.NewInt(1))
 }
 
 // ApplyBankruptCloseWithoutPayouts closes up to closingQuantity at closingPrice with an explicit

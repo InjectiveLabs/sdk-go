@@ -74,9 +74,7 @@ var (
 	_ sdk.Msg = &MsgAtomicMarketOrderFeeMultiplierSchedule{}
 	_ sdk.Msg = &MsgCancelPostOnlyMode{}
 
-	// Deprecated: Delegation transfer receiver support was removed. Kept so
-	// Any-wrapped historical txs can still be decoded.
-	_ sdk.Msg = &MsgSetDelegationTransferReceivers{} //nolint:staticcheck // deprecated
+	_ sdk.Msg = &MsgSetDelegationTransferReceivers{}
 	_ sdk.Msg = &MsgActivatePostOnlyMode{}
 )
 
@@ -141,6 +139,7 @@ const (
 	TypeMsgCancelPostOnlyMode                     = "cancelPostOnlyMode"
 	TypeMsgActivatePostOnlyMode                   = "activatePostOnlyMode"
 	TypeMsgLiquidateCrossMarginPool               = "liquidateCrossMarginPool"
+	TypeMsgUpdateSwapParams                       = "updateSwapParams"
 )
 
 func (MsgUpdateParams) Route() string { return RouterKey }
@@ -152,7 +151,17 @@ func (msg MsgUpdateParams) ValidateBasic() error {
 		return errors.Wrap(err, "invalid authority address")
 	}
 
-	if err := msg.Params.Validate(); err != nil {
+	params := msg.Params
+	if len(params.CrossMarginParams.LiquidationRfqContractAddress) == 0 &&
+		len(params.CrossMarginParams.EnabledQuoteDenoms) != 0 {
+		// Proto3 cannot distinguish an omitted list from an explicitly empty one.
+		// Use the already-validated authority solely as a syntactically valid marker
+		// so stateless validation can enforce every RFQ-mode bound. The stateful
+		// handler restores the configured router set before validating and
+		// persisting the actual parameters, or rejects the update if none exists.
+		params.CrossMarginParams.LiquidationRfqContractAddress = []string{msg.Authority}
+	}
+	if err := params.Validate(); err != nil {
 		return err
 	}
 
@@ -165,6 +174,27 @@ func (msg *MsgUpdateParams) GetSignBytes() []byte {
 
 func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
 	addr, _ := sdk.AccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
+
+func (MsgUpdateSwapParams) Route() string { return RouterKey }
+
+func (MsgUpdateSwapParams) Type() string { return TypeMsgUpdateSwapParams }
+
+func (msg MsgUpdateSwapParams) ValidateBasic() error {
+	if err := types.ValidateAddress(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	return msg.SwapParams.Validate()
+}
+
+func (msg *MsgUpdateSwapParams) GetSignBytes() []byte {
+	return types.ModuleCdc.MustMarshal(msg)
+}
+
+func (msg MsgUpdateSwapParams) GetSigners() []sdk.AccAddress {
+	addr, _ := sdk.AccAddressFromBech32(msg.Sender)
 	return []sdk.AccAddress{addr}
 }
 
@@ -744,11 +774,8 @@ func (msg MsgInstantSpotMarketLaunch) ValidateBasic() error {
 		return types.ErrSameDenoms
 	}
 
-	if err := types.ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return errors.Wrap(types.ErrInvalidPriceTickSize, err.Error())
-	}
-	if err := types.ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return errors.Wrap(types.ErrInvalidQuantityTickSize, err.Error())
+	if err := ValidateSpotMarketTickSizes(msg.MinPriceTickSize, msg.MinQuantityTickSize); err != nil {
+		return err
 	}
 	if err := types.ValidateMinNotional(msg.MinNotional); err != nil {
 		return errors.Wrap(types.ErrInvalidNotional, err.Error())
@@ -2035,6 +2062,33 @@ func (msg *MsgLiquidateCrossMarginPool) ValidateBasic() error {
 		return errors.Wrap(types.ErrInvalidQuoteDenom, err.Error())
 	}
 
+	if msg.RfqAction != "" {
+		// Empty rfq_action is the canonical input for idempotent, cleanup-only,
+		// and settlement terminal paths. Supplying any bytes opts into RFQ
+		// semantics, so every nonempty action must parse strictly regardless of
+		// the state-dependent branch ultimately selected by the keeper.
+		if len(msg.RfqAction) > MaxCrossMarginRFQLiquidationActionBytes {
+			return errors.Wrapf(
+				types.ErrBadField,
+				"rfq_action exceeds maximum size of %d bytes",
+				MaxCrossMarginRFQLiquidationActionBytes,
+			)
+		}
+
+		syntheticTradeAction, err := types.ParseRFQLiquidationRequestStrict([]byte(msg.RfqAction))
+		if err != nil {
+			return errors.Wrap(err, "invalid rfq_action")
+		}
+		if len(syntheticTradeAction.UserTrades) > MaxCrossMarginRFQLiquidationTradePairs {
+			return errors.Wrapf(
+				types.ErrBadField,
+				"rfq_action contains %d trade pairs, maximum is %d",
+				len(syntheticTradeAction.UserTrades),
+				MaxCrossMarginRFQLiquidationTradePairs,
+			)
+		}
+	}
+
 	return nil
 }
 
@@ -2903,27 +2957,36 @@ func (msg *MsgAtomicMarketOrderFeeMultiplierSchedule) ValidateBasic() error {
 	return nil
 }
 
-// Deprecated: Delegation transfer receiver support was removed. The methods
-// below exist only so that Any-wrapped historical txs containing this message
-// type can still be unpacked during tx queries and replay. ValidateBasic always
-// rejects, so no new tx of this type can be accepted by the chain.
+func (*MsgSetDelegationTransferReceivers) Route() string { return RouterKey }
 
-func (*MsgSetDelegationTransferReceivers) Route() string { return RouterKey } //nolint:staticcheck // deprecated
-
-func (*MsgSetDelegationTransferReceivers) Type() string { //nolint:staticcheck // deprecated
+func (*MsgSetDelegationTransferReceivers) Type() string {
 	return TypeMsgSetDelegationTransferReceivers
 }
 
-func (*MsgSetDelegationTransferReceivers) ValidateBasic() error { //nolint:staticcheck // deprecated
-	return errors.Wrap(types.ErrMsgDeprecated, "delegation transfer receivers feature was removed")
+func (msg *MsgSetDelegationTransferReceivers) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
+	}
+
+	if len(msg.Receivers) == 0 {
+		return errors.Wrap(sdkerrors.ErrInvalidRequest, "receivers list cannot be empty")
+	}
+
+	for _, receiver := range msg.Receivers {
+		if _, err := sdk.AccAddressFromBech32(receiver); err != nil {
+			return errors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid receiver address: %s", receiver)
+		}
+	}
+
+	return nil
 }
 
-func (msg *MsgSetDelegationTransferReceivers) GetSignBytes() []byte { //nolint:staticcheck // deprecated
+func (msg *MsgSetDelegationTransferReceivers) GetSignBytes() []byte {
 	bz, _ := json.Marshal(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgSetDelegationTransferReceivers) GetSigners() []sdk.AccAddress { //nolint:staticcheck // deprecated
+func (msg *MsgSetDelegationTransferReceivers) GetSigners() []sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return nil

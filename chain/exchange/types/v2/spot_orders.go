@@ -116,6 +116,9 @@ func (m *SpotOrder) CheckTickSize(minPriceTickSize, minQuantityTickSize math.Leg
 
 func (m *SpotOrder) CheckNotional(minNotional math.LegacyDec) error {
 	orderNotional := m.GetQuantity().Mul(m.GetPrice())
+	if !orderNotional.IsPositive() {
+		return errors.Wrap(types.ErrInvalidNotional, "order notional must be positive")
+	}
 	if !minNotional.IsNil() && orderNotional.LT(minNotional) {
 		return errors.Wrapf(
 			types.ErrInvalidNotional,

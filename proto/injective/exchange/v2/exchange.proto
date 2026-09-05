@@ -261,6 +261,20 @@ message Params {
 
   // cross_margin_params groups all cross-margin related parameters.
   CrossMarginParams cross_margin_params = 39 [ (gogoproto.nullable) = false ];
+
+  // swap_params groups the native spot swap configuration.
+  SwapParams swap_params = 40 [ (gogoproto.nullable) = false ];
+}
+
+message SwapParams {
+  option (gogoproto.equal) = true;
+
+  // enabled is the global switch for the native spot swap execution path.
+  bool enabled = 1;
+
+  // allowed_markets is the strict allowlist of spot market IDs that swap
+  // routes may traverse. An empty list means no markets are swappable.
+  repeated string allowed_markets = 2;
 }
 
 message CrossMarginParams {
@@ -294,55 +308,47 @@ message CrossMarginParams {
   // eligible for cross margin.
   bool expiry_enabled = 5;
 
-  // max_active_derivative_markets_per_pool defines the maximum number of
-  // active derivative markets (positions or orders) a cross-margin
-  // subaccount may have within a single quote-denom pool.
+  // max_active_derivative_markets_per_pool is an optional additional admission
+  // cap when a cross-margin subaccount introduces a new derivative carrier in a
+  // quote-denom pool. Lowering it does not invalidate grandfathered carriers or
+  // prohibit activity in an already-counted market.
   uint32 max_active_derivative_markets_per_pool = 6;
 
-  // emergency_paused defines whether cross margin is in emergency pause
-  // mode. When true:
-  // - User-submitted cross-margin orders (derivative + spot, limit / market
-  //   / conditional, reduce-only included) are rejected at validation.
-  // - Paused resting makers are inert: every matcher and TOB scan skips
-  //   them uniformly, including against system-generated liquidation
-  //   taker orders.
-  // - Liquidation of paused pools is still permitted; system taker orders
-  //   close positions against non-paused liquidity or defer to settlement.
-  // - Collateral-decreasing operations (withdrawals, transfers, margin
-  //   decrease) remain subject to the marker-aware admission floor with
-  //   positive UPnL stripped first, NOT to a flat isolated-margin
-  //   maintenance level.
+  // emergency_paused defines whether new cross-margin activation and
+  // risk-increasing activity are paused. Risk reduction, order cancellation,
+  // authenticated liquidation, and scheduled settlement remain available.
   bool emergency_paused = 7;
 
-  // backstop_margin_ratio defines the target health buffer above
-  // maintenance margin for graduated liquidation. Liquidation stops when
-  // EquityLiquidation >= MM * (1 + ratio).
+  // backstop_margin_ratio sets the pool-health target of a liquidation. The
+  // configured RFQ router may close one bounded slice of one position per
+  // transaction (a one-pair partial) and continue slice by slice from bare
+  // maintenance toward this target while the liquidation cooldown window is
+  // active; a canonical full-pool close remains available.
   string backstop_margin_ratio = 8 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
-  // partial_liquidation_ratio is the fraction of the shortfall to target
-  // per liquidation tx. 1.0 = close enough to fully restore health; <1.0
-  // = close only a fraction per tx.
+  // partial_liquidation_ratio is the fraction of the distance to the backstop
+  // target that one liquidation transaction may close. For a configured-RFQ
+  // one-pair partial it is a fresh per-transaction budget applied to current
+  // state, not a per-window limit: sequential slices may cumulatively exceed
+  // the first slice's budget.
   string partial_liquidation_ratio = 9 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
 
-  // liquidation_cooldown_blocks is the minimum number of blocks between
-  // successive partial liquidations on the same cross-margin pool.
+  // liquidation_cooldown_blocks is the rolling window, refreshed by every
+  // successful liquidation slice, during which a configured RFQ router may
+  // continue one-pair partial slices against a pool that is at or above bare
+  // maintenance but below the backstop target. A value of 0 or 1 disables
+  // that continuation; the public orderbook path keeps rejecting that band.
   uint64 liquidation_cooldown_blocks = 10;
 
-  // max_cross_margin_spot_orders_per_subaccount_per_denom caps the number of
-  // open spot orders (resting limit + transient limit + transient market)
-  // that a cross-margin-mode subaccount may hold for any single locking
-  // denom. The cap protocol-bounds spot cancel-first work performed during
-  // cross-margin pool liquidation so the validator-work amplifier under fixed
-  // gas is bounded by a numeric protocol limit rather than only by fixed
-  // tx-level pricing. Enforcement
-  // applies only when the effective subaccount risk profile is RISK_MODE_CROSS;
-  // isolated-mode subaccounts are unaffected.
+  // max_cross_margin_spot_orders_per_subaccount_per_denom is an additional,
+  // possibly tighter, spot-order admission cap for each cross-margin
+  // subaccount and locking denom.
   uint32 max_cross_margin_spot_orders_per_subaccount_per_denom = 13;
 
   // util_ratio defines the multiplier applied to the cash-floor admission
@@ -354,13 +360,19 @@ message CrossMarginParams {
     (gogoproto.nullable) = false
   ];
 
+  // liquidation_rfq_contract_address is the bounded set of RFQ router contracts
+  // permitted to settle cross-margin liquidations. An empty list disables
+  // cross-margin activation and requires cross_margin_enabled_quote_denoms to
+  // be empty.
+  repeated string liquidation_rfq_contract_address = 15;
+
   // max_isolated_active_derivative_markets_per_subaccount_per_denom bounds how
   // many isolated-mode derivative markets a subaccount with cross-margin
   // exposure may be active in per quote denom. Pool walks skip isolated-mode
   // markets, so this cap bounds the walk work an account can force on pool
   // builds and liquidation sweeps. Zero-cost for accounts without cross
   // exposure.
-  uint32 max_isolated_active_derivative_markets_per_subaccount_per_denom = 15;
+  uint32 max_isolated_active_derivative_markets_per_subaccount_per_denom = 16;
 }
 
 message NextFundingTimestamp { int64 next_timestamp = 1; }
@@ -492,6 +504,12 @@ message TradeLog {
   bytes order_hash = 5;
   bytes fee_recipient_address = 6 [ (gogoproto.nullable) = true ];
   string cid = 7;
+  // the fee-exclusive quote amount actually settled for the trade (in human
+  // readable format)
+  string notional = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message PositionDelta {
