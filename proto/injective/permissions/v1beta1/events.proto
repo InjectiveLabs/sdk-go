@@ -13,3 +13,17 @@ message EventSetVoucher {
   // The new voucher amount. A zero coin signals voucher deletion.
   cosmos.base.v1beta1.Coin voucher = 2 [ (gogoproto.nullable) = false ];
 }
+
+message EventPostHookLogs {
+  // The 0x formatted address of the post hook smart contract
+  string post_hook_address = 1;
+  // logs
+  repeated EventPostHookLog logs = 2;
+}
+
+message EventPostHookLog {
+  // log topics
+  repeated string topics = 1;
+  // log data
+  bytes data = 2;
+}

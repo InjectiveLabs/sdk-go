@@ -5,6 +5,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 import "injective/exchange/v2/events.proto";
 import "injective/exchange/v2/exchange.proto";
+import "injective/exchange/v2/market.proto";
 import "injective/exchange/v2/order.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/stream/types/v2";
@@ -42,6 +43,9 @@ message StreamRequest {
   ConditionalOrderTriggerFailuresFilter
       conditional_order_trigger_failures_filter = 12
       [ (gogoproto.nullable) = true ];
+  // filter for perpetual market funding updates
+  MarketFundingFilter market_funding_filter = 13
+      [ (gogoproto.nullable) = true ];
 }
 
 message StreamResponse {
@@ -76,6 +80,8 @@ message StreamResponse {
   // list of conditional order trigger failures updates
   repeated ConditionalOrderTriggerFailureUpdate
       conditional_order_trigger_failures = 15;
+  // list of perpetual market funding updates
+  repeated MarketFundingUpdate market_funding_updates = 16;
 }
 
 message OrderbookUpdate {
@@ -306,6 +312,28 @@ message ConditionalOrderTriggerFailureUpdate {
   string error_description = 6;
 }
 
+message MarketFundingUpdate {
+  // the perpetual market ID
+  string market_id = 1;
+  // the current funding state
+  injective.exchange.v2.PerpetualMarketFunding funding = 2
+      [ (gogoproto.nullable) = false ];
+  // whether this update applies the periodic funding payment
+  bool is_hourly_funding = 3;
+  // the quote-denominated funding payment per unit quantity added to
+  // funding.cumulative_funding; only present for periodic funding updates
+  string funding_payment = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // the mark price used to calculate funding; only present for periodic
+  // funding updates
+  string mark_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+}
+
 message TradesFilter {
   // list of subaccount IDs to filter by
   repeated string subaccount_ids = 1;
@@ -357,4 +385,9 @@ message ConditionalOrderTriggerFailuresFilter {
   repeated string subaccount_ids = 1;
   // list of market IDs to filter by
   repeated string market_ids = 2;
+}
+
+message MarketFundingFilter {
+  // list of perpetual market IDs to filter by; use ["*"] for all markets
+  repeated string market_ids = 1;
 }

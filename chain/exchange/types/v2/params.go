@@ -17,38 +17,38 @@ var _ paramtypes.ParamSet = &Params{}
 
 // Parameter keys
 var (
-	KeySpotMarketInstantListingFee                  = []byte("SpotMarketInstantListingFee")
-	KeyDerivativeMarketInstantListingFee            = []byte("DerivativeMarketInstantListingFee")
-	KeyDefaultSpotMakerFeeRate                      = []byte("DefaultSpotMakerFeeRate")
-	KeyDefaultSpotTakerFeeRate                      = []byte("DefaultSpotTakerFeeRate")
-	KeyDefaultDerivativeMakerFeeRate                = []byte("DefaultDerivativeMakerFeeRate")
-	KeyDefaultDerivativeTakerFeeRate                = []byte("DefaultDerivativeTakerFeeRate")
-	KeyDefaultInitialMarginRatio                    = []byte("DefaultInitialMarginRatio")
-	KeyDefaultMaintenanceMarginRatio                = []byte("DefaultMaintenanceMarginRatio")
-	KeyDefaultReduceMarginRatio                     = []byte("DefaultReduceMarginRatio")
-	KeyDefaultFundingInterval                       = []byte("DefaultFundingInterval")
-	KeyFundingMultiple                              = []byte("FundingMultiple")
-	KeyRelayerFeeShareRate                          = []byte("RelayerFeeShareRate")
-	KeyDefaultHourlyFundingRateCap                  = []byte("DefaultHourlyFundingRateCap")
-	KeyDefaultHourlyInterestRate                    = []byte("DefaultHourlyInterestRate")
-	KeyMaxDerivativeOrderSideCount                  = []byte("MaxDerivativeOrderSideCount")
-	KeyInjRewardStakedRequirementThreshold          = []byte("KeyInjRewardStakedRequirementThreshold")
-	KeyTradingRewardsVestingDuration                = []byte("TradingRewardsVestingDuration")
-	KeyLiquidatorRewardShareRate                    = []byte("LiquidatorRewardShareRate")
-	KeyWhiteKnightLiquidators                       = []byte("WhiteKnightLiquidators")
-	KeyWhiteKnightLiquidatorRewardShareRate         = []byte("WhiteKnightLiquidatorRewardShareRate")
-	KeyBinaryOptionsMarketInstantListingFee         = []byte("BinaryOptionsMarketInstantListingFee")
-	KeyAtomicMarketOrderAccessLevel                 = []byte("AtomicMarketOrderAccessLevel")
-	KeySpotAtomicMarketOrderFeeMultiplier           = []byte("SpotAtomicMarketOrderFeeMultiplier")
-	KeyDerivativeAtomicMarketOrderFeeMultiplier     = []byte("DerivativeAtomicMarketOrderFeeMultiplier")
-	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier  = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
-	KeyMinimalProtocolFeeRate                       = []byte("MinimalProtocolFeeRate")
-	KeyIsInstantDerivativeMarketLaunchEnabled       = []byte("IsInstantDerivativeMarketLaunchEnabled")
-	KeyPostOnlyModeHeightThreshold                  = []byte("PostOnlyModeHeightThreshold")
-	KeyPostOnlyModeBlocksAmount                     = []byte("PostOnlyModeBlocksAmount")
-	KeyMinPostOnlyModeDowntimeDuration              = []byte("MinPostOnlyModeDowntimeDuration")
-	KeyPostOnlyModeBlocksAmountAfterDowntime        = []byte("PostOnlyModeBlocksAmountAfterDowntime")
-	KeyCrossMarginParams                            = []byte("CrossMarginParams")
+	KeySpotMarketInstantListingFee                 = []byte("SpotMarketInstantListingFee")
+	KeyDerivativeMarketInstantListingFee           = []byte("DerivativeMarketInstantListingFee")
+	KeyDefaultSpotMakerFeeRate                     = []byte("DefaultSpotMakerFeeRate")
+	KeyDefaultSpotTakerFeeRate                     = []byte("DefaultSpotTakerFeeRate")
+	KeyDefaultDerivativeMakerFeeRate               = []byte("DefaultDerivativeMakerFeeRate")
+	KeyDefaultDerivativeTakerFeeRate               = []byte("DefaultDerivativeTakerFeeRate")
+	KeyDefaultInitialMarginRatio                   = []byte("DefaultInitialMarginRatio")
+	KeyDefaultMaintenanceMarginRatio               = []byte("DefaultMaintenanceMarginRatio")
+	KeyDefaultReduceMarginRatio                    = []byte("DefaultReduceMarginRatio")
+	KeyDefaultFundingInterval                      = []byte("DefaultFundingInterval")
+	KeyFundingMultiple                             = []byte("FundingMultiple")
+	KeyRelayerFeeShareRate                         = []byte("RelayerFeeShareRate")
+	KeyDefaultHourlyFundingRateCap                 = []byte("DefaultHourlyFundingRateCap")
+	KeyDefaultHourlyInterestRate                   = []byte("DefaultHourlyInterestRate")
+	KeyMaxDerivativeOrderSideCount                 = []byte("MaxDerivativeOrderSideCount")
+	KeyInjRewardStakedRequirementThreshold         = []byte("KeyInjRewardStakedRequirementThreshold")
+	KeyTradingRewardsVestingDuration               = []byte("TradingRewardsVestingDuration")
+	KeyLiquidatorRewardShareRate                   = []byte("LiquidatorRewardShareRate")
+	KeyWhiteKnightLiquidators                      = []byte("WhiteKnightLiquidators")
+	KeyWhiteKnightLiquidatorRewardShareRate        = []byte("WhiteKnightLiquidatorRewardShareRate")
+	KeyBinaryOptionsMarketInstantListingFee        = []byte("BinaryOptionsMarketInstantListingFee")
+	KeyAtomicMarketOrderAccessLevel                = []byte("AtomicMarketOrderAccessLevel")
+	KeySpotAtomicMarketOrderFeeMultiplier          = []byte("SpotAtomicMarketOrderFeeMultiplier")
+	KeyDerivativeAtomicMarketOrderFeeMultiplier    = []byte("DerivativeAtomicMarketOrderFeeMultiplier")
+	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
+	KeyMinimalProtocolFeeRate                      = []byte("MinimalProtocolFeeRate")
+	KeyIsInstantDerivativeMarketLaunchEnabled      = []byte("IsInstantDerivativeMarketLaunchEnabled")
+	KeyPostOnlyModeHeightThreshold                 = []byte("PostOnlyModeHeightThreshold")
+	KeyPostOnlyModeBlocksAmount                    = []byte("PostOnlyModeBlocksAmount")
+	KeyMinPostOnlyModeDowntimeDuration             = []byte("MinPostOnlyModeDowntimeDuration")
+	KeyPostOnlyModeBlocksAmountAfterDowntime       = []byte("PostOnlyModeBlocksAmountAfterDowntime")
+	KeyCrossMarginParams                           = []byte("CrossMarginParams")
 )
 
 // ParamSetPairs returns the parameter set pairs.
@@ -191,10 +191,11 @@ func DefaultParams() Params {
 		ExchangeAdmins:                               []string{},
 		FixedGasEnabled:                              false,
 		EmitLegacyVersionEvents:                      true,
-		PostOnlyModeBlocksAmount:                     2000,                            // default 2000 blocks
-		MinPostOnlyModeDowntimeDuration:              "DURATION_10M",                  // default 10 minutes
-		PostOnlyModeBlocksAmountAfterDowntime:        1000,                            // default 1000 blocks
-		CrossMarginParams: DefaultCrossMarginParams(),
+		PostOnlyModeBlocksAmount:                     2000,           // default 2000 blocks
+		MinPostOnlyModeDowntimeDuration:              "DURATION_10M", // default 10 minutes
+		PostOnlyModeBlocksAmountAfterDowntime:        1000,           // default 1000 blocks
+		CrossMarginParams:                            DefaultCrossMarginParams(),
+		SwapParams:                                   DefaultSwapParams(),
 	}
 }
 
@@ -297,7 +298,41 @@ func (p Params) Validate() error {
 	if err := ValidatePostOnlyModeBlocksAmountAfterDowntime(p.PostOnlyModeBlocksAmountAfterDowntime); err != nil {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
 	}
+	if err := p.SwapParams.Validate(); err != nil {
+		return fmt.Errorf("swap_params is incorrect: %w", err)
+	}
 	return p.CrossMarginParams.Validate()
+}
+
+// DefaultSwapParams returns default swap parameters. The empty allowlist keeps
+// the swap path inert until governance or an exchange admin lists markets.
+func DefaultSwapParams() SwapParams {
+	return SwapParams{
+		Enabled:        true,
+		AllowedMarkets: nil,
+	}
+}
+
+// MaxSwapAllowedMarkets bounds the allowlist size as an input-sanity limit.
+const MaxSwapAllowedMarkets = 1000
+
+// Validate performs basic validation on swap parameters.
+func (p SwapParams) Validate() error {
+	if len(p.AllowedMarkets) > MaxSwapAllowedMarkets {
+		return fmt.Errorf("allowed_markets exceeds maximum of %d entries", MaxSwapAllowedMarkets)
+	}
+	seen := make(map[string]struct{}, len(p.AllowedMarkets))
+	for _, marketID := range p.AllowedMarkets {
+		if !types.IsHexHash(marketID) {
+			return fmt.Errorf("allowed_markets entry %q is not a valid market ID hash", marketID)
+		}
+		normalized := ethcommon.HexToHash(marketID).Hex()
+		if _, ok := seen[normalized]; ok {
+			return fmt.Errorf("allowed_markets entry %q is duplicated", marketID)
+		}
+		seen[normalized] = struct{}{}
+	}
+	return nil
 }
 
 // DefaultCrossMarginParams returns default cross-margin parameters.

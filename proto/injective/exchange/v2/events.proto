@@ -17,6 +17,56 @@ message EventBatchSpotExecution {
   repeated TradeLog trades = 4;
 }
 
+message EventSwapExecuted {
+  string caller = 1;
+  string recipient = 2;
+  string input_denom = 3;
+  // input_amount is in chain format (token native decimals)
+  string input_amount = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string output_denom = 5;
+  // output_amount is in chain format (token native decimals)
+  string output_amount = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  repeated SwapHopExecution hops = 7;
+  // spent_amount is the input actually debited in chain format; input_amount
+  // minus spent_amount is the refunded remainder
+  string spent_amount = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventSwapParamsUpdated {
+  // sender is the governance authority or exchange admin that made the change
+  string sender = 1;
+  SwapParams swap_params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message SwapHopExecution {
+  string market_id = 1;
+  bool is_buy = 2;
+  // quantity is the base-asset fill quantity (human readable)
+  string quantity = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // price is the clearing price (human readable)
+  string price = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // fee is the quote-denom trading fee (human readable)
+  string fee = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
 message EventBatchDerivativeExecution {
   string market_id = 1;
   bool is_buy = 2;
