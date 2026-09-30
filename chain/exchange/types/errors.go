@@ -122,9 +122,10 @@ var (
 	ErrNoOffsettingPositionsFound               = errors.Register(ModuleName, 113, "no valid offsetting positions found")
 	ErrNotCanonicalLiquidationTarget            = errors.Register(ModuleName, 114, "targeted market is not the canonical liquidation target")
 	ErrMsgDeprecated                            = errors.Register(ModuleName, 115, "message type is deprecated")
-	ErrTooManyCrossMarginSpotOrders             = errors.Register(ModuleName, 116, "cross-margin subaccount has reached the per-denom spot order cap")
-	ErrSwapDisabled                             = errors.Register(ModuleName, 117, "spot swap is disabled")
-	ErrInvalidSwapRoute                         = errors.Register(ModuleName, 118, "invalid swap route")
-	ErrSwapDeadlineExceeded                     = errors.Register(ModuleName, 119, "swap deadline exceeded")
-	ErrSwapMinOutputNotMet                      = errors.Register(ModuleName, 120, "swap output below minimum")
+	// 116 is reserved: ErrTooManyCrossMarginSpotOrders on master (not backported);
+	// keep the swap error codes identical to master.
+	ErrSwapDisabled         = errors.Register(ModuleName, 117, "spot swap is disabled")
+	ErrInvalidSwapRoute     = errors.Register(ModuleName, 118, "invalid swap route")
+	ErrSwapDeadlineExceeded = errors.Register(ModuleName, 119, "swap deadline exceeded")
+	ErrSwapMinOutputNotMet  = errors.Register(ModuleName, 120, "swap output below minimum")
 )

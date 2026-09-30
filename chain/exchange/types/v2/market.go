@@ -415,9 +415,9 @@ func GetMarketBalanceDelta(
 	tradeFee math.LegacyDec,
 	isReduceOnly bool,
 ) math.LegacyDec {
-	if payout.IsNegative() {
-		// if payout is negative, don't just add these to the market balance,
-		// instead try to adjust market balance later when insurance fund is tapped
+	if isReduceOnly && payout.IsNegative() {
+		// Reduce-only liquidations recover negative payouts separately from deposits and insurance.
+		// Vanilla orders charge negative payouts to deposits, so the market must receive that credit.
 		payout = math.LegacyZeroDec()
 	}
 
