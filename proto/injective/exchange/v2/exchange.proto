@@ -261,6 +261,20 @@ message Params {
 
   // cross_margin_params groups all cross-margin related parameters.
   CrossMarginParams cross_margin_params = 39 [ (gogoproto.nullable) = false ];
+
+  // swap_params groups the native spot swap configuration.
+  SwapParams swap_params = 40 [ (gogoproto.nullable) = false ];
+}
+
+message SwapParams {
+  option (gogoproto.equal) = true;
+
+  // enabled is the global switch for the native spot swap execution path.
+  bool enabled = 1;
+
+  // allowed_markets is the strict allowlist of spot market IDs that swap
+  // routes may traverse. An empty list means no markets are swappable.
+  repeated string allowed_markets = 2;
 }
 
 message CrossMarginParams {

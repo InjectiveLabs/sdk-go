@@ -130,19 +130,20 @@ var (
 	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
 	PostOnlyModeCancellationKey  = []byte{0x87} // key to mark post-only mode cancellation for next BeginBlock
 
-  TransientAtomicPerpetualVwapPrefix           = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
-  ObjectCachedParamsKey                        = []byte{0x89} // key for cached params in object store (block-scoped)                                     
-  ObjectCachedWhiteKnightLiquidatorsKey        = []byte{0x8a} // key for cached white knight liquidators set in object store (block-scoped)               
-  TransientSyntheticPerpetualFundingVwapPrefix = []byte{0x8b} // prefix for transient synthetic perpetual funding VWAP data                               
+	TransientAtomicPerpetualVwapPrefix           = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
+	ObjectCachedParamsKey                        = []byte{0x89} // key for cached params in object store (block-scoped)
+	ObjectCachedWhiteKnightLiquidatorsKey        = []byte{0x8a} // key for cached white knight liquidators set in object store (block-scoped)
+	ObjectCachedSwapAllowedMarketsKey            = []byte{0x9c} // key for cached swap allowed-markets set in object store (block-scoped)
+	TransientSyntheticPerpetualFundingVwapPrefix = []byte{0x8b} // prefix for transient synthetic perpetual funding VWAP data
 
-  // SubaccountRiskProfilePrefix | subaccountID(32B) -> v2.SubaccountRiskProfile (proto bytes)                                                            
-  SubaccountRiskProfilePrefix = []byte{0x8c}                                                                                                              
-  // ActiveDerivativeMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}                                                                  
-  ActiveDerivativeMarketsBySubaccountPrefix = []byte{0x8d}         
-  // ActiveDerivativeOrderMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}                                                             
-  ActiveDerivativeOrderMarketsBySubaccountPrefix = []byte{0x8e}
+	// SubaccountRiskProfilePrefix | subaccountID(32B) -> v2.SubaccountRiskProfile (proto bytes)
+	SubaccountRiskProfilePrefix = []byte{0x8c}
+	// ActiveDerivativeMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}
+	ActiveDerivativeMarketsBySubaccountPrefix = []byte{0x8d}
+	// ActiveDerivativeOrderMarketsBySubaccountPrefix || subaccount_id || market_id -> []byte{}
+	ActiveDerivativeOrderMarketsBySubaccountPrefix = []byte{0x8e}
 
-  ObjectCrossPoolSnapshotCacheKey = []byte{0x8f} // key for cross-pool snapshot cache in object store (block-scoped)
+	ObjectCrossPoolSnapshotCacheKey = []byte{0x8f} // key for cross-pool snapshot cache in object store (block-scoped)
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {

@@ -116,6 +116,7 @@
   "injective.exchange.v2.MsgUpdateParams",
   "injective.exchange.v2.MsgUpdateSpotMarket",
   "injective.exchange.v2.MsgUpdateSubaccountRiskProfile",
+  "injective.exchange.v2.MsgUpdateSwapParams",
   "injective.exchange.v2.MsgWithdraw",
   "injective.exchange.v2.OrderData",
   "injective.exchange.v2.SpotMarketOrderResults",
