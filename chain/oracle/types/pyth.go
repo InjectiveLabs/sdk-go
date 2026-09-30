@@ -5,6 +5,19 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// NormalizePythPublishTime returns epoch seconds for current Pyth timestamps
+// and the legacy authorised contract's epoch-nanosecond encoding. Callers
+// reading uint64 state must check the original signed attestation range before
+// converting to int64; out-of-range state is not a legacy timestamp.
+func NormalizePythPublishTime(publishTime int64) int64 {
+	const minimumLegacyNanosecondTimestamp int64 = 1_000_000_000_000_000_000
+	const nanosecondsPerSecond int64 = 1_000_000_000
+	if publishTime >= minimumLegacyNanosecondTimestamp {
+		return publishTime / nanosecondsPerSecond
+	}
+	return publishTime
+}
+
 func NewPythPriceState(
 	priceID common.Hash,
 	emaPrice, emaConf, conf math.LegacyDec,
