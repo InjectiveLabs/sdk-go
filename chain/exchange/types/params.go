@@ -58,6 +58,10 @@ const (
 
 	// MaxWhiteKnightLiquidators defines the maximum number of white knight liquidators.
 	MaxWhiteKnightLiquidators = 1024
+
+	// MaxDerivativeOrderSideCountHardLimit is the protocol ceiling for the governed
+	// maximum number of derivative orders per market side.
+	MaxDerivativeOrderSideCountHardLimit uint32 = 1000
 )
 
 var MaxBinaryOptionsOrderPrice = math.LegacyOneDec()
@@ -588,9 +592,8 @@ func ValidateDerivativeOrderSideCount(i any) error {
 		return fmt.Errorf("DerivativeOrderSideCount must be positive: %d", v)
 	}
 
-	const maxDerivativeOrderSideCount = 1000
-	if v > maxDerivativeOrderSideCount {
-		return fmt.Errorf("DerivativeOrderSideCount must not exceed %d: %d", maxDerivativeOrderSideCount, v)
+	if v > MaxDerivativeOrderSideCountHardLimit {
+		return fmt.Errorf("DerivativeOrderSideCount must not exceed %d: %d", MaxDerivativeOrderSideCountHardLimit, v)
 	}
 
 	return nil

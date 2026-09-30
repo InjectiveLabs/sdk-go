@@ -547,6 +547,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.AdminInfo == nil &&
 		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
 		p.CrossMarginEligibility == CrossMarginEligibility_CM_ELIGIBILITY_UNSPECIFIED &&
+		p.ReferencePriceGateConfig == nil &&
 		p.OracleParams == nil {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
@@ -601,6 +602,12 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if p.OpenNotionalCap != nil {
 		if err := ValidateOpenNotionalCap(*p.OpenNotionalCap); err != nil {
 			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
+		}
+	}
+
+	if p.ReferencePriceGateConfig != nil {
+		if err := p.ReferencePriceGateConfig.Validate(); err != nil {
+			return err
 		}
 	}
 

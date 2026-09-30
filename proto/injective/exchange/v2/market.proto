@@ -52,6 +52,46 @@ message OpenNotionalCapCapped {
   ];
 }
 
+// ReferencePriceSource selects the provider-specific price used by a market's
+// reference-price gate on position-opening fills. DISABLED turns the gate off
+// for the market.
+// MULTI_ORACLE_TWAP and COMPOSITE_LONG are declared for API stability but are
+// not implemented yet. A market carrying an unsupported source resolves the
+// reference price as unavailable, which blocks position-opening fills while
+// leaving reductions, closes and liquidations unaffected (fail-closed).
+enum ReferencePriceSource {
+  // disables the reference-price gate
+  REFERENCE_PRICE_SOURCE_DISABLED = 0;
+  // uses the upstream EMA from the standard Pyth feed
+  REFERENCE_PRICE_SOURCE_PYTH_EMA_LONG = 1;
+  // reserved for a future multi-oracle TWAP implementation
+  REFERENCE_PRICE_SOURCE_MULTI_ORACLE_TWAP = 2;
+  // reserved for a future composite long-horizon implementation
+  REFERENCE_PRICE_SOURCE_COMPOSITE_LONG = 3;
+  // uses the upstream EMA from the Pyth Pro feed
+  REFERENCE_PRICE_SOURCE_PYTH_PRO_EMA_LONG = 4;
+  // uses the latest verified Chainlink Data Streams mid price
+  REFERENCE_PRICE_SOURCE_CHAINLINK_DATA_STREAMS_SPOT = 5;
+  // uses the latest verified SEDA Fast price
+  REFERENCE_PRICE_SOURCE_SEDA_FAST_SPOT = 6;
+}
+
+// ReferencePriceGateConfig configures the per-market reference-price gate
+// applied to fills that would open a new position or increase an existing
+// position in the same direction, on both the maker and the taker side.
+// A zero-valued config (DISABLED source, zero window and deviation) means
+// the gate is off.
+message ReferencePriceGateConfig {
+  // source of the reference price
+  ReferencePriceSource reference_price_source = 1;
+  // maximum permitted age of the provider observation used as the reference,
+  // in seconds
+  uint32 reference_window_seconds = 2;
+  // maximum deviation, in basis points, between a position-opening fill
+  // price and the reference price
+  uint32 max_open_deviation_bps = 3;
+}
+
 message MarketFeeMultiplier {
   option (gogoproto.goproto_getters) = false;
 
@@ -305,6 +345,12 @@ message DerivativeMarket {
   // pool participation. Default false means markets are ineligible until
   // explicitly enabled at launch or toggled via governance proposal.
   bool cross_margin_eligible = 25;
+
+  // reference_price_gate_config configures the reference-price gate on
+  // position-opening fills for the market. A zero-valued config means the
+  // gate is disabled.
+  ReferencePriceGateConfig reference_price_gate_config = 26
+      [ (gogoproto.nullable) = false ];
 }
 
 message DerivativeMarketSettlementInfo {

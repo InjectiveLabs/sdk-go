@@ -42,6 +42,14 @@ type OracleKeeper interface {
 	) (baseCumulative, quoteCumulative *sdkmath.LegacyDec)
 	GetProviderInfo(ctx sdk.Context, provider string) *oracletypes.ProviderInfo
 	GetProviderPrice(ctx sdk.Context, provider, symbol string) *sdkmath.LegacyDec
+	// GetPythPriceState exposes the raw per-priceID Pyth state (spot price,
+	// EMA price, confidence, publish time) for consumers that need more than
+	// the spot pairing — the reference-price gate's PYTH_EMA_LONG source reads
+	// EmaPrice and PublishTime.
+	GetPythPriceState(ctx sdk.Context, priceID common.Hash) *oracletypes.PythPriceState
+	GetPythProPriceState(ctx sdk.Context, feedID uint32) *oracletypes.PythProPriceState
+	GetChainlinkDataStreamsPriceState(ctx sdk.Context, feedID string) *oracletypes.ChainlinkDataStreamsPriceState
+	GetSedaFastPriceState(ctx sdk.Context, feedID string) *oracletypes.SedaFastPriceState
 }
 
 // InsuranceKeeper defines the expected insurance keeper methods.
