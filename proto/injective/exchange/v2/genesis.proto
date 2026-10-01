@@ -142,6 +142,11 @@ message GenesisState {
   repeated DenomMinNotional denom_min_notionals = 37;
 
   repeated SubaccountRiskProfileRecord subaccount_risk_profiles = 38;
+
+  // subaccount_market_risk_modes contains explicit per-(subaccount, market)
+  // margin-mode overrides. Markets without a record use the subaccount's
+  // risk-profile mode as the default.
+  repeated SubaccountMarketRiskModeRecord subaccount_market_risk_modes = 39;
 }
 
 message OrderbookSequence {
@@ -209,4 +214,13 @@ message FullActiveGrant {
 message SubaccountRiskProfileRecord {
   string subaccount_id = 1;
   SubaccountRiskProfile risk_profile = 2 [ (gogoproto.nullable) = false ];
+}
+
+// SubaccountMarketRiskModeRecord pins the margin mode of a single derivative
+// market for a subaccount, overriding the subaccount's default risk-profile
+// mode for that market.
+message SubaccountMarketRiskModeRecord {
+  string subaccount_id = 1;
+  string market_id = 2;
+  RiskMode mode = 3;
 }

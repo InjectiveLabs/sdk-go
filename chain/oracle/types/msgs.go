@@ -93,7 +93,21 @@ func (msg MsgRelayPriceFeedPrice) ValidateBasic() error {
 	if len(msg.Quote) != priceCount {
 		return ErrBadPriceFeedQuoteCount
 	}
-	for _, price := range msg.Price {
+
+	seenBaseQuoteHashes := make(map[common.Hash]struct{}, priceCount)
+	for idx, price := range msg.Price {
+		baseQuoteHash := GetBaseQuoteHash(msg.Base[idx], msg.Quote[idx])
+		if _, ok := seenBaseQuoteHashes[baseQuoteHash]; ok {
+			return errors.Wrapf(
+				ErrInvalidOracleRequest,
+				"duplicate price feed hash %s for base %s quote %s",
+				baseQuoteHash.Hex(),
+				msg.Base[idx],
+				msg.Quote[idx],
+			)
+		}
+		seenBaseQuoteHashes[baseQuoteHash] = struct{}{}
+
 		if !price.IsPositive() {
 			return ErrBadPrice
 		}

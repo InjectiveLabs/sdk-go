@@ -53,7 +53,8 @@ message GenesisState {
   repeated PythProPriceState pyth_pro_price_states = 19;
 
   // seda_fast_price_states defines the persisted SEDA Fast feed price states
-  // at genesis, keyed by feed_id (hex-encoded execInputs).
+  // at genesis, keyed by feed_id:
+  // hex(keccak256(execProgramIdBytes || keccak256(execInputsBytes))).
   repeated SedaFastPriceState seda_fast_price_states = 20;
 }
 
