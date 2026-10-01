@@ -5,7 +5,7 @@ clone-injective-indexer:
 
 clone-injective-core:
 	#git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
-	git clone https://github.com/InjectiveLabs/injective-core.git -b ic-1075/ibc-evm-hook --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b ic-1076/ibc-evm-precompile --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -144,10 +144,11 @@ copy-chain-types: clone-injective-core
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 
-	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && \
+	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && mkdir -p chain/evm/precompiles/ibc && \
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.go chain/evm/precompiles/bank && \
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/exchange/*.go chain/evm/precompiles/exchange && \
-		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.go chain/evm/precompiles/staking
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.go chain/evm/precompiles/staking && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/ibc/*.go chain/evm/precompiles/ibc
 
 	rm -rf proto
 	cp -r injective-core/proto ./
