@@ -42,8 +42,16 @@ linters:
             - 140
         - name: cognitive-complexity
           arguments:
-            - 20
+            - 100
           disabled: false
+        - name: cyclomatic
+          arguments:
+            - 100
+          disabled: false
+        - name: function-length
+          arguments:
+            - 100
+            - 200
   exclusions:
     generated: lax
     presets:

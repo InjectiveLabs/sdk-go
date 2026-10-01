@@ -82,8 +82,24 @@ func NewInterfaceRegistry() types.InterfaceRegistry {
 
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
 func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
-	marshaler, _ := createInjectiveProtoCodec()
-	return tx.NewTxConfig(marshaler, signModes)
+	return newEncodingConfig(signModes).TxConfig
+}
+
+// NewEncodingConfig initializes the full Injective encoding config used by sdk-go clients.
+func NewEncodingConfig() EncodingConfig {
+	return newEncodingConfig([]signingtypes.SignMode{
+		signingtypes.SignMode_SIGN_MODE_DIRECT,
+	})
+}
+
+func newEncodingConfig(signModes []signingtypes.SignMode) EncodingConfig {
+	marshaler, interfaceRegistry := createInjectiveProtoCodec()
+
+	return EncodingConfig{
+		InterfaceRegistry: interfaceRegistry,
+		Marshaler:         marshaler,
+		TxConfig:          tx.NewTxConfig(marshaler, signModes),
+	}
 }
 
 // NewClientContext creates a new Cosmos Client context, where chainID
@@ -94,15 +110,7 @@ func NewClientContext(
 ) (client.Context, error) {
 	clientCtx := client.Context{}
 
-	marshaler, interfaceRegistry := createInjectiveProtoCodec()
-
-	encodingConfig := EncodingConfig{
-		InterfaceRegistry: interfaceRegistry,
-		Marshaler:         marshaler,
-		TxConfig: tx.NewTxConfig(marshaler, []signingtypes.SignMode{
-			signingtypes.SignMode_SIGN_MODE_DIRECT,
-		}),
-	}
+	encodingConfig := NewEncodingConfig()
 
 	var keyInfo keyring.Record
 

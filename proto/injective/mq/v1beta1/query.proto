@@ -1,0 +1,52 @@
+syntax = "proto3";
+package injective.mq.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "cometbft/abci/v1/types.proto";
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/mq/types";
+
+service EventStream {
+  rpc EventStream(EventStreamRequest) returns (stream EventStreamResponse);
+}
+
+message EventStreamRequest {
+  // a unique Kafka partition for this particular client. Reuse the value to
+  // resume where you left off with receiving data
+  string consumer_id = 1;
+
+  // topic of interest (raw, latest, guaranteed)
+  string topic = 2;
+}
+
+message EventStreamResponse {
+  int64 block_height = 1;
+  bytes app_hash = 2;
+  bytes last_app_hash = 3;
+  EventSet block_events = 4 [ (gogoproto.nullable) = false ];
+  repeated EventSet tx_events = 5 [ (gogoproto.nullable) = false ];
+
+  repeated AdditionalDataEntry additional_data_entries = 6;
+}
+
+// todo: still needed?
+enum AdditionalDataTypes {
+  EVM = 0;
+}
+
+message AdditionalDataEntry {
+  AdditionalDataTypes type = 1;
+  bytes data = 2;
+}
+
+enum EventType {
+  ABCI = 0;
+  PUBLISH = 1;
+}
+
+message EventSet {
+  repeated bytes published_events = 1;
+  repeated EventType true_orders = 2;
+  repeated cometbft.abci.v1.Event abci_events = 3
+      [ (gogoproto.nullable) = false ];
+}

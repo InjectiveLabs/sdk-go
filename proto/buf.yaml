@@ -7,6 +7,7 @@ deps:
   - buf.build/cosmos/gogo-proto
   - buf.build/cosmwasm/wasmd:main
   - buf.build/protocolbuffers/wellknowntypes
+  - buf.build/cometbft/cometbft
 breaking:
   use:
     - FILE
