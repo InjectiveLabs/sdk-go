@@ -1,22 +1,40 @@
 package v2
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"sort"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	ethcommon "github.com/ethereum/go-ethereum/common"
 
 	downtimetypes "github.com/InjectiveLabs/sdk-go/chain/downtime-detector/types"
 	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 )
 
-var _ paramtypes.ParamSet = &Params{}
-
 const (
 	MaxLiquidationCooldownBlocks uint64 = 1000
+
+	// RFQ liquidation bounds cap every dimension of a caller-supplied
+	// cross-margin liquidation action before it reaches keeper execution.
+	MaxCrossMarginRFQLiquidationMarkets = 8
+	// MaxCrossMarginRFQReservedInventoryMarkets bounds the distinct position
+	// markets one reserved RFQ provider inventory may carry; the arm's census
+	// and the genesis checks enforce the same number.
+	MaxCrossMarginRFQReservedInventoryMarkets     = 64
+	MaxCrossMarginRFQEnabledQuoteDenoms           = 8
+	MaxCrossMarginRFQContractAddresses            = 8
+	MaxCrossMarginRFQPositionMarketsPerSubaccount = MaxCrossMarginRFQEnabledQuoteDenoms * MaxCrossMarginRFQLiquidationMarkets
+	MaxCrossMarginRFQLiquidationTradePairs        = 32
+	MaxCrossMarginRFQLiquidationActionBytes       = 65_536
+
+	// CrossMarginMaxActiveDerivativeMarketsPerPoolHardLimit is the protocol
+	// validation ceiling. Read-side bounded recovery uses this hard limit rather
+	// than the mutable admission cap so a governance decrease cannot strand
+	// grandfathered cross-margin positions.
+	CrossMarginMaxActiveDerivativeMarketsPerPoolHardLimit uint32 = 1000
 
 	// DefaultMaxCrossMarginSpotOrdersPerSubaccountPerDenom caps cross-margin
 	// spot order count per (subaccount, locking denom) at admission so the
@@ -26,145 +44,94 @@ const (
 	MaxCrossMarginSpotOrdersPerSubaccountPerDenom        uint32 = 1000
 )
 
-// Parameter keys
-var (
-	KeySpotMarketInstantListingFee                 = []byte("SpotMarketInstantListingFee")
-	KeyDerivativeMarketInstantListingFee           = []byte("DerivativeMarketInstantListingFee")
-	KeyDefaultSpotMakerFeeRate                     = []byte("DefaultSpotMakerFeeRate")
-	KeyDefaultSpotTakerFeeRate                     = []byte("DefaultSpotTakerFeeRate")
-	KeyDefaultDerivativeMakerFeeRate               = []byte("DefaultDerivativeMakerFeeRate")
-	KeyDefaultDerivativeTakerFeeRate               = []byte("DefaultDerivativeTakerFeeRate")
-	KeyDefaultInitialMarginRatio                   = []byte("DefaultInitialMarginRatio")
-	KeyDefaultMaintenanceMarginRatio               = []byte("DefaultMaintenanceMarginRatio")
-	KeyDefaultReduceMarginRatio                    = []byte("DefaultReduceMarginRatio")
-	KeyDefaultFundingInterval                      = []byte("DefaultFundingInterval")
-	KeyFundingMultiple                             = []byte("FundingMultiple")
-	KeyRelayerFeeShareRate                         = []byte("RelayerFeeShareRate")
-	KeyDefaultHourlyFundingRateCap                 = []byte("DefaultHourlyFundingRateCap")
-	KeyDefaultHourlyInterestRate                   = []byte("DefaultHourlyInterestRate")
-	KeyMaxDerivativeOrderSideCount                 = []byte("MaxDerivativeOrderSideCount")
-	KeyInjRewardStakedRequirementThreshold         = []byte("KeyInjRewardStakedRequirementThreshold")
-	KeyTradingRewardsVestingDuration               = []byte("TradingRewardsVestingDuration")
-	KeyLiquidatorRewardShareRate                   = []byte("LiquidatorRewardShareRate")
-	KeyWhiteKnightLiquidators                      = []byte("WhiteKnightLiquidators")
-	KeyWhiteKnightLiquidatorRewardShareRate        = []byte("WhiteKnightLiquidatorRewardShareRate")
-	KeyBinaryOptionsMarketInstantListingFee        = []byte("BinaryOptionsMarketInstantListingFee")
-	KeyAtomicMarketOrderAccessLevel                = []byte("AtomicMarketOrderAccessLevel")
-	KeySpotAtomicMarketOrderFeeMultiplier          = []byte("SpotAtomicMarketOrderFeeMultiplier")
-	KeyDerivativeAtomicMarketOrderFeeMultiplier    = []byte("DerivativeAtomicMarketOrderFeeMultiplier")
-	KeyBinaryOptionsAtomicMarketOrderFeeMultiplier = []byte("BinaryOptionsAtomicMarketOrderFeeMultiplier")
-	KeyMinimalProtocolFeeRate                      = []byte("MinimalProtocolFeeRate")
-	KeyIsInstantDerivativeMarketLaunchEnabled      = []byte("IsInstantDerivativeMarketLaunchEnabled")
-	KeyPostOnlyModeHeightThreshold                 = []byte("PostOnlyModeHeightThreshold")
-	KeyPostOnlyModeBlocksAmount                    = []byte("PostOnlyModeBlocksAmount")
-	KeyMinPostOnlyModeDowntimeDuration             = []byte("MinPostOnlyModeDowntimeDuration")
-	KeyPostOnlyModeBlocksAmountAfterDowntime       = []byte("PostOnlyModeBlocksAmountAfterDowntime")
-	KeyCrossMarginParams                           = []byte("CrossMarginParams")
-)
+// CrossMarginRFQRouterSet is a validated, byte-sorted set of cross-margin RFQ
+// router addresses. Its zero value is the empty set.
+type CrossMarginRFQRouterSet struct {
+	addresses []sdk.AccAddress
+}
 
-// ParamSetPairs returns the parameter set pairs.
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(
-			KeySpotMarketInstantListingFee,
-			&p.SpotMarketInstantListingFee,
-			types.ValidateSpotMarketInstantListingFee,
-		),
-		paramtypes.NewParamSetPair(
-			KeyDerivativeMarketInstantListingFee,
-			&p.DerivativeMarketInstantListingFee,
-			types.ValidateDerivativeMarketInstantListingFee,
-		),
-		paramtypes.NewParamSetPair(KeyDefaultSpotMakerFeeRate, &p.DefaultSpotMakerFeeRate, types.ValidateMakerFee),
-		paramtypes.NewParamSetPair(KeyDefaultSpotTakerFeeRate, &p.DefaultSpotTakerFeeRate, types.ValidateFee),
-		paramtypes.NewParamSetPair(KeyDefaultDerivativeMakerFeeRate, &p.DefaultDerivativeMakerFeeRate, types.ValidateMakerFee),
-		paramtypes.NewParamSetPair(KeyDefaultDerivativeTakerFeeRate, &p.DefaultDerivativeTakerFeeRate, types.ValidateFee),
-		paramtypes.NewParamSetPair(KeyDefaultInitialMarginRatio, &p.DefaultInitialMarginRatio, types.ValidateMarginRatio),
-		paramtypes.NewParamSetPair(KeyDefaultMaintenanceMarginRatio, &p.DefaultMaintenanceMarginRatio, types.ValidateMarginRatio),
-		paramtypes.NewParamSetPair(KeyDefaultReduceMarginRatio, &p.DefaultReduceMarginRatio, types.ValidateMarginRatio),
-		paramtypes.NewParamSetPair(KeyDefaultFundingInterval, &p.DefaultFundingInterval, types.ValidateFundingInterval),
-		paramtypes.NewParamSetPair(KeyFundingMultiple, &p.FundingMultiple, types.ValidateFundingMultiple),
-		paramtypes.NewParamSetPair(KeyRelayerFeeShareRate, &p.RelayerFeeShareRate, types.ValidateFee),
-		paramtypes.NewParamSetPair(KeyDefaultHourlyFundingRateCap, &p.DefaultHourlyFundingRateCap, types.ValidateFee),
-		paramtypes.NewParamSetPair(KeyDefaultHourlyInterestRate, &p.DefaultHourlyInterestRate, types.ValidateFee),
-		paramtypes.NewParamSetPair(KeyMaxDerivativeOrderSideCount, &p.MaxDerivativeOrderSideCount, types.ValidateDerivativeOrderSideCount),
-		paramtypes.NewParamSetPair(
-			KeyInjRewardStakedRequirementThreshold,
-			&p.InjRewardStakedRequirementThreshold,
-			types.ValidateInjRewardStakedRequirementThreshold,
-		),
-		paramtypes.NewParamSetPair(
-			KeyTradingRewardsVestingDuration,
-			&p.TradingRewardsVestingDuration,
-			types.ValidateTradingRewardsVestingDuration,
-		),
-		paramtypes.NewParamSetPair(
-			KeyLiquidatorRewardShareRate,
-			&p.LiquidatorRewardShareRate,
-			types.ValidateLiquidatorRewardShareRate,
-		),
-		paramtypes.NewParamSetPair(
-			KeyWhiteKnightLiquidators,
-			&p.WhiteKnightLiquidators,
-			types.ValidateWhiteKnightLiquidators,
-		),
-		paramtypes.NewParamSetPair(
-			KeyWhiteKnightLiquidatorRewardShareRate,
-			&p.WhiteKnightLiquidatorRewardShareRate,
-			types.ValidateWhiteKnightLiquidatorRewardShareRate,
-		),
-		paramtypes.NewParamSetPair(
-			KeyBinaryOptionsMarketInstantListingFee,
-			&p.BinaryOptionsMarketInstantListingFee,
-			types.ValidateBinaryOptionsMarketInstantListingFee,
-		),
-		paramtypes.NewParamSetPair(
-			KeyAtomicMarketOrderAccessLevel,
-			&p.AtomicMarketOrderAccessLevel,
-			types.ValidateAtomicMarketOrderAccessLevel,
-		),
-		paramtypes.NewParamSetPair(
-			KeySpotAtomicMarketOrderFeeMultiplier,
-			&p.SpotAtomicMarketOrderFeeMultiplier,
-			types.ValidateAtomicMarketOrderFeeMultiplier,
-		),
-		paramtypes.NewParamSetPair(
-			KeyDerivativeAtomicMarketOrderFeeMultiplier,
-			&p.DerivativeAtomicMarketOrderFeeMultiplier,
-			types.ValidateAtomicMarketOrderFeeMultiplier,
-		),
-		paramtypes.NewParamSetPair(
-			KeyBinaryOptionsAtomicMarketOrderFeeMultiplier,
-			&p.BinaryOptionsAtomicMarketOrderFeeMultiplier,
-			types.ValidateAtomicMarketOrderFeeMultiplier,
-		),
-		paramtypes.NewParamSetPair(KeyMinimalProtocolFeeRate, &p.MinimalProtocolFeeRate, types.ValidateFee),
-		paramtypes.NewParamSetPair(
-			KeyIsInstantDerivativeMarketLaunchEnabled,
-			&p.IsInstantDerivativeMarketLaunchEnabled,
-			types.ValidateBool,
-		),
-		paramtypes.NewParamSetPair(
-			KeyPostOnlyModeHeightThreshold,
-			&p.PostOnlyModeHeightThreshold,
-			types.ValidatePostOnlyModeHeightThreshold,
-		),
-		paramtypes.NewParamSetPair(
-			KeyPostOnlyModeBlocksAmount,
-			&p.PostOnlyModeBlocksAmount,
-			ValidatePostOnlyModeBlocksAmount,
-		),
-		paramtypes.NewParamSetPair(
-			KeyPostOnlyModeBlocksAmountAfterDowntime,
-			&p.PostOnlyModeBlocksAmountAfterDowntime,
-			ValidatePostOnlyModeBlocksAmountAfterDowntime,
-		),
-		paramtypes.NewParamSetPair(
-			KeyCrossMarginParams,
-			&p.CrossMarginParams,
-			ValidateCrossMarginParams,
-		),
+// ParseCrossMarginRFQRouterSet parses, byte-deduplicates, and byte-sorts RFQ
+// router addresses. Textual aliases of the same address are duplicates rather
+// than distinct routers.
+func ParseCrossMarginRFQRouterSet(values []string) (CrossMarginRFQRouterSet, error) {
+	if len(values) > MaxCrossMarginRFQContractAddresses {
+		return CrossMarginRFQRouterSet{}, fmt.Errorf(
+			"cross_margin_liquidation_rfq_contract_address must contain at most %d entries, got %d",
+			MaxCrossMarginRFQContractAddresses,
+			len(values),
+		)
 	}
+
+	addresses := make([]sdk.AccAddress, len(values))
+	for i, value := range values {
+		address, err := sdk.AccAddressFromBech32(value)
+		if err != nil {
+			return CrossMarginRFQRouterSet{}, fmt.Errorf(
+				"cross_margin_liquidation_rfq_contract_address[%d] is invalid: %w",
+				i,
+				err,
+			)
+		}
+		addresses[i] = append(sdk.AccAddress(nil), address...)
+	}
+
+	sort.Slice(addresses, func(i, j int) bool {
+		return bytes.Compare(addresses[i], addresses[j]) < 0
+	})
+	for i := 1; i < len(addresses); i++ {
+		if bytes.Equal(addresses[i-1], addresses[i]) {
+			return CrossMarginRFQRouterSet{}, fmt.Errorf(
+				"cross_margin_liquidation_rfq_contract_address contains duplicate address %s",
+				addresses[i].String(),
+			)
+		}
+	}
+
+	return CrossMarginRFQRouterSet{addresses: addresses}, nil
+}
+
+// Len returns the number of distinct routers.
+func (s CrossMarginRFQRouterSet) Len() int {
+	return len(s.addresses)
+}
+
+// Contains reports whether address belongs to the router set.
+func (s CrossMarginRFQRouterSet) Contains(address sdk.AccAddress) bool {
+	idx := sort.Search(len(s.addresses), func(i int) bool {
+		return bytes.Compare(s.addresses[i], address) >= 0
+	})
+	return idx < len(s.addresses) && bytes.Equal(s.addresses[idx], address)
+}
+
+// Equal reports byte-set equality. Both operands are already canonical.
+func (s CrossMarginRFQRouterSet) Equal(other CrossMarginRFQRouterSet) bool {
+	if len(s.addresses) != len(other.addresses) {
+		return false
+	}
+	for i := range s.addresses {
+		if !bytes.Equal(s.addresses[i], other.addresses[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+// Addresses returns a deep copy of the canonical byte-sorted addresses.
+func (s CrossMarginRFQRouterSet) Addresses() []sdk.AccAddress {
+	addresses := make([]sdk.AccAddress, len(s.addresses))
+	for i := range s.addresses {
+		addresses[i] = append(sdk.AccAddress(nil), s.addresses[i]...)
+	}
+	return addresses
+}
+
+// CanonicalStrings returns canonical Bech32 encodings in address-byte order.
+func (s CrossMarginRFQRouterSet) CanonicalStrings() []string {
+	values := make([]string, len(s.addresses))
+	for i := range s.addresses {
+		values[i] = s.addresses[i].String()
+	}
+	return values
 }
 
 // DefaultParams returns a default set of parameters.
@@ -185,10 +152,10 @@ func DefaultParams() Params {
 		DefaultHourlyFundingRateCap:                  math.LegacyNewDecWithPrec(625, 6),     // default 0.0625% max hourly funding rate
 		DefaultHourlyInterestRate:                    math.LegacyNewDecWithPrec(416666, 11), // 0.01% daily interest rate = 0.0001 / 24 = 0.00000416666
 		MaxDerivativeOrderSideCount:                  100,
-		InjRewardStakedRequirementThreshold:          math.NewIntWithDecimal(100, 18), // 100 INJ
-		TradingRewardsVestingDuration:                604800,                          // 7 days
-		LiquidatorRewardShareRate:                    math.LegacyNewDecWithPrec(5, 2), // 5% liquidator reward
-		WhiteKnightLiquidatorRewardShareRate:         math.LegacyNewDecWithPrec(5, 1), // 50% white knight liquidator reward
+		InjRewardStakedRequirementThreshold:          math.NewIntWithDecimal(100, 18),         // 100 INJ
+		TradingRewardsVestingDuration:                604800,                                  // 7 days
+		LiquidatorRewardShareRate:                    math.LegacyNewDecWithPrec(5, 2),         // 5% liquidator reward
+		WhiteKnightLiquidatorRewardShareRate:         DecPtr(math.LegacyNewDecWithPrec(5, 1)), // 50% white knight liquidator reward
 		WhiteKnightLiquidators:                       []string{},
 		BinaryOptionsMarketInstantListingFee:         sdk.NewCoin("inj", math.NewIntWithDecimal(types.BinaryOptionsMarketInstantListingFee, 18)),
 		AtomicMarketOrderAccessLevel:                 AtomicMarketOrderAccessLevel_SmartContractsOnly,
@@ -206,6 +173,7 @@ func DefaultParams() Params {
 		MinPostOnlyModeDowntimeDuration:              "DURATION_10M", // default 10 minutes
 		PostOnlyModeBlocksAmountAfterDowntime:        1000,           // default 1000 blocks
 		CrossMarginParams:                            DefaultCrossMarginParams(),
+		SwapParams:                                   DefaultSwapParams(),
 	}
 }
 
@@ -259,11 +227,18 @@ func (p Params) Validate() error {
 	if err := types.ValidateLiquidatorRewardShareRate(p.LiquidatorRewardShareRate); err != nil {
 		return fmt.Errorf("liquidator_reward_share_rate is incorrect: %w", err)
 	}
-	if err := types.ValidateWhiteKnightLiquidatorRewardShareRate(p.WhiteKnightLiquidatorRewardShareRate); err != nil {
-		return fmt.Errorf("white_knight_liquidator_reward_share_rate is incorrect: %w", err)
-	}
-	if p.WhiteKnightLiquidatorRewardShareRate.LT(p.LiquidatorRewardShareRate) {
-		return errors.New("white_knight_liquidator_reward_share_rate must be greater than or equal to liquidator_reward_share_rate")
+	// The white-knight rate is nullable: nil means "preserve the current value" in
+	// MsgUpdateParams — the omission survives serialization (including gov's proposal
+	// re-marshalling) — and must pass ValidateBasic, since gov validates inner proposal
+	// messages at submission. The handler backfills nil before storage and the params
+	// decode chokepoint defaults it, so range and cross-checks apply only when present.
+	if p.WhiteKnightLiquidatorRewardShareRate != nil {
+		if err := types.ValidateWhiteKnightLiquidatorRewardShareRate(*p.WhiteKnightLiquidatorRewardShareRate); err != nil {
+			return fmt.Errorf("white_knight_liquidator_reward_share_rate is incorrect: %w", err)
+		}
+		if p.WhiteKnightLiquidatorRewardShareRate.LT(p.LiquidatorRewardShareRate) {
+			return errors.New("white_knight_liquidator_reward_share_rate must be greater than or equal to liquidator_reward_share_rate")
+		}
 	}
 	if err := types.ValidateWhiteKnightLiquidators(p.WhiteKnightLiquidators); err != nil {
 		return fmt.Errorf("white_knight_liquidators is incorrect: %w", err)
@@ -308,7 +283,41 @@ func (p Params) Validate() error {
 	if err := ValidatePostOnlyModeBlocksAmountAfterDowntime(p.PostOnlyModeBlocksAmountAfterDowntime); err != nil {
 		return fmt.Errorf("post_only_mode_blocks_amount_after_downtime is incorrect: %w", err)
 	}
+	if err := p.SwapParams.Validate(); err != nil {
+		return fmt.Errorf("swap_params is incorrect: %w", err)
+	}
 	return p.CrossMarginParams.Validate()
+}
+
+// DefaultSwapParams returns default swap parameters. The empty allowlist keeps
+// the swap path inert until governance or an exchange admin lists markets.
+func DefaultSwapParams() SwapParams {
+	return SwapParams{
+		Enabled:        true,
+		AllowedMarkets: nil,
+	}
+}
+
+// MaxSwapAllowedMarkets bounds the allowlist size as an input-sanity limit.
+const MaxSwapAllowedMarkets = 1000
+
+// Validate performs basic validation on swap parameters.
+func (p SwapParams) Validate() error {
+	if len(p.AllowedMarkets) > MaxSwapAllowedMarkets {
+		return fmt.Errorf("allowed_markets exceeds maximum of %d entries", MaxSwapAllowedMarkets)
+	}
+	seen := make(map[string]struct{}, len(p.AllowedMarkets))
+	for _, marketID := range p.AllowedMarkets {
+		if !types.IsHexHash(marketID) {
+			return fmt.Errorf("allowed_markets entry %q is not a valid market ID hash", marketID)
+		}
+		normalized := ethcommon.HexToHash(marketID).Hex()
+		if _, ok := seen[normalized]; ok {
+			return fmt.Errorf("allowed_markets entry %q is duplicated", marketID)
+		}
+		seen[normalized] = struct{}{}
+	}
+	return nil
 }
 
 // DefaultCrossMarginParams returns default cross-margin parameters.
@@ -325,7 +334,9 @@ func DefaultCrossMarginParams() CrossMarginParams {
 		PartialLiquidationRatio:                       math.LegacyOneDec(),             // default 100% of shortfall
 		LiquidationCooldownBlocks:                     0,
 		MaxCrossMarginSpotOrdersPerSubaccountPerDenom: DefaultMaxCrossMarginSpotOrdersPerSubaccountPerDenom,
-		UtilRatio:                                     math.LegacyOneDec(),
+		UtilRatio:                                     DecPtr(math.LegacyOneDec()),
+		LiquidationRfqContractAddress:                 []string{},
+		MaxIsolatedActiveDerivativeMarketsPerSubaccountPerDenom: 100,
 	}
 }
 
@@ -345,6 +356,10 @@ func (p CrossMarginParams) Validate() error {
 	}
 	if err := ValidateCrossMarginMaxActiveDerivativeMarketsPerPool(p.MaxActiveDerivativeMarketsPerPool); err != nil {
 		return fmt.Errorf("cross_margin_max_active_derivative_markets_per_pool is incorrect: %w", err)
+	}
+
+	if err := ValidateCrossMarginMaxIsolatedActiveDerivativeMarkets(p.MaxIsolatedActiveDerivativeMarketsPerSubaccountPerDenom); err != nil {
+		return fmt.Errorf("cross_margin_max_isolated_active_derivative_markets_per_subaccount_per_denom is incorrect: %w", err)
 	}
 	if p.BackstopMarginRatio.IsNil() {
 		return errors.New("cross_margin: backstop_margin_ratio must be set")
@@ -373,29 +388,43 @@ func (p CrossMarginParams) Validate() error {
 			p.MaxCrossMarginSpotOrdersPerSubaccountPerDenom,
 		)
 	}
-	// util_ratio may be nil when a client/SDK that predates the field omits it on the wire. A nil is
-	// treated as "use the default" — the MsgUpdateParams handler backfills it before storage and read
-	// paths default it to 1.0 — so it is only range-checked when present. Rejecting nil here would
-	// fail MsgUpdateParams.ValidateBasic(), including gov's submission-time validation of inner
-	// proposal messages, blocking every params update from such a client.
-	if !p.UtilRatio.IsNil() {
-		if err := types.ValidateFee(p.UtilRatio); err != nil {
+	// util_ratio is nullable: nil (field omitted on the wire) means "preserve the current
+	// value" in MsgUpdateParams, distinct from an explicit 0 (admission halt). The omission
+	// survives serialization — including gov's proposal re-marshalling — precisely because
+	// the field is a pointer. Nil must pass here since gov validates inner proposal messages
+	// at submission; the handler backfills it before storage and the params decode chokepoint
+	// defaults it, so it is only range-checked when present.
+	if p.UtilRatio != nil {
+		if err := types.ValidateFee(*p.UtilRatio); err != nil {
 			return fmt.Errorf("cross_margin_util_ratio is incorrect: %w", err)
 		}
 	}
 	if err := ValidateCrossMarginEnabledQuoteDenoms(p.EnabledQuoteDenoms); err != nil {
 		return fmt.Errorf("cross_margin_enabled_quote_denoms are invalid: %w", err)
 	}
+	routers, err := ParseCrossMarginRFQRouterSet(p.LiquidationRfqContractAddress)
+	if err != nil {
+		return err
+	}
+	if routers.Len() == 0 && len(p.EnabledQuoteDenoms) != 0 {
+		return errors.New("cross_margin_enabled_quote_denoms must be empty when liquidation_rfq_contract_address is not configured")
+	}
+	if routers.Len() != 0 {
+		if len(p.EnabledQuoteDenoms) > MaxCrossMarginRFQEnabledQuoteDenoms {
+			return fmt.Errorf(
+				"cross_margin_enabled_quote_denoms must contain at most %d entries when RFQ liquidation is enabled, got %d",
+				MaxCrossMarginRFQEnabledQuoteDenoms,
+				len(p.EnabledQuoteDenoms),
+			)
+		}
+	}
 	return nil
 }
 
-// ValidateCrossMarginParams validates the CrossMarginParams sub-message for ParamSetPairs.
-func ValidateCrossMarginParams(i any) error {
-	v, ok := i.(CrossMarginParams)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	return v.Validate()
+// DecPtr returns a pointer to a copy of d, for the nullable LegacyDec params
+// fields (util_ratio, white_knight_liquidator_reward_share_rate).
+func DecPtr(d math.LegacyDec) *math.LegacyDec {
+	return &d
 }
 
 func ValidateAtomicMarketOrderAccessLevel(accessLevel any) error {
@@ -432,6 +461,26 @@ func ValidateCrossMarginEnabledQuoteDenoms(i any) error {
 	return nil
 }
 
+// ValidateCrossMarginMaxIsolatedActiveDerivativeMarkets accepts 0 as "unset":
+// the field is a proto3 uint32, so genesis files and param-update clients
+// predating it decode 0, and every read and persist path normalises 0 to the
+// module default. An explicit zero-cap ("no isolated activity at all") is
+// therefore not an expressible semantic for this param; the smallest
+// enforceable bound is 1.
+func ValidateCrossMarginMaxIsolatedActiveDerivativeMarkets(i any) error {
+	v, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	const maxReasonable = 1000
+	if v > maxReasonable {
+		return fmt.Errorf("max_isolated_active_derivative_markets_per_subaccount_per_denom %d exceeds max %d", v, maxReasonable)
+	}
+
+	return nil
+}
+
 func ValidateCrossMarginMaxActiveDerivativeMarketsPerPool(i any) error {
 	v, ok := i.(uint32)
 	if !ok {
@@ -444,9 +493,12 @@ func ValidateCrossMarginMaxActiveDerivativeMarketsPerPool(i any) error {
 		return errors.New("max_active_derivative_markets_per_pool must be >= 1 (explicit zero is rejected; governance must supply a positive cap)")
 	}
 
-	const maxReasonable = 1000
-	if v > maxReasonable {
-		return fmt.Errorf("max_active_derivative_markets_per_pool %d exceeds max %d", v, maxReasonable)
+	if v > CrossMarginMaxActiveDerivativeMarketsPerPoolHardLimit {
+		return fmt.Errorf(
+			"max_active_derivative_markets_per_pool %d exceeds max %d",
+			v,
+			CrossMarginMaxActiveDerivativeMarketsPerPoolHardLimit,
+		)
 	}
 	return nil
 }

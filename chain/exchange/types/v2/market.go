@@ -123,6 +123,10 @@ func (m *SpotMarket) NotionalToChainFormat(humanReadableValue math.LegacyDec) ma
 	return types.NotionalToChainFormat(humanReadableValue, m.QuoteDecimals)
 }
 
+func (m *SpotMarket) CanRepresentNotionalInChainFormat(humanReadableValue math.LegacyDec) bool {
+	return types.CanRepresentNotionalInChainFormat(humanReadableValue, m.QuoteDecimals)
+}
+
 func (m *ExpiryFuturesMarketInfo) IsPremature(currBlockTime int64) bool {
 	return currBlockTime < m.TwapStartTimestamp
 }
@@ -231,6 +235,10 @@ func (m *DerivativeMarket) IsCrossMarginEligible() bool {
 	return m.CrossMarginEligible
 }
 
+func (m *DerivativeMarket) GetReferencePriceGateConfig() ReferencePriceGateConfig {
+	return m.ReferencePriceGateConfig
+}
+
 func (m *DerivativeMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
 	return types.PriceFromChainFormat(price, 0, m.QuoteDecimals)
 }
@@ -253,6 +261,10 @@ func (*DerivativeMarket) QuantityToChainFormat(humanReadableValue math.LegacyDec
 
 func (m *DerivativeMarket) NotionalToChainFormat(humanReadableValue math.LegacyDec) math.LegacyDec {
 	return types.NotionalToChainFormat(humanReadableValue, m.QuoteDecimals)
+}
+
+func (m *DerivativeMarket) CanRepresentNotionalInChainFormat(humanReadableValue math.LegacyDec) bool {
+	return types.CanRepresentNotionalInChainFormat(humanReadableValue, m.QuoteDecimals)
 }
 
 /// Binary Options Markets
@@ -344,6 +356,10 @@ func (*BinaryOptionsMarket) IsCrossMarginEligible() bool {
 	return false
 }
 
+func (*BinaryOptionsMarket) GetReferencePriceGateConfig() ReferencePriceGateConfig {
+	return ReferencePriceGateConfig{}
+}
+
 func (m *BinaryOptionsMarket) PriceFromChainFormat(price math.LegacyDec) math.LegacyDec {
 	return types.PriceFromChainFormat(price, 0, m.QuoteDecimals)
 }
@@ -398,6 +414,7 @@ type DerivativeMarketI interface {
 	GetQuoteDecimals() uint32
 	GetOpenNotionalCap() OpenNotionalCap
 	IsCrossMarginEligible() bool
+	GetReferencePriceGateConfig() ReferencePriceGateConfig
 }
 
 func IsMarketSolvent(availableMarketFunds, marketBalanceDelta math.LegacyDec) bool {

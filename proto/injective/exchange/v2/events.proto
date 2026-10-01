@@ -17,6 +17,56 @@ message EventBatchSpotExecution {
   repeated TradeLog trades = 4;
 }
 
+message EventSwapExecuted {
+  string caller = 1;
+  string recipient = 2;
+  string input_denom = 3;
+  // input_amount is in chain format (token native decimals)
+  string input_amount = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string output_denom = 5;
+  // output_amount is in chain format (token native decimals)
+  string output_amount = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  repeated SwapHopExecution hops = 7;
+  // spent_amount is the input actually debited in chain format; input_amount
+  // minus spent_amount is the refunded remainder
+  string spent_amount = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message EventSwapParamsUpdated {
+  // sender is the governance authority or exchange admin that made the change
+  string sender = 1;
+  SwapParams swap_params = 2 [ (gogoproto.nullable) = false ];
+}
+
+message SwapHopExecution {
+  string market_id = 1;
+  bool is_buy = 2;
+  // quantity is the base-asset fill quantity (human readable)
+  string quantity = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // price is the clearing price (human readable)
+  string price = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // fee is the quote-denom trading fee (human readable)
+  string fee = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}
+
 message EventBatchDerivativeExecution {
   string market_id = 1;
   bool is_buy = 2;
@@ -166,6 +216,15 @@ message EventSubaccountRiskProfileUpdated {
   bool is_default = 4;
 }
 
+message EventSubaccountMarketRiskModeUpdated {
+  string subaccount_id = 1;
+  string market_id = 2;
+  // previous explicit override mode; UNSPECIFIED when no override existed
+  RiskMode previous_mode = 3;
+  // new explicit override mode; UNSPECIFIED when the override was removed
+  RiskMode new_mode = 4;
+}
+
 message EventBatchDepositUpdate { repeated DepositUpdate deposit_updates = 1; }
 
 message DerivativeMarketOrderCancel {
@@ -222,6 +281,55 @@ message EventOrderFail {
   repeated bytes hashes = 2;
   repeated uint32 flags = 3;
   repeated string cids = 4;
+}
+
+// ReferencePriceGateRejectReason explains why the reference-price gate
+// rejected a position-opening fill.
+enum ReferencePriceGateRejectReason {
+  REFERENCE_GATE_REJECT_REASON_UNSPECIFIED = 0;
+  // the fill price deviated from the reference price beyond the market's
+  // max_open_deviation_bps
+  REFERENCE_GATE_REJECT_REASON_OUT_OF_BAND = 1;
+  // the market's configured reference price could not be resolved; opens are
+  // blocked until it is restored
+  REFERENCE_GATE_REJECT_REASON_REFERENCE_UNAVAILABLE = 2;
+}
+
+// EventOpenRejectedByReferenceGate is emitted when the reference-price gate
+// rejects the position-opening portion of a fill during matching.
+message EventOpenRejectedByReferenceGate {
+  string market_id = 1;
+  string subaccount_id = 2;
+  string order_hash = 3;
+  string cid = 4;
+  // the order's own limit price that the gate evaluated: the posted price for
+  // limit orders, or the worst (slippage-bounded) price for market orders
+  string fill_price = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // the market's reference price at gating time; nil when the reference was
+  // unavailable
+  string reference_price = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // absolute deviation between fill_price and reference_price in basis
+  // points; nil when the reference was unavailable
+  string deviation_bps = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // the opening quantity that was rejected
+  string gated_quantity = 8 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // true if the gated open was a buy
+  bool is_buy = 9;
+  // true if the gated order was the maker side
+  bool is_maker = 10;
+  ReferencePriceGateRejectReason reason = 11;
 }
 
 message EventAtomicMarketOrderFeeMultipliersUpdated {
@@ -372,4 +480,23 @@ message EventPositionTransfer {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+}
+
+// EventCrossMarginRiskControlUpdated is emitted by MsgUpdateParams when a
+// governance params update flips a cross-margin risk-control switch: the
+// util_ratio admission halt (util_ratio == 0) engaging or clearing, or the
+// emergency pause toggling. It makes these transitions visible in block
+// results — in particular a halt engaged by a stale client that omitted
+// util_ratio and synthesized an explicit 0 on the wire.
+message EventCrossMarginRiskControlUpdated {
+  string old_util_ratio = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  string new_util_ratio = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  bool old_emergency_paused = 3;
+  bool new_emergency_paused = 4;
 }

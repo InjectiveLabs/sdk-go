@@ -28,6 +28,7 @@ func NewPythProPriceState(feedID uint32, price math.LegacyDec, timestamp uint64,
 		FeedId:     feedID,
 		Timestamp:  timestamp,
 		PriceState: *NewPriceState(price, blockTime),
+		EmaPrice:   math.LegacyZeroDec(),
 	}
 }
 
@@ -40,4 +41,15 @@ func (p *PythProPriceState) Update(price math.LegacyDec, timestamp uint64, block
 	}
 	p.Timestamp = timestamp
 	p.PriceState.UpdatePrice(price, blockTime)
+}
+
+// UpdateEMA applies a newly verified upstream EMA independently from spot.
+// Keeping a separate timestamp prevents spot-only relays from refreshing a
+// stale EMA used by the exchange reference-price gate.
+func (p *PythProPriceState) UpdateEMA(emaPrice math.LegacyDec, timestamp uint64) {
+	if timestamp <= p.EmaTimestamp {
+		return
+	}
+	p.EmaPrice = emaPrice
+	p.EmaTimestamp = timestamp
 }

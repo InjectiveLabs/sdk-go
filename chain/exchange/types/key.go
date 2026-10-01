@@ -133,6 +133,7 @@ var (
 	TransientAtomicPerpetualVwapPrefix           = []byte{0x88} // prefix for transient atomic perpetual market VWAP data
 	ObjectCachedParamsKey                        = []byte{0x89} // key for cached params in object store (block-scoped)
 	ObjectCachedWhiteKnightLiquidatorsKey        = []byte{0x8a} // key for cached white knight liquidators set in object store (block-scoped)
+	ObjectCachedSwapAllowedMarketsKey            = []byte{0x9c} // key for cached swap allowed-markets set in object store (block-scoped)
 	TransientSyntheticPerpetualFundingVwapPrefix = []byte{0x8b} // prefix for transient synthetic perpetual funding VWAP data
 
 	// SubaccountRiskProfilePrefix | subaccountID(32B) -> v2.SubaccountRiskProfile (proto bytes)
@@ -143,10 +144,17 @@ var (
 	ActiveDerivativeOrderMarketsBySubaccountPrefix = []byte{0x8e}
 
 	ObjectCrossPoolSnapshotCacheKey = []byte{0x8f} // key for cross-pool snapshot cache in object store (block-scoped)
+	// ObjectCrossPoolAdmissionOLRDirtyKey prefixes the per-owner admission-OLR marker in the object
+	// store (block-scoped): ObjectCrossPoolAdmissionOLRDirtyKey || owner.
+	ObjectCrossPoolAdmissionOLRDirtyKey = []byte{0x92}
 
 	// CrossMarginLastLiquidationBlockPrefix | subaccountID(32B) | quoteDenom -> uint64 (block height)
 	CrossMarginLastLiquidationBlockPrefix = []byte{0x90}
-
+	// TransientCrossMarginRestingVanillaAdmissionPrefix | marketID(32B) | side -> uint64.
+	// Counts transitions that can add durable cross-margin vanilla makers during the
+	// current block. It lives only in the transient store and bounds how quickly a
+	// terminally rejected resting prefix can be replenished.
+	TransientCrossMarginRestingVanillaAdmissionPrefix = []byte{0x91}
 	// SpotLimitOrderDenomIndexPrefix | subaccountID | len(lockingDenom) | lockingDenom | marketID | side -> count
 	SpotLimitOrderDenomIndexPrefix = []byte{0x95}
 	// TransientSpotLimitOrderDenomIndexPrefix | subaccountID | len(lockingDenom) | lockingDenom | marketID | side -> count
@@ -175,6 +183,37 @@ var (
 	// Per-subaccount mirror of `SubaccountLimitOrderIndicatorPrefix`; same
 	// rationale and lifecycle as the market-order variant above.
 	SubaccountTransientLimitOrderIndicatorByAccountPrefix = []byte{0x9b}
+	// DerivativeReducingLimitOrdersPrefix mirrors resting derivative orders that
+	// are currently the best-priced close candidate for their subaccount, keyed by the same
+	// market|side|price|hash suffix as the main book. It lets reference-outage
+	// matching find close liquidity without traversing or cancelling every gated
+	// opening maker.
+	DerivativeReducingLimitOrdersPrefix = []byte{0xa2}
+	// DerivativeLimitOrdersBySubaccountPricePrefix is a derived, price-ordered
+	// index of persistent derivative orders. It lets position-side transitions
+	// select one best close candidate in O(1), rather than scanning up to the
+	// account's full resting-order allowance during EndBlock persistence.
+	DerivativeLimitOrdersBySubaccountPricePrefix = []byte{0xa3}
+	// NOTE: 0x9d–0x9e were the remaining IC-1087 liquidation hard-blocked maker
+	// cursor keys. That design was removed on the base branch, so the prefixes
+	// remain unused. The per-market margin-mode keys below deliberately
+	// keep their allocated 0x9f–0xa1 values rather than sliding down into the gap:
+	// they are already referenced by ic-990 state and renumbering buys nothing.
+	// SubaccountMarketRiskModePrefix | subaccountID(32B) | marketID(32B) -> v2.RiskMode (single byte).
+	// Explicit per-(subaccount, market) margin-mode override. Absence means the
+	// market follows the subaccount's risk-profile mode.
+	SubaccountMarketRiskModePrefix = []byte{0x9f}
+	// SubaccountMarketRiskModeCountPrefix | subaccountID(32B) -> uint64
+	// (big-endian) count of the subaccount's per-market margin-mode override
+	// records. Deleted at zero, so key absence lets effective-mode resolution
+	// skip the per-market record read for subaccounts without overrides.
+	SubaccountMarketRiskModeCountPrefix = []byte{0xa0}
+	// SubaccountCrossOverrideCountPrefix | subaccountID(32B) -> uint64
+	// (big-endian) count of the subaccount's CROSS-valued per-market override
+	// records. Deleted at zero. Powers the O(1) pool-existence predicate:
+	// a subaccount can have cross-margin exposure iff its risk profile is
+	// cross or this count is positive — no activity scans on any gate path.
+	SubaccountCrossOverrideCountPrefix = []byte{0xa1}
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {
@@ -382,6 +421,23 @@ func GetSubaccountOrderSuffix(marketID, subaccountID common.Hash, isBuy bool) []
 func GetSubaccountOrderKey(marketID, subaccountID common.Hash, isBuy bool, price math.LegacyDec, orderHash common.Hash) []byte {
 	// TODO use copy for greater efficiency
 	return append(append(GetSubaccountOrderPrefixByMarketSubaccountDirection(marketID, subaccountID, isBuy), []byte(GetPaddedPrice(price))...), orderHash.Bytes()...)
+}
+
+func GetDerivativeLimitOrdersBySubaccountPricePrefix(marketID, subaccountID common.Hash, isBuy bool) []byte {
+	return append(DerivativeLimitOrdersBySubaccountPricePrefix, GetSubaccountOrderSuffix(marketID, subaccountID, isBuy)...)
+}
+
+func GetDerivativeLimitOrderBySubaccountPriceKey(
+	marketID,
+	subaccountID common.Hash,
+	isBuy bool,
+	price math.LegacyDec,
+	orderHash common.Hash,
+) []byte {
+	return append(
+		GetDerivativeLimitOrdersBySubaccountPricePrefix(marketID, subaccountID, isBuy),
+		GetSubaccountOrderIterationKey(price, orderHash)...,
+	)
 }
 
 func GetSubaccountDerivativeMarketOrderKey(
@@ -721,6 +777,10 @@ func GetDerivativeOrderbookLevelsForPriceKey(marketID common.Hash, isBuy bool, p
 	return append(GetDerivativeOrderbookLevelsKey(marketID, isBuy), GetPaddedPrice(price)...)
 }
 
+func GetDerivativeReducingLimitOrdersKey(marketID common.Hash, isBuy bool) []byte {
+	return append(DerivativeReducingLimitOrdersPrefix, MarketDirectionPrefix(marketID, isBuy)...)
+}
+
 func GetCrossMarginLastLiquidationBlockKey(subaccountID common.Hash, quoteDenom string) []byte {
 	addrBytes := subaccountID.Bytes()
 	denomBytes := []byte(quoteDenom)
@@ -729,6 +789,37 @@ func GetCrossMarginLastLiquidationBlockKey(subaccountID common.Hash, quoteDenom 
 	n := copy(key, CrossMarginLastLiquidationBlockPrefix)
 	n += copy(key[n:], addrBytes)
 	copy(key[n:], denomBytes)
+	return key
+}
+
+func GetSubaccountCrossOverrideCountKey(subaccountID common.Hash) []byte {
+	key := make([]byte, len(SubaccountCrossOverrideCountPrefix)+common.HashLength)
+	n := copy(key, SubaccountCrossOverrideCountPrefix)
+	copy(key[n:], subaccountID.Bytes())
+	return key
+}
+
+func GetSubaccountMarketRiskModeCountKey(subaccountID common.Hash) []byte {
+	key := make([]byte, len(SubaccountMarketRiskModeCountPrefix)+common.HashLength)
+	n := copy(key, SubaccountMarketRiskModeCountPrefix)
+	copy(key[n:], subaccountID.Bytes())
+	return key
+}
+
+func GetSubaccountMarketRiskModeKey(subaccountID, marketID common.Hash) []byte {
+	key := make([]byte, len(SubaccountMarketRiskModePrefix)+2*common.HashLength)
+	n := copy(key, SubaccountMarketRiskModePrefix)
+	n += copy(key[n:], subaccountID.Bytes())
+	copy(key[n:], marketID.Bytes())
+	return key
+}
+
+// GetTransientCrossMarginRestingVanillaAdmissionKey returns the transient
+// per-market-side durable cross-margin vanilla-maker admission counter key.
+func GetTransientCrossMarginRestingVanillaAdmissionKey(marketID common.Hash, isBuy bool) []byte {
+	key := make([]byte, 0, len(TransientCrossMarginRestingVanillaAdmissionPrefix)+common.HashLength+1)
+	key = append(key, TransientCrossMarginRestingVanillaAdmissionPrefix...)
+	key = append(key, MarketDirectionPrefix(marketID, isBuy)...)
 	return key
 }
 

@@ -235,9 +235,12 @@ func (m *SpotOrder) GetMarketOrderBalanceHold(feeRate, bestPrice math.LegacyDec)
 	var balanceHold math.LegacyDec
 
 	if m.IsBuy() {
-		// required margin for best sell price = bestPrice * quantity * (1 + feeRate)
-		requiredMarginForBestPrice := bestPrice.Mul(m.OrderInfo.Quantity).Mul(math.LegacyOneDec().Add(feeRate))
-		requiredMarginForWorstPrice := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity).Mul(math.LegacyOneDec().Add(feeRate))
+		// Settlement adds the separately rounded fee to the rounded principal.
+		// Multiplying principal by (1 + feeRate) can reserve one decimal unit less.
+		bestNotional := bestPrice.Mul(m.OrderInfo.Quantity)
+		worstNotional := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity)
+		requiredMarginForBestPrice := bestNotional.Add(bestNotional.Mul(feeRate))
+		requiredMarginForWorstPrice := worstNotional.Add(worstNotional.Mul(feeRate))
 		requiredMargin := math.LegacyMaxDec(requiredMarginForBestPrice, requiredMarginForWorstPrice)
 		balanceHold = requiredMargin
 	} else {

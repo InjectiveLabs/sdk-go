@@ -123,4 +123,35 @@ var (
 	ErrNotCanonicalLiquidationTarget            = errors.Register(ModuleName, 114, "targeted market is not the canonical liquidation target")
 	ErrMsgDeprecated                            = errors.Register(ModuleName, 115, "message type is deprecated")
 	ErrTooManyCrossMarginSpotOrders             = errors.Register(ModuleName, 116, "cross-margin subaccount has reached the per-denom spot order cap")
+	ErrSwapDisabled                             = errors.Register(ModuleName, 117, "spot swap is disabled")
+	ErrInvalidSwapRoute                         = errors.Register(ModuleName, 118, "invalid swap route")
+	ErrSwapDeadlineExceeded                     = errors.Register(ModuleName, 119, "swap deadline exceeded")
+	ErrSwapMinOutputNotMet                      = errors.Register(ModuleName, 120, "swap output below minimum")
+	ErrPoolFundedCloseCannotRest                = errors.Register(ModuleName, 121, "pool-funded cross-margin close cannot rest on the orderbook")
+	ErrRFQPartialInsuranceNotLastResort         = errors.Register(ModuleName, 122, "RFQ partial may draw insurance only when the remaining pool positions hold no positive mark equity")
+	ErrRFQInactiveSettlementNotLastResort       = errors.Register(ModuleName, 123, "inactive cross-margin legs may be scheduled for settlement only when the active pool positions hold no positive mark equity")
+	ErrRFQPartialBelowMarkWhileInsolvent        = errors.Register(ModuleName, 124, "a partial RFQ slice may pay below the exact-mark payout only while the pool has no mark shortfall after it")
+	ErrTooManyIsolatedActiveMarkets             = errors.Register(ModuleName, 125, "cross-exposed subaccount has reached the per-denom isolated active derivative market cap")
+	ErrInvalidReferencePriceGateConfig          = errors.Register(ModuleName, 126, "invalid reference price gate config")
+	ErrUnsupportedReferencePriceSource          = errors.Register(ModuleName, 127, "unsupported reference price source")
+	ErrReferencePriceGateRejection              = errors.Register(ModuleName, 128, "position-opening fill rejected by reference price gate")
 )
+
+// ErrCrossMarginBoundExceeded is the common cause of every hard G/U/C/B census
+// violation reported by the risk engine. It retains ErrInvalidState's ABCI
+// code and standard errors.Is compatibility, but must not implement Cause:
+// Cosmos Error.Is unwraps Cause on the target as well as the received error,
+// which would make every invalid-state failure match this narrower sentinel.
+var ErrCrossMarginBoundExceeded = crossMarginBoundExceededError{}
+
+type crossMarginBoundExceededError struct{}
+
+func (crossMarginBoundExceededError) Error() string {
+	return "cross-margin bound exceeded: " + ErrInvalidState.Error()
+}
+
+func (crossMarginBoundExceededError) Unwrap() error { return ErrInvalidState }
+
+func (crossMarginBoundExceededError) ABCICode() uint32 { return ErrInvalidState.ABCICode() }
+
+func (crossMarginBoundExceededError) Codespace() string { return ErrInvalidState.Codespace() }

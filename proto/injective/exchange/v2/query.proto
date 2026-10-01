@@ -168,6 +168,18 @@ service Query {
   }
 
   // Retrieves a spot market's mid-price
+  // Projects the output of a spot swap for an exact input amount
+  rpc SpotSwapOutput(QuerySpotSwapOutputRequest)
+      returns (QuerySpotSwapOutputResponse) {
+    option (google.api.http).get = "/injective/exchange/v2/spot/swapOutput";
+  }
+
+  // Projects the input required for a spot swap to yield an exact output amount
+  rpc SpotSwapInput(QuerySpotSwapInputRequest)
+      returns (QuerySpotSwapInputResponse) {
+    option (google.api.http).get = "/injective/exchange/v2/spot/swapInput";
+  }
+
   rpc SpotMidPriceAndTOB(QuerySpotMidPriceAndTOBRequest)
       returns (QuerySpotMidPriceAndTOBResponse) {
     option (google.api.http).get =
@@ -252,6 +264,24 @@ service Query {
       returns (QuerySubaccountRiskProfileResponse) {
     option (google.api.http).get = "/injective/exchange/v2/exchange/"
                                    "subaccount_risk_profile/{subaccount_id}";
+  }
+
+  // Retrieves a subaccount's explicit per-market margin-mode records
+  rpc SubaccountMarketRiskModes(QuerySubaccountMarketRiskModesRequest)
+      returns (QuerySubaccountMarketRiskModesResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v2/exchange/"
+        "subaccount_market_risk_modes/{subaccount_id}";
+  }
+
+  // Resolves the effective margin mode of one derivative market for a
+  // subaccount (binary options pin -> explicit record -> profile default)
+  rpc EffectiveSubaccountMarketRiskMode(
+      QueryEffectiveSubaccountMarketRiskModeRequest)
+      returns (QueryEffectiveSubaccountMarketRiskModeResponse) {
+    option (google.api.http).get =
+        "/injective/exchange/v2/exchange/"
+        "effective_market_risk_mode/{subaccount_id}/{market_id}";
   }
 
   // Retrieves a subaccount's cross-margin pool snapshot for a given quote
@@ -827,6 +857,62 @@ message QueryAccountAddressSpotOrdersResponse {
   repeated TrimmedSpotLimitOrder orders = 1;
 }
 
+// QuerySpotSwapOutputRequest is the request type for the
+// Query/SpotSwapOutput RPC method.
+message QuerySpotSwapOutputRequest {
+  // Market ID of the spot market to swap on
+  string market_id = 1;
+  // Denom of the input token; the swap direction is derived from which side
+  // of the market it matches
+  string input_denom = 2;
+  // Exact input amount in chain format
+  string amount_in = 3;
+}
+
+// QuerySpotSwapOutputResponse is the response type for the
+// Query/SpotSwapOutput RPC method.
+message QuerySpotSwapOutputResponse {
+  string output_denom = 1;
+  // Projected output amount in chain format
+  string output_amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // Projected input actually spent in chain format; amount_in minus this is
+  // the projected refund
+  string spent_amount = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// QuerySpotSwapInputRequest is the request type for the
+// Query/SpotSwapInput RPC method.
+message QuerySpotSwapInputRequest {
+  // Market ID of the spot market to swap on
+  string market_id = 1;
+  // Denom of the desired output token; the swap direction is derived from
+  // which side of the market it matches
+  string output_denom = 2;
+  // Desired exact output amount in chain format
+  string amount_out = 3;
+}
+
+// QuerySpotSwapInputResponse is the response type for the
+// Query/SpotSwapInput RPC method.
+message QuerySpotSwapInputResponse {
+  string input_denom = 1;
+  // Input amount in chain format projected to achieve at least amount_out on
+  // the current book; conservatively rounded up. The projection walks
+  // aggregated levels, which cannot exclude paused or frozen maker liquidity
+  // resting at executable prices, so pair the swap with minOut = amount_out
+  // rather than relying on the projection alone
+  string input_amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
 // QuerySpotMidPriceAndTOBRequest is the request type for the
 // Query/SpotMidPriceAndTOB RPC method.
 message QuerySpotMidPriceAndTOBRequest {
@@ -1185,7 +1271,8 @@ message QuerySubaccountPositionsResponse {
 message QuerySubaccountPositionInMarketResponse {
   Position state = 1 [ (gogoproto.nullable) = true ];
 
-  // The risk mode of the subaccount (ISOLATED or CROSS).
+  // The effective margin mode of this (subaccount, market) pair
+  // (ISOLATED or CROSS), resolved per market.
   // For CROSS mode, the position's margin is an accounting value; actual
   // collateral is pooled. Use CrossMarginPoolSnapshot for pool-level health.
   RiskMode risk_mode = 2;
@@ -1216,7 +1303,8 @@ message EffectivePosition {
 message QuerySubaccountEffectivePositionInMarketResponse {
   EffectivePosition state = 1 [ (gogoproto.nullable) = true ];
 
-  // The risk mode of the subaccount (ISOLATED or CROSS).
+  // The effective margin mode of this (subaccount, market) pair
+  // (ISOLATED or CROSS), resolved per market.
   // For CROSS mode, effective_margin reflects position value but liquidation
   // is determined at pool level. Use CrossMarginPoolSnapshot for pool health.
   RiskMode risk_mode = 2;
@@ -1277,6 +1365,39 @@ message QuerySubaccountRiskProfileResponse {
 
   // True if the profile was not explicitly stored and defaults were returned.
   bool is_default = 2;
+}
+
+// QuerySubaccountMarketRiskModesRequest is the request type for the
+// Query/SubaccountMarketRiskModes RPC method.
+message QuerySubaccountMarketRiskModesRequest {
+  // 32-byte hex string, consistent with existing exchange queries.
+  string subaccount_id = 1;
+}
+
+// QuerySubaccountMarketRiskModesResponse is the response type for the
+// Query/SubaccountMarketRiskModes RPC method.
+message QuerySubaccountMarketRiskModesResponse {
+  // the subaccount's explicit per-market overrides, in market-ID byte order
+  repeated SubaccountMarketRiskModeRecord records = 1;
+}
+
+// QueryEffectiveSubaccountMarketRiskModeRequest is the request type for the
+// Query/EffectiveSubaccountMarketRiskMode RPC method.
+message QueryEffectiveSubaccountMarketRiskModeRequest {
+  // the subaccount ID
+  string subaccount_id = 1;
+  // the market ID
+  string market_id = 2;
+}
+
+// QueryEffectiveSubaccountMarketRiskModeResponse is the response type for the
+// Query/EffectiveSubaccountMarketRiskMode RPC method.
+message QueryEffectiveSubaccountMarketRiskModeResponse {
+  // the resolved effective mode for this (subaccount, market) pair
+  RiskMode mode = 1;
+  // true when an explicit per-market record produced the resolution (as
+  // opposed to the profile default or the binary-options pin)
+  bool is_override = 2;
 }
 
 // QueryCrossMarginPoolSnapshotRequest is the request type for the
@@ -1385,7 +1506,8 @@ message QueryCrossMarginPoolSnapshotResponse {
   ];
 
   // Field 16 removed: canonical_liquidation_target_market_id is no longer
-  // relevant — MsgLiquidateCrossMarginPool closes all positions atomically.
+  // relevant — the configured RFQ router selects the market of a one-pair
+  // partial itself, and a full close covers every position.
   reserved 16;
 
   // Ratcheted maintenance margin total: max(maintenance at current mark,

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"math/big"
 	"strconv"
 
 	"cosmossdk.io/math"
@@ -133,6 +134,33 @@ func NotionalToChainFormat(humanReadableValue math.LegacyDec, decimals uint32) m
 	}
 	multiplier := math.LegacyNewDec(10).Power(uint64(decimals))
 	return humanReadableValue.Mul(multiplier)
+}
+
+// legacyDecUpperLimit is the largest value a LegacyDec may hold, in the same internal
+// representation LegacyDec.BigInt() returns: 2^256 scaled by 10^LegacyPrecision. cosmossdk.io/math
+// keeps its own copy of this unexported, so it is recomputed here.
+var legacyDecUpperLimit = new(big.Int).Mul(
+	new(big.Int).Lsh(big.NewInt(1), 256),
+	new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(math.LegacyPrecision)), nil),
+)
+
+// CanRepresentNotionalInChainFormat reports whether NotionalToChainFormat can scale this value by
+// 10^decimals without leaving LegacyDec's valid range.
+//
+// It exists because NotionalToChainFormat panics rather than returning an error when the result is
+// out of range, so any caller that can be handed an attacker-influenced magnitude has to ask first.
+// The scaling is done on big.Int, which grows instead of panicking, so the check itself is safe.
+func CanRepresentNotionalInChainFormat(humanReadableValue math.LegacyDec, decimals uint32) bool {
+	if humanReadableValue.IsNil() {
+		return false
+	}
+
+	scaled := new(big.Int).Mul(
+		new(big.Int).Abs(humanReadableValue.BigInt()),
+		new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil),
+	)
+
+	return scaled.Cmp(legacyDecUpperLimit) < 0
 }
 
 type MarketType byte
