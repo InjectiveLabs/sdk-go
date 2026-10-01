@@ -847,6 +847,11 @@ func (msg MsgInstantPerpetualMarketLaunch) ValidateBasic() error {
 	if err := types.ValidateFee(msg.TakerFeeRate); err != nil {
 		return err
 	}
+	if msg.SyntheticTradeFeeRate != nil {
+		if err := ValidateSyntheticTradeFeeRate(*msg.SyntheticTradeFeeRate); err != nil {
+			return err
+		}
+	}
 	if err := types.ValidateMarginRatio(msg.InitialMarginRatio); err != nil {
 		return err
 	}
@@ -1007,6 +1012,11 @@ func (msg MsgInstantExpiryFuturesMarketLaunch) ValidateBasic() error {
 	}
 	if err := types.ValidateFee(msg.TakerFeeRate); err != nil {
 		return err
+	}
+	if msg.SyntheticTradeFeeRate != nil {
+		if err := ValidateSyntheticTradeFeeRate(*msg.SyntheticTradeFeeRate); err != nil {
+			return err
+		}
 	}
 	if err := types.ValidateMarginRatio(msg.InitialMarginRatio); err != nil {
 		return err

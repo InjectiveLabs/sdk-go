@@ -135,6 +135,9 @@ var (
 	ErrInvalidReferencePriceGateConfig          = errors.Register(ModuleName, 126, "invalid reference price gate config")
 	ErrUnsupportedReferencePriceSource          = errors.Register(ModuleName, 127, "unsupported reference price source")
 	ErrReferencePriceGateRejection              = errors.Register(ModuleName, 128, "position-opening fill rejected by reference price gate")
+	ErrInvalidFundingImpactNotional             = errors.Register(ModuleName, 129, "invalid funding impact notional")
+	ErrTooManyFundingV2Markets                  = errors.Register(ModuleName, 130, "too many markets use funding v2")
+	ErrInvalidSyntheticTradeFeeRate             = errors.Register(ModuleName, 131, "invalid synthetic trade fee rate")
 )
 
 // ErrCrossMarginBoundExceeded is the common cause of every hard G/U/C/B census

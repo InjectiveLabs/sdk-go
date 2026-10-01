@@ -53,6 +53,10 @@ func (gs GenesisState) Validate() error {
 		return err
 	}
 
+	if err := gs.ValidateFundingV2Genesis(nil); err != nil {
+		return err
+	}
+
 	membership, err := BuildGenesisCrossMarginMembership(gs)
 	if err != nil {
 		return err
