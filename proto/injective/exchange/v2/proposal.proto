@@ -273,6 +273,12 @@ message PerpetualMarketLaunchProposal {
   OpenNotionalCap open_notional_cap = 18 [ (gogoproto.nullable) = false ];
   // cross_margin_eligible marks the market as eligible for cross-margin
   bool cross_margin_eligible = 19;
+  // synthetic_trade_fee_rate defines the synthetic trade fee rate of the
+  // market. Omitted means zero.
+  string synthetic_trade_fee_rate = 20 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message BinaryOptionsMarketLaunchProposal {
@@ -413,6 +419,12 @@ message ExpiryFuturesMarketLaunchProposal {
   OpenNotionalCap open_notional_cap = 19 [ (gogoproto.nullable) = false ];
   // cross_margin_eligible marks the market as eligible for cross-margin
   bool cross_margin_eligible = 20;
+  // synthetic_trade_fee_rate defines the synthetic trade fee rate of the
+  // market. Omitted means zero.
+  string synthetic_trade_fee_rate = 21 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message DerivativeMarketParamUpdateProposal {
@@ -512,6 +524,18 @@ message DerivativeMarketParamUpdateProposal {
   // the market. nil means no update (the market's current value is preserved).
   ReferencePriceGateConfig reference_price_gate_config = 22
       [ (gogoproto.nullable) = true ];
+  // funding_impact_notional updates the funding v2 impact notional of a
+  // perpetual market. Zero selects legacy funding. nil means no update.
+  string funding_impact_notional = 23 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
+  // synthetic_trade_fee_rate updates the synthetic trade fee rate of the
+  // market. nil means no update.
+  string synthetic_trade_fee_rate = 24 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 message AdminInfo {

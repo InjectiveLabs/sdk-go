@@ -649,6 +649,12 @@ message MsgInstantPerpetualMarketLaunch {
   OpenNotionalCap open_notional_cap = 16 [ (gogoproto.nullable) = false ];
   // cross_margin_eligible marks the market as eligible for cross-margin
   bool cross_margin_eligible = 17;
+  // synthetic_trade_fee_rate defines the synthetic trade fee rate of the
+  // market. Omitted means zero.
+  string synthetic_trade_fee_rate = 18 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 // MsgInstantPerpetualMarketLaunchResponse defines the
@@ -798,6 +804,12 @@ message MsgInstantExpiryFuturesMarketLaunch {
   OpenNotionalCap open_notional_cap = 17 [ (gogoproto.nullable) = false ];
   // cross_margin_eligible marks the market as eligible for cross-margin
   bool cross_margin_eligible = 18;
+  // synthetic_trade_fee_rate defines the synthetic trade fee rate of the
+  // market. Omitted means zero.
+  string synthetic_trade_fee_rate = 19 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = true
+  ];
 }
 
 // MsgInstantExpiryFuturesMarketLaunchResponse defines the

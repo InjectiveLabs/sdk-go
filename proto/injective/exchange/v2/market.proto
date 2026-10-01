@@ -351,6 +351,13 @@ message DerivativeMarket {
   // gate is disabled.
   ReferencePriceGateConfig reference_price_gate_config = 26
       [ (gogoproto.nullable) = false ];
+
+  // synthetic_trade_fee_rate defines the fee rate charged on synthetic trades
+  // (RFQ and contract-driven legs) and position transfers of the market
+  string synthetic_trade_fee_rate = 27 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message DerivativeMarketSettlementInfo {
@@ -459,6 +466,13 @@ message PerpetualMarketInfo {
   // funding_interval defines the next funding interval in seconds of a
   // perpetual market.
   int64 funding_interval = 5;
+  // funding_impact_notional defines the quote notional (in human readable
+  // format) of the impact orders sampled by funding v2. Zero selects legacy
+  // funding.
+  string funding_impact_notional = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
 }
 
 message PerpetualMarketFunding {
@@ -476,4 +490,14 @@ message PerpetualMarketFunding {
   ];
   // the last funding timestamp in seconds
   int64 last_timestamp = 3;
+  // period_start defines the start in seconds of the current funding v2
+  // accrual period
+  int64 period_start = 4;
+  // last_premium defines the most recent funding v2 impact premium
+  string last_premium = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // last_sample_timestamp defines when in seconds last_premium was sampled
+  int64 last_sample_timestamp = 6;
 }
