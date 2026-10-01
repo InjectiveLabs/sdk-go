@@ -1,0 +1,67 @@
+syntax = "proto3";
+package injective.ibcratelimits.v1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ibc-rate-limits/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "injective/ibcratelimits/v1/rate_limit.proto";
+
+service Query {
+  // ModuleState returns the full ibc-rate-limits genesis-compatible state
+  rpc ModuleState(QueryModuleStateRequest) returns (QueryModuleStateResponse) {
+    option (google.api.http).get = "/injective/ibcratelimits/v1/module_state";
+  }
+
+  // RateLimit returns the configured rate limit for a single token
+  rpc RateLimit(QueryRateLimitRequest) returns (QueryRateLimitResponse) {
+    option (google.api.http) = {
+      get : "/injective/ibcratelimits/v1/rate_limit"
+      additional_bindings {
+        get : "/injective/ibcratelimits/v1/rate_limit/{token}"
+      }
+    };
+  }
+
+  // EffectiveOutflowUSD returns current effective net outflow in USD for a
+  // token
+  rpc EffectiveOutflowUSD(QueryEffectiveOutflowUSDRequest)
+      returns (QueryEffectiveOutflowUSDResponse) {
+    option (google.api.http) = {
+      get : "/injective/ibcratelimits/v1/effective_outflow_usd"
+      additional_bindings {
+        get : "/injective/ibcratelimits/v1/effective_outflow_usd/{token}"
+      }
+    };
+  }
+}
+
+message QueryModuleStateRequest {}
+
+message QueryModuleStateResponse {
+  // Full module state, including all configured rate limits
+  GenesisState state = 1;
+}
+
+message QueryRateLimitRequest {
+  // Token identifier used to fetch a single rate limit
+  string token = 1;
+}
+
+message QueryRateLimitResponse {
+  // Configured rate limit for the requested token
+  RateLimit rate_limit = 1;
+}
+
+message QueryEffectiveOutflowUSDRequest {
+  // Token identifier used to compute effective outflow
+  string token = 1;
+}
+
+message QueryEffectiveOutflowUSDResponse {
+  // Effective positive net outflow in USD over the configured window
+  string effective_outflow_usd = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

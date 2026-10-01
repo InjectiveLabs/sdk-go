@@ -1,0 +1,74 @@
+syntax = "proto3";
+package injective.ibcratelimits.v1;
+
+option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/ibc-rate-limits/types";
+
+import "gogoproto/gogo.proto";
+import "injective/oracle/v1beta1/oracle.proto";
+
+message RateLimit {
+  // Name of the (native) token to rate limit. (e.g. "inj" or
+  // "factory/{ADDR}/{NAME}")
+  string token = 1;
+
+  // Oracle source type used to price the token
+  injective.oracle.v1beta1.OracleType oracle_type = 2;
+
+  // Oracle-specific identifier (for example a Pyth price id)
+  string oracle_id = 3;
+
+  // Maximum allowed outgoing notional over the configured window, in USD
+  string max_outgoing_limit_usd = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // Sliding window size in blocks used to aggregate net outflow
+  uint64 sliding_window_size = 5;
+
+  // Number of token decimals used to convert raw token amounts to notional
+  // units
+  uint32 token_decimals = 6;
+}
+
+message IBCRateLimitTransfers {
+  // Name of the (native) token to rate limit. (e.g. "inj" or
+  // "factory/{ADDR}/{NAME}")
+  string token = 1;
+
+  // records of deposit transfers across blocks
+  repeated IBCBlockTransferRecord inflows = 2;
+
+  // records of withdrawal transfers across blocks
+  repeated IBCBlockTransferRecord outflows = 3;
+}
+
+message IBCBlockTransferRecord {
+  // block number at which the transfers occurred
+  uint64 block_number = 1;
+
+  // sum amount of transfers that happened in this block
+  string amount = 2 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+message GenesisState {
+  // list of all configured rate limit objects
+  repeated RateLimit rate_limits = 1;
+
+  // inbound and outbound transfers of all rate limited assets
+  repeated IBCRateLimitTransfers rate_limit_transfers = 2;
+}
+
+message EventRateLimitError {
+  // Height at which the error was recorded
+  uint64 block_number = 1;
+
+  // Token identifier of the rate limit that produced the error
+  string token = 2;
+
+  // Human-readable error context for observability
+  string the_error = 3;
+}
