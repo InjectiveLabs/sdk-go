@@ -18,44 +18,25 @@ The runtime contains `/bin/sh` for a Kubernetes sidecar supervisor and runs as
 UID/GID 10001. Mount a writable state directory with suitable ownership or a pod
 `fsGroup`; `/var/lib/mq` is writable in the image.
 
-The `MQ tools` workflow tests the tools, builds the image, and smoke-tests the
-runtime on pull requests. Publishing uses `GITHUB_TOKEN` with `packages: write`.
-A published tag matching `vX.Y.Z-mq.N`, or an explicit manual publishing run for
-that existing tag, publishes `ghcr.io/injectivelabs/sdk-go-mq:<tag>` for amd64 and
-arm64. Manual runs against branches build and test without publishing. No tag or
-image is created by committing these files. The proposed next release is
-`v1.64.0-mq.8`; it must be released before a deployment uses that image tag.
+The repository's existing CI workflows remain unchanged. There is no additional
+MQ workflow, automatic image publication, or new Actions secret requirement.
+Build and verify the image in a trusted local or private build environment using
+the commands under Verification below. Private Go dependencies, including
+`InjectiveLabs/cosmos-sdk`, require existing authorized Git access there.
 
-The workflow also needs a repository or organization Actions secret named
-`GH_TOKEN` with read access to the private InjectiveLabs Go dependency repositories,
-including `InjectiveLabs/cosmos-sdk`. This is a source-read credential, separate
-from the workflow's `GITHUB_TOKEN` used to publish GHCR packages. Configure a
-fine-grained token with repository contents read permission for those repositories
-(or the organization's equivalent approved credential). CI fails explicitly if
-this secret is unavailable; fork pull requests do not receive Actions secrets.
-The existing general test and lint workflows need their own private-module
-authentication if they do not already have it.
-
-`scripts/with-private-git.sh` applies authentication only to its child command;
-it does not write credentials into Git config. Before building an image,
+Before building an image,
 `scripts/prepare-mq-go-modules.sh` stages the SDK's private module versions in
 gitignored `.modcache/`. Docker reads that file proxy and receives no token.
-Locally, the scripts can use an existing Git credential helper without `GH_TOKEN`.
+The staging helpers use existing local Git authentication and are not called by
+the Actions workflows. Keep the generated module proxy, Go caches, and builder
+layers private. The final image contains the compiled tools, including dependency
+code, but no module source archives or credentials.
 
-This public workflow downloads private source onto its temporary runners. Actions
-caching of Go modules/build outputs and Docker build-record uploads are disabled; do not add
-shared caches, module artifacts, or exported builder layers containing that
-source. Dependencies are fetched in a separate authenticated step, then tests run
-without source credentials and with module downloads disabled. The final image
-contains the compiled tools, including dependency code, but no module source
-archives or credentials.
-
-Only run authenticated jobs against trusted revisions: same-repository pull
-requests and manually selected refs can change the scripts that receive the
-secret. Token masking does not redact private dependency source, diagnostic text,
-or module names from public logs. Use a private build repository if those outputs
-must remain confidential. Setting `GH_TOKEN` alone does not establish that
-confidentiality boundary or authenticate the separate general test/lint workflows.
+Image publication is a separate release step through the approved release
+process. The proposed next image is
+`ghcr.io/injectivelabs/sdk-go-mq:v1.64.0-mq.8`; publish and verify its amd64 and
+arm64 variants before a deployment uses that tag. Committing these files does
+not create a release tag or publish an image.
 
 ## Detector
 
