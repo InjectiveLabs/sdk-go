@@ -42,6 +42,21 @@ it does not write credentials into Git config. Before building an image,
 gitignored `.modcache/`. Docker reads that file proxy and receives no token.
 Locally, the scripts can use an existing Git credential helper without `GH_TOKEN`.
 
+This public workflow downloads private source onto its temporary runners. Actions
+caching of Go modules/build outputs and Docker build-record uploads are disabled; do not add
+shared caches, module artifacts, or exported builder layers containing that
+source. Dependencies are fetched in a separate authenticated step, then tests run
+without source credentials and with module downloads disabled. The final image
+contains the compiled tools, including dependency code, but no module source
+archives or credentials.
+
+Only run authenticated jobs against trusted revisions: same-repository pull
+requests and manually selected refs can change the scripts that receive the
+secret. Token masking does not redact private dependency source, diagnostic text,
+or module names from public logs. Use a private build repository if those outputs
+must remain confidential. Setting `GH_TOKEN` alone does not establish that
+confidentiality boundary or authenticate the separate general test/lint workflows.
+
 ## Detector
 
 ```sh

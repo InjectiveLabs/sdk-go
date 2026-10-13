@@ -30,6 +30,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # Build records can include diagnostics from private dependencies.
+  DOCKER_BUILD_RECORD_UPLOAD: "false"
+
 jobs:
   test:
     if: github.event_name != 'release' || contains(github.event.release.tag_name, '-mq.')
@@ -38,15 +42,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
+          persist-credentials: false
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: Test MQ tools
+          # Public-repository Actions caches must not contain private module source.
+          cache: false
+      - name: Download private Go dependencies
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: ./scripts/with-private-git.sh go mod download
+      - name: Test MQ tools without source credentials
+        env:
+          GOPROXY: "off"
         run: |
           python3 scripts/tests/test_mq_build.py
-          ./scripts/with-private-git.sh go test -race ./client/mq/...
+          go test -mod=readonly -race ./client/mq/...
 
   image:
     needs: test
@@ -59,6 +70,7 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.ref }}
           fetch-depth: 0
+          persist-credentials: false
       - name: Select immutable source version
         id: source
         env:
@@ -85,6 +97,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          # Public-repository Actions caches must not contain private module source.
+          cache: false
       - name: Prepare private Go modules without passing credentials to Docker
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
