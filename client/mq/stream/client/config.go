@@ -17,17 +17,21 @@ const (
 	flagMQStreamClientTopic          = "topic"
 	flagMQStreamClientFormat         = "format"
 	flagMQStreamClientEventsDir      = "events-dir"
+	flagMQStreamClientMaxRecvBytes   = "max-recv-msg-bytes"
 
 	defaultConsumerIDFile = ".mq-stream-consumer-id"
+	// Allow a 32 MiB block plus protobuf framing headroom.
+	defaultMaxRecvMsgBytes = 33 << 20
 )
 
 type mqStreamClientConfig struct {
-	Address        string
-	ConsumerID     string
-	ConsumerIDFile string
-	Topic          string
-	Format         string
-	EventsDir      string
+	Address         string
+	ConsumerID      string
+	ConsumerIDFile  string
+	Topic           string
+	Format          string
+	EventsDir       string
+	MaxRecvMsgBytes int
 }
 
 func (cfg mqStreamClientConfig) Validate() error {
@@ -41,6 +45,9 @@ func (cfg mqStreamClientConfig) Validate() error {
 
 	if strings.TrimSpace(cfg.Topic) == "" {
 		return errors.New("invalid MQ stream client config: topic cannot be empty")
+	}
+	if cfg.MaxRecvMsgBytes < 0 {
+		return errors.New("invalid MQ stream client config: max receive size must be positive")
 	}
 
 	switch cfg.Format {

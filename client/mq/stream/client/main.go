@@ -33,17 +33,19 @@ func main() {
 		topic          = flag.String(flagMQStreamClientTopic, "", "Topic to consume")
 		format         = flag.String(flagMQStreamClientFormat, "verbose", "Output format: verbose or minimal")
 		eventsDir      = flag.String(flagMQStreamClientEventsDir, "", "Directory to write one JSON file per streamed block")
+		maxRecvBytes   = flag.Int(flagMQStreamClientMaxRecvBytes, defaultMaxRecvMsgBytes, "Maximum received block size in bytes")
 	)
 
 	flag.Parse()
 
 	cfg := mqStreamClientConfig{
-		Address:        *address,
-		ConsumerID:     *consumerID,
-		ConsumerIDFile: *consumerIDFile,
-		Topic:          *topic,
-		Format:         *format,
-		EventsDir:      *eventsDir,
+		Address:         *address,
+		ConsumerID:      *consumerID,
+		ConsumerIDFile:  *consumerIDFile,
+		Topic:           *topic,
+		Format:          *format,
+		EventsDir:       *eventsDir,
+		MaxRecvMsgBytes: *maxRecvBytes,
 	}
 
 	if err := startMQStreamClient(context.Background(), cfg); err != nil && !errors.Is(err, context.Canceled) {
@@ -71,6 +73,7 @@ func startMQStreamClient(ctx context.Context, cfg mqStreamClientConfig) error {
 		cfg.Address,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(kacp),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(receiveLimit(cfg.MaxRecvMsgBytes))),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to connect: %w", err)
@@ -111,6 +114,13 @@ func startMQStreamClient(ctx context.Context, cfg mqStreamClientConfig) error {
 			return fmt.Errorf("unsupported format %q", cfg.Format)
 		}
 	}
+}
+
+func receiveLimit(configured int) int {
+	if configured == 0 {
+		return defaultMaxRecvMsgBytes
+	}
+	return configured
 }
 
 func isExpectedStreamClose(err error) bool {

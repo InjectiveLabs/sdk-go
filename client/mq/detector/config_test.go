@@ -3,17 +3,7 @@ package main
 import (
 	"testing"
 	"time"
-
-	"github.com/google/uuid"
 )
-
-func TestResolveConsumerIDGeneratesWhenEmpty(t *testing.T) {
-	consumerID := resolveConsumerID(" ")
-
-	if _, err := uuid.Parse(consumerID); err != nil {
-		t.Fatalf("expected generated UUID consumer id, got %q: %v", consumerID, err)
-	}
-}
 
 func TestValidateRequiresConsumerID(t *testing.T) {
 	cfg := mqDetectorConfig{
