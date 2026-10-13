@@ -222,6 +222,53 @@ func TestReplayRejectsUnsupportedAndExpiredHistory(t *testing.T) {
 	}
 }
 
+func TestReplayHandlesCaughtUpAndLaggingPublishers(t *testing.T) {
+	tests := []struct {
+		name      string
+		ranges    [][2]int64
+		wantNode  int
+		wantError bool
+	}{
+		{name: "caught up", ranges: [][2]int64{{7, 65}}, wantNode: -1},
+		{name: "lagging node before available history", ranges: [][2]int64{{7, 60}, {7, 70}}, wantNode: 1},
+		{name: "expired history remains an error", ranges: [][2]int64{{67, 70}}, wantNode: -1, wantError: true},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			cfg := testConfig(t)
+			type replayRequest struct {
+				node   int
+				height string
+			}
+			requests := make(chan replayRequest, len(test.ranges))
+			for node, retained := range test.ranges {
+				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					if r.URL.Path == "/status" {
+						_, _ = fmt.Fprintf(w, `{"earliest_height":%d,"last_height":%d}`, retained[0], retained[1])
+						return
+					}
+					requests <- replayRequest{node: node, height: r.URL.Query().Get("from_height")}
+					w.WriteHeader(http.StatusAccepted)
+				}))
+				t.Cleanup(server.Close)
+				cfg.FullNodes = append(cfg.FullNodes, server.URL)
+			}
+			err := requestReplay(context.Background(), http.DefaultClient, cfg, 66)
+			if (err != nil) != test.wantError {
+				t.Fatalf("requestReplay error = %v, want error %v", err, test.wantError)
+			}
+			if test.wantNode >= 0 {
+				if got := receive(t, requests); got.node != test.wantNode || got.height != "66" {
+					t.Fatalf("replay request = %+v, want node %d at height 66", got, test.wantNode)
+				}
+			}
+			if len(requests) != 0 {
+				t.Fatalf("unexpected replay requests: %d", len(requests))
+			}
+		})
+	}
+}
+
 func TestStateCannotBeReusedForAnotherConsumer(t *testing.T) {
 	cfg := testConfig(t)
 	state := detectorState{ConsumerID: "different", RawTopic: cfg.RawTopic, LatestTopic: cfg.LatestTopic, LatestHeight: 100}

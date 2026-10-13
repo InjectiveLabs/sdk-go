@@ -171,7 +171,12 @@ func requestReplay(ctx context.Context, client *http.Client, cfg mqDetectorConfi
 		if start == 0 {
 			start = first
 		}
-		if start < first || start > last {
+		if start > last {
+			// This publisher is caught up or behind the shared latest watermark.
+			// Other configured publishers may still have replayable history.
+			continue
+		}
+		if start < first {
 			failures = append(failures, fmt.Errorf("%s: requested height %d outside retained range [%d, %d]", node, start, first, last))
 			continue
 		}
