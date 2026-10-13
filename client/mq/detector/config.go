@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 const (
@@ -18,18 +16,21 @@ const (
 	flagMQDetectorControlToken   = "control-token"
 	flagMQDetectorRequestTimeout = "request-timeout"
 	flagMQDetectorMessageTimeout = "message-timeout"
+	flagMQDetectorStateFile      = "state-file"
+	flagMQDetectorRetryBackoff   = "retry-backoff"
 )
 
 type mqDetectorConfig struct {
 	KafkaBrokers   []string
 	ConsumerID     string
-	ConsumerIDFile string
 	RawTopic       string
 	LatestTopic    string
 	FullNodes      []string
 	ControlToken   string
 	RequestTimeout time.Duration
 	MessageTimeout time.Duration
+	StateFile      string
+	RetryBackoff   time.Duration
 }
 
 func (cfg mqDetectorConfig) Validate() error {
@@ -76,14 +77,12 @@ func (cfg mqDetectorConfig) Validate() error {
 	if cfg.MessageTimeout <= 0 {
 		return errors.New("invalid MQ detector config: message timeout must be positive")
 	}
-
-	return nil
-}
-
-func resolveConsumerID(flagValue string) string {
-	if consumerID := strings.TrimSpace(flagValue); consumerID != "" {
-		return consumerID
+	if strings.TrimSpace(cfg.StateFile) == "" {
+		return errors.New("invalid MQ detector config: state file cannot be empty")
+	}
+	if cfg.RetryBackoff <= 0 {
+		return errors.New("invalid MQ detector config: retry backoff must be positive")
 	}
 
-	return uuid.NewString()
+	return nil
 }
