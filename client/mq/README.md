@@ -26,6 +26,22 @@ arm64. Manual runs against branches build and test without publishing. No tag or
 image is created by committing these files. The proposed next release is
 `v1.64.0-mq.8`; it must be released before a deployment uses that image tag.
 
+The workflow also needs a repository or organization Actions secret named
+`GH_TOKEN` with read access to the private InjectiveLabs Go dependency repositories,
+including `InjectiveLabs/cosmos-sdk`. This is a source-read credential, separate
+from the workflow's `GITHUB_TOKEN` used to publish GHCR packages. Configure a
+fine-grained token with repository contents read permission for those repositories
+(or the organization's equivalent approved credential). CI fails explicitly if
+this secret is unavailable; fork pull requests do not receive Actions secrets.
+The existing general test and lint workflows need their own private-module
+authentication if they do not already have it.
+
+`scripts/with-private-git.sh` applies authentication only to its child command;
+it does not write credentials into Git config. Before building an image,
+`scripts/prepare-mq-go-modules.sh` stages the SDK's private module versions in
+gitignored `.modcache/`. Docker reads that file proxy and receives no token.
+Locally, the scripts can use an existing Git credential helper without `GH_TOKEN`.
+
 ## Detector
 
 ```sh
@@ -98,7 +114,8 @@ exactly-once client processing or an application acknowledgement protocol.
 ## Verification
 
 ```sh
-go test -race ./client/mq/...
+./scripts/with-private-git.sh go test -race ./client/mq/...
+./scripts/prepare-mq-go-modules.sh
 docker build -f Dockerfile.mq -t sdk-go-mq:test .
 docker run --rm sdk-go-mq:test /usr/local/bin/mq-detector -help
 docker run --rm sdk-go-mq:test /usr/local/bin/mq-stream-server -help

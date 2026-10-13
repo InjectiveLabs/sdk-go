@@ -4,6 +4,10 @@ ARG TARGETOS
 ARG TARGETARCH
 WORKDIR /src
 COPY go.mod go.sum ./
+COPY .modcache/ /modcache/
+ENV GOPROXY=file:///modcache,https://proxy.golang.org,direct \
+    GONOPROXY=none \
+    GONOSUMDB=github.com/InjectiveLabs
 COPY chain/mq ./chain/mq
 COPY client/mq/detector ./client/mq/detector
 COPY client/mq/stream/server ./client/mq/stream/server

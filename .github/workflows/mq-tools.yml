@@ -8,6 +8,10 @@ on:
       - "go.mod"
       - "go.sum"
       - "Dockerfile.mq"
+      - "Dockerfile.mq.dockerignore"
+      - "scripts/with-private-git.sh"
+      - "scripts/prepare-mq-go-modules.sh"
+      - "scripts/tests/test_mq_build.py"
       - ".github/workflows/mq-tools.yml"
   release:
     types: [published]
@@ -38,7 +42,11 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Test MQ tools
-        run: go test -race ./client/mq/...
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          python3 scripts/tests/test_mq_build.py
+          ./scripts/with-private-git.sh go test -race ./client/mq/...
 
   image:
     needs: test
@@ -74,6 +82,13 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "revision=$revision" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Prepare private Go modules without passing credentials to Docker
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: ./scripts/prepare-mq-go-modules.sh
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
       - name: Build image for smoke checks
