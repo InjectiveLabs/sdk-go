@@ -42,6 +42,8 @@ copy-exchange-client: clone-injective-indexer
 
 copy-chain-types: clone-injective-core
 	cp -r injective-core/injective-chain/codec chain
+	mkdir -p chain/app/ante/eip712 && \
+		cp injective-core/injective-chain/app/ante/eip712/sign_mode_handler.go chain/app/ante/eip712
 	mkdir -p chain/crypto/codec && cp injective-core/injective-chain/crypto/codec/*.go chain/crypto/codec
 	rm -rf chain/crypto/codec/*test.go rm -rf chain/crypto/codec/*gw.go
 	mkdir -p chain/crypto/ethsecp256k1 && cp injective-core/injective-chain/crypto/ethsecp256k1/*.go chain/crypto/ethsecp256k1
@@ -140,8 +142,10 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/types/util.go chain/types && \
 		cp injective-core/injective-chain/types/validation.go chain/types
 
-	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
-	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
+	@find ./chain -type f -name "*.go" -exec sed -i "" \
+		-e "s|github.com/InjectiveLabs/injective-core/injective-chain/app/ante/typeddata|github.com/InjectiveLabs/sdk-go/typeddata|g" \
+		-e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" \
+		-e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 
 	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && \
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.go chain/evm/precompiles/bank && \
