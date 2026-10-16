@@ -88,6 +88,18 @@ func IsZeroOrNilDec(v math.LegacyDec) bool {
 	return v.IsNil() || v.IsZero()
 }
 
+// Validate returns an error if the minimal protocol fee update is not a recognized value.
+func (u DisableMinimalProtocolFeeUpdate) Validate() error {
+	switch u {
+	case DisableMinimalProtocolFeeUpdate_NoUpdate,
+		DisableMinimalProtocolFeeUpdate_False,
+		DisableMinimalProtocolFeeUpdate_True:
+		return nil
+	default:
+		return errors.Wrap(gov.ErrInvalidProposalContent, "invalid has_disabled_minimal_protocol_fee value")
+	}
+}
+
 // Implements Proposal Interface
 var _ govtypes.Content = &ExchangeEnableProposal{}
 
@@ -266,6 +278,9 @@ func (p *SpotMarketParamUpdateProposal) ProposalType() string {
 func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 	if !types.IsHexHash(p.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
+	}
+	if err := p.HasDisabledMinimalProtocolFee.Validate(); err != nil {
+		return err
 	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&
@@ -531,6 +546,9 @@ func (p *DerivativeMarketParamUpdateProposal) ProposalType() string {
 func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if !types.IsHexHash(p.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
+	}
+	if err := p.HasDisabledMinimalProtocolFee.Validate(); err != nil {
+		return err
 	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&
@@ -1800,6 +1818,9 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ProposalType() string {
 func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 	if !types.IsHexHash(p.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
+	}
+	if err := p.HasDisabledMinimalProtocolFee.Validate(); err != nil {
+		return err
 	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&

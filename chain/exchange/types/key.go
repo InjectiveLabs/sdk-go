@@ -214,6 +214,12 @@ var (
 	// a subaccount can have cross-margin exposure iff its risk profile is
 	// cross or this count is positive — no activity scans on any gate path.
 	SubaccountCrossOverrideCountPrefix = []byte{0xa1}
+
+	// SettledMarketPendingInsurancePrefix marks markets that have reached a terminal
+	// status (Demolished or Expired) and whose pending insurance redemptions have not
+	// been settled yet. Written by the market setters so that no status-mutating
+	// caller can be missed, and drained by the insurance EndBlocker in the same block.
+	SettledMarketPendingInsurancePrefix = []byte{0xaf}
 )
 
 func GetSubaccountCidKey(subaccountID common.Hash, cid string) []byte {

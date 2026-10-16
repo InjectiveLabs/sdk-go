@@ -184,11 +184,12 @@ func NewDerivativeLimitOrder(o *DerivativeOrder, sender sdk.AccAddress, orderHas
 
 func (m *DerivativeLimitOrder) ToDerivativeOrder(marketID string) *DerivativeOrder {
 	return &DerivativeOrder{
-		MarketId:     marketID,
-		OrderInfo:    m.OrderInfo,
-		OrderType:    m.OrderType,
-		Margin:       m.Margin,
-		TriggerPrice: m.TriggerPrice,
+		MarketId:        marketID,
+		OrderInfo:       m.OrderInfo,
+		OrderType:       m.OrderType,
+		Margin:          m.Margin,
+		TriggerPrice:    m.TriggerPrice,
+		ExpirationBlock: m.ExpirationBlock,
 	}
 }
 func (o *DerivativeMarketOrder) ToDerivativeOrder(marketID string) *DerivativeOrder {
@@ -277,6 +278,12 @@ func (m *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) mat
 				return marginHoldRefund
 			}
 			return m.Margin
+		}
+
+		// An unfilled order must recover its original hold without rounding
+		// the margin through a proportional refund calculation.
+		if m.Fillable.Equal(m.OrderInfo.Quantity) {
+			return m.GetMarginHold(feeRate)
 		}
 
 		// negative fees are only accounted for upon matching
