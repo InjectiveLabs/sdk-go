@@ -20,23 +20,47 @@ It does not publish a `latest` tag or change the SDK's existing test/lint jobs.
    `InjectiveLabs/block-sdk`, `cometbft`, `cosmos-sdk`, `go-ethereum`, `ibc-apps`,
    `ibc-go`, and `wasmd`. A fine-grained token should select those repositories
    with **Contents: read-only** (and the default read-only metadata permission).
+   No Actions, Workflows, or other write permissions are needed.
    Recheck the tagged module graph when dependencies change. Do not add this
    credential to the ordinary test or pull request workflows.
-3. Merge this workflow onto `master` before manually releasing an existing tag.
-   Include the workflow in the branch used to create future MQ tags if automatic
-   tag-push releases are wanted.
+3. Push this workflow branch before creating a bootstrap tag, or merge it onto
+   `master` before using the manual dispatch path below. Include the workflow in
+   future MQ release branches for automatic release-tag publication.
 
 The AWS role uses GitHub OIDC, so no AWS access-key secret is required. Its trust
-is limited to this SDK repository's `master` branch and MQ version tags; pull
-request and fork subjects cannot assume it. Maintainers who can dispatch this
-workflow or create MQ release tags are trusted to run tagged build code. Release
+is limited to this SDK repository's `master` branch, MQ version tags, and
+`mq-image/` bootstrap tags; pull request and fork subjects cannot assume it.
+Maintainers who can dispatch this workflow or create MQ release tags are trusted
+to run tagged build code. Release
 tag protections should follow the repository's normal release controls.
 
-## Publish an existing release
+## Publish an existing release before merging
 
-Existing tags, including `v1.64.0-mq.8`, predate this workflow. Adding a workflow
-to `master` does not retroactively run workflows for those tags. Once the
-prerequisites are complete, run:
+An existing release tag such as `v1.64.0-mq.8` predates this workflow. To run the
+new workflow without merging into `master`, create a separate bootstrap tag on
+the reviewed CI branch after completing the ECR/IAM and token prerequisites:
+
+```sh
+git fetch origin ci/sdk-go-ecr-release
+git tag mq-image/v1.64.0-mq.8 origin/ci/sdk-go-ecr-release
+git push origin refs/tags/mq-image/v1.64.0-mq.8
+```
+
+Pushing this bootstrap tag starts publication. The `mq-image/` tag selects the
+workflow code; the original `v1.64.0-mq.8` tag selects the source to build. The
+workflow removes the prefix, validates the MQ version, resolves the original
+release tag to an exact commit, and checks out that commit separately. It
+publishes `sdk-go:v1.64.0-mq.8`, with no prefix in the image tag. The original
+release tag and `master` are unchanged.
+
+GitHub supports [push workflows that have not been merged into the default
+branch](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#push).
+Ordinary CI branch pushes and pull requests do not trigger this release workflow.
+
+## Publish after merging the workflow
+
+Once the workflow exists on `master`, maintainers can also dispatch an existing
+MQ release tag manually:
 
 ```sh
 gh workflow run release-mq.yml \
@@ -45,10 +69,11 @@ gh workflow run release-mq.yml \
   -f release_tag=v1.64.0-mq.8
 ```
 
-The workflow only accepts `v<major>.<minor>.<patch>-mq.<number>` tags. It resolves
-the requested tag to an exact commit before checking out the release source.
-Manual runs from branches other than `master` are skipped. Future matching tag
-pushes run automatically if the tagged commit contains this workflow.
+Manual dispatch accepts only `v<major>.<minor>.<patch>-mq.<number>`, without the
+`mq-image/` prefix. Manual runs from branches other than `master` are skipped.
+Future ordinary MQ tag pushes run automatically when their tagged commit
+contains this workflow, and must resolve to the triggering commit. All three
+release paths share one concurrency group, so publishing jobs cannot overlap.
 
 Publication uses the supplied version tag. Do not move published release tags or
 rerun publication to replace a released image; publish a new MQ version instead.

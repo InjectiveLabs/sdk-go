@@ -4,15 +4,17 @@ on:
   push:
     tags:
       - 'v*-mq.*'
+      - 'mq-image/v*-mq.*'
   workflow_dispatch:
     inputs:
       release_tag:
         description: 'Existing MQ release tag, for example v1.64.0-mq.8'
         type: string
         required: true
+        default: v1.64.0-mq.8
 
 concurrency:
-  group: mq-release-${{ inputs.release_tag || github.ref_name }}
+  group: mq-container-release
   cancel-in-progress: false
 
 permissions:
@@ -27,7 +29,9 @@ jobs:
     if: >-
       github.repository == 'InjectiveLabs/sdk-go' &&
       ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') ||
-       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')))
+       (github.event_name == 'push' &&
+        (startsWith(github.ref, 'refs/tags/v') ||
+         startsWith(github.ref, 'refs/tags/mq-image/v'))))
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     outputs:
@@ -48,17 +52,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ ! "$REQUESTED_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-mq\.[0-9]+$ ]]; then
+          release_tag="$REQUESTED_TAG"
+          bootstrap=false
+          if [[ "$GITHUB_EVENT_NAME" == push && "$release_tag" == mq-image/* ]]; then
+            release_tag="${release_tag#mq-image/}"
+            bootstrap=true
+          fi
+          if [[ ! "$release_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-mq\.[0-9]+$ ]]; then
             echo '::error::Expected an MQ version tag such as v1.64.0-mq.8.'
             exit 1
           fi
-          git fetch --no-tags origin "refs/tags/$REQUESTED_TAG:refs/tags/$REQUESTED_TAG"
-          revision="$(git rev-parse "refs/tags/$REQUESTED_TAG^{commit}")"
-          if [[ "$GITHUB_EVENT_NAME" == push && "$revision" != "$GITHUB_SHA" ]]; then
+          git fetch --no-tags origin "refs/tags/$release_tag:refs/tags/$release_tag"
+          revision="$(git rev-parse "refs/tags/$release_tag^{commit}")"
+          # Bootstrap tags select the workflow revision; the original MQ tag selects
+          # the source revision. Ordinary release tags must match the pushed commit.
+          if [[ "$GITHUB_EVENT_NAME" == push && "$bootstrap" == false && "$revision" != "$GITHUB_SHA" ]]; then
             echo '::error::The release tag no longer points to the triggering commit.'
             exit 1
           fi
-          printf 'tag=%s\nrevision=%s\n' "$REQUESTED_TAG" "$revision" >> "$GITHUB_OUTPUT"
+          printf 'tag=%s\nrevision=%s\n' "$release_tag" "$revision" >> "$GITHUB_OUTPUT"
 
       - name: Checkout exact release source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
