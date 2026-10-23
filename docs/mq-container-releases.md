@@ -7,12 +7,36 @@ image to `public.ecr.aws/l9h3g6c6/sdk-go:<release-tag>`. It uses the tagged
 Go version, dependency versions, and module-preparation script.
 It does not publish a `latest` tag or change the SDK's existing test/lint jobs.
 
-## Prerequisites
+## Current publication
 
-1. Apply [injective-iac PR #516](https://github.com/InjectiveLabs/injective-iac/pull/516),
-   which creates the public `sdk-go` ECR
-   repository and the `sdk-go` IAM publishing role in AWS account `981432137740`.
-   ECR Public authentication uses `us-east-1`.
+`public.ecr.aws/l9h3g6c6/sdk-go:v1.64.0-mq.8` is already published with digest:
+
+```text
+sha256:0640f3020275ee143b2c5d359ab18a5cecb56c93dc0ab29d4ec96836ca4fc2a5
+```
+
+It was built from SDK commit `248cc8fb5cc2605be2ad0dbe2ad76ca986347ad3` and
+published manually from `core-runner-large`. Independent anonymous manifest
+inspection and an anonymous pull by digest verified `linux/amd64`, runtime
+UID/GID `10001:10001`, the source revision, and both binaries' offline `--help`
+checks. The temporary Docker login was removed after publication.
+
+Only the ECR repository has been created. The GitHub CI publishing role/policy
+and `MQ_RELEASE_GH_TOKEN` have not been configured, and no bootstrap tag or CI
+publishing run was created. Automated publication remains optional for future
+releases; it is not required to pull this existing image.
+
+Do not run either publication recipe below for `v1.64.0-mq.8` again. Use a new
+MQ release tag whose image has not been published. The manual workflow input
+currently defaults to `v1.64.0-mq.8`, so explicitly replace that input before
+starting any future publication.
+
+## Prerequisites for future CI publication
+
+1. Apply the remaining `sdk-go` IAM publishing role/policy from
+   [injective-iac PR #516](https://github.com/InjectiveLabs/injective-iac/pull/516)
+   in AWS account `981432137740`. The public `sdk-go` ECR repository already
+   exists. ECR Public authentication uses `us-east-1`.
 2. Configure the release-only `MQ_RELEASE_GH_TOKEN` repository secret with a
    read-only credential for the private InjectiveLabs Go modules used by the
    release. The public SDK repository's automatic `GITHUB_TOKEN` cannot read
@@ -31,26 +55,28 @@ The AWS role uses GitHub OIDC, so no AWS access-key secret is required. Its trus
 is limited to this SDK repository's `master` branch, MQ version tags, and
 `mq-image/` bootstrap tags; pull request and fork subjects cannot assume it.
 Maintainers who can dispatch this workflow or create MQ release tags are trusted
-to run tagged build code. Release
-tag protections should follow the repository's normal release controls.
+to run tagged build code. Release tag protections should follow the repository's
+normal release controls.
 
 ## Publish an existing release before merging
 
-An existing release tag such as `v1.64.0-mq.8` predates this workflow. To run the
-new workflow without merging into `master`, create a separate bootstrap tag on
-the reviewed CI branch after completing the ECR/IAM and token prerequisites:
+For an MQ source tag whose image has not yet been published, the workflow can
+run without merging into `master`. After completing the IAM and token
+prerequisites, replace the placeholder below with that unpublished MQ version
+and create a separate bootstrap tag on the reviewed CI branch:
 
 ```sh
+release_tag='v<major>.<minor>.<patch>-mq.<number>'
 git fetch origin ci/sdk-go-ecr-release
-git tag mq-image/v1.64.0-mq.8 origin/ci/sdk-go-ecr-release
-git push origin refs/tags/mq-image/v1.64.0-mq.8
+git tag "mq-image/$release_tag" origin/ci/sdk-go-ecr-release
+git push origin "refs/tags/mq-image/$release_tag"
 ```
 
 Pushing this bootstrap tag starts publication. The `mq-image/` tag selects the
-workflow code; the original `v1.64.0-mq.8` tag selects the source to build. The
+workflow code; the original MQ version tag selects the source to build. The
 workflow removes the prefix, validates the MQ version, resolves the original
 release tag to an exact commit, and checks out that commit separately. It
-publishes `sdk-go:v1.64.0-mq.8`, with no prefix in the image tag. The original
+publishes `sdk-go:<release-tag>`, with no prefix in the image tag. The original
 release tag and `master` are unchanged.
 
 GitHub supports [push workflows that have not been merged into the default
@@ -60,13 +86,16 @@ Ordinary CI branch pushes and pull requests do not trigger this release workflow
 ## Publish after merging the workflow
 
 Once the workflow exists on `master`, maintainers can also dispatch an existing
-MQ release tag manually:
+MQ source tag whose image has not yet been published. Replace the placeholder
+with the new unpublished version; do not accept the published `v1.64.0-mq.8`
+default:
 
 ```sh
+release_tag='v<major>.<minor>.<patch>-mq.<number>'
 gh workflow run release-mq.yml \
   --repo InjectiveLabs/sdk-go \
   --ref master \
-  -f release_tag=v1.64.0-mq.8
+  -f release_tag="$release_tag"
 ```
 
 Manual dispatch accepts only `v<major>.<minor>.<patch>-mq.<number>`, without the
