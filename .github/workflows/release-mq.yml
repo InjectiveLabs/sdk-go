@@ -1,0 +1,193 @@
+name: Release MQ container
+
+on:
+  push:
+    tags:
+      - 'v*-mq.*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing MQ release tag, for example v1.64.0-mq.8'
+        type: string
+        required: true
+
+concurrency:
+  group: mq-release-${{ inputs.release_tag || github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  ECR_REPO: public.ecr.aws/l9h3g6c6/sdk-go
+  AWS_REGION: us-east-1
+
+jobs:
+  build:
+    if: >-
+      github.repository == 'InjectiveLabs/sdk-go' &&
+      ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') ||
+       (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      release_tag: ${{ steps.release.outputs.tag }}
+      revision: ${{ steps.release.outputs.revision }}
+    steps:
+      - name: Checkout workflow revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          path: workflow
+          persist-credentials: false
+
+      - name: Resolve release tag
+        id: release
+        working-directory: workflow
+        env:
+          REQUESTED_TAG: ${{ inputs.release_tag || github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$REQUESTED_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-mq\.[0-9]+$ ]]; then
+            echo '::error::Expected an MQ version tag such as v1.64.0-mq.8.'
+            exit 1
+          fi
+          git fetch --no-tags origin "refs/tags/$REQUESTED_TAG:refs/tags/$REQUESTED_TAG"
+          revision="$(git rev-parse "refs/tags/$REQUESTED_TAG^{commit}")"
+          if [[ "$GITHUB_EVENT_NAME" == push && "$revision" != "$GITHUB_SHA" ]]; then
+            echo '::error::The release tag no longer points to the triggering commit.'
+            exit 1
+          fi
+          printf 'tag=%s\nrevision=%s\n' "$REQUESTED_TAG" "$revision" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact release source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ steps.release.outputs.revision }}
+          path: release
+          persist-credentials: false
+
+      - name: Check MQ container inputs
+        working-directory: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in Dockerfile.mq Dockerfile.mq.dockerignore go.mod go.sum \
+            scripts/prepare-mq-go-modules.sh scripts/with-private-git.sh \
+            client/mq/detector/main.go client/mq/stream/server/main.go; do
+            test -f "$file" || { echo "::error::Release is missing $file"; exit 1; }
+          done
+
+      - name: Set up Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: release/go.mod
+          cache: false
+
+      # This credential is used only for dependency downloads in a maintainer-triggered
+      # release. The original pull request/test workflows do not receive it.
+      - name: Prepare private Go modules
+        working-directory: release
+        env:
+          GH_TOKEN: ${{ secrets.MQ_RELEASE_GH_TOKEN }}
+        run: ./scripts/prepare-mq-go-modules.sh
+
+      - name: Test MQ packages
+        working-directory: release
+        run: go test -mod=readonly ./client/mq/detector ./client/mq/stream/server
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Build final runtime image
+        working-directory: release
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          RELEASE_REVISION: ${{ steps.release.outputs.revision }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mq-image"
+          docker buildx build \
+            --file Dockerfile.mq \
+            --platform linux/amd64 \
+            --build-arg "VERSION=$RELEASE_TAG" \
+            --build-arg "REVISION=$RELEASE_REVISION" \
+            --provenance=false \
+            --sbom=false \
+            --tag sdk-go-release:build \
+            --output "type=docker,dest=$RUNNER_TEMP/mq-image/sdk-go.tar" \
+            .
+
+      - name: Smoke test image and record checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker load --input "$RUNNER_TEMP/mq-image/sdk-go.tar"
+          test "$(docker image inspect sdk-go-release:build --format '{{.Config.User}}')" = '10001:10001'
+          test "$(docker image inspect sdk-go-release:build --format '{{.Os}}/{{.Architecture}}')" = 'linux/amd64'
+          docker run --rm --network none --entrypoint /usr/local/bin/mq-detector sdk-go-release:build --help
+          docker run --rm --network none --entrypoint /usr/local/bin/mq-stream-server sdk-go-release:build --help
+          docker run --rm --network none --entrypoint /bin/sh sdk-go-release:build -ec \
+            'test ! -e /src && test ! -e /modcache && test ! -e /go && test ! -e /root/.cache'
+          cd "$RUNNER_TEMP/mq-image"
+          sha256sum sdk-go.tar > sdk-go.tar.sha256
+
+      # Only the final runtime image leaves the runner. Never upload .modcache,
+      # the Go module cache, intermediate build layers, or a BuildKit cache.
+      - name: Upload runtime image
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: mq-runtime-image
+          path: ${{ runner.temp }}/mq-image/
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download runtime image
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6
+        with:
+          name: mq-runtime-image
+          path: ${{ runner.temp }}/mq-image
+
+      - name: Verify and load runtime image
+        working-directory: ${{ runner.temp }}/mq-image
+        run: |
+          sha256sum --check sdk-go.tar.sha256
+          docker load --input sdk-go.tar
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6
+        with:
+          role-to-assume: arn:aws:iam::981432137740:role/sdk-go
+          aws-region: ${{ env.AWS_REGION }}
+          audience: sts.amazonaws.com
+          allowed-account-ids: '981432137740'
+          role-session-name: sdk-go-${{ github.run_id }}
+
+      - name: Login to Amazon ECR Public
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2
+        with:
+          registry-type: public
+
+      - name: Publish versioned image
+        env:
+          RELEASE_TAG: ${{ needs.build.outputs.release_tag }}
+          RELEASE_REVISION: ${{ needs.build.outputs.revision }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="$ECR_REPO:$RELEASE_TAG"
+          docker tag sdk-go-release:build "$image"
+          docker push "$image"
+          # shellcheck disable=SC2016
+          printf 'Published `%s` from commit `%s` for `linux/amd64`.\n' \
+            "$image" "$RELEASE_REVISION" >> "$GITHUB_STEP_SUMMARY"

@@ -97,6 +97,8 @@ $ git tag -a v1.1.1
 $ git push origin master --tags
 ```
 
+For MQ container images, see [MQ container releases](docs/mq-container-releases.md).
+
 ---
 
 ## ⛑ Support
