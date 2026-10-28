@@ -28,7 +28,10 @@ func CanonicalIsolatedLimitHold(order *DerivativeLimitOrder, market DerivativeMa
 	if !order.IsVanilla() {
 		return math.LegacyZeroDec(), nil
 	}
-	marginRaw := proportionalPositionMarginRaw(order.Margin, order.Fillable, order.OrderInfo.Quantity)
+	marginRaw := order.Margin.BigInt()
+	if !order.Fillable.Equal(order.OrderInfo.Quantity) {
+		marginRaw = proportionalPositionMarginRaw(order.Margin, order.Fillable, order.OrderInfo.Quantity)
+	}
 	if marginRaw.Cmp(legacyDecRangeExclusiveRaw) >= 0 {
 		return math.LegacyDec{}, errors.New("isolated margin refund is out of range")
 	}
@@ -58,6 +61,15 @@ func CanonicalIsolatedLimitHold(order *DerivativeLimitOrder, market DerivativeMa
 		}
 	}
 	return hold, nil
+}
+
+// HasExactFullMarginAllocation reports whether matching an entire order preserves
+// its margin under the existing proportional allocation arithmetic.
+func (m *DerivativeLimitOrder) HasExactFullMarginAllocation() bool {
+	if m == nil || m.Margin.IsNil() || m.OrderInfo.Quantity.IsNil() || !m.OrderInfo.Quantity.IsPositive() {
+		return false
+	}
+	return proportionalPositionMarginRaw(m.Margin, m.OrderInfo.Quantity, m.OrderInfo.Quantity).Cmp(m.Margin.BigInt()) == 0
 }
 
 // CanonicalBinaryOptionsLimitExecutionHold returns the checked chain-format

@@ -50,8 +50,8 @@ import (
 	evmtypes "github.com/InjectiveLabs/sdk-go/chain/evm/types"
 	exchange "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	exchangev2 "github.com/InjectiveLabs/sdk-go/chain/exchange/types/v2"
+	ibcratelimits "github.com/InjectiveLabs/sdk-go/chain/ibc-rate-limits/types"
 	insurance "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
-	ocr "github.com/InjectiveLabs/sdk-go/chain/ocr/types"
 	oracle "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
 	peggy "github.com/InjectiveLabs/sdk-go/chain/peggy/types"
 	permissions "github.com/InjectiveLabs/sdk-go/chain/permissions/types"
@@ -82,8 +82,24 @@ func NewInterfaceRegistry() types.InterfaceRegistry {
 
 // NewTxConfig initializes new Cosmos TxConfig with certain signModes enabled.
 func NewTxConfig(signModes []signingtypes.SignMode) client.TxConfig {
-	marshaler, _ := createInjectiveProtoCodec()
-	return tx.NewTxConfig(marshaler, signModes)
+	return newEncodingConfig(signModes).TxConfig
+}
+
+// NewEncodingConfig initializes the full Injective encoding config used by sdk-go clients.
+func NewEncodingConfig() EncodingConfig {
+	return newEncodingConfig([]signingtypes.SignMode{
+		signingtypes.SignMode_SIGN_MODE_DIRECT,
+	})
+}
+
+func newEncodingConfig(signModes []signingtypes.SignMode) EncodingConfig {
+	marshaler, interfaceRegistry := createInjectiveProtoCodec()
+
+	return EncodingConfig{
+		InterfaceRegistry: interfaceRegistry,
+		Marshaler:         marshaler,
+		TxConfig:          tx.NewTxConfig(marshaler, signModes),
+	}
 }
 
 // NewClientContext creates a new Cosmos Client context, where chainID
@@ -94,15 +110,7 @@ func NewClientContext(
 ) (client.Context, error) {
 	clientCtx := client.Context{}
 
-	marshaler, interfaceRegistry := createInjectiveProtoCodec()
-
-	encodingConfig := EncodingConfig{
-		InterfaceRegistry: interfaceRegistry,
-		Marshaler:         marshaler,
-		TxConfig: tx.NewTxConfig(marshaler, []signingtypes.SignMode{
-			signingtypes.SignMode_SIGN_MODE_DIRECT,
-		}),
-	}
+	encodingConfig := NewEncodingConfig()
 
 	var keyInfo keyring.Record
 
@@ -147,7 +155,6 @@ func createInjectiveProtoCodec() (injectiveCodec *codec.ProtoCodec, interfaceReg
 	auction.RegisterInterfaces(interfaceRegistry)
 	oracle.RegisterInterfaces(interfaceRegistry)
 	peggy.RegisterInterfaces(interfaceRegistry)
-	ocr.RegisterInterfaces(interfaceRegistry)
 	wasmx.RegisterInterfaces(interfaceRegistry)
 	chaintypes.RegisterInterfaces(interfaceRegistry)
 	tokenfactory.RegisterInterfaces(interfaceRegistry)
@@ -156,6 +163,7 @@ func createInjectiveProtoCodec() (injectiveCodec *codec.ProtoCodec, interfaceReg
 	erc20types.RegisterInterfaces(interfaceRegistry)
 	evmtypes.RegisterInterfaces(interfaceRegistry)
 	downtimedetectortypes.RegisterInterfaces(interfaceRegistry)
+	ibcratelimits.RegisterInterfaces(interfaceRegistry)
 	// more cosmos types
 	authtypes.RegisterInterfaces(interfaceRegistry)
 	authztypes.RegisterInterfaces(interfaceRegistry)

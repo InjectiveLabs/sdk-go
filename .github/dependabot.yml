@@ -1,0 +1,47 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+
+  - package-ecosystem: gomod
+    directory: "/"
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    labels:
+      - dependencies
+    ignore:
+      # Fork-owned: replaced by InjectiveLabs versions, bumped by hand together
+      # with injective-core.
+      - dependency-name: "cosmossdk.io/*"
+      - dependency-name: "github.com/cosmos/cosmos-sdk"
+      - dependency-name: "github.com/cometbft/cometbft"
+      - dependency-name: "github.com/cometbft/cometbft/api"
+      - dependency-name: "github.com/cosmos/iavl"
+      - dependency-name: "github.com/cosmos/gogoproto"
+      - dependency-name: "github.com/cosmos/ibc-go/*"
+      - dependency-name: "github.com/CosmWasm/*"
+      - dependency-name: "github.com/ethereum/go-ethereum"
+      - dependency-name: "github.com/cardano-foundation/cardano-ibc-incubator/*"
+      - dependency-name: "github.com/tyler-smith/go-bip39"
+      - dependency-name: "github.com/improbable-eng/grpc-web"
+      - dependency-name: "github.com/coder/websocket"
+      - dependency-name: "nhooyr.io/websocket"
+      # Pinned with a replace directive.
+      - dependency-name: "github.com/syndtr/goleveldb"
+      # v0.26 moved chaincfg and wire into separate modules.
+      - dependency-name: "github.com/btcsuite/btcd"
+        versions: [">= 0.26.0"]
+      # The go-ethereum fork uses the v0.0.5 API.
+      - dependency-name: "github.com/olekukonko/tablewriter"
+        versions: [">= 1.0.0"]
+      # The cardano light-client fork is built against these versions.
+      - dependency-name: "github.com/blinklabs-io/gouroboros"
+      - dependency-name: "github.com/utxorpc/go-codegen"

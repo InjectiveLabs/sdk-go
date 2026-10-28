@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1
+FROM --platform=$BUILDPLATFORM golang:1.27.3-bookworm AS build
+ARG TARGETOS
+ARG TARGETARCH
+WORKDIR /src
+COPY go.mod go.sum ./
+COPY .modcache/ /modcache/
+ENV GOPROXY=file:///modcache,https://proxy.golang.org,direct \
+    GONOPROXY=none \
+    GONOSUMDB=github.com/InjectiveLabs
+COPY chain/mq ./chain/mq
+COPY client/mq/detector ./client/mq/detector
+COPY client/mq/stream/server ./client/mq/stream/server
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -mod=readonly -trimpath -o /out/mq-detector ./client/mq/detector && \
+    CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -mod=readonly -trimpath -o /out/mq-stream-server ./client/mq/stream/server
+
+FROM debian:bookworm-slim
+ARG VERSION=dev
+ARG REVISION=unknown
+LABEL org.opencontainers.image.source="https://github.com/InjectiveLabs/sdk-go" \
+      org.opencontainers.image.version=$VERSION \
+      org.opencontainers.image.revision=$REVISION
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && mkdir /var/lib/mq && chown 10001:10001 /var/lib/mq
+COPY --from=build /out/mq-detector /out/mq-stream-server /usr/local/bin/
+USER 10001:10001
+WORKDIR /var/lib/mq
+EXPOSE 9988
+CMD ["/usr/local/bin/mq-stream-server"]

@@ -547,10 +547,7 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.AdminInfo == nil &&
 		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
 		p.CrossMarginEligibility == CrossMarginEligibility_CM_ELIGIBILITY_UNSPECIFIED &&
-		p.ReferencePriceGateConfig == nil &&
-		p.OracleParams == nil &&
-		p.FundingImpactNotional == nil &&
-		p.SyntheticTradeFeeRate == nil {
+		p.OracleParams == nil {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
@@ -607,12 +604,6 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
-	if p.ReferencePriceGateConfig != nil {
-		if err := p.ReferencePriceGateConfig.Validate(); err != nil {
-			return err
-		}
-	}
-
 	if p.HourlyInterestRate != nil {
 		if err := types.ValidateHourlyInterestRate(*p.HourlyInterestRate); err != nil {
 			return errors.Wrap(types.ErrInvalidHourlyInterestRate, err.Error())
@@ -622,18 +613,6 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if p.HourlyFundingRateCap != nil {
 		if err := types.ValidateHourlyFundingRateCap(*p.HourlyFundingRateCap); err != nil {
 			return errors.Wrap(types.ErrInvalidHourlyFundingRateCap, err.Error())
-		}
-	}
-
-	if p.FundingImpactNotional != nil {
-		if err := ValidateFundingImpactNotional(*p.FundingImpactNotional); err != nil {
-			return err
-		}
-	}
-
-	if p.SyntheticTradeFeeRate != nil {
-		if err := ValidateSyntheticTradeFeeRate(*p.SyntheticTradeFeeRate); err != nil {
-			return err
 		}
 	}
 
@@ -968,11 +947,6 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := types.ValidateFee(p.TakerFeeRate); err != nil {
 		return err
 	}
-	if p.SyntheticTradeFeeRate != nil {
-		if err := ValidateSyntheticTradeFeeRate(*p.SyntheticTradeFeeRate); err != nil {
-			return err
-		}
-	}
 	if err := types.ValidateMarginRatio(p.InitialMarginRatio); err != nil {
 		return err
 	}
@@ -1088,11 +1062,6 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := types.ValidateFee(p.TakerFeeRate); err != nil {
 		return err
-	}
-	if p.SyntheticTradeFeeRate != nil {
-		if err := ValidateSyntheticTradeFeeRate(*p.SyntheticTradeFeeRate); err != nil {
-			return err
-		}
 	}
 	if err := types.ValidateMarginRatio(p.InitialMarginRatio); err != nil {
 		return err
