@@ -149,10 +149,11 @@ copy-chain-types: clone-injective-core
 		-e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" \
 		-e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 
-	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && \
+	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && mkdir -p chain/evm/precompiles/ibc && \
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.go chain/evm/precompiles/bank && \
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/exchange/*.go chain/evm/precompiles/exchange && \
-		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.go chain/evm/precompiles/staking
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.go chain/evm/precompiles/staking && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/ibc/*.go chain/evm/precompiles/ibc
 
 	rm -rf proto
 	cp -r injective-core/proto ./
