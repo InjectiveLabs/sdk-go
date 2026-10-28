@@ -53,12 +53,11 @@ require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.2 // indirect
-	github.com/CosmWasm/wasmvm/v2 v2.2.9-rc.2 // indirect
+	github.com/CosmWasm/wasmvm/v2 v2.3.6 // indirect
 	github.com/DataDog/datadog-go v4.8.3+incompatible // indirect
 	github.com/DataDog/zstd v1.5.7 // indirect
 	github.com/InjectiveLabs/metrics/v2 v2.0.0-beta.9 // indirect
 	github.com/Microsoft/go-winio v0.6.4 // indirect
-	github.com/ProtonMail/go-crypto v1.5.2 // indirect
 	github.com/VictoriaMetrics/fastcache v1.13.3 // indirect
 	github.com/aws/aws-sdk-go v1.55.8 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -112,7 +111,7 @@ require (
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/ferranbt/fastssz v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.6 // indirect
+	github.com/fxamacker/cbor/v2 v2.10.0 // indirect
 	github.com/getsentry/sentry-go v0.50.0 // indirect
 	github.com/go-kit/log v0.2.1 // indirect
 	github.com/go-logfmt/logfmt v0.6.1 // indirect
@@ -139,6 +138,7 @@ require (
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-metrics v0.7.0 // indirect
 	github.com/hashicorp/go-plugin v1.8.0 // indirect
+	github.com/hashicorp/go-uuid v1.0.4 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/yamux v0.1.2 // indirect
 	github.com/hdevalence/ed25519consensus v0.2.0 // indirect
@@ -170,12 +170,13 @@ require (
 	github.com/oklog/run v1.2.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/pandatix/go-abnf v0.5.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/petermattis/goid v0.0.0-20260918085751-abfca077860b // indirect
 	github.com/pierrec/lz4/v4 v4.1.33 // indirect
 	github.com/prometheus/client_golang v1.25.0 // indirect
 	github.com/prometheus/client_model v0.6.3 // indirect
-	github.com/prometheus/common v0.72.1 // indirect
+	github.com/prometheus/common v0.73.0 // indirect
 	github.com/prometheus/procfs v0.23.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9 // indirect
 	github.com/rogpeppe/go-internal v1.16.0 // indirect
@@ -235,20 +236,19 @@ require (
 )
 
 replace (
-	cosmossdk.io/api => github.com/InjectiveLabs/cosmos-sdk/api v0.50.15-inj.2
-	cosmossdk.io/client/v2 => github.com/InjectiveLabs/cosmos-sdk/client/v2 v2.0.0-v0.50.15-inj.2
-	cosmossdk.io/core => github.com/InjectiveLabs/cosmos-sdk/core v0.50.15-inj.2
-	cosmossdk.io/errors => github.com/InjectiveLabs/cosmos-sdk/errors v0.50.15-inj.2
-	cosmossdk.io/store => github.com/InjectiveLabs/cosmos-sdk/store v0.50.15-inj.2
-	cosmossdk.io/x/circuit => github.com/InjectiveLabs/cosmos-sdk/x/circuit v0.50.15-inj.2
-	cosmossdk.io/x/evidence => github.com/InjectiveLabs/cosmos-sdk/x/evidence v0.50.15-inj.2
-	cosmossdk.io/x/feegrant => github.com/InjectiveLabs/cosmos-sdk/x/feegrant v0.50.15-inj.2
-	cosmossdk.io/x/nft => github.com/InjectiveLabs/cosmos-sdk/x/nft v0.50.15-inj.2
-	cosmossdk.io/x/tx => github.com/InjectiveLabs/cosmos-sdk/x/tx v0.50.15-inj.2
-	cosmossdk.io/x/upgrade => github.com/InjectiveLabs/cosmos-sdk/x/upgrade v0.50.15-inj.2
+	cosmossdk.io/api => github.com/InjectiveLabs/cosmos-sdk-archived/api v0.50.14-inj.12
+	cosmossdk.io/client/v2 => github.com/InjectiveLabs/cosmos-sdk-archived/client/v2 v2.0.0-v0.50.14-inj.12
+	cosmossdk.io/core => github.com/InjectiveLabs/cosmos-sdk-archived/core v0.50.14-inj.12
+	cosmossdk.io/errors => github.com/InjectiveLabs/cosmos-sdk-archived/errors v0.50.14-inj.12
+	cosmossdk.io/store => github.com/InjectiveLabs/cosmos-sdk-archived/store v0.50.14-inj.12
+	cosmossdk.io/x/circuit => github.com/InjectiveLabs/cosmos-sdk-archived/x/circuit v0.50.14-inj.12
+	cosmossdk.io/x/evidence => github.com/InjectiveLabs/cosmos-sdk-archived/x/evidence v0.50.14-inj.12
+	cosmossdk.io/x/feegrant => github.com/InjectiveLabs/cosmos-sdk-archived/x/feegrant v0.50.14-inj.12
+	cosmossdk.io/x/nft => github.com/InjectiveLabs/cosmos-sdk-archived/x/nft v0.50.14-inj.12
+	cosmossdk.io/x/tx => github.com/InjectiveLabs/cosmos-sdk-archived/x/tx v0.50.14-inj.12
+	cosmossdk.io/x/upgrade => github.com/InjectiveLabs/cosmos-sdk-archived/x/upgrade v0.50.14-inj.12
 
-	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.54.10-inj.2
-	github.com/CosmWasm/wasmvm/v2 => github.com/InjectiveLabs/wasmd/pkg/wasmvm/v2 v2.2.9-rc.2
+	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd-archived v0.53.3-inj.3
 
 	// cardano ibc
 	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.1.5-inj
@@ -256,17 +256,17 @@ replace (
 
 	github.com/coder/websocket => github.com/InjectiveLabs/websocket v1.8.13
 
-	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v1.0.1-inj.11
-	github.com/cometbft/cometbft/api => github.com/InjectiveLabs/cometbft/api v1.0.0-inj.5
-	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.50.15-inj.2
+	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft-archived v1.0.1-inj.9
+	github.com/cometbft/cometbft/api => github.com/InjectiveLabs/cometbft-archived/api v1.0.0-inj.4
+	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk-archived v0.50.14-inj.12
 	github.com/cosmos/gogoproto => github.com/InjectiveLabs/gogoproto v1.7.2-inj.2
 	github.com/cosmos/iavl => github.com/InjectiveLabs/iavl v1.2.8-inj.1
 
-	github.com/cosmos/ibc-go/modules/apps/callbacks => github.com/InjectiveLabs/ibc-go/modules/apps/callbacks v0.2.0-inj.4
-	github.com/cosmos/ibc-go/modules/capability => github.com/InjectiveLabs/ibc-go/modules/capability v1.0.0-inj.4
-	github.com/cosmos/ibc-go/v8 => github.com/InjectiveLabs/ibc-go/v8 v8.7.0-inj.4
+	github.com/cosmos/ibc-go/modules/apps/callbacks => github.com/InjectiveLabs/ibc-go-archived/modules/apps/callbacks v0.2.0-inj.4
+	github.com/cosmos/ibc-go/modules/capability => github.com/InjectiveLabs/ibc-go-archived/modules/capability v1.0.0-inj.4
+	github.com/cosmos/ibc-go/v8 => github.com/InjectiveLabs/ibc-go-archived/v8 v8.7.0-inj.4
 
-	github.com/ethereum/go-ethereum => github.com/InjectiveLabs/go-ethereum v1.16.3-inj.5
+	github.com/ethereum/go-ethereum => github.com/InjectiveLabs/go-ethereum-archived v1.16.3-inj.5
 
 	github.com/improbable-eng/grpc-web => github.com/maxim-inj/grpc-web v0.15.0-inj
 

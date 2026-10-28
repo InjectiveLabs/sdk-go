@@ -31,9 +31,14 @@ func NewSignModeHandlerV2(cdc codec.Codec) SignModeHandler {
 	return SignModeHandler{cdc: cdc, mode: signingv1beta1.SignMode_SIGN_MODE_EIP712_V2}
 }
 
+// SignModeEIP712V3 is SIGN_MODE_EIP712_V3, added in cosmos-sdk v0.50.15-inj.2. sdk-go
+// builds against the public cosmos-sdk archive, which predates it, so the value is
+// defined here; it matches the chain's.
+const SignModeEIP712V3 = signingv1beta1.SignMode(129)
+
 // NewSignModeHandlerV3 selects domain version 3.0.0 with a standard bytes32 zero salt.
 func NewSignModeHandlerV3(cdc codec.Codec) SignModeHandler {
-	return SignModeHandler{cdc: cdc, mode: signingv1beta1.SignMode_SIGN_MODE_EIP712_V3}
+	return SignModeHandler{cdc: cdc, mode: SignModeEIP712V3}
 }
 
 func (h SignModeHandler) Mode() signingv1beta1.SignMode {
@@ -114,7 +119,7 @@ func (h SignModeHandler) GetSignBytes(
 		},
 	}
 
-	if h.Mode() == signingv1beta1.SignMode_SIGN_MODE_EIP712_V3 {
+	if h.Mode() == SignModeEIP712V3 {
 		td.Domain.Version = typeddata.EIP712V3DomainVersion
 		td.Domain.Salt = typeddata.EIP712V3Salt
 		td.Types = typeddata.SignableTypesV3()
