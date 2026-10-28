@@ -2,7 +2,6 @@ package keyring
 
 import (
 	"bytes"
-	"crypto/rand"
 	"encoding/hex"
 	"io"
 	"os"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/InjectiveLabs/sdk-go/chain/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/codec"
-	cosmcrypto "github.com/cosmos/cosmos-sdk/crypto"
 	cosmkeyring "github.com/cosmos/cosmos-sdk/crypto/keyring"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -467,9 +465,9 @@ func (r *passReader) Read(p []byte) (n int, err error) {
 // addFromPrivKey adds a PrivKey into temporary in-mem keyring.
 // Allows to init Context when the key has been provided in plaintext and parsed.
 func addFromPrivKey(kb cosmkeyring.Keyring, name string, privKey cryptotypes.PrivKey) error {
-	tmpPhrase := randPhrase(64)
-	armored := cosmcrypto.EncryptArmorPrivKey(privKey, tmpPhrase, privKey.Type())
-	err := kb.ImportPrivKey(name, armored, tmpPhrase)
+	// Import the raw key: an armor round trip would go through the unmaintained
+	// golang.org/x/crypto/openpgp (GO-2026-5932).
+	err := kb.ImportPrivKeyHex(name, hex.EncodeToString(privKey.Bytes()), privKey.Type())
 	if err != nil {
 		err = errors.Wrapf(ErrCosmosKeyringImportFailed, "failed to import privkey: %s", err.Error())
 		return err
@@ -485,13 +483,4 @@ func hexToBytes(str string) ([]byte, error) {
 	}
 
 	return data, nil
-}
-
-func randPhrase(size int) string {
-	buf := make([]byte, size)
-	if _, err := rand.Read(buf); err != nil {
-		panic(err)
-	}
-
-	return string(buf)
 }
