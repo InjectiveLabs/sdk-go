@@ -19,18 +19,11 @@ UID/GID 10001. Mount a writable state directory with suitable ownership or a pod
 `fsGroup`; `/var/lib/mq` is writable in the image.
 
 The repository's existing CI workflows remain unchanged. There is no additional
-MQ workflow, automatic image publication, or new Actions secret requirement.
-Build and verify the image in a trusted local or private build environment using
-the commands under Verification below. Private Go dependencies, including
-`InjectiveLabs/cosmos-sdk`, require existing authorized Git access there.
-
-Before building an image,
-`scripts/prepare-mq-go-modules.sh` stages the SDK's private module versions in
-gitignored `.modcache/`. Docker reads that file proxy and receives no token.
-The staging helpers use existing local Git authentication and are not called by
-the Actions workflows. Keep the generated module proxy, Go caches, and builder
-layers private. The final image contains the compiled tools, including dependency
-code, but no module source archives or credentials.
+MQ workflow or automatic image publication. Build and verify the image with the
+commands under Verification below. Every Go dependency is public, so the Docker
+build fetches modules from the default Go proxy and needs no credentials. The
+final image contains the compiled tools, including dependency code, but no
+module source archives.
 
 Image publication is a separate release step through the approved release
 process. The proposed next image is
@@ -110,8 +103,7 @@ exactly-once client processing or an application acknowledgement protocol.
 ## Verification
 
 ```sh
-./scripts/with-private-git.sh go test -race ./client/mq/...
-./scripts/prepare-mq-go-modules.sh
+go test -race ./client/mq/...
 docker build -f Dockerfile.mq -t sdk-go-mq:test .
 docker run --rm sdk-go-mq:test /usr/local/bin/mq-detector -help
 docker run --rm sdk-go-mq:test /usr/local/bin/mq-stream-server -help

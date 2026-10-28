@@ -6,5 +6,3 @@
 coverage.out
 .env
 .cache
-.modcache/
-.modcache.tmp.*/

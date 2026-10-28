@@ -4,13 +4,8 @@ on:
   push:
     branches: [ master, dev ]
 
-env:
-  GOPRIVATE: github.com/InjectiveLabs
-  GONOSUMDB: github.com/InjectiveLabs
-
 jobs:
   run-tests:
-    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login != 'dependabot[bot]')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -23,9 +18,7 @@ jobs:
           check-latest: true
           cache: false
       - name: Download Go modules
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: ./scripts/with-private-git.sh go mod download
+        run: go mod download
       - name: Install pass helper
         run: sudo apt-get update && sudo apt-get install -y pass
       - name: Generate GPG key
