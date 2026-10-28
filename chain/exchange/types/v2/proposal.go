@@ -88,18 +88,6 @@ func IsZeroOrNilDec(v math.LegacyDec) bool {
 	return v.IsNil() || v.IsZero()
 }
 
-// Validate returns an error if the minimal protocol fee update is not a recognized value.
-func (u DisableMinimalProtocolFeeUpdate) Validate() error {
-	switch u {
-	case DisableMinimalProtocolFeeUpdate_NoUpdate,
-		DisableMinimalProtocolFeeUpdate_False,
-		DisableMinimalProtocolFeeUpdate_True:
-		return nil
-	default:
-		return errors.Wrap(gov.ErrInvalidProposalContent, "invalid has_disabled_minimal_protocol_fee value")
-	}
-}
-
 // Implements Proposal Interface
 var _ govtypes.Content = &ExchangeEnableProposal{}
 
@@ -278,9 +266,6 @@ func (p *SpotMarketParamUpdateProposal) ProposalType() string {
 func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 	if !types.IsHexHash(p.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
-	}
-	if err := p.HasDisabledMinimalProtocolFee.Validate(); err != nil {
-		return err
 	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&
@@ -547,9 +532,6 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if !types.IsHexHash(p.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
 	}
-	if err := p.HasDisabledMinimalProtocolFee.Validate(); err != nil {
-		return err
-	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&
 		p.RelayerFeeShareRate == nil &&
@@ -565,7 +547,6 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.AdminInfo == nil &&
 		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
 		p.CrossMarginEligibility == CrossMarginEligibility_CM_ELIGIBILITY_UNSPECIFIED &&
-		p.ReferencePriceGateConfig == nil &&
 		p.OracleParams == nil {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
@@ -620,12 +601,6 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if p.OpenNotionalCap != nil {
 		if err := ValidateOpenNotionalCap(*p.OpenNotionalCap); err != nil {
 			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
-		}
-	}
-
-	if p.ReferencePriceGateConfig != nil {
-		if err := p.ReferencePriceGateConfig.Validate(); err != nil {
-			return err
 		}
 	}
 
@@ -1818,9 +1793,6 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ProposalType() string {
 func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
 	if !types.IsHexHash(p.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
-	}
-	if err := p.HasDisabledMinimalProtocolFee.Validate(); err != nil {
-		return err
 	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&

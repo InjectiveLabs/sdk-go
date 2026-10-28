@@ -21,7 +21,6 @@ var (
 	_ sdk.Msg = &MsgDeposit{}
 	_ sdk.Msg = &MsgWithdraw{}
 	_ sdk.Msg = &MsgUpdateSubaccountRiskProfile{}
-	_ sdk.Msg = &MsgUpdateSubaccountMarketRiskMode{}
 	_ sdk.Msg = &MsgCreateSpotLimitOrder{}
 	_ sdk.Msg = &MsgBatchCreateSpotLimitOrders{}
 	_ sdk.Msg = &MsgCreateSpotMarketOrder{}
@@ -83,7 +82,6 @@ const (
 	TypeMsgDeposit                                = "msgDeposit"
 	TypeMsgWithdraw                               = "msgWithdraw"
 	TypeMsgUpdateSubaccountRiskProfile            = "updateSubaccountRiskProfile"
-	TypeMsgUpdateSubaccountMarketRiskMode         = "updateSubaccountMarketRiskMode"
 	TypeMsgCreateSpotLimitOrder                   = "createSpotLimitOrder"
 	TypeMsgBatchCreateSpotLimitOrders             = "batchCreateSpotLimitOrders"
 	TypeMsgCreateSpotMarketOrder                  = "createSpotMarketOrder"
@@ -151,17 +149,7 @@ func (msg MsgUpdateParams) ValidateBasic() error {
 		return errors.Wrap(err, "invalid authority address")
 	}
 
-	params := msg.Params
-	if len(params.CrossMarginParams.LiquidationRfqContractAddress) == 0 &&
-		len(params.CrossMarginParams.EnabledQuoteDenoms) != 0 {
-		// Proto3 cannot distinguish an omitted list from an explicitly empty one.
-		// Use the already-validated authority solely as a syntactically valid marker
-		// so stateless validation can enforce every RFQ-mode bound. The stateful
-		// handler restores the configured router set before validating and
-		// persisting the actual parameters, or rejects the update if none exists.
-		params.CrossMarginParams.LiquidationRfqContractAddress = []string{msg.Authority}
-	}
-	if err := params.Validate(); err != nil {
+	if err := msg.Params.Validate(); err != nil {
 		return err
 	}
 
@@ -267,8 +255,7 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 		!msg.HasInitialMarginRatioUpdate() &&
 		!msg.HasMaintenanceMarginRatioUpdate() &&
 		!msg.HasReduceMarginRatioUpdate() &&
-		!msg.HasCrossMarginEligibilityUpdate() &&
-		!msg.HasReferencePriceGateConfigUpdate()
+		!msg.HasCrossMarginEligibilityUpdate()
 
 	if hasNoUpdate {
 		return errors.Wrap(types.ErrBadField, "no update value present")
@@ -303,12 +290,6 @@ func (msg *MsgUpdateDerivativeMarket) ValidateBasic() error {
 	if msg.HasOpenNotionalCapUpdate() {
 		if err := ValidateOpenNotionalCap(msg.NewOpenNotionalCap); err != nil {
 			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
-		}
-	}
-
-	if msg.HasReferencePriceGateConfigUpdate() {
-		if err := msg.NewReferencePriceGateConfig.Validate(); err != nil {
-			return err
 		}
 	}
 
@@ -409,10 +390,6 @@ func (msg *MsgUpdateDerivativeMarket) HasOpenNotionalCapUpdate() bool {
 
 func (msg *MsgUpdateDerivativeMarket) HasCrossMarginEligibilityUpdate() bool {
 	return msg.CrossMarginEligibility != CrossMarginEligibility_CM_ELIGIBILITY_UNSPECIFIED
-}
-
-func (msg *MsgUpdateDerivativeMarket) HasReferencePriceGateConfigUpdate() bool {
-	return msg.NewReferencePriceGateConfig != nil
 }
 
 func (m *SpotOrder) ValidateBasic(senderAddr sdk.AccAddress) error {
@@ -708,49 +685,6 @@ func (msg *MsgUpdateSubaccountRiskProfile) GetSignBytes() []byte {
 
 // GetSigners implements the sdk.Msg interface. It defines whose signature is required
 func (msg MsgUpdateSubaccountRiskProfile) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(msg.Sender)}
-}
-
-// Route implements the sdk.Msg interface. It should return the name of the module
-func (MsgUpdateSubaccountMarketRiskMode) Route() string { return RouterKey }
-
-// Type implements the sdk.Msg interface. It should return the action.
-func (MsgUpdateSubaccountMarketRiskMode) Type() string { return TypeMsgUpdateSubaccountMarketRiskMode }
-
-// ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message.
-func (msg MsgUpdateSubaccountMarketRiskMode) ValidateBasic() error {
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if err := types.CheckValidSubaccountIDOrNonce(senderAddr, msg.SubaccountId); err != nil {
-		return err
-	}
-
-	if !types.IsHexHash(msg.MarketId) {
-		return errors.Wrap(types.ErrMarketInvalid, msg.MarketId)
-	}
-
-	// UNSPECIFIED unpins the market back to the profile default; ISOLATED and
-	// CROSS pin it. Portfolio remains unsupported.
-	switch msg.Mode {
-	case RiskMode_RISK_MODE_UNSPECIFIED, RiskMode_RISK_MODE_ISOLATED, RiskMode_RISK_MODE_CROSS:
-		// supported
-	default:
-		return errors.Wrap(types.ErrFeatureDisabled, "risk mode is not supported")
-	}
-
-	return nil
-}
-
-// GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
-func (msg *MsgUpdateSubaccountMarketRiskMode) GetSignBytes() []byte {
-	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
-}
-
-// GetSigners implements the sdk.Msg interface. It defines whose signature is required
-func (msg MsgUpdateSubaccountMarketRiskMode) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(msg.Sender)}
 }
 
@@ -2071,33 +2005,6 @@ func (msg *MsgLiquidateCrossMarginPool) ValidateBasic() error {
 
 	if err := sdk.ValidateDenom(msg.QuoteDenom); err != nil {
 		return errors.Wrap(types.ErrInvalidQuoteDenom, err.Error())
-	}
-
-	if msg.RfqAction != "" {
-		// Empty rfq_action is the canonical input for idempotent, cleanup-only,
-		// and settlement terminal paths. Supplying any bytes opts into RFQ
-		// semantics, so every nonempty action must parse strictly regardless of
-		// the state-dependent branch ultimately selected by the keeper.
-		if len(msg.RfqAction) > MaxCrossMarginRFQLiquidationActionBytes {
-			return errors.Wrapf(
-				types.ErrBadField,
-				"rfq_action exceeds maximum size of %d bytes",
-				MaxCrossMarginRFQLiquidationActionBytes,
-			)
-		}
-
-		syntheticTradeAction, err := types.ParseRFQLiquidationRequestStrict([]byte(msg.RfqAction))
-		if err != nil {
-			return errors.Wrap(err, "invalid rfq_action")
-		}
-		if len(syntheticTradeAction.UserTrades) > MaxCrossMarginRFQLiquidationTradePairs {
-			return errors.Wrapf(
-				types.ErrBadField,
-				"rfq_action contains %d trade pairs, maximum is %d",
-				len(syntheticTradeAction.UserTrades),
-				MaxCrossMarginRFQLiquidationTradePairs,
-			)
-		}
 	}
 
 	return nil

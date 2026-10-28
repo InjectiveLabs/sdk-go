@@ -14,10 +14,9 @@ type SpotLimitOrderDelta struct {
 }
 
 type DerivativeLimitOrderDelta struct {
-	Order                 *DerivativeLimitOrder
-	FillQuantity          math.LegacyDec
-	CancelQuantity        math.LegacyDec
-	AvailableBalanceDelta math.LegacyDec
+	Order          *DerivativeLimitOrder
+	FillQuantity   math.LegacyDec
+	CancelQuantity math.LegacyDec
 }
 
 type DerivativeMarketOrderDelta struct {

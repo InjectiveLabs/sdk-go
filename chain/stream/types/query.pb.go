@@ -1507,8 +1507,7 @@ type OraclePriceFilter struct {
 	//   - Provider:             compound "provider/symbol" (e.g. "acme/BTC")
 	//   - PythPro:              decimal string of the uint32 feed ID (e.g.
 	//   "12345")
-	//   - SedaFast:             hex(keccak256(execProgramIdBytes ||
-	//                             keccak256(execInputsBytes)))
+	//   - SedaFast:             hex-encoded execInputs feed ID
 	// Use ["*"] to subscribe to all oracle price updates.
 	Symbol []string `protobuf:"bytes,1,rep,name=symbol,proto3" json:"symbol,omitempty"`
 }

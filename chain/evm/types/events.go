@@ -1,7 +1,5 @@
 package types
 
-import "github.com/ethereum/go-ethereum/common"
-
 // Evm module events
 const (
 	EventTypeEthereumTx = TypeMsgEthereumTx
@@ -23,33 +21,3 @@ const (
 	MetricKeyTransitionDB = "transition_db"
 	MetricKeyStaticCall   = "static_call"
 )
-
-func NewEventIBCHookCall( //nolint:revive // all good
-	destPort, destCh string,
-	sequence uint64,
-	contract,
-	input []byte,
-	response *MsgEthereumTxResponse,
-) *EventIBCHookCall {
-	event := &EventIBCHookCall{
-		DestinationPort:    destPort,
-		DestinationChannel: destCh,
-		Sequence:           sequence,
-		Contract:           common.BytesToAddress(contract).Hex(),
-		Input:              input,
-	}
-
-	if response == nil {
-		return event
-	}
-
-	event.Success = !response.Failed()
-	event.ReturnData = response.Ret
-	event.Error = response.VmError
-	event.GasUsed = response.GasUsed
-	if event.Success {
-		event.Logs = response.Logs
-	}
-
-	return event
-}

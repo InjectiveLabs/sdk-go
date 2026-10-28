@@ -42,7 +42,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgDeposit{}, "exchange/v2/MsgDeposit", nil)
 	cdc.RegisterConcrete(&MsgWithdraw{}, "exchange/v2/MsgWithdraw", nil)
 	cdc.RegisterConcrete(&MsgUpdateSubaccountRiskProfile{}, "exchange/v2/MsgUpdateSubaccountRiskProfile", nil)
-	cdc.RegisterConcrete(&MsgUpdateSubaccountMarketRiskMode{}, "exchange/v2/MsgUpdateSubaccountMarketRiskMode", nil)
 	cdc.RegisterConcrete(&MsgInstantSpotMarketLaunch{}, "exchange/v2/MsgInstantSpotMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantPerpetualMarketLaunch{}, "exchange/v2/MsgInstantPerpetualMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantExpiryFuturesMarketLaunch{}, "exchange/v2/MsgInstantExpiryFuturesMarketLaunch", nil)
@@ -158,7 +157,6 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgDeposit{},
 		&MsgWithdraw{},
 		&MsgUpdateSubaccountRiskProfile{},
-		&MsgUpdateSubaccountMarketRiskMode{},
 		&MsgInstantSpotMarketLaunch{},
 		&MsgInstantPerpetualMarketLaunch{},
 		&MsgInstantExpiryFuturesMarketLaunch{},

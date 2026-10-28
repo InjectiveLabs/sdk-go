@@ -13,9 +13,6 @@ import (
 	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 )
 
-// RequiredFeeDiscountQuoteDecimals is the quote precision used by fee-discount schedules and volume accounting.
-const RequiredFeeDiscountQuoteDecimals uint32 = 6
-
 func (s *FeeDiscountSchedule) CalculateFeeDiscountTier(
 	stakedAmount math.Int,
 	tradingVolume math.LegacyDec,
