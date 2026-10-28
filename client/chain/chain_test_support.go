@@ -45,7 +45,6 @@ type MockChainClientV2 struct {
 	DenomsMetadataResponses           []*banktypes.QueryDenomsMetadataResponse
 	QuerySpotMarketsV2Responses       []*exchangev2types.QuerySpotMarketsResponse
 	QueryDerivativeMarketsV2Responses []*exchangev2types.QueryDerivativeMarketsResponse
-	QueryBinaryMarketsV2Responses     []*exchangev2types.QueryBinaryMarketsResponse
 }
 
 func (c *MockChainClientV2) CanSignTransactions() bool {
@@ -535,18 +534,6 @@ func (c *MockChainClientV2) FetchSubaccountOrderMetadata(ctx context.Context, su
 	return &exchangev2types.QuerySubaccountOrderMetadataResponse{}, nil
 }
 
-func (c *MockChainClientV2) FetchTradeRewardPoints(ctx context.Context, accounts []string) (*exchangev2types.QueryTradeRewardPointsResponse, error) {
-	return &exchangev2types.QueryTradeRewardPointsResponse{}, nil
-}
-
-func (c *MockChainClientV2) FetchPendingTradeRewardPoints(ctx context.Context, accounts []string) (*exchangev2types.QueryTradeRewardPointsResponse, error) {
-	return &exchangev2types.QueryTradeRewardPointsResponse{}, nil
-}
-
-func (c *MockChainClientV2) FetchTradeRewardCampaign(ctx context.Context) (*exchangev2types.QueryTradeRewardCampaignResponse, error) {
-	return &exchangev2types.QueryTradeRewardCampaignResponse{}, nil
-}
-
 func (c *MockChainClientV2) FetchFeeDiscountAccountInfo(ctx context.Context, account string) (*exchangev2types.QueryFeeDiscountAccountInfoResponse, error) {
 	return &exchangev2types.QueryFeeDiscountAccountInfoResponse{}, nil
 }
@@ -567,43 +554,8 @@ func (c *MockChainClientV2) FetchFeeDiscountTierStatistics(ctx context.Context) 
 	return &exchangev2types.QueryFeeDiscountTierStatisticsResponse{}, nil
 }
 
-func (c *MockChainClientV2) FetchMitoVaultInfos(ctx context.Context) (*exchangev2types.MitoVaultInfosResponse, error) {
-	return &exchangev2types.MitoVaultInfosResponse{}, nil
-}
-
 func (c *MockChainClientV2) FetchMarketIDFromVault(ctx context.Context, vaultAddress string) (*exchangev2types.QueryMarketIDFromVaultResponse, error) {
 	return &exchangev2types.QueryMarketIDFromVaultResponse{}, nil
-}
-
-func (c *MockChainClientV2) FetchHistoricalTradeRecords(ctx context.Context, marketId string) (*exchangev2types.QueryHistoricalTradeRecordsResponse, error) {
-	return &exchangev2types.QueryHistoricalTradeRecordsResponse{}, nil
-}
-
-func (c *MockChainClientV2) FetchIsOptedOutOfRewards(ctx context.Context, account string) (*exchangev2types.QueryIsOptedOutOfRewardsResponse, error) {
-	return &exchangev2types.QueryIsOptedOutOfRewardsResponse{}, nil
-}
-
-func (c *MockChainClientV2) FetchOptedOutOfRewardsAccounts(ctx context.Context) (*exchangev2types.QueryOptedOutOfRewardsAccountsResponse, error) {
-	return &exchangev2types.QueryOptedOutOfRewardsAccountsResponse{}, nil
-}
-
-func (c *MockChainClientV2) FetchMarketVolatility(ctx context.Context, marketId string, tradeHistoryOptions *exchangev2types.TradeHistoryOptions) (*exchangev2types.QueryMarketVolatilityResponse, error) {
-	return &exchangev2types.QueryMarketVolatilityResponse{}, nil
-}
-
-func (c *MockChainClientV2) FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangev2types.QueryBinaryMarketsResponse, error) {
-	var response *exchangev2types.QueryBinaryMarketsResponse
-	var localError error
-	if len(c.QueryBinaryMarketsV2Responses) > 0 {
-		response = c.QueryBinaryMarketsV2Responses[0]
-		c.QueryBinaryMarketsV2Responses = c.QueryBinaryMarketsV2Responses[1:]
-		localError = nil
-	} else {
-		response = &exchangev2types.QueryBinaryMarketsResponse{}
-		localError = errors.New("there are no responses configured")
-	}
-
-	return response, localError
 }
 
 func (c *MockChainClientV2) FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId, marketId string) (*exchangev2types.QueryTraderDerivativeConditionalOrdersResponse, error) {

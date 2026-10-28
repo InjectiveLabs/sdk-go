@@ -101,27 +101,21 @@ func TestMarketAssistantCreation(t *testing.T) {
 	mockChain.Network = network
 	var spotMarketInfos []*exchangev1types.SpotMarket
 	var fullDerivativeMarkets []*exchangev1types.FullDerivativeMarket
-	var binaryOptionsMarkets []*exchangev1types.BinaryOptionsMarket
 	injUsdtSpotMarketInfo := createINJUSDTChainSpotMarketV1()
 	apeUsdtSpotMarketInfo := createAPEUSDTChainSpotMarketV1()
 	btcUsdtDerivativeMarketInfo := createBTCUSDTChainDerivativeMarketV1()
-	betBinaryOptionsMarket := createFirstMatchBetBinaryOptionsMarketV1()
 
 	spotMarketInfos = append(spotMarketInfos, injUsdtSpotMarketInfo)
 	spotMarketInfos = append(spotMarketInfos, apeUsdtSpotMarketInfo)
 	fullDerivativeMarkets = append(fullDerivativeMarkets, &exchangev1types.FullDerivativeMarket{
 		Market: btcUsdtDerivativeMarketInfo,
 	})
-	binaryOptionsMarkets = append(binaryOptionsMarkets, betBinaryOptionsMarket)
 
 	mockChain.QuerySpotMarketsResponses = append(mockChain.QuerySpotMarketsResponses, &exchangev1types.QuerySpotMarketsResponse{
 		Markets: spotMarketInfos,
 	})
 	mockChain.QueryDerivativeMarketsResponses = append(mockChain.QueryDerivativeMarketsResponses, &exchangev1types.QueryDerivativeMarketsResponse{
 		Markets: fullDerivativeMarkets,
-	})
-	mockChain.QueryBinaryMarketsResponses = append(mockChain.QueryBinaryMarketsResponses, &exchangev1types.QueryBinaryMarketsResponse{
-		Markets: binaryOptionsMarkets,
 	})
 
 	ctx := context.Background()
@@ -183,7 +177,6 @@ func TestMarketAssistantCreationWithAllTokens(t *testing.T) {
 
 	mockChain.QuerySpotMarketsResponses = append(mockChain.QuerySpotMarketsResponses, &exchangev1types.QuerySpotMarketsResponse{})
 	mockChain.QueryDerivativeMarketsResponses = append(mockChain.QueryDerivativeMarketsResponses, &exchangev1types.QueryDerivativeMarketsResponse{})
-	mockChain.QueryBinaryMarketsResponses = append(mockChain.QueryBinaryMarketsResponses, &exchangev1types.QueryBinaryMarketsResponse{})
 
 	mockChain.DenomsMetadataResponses = append(mockChain.DenomsMetadataResponses, &banktypes.QueryDenomsMetadataResponse{
 		Metadatas: []banktypes.Metadata{smartDenomMetadata},
@@ -285,27 +278,21 @@ func TestHumanReadableMarketAssistantCreation(t *testing.T) {
 	mockChain.Network = network
 	var spotMarketInfos []*exchangev2types.SpotMarket
 	var fullDerivativeMarkets []*exchangev2types.FullDerivativeMarket
-	var binaryOptionsMarkets []*exchangev2types.BinaryOptionsMarket
 	injUsdtSpotMarketInfo := createINJUSDTChainSpotMarketV2()
 	apeUsdtSpotMarketInfo := createAPEUSDTChainSpotMarketV2()
 	btcUsdtDerivativeMarketInfo := createBTCUSDTChainDerivativeMarketV2()
-	betBinaryOptionsMarket := createFirstMatchBetBinaryOptionsMarketV2()
 
 	spotMarketInfos = append(spotMarketInfos, injUsdtSpotMarketInfo)
 	spotMarketInfos = append(spotMarketInfos, apeUsdtSpotMarketInfo)
 	fullDerivativeMarkets = append(fullDerivativeMarkets, &exchangev2types.FullDerivativeMarket{
 		Market: btcUsdtDerivativeMarketInfo,
 	})
-	binaryOptionsMarkets = append(binaryOptionsMarkets, betBinaryOptionsMarket)
 
 	mockChain.QuerySpotMarketsV2Responses = append(mockChain.QuerySpotMarketsV2Responses, &exchangev2types.QuerySpotMarketsResponse{
 		Markets: spotMarketInfos,
 	})
 	mockChain.QueryDerivativeMarketsV2Responses = append(mockChain.QueryDerivativeMarketsV2Responses, &exchangev2types.QueryDerivativeMarketsResponse{
 		Markets: fullDerivativeMarkets,
-	})
-	mockChain.QueryBinaryMarketsV2Responses = append(mockChain.QueryBinaryMarketsV2Responses, &exchangev2types.QueryBinaryMarketsResponse{
-		Markets: binaryOptionsMarkets,
 	})
 
 	ctx := context.Background()
@@ -367,7 +354,6 @@ func TestHumanReadableMarketAssistantCreationWithAllTokens(t *testing.T) {
 
 	mockChain.QuerySpotMarketsV2Responses = append(mockChain.QuerySpotMarketsV2Responses, &exchangev2types.QuerySpotMarketsResponse{})
 	mockChain.QueryDerivativeMarketsV2Responses = append(mockChain.QueryDerivativeMarketsV2Responses, &exchangev2types.QueryDerivativeMarketsResponse{})
-	mockChain.QueryBinaryMarketsV2Responses = append(mockChain.QueryBinaryMarketsV2Responses, &exchangev2types.QueryBinaryMarketsResponse{})
 
 	mockChain.DenomsMetadataResponses = append(mockChain.DenomsMetadataResponses, &banktypes.QueryDenomsMetadataResponse{
 		Metadatas: []banktypes.Metadata{smartDenomMetadata},

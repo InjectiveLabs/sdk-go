@@ -289,54 +289,6 @@ func (assistant *MarketsAssistant) initializeFromChainV1Markets(ctx context.Cont
 		assistant.derivativeMarkets[market.Id] = market
 	}
 
-	binaryOptionsMarkets, err := chainClient.FetchChainBinaryOptionsMarkets(ctx, "Active")
-
-	if err != nil {
-		return err
-	}
-
-	for _, marketInfo := range binaryOptionsMarkets.GetMarkets() {
-		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.QuoteDenom]
-		if !quoteTokenFound {
-			// Ignore the market because it references a token that is not in the token list
-			continue
-		}
-
-		makerFeeRate := decimal.RequireFromString(marketInfo.MakerFeeRate.String())
-		takerFeeRate := decimal.RequireFromString(marketInfo.TakerFeeRate.String())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.RelayerFeeShareRate.String())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.MinPriceTickSize.String())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
-		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
-
-		market := core.BinaryOptionMarketV1{
-			Id:                  marketInfo.MarketId,
-			Status:              marketInfo.Status.String(),
-			Ticker:              marketInfo.Ticker,
-			OracleSymbol:        marketInfo.OracleSymbol,
-			OracleProvider:      marketInfo.OracleProvider,
-			OracleType:          marketInfo.OracleType.String(),
-			OracleScaleFactor:   marketInfo.OracleScaleFactor,
-			ExpirationTimestamp: marketInfo.ExpirationTimestamp,
-			SettlementTimestamp: marketInfo.SettlementTimestamp,
-			QuoteToken:          quoteToken,
-			MakerFeeRate:        makerFeeRate,
-			TakerFeeRate:        takerFeeRate,
-			ServiceProviderFee:  serviceProviderFee,
-			MinPriceTickSize:    minPriceTickSize,
-			MinQuantityTickSize: minQuantityTickSize,
-			MinNotional:         minNotional,
-			QuoteDecimals:       marketInfo.QuoteDecimals,
-		}
-
-		if marketInfo.SettlementPrice != nil {
-			settlementPrice := decimal.RequireFromString(marketInfo.SettlementPrice.String())
-			market.SettlementPrice = &settlementPrice
-		}
-
-		assistant.binaryOptionMarkets[market.Id] = market
-	}
-
 	return nil
 }
 
@@ -440,54 +392,6 @@ func (assistant *MarketsAssistant) initializeFromChainV2Markets(ctx context.Cont
 		}
 
 		assistant.derivativeMarkets[market.Id] = market
-	}
-
-	binaryOptionsMarkets, err := chainClient.FetchChainBinaryOptionsMarkets(ctx, "Active")
-
-	if err != nil {
-		return err
-	}
-
-	for _, marketInfo := range binaryOptionsMarkets.GetMarkets() {
-		quoteToken, quoteTokenFound := assistant.tokensByDenom[marketInfo.QuoteDenom]
-		if !quoteTokenFound {
-			// Ignore the market because it references a token that is not in the token list
-			continue
-		}
-
-		makerFeeRate := decimal.RequireFromString(marketInfo.MakerFeeRate.String())
-		takerFeeRate := decimal.RequireFromString(marketInfo.TakerFeeRate.String())
-		serviceProviderFee := decimal.RequireFromString(marketInfo.RelayerFeeShareRate.String())
-		minPriceTickSize := decimal.RequireFromString(marketInfo.MinPriceTickSize.String())
-		minQuantityTickSize := decimal.RequireFromString(marketInfo.MinQuantityTickSize.String())
-		minNotional := decimal.RequireFromString(marketInfo.MinNotional.String())
-
-		market := core.BinaryOptionMarketV2{
-			Id:                  marketInfo.MarketId,
-			Status:              marketInfo.Status.String(),
-			Ticker:              marketInfo.Ticker,
-			OracleSymbol:        marketInfo.OracleSymbol,
-			OracleProvider:      marketInfo.OracleProvider,
-			OracleType:          marketInfo.OracleType.String(),
-			OracleScaleFactor:   marketInfo.OracleScaleFactor,
-			ExpirationTimestamp: marketInfo.ExpirationTimestamp,
-			SettlementTimestamp: marketInfo.SettlementTimestamp,
-			QuoteToken:          quoteToken,
-			MakerFeeRate:        makerFeeRate,
-			TakerFeeRate:        takerFeeRate,
-			ServiceProviderFee:  serviceProviderFee,
-			MinPriceTickSize:    minPriceTickSize,
-			MinQuantityTickSize: minQuantityTickSize,
-			MinNotional:         minNotional,
-			QuoteDecimals:       marketInfo.QuoteDecimals,
-		}
-
-		if marketInfo.SettlementPrice != nil {
-			settlementPrice := decimal.RequireFromString(marketInfo.SettlementPrice.String())
-			market.SettlementPrice = &settlementPrice
-		}
-
-		assistant.binaryOptionMarkets[market.Id] = market
 	}
 
 	return nil

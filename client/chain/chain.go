@@ -232,21 +232,12 @@ type ChainClient interface {
 	FetchChainExpiryFuturesMarketInfo(ctx context.Context, marketId string) (*exchangetypes.QueryExpiryFuturesMarketInfoResponse, error)
 	FetchChainPerpetualMarketFunding(ctx context.Context, marketId string) (*exchangetypes.QueryPerpetualMarketFundingResponse, error)
 	FetchSubaccountOrderMetadata(ctx context.Context, subaccountId string) (*exchangetypes.QuerySubaccountOrderMetadataResponse, error)
-	FetchTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error)
-	FetchPendingTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error)
 	FetchFeeDiscountAccountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error)
-	FetchTradeRewardCampaign(ctx context.Context) (*exchangetypes.QueryTradeRewardCampaignResponse, error)
 	FetchFeeDiscountSchedule(ctx context.Context) (*exchangetypes.QueryFeeDiscountScheduleResponse, error)
 	FetchBalanceMismatches(ctx context.Context, dustFactor int64) (*exchangetypes.QueryBalanceMismatchesResponse, error)
 	FetchBalanceWithBalanceHolds(ctx context.Context) (*exchangetypes.QueryBalanceWithBalanceHoldsResponse, error)
 	FetchFeeDiscountTierStatistics(ctx context.Context) (*exchangetypes.QueryFeeDiscountTierStatisticsResponse, error)
-	FetchMitoVaultInfos(ctx context.Context) (*exchangetypes.MitoVaultInfosResponse, error)
 	FetchMarketIDFromVault(ctx context.Context, vaultAddress string) (*exchangetypes.QueryMarketIDFromVaultResponse, error)
-	FetchHistoricalTradeRecords(ctx context.Context, marketId string) (*exchangetypes.QueryHistoricalTradeRecordsResponse, error)
-	FetchIsOptedOutOfRewards(ctx context.Context, account string) (*exchangetypes.QueryIsOptedOutOfRewardsResponse, error)
-	FetchOptedOutOfRewardsAccounts(ctx context.Context) (*exchangetypes.QueryOptedOutOfRewardsAccountsResponse, error)
-	FetchMarketVolatility(ctx context.Context, marketId string, tradeHistoryOptions *exchangetypes.TradeHistoryOptions) (*exchangetypes.QueryMarketVolatilityResponse, error)
-	FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error)
 	FetchTraderDerivativeConditionalOrders(ctx context.Context, subaccountId string, marketId string) (*exchangetypes.QueryTraderDerivativeConditionalOrdersResponse, error)
 	FetchMarketAtomicExecutionFeeMultiplier(ctx context.Context, marketId string) (*exchangetypes.QueryMarketAtomicExecutionFeeMultiplierResponse, error)
 	FetchL3DerivativeOrderBook(ctx context.Context, marketId string) (*exchangetypes.QueryFullDerivativeOrderbookResponse, error)
@@ -2109,31 +2100,6 @@ func (c *chainClient) FetchSubaccountOrderMetadata(ctx context.Context, subaccou
 	return res, err
 }
 
-func (c *chainClient) FetchTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error) {
-	req := &exchangetypes.QueryTradeRewardPointsRequest{
-		Accounts: accounts,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TradeRewardPoints, req)
-
-	return res, err
-}
-
-func (c *chainClient) FetchPendingTradeRewardPoints(ctx context.Context, accounts []string) (*exchangetypes.QueryTradeRewardPointsResponse, error) {
-	req := &exchangetypes.QueryTradeRewardPointsRequest{
-		Accounts: accounts,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.PendingTradeRewardPoints, req)
-
-	return res, err
-}
-
-func (c *chainClient) FetchTradeRewardCampaign(ctx context.Context) (*exchangetypes.QueryTradeRewardCampaignResponse, error) {
-	req := &exchangetypes.QueryTradeRewardCampaignRequest{}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.TradeRewardCampaign, req)
-
-	return res, err
-}
-
 func (c *chainClient) FetchFeeDiscountAccountInfo(ctx context.Context, account string) (*exchangetypes.QueryFeeDiscountAccountInfoResponse, error) {
 	req := &exchangetypes.QueryFeeDiscountAccountInfoRequest{
 		Account: account,
@@ -2173,63 +2139,11 @@ func (c *chainClient) FetchFeeDiscountTierStatistics(ctx context.Context) (*exch
 	return res, err
 }
 
-func (c *chainClient) FetchMitoVaultInfos(ctx context.Context) (*exchangetypes.MitoVaultInfosResponse, error) {
-	req := &exchangetypes.MitoVaultInfosRequest{}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MitoVaultInfos, req)
-
-	return res, err
-}
-
 func (c *chainClient) FetchMarketIDFromVault(ctx context.Context, vaultAddress string) (*exchangetypes.QueryMarketIDFromVaultResponse, error) {
 	req := &exchangetypes.QueryMarketIDFromVaultRequest{
 		VaultAddress: vaultAddress,
 	}
 	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.QueryMarketIDFromVault, req)
-
-	return res, err
-}
-
-func (c *chainClient) FetchHistoricalTradeRecords(ctx context.Context, marketId string) (*exchangetypes.QueryHistoricalTradeRecordsResponse, error) {
-	req := &exchangetypes.QueryHistoricalTradeRecordsRequest{
-		MarketId: marketId,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.HistoricalTradeRecords, req)
-
-	return res, err
-}
-
-func (c *chainClient) FetchIsOptedOutOfRewards(ctx context.Context, account string) (*exchangetypes.QueryIsOptedOutOfRewardsResponse, error) {
-	req := &exchangetypes.QueryIsOptedOutOfRewardsRequest{
-		Account: account,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.IsOptedOutOfRewards, req)
-
-	return res, err
-}
-
-func (c *chainClient) FetchOptedOutOfRewardsAccounts(ctx context.Context) (*exchangetypes.QueryOptedOutOfRewardsAccountsResponse, error) {
-	req := &exchangetypes.QueryOptedOutOfRewardsAccountsRequest{}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.OptedOutOfRewardsAccounts, req)
-
-	return res, err
-}
-
-func (c *chainClient) FetchMarketVolatility(ctx context.Context, marketId string, tradeHistoryOptions *exchangetypes.TradeHistoryOptions) (*exchangetypes.QueryMarketVolatilityResponse, error) {
-	req := &exchangetypes.QueryMarketVolatilityRequest{
-		MarketId:            marketId,
-		TradeHistoryOptions: tradeHistoryOptions,
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.MarketVolatility, req)
-
-	return res, err
-}
-
-func (c *chainClient) FetchChainBinaryOptionsMarkets(ctx context.Context, status string) (*exchangetypes.QueryBinaryMarketsResponse, error) {
-	req := &exchangetypes.QueryBinaryMarketsRequest{}
-	if status != "" {
-		req.Status = status
-	}
-	res, err := common.ExecuteCall(ctx, c.network.ChainCookieAssistant, c.exchangeQueryClient.BinaryOptionsMarkets, req)
 
 	return res, err
 }

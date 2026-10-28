@@ -100,32 +100,6 @@ func createBTCUSDTChainDerivativeMarketV1() *exchangev1types.DerivativeMarket {
 	return &marketInfo
 }
 
-func createFirstMatchBetBinaryOptionsMarketV1() *exchangev1types.BinaryOptionsMarket {
-	market := exchangev1types.BinaryOptionsMarket{
-		Ticker:              "5fdbe0b1-1707800399-WAS",
-		OracleSymbol:        "Frontrunner",
-		OracleProvider:      "Frontrunner",
-		OracleType:          oracletypes.OracleType_Provider,
-		OracleScaleFactor:   6,
-		ExpirationTimestamp: 1708099200,
-		SettlementTimestamp: 1707099200,
-		Admin:               "inj1zlh5sqevkfphtwnu9cul8p89vseme2eqt0snn9",
-		QuoteDenom:          "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5",
-		MarketId:            "0x230dcce315364ff6360097838701b14713e2f4007d704df20ed3d81d09eec957",
-		MakerFeeRate:        math.LegacyMustNewDecFromStr("0"),
-		TakerFeeRate:        math.LegacyMustNewDecFromStr("0"),
-		RelayerFeeShareRate: math.LegacyMustNewDecFromStr("0.4"),
-		Status:              exchangev1types.MarketStatus_Active,
-		MinPriceTickSize:    math.LegacyMustNewDecFromStr("0.01"),
-		MinQuantityTickSize: math.LegacyMustNewDecFromStr("1"),
-		MinNotional:         math.LegacyMustNewDecFromStr("1"),
-		AdminPermissions:    1,
-		QuoteDecimals:       6,
-	}
-
-	return &market
-}
-
 func createINJUSDTChainSpotMarketV2() *exchangev2types.SpotMarket {
 	marketInfo := exchangev2types.SpotMarket{
 		Ticker:              "INJ/USDT",
@@ -193,33 +167,4 @@ func createBTCUSDTChainDerivativeMarketV2() *exchangev2types.DerivativeMarket {
 	}
 
 	return &marketInfo
-}
-
-func createFirstMatchBetBinaryOptionsMarketV2() *exchangev2types.BinaryOptionsMarket {
-	market := exchangev2types.BinaryOptionsMarket{
-		Ticker:              "5fdbe0b1-1707800399-WAS",
-		OracleSymbol:        "Frontrunner",
-		OracleProvider:      "Frontrunner",
-		OracleType:          oracletypes.OracleType_Provider,
-		OracleScaleFactor:   6,
-		ExpirationTimestamp: 1708099200,
-		SettlementTimestamp: 1707099200,
-		Admin:               "inj1zlh5sqevkfphtwnu9cul8p89vseme2eqt0snn9",
-		QuoteDenom:          "peggy0x87aB3B4C8661e07D6372361211B96ed4Dc36B1B5",
-		MarketId:            "0x230dcce315364ff6360097838701b14713e2f4007d704df20ed3d81d09eec957",
-		MakerFeeRate:        math.LegacyMustNewDecFromStr("0"),
-		TakerFeeRate:        math.LegacyMustNewDecFromStr("0"),
-		RelayerFeeShareRate: math.LegacyMustNewDecFromStr("0.4"),
-		Status:              exchangev2types.MarketStatus_Active,
-		MinPriceTickSize:    math.LegacyMustNewDecFromStr("0.01"),
-		MinQuantityTickSize: math.LegacyMustNewDecFromStr("1"),
-		MinNotional:         math.LegacyMustNewDecFromStr("1"),
-		AdminPermissions:    1,
-		QuoteDecimals:       6,
-		OpenNotionalCap: exchangev2types.OpenNotionalCap{
-			Cap: &exchangev2types.OpenNotionalCap_Uncapped{},
-		},
-	}
-
-	return &market
 }
