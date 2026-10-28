@@ -55,8 +55,8 @@ message SedaFastParams {
 enum OracleType {
   Unspecified = 0;
   Band = 1 [ deprecated = true ];
-  PriceFeed = 2;
-  Coinbase = 3;
+  PriceFeed = 2 [deprecated = true];
+  Coinbase = 3 [deprecated = true];
   Chainlink = 4 [ deprecated = true ];
   Razor = 5 [ deprecated = true ];
   Dia = 6 [ deprecated = true ];
@@ -65,7 +65,7 @@ enum OracleType {
   Pyth = 9;
   BandIBC = 10 [ deprecated = true ];
   Provider = 11;
-  Stork = 12;
+  Stork = 12 [deprecated = true];
   ChainlinkDataStreams = 13;
   // PythPro uses the Pyth Lazer high-frequency feed, verified via an on-chain
   // EVM contract.
@@ -109,6 +109,7 @@ message BandPriceState {
 }
 
 message PriceFeedState {
+  option deprecated = true;
   string base = 1;
   string quote = 2;
   PriceState price_state = 3;
@@ -131,11 +132,13 @@ message ProviderPriceState {
 }
 
 message PriceFeedInfo {
+  option deprecated = true;
   string base = 1;
   string quote = 2;
 }
 
 message PriceFeedPrice {
+  option deprecated = true;
   string price = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -143,6 +146,7 @@ message PriceFeedPrice {
 }
 
 message CoinbasePriceState {
+  option deprecated = true;
   // kind should always be "prices"
   string kind = 1;
   // timestamp of the when the price was signed by coinbase
@@ -156,6 +160,7 @@ message CoinbasePriceState {
 }
 
 message StorkPriceState {
+  option deprecated = true;
   // timestamp of the when the price was signed by stork
   uint64 timestamp = 1;
   // the symbol of the price, e.g. BTC
@@ -211,6 +216,16 @@ message ChainlinkDataStreamsPriceState {
   uint64 observations_timestamp = 4;
   PriceState price_state = 5 [ (gogoproto.nullable) = false ];
   uint64 expires_at = 6;
+  // report_schema_version is the Chainlink Data Streams report schema encoded
+  // by the feed ID (currently 3 for crypto and 8 for RWA).
+  uint32 report_schema_version = 7;
+  // market_status is meaningful for the v8 RWA schema: 0 unknown, 1 closed,
+  // and 2 open. It is zero for schemas without a market-status field.
+  uint32 market_status = 8;
+  // last_update_timestamp is the v8 timestamp of the last valid price update,
+  // in nanoseconds. It is zero for schemas without this field and is not
+  // assumed to be monotonic across reports.
+  uint64 last_update_timestamp = 9;
 }
 
 // DEPRECATED! Oracle price from Band is no longer supported
@@ -283,12 +298,14 @@ message LastPriceTimestamps {
 }
 
 message PriceRecords {
+  option deprecated = true;
   OracleType oracle = 1;
   string symbol_id = 2;
   repeated PriceRecord latest_price_records = 3;
 }
 
 message PriceRecord {
+  option deprecated = true;
   int64 timestamp = 1;
 
   string price = 2 [
@@ -300,6 +317,7 @@ message PriceRecord {
 // MetadataStatistics refers to the metadata summary statistics of the
 // historical sample considered
 message MetadataStatistics {
+  option deprecated = true;
   // GroupCount refers to the number of groups used. Equals RecordsSampleSize if
   // no grouping is used
   uint32 group_count = 1;
@@ -353,6 +371,7 @@ message PriceAttestation {
 }
 
 message AssetPair {
+  option deprecated = true;
   string asset_id = 1;
   repeated SignedPriceOfAssetPair signed_prices = 2;
 }
@@ -384,14 +403,24 @@ message PythProPriceState {
   // price_state holds the verified price, cumulative price, and block
   // timestamp.
   PriceState price_state = 3 [ (gogoproto.nullable) = false ];
+  // ema_price is the upstream emaPrice value from the verified Pyth Lazer
+  // payload, scaled with the feed exponent.
+  string ema_price = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // ema_timestamp is the feed update timestamp associated with ema_price
+  // (microseconds from epoch). It advances only when a verified payload
+  // contains both emaPrice and a valid per-feed feedUpdateTimestamp.
+  uint64 ema_timestamp = 5;
 }
 
 // SedaFastPriceState holds the verified price state for a single SEDA Fast
 // feed.
 message SedaFastPriceState {
-  // feed_id is the hex-encoded execInputs string from the SEDA Fast
-  // dataRequest. It is the stable on-chain identity of the feed, invariant
-  // across relayer restarts and per-execution result IDs.
+  // feed_id is hex(keccak256(execProgramIdBytes ||
+  // keccak256(execInputsBytes))). It binds the signed Oracle Program and its
+  // inputs, avoiding collisions between programs that use identical inputs.
   string feed_id = 1;
   // timestamp is the dataResult.blockTimestamp value (milliseconds from
   // epoch) extracted from the verified SEDA Fast response.

@@ -243,6 +243,7 @@ message PerpetualMarketLaunchProposal {
 }
 
 message BinaryOptionsMarketLaunchProposal {
+  option deprecated = true;
   option (amino.name) = "exchange/BinaryOptionsMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -490,6 +491,7 @@ message UpdateDenomDecimalsProposal {
 }
 
 message BinaryOptionsMarketParamUpdateProposal {
+  option deprecated = true;
   option (amino.name) = "exchange/BinaryOptionsMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -581,6 +583,7 @@ message OracleParams {
 }
 
 message TradingRewardCampaignLaunchProposal {
+  option deprecated = true;
   option (amino.name) = "exchange/TradingRewardCampaignLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -593,6 +596,7 @@ message TradingRewardCampaignLaunchProposal {
 }
 
 message TradingRewardCampaignUpdateProposal {
+  option deprecated = true;
   option (amino.name) = "exchange/TradingRewardCampaignUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -615,6 +619,7 @@ message RewardPointUpdate {
 }
 
 message TradingRewardPendingPointsUpdateProposal {
+  option deprecated = true;
   option (amino.name) = "exchange/TradingRewardPendingPointsUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;

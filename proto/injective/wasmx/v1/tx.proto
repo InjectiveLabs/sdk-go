@@ -2,7 +2,6 @@ syntax = "proto3";
 package injective.wasmx.v1;
 
 import "gogoproto/gogo.proto";
-import "google/protobuf/any.proto";
 import "cosmos_proto/cosmos.proto";
 import "cosmos/msg/v1/msg.proto";
 import "injective/wasmx/v1/wasmx.proto";
@@ -12,21 +11,14 @@ import "amino/amino.proto";
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 option (gogoproto.goproto_registration) = true;
 
-// Msg defines the wasmx Msg service.
+// Msg retains the stateless CosmWasm compatibility API. Scheduling and registry
+// operations were removed in v1.21.0.
 service Msg {
   option (cosmos.msg.v1.service) = true;
 
-  rpc UpdateRegistryContractParams(MsgUpdateContract)
-      returns (MsgUpdateContractResponse);
-  rpc ActivateRegistryContract(MsgActivateContract)
-      returns (MsgActivateContractResponse);
-  rpc DeactivateRegistryContract(MsgDeactivateContract)
-      returns (MsgDeactivateContractResponse);
+  // ExecuteContractCompat executes a contract using the EIP712-compatible format.
   rpc ExecuteContractCompat(MsgExecuteContractCompat)
       returns (MsgExecuteContractCompatResponse);
-  rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
-  rpc RegisterContract(MsgRegisterContract)
-      returns (MsgRegisterContractResponse);
 }
 
 // MsgExecuteContractCompat submits the given message data to a smart contract,
@@ -52,6 +44,7 @@ message MsgExecuteContractCompatResponse {
 }
 
 message MsgUpdateContract {
+  option deprecated = true;
   option (amino.name) = "wasmx/MsgUpdateContract";
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -66,9 +59,11 @@ message MsgUpdateContract {
   string admin_address = 5 [ (gogoproto.nullable) = true ];
 }
 
-message MsgUpdateContractResponse {}
+message MsgUpdateContractResponse {
+  option deprecated = true;}
 
 message MsgActivateContract {
+  option deprecated = true;
   option (amino.name) = "wasmx/MsgActivateContract";
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -77,9 +72,11 @@ message MsgActivateContract {
   string contract_address = 2;
 }
 
-message MsgActivateContractResponse {}
+message MsgActivateContractResponse {
+  option deprecated = true;}
 
 message MsgDeactivateContract {
+  option deprecated = true;
   option (amino.name) = "wasmx/MsgDeactivateContract";
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -88,9 +85,11 @@ message MsgDeactivateContract {
   string contract_address = 2;
 }
 
-message MsgDeactivateContractResponse {}
+message MsgDeactivateContractResponse {
+  option deprecated = true;}
 
 message MsgUpdateParams {
+  option deprecated = true;
   option (amino.name) = "wasmx/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
@@ -103,9 +102,11 @@ message MsgUpdateParams {
   Params params = 2 [ (gogoproto.nullable) = false ];
 }
 
-message MsgUpdateParamsResponse {}
+message MsgUpdateParamsResponse {
+  option deprecated = true;}
 
 message MsgRegisterContract {
+  option deprecated = true;
   option (amino.name) = "wasmx/MsgRegisterContract";
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -115,4 +116,5 @@ message MsgRegisterContract {
       [ (gogoproto.nullable) = false ];
 }
 
-message MsgRegisterContractResponse {}
+message MsgRegisterContractResponse {
+  option deprecated = true;}

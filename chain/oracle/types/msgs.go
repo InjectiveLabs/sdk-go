@@ -2,15 +2,11 @@ package types
 
 import (
 	"fmt"
-	"math/big"
-	"strconv"
 	"strings"
 
 	"cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // oracle message types
@@ -80,28 +76,7 @@ func (msg MsgRelayPriceFeedPrice) Type() string { return TypeMsgRelayPriceFeedPr
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgRelayPriceFeedPrice) ValidateBasic() error {
-	if msg.Sender == "" {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return err
-	}
-	priceCount := len(msg.Price)
-	if len(msg.Base) != priceCount {
-		return ErrBadPriceFeedBaseCount
-	}
-	if len(msg.Quote) != priceCount {
-		return ErrBadPriceFeedQuoteCount
-	}
-	for _, price := range msg.Price {
-		if !price.IsPositive() {
-			return ErrBadPrice
-		}
-		if price.GT(LargestDecPrice) {
-			return ErrPriceTooLarge
-		}
-	}
-	return nil
+	return errors.Wrap(ErrUnsupportedOracleType, "PriceFeed oracle has been removed")
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -126,16 +101,7 @@ func (msg MsgRelayCoinbaseMessages) Type() string { return TypeMsgRelayCoinbaseM
 
 // ValidateBasic implements the sdk.Msg interface for MsgRelay.
 func (msg MsgRelayCoinbaseMessages) ValidateBasic() error {
-	if msg.Sender == "" {
-		return ErrEmptyRelayerAddr
-	}
-
-	// check that the sizes of messages and signatures are equal
-	if len(msg.Signatures) != len(msg.Messages) || len(msg.Messages) == 0 {
-		return ErrBadMessagesCount
-	}
-
-	return nil
+	return errors.Wrap(ErrUnsupportedOracleType, "Coinbase oracle has been removed")
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -249,47 +215,7 @@ func (msg MsgRelayStorkPrices) Type() string { return TypeMsgRelayStorkPrices }
 
 // ValidateBasic implements the sdk.Msg interface for MsgRelayStorkPrices.
 func (msg MsgRelayStorkPrices) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return err
-	}
-
-	assetIDs := make(map[string]struct{})
-	for idx := range msg.AssetPairs {
-		assetPair := msg.AssetPairs[idx]
-		if assetPair.AssetId == "" {
-			return errors.Wrap(ErrEmptyStorkAssetId, "asset id cannot be empty")
-		}
-		if _, found := assetIDs[assetPair.AssetId]; found {
-			return errors.Wrapf(ErrStorkAssetIdNotUnique, "Asset id %s is not unique", assetPair.AssetId)
-		}
-		assetIDs[assetPair.AssetId] = struct{}{}
-
-		var newestTimestamp uint64
-		oldestTimestamp := ^uint64(0) // max uint64
-		for i := range assetPair.SignedPrices {
-			p := assetPair.SignedPrices[i]
-			// convert timestamp to nanoseconds to validate conditions
-			timestamp := ConvertTimestampToNanoSecond(p.Timestamp)
-			if timestamp > newestTimestamp {
-				newestTimestamp = timestamp
-			}
-			if timestamp < oldestTimestamp {
-				oldestTimestamp = timestamp
-			}
-
-			price := new(big.Int).Quo(p.Price.BigInt(), sdkmath.LegacyOneDec().BigInt()).String()
-			// note: relayer should convert the ecdsa r,s,v signatures format to the normal bytes arrays signature
-			if !VerifyStorkMsgSignature(common.HexToAddress(p.PublisherKey), assetPair.AssetId, strconv.FormatUint(p.Timestamp, 10), price, p.Signature) {
-				return errors.Wrapf(ErrInvalidStorkSignature, "Invalid signature for asset %s with publisher address %s", assetPair.AssetId, p.PublisherKey)
-			}
-		}
-
-		if newestTimestamp-oldestTimestamp > MaxStorkTimestampIntervalNano {
-			return fmt.Errorf("price timestamps between %d and %d exceed threshold %d", oldestTimestamp, newestTimestamp, MaxStorkTimestampIntervalNano)
-		}
-	}
-
-	return nil
+	return errors.Wrap(ErrUnsupportedOracleType, "Stork oracle has been removed")
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing

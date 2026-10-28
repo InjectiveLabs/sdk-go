@@ -1,10 +1,8 @@
 package types
 
 import (
-	"cosmossdk.io/errors"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const RouterKey = ModuleName
@@ -26,15 +24,7 @@ func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgUpdateParams) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
-		return errors.Wrap(err, "invalid authority address")
-	}
-
-	if err := msg.Params.Validate(); err != nil {
-		return err
-	}
-
-	return nil
+	return ErrModuleRemoved
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -56,29 +46,7 @@ func (msg MsgUpdateContract) Type() string { return TypeMsgUpdate }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgUpdateContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
-	}
-
-	if msg.AdminAddress != "" {
-		if _, err := sdk.AccAddressFromBech32(msg.AdminAddress); err != nil {
-			return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.AdminAddress)
-		}
-	}
-
-	if msg.GasLimit == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "GasLimit must be > 0")
-	}
-
-	if msg.GasPrice == 0 {
-		return errors.Wrap(sdkerrors.ErrInvalidRequest, "GasPrice must be > 0")
-	}
-
-	return nil
+	return ErrModuleRemoved
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -103,13 +71,7 @@ func (msg MsgActivateContract) Type() string { return TypeMsgActivate }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgActivateContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
-	}
-	return nil
+	return ErrModuleRemoved
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -134,13 +96,7 @@ func (msg MsgDeactivateContract) Type() string { return TypeMsgDeactivate }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgDeactivateContract) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if _, err := sdk.AccAddressFromBech32(msg.ContractAddress); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
-	}
-	return nil
+	return ErrModuleRemoved
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -166,26 +122,27 @@ func (msg MsgExecuteContractCompat) Type() string {
 }
 
 func (msg MsgExecuteContractCompat) ValidateBasic() error {
+	wasmMsg, err := msg.ToWasmExecuteContract()
+	if err != nil {
+		return err
+	}
+	return wasmMsg.ValidateBasic()
+}
+
+// ToWasmExecuteContract preserves the legacy string encoding of JSON and coins,
+// including "0" and the empty string for calls without funds.
+func (msg MsgExecuteContractCompat) ToWasmExecuteContract() (*wasmtypes.MsgExecuteContract, error) {
 	funds := sdk.Coins{}
 	if msg.Funds != "0" {
 		var err error
 		funds, err = sdk.ParseCoinsNormalized(msg.Funds)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-
-	oMsg := &wasmtypes.MsgExecuteContract{
-		Sender:   msg.Sender,
-		Contract: msg.Contract,
-		Msg:      []byte(msg.Msg),
-		Funds:    funds,
-	}
-
-	if err := oMsg.ValidateBasic(); err != nil {
-		return err
-	}
-	return nil
+	return &wasmtypes.MsgExecuteContract{
+		Sender: msg.Sender, Contract: msg.Contract, Msg: []byte(msg.Msg), Funds: funds,
+	}, nil
 }
 
 func (msg MsgExecuteContractCompat) GetSignBytes() []byte {
@@ -208,10 +165,7 @@ func (msg MsgRegisterContract) Type() string { return TypeMsgRegisterContract }
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgRegisterContract) ValidateBasic() error {
-	if err := msg.ContractRegistrationRequest.Validate(); err != nil {
-		return err
-	}
-	return nil
+	return ErrModuleRemoved
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing

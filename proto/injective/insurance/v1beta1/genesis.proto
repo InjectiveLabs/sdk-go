@@ -40,4 +40,21 @@ message GenesisState {
   // outstanding vouchers (failed redemption deliveries)
   repeated injective.common.vouchers.v1.AddressVoucher vouchers = 8
       [ (gogoproto.nullable) = false ];
+
+  // consolidated_insurance_pools contains consolidated pool primaries.
+  repeated ConsolidatedInsurancePool consolidated_insurance_pools = 9
+      [ (gogoproto.nullable) = false ];
+
+  // consolidated_insurance_policies contains per-market pool policies.
+  repeated ConsolidatedInsurancePolicy consolidated_insurance_policies = 10
+      [ (gogoproto.nullable) = false ];
+
+  // consolidated_redemption_schedules contains pending automatic redemptions.
+  repeated ConsolidatedRedemptionSchedule consolidated_redemption_schedules = 11
+      [ (gogoproto.nullable) = false ];
+
+  // next_consolidated_redemption_schedule_id is the next schedule identifier.
+  uint64 next_consolidated_redemption_schedule_id = 12;
+  // Last policy visited by the bounded reservation resolution worker.
+  bytes consolidated_reservation_cursor = 13;
 }

@@ -6,6 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -192,6 +193,17 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&BatchUpdateOrdersAuthz{},
 		// generic exchange authz
 		&GenericExchangeAuthorization{},
+	)
+
+	// Retired RPCs no longer register their responses through the service descriptor.
+	registry.RegisterImplementations((*txtypes.MsgResponse)(nil),
+		&MsgInstantBinaryOptionsMarketLaunchResponse{},
+		&MsgCreateBinaryOptionsLimitOrderResponse{},
+		&MsgCreateBinaryOptionsMarketOrderResponse{},
+		&MsgCancelBinaryOptionsOrderResponse{},
+		&MsgBatchCancelBinaryOptionsOrdersResponse{},
+		&MsgRewardsOptOutResponse{},
+		&MsgAdminUpdateBinaryOptionsMarketResponse{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

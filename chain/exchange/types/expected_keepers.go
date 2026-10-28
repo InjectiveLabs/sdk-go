@@ -16,7 +16,6 @@ import (
 	downtimetypes "github.com/InjectiveLabs/sdk-go/chain/downtime-detector/types"
 	insurancetypes "github.com/InjectiveLabs/sdk-go/chain/insurance/types"
 	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 )
 
 // BankKeeper defines the expected bank keeper methods.
@@ -42,6 +41,14 @@ type OracleKeeper interface {
 	) (baseCumulative, quoteCumulative *sdkmath.LegacyDec)
 	GetProviderInfo(ctx sdk.Context, provider string) *oracletypes.ProviderInfo
 	GetProviderPrice(ctx sdk.Context, provider, symbol string) *sdkmath.LegacyDec
+	// GetPythPriceState exposes the raw per-priceID Pyth state (spot price,
+	// EMA price, confidence, publish time) for consumers that need more than
+	// the spot pairing — the reference-price gate's PYTH_EMA_LONG source reads
+	// EmaPrice and PublishTime.
+	GetPythPriceState(ctx sdk.Context, priceID common.Hash) *oracletypes.PythPriceState
+	GetPythProPriceState(ctx sdk.Context, feedID uint32) *oracletypes.PythProPriceState
+	GetChainlinkDataStreamsPriceState(ctx sdk.Context, feedID string) *oracletypes.ChainlinkDataStreamsPriceState
+	GetSedaFastPriceState(ctx sdk.Context, feedID string) *oracletypes.SedaFastPriceState
 }
 
 // InsuranceKeeper defines the expected insurance keeper methods.
@@ -50,12 +57,46 @@ type InsuranceKeeper interface {
 	HasInsuranceFund(ctx sdk.Context, marketID common.Hash) bool
 	// GetInsuranceFund returns the insurance fund corresponding to the given marketID.
 	GetInsuranceFund(ctx sdk.Context, marketID common.Hash) *insurancetypes.InsuranceFund
+	GetActiveInsuranceFund(ctx sdk.Context, marketID common.Hash) *insurancetypes.InsuranceFund
+	HasActiveInsuranceFund(ctx sdk.Context, marketID common.Hash) bool
 	// DepositIntoInsuranceFund increments the insurance fund balance by amount.
 	DepositIntoInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdkmath.Int) error
 	// WithdrawFromInsuranceFund decrements the insurance fund balance by amount and sends
 	WithdrawFromInsuranceFund(ctx sdk.Context, marketID common.Hash, amount sdkmath.Int) error
 	// UpdateInsuranceFundOracleParams updates the insurance fund's oracle parameters
 	UpdateInsuranceFundOracleParams(ctx sdk.Context, marketID common.Hash, oracleParams *OracleParams) error
+	HasConsolidatedInsurancePool(ctx sdk.Context, denom string) bool
+	HasConsolidatedInsurancePolicy(ctx sdk.Context, marketID common.Hash) bool
+	GetConsolidatedInsurancePool(ctx sdk.Context, denom string) *insurancetypes.ConsolidatedInsurancePool
+	GetConsolidatedInsurancePolicy(ctx sdk.Context, marketID common.Hash) *insurancetypes.ConsolidatedInsurancePolicy
+	EnrollConsolidatedInsuranceMarket(ctx sdk.Context, marketID common.Hash, denom string, quoteDecimals uint32) error
+	MigrateLegacyInsuranceMarketToConsolidated(ctx sdk.Context, marketID common.Hash, denom string, quoteDecimals uint32) error
+	GetConsolidatedInsuranceAvailable(ctx sdk.Context, marketID common.Hash) sdkmath.Int
+	GetConsolidatedInsuranceCapacity(
+		ctx sdk.Context,
+		marketID common.Hash,
+	) *insurancetypes.ConsolidatedInsuranceCapacity
+	ValidateConsolidatedInsuranceClaims(ctx sdk.Context, marketIDs []common.Hash, requested []sdkmath.Int) error
+	RecordConsolidatedMarketReservation(ctx sdk.Context, marketID common.Hash, balance sdkmath.LegacyDec)
+	ProcessConsolidatedReservations(ctx sdk.Context)
+	SetConsolidatedCollateralCursor(ctx sdk.Context, marketID common.Hash, cursor []byte)
+	ReleaseConsolidatedSettlementReservation(ctx sdk.Context, marketID common.Hash, remainingDeficit sdkmath.Int) error
+	ValidateConsolidatedMarketReservations(ctx sdk.Context, marketIDs []common.Hash, balances []sdkmath.LegacyDec) error
+	ValidateConsolidatedReservationState(ctx sdk.Context) error
+	WithdrawFromConsolidatedInsurancePool(ctx sdk.Context, marketID common.Hash, requested sdkmath.Int) (sdkmath.Int, error)
+	WithdrawFromConsolidatedInsurancePoolBatch(
+		ctx sdk.Context,
+		marketIDs []common.Hash,
+		requested []sdkmath.Int,
+	) ([]sdkmath.Int, error)
+	WithdrawConsolidatedInsuranceForSettlement(
+		ctx sdk.Context, marketIDs []common.Hash, requested []sdkmath.Int,
+	) ([]sdkmath.Int, error)
+	CreditConsolidatedInsurancePoolForMarket(ctx sdk.Context, marketID common.Hash, amount sdkmath.Int) error
+	// GetConsolidatedNetPrefunding and AdjustConsolidatedNetPrefunding track pool
+	// cash that a live market ledger paid ahead of losing positions' debts.
+	GetConsolidatedNetPrefunding(ctx sdk.Context, marketID common.Hash) sdkmath.Int
+	AdjustConsolidatedNetPrefunding(ctx sdk.Context, marketID common.Hash, delta sdkmath.Int) error
 }
 
 type GovKeeper interface {
@@ -81,10 +122,6 @@ type WasmViewKeeper interface {
 
 type WasmContractOpsKeeper interface {
 	wasmtypes.ContractOpsKeeper
-}
-
-type WasmxExecutionKeeper interface {
-	InjectiveExec(ctx sdk.Context, contractAddress sdk.AccAddress, funds sdk.Coins, msg *wasmxtypes.InjectiveExecMsg) ([]byte, error)
 }
 
 type DowntimeKeeper interface {

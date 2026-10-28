@@ -307,25 +307,10 @@ service Query {
   }
 
   // Retrieves the account and total trade rewards points
-  rpc TradeRewardPoints(QueryTradeRewardPointsRequest)
-      returns (QueryTradeRewardPointsResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/trade_reward_points";
-  }
 
   // Retrieves the pending account and total trade rewards points
-  rpc PendingTradeRewardPoints(QueryTradeRewardPointsRequest)
-      returns (QueryTradeRewardPointsResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/pending_trade_reward_points";
-  }
 
   // Retrieves the trade reward campaign
-  rpc TradeRewardCampaign(QueryTradeRewardCampaignRequest)
-      returns (QueryTradeRewardCampaignResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/trade_reward_campaign";
-  }
 
   // Retrieves the account's fee discount info
   rpc FeeDiscountAccountInfo(QueryFeeDiscountAccountInfoRequest)
@@ -362,12 +347,6 @@ service Query {
         "/injective/exchange/v1beta1/fee_discount_tier_stats";
   }
 
-  // Retrieves market making pool info
-  rpc MitoVaultInfos(MitoVaultInfosRequest) returns (MitoVaultInfosResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/mito_vault_infos";
-  }
-
   // QueryMarketIDFromVault returns the market ID for a given vault subaccount
   // ID
   rpc QueryMarketIDFromVault(QueryMarketIDFromVaultRequest)
@@ -377,40 +356,15 @@ service Query {
   }
 
   // Retrieves historical trade records for a given market ID
-  rpc HistoricalTradeRecords(QueryHistoricalTradeRecordsRequest)
-      returns (QueryHistoricalTradeRecordsResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/historical_trade_records";
-  }
 
   // Retrieves if the account is opted out of rewards
-  rpc IsOptedOutOfRewards(QueryIsOptedOutOfRewardsRequest)
-      returns (QueryIsOptedOutOfRewardsResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/is_opted_out_of_rewards/{account}";
-  }
 
   // Retrieves all accounts opted out of rewards
-  rpc OptedOutOfRewardsAccounts(QueryOptedOutOfRewardsAccountsRequest)
-      returns (QueryOptedOutOfRewardsAccountsResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/opted_out_of_rewards_accounts";
-  }
 
   // MarketVolatility computes the volatility for spot and derivative markets
   // trading history.
-  rpc MarketVolatility(QueryMarketVolatilityRequest)
-      returns (QueryMarketVolatilityResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/market_volatility/{market_id}";
-  }
 
-  // Retrieves all binary options markets
-  rpc BinaryOptionsMarkets(QueryBinaryMarketsRequest)
-      returns (QueryBinaryMarketsResponse) {
-    option (google.api.http).get =
-        "/injective/exchange/v1beta1/binary_options/markets";
-  }
+
 
   // Retrieves a trader's derivative conditional orders
   rpc TraderDerivativeConditionalOrders(
@@ -1226,6 +1180,7 @@ message QueryPositionsResponse {
 // QueryTradeRewardPointsRequest is the request type for the
 // Query/TradeRewardPoints RPC method.
 message QueryTradeRewardPointsRequest {
+  option deprecated = true;
   repeated string accounts = 1;
   int64 pending_pool_timestamp = 2;
 }
@@ -1233,6 +1188,7 @@ message QueryTradeRewardPointsRequest {
 // QueryTradeRewardPointsResponse is the response type for the
 // Query/TradeRewardPoints RPC method.
 message QueryTradeRewardPointsResponse {
+  option deprecated = true;
   repeated string account_trade_reward_points = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -1241,11 +1197,13 @@ message QueryTradeRewardPointsResponse {
 
 // QueryTradeRewardCampaignRequest is the request type for the
 // Query/TradeRewardCampaign RPC method.
-message QueryTradeRewardCampaignRequest {}
+message QueryTradeRewardCampaignRequest {
+  option deprecated = true;}
 
 // QueryTradeRewardCampaignResponse is the response type for the
 // Query/TradeRewardCampaign RPC method.
 message QueryTradeRewardCampaignResponse {
+  option deprecated = true;
   TradingRewardCampaignInfo trading_reward_campaign_info = 1;
   repeated CampaignRewardPool trading_reward_pool_campaign_schedule = 2;
   string total_trade_reward_points = 3 [
@@ -1261,19 +1219,23 @@ message QueryTradeRewardCampaignResponse {
 
 // QueryIsRegisteredDMMRequest is the request type for the Query/IsRegisteredDMM
 // RPC method.
-message QueryIsOptedOutOfRewardsRequest { string account = 1; }
+message QueryIsOptedOutOfRewardsRequest {
+  option deprecated = true; string account = 1; }
 
 // QueryIsRegisteredDMMResponse is the response type for the
 // Query/IsRegisteredDMM RPC method.
-message QueryIsOptedOutOfRewardsResponse { bool is_opted_out = 1; }
+message QueryIsOptedOutOfRewardsResponse {
+  option deprecated = true; bool is_opted_out = 1; }
 
 // QueryRegisteredDMMsRequest is the request type for the Query/RegisteredDMMs
 // RPC method.
-message QueryOptedOutOfRewardsAccountsRequest {}
+message QueryOptedOutOfRewardsAccountsRequest {
+  option deprecated = true;}
 
 // QueryRegisteredDMMsResponse is the response type for the Query/RegisteredDMMs
 // RPC method.
-message QueryOptedOutOfRewardsAccountsResponse { repeated string accounts = 1; }
+message QueryOptedOutOfRewardsAccountsResponse {
+  option deprecated = true; repeated string accounts = 1; }
 
 // QueryFeeDiscountAccountInfoRequest is the request type for the
 // Query/FeeDiscountAccountInfo RPC method.
@@ -1386,23 +1348,6 @@ message QueryFeeDiscountTierStatisticsResponse {
   repeated TierStatistic statistics = 1;
 }
 
-// MitoVaultInfosRequest is the request type for the Query/MitoVaultInfos RPC
-// method.
-message MitoVaultInfosRequest {}
-
-// MitoVaultInfosResponse is the response type for the Query/MitoVaultInfos RPC
-// method.
-message MitoVaultInfosResponse {
-  // list of master addresses
-  repeated string master_addresses = 1;
-  // list of derivative addresses
-  repeated string derivative_addresses = 2;
-  // list of spot addresses
-  repeated string spot_addresses = 3;
-  // list of cw20 addresses
-  repeated string cw20_addresses = 4;
-}
-
 // QueryMarketIDFromVaultRequest is the request type for the
 // Query/QueryMarketIDFromVault RPC method.
 message QueryMarketIDFromVaultRequest { string vault_address = 1; }
@@ -1411,15 +1356,18 @@ message QueryMarketIDFromVaultRequest { string vault_address = 1; }
 // Query/QueryMarketIDFromVault RPC method.
 message QueryMarketIDFromVaultResponse { string market_id = 1; }
 
-message QueryHistoricalTradeRecordsRequest { string market_id = 1; }
+message QueryHistoricalTradeRecordsRequest {
+  option deprecated = true; string market_id = 1; }
 
 message QueryHistoricalTradeRecordsResponse {
+  option deprecated = true;
   repeated TradeRecords trade_records = 1;
 }
 
 // TradeHistoryOptions are the optional params for Query/MarketVolatility RPC
 // method.
 message TradeHistoryOptions {
+  option deprecated = true;
   // TradeGroupingSec of 0 means use the chain's default grouping
   uint64 trade_grouping_sec = 1;
   // MaxAge restricts the trade records oldest age in seconds from the current
@@ -1437,6 +1385,7 @@ message TradeHistoryOptions {
 // QueryMarketVolatilityRequest are the request params for the
 // Query/MarketVolatility RPC method.
 message QueryMarketVolatilityRequest {
+  option deprecated = true;
   string market_id = 1;
   TradeHistoryOptions trade_history_options = 2;
 }
@@ -1444,6 +1393,7 @@ message QueryMarketVolatilityRequest {
 // QueryMarketVolatilityResponse is the response type for the
 // Query/MarketVolatility RPC method.
 message QueryMarketVolatilityResponse {
+  option deprecated = true;
   string volatility = 1
       [ (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec" ];
   injective.oracle.v1beta1.MetadataStatistics history_metadata = 2;
@@ -1453,13 +1403,15 @@ message QueryMarketVolatilityResponse {
 // QuerBinaryMarketsRequest is the request type for the Query/BinaryMarkets RPC
 // method.
 message QueryBinaryMarketsRequest {
+  option deprecated = true;
   // Status of the market, for convenience it is set to string - not enum
   string status = 1;
 }
 
 // QueryBinaryMarketsResponse is the response type for the Query/BinaryMarkets
 // RPC method.
-message QueryBinaryMarketsResponse { repeated BinaryOptionsMarket markets = 1; }
+message QueryBinaryMarketsResponse {
+  option deprecated = true; repeated BinaryOptionsMarket markets = 1; }
 
 // QueryConditionalOrdersRequest is the request type for the
 // Query/ConditionalOrders RPC method.

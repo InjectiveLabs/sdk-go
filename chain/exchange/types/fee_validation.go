@@ -17,6 +17,12 @@ func ValidateMakerWithTakerFee(
 		return ErrFeeRatesRelation
 	}
 
+	return ValidateProtocolFeeRate(makerFeeRate, takerFeeRate, relayerFeeShareRate, minimalProtocolFeeRate)
+}
+
+// ValidateProtocolFeeRate checks net protocol income independently of the nominal maker/taker ordering.
+// Account discounts can legitimately reverse that ordering without violating the protocol fee floor.
+func ValidateProtocolFeeRate(makerFeeRate, takerFeeRate, relayerFeeShareRate, minimalProtocolFeeRate math.LegacyDec) error {
 	if !makerFeeRate.IsNegative() {
 		// if makerFeeRate is positive, must hold: (takerFeeRate + makerFeeRate) * (1 - relayerFeeShareRate) > minimalProtocolFeeRate
 		if takerFeeRate.Add(makerFeeRate).Mul(math.LegacyOneDec().Sub(relayerFeeShareRate)).LT(minimalProtocolFeeRate) {

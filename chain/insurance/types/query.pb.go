@@ -9,6 +9,7 @@ import (
 	types1 "github.com/InjectiveLabs/sdk-go/chain/common/vouchers/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
+	query "github.com/cosmos/cosmos-sdk/types/query"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -843,6 +844,421 @@ func (m *QueryVoucherResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryVoucherResponse proto.InternalMessageInfo
 
+// QueryConsolidatedInsurancePoolsRequest optionally selects one exact-denom
+// pool.
+type QueryConsolidatedInsurancePoolsRequest struct {
+	// Optional exact deposit denom. Empty returns every consolidated pool.
+	DepositDenom string `protobuf:"bytes,1,opt,name=deposit_denom,json=depositDenom,proto3" json:"deposit_denom,omitempty"`
+}
+
+func (m *QueryConsolidatedInsurancePoolsRequest) Reset() {
+	*m = QueryConsolidatedInsurancePoolsRequest{}
+}
+func (m *QueryConsolidatedInsurancePoolsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryConsolidatedInsurancePoolsRequest) ProtoMessage()    {}
+func (*QueryConsolidatedInsurancePoolsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{18}
+}
+func (m *QueryConsolidatedInsurancePoolsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryConsolidatedInsurancePoolsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryConsolidatedInsurancePoolsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryConsolidatedInsurancePoolsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryConsolidatedInsurancePoolsRequest.Merge(m, src)
+}
+func (m *QueryConsolidatedInsurancePoolsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryConsolidatedInsurancePoolsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryConsolidatedInsurancePoolsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryConsolidatedInsurancePoolsRequest proto.InternalMessageInfo
+
+func (m *QueryConsolidatedInsurancePoolsRequest) GetDepositDenom() string {
+	if m != nil {
+		return m.DepositDenom
+	}
+	return ""
+}
+
+// QueryConsolidatedInsurancePoolsResponse contains matching pools.
+type QueryConsolidatedInsurancePoolsResponse struct {
+	Pools []ConsolidatedInsurancePool `protobuf:"bytes,1,rep,name=pools,proto3" json:"pools"`
+}
+
+func (m *QueryConsolidatedInsurancePoolsResponse) Reset() {
+	*m = QueryConsolidatedInsurancePoolsResponse{}
+}
+func (m *QueryConsolidatedInsurancePoolsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryConsolidatedInsurancePoolsResponse) ProtoMessage()    {}
+func (*QueryConsolidatedInsurancePoolsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{19}
+}
+func (m *QueryConsolidatedInsurancePoolsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryConsolidatedInsurancePoolsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryConsolidatedInsurancePoolsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryConsolidatedInsurancePoolsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryConsolidatedInsurancePoolsResponse.Merge(m, src)
+}
+func (m *QueryConsolidatedInsurancePoolsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryConsolidatedInsurancePoolsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryConsolidatedInsurancePoolsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryConsolidatedInsurancePoolsResponse proto.InternalMessageInfo
+
+func (m *QueryConsolidatedInsurancePoolsResponse) GetPools() []ConsolidatedInsurancePool {
+	if m != nil {
+		return m.Pools
+	}
+	return nil
+}
+
+// QueryConsolidatedInsurancePolicyRequest selects one market policy.
+type QueryConsolidatedInsurancePolicyRequest struct {
+	MarketId string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+}
+
+func (m *QueryConsolidatedInsurancePolicyRequest) Reset() {
+	*m = QueryConsolidatedInsurancePolicyRequest{}
+}
+func (m *QueryConsolidatedInsurancePolicyRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryConsolidatedInsurancePolicyRequest) ProtoMessage()    {}
+func (*QueryConsolidatedInsurancePolicyRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{20}
+}
+func (m *QueryConsolidatedInsurancePolicyRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryConsolidatedInsurancePolicyRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryConsolidatedInsurancePolicyRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryConsolidatedInsurancePolicyRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryConsolidatedInsurancePolicyRequest.Merge(m, src)
+}
+func (m *QueryConsolidatedInsurancePolicyRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryConsolidatedInsurancePolicyRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryConsolidatedInsurancePolicyRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryConsolidatedInsurancePolicyRequest proto.InternalMessageInfo
+
+func (m *QueryConsolidatedInsurancePolicyRequest) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
+// QueryConsolidatedInsurancePolicyResponse contains the selected policy.
+type QueryConsolidatedInsurancePolicyResponse struct {
+	Policy *ConsolidatedInsurancePolicy `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"`
+}
+
+func (m *QueryConsolidatedInsurancePolicyResponse) Reset() {
+	*m = QueryConsolidatedInsurancePolicyResponse{}
+}
+func (m *QueryConsolidatedInsurancePolicyResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryConsolidatedInsurancePolicyResponse) ProtoMessage()    {}
+func (*QueryConsolidatedInsurancePolicyResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{21}
+}
+func (m *QueryConsolidatedInsurancePolicyResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryConsolidatedInsurancePolicyResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryConsolidatedInsurancePolicyResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryConsolidatedInsurancePolicyResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryConsolidatedInsurancePolicyResponse.Merge(m, src)
+}
+func (m *QueryConsolidatedInsurancePolicyResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryConsolidatedInsurancePolicyResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryConsolidatedInsurancePolicyResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryConsolidatedInsurancePolicyResponse proto.InternalMessageInfo
+
+func (m *QueryConsolidatedInsurancePolicyResponse) GetPolicy() *ConsolidatedInsurancePolicy {
+	if m != nil {
+		return m.Policy
+	}
+	return nil
+}
+
+// QueryConsolidatedInsurancePoliciesRequest optionally filters policies by
+// their exact pool deposit denom.
+type QueryConsolidatedInsurancePoliciesRequest struct {
+	// Optional exact pool deposit denom. Empty returns every policy.
+	PoolDenom string `protobuf:"bytes,1,opt,name=pool_denom,json=poolDenom,proto3" json:"pool_denom,omitempty"`
+	// Key-only pagination. Offset and total-count scans are rejected.
+	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryConsolidatedInsurancePoliciesRequest) Reset() {
+	*m = QueryConsolidatedInsurancePoliciesRequest{}
+}
+func (m *QueryConsolidatedInsurancePoliciesRequest) String() string {
+	return proto.CompactTextString(m)
+}
+func (*QueryConsolidatedInsurancePoliciesRequest) ProtoMessage() {}
+func (*QueryConsolidatedInsurancePoliciesRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{22}
+}
+func (m *QueryConsolidatedInsurancePoliciesRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryConsolidatedInsurancePoliciesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryConsolidatedInsurancePoliciesRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryConsolidatedInsurancePoliciesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryConsolidatedInsurancePoliciesRequest.Merge(m, src)
+}
+func (m *QueryConsolidatedInsurancePoliciesRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryConsolidatedInsurancePoliciesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryConsolidatedInsurancePoliciesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryConsolidatedInsurancePoliciesRequest proto.InternalMessageInfo
+
+func (m *QueryConsolidatedInsurancePoliciesRequest) GetPoolDenom() string {
+	if m != nil {
+		return m.PoolDenom
+	}
+	return ""
+}
+
+func (m *QueryConsolidatedInsurancePoliciesRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryConsolidatedInsurancePoliciesResponse contains matching market policies.
+type QueryConsolidatedInsurancePoliciesResponse struct {
+	Policies   []ConsolidatedInsurancePolicy `protobuf:"bytes,1,rep,name=policies,proto3" json:"policies"`
+	Pagination *query.PageResponse           `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryConsolidatedInsurancePoliciesResponse) Reset() {
+	*m = QueryConsolidatedInsurancePoliciesResponse{}
+}
+func (m *QueryConsolidatedInsurancePoliciesResponse) String() string {
+	return proto.CompactTextString(m)
+}
+func (*QueryConsolidatedInsurancePoliciesResponse) ProtoMessage() {}
+func (*QueryConsolidatedInsurancePoliciesResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{23}
+}
+func (m *QueryConsolidatedInsurancePoliciesResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryConsolidatedInsurancePoliciesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryConsolidatedInsurancePoliciesResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryConsolidatedInsurancePoliciesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryConsolidatedInsurancePoliciesResponse.Merge(m, src)
+}
+func (m *QueryConsolidatedInsurancePoliciesResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryConsolidatedInsurancePoliciesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryConsolidatedInsurancePoliciesResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryConsolidatedInsurancePoliciesResponse proto.InternalMessageInfo
+
+func (m *QueryConsolidatedInsurancePoliciesResponse) GetPolicies() []ConsolidatedInsurancePolicy {
+	if m != nil {
+		return m.Policies
+	}
+	return nil
+}
+
+func (m *QueryConsolidatedInsurancePoliciesResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryConsolidatedRedemptionsRequest optionally filters schedules by redeemer.
+type QueryConsolidatedRedemptionsRequest struct {
+	// Optional redeemer address. Empty returns every pending schedule.
+	Redeemer string `protobuf:"bytes,1,opt,name=redeemer,proto3" json:"redeemer,omitempty"`
+	// Key-only pagination. Offset and total-count scans are rejected.
+	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryConsolidatedRedemptionsRequest) Reset()         { *m = QueryConsolidatedRedemptionsRequest{} }
+func (m *QueryConsolidatedRedemptionsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryConsolidatedRedemptionsRequest) ProtoMessage()    {}
+func (*QueryConsolidatedRedemptionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{24}
+}
+func (m *QueryConsolidatedRedemptionsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryConsolidatedRedemptionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryConsolidatedRedemptionsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryConsolidatedRedemptionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryConsolidatedRedemptionsRequest.Merge(m, src)
+}
+func (m *QueryConsolidatedRedemptionsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryConsolidatedRedemptionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryConsolidatedRedemptionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryConsolidatedRedemptionsRequest proto.InternalMessageInfo
+
+func (m *QueryConsolidatedRedemptionsRequest) GetRedeemer() string {
+	if m != nil {
+		return m.Redeemer
+	}
+	return ""
+}
+
+func (m *QueryConsolidatedRedemptionsRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryConsolidatedRedemptionsResponse contains pending automatic redemptions.
+type QueryConsolidatedRedemptionsResponse struct {
+	Schedules  []ConsolidatedRedemptionSchedule `protobuf:"bytes,1,rep,name=schedules,proto3" json:"schedules"`
+	Pagination *query.PageResponse              `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryConsolidatedRedemptionsResponse) Reset()         { *m = QueryConsolidatedRedemptionsResponse{} }
+func (m *QueryConsolidatedRedemptionsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryConsolidatedRedemptionsResponse) ProtoMessage()    {}
+func (*QueryConsolidatedRedemptionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_74cebfe4cd18bca2, []int{25}
+}
+func (m *QueryConsolidatedRedemptionsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryConsolidatedRedemptionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryConsolidatedRedemptionsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryConsolidatedRedemptionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryConsolidatedRedemptionsResponse.Merge(m, src)
+}
+func (m *QueryConsolidatedRedemptionsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryConsolidatedRedemptionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryConsolidatedRedemptionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryConsolidatedRedemptionsResponse proto.InternalMessageInfo
+
+func (m *QueryConsolidatedRedemptionsResponse) GetSchedules() []ConsolidatedRedemptionSchedule {
+	if m != nil {
+		return m.Schedules
+	}
+	return nil
+}
+
+func (m *QueryConsolidatedRedemptionsResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*QueryInsuranceParamsRequest)(nil), "injective.insurance.v1beta1.QueryInsuranceParamsRequest")
 	proto.RegisterType((*QueryInsuranceParamsResponse)(nil), "injective.insurance.v1beta1.QueryInsuranceParamsResponse")
@@ -862,6 +1278,14 @@ func init() {
 	proto.RegisterType((*QueryVouchersResponse)(nil), "injective.insurance.v1beta1.QueryVouchersResponse")
 	proto.RegisterType((*QueryVoucherRequest)(nil), "injective.insurance.v1beta1.QueryVoucherRequest")
 	proto.RegisterType((*QueryVoucherResponse)(nil), "injective.insurance.v1beta1.QueryVoucherResponse")
+	proto.RegisterType((*QueryConsolidatedInsurancePoolsRequest)(nil), "injective.insurance.v1beta1.QueryConsolidatedInsurancePoolsRequest")
+	proto.RegisterType((*QueryConsolidatedInsurancePoolsResponse)(nil), "injective.insurance.v1beta1.QueryConsolidatedInsurancePoolsResponse")
+	proto.RegisterType((*QueryConsolidatedInsurancePolicyRequest)(nil), "injective.insurance.v1beta1.QueryConsolidatedInsurancePolicyRequest")
+	proto.RegisterType((*QueryConsolidatedInsurancePolicyResponse)(nil), "injective.insurance.v1beta1.QueryConsolidatedInsurancePolicyResponse")
+	proto.RegisterType((*QueryConsolidatedInsurancePoliciesRequest)(nil), "injective.insurance.v1beta1.QueryConsolidatedInsurancePoliciesRequest")
+	proto.RegisterType((*QueryConsolidatedInsurancePoliciesResponse)(nil), "injective.insurance.v1beta1.QueryConsolidatedInsurancePoliciesResponse")
+	proto.RegisterType((*QueryConsolidatedRedemptionsRequest)(nil), "injective.insurance.v1beta1.QueryConsolidatedRedemptionsRequest")
+	proto.RegisterType((*QueryConsolidatedRedemptionsResponse)(nil), "injective.insurance.v1beta1.QueryConsolidatedRedemptionsResponse")
 }
 
 func init() {
@@ -869,69 +1293,91 @@ func init() {
 }
 
 var fileDescriptor_74cebfe4cd18bca2 = []byte{
-	// 987 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x57, 0xcd, 0x6f, 0xdc, 0x44,
-	0x14, 0x8f, 0x4b, 0xf3, 0xf5, 0x50, 0x41, 0x0c, 0x8b, 0x48, 0x9c, 0x74, 0x53, 0x5c, 0x4a, 0x08,
-	0x49, 0xec, 0xee, 0x92, 0x92, 0xb4, 0x85, 0x56, 0x2d, 0x6a, 0x50, 0x24, 0x3e, 0xca, 0x56, 0xaa,
-	0xa0, 0x54, 0x8a, 0x66, 0xd7, 0xd3, 0x8d, 0x69, 0x3c, 0xb3, 0xf5, 0xd8, 0x2b, 0x55, 0x85, 0x0b,
-	0x7f, 0x01, 0x12, 0x57, 0x0e, 0xfd, 0x1f, 0x90, 0x90, 0x38, 0x72, 0x40, 0x2a, 0xb7, 0x22, 0x2e,
-	0x88, 0x43, 0x85, 0x12, 0xfe, 0x10, 0xe4, 0x99, 0x67, 0xc7, 0xfb, 0x91, 0xd9, 0x38, 0xf4, 0x14,
-	0xdb, 0xf3, 0x7e, 0x1f, 0xef, 0xbd, 0xd9, 0xf7, 0x14, 0x58, 0x0c, 0xf8, 0xd7, 0xac, 0x15, 0x07,
-	0x5d, 0xe6, 0x05, 0x5c, 0x26, 0x11, 0xe5, 0x2d, 0xe6, 0x75, 0x6b, 0x4d, 0x16, 0xd3, 0x9a, 0xf7,
-	0x20, 0x61, 0xd1, 0x43, 0xb7, 0x13, 0x89, 0x58, 0x90, 0xb9, 0x3c, 0xd0, 0xcd, 0x03, 0x5d, 0x0c,
-	0xb4, 0xe7, 0xdb, 0x42, 0xb4, 0x77, 0x99, 0x47, 0x3b, 0x81, 0x47, 0x39, 0x17, 0x31, 0x8d, 0x03,
-	0xc1, 0xa5, 0x86, 0xda, 0xcb, 0x26, 0x8d, 0x03, 0xb2, 0x81, 0xe0, 0x96, 0x08, 0x43, 0xc1, 0xbd,
-	0xae, 0x48, 0x5a, 0x3b, 0x2c, 0x92, 0x5e, 0xb7, 0x96, 0x3f, 0x63, 0x70, 0xa5, 0x2d, 0xda, 0x42,
-	0x3d, 0x7a, 0xe9, 0x13, 0x7e, 0xad, 0xb6, 0x84, 0x0c, 0x85, 0xf4, 0x9a, 0x54, 0x1e, 0xe8, 0xb4,
-	0x44, 0xc0, 0xf1, 0x7c, 0xc9, 0xe4, 0xa7, 0xcd, 0x38, 0x93, 0x01, 0x0a, 0x38, 0xa7, 0x61, 0xee,
-	0xf3, 0xb4, 0x08, 0x5b, 0x59, 0xdc, 0x4d, 0x1a, 0xd1, 0x50, 0x36, 0xd8, 0x83, 0x84, 0xc9, 0xd8,
-	0xa1, 0x30, 0x3f, 0xfc, 0x58, 0x76, 0x04, 0x97, 0x8c, 0x5c, 0x83, 0x89, 0x8e, 0xfa, 0x32, 0x63,
-	0x9d, 0xb1, 0xde, 0x7e, 0xb1, 0x7e, 0xd6, 0x35, 0x54, 0xd1, 0xd5, 0xe0, 0xeb, 0x27, 0x9f, 0x3c,
-	0x5b, 0x18, 0x6b, 0x20, 0xd0, 0xd9, 0x80, 0xd9, 0x5e, 0x89, 0xcd, 0x84, 0xfb, 0xa8, 0x4f, 0xe6,
-	0x60, 0x3a, 0xa4, 0xd1, 0x7d, 0x16, 0x6f, 0x07, 0xbe, 0x92, 0x98, 0x6e, 0x4c, 0xe9, 0x0f, 0x5b,
-	0xbe, 0x73, 0x17, 0xec, 0x61, 0x48, 0xb4, 0x76, 0x05, 0x4e, 0xde, 0x4b, 0xb8, 0x8f, 0xc6, 0xde,
-	0x31, 0x1a, 0xeb, 0x65, 0x50, 0x38, 0x67, 0x7e, 0x18, 0x7b, 0x5e, 0x18, 0xd6, 0x5f, 0x37, 0x3c,
-	0x45, 0xf1, 0x4d, 0x18, 0x4f, 0x49, 0xd2, 0xb2, 0xbc, 0x50, 0x4e, 0x1d, 0xab, 0xa3, 0xe1, 0xce,
-	0x17, 0x70, 0x46, 0xc9, 0xdc, 0x90, 0x71, 0x10, 0xd2, 0x98, 0xf9, 0x0d, 0xe6, 0xb3, 0xb0, 0xa3,
-	0x2e, 0x5f, 0x56, 0x23, 0x1b, 0xf2, 0x92, 0xf4, 0x97, 0x88, 0xcc, 0xc0, 0x24, 0xf5, 0xfd, 0x88,
-	0x49, 0x39, 0x73, 0x42, 0x1d, 0x65, 0xaf, 0xce, 0x5d, 0x78, 0xc3, 0xc0, 0x8c, 0x69, 0xac, 0xc3,
-	0x04, 0x0d, 0x45, 0xc2, 0x63, 0xcc, 0x63, 0xd6, 0xd5, 0x37, 0xcf, 0x4d, 0x6f, 0x5e, 0xee, 0xff,
-	0x43, 0x11, 0xf0, 0xac, 0xa9, 0x3a, 0xdc, 0xb9, 0x0d, 0x55, 0xc5, 0x7e, 0x93, 0x71, 0x3f, 0xe0,
-	0xed, 0xe7, 0xe6, 0xfa, 0x0e, 0x2c, 0x1c, 0xca, 0xfb, 0x7f, 0x3d, 0xcf, 0xc2, 0xeb, 0x8a, 0xfb,
-	0x13, 0xe1, 0x27, 0xbb, 0xec, 0x56, 0x4c, 0x63, 0x96, 0x75, 0xfb, 0x2b, 0x98, 0x19, 0x3c, 0x42,
-	0xbd, 0xab, 0x30, 0x2e, 0xd3, 0x0f, 0x78, 0xd1, 0x96, 0x8c, 0xad, 0xfe, 0x48, 0xff, 0xf8, 0x34,
-	0x83, 0xc6, 0x39, 0x0b, 0x70, 0x5a, 0x91, 0x6f, 0xd2, 0x60, 0x77, 0x58, 0x83, 0x9d, 0x47, 0x58,
-	0xcc, 0x21, 0x01, 0xe8, 0xe1, 0x4b, 0x98, 0x96, 0xad, 0x1d, 0x96, 0x9a, 0xcb, 0xae, 0xdc, 0x05,
-	0xa3, 0x8f, 0x7e, 0xaa, 0x5b, 0x88, 0xc6, 0x92, 0x1c, 0xb0, 0x39, 0x2b, 0x50, 0x51, 0xe2, 0xb7,
-	0x71, 0x30, 0x65, 0xfd, 0xab, 0xc0, 0xb8, 0xcf, 0xb8, 0x08, 0xb1, 0x79, 0xfa, 0xc5, 0x69, 0xc3,
-	0x6b, 0x7d, 0xd1, 0xe8, 0xf0, 0x53, 0x98, 0xca, 0x46, 0x1b, 0x1a, 0x5c, 0x29, 0x18, 0xd4, 0x83,
-	0xd0, 0xcd, 0x87, 0x5f, 0xb7, 0xe6, 0x5e, 0xd3, 0x1d, 0x47, 0x22, 0xf4, 0x95, 0x73, 0x38, 0x37,
-	0xe0, 0xd5, 0xa2, 0x90, 0xd1, 0x95, 0xe1, 0x3e, 0x7d, 0xd3, 0x9b, 0x5d, 0x6e, 0xd7, 0x87, 0x49,
-	0x94, 0xc2, 0xb6, 0x1a, 0x6e, 0x91, 0x97, 0x5a, 0xfb, 0xfb, 0xd9, 0xc2, 0x62, 0x3b, 0x88, 0x77,
-	0x92, 0x66, 0x9a, 0x8c, 0x87, 0x03, 0x5a, 0xff, 0x59, 0x95, 0xfe, 0x7d, 0x2f, 0x7e, 0xd8, 0x61,
-	0x52, 0x01, 0x1a, 0x19, 0x75, 0xfd, 0xf1, 0x29, 0x18, 0x57, 0xf2, 0xe4, 0x27, 0x0b, 0x5e, 0xee,
-	0x9b, 0xb1, 0x64, 0xc3, 0xd8, 0x41, 0xc3, 0xd4, 0xb6, 0x2f, 0x1e, 0x03, 0xa9, 0x13, 0x77, 0x96,
-	0xbf, 0xfb, 0xf3, 0xdf, 0x1f, 0x4e, 0x9c, 0x23, 0x67, 0x3d, 0xd3, 0x0e, 0xd1, 0xa3, 0x9b, 0xfc,
-	0x6a, 0xc1, 0xa9, 0x9e, 0xe1, 0x45, 0xde, 0x2b, 0xa1, 0x5c, 0x98, 0xf3, 0xf6, 0x7a, 0x69, 0x1c,
-	0xfa, 0xbd, 0xaa, 0xfc, 0x5e, 0x24, 0xeb, 0xde, 0x91, 0x76, 0xf0, 0x76, 0x3a, 0x56, 0xbd, 0x47,
-	0xf9, 0x4e, 0xf9, 0x96, 0xfc, 0x62, 0xc1, 0x4b, 0xbd, 0x43, 0x9c, 0x94, 0x35, 0x93, 0xd7, 0x7d,
-	0xa3, 0x3c, 0x10, 0xd3, 0x58, 0x53, 0x69, 0xb8, 0x64, 0xa5, 0x44, 0x1a, 0x92, 0xfc, 0x61, 0x41,
-	0x65, 0xd8, 0xfc, 0x26, 0x1f, 0x8c, 0x36, 0x62, 0xd8, 0x28, 0xf6, 0x95, 0xe3, 0xc2, 0x31, 0x9b,
-	0x4b, 0x2a, 0x9b, 0x35, 0x52, 0x37, 0x66, 0xc3, 0x32, 0x8a, 0xed, 0xa8, 0x60, 0xfd, 0x77, 0x0b,
-	0xc8, 0xe0, 0x74, 0x27, 0x97, 0x47, 0x5b, 0x3a, 0x74, 0xd7, 0xd8, 0xef, 0x1f, 0x0f, 0x8c, 0xd9,
-	0x6c, 0xa8, 0x6c, 0xea, 0xe4, 0xbc, 0xf9, 0x27, 0xa1, 0x09, 0x7a, 0x72, 0xf9, 0xd9, 0x82, 0x4a,
-	0xde, 0xf0, 0xc2, 0xee, 0x20, 0x6b, 0xa3, 0x0d, 0x0d, 0x6e, 0x21, 0xfb, 0x42, 0x49, 0x14, 0xfa,
-	0xaf, 0x29, 0xff, 0xcb, 0x64, 0xc9, 0xe8, 0x3f, 0x54, 0xc8, 0x6d, 0xb5, 0x92, 0xc8, 0x6f, 0x16,
-	0xbc, 0x32, 0xb0, 0x6d, 0xc8, 0xa5, 0xd1, 0xfa, 0x87, 0xed, 0x30, 0xfb, 0xf2, 0xb1, 0xb0, 0x98,
-	0xc1, 0xba, 0xca, 0xa0, 0x46, 0x3c, 0x63, 0x06, 0xf7, 0x14, 0xbe, 0xa7, 0x01, 0x8f, 0x2d, 0x98,
-	0xca, 0x56, 0x11, 0xa9, 0x8d, 0xb6, 0xd0, 0xb7, 0xe4, 0xec, 0x7a, 0x19, 0x08, 0x9a, 0x5d, 0x55,
-	0x66, 0x17, 0xc9, 0x39, 0xa3, 0xd9, 0x6c, 0x91, 0x91, 0x1f, 0x2d, 0x98, 0x44, 0x0e, 0x72, 0xfe,
-	0xc8, 0x72, 0x99, 0xc1, 0x5a, 0x09, 0x04, 0xfa, 0x5b, 0x51, 0xfe, 0xde, 0x22, 0x6f, 0x1e, 0xc5,
-	0xdf, 0xf5, 0xe0, 0xc9, 0x5e, 0xd5, 0x7a, 0xba, 0x57, 0xb5, 0xfe, 0xd9, 0xab, 0x5a, 0xdf, 0xef,
-	0x57, 0xc7, 0x9e, 0xee, 0x57, 0xc7, 0xfe, 0xda, 0xaf, 0x8e, 0xdd, 0xf9, 0xac, 0xb0, 0xee, 0xb6,
-	0x32, 0xa6, 0x8f, 0x69, 0x53, 0x1e, 0xf0, 0xae, 0xb6, 0x44, 0xc4, 0x8a, 0xaf, 0x3b, 0x34, 0xe0,
-	0x78, 0xd3, 0x64, 0x41, 0x54, 0xed, 0xc6, 0xe6, 0x84, 0xfa, 0x8f, 0xe4, 0xdd, 0xff, 0x02, 0x00,
-	0x00, 0xff, 0xff, 0x6e, 0xf7, 0xe9, 0x50, 0xb2, 0x0d, 0x00, 0x00,
+	// 1333 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x58, 0xcf, 0x6f, 0x1b, 0x45,
+	0x14, 0xce, 0x96, 0x26, 0x4d, 0x5e, 0x29, 0x88, 0xc1, 0xa8, 0xe9, 0xa6, 0x71, 0xca, 0xa6, 0x4d,
+	0x9a, 0x5f, 0xde, 0xda, 0x24, 0x4d, 0xda, 0xb4, 0x29, 0x69, 0x12, 0x47, 0x91, 0x28, 0x04, 0x57,
+	0xaa, 0x20, 0x54, 0xb2, 0x36, 0xde, 0xa9, 0xb3, 0xd4, 0xde, 0x71, 0x3d, 0xeb, 0x48, 0x51, 0xdb,
+	0x0b, 0x37, 0x6e, 0x08, 0xae, 0x1c, 0xf8, 0x1f, 0x90, 0x90, 0x38, 0x72, 0xa8, 0x54, 0x6e, 0xa9,
+	0xb8, 0x20, 0x24, 0xaa, 0x2a, 0xe1, 0xc8, 0x81, 0x3f, 0x01, 0xed, 0xec, 0xdb, 0xf5, 0xfa, 0xd7,
+	0xd8, 0x6b, 0xe7, 0x14, 0xef, 0xec, 0xbc, 0xef, 0x7d, 0xdf, 0x7b, 0xb3, 0x6f, 0xbf, 0x0d, 0x4c,
+	0x5a, 0xf6, 0xd7, 0x34, 0xe7, 0x58, 0xfb, 0x54, 0xb7, 0x6c, 0x5e, 0x29, 0x1b, 0x76, 0x8e, 0xea,
+	0xfb, 0xc9, 0x5d, 0xea, 0x18, 0x49, 0xfd, 0x49, 0x85, 0x96, 0x0f, 0x12, 0xa5, 0x32, 0x73, 0x18,
+	0x19, 0x09, 0x36, 0x26, 0x82, 0x8d, 0x09, 0xdc, 0xa8, 0x5e, 0xcc, 0x33, 0x96, 0x2f, 0x50, 0xdd,
+	0x28, 0x59, 0xba, 0x61, 0xdb, 0xcc, 0x31, 0x1c, 0x8b, 0xd9, 0xdc, 0x0b, 0x55, 0x67, 0x64, 0x39,
+	0xaa, 0x60, 0x0d, 0x9b, 0x73, 0xac, 0x58, 0x64, 0xb6, 0xbe, 0xcf, 0x2a, 0xb9, 0x3d, 0x5a, 0xe6,
+	0xfa, 0x7e, 0x32, 0xf8, 0x8d, 0x9b, 0x63, 0x79, 0x96, 0x67, 0xe2, 0xa7, 0xee, 0xfe, 0xc2, 0xd5,
+	0x78, 0x8e, 0xf1, 0x22, 0xe3, 0xfa, 0xae, 0xc1, 0xab, 0x79, 0x72, 0xcc, 0xb2, 0xf1, 0xfe, 0x74,
+	0xf8, 0xbe, 0xd0, 0x18, 0xec, 0x2a, 0x19, 0x79, 0xcb, 0x16, 0xe4, 0x71, 0xef, 0x94, 0x8c, 0x7b,
+	0x9e, 0xda, 0x94, 0x5b, 0x48, 0x46, 0x1b, 0x85, 0x91, 0xcf, 0x5d, 0xb0, 0x2d, 0x7f, 0xdf, 0xb6,
+	0x51, 0x36, 0x8a, 0x3c, 0x43, 0x9f, 0x54, 0x28, 0x77, 0x34, 0x03, 0x2e, 0x36, 0xbf, 0xcd, 0x4b,
+	0xcc, 0xe6, 0x94, 0xac, 0xc2, 0x40, 0x49, 0xac, 0x0c, 0x2b, 0x97, 0x94, 0xab, 0x67, 0x53, 0xe3,
+	0x09, 0x49, 0xc5, 0x13, 0x5e, 0xf0, 0xdd, 0xd3, 0x2f, 0x5f, 0x8f, 0xf5, 0x65, 0x30, 0x50, 0x5b,
+	0x82, 0x0b, 0xb5, 0x29, 0xd2, 0x15, 0xdb, 0xc4, 0xfc, 0x64, 0x04, 0x86, 0x8a, 0x46, 0xf9, 0x31,
+	0x75, 0xb2, 0x96, 0x29, 0x52, 0x0c, 0x65, 0x06, 0xbd, 0x85, 0x2d, 0x53, 0x7b, 0x08, 0x6a, 0xb3,
+	0x48, 0xa4, 0xb6, 0x02, 0xa7, 0x1f, 0x55, 0x6c, 0x13, 0x89, 0x4d, 0x4b, 0x89, 0xd5, 0x22, 0x88,
+	0x38, 0xed, 0x62, 0x33, 0xf4, 0xa0, 0x30, 0xb4, 0xbe, 0x6e, 0x78, 0x17, 0x93, 0xa7, 0xa1, 0xdf,
+	0x05, 0x71, 0xcb, 0xf2, 0x56, 0xb4, 0xec, 0x58, 0x1d, 0x2f, 0x5c, 0xfb, 0x02, 0x2e, 0x89, 0x34,
+	0x1b, 0xdc, 0xb1, 0x8a, 0x86, 0x43, 0xcd, 0x0c, 0x35, 0x69, 0xb1, 0x24, 0x0e, 0xaa, 0x5f, 0x23,
+	0x15, 0x82, 0x92, 0xd4, 0x97, 0x88, 0x0c, 0xc3, 0x19, 0xc3, 0x34, 0xcb, 0x94, 0xf3, 0xe1, 0x53,
+	0xe2, 0x96, 0x7f, 0xa9, 0x3d, 0x84, 0x0f, 0x25, 0xc8, 0x28, 0x63, 0x11, 0x06, 0x8c, 0x22, 0xab,
+	0xd8, 0x0e, 0xea, 0xb8, 0x90, 0xf0, 0x4e, 0x61, 0xc2, 0x3d, 0x85, 0x01, 0xff, 0x35, 0x66, 0xd9,
+	0x7e, 0x53, 0xbd, 0xed, 0xda, 0x03, 0x88, 0x0b, 0xf4, 0x6d, 0x6a, 0x9b, 0x96, 0x9d, 0x3f, 0x31,
+	0xd6, 0x3b, 0x30, 0xd6, 0x12, 0xb7, 0x57, 0xce, 0x17, 0xe0, 0xbc, 0xc0, 0xbe, 0xc7, 0xcc, 0x4a,
+	0x81, 0xde, 0x77, 0x0c, 0x87, 0xfa, 0xdd, 0xfe, 0x0a, 0x86, 0x1b, 0x6f, 0x61, 0xbe, 0x3b, 0xd0,
+	0xcf, 0xdd, 0x05, 0x3c, 0x68, 0x53, 0xd2, 0x56, 0x6f, 0x7a, 0x0f, 0x9f, 0x87, 0xe0, 0xc5, 0x69,
+	0x63, 0x30, 0x2a, 0xc0, 0xd3, 0x86, 0x55, 0x68, 0xd6, 0x60, 0xed, 0x29, 0x16, 0xb3, 0xc9, 0x06,
+	0xe4, 0xf0, 0x25, 0x0c, 0xf1, 0xdc, 0x1e, 0x75, 0xc9, 0xf9, 0x47, 0x6e, 0x41, 0xca, 0xa3, 0x1e,
+	0xea, 0x3e, 0x46, 0x63, 0x49, 0xaa, 0x68, 0xda, 0x2c, 0xc4, 0x44, 0xf2, 0x07, 0x38, 0xc4, 0xfc,
+	0xfe, 0xc5, 0xa0, 0xdf, 0xa4, 0x36, 0x2b, 0x62, 0xf3, 0xbc, 0x0b, 0x2d, 0x0f, 0x1f, 0xd4, 0xed,
+	0x46, 0x86, 0x9f, 0xc2, 0xa0, 0x3f, 0x06, 0x91, 0xe0, 0x6c, 0x88, 0xa0, 0x37, 0x34, 0x13, 0xc1,
+	0xa0, 0xdc, 0x4f, 0x26, 0x56, 0xbd, 0x8e, 0x23, 0x10, 0xf2, 0x0a, 0x30, 0xb4, 0x0d, 0x78, 0x3f,
+	0x9c, 0x48, 0xca, 0x4a, 0x72, 0x9e, 0x9e, 0xd5, 0xaa, 0x0b, 0xe8, 0x9a, 0x70, 0x06, 0x53, 0x61,
+	0x5b, 0x25, 0xa7, 0x48, 0x77, 0xa9, 0xfd, 0xf5, 0x7a, 0x6c, 0x32, 0x6f, 0x39, 0x7b, 0x95, 0x5d,
+	0x57, 0x8c, 0x8e, 0xc3, 0xda, 0xfb, 0x33, 0xc7, 0xcd, 0xc7, 0xba, 0x73, 0x50, 0xa2, 0x5c, 0x04,
+	0x64, 0x7c, 0x68, 0xed, 0x1e, 0x4c, 0x88, 0xec, 0x6b, 0xcc, 0xe6, 0xac, 0x60, 0x99, 0xee, 0x63,
+	0x58, 0x9d, 0xb4, 0x8c, 0x15, 0x82, 0x6a, 0x8f, 0xc3, 0x39, 0x93, 0x96, 0x18, 0xb7, 0x9c, 0x6c,
+	0x58, 0xdf, 0xdb, 0xb8, 0xb8, 0x2e, 0x8a, 0xff, 0x1c, 0x26, 0xdb, 0xc2, 0xa1, 0xbe, 0x0c, 0xf4,
+	0x97, 0xdc, 0x05, 0xec, 0xc5, 0x75, 0xe9, 0x61, 0x69, 0x89, 0xe7, 0xcf, 0x2a, 0x01, 0xa5, 0xa5,
+	0xe5, 0xe9, 0x0b, 0x56, 0xee, 0xa0, 0xa3, 0xb1, 0xfe, 0x0c, 0xae, 0xb6, 0xc7, 0x41, 0x1d, 0xdb,
+	0x30, 0x50, 0x12, 0x2b, 0xd8, 0xa6, 0xa5, 0x6e, 0x84, 0x08, 0x44, 0xc4, 0xd1, 0xbe, 0x57, 0x60,
+	0xaa, 0x4d, 0x7a, 0x8b, 0x06, 0x7d, 0x19, 0x05, 0x70, 0xc5, 0xd7, 0x34, 0x65, 0xc8, 0x5d, 0x11,
+	0x1d, 0x21, 0x69, 0x80, 0xea, 0xcb, 0x59, 0x9c, 0xbd, 0xb3, 0xa9, 0x89, 0x9a, 0x93, 0xe4, 0xb9,
+	0x95, 0xea, 0x0b, 0x32, 0xef, 0xcf, 0x9c, 0x4c, 0x28, 0x52, 0x7b, 0xa5, 0xc0, 0x74, 0x27, 0xa4,
+	0xb0, 0x2a, 0x3b, 0x30, 0x58, 0xc2, 0x35, 0x6c, 0x70, 0xd7, 0x75, 0xf1, 0x1f, 0x3c, 0x1f, 0x8f,
+	0x6c, 0x36, 0x91, 0x34, 0xd9, 0x56, 0x92, 0x47, 0xac, 0x46, 0xd3, 0xb7, 0x0a, 0x8c, 0x37, 0x68,
+	0x6a, 0xfe, 0xa2, 0x28, 0x53, 0x93, 0xd2, 0x22, 0x3e, 0x8b, 0x43, 0x99, 0xe0, 0xfa, 0xc4, 0xea,
+	0x7b, 0xa8, 0xc0, 0x65, 0x39, 0x17, 0xac, 0x6c, 0xb6, 0x71, 0xd0, 0x2e, 0x77, 0x5c, 0xda, 0x0e,
+	0xc6, 0xed, 0x89, 0x95, 0x37, 0xf5, 0x22, 0x06, 0xfd, 0x42, 0x12, 0xf9, 0x59, 0x81, 0x77, 0xeb,
+	0xfc, 0x1b, 0x91, 0x9f, 0x07, 0x89, 0x23, 0x54, 0x6f, 0x74, 0x11, 0xe9, 0xd1, 0xd3, 0x66, 0xbe,
+	0xf9, 0xe3, 0x9f, 0x1f, 0x4e, 0x5d, 0x21, 0xe3, 0xba, 0xcc, 0x9f, 0x7a, 0xb6, 0x90, 0xfc, 0xa6,
+	0xc0, 0xb9, 0x1a, 0x63, 0x44, 0xae, 0x47, 0xc8, 0x1c, 0xf2, 0x90, 0xea, 0x62, 0xe4, 0x38, 0xe4,
+	0x7b, 0x47, 0xf0, 0xbd, 0x41, 0x16, 0xf5, 0x8e, 0xbe, 0x05, 0xb2, 0xae, 0x65, 0xd3, 0x9f, 0x06,
+	0x83, 0xed, 0x39, 0xf9, 0x55, 0x81, 0x77, 0x6a, 0x0d, 0x22, 0x89, 0x4a, 0x26, 0xa8, 0xfb, 0x52,
+	0xf4, 0x40, 0x94, 0x31, 0x2f, 0x64, 0x24, 0xc8, 0x6c, 0x04, 0x19, 0x9c, 0xbc, 0x52, 0x20, 0xd6,
+	0xcc, 0x1b, 0x92, 0xdb, 0xed, 0x89, 0x48, 0xdc, 0xaa, 0xba, 0xd2, 0x6d, 0x38, 0xaa, 0xb9, 0x29,
+	0xd4, 0xcc, 0x93, 0x94, 0x54, 0x0d, 0xf5, 0x21, 0xb2, 0xe5, 0x10, 0xf5, 0xdf, 0x15, 0x20, 0x8d,
+	0xce, 0x91, 0x2c, 0xb7, 0xa7, 0xd4, 0xd2, 0xc7, 0xaa, 0xb7, 0xba, 0x0b, 0x46, 0x35, 0x4b, 0x42,
+	0x4d, 0x8a, 0x5c, 0x93, 0x3f, 0x12, 0x1e, 0x40, 0x8d, 0x96, 0x5f, 0x14, 0x88, 0x05, 0x0d, 0x0f,
+	0xf9, 0x52, 0x32, 0xdf, 0x9e, 0x50, 0xa3, 0xc3, 0x55, 0x17, 0x22, 0x46, 0x21, 0xff, 0xa4, 0xe0,
+	0x3f, 0x43, 0xa6, 0xa4, 0xfc, 0x8b, 0x22, 0x32, 0x2b, 0xec, 0x2e, 0x79, 0xa1, 0xc0, 0x7b, 0x0d,
+	0x4e, 0x96, 0xdc, 0x6c, 0x9f, 0xbf, 0x95, 0x3f, 0x56, 0x97, 0xbb, 0x8a, 0x45, 0x05, 0x8b, 0x42,
+	0x41, 0x92, 0xe8, 0x52, 0x05, 0x8f, 0x44, 0x7c, 0x4d, 0x03, 0x7e, 0x52, 0x60, 0xd0, 0xb7, 0xb9,
+	0x24, 0xd9, 0x9e, 0x42, 0x9d, 0x81, 0x56, 0x53, 0x51, 0x42, 0x90, 0xec, 0x9c, 0x20, 0x3b, 0x49,
+	0xae, 0x48, 0xc9, 0xfa, 0x26, 0x99, 0xfc, 0xa8, 0xc0, 0x19, 0xc4, 0x20, 0xd7, 0x3a, 0x4e, 0xe7,
+	0x13, 0x4c, 0x46, 0x88, 0x40, 0x7e, 0xb3, 0x82, 0xdf, 0x04, 0xb9, 0xdc, 0x09, 0x3f, 0xf2, 0x46,
+	0x01, 0xb5, 0xb5, 0x57, 0x25, 0x6b, 0xed, 0xf3, 0xb7, 0x35, 0xce, 0xea, 0x7a, 0x6f, 0x20, 0x91,
+	0x0e, 0x49, 0x2e, 0x04, 0x94, 0x15, 0x9e, 0x98, 0xfc, 0xa7, 0xc0, 0x88, 0xc4, 0x5d, 0x91, 0xee,
+	0xe9, 0x85, 0xec, 0xb4, 0xba, 0xd1, 0x23, 0x0a, 0xaa, 0x5c, 0x17, 0x2a, 0x57, 0xc8, 0xad, 0x28,
+	0x2a, 0x5d, 0x84, 0x9a, 0x97, 0xde, 0xbf, 0x0a, 0x8c, 0x4a, 0x6d, 0x2a, 0x49, 0xf7, 0x42, 0xb7,
+	0x6a, 0xbe, 0xd5, 0xcd, 0x9e, 0x71, 0x22, 0xbd, 0x53, 0x1a, 0x85, 0xbb, 0x62, 0xfe, 0x56, 0xe0,
+	0x7c, 0x0b, 0xd7, 0x48, 0x3e, 0x8e, 0x46, 0xb0, 0xc9, 0x68, 0x5b, 0xed, 0x01, 0x01, 0xc5, 0xdd,
+	0x16, 0xe2, 0x16, 0xc9, 0x42, 0xe7, 0xe2, 0x42, 0x63, 0xee, 0xae, 0xf5, 0xf2, 0x28, 0xae, 0x1c,
+	0x1e, 0xc5, 0x95, 0x37, 0x47, 0x71, 0xe5, 0xbb, 0xe3, 0x78, 0xdf, 0xe1, 0x71, 0xbc, 0xef, 0xcf,
+	0xe3, 0x78, 0xdf, 0xce, 0x67, 0xa1, 0xef, 0xdd, 0x2d, 0x1f, 0xfa, 0x13, 0x63, 0x97, 0x57, 0x13,
+	0xcd, 0xe5, 0x58, 0x99, 0x86, 0x2f, 0xf7, 0x0c, 0xcb, 0xc6, 0xd7, 0x01, 0x0f, 0xb1, 0x10, 0x1f,
+	0xc7, 0xbb, 0x03, 0xe2, 0x5f, 0x92, 0x1f, 0xfd, 0x1f, 0x00, 0x00, 0xff, 0xff, 0x69, 0x60, 0x47,
+	0x74, 0xdf, 0x15, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -965,6 +1411,14 @@ type QueryClient interface {
 	Vouchers(ctx context.Context, in *QueryVouchersRequest, opts ...grpc.CallOption) (*QueryVouchersResponse, error)
 	// Voucher retrieves a single voucher for a given denom and address
 	Voucher(ctx context.Context, in *QueryVoucherRequest, opts ...grpc.CallOption) (*QueryVoucherResponse, error)
+	// ConsolidatedInsurancePools returns all pools or one exact-denom pool.
+	ConsolidatedInsurancePools(ctx context.Context, in *QueryConsolidatedInsurancePoolsRequest, opts ...grpc.CallOption) (*QueryConsolidatedInsurancePoolsResponse, error)
+	// ConsolidatedInsurancePolicy returns the pool policy for a market.
+	ConsolidatedInsurancePolicy(ctx context.Context, in *QueryConsolidatedInsurancePolicyRequest, opts ...grpc.CallOption) (*QueryConsolidatedInsurancePolicyResponse, error)
+	// ConsolidatedInsurancePolicies returns policies, optionally by pool.
+	ConsolidatedInsurancePolicies(ctx context.Context, in *QueryConsolidatedInsurancePoliciesRequest, opts ...grpc.CallOption) (*QueryConsolidatedInsurancePoliciesResponse, error)
+	// ConsolidatedRedemptions returns pending schedules, optionally by sender.
+	ConsolidatedRedemptions(ctx context.Context, in *QueryConsolidatedRedemptionsRequest, opts ...grpc.CallOption) (*QueryConsolidatedRedemptionsResponse, error)
 }
 
 type queryClient struct {
@@ -1056,6 +1510,42 @@ func (c *queryClient) Voucher(ctx context.Context, in *QueryVoucherRequest, opts
 	return out, nil
 }
 
+func (c *queryClient) ConsolidatedInsurancePools(ctx context.Context, in *QueryConsolidatedInsurancePoolsRequest, opts ...grpc.CallOption) (*QueryConsolidatedInsurancePoolsResponse, error) {
+	out := new(QueryConsolidatedInsurancePoolsResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/ConsolidatedInsurancePools", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) ConsolidatedInsurancePolicy(ctx context.Context, in *QueryConsolidatedInsurancePolicyRequest, opts ...grpc.CallOption) (*QueryConsolidatedInsurancePolicyResponse, error) {
+	out := new(QueryConsolidatedInsurancePolicyResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/ConsolidatedInsurancePolicy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) ConsolidatedInsurancePolicies(ctx context.Context, in *QueryConsolidatedInsurancePoliciesRequest, opts ...grpc.CallOption) (*QueryConsolidatedInsurancePoliciesResponse, error) {
+	out := new(QueryConsolidatedInsurancePoliciesResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/ConsolidatedInsurancePolicies", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) ConsolidatedRedemptions(ctx context.Context, in *QueryConsolidatedRedemptionsRequest, opts ...grpc.CallOption) (*QueryConsolidatedRedemptionsResponse, error) {
+	out := new(QueryConsolidatedRedemptionsResponse)
+	err := c.cc.Invoke(ctx, "/injective.insurance.v1beta1.Query/ConsolidatedRedemptions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Retrieves insurance params
@@ -1077,6 +1567,14 @@ type QueryServer interface {
 	Vouchers(context.Context, *QueryVouchersRequest) (*QueryVouchersResponse, error)
 	// Voucher retrieves a single voucher for a given denom and address
 	Voucher(context.Context, *QueryVoucherRequest) (*QueryVoucherResponse, error)
+	// ConsolidatedInsurancePools returns all pools or one exact-denom pool.
+	ConsolidatedInsurancePools(context.Context, *QueryConsolidatedInsurancePoolsRequest) (*QueryConsolidatedInsurancePoolsResponse, error)
+	// ConsolidatedInsurancePolicy returns the pool policy for a market.
+	ConsolidatedInsurancePolicy(context.Context, *QueryConsolidatedInsurancePolicyRequest) (*QueryConsolidatedInsurancePolicyResponse, error)
+	// ConsolidatedInsurancePolicies returns policies, optionally by pool.
+	ConsolidatedInsurancePolicies(context.Context, *QueryConsolidatedInsurancePoliciesRequest) (*QueryConsolidatedInsurancePoliciesResponse, error)
+	// ConsolidatedRedemptions returns pending schedules, optionally by sender.
+	ConsolidatedRedemptions(context.Context, *QueryConsolidatedRedemptionsRequest) (*QueryConsolidatedRedemptionsResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -1109,6 +1607,18 @@ func (*UnimplementedQueryServer) Vouchers(ctx context.Context, req *QueryVoucher
 }
 func (*UnimplementedQueryServer) Voucher(ctx context.Context, req *QueryVoucherRequest) (*QueryVoucherResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Voucher not implemented")
+}
+func (*UnimplementedQueryServer) ConsolidatedInsurancePools(ctx context.Context, req *QueryConsolidatedInsurancePoolsRequest) (*QueryConsolidatedInsurancePoolsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConsolidatedInsurancePools not implemented")
+}
+func (*UnimplementedQueryServer) ConsolidatedInsurancePolicy(ctx context.Context, req *QueryConsolidatedInsurancePolicyRequest) (*QueryConsolidatedInsurancePolicyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConsolidatedInsurancePolicy not implemented")
+}
+func (*UnimplementedQueryServer) ConsolidatedInsurancePolicies(ctx context.Context, req *QueryConsolidatedInsurancePoliciesRequest) (*QueryConsolidatedInsurancePoliciesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConsolidatedInsurancePolicies not implemented")
+}
+func (*UnimplementedQueryServer) ConsolidatedRedemptions(ctx context.Context, req *QueryConsolidatedRedemptionsRequest) (*QueryConsolidatedRedemptionsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConsolidatedRedemptions not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -1277,6 +1787,78 @@ func _Query_Voucher_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_ConsolidatedInsurancePools_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryConsolidatedInsurancePoolsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ConsolidatedInsurancePools(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/ConsolidatedInsurancePools",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ConsolidatedInsurancePools(ctx, req.(*QueryConsolidatedInsurancePoolsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ConsolidatedInsurancePolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryConsolidatedInsurancePolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ConsolidatedInsurancePolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/ConsolidatedInsurancePolicy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ConsolidatedInsurancePolicy(ctx, req.(*QueryConsolidatedInsurancePolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ConsolidatedInsurancePolicies_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryConsolidatedInsurancePoliciesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ConsolidatedInsurancePolicies(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/ConsolidatedInsurancePolicies",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ConsolidatedInsurancePolicies(ctx, req.(*QueryConsolidatedInsurancePoliciesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ConsolidatedRedemptions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryConsolidatedRedemptionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ConsolidatedRedemptions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective.insurance.v1beta1.Query/ConsolidatedRedemptions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ConsolidatedRedemptions(ctx, req.(*QueryConsolidatedRedemptionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "injective.insurance.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -1316,6 +1898,22 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Voucher",
 			Handler:    _Query_Voucher_Handler,
+		},
+		{
+			MethodName: "ConsolidatedInsurancePools",
+			Handler:    _Query_ConsolidatedInsurancePools_Handler,
+		},
+		{
+			MethodName: "ConsolidatedInsurancePolicy",
+			Handler:    _Query_ConsolidatedInsurancePolicy_Handler,
+		},
+		{
+			MethodName: "ConsolidatedInsurancePolicies",
+			Handler:    _Query_ConsolidatedInsurancePolicies_Handler,
+		},
+		{
+			MethodName: "ConsolidatedRedemptions",
+			Handler:    _Query_ConsolidatedRedemptions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1906,6 +2504,320 @@ func (m *QueryVoucherResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryConsolidatedInsurancePoolsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryConsolidatedInsurancePoolsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryConsolidatedInsurancePoolsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.DepositDenom) > 0 {
+		i -= len(m.DepositDenom)
+		copy(dAtA[i:], m.DepositDenom)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.DepositDenom)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryConsolidatedInsurancePoolsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryConsolidatedInsurancePoolsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryConsolidatedInsurancePoolsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Pools) > 0 {
+		for iNdEx := len(m.Pools) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Pools[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryConsolidatedInsurancePolicyRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryConsolidatedInsurancePolicyRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryConsolidatedInsurancePolicyRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryConsolidatedInsurancePolicyResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryConsolidatedInsurancePolicyResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryConsolidatedInsurancePolicyResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Policy != nil {
+		{
+			size, err := m.Policy.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryConsolidatedInsurancePoliciesRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryConsolidatedInsurancePoliciesRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryConsolidatedInsurancePoliciesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.PoolDenom) > 0 {
+		i -= len(m.PoolDenom)
+		copy(dAtA[i:], m.PoolDenom)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.PoolDenom)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryConsolidatedInsurancePoliciesResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryConsolidatedInsurancePoliciesResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryConsolidatedInsurancePoliciesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Policies) > 0 {
+		for iNdEx := len(m.Policies) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Policies[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryConsolidatedRedemptionsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryConsolidatedRedemptionsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryConsolidatedRedemptionsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Redeemer) > 0 {
+		i -= len(m.Redeemer)
+		copy(dAtA[i:], m.Redeemer)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Redeemer)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryConsolidatedRedemptionsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryConsolidatedRedemptionsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryConsolidatedRedemptionsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Schedules) > 0 {
+		for iNdEx := len(m.Schedules) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Schedules[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -2150,6 +3062,132 @@ func (m *QueryVoucherResponse) Size() (n int) {
 	_ = l
 	l = m.Voucher.Size()
 	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryConsolidatedInsurancePoolsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.DepositDenom)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryConsolidatedInsurancePoolsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Pools) > 0 {
+		for _, e := range m.Pools {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *QueryConsolidatedInsurancePolicyRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryConsolidatedInsurancePolicyResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Policy != nil {
+		l = m.Policy.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryConsolidatedInsurancePoliciesRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.PoolDenom)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryConsolidatedInsurancePoliciesResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Policies) > 0 {
+		for _, e := range m.Policies {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryConsolidatedRedemptionsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Redeemer)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryConsolidatedRedemptionsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Schedules) > 0 {
+		for _, e := range m.Schedules {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
 	return n
 }
 
@@ -3599,6 +4637,816 @@ func (m *QueryVoucherResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Voucher.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryConsolidatedInsurancePoolsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePoolsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePoolsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DepositDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DepositDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryConsolidatedInsurancePoolsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePoolsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePoolsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pools", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Pools = append(m.Pools, ConsolidatedInsurancePool{})
+			if err := m.Pools[len(m.Pools)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryConsolidatedInsurancePolicyRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePolicyRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePolicyRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryConsolidatedInsurancePolicyResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePolicyResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePolicyResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Policy", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Policy == nil {
+				m.Policy = &ConsolidatedInsurancePolicy{}
+			}
+			if err := m.Policy.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryConsolidatedInsurancePoliciesRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePoliciesRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePoliciesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PoolDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryConsolidatedInsurancePoliciesResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePoliciesResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryConsolidatedInsurancePoliciesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Policies", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Policies = append(m.Policies, ConsolidatedInsurancePolicy{})
+			if err := m.Policies[len(m.Policies)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryConsolidatedRedemptionsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryConsolidatedRedemptionsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryConsolidatedRedemptionsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Redeemer", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Redeemer = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryConsolidatedRedemptionsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryConsolidatedRedemptionsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryConsolidatedRedemptionsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedules", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Schedules = append(m.Schedules, ConsolidatedRedemptionSchedule{})
+			if err := m.Schedules[len(m.Schedules)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

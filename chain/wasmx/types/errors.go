@@ -3,6 +3,7 @@ package types
 import "cosmossdk.io/errors"
 
 var (
+	ErrModuleRemoved          = errors.Register(ModuleName, 12, "wasmx was removed in v1.21.0")
 	ErrInvalidGasLimit        = errors.Register(ModuleName, 1, "invalid gas limit")
 	ErrInvalidGasPrice        = errors.Register(ModuleName, 2, "invalid gas price")
 	ErrInvalidContractAddress = errors.Register(ModuleName, 3, "invalid contract address")

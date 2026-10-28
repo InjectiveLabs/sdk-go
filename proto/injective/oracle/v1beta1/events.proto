@@ -72,6 +72,7 @@ message EventBandIBCResponseTimeout {
 }
 
 message SetPriceFeedPriceEvent {
+  option deprecated = true;
   string relayer = 1;
 
   string base = 2;
@@ -95,6 +96,7 @@ message SetProviderPriceEvent {
 }
 
 message SetCoinbasePriceEvent {
+  option deprecated = true;
   string symbol = 1;
   string price = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
@@ -103,12 +105,22 @@ message SetCoinbasePriceEvent {
   uint64 timestamp = 3;
 }
 
-message EventSetStorkPrices { repeated StorkPriceState prices = 1; }
+message EventSetStorkPrices {
+  option deprecated = true; repeated StorkPriceState prices = 1; }
 
 message EventSetPythPrices { repeated PythPriceState prices = 1; }
 
 message EventSetChainlinkDataStreamsPrices {
   repeated ChainlinkDataStreamsPriceState prices = 1;
+}
+
+// EventPythProEMAUpdate exposes an independently advancing upstream Pyth Pro
+// EMA without adding provider-specific attributes to every generic oracle
+// price event.
+message EventPythProEMAUpdate {
+  uint32 feed_id = 1;
+  string ema_price = 2;
+  uint64 ema_timestamp = 3;
 }
 
 // EventOraclePriceUpdate is a generic price update event emitted for oracle

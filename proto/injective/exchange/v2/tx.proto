@@ -98,30 +98,15 @@ service Msg {
   rpc BatchCancelDerivativeOrders(MsgBatchCancelDerivativeOrders)
       returns (MsgBatchCancelDerivativeOrdersResponse);
 
-  // InstantBinaryOptionsMarketLaunch defines method for creating a binary
-  // options market by paying listing fee without governance
-  rpc InstantBinaryOptionsMarketLaunch(MsgInstantBinaryOptionsMarketLaunch)
-      returns (MsgInstantBinaryOptionsMarketLaunchResponse);
 
-  // CreateBinaryOptionsLimitOrder defines a method for creating a new binary
-  // options limit order.
-  rpc CreateBinaryOptionsLimitOrder(MsgCreateBinaryOptionsLimitOrder)
-      returns (MsgCreateBinaryOptionsLimitOrderResponse);
 
-  // CreateBinaryOptionsMarketOrder defines a method for creating a new binary
-  // options market order.
-  rpc CreateBinaryOptionsMarketOrder(MsgCreateBinaryOptionsMarketOrder)
-      returns (MsgCreateBinaryOptionsMarketOrderResponse);
 
-  // MsgCancelBinaryOptionsOrder defines a method for cancelling a binary
-  // options order.
-  rpc CancelBinaryOptionsOrder(MsgCancelBinaryOptionsOrder)
-      returns (MsgCancelBinaryOptionsOrderResponse);
 
-  // BatchCancelBinaryOptionsOrders defines a method for cancelling a batch of
-  // binary options limit orders.
-  rpc BatchCancelBinaryOptionsOrders(MsgBatchCancelBinaryOptionsOrders)
-      returns (MsgBatchCancelBinaryOptionsOrdersResponse);
+
+
+
+
+
 
   // SubaccountTransfer defines a method for transfer between subaccounts
   rpc SubaccountTransfer(MsgSubaccountTransfer)
@@ -156,16 +141,13 @@ service Msg {
       returns (MsgDecreasePositionMarginResponse);
 
   // RewardsOptOut defines a method for opting out of rewards
-  rpc RewardsOptOut(MsgRewardsOptOut) returns (MsgRewardsOptOutResponse);
 
-  // AdminUpdateBinaryOptionsMarket defines method for updating a binary options
-  // market by admin
-  rpc AdminUpdateBinaryOptionsMarket(MsgAdminUpdateBinaryOptionsMarket)
-      returns (MsgAdminUpdateBinaryOptionsMarketResponse);
+
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  rpc UpdateSwapParams(MsgUpdateSwapParams) returns (MsgUpdateSwapParamsResponse);
+  rpc UpdateSwapParams(MsgUpdateSwapParams)
+      returns (MsgUpdateSwapParamsResponse);
 
   // UpdateSpotMarket modifies certain spot market fields (admin only)
   rpc UpdateSpotMarket(MsgUpdateSpotMarket)
@@ -194,8 +176,7 @@ service Msg {
   rpc LaunchExpiryFuturesMarket(MsgExpiryFuturesMarketLaunch)
       returns (MsgExpiryFuturesMarketLaunchResponse);
 
-  rpc LaunchBinaryOptionsMarket(MsgBinaryOptionsMarketLaunch)
-      returns (MsgBinaryOptionsMarketLaunchResponse);
+
 
   rpc BatchSpendCommunityPool(MsgBatchCommunityPoolSpend)
       returns (MsgBatchCommunityPoolSpendResponse);
@@ -206,22 +187,15 @@ service Msg {
   rpc DerivativeMarketParamUpdate(MsgDerivativeMarketParamUpdate)
       returns (MsgDerivativeMarketParamUpdateResponse);
 
-  rpc BinaryOptionsMarketParamUpdate(MsgBinaryOptionsMarketParamUpdate)
-      returns (MsgBinaryOptionsMarketParamUpdateResponse);
+
 
   rpc ForceSettleMarket(MsgMarketForcedSettlement)
       returns (MsgMarketForcedSettlementResponse);
 
-  rpc LaunchTradingRewardCampaign(MsgTradingRewardCampaignLaunch)
-      returns (MsgTradingRewardCampaignLaunchResponse);
 
   rpc EnableExchange(MsgExchangeEnable) returns (MsgExchangeEnableResponse);
 
-  rpc UpdateTradingRewardCampaign(MsgTradingRewardCampaignUpdate)
-      returns (MsgTradingRewardCampaignUpdateResponse);
 
-  rpc UpdateTradingRewardPendingPoints(MsgTradingRewardPendingPointsUpdate)
-      returns (MsgTradingRewardPendingPointsUpdateResponse);
 
   rpc UpdateFeeDiscount(MsgFeeDiscount) returns (MsgFeeDiscountResponse);
 
@@ -252,6 +226,13 @@ service Msg {
   // gates) to set the subaccount's risk profile (e.g. opt into cross-margin).
   rpc UpdateSubaccountRiskProfile(MsgUpdateSubaccountRiskProfile)
       returns (MsgUpdateSubaccountRiskProfileResponse);
+
+  // UpdateSubaccountMarketRiskMode pins one derivative market's margin mode
+  // for a subaccount (or unpins it back to the profile default), converting
+  // resting order margin representation atomically. Requires a flat position
+  // in that market.
+  rpc UpdateSubaccountMarketRiskMode(MsgUpdateSubaccountMarketRiskMode)
+      returns (MsgUpdateSubaccountMarketRiskModeResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -347,6 +328,11 @@ message MsgUpdateDerivativeMarket {
   // updates are exchange-admin-only and may set either ELIGIBLE or INELIGIBLE.
   // UNSPECIFIED is a no-op (preserves current value).
   CrossMarginEligibility cross_margin_eligibility = 11;
+
+  // (optional) updated reference-price gate settings. Direct message updates
+  // are exchange-admin-only. nil is a no-op (preserves current value).
+  ReferencePriceGateConfig new_reference_price_gate_config = 12
+      [ (gogoproto.nullable) = true ];
 }
 
 message MsgUpdateDerivativeMarketResponse {}
@@ -444,6 +430,30 @@ message MsgUpdateSubaccountRiskProfile {
 // MsgUpdateSubaccountRiskProfileResponse defines the
 // Msg/UpdateSubaccountRiskProfile response type.
 message MsgUpdateSubaccountRiskProfileResponse {}
+
+// MsgUpdateSubaccountMarketRiskMode defines a SDK message for pinning one
+// derivative market's margin mode for a subaccount, or unpinning it back to
+// the profile default (mode UNSPECIFIED).
+message MsgUpdateSubaccountMarketRiskMode {
+  option (amino.name) = "exchange/MsgUpdateSubaccountMarketRiskMode";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address
+  string sender = 1;
+  // the subaccount ID to update the market's margin mode for
+  string subaccount_id = 2;
+  // the derivative market whose mode is pinned or unpinned
+  string market_id = 3;
+  // the requested mode: ISOLATED or CROSS pins, UNSPECIFIED unpins back to
+  // the profile default (subject to eligibility & safety gates)
+  RiskMode mode = 4;
+}
+
+// MsgUpdateSubaccountMarketRiskModeResponse defines the
+// Msg/UpdateSubaccountMarketRiskMode response type.
+message MsgUpdateSubaccountMarketRiskModeResponse {}
 
 // MsgCreateSpotLimitOrder defines a SDK message for creating a new spot limit
 // order.
@@ -627,6 +637,7 @@ message MsgInstantPerpetualMarketLaunchResponse {}
 // MsgInstantBinaryOptionsMarketLaunch defines a SDK message for creating a new
 // perpetual futures market by paying listing fee without governance
 message MsgInstantBinaryOptionsMarketLaunch {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgInstantBinaryOptionsMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -854,6 +865,7 @@ message MsgCreateDerivativeLimitOrderResponse {
 
 // A Cosmos-SDK MsgCreateBinaryOptionsLimitOrder
 message MsgCreateBinaryOptionsLimitOrder {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgCreateBinaryOptionsLimitOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -867,6 +879,7 @@ message MsgCreateBinaryOptionsLimitOrder {
 // MsgCreateBinaryOptionsLimitOrderResponse defines the
 // Msg/CreateBinaryOptionsLimitOrder response type.
 message MsgCreateBinaryOptionsLimitOrderResponse {
+  option deprecated = true;
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -940,6 +953,7 @@ message MsgBatchCancelSpotOrdersResponse {
 // MsgBatchCancelBinaryOptionsOrders defines the
 // Msg/BatchCancelBinaryOptionsOrders response type.
 message MsgBatchCancelBinaryOptionsOrders {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgBatchCancelBinaryOptionsOrders";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -951,6 +965,7 @@ message MsgBatchCancelBinaryOptionsOrders {
 // BatchCancelBinaryOptionsOrdersResponse defines the
 // Msg/BatchCancelBinaryOptionsOrders response type.
 message MsgBatchCancelBinaryOptionsOrdersResponse {
+  option deprecated = true;
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -984,12 +999,12 @@ message MsgBatchUpdateOrders {
       [ (gogoproto.nullable) = true ];
   // the binary options orders to cancel
   repeated OrderData binary_options_orders_to_cancel = 9
-      [ (gogoproto.nullable) = true ];
+      [ (gogoproto.nullable) = true , deprecated = true];
   // the market IDs to cancel all binary options orders for (optional)
-  repeated string binary_options_market_ids_to_cancel_all = 10;
+  repeated string binary_options_market_ids_to_cancel_all = 10 [deprecated = true];
   // the binary options orders to create
   repeated DerivativeOrder binary_options_orders_to_create = 11
-      [ (gogoproto.nullable) = true ];
+      [ (gogoproto.nullable) = true , deprecated = true];
   // the spot market orders to create
   repeated SpotOrder spot_market_orders_to_create = 12
       [ (gogoproto.nullable) = true ];
@@ -998,7 +1013,7 @@ message MsgBatchUpdateOrders {
       [ (gogoproto.nullable) = true ];
   // the binary options market orders to create
   repeated DerivativeOrder binary_options_market_orders_to_create = 14
-      [ (gogoproto.nullable) = true ];
+      [ (gogoproto.nullable) = true , deprecated = true];
 }
 
 // MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
@@ -1010,23 +1025,23 @@ message MsgBatchUpdateOrdersResponse {
   repeated bool derivative_cancel_success = 2;
   repeated string spot_order_hashes = 3;
   repeated string derivative_order_hashes = 4;
-  repeated bool binary_options_cancel_success = 5;
-  repeated string binary_options_order_hashes = 6;
+  repeated bool binary_options_cancel_success = 5 [deprecated = true];
+  repeated string binary_options_order_hashes = 6 [deprecated = true];
   repeated string created_spot_orders_cids = 7;
   repeated string failed_spot_orders_cids = 8;
   repeated string created_derivative_orders_cids = 9;
   repeated string failed_derivative_orders_cids = 10;
-  repeated string created_binary_options_orders_cids = 11;
-  repeated string failed_binary_options_orders_cids = 12;
+  repeated string created_binary_options_orders_cids = 11 [deprecated = true];
+  repeated string failed_binary_options_orders_cids = 12 [deprecated = true];
   repeated string spot_market_order_hashes = 13;
   repeated string created_spot_market_orders_cids = 14;
   repeated string failed_spot_market_orders_cids = 15;
   repeated string derivative_market_order_hashes = 16;
   repeated string created_derivative_market_orders_cids = 17;
   repeated string failed_derivative_market_orders_cids = 18;
-  repeated string binary_options_market_order_hashes = 19;
-  repeated string created_binary_options_market_orders_cids = 20;
-  repeated string failed_binary_options_market_orders_cids = 21;
+  repeated string binary_options_market_order_hashes = 19 [deprecated = true];
+  repeated string created_binary_options_market_orders_cids = 20 [deprecated = true];
+  repeated string failed_binary_options_market_orders_cids = 21 [deprecated = true];
 }
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder
@@ -1079,6 +1094,7 @@ message DerivativeMarketOrderResults {
 
 // A Cosmos-SDK MsgCreateBinaryOptionsMarketOrder
 message MsgCreateBinaryOptionsMarketOrder {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgCreateBinaryOptionsMarketOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1092,6 +1108,7 @@ message MsgCreateBinaryOptionsMarketOrder {
 // MsgCreateBinaryOptionsMarketOrderResponse defines the
 // Msg/CreateBinaryOptionsMarketOrder response type.
 message MsgCreateBinaryOptionsMarketOrderResponse {
+  option deprecated = true;
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -1129,6 +1146,7 @@ message MsgCancelDerivativeOrderResponse {}
 // MsgCancelBinaryOptionsOrder defines the Msg/CancelBinaryOptionsOrder response
 // type.
 message MsgCancelBinaryOptionsOrder {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgCancelBinaryOptionsOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1400,6 +1418,7 @@ message MsgPrivilegedExecuteContractResponse {
 
 // A Cosmos-SDK MsgRewardsOptOut
 message MsgRewardsOptOut {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgRewardsOptOut";
   option (cosmos.msg.v1.signer) = "sender";
   option (gogoproto.equal) = false;
@@ -1410,7 +1429,8 @@ message MsgRewardsOptOut {
 }
 
 // MsgRewardsOptOutResponse defines the Msg/RewardsOptOut response type.
-message MsgRewardsOptOutResponse {}
+message MsgRewardsOptOutResponse {
+  option deprecated = true;}
 
 // A Cosmos-SDK MsgReclaimLockedFunds
 message MsgReclaimLockedFunds {
@@ -1447,6 +1467,7 @@ message MsgSignDoc {
 // MsgAdminUpdateBinaryOptionsMarket is used by the market Admin to operate the
 // market
 message MsgAdminUpdateBinaryOptionsMarket {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgAdminUpdateBinaryOptionsMarket";
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -1550,6 +1571,7 @@ message MsgExpiryFuturesMarketLaunch {
 message MsgExpiryFuturesMarketLaunchResponse {}
 
 message MsgBinaryOptionsMarketLaunch {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgBinaryOptionsMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -1602,6 +1624,7 @@ message MsgDerivativeMarketParamUpdate {
 message MsgDerivativeMarketParamUpdateResponse {}
 
 message MsgBinaryOptionsMarketParamUpdate {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgBinaryOptionsMarketParamUpdate";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -1628,6 +1651,7 @@ message MsgMarketForcedSettlement {
 message MsgMarketForcedSettlementResponse {}
 
 message MsgTradingRewardCampaignLaunch {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgTradingRewardCampaignLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -1638,7 +1662,8 @@ message MsgTradingRewardCampaignLaunch {
   TradingRewardCampaignLaunchProposal proposal = 2;
 }
 
-message MsgTradingRewardCampaignLaunchResponse {}
+message MsgTradingRewardCampaignLaunchResponse {
+  option deprecated = true;}
 
 message MsgExchangeEnable {
   option (amino.name) = "exchange/MsgExchangeEnable";
@@ -1654,6 +1679,7 @@ message MsgExchangeEnable {
 message MsgExchangeEnableResponse {}
 
 message MsgTradingRewardCampaignUpdate {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgTradingRewardCampaignUpdate";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -1664,9 +1690,11 @@ message MsgTradingRewardCampaignUpdate {
   TradingRewardCampaignUpdateProposal proposal = 2;
 }
 
-message MsgTradingRewardCampaignUpdateResponse {}
+message MsgTradingRewardCampaignUpdateResponse {
+  option deprecated = true;}
 
 message MsgTradingRewardPendingPointsUpdate {
+  option deprecated = true;
   option (amino.name) = "exchange/MsgTradingRewardPendingPointsUpdate";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -1677,7 +1705,8 @@ message MsgTradingRewardPendingPointsUpdate {
   TradingRewardPendingPointsUpdateProposal proposal = 2;
 }
 
-message MsgTradingRewardPendingPointsUpdateResponse {}
+message MsgTradingRewardPendingPointsUpdateResponse {
+  option deprecated = true;}
 
 message MsgFeeDiscount {
   option (amino.name) = "exchange/MsgFeeDiscount";
@@ -1749,9 +1778,10 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
 
-// MsgLiquidateCrossMarginPool performs graduated selective liquidation on a
-// cross-margin quote-denom pool, canceling pool orders first and then closing
-// only enough positions to restore health according to the configured target.
+// MsgLiquidateCrossMarginPool liquidates a cross-margin quote-denom pool. The
+// legacy mode performs graduated public-book liquidation; RFQ-only mode accepts
+// from the configured contract either an authenticated atomic full-pool close
+// or a one-pair partial that closes one bounded slice of one position.
 message MsgLiquidateCrossMarginPool {
   option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
   option (cosmos.msg.v1.signer) = "sender";
@@ -1762,6 +1792,10 @@ message MsgLiquidateCrossMarginPool {
   string subaccount_id = 2;
   // identifies which cross-margin pool (by quote denom)
   string quote_denom = 3;
+  // rfq_action is the synthetic-trade action returned by the configured RFQ
+  // contract. It is required for an active-market RFQ liquidation and may be
+  // empty when an already-paused liquidatable pool is routed to settlement.
+  string rfq_action = 4;
 }
 
 // MsgLiquidateCrossMarginPoolResponse defines the

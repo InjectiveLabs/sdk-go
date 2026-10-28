@@ -14,4 +14,6 @@ var (
 	ErrInvalidChainID = errors.Register(RootCodespace, 3, "invalid chain ID")
 	// ErrInvalidEthereumSignature is returned when an Ethereum ECDSA signature fails verification.
 	ErrInvalidEthereumSignature = errors.Register(RootCodespace, 4, "invalid ethereum signature")
+	// ErrAccSequenceCheckFailed is returned only during optimistic recheck
+	ErrAccSequenceCheckFailed = errors.Register(RootCodespace, 5, "account sequence check failed")
 )

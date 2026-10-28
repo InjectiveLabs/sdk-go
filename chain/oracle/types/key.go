@@ -204,14 +204,14 @@ func ParseSymbolHistoricalPriceRecordKey(fullKey []byte) (oracleType OracleType,
 const ProviderDelimiter = "@@@"
 
 // ProviderCompoundKeyDelimiter separates the delimited provider prefix from the symbol in compound keys
-// (e.g. AppendPriceRecord pair strings, ProviderAssistant keys). It is ProviderDelimiter + "/".
+// (for example, ProviderAssistant keys). It is ProviderDelimiter + "/".
 const ProviderCompoundKeyDelimiter = ProviderDelimiter + "/"
 
 func GetDelimitedProvider(provider string) string {
 	return fmt.Sprintf("%s%s", provider, ProviderDelimiter)
 }
 
-// JoinProviderCompoundKey returns the compound key for provider+symbol (price records, ProviderAssistant).
+// JoinProviderCompoundKey returns the compound key for provider+symbol used by ProviderAssistant.
 func JoinProviderCompoundKey(provider, symbol string) string {
 	return GetDelimitedProvider(provider) + ProviderCompoundKeyDelimiter[len(ProviderDelimiter):] + symbol
 }

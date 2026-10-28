@@ -92,3 +92,80 @@ message FailedRedemptionSchedule {
   // the error message from the failed withdrawal attempt
   string err = 3;
 }
+
+// ConsolidatedInsurancePool is one quote-denominated pool shared by enrolled
+// perpetual markets. The pool owns one share denom; per-market draw usage is
+// tracked separately in ConsolidatedInsurancePolicy.
+message ConsolidatedInsurancePool {
+  string deposit_denom = 1;
+  string share_denom = 2;
+  uint32 quote_decimals = 3;
+  google.protobuf.Duration redemption_notice_period_duration = 4
+      [ (gogoproto.stdduration) = true, (gogoproto.nullable) = false ];
+  string balance = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string total_share = 6 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string max_draw_per_market = 7 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // paused is an insurance-payout pause. It disables fresh draws,
+  // underwriting, and enrollment, but does not halt enrolled markets or
+  // automatic redemptions.
+  bool paused = 8;
+  // Whole quote coins committed to negative market ledgers. This derived sum
+  // is separate from cash and does not reduce the value used to issue shares.
+  // Decimal integer text keeps intermediate liquidation sums unbounded.
+  string reserved_balance = 9;
+  // Number of mature redemptions waiting for reserved cash. While nonzero,
+  // ordinary executions cannot grow reservations and re-lock released cash.
+  uint64 pending_reservation_redemptions = 10;
+}
+
+// ConsolidatedInsurancePolicy binds one perpetual market to a pool and tracks
+// the market's net outstanding draw independently from every other market.
+message ConsolidatedInsurancePolicy {
+  string market_id = 1;
+  string pool_denom = 2;
+  string max_draw = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  string outstanding_draw = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // net_prefunding is the market ledger's signed prefunding. Live draws that
+  // cover a ledger hole add to it, and losses realized against the ledger
+  // subtract from it. A positive value is pool cash already paid ahead of a
+  // losing position's debt, so RFQ liquidation nets that debt against it
+  // instead of drawing again. It moves no funds and never limits a draw.
+  string net_prefunding = 5 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  // Whole quote coins reserved for this market's negative ledger, without a
+  // transfer or realized loss. Decimal integer text is exact during cached
+  // liquidation transitions; admitted reservations must fit max_draw.
+  string reserved_amount = 6;
+  // Last position visited by the bounded, rotating collateral repair worker.
+  bytes reservation_repair_cursor = 9;
+}
+
+// ConsolidatedRedemptionSchedule escrows pool shares until the notice period
+// expires. The EndBlock worker processes eligible schedules automatically.
+message ConsolidatedRedemptionSchedule {
+  uint64 id = 1;
+  string pool_denom = 2;
+  string redeemer = 3;
+  google.protobuf.Timestamp claimable_redemption_time = 4
+      [ (gogoproto.stdtime) = true, (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin shares = 5 [ (gogoproto.nullable) = false ];
+  // Retained through retries; released only when these shares are processed.
+  bool waiting_for_reserved_cash = 6;
+}

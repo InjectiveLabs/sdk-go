@@ -35,20 +35,6 @@ service Query {
         "/injective/oracle/v1beta1/band_ibc_price_states";
   }
 
-  // Retrieves the state for all price feeds
-  rpc PriceFeedPriceStates(QueryPriceFeedPriceStatesRequest)
-      returns (QueryPriceFeedPriceStatesResponse) {
-    option (google.api.http).get =
-        "/injective/oracle/v1beta1/pricefeed_price_states";
-  }
-
-  // Retrieves the state for all coinbase price feeds
-  rpc CoinbasePriceStates(QueryCoinbasePriceStatesRequest)
-      returns (QueryCoinbasePriceStatesResponse) {
-    option (google.api.http).get =
-        "/injective/oracle/v1beta1/coinbase_price_states";
-  }
-
   // Retrieves the state for all pyth price feeds
   rpc PythPriceStates(QueryPythPriceStatesRequest)
       returns (QueryPythPriceStatesResponse) {
@@ -68,19 +54,6 @@ service Query {
       returns (QuerySedaFastPriceStatesResponse) {
     option (google.api.http).get =
         "/injective/oracle/v1beta1/seda_fast_price_states";
-  }
-
-  // Retrieves the state for all stork price feeds
-  rpc StorkPriceStates(QueryStorkPriceStatesRequest)
-      returns (QueryStorkPriceStatesResponse) {
-    option (google.api.http).get =
-        "/injective/oracle/v1beta1/stork_price_states";
-  }
-
-  // Retrieves all stork publishers
-  rpc StorkPublishers(QueryStorkPublishersRequest)
-      returns (QueryStorkPublishersResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/stork_publishers";
   }
 
   // Retrieves the state for all provider price feeds
@@ -105,17 +78,8 @@ service Query {
   }
 
   // Retrieves historical price records for a given OracleType and Symbol
-  rpc HistoricalPriceRecords(QueryHistoricalPriceRecordsRequest)
-      returns (QueryHistoricalPriceRecordsResponse) {
-    option (google.api.http).get =
-        "/injective/oracle/v1beta1/historical_price_records";
-  }
 
   // Retrieves mixed volatility value for the specified pair of base/quote
-  rpc OracleVolatility(QueryOracleVolatilityRequest)
-      returns (QueryOracleVolatilityResponse) {
-    option (google.api.http).get = "/injective/oracle/v1beta1/volatility";
-  }
 
   rpc OracleProvidersInfo(QueryOracleProvidersInfoRequest)
       returns (QueryOracleProvidersInfoResponse) {
@@ -180,21 +144,25 @@ message QueryBandIBCPriceStatesResponse {
 
 // QueryPriceFeedPriceStatesRequest is the request type for the
 // Query/PriceFeedPriceStates RPC method.
-message QueryPriceFeedPriceStatesRequest {}
+message QueryPriceFeedPriceStatesRequest {
+  option deprecated = true;}
 
 // QueryPriceFeedPriceStatesResponse is the response type for the
 // Query/PriceFeedPriceStates RPC method.
 message QueryPriceFeedPriceStatesResponse {
+  option deprecated = true;
   repeated PriceFeedState price_states = 1;
 }
 
 // QueryCoinbasePriceStatesRequest is the request type for the
 // Query/CoinbasePriceStates RPC method.
-message QueryCoinbasePriceStatesRequest {}
+message QueryCoinbasePriceStatesRequest {
+  option deprecated = true;}
 
 // QueryCoinbasePriceStatesResponse is the response type for the
 // Query/CoinbasePriceStates RPC method.
 message QueryCoinbasePriceStatesResponse {
+  option deprecated = true;
   repeated CoinbasePriceState price_states = 1;
 }
 
@@ -230,21 +198,25 @@ message QuerySedaFastPriceStatesResponse {
 
 // QueryStorkPriceStatesRequest is the request type for the
 // Query/StorkPriceStates RPC method.
-message QueryStorkPriceStatesRequest {}
+message QueryStorkPriceStatesRequest {
+  option deprecated = true;}
 
 // QueryStorkPriceStatesResponse is the response type for the
 // Query/StorkPriceStates RPC method.
 message QueryStorkPriceStatesResponse {
+  option deprecated = true;
   repeated StorkPriceState price_states = 1;
 }
 
 // QueryStorkPublishersRequest is the request type for the
 // Query/StorkPublishers RPC method.
-message QueryStorkPublishersRequest {}
+message QueryStorkPublishersRequest {
+  option deprecated = true;}
 
 // QueryStorkPublishersResponse is the response type for the
 // Query/StorkPublishers RPC method.
-message QueryStorkPublishersResponse { repeated string publishers = 1; }
+message QueryStorkPublishersResponse {
+  option deprecated = true; repeated string publishers = 1; }
 
 // QueryProviderPriceStateRequest is the request type for the
 // Query/ProviderPriceState RPC method.
@@ -276,15 +248,18 @@ message QueryModuleStateRequest {}
 message QueryModuleStateResponse { GenesisState state = 1; }
 
 message QueryHistoricalPriceRecordsRequest {
+  option deprecated = true;
   OracleType oracle = 1;
   string symbol_id = 2;
 }
 
 message QueryHistoricalPriceRecordsResponse {
+  option deprecated = true;
   repeated PriceRecords price_records = 1;
 }
 
 message OracleHistoryOptions {
+  option deprecated = true;
   // MaxAge restricts the oracle price records oldest age in seconds from the
   // current block time to consider. A value of 0 means use all the records
   // present on the chain.
@@ -300,6 +275,7 @@ message OracleHistoryOptions {
 // QueryOracleVolatilityRequest is the request type for Query/OracleVolatility
 // RPC method.
 message QueryOracleVolatilityRequest {
+  option deprecated = true;
   OracleInfo base_info = 1;
   OracleInfo quote_info = 2;
   OracleHistoryOptions oracle_history_options = 3;
@@ -308,6 +284,7 @@ message QueryOracleVolatilityRequest {
 // QueryOracleVolatilityResponse is the response type for Query/OracleVolatility
 // RPC method.
 message QueryOracleVolatilityResponse {
+  option deprecated = true;
   string volatility = 1
       [ (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec" ];
   MetadataStatistics history_metadata = 2;

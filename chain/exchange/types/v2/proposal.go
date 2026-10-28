@@ -88,6 +88,18 @@ func IsZeroOrNilDec(v math.LegacyDec) bool {
 	return v.IsNil() || v.IsZero()
 }
 
+// Validate returns an error if the minimal protocol fee update is not a recognized value.
+func (u DisableMinimalProtocolFeeUpdate) Validate() error {
+	switch u {
+	case DisableMinimalProtocolFeeUpdate_NoUpdate,
+		DisableMinimalProtocolFeeUpdate_False,
+		DisableMinimalProtocolFeeUpdate_True:
+		return nil
+	default:
+		return errors.Wrap(gov.ErrInvalidProposalContent, "invalid has_disabled_minimal_protocol_fee value")
+	}
+}
+
 // Implements Proposal Interface
 var _ govtypes.Content = &ExchangeEnableProposal{}
 
@@ -143,6 +155,9 @@ func (p *BatchExchangeModificationProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *BatchExchangeModificationProposal) ValidateBasic() error {
+	if len(p.BinaryOptionsMarketLaunchProposals) != 0 || len(p.BinaryOptionsParamUpdateProposals) != 0 {
+		return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
+	}
 	for _, proposal := range p.SpotMarketParamUpdateProposals {
 		if err := proposal.ValidateBasic(); err != nil {
 			return err
@@ -266,6 +281,9 @@ func (p *SpotMarketParamUpdateProposal) ProposalType() string {
 func (p *SpotMarketParamUpdateProposal) ValidateBasic() error {
 	if !types.IsHexHash(p.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
+	}
+	if err := p.HasDisabledMinimalProtocolFee.Validate(); err != nil {
+		return err
 	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&
@@ -532,6 +550,9 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if !types.IsHexHash(p.MarketId) {
 		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
 	}
+	if err := p.HasDisabledMinimalProtocolFee.Validate(); err != nil {
+		return err
+	}
 	if p.MakerFeeRate == nil &&
 		p.TakerFeeRate == nil &&
 		p.RelayerFeeShareRate == nil &&
@@ -547,7 +568,10 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		p.AdminInfo == nil &&
 		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
 		p.CrossMarginEligibility == CrossMarginEligibility_CM_ELIGIBILITY_UNSPECIFIED &&
-		p.OracleParams == nil {
+		p.ReferencePriceGateConfig == nil &&
+		p.OracleParams == nil &&
+		p.FundingImpactNotional == nil &&
+		p.SyntheticTradeFeeRate == nil {
 		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
 	}
 
@@ -604,6 +628,12 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 		}
 	}
 
+	if p.ReferencePriceGateConfig != nil {
+		if err := p.ReferencePriceGateConfig.Validate(); err != nil {
+			return err
+		}
+	}
+
 	if p.HourlyInterestRate != nil {
 		if err := types.ValidateHourlyInterestRate(*p.HourlyInterestRate); err != nil {
 			return errors.Wrap(types.ErrInvalidHourlyInterestRate, err.Error())
@@ -613,6 +643,18 @@ func (p *DerivativeMarketParamUpdateProposal) ValidateBasic() error {
 	if p.HourlyFundingRateCap != nil {
 		if err := types.ValidateHourlyFundingRateCap(*p.HourlyFundingRateCap); err != nil {
 			return errors.Wrap(types.ErrInvalidHourlyFundingRateCap, err.Error())
+		}
+	}
+
+	if p.FundingImpactNotional != nil {
+		if err := ValidateFundingImpactNotional(*p.FundingImpactNotional); err != nil {
+			return err
+		}
+	}
+
+	if p.SyntheticTradeFeeRate != nil {
+		if err := ValidateSyntheticTradeFeeRate(*p.SyntheticTradeFeeRate); err != nil {
+			return err
 		}
 	}
 
@@ -783,8 +825,8 @@ func (p *OracleParams) ValidateBasic() error {
 		return types.ErrSameOracles
 	}
 	switch p.OracleType {
-	case oracletypes.OracleType_PriceFeed, oracletypes.OracleType_Coinbase, oracletypes.OracleType_Pyth,
-		oracletypes.OracleType_PythPro, oracletypes.OracleType_Provider, oracletypes.OracleType_Stork,
+	case oracletypes.OracleType_Pyth,
+		oracletypes.OracleType_PythPro, oracletypes.OracleType_Provider,
 		oracletypes.OracleType_ChainlinkDataStreams, oracletypes.OracleType_SedaFast:
 
 	default:
@@ -947,6 +989,11 @@ func (p *PerpetualMarketLaunchProposal) ValidateBasic() error {
 	if err := types.ValidateFee(p.TakerFeeRate); err != nil {
 		return err
 	}
+	if p.SyntheticTradeFeeRate != nil {
+		if err := ValidateSyntheticTradeFeeRate(*p.SyntheticTradeFeeRate); err != nil {
+			return err
+		}
+	}
 	if err := types.ValidateMarginRatio(p.InitialMarginRatio); err != nil {
 		return err
 	}
@@ -1062,6 +1109,11 @@ func (p *ExpiryFuturesMarketLaunchProposal) ValidateBasic() error {
 	}
 	if err := types.ValidateFee(p.TakerFeeRate); err != nil {
 		return err
+	}
+	if p.SyntheticTradeFeeRate != nil {
+		if err := ValidateSyntheticTradeFeeRate(*p.SyntheticTradeFeeRate); err != nil {
+			return err
+		}
 	}
 	if err := types.ValidateMarginRatio(p.InitialMarginRatio); err != nil {
 		return err
@@ -1681,56 +1733,7 @@ func (p *BinaryOptionsMarketLaunchProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of a perpetual market launch proposal.
 func (p *BinaryOptionsMarketLaunchProposal) ValidateBasic() error {
-	if p.Ticker == "" || len(p.Ticker) > types.MaxTickerLength {
-		return errors.Wrapf(types.ErrInvalidTicker, "ticker should not be empty or exceed %d characters", types.MaxTickerLength)
-	}
-
-	providerOracleParams := NewProviderOracleParams(p.OracleSymbol, p.OracleProvider, p.OracleScaleFactor, p.OracleType)
-	if err := providerOracleParams.ValidateBasic(); err != nil {
-		return err
-	}
-
-	if p.ExpirationTimestamp >= p.SettlementTimestamp || p.ExpirationTimestamp < 0 || p.SettlementTimestamp < 0 {
-		return types.ErrInvalidExpiry
-	}
-
-	if p.Admin != "" {
-		_, err := sdk.AccAddressFromBech32(p.Admin)
-		if err != nil {
-			return errors.Wrap(sdkerrors.ErrInvalidAddress, p.Admin)
-		}
-	}
-	if p.QuoteDenom == "" {
-		return errors.Wrap(types.ErrInvalidQuoteDenom, "quote denom should not be empty")
-	}
-	if len(p.QuoteDenom) > types.MaxMarketLaunchDenomLength {
-		return errors.Wrapf(types.ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", types.MaxMarketLaunchDenomLength)
-	}
-	if err := types.ValidateMakerFee(p.MakerFeeRate); err != nil {
-		return err
-	}
-	if err := types.ValidateFee(p.TakerFeeRate); err != nil {
-		return err
-	}
-
-	if p.MakerFeeRate.GT(p.TakerFeeRate) {
-		return types.ErrFeeRatesRelation
-	}
-
-	if err := types.ValidateTickSize(p.MinPriceTickSize); err != nil {
-		return errors.Wrap(types.ErrInvalidPriceTickSize, err.Error())
-	}
-	if err := types.ValidateTickSize(p.MinQuantityTickSize); err != nil {
-		return errors.Wrap(types.ErrInvalidQuantityTickSize, err.Error())
-	}
-	if err := types.ValidateMinNotional(p.MinNotional); err != nil {
-		return errors.Wrap(types.ErrInvalidNotional, err.Error())
-	}
-	if err := ValidateOpenNotionalCap(p.OpenNotionalCap); err != nil {
-		return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
-	}
-
-	return govtypes.ValidateAbstract(p)
+	return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 }
 
 // NewBinaryOptionsMarketParamUpdateProposal returns new instance of BinaryOptionsMarketParamUpdateProposal
@@ -1791,121 +1794,7 @@ func (p *BinaryOptionsMarketParamUpdateProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *BinaryOptionsMarketParamUpdateProposal) ValidateBasic() error {
-	if !types.IsHexHash(p.MarketId) {
-		return errors.Wrap(types.ErrMarketInvalid, p.MarketId)
-	}
-	if p.MakerFeeRate == nil &&
-		p.TakerFeeRate == nil &&
-		p.RelayerFeeShareRate == nil &&
-		p.MinPriceTickSize == nil &&
-		p.MinQuantityTickSize == nil &&
-		p.MinNotional == nil &&
-		p.OpenNotionalCap == nil &&
-		p.Status == MarketStatus_Unspecified &&
-		p.ExpirationTimestamp == 0 &&
-		p.SettlementTimestamp == 0 &&
-		p.SettlementPrice == nil &&
-		p.Admin == "" &&
-		p.HasDisabledMinimalProtocolFee == DisableMinimalProtocolFeeUpdate_NoUpdate &&
-		p.OracleParams == nil {
-		return errors.Wrap(gov.ErrInvalidProposalContent, "At least one field should not be nil")
-	}
-
-	if p.MakerFeeRate != nil {
-		if err := types.ValidateMakerFee(*p.MakerFeeRate); err != nil {
-			return err
-		}
-	}
-	if p.TakerFeeRate != nil {
-		if err := types.ValidateFee(*p.TakerFeeRate); err != nil {
-			return err
-		}
-	}
-
-	if p.RelayerFeeShareRate != nil {
-		if err := types.ValidateFee(*p.RelayerFeeShareRate); err != nil {
-			return err
-		}
-	}
-
-	if p.MinPriceTickSize != nil {
-		if err := types.ValidateTickSize(*p.MinPriceTickSize); err != nil {
-			return errors.Wrap(types.ErrInvalidPriceTickSize, err.Error())
-		}
-	}
-
-	if p.MinQuantityTickSize != nil {
-		if err := types.ValidateTickSize(*p.MinQuantityTickSize); err != nil {
-			return errors.Wrap(types.ErrInvalidQuantityTickSize, err.Error())
-		}
-	}
-
-	if p.MinNotional != nil {
-		if err := types.ValidateMinNotional(*p.MinNotional); err != nil {
-			return errors.Wrap(types.ErrInvalidNotional, err.Error())
-		}
-	}
-
-	if p.OpenNotionalCap != nil {
-		if err := ValidateOpenNotionalCap(*p.OpenNotionalCap); err != nil {
-			return errors.Wrap(types.ErrInvalidOpenNotionalCap, err.Error())
-		}
-	}
-
-	if p.ExpirationTimestamp != 0 && p.SettlementTimestamp != 0 {
-		if p.ExpirationTimestamp >= p.SettlementTimestamp || p.ExpirationTimestamp < 0 || p.SettlementTimestamp < 0 {
-			return types.ErrInvalidExpiry
-		}
-	}
-
-	if p.SettlementTimestamp < 0 {
-		return types.ErrInvalidSettlement
-	}
-
-	if p.Admin != "" {
-		if _, err := sdk.AccAddressFromBech32(p.Admin); err != nil {
-			return err
-		}
-	}
-
-	if len(p.Ticker) > types.MaxTickerLength {
-		return errors.Wrapf(types.ErrInvalidTicker, "ticker should not exceed %d characters", types.MaxTickerLength)
-	}
-
-	// price is either nil (not set), -1 (demolish with refund) or [0..1] (demolish with settle)
-	switch {
-	case p.SettlementPrice == nil,
-		p.SettlementPrice.IsNil():
-		// ok
-	case p.SettlementPrice.Equal(BinaryOptionsMarketRefundFlagPrice),
-		p.SettlementPrice.GTE(math.LegacyZeroDec()) && p.SettlementPrice.LTE(types.MaxBinaryOptionsOrderPrice):
-		if p.Status != MarketStatus_Demolished {
-			return errors.Wrapf(
-				types.ErrInvalidMarketStatus,
-				"status should be set to demolished when the settlement price is set, status: %s",
-				p.Status.String(),
-			)
-		}
-		// ok
-	default:
-		return errors.Wrap(types.ErrInvalidPrice, p.SettlementPrice.String())
-	}
-
-	switch p.Status {
-	case
-		MarketStatus_Unspecified,
-		MarketStatus_Demolished:
-	default:
-		return errors.Wrap(types.ErrInvalidMarketStatus, p.Status.String())
-	}
-
-	if p.OracleParams != nil {
-		if err := p.OracleParams.ValidateBasic(); err != nil {
-			return err
-		}
-	}
-
-	return govtypes.ValidateAbstract(p)
+	return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 }
 
 // Implements Proposal Interface

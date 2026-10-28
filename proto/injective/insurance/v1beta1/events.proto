@@ -51,3 +51,86 @@ message EventSetVoucher {
     (gogoproto.nullable) = false
   ];
 }
+
+// EventConsolidatedInsurancePoolCreated records governance pool creation.
+message EventConsolidatedInsurancePoolCreated {
+  ConsolidatedInsurancePool pool = 1 [ (gogoproto.nullable) = false ];
+}
+
+// EventConsolidatedInsurancePoolPauseChanged records an insurance-payout pause
+// change. It does not signal a market-trading halt.
+message EventConsolidatedInsurancePoolPauseChanged {
+  string deposit_denom = 1;
+  bool paused = 2;
+}
+
+// EventConsolidatedInsuranceMarketEnrolled records a market being bound to
+// consolidated insurance.
+message EventConsolidatedInsuranceMarketEnrolled {
+  ConsolidatedInsurancePolicy policy = 1 [ (gogoproto.nullable) = false ];
+}
+
+// EventConsolidatedInsurancePolicyUpdated records a governance draw-cap change.
+message EventConsolidatedInsurancePolicyUpdated {
+  ConsolidatedInsurancePolicy policy = 1 [ (gogoproto.nullable) = false ];
+}
+
+// EventConsolidatedInsuranceUnderwrite records an immediate deposit and share
+// mint.
+message EventConsolidatedInsuranceUnderwrite {
+  string underwriter = 1;
+  cosmos.base.v1beta1.Coin deposit = 2 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin shares = 3 [ (gogoproto.nullable) = false ];
+}
+
+// EventConsolidatedInsuranceRedemptionRequested records a new automatic
+// redemption.
+message EventConsolidatedInsuranceRedemptionRequested {
+  ConsolidatedRedemptionSchedule schedule = 1 [ (gogoproto.nullable) = false ];
+}
+
+// EventConsolidatedInsuranceRedemptionProcessed records an automatic payout.
+message EventConsolidatedInsuranceRedemptionProcessed {
+  ConsolidatedRedemptionSchedule schedule = 1 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin payout = 2 [ (gogoproto.nullable) = false ];
+  bool voucher_created = 3;
+}
+
+// EventConsolidatedInsuranceRedemptionRetry records a failed automatic payout
+// and the deferred schedule that will be retried.
+message EventConsolidatedInsuranceRedemptionRetry {
+  ConsolidatedRedemptionSchedule schedule = 1 [ (gogoproto.nullable) = false ];
+  string retry_error = 2;
+}
+
+// EventConsolidatedInsuranceBalanceChanged records a market draw or repayment.
+message EventConsolidatedInsuranceBalanceChanged {
+  string market_id = 1;
+  string pool_denom = 2;
+  // amount is the applied balance change and is retained for compatibility.
+  cosmos.base.v1beta1.Coin amount = 3 [ (gogoproto.nullable) = false ];
+  bool is_draw = 4;
+  cosmos.base.v1beta1.Coin requested_amount = 5
+      [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin paid_amount = 6
+      [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin unpaid_amount = 7
+      [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin remaining_pool_balance = 8
+      [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin remaining_market_capacity = 9
+      [ (gogoproto.nullable) = false ];
+}
+
+// EventConsolidatedReservationReallocated records deposited quote collateral
+// moving into the same cross position's margin, without an insurance payment.
+message EventConsolidatedReservationReallocated {
+  string market_id = 1;
+  string subaccount_id = 2;
+  string quote_denom = 3;
+  // Exact quote amount moved, in chain units.
+  string amount = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+}

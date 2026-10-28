@@ -10,8 +10,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 
-	oracletypes "github.com/InjectiveLabs/sdk-go/chain/oracle/types"
-	wasmxtypes "github.com/InjectiveLabs/sdk-go/chain/wasmx/types"
 	chaintypes "github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
@@ -677,63 +675,7 @@ func (msg MsgInstantBinaryOptionsMarketLaunch) Type() string {
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgInstantBinaryOptionsMarketLaunch) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if msg.Ticker == "" || len(msg.Ticker) > MaxTickerLength {
-		return errors.Wrapf(ErrInvalidTicker, "ticker should not be empty or exceed %d characters", MaxTickerLength)
-	}
-	if msg.OracleSymbol == "" || len(msg.OracleSymbol) > MaxOracleSymbolLength {
-		return errors.Wrapf(ErrInvalidOracle, "oracle symbol should not be empty or exceed %d characters", MaxOracleSymbolLength)
-	}
-	if msg.OracleProvider == "" {
-		return errors.Wrap(ErrInvalidOracle, "oracle provider should not be empty")
-	}
-	if len(msg.OracleProvider) > MaxOracleProviderLength {
-		return errors.Wrapf(ErrInvalidOracle, "oracle provider should not exceed %d characters", MaxOracleProviderLength)
-	}
-	if msg.OracleType != oracletypes.OracleType_Provider {
-		return errors.Wrap(ErrInvalidOracleType, msg.OracleType.String())
-	}
-	if msg.OracleScaleFactor > MaxOracleScaleFactor {
-		return ErrExceedsMaxOracleScaleFactor
-	}
-	if err := ValidateMakerFee(msg.MakerFeeRate); err != nil {
-		return err
-	}
-	if err := ValidateFee(msg.TakerFeeRate); err != nil {
-		return err
-	}
-	if msg.MakerFeeRate.GT(msg.TakerFeeRate) {
-		return ErrFeeRatesRelation
-	}
-	if msg.ExpirationTimestamp >= msg.SettlementTimestamp || msg.ExpirationTimestamp < 0 || msg.SettlementTimestamp < 0 {
-		return ErrInvalidExpiry
-	}
-	if msg.Admin != "" {
-		_, err := sdk.AccAddressFromBech32(msg.Admin)
-		if err != nil {
-			return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Admin)
-		}
-	}
-	if msg.QuoteDenom == "" {
-		return errors.Wrap(ErrInvalidQuoteDenom, "quote denom should not be empty")
-	}
-	if len(msg.QuoteDenom) > MaxMarketLaunchDenomLength {
-		return errors.Wrapf(ErrInvalidQuoteDenom, "quote denom should not exceed %d characters", MaxMarketLaunchDenomLength)
-	}
-	if err := ValidateTickSize(msg.MinPriceTickSize); err != nil {
-		return errors.Wrap(ErrInvalidPriceTickSize, err.Error())
-	}
-	if err := ValidateTickSize(msg.MinQuantityTickSize); err != nil {
-		return errors.Wrap(ErrInvalidQuantityTickSize, err.Error())
-	}
-	if err := ValidateMinNotional(msg.MinNotional); err != nil {
-		return errors.Wrap(ErrInvalidNotional, err.Error())
-	}
-
-	return nil
+	return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -1088,18 +1030,7 @@ func (msg MsgCreateBinaryOptionsLimitOrder) Type() string {
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateBinaryOptionsLimitOrder) ValidateBasic() error {
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-	if msg.Order.OrderType.IsConditional() {
-		return errors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
-	}
-	if err := msg.Order.ValidateBasic(senderAddr, true); err != nil {
-		return err
-	}
-
-	return nil
+	return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 }
 
 // GetSignBytes encodes the message for signing
@@ -1262,22 +1193,7 @@ func (msg MsgCreateBinaryOptionsMarketOrder) Type() string {
 
 // ValidateBasic runs stateless checks on the message
 func (msg MsgCreateBinaryOptionsMarketOrder) ValidateBasic() error {
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if msg.Order.OrderType == OrderType_BUY_PO || msg.Order.OrderType == OrderType_SELL_PO {
-		return errors.Wrap(ErrInvalidOrderTypeForMessage, "market order can't be a post only order")
-	}
-	if msg.Order.OrderType.IsConditional() {
-		return errors.Wrap(ErrUnrecognizedOrderType, string(msg.Order.OrderType))
-	}
-
-	if err := msg.Order.ValidateBasic(senderAddr, true); err != nil {
-		return err
-	}
-	return nil
+	return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 }
 
 // GetSignBytes encodes the message for signing
@@ -1390,18 +1306,7 @@ func (msg *MsgCancelBinaryOptionsOrder) Type() string {
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg *MsgCancelBinaryOptionsOrder) ValidateBasic() error {
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	orderData := OrderData{
-		MarketId:     msg.MarketId,
-		SubaccountId: msg.SubaccountId,
-		OrderHash:    msg.OrderHash,
-		Cid:          msg.Cid,
-	}
-	return orderData.ValidateBasic(senderAddr)
+	return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -1429,22 +1334,7 @@ func (msg *MsgBatchCancelBinaryOptionsOrders) Type() string {
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg *MsgBatchCancelBinaryOptionsOrders) ValidateBasic() error {
-	senderAddr, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if len(msg.Data) == 0 {
-		return errors.Wrap(ErrOrderDoesntExist, "must cancel at least 1 order")
-	}
-
-	for idx := range msg.Data {
-		if err := msg.Data[idx].ValidateBasic(senderAddr); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 }
 
 // GetSignBytes implements the sdk.Msg interface. It encodes the message for signing
@@ -1703,7 +1593,7 @@ func (msg *MsgPrivilegedExecuteContract) ValidateBasic() error {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.ContractAddress)
 	}
 
-	var e wasmxtypes.ExecutionData
+	var e ExecutionData
 	if err := json.Unmarshal([]byte(msg.Data), &e); err != nil {
 		return errors.Wrap(err, msg.Data)
 	}
@@ -1742,8 +1632,7 @@ func (msg *MsgRewardsOptOut) Type() string {
 }
 
 func (msg *MsgRewardsOptOut) ValidateBasic() error {
-
-	return nil
+	return ErrInvalidTradingRewardCampaign.Wrap("Trade&Earn has been removed")
 }
 
 func (msg *MsgRewardsOptOut) GetSignBytes() []byte {
@@ -1864,6 +1753,9 @@ func (msg MsgBatchUpdateOrders) Type() string { return TypeMsgBatchUpdateOrders 
 
 // ValidateBasic implements the sdk.Msg interface. It runs stateless checks on the message
 func (msg MsgBatchUpdateOrders) ValidateBasic() error {
+	if len(msg.BinaryOptionsMarketIdsToCancelAll) != 0 || len(msg.BinaryOptionsOrdersToCancel) != 0 || len(msg.BinaryOptionsOrdersToCreate) != 0 {
+		return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
+	}
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
@@ -1959,22 +1851,6 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		}
 	}
 
-	if len(msg.BinaryOptionsMarketIdsToCancelAll) > 0 && len(msg.BinaryOptionsOrdersToCancel) > 0 {
-		seen := make(map[common.Hash]struct{})
-		for _, marketID := range msg.BinaryOptionsMarketIdsToCancelAll {
-			if !IsHexHash(marketID) {
-				return errors.Wrap(ErrMarketInvalid, marketID)
-			}
-			seen[common.HexToHash(marketID)] = struct{}{}
-		}
-
-		for idx := range msg.BinaryOptionsOrdersToCancel {
-			if _, ok := seen[common.HexToHash(msg.BinaryOptionsOrdersToCancel[idx].MarketId)]; ok {
-				return errors.Wrap(ErrInvalidBatchMsgUpdate, "msg contains order to cancel in a binary options market that is also in cancel all")
-			}
-		}
-	}
-
 	for idx := range msg.SpotOrdersToCancel {
 		if err := msg.SpotOrdersToCancel[idx].ValidateBasic(sender); err != nil {
 			return err
@@ -1983,11 +1859,6 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 
 	for idx := range msg.DerivativeOrdersToCancel {
 		if err := msg.DerivativeOrdersToCancel[idx].ValidateBasic(sender); err != nil {
-			return err
-		}
-	}
-	for idx := range msg.BinaryOptionsOrdersToCancel {
-		if err := msg.BinaryOptionsOrdersToCancel[idx].ValidateBasic(sender); err != nil {
 			return err
 		}
 	}
@@ -2007,15 +1878,6 @@ func (msg MsgBatchUpdateOrders) ValidateBasic() error {
 		}
 		if msg.DerivativeOrdersToCreate[idx].OrderType.IsAtomic() {
 			return errors.Wrap(ErrInvalidOrderTypeForMessage, "Derivative limit orders can't be atomic orders")
-		}
-	}
-
-	for idx := range msg.BinaryOptionsOrdersToCreate {
-		if err := msg.BinaryOptionsOrdersToCreate[idx].ValidateBasic(sender, true); err != nil {
-			return err
-		}
-		if msg.BinaryOptionsOrdersToCreate[idx].OrderType.IsAtomic() {
-			return errors.Wrap(ErrInvalidOrderTypeForMessage, "Binary limit orders can't be atomic orders")
 		}
 	}
 
@@ -2045,47 +1907,7 @@ func (msg *MsgAdminUpdateBinaryOptionsMarket) Type() string {
 }
 
 func (msg *MsgAdminUpdateBinaryOptionsMarket) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
-		return errors.Wrap(sdkerrors.ErrInvalidAddress, msg.Sender)
-	}
-
-	if !IsHexHash(msg.MarketId) {
-		return errors.Wrap(ErrMarketInvalid, msg.MarketId)
-	}
-
-	if (msg.SettlementTimestamp > 0 && msg.ExpirationTimestamp >= msg.SettlementTimestamp) ||
-		msg.ExpirationTimestamp < 0 {
-		return ErrInvalidExpiry
-	}
-
-	if msg.SettlementTimestamp < 0 {
-		return ErrInvalidSettlement
-	}
-
-	// price is either nil (not set), -1 (demolish with refund) or [0..1] (demolish with settle)
-	switch {
-	case msg.SettlementPrice == nil,
-		msg.SettlementPrice.IsNil():
-		// ok
-	case msg.SettlementPrice.Equal(BinaryOptionsMarketRefundFlagPrice),
-		msg.SettlementPrice.GTE(math.LegacyZeroDec()) && msg.SettlementPrice.LTE(MaxBinaryOptionsOrderPrice):
-		if msg.Status != MarketStatus_Demolished {
-			return errors.Wrapf(ErrInvalidMarketStatus, "status should be set to demolished when the settlement price is set, status: %s", msg.Status.String())
-		}
-		// ok
-	default:
-		return errors.Wrap(ErrInvalidPrice, msg.SettlementPrice.String())
-	}
-	// admin can only change status to demolished
-	switch msg.Status {
-	case
-		MarketStatus_Unspecified,
-		MarketStatus_Demolished:
-	default:
-		return errors.Wrap(ErrInvalidMarketStatus, msg.Status.String())
-	}
-
-	return nil
+	return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 }
 
 func (msg *MsgAdminUpdateBinaryOptionsMarket) GetSignBytes() []byte {

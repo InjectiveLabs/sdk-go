@@ -15,9 +15,9 @@ message GenesisState {
 
   repeated BandPriceState band_price_states = 3 [ deprecated = true ];
 
-  repeated PriceFeedState price_feed_price_states = 4;
+  repeated PriceFeedState price_feed_price_states = 4 [deprecated = true];
 
-  repeated CoinbasePriceState coinbase_price_states = 5;
+  repeated CoinbasePriceState coinbase_price_states = 5 [deprecated = true];
 
   repeated BandPriceState band_ibc_price_states = 6 [ deprecated = true ];
 
@@ -41,9 +41,9 @@ message GenesisState {
 
   repeated PythPriceState pyth_price_states = 15;
 
-  repeated StorkPriceState stork_price_states = 16;
+  repeated StorkPriceState stork_price_states = 16 [deprecated = true];
 
-  repeated string stork_publishers = 17;
+  repeated string stork_publishers = 17 [deprecated = true];
 
   repeated ChainlinkDataStreamsPriceState chainlink_data_streams_price_states =
       18;
@@ -53,7 +53,8 @@ message GenesisState {
   repeated PythProPriceState pyth_pro_price_states = 19;
 
   // seda_fast_price_states defines the persisted SEDA Fast feed price states
-  // at genesis, keyed by feed_id (hex-encoded execInputs).
+  // at genesis, keyed by feed_id:
+  // hex(keccak256(execProgramIdBytes || keccak256(execInputsBytes))).
   repeated SedaFastPriceState seda_fast_price_states = 20;
 }
 

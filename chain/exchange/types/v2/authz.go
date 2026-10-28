@@ -2,7 +2,6 @@ package v2
 
 import (
 	"context"
-	"sync"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -12,9 +11,6 @@ import (
 )
 
 var (
-	authorizedMarketsLimit    = 200
-	authorizedMarketsLimitMux = new(sync.RWMutex)
-
 	_ authz.Authorization = &CreateSpotLimitOrderAuthz{}
 	_ authz.Authorization = &CreateSpotMarketOrderAuthz{}
 	_ authz.Authorization = &BatchCreateSpotLimitOrdersAuthz{}
@@ -32,16 +28,7 @@ var (
 
 // AuthorizedMarketsLimit returns the authorized markets limit.
 func AuthorizedMarketsLimit() int {
-	authorizedMarketsLimitMux.RLock()
-	defer authorizedMarketsLimitMux.RUnlock()
-	return authorizedMarketsLimit
-}
-
-// SetAuthorizedMarketsLimit sets the authorized markets limit.
-func SetAuthorizedMarketsLimit(limit int) {
-	authorizedMarketsLimitMux.Lock()
-	authorizedMarketsLimit = limit
-	authorizedMarketsLimitMux.Unlock()
+	return types.AuthorizedMarketsLimit()
 }
 
 func find(slice []string, val string) bool {
@@ -95,6 +82,13 @@ func (a *BatchUpdateOrdersAuthz) Accept(_ context.Context, msg sdk.Msg) (authz.A
 	ordersToUpdate, ok := msg.(*MsgBatchUpdateOrders)
 	if !ok {
 		return authz.AcceptResponse{}, sdkerrors.ErrInvalidType.Wrap("type mismatch")
+	}
+
+	if len(ordersToUpdate.BinaryOptionsOrdersToCreate) != 0 ||
+		len(ordersToUpdate.BinaryOptionsOrdersToCancel) != 0 ||
+		len(ordersToUpdate.BinaryOptionsMarketIdsToCancelAll) != 0 ||
+		len(ordersToUpdate.BinaryOptionsMarketOrdersToCreate) != 0 {
+		return authz.AcceptResponse{}, sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
 	}
 
 	for _, authzCheck := range batchUpdateOrdersAuthzChecks {
@@ -209,46 +203,31 @@ func (a *BatchUpdateOrdersAuthz) authorizeDerivativeMarketOrdersToCreate(ordersT
 // BatchUpdateOrdersAuthz only carries spot and derivative allowlists, so
 // binary options share the derivative market authorization set.
 func (a *BatchUpdateOrdersAuthz) authorizeBinaryOptionsOrdersToCreate(ordersToUpdate *MsgBatchUpdateOrders) error {
-	return types.AuthorizeOrders(
-		a.DerivativeMarkets,
-		a.SubaccountId,
-		ordersToUpdate.BinaryOptionsOrdersToCreate,
-		func(order *DerivativeOrder) string { return order.MarketId },
-		func(order *DerivativeOrder) string { return order.OrderInfo.SubaccountId },
-		"requested binary options market to create orders is unauthorized",
-	)
+	if len(ordersToUpdate.BinaryOptionsOrdersToCreate) != 0 {
+		return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
+	}
+	return nil
 }
 
 func (a *BatchUpdateOrdersAuthz) authorizeBinaryOptionsOrdersToCancel(ordersToUpdate *MsgBatchUpdateOrders) error {
-	return types.AuthorizeOrders(
-		a.DerivativeMarkets,
-		a.SubaccountId,
-		ordersToUpdate.BinaryOptionsOrdersToCancel,
-		func(order *OrderData) string { return order.MarketId },
-		func(order *OrderData) string { return order.SubaccountId },
-		"requested binary options market to cancel orders is unauthorized",
-	)
+	if len(ordersToUpdate.BinaryOptionsOrdersToCancel) != 0 {
+		return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
+	}
+	return nil
 }
 
 func (a *BatchUpdateOrdersAuthz) authorizeBinaryOptionsMarketIDsToCancelAll(ordersToUpdate *MsgBatchUpdateOrders) error {
-	return types.AuthorizeCancelAll(
-		a.DerivativeMarkets,
-		a.SubaccountId,
-		ordersToUpdate.SubaccountId,
-		ordersToUpdate.BinaryOptionsMarketIdsToCancelAll,
-		"requested binary options market to cancel all orders is unauthorized",
-	)
+	if len(ordersToUpdate.BinaryOptionsMarketIdsToCancelAll) != 0 {
+		return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
+	}
+	return nil
 }
 
 func (a *BatchUpdateOrdersAuthz) authorizeBinaryOptionsMarketOrdersToCreate(ordersToUpdate *MsgBatchUpdateOrders) error {
-	return types.AuthorizeOrders(
-		a.DerivativeMarkets,
-		a.SubaccountId,
-		ordersToUpdate.BinaryOptionsMarketOrdersToCreate,
-		func(order *DerivativeOrder) string { return order.MarketId },
-		func(order *DerivativeOrder) string { return order.OrderInfo.SubaccountId },
-		"requested binary options market to create orders is unauthorized",
-	)
+	if len(ordersToUpdate.BinaryOptionsMarketOrdersToCreate) != 0 {
+		return sdkerrors.ErrNotSupported.Wrap("binary-options markets have been removed")
+	}
+	return nil
 }
 
 func (a *CreateDerivativeLimitOrderAuthz) MsgTypeURL() string {

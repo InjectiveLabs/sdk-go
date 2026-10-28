@@ -2,7 +2,6 @@ package typeddata
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -19,15 +18,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cosmtypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/pkg/errors"
-
-	"github.com/InjectiveLabs/sdk-go/chain/types"
 )
 
 type SigFormat struct {
@@ -112,7 +108,7 @@ type TypedDataDomain struct {
 
 var typedDataReferenceTypeRegexp = regexp.MustCompile(`^[A-Z](\w*)(\[\])?$`)
 
-// SignTextValidator signs the given message which can be further recovered
+// SignTextWithValidator signs the given message which can be further recovered
 // with the given validator.
 // hash = keccak256("\x19\x00"${address}${data}).
 func SignTextValidator(validatorData ValidatorData) (hexutil.Bytes, string) {
@@ -817,81 +813,7 @@ func SetCodec(amino *codec.LegacyAmino, proto *codec.ProtoCodec) {
 	LegacyAminoCodec, ProtoCodec = amino, proto
 }
 
-func GetEIP712TypedDataForMsg(signDocBytes []byte) (TypedData, error) {
-	txData := make(map[string]any)
-	if err := json.Unmarshal(signDocBytes, &txData); err != nil {
-		return TypedData{}, errors.Wrap(err, "failed to unmarshal signDocBytes")
-	}
-
-	// parse txData to StdSignDoc in order to parse the msg for ExtractMsgTypes
-	var signDoc legacytx.StdSignDoc
-	if err := LegacyAminoCodec.UnmarshalJSON(signDocBytes, &signDoc); err != nil {
-		return TypedData{}, err
-	}
-
-	var msg cosmtypes.Msg
-	if err := LegacyAminoCodec.UnmarshalJSON(signDoc.Msgs[0], &msg); err != nil {
-		return TypedData{}, errors.Wrap(err, "failed to unmarshal msg")
-	}
-
-	// For some reason this type cast does not work during UnmarshalJSON above
-	// If the underlying msg does implement the UnpackInterfacesMessage interface (MsgGrant, MsgExec...),
-	// we explicitly call the method here to ensure potential Any fields within the message are correctly parsed
-	if unpacker, ok := msg.(codectypes.UnpackInterfacesMessage); ok {
-		if err := unpacker.UnpackInterfaces(codectypes.AminoJSONUnpacker{Cdc: LegacyAminoCodec.Amino}); err != nil {
-			return TypedData{}, errors.Wrap(err, "failed to unpack msg")
-		}
-	}
-
-	msgTypes, err := ExtractMsgTypes(ProtoCodec, "MsgValue", msg)
-	if err != nil {
-		return TypedData{}, errors.Wrap(err, "failed to extract msg types")
-	}
-
-	if txData["fee"] != nil {
-		msgTypes["Fee"] = []Type{
-			{Name: "amount", Type: "Coin[]"},
-			{Name: "gas", Type: "string"},
-		}
-	}
-
-	// set timeout_height to 0 in case the user forgot to provide the flag
-	if txData["timeout_height"] == nil {
-		txData["timeout_height"] = "0"
-	}
-
-	chainID, err := types.ParseChainID(txData["chain_id"].(string))
-	if err != nil {
-		return TypedData{}, err
-	}
-
-	// see VerifySignatureEIP712 func and its handling of chain id
-	switch chainID.Int64() {
-	case 777, 888:
-		chainID = big.NewInt(11155111) // Sepolia
-	default:
-		chainID = big.NewInt(1)
-	}
-
-	domain := TypedDataDomain{
-		Name:              "Injective Web3",
-		Version:           "1.0.0",
-		ChainId:           math.NewHexOrDecimal256(chainID.Int64()),
-		VerifyingContract: "cosmos",
-		Salt:              "0",
-	}
-
-	td := TypedData{
-		Types:       msgTypes,
-		PrimaryType: "Tx",
-		Domain:      domain,
-		Message:     txData,
-	}
-
-	return td, nil
-}
-
-func ExtractMsgTypes(cdc codec.ProtoCodecMarshaler, msgTypeName string, msg cosmtypes.Msg) (Types, error) {
+func ExtractMsgTypes(unpacker codectypes.AnyUnpacker, msgTypeName string, msg cosmtypes.Msg) (Types, error) {
 	rootTypes := Types{
 		"EIP712Domain": {
 			{
@@ -939,7 +861,7 @@ func ExtractMsgTypes(cdc codec.ProtoCodecMarshaler, msgTypeName string, msg cosm
 		msgTypeName: {},
 	}
 
-	err := walkFields(cdc, rootTypes, msgTypeName, msg)
+	err := walkFields(unpacker, rootTypes, msgTypeName, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -947,7 +869,7 @@ func ExtractMsgTypes(cdc codec.ProtoCodecMarshaler, msgTypeName string, msg cosm
 	return rootTypes, nil
 }
 
-func walkFields(cdc codec.ProtoCodecMarshaler, typeMap Types, rootType string, in any) (err error) {
+func walkFields(unpacker codectypes.AnyUnpacker, typeMap Types, rootType string, in any) (err error) {
 	defer doRecover(&err)
 
 	t := reflect.TypeOf(in)
@@ -962,7 +884,7 @@ func walkFields(cdc codec.ProtoCodecMarshaler, typeMap Types, rootType string, i
 		break
 	}
 
-	err = traverseFields(cdc, typeMap, rootType, typeDefPrefix, t, v)
+	err = traverseFields(unpacker, typeMap, rootType, typeDefPrefix, t, v)
 	return err
 }
 
@@ -984,7 +906,7 @@ func doRecover(err *error) {
 const typeDefPrefix = "_"
 
 func traverseFields(
-	cdc codec.ProtoCodecMarshaler,
+	cdc codectypes.AnyUnpacker,
 	typeMap Types,
 	rootType string,
 	prefix string,
@@ -1012,6 +934,11 @@ func traverseFields(
 
 		fieldType := t.Field(i).Type
 		fieldName := jsonNameFromTag(t.Field(i).Tag)
+		if fieldType.Kind() == reflect.Ptr && field.IsValid() && field.IsNil() {
+			// skip nil pointers omitted from the Amino JSON value map
+			continue
+		}
+
 		var isCollection bool
 		if fieldType.Kind() == reflect.Array || fieldType.Kind() == reflect.Slice {
 			if field.Len() == 0 {
@@ -1278,4 +1205,21 @@ func SignableTypes() Types {
 			{Name: "msgs", Type: "string"},
 		},
 	}
+}
+
+// EIP712V3DomainVersion identifies the EIP-712 V3 signing domain.
+const EIP712V3DomainVersion = "3.0.0"
+
+// EIP712V3Salt is the hex encoding of the bytes32 zero salt used by EIP-712 V3.
+const EIP712V3Salt = "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+// SignableTypesV3 preserves the V2 payload types and uses bytes32 for the domain salt.
+func SignableTypesV3() Types {
+	types := SignableTypes()
+	for i := range types["EIP712Domain"] {
+		if types["EIP712Domain"][i].Name == "salt" {
+			types["EIP712Domain"][i].Type = "bytes32"
+		}
+	}
+	return types
 }

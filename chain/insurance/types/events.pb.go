@@ -4,6 +4,7 @@
 package types
 
 import (
+	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
@@ -400,6 +401,617 @@ func (m *EventSetVoucher) GetAddr() string {
 	return ""
 }
 
+// EventConsolidatedInsurancePoolCreated records governance pool creation.
+type EventConsolidatedInsurancePoolCreated struct {
+	Pool ConsolidatedInsurancePool `protobuf:"bytes,1,opt,name=pool,proto3" json:"pool"`
+}
+
+func (m *EventConsolidatedInsurancePoolCreated) Reset()         { *m = EventConsolidatedInsurancePoolCreated{} }
+func (m *EventConsolidatedInsurancePoolCreated) String() string { return proto.CompactTextString(m) }
+func (*EventConsolidatedInsurancePoolCreated) ProtoMessage()    {}
+func (*EventConsolidatedInsurancePoolCreated) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{7}
+}
+func (m *EventConsolidatedInsurancePoolCreated) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsurancePoolCreated) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsurancePoolCreated.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsurancePoolCreated) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsurancePoolCreated.Merge(m, src)
+}
+func (m *EventConsolidatedInsurancePoolCreated) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsurancePoolCreated) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsurancePoolCreated.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsurancePoolCreated proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsurancePoolCreated) GetPool() ConsolidatedInsurancePool {
+	if m != nil {
+		return m.Pool
+	}
+	return ConsolidatedInsurancePool{}
+}
+
+// EventConsolidatedInsurancePoolPauseChanged records an insurance-payout pause
+// change. It does not signal a market-trading halt.
+type EventConsolidatedInsurancePoolPauseChanged struct {
+	DepositDenom string `protobuf:"bytes,1,opt,name=deposit_denom,json=depositDenom,proto3" json:"deposit_denom,omitempty"`
+	Paused       bool   `protobuf:"varint,2,opt,name=paused,proto3" json:"paused,omitempty"`
+}
+
+func (m *EventConsolidatedInsurancePoolPauseChanged) Reset() {
+	*m = EventConsolidatedInsurancePoolPauseChanged{}
+}
+func (m *EventConsolidatedInsurancePoolPauseChanged) String() string {
+	return proto.CompactTextString(m)
+}
+func (*EventConsolidatedInsurancePoolPauseChanged) ProtoMessage() {}
+func (*EventConsolidatedInsurancePoolPauseChanged) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{8}
+}
+func (m *EventConsolidatedInsurancePoolPauseChanged) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsurancePoolPauseChanged) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsurancePoolPauseChanged.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsurancePoolPauseChanged) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsurancePoolPauseChanged.Merge(m, src)
+}
+func (m *EventConsolidatedInsurancePoolPauseChanged) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsurancePoolPauseChanged) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsurancePoolPauseChanged.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsurancePoolPauseChanged proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsurancePoolPauseChanged) GetDepositDenom() string {
+	if m != nil {
+		return m.DepositDenom
+	}
+	return ""
+}
+
+func (m *EventConsolidatedInsurancePoolPauseChanged) GetPaused() bool {
+	if m != nil {
+		return m.Paused
+	}
+	return false
+}
+
+// EventConsolidatedInsuranceMarketEnrolled records a market being bound to
+// consolidated insurance.
+type EventConsolidatedInsuranceMarketEnrolled struct {
+	Policy ConsolidatedInsurancePolicy `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy"`
+}
+
+func (m *EventConsolidatedInsuranceMarketEnrolled) Reset() {
+	*m = EventConsolidatedInsuranceMarketEnrolled{}
+}
+func (m *EventConsolidatedInsuranceMarketEnrolled) String() string { return proto.CompactTextString(m) }
+func (*EventConsolidatedInsuranceMarketEnrolled) ProtoMessage()    {}
+func (*EventConsolidatedInsuranceMarketEnrolled) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{9}
+}
+func (m *EventConsolidatedInsuranceMarketEnrolled) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsuranceMarketEnrolled) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsuranceMarketEnrolled.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsuranceMarketEnrolled) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsuranceMarketEnrolled.Merge(m, src)
+}
+func (m *EventConsolidatedInsuranceMarketEnrolled) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsuranceMarketEnrolled) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsuranceMarketEnrolled.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsuranceMarketEnrolled proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsuranceMarketEnrolled) GetPolicy() ConsolidatedInsurancePolicy {
+	if m != nil {
+		return m.Policy
+	}
+	return ConsolidatedInsurancePolicy{}
+}
+
+// EventConsolidatedInsurancePolicyUpdated records a governance draw-cap change.
+type EventConsolidatedInsurancePolicyUpdated struct {
+	Policy ConsolidatedInsurancePolicy `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy"`
+}
+
+func (m *EventConsolidatedInsurancePolicyUpdated) Reset() {
+	*m = EventConsolidatedInsurancePolicyUpdated{}
+}
+func (m *EventConsolidatedInsurancePolicyUpdated) String() string { return proto.CompactTextString(m) }
+func (*EventConsolidatedInsurancePolicyUpdated) ProtoMessage()    {}
+func (*EventConsolidatedInsurancePolicyUpdated) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{10}
+}
+func (m *EventConsolidatedInsurancePolicyUpdated) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsurancePolicyUpdated) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsurancePolicyUpdated.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsurancePolicyUpdated) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsurancePolicyUpdated.Merge(m, src)
+}
+func (m *EventConsolidatedInsurancePolicyUpdated) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsurancePolicyUpdated) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsurancePolicyUpdated.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsurancePolicyUpdated proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsurancePolicyUpdated) GetPolicy() ConsolidatedInsurancePolicy {
+	if m != nil {
+		return m.Policy
+	}
+	return ConsolidatedInsurancePolicy{}
+}
+
+// EventConsolidatedInsuranceUnderwrite records an immediate deposit and share
+// mint.
+type EventConsolidatedInsuranceUnderwrite struct {
+	Underwriter string     `protobuf:"bytes,1,opt,name=underwriter,proto3" json:"underwriter,omitempty"`
+	Deposit     types.Coin `protobuf:"bytes,2,opt,name=deposit,proto3" json:"deposit"`
+	Shares      types.Coin `protobuf:"bytes,3,opt,name=shares,proto3" json:"shares"`
+}
+
+func (m *EventConsolidatedInsuranceUnderwrite) Reset()         { *m = EventConsolidatedInsuranceUnderwrite{} }
+func (m *EventConsolidatedInsuranceUnderwrite) String() string { return proto.CompactTextString(m) }
+func (*EventConsolidatedInsuranceUnderwrite) ProtoMessage()    {}
+func (*EventConsolidatedInsuranceUnderwrite) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{11}
+}
+func (m *EventConsolidatedInsuranceUnderwrite) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsuranceUnderwrite) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsuranceUnderwrite.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsuranceUnderwrite) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsuranceUnderwrite.Merge(m, src)
+}
+func (m *EventConsolidatedInsuranceUnderwrite) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsuranceUnderwrite) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsuranceUnderwrite.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsuranceUnderwrite proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsuranceUnderwrite) GetUnderwriter() string {
+	if m != nil {
+		return m.Underwriter
+	}
+	return ""
+}
+
+func (m *EventConsolidatedInsuranceUnderwrite) GetDeposit() types.Coin {
+	if m != nil {
+		return m.Deposit
+	}
+	return types.Coin{}
+}
+
+func (m *EventConsolidatedInsuranceUnderwrite) GetShares() types.Coin {
+	if m != nil {
+		return m.Shares
+	}
+	return types.Coin{}
+}
+
+// EventConsolidatedInsuranceRedemptionRequested records a new automatic
+// redemption.
+type EventConsolidatedInsuranceRedemptionRequested struct {
+	Schedule ConsolidatedRedemptionSchedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule"`
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRequested) Reset() {
+	*m = EventConsolidatedInsuranceRedemptionRequested{}
+}
+func (m *EventConsolidatedInsuranceRedemptionRequested) String() string {
+	return proto.CompactTextString(m)
+}
+func (*EventConsolidatedInsuranceRedemptionRequested) ProtoMessage() {}
+func (*EventConsolidatedInsuranceRedemptionRequested) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{12}
+}
+func (m *EventConsolidatedInsuranceRedemptionRequested) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsuranceRedemptionRequested) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsuranceRedemptionRequested.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsuranceRedemptionRequested) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsuranceRedemptionRequested.Merge(m, src)
+}
+func (m *EventConsolidatedInsuranceRedemptionRequested) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsuranceRedemptionRequested) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsuranceRedemptionRequested.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsuranceRedemptionRequested proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsuranceRedemptionRequested) GetSchedule() ConsolidatedRedemptionSchedule {
+	if m != nil {
+		return m.Schedule
+	}
+	return ConsolidatedRedemptionSchedule{}
+}
+
+// EventConsolidatedInsuranceRedemptionProcessed records an automatic payout.
+type EventConsolidatedInsuranceRedemptionProcessed struct {
+	Schedule       ConsolidatedRedemptionSchedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule"`
+	Payout         types.Coin                     `protobuf:"bytes,2,opt,name=payout,proto3" json:"payout"`
+	VoucherCreated bool                           `protobuf:"varint,3,opt,name=voucher_created,json=voucherCreated,proto3" json:"voucher_created,omitempty"`
+}
+
+func (m *EventConsolidatedInsuranceRedemptionProcessed) Reset() {
+	*m = EventConsolidatedInsuranceRedemptionProcessed{}
+}
+func (m *EventConsolidatedInsuranceRedemptionProcessed) String() string {
+	return proto.CompactTextString(m)
+}
+func (*EventConsolidatedInsuranceRedemptionProcessed) ProtoMessage() {}
+func (*EventConsolidatedInsuranceRedemptionProcessed) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{13}
+}
+func (m *EventConsolidatedInsuranceRedemptionProcessed) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsuranceRedemptionProcessed) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsuranceRedemptionProcessed.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsuranceRedemptionProcessed) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsuranceRedemptionProcessed.Merge(m, src)
+}
+func (m *EventConsolidatedInsuranceRedemptionProcessed) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsuranceRedemptionProcessed) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsuranceRedemptionProcessed.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsuranceRedemptionProcessed proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsuranceRedemptionProcessed) GetSchedule() ConsolidatedRedemptionSchedule {
+	if m != nil {
+		return m.Schedule
+	}
+	return ConsolidatedRedemptionSchedule{}
+}
+
+func (m *EventConsolidatedInsuranceRedemptionProcessed) GetPayout() types.Coin {
+	if m != nil {
+		return m.Payout
+	}
+	return types.Coin{}
+}
+
+func (m *EventConsolidatedInsuranceRedemptionProcessed) GetVoucherCreated() bool {
+	if m != nil {
+		return m.VoucherCreated
+	}
+	return false
+}
+
+// EventConsolidatedInsuranceRedemptionRetry records a failed automatic payout
+// and the deferred schedule that will be retried.
+type EventConsolidatedInsuranceRedemptionRetry struct {
+	Schedule   ConsolidatedRedemptionSchedule `protobuf:"bytes,1,opt,name=schedule,proto3" json:"schedule"`
+	RetryError string                         `protobuf:"bytes,2,opt,name=retry_error,json=retryError,proto3" json:"retry_error,omitempty"`
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRetry) Reset() {
+	*m = EventConsolidatedInsuranceRedemptionRetry{}
+}
+func (m *EventConsolidatedInsuranceRedemptionRetry) String() string {
+	return proto.CompactTextString(m)
+}
+func (*EventConsolidatedInsuranceRedemptionRetry) ProtoMessage() {}
+func (*EventConsolidatedInsuranceRedemptionRetry) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{14}
+}
+func (m *EventConsolidatedInsuranceRedemptionRetry) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsuranceRedemptionRetry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsuranceRedemptionRetry.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsuranceRedemptionRetry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsuranceRedemptionRetry.Merge(m, src)
+}
+func (m *EventConsolidatedInsuranceRedemptionRetry) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsuranceRedemptionRetry) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsuranceRedemptionRetry.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsuranceRedemptionRetry proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsuranceRedemptionRetry) GetSchedule() ConsolidatedRedemptionSchedule {
+	if m != nil {
+		return m.Schedule
+	}
+	return ConsolidatedRedemptionSchedule{}
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRetry) GetRetryError() string {
+	if m != nil {
+		return m.RetryError
+	}
+	return ""
+}
+
+// EventConsolidatedInsuranceBalanceChanged records a market draw or repayment.
+type EventConsolidatedInsuranceBalanceChanged struct {
+	MarketId  string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	PoolDenom string `protobuf:"bytes,2,opt,name=pool_denom,json=poolDenom,proto3" json:"pool_denom,omitempty"`
+	// amount is the applied balance change and is retained for compatibility.
+	Amount                  types.Coin `protobuf:"bytes,3,opt,name=amount,proto3" json:"amount"`
+	IsDraw                  bool       `protobuf:"varint,4,opt,name=is_draw,json=isDraw,proto3" json:"is_draw,omitempty"`
+	RequestedAmount         types.Coin `protobuf:"bytes,5,opt,name=requested_amount,json=requestedAmount,proto3" json:"requested_amount"`
+	PaidAmount              types.Coin `protobuf:"bytes,6,opt,name=paid_amount,json=paidAmount,proto3" json:"paid_amount"`
+	UnpaidAmount            types.Coin `protobuf:"bytes,7,opt,name=unpaid_amount,json=unpaidAmount,proto3" json:"unpaid_amount"`
+	RemainingPoolBalance    types.Coin `protobuf:"bytes,8,opt,name=remaining_pool_balance,json=remainingPoolBalance,proto3" json:"remaining_pool_balance"`
+	RemainingMarketCapacity types.Coin `protobuf:"bytes,9,opt,name=remaining_market_capacity,json=remainingMarketCapacity,proto3" json:"remaining_market_capacity"`
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) Reset() {
+	*m = EventConsolidatedInsuranceBalanceChanged{}
+}
+func (m *EventConsolidatedInsuranceBalanceChanged) String() string { return proto.CompactTextString(m) }
+func (*EventConsolidatedInsuranceBalanceChanged) ProtoMessage()    {}
+func (*EventConsolidatedInsuranceBalanceChanged) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{15}
+}
+func (m *EventConsolidatedInsuranceBalanceChanged) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedInsuranceBalanceChanged) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedInsuranceBalanceChanged.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedInsuranceBalanceChanged) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedInsuranceBalanceChanged.Merge(m, src)
+}
+func (m *EventConsolidatedInsuranceBalanceChanged) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedInsuranceBalanceChanged) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedInsuranceBalanceChanged.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedInsuranceBalanceChanged proto.InternalMessageInfo
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetPoolDenom() string {
+	if m != nil {
+		return m.PoolDenom
+	}
+	return ""
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetAmount() types.Coin {
+	if m != nil {
+		return m.Amount
+	}
+	return types.Coin{}
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetIsDraw() bool {
+	if m != nil {
+		return m.IsDraw
+	}
+	return false
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetRequestedAmount() types.Coin {
+	if m != nil {
+		return m.RequestedAmount
+	}
+	return types.Coin{}
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetPaidAmount() types.Coin {
+	if m != nil {
+		return m.PaidAmount
+	}
+	return types.Coin{}
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetUnpaidAmount() types.Coin {
+	if m != nil {
+		return m.UnpaidAmount
+	}
+	return types.Coin{}
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetRemainingPoolBalance() types.Coin {
+	if m != nil {
+		return m.RemainingPoolBalance
+	}
+	return types.Coin{}
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) GetRemainingMarketCapacity() types.Coin {
+	if m != nil {
+		return m.RemainingMarketCapacity
+	}
+	return types.Coin{}
+}
+
+// EventConsolidatedReservationReallocated records deposited quote collateral
+// moving into the same cross position's margin, without an insurance payment.
+type EventConsolidatedReservationReallocated struct {
+	MarketId     string `protobuf:"bytes,1,opt,name=market_id,json=marketId,proto3" json:"market_id,omitempty"`
+	SubaccountId string `protobuf:"bytes,2,opt,name=subaccount_id,json=subaccountId,proto3" json:"subaccount_id,omitempty"`
+	QuoteDenom   string `protobuf:"bytes,3,opt,name=quote_denom,json=quoteDenom,proto3" json:"quote_denom,omitempty"`
+	// Exact quote amount moved, in chain units.
+	Amount cosmossdk_io_math.LegacyDec `protobuf:"bytes,4,opt,name=amount,proto3,customtype=cosmossdk.io/math.LegacyDec" json:"amount"`
+}
+
+func (m *EventConsolidatedReservationReallocated) Reset() {
+	*m = EventConsolidatedReservationReallocated{}
+}
+func (m *EventConsolidatedReservationReallocated) String() string { return proto.CompactTextString(m) }
+func (*EventConsolidatedReservationReallocated) ProtoMessage()    {}
+func (*EventConsolidatedReservationReallocated) Descriptor() ([]byte, []int) {
+	return fileDescriptor_238c43c591e30770, []int{16}
+}
+func (m *EventConsolidatedReservationReallocated) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *EventConsolidatedReservationReallocated) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_EventConsolidatedReservationReallocated.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *EventConsolidatedReservationReallocated) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EventConsolidatedReservationReallocated.Merge(m, src)
+}
+func (m *EventConsolidatedReservationReallocated) XXX_Size() int {
+	return m.Size()
+}
+func (m *EventConsolidatedReservationReallocated) XXX_DiscardUnknown() {
+	xxx_messageInfo_EventConsolidatedReservationReallocated.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_EventConsolidatedReservationReallocated proto.InternalMessageInfo
+
+func (m *EventConsolidatedReservationReallocated) GetMarketId() string {
+	if m != nil {
+		return m.MarketId
+	}
+	return ""
+}
+
+func (m *EventConsolidatedReservationReallocated) GetSubaccountId() string {
+	if m != nil {
+		return m.SubaccountId
+	}
+	return ""
+}
+
+func (m *EventConsolidatedReservationReallocated) GetQuoteDenom() string {
+	if m != nil {
+		return m.QuoteDenom
+	}
+	return ""
+}
+
 func init() {
 	proto.RegisterType((*EventInsuranceFundUpdate)(nil), "injective.insurance.v1beta1.EventInsuranceFundUpdate")
 	proto.RegisterType((*EventRequestRedemption)(nil), "injective.insurance.v1beta1.EventRequestRedemption")
@@ -408,6 +1020,16 @@ func init() {
 	proto.RegisterType((*EventUnderwrite)(nil), "injective.insurance.v1beta1.EventUnderwrite")
 	proto.RegisterType((*EventInsuranceWithdraw)(nil), "injective.insurance.v1beta1.EventInsuranceWithdraw")
 	proto.RegisterType((*EventSetVoucher)(nil), "injective.insurance.v1beta1.EventSetVoucher")
+	proto.RegisterType((*EventConsolidatedInsurancePoolCreated)(nil), "injective.insurance.v1beta1.EventConsolidatedInsurancePoolCreated")
+	proto.RegisterType((*EventConsolidatedInsurancePoolPauseChanged)(nil), "injective.insurance.v1beta1.EventConsolidatedInsurancePoolPauseChanged")
+	proto.RegisterType((*EventConsolidatedInsuranceMarketEnrolled)(nil), "injective.insurance.v1beta1.EventConsolidatedInsuranceMarketEnrolled")
+	proto.RegisterType((*EventConsolidatedInsurancePolicyUpdated)(nil), "injective.insurance.v1beta1.EventConsolidatedInsurancePolicyUpdated")
+	proto.RegisterType((*EventConsolidatedInsuranceUnderwrite)(nil), "injective.insurance.v1beta1.EventConsolidatedInsuranceUnderwrite")
+	proto.RegisterType((*EventConsolidatedInsuranceRedemptionRequested)(nil), "injective.insurance.v1beta1.EventConsolidatedInsuranceRedemptionRequested")
+	proto.RegisterType((*EventConsolidatedInsuranceRedemptionProcessed)(nil), "injective.insurance.v1beta1.EventConsolidatedInsuranceRedemptionProcessed")
+	proto.RegisterType((*EventConsolidatedInsuranceRedemptionRetry)(nil), "injective.insurance.v1beta1.EventConsolidatedInsuranceRedemptionRetry")
+	proto.RegisterType((*EventConsolidatedInsuranceBalanceChanged)(nil), "injective.insurance.v1beta1.EventConsolidatedInsuranceBalanceChanged")
+	proto.RegisterType((*EventConsolidatedReservationReallocated)(nil), "injective.insurance.v1beta1.EventConsolidatedReservationReallocated")
 }
 
 func init() {
@@ -415,42 +1037,73 @@ func init() {
 }
 
 var fileDescriptor_238c43c591e30770 = []byte{
-	// 554 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4f, 0x6f, 0xd3, 0x3c,
-	0x18, 0x6f, 0xde, 0xb7, 0xda, 0x56, 0x77, 0x08, 0xc9, 0x42, 0x50, 0x3a, 0x91, 0x8d, 0x70, 0x60,
-	0x02, 0x2d, 0xd6, 0xe0, 0x80, 0xb8, 0x00, 0x1a, 0xda, 0xa4, 0x0a, 0x24, 0xa4, 0x8c, 0x81, 0xb4,
-	0x4b, 0xe5, 0xc6, 0x0f, 0x8d, 0x69, 0x63, 0x17, 0xdb, 0x69, 0xc5, 0x67, 0xe0, 0x00, 0x77, 0xbe,
-	0x00, 0xdf, 0x83, 0xcb, 0x8e, 0x3b, 0x22, 0x0e, 0x13, 0x6a, 0xbf, 0x08, 0x8a, 0xe3, 0xa4, 0xe5,
-	0x40, 0xe9, 0x01, 0x4e, 0x89, 0x1f, 0x3f, 0xbf, 0x3f, 0xfe, 0xf9, 0x91, 0xd1, 0x2e, 0x17, 0x6f,
-	0x21, 0x36, 0x7c, 0x0c, 0x84, 0x0b, 0x9d, 0x29, 0x2a, 0x62, 0x20, 0xe3, 0xfd, 0x1e, 0x18, 0xba,
-	0x4f, 0x60, 0x0c, 0xc2, 0xe8, 0x70, 0xa4, 0xa4, 0x91, 0x78, 0xab, 0xea, 0x0c, 0xab, 0xce, 0xd0,
-	0x75, 0xb6, 0xaf, 0xf4, 0x65, 0x5f, 0xda, 0x3e, 0x92, 0xff, 0x15, 0x90, 0xb6, 0x1f, 0x4b, 0x9d,
-	0x4a, 0x4d, 0x7a, 0x54, 0xcf, 0x49, 0x63, 0xc9, 0x85, 0xdb, 0xbf, 0xbb, 0x4c, 0x7c, 0x2e, 0x62,
-	0x9b, 0x83, 0x53, 0xd4, 0x3a, 0xcc, 0xfd, 0x74, 0xca, 0xfa, 0x51, 0x26, 0xd8, 0xc9, 0x88, 0x51,
-	0x03, 0xf8, 0x11, 0xaa, 0xbf, 0xc9, 0x04, 0x6b, 0x79, 0x3b, 0xde, 0x6e, 0xf3, 0xde, 0x9d, 0x70,
-	0x89, 0xd5, 0xf0, 0x17, 0x7c, 0x64, 0x71, 0x01, 0xa0, 0xab, 0x96, 0x3b, 0x82, 0x77, 0x19, 0x68,
-	0x13, 0x01, 0x83, 0x74, 0x64, 0xb8, 0x14, 0xf8, 0x19, 0xda, 0xd0, 0x71, 0x02, 0x2c, 0x1b, 0x82,
-	0x63, 0x27, 0x4b, 0xd9, 0xe7, 0xd0, 0x63, 0x07, 0x8b, 0x2a, 0x82, 0xe0, 0x8b, 0x87, 0xae, 0x59,
-	0x9d, 0xd7, 0xdc, 0x24, 0x4c, 0xd1, 0xc9, 0x3f, 0x12, 0xc2, 0x4f, 0x50, 0x53, 0x01, 0x03, 0x48,
-	0xbb, 0x79, 0xda, 0xad, 0xff, 0x2c, 0xdf, 0xf5, 0xb0, 0xb8, 0x8e, 0x30, 0xbf, 0x8e, 0x8a, 0xe7,
-	0xa9, 0xe4, 0xe2, 0xa0, 0x7e, 0x76, 0xb1, 0x5d, 0x8b, 0x50, 0x81, 0xc9, 0x2b, 0xc1, 0x47, 0x0f,
-	0xdd, 0xf8, 0x8d, 0xd5, 0x23, 0xca, 0x87, 0xc0, 0xfe, 0xae, 0xe1, 0x9b, 0x68, 0x73, 0xe2, 0x84,
-	0xba, 0xa0, 0x94, 0x75, 0xdc, 0x88, 0x9a, 0x65, 0xed, 0x50, 0xa9, 0xe0, 0xab, 0x87, 0x2e, 0x5b,
-	0x47, 0x27, 0x82, 0x81, 0x9a, 0x28, 0x6e, 0x00, 0xef, 0xa0, 0x66, 0x56, 0xad, 0x94, 0xb5, 0xd1,
-	0x88, 0x16, 0x4b, 0xb8, 0x8d, 0x36, 0x52, 0xaa, 0x06, 0x60, 0x3a, 0xcc, 0x91, 0x56, 0x6b, 0xfc,
-	0x10, 0xad, 0x33, 0x18, 0x49, 0xcd, 0x4d, 0xeb, 0xff, 0xd5, 0x12, 0x2a, 0xfb, 0xf1, 0x03, 0xb4,
-	0xa6, 0x13, 0xaa, 0x40, 0xb7, 0xea, 0xab, 0x21, 0x5d, 0x7b, 0xf0, 0xd9, 0x73, 0xa3, 0x56, 0x8d,
-	0x61, 0x19, 0x30, 0xde, 0x42, 0x8d, 0xc2, 0x5a, 0x97, 0x33, 0x77, 0x94, 0xb9, 0xd7, 0x5b, 0xe8,
-	0x92, 0xdb, 0x34, 0x3c, 0x1e, 0x40, 0x99, 0xd0, 0x66, 0x51, 0x7c, 0x69, 0x6b, 0xf8, 0x31, 0x42,
-	0x65, 0x62, 0x74, 0xb8, 0xea, 0x99, 0x16, 0x20, 0xc1, 0x87, 0x32, 0xe3, 0x63, 0x30, 0xaf, 0x64,
-	0x16, 0x27, 0xa0, 0x30, 0x46, 0x75, 0xca, 0x58, 0x19, 0xae, 0xfd, 0xc7, 0x0c, 0xad, 0x8f, 0x8b,
-	0xed, 0x3f, 0xcf, 0x16, 0xc9, 0x55, 0xbe, 0x5f, 0x6c, 0xdf, 0xee, 0x73, 0x93, 0x64, 0xbd, 0x30,
-	0x96, 0x29, 0x71, 0xef, 0x42, 0xf1, 0xd9, 0xd3, 0x6c, 0x40, 0xcc, 0xfb, 0x11, 0x68, 0x0b, 0x88,
-	0x4a, 0xea, 0x03, 0x7e, 0x36, 0xf5, 0xbd, 0xf3, 0xa9, 0xef, 0xfd, 0x98, 0xfa, 0xde, 0xa7, 0x99,
-	0x5f, 0x3b, 0x9f, 0xf9, 0xb5, 0x6f, 0x33, 0xbf, 0x76, 0xfa, 0x62, 0x81, 0xab, 0x53, 0xce, 0xdc,
-	0x73, 0xda, 0xd3, 0xa4, 0x9a, 0xc0, 0xbd, 0x58, 0x2a, 0x58, 0x5c, 0x26, 0x94, 0x0b, 0x92, 0xca,
-	0x7c, 0xdc, 0xf4, 0xc2, 0x73, 0x63, 0x85, 0x7b, 0x6b, 0xf6, 0x8d, 0xb9, 0xff, 0x33, 0x00, 0x00,
-	0xff, 0xff, 0x75, 0x1e, 0x65, 0x98, 0x0f, 0x05, 0x00, 0x00,
+	// 1054 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x57, 0xcd, 0x6e, 0x1c, 0xc5,
+	0x13, 0xf7, 0xc4, 0xfb, 0x5f, 0xef, 0x96, 0x9d, 0xbf, 0xd1, 0x28, 0xb2, 0x37, 0xb6, 0xb2, 0x0e,
+	0x13, 0x90, 0x4d, 0x90, 0x77, 0x14, 0x90, 0x08, 0x28, 0x12, 0x04, 0x7f, 0x44, 0x32, 0x04, 0x61,
+	0x4d, 0x70, 0x90, 0x82, 0xd0, 0xaa, 0x77, 0xba, 0xd8, 0x6d, 0x3c, 0x3b, 0x3d, 0xe9, 0xee, 0xb1,
+	0xb5, 0x47, 0xb8, 0x22, 0x01, 0x77, 0x5e, 0x00, 0x89, 0x57, 0xe0, 0x80, 0xc4, 0x25, 0xdc, 0x72,
+	0x44, 0x1c, 0x22, 0x64, 0xbf, 0x00, 0x8f, 0x80, 0xfa, 0x63, 0x66, 0x17, 0x05, 0x6f, 0x26, 0x11,
+	0x3e, 0xed, 0x4e, 0x4d, 0xd5, 0xaf, 0xaa, 0xab, 0x7e, 0x55, 0xd5, 0x03, 0x1b, 0x2c, 0xfd, 0x12,
+	0x63, 0xc5, 0x8e, 0x30, 0x64, 0xa9, 0xcc, 0x05, 0x49, 0x63, 0x0c, 0x8f, 0x6e, 0xf4, 0x50, 0x91,
+	0x1b, 0x21, 0x1e, 0x61, 0xaa, 0x64, 0x27, 0x13, 0x5c, 0x71, 0x7f, 0xb5, 0xd4, 0xec, 0x94, 0x9a,
+	0x1d, 0xa7, 0xb9, 0x72, 0xa9, 0xcf, 0xfb, 0xdc, 0xe8, 0x85, 0xfa, 0x9f, 0x35, 0x59, 0x69, 0xc7,
+	0x5c, 0x0e, 0xb9, 0x0c, 0x7b, 0x44, 0x8e, 0x41, 0x63, 0xce, 0x52, 0xf7, 0xfe, 0xf5, 0x69, 0xce,
+	0xc7, 0x4e, 0x8c, 0x72, 0xf0, 0x00, 0x5a, 0xbb, 0x3a, 0x9e, 0xbd, 0x42, 0x7e, 0x27, 0x4f, 0xe9,
+	0x41, 0x46, 0x89, 0x42, 0xff, 0x5d, 0xa8, 0x7d, 0x91, 0xa7, 0xb4, 0xe5, 0x5d, 0xf5, 0x36, 0xe6,
+	0xdf, 0xb8, 0xde, 0x99, 0x12, 0x6a, 0xe7, 0x1f, 0xf6, 0x91, 0xb1, 0x0b, 0x10, 0x96, 0x0c, 0x76,
+	0x84, 0x0f, 0x73, 0x94, 0x2a, 0x42, 0x8a, 0xc3, 0x4c, 0x31, 0x9e, 0xfa, 0x1f, 0x42, 0x43, 0xc6,
+	0x03, 0xa4, 0x79, 0x82, 0x0e, 0x3d, 0x9c, 0x8a, 0x3e, 0x36, 0xbd, 0xe7, 0xcc, 0xa2, 0x12, 0x20,
+	0xf8, 0xd1, 0x83, 0x65, 0xe3, 0xe7, 0x53, 0xa6, 0x06, 0x54, 0x90, 0xe3, 0x73, 0x72, 0xe4, 0xdf,
+	0x86, 0x79, 0x81, 0x14, 0x71, 0xd8, 0xd5, 0xd9, 0x6e, 0x5d, 0x30, 0x78, 0x97, 0x3b, 0xb6, 0x1c,
+	0x1d, 0x5d, 0x8e, 0x12, 0x67, 0x9b, 0xb3, 0x74, 0xab, 0xf6, 0xe8, 0xc9, 0xda, 0x4c, 0x04, 0xd6,
+	0x46, 0x4b, 0x82, 0xef, 0x3c, 0xb8, 0x72, 0x46, 0xa8, 0x77, 0x08, 0x4b, 0x90, 0xfe, 0xb7, 0x01,
+	0xbf, 0x0c, 0x0b, 0xc7, 0xce, 0x51, 0x17, 0x85, 0x30, 0x11, 0x37, 0xa3, 0xf9, 0x42, 0xb6, 0x2b,
+	0x44, 0xf0, 0xab, 0x07, 0x8b, 0x26, 0xa2, 0x83, 0x94, 0xa2, 0x38, 0x16, 0x4c, 0xa1, 0x7f, 0x15,
+	0xe6, 0xf3, 0xf2, 0x49, 0x98, 0x30, 0x9a, 0xd1, 0xa4, 0xc8, 0x5f, 0x81, 0xc6, 0x90, 0x88, 0x43,
+	0x54, 0x7b, 0xd4, 0x81, 0x96, 0xcf, 0xfe, 0x3b, 0x30, 0x47, 0x31, 0xe3, 0x92, 0xa9, 0xd6, 0x6c,
+	0xb5, 0x0c, 0x15, 0xfa, 0xfe, 0x4d, 0xa8, 0xcb, 0x01, 0x11, 0x28, 0x5b, 0xb5, 0x6a, 0x96, 0x4e,
+	0x3d, 0xf8, 0xc1, 0x73, 0x54, 0x2b, 0x69, 0x58, 0x24, 0xd8, 0x5f, 0x85, 0xa6, 0x0d, 0xad, 0xcb,
+	0xa8, 0x3b, 0xca, 0x38, 0xd6, 0x6b, 0x70, 0xd1, 0xbd, 0x54, 0x2c, 0x3e, 0xc4, 0x22, 0x43, 0x0b,
+	0x56, 0xf8, 0x89, 0x91, 0xf9, 0xef, 0x01, 0x14, 0x19, 0x23, 0x49, 0xd5, 0x33, 0x4d, 0x98, 0x04,
+	0xdf, 0x14, 0x39, 0xbe, 0x87, 0xea, 0x3e, 0xcf, 0xe3, 0x01, 0x0a, 0xdf, 0x87, 0x1a, 0xa1, 0xb4,
+	0x48, 0xae, 0xf9, 0xef, 0x53, 0x98, 0x3b, 0xb2, 0xaf, 0x9f, 0xcd, 0xad, 0x50, 0x7b, 0xf9, 0xe3,
+	0xc9, 0xda, 0x7a, 0x9f, 0xa9, 0x41, 0xde, 0xeb, 0xc4, 0x7c, 0x18, 0xba, 0xb9, 0x60, 0x7f, 0x36,
+	0x25, 0x3d, 0x0c, 0xd5, 0x28, 0x43, 0x69, 0x0c, 0xa2, 0x02, 0x3a, 0x18, 0xc1, 0xab, 0x26, 0x98,
+	0x6d, 0x9e, 0x4a, 0x9e, 0x30, 0xdd, 0xe9, 0xb4, 0x4c, 0xdb, 0x3e, 0xe7, 0xc9, 0xb6, 0x40, 0x2d,
+	0xf3, 0xf7, 0xa1, 0x96, 0x71, 0x9e, 0x38, 0x1a, 0xbe, 0x35, 0x95, 0x86, 0x67, 0x82, 0xb9, 0x74,
+	0x18, 0xa4, 0x80, 0xc1, 0xf5, 0xe9, 0xae, 0xf7, 0x49, 0x2e, 0x71, 0x7b, 0x40, 0xd2, 0x3e, 0x9a,
+	0xe2, 0x38, 0x62, 0x74, 0x29, 0xa6, 0x7c, 0xe8, 0x72, 0xb5, 0xe0, 0x84, 0x3b, 0x5a, 0xe6, 0x2f,
+	0x41, 0x3d, 0xd3, 0x46, 0x96, 0x87, 0x8d, 0xc8, 0x3d, 0x05, 0x5f, 0x7b, 0xb0, 0x71, 0xb6, 0xaf,
+	0x8f, 0x4c, 0x7d, 0x77, 0x53, 0xc1, 0x13, 0xdd, 0x74, 0xf7, 0xa1, 0x9e, 0xf1, 0x84, 0xc5, 0x23,
+	0x77, 0xd6, 0xb7, 0x5f, 0xe4, 0xac, 0xda, 0xbe, 0xa0, 0xa5, 0x45, 0x0b, 0xbe, 0xf2, 0x60, 0x7d,
+	0xda, 0x81, 0xb5, 0x92, 0x9d, 0xb5, 0xe7, 0x17, 0xc3, 0xcf, 0x1e, 0xbc, 0x72, 0x76, 0x0c, 0xcf,
+	0xd5, 0xf5, 0x13, 0x9d, 0x7d, 0xe1, 0x85, 0x3b, 0x7b, 0xf6, 0xf9, 0x3a, 0xfb, 0x5b, 0x0f, 0x36,
+	0xcf, 0x0e, 0x7f, 0x3c, 0xfd, 0xdc, 0x8e, 0x41, 0xea, 0x7f, 0xfe, 0xd4, 0x04, 0xbd, 0x55, 0x39,
+	0x95, 0x4f, 0x4f, 0x53, 0x17, 0xce, 0x78, 0xdb, 0xfc, 0x55, 0x31, 0xa0, 0x7d, 0xc1, 0x63, 0x94,
+	0xf2, 0xdc, 0x03, 0xd2, 0xa9, 0xcd, 0xc8, 0x88, 0xe7, 0x95, 0x8b, 0xe2, 0xd4, 0xfd, 0x75, 0x58,
+	0x74, 0x33, 0xa1, 0x1b, 0xdb, 0x96, 0x37, 0xc5, 0x69, 0x44, 0xff, 0x77, 0x62, 0x37, 0x08, 0x82,
+	0x9f, 0x3c, 0x78, 0xad, 0x5a, 0x0d, 0x94, 0x18, 0x9d, 0xf7, 0x71, 0xd7, 0xf4, 0x12, 0x56, 0x62,
+	0xa4, 0x17, 0x1a, 0x2f, 0x06, 0x36, 0x18, 0xd1, 0xae, 0x96, 0x04, 0xbf, 0xd4, 0xa6, 0x75, 0xfe,
+	0x16, 0x49, 0xf4, 0x4f, 0x31, 0x63, 0xa6, 0x6e, 0x87, 0x2b, 0x00, 0x7a, 0x6c, 0xb9, 0xe9, 0x63,
+	0x3d, 0x35, 0xb5, 0xc4, 0x8e, 0x9e, 0x9b, 0x50, 0x27, 0x43, 0x9e, 0xa7, 0x95, 0xf7, 0x9c, 0x53,
+	0xf7, 0x97, 0x61, 0x8e, 0xc9, 0xae, 0x5e, 0x0e, 0x66, 0xcf, 0x35, 0xa2, 0x3a, 0x93, 0x3b, 0x7a,
+	0x57, 0x7d, 0x00, 0x2f, 0x89, 0x82, 0xc7, 0x5d, 0x87, 0xfd, 0xbf, 0x6a, 0xd8, 0x8b, 0xa5, 0xe1,
+	0xfb, 0xd6, 0xc9, 0x6d, 0x98, 0xcf, 0x08, 0x2b, 0x61, 0xea, 0x15, 0xd7, 0x96, 0xb6, 0x71, 0x08,
+	0x3b, 0x70, 0x31, 0x4f, 0x27, 0x31, 0xe6, 0xaa, 0x61, 0x2c, 0x58, 0x2b, 0x87, 0x72, 0x00, 0x4b,
+	0x02, 0x87, 0x84, 0xa5, 0x2c, 0xed, 0x77, 0x4d, 0x3a, 0x7b, 0xb6, 0x04, 0xad, 0x46, 0x35, 0xb8,
+	0x4b, 0xa5, 0xb9, 0xd9, 0x27, 0xd6, 0xd8, 0xff, 0x0c, 0x2e, 0x8f, 0x61, 0x5d, 0x09, 0x63, 0x92,
+	0x91, 0x98, 0xa9, 0x51, 0xab, 0x59, 0x0d, 0x79, 0xb9, 0x44, 0xb0, 0xfb, 0x60, 0xdb, 0xd9, 0x07,
+	0xbf, 0xfd, 0xdb, 0xdc, 0x8e, 0x50, 0xa2, 0x38, 0x22, 0x96, 0xe8, 0x24, 0x49, 0x78, 0x6c, 0xe6,
+	0xf6, 0xb3, 0xee, 0x17, 0x32, 0xef, 0x91, 0x38, 0xd6, 0xa9, 0xd0, 0x0a, 0xee, 0x7e, 0x31, 0x16,
+	0xee, 0x51, 0xcd, 0xe8, 0x87, 0x39, 0x57, 0xe8, 0x78, 0x36, 0x6b, 0x19, 0x6d, 0x44, 0x96, 0x68,
+	0xb7, 0x4a, 0xa2, 0x69, 0xba, 0x34, 0xb7, 0xae, 0xb9, 0xdd, 0xbf, 0x6a, 0xcf, 0x27, 0xe9, 0x61,
+	0x87, 0xf1, 0x70, 0x48, 0xd4, 0xa0, 0x73, 0x17, 0xfb, 0x24, 0x1e, 0xed, 0x60, 0x5c, 0x90, 0x6d,
+	0x8b, 0x3d, 0x3a, 0x69, 0x7b, 0x8f, 0x4f, 0xda, 0xde, 0x9f, 0x27, 0x6d, 0xef, 0xfb, 0xd3, 0xf6,
+	0xcc, 0xe3, 0xd3, 0xf6, 0xcc, 0xef, 0xa7, 0xed, 0x99, 0x07, 0x1f, 0x4f, 0x5c, 0x1d, 0xf6, 0x8a,
+	0x06, 0xbd, 0x4b, 0x7a, 0x32, 0x2c, 0xdb, 0x75, 0x33, 0xe6, 0x02, 0x27, 0x1f, 0x07, 0x84, 0xa5,
+	0xe1, 0x90, 0xeb, 0x4e, 0x94, 0x13, 0x5f, 0x17, 0xe6, 0x9e, 0xd1, 0xab, 0x9b, 0x4f, 0x8a, 0x37,
+	0xff, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x0e, 0x9b, 0x89, 0x8e, 0xfe, 0x0c, 0x00, 0x00,
 }
 
 func (m *EventInsuranceFundUpdate) Marshal() (dAtA []byte, err error) {
@@ -754,6 +1407,482 @@ func (m *EventSetVoucher) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *EventConsolidatedInsurancePoolCreated) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsurancePoolCreated) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsurancePoolCreated) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Pool.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedInsurancePoolPauseChanged) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsurancePoolPauseChanged) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsurancePoolPauseChanged) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Paused {
+		i--
+		if m.Paused {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.DepositDenom) > 0 {
+		i -= len(m.DepositDenom)
+		copy(dAtA[i:], m.DepositDenom)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.DepositDenom)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedInsuranceMarketEnrolled) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsuranceMarketEnrolled) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsuranceMarketEnrolled) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Policy.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedInsurancePolicyUpdated) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsurancePolicyUpdated) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsurancePolicyUpdated) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Policy.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedInsuranceUnderwrite) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsuranceUnderwrite) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsuranceUnderwrite) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Shares.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	{
+		size, err := m.Deposit.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.Underwriter) > 0 {
+		i -= len(m.Underwriter)
+		copy(dAtA[i:], m.Underwriter)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.Underwriter)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRequested) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRequested) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRequested) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Schedule.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedInsuranceRedemptionProcessed) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsuranceRedemptionProcessed) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsuranceRedemptionProcessed) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.VoucherCreated {
+		i--
+		if m.VoucherCreated {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x18
+	}
+	{
+		size, err := m.Payout.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.Schedule.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRetry) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRetry) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRetry) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.RetryError) > 0 {
+		i -= len(m.RetryError)
+		copy(dAtA[i:], m.RetryError)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.RetryError)))
+		i--
+		dAtA[i] = 0x12
+	}
+	{
+		size, err := m.Schedule.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.RemainingMarketCapacity.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x4a
+	{
+		size, err := m.RemainingPoolBalance.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x42
+	{
+		size, err := m.UnpaidAmount.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x3a
+	{
+		size, err := m.PaidAmount.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x32
+	{
+		size, err := m.RequestedAmount.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x2a
+	if m.IsDraw {
+		i--
+		if m.IsDraw {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x20
+	}
+	{
+		size, err := m.Amount.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if len(m.PoolDenom) > 0 {
+		i -= len(m.PoolDenom)
+		copy(dAtA[i:], m.PoolDenom)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.PoolDenom)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *EventConsolidatedReservationReallocated) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *EventConsolidatedReservationReallocated) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EventConsolidatedReservationReallocated) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.Amount.Size()
+		i -= size
+		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintEvents(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x22
+	if len(m.QuoteDenom) > 0 {
+		i -= len(m.QuoteDenom)
+		copy(dAtA[i:], m.QuoteDenom)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.QuoteDenom)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.SubaccountId) > 0 {
+		i -= len(m.SubaccountId)
+		copy(dAtA[i:], m.SubaccountId)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.SubaccountId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.MarketId) > 0 {
+		i -= len(m.MarketId)
+		copy(dAtA[i:], m.MarketId)
+		i = encodeVarintEvents(dAtA, i, uint64(len(m.MarketId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintEvents(dAtA []byte, offset int, v uint64) int {
 	offset -= sovEvents(v)
 	base := offset
@@ -874,6 +2003,169 @@ func (m *EventSetVoucher) Size() (n int) {
 		n += 1 + l + sovEvents(uint64(l))
 	}
 	l = m.Voucher.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	return n
+}
+
+func (m *EventConsolidatedInsurancePoolCreated) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Pool.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	return n
+}
+
+func (m *EventConsolidatedInsurancePoolPauseChanged) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.DepositDenom)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	if m.Paused {
+		n += 2
+	}
+	return n
+}
+
+func (m *EventConsolidatedInsuranceMarketEnrolled) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Policy.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	return n
+}
+
+func (m *EventConsolidatedInsurancePolicyUpdated) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Policy.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	return n
+}
+
+func (m *EventConsolidatedInsuranceUnderwrite) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Underwriter)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = m.Deposit.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.Shares.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	return n
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRequested) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Schedule.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	return n
+}
+
+func (m *EventConsolidatedInsuranceRedemptionProcessed) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Schedule.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.Payout.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	if m.VoucherCreated {
+		n += 2
+	}
+	return n
+}
+
+func (m *EventConsolidatedInsuranceRedemptionRetry) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Schedule.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = len(m.RetryError)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	return n
+}
+
+func (m *EventConsolidatedInsuranceBalanceChanged) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.PoolDenom)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = m.Amount.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	if m.IsDraw {
+		n += 2
+	}
+	l = m.RequestedAmount.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.PaidAmount.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.UnpaidAmount.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.RemainingPoolBalance.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	l = m.RemainingMarketCapacity.Size()
+	n += 1 + l + sovEvents(uint64(l))
+	return n
+}
+
+func (m *EventConsolidatedReservationReallocated) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.MarketId)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.SubaccountId)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = len(m.QuoteDenom)
+	if l > 0 {
+		n += 1 + l + sovEvents(uint64(l))
+	}
+	l = m.Amount.Size()
 	n += 1 + l + sovEvents(uint64(l))
 	return n
 }
@@ -1711,6 +3003,1351 @@ func (m *EventSetVoucher) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Voucher.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsurancePoolCreated) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsurancePoolCreated: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsurancePoolCreated: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pool", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Pool.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsurancePoolPauseChanged) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsurancePoolPauseChanged: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsurancePoolPauseChanged: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DepositDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DepositDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Paused", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Paused = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsuranceMarketEnrolled) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceMarketEnrolled: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceMarketEnrolled: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Policy", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Policy.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsurancePolicyUpdated) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsurancePolicyUpdated: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsurancePolicyUpdated: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Policy", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Policy.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsuranceUnderwrite) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceUnderwrite: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceUnderwrite: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Underwriter", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Underwriter = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Deposit", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Deposit.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Shares", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Shares.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsuranceRedemptionRequested) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceRedemptionRequested: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceRedemptionRequested: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedule", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Schedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsuranceRedemptionProcessed) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceRedemptionProcessed: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceRedemptionProcessed: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedule", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Schedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Payout", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Payout.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field VoucherCreated", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.VoucherCreated = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsuranceRedemptionRetry) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceRedemptionRetry: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceRedemptionRetry: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Schedule", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Schedule.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RetryError", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RetryError = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedInsuranceBalanceChanged) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceBalanceChanged: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedInsuranceBalanceChanged: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PoolDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IsDraw", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.IsDraw = bool(v != 0)
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RequestedAmount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.RequestedAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PaidAmount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.PaidAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UnpaidAmount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.UnpaidAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RemainingPoolBalance", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.RemainingPoolBalance.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RemainingMarketCapacity", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.RemainingMarketCapacity.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipEvents(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *EventConsolidatedReservationReallocated) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowEvents
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EventConsolidatedReservationReallocated: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EventConsolidatedReservationReallocated: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MarketId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MarketId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SubaccountId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SubaccountId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field QuoteDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.QuoteDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowEvents
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthEvents
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthEvents
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

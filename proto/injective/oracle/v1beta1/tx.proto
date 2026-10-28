@@ -18,21 +18,6 @@ service Msg {
   rpc RelayProviderPrices(MsgRelayProviderPrices)
       returns (MsgRelayProviderPricesResponse);
 
-  // RelayPriceFeedPrice defines a method for relaying a price for a price
-  // feeder-based oracle
-  rpc RelayPriceFeedPrice(MsgRelayPriceFeedPrice)
-      returns (MsgRelayPriceFeedPriceResponse);
-
-  // RelayCoinbaseMessages defines a method for relaying price messages from
-  // Coinbase API
-  rpc RelayCoinbaseMessages(MsgRelayCoinbaseMessages)
-      returns (MsgRelayCoinbaseMessagesResponse);
-
-  // RelayStorkMessage defines a method for relaying price message from
-  // Stork API
-  rpc RelayStorkMessage(MsgRelayStorkPrices)
-      returns (MsgRelayStorkPricesResponse);
-
   // RelayPythPrices defines a method for relaying rates from the Pyth contract
   rpc RelayPythPrices(MsgRelayPythPrices) returns (MsgRelayPythPricesResponse);
 
@@ -79,6 +64,7 @@ message MsgRelayProviderPricesResponse {}
 // MsgRelayPriceFeedPrice defines a SDK message for setting a price through the
 // pricefeed oracle.
 message MsgRelayPriceFeedPrice {
+  option deprecated = true;
   option (amino.name) = "oracle/MsgRelayPriceFeedPrice";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -96,7 +82,8 @@ message MsgRelayPriceFeedPrice {
   ];
 }
 
-message MsgRelayPriceFeedPriceResponse {}
+message MsgRelayPriceFeedPriceResponse {
+  option deprecated = true;}
 
 // Deprecated: Band oracle support was removed. This message is kept for
 // backward compatibility to decode historical transactions.
@@ -120,6 +107,7 @@ message MsgRelayBandRatesResponse { option deprecated = true; }
 // MsgRelayCoinbaseMessages defines a SDK message for relaying price messages
 // from Coinbase API.
 message MsgRelayCoinbaseMessages {
+  option deprecated = true;
   option (amino.name) = "oracle/MsgRelayCoinbaseMessages";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -131,11 +119,13 @@ message MsgRelayCoinbaseMessages {
   repeated bytes signatures = 3;
 }
 
-message MsgRelayCoinbaseMessagesResponse {}
+message MsgRelayCoinbaseMessagesResponse {
+  option deprecated = true;}
 
 // MsgRelayStorkPrices defines a SDK message for relaying price message
 // from Stork API.
 message MsgRelayStorkPrices {
+  option deprecated = true;
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -144,7 +134,8 @@ message MsgRelayStorkPrices {
   repeated AssetPair asset_pairs = 2;
 }
 
-message MsgRelayStorkPricesResponse {}
+message MsgRelayStorkPricesResponse {
+  option deprecated = true;}
 
 // Deprecated: BandIBC oracle support was removed. This message is kept for
 // backward compatibility to decode historical transactions.

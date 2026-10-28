@@ -34,43 +34,24 @@ func (ContractExecutionCompatAuthorization) NewAuthz(g []wasmtypes.ContractGrant
 
 // Accept implements Authorization.Accept.
 func (a *ContractExecutionCompatAuthorization) Accept(goCtx context.Context, msg sdk.Msg) (authztypes.AcceptResponse, error) {
-	wasmxMsg, ok := msg.(*MsgExecuteContractCompat)
+	compatMsg, ok := msg.(*MsgExecuteContractCompat)
 	if !ok {
 		return authztypes.AcceptResponse{}, sdkerrors.ErrInvalidRequest.Wrap("msg is not a MsgExecuteContractCompat")
 	}
-
-	// convert MsgExecuteContractCompat to MsgExecuteContract
-	funds := sdk.Coins{}
-	if wasmxMsg.Funds != "0" {
-		funds, _ = sdk.ParseCoinsNormalized(wasmxMsg.Funds)
+	wasmMsg, err := compatMsg.ToWasmExecuteContract()
+	if err != nil {
+		return authztypes.AcceptResponse{}, err
 	}
-
-	wasmMsg := &wasmtypes.MsgExecuteContract{
-		Sender:   wasmxMsg.Sender,
-		Contract: wasmxMsg.Contract,
-		Msg:      []byte(wasmxMsg.Msg),
-		Funds:    funds,
+	response, err := wasmtypes.NewContractExecutionAuthorization(a.Grants...).Accept(goCtx, wasmMsg)
+	if response.Updated != nil {
+		response.Updated = NewContractExecutionCompatAuthorization(response.Updated.(*wasmtypes.ContractExecutionAuthorization).Grants...)
 	}
-
-	// convert wasmx auth to wasm auth
-	wasmAuth := wasmtypes.NewContractExecutionAuthorization(a.Grants...)
-
-	// and check via converted values
-	res, err := wasmAuth.Accept(goCtx, wasmMsg)
-
-	if res.Updated != nil { // hot-patch the updated authorization type back to "Compat" version
-		res.Updated = &ContractExecutionCompatAuthorization{
-			Grants: res.Updated.(*wasmtypes.ContractExecutionAuthorization).Grants,
-		}
-	}
-
-	return res, err
+	return response, err
 }
 
 // ValidateBasic implements Authorization.ValidateBasic.
 func (a ContractExecutionCompatAuthorization) ValidateBasic() error {
-	wasmAuth := wasmtypes.NewContractExecutionAuthorization(a.Grants...)
-	return wasmAuth.ValidateBasic()
+	return wasmtypes.NewContractExecutionAuthorization(a.Grants...).ValidateBasic()
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces

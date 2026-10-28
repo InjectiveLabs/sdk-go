@@ -147,6 +147,9 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 	if msg.Raw.Transaction == nil {
 		return errorsmod.Wrapf(errortypes.ErrInvalidRequest, "raw tx is missing")
 	}
+	if msg.Raw.Type() == ethtypes.BlobTxType {
+		return errorsmod.Wrap(errortypes.ErrNotSupported, "EIP-4844 blob transactions are not supported")
+	}
 
 	// Check removed fields not exists
 	if msg.DeprecatedFrom != "" {

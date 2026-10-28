@@ -43,9 +43,6 @@ const (
 
 	MaxMarketLaunchDenomLength int = 256
 
-	// MaxHistoricalTradeRecordAge is the maximum age of trade records to track.
-	MaxHistoricalTradeRecordAge = 60 * 5
-
 	// MaxSubaccountNonceLength restricts the size of a subaccount number from 0 to 999
 	MaxSubaccountNonceLength = 3
 
@@ -58,12 +55,32 @@ const (
 
 	// MaxWhiteKnightLiquidators defines the maximum number of white knight liquidators.
 	MaxWhiteKnightLiquidators = 1024
+
+	// MaxDerivativeOrderSideCountHardLimit is the protocol ceiling for the governed
+	// maximum number of derivative orders per market side.
+	MaxDerivativeOrderSideCountHardLimit uint32 = 1000
 )
 
 var MaxBinaryOptionsOrderPrice = math.LegacyOneDec()
 
 // MaxOrderPrice equals 10^32
 var MaxOrderPrice = math.LegacyMustNewDecFromStr("100000000000000000000000000000000")
+
+// MaxForcedSettlementMarkPriceMultiple bounds how far ABOVE the prevailing mark price a forced
+// settlement price may be set.
+//
+// This is an admission-policy bound, not a proof that every downstream LegacyDec operation is
+// representable: settlement safety also depends on the market's stored positions, margins, and
+// aggregate payouts. If execution still fails, settlement recovery atomically quarantines it
+// rather than retrying it or halting the chain.
+//
+// Only an upper bound is applied. A settlement price below the mark price is both the legitimate
+// direction and the lower-risk one.
+//
+// A million times the mark price is far beyond any defensible emergency settlement. Keeping the
+// ratio deliberately loose avoids rejecting a real dislocation while excluding values that have
+// no plausible relationship to the market.
+var MaxForcedSettlementMarkPriceMultiple = math.LegacyNewDec(1_000_000)
 
 // MaxOrderMargin equals 10^32
 var MaxOrderMargin = math.LegacyMustNewDecFromStr("100000000000000000000000000000000")
@@ -588,9 +605,8 @@ func ValidateDerivativeOrderSideCount(i any) error {
 		return fmt.Errorf("DerivativeOrderSideCount must be positive: %d", v)
 	}
 
-	const maxDerivativeOrderSideCount = 1000
-	if v > maxDerivativeOrderSideCount {
-		return fmt.Errorf("DerivativeOrderSideCount must not exceed %d: %d", maxDerivativeOrderSideCount, v)
+	if v > MaxDerivativeOrderSideCountHardLimit {
+		return fmt.Errorf("DerivativeOrderSideCount must not exceed %d: %d", MaxDerivativeOrderSideCountHardLimit, v)
 	}
 
 	return nil

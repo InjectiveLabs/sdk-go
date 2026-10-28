@@ -107,7 +107,13 @@ func (a GenericExchangeAuthorization) MsgTypeURL() string {
 // in the ValidateBasic method. If we got here, it means a grant was found for
 // the incoming message type, and it would not have been created if the
 // message type was not allowed.
-func (a GenericExchangeAuthorization) Accept(ctx context.Context, _ sdk.Msg) (authz.AcceptResponse, error) {
+func (a GenericExchangeAuthorization) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
+	if batch, ok := msg.(*MsgBatchUpdateOrders); ok {
+		if len(batch.BinaryOptionsOrdersToCreate) != 0 || len(batch.BinaryOptionsOrdersToCancel) != 0 ||
+			len(batch.BinaryOptionsMarketIdsToCancelAll) != 0 || len(batch.BinaryOptionsMarketOrdersToCreate) != 0 {
+			return authz.AcceptResponse{}, errors.New("binary-options markets have been removed")
+		}
+	}
 	if noLimit := a.SpendLimit == nil; noLimit {
 		return authz.AcceptResponse{Accept: true, Updated: NewGenericExchangeAuthorization(a.Msg, nil)}, nil
 	}

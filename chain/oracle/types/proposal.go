@@ -1,13 +1,11 @@
 package types
 
 import (
-	"fmt"
 	"strings"
 
+	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // constants
@@ -74,16 +72,7 @@ func (p *GrantPriceFeederPrivilegeProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *GrantPriceFeederPrivilegeProposal) ValidateBasic() error {
-	for _, relayer := range p.Relayers {
-		r, err := sdk.AccAddressFromBech32(relayer)
-		if err != nil {
-			return err
-		}
-		if r.Empty() {
-			return ErrEmptyRelayerAddr
-		}
-	}
-	return govtypes.ValidateAbstract(p)
+	return errors.Wrap(ErrUnsupportedOracleType, "PriceFeed oracle has been removed")
 }
 
 // GetTitle returns the title of this proposal.
@@ -106,17 +95,7 @@ func (p *RevokePriceFeederPrivilegeProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *RevokePriceFeederPrivilegeProposal) ValidateBasic() error {
-
-	for _, relayer := range p.Relayers {
-		r, err := sdk.AccAddressFromBech32(relayer)
-		if err != nil {
-			return err
-		}
-		if r.Empty() {
-			return ErrEmptyRelayerAddr
-		}
-	}
-	return govtypes.ValidateAbstract(p)
+	return errors.Wrap(ErrUnsupportedOracleType, "PriceFeed oracle has been removed")
 }
 
 // GetTitle returns the title of this proposal.
@@ -223,13 +202,7 @@ func (p *GrantStorkPublisherPrivilegeProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *GrantStorkPublisherPrivilegeProposal) ValidateBasic() error {
-	for _, publisher := range p.StorkPublishers {
-		if !common.IsHexAddress(publisher) {
-			return fmt.Errorf("invalid publisher address: %s", publisher)
-		}
-	}
-
-	return nil
+	return errors.Wrap(ErrUnsupportedOracleType, "Stork oracle has been removed")
 }
 
 // GetTitle returns the title of this proposal.
@@ -252,13 +225,7 @@ func (p *RevokeStorkPublisherPrivilegeProposal) ProposalType() string {
 
 // ValidateBasic returns ValidateBasic result of this proposal.
 func (p *RevokeStorkPublisherPrivilegeProposal) ValidateBasic() error {
-	for _, publisher := range p.StorkPublishers {
-		if !common.IsHexAddress(publisher) {
-			return fmt.Errorf("invalid publisher address: %s", publisher)
-		}
-	}
-
-	return nil
+	return errors.Wrap(ErrUnsupportedOracleType, "Stork oracle has been removed")
 }
 
 // Deprecated: Band oracle proposal types - kept for backward compatibility only

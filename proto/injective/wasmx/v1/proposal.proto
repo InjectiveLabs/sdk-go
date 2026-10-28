@@ -9,6 +9,7 @@ import "amino/amino.proto";
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message ContractRegistrationRequestProposal {
+  option deprecated = true;
   option (amino.name) = "wasmx/ContractRegistrationRequestProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -21,6 +22,7 @@ message ContractRegistrationRequestProposal {
 }
 
 message BatchContractRegistrationRequestProposal {
+  option deprecated = true;
   option (amino.name) = "wasmx/BatchContractRegistrationRequestProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -33,6 +35,7 @@ message BatchContractRegistrationRequestProposal {
 }
 
 message BatchContractDeregistrationProposal {
+  option deprecated = true;
   option (amino.name) = "wasmx/BatchContractDeregistrationProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -44,6 +47,7 @@ message BatchContractDeregistrationProposal {
 }
 
 enum FundingMode {
+  option deprecated = true;
   Unspecified = 0;
   SelfFunded = 1;
   GrantOnly = 2;
@@ -51,6 +55,7 @@ enum FundingMode {
 }
 
 message ContractRegistrationRequest {
+  option deprecated = true;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
 
   // Unique Identifier for contract instance to be registered.

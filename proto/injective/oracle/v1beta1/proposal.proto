@@ -42,6 +42,7 @@ message RevokeBandOraclePrivilegeProposal {
 }
 
 message GrantPriceFeederPrivilegeProposal {
+  option deprecated = true;
   option (amino.name) = "oracle/GrantPriceFeederPrivilegeProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -82,6 +83,7 @@ message RevokeProviderPrivilegeProposal {
 }
 
 message RevokePriceFeederPrivilegeProposal {
+  option deprecated = true;
   option (amino.name) = "oracle/RevokePriceFeederPrivilegeProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -146,6 +148,7 @@ message EnableBandIBCProposal {
 }
 
 message GrantStorkPublisherPrivilegeProposal {
+  option deprecated = true;
   option (amino.name) = "oracle/GrantStorkPublisherPrivilegeProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -159,6 +162,7 @@ message GrantStorkPublisherPrivilegeProposal {
 }
 
 message RevokeStorkPublisherPrivilegeProposal {
+  option deprecated = true;
   option (amino.name) = "oracle/RevokeStorkPublisherPrivilegeProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;

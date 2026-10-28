@@ -9,6 +9,7 @@ import "injective/wasmx/v1/proposal.proto";
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message Params {
+  option deprecated = true;
   option (amino.name) = "wasmx/Params";
   option (gogoproto.equal) = true;
 
@@ -36,6 +37,7 @@ message Params {
 }
 
 message RegisteredContract {
+  option deprecated = true;
   option (gogoproto.equal) = true;
 
   // limit of gas per BB execution

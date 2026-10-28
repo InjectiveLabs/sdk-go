@@ -212,6 +212,11 @@ type DerivativeMatchingExpansionData struct {
 	NewRestingLimitBuyOrders       []*DerivativeLimitOrder // transient buy orders that become new resting limit orders
 	NewRestingLimitSellOrders      []*DerivativeLimitOrder // transient sell orders that become new resting limit orders
 	PartialCancelOrders            map[common.Hash]struct{}
+
+	// ReferenceGateRejections carries reference-price gate rejections collected
+	// during parallel matching; they are emitted in the single-threaded
+	// persistence phase to avoid data races on the shared event manager.
+	ReferenceGateRejections []*EventOpenRejectedByReferenceGate
 }
 
 func NewDerivativeMatchingExpansionData(clearingPrice, clearingQuantity math.LegacyDec) *DerivativeMatchingExpansionData {
@@ -265,7 +270,6 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 	isCrossSubaccount func(common.Hash) bool,
 ) *DerivativeBatchExecutionData {
 	depositDeltas := types.NewDepositDeltas()
-	tradingRewardPoints := types.NewTradingRewardPoints()
 
 	// process undermargined resting limit order forced cancellations
 	cancelLimitOrdersEvents, restingOrderCancelledDeltas, transientOrderCancelledDeltas :=
@@ -286,7 +290,6 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		funding,
 		e.TransientLimitBuyExpansions,
 		depositDeltas,
-		tradingRewardPoints,
 		false,
 	)
 	restingLimitBuyOrderBatchEvent, restingLimitBuyFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(
@@ -296,7 +299,6 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		funding,
 		e.RestingLimitBuyExpansions,
 		depositDeltas,
-		tradingRewardPoints,
 		false,
 	)
 	transientLimitSellOrderBatchEvent, transientLimitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(
@@ -306,7 +308,6 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		funding,
 		e.TransientLimitSellExpansions,
 		depositDeltas,
-		tradingRewardPoints,
 		false,
 	)
 	restingLimitSellOrderBatchEvent, restingLimitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(
@@ -316,7 +317,6 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		funding,
 		e.RestingLimitSellExpansions,
 		depositDeltas,
-		tradingRewardPoints,
 		false,
 	)
 
@@ -345,7 +345,6 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		Funding:                               funding,
 		DepositDeltas:                         depositDeltas,
 		DepositSubaccountIDs:                  depositDeltaKeys,
-		TradingRewards:                        tradingRewardPoints,
 		Positions:                             positions,
 		MarketBalanceDelta:                    market.NotionalToChainFormat(e.MarketBalanceDelta),
 		OpenInterestDelta:                     e.OpenInterestDelta,
@@ -365,6 +364,7 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		CancelMarketOrderEvents:               nil,
 		VwapData:                              vwapData,
 		PartialCancelOrders:                   e.PartialCancelOrders,
+		ReferenceGateRejections:               e.ReferenceGateRejections,
 	}
 
 	return batch
@@ -526,6 +526,11 @@ type DerivativeMarketOrderExpansionData struct {
 	MarketBalanceDelta           math.LegacyDec
 	OpenInterestDelta            math.LegacyDec
 	CrossPoolSnapshotEvictions   []common.Hash
+
+	// ReferenceGateRejections carries reference-price gate rejections collected
+	// during parallel matching; they are emitted in the single-threaded
+	// persistence phase to avoid data races on the shared event manager.
+	ReferenceGateRejections []*EventOpenRejectedByReferenceGate
 }
 
 func (e *DerivativeMarketOrderExpansionData) SetSellExecutionData(
@@ -589,7 +594,6 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 	isCrossSubaccount func(common.Hash) bool,
 ) *DerivativeBatchExecutionData {
 	depositDeltas := types.NewDepositDeltas()
-	tradingRewardPoints := types.NewTradingRewardPoints()
 
 	// process undermargined limit order forced cancellations
 	cancelLimitOrdersEvents, restingOrderCancelledDeltas := e.applyCancellationsAndGetDerivativeLimitCancelEvents(
@@ -611,7 +615,6 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		funding,
 		e.MarketBuyExpansions,
 		depositDeltas,
-		tradingRewardPoints,
 		isLiquidation,
 	)
 	sellMarketOrderBatchEvent, _ := ApplyDeltasAndGetDerivativeOrderBatchEvent(
@@ -621,7 +624,6 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		funding,
 		e.MarketSellExpansions,
 		depositDeltas,
-		tradingRewardPoints,
 		isLiquidation,
 	)
 
@@ -632,7 +634,6 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		funding,
 		e.LimitBuyExpansions,
 		depositDeltas,
-		tradingRewardPoints,
 		false,
 	)
 	restingLimitSellOrderBatchEvent, limitSellFilledDeltas := ApplyDeltasAndGetDerivativeOrderBatchEvent(
@@ -642,7 +643,6 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		funding,
 		e.LimitSellExpansions,
 		depositDeltas,
-		tradingRewardPoints,
 		false,
 	)
 
@@ -662,7 +662,6 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		Funding:                               funding,
 		DepositDeltas:                         depositDeltas,
 		DepositSubaccountIDs:                  depositDeltaKeys,
-		TradingRewards:                        tradingRewardPoints,
 		Positions:                             positions,
 		MarketBalanceDelta:                    market.NotionalToChainFormat(e.MarketBalanceDelta),
 		PositionSubaccountIDs:                 positionSubaccountIDs,
@@ -682,6 +681,7 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		CancelMarketOrderEvents:               cancelMarketOrdersEvents,
 		VwapData:                              vwapData,
 		CrossPoolSnapshotEvictions:            e.CrossPoolSnapshotEvictions,
+		ReferenceGateRejections:               e.ReferenceGateRejections,
 	}
 	return batch
 }
@@ -814,16 +814,14 @@ func NewVwapInfo(markPrice *math.LegacyDec) *VwapInfo {
 }
 
 type DerivativeVwapInfo struct {
-	PerpetualVwapInfo     map[common.Hash]*VwapInfo
-	ExpiryVwapInfo        map[common.Hash]*VwapInfo
-	BinaryOptionsVwapInfo map[common.Hash]*VwapInfo
+	PerpetualVwapInfo map[common.Hash]*VwapInfo
+	ExpiryVwapInfo    map[common.Hash]*VwapInfo
 }
 
 func NewDerivativeVwapInfo() DerivativeVwapInfo {
 	return DerivativeVwapInfo{
-		PerpetualVwapInfo:     make(map[common.Hash]*VwapInfo),
-		ExpiryVwapInfo:        make(map[common.Hash]*VwapInfo),
-		BinaryOptionsVwapInfo: make(map[common.Hash]*VwapInfo),
+		PerpetualVwapInfo: make(map[common.Hash]*VwapInfo),
+		ExpiryVwapInfo:    make(map[common.Hash]*VwapInfo),
 	}
 }
 
@@ -843,13 +841,8 @@ func (p *DerivativeVwapInfo) ApplyVwap(marketID common.Hash, markPrice *math.Leg
 			vwapInfo = NewVwapInfo(markPrice)
 			p.ExpiryVwapInfo[marketID] = vwapInfo
 		}
-	case types.MarketType_BinaryOption:
-		vwapInfo = p.BinaryOptionsVwapInfo[marketID]
-		if vwapInfo == nil {
-			vwapInfo = NewVwapInfo(markPrice)
-			p.BinaryOptionsVwapInfo[marketID] = vwapInfo
-		}
 	default:
+		return
 	}
 
 	if !vwapData.Quantity.IsZero() {
@@ -879,18 +872,6 @@ func (p *DerivativeVwapInfo) GetSortedExpiryFutureMarketIDs() []common.Hash {
 		return bytes.Compare(expiryFutureMarketIDs[i].Bytes(), expiryFutureMarketIDs[j].Bytes()) < 0
 	})
 	return expiryFutureMarketIDs
-}
-
-func (p *DerivativeVwapInfo) GetSortedBinaryOptionsMarketIDs() []common.Hash {
-	binaryOptionsMarketIDs := make([]common.Hash, 0)
-	for k := range p.BinaryOptionsVwapInfo {
-		binaryOptionsMarketIDs = append(binaryOptionsMarketIDs, k)
-	}
-
-	sort.SliceStable(binaryOptionsMarketIDs, func(i, j int) bool {
-		return bytes.Compare(binaryOptionsMarketIDs[i].Bytes(), binaryOptionsMarketIDs[j].Bytes()) < 0
-	})
-	return binaryOptionsMarketIDs
 }
 
 // ComputeSyntheticVwapUnitDelta returns (price - markPrice) / markPrice for a supplied benchmark mark.
@@ -990,8 +971,6 @@ type DerivativeBatchExecutionData struct {
 	DepositDeltas        types.DepositDeltas
 	DepositSubaccountIDs []common.Hash
 
-	TradingRewards types.TradingRewardPoints
-
 	// updated positions
 	Positions             []*Position
 	MarketBalanceDelta    math.LegacyDec
@@ -1006,6 +985,16 @@ type DerivativeBatchExecutionData struct {
 	TransientLimitOrderCancelledDeltas []*DerivativeLimitOrderDelta
 	// resting limit order cancelled deltas to apply
 	RestingLimitOrderCancelledDeltas []*DerivativeLimitOrderDelta
+	// TerminalRestingCashAuthorityCancels carries the identities of prior-block
+	// makers terminally rejected by the ephemeral FBA cash authority or by the
+	// independently hard-blocked outage drain. Ordinary successful persistence
+	// uses the cancellation deltas above; this sidecar is retained solely so a
+	// later execution discard can apply the same canonical cancellations on the
+	// parent context.
+	TerminalRestingCashAuthorityCancels []*DerivativeLimitOrder
+	// RestingOwnerConflictCancelHashes supplies reasons for committed cancellation
+	// events. It grants no cancellation authority and is never used on discard.
+	RestingOwnerConflictCancelHashes []common.Hash
 
 	// events for batch market order and limit order execution
 	MarketBuyOrderExecutionEvent          *EventBatchDerivativeExecution
@@ -1032,6 +1021,11 @@ type DerivativeBatchExecutionData struct {
 	// and applied in the single-threaded persistence phase to avoid data races on the
 	// shared object store.
 	CrossPoolSnapshotEvictions []common.Hash
+
+	// ReferenceGateRejections carries reference-price gate rejections collected
+	// during parallel matching; they are emitted in the single-threaded
+	// persistence phase to avoid data races on the shared event manager.
+	ReferenceGateRejections []*EventOpenRejectedByReferenceGate
 }
 
 type CrossMarginPoolKey struct {
@@ -1291,7 +1285,6 @@ func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 	funding *PerpetualMarketFunding,
 	stateExpansions []*DerivativeOrderStateExpansion,
 	depositDeltas types.DepositDeltas,
-	tradingRewardPoints types.TradingRewardPoints,
 	isLiquidation bool,
 ) (batch *EventBatchDerivativeExecution, filledDeltas []*DerivativeLimitOrderDelta) {
 	if len(stateExpansions) == 0 {
@@ -1320,9 +1313,6 @@ func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 		chainFormatAuctionFeeReward := market.NotionalToChainFormat(expansion.AuctionFeeReward)
 		depositDeltas.ApplyUniformDelta(feeRecipientSubaccount, chainFormatFeeRecipientReward)
 		depositDeltas.ApplyUniformDelta(types.AuctionSubaccountID, chainFormatAuctionFeeReward)
-
-		sender := types.SubaccountIDToSdkAddress(expansion.SubaccountID)
-		tradingRewardPoints.AddPointsForAddress(sender.String(), expansion.TradingRewardPoints)
 
 		if !executionType.IsMarket() {
 			filledDeltas = append(filledDeltas, expansion.LimitOrderFilledDelta)
@@ -1373,16 +1363,16 @@ func ApplyDeltasAndGetDerivativeOrderBatchEvent(
 }
 
 type DerivativeOrderStateExpansion struct {
-	SubaccountID           common.Hash
-	PositionDelta          *PositionDelta
-	Payout                 math.LegacyDec
-	Pnl                    math.LegacyDec
-	MarketBalanceDelta     math.LegacyDec
-	OpenInterestDelta      math.LegacyDec
-	TotalBalanceDelta      math.LegacyDec
-	AvailableBalanceDelta  math.LegacyDec
-	AuctionFeeReward       math.LegacyDec
-	TradingRewardPoints    math.LegacyDec
+	SubaccountID          common.Hash
+	PositionDelta         *PositionDelta
+	Payout                math.LegacyDec
+	Pnl                   math.LegacyDec
+	MarketBalanceDelta    math.LegacyDec
+	OpenInterestDelta     math.LegacyDec
+	TotalBalanceDelta     math.LegacyDec
+	AvailableBalanceDelta math.LegacyDec
+	AuctionFeeReward      math.LegacyDec
+
 	FeeRecipientReward     math.LegacyDec
 	FeeRecipient           common.Address
 	LimitOrderFilledDelta  *DerivativeLimitOrderDelta

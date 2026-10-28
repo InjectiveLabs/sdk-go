@@ -169,6 +169,15 @@ func (m *SpotLimitOrder) GetUnfilledFeeAmount(fee math.LegacyDec) math.LegacyDec
 	return m.GetUnfilledNotional().Mul(fee)
 }
 
+// GetUnfilledBuyHold calculates the rounded notional and fee reserved for a buy.
+// feeRate is the nonnegative reservation rate for the order's physical class,
+// before discounts. Hold adjustments must subtract these rounded amounts rather
+// than multiply a quantity or fee-rate difference, which can round differently.
+func (m *SpotLimitOrder) GetUnfilledBuyHold(feeRate math.LegacyDec) math.LegacyDec {
+	notional := m.GetUnfilledNotional()
+	return notional.Add(notional.Mul(feeRate))
+}
+
 func (m *SpotOrder) GetBalanceHoldAndMarginDenom(market *SpotMarket) (math.LegacyDec, string) {
 	var denom string
 	var balanceHold math.LegacyDec
@@ -208,7 +217,7 @@ func (m *SpotLimitOrder) GetUnfilledMarginHoldAndMarginDenom(market *SpotMarket,
 		// for a resting limit buy in the ETH/USDT market, denom is USDT and fillable amount is BalanceHold is
 		// (1 + makerFee)*(price * quantity) since (takerFee - makerFee) is already refunded
 		denom = market.QuoteDenom
-		balanceHold = m.GetUnfilledNotional().Add(m.GetUnfilledFeeAmount(tradeFeeRate))
+		balanceHold = m.GetUnfilledBuyHold(tradeFeeRate)
 	} else {
 		// for a limit sell in the ETH/USDT market, denom is ETH and balanceHold is just quantity
 		denom = market.BaseDenom
@@ -235,9 +244,12 @@ func (m *SpotOrder) GetMarketOrderBalanceHold(feeRate, bestPrice math.LegacyDec)
 	var balanceHold math.LegacyDec
 
 	if m.IsBuy() {
-		// required margin for best sell price = bestPrice * quantity * (1 + feeRate)
-		requiredMarginForBestPrice := bestPrice.Mul(m.OrderInfo.Quantity).Mul(math.LegacyOneDec().Add(feeRate))
-		requiredMarginForWorstPrice := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity).Mul(math.LegacyOneDec().Add(feeRate))
+		// Settlement adds the separately rounded fee to the rounded principal.
+		// Multiplying principal by (1 + feeRate) can reserve one decimal unit less.
+		bestNotional := bestPrice.Mul(m.OrderInfo.Quantity)
+		worstNotional := m.OrderInfo.Price.Mul(m.OrderInfo.Quantity)
+		requiredMarginForBestPrice := bestNotional.Add(bestNotional.Mul(feeRate))
+		requiredMarginForWorstPrice := worstNotional.Add(worstNotional.Mul(feeRate))
 		requiredMargin := math.LegacyMaxDec(requiredMarginForBestPrice, requiredMarginForWorstPrice)
 		balanceHold = requiredMargin
 	} else {

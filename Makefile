@@ -4,7 +4,7 @@ clone-injective-indexer:
 	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.167 --depth 1 --single-branch
 
 clone-injective-core:
-	git clone https://github.com/InjectiveLabs/injective-core.git -b c-396/ibc-ratelimits --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-core.git -b master --depth 1 --single-branch
 
 copy-exchange-client: clone-injective-indexer
 	rm -rf exchange/*
@@ -40,7 +40,10 @@ copy-exchange-client: clone-injective-indexer
 
 	rm -rf injective-indexer
 
+# Refresh chain types while preserving SDK tests and files absent from core master.
 copy-chain-types: clone-injective-core
+	mkdir -p typeddata && \
+		cp injective-core/injective-chain/app/ante/typeddata/typed_data.go typeddata
 	cp -r injective-core/injective-chain/codec chain
 	mkdir -p chain/app/ante/eip712 && \
 		cp injective-core/injective-chain/app/ante/eip712/sign_mode_handler.go chain/app/ante/eip712
@@ -63,7 +66,9 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/downtime-detector/types/keys.go chain/downtime-detector/types
 	mkdir -p chain/erc20/types && \
 		cp injective-core/injective-chain/modules/erc20/types/*.pb.go chain/erc20/types && \
-		cp injective-core/injective-chain/modules/erc20/types/codec.go chain/erc20/types
+		cp injective-core/injective-chain/modules/erc20/types/codec.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/errors.go chain/erc20/types && \
+		cp injective-core/injective-chain/modules/erc20/types/types.go chain/erc20/types
 	mkdir -p chain/evm/types && \
 		cp injective-core/injective-chain/modules/evm/types/*.pb.go chain/evm/types && \
 		cp injective-core/injective-chain/modules/evm/types/access_list.go chain/evm/types && \
@@ -83,18 +88,18 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/evm/types/tx.go chain/evm/types && \
 		cp injective-core/injective-chain/modules/evm/types/tx_data.go chain/evm/types && \
 		cp injective-core/injective-chain/modules/evm/types/utils.go chain/evm/types
-	mkdir -p chain/exchange/types && \
-		cp injective-core/injective-chain/modules/exchange/types/*.go chain/exchange/types && \
-		rm -rf chain/exchange/types/*test.go && rm -rf chain/exchange/types/*gw.go
-	mkdir -p chain/exchange/types/v2 && \
-    		cp injective-core/injective-chain/modules/exchange/types/v2/*.go chain/exchange/types/v2 && \
-    		rm -rf chain/exchange/types/v2/*test.go && rm -rf chain/exchange/types/v2/*gw.go
+	mkdir -p chain/exchange/types
+	find injective-core/injective-chain/modules/exchange/types -maxdepth 1 -type f -name "*.go" ! -name "*_test.go" ! -name "*.pb.gw.go" -exec cp {} chain/exchange/types \;
+	mkdir -p chain/exchange/types/v2
+	find injective-core/injective-chain/modules/exchange/types/v2 -maxdepth 1 -type f -name "*.go" ! -name "*_test.go" ! -name "*.pb.gw.go" -exec cp {} chain/exchange/types/v2 \;
 	mkdir -p chain/insurance/types && \
 		cp injective-core/injective-chain/modules/insurance/types/*.pb.go chain/insurance/types && \
-		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types
-	mkdir -p chain/oracle/types && \
-		cp injective-core/injective-chain/modules/oracle/types/*.go chain/oracle/types && \
-		rm -rf chain/oracle/types/*test.go && rm -rf chain/oracle/types/*gw.go
+		cp injective-core/injective-chain/modules/insurance/types/codec.go chain/insurance/types && \
+		cp injective-core/injective-chain/modules/insurance/types/insurance.go chain/insurance/types
+	mkdir -p chain/oracle/types
+	# The retired Stork helper depends on EighteenDecimals, which core removed.
+	rm -f chain/oracle/types/stork.go
+	find injective-core/injective-chain/modules/oracle/types -maxdepth 1 -type f -name "*.go" ! -name "*_test.go" ! -name "*.pb.gw.go" -exec cp {} chain/oracle/types \;
 	mkdir -p chain/peggy/types && \
 		cp injective-core/injective-chain/modules/peggy/types/*.pb.go chain/peggy/types && \
 		cp injective-core/injective-chain/modules/peggy/types/abi_json.go chain/peggy/types && \
@@ -112,22 +117,17 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/permissions/types/codec.go chain/permissions/types
 	mkdir -p chain/tokenfactory/types && \
 		cp injective-core/injective-chain/modules/tokenfactory/types/*.pb.go chain/tokenfactory/types && \
-		cp injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types
+		cp injective-core/injective-chain/modules/tokenfactory/types/codec.go chain/tokenfactory/types && \
+		cp injective-core/injective-chain/modules/tokenfactory/types/denoms.go chain/tokenfactory/types && \
+		cp injective-core/injective-chain/modules/tokenfactory/types/errors.go chain/tokenfactory/types && \
+		cp injective-core/injective-chain/modules/tokenfactory/types/keys.go chain/tokenfactory/types
 	mkdir -p chain/txfees/types && \
 		cp injective-core/injective-chain/modules/txfees/types/*.pb.go chain/txfees/types && \
 		cp injective-core/injective-chain/modules/txfees/types/codec.go chain/txfees/types
 	mkdir -p chain/txfees/osmosis/types && \
 		cp injective-core/injective-chain/modules/txfees/osmosis/types/*.pb.go chain/txfees/osmosis/types
-	mkdir -p chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/*.pb.go chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/authz.go chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/codec.go chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/custom_execution.go chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/errors.go chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/key.go chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/msgs.go chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/params.go chain/wasmx/types && \
-		cp injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
+	mkdir -p chain/wasmx/types
+	find injective-core/injective-chain/modules/wasmx/types -maxdepth 1 -type f -name "*.go" ! -name "*_test.go" ! -name "*.pb.gw.go" -exec cp {} chain/wasmx/types \;
 #	mkdir -p chain/mq/types && \
 #		cp injective-core/injective-chain/mq/types/*.pb.go chain/mq/types
 	mkdir -p chain/stream/types && \
@@ -150,13 +150,12 @@ copy-chain-types: clone-injective-core
 		-e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 
 	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && \
-		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.go chain/evm/precompiles/bank && \
-		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/exchange/*.go chain/evm/precompiles/exchange && \
-		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.go chain/evm/precompiles/staking
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.abigen.go chain/evm/precompiles/bank && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/exchange/*.abigen.go chain/evm/precompiles/exchange && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.abigen.go chain/evm/precompiles/staking
 #	mkdir -p chain/evm/precompiles/ibc && \
 #		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/ibc/*.go chain/evm/precompiles/ibc
 
-	rm -rf proto
 	cp -r injective-core/proto ./
 
 	rm -rf injective-core

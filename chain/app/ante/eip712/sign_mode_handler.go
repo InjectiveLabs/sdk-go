@@ -23,15 +23,21 @@ import (
 // SignModeHandler is used to provide a way to verify EIP712 signatures from within Cosmos SDK.
 // This gives multisig accounts the ability to send transactions with Ledger signatures
 type SignModeHandler struct {
-	cdc codec.Codec
+	cdc  codec.Codec
+	mode signingv1beta1.SignMode
 }
 
-func NewSignModeHandler(cdc codec.Codec) SignModeHandler {
-	return SignModeHandler{cdc: cdc}
+func NewSignModeHandlerV2(cdc codec.Codec) SignModeHandler {
+	return SignModeHandler{cdc: cdc, mode: signingv1beta1.SignMode_SIGN_MODE_EIP712_V2}
 }
 
-func (SignModeHandler) Mode() signingv1beta1.SignMode {
-	return signingv1beta1.SignMode_SIGN_MODE_EIP712_V2
+// NewSignModeHandlerV3 selects domain version 3.0.0 with a standard bytes32 zero salt.
+func NewSignModeHandlerV3(cdc codec.Codec) SignModeHandler {
+	return SignModeHandler{cdc: cdc, mode: signingv1beta1.SignMode_SIGN_MODE_EIP712_V3}
+}
+
+func (h SignModeHandler) Mode() signingv1beta1.SignMode {
+	return h.mode
 }
 
 func (h SignModeHandler) GetSignBytes(
@@ -106,6 +112,12 @@ func (h SignModeHandler) GetSignBytes(
 			"context": string(bzTxContext),
 			"msgs":    string(bzMsgs),
 		},
+	}
+
+	if h.Mode() == signingv1beta1.SignMode_SIGN_MODE_EIP712_V3 {
+		td.Domain.Version = typeddata.EIP712V3DomainVersion
+		td.Domain.Salt = typeddata.EIP712V3Salt
+		td.Types = typeddata.SignableTypesV3()
 	}
 
 	_, raw, err := typeddata.ComputeTypedDataAndHash(td)

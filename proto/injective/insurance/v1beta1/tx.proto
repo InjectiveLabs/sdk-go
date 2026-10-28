@@ -32,6 +32,32 @@ service Msg {
 
   // ClaimVoucher defines a method for claiming an outstanding voucher
   rpc ClaimVoucher(MsgClaimVoucher) returns (MsgClaimVoucherResponse);
+
+  // CreateConsolidatedInsurancePool creates an empty quote-denominated pool.
+  rpc CreateConsolidatedInsurancePool(MsgCreateConsolidatedInsurancePool)
+      returns (MsgCreateConsolidatedInsurancePoolResponse);
+
+  // SetConsolidatedInsurancePoolPause controls the insurance-payout pause. It
+  // disables fresh draws, underwriting, and market enrollment; it does not
+  // halt enrolled markets, credits, or automatic redemptions. Set paused=false
+  // to resume payouts.
+  rpc SetConsolidatedInsurancePoolPause(MsgSetConsolidatedInsurancePoolPause)
+      returns (MsgSetConsolidatedInsurancePoolPauseResponse);
+
+  // UpdateConsolidatedInsurancePolicy changes one enrolled market's draw cap.
+  rpc UpdateConsolidatedInsurancePolicy(
+      MsgUpdateConsolidatedInsurancePolicy)
+      returns (MsgUpdateConsolidatedInsurancePolicyResponse);
+
+  // UnderwriteConsolidatedInsurancePool deposits quote and immediately mints
+  // pool shares.
+  rpc UnderwriteConsolidatedInsurancePool(
+      MsgUnderwriteConsolidatedInsurancePool)
+      returns (MsgUnderwriteConsolidatedInsurancePoolResponse);
+
+  // RequestConsolidatedRedemption escrows shares for automatic redemption.
+  rpc RequestConsolidatedRedemption(MsgRequestConsolidatedRedemption)
+      returns (MsgRequestConsolidatedRedemptionResponse);
 }
 
 // MsgCreateInsuranceFund a message to create an insurance fund for a derivative
@@ -134,3 +160,88 @@ message MsgClaimVoucher {
 }
 
 message MsgClaimVoucherResponse {}
+
+// MsgCreateConsolidatedInsurancePool creates one empty exact-denom pool.
+message MsgCreateConsolidatedInsurancePool {
+  option (amino.name) = "insurance/MsgCreateConsolidatedInsurancePool";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string deposit_denom = 2;
+  uint32 quote_decimals = 3;
+  string max_draw_per_market = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+  int64 redemption_notice_period_seconds = 5;
+}
+
+// MsgCreateConsolidatedInsurancePoolResponse is returned after pool creation.
+message MsgCreateConsolidatedInsurancePoolResponse {}
+
+// MsgSetConsolidatedInsurancePoolPause changes the insurance-payout pause. It
+// is not a market-trading or cross-margin safety halt.
+message MsgSetConsolidatedInsurancePoolPause {
+  option (amino.name) = "insurance/MsgSetConsolidatedInsurancePoolPause";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string deposit_denom = 2;
+  bool paused = 3;
+}
+
+// MsgSetConsolidatedInsurancePoolPauseResponse is returned after a pause
+// change.
+message MsgSetConsolidatedInsurancePoolPauseResponse {}
+
+// MsgUpdateConsolidatedInsurancePolicy changes one enrolled market's draw cap.
+message MsgUpdateConsolidatedInsurancePolicy {
+  option (amino.name) = "insurance/MsgUpdateConsolidatedInsurancePolicy";
+  option (cosmos.msg.v1.signer) = "authority";
+
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+  string market_id = 2;
+  string max_draw = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgUpdateConsolidatedInsurancePolicyResponse confirms a policy-limit update.
+message MsgUpdateConsolidatedInsurancePolicyResponse {}
+
+// MsgUnderwriteConsolidatedInsurancePool deposits quote and mints shares
+// immediately.
+message MsgUnderwriteConsolidatedInsurancePool {
+  option (amino.name) = "insurance/MsgUnderwriteConsolidatedInsurancePool";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  cosmos.base.v1beta1.Coin deposit = 2 [ (gogoproto.nullable) = false ];
+  string min_shares_out = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
+}
+
+// MsgUnderwriteConsolidatedInsurancePoolResponse reports the shares minted.
+message MsgUnderwriteConsolidatedInsurancePoolResponse {
+  cosmos.base.v1beta1.Coin shares = 1 [ (gogoproto.nullable) = false ];
+}
+
+// MsgRequestConsolidatedRedemption escrows shares for automatic redemption.
+message MsgRequestConsolidatedRedemption {
+  option (amino.name) = "insurance/MsgRequestConsolidatedRedemption";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  string sender = 1;
+  string pool_denom = 2;
+  cosmos.base.v1beta1.Coin shares = 3 [ (gogoproto.nullable) = false ];
+}
+
+// MsgRequestConsolidatedRedemptionResponse reports the assigned schedule ID.
+message MsgRequestConsolidatedRedemptionResponse { uint64 schedule_id = 1; }

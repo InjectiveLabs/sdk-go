@@ -55,17 +55,17 @@ type FullSpotMarketFiller struct {
 }
 
 type SpotOrderStateExpansion struct {
-	BaseChangeAmount        math.LegacyDec
-	BaseRefundAmount        math.LegacyDec
-	QuoteChangeAmount       math.LegacyDec
-	QuoteRefundAmount       math.LegacyDec
-	TradePrice              math.LegacyDec
-	TradeNotional           math.LegacyDec
-	FeeRecipient            common.Address
-	FeeRecipientReward      math.LegacyDec
-	AuctionFeeReward        math.LegacyDec
-	TraderFeeReward         math.LegacyDec
-	TradingRewardPoints     math.LegacyDec
+	BaseChangeAmount   math.LegacyDec
+	BaseRefundAmount   math.LegacyDec
+	QuoteChangeAmount  math.LegacyDec
+	QuoteRefundAmount  math.LegacyDec
+	TradePrice         math.LegacyDec
+	TradeNotional      math.LegacyDec
+	FeeRecipient       common.Address
+	FeeRecipientReward math.LegacyDec
+	AuctionFeeReward   math.LegacyDec
+	TraderFeeReward    math.LegacyDec
+
 	LimitOrder              *SpotLimitOrder
 	LimitOrderFillQuantity  math.LegacyDec
 	MarketOrder             *SpotMarketOrder
@@ -87,8 +87,8 @@ type SpotBatchExecutionData struct {
 	MarketOrderExecutionEvent      *EventBatchSpotExecution
 	LimitOrderExecutionEvent       []*EventBatchSpotExecution
 	NewOrdersEvent                 *EventNewSpotOrders
-	TradingRewardPoints            types.TradingRewardPoints
-	VwapData                       *SpotVwapData
+
+	VwapData *SpotVwapData
 }
 
 func (e *SpotOrderStateExpansion) UpdateFromDepositDeltas(
@@ -131,7 +131,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	spotLimitOrderStateExpansions []*SpotOrderStateExpansion,
 	baseDenomDepositDeltas,
 	quoteDenomDepositDeltas types.DepositDeltas,
-) (*EventBatchSpotExecution, []*SpotLimitOrderDelta, types.TradingRewardPoints) {
+) (*EventBatchSpotExecution, []*SpotLimitOrderDelta) {
 	limitOrderBatchEvent := &EventBatchSpotExecution{
 		MarketId:      market.MarketID().Hex(),
 		IsBuy:         isBuy,
@@ -142,7 +142,6 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 
 	// array of (SubaccountIndexKey, fillableAmount) to update/delete
 	filledDeltas := make([]*SpotLimitOrderDelta, 0, len(spotLimitOrderStateExpansions))
-	tradingRewardPoints := types.NewTradingRewardPoints()
 
 	for idx := range spotLimitOrderStateExpansions {
 		expansion := spotLimitOrderStateExpansions[idx]
@@ -170,8 +169,6 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 			realizedTradeFee = expansion.FeeRecipientReward.Add(expansion.AuctionFeeReward)
 		}
 
-		tradingRewardPoints.AddPointsForAddress(expansion.TraderAddress, expansion.TradingRewardPoints)
-
 		trades = append(trades, &TradeLog{
 			Quantity:            expansion.BaseChangeAmount.Abs(),
 			Price:               expansion.TradePrice,
@@ -188,7 +185,7 @@ func GetBatchExecutionEventsFromSpotLimitOrderStateExpansions(
 	if len(trades) == 0 {
 		limitOrderBatchEvent = nil
 	}
-	return limitOrderBatchEvent, filledDeltas, tradingRewardPoints
+	return limitOrderBatchEvent, filledDeltas
 }
 
 type SpotVwapData struct {

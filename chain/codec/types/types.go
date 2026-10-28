@@ -29,7 +29,7 @@ func MakeEncodingConfig() EncodingConfig {
 	encodingConfig := EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Codec:             appCodec,
-		TxConfig:          tx.NewTxConfig(appCodec, tx.DefaultSignModes, eip712.NewSignModeHandler(appCodec)),
+		TxConfig:          tx.NewTxConfig(appCodec, tx.DefaultSignModes, eip712.NewSignModeHandlerV2(appCodec), eip712.NewSignModeHandlerV3(appCodec)),
 		Amino:             cdc,
 	}
 

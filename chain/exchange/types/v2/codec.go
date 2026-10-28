@@ -6,6 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
@@ -42,6 +43,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgDeposit{}, "exchange/v2/MsgDeposit", nil)
 	cdc.RegisterConcrete(&MsgWithdraw{}, "exchange/v2/MsgWithdraw", nil)
 	cdc.RegisterConcrete(&MsgUpdateSubaccountRiskProfile{}, "exchange/v2/MsgUpdateSubaccountRiskProfile", nil)
+	cdc.RegisterConcrete(&MsgUpdateSubaccountMarketRiskMode{}, "exchange/v2/MsgUpdateSubaccountMarketRiskMode", nil)
 	cdc.RegisterConcrete(&MsgInstantSpotMarketLaunch{}, "exchange/v2/MsgInstantSpotMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantPerpetualMarketLaunch{}, "exchange/v2/MsgInstantPerpetualMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgInstantExpiryFuturesMarketLaunch{}, "exchange/v2/MsgInstantExpiryFuturesMarketLaunch", nil)
@@ -154,9 +156,13 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
+		// Historical BO messages remain decodable after their RPCs are removed.
+		&MsgBinaryOptionsMarketLaunch{},
+		&MsgBinaryOptionsMarketParamUpdate{},
 		&MsgDeposit{},
 		&MsgWithdraw{},
 		&MsgUpdateSubaccountRiskProfile{},
+		&MsgUpdateSubaccountMarketRiskMode{},
 		&MsgInstantSpotMarketLaunch{},
 		&MsgInstantPerpetualMarketLaunch{},
 		&MsgInstantExpiryFuturesMarketLaunch{},
@@ -183,6 +189,10 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgBatchUpdateOrders{},
 		&MsgPrivilegedExecuteContract{},
 		&MsgRewardsOptOut{},
+		// Retained explicitly for decoding historical transactions after RPC removal.
+		&MsgTradingRewardCampaignLaunch{},
+		&MsgTradingRewardCampaignUpdate{},
+		&MsgTradingRewardPendingPointsUpdate{},
 		&MsgInstantBinaryOptionsMarketLaunch{},
 		&MsgCreateBinaryOptionsLimitOrder{},
 		&MsgCreateBinaryOptionsMarketOrder{},
@@ -253,6 +263,22 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&BatchUpdateOrdersAuthz{},
 		// generic authz
 		&GenericExchangeAuthorization{},
+	)
+
+	// Retired RPCs no longer register their responses through the service descriptor.
+	registry.RegisterImplementations((*txtypes.MsgResponse)(nil),
+		&MsgInstantBinaryOptionsMarketLaunchResponse{},
+		&MsgCreateBinaryOptionsLimitOrderResponse{},
+		&MsgCreateBinaryOptionsMarketOrderResponse{},
+		&MsgCancelBinaryOptionsOrderResponse{},
+		&MsgBatchCancelBinaryOptionsOrdersResponse{},
+		&MsgRewardsOptOutResponse{},
+		&MsgAdminUpdateBinaryOptionsMarketResponse{},
+		&MsgBinaryOptionsMarketLaunchResponse{},
+		&MsgBinaryOptionsMarketParamUpdateResponse{},
+		&MsgTradingRewardCampaignLaunchResponse{},
+		&MsgTradingRewardCampaignUpdateResponse{},
+		&MsgTradingRewardPendingPointsUpdateResponse{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

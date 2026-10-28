@@ -25,31 +25,15 @@ func ValidateReservedProviderID(provider string) error {
 
 const BandPriceMultiplier uint64 = 1000000000 // 1e9
 
-// MaxHistoricalPriceRecordAge is the maximum age of oracle price records to track.
-const MaxHistoricalPriceRecordAge = 60 * 5
-
-// MaxSymbolsPerCleanupRound caps how many (oracleType, symbol) groups are processed per
-// CleanupHistoricalPriceRecords call, bounding per-block work in BeginBlocker.
-var MaxSymbolsPerCleanupRound = 50
-const MaxStorkTimestampIntervalNano = 500_000_000 // 500ms
-
-var EighteenDecimals = math.LegacyNewDec(10).Power(18)
-
 func GetOracleType(oracleTypeStr string) (OracleType, error) {
 	oracleTypeStr = strings.ToLower(oracleTypeStr)
 	var oracleType OracleType
 
 	switch oracleTypeStr {
-	case "pricefeed":
-		oracleType = OracleType_PriceFeed
-	case "coinbase":
-		oracleType = OracleType_Coinbase
 	case "provider":
 		oracleType = OracleType_Provider
 	case "pyth":
 		oracleType = OracleType_Pyth
-	case "stork":
-		oracleType = OracleType_Stork
 	case "chainlinkdatastreams":
 		oracleType = OracleType_ChainlinkDataStreams
 	case "pythpro":
@@ -99,35 +83,6 @@ func (p *PriceState) UpdatePrice(price math.LegacyDec, timestamp int64) {
 	p.Price = price
 }
 
-type SymbolPriceTimestamps []*SymbolPriceTimestamp
-
-func (s SymbolPriceTimestamps) SetTimestamp(oracleType OracleType, symbol string, ts int64) SymbolPriceTimestamps {
-	for _, entry := range s {
-		if entry.SymbolId == symbol {
-			entry.Timestamp = ts
-			return s
-		}
-	}
-
-	s = append(s, &SymbolPriceTimestamp{
-		Oracle:    oracleType,
-		SymbolId:  symbol,
-		Timestamp: ts,
-	})
-
-	return s
-}
-
-func (s SymbolPriceTimestamps) GetTimestamp(oracleType OracleType, symbol string) (ts int64, ok bool) {
-	for i := range s {
-		if s[i].Oracle == oracleType && s[i].SymbolId == symbol {
-			return s[i].Timestamp, true
-		}
-	}
-
-	return -1, false
-}
-
 // CheckPriceFeedThreshold returns true if the newPrice has changed beyond 100x or less than 1% of the last price
 func CheckPriceFeedThreshold(lastPrice, newPrice math.LegacyDec) bool {
 	if !lastPrice.IsPositive() {
@@ -145,4 +100,9 @@ func IsLegacySchemeOracleScript(scriptID int64, params BandIBCParams) bool {
 	}
 
 	return false
+}
+
+// IsRetiredOracle reports oracle kinds that cannot accept new configuration.
+func IsRetiredOracle(t OracleType) bool {
+	return t == OracleType_Coinbase || t == OracleType_PriceFeed || t == OracleType_Stork
 }

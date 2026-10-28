@@ -102,11 +102,11 @@ message GenesisState {
 
   // binary_options_markets is an array containing the genesis binary options
   // markets
-  repeated BinaryOptionsMarket binary_options_markets = 26;
+  repeated BinaryOptionsMarket binary_options_markets = 26 [deprecated = true];
 
   // binary_options_markets_scheduled_for_settlement contains the marketIDs of
   // binary options markets scheduled for next-block settlement
-  repeated string binary_options_market_ids_scheduled_for_settlement = 27;
+  repeated string binary_options_market_ids_scheduled_for_settlement = 27 [deprecated = true];
 
   // spot_market_ids_scheduled_to_force_close defines the scheduled markets for
   // forced closings at genesis
@@ -161,6 +161,7 @@ message AccountVolume {
 }
 
 message TradingRewardCampaignAccountPoints {
+  option deprecated = true;
   string account = 1;
   string points = 2 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
@@ -169,6 +170,7 @@ message TradingRewardCampaignAccountPoints {
 }
 
 message TradingRewardCampaignAccountPendingPoints {
+  option deprecated = true;
   int64 reward_pool_start_timestamp = 1;
   repeated TradingRewardCampaignAccountPoints account_points = 2;
 }

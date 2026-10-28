@@ -6,6 +6,7 @@ import "injective/insurance/v1beta1/insurance.proto";
 import "injective/common/vouchers/v1/vouchers.proto";
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "injective/insurance/v1beta1/genesis.proto";
 
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/insurance/types";
@@ -69,6 +70,34 @@ service Query {
   // Voucher retrieves a single voucher for a given denom and address
   rpc Voucher(QueryVoucherRequest) returns (QueryVoucherResponse) {
     option (google.api.http).get = "/injective/insurance/v1beta1/voucher";
+  }
+
+  // ConsolidatedInsurancePools returns all pools or one exact-denom pool.
+  rpc ConsolidatedInsurancePools(QueryConsolidatedInsurancePoolsRequest)
+      returns (QueryConsolidatedInsurancePoolsResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/consolidated_pools";
+  }
+
+  // ConsolidatedInsurancePolicy returns the pool policy for a market.
+  rpc ConsolidatedInsurancePolicy(QueryConsolidatedInsurancePolicyRequest)
+      returns (QueryConsolidatedInsurancePolicyResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/consolidated_policy/{market_id}";
+  }
+
+  // ConsolidatedInsurancePolicies returns policies, optionally by pool.
+  rpc ConsolidatedInsurancePolicies(QueryConsolidatedInsurancePoliciesRequest)
+      returns (QueryConsolidatedInsurancePoliciesResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/consolidated_policies";
+  }
+
+  // ConsolidatedRedemptions returns pending schedules, optionally by sender.
+  rpc ConsolidatedRedemptions(QueryConsolidatedRedemptionsRequest)
+      returns (QueryConsolidatedRedemptionsResponse) {
+    option (google.api.http).get =
+        "/injective/insurance/v1beta1/consolidated_redemptions";
   }
 }
 
@@ -172,4 +201,55 @@ message QueryVoucherResponse {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (gogoproto.nullable) = false
   ];
+}
+
+// QueryConsolidatedInsurancePoolsRequest optionally selects one exact-denom
+// pool.
+message QueryConsolidatedInsurancePoolsRequest {
+  // Optional exact deposit denom. Empty returns every consolidated pool.
+  string deposit_denom = 1;
+}
+
+// QueryConsolidatedInsurancePoolsResponse contains matching pools.
+message QueryConsolidatedInsurancePoolsResponse {
+  repeated ConsolidatedInsurancePool pools = 1 [ (gogoproto.nullable) = false ];
+}
+
+// QueryConsolidatedInsurancePolicyRequest selects one market policy.
+message QueryConsolidatedInsurancePolicyRequest { string market_id = 1; }
+
+// QueryConsolidatedInsurancePolicyResponse contains the selected policy.
+message QueryConsolidatedInsurancePolicyResponse {
+  ConsolidatedInsurancePolicy policy = 1;
+}
+
+// QueryConsolidatedInsurancePoliciesRequest optionally filters policies by
+// their exact pool deposit denom.
+message QueryConsolidatedInsurancePoliciesRequest {
+  // Optional exact pool deposit denom. Empty returns every policy.
+  string pool_denom = 1;
+  // Key-only pagination. Offset and total-count scans are rejected.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryConsolidatedInsurancePoliciesResponse contains matching market policies.
+message QueryConsolidatedInsurancePoliciesResponse {
+  repeated ConsolidatedInsurancePolicy policies = 1
+      [ (gogoproto.nullable) = false ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryConsolidatedRedemptionsRequest optionally filters schedules by redeemer.
+message QueryConsolidatedRedemptionsRequest {
+  // Optional redeemer address. Empty returns every pending schedule.
+  string redeemer = 1;
+  // Key-only pagination. Offset and total-count scans are rejected.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryConsolidatedRedemptionsResponse contains pending automatic redemptions.
+message QueryConsolidatedRedemptionsResponse {
+  repeated ConsolidatedRedemptionSchedule schedules = 1
+      [ (gogoproto.nullable) = false ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

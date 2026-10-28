@@ -316,6 +316,7 @@ message DerivativeMarket {
 
 // An object describing a binary options market in Injective Protocol.
 message BinaryOptionsMarket {
+  option deprecated = true;
   option (gogoproto.goproto_getters) = false;
 
   // Ticker for the derivative contract.
@@ -861,6 +862,7 @@ message DepositUpdate {
 }
 
 message PointsMultiplier {
+  option deprecated = true;
   string maker_points_multiplier = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
@@ -872,6 +874,7 @@ message PointsMultiplier {
 }
 
 message TradingRewardCampaignBoostInfo {
+  option deprecated = true;
   repeated string boosted_spot_market_ids = 1;
   repeated PointsMultiplier spot_market_multipliers = 2
       [ (gogoproto.nullable) = false ];
@@ -881,6 +884,7 @@ message TradingRewardCampaignBoostInfo {
 }
 
 message CampaignRewardPool {
+  option deprecated = true;
   int64 start_timestamp = 1;
   // max_campaign_rewards are the maximum reward amounts to be disbursed at the
   // end of the campaign
@@ -891,6 +895,7 @@ message CampaignRewardPool {
 }
 
 message TradingRewardCampaignInfo {
+  option deprecated = true;
   // number of seconds of the duration of each campaign
   int64 campaign_duration_seconds = 1;
   // the trading fee quote denoms which will be counted for the rewards
@@ -962,6 +967,7 @@ message AccountRewards {
 }
 
 message TradeRecords {
+  option deprecated = true;
   string market_id = 1;
   repeated TradeRecord latest_trade_records = 2;
 }
@@ -969,6 +975,7 @@ message TradeRecords {
 message SubaccountIDs { repeated bytes subaccount_ids = 1; }
 
 message TradeRecord {
+  option deprecated = true;
   // the timestamp of the trade
   int64 timestamp = 1;
 

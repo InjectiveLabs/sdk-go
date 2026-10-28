@@ -8,6 +8,7 @@ import "gogoproto/gogo.proto";
 option go_package = "github.com/InjectiveLabs/injective-core/injective-chain/modules/wasmx/types";
 
 message EventContractExecution {
+  option deprecated = true;
   string contract_address = 1;
   bytes response = 2;
   string other_error = 3;
@@ -15,6 +16,7 @@ message EventContractExecution {
 }
 
 message EventContractRegistered {
+  option deprecated = true;
   string contract_address = 1;
   uint64 gas_price = 3;
   bool should_pin_contract = 4;
@@ -25,4 +27,5 @@ message EventContractRegistered {
   FundingMode funding_mode = 9;
 }
 
-message EventContractDeregistered { string contract_address = 1; }
+message EventContractDeregistered {
+  option deprecated = true; string contract_address = 1; }

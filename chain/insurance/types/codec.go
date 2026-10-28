@@ -17,6 +17,11 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgRequestRedemption{}, "insurance/MsgRequestRedemption", nil)
 	cdc.RegisterConcrete(&MsgUpdateParams{}, "insurance/MsgUpdateParams", nil)
 	cdc.RegisterConcrete(&MsgClaimVoucher{}, "insurance/MsgClaimVoucher", nil)
+	cdc.RegisterConcrete(&MsgCreateConsolidatedInsurancePool{}, "insurance/MsgCreateConsolidatedInsurancePool", nil)
+	cdc.RegisterConcrete(&MsgSetConsolidatedInsurancePoolPause{}, "insurance/MsgSetConsolidatedInsurancePoolPause", nil)
+	cdc.RegisterConcrete(&MsgUpdateConsolidatedInsurancePolicy{}, "insurance/MsgUpdateConsolidatedInsurancePolicy", nil)
+	cdc.RegisterConcrete(&MsgUnderwriteConsolidatedInsurancePool{}, "insurance/MsgUnderwriteConsolidatedInsurancePool", nil)
+	cdc.RegisterConcrete(&MsgRequestConsolidatedRedemption{}, "insurance/MsgRequestConsolidatedRedemption", nil)
 	cdc.RegisterConcrete(&Params{}, "insurance/Params", nil)
 }
 
@@ -27,6 +32,11 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgRequestRedemption{},
 		&MsgUpdateParams{},
 		&MsgClaimVoucher{},
+		&MsgCreateConsolidatedInsurancePool{},
+		&MsgSetConsolidatedInsurancePoolPause{},
+		&MsgUpdateConsolidatedInsurancePolicy{},
+		&MsgUnderwriteConsolidatedInsurancePool{},
+		&MsgRequestConsolidatedRedemption{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

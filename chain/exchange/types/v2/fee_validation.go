@@ -13,11 +13,26 @@ func ValidateMakerWithTakerFeeAndDiscounts(
 	minimalProtocolFeeRate math.LegacyDec,
 	discountSchedule *FeeDiscountSchedule,
 ) error {
-	smallestTakerFeeRate := takerFeeRate
-	if makerFeeRate.IsNegative() && discountSchedule != nil && len(discountSchedule.TierInfos) > 0 {
-		maxTakerDiscount := discountSchedule.TierInfos[len(discountSchedule.TierInfos)-1].TakerDiscountRate
-		smallestTakerFeeRate = smallestTakerFeeRate.Mul(math.LegacyOneDec().Sub(maxTakerDiscount))
+	if err := types.ValidateMakerWithTakerFee(makerFeeRate, takerFeeRate, relayerFeeShareRate, minimalProtocolFeeRate); err != nil {
+		return err
 	}
 
-	return types.ValidateMakerWithTakerFee(makerFeeRate, smallestTakerFeeRate, relayerFeeShareRate, minimalProtocolFeeRate)
+	smallestMakerFeeRate := makerFeeRate
+	smallestTakerFeeRate := takerFeeRate
+	if discountSchedule != nil && len(discountSchedule.TierInfos) > 0 {
+		maxDiscount := discountSchedule.TierInfos[len(discountSchedule.TierInfos)-1]
+		smallestTakerFeeRate = takerFeeRate.Mul(math.LegacyOneDec().Sub(maxDiscount.TakerDiscountRate))
+		// Negative maker rebates are never discounted at execution.
+		if !makerFeeRate.IsNegative() {
+			smallestMakerFeeRate = makerFeeRate.Mul(math.LegacyOneDec().Sub(maxDiscount.MakerDiscountRate))
+		}
+	}
+
+	if err := types.ValidateProtocolFeeRate(smallestMakerFeeRate, smallestTakerFeeRate, relayerFeeShareRate, minimalProtocolFeeRate); err != nil {
+		return err
+	}
+
+	// Two new orders matched in the same auction both pay taker fees. Discounts
+	// can make the effective taker rate lower than the effective maker rate.
+	return types.ValidateProtocolFeeRate(smallestTakerFeeRate, smallestTakerFeeRate, relayerFeeShareRate, minimalProtocolFeeRate)
 }

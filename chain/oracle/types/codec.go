@@ -6,6 +6,7 @@ import (
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	authzcdc "github.com/cosmos/cosmos-sdk/x/authz/codec"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
@@ -74,6 +75,13 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&AuthorizeBandOracleRequestProposal{}, //nolint:staticcheck // deprecated
 		&UpdateBandOracleRequestProposal{},    //nolint:staticcheck // deprecated
 		&EnableBandIBCProposal{},              //nolint:staticcheck // deprecated
+	)
+
+	// Retired RPCs no longer register their responses through the service descriptor.
+	registry.RegisterImplementations((*txtypes.MsgResponse)(nil),
+		&MsgRelayPriceFeedPriceResponse{},
+		&MsgRelayCoinbaseMessagesResponse{},
+		&MsgRelayStorkPricesResponse{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
