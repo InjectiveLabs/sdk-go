@@ -38,6 +38,9 @@ type InjectiveExchangeRPCClient interface {
 	GetFeePayer(ctx context.Context, in *GetFeePayerRequest, opts ...grpc.CallOption) (*GetFeePayerResponse, error)
 	// PrepareFeeGrant creates or refreshes a feegrant for a grantee address
 	PrepareFeeGrant(ctx context.Context, in *PrepareFeeGrantRequest, opts ...grpc.CallOption) (*PrepareFeeGrantResponse, error)
+	// PrepareTxPrerequisites returns generic chain observations needed to
+	// construct a transaction
+	PrepareTxPrerequisites(ctx context.Context, in *PrepareTxPrerequisitesRequest, opts ...grpc.CallOption) (*PrepareTxPrerequisitesResponse, error)
 }
 
 type injectiveExchangeRPCClient struct {
@@ -120,6 +123,15 @@ func (c *injectiveExchangeRPCClient) PrepareFeeGrant(ctx context.Context, in *Pr
 	return out, nil
 }
 
+func (c *injectiveExchangeRPCClient) PrepareTxPrerequisites(ctx context.Context, in *PrepareTxPrerequisitesRequest, opts ...grpc.CallOption) (*PrepareTxPrerequisitesResponse, error) {
+	out := new(PrepareTxPrerequisitesResponse)
+	err := c.cc.Invoke(ctx, "/injective_exchange_rpc.InjectiveExchangeRPC/PrepareTxPrerequisites", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // InjectiveExchangeRPCServer is the server API for InjectiveExchangeRPC service.
 // All implementations must embed UnimplementedInjectiveExchangeRPCServer
 // for forward compatibility
@@ -140,6 +152,9 @@ type InjectiveExchangeRPCServer interface {
 	GetFeePayer(context.Context, *GetFeePayerRequest) (*GetFeePayerResponse, error)
 	// PrepareFeeGrant creates or refreshes a feegrant for a grantee address
 	PrepareFeeGrant(context.Context, *PrepareFeeGrantRequest) (*PrepareFeeGrantResponse, error)
+	// PrepareTxPrerequisites returns generic chain observations needed to
+	// construct a transaction
+	PrepareTxPrerequisites(context.Context, *PrepareTxPrerequisitesRequest) (*PrepareTxPrerequisitesResponse, error)
 	mustEmbedUnimplementedInjectiveExchangeRPCServer()
 }
 
@@ -170,6 +185,9 @@ func (UnimplementedInjectiveExchangeRPCServer) GetFeePayer(context.Context, *Get
 }
 func (UnimplementedInjectiveExchangeRPCServer) PrepareFeeGrant(context.Context, *PrepareFeeGrantRequest) (*PrepareFeeGrantResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PrepareFeeGrant not implemented")
+}
+func (UnimplementedInjectiveExchangeRPCServer) PrepareTxPrerequisites(context.Context, *PrepareTxPrerequisitesRequest) (*PrepareTxPrerequisitesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PrepareTxPrerequisites not implemented")
 }
 func (UnimplementedInjectiveExchangeRPCServer) mustEmbedUnimplementedInjectiveExchangeRPCServer() {}
 
@@ -328,6 +346,24 @@ func _InjectiveExchangeRPC_PrepareFeeGrant_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _InjectiveExchangeRPC_PrepareTxPrerequisites_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PrepareTxPrerequisitesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InjectiveExchangeRPCServer).PrepareTxPrerequisites(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/injective_exchange_rpc.InjectiveExchangeRPC/PrepareTxPrerequisites",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InjectiveExchangeRPCServer).PrepareTxPrerequisites(ctx, req.(*PrepareTxPrerequisitesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // InjectiveExchangeRPC_ServiceDesc is the grpc.ServiceDesc for InjectiveExchangeRPC service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -366,6 +402,10 @@ var InjectiveExchangeRPC_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PrepareFeeGrant",
 			Handler:    _InjectiveExchangeRPC_PrepareFeeGrant_Handler,
+		},
+		{
+			MethodName: "PrepareTxPrerequisites",
+			Handler:    _InjectiveExchangeRPC_PrepareTxPrerequisites_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

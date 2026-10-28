@@ -4,6 +4,15 @@ import (
 	"cosmossdk.io/math"
 )
 
+const (
+	ChainlinkDataStreamsSchemaV3 uint32 = 3
+	ChainlinkDataStreamsSchemaV8 uint32 = 8
+
+	ChainlinkDataStreamsMarketStatusUnknown uint32 = 0
+	ChainlinkDataStreamsMarketStatusClosed  uint32 = 1
+	ChainlinkDataStreamsMarketStatusOpen    uint32 = 2
+)
+
 // NewChainlinkDataStreamsPriceState creates a new ChainlinkDataStreamsPriceState instance.
 func NewChainlinkDataStreamsPriceState(
 	feedID string,
@@ -11,6 +20,9 @@ func NewChainlinkDataStreamsPriceState(
 	validFromTimestamp uint64,
 	observationsTimestamp uint64,
 	expiresAt uint64,
+	reportSchemaVersion uint32,
+	marketStatus uint32,
+	lastUpdateTimestamp uint64,
 	price math.LegacyDec,
 	blockTime int64,
 ) *ChainlinkDataStreamsPriceState {
@@ -20,6 +32,9 @@ func NewChainlinkDataStreamsPriceState(
 		ValidFromTimestamp:    validFromTimestamp,
 		ObservationsTimestamp: observationsTimestamp,
 		ExpiresAt:             expiresAt,
+		ReportSchemaVersion:   reportSchemaVersion,
+		MarketStatus:          marketStatus,
+		LastUpdateTimestamp:   lastUpdateTimestamp,
 		PriceState:            *NewPriceState(price, blockTime),
 	}
 }
@@ -30,6 +45,9 @@ func (c *ChainlinkDataStreamsPriceState) Update(
 	validFromTimestamp uint64,
 	observationsTimestamp uint64,
 	expiresAt uint64,
+	reportSchemaVersion uint32,
+	marketStatus uint32,
+	lastUpdateTimestamp uint64,
 	price math.LegacyDec,
 	blockTime int64,
 ) {
@@ -37,5 +55,8 @@ func (c *ChainlinkDataStreamsPriceState) Update(
 	c.ValidFromTimestamp = validFromTimestamp
 	c.ObservationsTimestamp = observationsTimestamp
 	c.ExpiresAt = expiresAt
+	c.ReportSchemaVersion = reportSchemaVersion
+	c.MarketStatus = marketStatus
+	c.LastUpdateTimestamp = lastUpdateTimestamp
 	c.PriceState.UpdatePrice(price, blockTime)
 }

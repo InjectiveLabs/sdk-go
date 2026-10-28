@@ -48,7 +48,8 @@ type GenesisState struct {
 	// genesis.
 	PythProPriceStates []*PythProPriceState `protobuf:"bytes,19,rep,name=pyth_pro_price_states,json=pythProPriceStates,proto3" json:"pyth_pro_price_states,omitempty"`
 	// seda_fast_price_states defines the persisted SEDA Fast feed price states
-	// at genesis, keyed by feed_id (hex-encoded execInputs).
+	// at genesis, keyed by feed_id:
+	// hex(keccak256(execProgramIdBytes || keccak256(execInputsBytes))).
 	SedaFastPriceStates []*SedaFastPriceState `protobuf:"bytes,20,rep,name=seda_fast_price_states,json=sedaFastPriceStates,proto3" json:"seda_fast_price_states,omitempty"`
 }
 

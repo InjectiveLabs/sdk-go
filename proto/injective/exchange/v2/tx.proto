@@ -165,7 +165,8 @@ service Msg {
 
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  rpc UpdateSwapParams(MsgUpdateSwapParams) returns (MsgUpdateSwapParamsResponse);
+  rpc UpdateSwapParams(MsgUpdateSwapParams)
+      returns (MsgUpdateSwapParamsResponse);
 
   // UpdateSpotMarket modifies certain spot market fields (admin only)
   rpc UpdateSpotMarket(MsgUpdateSpotMarket)
@@ -252,6 +253,13 @@ service Msg {
   // gates) to set the subaccount's risk profile (e.g. opt into cross-margin).
   rpc UpdateSubaccountRiskProfile(MsgUpdateSubaccountRiskProfile)
       returns (MsgUpdateSubaccountRiskProfileResponse);
+
+  // UpdateSubaccountMarketRiskMode pins one derivative market's margin mode
+  // for a subaccount (or unpins it back to the profile default), converting
+  // resting order margin representation atomically. Requires a flat position
+  // in that market.
+  rpc UpdateSubaccountMarketRiskMode(MsgUpdateSubaccountMarketRiskMode)
+      returns (MsgUpdateSubaccountMarketRiskModeResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -347,6 +355,11 @@ message MsgUpdateDerivativeMarket {
   // updates are exchange-admin-only and may set either ELIGIBLE or INELIGIBLE.
   // UNSPECIFIED is a no-op (preserves current value).
   CrossMarginEligibility cross_margin_eligibility = 11;
+
+  // (optional) updated reference-price gate settings. Direct message updates
+  // are exchange-admin-only. nil is a no-op (preserves current value).
+  ReferencePriceGateConfig new_reference_price_gate_config = 12
+      [ (gogoproto.nullable) = true ];
 }
 
 message MsgUpdateDerivativeMarketResponse {}
@@ -444,6 +457,30 @@ message MsgUpdateSubaccountRiskProfile {
 // MsgUpdateSubaccountRiskProfileResponse defines the
 // Msg/UpdateSubaccountRiskProfile response type.
 message MsgUpdateSubaccountRiskProfileResponse {}
+
+// MsgUpdateSubaccountMarketRiskMode defines a SDK message for pinning one
+// derivative market's margin mode for a subaccount, or unpinning it back to
+// the profile default (mode UNSPECIFIED).
+message MsgUpdateSubaccountMarketRiskMode {
+  option (amino.name) = "exchange/MsgUpdateSubaccountMarketRiskMode";
+  option (gogoproto.equal) = false;
+  option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address
+  string sender = 1;
+  // the subaccount ID to update the market's margin mode for
+  string subaccount_id = 2;
+  // the derivative market whose mode is pinned or unpinned
+  string market_id = 3;
+  // the requested mode: ISOLATED or CROSS pins, UNSPECIFIED unpins back to
+  // the profile default (subject to eligibility & safety gates)
+  RiskMode mode = 4;
+}
+
+// MsgUpdateSubaccountMarketRiskModeResponse defines the
+// Msg/UpdateSubaccountMarketRiskMode response type.
+message MsgUpdateSubaccountMarketRiskModeResponse {}
 
 // MsgCreateSpotLimitOrder defines a SDK message for creating a new spot limit
 // order.
@@ -1737,9 +1774,10 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
 
-// MsgLiquidateCrossMarginPool performs graduated selective liquidation on a
-// cross-margin quote-denom pool, canceling pool orders first and then closing
-// only enough positions to restore health according to the configured target.
+// MsgLiquidateCrossMarginPool liquidates a cross-margin quote-denom pool. The
+// legacy mode performs graduated public-book liquidation; RFQ-only mode accepts
+// from the configured contract either an authenticated atomic full-pool close
+// or a one-pair partial that closes one bounded slice of one position.
 message MsgLiquidateCrossMarginPool {
   option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
   option (cosmos.msg.v1.signer) = "sender";
@@ -1750,6 +1788,10 @@ message MsgLiquidateCrossMarginPool {
   string subaccount_id = 2;
   // identifies which cross-margin pool (by quote denom)
   string quote_denom = 3;
+  // rfq_action is the synthetic-trade action returned by the configured RFQ
+  // contract. It is required for an active-market RFQ liquidation and may be
+  // empty when an already-paused liquidatable pool is routed to settlement.
+  string rfq_action = 4;
 }
 
 // MsgLiquidateCrossMarginPoolResponse defines the

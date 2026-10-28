@@ -211,6 +211,16 @@ message ChainlinkDataStreamsPriceState {
   uint64 observations_timestamp = 4;
   PriceState price_state = 5 [ (gogoproto.nullable) = false ];
   uint64 expires_at = 6;
+  // report_schema_version is the Chainlink Data Streams report schema encoded
+  // by the feed ID (currently 3 for crypto and 8 for RWA).
+  uint32 report_schema_version = 7;
+  // market_status is meaningful for the v8 RWA schema: 0 unknown, 1 closed,
+  // and 2 open. It is zero for schemas without a market-status field.
+  uint32 market_status = 8;
+  // last_update_timestamp is the v8 timestamp of the last valid price update,
+  // in nanoseconds. It is zero for schemas without this field and is not
+  // assumed to be monotonic across reports.
+  uint64 last_update_timestamp = 9;
 }
 
 // DEPRECATED! Oracle price from Band is no longer supported
@@ -384,14 +394,24 @@ message PythProPriceState {
   // price_state holds the verified price, cumulative price, and block
   // timestamp.
   PriceState price_state = 3 [ (gogoproto.nullable) = false ];
+  // ema_price is the upstream emaPrice value from the verified Pyth Lazer
+  // payload, scaled with the feed exponent.
+  string ema_price = 4 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // ema_timestamp is the feed update timestamp associated with ema_price
+  // (microseconds from epoch). It advances only when a verified payload
+  // contains both emaPrice and a valid per-feed feedUpdateTimestamp.
+  uint64 ema_timestamp = 5;
 }
 
 // SedaFastPriceState holds the verified price state for a single SEDA Fast
 // feed.
 message SedaFastPriceState {
-  // feed_id is the hex-encoded execInputs string from the SEDA Fast
-  // dataRequest. It is the stable on-chain identity of the feed, invariant
-  // across relayer restarts and per-execution result IDs.
+  // feed_id is hex(keccak256(execProgramIdBytes ||
+  // keccak256(execInputsBytes))). It binds the signed Oracle Program and its
+  // inputs, avoiding collisions between programs that use identical inputs.
   string feed_id = 1;
   // timestamp is the dataResult.blockTimestamp value (milliseconds from
   // epoch) extracted from the verified SEDA Fast response.

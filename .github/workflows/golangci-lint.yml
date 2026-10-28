@@ -8,16 +8,28 @@ permissions:
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
   pull-requests: read
 
+env:
+  GOPRIVATE: github.com/InjectiveLabs
+  GONOSUMDB: github.com/InjectiveLabs
+
 jobs:
   golangci:
     name: lint
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.user.login != 'dependabot[bot]')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-go@v5
         with:
           go-version-file: "go.mod"
           check-latest: true
+          cache: false
+      - name: Download Go modules
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: ./scripts/with-private-git.sh go mod download
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v8
         with:
@@ -35,4 +47,4 @@ jobs:
 
           # Optional: if set to true then the all caching functionality will be complete disabled,
           #           takes precedence over all other caching options.
-          # skip-cache: true
+          skip-cache: true

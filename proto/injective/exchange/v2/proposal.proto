@@ -508,6 +508,10 @@ message DerivativeMarketParamUpdateProposal {
   // cross_margin_eligibility controls whether the market can participate in
   // cross-margin pools
   CrossMarginEligibility cross_margin_eligibility = 21;
+  // reference_price_gate_config updates the reference-price gate settings for
+  // the market. nil means no update (the market's current value is preserved).
+  ReferencePriceGateConfig reference_price_gate_config = 22
+      [ (gogoproto.nullable) = true ];
 }
 
 message AdminInfo {

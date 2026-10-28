@@ -1,6 +1,8 @@
 package types
 
 import (
+	"math/big"
+
 	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
@@ -44,18 +46,91 @@ func (a *SyntheticTradeAction) ValidateBasic() error {
 	}
 
 	for _, t := range a.UserTrades {
+		if t == nil {
+			return ErrInvalidTrade
+		}
 		if err := t.Validate(); err != nil {
 			return err
 		}
 	}
 
 	for _, t := range a.ContractTrades {
+		if t == nil {
+			return ErrInvalidTrade
+		}
 		if err := t.Validate(); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// ValidateRFQLiquidationBasic applies the dedicated full-pool liquidation wire
+// contract. Target legs are pure closes with zero supplied margin; provider legs
+// may carry enough isolated collateral for the maximum representable notional.
+func (a *SyntheticTradeAction) ValidateRFQLiquidationBasic() error {
+	if a == nil || len(a.UserTrades) == 0 || len(a.UserTrades) != len(a.ContractTrades) {
+		return ErrInvalidTrade
+	}
+
+	for _, trade := range a.UserTrades {
+		if err := validateRFQLiquidationTrade(trade, true); err != nil {
+			return err
+		}
+	}
+	for _, trade := range a.ContractTrades {
+		if err := validateRFQLiquidationTrade(trade, false); err != nil {
+			return err
+		}
+	}
+
+	return a.validateTrades()
+}
+
+func validateRFQLiquidationTrade(trade *SyntheticTrade, isTarget bool) error {
+	if trade == nil {
+		return ErrInvalidTrade
+	}
+	if trade.Quantity.IsNil() || !trade.Quantity.IsPositive() {
+		return ErrInvalidQuantity
+	}
+	if trade.Quantity.GT(MaxOrderQuantity) {
+		return errors.Wrap(ErrInvalidQuantity, trade.Quantity.String())
+	}
+	if trade.Price.IsNil() || !trade.Price.IsPositive() {
+		return ErrInvalidPrice
+	}
+	if !rfqLiquidationTradeNotionalRepresentable(trade.Quantity, trade.Price) {
+		return errors.Wrap(ErrInvalidTrade, "RFQ liquidation trade notional cannot be represented")
+	}
+	if trade.Margin.IsNil() || trade.Margin.IsNegative() {
+		return ErrInvalidMargin
+	}
+	if isTarget && !trade.Margin.IsZero() {
+		return errors.Wrap(ErrInvalidMargin, "RFQ liquidation target trade margin must be zero")
+	}
+	return nil
+}
+
+// rfqLiquidationTradeNotionalRepresentable mirrors LegacyDec.Mul's banker rounding on
+// arbitrary-precision integers, avoiding the panic that the multiplication itself emits
+// outside LegacyDec's range. RFQ prices are deliberately not capped at MaxOrderPrice:
+// oracle and funding moves can put a protocol-required liquidation price above the
+// ordinary public-order domain.
+func rfqLiquidationTradeNotionalRepresentable(quantity, price math.LegacyDec) bool {
+	if quantity.IsNil() || price.IsNil() {
+		return false
+	}
+	precision := math.LegacyOneDec().BigInt()
+	product := new(big.Int).Mul(quantity.BigInt(), price.BigInt())
+	quotient, remainder := new(big.Int), new(big.Int)
+	quotient.QuoRem(product, precision, remainder)
+	halfPrecision := new(big.Int).Quo(precision, big.NewInt(2))
+	if cmp := remainder.Cmp(halfPrecision); cmp > 0 || cmp == 0 && quotient.Bit(0) == 1 {
+		quotient.Add(quotient, big.NewInt(1))
+	}
+	return quotient.Cmp(legacyDecUpperLimit) < 0
 }
 
 type SyntheticTrade struct {

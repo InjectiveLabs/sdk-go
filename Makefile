@@ -1,7 +1,7 @@
 all:
 
 clone-injective-indexer:
-	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.89 --depth 1 --single-branch
+	git clone https://github.com/InjectiveLabs/injective-indexer.git -b v1.20.167 --depth 1 --single-branch
 
 clone-injective-core:
 	git clone https://github.com/InjectiveLabs/injective-core.git -b c-396/ibc-ratelimits --depth 1 --single-branch
@@ -42,6 +42,8 @@ copy-exchange-client: clone-injective-indexer
 
 copy-chain-types: clone-injective-core
 	cp -r injective-core/injective-chain/codec chain
+	mkdir -p chain/app/ante/eip712 && \
+		cp injective-core/injective-chain/app/ante/eip712/sign_mode_handler.go chain/app/ante/eip712
 	mkdir -p chain/crypto/codec && cp injective-core/injective-chain/crypto/codec/*.go chain/crypto/codec
 	rm -rf chain/crypto/codec/*test.go rm -rf chain/crypto/codec/*gw.go
 	mkdir -p chain/crypto/ethsecp256k1 && cp injective-core/injective-chain/crypto/ethsecp256k1/*.go chain/crypto/ethsecp256k1
@@ -126,6 +128,8 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/wasmx/types/msgs.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/params.go chain/wasmx/types && \
 		cp injective-core/injective-chain/modules/wasmx/types/proposal.go chain/wasmx/types
+	mkdir -p chain/mq/types && \
+		cp injective-core/injective-chain/mq/types/*.pb.go chain/mq/types
 	mkdir -p chain/stream/types && \
 		cp injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
 	mkdir -p chain/stream/types/v2 && \
@@ -140,8 +144,10 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/types/util.go chain/types && \
 		cp injective-core/injective-chain/types/validation.go chain/types
 
-	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
-	@find ./chain -type f -name "*.go" -exec sed -i "" -e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
+	@find ./chain -type f -name "*.go" -exec sed -i "" \
+		-e "s|github.com/InjectiveLabs/injective-core/injective-chain/app/ante/typeddata|github.com/InjectiveLabs/sdk-go/typeddata|g" \
+		-e "s|github.com/InjectiveLabs/injective-core/injective-chain/modules|github.com/InjectiveLabs/sdk-go/chain|g" \
+		-e "s|github.com/InjectiveLabs/injective-core/injective-chain|github.com/InjectiveLabs/sdk-go/chain|g" {} \;
 
 	mkdir -p chain/evm/precompiles/bank && mkdir -p chain/evm/precompiles/exchange && mkdir -p chain/evm/precompiles/staking && \
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.go chain/evm/precompiles/bank && \
@@ -168,6 +174,16 @@ extract-message-names:
 update-ofac-list:
 	go run examples/chain/ofac/1_DownloadOfacList/example.go
 
+GO_INSTALL_BINDIR := $(shell go env GOBIN)
+ifeq ($(GO_INSTALL_BINDIR),)
+GO_INSTALL_BINDIR := $(shell go env GOPATH)/bin
+endif
+
+install-mq:
+	mkdir -p $(GO_INSTALL_BINDIR)
+	go build -o $(GO_INSTALL_BINDIR)/mq-stream ./client/mq/stream/server
+	go build -o $(GO_INSTALL_BINDIR)/mq-detector ./client/mq/detector
+
 tests:
 	go clean -testcache && go test -race ./client/... ./ethereum/...
 coverage:
@@ -189,4 +205,4 @@ lint-all: export GOPROXY=direct
 lint-all:
 	golangci-lint run --timeout=15m -v
 
-.PHONY: copy-exchange-client update-ofac-list tests coverage lint lint-last-commit lint-master lint-all extract-message-names
+.PHONY: copy-exchange-client update-ofac-list install-mq tests coverage lint lint-last-commit lint-master lint-all extract-message-names

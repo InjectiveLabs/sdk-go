@@ -111,6 +111,15 @@ message EventSetChainlinkDataStreamsPrices {
   repeated ChainlinkDataStreamsPriceState prices = 1;
 }
 
+// EventPythProEMAUpdate exposes an independently advancing upstream Pyth Pro
+// EMA without adding provider-specific attributes to every generic oracle
+// price event.
+message EventPythProEMAUpdate {
+  uint32 feed_id = 1;
+  string ema_price = 2;
+  uint64 ema_timestamp = 3;
+}
+
 // EventOraclePriceUpdate is a generic price update event emitted for oracle
 // types that adopt the new event format. Intended to replace type-specific
 // events for all oracle types going forward.

@@ -212,6 +212,11 @@ type DerivativeMatchingExpansionData struct {
 	NewRestingLimitBuyOrders       []*DerivativeLimitOrder // transient buy orders that become new resting limit orders
 	NewRestingLimitSellOrders      []*DerivativeLimitOrder // transient sell orders that become new resting limit orders
 	PartialCancelOrders            map[common.Hash]struct{}
+
+	// ReferenceGateRejections carries reference-price gate rejections collected
+	// during parallel matching; they are emitted in the single-threaded
+	// persistence phase to avoid data races on the shared event manager.
+	ReferenceGateRejections []*EventOpenRejectedByReferenceGate
 }
 
 func NewDerivativeMatchingExpansionData(clearingPrice, clearingQuantity math.LegacyDec) *DerivativeMatchingExpansionData {
@@ -365,6 +370,7 @@ func (e *DerivativeMatchingExpansionData) GetLimitMatchingDerivativeBatchExecuti
 		CancelMarketOrderEvents:               nil,
 		VwapData:                              vwapData,
 		PartialCancelOrders:                   e.PartialCancelOrders,
+		ReferenceGateRejections:               e.ReferenceGateRejections,
 	}
 
 	return batch
@@ -526,6 +532,11 @@ type DerivativeMarketOrderExpansionData struct {
 	MarketBalanceDelta           math.LegacyDec
 	OpenInterestDelta            math.LegacyDec
 	CrossPoolSnapshotEvictions   []common.Hash
+
+	// ReferenceGateRejections carries reference-price gate rejections collected
+	// during parallel matching; they are emitted in the single-threaded
+	// persistence phase to avoid data races on the shared event manager.
+	ReferenceGateRejections []*EventOpenRejectedByReferenceGate
 }
 
 func (e *DerivativeMarketOrderExpansionData) SetSellExecutionData(
@@ -682,6 +693,7 @@ func (e *DerivativeMarketOrderExpansionData) GetMarketDerivativeBatchExecutionDa
 		CancelMarketOrderEvents:               cancelMarketOrdersEvents,
 		VwapData:                              vwapData,
 		CrossPoolSnapshotEvictions:            e.CrossPoolSnapshotEvictions,
+		ReferenceGateRejections:               e.ReferenceGateRejections,
 	}
 	return batch
 }
@@ -1006,6 +1018,16 @@ type DerivativeBatchExecutionData struct {
 	TransientLimitOrderCancelledDeltas []*DerivativeLimitOrderDelta
 	// resting limit order cancelled deltas to apply
 	RestingLimitOrderCancelledDeltas []*DerivativeLimitOrderDelta
+	// TerminalRestingCashAuthorityCancels carries the identities of prior-block
+	// makers terminally rejected by the ephemeral FBA cash authority or by the
+	// independently hard-blocked outage drain. Ordinary successful persistence
+	// uses the cancellation deltas above; this sidecar is retained solely so a
+	// later execution discard can apply the same canonical cancellations on the
+	// parent context.
+	TerminalRestingCashAuthorityCancels []*DerivativeLimitOrder
+	// RestingOwnerConflictCancelHashes supplies reasons for committed cancellation
+	// events. It grants no cancellation authority and is never used on discard.
+	RestingOwnerConflictCancelHashes []common.Hash
 
 	// events for batch market order and limit order execution
 	MarketBuyOrderExecutionEvent          *EventBatchDerivativeExecution
@@ -1032,6 +1054,11 @@ type DerivativeBatchExecutionData struct {
 	// and applied in the single-threaded persistence phase to avoid data races on the
 	// shared object store.
 	CrossPoolSnapshotEvictions []common.Hash
+
+	// ReferenceGateRejections carries reference-price gate rejections collected
+	// during parallel matching; they are emitted in the single-threaded
+	// persistence phase to avoid data races on the shared event manager.
+	ReferenceGateRejections []*EventOpenRejectedByReferenceGate
 }
 
 type CrossMarginPoolKey struct {
