@@ -152,7 +152,7 @@ func (p *Position) ClosePositionWithSettlePrice(settlementPrice, closingFeeRate 
 	closingDirection := !p.IsLong
 	fullyClosingQuantity := p.Quantity
 
-	closeTradingFee = settlementPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
+	closeTradingFee = p.GetSettlementClosingFee(settlementPrice, closingFeeRate)
 	positionDelta = &PositionDelta{
 		IsLong:            closingDirection,
 		ExecutionQuantity: fullyClosingQuantity,
@@ -375,7 +375,7 @@ func (p *Position) GetPayoutIfFullyClosing(closingPrice, closingFeeRate math.Leg
 	fullyClosingQuantity := p.Quantity
 	positionMargin := p.Margin
 
-	closeTradingFee := closingPrice.Mul(fullyClosingQuantity).Mul(closingFeeRate)
+	closeTradingFee := p.GetSettlementClosingFee(closingPrice, closingFeeRate)
 	payoutFromPnl := p.GetPayoutFromPnl(closingPrice, fullyClosingQuantity)
 	pnlNotional := payoutFromPnl.Sub(closeTradingFee)
 	payout := pnlNotional.Add(positionMargin)
@@ -385,6 +385,29 @@ func (p *Position) GetPayoutIfFullyClosing(closingPrice, closingFeeRate math.Leg
 		PnlNotional:  pnlNotional,
 		IsProfitable: isProfitable,
 	}
+}
+
+// GetSettlementClosingFee returns the closing fee charged when the whole
+// position is closed at closingPrice. The fee is paid only from the
+// position's own equity (margin plus PnL): a position that cannot cover it is
+// charged what it has, so the fee is never funded by insurance, haircuts on
+// other positions or the market balance.
+func (p *Position) GetSettlementClosingFee(closingPrice, closingFeeRate math.LegacyDec) math.LegacyDec {
+	fee := closingPrice.Mul(p.Quantity).Mul(closingFeeRate)
+	if !fee.IsPositive() {
+		return fee
+	}
+	// Margin plus PnL can exceed LegacyDec's range even when the fee-net payout
+	// does not, so compare the equity as a raw integer. A capped fee is below
+	// fee, so it is always representable.
+	equityRaw := new(big.Int).Add(p.Margin.BigInt(), p.GetPayoutFromPnl(closingPrice, p.Quantity).BigInt())
+	if equityRaw.Sign() <= 0 {
+		return math.LegacyZeroDec()
+	}
+	if equityRaw.Cmp(fee.BigInt()) >= 0 {
+		return fee
+	}
+	return math.LegacyNewDecFromBigIntWithPrec(equityRaw, math.LegacyPrecision)
 }
 
 func (p *Position) GetPayoutFromPnl(closingPrice, closingQuantity math.LegacyDec) math.LegacyDec {

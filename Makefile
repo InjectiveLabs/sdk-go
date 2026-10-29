@@ -128,8 +128,8 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/txfees/osmosis/types/*.pb.go chain/txfees/osmosis/types
 	mkdir -p chain/wasmx/types
 	find injective-core/injective-chain/modules/wasmx/types -maxdepth 1 -type f -name "*.go" ! -name "*_test.go" ! -name "*.pb.gw.go" -exec cp {} chain/wasmx/types \;
-#	mkdir -p chain/mq/types && \
-#		cp injective-core/injective-chain/mq/types/*.pb.go chain/mq/types
+	mkdir -p chain/mq/types && \
+		cp injective-core/injective-chain/mq/types/*.pb.go chain/mq/types
 	mkdir -p chain/stream/types && \
 		cp injective-core/injective-chain/stream/types/*.pb.go chain/stream/types
 	mkdir -p chain/stream/types/v2 && \
@@ -153,8 +153,8 @@ copy-chain-types: clone-injective-core
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/bank/*.abigen.go chain/evm/precompiles/bank && \
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/exchange/*.abigen.go chain/evm/precompiles/exchange && \
 		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/staking/*.abigen.go chain/evm/precompiles/staking
-#	mkdir -p chain/evm/precompiles/ibc && \
-#		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/ibc/*.go chain/evm/precompiles/ibc
+	mkdir -p chain/evm/precompiles/ibc && \
+		cp injective-core/injective-chain/modules/evm/precompiles/bindings/cosmos/precompile/ibc/*.go chain/evm/precompiles/ibc
 
 	cp -r injective-core/proto ./
 
