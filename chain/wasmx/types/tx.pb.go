@@ -730,7 +730,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// ExecuteContractCompat executes a contract using the EIP712-compatible format.
+	// ExecuteContractCompat executes a contract using the EIP712-compatible
+	// format.
 	ExecuteContractCompat(ctx context.Context, in *MsgExecuteContractCompat, opts ...grpc.CallOption) (*MsgExecuteContractCompatResponse, error)
 }
 
@@ -753,7 +754,8 @@ func (c *msgClient) ExecuteContractCompat(ctx context.Context, in *MsgExecuteCon
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// ExecuteContractCompat executes a contract using the EIP712-compatible format.
+	// ExecuteContractCompat executes a contract using the EIP712-compatible
+	// format.
 	ExecuteContractCompat(context.Context, *MsgExecuteContractCompat) (*MsgExecuteContractCompatResponse, error)
 }
 

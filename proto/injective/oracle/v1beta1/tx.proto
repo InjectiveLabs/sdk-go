@@ -82,8 +82,7 @@ message MsgRelayPriceFeedPrice {
   ];
 }
 
-message MsgRelayPriceFeedPriceResponse {
-  option deprecated = true;}
+message MsgRelayPriceFeedPriceResponse { option deprecated = true; }
 
 // Deprecated: Band oracle support was removed. This message is kept for
 // backward compatibility to decode historical transactions.
@@ -119,8 +118,7 @@ message MsgRelayCoinbaseMessages {
   repeated bytes signatures = 3;
 }
 
-message MsgRelayCoinbaseMessagesResponse {
-  option deprecated = true;}
+message MsgRelayCoinbaseMessagesResponse { option deprecated = true; }
 
 // MsgRelayStorkPrices defines a SDK message for relaying price message
 // from Stork API.
@@ -134,8 +132,7 @@ message MsgRelayStorkPrices {
   repeated AssetPair asset_pairs = 2;
 }
 
-message MsgRelayStorkPricesResponse {
-  option deprecated = true;}
+message MsgRelayStorkPricesResponse { option deprecated = true; }
 
 // Deprecated: BandIBC oracle support was removed. This message is kept for
 // backward compatibility to decode historical transactions.

@@ -55,7 +55,7 @@ message Params {
   // No generated Equal: the nullable decimal fields (white-knight rate,
   // cross-margin util_ratio) make gogoproto's equal template nil-unsafe on the
   // receiver side, and nothing consumes message-level equality on params.
-  option (amino.name) = "exchange/Params";
+  option (amino.name) = "exchange/v2/Params";
 
   // spot_market_instant_listing_fee defines the expedited fee in INJ required
   // to create a spot market by bypassing governance

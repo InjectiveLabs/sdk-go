@@ -29,23 +29,22 @@ message ForcePausedInfo {
 }
 
 message OpenNotionalCap {
-  option (amino.name) = "injective.exchange.v2.OpenNotionalCap";
+  option (amino.name) = "exchange/v2/OpenNotionalCap";
 
   oneof cap {
     OpenNotionalCapUncapped uncapped = 1
-        [ (amino.oneof_name) =
-              "injective.exchange.v2.OpenNotionalCapUncapped" ];
+        [ (amino.oneof_name) = "exchange/v2/OpenNotionalCapUncapped" ];
     OpenNotionalCapCapped capped = 2
-        [ (amino.oneof_name) = "injective.exchange.v2.OpenNotionalCapCapped" ];
+        [ (amino.oneof_name) = "exchange/v2/OpenNotionalCapCapped" ];
   }
 }
 
 message OpenNotionalCapUncapped {
-  option (amino.name) = "injective.exchange.v2.OpenNotionalCapUncapped";
+  option (amino.name) = "exchange/v2/OpenNotionalCapUncapped";
 }
 
 message OpenNotionalCapCapped {
-  option (amino.name) = "injective.exchange.v2.OpenNotionalCapCapped";
+  option (amino.name) = "exchange/v2/OpenNotionalCapCapped";
   string value = 1 [
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false

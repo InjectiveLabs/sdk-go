@@ -25,8 +25,13 @@ message Namespace {
   // capabilities for each manager for each policy
   repeated PolicyManagerCapability policy_manager_capabilities = 7;
 
-  // The address of the EVM contract to map code-based permissions
+  // The address of the EVM contract to map code-based permissions:  must
+  // implement isTransferRestricted(address from, address to, Cosmos.Coin
+  // amount) returns (bool)
   string evm_hook = 8;
+  // The address of the EVM contract to get called after every successful
+  // transfer postTransfer(address from, address to, Cosmos.Coin amount)
+  string evm_post_hook = 9;
 }
 
 // AddressRoles defines roles for an actor

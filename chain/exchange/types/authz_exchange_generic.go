@@ -3,6 +3,7 @@ package types
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -116,22 +117,36 @@ func (a GenericExchangeAuthorization) MsgTypeURL() string {
 
 // Accept implements Authorization.Accept.
 func (a GenericExchangeAuthorization) Accept(ctx context.Context, msg sdk.Msg) (authz.AcceptResponse, error) {
-	// SpendLimit is optional, so we only check it if it is set
-	if a.SpendLimit != nil {
-		hold, ok := getHold(ctx)
-		if !ok {
+	if isZeroSpendMsg(msg) { // cancellations stay allowed, even on an exhausted grant (BB-225)
+		return authz.AcceptResponse{Accept: true}, nil
+	}
+
+	// An empty SpendLimit is indistinguishable from an exhausted one once stored (proto drops empty repeated fields),
+	// so it never means "unlimited": an exhausted grant rejects every order, zero hold (reduce-only) ones included.
+	// SpendLimit only meters the funds a message locks, so while it is not exhausted zero hold orders do not consume it.
+	// Grants stored before SpendLimit was validated fail closed instead of mis-metering or panicking.
+	if a.SpendLimit.IsZero() || validateSpendLimit(a.SpendLimit) != nil {
+		return authz.AcceptResponse{Accept: false}, nil
+	}
+
+	// Only the EVM exchange precompile supplies a hold. Any other dispatch path (e.g. a plain x/authz MsgExec)
+	// cannot be metered against the SpendLimit.
+	hold, ok := getHold(ctx)
+	if !ok {
+		return authz.AcceptResponse{Accept: false}, nil
+	}
+
+	limit := a.SpendLimit
+	for _, coin := range hold {
+		allowance := limit.AmountOf(coin.Denom)
+		if allowance.LT(coin.Amount) {
 			return authz.AcceptResponse{Accept: false}, nil
 		}
 
-		for _, coin := range hold {
-			allowed := a.SpendLimit.AmountOf(coin.Denom)
-			if allowed.LT(coin.Amount) {
-				return authz.AcceptResponse{Accept: false}, nil
-			}
-			a.SpendLimit = a.SpendLimit.Sub(sdk.NewCoin(coin.Denom, coin.Amount))
-		}
+		limit = limit.Sub(sdk.NewCoin(coin.Denom, coin.Amount))
 	}
-	return authz.AcceptResponse{Accept: true, Updated: &a}, nil
+
+	return authz.AcceptResponse{Accept: true, Updated: NewGenericExchangeAuthorization(a.Msg, limit)}, nil
 }
 
 // getHold returns the hold from the context. Hold is the amount of coins that
@@ -146,6 +161,21 @@ func getHold(ctx context.Context) (sdk.Coins, bool) {
 	return hold, ok
 }
 
+// isZeroSpendMsg reports whether msg can never move or lock the granter's funds,
+// so it is safe to accept without a hold.
+func isZeroSpendMsg(msg sdk.Msg) bool {
+	switch m := msg.(type) {
+	case *MsgCancelSpotOrder, *MsgBatchCancelSpotOrders, *MsgCancelDerivativeOrder, *MsgBatchCancelDerivativeOrders:
+		return true
+	case *MsgBatchUpdateOrders:
+		return len(m.SpotOrdersToCreate) == 0 &&
+			len(m.DerivativeOrdersToCreate) == 0 &&
+			len(m.BinaryOptionsOrdersToCreate) == 0
+	default:
+		return false
+	}
+}
+
 // ValidateBasic implements Authorization.ValidateBasic.
 func (a GenericExchangeAuthorization) ValidateBasic() error {
 	if a.Msg == "" {
@@ -156,5 +186,26 @@ func (a GenericExchangeAuthorization) ValidateBasic() error {
 		return errors.New("msg type not allowed")
 	}
 
+	if err := validateSpendLimit(a.SpendLimit); err != nil {
+		return fmt.Errorf("invalid spend limit: %w", err)
+	}
+
+	return nil
+}
+
+// validateSpendLimit requires the sorted, duplicate-free, non-negative coins that Accept's lookups and subtractions
+// rely on. Zero amounts are allowed: they grant nothing for that denom.
+func validateSpendLimit(spendLimit sdk.Coins) error {
+	for i, coin := range spendLimit {
+		if err := sdk.ValidateDenom(coin.Denom); err != nil {
+			return err
+		}
+		if coin.Amount.IsNil() || coin.Amount.IsNegative() {
+			return fmt.Errorf("invalid amount for %s", coin.Denom)
+		}
+		if i > 0 && spendLimit[i-1].Denom >= coin.Denom {
+			return fmt.Errorf("denoms must be sorted and unique: %s", spendLimit)
+		}
+	}
 	return nil
 }

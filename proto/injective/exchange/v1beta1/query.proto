@@ -364,8 +364,6 @@ service Query {
   // MarketVolatility computes the volatility for spot and derivative markets
   // trading history.
 
-
-
   // Retrieves a trader's derivative conditional orders
   rpc TraderDerivativeConditionalOrders(
       QueryTraderDerivativeConditionalOrdersRequest)
@@ -1197,8 +1195,7 @@ message QueryTradeRewardPointsResponse {
 
 // QueryTradeRewardCampaignRequest is the request type for the
 // Query/TradeRewardCampaign RPC method.
-message QueryTradeRewardCampaignRequest {
-  option deprecated = true;}
+message QueryTradeRewardCampaignRequest { option deprecated = true; }
 
 // QueryTradeRewardCampaignResponse is the response type for the
 // Query/TradeRewardCampaign RPC method.
@@ -1220,22 +1217,27 @@ message QueryTradeRewardCampaignResponse {
 // QueryIsRegisteredDMMRequest is the request type for the Query/IsRegisteredDMM
 // RPC method.
 message QueryIsOptedOutOfRewardsRequest {
-  option deprecated = true; string account = 1; }
+  option deprecated = true;
+  string account = 1;
+}
 
 // QueryIsRegisteredDMMResponse is the response type for the
 // Query/IsRegisteredDMM RPC method.
 message QueryIsOptedOutOfRewardsResponse {
-  option deprecated = true; bool is_opted_out = 1; }
+  option deprecated = true;
+  bool is_opted_out = 1;
+}
 
 // QueryRegisteredDMMsRequest is the request type for the Query/RegisteredDMMs
 // RPC method.
-message QueryOptedOutOfRewardsAccountsRequest {
-  option deprecated = true;}
+message QueryOptedOutOfRewardsAccountsRequest { option deprecated = true; }
 
 // QueryRegisteredDMMsResponse is the response type for the Query/RegisteredDMMs
 // RPC method.
 message QueryOptedOutOfRewardsAccountsResponse {
-  option deprecated = true; repeated string accounts = 1; }
+  option deprecated = true;
+  repeated string accounts = 1;
+}
 
 // QueryFeeDiscountAccountInfoRequest is the request type for the
 // Query/FeeDiscountAccountInfo RPC method.
@@ -1357,7 +1359,9 @@ message QueryMarketIDFromVaultRequest { string vault_address = 1; }
 message QueryMarketIDFromVaultResponse { string market_id = 1; }
 
 message QueryHistoricalTradeRecordsRequest {
-  option deprecated = true; string market_id = 1; }
+  option deprecated = true;
+  string market_id = 1;
+}
 
 message QueryHistoricalTradeRecordsResponse {
   option deprecated = true;
@@ -1411,7 +1415,9 @@ message QueryBinaryMarketsRequest {
 // QueryBinaryMarketsResponse is the response type for the Query/BinaryMarkets
 // RPC method.
 message QueryBinaryMarketsResponse {
-  option deprecated = true; repeated BinaryOptionsMarket markets = 1; }
+  option deprecated = true;
+  repeated BinaryOptionsMarket markets = 1;
+}
 
 // QueryConditionalOrdersRequest is the request type for the
 // Query/ConditionalOrders RPC method.

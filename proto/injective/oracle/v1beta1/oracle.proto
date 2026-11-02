@@ -55,8 +55,8 @@ message SedaFastParams {
 enum OracleType {
   Unspecified = 0;
   Band = 1 [ deprecated = true ];
-  PriceFeed = 2 [deprecated = true];
-  Coinbase = 3 [deprecated = true];
+  PriceFeed = 2 [ deprecated = true ];
+  Coinbase = 3 [ deprecated = true ];
   Chainlink = 4 [ deprecated = true ];
   Razor = 5 [ deprecated = true ];
   Dia = 6 [ deprecated = true ];
@@ -65,7 +65,7 @@ enum OracleType {
   Pyth = 9;
   BandIBC = 10 [ deprecated = true ];
   Provider = 11;
-  Stork = 12 [deprecated = true];
+  Stork = 12 [ deprecated = true ];
   ChainlinkDataStreams = 13;
   // PythPro uses the Pyth Lazer high-frequency feed, verified via an on-chain
   // EVM contract.

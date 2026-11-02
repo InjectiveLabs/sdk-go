@@ -128,6 +128,10 @@ var (
 	LastGranterDelegationCheckTimePrefix = []byte{0x82} // prefix to store the last timestamp that the granter's delegations were checked
 	ActiveGrantPrefix                    = []byte{0x83} // prefix to store the grantee's active grant
 
+	// Derived fee-tier cache generations. Genesis import discards fee tiers, so these are not exported.
+	FeeDiscountGrantGenerationPrefix        = []byte{0xc1} // granter -> uint64 generation
+	FeeDiscountAccountGrantGenerationPrefix = []byte{0xc2} // account -> granter address || uint64 generation
+
 	MarketBalanceKey             = []byte{0x84} // key for each key to a MarketBalance
 	OrderExpirationsPrefix       = []byte{0x85} // prefix to store order expirations
 	OrderExpirationMarketsPrefix = []byte{0x86} // prefix to store markets with order expirations
@@ -238,6 +242,19 @@ var (
 	OutflowGuardBucketPrefix = []byte{0xb4}
 	// OutflowGuardLastPricePrefix | denom -> hour index (uint64 BE) | last good price (LegacyDec bytes).
 	OutflowGuardLastPricePrefix = []byte{0xb5}
+	// OutflowGuardExemptBucketPrefix | hour index (uint64 BE) | denom -> signed net outflow of the exempt addresses in base units (Int bytes).
+	OutflowGuardExemptBucketPrefix = []byte{0xb6}
+
+	FeeVolumeCurrentPrefix         = []byte{0xb7} // generation | account -> timestamp | unsigned decimal
+	FeeVolumeHistoryPrefix         = []byte{0xb8} // generation | account -> completed buckets and running total
+	FeeVolumeFallbackPrefix        = []byte{0xb9} // generation | timestamp | account -> unsigned decimal
+	FeeVolumeExpiryPrefix          = []byte{0xba} // generation | last-write bucket | account -> empty
+	FeeVolumeFirstBucketKey        = []byte{0xbb} // first populated bucket in this generation (grace period)
+	FeeTierGenerationKey           = []byte{0xbc} // schedule revision; invalidates cached tiers without scanning
+	FeeTierAccountGenerationPrefix = []byte{0xbd} // account -> schedule revision
+	FeeTierCleanupCursorKey        = []byte{0xbe} // last tier-cache key visited by bounded cleanup
+	FeeVolumeMigrationCursorKey    = []byte{0xbf} // block height | generation | bucket | last account (empty wraps)
+	FeeVolumeGenerationKey         = []byte{0xc0} // uint64; zero reads the pre-upgrade bucket namespace
 
 	// ObjectOutflowGuardStateKey holds the outflow guard's per-block prices and headroom in the
 	// object store (block-scoped).
@@ -247,6 +264,11 @@ var (
 // GetOutflowGuardBucketKey returns the store key of a denom's hourly outflow bucket.
 func GetOutflowGuardBucketKey(hour uint64, denom string) []byte {
 	return slices.Concat(OutflowGuardBucketPrefix, sdk.Uint64ToBigEndian(hour), []byte(denom))
+}
+
+// GetOutflowGuardExemptBucketKey returns the store key of a denom's hourly exempt flow bucket.
+func GetOutflowGuardExemptBucketKey(hour uint64, denom string) []byte {
+	return slices.Concat(OutflowGuardExemptBucketPrefix, sdk.Uint64ToBigEndian(hour), []byte(denom))
 }
 
 // GetOutflowGuardLastPriceKey returns the store key of a tracked denom's last good price.
@@ -875,6 +897,14 @@ func GetTotalGrantAmountKey(granter sdk.AccAddress) []byte {
 
 func GetActiveGrantKey(grantee sdk.AccAddress) []byte {
 	return append(ActiveGrantPrefix, grantee.Bytes()...)
+}
+
+func GetFeeDiscountGrantGenerationKey(granter sdk.AccAddress) []byte {
+	return append(FeeDiscountGrantGenerationPrefix, granter.Bytes()...)
+}
+
+func GetFeeDiscountAccountGrantGenerationKey(account sdk.AccAddress) []byte {
+	return append(FeeDiscountAccountGrantGenerationPrefix, account.Bytes()...)
 }
 
 func GetLastValidGrantDelegationCheckTimeKey(granter sdk.AccAddress) []byte {

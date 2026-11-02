@@ -75,6 +75,8 @@ message MsgUpdateNamespace {
   repeated PolicyManagerCapability policy_manager_capabilities = 7;
   // address of EVM smart contract to apply code-based restrictions
   SetContractHook evm_hook = 8;
+  // address of EVM smart contract to invoke after each successful transfer
+  SetContractHook evm_post_hook = 9;
 }
 
 message MsgUpdateNamespaceResponse {}

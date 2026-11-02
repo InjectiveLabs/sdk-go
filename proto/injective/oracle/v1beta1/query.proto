@@ -144,8 +144,7 @@ message QueryBandIBCPriceStatesResponse {
 
 // QueryPriceFeedPriceStatesRequest is the request type for the
 // Query/PriceFeedPriceStates RPC method.
-message QueryPriceFeedPriceStatesRequest {
-  option deprecated = true;}
+message QueryPriceFeedPriceStatesRequest { option deprecated = true; }
 
 // QueryPriceFeedPriceStatesResponse is the response type for the
 // Query/PriceFeedPriceStates RPC method.
@@ -156,8 +155,7 @@ message QueryPriceFeedPriceStatesResponse {
 
 // QueryCoinbasePriceStatesRequest is the request type for the
 // Query/CoinbasePriceStates RPC method.
-message QueryCoinbasePriceStatesRequest {
-  option deprecated = true;}
+message QueryCoinbasePriceStatesRequest { option deprecated = true; }
 
 // QueryCoinbasePriceStatesResponse is the response type for the
 // Query/CoinbasePriceStates RPC method.
@@ -198,8 +196,7 @@ message QuerySedaFastPriceStatesResponse {
 
 // QueryStorkPriceStatesRequest is the request type for the
 // Query/StorkPriceStates RPC method.
-message QueryStorkPriceStatesRequest {
-  option deprecated = true;}
+message QueryStorkPriceStatesRequest { option deprecated = true; }
 
 // QueryStorkPriceStatesResponse is the response type for the
 // Query/StorkPriceStates RPC method.
@@ -210,13 +207,14 @@ message QueryStorkPriceStatesResponse {
 
 // QueryStorkPublishersRequest is the request type for the
 // Query/StorkPublishers RPC method.
-message QueryStorkPublishersRequest {
-  option deprecated = true;}
+message QueryStorkPublishersRequest { option deprecated = true; }
 
 // QueryStorkPublishersResponse is the response type for the
 // Query/StorkPublishers RPC method.
 message QueryStorkPublishersResponse {
-  option deprecated = true; repeated string publishers = 1; }
+  option deprecated = true;
+  repeated string publishers = 1;
+}
 
 // QueryProviderPriceStateRequest is the request type for the
 // Query/ProviderPriceState RPC method.

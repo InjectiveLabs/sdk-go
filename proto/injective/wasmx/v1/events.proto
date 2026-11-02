@@ -28,4 +28,6 @@ message EventContractRegistered {
 }
 
 message EventContractDeregistered {
-  option deprecated = true; string contract_address = 1; }
+  option deprecated = true;
+  string contract_address = 1;
+}

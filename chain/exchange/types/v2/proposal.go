@@ -1572,6 +1572,10 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 		)
 	}
 
+	if err := types.ValidateFeeDiscountBucketConfig(p.Schedule.BucketCount, p.Schedule.BucketDuration); err != nil {
+		return errors.Wrap(types.ErrInvalidFeeDiscountSchedule, err.Error())
+	}
+
 	if types.HasDuplicates(p.Schedule.QuoteDenoms) {
 		return errors.Wrap(types.ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate quote denoms")
 	}

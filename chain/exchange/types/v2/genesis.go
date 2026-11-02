@@ -27,6 +27,9 @@ func DefaultGenesisState() *GenesisState {
 }
 
 func (gs GenesisState) Validate() error {
+	if err := gs.ValidateFeeDiscountVolumes(); err != nil {
+		return err
+	}
 	if err := gs.ValidateAddressOrderLimit(); err != nil {
 		return err
 	}

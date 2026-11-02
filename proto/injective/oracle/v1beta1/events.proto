@@ -106,7 +106,9 @@ message SetCoinbasePriceEvent {
 }
 
 message EventSetStorkPrices {
-  option deprecated = true; repeated StorkPriceState prices = 1; }
+  option deprecated = true;
+  repeated StorkPriceState prices = 1;
+}
 
 message EventSetPythPrices { repeated PythPriceState prices = 1; }
 

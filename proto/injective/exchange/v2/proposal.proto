@@ -31,7 +31,7 @@ enum CrossMarginEligibility {
 }
 
 message SpotMarketParamUpdateProposal {
-  option (amino.name) = "exchange/SpotMarketParamUpdateProposal";
+  option (amino.name) = "exchange/v2/SpotMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -104,7 +104,7 @@ enum ExchangeType {
 }
 
 message ExchangeEnableProposal {
-  option (amino.name) = "exchange/ExchangeEnableProposal";
+  option (amino.name) = "exchange/v2/ExchangeEnableProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -115,7 +115,7 @@ message ExchangeEnableProposal {
 }
 
 message BatchExchangeModificationProposal {
-  option (amino.name) = "exchange/BatchExchangeModificationProposal";
+  option (amino.name) = "exchange/v2/BatchExchangeModificationProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -150,7 +150,7 @@ message BatchExchangeModificationProposal {
 // SpotMarketLaunchProposal defines a SDK message for proposing a new spot
 // market through governance
 message SpotMarketLaunchProposal {
-  option (amino.name) = "exchange/SpotMarketLaunchProposal";
+  option (amino.name) = "exchange/v2/SpotMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -199,7 +199,7 @@ message SpotMarketLaunchProposal {
 // PerpetualMarketLaunchProposal defines a SDK message for proposing a new
 // perpetual futures market through governance
 message PerpetualMarketLaunchProposal {
-  option (amino.name) = "exchange/PerpetualMarketLaunchProposal";
+  option (amino.name) = "exchange/v2/PerpetualMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -283,7 +283,7 @@ message PerpetualMarketLaunchProposal {
 
 message BinaryOptionsMarketLaunchProposal {
   option deprecated = true;
-  option (amino.name) = "exchange/BinaryOptionsMarketLaunchProposal";
+  option (amino.name) = "exchange/v2/BinaryOptionsMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -344,7 +344,7 @@ message BinaryOptionsMarketLaunchProposal {
 // ExpiryFuturesMarketLaunchProposal defines a SDK message for proposing a new
 // expiry futures market through governance
 message ExpiryFuturesMarketLaunchProposal {
-  option (amino.name) = "exchange/ExpiryFuturesMarketLaunchProposal";
+  option (amino.name) = "exchange/v2/ExpiryFuturesMarketLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -429,7 +429,7 @@ message ExpiryFuturesMarketLaunchProposal {
 }
 
 message DerivativeMarketParamUpdateProposal {
-  option (amino.name) = "exchange/DerivativeMarketParamUpdateProposal";
+  option (amino.name) = "exchange/v2/DerivativeMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -545,7 +545,7 @@ message AdminInfo {
 }
 
 message MarketForcedSettlementProposal {
-  option (amino.name) = "exchange/MarketForcedSettlementProposal";
+  option (amino.name) = "exchange/v2/MarketForcedSettlementProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -561,7 +561,7 @@ message MarketForcedSettlementProposal {
 
 message UpdateAuctionExchangeTransferDenomDecimalsProposal {
   option (amino.name) =
-      "exchange/UpdateAuctionExchangeTransferDenomDecimalsProposal";
+      "exchange/v2/UpdateAuctionExchangeTransferDenomDecimalsProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -573,7 +573,7 @@ message UpdateAuctionExchangeTransferDenomDecimalsProposal {
 
 message BinaryOptionsMarketParamUpdateProposal {
   option deprecated = true;
-  option (amino.name) = "exchange/BinaryOptionsMarketParamUpdateProposal";
+  option (amino.name) = "exchange/v2/BinaryOptionsMarketParamUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -664,7 +664,7 @@ message OracleParams {
 
 message TradingRewardCampaignLaunchProposal {
   option deprecated = true;
-  option (amino.name) = "exchange/TradingRewardCampaignLaunchProposal";
+  option (amino.name) = "exchange/v2/TradingRewardCampaignLaunchProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -677,7 +677,7 @@ message TradingRewardCampaignLaunchProposal {
 
 message TradingRewardCampaignUpdateProposal {
   option deprecated = true;
-  option (amino.name) = "exchange/TradingRewardCampaignUpdateProposal";
+  option (amino.name) = "exchange/v2/TradingRewardCampaignUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -700,7 +700,7 @@ message RewardPointUpdate {
 
 message TradingRewardPendingPointsUpdateProposal {
   option deprecated = true;
-  option (amino.name) = "exchange/TradingRewardPendingPointsUpdateProposal";
+  option (amino.name) = "exchange/v2/TradingRewardPendingPointsUpdateProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -712,7 +712,7 @@ message TradingRewardPendingPointsUpdateProposal {
 }
 
 message FeeDiscountProposal {
-  option (amino.name) = "exchange/FeeDiscountProposal";
+  option (amino.name) = "exchange/v2/FeeDiscountProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -723,7 +723,7 @@ message FeeDiscountProposal {
 }
 
 message BatchCommunityPoolSpendProposal {
-  option (amino.name) = "exchange/BatchCommunityPoolSpendProposal";
+  option (amino.name) = "exchange/v2/BatchCommunityPoolSpendProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -737,7 +737,7 @@ message BatchCommunityPoolSpendProposal {
 // proposing new atomic take fee multipliers for specified markets
 message AtomicMarketOrderFeeMultiplierScheduleProposal {
   option (amino.name) =
-      "exchange/AtomicMarketOrderFeeMultiplierScheduleProposal";
+      "exchange/v2/AtomicMarketOrderFeeMultiplierScheduleProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";
@@ -749,7 +749,7 @@ message AtomicMarketOrderFeeMultiplierScheduleProposal {
 }
 
 message DenomMinNotionalProposal {
-  option (amino.name) = "exchange/DenomMinNotionalProposal";
+  option (amino.name) = "exchange/v2/DenomMinNotionalProposal";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos_proto.implements_interface) = "cosmos.gov.v1beta1.Content";

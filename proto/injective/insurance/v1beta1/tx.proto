@@ -45,8 +45,7 @@ service Msg {
       returns (MsgSetConsolidatedInsurancePoolPauseResponse);
 
   // UpdateConsolidatedInsurancePolicy changes one enrolled market's draw cap.
-  rpc UpdateConsolidatedInsurancePolicy(
-      MsgUpdateConsolidatedInsurancePolicy)
+  rpc UpdateConsolidatedInsurancePolicy(MsgUpdateConsolidatedInsurancePolicy)
       returns (MsgUpdateConsolidatedInsurancePolicyResponse);
 
   // UnderwriteConsolidatedInsurancePool deposits quote and immediately mints

@@ -150,6 +150,10 @@ func (msg MsgEthereumTx) ValidateBasic() error {
 	if msg.Raw.Type() == ethtypes.BlobTxType {
 		return errorsmod.Wrap(errortypes.ErrNotSupported, "EIP-4844 blob transactions are not supported")
 	}
+	// The EVM module never applies EIP-7702 authorizations, so a set code transaction would run as a plain call.
+	if msg.Raw.Type() == ethtypes.SetCodeTxType {
+		return errorsmod.Wrap(errortypes.ErrNotSupported, "EIP-7702 set code transactions are not supported")
+	}
 
 	// Check removed fields not exists
 	if msg.DeprecatedFrom != "" {

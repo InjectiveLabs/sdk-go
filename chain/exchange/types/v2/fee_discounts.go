@@ -326,6 +326,7 @@ func NewFeeDiscountStakingInfoForReadOnlyLookup(info *FeeDiscountStakingInfo) *F
 		NewAccountsMux:                      new(sync.RWMutex),
 		GrantsMux:                           new(sync.RWMutex),
 		Schedule:                            info.Schedule,
+		ConfigurationError:                  info.ConfigurationError,
 		CurrBucketStartTimestamp:            info.CurrBucketStartTimestamp,
 		OldestBucketStartTimestamp:          info.OldestBucketStartTimestamp,
 		MaxTTLTimestamp:                     info.MaxTTLTimestamp,
@@ -336,6 +337,10 @@ func NewFeeDiscountStakingInfoForReadOnlyLookup(info *FeeDiscountStakingInfo) *F
 }
 
 type FeeDiscountStakingInfo struct {
+	// Checked once when the execution snapshot is constructed. Callers must
+	// stop fee-dependent execution on error, including cached-tier lookups.
+	ConfigurationError error
+
 	// subaccountID => marketID => volume
 	SubaccountMarketVolumeContributions map[common.Hash]map[common.Hash]VolumeRecord
 	AccountVolumeContributions          map[types.Account]math.LegacyDec
