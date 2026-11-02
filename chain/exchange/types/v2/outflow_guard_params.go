@@ -18,9 +18,9 @@ import (
 // prices once per block.
 const MaxOutflowGuardTrackedDenoms = 16
 
-// DefaultOutflowGuardMaxOutflowRatio returns the default net outflow cap (10%).
+// DefaultOutflowGuardMaxOutflowRatio returns the default net outflow cap (30%).
 func DefaultOutflowGuardMaxOutflowRatio() math.LegacyDec {
-	return math.LegacyNewDecWithPrec(1, 1)
+	return math.LegacyNewDecWithPrec(3, 1)
 }
 
 // DefaultOutflowGuardParams returns the guard disabled with no tracked denoms.

@@ -1052,6 +1052,7 @@ func CloneFeeDiscountStakingInfo(info *FeeDiscountStakingInfo) *FeeDiscountStaki
 		NewAccountsMux:                      new(sync.RWMutex),
 		GrantsMux:                           new(sync.RWMutex),
 		Schedule:                            info.Schedule,
+		ConfigurationError:                  info.ConfigurationError,
 		CurrBucketStartTimestamp:            info.CurrBucketStartTimestamp,
 		OldestBucketStartTimestamp:          info.OldestBucketStartTimestamp,
 		MaxTTLTimestamp:                     info.MaxTTLTimestamp,

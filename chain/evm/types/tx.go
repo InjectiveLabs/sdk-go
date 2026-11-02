@@ -19,7 +19,15 @@ import (
 const (
 	// IBCHookCallerAddressHex is the trusted system caller used for inbound IBC-triggered EVM calls.
 	IBCHookCallerAddressHex = "0x0000000000000000000000000000000000000069"
-	onIBCTransferMethod     = "onIBCTransfer"
+
+	// MaxIBCHookReturnDataSize bounds the EVM return data an IBC hook can put in
+	// its acknowledgement and event. The acknowledgement base64-encodes it twice
+	// (ContractAck JSON, then the ICS-04 result), so 4 KiB becomes ~7 KiB, well
+	// within any counterparty's block. Unbounded, a few MiB of return data would
+	// make an acknowledgement no block can carry, stranding the packet's funds.
+	MaxIBCHookReturnDataSize = 4096
+
+	onIBCTransferMethod = "onIBCTransfer"
 )
 
 var onIBCTransferABI = mustParseABI(`[{

@@ -98,16 +98,6 @@ service Msg {
   rpc BatchCancelDerivativeOrders(MsgBatchCancelDerivativeOrders)
       returns (MsgBatchCancelDerivativeOrdersResponse);
 
-
-
-
-
-
-
-
-
-
-
   // SubaccountTransfer defines a method for transfer between subaccounts
   rpc SubaccountTransfer(MsgSubaccountTransfer)
       returns (MsgSubaccountTransferResponse);
@@ -142,8 +132,6 @@ service Msg {
 
   // RewardsOptOut defines a method for opting out of rewards
 
-
-
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
   rpc UpdateSwapParams(MsgUpdateSwapParams)
@@ -176,8 +164,6 @@ service Msg {
   rpc LaunchExpiryFuturesMarket(MsgExpiryFuturesMarketLaunch)
       returns (MsgExpiryFuturesMarketLaunchResponse);
 
-
-
   rpc BatchSpendCommunityPool(MsgBatchCommunityPoolSpend)
       returns (MsgBatchCommunityPoolSpendResponse);
 
@@ -187,15 +173,10 @@ service Msg {
   rpc DerivativeMarketParamUpdate(MsgDerivativeMarketParamUpdate)
       returns (MsgDerivativeMarketParamUpdateResponse);
 
-
-
   rpc ForceSettleMarket(MsgMarketForcedSettlement)
       returns (MsgMarketForcedSettlementResponse);
 
-
   rpc EnableExchange(MsgExchangeEnable) returns (MsgExchangeEnableResponse);
-
-
 
   rpc UpdateFeeDiscount(MsgFeeDiscount) returns (MsgFeeDiscountResponse);
 
@@ -236,7 +217,7 @@ service Msg {
 }
 
 message MsgUpdateSpotMarket {
-  option (amino.name) = "exchange/MsgUpdateSpotMarket";
+  option (amino.name) = "exchange/v2/MsgUpdateSpotMarket";
   option (gogoproto.equal) = false;
   option (cosmos.msg.v1.signer) = "admin";
 
@@ -271,7 +252,7 @@ message MsgUpdateSpotMarket {
 message MsgUpdateSpotMarketResponse {}
 
 message MsgUpdateDerivativeMarket {
-  option (amino.name) = "exchange/MsgUpdateDerivativeMarket";
+  option (amino.name) = "exchange/v2/MsgUpdateDerivativeMarket";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "admin";
@@ -338,7 +319,7 @@ message MsgUpdateDerivativeMarket {
 message MsgUpdateDerivativeMarketResponse {}
 
 message MsgUpdateParams {
-  option (amino.name) = "exchange/MsgUpdateParams";
+  option (amino.name) = "exchange/v2/MsgUpdateParams";
   option (cosmos.msg.v1.signer) = "authority";
 
   // authority is the address of the governance account.
@@ -360,7 +341,7 @@ message MsgUpdateParamsResponse {}
 // the governance authority or any exchange admin, providing an immediate
 // operational path for pausing swaps or maintaining the market allowlist.
 message MsgUpdateSwapParams {
-  option (amino.name) = "exchange/MsgUpdateSwapParams";
+  option (amino.name) = "exchange/v2/MsgUpdateSwapParams";
   option (cosmos.msg.v1.signer) = "sender";
 
   // sender is the governance authority or an exchange admin.
@@ -375,7 +356,7 @@ message MsgUpdateSwapParamsResponse {}
 // MsgDeposit defines a SDK message for transferring coins from the sender's
 // bank balance into the subaccount's exchange deposits
 message MsgDeposit {
-  option (amino.name) = "exchange/MsgDeposit";
+  option (amino.name) = "exchange/v2/MsgDeposit";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -395,7 +376,7 @@ message MsgDepositResponse {}
 // MsgWithdraw defines a SDK message for withdrawing coins from a subaccount's
 // deposits to the user's bank balance
 message MsgWithdraw {
-  option (amino.name) = "exchange/MsgWithdraw";
+  option (amino.name) = "exchange/v2/MsgWithdraw";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -414,7 +395,7 @@ message MsgWithdrawResponse {}
 // MsgUpdateSubaccountRiskProfile defines a SDK message for updating a
 // subaccount's risk profile (e.g. opting into cross-margin).
 message MsgUpdateSubaccountRiskProfile {
-  option (amino.name) = "exchange/MsgUpdateSubaccountRiskProfile";
+  option (amino.name) = "exchange/v2/MsgUpdateSubaccountRiskProfile";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -435,7 +416,7 @@ message MsgUpdateSubaccountRiskProfileResponse {}
 // derivative market's margin mode for a subaccount, or unpinning it back to
 // the profile default (mode UNSPECIFIED).
 message MsgUpdateSubaccountMarketRiskMode {
-  option (amino.name) = "exchange/MsgUpdateSubaccountMarketRiskMode";
+  option (amino.name) = "exchange/v2/MsgUpdateSubaccountMarketRiskMode";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -458,7 +439,7 @@ message MsgUpdateSubaccountMarketRiskModeResponse {}
 // MsgCreateSpotLimitOrder defines a SDK message for creating a new spot limit
 // order.
 message MsgCreateSpotLimitOrder {
-  option (amino.name) = "exchange/MsgCreateSpotLimitOrder";
+  option (amino.name) = "exchange/v2/MsgCreateSpotLimitOrder";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -482,7 +463,7 @@ message MsgCreateSpotLimitOrderResponse {
 // MsgBatchCreateSpotLimitOrders defines a SDK message for creating a new batch
 // of spot limit orders.
 message MsgBatchCreateSpotLimitOrders {
-  option (amino.name) = "exchange/MsgBatchCreateSpotLimitOrders";
+  option (amino.name) = "exchange/v2/MsgBatchCreateSpotLimitOrders";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -505,7 +486,7 @@ message MsgBatchCreateSpotLimitOrdersResponse {
 // MsgInstantSpotMarketLaunch defines a SDK message for creating a new spot
 // market by paying listing fee without governance
 message MsgInstantSpotMarketLaunch {
-  option (amino.name) = "exchange/MsgInstantSpotMarketLaunch";
+  option (amino.name) = "exchange/v2/MsgInstantSpotMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -549,7 +530,7 @@ message MsgInstantSpotMarketLaunchResponse {}
 // MsgInstantPerpetualMarketLaunch defines a SDK message for creating a new
 // perpetual futures market by paying listing fee without governance
 message MsgInstantPerpetualMarketLaunch {
-  option (amino.name) = "exchange/MsgInstantPerpetualMarketLaunch";
+  option (amino.name) = "exchange/v2/MsgInstantPerpetualMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -638,7 +619,7 @@ message MsgInstantPerpetualMarketLaunchResponse {}
 // perpetual futures market by paying listing fee without governance
 message MsgInstantBinaryOptionsMarketLaunch {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgInstantBinaryOptionsMarketLaunch";
+  option (amino.name) = "exchange/v2/MsgInstantBinaryOptionsMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -705,7 +686,7 @@ message MsgInstantBinaryOptionsMarketLaunchResponse {}
 // MsgInstantExpiryFuturesMarketLaunch defines a SDK message for creating a new
 // expiry futures market by paying listing fee without governance
 message MsgInstantExpiryFuturesMarketLaunch {
-  option (amino.name) = "exchange/MsgInstantExpiryFuturesMarketLaunch";
+  option (amino.name) = "exchange/v2/MsgInstantExpiryFuturesMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -793,7 +774,7 @@ message MsgInstantExpiryFuturesMarketLaunchResponse {}
 // MsgCreateSpotMarketOrder defines a SDK message for creating a new spot market
 // order.
 message MsgCreateSpotMarketOrder {
-  option (amino.name) = "exchange/MsgCreateSpotMarketOrder";
+  option (amino.name) = "exchange/v2/MsgCreateSpotMarketOrder";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -843,7 +824,7 @@ message SpotMarketOrderResults {
 
 // A Cosmos-SDK MsgCreateDerivativeLimitOrder
 message MsgCreateDerivativeLimitOrder {
-  option (amino.name) = "exchange/MsgCreateDerivativeLimitOrder";
+  option (amino.name) = "exchange/v2/MsgCreateDerivativeLimitOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -866,7 +847,7 @@ message MsgCreateDerivativeLimitOrderResponse {
 // A Cosmos-SDK MsgCreateBinaryOptionsLimitOrder
 message MsgCreateBinaryOptionsLimitOrder {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgCreateBinaryOptionsLimitOrder";
+  option (amino.name) = "exchange/v2/MsgCreateBinaryOptionsLimitOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -889,7 +870,7 @@ message MsgCreateBinaryOptionsLimitOrderResponse {
 
 // A Cosmos-SDK MsgBatchCreateDerivativeLimitOrders
 message MsgBatchCreateDerivativeLimitOrders {
-  option (amino.name) = "exchange/MsgBatchCreateDerivativeLimitOrders";
+  option (amino.name) = "exchange/v2/MsgBatchCreateDerivativeLimitOrders";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -912,7 +893,7 @@ message MsgBatchCreateDerivativeLimitOrdersResponse {
 
 // MsgCancelSpotOrder defines the Msg/CancelSpotOrder response type.
 message MsgCancelSpotOrder {
-  option (amino.name) = "exchange/MsgCancelSpotOrder";
+  option (amino.name) = "exchange/v2/MsgCancelSpotOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -933,7 +914,7 @@ message MsgCancelSpotOrderResponse {}
 
 // MsgBatchCancelSpotOrders defines the Msg/BatchCancelSpotOrders response type.
 message MsgBatchCancelSpotOrders {
-  option (amino.name) = "exchange/MsgBatchCancelSpotOrders";
+  option (amino.name) = "exchange/v2/MsgBatchCancelSpotOrders";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -954,7 +935,7 @@ message MsgBatchCancelSpotOrdersResponse {
 // Msg/BatchCancelBinaryOptionsOrders response type.
 message MsgBatchCancelBinaryOptionsOrders {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgBatchCancelBinaryOptionsOrders";
+  option (amino.name) = "exchange/v2/MsgBatchCancelBinaryOptionsOrders";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -974,7 +955,7 @@ message MsgBatchCancelBinaryOptionsOrdersResponse {
 
 // MsgBatchUpdateOrders defines the Msg/BatchUpdateOrders response type.
 message MsgBatchUpdateOrders {
-  option (amino.name) = "exchange/MsgBatchUpdateOrders";
+  option (amino.name) = "exchange/v2/MsgBatchUpdateOrders";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -999,12 +980,13 @@ message MsgBatchUpdateOrders {
       [ (gogoproto.nullable) = true ];
   // the binary options orders to cancel
   repeated OrderData binary_options_orders_to_cancel = 9
-      [ (gogoproto.nullable) = true , deprecated = true];
+      [ (gogoproto.nullable) = true, deprecated = true ];
   // the market IDs to cancel all binary options orders for (optional)
-  repeated string binary_options_market_ids_to_cancel_all = 10 [deprecated = true];
+  repeated string binary_options_market_ids_to_cancel_all = 10
+      [ deprecated = true ];
   // the binary options orders to create
   repeated DerivativeOrder binary_options_orders_to_create = 11
-      [ (gogoproto.nullable) = true , deprecated = true];
+      [ (gogoproto.nullable) = true, deprecated = true ];
   // the spot market orders to create
   repeated SpotOrder spot_market_orders_to_create = 12
       [ (gogoproto.nullable) = true ];
@@ -1013,7 +995,7 @@ message MsgBatchUpdateOrders {
       [ (gogoproto.nullable) = true ];
   // the binary options market orders to create
   repeated DerivativeOrder binary_options_market_orders_to_create = 14
-      [ (gogoproto.nullable) = true , deprecated = true];
+      [ (gogoproto.nullable) = true, deprecated = true ];
 }
 
 // MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
@@ -1025,28 +1007,30 @@ message MsgBatchUpdateOrdersResponse {
   repeated bool derivative_cancel_success = 2;
   repeated string spot_order_hashes = 3;
   repeated string derivative_order_hashes = 4;
-  repeated bool binary_options_cancel_success = 5 [deprecated = true];
-  repeated string binary_options_order_hashes = 6 [deprecated = true];
+  repeated bool binary_options_cancel_success = 5 [ deprecated = true ];
+  repeated string binary_options_order_hashes = 6 [ deprecated = true ];
   repeated string created_spot_orders_cids = 7;
   repeated string failed_spot_orders_cids = 8;
   repeated string created_derivative_orders_cids = 9;
   repeated string failed_derivative_orders_cids = 10;
-  repeated string created_binary_options_orders_cids = 11 [deprecated = true];
-  repeated string failed_binary_options_orders_cids = 12 [deprecated = true];
+  repeated string created_binary_options_orders_cids = 11 [ deprecated = true ];
+  repeated string failed_binary_options_orders_cids = 12 [ deprecated = true ];
   repeated string spot_market_order_hashes = 13;
   repeated string created_spot_market_orders_cids = 14;
   repeated string failed_spot_market_orders_cids = 15;
   repeated string derivative_market_order_hashes = 16;
   repeated string created_derivative_market_orders_cids = 17;
   repeated string failed_derivative_market_orders_cids = 18;
-  repeated string binary_options_market_order_hashes = 19 [deprecated = true];
-  repeated string created_binary_options_market_orders_cids = 20 [deprecated = true];
-  repeated string failed_binary_options_market_orders_cids = 21 [deprecated = true];
+  repeated string binary_options_market_order_hashes = 19 [ deprecated = true ];
+  repeated string created_binary_options_market_orders_cids = 20
+      [ deprecated = true ];
+  repeated string failed_binary_options_market_orders_cids = 21
+      [ deprecated = true ];
 }
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder
 message MsgCreateDerivativeMarketOrder {
-  option (amino.name) = "exchange/MsgCreateDerivativeMarketOrder";
+  option (amino.name) = "exchange/v2/MsgCreateDerivativeMarketOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -1095,7 +1079,7 @@ message DerivativeMarketOrderResults {
 // A Cosmos-SDK MsgCreateBinaryOptionsMarketOrder
 message MsgCreateBinaryOptionsMarketOrder {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgCreateBinaryOptionsMarketOrder";
+  option (amino.name) = "exchange/v2/MsgCreateBinaryOptionsMarketOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -1121,7 +1105,7 @@ message MsgCreateBinaryOptionsMarketOrderResponse {
 
 // MsgCancelDerivativeOrder defines the Msg/CancelDerivativeOrder response type.
 message MsgCancelDerivativeOrder {
-  option (amino.name) = "exchange/MsgCancelDerivativeOrder";
+  option (amino.name) = "exchange/v2/MsgCancelDerivativeOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -1147,7 +1131,7 @@ message MsgCancelDerivativeOrderResponse {}
 // type.
 message MsgCancelBinaryOptionsOrder {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgCancelBinaryOptionsOrder";
+  option (amino.name) = "exchange/v2/MsgCancelBinaryOptionsOrder";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -1187,7 +1171,7 @@ message OrderData {
 // MsgBatchCancelDerivativeOrders defines the Msg/CancelDerivativeOrders
 // response type.
 message MsgBatchCancelDerivativeOrders {
-  option (amino.name) = "exchange/MsgBatchCancelDerivativeOrders";
+  option (amino.name) = "exchange/v2/MsgBatchCancelDerivativeOrders";
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
 
@@ -1206,7 +1190,7 @@ message MsgBatchCancelDerivativeOrdersResponse {
 
 // A Cosmos-SDK MsgSubaccountTransfer
 message MsgSubaccountTransfer {
-  option (amino.name) = "exchange/MsgSubaccountTransfer";
+  option (amino.name) = "exchange/v2/MsgSubaccountTransfer";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1225,7 +1209,7 @@ message MsgSubaccountTransferResponse {}
 
 // A Cosmos-SDK MsgExternalTransfer
 message MsgExternalTransfer {
-  option (amino.name) = "exchange/MsgExternalTransfer";
+  option (amino.name) = "exchange/v2/MsgExternalTransfer";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1243,7 +1227,7 @@ message MsgExternalTransferResponse {}
 
 // A Cosmos-SDK MsgLiquidatePosition
 message MsgLiquidatePosition {
-  option (amino.name) = "exchange/MsgLiquidatePosition";
+  option (amino.name) = "exchange/v2/MsgLiquidatePosition";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1273,7 +1257,7 @@ message LiquidatePositionData {
 
 // A Cosmos-SDK MsgBatchLiquidatePositions
 message MsgBatchLiquidatePositions {
-  option (amino.name) = "exchange/MsgBatchLiquidatePositions";
+  option (amino.name) = "exchange/v2/MsgBatchLiquidatePositions";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1303,7 +1287,7 @@ message MsgBatchLiquidatePositionsResponse {
 
 // A Cosmos-SDK MsgOffsetPosition
 message MsgOffsetPosition {
-  option (amino.name) = "exchange/MsgOffsetPosition";
+  option (amino.name) = "exchange/v2/MsgOffsetPosition";
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
@@ -1318,7 +1302,7 @@ message MsgOffsetPositionResponse {}
 
 // A Cosmos-SDK MsgEmergencySettleMarket
 message MsgEmergencySettleMarket {
-  option (amino.name) = "exchange/MsgEmergencySettleMarket";
+  option (amino.name) = "exchange/v2/MsgEmergencySettleMarket";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1335,7 +1319,7 @@ message MsgEmergencySettleMarketResponse {}
 
 // A Cosmos-SDK MsgIncreasePositionMargin
 message MsgIncreasePositionMargin {
-  option (amino.name) = "exchange/MsgIncreasePositionMargin";
+  option (amino.name) = "exchange/v2/MsgIncreasePositionMargin";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1361,7 +1345,7 @@ message MsgIncreasePositionMarginResponse {
 
 // A Cosmos-SDK MsgDecreasePositionMargin
 message MsgDecreasePositionMargin {
-  option (amino.name) = "exchange/MsgDecreasePositionMargin";
+  option (amino.name) = "exchange/v2/MsgDecreasePositionMargin";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1386,7 +1370,7 @@ message MsgDecreasePositionMarginResponse {}
 
 // MsgPrivilegedExecuteContract defines the Msg/Exec message type
 message MsgPrivilegedExecuteContract {
-  option (amino.name) = "exchange/MsgPrivilegedExecuteContract";
+  option (amino.name) = "exchange/v2/MsgPrivilegedExecuteContract";
   option (cosmos.msg.v1.signer) = "sender";
 
   option (gogoproto.equal) = false;
@@ -1419,7 +1403,7 @@ message MsgPrivilegedExecuteContractResponse {
 // A Cosmos-SDK MsgRewardsOptOut
 message MsgRewardsOptOut {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgRewardsOptOut";
+  option (amino.name) = "exchange/v2/MsgRewardsOptOut";
   option (cosmos.msg.v1.signer) = "sender";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -1429,12 +1413,11 @@ message MsgRewardsOptOut {
 }
 
 // MsgRewardsOptOutResponse defines the Msg/RewardsOptOut response type.
-message MsgRewardsOptOutResponse {
-  option deprecated = true;}
+message MsgRewardsOptOutResponse { option deprecated = true; }
 
 // A Cosmos-SDK MsgReclaimLockedFunds
 message MsgReclaimLockedFunds {
-  option (amino.name) = "exchange/MsgReclaimLockedFunds";
+  option (amino.name) = "exchange/v2/MsgReclaimLockedFunds";
   option (cosmos.msg.v1.signer) = "sender";
 
   string sender = 1;
@@ -1468,7 +1451,7 @@ message MsgSignDoc {
 // market
 message MsgAdminUpdateBinaryOptionsMarket {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgAdminUpdateBinaryOptionsMarket";
+  option (amino.name) = "exchange/v2/MsgAdminUpdateBinaryOptionsMarket";
   option (cosmos.msg.v1.signer) = "sender";
 
   // The sender's Injective address
@@ -1494,7 +1477,7 @@ message MsgAdminUpdateBinaryOptionsMarketResponse {}
 
 // MsgAuthorizeStakeGrants grants stakes to grantees.
 message MsgAuthorizeStakeGrants {
-  option (amino.name) = "exchange/MsgAuthorizeStakeGrants";
+  option (amino.name) = "exchange/v2/MsgAuthorizeStakeGrants";
   option (cosmos.msg.v1.signer) = "sender";
 
   // Injective address of the stake granter
@@ -1507,7 +1490,7 @@ message MsgAuthorizeStakeGrantsResponse {}
 
 // MsgActivateStakeGrant allows a grantee to activate a stake grant.
 message MsgActivateStakeGrant {
-  option (amino.name) = "exchange/MsgActivateStakeGrant";
+  option (amino.name) = "exchange/v2/MsgActivateStakeGrant";
   option (cosmos.msg.v1.signer) = "sender";
 
   // Injective address of the stake grantee
@@ -1519,7 +1502,7 @@ message MsgActivateStakeGrant {
 message MsgActivateStakeGrantResponse {}
 
 message MsgBatchExchangeModification {
-  option (amino.name) = "exchange/MsgBatchExchangeModification";
+  option (amino.name) = "exchange/v2/MsgBatchExchangeModification";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1532,7 +1515,7 @@ message MsgBatchExchangeModification {
 message MsgBatchExchangeModificationResponse {}
 
 message MsgSpotMarketLaunch {
-  option (amino.name) = "exchange/MsgSpotMarketLaunch";
+  option (amino.name) = "exchange/v2/MsgSpotMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1545,7 +1528,7 @@ message MsgSpotMarketLaunch {
 message MsgSpotMarketLaunchResponse {}
 
 message MsgPerpetualMarketLaunch {
-  option (amino.name) = "exchange/MsgPerpetualMarketLaunch";
+  option (amino.name) = "exchange/v2/MsgPerpetualMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1558,7 +1541,7 @@ message MsgPerpetualMarketLaunch {
 message MsgPerpetualMarketLaunchResponse {}
 
 message MsgExpiryFuturesMarketLaunch {
-  option (amino.name) = "exchange/MsgExpiryFuturesMarketLaunch";
+  option (amino.name) = "exchange/v2/MsgExpiryFuturesMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1572,7 +1555,7 @@ message MsgExpiryFuturesMarketLaunchResponse {}
 
 message MsgBinaryOptionsMarketLaunch {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgBinaryOptionsMarketLaunch";
+  option (amino.name) = "exchange/v2/MsgBinaryOptionsMarketLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1585,7 +1568,7 @@ message MsgBinaryOptionsMarketLaunch {
 message MsgBinaryOptionsMarketLaunchResponse {}
 
 message MsgBatchCommunityPoolSpend {
-  option (amino.name) = "exchange/MsgBatchCommunityPoolSpend";
+  option (amino.name) = "exchange/v2/MsgBatchCommunityPoolSpend";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1598,7 +1581,7 @@ message MsgBatchCommunityPoolSpend {
 message MsgBatchCommunityPoolSpendResponse {}
 
 message MsgSpotMarketParamUpdate {
-  option (amino.name) = "exchange/MsgSpotMarketParamUpdate";
+  option (amino.name) = "exchange/v2/MsgSpotMarketParamUpdate";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1611,7 +1594,7 @@ message MsgSpotMarketParamUpdate {
 message MsgSpotMarketParamUpdateResponse {}
 
 message MsgDerivativeMarketParamUpdate {
-  option (amino.name) = "exchange/MsgDerivativeMarketParamUpdate";
+  option (amino.name) = "exchange/v2/MsgDerivativeMarketParamUpdate";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1625,7 +1608,7 @@ message MsgDerivativeMarketParamUpdateResponse {}
 
 message MsgBinaryOptionsMarketParamUpdate {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgBinaryOptionsMarketParamUpdate";
+  option (amino.name) = "exchange/v2/MsgBinaryOptionsMarketParamUpdate";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1638,7 +1621,7 @@ message MsgBinaryOptionsMarketParamUpdate {
 message MsgBinaryOptionsMarketParamUpdateResponse {}
 
 message MsgMarketForcedSettlement {
-  option (amino.name) = "exchange/MsgMarketForcedSettlement";
+  option (amino.name) = "exchange/v2/MsgMarketForcedSettlement";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1652,7 +1635,7 @@ message MsgMarketForcedSettlementResponse {}
 
 message MsgTradingRewardCampaignLaunch {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgTradingRewardCampaignLaunch";
+  option (amino.name) = "exchange/v2/MsgTradingRewardCampaignLaunch";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1662,11 +1645,10 @@ message MsgTradingRewardCampaignLaunch {
   TradingRewardCampaignLaunchProposal proposal = 2;
 }
 
-message MsgTradingRewardCampaignLaunchResponse {
-  option deprecated = true;}
+message MsgTradingRewardCampaignLaunchResponse { option deprecated = true; }
 
 message MsgExchangeEnable {
-  option (amino.name) = "exchange/MsgExchangeEnable";
+  option (amino.name) = "exchange/v2/MsgExchangeEnable";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1680,7 +1662,7 @@ message MsgExchangeEnableResponse {}
 
 message MsgTradingRewardCampaignUpdate {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgTradingRewardCampaignUpdate";
+  option (amino.name) = "exchange/v2/MsgTradingRewardCampaignUpdate";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1690,12 +1672,11 @@ message MsgTradingRewardCampaignUpdate {
   TradingRewardCampaignUpdateProposal proposal = 2;
 }
 
-message MsgTradingRewardCampaignUpdateResponse {
-  option deprecated = true;}
+message MsgTradingRewardCampaignUpdateResponse { option deprecated = true; }
 
 message MsgTradingRewardPendingPointsUpdate {
   option deprecated = true;
-  option (amino.name) = "exchange/MsgTradingRewardPendingPointsUpdate";
+  option (amino.name) = "exchange/v2/MsgTradingRewardPendingPointsUpdate";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1706,10 +1687,11 @@ message MsgTradingRewardPendingPointsUpdate {
 }
 
 message MsgTradingRewardPendingPointsUpdateResponse {
-  option deprecated = true;}
+  option deprecated = true;
+}
 
 message MsgFeeDiscount {
-  option (amino.name) = "exchange/MsgFeeDiscount";
+  option (amino.name) = "exchange/v2/MsgFeeDiscount";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1722,7 +1704,7 @@ message MsgFeeDiscount {
 message MsgFeeDiscountResponse {}
 
 message MsgAtomicMarketOrderFeeMultiplierSchedule {
-  option (amino.name) = "exchange/MsgAtomicMarketOrderFeeMultiplierSchedule";
+  option (amino.name) = "exchange/v2/MsgAtomicMarketOrderFeeMultiplierSchedule";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
   option (cosmos.msg.v1.signer) = "sender";
@@ -1737,7 +1719,7 @@ message MsgAtomicMarketOrderFeeMultiplierScheduleResponse {}
 // MsgSetDelegationTransferReceivers defines a message for adding delegation
 // transfer receivers.
 message MsgSetDelegationTransferReceivers {
-  option (amino.name) = "exchange/MsgSetDelegationTransferReceivers";
+  option (amino.name) = "exchange/v2/MsgSetDelegationTransferReceivers";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address (must be exchange admin)
@@ -1752,7 +1734,7 @@ message MsgSetDelegationTransferReceiversResponse {}
 
 // MsgCancelPostOnlyMode defines a message for canceling post-only mode
 message MsgCancelPostOnlyMode {
-  option (amino.name) = "exchange/MsgCancelPostOnlyMode";
+  option (amino.name) = "exchange/v2/MsgCancelPostOnlyMode";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1765,7 +1747,7 @@ message MsgCancelPostOnlyModeResponse {}
 // MsgActivatePostOnlyMode defines a message to turn on the post-only mode for a
 // number of blocks
 message MsgActivatePostOnlyMode {
-  option (amino.name) = "exchange/MsgActivatePostOnlyMode";
+  option (amino.name) = "exchange/v2/MsgActivatePostOnlyMode";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the sender's Injective address
@@ -1783,7 +1765,7 @@ message MsgActivatePostOnlyModeResponse {}
 // from the configured contract either an authenticated atomic full-pool close
 // or a one-pair partial that closes one bounded slice of one position.
 message MsgLiquidateCrossMarginPool {
-  option (amino.name) = "exchange/MsgLiquidateCrossMarginPool";
+  option (amino.name) = "exchange/v2/MsgLiquidateCrossMarginPool";
   option (cosmos.msg.v1.signer) = "sender";
 
   // the liquidator's Injective address

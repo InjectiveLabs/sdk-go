@@ -139,6 +139,7 @@ var (
 	ErrInvalidFundingImpactNotional             = errors.Register(ModuleName, 130, "invalid funding impact notional")
 	ErrTooManyFundingV2Markets                  = errors.Register(ModuleName, 131, "too many markets use funding v2")
 	ErrInvalidSyntheticTradeFeeRate             = errors.Register(ModuleName, 132, "invalid synthetic trade fee rate")
+	ErrSwapMaxInputExceeded                     = errors.Register(ModuleName, 133, "swap input above maximum")
 )
 
 // ErrCrossMarginBoundExceeded is the common cause of every hard G/U/C/B census

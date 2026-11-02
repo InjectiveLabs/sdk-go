@@ -2351,14 +2351,16 @@ func (msg *MsgAuthorizeStakeGrants) ValidateBasic() error {
 	for idx := range msg.Grants {
 		grant := msg.Grants[idx]
 
-		if _, err := sdk.AccAddressFromBech32(grant.Grantee); err != nil {
+		grantee, err := sdk.AccAddressFromBech32(grant.Grantee)
+		if err != nil {
 			return errors.Wrap(sdkerrors.ErrInvalidAddress, grant.Grantee)
 		}
 
-		if _, ok := seenGrantees[grant.Grantee]; ok {
+		granteeKey := string(grantee)
+		if _, ok := seenGrantees[granteeKey]; ok {
 			return errors.Wrapf(types.ErrInvalidStakeGrant, "duplicate grantee %s in MsgAuthorizeStakeGrants", grant.Grantee)
 		}
-		seenGrantees[grant.Grantee] = struct{}{}
+		seenGrantees[granteeKey] = struct{}{}
 
 		if grant.Amount.IsNegative() || grant.Amount.GT(types.MaxTokenInt) {
 			return errors.Wrap(types.ErrInvalidStakeGrant, grant.Amount.String())

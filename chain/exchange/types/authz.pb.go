@@ -635,7 +635,10 @@ type GenericExchangeAuthorization struct {
 	// Msg, identified by it's type URL, to grant permissions to the grantee
 	Msg string `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`
 	// SpendLimit is the maximum amount of tokens that the grantee can spend on
-	// behalf of the granter. If not set, there is no spend limit.
+	// behalf of the granter. If empty, the grantee can only execute messages that
+	// do not spend funds (e.g. cancellations). Spending is only metered for
+	// messages dispatched through the EVM exchange precompile; any other dispatch
+	// path (e.g. MsgExec) is restricted to messages that do not spend funds.
 	SpendLimit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=spend_limit,json=spendLimit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"spend_limit"`
 }
 

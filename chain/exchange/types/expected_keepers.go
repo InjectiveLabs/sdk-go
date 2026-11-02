@@ -131,5 +131,6 @@ type DowntimeKeeper interface {
 
 type PermissionsKeeper interface {
 	IsEnforcedRestrictionsDenom(ctx sdk.Context, denom string) bool
+	IsEnforcedOwnerBlacklisted(ctx sdk.Context, denom string, owner sdk.AccAddress) (bool, error)
 	SendRestrictionFn(ctx context.Context, fromAddr, toAddr sdk.AccAddress, amount sdk.Coin) (newToAddr sdk.AccAddress, err error)
 }

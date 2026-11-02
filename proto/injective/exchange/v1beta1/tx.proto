@@ -86,16 +86,6 @@ service Msg {
   rpc BatchCancelDerivativeOrders(MsgBatchCancelDerivativeOrders)
       returns (MsgBatchCancelDerivativeOrdersResponse);
 
-
-
-
-
-
-
-
-
-
-
   // SubaccountTransfer defines a method for transfer between subaccounts
   rpc SubaccountTransfer(MsgSubaccountTransfer)
       returns (MsgSubaccountTransferResponse);
@@ -121,8 +111,6 @@ service Msg {
       returns (MsgDecreasePositionMarginResponse);
 
   // RewardsOptOut defines a method for opting out of rewards
-
-
 
   // UpdateSpotMarket modifies certain spot market fields (admin only)
   rpc UpdateSpotMarket(MsgUpdateSpotMarket)
@@ -780,12 +768,13 @@ message MsgBatchUpdateOrders {
       [ (gogoproto.nullable) = true ];
   // the binary options orders to cancel
   repeated OrderData binary_options_orders_to_cancel = 9
-      [ (gogoproto.nullable) = true , deprecated = true];
+      [ (gogoproto.nullable) = true, deprecated = true ];
   // the binary options market IDs to cancel all
-  repeated string binary_options_market_ids_to_cancel_all = 10 [deprecated = true];
+  repeated string binary_options_market_ids_to_cancel_all = 10
+      [ deprecated = true ];
   // the binary options orders to create
   repeated DerivativeOrder binary_options_orders_to_create = 11
-      [ (gogoproto.nullable) = true , deprecated = true];
+      [ (gogoproto.nullable) = true, deprecated = true ];
 }
 
 // MsgBatchUpdateOrdersResponse defines the Msg/BatchUpdateOrders response type.
@@ -797,14 +786,14 @@ message MsgBatchUpdateOrdersResponse {
   repeated bool derivative_cancel_success = 2;
   repeated string spot_order_hashes = 3;
   repeated string derivative_order_hashes = 4;
-  repeated bool binary_options_cancel_success = 5 [deprecated = true];
-  repeated string binary_options_order_hashes = 6 [deprecated = true];
+  repeated bool binary_options_cancel_success = 5 [ deprecated = true ];
+  repeated string binary_options_order_hashes = 6 [ deprecated = true ];
   repeated string created_spot_orders_cids = 7;
   repeated string failed_spot_orders_cids = 8;
   repeated string created_derivative_orders_cids = 9;
   repeated string failed_derivative_orders_cids = 10;
-  repeated string created_binary_options_orders_cids = 11 [deprecated = true];
-  repeated string failed_binary_options_orders_cids = 12 [deprecated = true];
+  repeated string created_binary_options_orders_cids = 11 [ deprecated = true ];
+  repeated string failed_binary_options_orders_cids = 12 [ deprecated = true ];
 }
 
 // A Cosmos-SDK MsgCreateDerivativeMarketOrder
@@ -1127,8 +1116,7 @@ message MsgRewardsOptOut {
 }
 
 // MsgRewardsOptOutResponse defines the Msg/RewardsOptOut response type.
-message MsgRewardsOptOutResponse {
-  option deprecated = true;}
+message MsgRewardsOptOutResponse { option deprecated = true; }
 
 // A Cosmos-SDK MsgReclaimLockedFunds
 message MsgReclaimLockedFunds {

@@ -118,7 +118,10 @@ message GenericExchangeAuthorization {
   string msg = 1;
 
   // SpendLimit is the maximum amount of tokens that the grantee can spend on
-  // behalf of the granter. If not set, there is no spend limit.
+  // behalf of the granter. If empty, the grantee can only execute messages that
+  // do not spend funds (e.g. cancellations). Spending is only metered for
+  // messages dispatched through the EVM exchange precompile; any other dispatch
+  // path (e.g. MsgExec) is restricted to messages that do not spend funds.
   repeated cosmos.base.v1beta1.Coin spend_limit = 2 [
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true,

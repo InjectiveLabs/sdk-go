@@ -112,10 +112,8 @@ message EventConsolidatedInsuranceBalanceChanged {
   bool is_draw = 4;
   cosmos.base.v1beta1.Coin requested_amount = 5
       [ (gogoproto.nullable) = false ];
-  cosmos.base.v1beta1.Coin paid_amount = 6
-      [ (gogoproto.nullable) = false ];
-  cosmos.base.v1beta1.Coin unpaid_amount = 7
-      [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin paid_amount = 6 [ (gogoproto.nullable) = false ];
+  cosmos.base.v1beta1.Coin unpaid_amount = 7 [ (gogoproto.nullable) = false ];
   cosmos.base.v1beta1.Coin remaining_pool_balance = 8
       [ (gogoproto.nullable) = false ];
   cosmos.base.v1beta1.Coin remaining_market_capacity = 9

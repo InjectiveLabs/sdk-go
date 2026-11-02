@@ -43,4 +43,9 @@ message Params {
   // inside namespace on every update inside smart contract state
   repeated EnforcedRestrictionsEVMContract enforced_restrictions_evm_contracts =
       3 [ (gogoproto.nullable) = false ];
+
+  // Max amount of gas allowed for an isBlacklisted(address) owner query on an
+  // enforced restrictions EVM contract. Fixed-gas transactions prepay it for
+  // every uncached owner, so it is bounded separately from contract hooks.
+  uint64 owner_blacklist_query_max_gas = 4;
 }

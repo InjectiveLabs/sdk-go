@@ -1305,6 +1305,10 @@ func (p *FeeDiscountProposal) ValidateBasic() error {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule must have have bucket durations of at least 10 seconds")
 	}
 
+	if err := ValidateFeeDiscountBucketConfig(p.Schedule.BucketCount, p.Schedule.BucketDuration); err != nil {
+		return errors.Wrap(ErrInvalidFeeDiscountSchedule, err.Error())
+	}
+
 	if chaintypes.HasDuplicate(p.Schedule.QuoteDenoms) {
 		return errors.Wrap(ErrInvalidFeeDiscountSchedule, "new fee discount schedule cannot have duplicate quote denoms")
 	}

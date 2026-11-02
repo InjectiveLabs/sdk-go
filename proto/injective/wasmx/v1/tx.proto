@@ -16,7 +16,8 @@ option (gogoproto.goproto_registration) = true;
 service Msg {
   option (cosmos.msg.v1.service) = true;
 
-  // ExecuteContractCompat executes a contract using the EIP712-compatible format.
+  // ExecuteContractCompat executes a contract using the EIP712-compatible
+  // format.
   rpc ExecuteContractCompat(MsgExecuteContractCompat)
       returns (MsgExecuteContractCompatResponse);
 }
@@ -59,8 +60,7 @@ message MsgUpdateContract {
   string admin_address = 5 [ (gogoproto.nullable) = true ];
 }
 
-message MsgUpdateContractResponse {
-  option deprecated = true;}
+message MsgUpdateContractResponse { option deprecated = true; }
 
 message MsgActivateContract {
   option deprecated = true;
@@ -72,8 +72,7 @@ message MsgActivateContract {
   string contract_address = 2;
 }
 
-message MsgActivateContractResponse {
-  option deprecated = true;}
+message MsgActivateContractResponse { option deprecated = true; }
 
 message MsgDeactivateContract {
   option deprecated = true;
@@ -85,8 +84,7 @@ message MsgDeactivateContract {
   string contract_address = 2;
 }
 
-message MsgDeactivateContractResponse {
-  option deprecated = true;}
+message MsgDeactivateContractResponse { option deprecated = true; }
 
 message MsgUpdateParams {
   option deprecated = true;
@@ -102,8 +100,7 @@ message MsgUpdateParams {
   Params params = 2 [ (gogoproto.nullable) = false ];
 }
 
-message MsgUpdateParamsResponse {
-  option deprecated = true;}
+message MsgUpdateParamsResponse { option deprecated = true; }
 
 message MsgRegisterContract {
   option deprecated = true;
@@ -116,5 +113,4 @@ message MsgRegisterContract {
       [ (gogoproto.nullable) = false ];
 }
 
-message MsgRegisterContractResponse {
-  option deprecated = true;}
+message MsgRegisterContractResponse { option deprecated = true; }
