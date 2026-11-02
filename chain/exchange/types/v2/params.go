@@ -175,8 +175,16 @@ func DefaultParams() Params {
 		CrossMarginParams:                            DefaultCrossMarginParams(),
 		SwapParams:                                   DefaultSwapParams(),
 		OutflowGuardParams:                           DefaultOutflowGuardParams(),
+		MinExpiryFuturesMarketDurationSeconds:        DefaultMinExpiryFuturesMarketDurationSeconds,
 	}
 }
+
+const (
+	// ExpiryFuturesTwapWindowSeconds is the settlement TWAP window of expiry futures markets.
+	ExpiryFuturesTwapWindowSeconds int64 = 30 * 60
+	// DefaultMinExpiryFuturesMarketDurationSeconds is the default minimum time to expiry at market launch.
+	DefaultMinExpiryFuturesMarketDurationSeconds int64 = 60 * 60
+)
 
 // Validate performs basic validation on exchange parameters.
 func (p Params) Validate() error {
@@ -289,6 +297,12 @@ func (p Params) Validate() error {
 	}
 	if err := p.OutflowGuardParams.Validate(); err != nil {
 		return fmt.Errorf("outflow_guard_params is incorrect: %w", err)
+	}
+	if p.MinExpiryFuturesMarketDurationSeconds < ExpiryFuturesTwapWindowSeconds {
+		return fmt.Errorf(
+			"min_expiry_futures_market_duration_seconds must be at least %d, got %d",
+			ExpiryFuturesTwapWindowSeconds, p.MinExpiryFuturesMarketDurationSeconds,
+		)
 	}
 	return p.CrossMarginParams.Validate()
 }

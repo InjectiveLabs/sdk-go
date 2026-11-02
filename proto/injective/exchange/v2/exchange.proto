@@ -274,6 +274,11 @@ message Params {
   // (exchange, insurance, auction and permissions module accounts) over a
   // rolling 24h window.
   OutflowGuardParams outflow_guard_params = 41 [ (gogoproto.nullable) = false ];
+
+  // min_expiry_futures_market_duration_seconds defines the minimum number of
+  // seconds between the launch block time and a new expiry futures market's
+  // expiry. It must cover at least the 30 minute settlement TWAP window.
+  int64 min_expiry_futures_market_duration_seconds = 42;
 }
 
 // OutflowGuardParams configures the net outflow limit on the exchange
