@@ -298,9 +298,11 @@ func (p Params) Validate() error {
 	if err := p.OutflowGuardParams.Validate(); err != nil {
 		return fmt.Errorf("outflow_guard_params is incorrect: %w", err)
 	}
-	if p.MinExpiryFuturesMarketDurationSeconds < ExpiryFuturesTwapWindowSeconds {
+	// Strictly greater: a launch at exactly expiry - window would start the TWAP a block late,
+	// because BeginBlock maturation already ran before the launch tx.
+	if p.MinExpiryFuturesMarketDurationSeconds <= ExpiryFuturesTwapWindowSeconds {
 		return fmt.Errorf(
-			"min_expiry_futures_market_duration_seconds must be at least %d, got %d",
+			"min_expiry_futures_market_duration_seconds must be greater than %d, got %d",
 			ExpiryFuturesTwapWindowSeconds, p.MinExpiryFuturesMarketDurationSeconds,
 		)
 	}
