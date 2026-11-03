@@ -64,12 +64,14 @@ require (
 	github.com/bgentry/speakeasy v0.2.0 // indirect
 	github.com/bitly/go-simplejson v0.5.1 // indirect
 	github.com/bits-and-blooms/bitset v1.27.0 // indirect
-	github.com/blinklabs-io/gouroboros v0.89.1 // indirect
+	github.com/blinklabs-io/gouroboros v0.205.4 // indirect
+	github.com/blinklabs-io/plutigo v0.7.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.5.1 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.2.0 // indirect
+	github.com/btcsuite/btcd/chainhash/v2 v2.0.0 // indirect
 	github.com/bugsnag/bugsnag-go v2.6.4+incompatible // indirect
 	github.com/bugsnag/panicwrap v1.3.4 // indirect
-	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.1.5 // indirect
+	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.1.6 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/cp v1.1.1 // indirect
@@ -97,6 +99,7 @@ require (
 	github.com/danieljoos/wincred v1.2.3 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/deckarep/golang-set/v2 v2.9.0 // indirect
+	github.com/decred/dcrd/crypto/blake256 v1.1.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.1 // indirect
 	github.com/desertbit/timer v1.0.1 // indirect
 	github.com/dgraph-io/badger/v4 v4.9.6 // indirect
@@ -199,7 +202,7 @@ require (
 	github.com/tklauser/go-sysconf v0.4.0 // indirect
 	github.com/tklauser/numcpus v0.12.0 // indirect
 	github.com/twmb/franz-go/pkg/kmsg v1.15.0 // indirect
-	github.com/utxorpc/go-codegen v0.5.1 // indirect
+	github.com/utxorpc/go-codegen v0.19.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zondax/golem v0.31.1 // indirect
@@ -251,8 +254,8 @@ replace (
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd-archived v0.53.3-inj.3
 
 	// cardano ibc
-	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.1.5-inj
-	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 v0.1.7-inj
+	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-core v0.1.6-inj
+	github.com/cardano-foundation/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 => github.com/InjectiveLabs/cardano-ibc-incubator/cosmos/cardano-probabilistic-light-client-v8 v0.1.8-inj
 
 	github.com/coder/websocket => github.com/InjectiveLabs/websocket v1.8.13
 
