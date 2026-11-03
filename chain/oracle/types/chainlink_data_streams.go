@@ -11,6 +11,17 @@ const (
 	ChainlinkDataStreamsMarketStatusUnknown uint32 = 0
 	ChainlinkDataStreamsMarketStatusClosed  uint32 = 1
 	ChainlinkDataStreamsMarketStatusOpen    uint32 = 2
+
+	// ChainlinkFeedIDLength is the byte length of a Chainlink Data Streams feed ID.
+	ChainlinkFeedIDLength = 32
+
+	// MaxChainlinkReportsPerMsg is the maximum number of reports allowed per
+	// MsgRelayChainlinkPrices message.
+	MaxChainlinkReportsPerMsg = 128
+
+	// MaxChainlinkFullReportSize is the maximum allowed size in bytes for a
+	// single Chainlink full report (real v3/v8 reports are about 1 KiB).
+	MaxChainlinkFullReportSize = 8 * 1024 // 8 KiB
 )
 
 // NewChainlinkDataStreamsPriceState creates a new ChainlinkDataStreamsPriceState instance.

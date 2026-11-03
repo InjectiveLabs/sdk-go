@@ -60,4 +60,5 @@ var (
 	ErrSedaFastProgramNotAllowed  = errors.Register(ModuleName, 51, "seda fast exec program id not in allowlist")
 	ErrSedaFastExecutionFailed    = errors.Register(ModuleName, 52, "seda fast execution failed (non-zero exit code or no consensus)")
 	ErrSedaFastParserFailed       = errors.Register(ModuleName, 53, "seda fast result parser failed")
+	ErrNoPythProPriceUpdate       = errors.Register(ModuleName, 54, "no Pyth Pro price update applied")
 )
