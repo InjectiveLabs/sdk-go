@@ -2269,7 +2269,6 @@ type TradeResult struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Trade:
-	//
 	//	*TradeResult_SpotTrade
 	//	*TradeResult_DerivativeTrade
 	Trade isTradeResult_Trade `protobuf_oneof:"trade"`
@@ -2823,7 +2822,6 @@ type OrderResult struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Order:
-	//
 	//	*OrderResult_SpotOrder
 	//	*OrderResult_DerivativeOrder
 	Order isOrderResult_Order `protobuf_oneof:"order"`
@@ -3336,7 +3334,6 @@ type OrderHistoryResult struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to OrderHistory:
-	//
 	//	*OrderHistoryResult_SpotOrderHistory
 	//	*OrderHistoryResult_DerivativeOrderHistory
 	OrderHistory isOrderHistoryResult_OrderHistory `protobuf_oneof:"order_history"`
