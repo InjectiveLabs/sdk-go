@@ -55,8 +55,8 @@ Use a single partition for `latest`, preserving global block-height order.
 
 The publisher control API binds to loopback, so a detector belongs in the same
 pod as its publishing node. `-control-token` supplies the optional bearer token
-for both `GET /status` and `POST /request`. Neither the Kafka connection nor the
-stream server has native TLS/SASL configuration; use controlled internal access.
+for both `GET /status` and `POST /request`. The publisher control API uses its own authentication. Configure the detector's
+Kafka credentials using the environment variables below.
 
 Recovery requires a publisher whose `/status` includes `earliest_height` and
 `last_height` (the original `v1.20.4-bl-data.1` lacks `earliest_height`). Deploy the
@@ -79,6 +79,71 @@ stop the process without committing beyond the saved watermark.
 
 Configure sidecar supervision for fatal configuration/storage errors separately
 from chain readiness. A broker outage must not become a chain health probe.
+
+## Kafka TLS and SCRAM authentication
+
+The detector and stream server accept the same three environment variables.
+
+| Variable | Value |
+|---|---|
+| `MQ_KAFKA_USERNAME` | The Kafka principal assigned to this process |
+| `MQ_KAFKA_PASSWORD` | Its SCRAM password |
+| `MQ_KAFKA_CA_FILE` | A mounted PEM CA bundle for this Kafka cluster |
+
+Set all three to enable TLS with SCRAM-SHA-512. The clients verify the broker
+certificate and hostname. Inject credentials through the deployment's Secret
+references and mount the public CA bundle. A partial configuration, unreadable CA
+file, or invalid PEM stops the process before it starts serving. Every stream
+request uses the server's configured Kafka principal, with the requested topic
+and consumer group checked by the broker's ACLs. Restart the process after
+rotating the credentials or CA bundle.
+
+With all three variables empty, both tools keep their existing plaintext Kafka
+connection behavior. Kafka authentication does not authenticate callers of the
+gRPC stream listener: any caller that can reach it can use the server principal's
+permitted topics and consumer groups. Restrict listener ingress to trusted
+workloads or an authenticated/allowlisted gateway, and grant that principal only
+the intended topics and groups. The publisher control API has separate access
+controls.
+
+### Kafka integration test
+
+`TestKafkaStreamTLSAndACLs` exercises the real stream handler over gRPC against a
+disposable Kafka broker with TLS, SCRAM-SHA-512 and enforced ACLs. Create the
+`latest` and `forbidden` topics. Give the reader principal Read/Describe only on
+the literal `latest` topic and literal `mm-rfq-inj1jvrnhahd` group, and give a
+separate writer principal Write/Describe on `latest`. Do not grant either test
+principal superuser or wildcard access.
+
+Set `MQ_TEST_KAFKA_BROKERS`, the three `MQ_KAFKA_*` variables above for the reader,
+and `MQ_TEST_WRITER_USERNAME` / `MQ_TEST_WRITER_PASSWORD` for the writer. Supply
+passwords through the test environment's secret mechanism, not command arguments.
+Then run:
+
+```sh
+go test ./client/mq/stream/server -run '^TestKafkaStreamTLSAndACLs$' -count=1 -v
+```
+
+The test writes a marked record and advances the allowed consumer group. Use an
+isolated fixture, never a production broker. It verifies successful delivery and
+broker rejection of a forbidden topic, forbidden consumer group, and incorrect
+SCRAM password. Without `MQ_TEST_KAFKA_BROKERS`, this test is skipped. These checks
+prove the broker ACL boundary; gateway allowlisting and NetworkPolicy enforcement
+must also be verified in the deployment before admitting external clients.
+
+To test the detector's authenticated client and durable watermark, also create
+`unrefined_block_results`. Set `MQ_KAFKA_USERNAME` / `MQ_KAFKA_PASSWORD` to a
+detector principal with Read/Describe on both input topics and the literal group
+`quants-gap-integration`, grant the writer Write/Describe on both topics, and run:
+
+```sh
+go test ./client/mq/detector -run '^TestKafkaDetectorTLSWatermark$' -count=1 -v
+```
+
+This writes marked raw and latest records and verifies that the detector's real
+startup path consumes both over TLS/SCRAM, persists the height in a temporary
+state file, and commits offsets past both records.
+It does not contact a live publisher control API or request block replay.
 
 ## Stream server and client
 

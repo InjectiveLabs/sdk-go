@@ -6,6 +6,7 @@ WORKDIR /src
 COPY go.mod go.sum ./
 COPY chain/mq ./chain/mq
 COPY client/mq/detector ./client/mq/detector
+COPY client/mq/kafkaconfig ./client/mq/kafkaconfig
 COPY client/mq/stream/server ./client/mq/stream/server
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
