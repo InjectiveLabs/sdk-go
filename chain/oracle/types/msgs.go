@@ -261,9 +261,34 @@ func (MsgRelayChainlinkPrices) Route() string { return RouterKey }
 func (MsgRelayChainlinkPrices) Type() string { return TypeMsgRelayChainlinkPrices }
 
 // ValidateBasic implements the sdk.Msg interface for MsgRelayChainlinkPrices.
+// It rejects statelessly malformed batches so they fail at CheckTx instead of
+// being iterated during block execution.
 func (msg MsgRelayChainlinkPrices) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
 		return err
+	}
+
+	// An empty batch is a cheap no-op in the msg server and stays accepted.
+	if len(msg.Reports) > MaxChainlinkReportsPerMsg {
+		return errors.Wrapf(ErrBadMessagesCount, "too many chainlink reports: %d > %d", len(msg.Reports), MaxChainlinkReportsPerMsg)
+	}
+
+	for i, report := range msg.Reports {
+		if report == nil {
+			return errors.Wrapf(ErrInvalidOracleRequest, "chainlink report[%d] is nil", i)
+		}
+		if len(report.FeedId) != ChainlinkFeedIDLength {
+			return errors.Wrapf(ErrInvalidOracleRequest, "chainlink report[%d] invalid feed id length: %d", i, len(report.FeedId))
+		}
+		if len(report.FullReport) == 0 {
+			return errors.Wrapf(ErrInvalidOracleRequest, "chainlink report[%d] full report is empty", i)
+		}
+		if len(report.FullReport) > MaxChainlinkFullReportSize {
+			return errors.Wrapf(
+				ErrInvalidOracleRequest,
+				"chainlink report[%d] full report too large: %d > %d bytes", i, len(report.FullReport), MaxChainlinkFullReportSize,
+			)
+		}
 	}
 
 	return nil
