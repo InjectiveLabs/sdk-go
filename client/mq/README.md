@@ -106,6 +106,45 @@ workloads or an authenticated/allowlisted gateway, and grant that principal only
 the intended topics and groups. The publisher control API has separate access
 controls.
 
+### Kafka integration test
+
+`TestKafkaStreamTLSAndACLs` exercises the real stream handler over gRPC against a
+disposable Kafka broker with TLS, SCRAM-SHA-512 and enforced ACLs. Create the
+`latest` and `forbidden` topics. Give the reader principal Read/Describe only on
+the literal `latest` topic and literal `mm-rfq-inj1jvrnhahd` group, and give a
+separate writer principal Write/Describe on `latest`. Do not grant either test
+principal superuser or wildcard access.
+
+Set `MQ_TEST_KAFKA_BROKERS`, the three `MQ_KAFKA_*` variables above for the reader,
+and `MQ_TEST_WRITER_USERNAME` / `MQ_TEST_WRITER_PASSWORD` for the writer. Supply
+passwords through the test environment's secret mechanism, not command arguments.
+Then run:
+
+```sh
+go test ./client/mq/stream/server -run '^TestKafkaStreamTLSAndACLs$' -count=1 -v
+```
+
+The test writes a marked record and advances the allowed consumer group. Use an
+isolated fixture, never a production broker. It verifies successful delivery and
+broker rejection of a forbidden topic, forbidden consumer group, and incorrect
+SCRAM password. Without `MQ_TEST_KAFKA_BROKERS`, this test is skipped. These checks
+prove the broker ACL boundary; gateway allowlisting and NetworkPolicy enforcement
+must also be verified in the deployment before admitting external clients.
+
+To test the detector's authenticated client and durable watermark, also create
+`unrefined_block_results`. Set `MQ_KAFKA_USERNAME` / `MQ_KAFKA_PASSWORD` to a
+detector principal with Read/Describe on both input topics and the literal group
+`quants-gap-integration`, grant the writer Write/Describe on both topics, and run:
+
+```sh
+go test ./client/mq/detector -run '^TestKafkaDetectorTLSWatermark$' -count=1 -v
+```
+
+This writes marked raw and latest records and verifies that the detector's real
+startup path consumes both over TLS/SCRAM, persists the height in a temporary
+state file, and commits offsets past both records.
+It does not contact a live publisher control API or request block replay.
+
 ## Stream server and client
 
 ```sh
