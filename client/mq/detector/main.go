@@ -65,7 +65,7 @@ func startMQDetector(ctx context.Context, cfg mqDetectorConfig) error {
 		return err
 	}
 
-	kafkaOptions, err := kafkaconfig.OptionsFromEnv()
+	opts, err := kafkaconfig.OptionsFromEnv()
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func startMQDetector(ctx context.Context, cfg mqDetectorConfig) error {
 		return err
 	}
 	logger := sdklog.NewLogger(os.Stderr)
-	opts := append(kafkaOptions,
+	opts = append(opts,
 		kgo.SeedBrokers(cfg.KafkaBrokers...),
 		kgo.ConsumerGroup(cfg.ConsumerID),
 		kgo.ConsumeTopics(cfg.RawTopic, cfg.LatestTopic),

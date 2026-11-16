@@ -99,8 +99,12 @@ and consumer group checked by the broker's ACLs. Restart the process after
 rotating the credentials or CA bundle.
 
 With all three variables empty, both tools keep their existing plaintext Kafka
-connection behavior. The gRPC stream listener and publisher control API have
-their own transport and access controls.
+connection behavior. Kafka authentication does not authenticate callers of the
+gRPC stream listener: any caller that can reach it can use the server principal's
+permitted topics and consumer groups. Restrict listener ingress to trusted
+workloads or an authenticated/allowlisted gateway, and grant that principal only
+the intended topics and groups. The publisher control API has separate access
+controls.
 
 ## Stream server and client
 
