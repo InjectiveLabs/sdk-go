@@ -55,8 +55,8 @@ Use a single partition for `latest`, preserving global block-height order.
 
 The publisher control API binds to loopback, so a detector belongs in the same
 pod as its publishing node. `-control-token` supplies the optional bearer token
-for both `GET /status` and `POST /request`. Neither the Kafka connection nor the
-stream server has native TLS/SASL configuration; use controlled internal access.
+for both `GET /status` and `POST /request`. The publisher control API uses its own authentication. Configure the detector's
+Kafka credentials using the environment variables below.
 
 Recovery requires a publisher whose `/status` includes `earliest_height` and
 `last_height` (the original `v1.20.4-bl-data.1` lacks `earliest_height`). Deploy the
@@ -79,6 +79,28 @@ stop the process without committing beyond the saved watermark.
 
 Configure sidecar supervision for fatal configuration/storage errors separately
 from chain readiness. A broker outage must not become a chain health probe.
+
+## Kafka TLS and SCRAM authentication
+
+The detector and stream server accept the same three environment variables.
+
+| Variable | Value |
+|---|---|
+| `MQ_KAFKA_USERNAME` | The Kafka principal assigned to this process |
+| `MQ_KAFKA_PASSWORD` | Its SCRAM password |
+| `MQ_KAFKA_CA_FILE` | A mounted PEM CA bundle for this Kafka cluster |
+
+Set all three to enable TLS with SCRAM-SHA-512. The clients verify the broker
+certificate and hostname. Inject credentials through the deployment's Secret
+references and mount the public CA bundle. A partial configuration, unreadable CA
+file, or invalid PEM stops the process before it starts serving. Every stream
+request uses the server's configured Kafka principal, with the requested topic
+and consumer group checked by the broker's ACLs. Restart the process after
+rotating the credentials or CA bundle.
+
+With all three variables empty, both tools keep their existing plaintext Kafka
+connection behavior. The gRPC stream listener and publisher control API have
+their own transport and access controls.
 
 ## Stream server and client
 

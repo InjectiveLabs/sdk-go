@@ -20,6 +20,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/InjectiveLabs/sdk-go/chain/mq/types"
+	"github.com/InjectiveLabs/sdk-go/client/mq/kafkaconfig"
 )
 
 func main() {
@@ -59,6 +60,11 @@ func startMQStream(ctx context.Context, cfg mqStreamConfig) error {
 		return err
 	}
 
+	kafkaOptions, err := kafkaconfig.OptionsFromEnv()
+	if err != nil {
+		return err
+	}
+
 	signalCtx, stopSignals := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer stopSignals()
 
@@ -80,7 +86,7 @@ func startMQStream(ctx context.Context, cfg mqStreamConfig) error {
 	}
 
 	logger := sdklog.NewLogger(os.Stderr)
-	srv := NewStreamServer(logger, cfg)
+	srv := NewStreamServer(logger, cfg, kafkaOptions...)
 	grpcServer := grpc.NewServer(grpcServerOptions...)
 	types.RegisterEventStreamServer(grpcServer, srv)
 	gogoreflection.Register(grpcServer)
@@ -125,12 +131,14 @@ func startMQStream(ctx context.Context, cfg mqStreamConfig) error {
 type StreamServer struct {
 	logger       sdklog.Logger
 	kafkaBrokers []string
+	kafkaOptions []kgo.Opt
 }
 
-func NewStreamServer(l sdklog.Logger, cfg mqStreamConfig) *StreamServer {
+func NewStreamServer(l sdklog.Logger, cfg mqStreamConfig, kafkaOptions ...kgo.Opt) *StreamServer {
 	return &StreamServer{
 		logger:       l,
 		kafkaBrokers: cfg.KafkaBrokers,
+		kafkaOptions: kafkaOptions,
 	}
 }
 
@@ -156,6 +164,7 @@ func (srv *StreamServer) EventStream(req *types.EventStreamRequest, server types
 		kgo.ConsumeResetOffset(kgo.NewOffset().AtStart()),
 	}
 
+	opts = append(opts, srv.kafkaOptions...)
 	client, err := kgo.NewClient(opts...)
 	if err != nil {
 		return err

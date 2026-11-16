@@ -15,6 +15,8 @@ import (
 
 	sdklog "cosmossdk.io/log"
 	"github.com/twmb/franz-go/pkg/kgo"
+
+	"github.com/InjectiveLabs/sdk-go/client/mq/kafkaconfig"
 )
 
 func main() {
@@ -63,12 +65,17 @@ func startMQDetector(ctx context.Context, cfg mqDetectorConfig) error {
 		return err
 	}
 
+	kafkaOptions, err := kafkaconfig.OptionsFromEnv()
+	if err != nil {
+		return err
+	}
+
 	state, err := loadDetectorState(cfg)
 	if err != nil {
 		return err
 	}
 	logger := sdklog.NewLogger(os.Stderr)
-	client, err := kgo.NewClient(
+	opts := append(kafkaOptions,
 		kgo.SeedBrokers(cfg.KafkaBrokers...),
 		kgo.ConsumerGroup(cfg.ConsumerID),
 		kgo.ConsumeTopics(cfg.RawTopic, cfg.LatestTopic),
@@ -77,6 +84,7 @@ func startMQDetector(ctx context.Context, cfg mqDetectorConfig) error {
 		// restart can therefore never resume beyond the last durable watermark.
 		kgo.AutoCommitMarks(),
 	)
+	client, err := kgo.NewClient(opts...)
 	if err != nil {
 		return err
 	}
