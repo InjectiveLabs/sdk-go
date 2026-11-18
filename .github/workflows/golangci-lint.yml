@@ -22,7 +22,17 @@ jobs:
           check-latest: true
           cache: false
       - name: Download Go modules
-        run: go mod download
+        run: |
+          for attempt in 1 2 3; do
+            if go mod download; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Module download failed; retrying in $((attempt * 5)) seconds..."
+              sleep "$((attempt * 5))"
+            fi
+          done
+          exit 1
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
