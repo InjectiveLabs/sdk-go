@@ -83,6 +83,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgActivateStakeGrant{}, "exchange/v2/MsgActivateStakeGrant", nil)
 	cdc.RegisterConcrete(&MsgCancelPostOnlyMode{}, "exchange/v2/MsgCancelPostOnlyMode", nil)
 	cdc.RegisterConcrete(&MsgActivatePostOnlyMode{}, "exchange/v2/MsgActivatePostOnlyMode", nil)
+	cdc.RegisterConcrete(&MsgSetOutflowGuardBlocked{}, "exchange/v2/MsgSetOutflowGuardBlocked", nil)
 	cdc.RegisterConcrete(&MsgBatchExchangeModification{}, "exchange/v2/MsgBatchExchangeModification", nil)
 	cdc.RegisterConcrete(&MsgSpotMarketLaunch{}, "exchange/v2/MsgSpotMarketLaunch", nil)
 	cdc.RegisterConcrete(&MsgPerpetualMarketLaunch{}, "exchange/v2/MsgPerpetualMarketLaunch", nil)
@@ -206,6 +207,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgActivateStakeGrant{},
 		&MsgCancelPostOnlyMode{},
 		&MsgActivatePostOnlyMode{},
+		&MsgSetOutflowGuardBlocked{},
 		&MsgReclaimLockedFunds{},
 		&MsgSetDelegationTransferReceivers{},
 	)

@@ -503,3 +503,41 @@ message EventCrossMarginRiskControlUpdated {
   bool old_emergency_paused = 3;
   bool new_emergency_paused = 4;
 }
+
+// EventPostOnlyModeActivated is emitted when governance or an exchange admin
+// sends MsgActivatePostOnlyMode. Activation only ever extends post-only mode,
+// so post_only_mode_height_threshold is the threshold in effect after the
+// message: the requested one, or a later threshold that was already set.
+// Post-only mode is active while the block height is below the threshold.
+message EventPostOnlyModeActivated {
+  string sender = 1;
+  uint32 blocks_amount = 2;
+  int64 post_only_mode_height_threshold = 3;
+}
+
+// EventPostOnlyModeActivatedAfterDowntime is emitted in BeginBlock when a
+// detected chain downtime turns on post-only mode.
+message EventPostOnlyModeActivatedAfterDowntime {
+  string downtime_duration = 1;
+  int64 post_only_mode_height_threshold = 2;
+}
+
+// EventPostOnlyModeCancellationRequested is emitted when governance or an
+// exchange admin sends MsgCancelPostOnlyMode. The cancellation takes effect
+// in the next BeginBlock, which emits EventPostOnlyModeCancelled.
+message EventPostOnlyModeCancellationRequested { string sender = 1; }
+
+// EventPostOnlyModeCancelled is emitted in BeginBlock when a requested
+// cancellation ends post-only mode.
+message EventPostOnlyModeCancelled {
+  int64 post_only_mode_height_threshold = 1;
+}
+
+// EventOutflowGuardBlockedSet is emitted by MsgSetOutflowGuardBlocked when the
+// outflow guard's manual block is set or cleared.
+message EventOutflowGuardBlockedSet {
+  // the governance authority or exchange admin that sent the message
+  string sender = 1;
+  // whether the manual block is now set
+  bool blocked = 2;
+}

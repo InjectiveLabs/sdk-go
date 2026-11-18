@@ -62,8 +62,6 @@ func GetDerivativeOrdersToCancelUpToAmount(
 		// do nothing
 	}
 
-	positiveMakerFeePart := math.LegacyMaxDec(math.LegacyZeroDec(), market.MakerFeeRate)
-
 	ordersToCancel := make([]*TrimmedDerivativeLimitOrder, 0)
 	cumulativeQuoteAmount := math.LegacyZeroDec()
 
@@ -75,10 +73,13 @@ func GetDerivativeOrdersToCancelUpToAmount(
 
 		ordersToCancel = append(ordersToCancel, order)
 
-		notional := order.Fillable.Mul(order.Price)
-		fee := notional.Mul(positiveMakerFeePart)
-		remainingMargin := order.Margin.Mul(order.Fillable).Quo(order.Quantity)
-		cumulativeQuoteAmount = cumulativeQuoteAmount.Add(remainingMargin).Add(fee)
+		// The query must select against the amount cancellation actually releases,
+		// including partial margin rounding and zero holds for reduce-only orders.
+		claim := DerivativeLimitOrder{
+			OrderInfo: OrderInfo{Price: order.Price, Quantity: order.Quantity},
+			Margin:    order.Margin, Fillable: order.Fillable,
+		}
+		cumulativeQuoteAmount = cumulativeQuoteAmount.Add(claim.GetCancelRefundAmount(market.MakerFeeRate))
 	}
 
 	hasProcessedFullAmount := cumulativeQuoteAmount.GTE(quoteAmount)

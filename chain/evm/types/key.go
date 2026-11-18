@@ -35,6 +35,7 @@ const (
 	prefixObjectBloom = iota + 1
 	prefixObjectGasUsed
 	prefixObjectParams
+	prefixObjectAnteVerifiedSender
 )
 
 // KVStore key prefixes
@@ -50,6 +51,8 @@ var (
 	KeyPrefixObjectGasUsed = []byte{prefixObjectGasUsed}
 	// cache the `EVMBlockConfig` during the whole block execution
 	KeyPrefixObjectParams = []byte{prefixObjectParams}
+	// senders verified by the EVM ante handler, consumed by the MsgEthereumTx handler
+	KeyPrefixObjectAnteVerifiedSender = []byte{prefixObjectAnteVerifiedSender}
 )
 
 // AddressStoragePrefix returns a prefix to iterate over a given account storage.
@@ -67,5 +70,15 @@ func ObjectBloomKey(txIndex, msgIndex int) []byte {
 	key[0] = prefixObjectBloom
 	binary.BigEndian.PutUint64(key[1:], uint64(txIndex))
 	binary.BigEndian.PutUint64(key[9:], uint64(msgIndex))
+	return key[:]
+}
+
+// ObjectAnteVerifiedSenderKey returns the object store key that records the sender the EVM ante handler verified
+// for the Ethereum tx with the given hash, delivered at the given index in the block.
+func ObjectAnteVerifiedSenderKey(txIndex int, ethTxHash common.Hash) []byte {
+	var key [1 + 8 + common.HashLength]byte
+	key[0] = prefixObjectAnteVerifiedSender
+	binary.BigEndian.PutUint64(key[1:], uint64(txIndex))
+	copy(key[9:], ethTxHash.Bytes())
 	return key[:]
 }

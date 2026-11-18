@@ -487,6 +487,12 @@ service Query {
       returns (QueryOpenInterestResponse) {
     option (google.api.http).get = "/injective/exchange/v2/open_interest";
   }
+
+  // Retrieves the outflow guard's state for the current block
+  rpc OutflowGuardState(QueryOutflowGuardStateRequest)
+      returns (QueryOutflowGuardStateResponse) {
+    option (google.api.http).get = "/injective/exchange/v2/outflow_guard_state";
+  }
 }
 
 message Subaccount {
@@ -1947,3 +1953,24 @@ message QueryOpenInterestRequest {
 }
 
 message QueryOpenInterestResponse { OpenInterest amount = 1; }
+
+message QueryOutflowGuardStateRequest {}
+
+message QueryOutflowGuardStateResponse {
+  // whether the guard is enabled in params
+  bool enabled = 1;
+  // whether the manual block (MsgSetOutflowGuardBlocked) is set. It only takes
+  // effect while the guard is enabled.
+  bool manually_blocked = 2;
+  // the remaining 24h net outflow allowance in USD for the current block,
+  // ignoring the manual block. Zero when the guard is disabled or failed,
+  // zero or negative once the cap is exhausted.
+  string headroom = 3 [
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+  // whether tracked outflows to non-exempt addresses are refused this block:
+  // the guard is enabled and either the manual block is set, the guard
+  // failed, or the headroom is not positive.
+  bool blocking = 4;
+}

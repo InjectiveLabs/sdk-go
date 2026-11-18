@@ -15,15 +15,57 @@ import (
 )
 
 func NewGenesisState() GenesisState {
-	return GenesisState{}
+	return GenesisState{DerivativeOrderMarginRefundsMigrated: true}
 }
 
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Params:                       DefaultParams(),
-		IsSpotExchangeEnabled:        true,
-		IsDerivativesExchangeEnabled: true,
+		Params:                               DefaultParams(),
+		DerivativeOrderMarginRefundsMigrated: true,
+		IsSpotExchangeEnabled:                true,
+		IsDerivativesExchangeEnabled:         true,
 	}
+}
+
+// UsesMigratedDerivativeOrderMarginRefunds treats a genesis with no partial
+// vanilla claims as already migrated: every newly admitted or partially filled
+// order will use the new formula. Legacy partial claims keep the marker unset
+// until InitGenesis rebases their backing before completing import.
+func (gs GenesisState) UsesMigratedDerivativeOrderMarginRefunds() bool {
+	if gs.DerivativeOrderMarginRefundsMigrated {
+		return true
+	}
+	isLegacyPartial := func(order *DerivativeLimitOrder) bool {
+		if order == nil {
+			return false
+		}
+		// Leave malformed legacy bodies for the normal validation path;
+		// schema inference itself must not panic on a nil decimal.
+		if order.Margin.IsNil() || order.Fillable.IsNil() || order.OrderInfo.Quantity.IsNil() {
+			return true
+		}
+		return order.IsVanilla() && !order.Fillable.Equal(order.OrderInfo.Quantity)
+	}
+	for _, book := range gs.DerivativeOrderbook {
+		for _, order := range book.Orders {
+			if isLegacyPartial(order) {
+				return false
+			}
+		}
+	}
+	for _, book := range gs.ConditionalDerivativeOrderbooks {
+		if book == nil {
+			continue
+		}
+		for _, orders := range [][]*DerivativeLimitOrder{book.LimitBuyOrders, book.LimitSellOrders} {
+			for _, order := range orders {
+				if isLegacyPartial(order) {
+					return false
+				}
+			}
+		}
+	}
+	return true
 }
 
 func (gs GenesisState) Validate() error {
@@ -86,6 +128,9 @@ func (gs GenesisState) Validate() error {
 
 	membership, err := BuildGenesisCrossMarginMembership(gs)
 	if err != nil {
+		return err
+	}
+	if err := gs.ValidateLegacyConditionalMarketHoldUnits(membership); err != nil {
 		return err
 	}
 	return gs.validateCrossMarginGenesisState(membership)

@@ -8,11 +8,43 @@ import (
 	"github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 )
 
-// CanonicalIsolatedLimitHold uses the cancellation formula and its rounding
-// order, checking raw results before constructing LegacyDec values.
-//
-//nolint:revive // Keep input validation and the exact cancellation arithmetic together.
+// IsolatedOrderMarginForFill allocates margin to a fill from the decrease in
+// its remaining cancellation claim. Ordinary pure-isolated journal execution
+// and its closing-prefix probes share this allocation, including rounding at
+// tiny quantities. Legacy cross/hybrid/liquidation allocation and the position
+// close/open split within one fill retain their existing arithmetic.
+func IsolatedOrderMarginForFill(margin, orderQuantity, remaining, fillQuantity math.LegacyDec) (math.LegacyDec, error) {
+	for _, value := range []math.LegacyDec{margin, orderQuantity, remaining, fillQuantity} {
+		if value.IsNil() || !value.IsInValidRange() {
+			return math.LegacyDec{}, errors.New("invalid isolated order margin allocation input")
+		}
+	}
+	if margin.IsNegative() || !orderQuantity.IsPositive() || remaining.IsNegative() || fillQuantity.IsNegative() ||
+		remaining.GT(orderQuantity) || fillQuantity.GT(remaining) {
+		return math.LegacyDec{}, errors.New("invalid isolated order margin allocation quantity or margin")
+	}
+	before := proportionalOrderMarginRaw(margin, remaining, orderQuantity)
+	after := proportionalOrderMarginRaw(margin, remaining.Sub(fillQuantity), orderQuantity)
+	// The validated claims decrease from at most margin to zero. Their
+	// difference therefore fits LegacyDec even when the raw products do not.
+	return math.LegacyNewDecFromBigIntWithPrec(before.Sub(before, after), math.LegacyPrecision), nil
+}
+
+// CanonicalIsolatedLimitHold uses the cancellation formula, checking raw results
+// before constructing LegacyDec values.
 func CanonicalIsolatedLimitHold(order *DerivativeLimitOrder, market DerivativeMarketI, feeRate math.LegacyDec) (math.LegacyDec, error) {
+	return canonicalIsolatedLimitHold(order, market, feeRate, false)
+}
+
+// LegacyIsolatedLimitHoldForMigration reconstructs the pre-upgrade cancellation
+// claim. Only upgrade reconciliation may use it: surviving partial orders require
+// an available-balance adjustment of oldHold-newHold before switching formulas.
+func LegacyIsolatedLimitHoldForMigration(order *DerivativeLimitOrder, market DerivativeMarketI, feeRate math.LegacyDec) (math.LegacyDec, error) {
+	return canonicalIsolatedLimitHold(order, market, feeRate, true)
+}
+
+//nolint:revive // Share validation, fee arithmetic and conversion with the upgrade's legacy margin reader.
+func canonicalIsolatedLimitHold(order *DerivativeLimitOrder, market DerivativeMarketI, feeRate math.LegacyDec, legacyMargin bool) (math.LegacyDec, error) {
 	if order == nil || market == nil {
 		return math.LegacyDec{}, errors.New("missing isolated limit hold input")
 	}
@@ -30,7 +62,10 @@ func CanonicalIsolatedLimitHold(order *DerivativeLimitOrder, market DerivativeMa
 	}
 	marginRaw := order.Margin.BigInt()
 	if !order.Fillable.Equal(order.OrderInfo.Quantity) {
-		marginRaw = proportionalPositionMarginRaw(order.Margin, order.Fillable, order.OrderInfo.Quantity)
+		marginRaw = proportionalOrderMarginRaw(order.Margin, order.Fillable, order.OrderInfo.Quantity)
+		if legacyMargin {
+			marginRaw = proportionalPositionMarginRaw(order.Margin, order.Fillable, order.OrderInfo.Quantity)
+		}
 	}
 	if marginRaw.Cmp(legacyDecRangeExclusiveRaw) >= 0 {
 		return math.LegacyDec{}, errors.New("isolated margin refund is out of range")
