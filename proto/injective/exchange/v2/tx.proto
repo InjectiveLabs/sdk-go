@@ -214,6 +214,14 @@ service Msg {
   // in that market.
   rpc UpdateSubaccountMarketRiskMode(MsgUpdateSubaccountMarketRiskMode)
       returns (MsgUpdateSubaccountMarketRiskModeResponse);
+
+  // SetOutflowGuardBlocked sets or clears the outflow guard's manual block.
+  // While set, the guard refuses every tracked outflow from the exchange
+  // perimeter to a non-exempt address, as when the 24h net outflow cap is
+  // exhausted. Clearing it does not lift a block the cap itself imposes.
+  // Only the governance authority or an exchange admin may send it.
+  rpc SetOutflowGuardBlocked(MsgSetOutflowGuardBlocked)
+      returns (MsgSetOutflowGuardBlockedResponse);
 }
 
 message MsgUpdateSpotMarket {
@@ -1759,6 +1767,26 @@ message MsgActivatePostOnlyMode {
 // MsgActivatePostOnlyModeResponse defines the response for
 // MsgActivatePostOnlyMode
 message MsgActivatePostOnlyModeResponse {}
+
+// MsgSetOutflowGuardBlocked sets (blocked = true) or clears (blocked = false)
+// the outflow guard's manual block. The block only adds a trigger for the
+// guard's blocking mode: the net outflow accounting is unchanged, and clearing
+// it leaves outflows refused while the 24h net outflow cap is exhausted.
+// Setting it requires the guard to be enabled with at least one tracked denom;
+// clearing is always allowed.
+message MsgSetOutflowGuardBlocked {
+  option (amino.name) = "exchange/v2/MsgSetOutflowGuardBlocked";
+  option (cosmos.msg.v1.signer) = "sender";
+
+  // the sender's Injective address (governance authority or exchange admin)
+  string sender = 1;
+  // whether the manual block is set
+  bool blocked = 2;
+}
+
+// MsgSetOutflowGuardBlockedResponse defines the response for
+// MsgSetOutflowGuardBlocked
+message MsgSetOutflowGuardBlockedResponse {}
 
 // MsgLiquidateCrossMarginPool liquidates a cross-margin quote-denom pool. The
 // legacy mode performs graduated public-book liquidation; RFQ-only mode accepts

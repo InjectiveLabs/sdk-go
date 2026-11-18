@@ -8,6 +8,43 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+// ValidateLegacyConditionalMarketHoldUnits rejects ambiguous imported holds
+// before rebuilding current indexes can misidentify them as new admissions.
+// Only the explicit export marker establishes prior migration; having no
+// partial limit orders does not establish a conditional market hold's units.
+func (gs GenesisState) ValidateLegacyConditionalMarketHoldUnits(membership GenesisCrossMarginMembership) error {
+	if gs.DerivativeOrderMarginRefundsMigrated {
+		return nil
+	}
+	markets := make(map[common.Hash]*DerivativeMarket, len(gs.DerivativeMarkets))
+	for _, market := range gs.DerivativeMarkets {
+		if market != nil {
+			markets[market.MarketID()] = market
+		}
+	}
+	for _, book := range gs.ConditionalDerivativeOrderbooks {
+		if book == nil {
+			continue
+		}
+		marketID := common.HexToHash(book.MarketId)
+		market := markets[marketID]
+		if market == nil || market.QuoteDecimals == 0 {
+			continue
+		}
+		for _, orders := range [][]*DerivativeMarketOrder{book.MarketBuyOrders, book.MarketSellOrders} {
+			for _, order := range orders {
+				if order == nil || order.MarginHold.IsNil() || !order.MarginHold.IsPositive() ||
+					membership.IsCrossMarginMarket(order.SubaccountID(), marketID) {
+					continue
+				}
+				return fmt.Errorf("conditional market order %s in market %s has unverified MarginHold units in legacy genesis; verify and migrate legacy holds before import",
+					order.Hash().Hex(), marketID.Hex())
+			}
+		}
+	}
+	return nil
+}
+
 // CrossMarginGenesisSpotHoldBudgets returns the final total balance minus
 // effective-ISOLATED derivative and binary-options order reservations for each
 // cross-exposed owner and denom. A missing balance is zero; duplicate balance
@@ -68,6 +105,7 @@ func (gs GenesisState) CrossMarginGenesisSpotHoldBudgets(
 		}
 		return nil
 	}
+	legacyMarginClaims := !gs.UsesMigratedDerivativeOrderMarginRefunds()
 	reserveLimit := func(marketID common.Hash, order *DerivativeLimitOrder, conditional bool, field string) error {
 		if order == nil {
 			return fmt.Errorf("%s: missing order", field)
@@ -85,7 +123,13 @@ func (gs GenesisState) CrossMarginGenesisSpotHoldBudgets(
 			if conditional && !order.OrderType.IsPostOnly() {
 				feeRate = market.GetTakerFeeRate()
 			}
-			hold, err = CanonicalIsolatedLimitHold(order, market, feeRate)
+			if legacyMarginClaims {
+				// Validate and prune against the reservation schema in this
+				// export. InitGenesis rebases it before runtime reconciliation.
+				hold, err = LegacyIsolatedLimitHoldForMigration(order, market, feeRate)
+			} else {
+				hold, err = CanonicalIsolatedLimitHold(order, market, feeRate)
+			}
 			if err != nil {
 				return fmt.Errorf("%s: %w", field, err)
 			}

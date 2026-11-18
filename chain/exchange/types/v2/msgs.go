@@ -75,6 +75,7 @@ var (
 
 	_ sdk.Msg = &MsgSetDelegationTransferReceivers{}
 	_ sdk.Msg = &MsgActivatePostOnlyMode{}
+	_ sdk.Msg = &MsgSetOutflowGuardBlocked{}
 )
 
 // exchange message types
@@ -137,6 +138,7 @@ const (
 	TypeMsgSetDelegationTransferReceivers         = "setDelegationTransferReceivers"
 	TypeMsgCancelPostOnlyMode                     = "cancelPostOnlyMode"
 	TypeMsgActivatePostOnlyMode                   = "activatePostOnlyMode"
+	TypeMsgSetOutflowGuardBlocked                 = "setOutflowGuardBlocked"
 	TypeMsgLiquidateCrossMarginPool               = "liquidateCrossMarginPool"
 	TypeMsgUpdateSwapParams                       = "updateSwapParams"
 )
@@ -2852,6 +2854,30 @@ func (msg *MsgActivatePostOnlyMode) GetSignBytes() []byte {
 }
 
 func (msg *MsgActivatePostOnlyMode) GetSigners() []sdk.AccAddress {
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{sender}
+}
+
+func (*MsgSetOutflowGuardBlocked) Route() string { return RouterKey }
+
+func (*MsgSetOutflowGuardBlocked) Type() string { return TypeMsgSetOutflowGuardBlocked }
+
+func (msg *MsgSetOutflowGuardBlocked) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Sender); err != nil {
+		return errors.Wrap(err, "invalid sender address")
+	}
+
+	return nil
+}
+
+func (msg *MsgSetOutflowGuardBlocked) GetSignBytes() []byte {
+	return sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg))
+}
+
+func (msg *MsgSetOutflowGuardBlocked) GetSigners() []sdk.AccAddress {
 	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

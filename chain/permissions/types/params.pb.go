@@ -122,9 +122,10 @@ type Params struct {
 	// EVM Contracts that module will be listening to sync permissions stored
 	// inside namespace on every update inside smart contract state
 	EnforcedRestrictionsEvmContracts []EnforcedRestrictionsEVMContract `protobuf:"bytes,3,rep,name=enforced_restrictions_evm_contracts,json=enforcedRestrictionsEvmContracts,proto3" json:"enforced_restrictions_evm_contracts"`
-	// Max amount of gas allowed for an isBlacklisted(address) owner query on an
-	// enforced restrictions EVM contract. Fixed-gas transactions prepay it for
-	// every uncached owner, so it is bounded separately from contract hooks.
+	// Max amount of EVM gas allowed for an isBlacklisted(address) owner query on
+	// an enforced restrictions EVM contract. Fixed-gas transactions do not pay for
+	// it and active EVM frames prepay it, so it is bounded separately from contract
+	// hooks.
 	OwnerBlacklistQueryMaxGas uint64 `protobuf:"varint,4,opt,name=owner_blacklist_query_max_gas,json=ownerBlacklistQueryMaxGas,proto3" json:"owner_blacklist_query_max_gas,omitempty"`
 }
 

@@ -152,6 +152,14 @@ message GenesisState {
   // Signed market ledgers, including temporary gaps backed by consolidated
   // insurance reservations. Positions alone cannot reconstruct these balances.
   repeated MarketBalanceRecord market_balances = 40;
+
+  // True when isolated derivative order holds use monotone margin refunds.
+  // Legacy exports omit this field and require a one-time reservation rebase.
+  bool derivative_order_margin_refunds_migrated = 41;
+
+  // True when an exchange admin or governance has set the outflow guard's
+  // manual block (MsgSetOutflowGuardBlocked).
+  bool outflow_guard_blocked = 42;
 }
 
 message MarketBalanceRecord {

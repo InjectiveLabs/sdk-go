@@ -256,6 +256,12 @@ var (
 	FeeVolumeMigrationCursorKey    = []byte{0xbf} // block height | generation | bucket | last account (empty wraps)
 	FeeVolumeGenerationKey         = []byte{0xc0} // uint64; zero reads the pre-upgrade bucket namespace
 
+	DerivativeOrderMarginRefundsMigratedKey = []byte{0xc3} // completed legacy isolated-order hold rebase
+
+	// OutflowGuardBlockedKey -> []byte{1} while the outflow guard's manual block
+	// (MsgSetOutflowGuardBlocked) is set; absent otherwise.
+	OutflowGuardBlockedKey = []byte{0xc4}
+
 	// ObjectOutflowGuardStateKey holds the outflow guard's per-block prices and headroom in the
 	// object store (block-scoped).
 	ObjectOutflowGuardStateKey = []byte{0x9d}

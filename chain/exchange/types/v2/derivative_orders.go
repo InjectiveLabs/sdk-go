@@ -261,14 +261,24 @@ func (m *DerivativeLimitOrder) GetCancelRefundAmount(feeRate math.LegacyDec) mat
 			return m.GetMarginHold(feeRate)
 		}
 
-		// negative fees are only accounted for upon matching
-		// Refund = (FillableQuantity / Quantity) * (Margin + Price * Quantity * feeRate)
+		// Negative fees are only accounted for upon matching. Compute the margin
+		// share without intermediate decimal rounding: a partial claim must never
+		// exceed the full hold or grow as fills consume the remaining quantity.
 		positiveFeeRatePart := math.LegacyMaxDec(feeRate, math.LegacyZeroDec())
-		marginRefund := m.Fillable.Mul(m.Margin).Quo(m.OrderInfo.Quantity)
+		marginRefund := math.LegacyNewDecFromBigIntWithPrec(proportionalOrderMarginRaw(m.Margin, m.Fillable, m.OrderInfo.Quantity), math.LegacyPrecision)
 		feeRefund := m.Fillable.Mul(m.OrderInfo.Price).Mul(positiveFeeRatePart)
 		marginHoldRefund = marginRefund.Add(feeRefund)
 	}
 	return marginHoldRefund
+}
+
+// proportionalOrderMarginRaw floors once, in decimal atoms. Valid order inputs
+// satisfy 0 <= remaining <= quantity and margin >= 0. Differences between these
+// claims allocate the original margin exactly across any sequence of fills and
+// cancellation, including quantities smaller than a decimal multiplication can
+// represent. Position splitting intentionally retains its separate rounding.
+func proportionalOrderMarginRaw(margin, remaining, quantity math.LegacyDec) *big.Int {
+	return new(big.Int).Quo(new(big.Int).Mul(margin.BigInt(), remaining.BigInt()), quantity.BigInt())
 }
 
 func getMarginHold(margin, notional, feeRate math.LegacyDec) math.LegacyDec {
